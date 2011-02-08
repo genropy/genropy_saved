@@ -11,16 +11,17 @@ class GnrCustomWebPage(object):
 
     def windowTitle(self):
         return 'SlotBar test'
+        
          
     def test_0_slotbar_base(self,pane):
         """First test description"""
         frame = pane.framePane(frameCode='frameOne',height='100px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',rounded_top=10,margin='10px')
-        top = frame.top.slotBar(slots='30,foo,|,*,|,bar',height='20px')
+        top = frame.top.slotBar(slots='30,foo,|,Antonio,*,|,bar',height='20px')
         top.foo.div('foo',width='100px',background='navy',lbl='Foo')
         top.bar.myslot()
         
-    def test_1_slotbar(self,pane):
+    def _test_1_slotbar(self,pane):
         """First test description"""
         frame = pane.framePane(frameCode='frameOne',height='100px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',rounded_top=10,margin='10px')
@@ -33,7 +34,7 @@ class GnrCustomWebPage(object):
         
     #def test_1_slotbox(self,pane):
         
-    def test_2_slotToolbar(self,pane):
+    def _test_2_slotToolbar(self,pane):
         """First test description"""
         frame = pane.framePane(frameCode='frameTwo',height='100px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',rounded_top=10,margin='10px')
@@ -45,7 +46,7 @@ class GnrCustomWebPage(object):
         top.bar.myslot()
         top.xx.div(width='1px')
         
-    def test_3_slotToolbar_vertical(self,pane):
+    def _test_3_slotToolbar_vertical(self,pane):
         frame = pane.framePane(frameCode='frameTwo',height='300px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',rounded_left=10,margin='10px')
         sl = frame.left.slotBar(orientation='V',slots='10,foo,*,|,bar,|,*,spam,*',
