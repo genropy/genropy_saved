@@ -58,7 +58,7 @@ class TableHandlerForm(BaseComponent):
                 bc.stackContainer(region='top', height='20%', splitter=True, hidden=True, selected='^list.selectedTop'))
         self.listBottomPane(bc, region='bottom')
         #center
-        st = bc.stackContainer(region='center', datapath='list.grid', margin='5px',
+        st = bc.stackContainer(region='center', datapath='list.grid', margin='0px',
                                nodeId='_gridpane_', selected='^list.gridpage')
         self.gridPane(st)
         st.contentPane().div(_class='waiting')
