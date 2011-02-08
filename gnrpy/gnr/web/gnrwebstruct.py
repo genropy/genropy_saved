@@ -23,9 +23,11 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 #import weakref
-from gnr.core.gnrbag import Bag,BagCbResolver
+from gnr.core.gnrbag import Bag,BagCbResolver,DirectoryResolver
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
+from time import time
+
 
 from copy import copy
 
@@ -536,6 +538,32 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
 
     def dataRpc(self, path, method, **kwargs):
         return self.child('dataRpc', path=path, method=method, **kwargs)
+        
+        
+    def selectionStore(self, storeCode=None,table=None, storepath=None,columns=None,**kwargs):
+        attr = self.attributes
+        parentTag = attr.get('tag')
+        columns = columns or '==gnr.getGridColumns(this);'
+        if parentTag:
+            parentTag = parentTag.lower()
+        #storepath = storepath or attr.get('storepath') or '.grid.store'
+        if storeCode:
+            storepath = storepath or 'gnr.stores.%s.data' %storeCode            
+        
+        elif parentTag =='includedview':
+            attr['table'] = table
+            storepath = storepath or attr.get('storepath') or '.store'
+            attr['storepath'] = storepath
+            storeCode = attr.get('nodeId') or  attr.get('frameCode') 
+            attr['store'] = storeCode
+              
+        elif parentTag == 'palettegrid':            
+            storeCode=attr.get('paletteCode')
+            attr['store'] = storeCode
+            attr['table'] = table
+            storepath = storepath or attr.get('storepath') or '.grid.store'
+        nodeId = '%s_store' %storeCode
+        self.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
 
     def dataSelection(self, path, table=None, method='app.getSelection', columns=None, distinct=None,
                       where=None, order_by=None, group_by=None, having=None, columnsFromView=None, **kwargs):
@@ -552,6 +580,25 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self.child('dataRpc', path=path, table=table, method=method, columns=columns,
                           distinct=distinct, where=where, order_by=order_by, group_by=group_by,
                           having=having, **kwargs)
+                          
+                          
+    def directoryStore(self, rootpath=None, storepath='.store', **kwargs):
+        store = DirectoryResolver(rootpath or '/', **kwargs)()
+        self.data(storepath, store)
+
+    def tableAnalyzeStore(self, pane, table=None, where=None, group_by=None, storepath='.store', **kwargs):
+        t0 = time()
+        tblobj = self.db.table(table)
+        columns = [x for x in group_by if not callable(x)]
+        selection = tblobj.query(where=where, columns=','.join(columns), **kwargs).selection()
+        explorer_id = self.getUuid()
+        freeze_path = self.site.getStaticPath('page:explorers', explorer_id)
+        t1 = time()
+        totalizeBag = selection.totalize(group_by=group_by, collectIdx=False)
+        t2 = time()
+        store = self.lazyBag(totalizeBag, name=explorer_id, location='page:explorer')()
+        t3 = time()
+        self.data(storepath, store, query_time=t1 - t0, totalize_time=t2 - t1, resolver_load_time=t3 - t2)
 
 
     def dataRecord(self, path, table, pkey=None, method='app.getRecord', **kwargs):
@@ -592,12 +639,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         else:
             return self.includedview_legacy(*args,**kwargs)
             
-    def includedview_inframe(self,frameCode=None,struct=None,storepath=None,structpath=None,datapath=None,nodeId=None,**kwargs):
+    def includedview_inframe(self,frameCode=None,struct=None,storepath=None,structpath=None,
+                            datapath=None,nodeId=None,configurable=True,**kwargs):
         datapath = datapath or '.grid'
         structpath = structpath or '.struct'
         nodeId = nodeId or '%s_grid' %frameCode
         iv =self.child('includedView',frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
-                          relativeWorkspace=True,editable=True,storepath=storepath,**kwargs)
+                          relativeWorkspace=True,configurable=configurable,storepath=storepath,**kwargs)
         iv.gridStruct(struct=struct)
         return iv
 
