@@ -10,6 +10,11 @@
 	
 	Most of the Genro widget syntax inherit from the Dojo syntax; however, you can check the relative documentation of a widget for a complete reference of our language.
 	
+.. _genro_widgets:
+
+widgets
+=======
+	
 	The widget elements are divided in two categories, that are:
 	
 		* The :ref:`genro_form_index`

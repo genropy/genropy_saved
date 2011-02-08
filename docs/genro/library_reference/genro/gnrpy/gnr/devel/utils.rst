@@ -1,8 +1,8 @@
-###########################################################
-:mod:`gnr.core.gnrcmd` -- Tools to build command-line tools
-###########################################################
+===========================================================
+:mod:`gnr.devel.utils` -- Tools to build command-line tools
+===========================================================
 
-.. automodule:: gnr.core.gnrcmd
+.. automodule:: gnr.devel.utils
 
 Autodiscovery
 *************

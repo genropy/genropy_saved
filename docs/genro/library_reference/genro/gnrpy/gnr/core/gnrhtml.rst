@@ -1,11 +1,14 @@
+=========================================================================================
 :mod:`gnr.core.gnrhtml` -- Server-side HTML generations (web pages and printable reports)
-*****************************************************************************************
+=========================================================================================
 
-In GenroPy le pagine vengono generalmente costruite lato client: la struttura della pagina viene trasferita come |Bag| e poi la parte Javascript del framework si occupa di costruire il DOM ed i widgets necessari. In questo modo è possibile modificare completamente la pagina semplicemente alterando la |Bag| che la descrive.
+	.. module:: gnr.core.gnrbag
 
-E' però possibile costruire completamente la pagina lato server. Risulta utile per far indicizzare le pagine dai motori di ricerca e, soprattutto, per implementare :ref:`print-index`.
+	Usually in GenroPy the pages are built on the client side: the page structure is transfered as a :class:`Bag`; after that, the Genro's Javascript tools take care to build the DOM and all the necessary :ref:`genro_widgets`. So, you have the complete control of the page, and you can modify the page itself simply modifying the ``Bag`` that constructs the page.
 
-E' ancora possibile utilizzare nelle pagine costruite lato server i widgets di Dojo, ma in modalità nativa e senza le estensioni di GenroPy (e.g. le ``dbselect`` non funzionano).
+	You can build the page completely server side. It is useful to index pages for search engines and, above all, to make the :ref:`???ref for the print!`
+
+	In a server side page you can use all the Dojo widgets, but without Genro additions and without Genro extensions (e.g. the :ref:`genro_dbselect` doesn't work)
 
 .. automodule:: gnr.core.gnrhtml
 	:members:

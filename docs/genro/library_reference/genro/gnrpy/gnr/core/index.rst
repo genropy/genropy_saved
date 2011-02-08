@@ -6,7 +6,6 @@
 
 	gnrbags
 	gnrclasses
-	gnrcmd
 	gnrdate
 	gnrdict
 	gnrhtml

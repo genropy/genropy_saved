@@ -7,5 +7,6 @@
 
 	app/index
 	core/index
+	devel/index
 	sql/index
 	web/index
