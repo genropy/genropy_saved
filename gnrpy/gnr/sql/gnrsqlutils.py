@@ -106,6 +106,7 @@ class SqlModelChecker(object):
             self.actual_tables = {}
             self.actual_views = {}
             self.actual_relations = {}
+            self.unique_constraints = Bag()
             self.changes.append(self.db.adapter.createDbSql(exc.dbname, 'UNICODE'))
             create_db = True
         if not create_db:
@@ -117,7 +118,7 @@ class SqlModelChecker(object):
             self.actual_relations = {}
             for r in actual_relations:
                 self.actual_relations.setdefault('%s.%s' % (r[1], r[2]), []).append(r)
-        self.unique_constraints = self.db.adapter.getTableContraints()
+            self.unique_constraints = self.db.adapter.getTableContraints()
         for pkg in self.db.packages.values():
             #print '----------checking %s----------'%pkg.name
             self._checkPackage(pkg)
