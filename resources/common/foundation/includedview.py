@@ -20,14 +20,79 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdict import dictExtract
-
+from gnr.web.gnrwebstruct import struct_method
 class IncludedView(BaseComponent):
     """
     IncludedView allows you to manage data of the table in relation many to many. includedViewBox is the main method of this class.
     """
     css_requires = 'public'
     js_requires = 'public'
-    py_requires = 'gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,foundation/macrowidgets:FilterBox'
+    py_requires = 'gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,foundation/macrowidgets:FilterBox'    
+    
+    @struct_method
+    def ivnew_adaptSlotbar(self,pane,label=None,slots=None,filterOn=None,searchOn=None,hasToolbar=False,**kwargs):
+        assert not callable(label), 'use the attachpoint .footer instead of'
+        searchOn = searchOn or filterOn
+        slots = slots.split(',') if slots else []
+        add_kw = dictExtract(kwargs,'add_',True)
+        del_kw = dictExtract(kwargs,'del_',True)
+        upd_kw = dictExtract(kwargs,'upd_',True)
+        tools_kw = dictExtract(kwargs,'tools_',True)
+
+        print_kw = dictExtract(kwargs,'print_',True)
+        export_kw = dictExtract(kwargs,'export_',True)
+        if label:
+            slots.append(label)
+            slots.append('*')
+        if searchOn:
+            slots.append('searchOn')
+        if slots:
+            _class = 'pbl_viewBoxLabel' if not hasToolbar else None
+            slotbar = pane.slotBar(slots=','.join(slots),_class=_class,toolbar=hasToolbar,searchOn=searchOn)
+
+            
+        
+        #for slot,kw in (('add',add_kw),('del',del_kw),('upd',upd_kw),):
+        #    _class = kw.pop('class')
+        #    kw['_class'] = _class
+        #    if kw:
+        #        slots.append(slot)
+    @struct_method
+    def ivnew_bagViewBox(self,pane,frameCode=None,selectionPars=None,reloader=None,table=None,
+                        _onStart=None,caption=None,parentLock='^status.locked',externalChanges=None,
+                        **kwargs):
+        pass
+        
+    @struct_method
+    def ivnew_nestedViewBox(self,pane,frameCode=None,selectionPars=None,reloader=None,table=None,
+                        _onStart=None,caption=None,parentLock='^status.locked',externalChanges=None,
+                        **kwargs):
+        pass
+
+    @struct_method
+    def ivnew_selectionViewBox(self,pane,frameCode=None,selectionPars=None,reloader=None,table=None,
+                        _onStart=None,caption=None,parentLock='^status.locked',externalChanges=None,
+                        **kwargs):
+        assert frameCode, 'frameCode is mandatory'
+        assert not 'footer' in kwargs, 'use the attachpoint .footer instead of'
+        assert not 'centerPaneCb' in kwargs, 'not supported'
+        assert not 'pickerPars' in kwargs, 'not supported'
+        assert not 'formPars' in kwargs, 'not supported'
+        assert not 'addOnCb' in kwargs, 'not supported. it returns the frame append controllers there'
+        assert table, 'table is mandatory'
+        
+        if pane.attributes['tag'].lower()=='bordercontainer':
+            pane.attributes['tag'] = 'ContentPane'
+        frame = pane.framePane(frameCode=frameCode)
+        frame.top.adaptSlotbar(**kwargs)
+        view = frame.includedView(_attachname='grid',**kwargs)
+        selectionPars = selectionPars or dict()
+        if reloader:
+            selectionPars['_reloader'] = reloader
+        if _onStart:
+            selectionPars['_onStart'] = _onStart
+        view.selectionStore(table=table,_reload='^.reload',**selectionPars)
+        return frame
 
     def includedViewBox(self, parentBC, nodeId=None, table=None, datapath=None,
                         storepath=None, selectionPars=None, formPars=None, label=None, caption=None, footer=None,
