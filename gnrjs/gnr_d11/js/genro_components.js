@@ -630,7 +630,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                 labelCell = r._('td',cellKwLbl)
             }
             slotNode = children.popNode(slot);
-            if (slotNode){
+            if (!that['slot_'+slot] && slotNode){
                 slotValue = slotNode.getValue();
                 if(slotValue instanceof gnr.GnrBag){
                     k=0;
@@ -645,19 +645,27 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                         }
                         k++;
                     })
+                    
                 }
             }
-            if(cell.len()==0 && (that['slot_'+slot])){
-                slotKw = objectExtract(kw,slot+'_*');
-                slotValue = objectPop(kw,slot);
-                lbl = objectPop(slotKw,'lbl');
-                kwLbl = objectExtract(slotKw,'lbl_*');
-                kwLbl = objectUpdate(objectUpdate({},buildKw.lbl),kwLbl);
-                that['slot_'+slot](cell,slotValue,slotKw,kw.frameCode)
-                if(labelCell){
-                    labelCell._('div',objectUpdate({'innerHTML':lbl,'text_align':'center'},kwLbl));
+            if(cell.len()==0){
+                if(that['slot_'+slot]){
+                    slotKw = objectExtract(kw,slot+'_*');
+                    slotValue = objectPop(kw,slot);
+                    lbl = objectPop(slotKw,'lbl');
+                    kwLbl = objectExtract(slotKw,'lbl_*');
+                    kwLbl = objectUpdate(objectUpdate({},buildKw.lbl),kwLbl);
+                    that['slot_'+slot](cell,slotValue,slotKw,kw.frameCode)
+                    if(labelCell){
+                        labelCell._('div',objectUpdate({'innerHTML':lbl,'text_align':'center'},kwLbl));
+                    }
+                }else{
+                    var textSlot=kw[slot]?kw[slot]:slot;
+                    if(textSlot){
+                        cell.setItem('div_0',null,objectUpdate({innerHTML:textSlot,tag:'div'},objectExtract(kw,slot+'_*')));
+                    }
                 }
-            }            
+            }       
         });
         
         return r;
