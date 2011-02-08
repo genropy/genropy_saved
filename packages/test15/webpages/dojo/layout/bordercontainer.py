@@ -10,8 +10,16 @@ class GnrCustomWebPage(object):
 
     def windowTitle(self):
         return ''
+    
+    def test_bordercontainer_inside_cb(self, pane):
+        bc = pane.contentPane(height='200px',background='green').borderContainer(background='red')
+    
+    def test_bordercontainer_inside_cb_2(self, pane):
+        bc = pane.tabContainer(height='200px',background='green')
+        bc.contentPane(background='red',title='aa').borderContainer(background='pink')
+        
 
-    def test_bordercontainer_mixedlayout(self, pane):
+    def _test_bordercontainer_mixedlayout(self, pane):
         bc = pane.borderContainer(height='300px')
         bc.contentPane(region='top', height='20px', background='red', splitter=True)
         tc = bc.tabContainer(region='left', width='400px')
