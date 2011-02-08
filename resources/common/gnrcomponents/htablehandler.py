@@ -20,6 +20,8 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag, BagResolver
+from gnr.web.gnrwebstruct import struct_method
+
 
 def _getTreeRowCaption(tblobj):
     if hasattr(tblobj, 'treeRowCaption'):
@@ -129,6 +131,21 @@ class HTableResolver(BagResolver):
         return BagResolver.resolverSerialize(self)
 
 class HTableHandlerBase(BaseComponent):
+    @struct_method
+    def ht_htableStore(self, pane, table=None, related_table=None, relation_path=None, storepath='.store', **kwargs):
+        if '@' in table:
+            pkg, related_table, relation_path = table.split('.')
+            related_table = '%s.%s' % (pkg, related_table)
+            related_table_obj = self.db.table(related_table)
+            table = related_table_obj.column(relation_path).parent.fullname
+        tblobj = self.db.table(table)
+        data = self.ht_treeDataStore(table=table,
+                                     related_table=related_table,
+                                     relation_path=relation_path,
+                                     rootcaption=tblobj.name_plural, **kwargs)
+        pane.data(storepath, data)
+    
+    
     def ht_treeDataStore(self, table=None, rootpath=None,
                          related_table=None,
                          relation_path=None,
