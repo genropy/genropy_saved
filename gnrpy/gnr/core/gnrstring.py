@@ -213,7 +213,7 @@ def like(s1, s2, wildcard='%'):
     """
     :param s1: first string
     :param s2: second string
-    :wildcard: a special symbol that stands for one or more characters.
+    :wildcard: a special symbol that stands for one or more characters. Default value is ``%``
     
     >>> like('*dog*', 'adogert', '*')
     True
@@ -234,8 +234,11 @@ def like(s1, s2, wildcard='%'):
     return False
 
 def ilike(s1, s2, wildcard='%'):
-    """
-    Returns the result of like() function ignoring upper-lowercase differencies
+    """Return the result of :meth:`like()` function ignoring upper-lowercase differencies
+    
+    :param s1: first string
+    :param s2: second string
+    :wildcard: a special symbol that stands for one or more characters. Default value is ``%``
     """
     return like(s1.upper(), s2.upper(), wildcard)
 
@@ -273,7 +276,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False):
     
     :param myString: template string
     :param symbolDict: dictionary that links symbol and values. Default value is ``None``.
-    :param safeMode: flag that implies the use of :mod:`substitute()` :mod:`or safe_substitute()`. Default value is ``False``.
+    :param safeMode: flag that implies the use of :meth:`substitute()` and :meth:`or safe_substitute()` Python methods. Default value is ``False``.
     
     >>> templateReplace('$foo loves $bar but she loves $aux and not $foo', {'foo':'John','bar':'Sandra','aux':'Steve'})
     'John loves Sandra but she loves Steve and not John'"""
@@ -351,12 +354,21 @@ def updateString(source, s, sep=','):
 
 
 def updateStringList(s1, s2, sep=','):
+    """add???
+    
+    :param s1: add???
+    :param s2: add???
+    :param sep: separator string. Default value is ``,``
+    :returns: add???
+    """
     #what??
     l1 = set(splitAndStrip(s1))
     l2 = set(splitAndStrip(s2))
     s = set()
 
 def makeSet(*args, **kwargs):
+    """add???
+    """
     result = set()
     for myString in args:
         result.update(splitAndStrip(myString, sep=kwargs.get('sep', ',')))
@@ -393,6 +405,12 @@ def splitAndStrip(myString, sep=',', n=-1, fixed=0):
         return result[0:abs(fixed)]
             
 def countOf(myString, srcString):
+    """add???
+    
+    :param myString: add???
+    :param srcString: add???
+    :returns: add???
+    """
     return (len(myString) - len(myString.replace(srcString, ''))) / len(srcString)
 
 def split(path, sep='.'):
@@ -477,6 +495,13 @@ def smartsplit(path, on):
     return pathList
 
 def concat(s1, s2, sep='.'):
+    """join two strings. If the first string is ```None``, return the second string.
+    
+    :param s1: the first string
+    :param s2: the second string
+    :param sep: separation character. Default value is ``.``
+    :returns: the two strings joined
+    """
     if s1:
         return '%s%s%s' % (s1, sep, s2)
     else:
@@ -485,6 +510,9 @@ def concat(s1, s2, sep='.'):
 
 def dotEsc(txt):
     """Return a text with all dot char escaped
+    
+    :param txt: the text
+    :returns: the text with all dot char escaped
     """
     return txt.replace('.', '\\.')
 
@@ -493,10 +521,10 @@ def dotEsc(txt):
 def encode(number, base='/16', nChars=None):
     """Return a string that contains the given number in the specified base
        
-       @param number: number to encode
-       @param base: base of encoding
-       @param nChar: number of characters of the result
-       return: encoded number as string
+       :param number: number to encode
+       :param base: base of encoding. Default value is ``/16``
+       :param nChar: number of characters of the result. Default value is ``None``
+       :returns: encoded number as string
     """
     import math
 
@@ -512,20 +540,40 @@ def encode(number, base='/16', nChars=None):
         for x in range(nChars - len(result)):
             result.insert(0, base[0])
     return ''.join(result)
-
-
+    
 def fromIsoDate(datestring):
+    """add???
+    
+    :param datestring: add???
+    :returns: add???
+    """
     if datestring and datestring != '0000-00-00':
         return datetime.date(*[int(el) for el in wordSplit(datestring)])
 
 def fromText(mystring, obj, locale=None):
+    """add???
+    
+    :param mystring: add???
+    :param obj: add???
+    :param locale: add???. Default value is ``None``
+    :returns: add???
+    """
     #what?
     return parselocal(mystring, obj, locale=locale)
 
 def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=None):
     """Return a unicode string representing an object of any class.
-       If there are locale or format parameters Babel is used to format the value 
+       
+       If there are ``locale`` or ``format`` parameters Babel is used to format the value 
        according to the given localization or format.
+       
+       :param obj: the object to be transformed in a string
+       :param locale: add???. Default value is ``None``
+       :param format: add???. Default value is ``None``
+       :param mask: add???. Default value is ``None``
+       :param encoding: add???. Default value is ``None``
+       :param currency: add???. Default value is ``None``
+       :returns: a unicode string representing an object of any class
        """
     if isinstance(obj, list) or isinstance(obj, tuple):
         return ','.join([toText(v) for v in obj])
@@ -543,6 +591,12 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
 
 def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     """
+    :param dtype: add???.
+    :param locale: add???. Default value is ``None``
+    :param format: add???. Default value is ``None``
+    :param mask: add???. Default value is ``None``
+    :param encoding: add???. Default value is ``None``
+    :returns: add???
     """
     typeSamples = {'B': 'true', 'D': datetime.date(2005, 10, 10), 'H': datetime.time(4, 5),
                    'DH': datetime.datetime.now(),
@@ -554,6 +608,11 @@ def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
 
 
 def boolean(obj):
+    """add???
+    
+    :param obj: The given object
+    :returns: add???
+    """
     if obj and isinstance(obj, basestring):
         if obj.lower() in ['n', 'no', 'f', 'false', '0']:
             obj = False
@@ -561,20 +620,35 @@ def boolean(obj):
 
 
 def pickleObject(obj, zipfilename=None):
-    """Return the Pickle string for the given object"""
+    """Return the Pickle string for the given object.
+    
+    :param obj: The given object
+    :param zipfilename: add???. Default value is ``None``
+    :returns: the Pickle string for the given object
+    """
     objstr = cPickle.dumps(obj)
     if zipfilename:
         objstr = zipString(objstr, zipfilename)
     return objstr
 
 def unpickleObject(objstr, zipfilename=None):
-    """Load an object from a pikle string"""
+    """Load an object from a pickle string.
+    
+    :param objstr: The given object string
+    :param zipfilename: add???. Default value is ``None``
+    :returns: the object loaded from the pickle string
+    """
     if zipfilename:
         objstr = unzipString(objstr, zipfilename)
     return cPickle.loads(objstr)
 
 def zipString(mystring, filename):
-    """Return a zip compressed version of mystring"""
+    """Return a zip compressed version of mystring
+    
+    :param mystring: The given string
+    :param filename: add???
+    :returns: a zip compressed version of ``mystring``
+    """
     zipresult = StringIO.StringIO()
     zip = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED)
     zip.writestr(filename, mystring)
@@ -584,7 +658,12 @@ def zipString(mystring, filename):
     return mystring
 
 def unzipString(mystring, filename):
-    """Extract a zip compressed string"""
+    """Extract a zip compressed string
+    
+    :param mystring: the compressed string to decompress
+    :param filename: add???
+    :returns: the decompressed string 
+    """
     zipresult = StringIO.StringIO(mystring)
     zip = zipfile.ZipFile(zipresult, mode='r', compression=zipfile.ZIP_DEFLATED)
     result = zip.read(filename)
@@ -593,13 +672,29 @@ def unzipString(mystring, filename):
     return result
 
 def toJson(obj):
+    """add???
+    
+    :param obj: add???
+    :returns: add???
+    """
     #non so come testare
     return json.dumps(obj, cls=JsonEncoder)
 
 def toJsonJS(obj):
+    """add???
+    
+    :param obj: add???
+    :returns: add???
+    """
     return json.dumps(obj, cls=JsonEncoderJS)
 
 def toSecureJsonJS(obj, key=None):
+    """add???
+    
+    :param obj: add???
+    :param key: add???. Default value is ``None``
+    :returns: add???
+    """
     result = json.dumps(obj, cls=JsonEncoderJS)
     if key:
         n = 0
@@ -616,6 +711,11 @@ def toSecureJsonJS(obj, key=None):
         return result
 
 def slugify(value):
+    """add???
+    
+    :param value: add???
+    :returns: add???
+    """
     import unicodedata
 
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
@@ -623,14 +723,29 @@ def slugify(value):
     return re.sub('[-\s]+', '-', value)
 
 def fromJson(obj):
+    """add???
+    
+    :param obj: add???
+    :returns: add???
+    """
     #non so come testare
     return json.loads(obj)
 
 def anyWordIn(wordlist, mystring):
+    """Return a list of all the elements included both in ``wordlist`` and in ``mystring``
+    
+    :param wordlist: the list of words to be searched in ``mystring``
+    :param mystring: the string on which there will be executed the search
+    :returns: a list of all the elements included both in ``wordlist`` and in ``mystring``
+    """
     return [k for k in wordlist if k in mystring]
 
 def jsquote(str_or_unicode):
-    """
+    """add???
+    
+    :param str_or_unicode: the string to be quoted
+    :returns: add???
+     
     >>> print jsquote('pippo')
     'pippo'
     >>> print jsquote(u'pippo')

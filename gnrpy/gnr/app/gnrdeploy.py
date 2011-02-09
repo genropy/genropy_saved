@@ -4,6 +4,8 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import expandpath
 
 class PathResolver(object):
+    """add???
+    """
     entities = dict(
             instance='instances',
             site='sites',
@@ -12,9 +14,15 @@ class PathResolver(object):
             project='projects')
             
     def __init__(self, gnr_config=None):
+        """add???
+        """
         self.gnr_config = gnr_config or self.load_gnr_config()
         
     def load_gnr_config(self):
+        """add???
+        
+        :returns: add???
+        """
         home_config_path = expandpath('~/.gnr')
         global_config_path = expandpath(os.path.join('/etc/gnr'))
         if os.path.isdir(home_config_path):
@@ -27,18 +35,36 @@ class PathResolver(object):
         return config
         
     def set_environment(self, config):
+        """add???
+        
+        :param config: add???
+        :returns: add???
+        """
         for var, value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
             var = var.upper()
             if not os.getenv(var):
                 os.environ[var] = str(value)
                 
     def js_path(self, lib_type='gnr', version='11'):
+        """add???
+        
+        :param lyb_type: add???. Default value is ``gnr``
+        :param version: add???. Default value is ``11``
+        :returns: add???
+        """
         path = self.gnr_config['gnr.environment_xml.static.js.%s_%s?path' % (lib_type, version)]
         if path:
             path = os.path.join(expandpath(path), 'js')
         return path
         
     def entity_name_to_path(self, entity_name, entity_type, look_in_projects=True):
+        """add???
+        
+        :param entity_name: add???
+        :param entity_type: add???
+        :param look_in_projects: add???. Default value is ``True``
+        :returns: add???
+        """
         entity = self.entities.get(entity_type)
         if not entity:
             raise Exception('Error: entity type %s not known' % entity_type)
@@ -60,21 +86,52 @@ class PathResolver(object):
         raise Exception('Error: %s %s not found' % (entity_type, entity_name))
         
     def site_name_to_path(self, site_name):
+        """add???
+        
+        :param site_name: add???
+        :returns: add???
+        """
         return self.entity_name_to_path(site_name, 'site')
         
     def instance_name_to_path(self, instance_name):
+        """add???
+        
+        :param instance_name: add???
+        :returns: add???
+        """
         return self.entity_name_to_path(instance_name, 'instance')
         
     def package_name_to_path(self, package_name):
+        """add???
+        
+        :param package_name: add???
+        :returns: add???
+        """
         return self.entity_name_to_path(package_name, 'package')
         
     def resource_name_to_path(self, resource_name):
+        """add???
+        
+        :param resource_name: add???
+        :returns: add???
+        """
         return self.entity_name_to_path(resource_name, 'resource')
         
     def project_name_to_path(self, project_name):
+        """add???
+        
+        :param project_name: add???
+        :returns: add???
+        """
         return self.entity_name_to_path(project_name, 'project', look_in_projects=False)
         
     def project_repository_name_to_path(self, project_repository_name, strict=True):
+        """add???
+        
+        :param project_repository_name: add???
+        :param strict: add???. Default value is ``True``
+        :returns: add???
+        """
         if not strict or 'gnr.environment_xml.projects.%s' % project_repository_name in self.gnr_config:
             path = self.gnr_config['gnr.environment_xml.projects.%s?path' % project_repository_name]
             if path:
@@ -83,11 +140,21 @@ class PathResolver(object):
             raise Exception('Error: Project Repository %s not found' % project_repository_name)
             
 class ProjectMaker(object):
+    """add???
+    """
     def __init__(self, project_name, base_path=None):
+        """add???
+        
+        :param project_name: add???
+        :param base_path: add???. Default value is ``None``
+        :returns: add???
+        """
         self.project_name = project_name
         self.base_path = base_path or '.'
         
     def do(self):
+        """add???
+        """
         self.project_path = os.path.join(self.base_path, self.project_name)
         self.packages_path = os.path.join(self.project_path, 'packages')
         self.sites_path = os.path.join(self.project_path, 'sites')
@@ -106,6 +173,19 @@ class SiteMaker(object):
     """
     def __init__(self, site_name, base_path=None, resources=None, instance=None, dojo_version='11',
                  wsgi_port=None, wsgi_reload=None, wsgi_mainpackage=None, wsgi_debug=None, config=None):
+        """add???
+        
+        :param site_name: add???
+        :param base_path: add???. Default value is ``None``
+        :param resources: add???. Default value is ``None``
+        :param instance: add???. Default value is ``None``
+        :param dojo_version: add???. Default value is ``11``
+        :param wsgi_port: add???. Default value is ``None``
+        :param wsgi_reload: add???. Default value is ``None``
+        :param wsgi_mainpackage: add???. Default value is ``None``
+        :param wsgi_debug: add???. Default value is ``None``
+        :param config: add???. Default value is ``None``
+        """
         self.site_name = site_name
         self.base_path = base_path or '.'
         self.resources = resources or []
@@ -118,6 +198,8 @@ class SiteMaker(object):
         self.config = config
         
     def do(self):
+        """add???
+        """
         self.site_path = os.path.join(self.base_path, self.site_name)
         pages_path = os.path.join(self.site_path, 'pages')
         root_py_path = os.path.join(self.site_path, 'root.py')
@@ -177,6 +259,22 @@ class InstanceMaker(object):
     def __init__(self, instance_name, base_path=None, packages=None, authentication=True, authentication_pkg=None,
                  db_dbname=None, db_implementation=None, db_host=None, db_port=None,
                  db_user=None, db_password=None, use_dbstores=False, config=None):
+        """add???
+        
+        :param instance_name: add???
+        :param base_path: add???. Default value is ``None``
+        :param packages: add???. Default value is ``None``
+        :param authentication: add???. Default value is ``True``
+        :param authentication_pkg: add???. Default value is ``None``
+        :param db_dbname: add???. Default value is ``None``
+        :param db_implementation: add???. Default value is ``None``
+        :param db_host: add???. Default value is ``None``
+        :param db_port: add???. Default value is ``None``
+        :param db_user: add???. Default value is ``None``
+        :param db_password: add???. Default value is ``None``
+        :param use_dbstores: add???. Default value is ``False``
+        :param config: add???. Default value is ``None``
+        """
         self.instance_name = instance_name
         self.base_path = base_path or '.'
         self.packages = packages or []
@@ -200,6 +298,8 @@ class InstanceMaker(object):
         self.config = config
         
     def do(self):
+        """add???
+        """
         self.instance_path = os.path.join(self.base_path, self.instance_name)
         custom_path = os.path.join(self.instance_path, 'custom')
         data_path = os.path.join(self.instance_path, 'data')
@@ -245,6 +345,17 @@ class PackageMaker(object):
     def __init__(self, package_name, base_path=None, sqlschema=None,
                  name_short=None, name_long=None, name_full=None,
                  login_url=None, comment=None):
+        """add???
+        
+        :param package_name: add???
+        :param base_path: add???. Default value is ``None``
+        :param sql_schema: add???. Default value is ``None``
+        :param name_short: add???. Default value is ``None``
+        :param name_long: add???. Default value is ``None``
+        :param name_full: add???. Default value is ``None``
+        :param login_url: add???. Default value is ``None``
+        :param comment: add???. Default value is ``None``
+        """
         self.package_name = package_name
         self.base_path = base_path or '.'
         self.name_short = name_short or self.package_name.capitalize()
@@ -255,6 +366,8 @@ class PackageMaker(object):
         self.login_url = login_url or '%s/login' % self.package_name
         
     def do(self):
+        """add???
+        """
         self.package_path = os.path.join(self.base_path, self.package_name)
         self.model_path = os.path.join(self.package_path, 'model')
         self.lib_path = os.path.join(self.package_path, 'lib')
@@ -327,17 +440,28 @@ class GnrCustomWebPage(object):
             examplewebpage_py_example.close()
 
 class ResourceMaker(object):
+    """add???
+    """
     def __init__(self, resource_name, base_path=None):
+        """add???
+        
+        :param resource_name: add???
+        :param base_path: add???. Default value is ``None``
+        """
         self.resource_name = resource_name
         self.base_path = base_path or '.'
 
     def do(self):
+        """add???
+        """
         self.resource_path = os.path.join(self.base_path, self.resource_name)
         for path in (self.resource_path, ):
             if not os.path.isdir(path):
                 os.mkdir(path)
 
 class ModWsgiMaker(object):
+    """add???
+    """
     pass
 
 if __name__ == '__main__':

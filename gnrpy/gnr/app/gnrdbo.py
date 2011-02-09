@@ -9,11 +9,17 @@ class GnrDboPackage(object):
     """Base class for packages.
     """
     def updateFromExternalDb(self,externaldb,empty_before=None):
+        """add???
+        
+        :param externaldb: add???
+        :param empty_before: add???. Default value is ``None``
+        :returns: add???
+        """
         tables = self.attributes.get('export_order') or ''
         self.db.setConstraintsDeferred()
         for tbl in splitAndStrip(tables):
-            self.db.table(tbl).copyToDb(externaldb,self.db,empty_before=empty_before)    
-
+            self.db.table(tbl).copyToDb(externaldb,self.db,empty_before=empty_before)
+            
     def getCounter(self, name, code, codekey, output, date=None, phyear=False, lastAssigned=0):
         """Generate a new number from the specified counter.
         
@@ -29,25 +35,69 @@ class GnrDboPackage(object):
 
     def getLastCounterDate(self, name, code, codekey, output,
                            date=None, phyear=False, lastAssigned=0):
+        """add???
+        
+        :param name: add???
+        :param code: add???
+        :param codekey: add???
+        :param output: add???
+        :param date: add???. Default value is ``None``
+        :param phyear: add???. Default value is ``False``
+        :param lastAssigned: add???. Default value is ``0``
+        :returns: add???
+        """
         return self.dbtable('counter').getLastCounterDate(name=name, pkg=self.name, code=code, codekey=codekey,
                                                           output=output,
                                                           date=date, phyear=phyear, lastAssigned=lastAssigned)
 
     def setCounter(self, name, code, codekey, output,
                    date=None, phyear=False, value=0):
+        """add???
+        
+        :param name: add???
+        :param code: add???
+        :param codekey: add???
+        :param output: add???
+        :param date: add???. Default value is ``None``
+        :param phyear: add???. Default value is ``False``
+        :param value: add???. Default value is ``0``
+        :returns: add???
+        """
         return self.dbtable('counter').setCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output,
                                                   date=date, phyear=phyear, value=value)
 
     def loadUserObject(self, pkg=None, **kwargs):
+        """add???
+        
+        :param pkg: add???. Default value is ``None``
+        :returns: add???
+        """
         return self.dbtable('userobject').loadUserObject(pkg=pkg or self.name, **kwargs)
 
     def saveUserObject(self, data, pkg=None, **kwargs):
+        """add???
+        
+        :param data: add???
+        :param pkg: add???. Default value is ``None``
+        :returns: add???
+        """
         return self.dbtable('userobject').saveUserObject(data, pkg=pkg or self.name, **kwargs)
 
     def deleteUserObject(self, id, pkg=None):
+        """add???
+        
+        :param id: add???
+        :param pkg: add???. Default value is ``None``
+        :returns: add???
+        """
         return self.dbtable('userobject').deleteUserObject(pkg=pkg or self.name, id=id)
 
     def listUserObject(self, pkg=None, **kwargs):
+        """add???
+        
+        :param pkg: add???. Default value is ``None``
+        :returns: add???
+        """
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
 
     def getPreference(self, path, dflt=None):
@@ -69,7 +119,21 @@ class GnrDboPackage(object):
         self.db.table('adm.preference').setPreference(path, value, pkg=self.name)
 
 class TableBase(object):
+    """add???
+    """
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, group='zzz', group_name='!!System'):
+        """add???
+        
+        :param tbl: add???
+        :param id: add???. Default value is ``True``
+        :param ins: add???. Default value is ``True``
+        :param upd: add???. Default value is ``True``
+        :param ldel: add???. Default value is ``True``
+        :param md5: add???. Default value is ``True``
+        :param group: add???. Default value is ``zzz``
+        :param group_name: add???. Default value is ``!!System``
+        :returns: add???
+        """
         if id:
             tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id')
             pkey = tbl.attributes.get('pkey')
@@ -98,22 +162,57 @@ class TableBase(object):
             tbl.column('__version','L',name_long='Audit version',onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
 
     def trigger_setTSNow(self, record, fldname):
+        """add???
+        
+        :param record: add???
+        :param fldname: add???
+        :returns: add???
+        """
         if not getattr(record, '_notUserChange', None):
             record[fldname] = datetime.datetime.today()
     
     def trigger_setAuditVersionIns(self,record,fldname):
+        """add???
+        
+        :param record: add???
+        :param fldname: add???
+        :returns: add???
+        """
         record[fldname] = 0
     
     def trigger_setAuditVersionUpd(self,record,fldname):
+        """add???
+        
+        :param record: add???
+        :param fldname: add???
+        :returns: add???
+        """
         record[fldname] = (record.get(fldname) or 0)+ 1
 
     def trigger_setRecordMd5(self, record, fldname):
+        """add???
+        
+        :param record: add???
+        :param fldname: add???
+        :returns: add???
+        """
         pass
 
     def hasRecordTags(self):
+        """add???
+        
+        :returns: add???
+        """
         return self.attributes.get('hasRecordTags', False)
-
+        
     def setTagColumn(self, tbl, name_long=None, group=None):
+        """add???
+        
+        :param tbl: add???
+        :param name_long: add???. Default value is ``None``
+        :param group: add???. Default value is ``None``
+        :returns: add???
+        """
         name_long = name_long or '!!Tag'
         tagtbl = tbl.parentNode.parentbag.parentNode.parentbag.table('recordtag_link')
         tblname = tbl.parentNode.label
@@ -129,10 +228,16 @@ class TableBase(object):
         tbl.aliasColumn('_recordtag_desc', relation_path='%s.description' % relation_path, group=group,
                         name_long=name_long, dtype='TAG')
         tbl.aliasColumn('_recordtag_tag', relation_path='%s.tag' % relation_path, name_long='!!Tagcode', group='_')
-
-
+        
 class GnrHTable(TableBase):
+    """add???
+    """
     def htableFields(self, tbl):
+        """add???
+        
+        :param tbl: add???
+        :returns: add???
+        """
         columns = tbl['columns'] or []
         if not 'code' in columns:
             tbl.column('code', name_long='!!Code', base_view=True)
@@ -159,39 +264,63 @@ class GnrHTable(TableBase):
                           """ % tblname)
         if not 'rec_type' in columns:
             tbl.column('rec_type', name_long='!!Type')
-
-
+            
     def trigger_onInserting(self, record_data):
+        """add???
+        
+        :param record_data: add???
+        :returns: add???
+        """
         self.assignCode(record_data)
         
-    def assignCode(self,record_data):    
+    def assignCode(self,record_data):
+        """add???
+        
+        :param record_data: add???
+        :returns: add???
+        """
         code_list = [k for k in (record_data['parent_code']or '').split('.') + [record_data['child_code']] if k]
         record_data['level'] = len(code_list) - 1
         record_data['code'] = '.'.join(code_list)
-    
         
     def trigger_onUpdating(self, record_data, old_record=None):
+        """add???
         
+        :param record_data: add???
+        :param old_record: add???. Default value is ``None``
+        :returns: add???
+        """
         if old_record and ((record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code'])):
             old_code = old_record['code']
             self.assignCode(record_data)
             self.batchUpdate(dict(parent_code=record_data['code']), where='$parent_code=:old_code', old_code=old_code)
-    
-
-
+            
 class GnrDboTable(TableBase):
+    """add???
+    """
     def use_dbstores(self):
+        """add???
+        
+        :returns: add???
+        """
         return True
-    
-
+        
 class Table_counter(TableBase):
-    """This table is automatically created for every package that inherit from
-       GnrDboPackage."""
+    """This table is automatically created for every package that inherit from GnrDboPackage."""
 
     def use_dbstores(self):
+        """add???
+        
+        :returns: add???
+        """
         return True
 
     def config_db(self, pkg):
+        """add???
+        
+        :param pkg: add???
+        :returns: add???
+        """
         tbl = pkg.table('counter', pkey='codekey', name_long='!!Counter', transaction=False)
         self.sysFields(tbl, id=False, ins=True, upd=True)
         tbl.column('codekey', size=':32', readOnly='y', name_long='!!Codekey', indexed='y')
@@ -205,6 +334,16 @@ class Table_counter(TableBase):
     def setCounter(self, name, pkg, code,
                    codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN',
                    date=None, phyear=False, value=0):
+        """add???
+        
+        :param name: add???
+        :param pkg: add???
+        :param code: add???
+        :param codekey: add???. Default value is ``$YYYY_$MM_$K``
+        :param output: add???. Default value is ``$K/$YY$MM.$NNNN``
+        :param old_record: add???. Default value is ``None``
+        :returns: add???
+        """
         self.getCounter(name, pkg, code, codekey=codekey, output=output, date=date,
                         phyear=phyear, lastAssigned=value - 1)
 
@@ -243,6 +382,18 @@ class Table_counter(TableBase):
     def getLastCounterDate(self, name, pkg, code,
                            codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN',
                            date=None, phyear=False, lastAssigned=0):
+        """add???
+        
+        :param name: add???
+        :param pkg: add???
+        :param code: add???
+        :param codekey: add???. Default value is ``$YYYY_$MM_$K``
+        :param output: add???. Default value is ``$K/$YY$MM.$NNNN``
+        :param date: add???. Default value is ``None``
+        :param phyear: add???. Default value is ``False``
+        :param lastAssigned: add???. Default value is ``0``
+        :returns: add???
+        """
         ymd = self.getYmd(date, phyear=phyear)
         codekey = '%s_%s' % (pkg, self.counterCode(code, codekey, ymd))
         record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
@@ -251,6 +402,15 @@ class Table_counter(TableBase):
 
 
     def createCounter(self, codekey, code, pkg, name, lastAssigned):
+        """add???
+        
+        :param codekey: add???
+        :param code: add???
+        :param pkg: add???
+        :param name: add???
+        :param lastAssigned: add???
+        :returns: add???
+        """
         record = Bag()
         record['name'] = '%s-%s' % (pkg, name)
         record['code'] = code
@@ -261,7 +421,13 @@ class Table_counter(TableBase):
         return self.record(codekey, mode='record', for_update=True)
 
     def counterCode(self, code, codekey, ymd):
-        """compose a counter code key"""
+        """compose a counter code key
+        
+        :param code: add???
+        :param codekey: add???
+        :param ymd: add???
+        :returns: add???
+        """
         codekey = codekey.replace('$YYYY', ymd[0])
         codekey = codekey.replace('$YY', ymd[0][2:])
         codekey = codekey.replace('$MM', ymd[1])
@@ -270,6 +436,14 @@ class Table_counter(TableBase):
         return codekey
 
     def formatCode(self, code, output, ymd, counter):
+        """add???
+        
+        :param code: add???
+        :param output: add???
+        :param ymd: add???
+        :param counter: add???
+        :returns: add???
+        """
         x = '$N%s' % output.split('$N')[1]
 
         output = output.replace(x, str(counter).zfill(len(x) - 1))
@@ -298,9 +472,17 @@ class Table_counter(TableBase):
 
 class Table_userobject(TableBase):
     def use_dbstores(self):
+        """add???
+        
+        :returns: add???
+        """
         return False
 
     def config_db(self, pkg):
+        """add???
+        
+        :param pkg: add???
+        """
         tbl = pkg.table('userobject', pkey='id', name_long='!!User Object', transaction=False)
         self.sysFields(tbl, id=True, ins=True, upd=True)
         tbl.column('code', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
@@ -316,6 +498,21 @@ class Table_userobject(TableBase):
 
     def saveUserObject(self, data, id=None, code=None, objtype=None, pkg=None, tbl=None, userid=None,
                        description=None, authtags=None, private=None, inside_shortlist=None, **kwargs):
+        """add???
+        
+        :param data: add???
+        :param id: add???. Default value is ``None``
+        :param code: add???. Default value is ``None``
+        :param objtype: add???. Default value is ``None``
+        :param pkg: add???. Default value is ``None``
+        :param tbl: add???. Default value is ``None``
+        :param userid: add???. Default value is ``None``
+        :param description: add???. Default value is ``None``
+        :param authtags: add???. Default value is ``None``
+        :param private: add???. Default value is ``None``
+        :param inside_shortlist: add???. Default value is ``None``
+        :returns: add???
+        """
         if id:
             record = self.record(id, mode='record', for_update=True, ignoreMissing=True)
         else:
@@ -341,6 +538,12 @@ class Table_userobject(TableBase):
         return record
 
     def loadUserObject(self, id=None, objtype=None, **kwargs):
+        """add???
+        
+        :param id: add???. Default value is ``None``
+        :param objtype: add???. Default value is ``None``
+        :returns: add???
+        """
         if id:
             record = self.record(id, mode='record', ignoreMissing=True)
         else:
@@ -350,18 +553,39 @@ class Table_userobject(TableBase):
         return data, metadata
 
     def deleteUserObject(self, id, pkg=None):
+        """add???
+        
+        :param id: add???
+        :param pkg: add???. Default value is ``None``
+        :returns: add???
+        """
         self.delete({'id': id})
-
+        
     def listUserObject(self, objtype=None, pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None):
+        """add???
+        
+        :param objtype: add???. Default value is ``None``
+        :param pkg: add???. Default value is ``None``
+        :param tbl: add???. Default value is ``None``
+        :param userid: add???. Default value is ``None``
+        :param authtags: add???. Default value is ``None``
+        :param onlyQuicklist: add???. Default value is ``None``
+        :returns: add???
+        """
         onlyQuicklist = onlyQuicklist or False
-
-        def checkUserObj(r):
-            condition = (not r['private']) or (r['userid'] == userid)
-            if onlyQuicklist:
-                condition = condition and r['quicklist']
-            if self.db.application.checkResourcePermission(r['authtags'], authtags):
-                if condition:
-                    return True
+        
+    def checkUserObj(r):
+        """add???
+        
+        :param r: add???
+        :returns: add???
+        """
+        condition = (not r['private']) or (r['userid'] == userid)
+        if onlyQuicklist:
+            condition = condition and r['quicklist']
+        if self.db.application.checkResourcePermission(r['authtags'], authtags):
+            if condition:
+                return True
 
         where = []
 
@@ -379,9 +603,18 @@ class Table_userobject(TableBase):
 
 class Table_recordtag(TableBase):
     def use_dbstores(self):
+        """add???
+        
+        :returns: add???
+        """
         return True
 
     def config_db(self, pkg):
+        """add???
+        
+        :param pkg: add???
+        :returns: add???
+        """
         tbl = pkg.table('recordtag', pkey='id', name_long='!!Record tags', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tablename', name_long='!!Table name')
@@ -390,13 +623,23 @@ class Table_recordtag(TableBase):
         tbl.column('values', name_long='!!Values')
         tbl.column('maintag', name_long='!!Main tag')
         tbl.column('subtag', name_long='!!Sub tag')
-
-
+        
     def trigger_onInserting(self, record_data):
+        """add???
+        
+        :param record_data: add???
+        :returns: add???
+        """
         if record_data['values']:
             self.setTagChildren(record_data)
 
     def setTagChildren(self, record_data, old_record_data=None):
+        """add???
+        
+        :param record_data: add???
+        :param old_record_data: add???. Default value is ``None``
+        :returns: add???
+        """
         tablename = record_data['tablename']
         parentTag = record_data['tag']
         parentDescription = record_data['description']
@@ -438,36 +681,69 @@ class Table_recordtag(TableBase):
             self.deleteSelection('tag', tagsToDelete, condition_op='IN')
 
     def trigger_onDeleting(self, record):
+        """add???
+        
+        :param record: add???
+        :returns: add???
+        """
         if record['values']:
             self.deleteSelection('tag', '%s_%%' % record['tag'], condition_op='LIKE')
 
     def trigger_onUpdating(self, record_data, old_record):
+        """add???
+        
+        :param record_data: add???
+        :param old_record_data: add???
+        :returns: add???
+        """
         if not record_data['maintag']:
             self.setTagChildren(record_data, old_record)
-
-
+            
 class Table_recordtag_link(TableBase):
     def use_dbstores(self):
+        """add???
+        
+        :returns: add???
+        """
         return True
 
     def config_db(self, pkg):
+        """add???
+        
+        :param pkg: add???
+        :returns: add???
+        """
         tbl = pkg.table('recordtag_link', pkey='id', name_long='!!Record tag link', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tag_id', name_long='!!Tag id', size='22').relation('recordtag.id', onDelete='cascade',
                                                                        mode='foreignkey')
         tbl.aliasColumn('tag', relation_path='@tag_id.tag')
         tbl.aliasColumn('description', relation_path='@tag_id.description')
-
-
+        
     def getTagLinks(self, table, record_id):
+        """add???
+        
+        :param table: add???
+        :param record_id: add???
+        :returns: add???
+        """
         where = '$%s=:record_id' % self.tagForeignKey(table)
         return self.query(columns='@tag_id.tag,@tag_id.description',
                           where=where, record_id=record_id).fetchAsDict(key='@tag_id.tag')
 
     def getTagTable(self):
+        """add???
+        
+        :returns: add???
+        """
         return self.db.table('%s.recordtag' % self.pkg.name)
 
     def getTagDict(self, table):
+        """add???
+        
+        :param table: add???
+        :returns: add???
+        """
         currentEnv = self.db.currentEnv
         cachename = '_tagDict_%s' % table.replace('.', '_')
         tagDict = currentEnv.get(cachename)
@@ -477,6 +753,14 @@ class Table_recordtag_link(TableBase):
         return tagDict
 
     def assignTagLink(self, table, record_id, tag, value):
+        """add???
+        
+        :param table: add???
+        :param record_id: add???
+        :param tag: add???
+        :param value: add???
+        :returns: add???
+        """
         fkey = self.tagForeignKey(table)
         tagDict = self.getTagDict(table)
         tagRecord = tagDict[tag]
@@ -503,6 +787,12 @@ class Table_recordtag_link(TableBase):
         return
 
     def getTagLinksBag(self, table, record_id):
+        """add???
+        
+        :param table: add???
+        :param record_id: add???
+        :returns: add???
+        """
         result = Bag()
         taglinks = self.query(columns='@tag_id.maintag AS maintag, @tag_id.subtag AS subtag, @tag_id.tag AS tag',
                               where='$%s=:record_id' % self.tagForeignKey(table), record_id=record_id).fetch()
@@ -515,10 +805,21 @@ class Table_recordtag_link(TableBase):
         return result
 
     def getCountLinkDict(self, table, pkeys):
+        """add???
+        
+        :param table: add???
+        :param pkeys: add???
+        :returns: add???
+        """
         return self.query(columns='@tag_id.tag as tag,count(*) as howmany', group_by='@tag_id.tag',
                           where='$%s IN :pkeys' % self.tagForeignKey(table), pkeys=pkeys).fetchAsDict(key='tag')
 
 
     def tagForeignKey(self, table):
+        """add???
+        
+        :param table: add???
+        :returns: add???
+        """
         tblobj = self.db.table(table)
         return '%s_%s' % (tblobj.name, tblobj.pkey)

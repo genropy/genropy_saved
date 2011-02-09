@@ -9,16 +9,18 @@
 		It is better to have 100 functions operate on one data structure
 		than 10 functions on 10 data structures.
 		– Alan J. Perlis, Epigrams on Programming
-
-	We list here all the methods of the :mod:`gnr.core.gnrbag`.
 	
-	* :ref:`gnrbags_bag`
-	* :ref:`gnrbags_bagnode`
+	* Indexes:
+	
+		* :ref:`gnrbags_bag`
+		* :ref:`gnrbags_bagnode`
+		
+	* :ref:`gnrbags_classes`
 
 .. _gnrbags_bag:
 
-Index of the :class:`Bag` methods
-=================================
+the :class:`Bag` methods
+========================
 
 	.. module:: gnr.core.gnrbag.Bag
 
@@ -43,8 +45,8 @@ Index of the :class:`Bag` methods
 
 .. _gnrbags_bagnode:
 
-Index of the :class:`BagNode` methods
-=====================================
+the :class:`BagNode` methods
+============================
 
 	.. module:: gnr.core.gnrbag.BagNode
 
@@ -57,6 +59,8 @@ Index of the :class:`BagNode` methods
 	:meth:`getLabel`         :meth:`setAttr`          :meth:`subscribe`            
 	:meth:`getStaticValue`   :meth:`setLabel`         :meth:`value`                
 	======================== ======================== =============================
+
+.. _gnrbags_classes:
 
 The :mod:`gnr.core.gnrbag` classes
 ==================================

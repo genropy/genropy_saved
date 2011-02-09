@@ -58,4 +58,4 @@ nodes
 	>>> papernode.getValue()
 	8
 	
-	For a complete list of the :class:`BagNode` methods, check the :ref:`gnrbags_bagnode`.
+	For a complete list of the :class:`BagNode` methods, check the :ref:`gnrbags_bagnode` paragraph.
