@@ -119,7 +119,7 @@ class TableHandlerLight(BaseComponent):
                                                        id='mainBC_center')
         bc.dataController("FIRE #maingrid.reload;", _onStart=True)
         dimension = self.formBaseDimension()
-        struct = self.lstBase(self.newGridStruct())
+        struct = self.lstBase(self.newGridStruct(maintable=self.maintable))
         filterOn = self.filterOnBase(struct)
         defaults = self.defaultsBase()
         self.selectionHandler(bc, label=self.gridLabel(), datapath="list",
