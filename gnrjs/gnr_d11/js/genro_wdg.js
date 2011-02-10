@@ -198,7 +198,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         }
         var tip = objectPop(attributes, 'tip');
         if('visible' in attributes){
-            attributes.visibility = objectPop(attributes, 'visible')?'visible':'hidden';
+            attributes.visibility = objectPop(attributes, 'visible')==false?'hidden':'visible';
         }
         var hidden = objectPop(attributes, 'hidden');
         if (hidden == true) {
