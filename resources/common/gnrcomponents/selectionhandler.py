@@ -21,6 +21,8 @@
 """""" # don't delete this line! mandatory for autodoc
 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrwebstruct import struct_method
+from gnr.core.gnrlang import extract_kwargs
 import warnings
 
 class SelectionHandler(BaseComponent):
@@ -50,6 +52,71 @@ class SelectionHandler(BaseComponent):
     
     """
     py_requires = 'foundation/includedview:IncludedView,foundation/recorddialog'
+    
+
+    @struct_method
+    def sh_framedialog(self,pane):
+        pass
+    
+    @struct_method
+    def sh_controllers(self,pane):
+        pass
+    
+    @extract_kwargs(dialog=True,palette=True,form=True)
+    @struct_method
+    def sh_selectionHandler(self, pane,frameCode=None,
+                            nodeId=None,
+                            table=None, datapath=None, struct=None, label=None,
+                            selectionPars=None, dialogPars=None, reloader=None, externalChanges=None,
+                            hiddencolumns=None, custom_addCondition=None, custom_delCondition=None,
+                            askBeforeDelete=True, checkMainRecord=True, onDeleting=None, dialogAddRecord=True,
+                            onDeleted=None, add_enable=True, del_enable=True,add_action=True,del_action=True,
+                            parentSave=False, parentId=None, parentLock='^status.locked', reload_onSaved=True,
+                            footer=None,palette_kwargs=None,dialog_kwargs=None,form_kwargs=None,**kwargs):
+                            
+            formKw = kwargs.pop('form_kwargs',dict())
+            frameCode=frameCode or nodeId
+            framegrid = pane.selectionViewBox(
+                         frameCode=frameCode,
+                         label=label, datapath=datapath,
+                         #add_enable='^.can_add', del_enable='^.can_del',
+                         #del_action=del_action,
+                         add_action=True,
+                         del_action=True,
+                         nodeId=nodeId, table=table, struct=struct, hiddencolumns=hiddencolumns,
+                         reloader=reloader, externalChanges=externalChanges,
+                         linkedForm='%s_form' % nodeId, openFormEvent='onRowDblClick',
+                         selectionPars=selectionPars, **kwargs)
+            if footer:
+                print 'advise: use the attach point instead of footer cb'
+                footer(framegrid.bottom)
+                         
+            framegrid.dataController("""
+                var formNode = genro.formById(form_id);
+                if(!formNode){
+                    this.publish('create_form');
+                    
+                }
+            """,form_id='%s_form' %frameCode,
+                **{'subscribe_%s_form_load'%frameCode:True})
+                
+            formRoot = form_kwargs.pop('pane')
+            if formRoot:
+                if isinstance(formRoot,basestring):
+                    formRoot = self.pageSource(formRoot)
+            elif dialog_kwargs:
+                if 'height' in dialog_kwargs:
+                    form_kwargs['height'] = dialog_kwargs.pop('height')
+                if 'width' in dialog_kwargs:
+                    form_kwargs['width'] = dialog_kwargs.pop('width')
+                formRoot = pane.dialog(**dialog_kwargs)
+            elif palette_kwargs:
+                formRoot = pane.palettePane(**palette_kwargs)
+            form = formRoot.frameForm(frameCode=frameCode,datapath='.form',pkeyPath='.pkey',**form_kwargs)
+            form.top.slotToolbar('navigation,*,|,semaphore,|,formcommands,|,locker')
+            form.formStore(storepath='.record',table=table,storeType='Collection',handler='recordCluster')
+            
+            
 
     def selectionHandler(self, bc, nodeId=None, table=None, datapath=None, struct=None, label=None,
                          selectionPars=None, dialogPars=None, reloader=None, externalChanges=None,
@@ -57,7 +124,7 @@ class SelectionHandler(BaseComponent):
                          askBeforeDelete=True, checkMainRecord=True, onDeleting=None, dialogAddRecord=True,
                          onDeleted=None, add_enable=True, del_enable=True,add_action=True,del_action=True,
                          parentSave=False, parentId=None, parentLock='^status.locked', reload_onSaved=True,
-                         **kwargs):
+                         footer=None,**kwargs):
         # --------------------------------------------------------------------------------------------- Mandatory param checks
         #assert dialogPars,'dialogPars are Mandatory'
 
@@ -145,7 +212,7 @@ class SelectionHandler(BaseComponent):
                               ,
                               invalidFieldsTitle='!!Warning', newrecordTitle='!!Warning',
                               newrecordMsg='!!You have to save the main record before. Do you want to save?')
-
+        
         self.includedViewBox(bc, label=label, datapath=datapath,
                              add_action=add_action,
                              add_enable='^.can_add', del_enable='^.can_del',
@@ -154,8 +221,7 @@ class SelectionHandler(BaseComponent):
                              reloader=reloader, externalChanges=externalChanges,
                              #connect_onRowDblClick='this.widget.editCurrentRow($1.rowIndex);',
                              linkedForm='%s_form' % nodeId, openFormEvent='onRowDblClick',
-                             selectionPars=selectionPars, askBeforeDelete=True, **kwargs)
-
+                             selectionPars=selectionPars, askBeforeDelete=True, **kwargs)        
         controller = bc.dataController(datapath=datapath)
         controller.dataController("FIRE .dlg.pkey = pkey;", pkey='^gnr.forms.%s_form.openFormPkey' % nodeId)
         if checkMainRecord:
