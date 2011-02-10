@@ -131,6 +131,8 @@ class GnrPackagePlugin(object):
         self.model_path = model_path if os.path.isdir(model_path) else ''
         resources_path = os.path.join(path,'resources')
         self.resources_path = resources_path if os.path.isdir(resources_path) else ''
+        webpages_path = os.path.join(path,'webpages')
+        self.webpages_path = webpages_path if os.path.isdir(webpages_path) else ''
         config_path = os.path.join(path,'config.xml')
         self.config = Bag(config_path) if os.path.isfile(config_path) else Bag()
         self.application.config['package_plugins.%s.%s'%(pkg.id,self.id)]=self.config

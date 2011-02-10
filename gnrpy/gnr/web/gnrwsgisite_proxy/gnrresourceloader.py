@@ -145,6 +145,10 @@ class ResourceLoader(object):
         page_factory = getattr(page_module, 'page_factory', GnrWebPage)
         custom_class = getattr(page_module, 'GnrCustomWebPage')
         py_requires = splitAndStrip(getattr(custom_class, 'py_requires', ''), ',')
+        plugin_webpage_classes = self.plugin_webpage_classes(path, pkg=pkg)
+        for plugin_webpage_class in plugin_webpage_classes:
+            plugin_py_requires = splitAndStrip(getattr(plugin_webpage_class, 'py_requires', ''), ',')
+            py_requires.extend(plugin_py_requires)
         page_class = cloneClass('GnrCustomWebPage', page_factory)
         page_class.__module__ = page_module
         self.page_class_base_mixin(page_class, pkg=pkg)
@@ -171,6 +175,7 @@ class ResourceLoader(object):
         page_class.tpldirectories = page_class.resourceDirs + [
                 self.gnr_static_handler.path(page_class.gnrjsversion, 'tpl')]
         page_class._packageId = pkg
+        self.page_class_plugin_mixin(page_class, plugin_webpage_classes)
         self.page_class_custom_mixin(page_class, path, pkg=pkg)
         self.page_factories[module_path] = page_class
         return page_class
@@ -186,6 +191,27 @@ class ResourceLoader(object):
         if package and package.webPageMixinCustom:
             classMixin(page_class, package.webPageMixinCustom, only_callables=False) # finally the package custom
 
+    def plugin_webpage_classes(self, path, pkg=None):
+        """Look in the plugins folders for a file named as the current webpage and get all classes"""
+        plugin_webpage_classes = []
+        path = path.split(os.path.sep)
+        pkg = pkg and self.site.gnrapp.packages[pkg]
+        if pkg:
+            pkg_plugins = pkg.getPlugins()
+            for plugin in pkg_plugins:
+                pluginPagePath = os.path.join(plugin.webpages_path, *path)
+                if os.path.isfile(pluginPagePath):
+                    component_page_module = gnrImport(pluginPagePath, avoidDup=True)
+                    component_page_class = getattr(component_page_module, 'GnrCustomWebPage', None)
+                    if component_page_class:
+                        plugin_webpage_classes.append(component_page_class)
+        return plugin_webpage_classes
+
+
+    def page_class_plugin_mixin(self, page_class, plugin_webpage_classes):
+        """Mixin the current class with  plugin_webpage_classes"""
+        for plugin_webpage_class in plugin_webpage_classes:
+            classMixin(page_class, plugin_webpage_class, only_callables=False)
 
     def page_class_custom_mixin(self, page_class, path, pkg=None):
         """Look in the instance custom folder for a file named as the current webpage"""
@@ -283,7 +309,6 @@ class ResourceLoader(object):
         auto_resource_path = self.resource_name_to_path(self.site_name, safe=False)
         if auto_resource_path:
             resources[self.site_name] = os.path.realpath(auto_resource_path)
-        print resources
         return resources
 
     def resource_name_to_path(self, res_id, safe=True):
