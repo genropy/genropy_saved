@@ -104,7 +104,7 @@ class IncludedView(BaseComponent):
             selectionPars['_reloader'] = reloader
         if _onStart:
             selectionPars['_onStart'] = _onStart
-        frame.selectionStore(table=table,_reload='^.reload',**selectionPars)
+        view.selectionStore(table=table,_reload='^.reload',**selectionPars)
         return frame
 
     def includedViewBox(self, parentBC, nodeId=None, table=None, datapath=None,
