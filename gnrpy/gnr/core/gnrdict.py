@@ -32,8 +32,10 @@ def dictExtract(mydict, prefix, pop=False, slice_prefix=True):
     :param slice_prefix: shortens the keys of the output dict removing the prefix
     """
     lprefix = len(prefix) if slice_prefix else 0
+    
     cb = mydict.pop if pop else mydict.get
-    return dict([(k[lprefix:], cb(k)) for k in mydict.keys() if k.startswith(prefix)])
+    reserved_names = ['class']
+    return dict([(k[lprefix:] if not k[lprefix:] in reserved_names else '_%s' %k[lprefix:], cb(k)) for k in mydict.keys() if k.startswith(prefix)])
 
 class FakeDict(dict):
     pass
