@@ -52,7 +52,7 @@ def colwidth(n):
 def fitwidth(data, bold=False):
     '''Try to autofit Arial 10'''
     units = 220
-    for char in str(data):
+    for char in unicode(data):
         if char in charwidths:
             units += charwidths[char]
         else:
@@ -213,7 +213,7 @@ class SelectionToXls(GnrBatch):
         hstyle.font = font0
         for c, header in enumerate(self.columns):
             self.sheet.write(0, c, self.colHeaders[header], hstyle)
-            self.colsizes[c] = max(self.colsizes.get(c, 0), fitwidth(str(self.colHeaders[header])))
+            self.colsizes[c] = max(self.colsizes.get(c, 0), fitwidth(unicode(self.colHeaders[header])))
         self.current_row = 1
 
     def process_chunk(self, chunk):
@@ -230,7 +230,7 @@ class SelectionToXls(GnrBatch):
                 style = self.date_style
             else:
                 style = None
-                self.colsizes[c] = max(self.colsizes.get(c, 0), fitwidth(str(value)))
+                self.colsizes[c] = max(self.colsizes.get(c, 0), fitwidth(unicode(value)))
             if style:
                 self.sheet.write(self.current_row, c, value, style)
             else:
