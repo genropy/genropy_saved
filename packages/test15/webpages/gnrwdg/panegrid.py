@@ -7,7 +7,8 @@
 from gnr.web.gnrwebstruct import struct_method
 "Test page description"
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/palette_manager:PaletteManager"
+    test_only='_2_'
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
 
     def windowTitle(self):
         return ''
@@ -41,7 +42,7 @@ class GnrCustomWebPage(object):
         view = pane.includedView()
         view.selectionStore(storepath='guido',table='glbl.provincia',where="$regione='LOM'",_onStart=True)
     
-    def _test_2_frame_includedview(self,pane):
+    def test_2_frame_includedview(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='province',height='200px')
         pane.selectionStore(storeCode='provinceMie',table='glbl.provincia',where="$regione='LOM'",_onStart=True)
