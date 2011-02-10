@@ -26,6 +26,7 @@
 from gnr.core.gnrbag import Bag,BagCbResolver,DirectoryResolver
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
+from gnr.core.gnrdict import dictExtract
 from time import time
 
 
@@ -641,7 +642,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             
     def includedview_inframe(self,frameCode=None,struct=None,storepath=None,structpath=None,
                             datapath=None,nodeId=None,configurable=True,**kwargs):
-        datapath = datapath or '.grid'
+        if datapath is False:
+            datapath = None
+        else:
+            datapath = datapath or '.grid'
         structpath = structpath or '.struct'
         nodeId = nodeId or '%s_grid' %frameCode
         iv =self.child('includedView',frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
@@ -693,7 +697,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
     def slotBar(self,slots=None,slotbarCode=None,**kwargs):
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,**kwargs)
-        slots = gnrstring.splitAndStrip(slots)
+        kwargs = tb.attributes
+        slots = gnrstring.splitAndStrip(str(slots))
         frameCode = self.attributes.get('frameCode')
         prefix = slotbarCode or frameCode
         for slot in slots:
@@ -701,10 +706,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 s=tb.child('slot',name=slot)
                 slothandle = getattr(s,'%s_%s' %(prefix,slot),None)
                 if not slothandle:
-                    slothandle = getattr(s,'%s_%s' %('sltb',slot),None)
+                    slothandle = getattr(s,'%s_%s' %('slotbar',slot),None)
                 if slothandle:
                     kw = dict()
-                    kw[slot] = kwargs.get(slot,None)
+                    kw[slot] = kwargs.pop(slot,None)
+                    kw.update(dictExtract(kwargs,'%s_' %slot,True))
                     kw['frameCode'] = frameCode
                     slothandle(**kw)
                 else:
@@ -1192,7 +1198,7 @@ class GnrGridStruct(GnrStructData):
         if maintable:
             return self.page.db.table(maintable)
         else:
-            return self.page.tblobj
+            return None #self.page.tblobj
 
     tblobj = property(_get_tblobj)
 
