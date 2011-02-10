@@ -42,7 +42,6 @@ from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
 from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
-from gnr.sql.gnrsqltable import SqlTablePlugin
 
 log = logging.getLogger(__name__)
 
@@ -140,7 +139,6 @@ class GnrPackage(object):
         self.libPath = os.path.join(self.packageFolder, 'lib')
         self.attributes = {}
         self.tableMixins = {}
-        self.tablePlugins = {}
         self.customFolder = os.path.join(self.application.instanceFolder, 'custom', pkg_id)
         try:
             self.main_module = gnrImport(os.path.join(self.packageFolder, 'main.py'), 'package_%s' % pkg_id)
@@ -177,7 +175,11 @@ class GnrPackage(object):
         self.attributes.update(pkgattrs)
         
         self.tableMixinDict = {}
-        self.loadTableMixinDict(self.main_module, self.packageFolder)
+        folders=[self.packageFolder]
+        folders+=glob.glob(os.path.join(self.application.pluginFolder,self.id,'*'))
+        for folder in folders:
+            self.loadTableMixinDict(self.main_module, folder)
+        
         if os.path.isdir(self.customFolder):
             self.loadTableMixinDict(self.custom_module, self.customFolder, 'custom_')
         self.configure()
@@ -193,12 +195,9 @@ class GnrPackage(object):
         tbldict = {}
         if module:
             tbldict = dict([(x[6:], getattr(module, x)) for x in dir(module) if x.startswith('Table_')])
-
-        modelfolders = [os.path.join(folder, 'model')]
-        modelfolders.extend([mf for mf in glob.glob(os.path.join(self.application.pluginFolder,'*','model')) if os.path.isdir(mf)])
-        for modelfolder in modelfolders:
-            if os.path.isdir(modelfolder):
-                tbldict.update(dict([(x[:-3], None) for x in os.listdir(modelfolder) if x.endswith('.py')]))
+        modelfolder=os.path.join(folder,'model')
+        if os.path.isdir(modelfolder):
+            tbldict.update(dict([(x[:-3], None) for x in os.listdir(modelfolder) if x.endswith('.py')]))
 
         for tbl, cls in tbldict.items():
             if not tbl in self.tableMixinDict:
@@ -213,9 +212,6 @@ class GnrPackage(object):
                 
                 for cname in dir(tbl_module):
                     member = getattr(tbl_module, cname, None)
-                    if type(member) == type and issubclass(member, SqlTablePlugin):
-                        self.tableMixinDict[tbl]._plugins[cname] = member # Miki 20090605
-                        self.tablePlugins.setdefault(tbl, {})[cname] = member # TODO get plugins also from custom
             else:
                 instanceMixin(self.tableMixinDict[tbl], cls)
                 
@@ -297,7 +293,7 @@ class GnrApp(object):
         if not os.path.isdir(instanceFolder):
             instanceFolder = self.instance_name_to_path(instanceFolder)
         self.instanceFolder = instanceFolder
-        self.pluginFolder = os.path.join(self.instanceFolder, 'plugin')
+        self.pluginFolder = os.path.normpath(os.path.join(self.instanceFolder, 'plugin'))
         self.kwargs = kwargs
         self.packages = Bag()
         self.packagesIdByPath = {}
