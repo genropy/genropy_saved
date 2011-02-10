@@ -107,6 +107,11 @@ class GnrSqlDb(GnrObject):
 
     #------------------------Configure and Startup-----------------------------
     # 
+    
+    @property
+    def debug(self):
+        return self.application.debug
+    
     @property
     def dbstores(self):
         return self.stores_handler.dbstores

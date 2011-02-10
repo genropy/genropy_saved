@@ -1201,7 +1201,7 @@ class LazyBagResolver(BagResolver):
 class GnrMakoPage(GnrWebPage):
     def onPreIniting(self, request_args, request_kwargs):
         request_kwargs['_plugin'] = 'mako'
-        request_kwargs['path'] = self.mako_template()
+        request_kwargs['mako_path'] = self.mako_template()
 
 class ClientPageHandler(object):
     """proxi for making actions on client page"""

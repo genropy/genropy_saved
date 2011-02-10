@@ -18,20 +18,21 @@ AUTH_NOT_LOGGED = 1
 AUTH_FORBIDDEN = -1
 
 class Plugin(GnrBasePlugin):
-    def __call__(self, path=None, dojo_theme=None, striped='odd_row,even_row', pdf=False, **kwargs):
+    def __call__(self, dojo_theme=None, striped='odd_row,even_row', pdf=False, **kwargs):
+        mako_path=kwargs.get('mako_path')
         page = self.page
         dojo_theme = dojo_theme or getattr(self.page, 'dojo_theme', None) or 'tundra'
         auth = page._checkAuth()
         if auth != AUTH_OK:
-            page.raiseUnauthorized()
+            return self.page.site.forbidden_exception
         if striped:
             kwargs['striped'] = itertools.cycle(striped.split(','))
         gnr_static_handler = page.site.getStatic('gnr')
-        tpldirectories = [os.path.dirname(path), page.parentdirpath] + page.resourceDirs + [
+        tpldirectories = [os.path.dirname(mako_path), page.parentdirpath] + page.resourceDirs + [
                 gnr_static_handler.path(page.gnrjsversion, 'tpl')]
         lookup = TemplateLookup(directories=tpldirectories,
                                 output_encoding='utf-8', encoding_errors='replace')
-        template = lookup.get_template(os.path.basename(path))
+        template = lookup.get_template(os.path.basename(mako_path))
         page.charset = 'utf-8'
         _resources = page.site.resources.keys()
         _resources.reverse()

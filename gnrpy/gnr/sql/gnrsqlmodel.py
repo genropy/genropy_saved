@@ -49,6 +49,9 @@ class DbModel(object):
         self._columnsWithRelations = {}
         self.mixins = Bag()
 
+    @property
+    def debug(self):
+        return self.db.debug
 
     def build(self):
         """Db startup operations:
@@ -141,6 +144,8 @@ class DbModel(object):
             self.checkRelationIndex(many_pkg, many_table, many_field)
             self.checkRelationIndex(one_pkg, one_table, one_field)
         except:
+            if self.debug:
+                raise
             logger.warning('The relation %s - %s cannot be added', str('.'.join(many_relation_tuple)), str(oneColumn))
             #print 'The relation %s - %s cannot be added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
 

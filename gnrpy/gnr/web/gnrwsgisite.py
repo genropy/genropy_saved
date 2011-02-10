@@ -605,6 +605,17 @@ class GnrWsgiSite(object):
                    debug_message or '(none)'))
         return exc.wsgi_application(environ, start_response)
 
+    def forbidden_exception(self, environ, start_response, debug_message=None):
+        exc = httpexceptions.HTTPForbidden(
+                'The resource at %s could not be viewed'
+                % paste_request.construct_url(environ),
+                comment='SCRIPT_NAME=%r; PATH_INFO=%r; debug: %s'
+                % (environ.get('SCRIPT_NAME'), environ.get('PATH_INFO'),
+                   debug_message or '(none)'))
+        return exc.wsgi_application(environ, start_response)
+
+
+
     def failed_exception(self, message, environ, start_response, debug_message=None):
         if '%%s' in message:
             message = message % paste_request.construct_url(environ)
