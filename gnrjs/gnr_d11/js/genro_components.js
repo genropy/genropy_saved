@@ -525,9 +525,11 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
         var slotbarCode = sourceNode.getInheritedAttributes().slotbarCode;
         kw['showLabel'] = kw.iconClass? (kw['showLabel'] || false):true;        
         var topic = slotbarCode+'_'+objectPop(kw,'publish');
-        if(!kw.action){
+        var topic = objectPop(kw,'publish');
+        if(kw.action===true || 'action' in kw){
             kw.topic = topic;
             kw.command = kw.command || null;
+            //kw['action'] = "genro.publish(topic,{'command':command})";
             kw['action'] = "genro.publish(topic,{'command':command})";
         }
         return sourceNode._('button',kw);
@@ -541,6 +543,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         var frameNode = sourceNode.getParentNode().getParentNode();
         var side=sourceNode.getParentNode().attr.region;
         var framePars = frameNode.attr;
+        var sidePars = objectExtract(framePars,'side_*',true);
         var orientation = attributes.orientation || 'horizontal';
         if (side){
             orientation = ((side=='top')||(side=='bottom'))?'horizontal':'vertical';
@@ -562,12 +565,11 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
             }
         }
         attributes['_class'] = (attributes['_class'] || '')+' slotbar  slotbar_'+orientation+' slotbar_'+side
+        if(side){
+            attributes['side'] = side;
+            attributes['slotbarCode'] = attributes['slotbarCode'] || attributes['frameCode'] +'_'+ side; 
         if(objectPop(attributes,'toolbar')){
             attributes['_class'] += ' slotbar_toolbar';
-            if(frameNode && side){
-                attributes['side'] = side;
-                attributes['slotbarCode'] = attributes['slotbarCode'] || attributes['frameCode'] +'_'+ side; 
-                var sidePars = objectExtract(framePars,'side_*',true);
                 attributes['gradient_from'] = attributes['gradient_from'] || sidePars['gradient_from'] || genro.dom.themeAttribute('toolbar','gradient_from','silver');
                 attributes['gradient_to'] = attributes['gradient_to'] || sidePars['gradient_to'] || genro.dom.themeAttribute('toolbar','gradient_to','whitesmoke');
                 var css3Kw = {'left':[0,'right'],'top':[-90,'bottom'],
