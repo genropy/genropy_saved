@@ -28,7 +28,7 @@ import thread
 import warnings
 
 from gnr.core import gnrstring
-
+from gnr.core.gnrdict import dictExtract
 import uuid
 import base64
 import time
@@ -57,6 +57,23 @@ def deprecated(func):
     newFunc.__doc__ = func.__doc__
     newFunc.__dict__.update(func.__dict__)
     return newFunc
+    
+    
+def extract_kwargs(**extract_kwargs):
+    def decore(func):
+        def newFunc(*args, **kwargs):
+            for extract_key,extract_value in extract_kwargs.items():
+                grp_key='%s_kwargs' %extract_key
+                curr=kwargs.setdefault(grp_key,dict())
+                dfltExtract=dict(slice_prefix=True,pop=False)
+                if extract_value is True:
+                    dfltExtract['pop']=True
+                elif isinstance(extract_value,dict):
+                    dfltExtract.update(extract_value)
+                curr.update(dictExtract(kwargs,extract_key,**dfltExtract))
+            return func(*args,**kwargs)
+        return newFunc
+    return decore
 
 def boolean(x):
     if isinstance(x, basestring):
@@ -122,6 +139,7 @@ def metadata(**kwargs):
         return func
 
     return decore
+
 
 def getUuid():
     return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(), str(thread.get_ident())).bytes)[0:22]
