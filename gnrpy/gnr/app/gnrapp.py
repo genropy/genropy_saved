@@ -119,7 +119,24 @@ class GnrSqlAppDb(GnrSqlDb):
         resource.table = tblobj
         resource.db = self
         return resource
-        
+
+class GnrPackagePlugin(object):
+    def __init__(self, pkg, path):
+        self.pkg = pkg
+        self.application = self.pkg.application
+        plugin_id = os.path.basename(path)
+        self.id = plugin_id
+        self.path = path
+        model_path = os.path.join(path,'model')
+        self.model_path = model_path if os.path.isdir(model_path) else ''
+        resources_path = os.path.join(path,'resources')
+        self.resources_path = resources_path if os.path.isdir(resources_path) else ''
+        config_path = os.path.join(path,'config.xml')
+        self.config = Bag(config_path) if os.path.isfile(config_path) else Bag()
+        self.application.config['package_plugins.%s.%s'%(pkg.id,self.id)]=self.config
+
+    
+
 class GnrPackage(object):
     """add???
     """
@@ -139,6 +156,8 @@ class GnrPackage(object):
         self.libPath = os.path.join(self.packageFolder, 'lib')
         self.attributes = {}
         self.tableMixins = {}
+        self.plugins = {}
+        self.loadPlugins()
         self.customFolder = os.path.join(self.application.instanceFolder, 'custom', pkg_id)
         try:
             self.main_module = gnrImport(os.path.join(self.packageFolder, 'main.py'), 'package_%s' % pkg_id)
@@ -176,7 +195,7 @@ class GnrPackage(object):
         
         self.tableMixinDict = {}
         folders=[self.packageFolder]
-        folders+=glob.glob(os.path.join(self.application.pluginFolder,self.id,'*'))
+        folders+=[p.model_path for p in self.getPlugins()]
         for folder in folders:
             self.loadTableMixinDict(self.main_module, folder)
         
@@ -184,6 +203,15 @@ class GnrPackage(object):
             self.loadTableMixinDict(self.custom_module, self.customFolder, 'custom_')
         self.configure()
         
+    def loadPlugins(self):
+        plugin_folders=glob.glob(os.path.join(self.application.pluginFolder,self.id,'*'))
+        for plugin_folder in plugin_folders:
+            plugin = GnrPackagePlugin(self, plugin_folder)
+            self.plugins[plugin.id] = plugin
+        
+    def getPlugins(self):
+        return self.plugins.values()
+    
     def loadTableMixinDict(self, module, folder, model_prefix=''):
         """add???
 
@@ -754,6 +782,12 @@ class GnrApp(object):
             return (hashlib.md5(login_pwd + pwd[1]).hexdigest() == pwd[0])
         else:
             return (login_pwd == toText(pwd))
+
+    def getPackagePlugins(self, pkg_id):
+        pkg = self.packages[pkg_id]
+        if pkg:
+            return pkg.getPlugins()
+        return []
 
     def changePassword(self, login_pwd, pwd, newpwd, userid=None):
         """add???
