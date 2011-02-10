@@ -1449,6 +1449,7 @@ textarea:disabled {
 }
 .slotbar_horizontal{
     position:relative;
+    white-space:nowrap;
 }
 
 /* @group Toolbar Selector */
