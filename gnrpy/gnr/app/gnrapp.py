@@ -194,9 +194,11 @@ class GnrPackage(object):
         if module:
             tbldict = dict([(x[6:], getattr(module, x)) for x in dir(module) if x.startswith('Table_')])
 
-        modelfolder = os.path.join(folder, 'model')
-        if os.path.isdir(modelfolder):
-            tbldict.update(dict([(x[:-3], None) for x in os.listdir(modelfolder) if x.endswith('.py')]))
+        modelfolders = [os.path.join(folder, 'model')]
+        modelfolders.extend([mf for mf in glob.glob(os.path.join(self.application.pluginFolder,'*','model')) if os.path.isdir(mf)])
+        for modelfolder in modelfolders:
+            if os.path.isdir(modelfolder):
+                tbldict.update(dict([(x[:-3], None) for x in os.listdir(modelfolder) if x.endswith('.py')]))
 
         for tbl, cls in tbldict.items():
             if not tbl in self.tableMixinDict:
@@ -280,7 +282,7 @@ class GnrApp(object):
     12
     """
 
-    def __init__(self, instanceFolder, custom_config=None, forTesting=False, **kwargs):
+    def __init__(self, instanceFolder, custom_config=None, forTesting=False, debug=False, **kwargs):
         """add???
 
         :param instanceFolder: add???
@@ -290,10 +292,12 @@ class GnrApp(object):
         """
         self.aux_instances = {}
         self.gnr_config = self.load_gnr_config()
+        self.debug=debug
         self.set_environment()
         if not os.path.isdir(instanceFolder):
             instanceFolder = self.instance_name_to_path(instanceFolder)
         self.instanceFolder = instanceFolder
+        self.pluginFolder = os.path.join(self.instanceFolder, 'plugin')
         self.kwargs = kwargs
         self.packages = Bag()
         self.packagesIdByPath = {}
