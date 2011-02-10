@@ -266,6 +266,13 @@ class ResourceLoader(object):
             label = 'pkg_%s' % (pkg.id)
             if os.path.isdir(rsrc_path):
                 resources[label] = rsrc_path
+            plugin_resource_folders = glob.glob(os.path.join(self.site.gnrapp.pluginFolder,pkg.id,'*'))
+            for plugin_resource_folder in plugin_resource_folders:
+                plugin_name = os.path.basename(plugin_resource_folder)
+                label = 'pkg_%s_%s' % (pkg.id,plugin_name)
+                if os.path.isdir(plugin_resource_folder):
+                    resources[label] = plugin_resource_folder
+                
         resources_list = [(resource.label, resource.attr.get('path')) for resource in
                           self.site.config['resources'] or []]
         for label, rsrc_path in resources_list:
