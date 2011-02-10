@@ -69,7 +69,7 @@ class TableHandlerForm(BaseComponent):
         structures = Bag()
 
         def setInStructureCb(label, handler):
-            structures.setItem(label, handler(self.newGridStruct()), objtype='view', tbl=self.maintable)
+            structures.setItem(label, handler(self.newGridStruct(maintable=self.maintable)), objtype='view', tbl=self.maintable)
 
         viewMenu = self.listCustomCbBag('lstBase_', 'lstBase', cb=setInStructureCb)
         viewMenu.addItem('-', None)
