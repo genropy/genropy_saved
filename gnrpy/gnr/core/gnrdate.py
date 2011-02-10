@@ -34,9 +34,11 @@ from dateutil import rrule
 
 logger = logging.getLogger(__name__)
 
-
 def yearDecode(datestr):
-    "returns the year number as an int from a string of 2 or 4 digits: if 2 digits is given century is added."
+    """returns the year number as an int from a string of 2 or 4 digits: if 2 digits is given century is added.
+    
+    :param datestr: add???
+    """
     year = None
     datestr = datestr.strip()
     if datestr and datestr.isdigit():
@@ -52,36 +54,44 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
     """Parse a string representing a date or a period.
 
     :param datestr: the string to be interpreted
-    :param workdate: a date of reference for calculate relative periods (eg. tomorrow or this week)
-    :param months: names of months according to locale (just for caching)
-    :param days: names of weekdays according to locale (just for caching)
-    :param quarters: names of quarters according to locale (just for caching)
-    :param locale: the current locale strig (eg. en, en_us, it)
+    :param workdate: a date of reference for calculate relative periods (e.g: tomorrow or this week).
+                     Default value is ``None``
+    :param months: names of months according to locale (just for caching). Default value is ``None``
+    :param days: names of weekdays according to locale (just for caching). Default value is ``None``
+    :param quarters: names of quarters according to locale (just for caching). Default value is ``None``
+    :param locale: the current locale string (e.g: en, en_us, it). Default value is ``None``
     :param isEndPeriod: if the string represents a period, return the end date (default return the start date)
     :returns: datetime.date or tuple(year,month) or None
 
     Special keywords like ``today`` or the name of a month can be translated in all languages and support synonimous,
-    eg. ``this month`` or ``month``.
+    e.g: ``this month`` or ``month``.
 
     The input string can be:
-    - a year: eg. 2007 or 07
-    - today, yesterday, tomorrow (can be translated in all languages)
-        - can be specified a number of days to add to today: eg. 'today + 3' or 'today - 15'
-    - this week, next week, last week (can be translated in all languages)
-    - this month, next month, last month (can be translated in all languages )
-        - can be specified a number of months to add to current month: eg. 'this month + 3' or 'this month - 24'
-    - the name of a quarter: eg. Q1 or 1st quarter
-    - the name of a month: eg. april or apr
-        - can be specified a year after the month: eg. apr 07 or april 2007
-        - returns a tuple (year, month): if year is not specified in datestr, year is returned None
-    - the name of a weekday: eg. monday or mon
-        - the date returned is the date of the given weekday in this week (relative to workdate)
-    - an iso date: eg. 2008-04-28
-    - a date formatted according to locale (see babel doc): eg. 4 28, 2008 (en_us) or 28-4-08 (it)
+    
+    * a year: e.g. 2007 or 07
+    * today, yesterday, tomorrow (can be translated in all languages)
+        * you can specify a number of days to add to today: e.g. 'today + 3' or 'today - 15'
+    * this week, next week, last week (can be translated in all languages)
+    * this month, next month, last month (can be translated in all languages )
+        * can be specified a number of months to add to current month: e.g. 'this month + 3' or 'this month - 24'
+    * the name of a quarter: e.g. Q1 or 1st quarter
+    * the name of a month: e.g. april or apr
+        * can be specified a year after the month: e.g. apr 07 or april 2007
+        * returns a tuple (year, month): if year is not specified in datestr, year is returned None
+    * the name of a weekday: e.g. monday or mon
+        * the date returned is the date of the given weekday in this week (relative to workdate)
+    * an iso date: e.g. 2008-04-28
+    * a date formatted according to locale (see babel doc): e.g. 4 28, 2008 (en_us) or 28-4-08 (it)
                            various separators are admitted: 28-4-08, 28/4/08, 28 4 08
     """
-
+    
     def addToDay(datestr, date):
+        """add???
+        
+        :param datestr: add???
+        :param date: add???
+        :returns: add???
+        """
         if '+' in datestr:
             days = int(datestr.split('+')[1].strip())
             return date + datetime.timedelta(days)
@@ -91,6 +101,13 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         return date
 
     def addToMonth(datestr, date, addmonth=0):
+        """add???
+        
+        :param datestr: add???
+        :param date: add???
+        :param addmonth: add???. Default value is ``0``
+        :returns: add???
+        """
         if '+' in datestr:
             addmonth = int(datestr.split('+')[1].strip())
         if '-' in datestr:
@@ -104,8 +121,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             month = month - 12
             year = year + 1
         return datetime.date(year, month, 1)
-
-
+        
     datestr = datestr or ''
     datestr = datestr.strip()
     if datestr:
@@ -118,13 +134,13 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         dateStart = None
         dateEnd = None
         workdate = workdate or datetime.date.today()
-
+        
         if datestr.isdigit() and len(datestr) in (2, 4):                          # a full year
             year = yearDecode(datestr)
             dateStart = datetime.date(year, 1, 1)
             if isEndPeriod:
                 dateEnd = datetime.date(year, 12, 31)
-
+                
         elif anyWordIn(gnrlocale.getDateKeywords('today', locale), datestr) or anyWordIn(
                 gnrlocale.getDateKeywords('today', DEFAULT_LOCALE), datestr):     # today
             dateStart = addToDay(datestr, workdate)
@@ -134,7 +150,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         elif anyWordIn(gnrlocale.getDateKeywords('tomorrow', locale), datestr) or anyWordIn(
                 gnrlocale.getDateKeywords('tomorrow', locale), DEFAULT_LOCALE):  # tomorrow
             dateStart = addToDay(datestr, workdate + datetime.timedelta(1))
-
+            
         elif (datestr in gnrlocale.getDateKeywords(('this week', 'next week', 'last week'), locale)) or  (
         datestr in gnrlocale.getDateKeywords(('this week', 'next week', 'last week'), DEFAULT_LOCALE)): # relative week
             j = workdate.weekday()
@@ -194,14 +210,19 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             dateStart = datetime.date(*[int(el) for el in wordSplit(datestr)[0:3]])
         else:                                                                   # a date in local format
             dateStart = gnrlocale.parselocal(datestr, datetime.date, locale)
-
+            
         if isEndPeriod and dateEnd:
             return dateEnd
         else:
             return dateStart
-
+            
 def periodCaption(dateFrom=None, dateTo=None, locale=None):
     """Convert two dates to a string in the specified locale that decodeDatePeriod will understand.
+    
+    :param dateFrom: add???. Default value is ``None``
+    :param dateTo: add???. Default value is ``None``
+    :param locale: add???. Default value is ``None``
+    :returns: add???
     """
     localNoPeriod = gnrlocale.getDateKeywords('no period', locale)[0]
     localTo = gnrlocale.getDateKeywords('to', locale)[0]
@@ -216,26 +237,33 @@ def periodCaption(dateFrom=None, dateTo=None, locale=None):
         return '%s %s' % (localTo, textTo)
     else:
         return localNoPeriod
-
-
+        
 def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtype='D'):
-    """Parse a string representing a date or a period and returns a string of one or two dates in iso format separated by ';'
+    """Parse a string representing a date or a period and returns a string of one or two dates in iso format separated by ``;``.
+    See doc of :meth:`decodeOneDate` for details on possible formats of a single date.
     
-       See doc of :meth:`decodeOneDate` for details on possible formats of a single date.
-       The input string can be:
-        - two dates separated by ``;``: eg. ``22 4, 2008;28 4, 2008``
-        - two dates separated by `` to ``
-        - two dates in form ``from date to date`` (can be translated and supports synonimous, eg. ``between date and date``)
-            - if a period is given as starting date, the start date of period is keep
-            - if a period is given as end date, the end date of period is keep
-            - if no year is specified, the year is relative to working date, keeping all periods in the past
-                  eg. if working date is 2008-04-28, december is interpreted as december 2007
-            - if a year is specified for the end date (or period) a relative year is calculated for the starting period
-                  eg. from december to march 06: returns ``'2005-12-01;2006-03-31'``
-        - a starting date in form ``from date``, if date is a period starting date is keep: eg. april returns ``'2008-04-01;'``
-        - an end date in form ``to date``, if date is a period end date is keep: eg. april returns ``';2008-04-30'``
-        - a single expression representing a period: eg. 2007 returns ``'2007-01-01;2007-12-31'``
-        - a single expression representing a single date: eg. today returns ``'2008-04-28'``
+    The input string can be:
+    
+    * two dates separated by ``;``: e.g. ``22 4, 2008;28 4, 2008``
+    * two dates separated by `` to ``
+    * two dates in form ``from date to date`` (can be translated and supports synonimous, e.g. ``between date and date``)
+        * if a period is given as starting date, the start date of period is keep
+        * if a period is given as end date, the end date of period is keep
+        * if no year is specified, the year is relative to working date, keeping all periods in the past
+              e.g. if working date is 2008-04-28, december is interpreted as december 2007
+        * if a year is specified for the end date (or period) a relative year is calculated for the starting period
+              e.g. from december to march 06: returns ``'2005-12-01;2006-03-31'``
+    * a starting date in form ``from date``, if date is a period starting date is keep: e.g. april returns ``'2008-04-01;'``
+    * an end date in form ``to date``, if date is a period end date is keep: e.g. april returns ``';2008-04-30'``
+    * a single expression representing a period: e.g. 2007 returns ``'2007-01-01;2007-12-31'``
+    * a single expression representing a single date: e.g. today returns ``'2008-04-28'``
+    
+    :param datestr: add???
+    :param workdate: add???. Default value is ``None``
+    :param locale: add???. Default value is ``None``
+    :param returnDate: add???. Default value is ``False``
+    :param dtype: add???. Default value is ``D``
+    :returns: add???
     """
     workdate = workdate or datetime.date.today()
     months = gnrlocale.getMonthNames(locale)
@@ -325,14 +353,28 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
         return '%s;%s' % (dateStart or '', dateEnd or '')
 
 def monthStart(year=None, month=None, date=None):
-    "returns datetime.date of the first day of the month, if date is given year and month are readed from date."
+    """Return datetime.date of the first day of the month.
+    If ``date`` is given, then ``year`` and ``month`` are readed from date.
+    
+    :param year: The year you specify. Default value is ``None``
+    :param month: The month you specify. Default value is ``None``
+    :param date: add???. Default value is ``None``
+    :returns: datetime.date of the first day of the month
+    """
     if date:
         year = date.year
         month = date.month
     return datetime.date(year, month, 1)
-
+    
 def monthEnd(year=None, month=None, date=None):
-    "returns datetime.date of the first day of the month, if date is given year and month are readed from date."
+    """Return datetime.date of the last day of the month.
+    If ``date`` is given, then ``year`` and ``month`` are readed from date.
+    
+    :param year: The year you specify. Default value is ``None``
+    :param month: The month you specify. Default value is ``None``
+    :param date: add???. Default value is ``None``
+    :returns: datetime.date of the last day of the month
+    """
     if date:
         year = date.year
         month = date.month
@@ -342,8 +384,12 @@ def monthEnd(year=None, month=None, date=None):
     else:
         month = month + 1
     return datetime.date(year, month, 1) - datetime.timedelta(1)
-
+    
 def dateLastYear(d):
+    """add???
+    
+    :param d: add???
+    """
     if not d: return
     if d.month == 2 and d.day == 29:
         result = datetime.date(d.year - 1, 2, 28)
@@ -352,8 +398,16 @@ def dateLastYear(d):
     else:
         result = datetime.date(d.year - 1, d.month, d.day)
     return result
-
+    
 def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
+    """add???
+    
+    :param period: add???
+    :param wkdlist: add???. Default value is ``None``
+    :param locale: add???. Default value is ``None``
+    :param workdate: add???. Default value is ``None``
+    :param asDate: add???. Default value is ``True``
+    """
     dstart, dstop = decodeDatePeriod(period, returnDate=True, locale=locale, workdate=workdate)
     itr = rrule.rrule(rrule.DAILY, dtstart=dstart, until=dstop, byweekday=wkdlist)
     for d in itr:
@@ -364,6 +418,8 @@ def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
 
 def toTime(t):
     """Convert a time, datetime or a string (HH:MM:SS or HH:MM) to a time.
+    
+    :param t: the time to convert
     """
     if isinstance(t, datetime.datetime):
         return t.time()
@@ -379,6 +435,9 @@ def toTime(t):
 
 def toDate(date_or_datetime):
     """Convert a date or datetime to a date.
+    
+    :param date_or_datetime: the date or datetime to convert in a date
+    :returns: a date
     """
     if isinstance(date_or_datetime, datetime.datetime):
         return date_or_datetime.date()
@@ -388,9 +447,23 @@ def toDate(date_or_datetime):
         raise ValueError, "toDate(%s) accepts only dates or datetimes" % repr(date_or_datetime)
 
 def dateRange(dstart, dstop):
-    """Returns an iterator over a range of dates.
+    """Return an iterator over a range of dates.
     
     It works like the range() builtin, so it will return ``[dstart,dstart+1,...,dstop-1]``
+    
+    :param dstart: the start date
+    :param dstop: the end date
+    :returns: an iterator over a range of dates
+    
+    >>> a = datetime.date(year=2010,month=10,day=8)
+    >>> b = datetime.date(year=2010,month=10,day=12)
+    >>> for date in dateRange(a,b):
+    ...     print date
+    ... 
+    2010-10-08
+    2010-10-09
+    2010-10-10
+    2010-10-11
     """
     dt = dstart
     while dt < dstop:
@@ -398,18 +471,21 @@ def dateRange(dstart, dstop):
         dt = dt + datetime.timedelta(days=1)
 
 def time_to_minutes(t):
-    """Returns the number of minutes since midnight.
+    """add???
     
-    :param t:   datetime.time
-    :returns:   int
+    :param t: add???
+    :returns: add???
     """
     return t.hour * 60 + t.minute
 
 def minutes_to_time(mins):
     """Returns a datetime.time given the number of minutes since midnight.
     
-    :param mins:    int
-    :returns:       datetime.time
+    :param mins: int - number of minutes
+    :returns: a datetime.time given the number of minutes since midnight
+    
+    >>> minutes_to_time(480)
+    datetime.time(8, 0)
     """
     hours = mins / 60
     mins = mins % 60

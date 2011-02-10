@@ -5,6 +5,8 @@
 .. toctree::
 
 	gnrbags
+	gnrbaghtml
+	gnrbagxml
 	gnrclasses
 	gnrdate
 	gnrdict

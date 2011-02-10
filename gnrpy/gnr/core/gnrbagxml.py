@@ -38,7 +38,18 @@ class _BagXmlException(Exception): pass
 
 
 class BagFromXml(object):
+    """add???
+    """
     def build(self, source, fromFile, catalog=None, bagcls=Bag, empty=None):
+        """add???
+        
+        :param source: add???
+        :param fromFile: add???
+        :param catalog: add???. Default value is ``None``
+        :param bagcls: add???. Default value is ``Bag``
+        :param empty: add???. Default value is ``None``
+        :returns: add???
+        """
         if not bagcls: bagcls = Bag
         done = False
         testmode = False
@@ -74,6 +85,16 @@ class BagFromXml(object):
         return result
 
     def do_build(self, source, fromFile, catalog=None, bagcls=Bag, empty=None, testmode=False):
+        """add???
+        
+        :param source: add???
+        :param fromFile: add???
+        :param catalog: add???. Default value is ``None``
+        :param bagcls: add???. Default value is ``Bag``
+        :param empty: add???. Default value is ``None``
+        :param testmode: add???. Default value is ``False``
+        :returns: add???
+        """
         if not testmode:
             bagImport = _SaxImporter()
         else:
@@ -207,10 +228,12 @@ class _SaxImporter(sax.handler.ContentHandler):
 
 
 class BagToXml(object):
+    """add???
+    """
     def nodeToXmlBlock(self, node):
-        """
-        This method handles all the different node types, calls the method build tag and returns its result.
+        """Handle all the different node types, call the method build tag and return its result.
         
+        :param node: add???
         :returns: the XML tag that represent self BagNode.
         """
         if self.unresolved and node.resolver != None and not getattr(node.resolver,'_xmlEager',None):
@@ -243,8 +266,8 @@ class BagToXml(object):
 
     #-------------------- toXmlBlock --------------------------------
     def bagToXmlBlock(self, bag):
-        """
-        This method returns an XML block version of the Bag.
+        """Return an XML block version of the Bag.
+        
         The XML block version of the Bag uses XML attributes for an efficient representation of types:
         If the element-leaf is a simple string, there are no type attributes in the corresponding XML nodes 
         otherwise a 'T' attribute is set to the node and the value of 'T' changes in function of the type 
@@ -252,33 +275,47 @@ class BagToXml(object):
         
         :returns: the Bag represented as XML block in a List.
         
-            >>> mybag=Bag()
-            >>> mybag['aa.bb']=4567
-            >>> mybag['aa.cc']='test'
-            >>> mybag.toXmlBlock()
-            ['<aa>', u'<cc>test</cc>', u'<bb T="L">4567</bb>', '</aa>']
+        >>> mybag=Bag()
+        >>> mybag['aa.bb']=4567
+        >>> mybag['aa.cc']='test'
+        >>> mybag.toXmlBlock()
+        ['<aa>', u'<cc>test</cc>', u'<bb T="L">4567</bb>', '</aa>']
         """
         return '\n'.join([self.nodeToXmlBlock(node) for node in bag.nodes])
-
+        
     #-------------------- toXml --------------------------------
     def build(self, bag, filename=None, encoding='UTF-8', catalog=None, typeattrs=True, typevalue=True,
               addBagTypeAttr=True,onBuildTag=None,
               unresolved=False, autocreate=False, docHeader=None, self_closed_tags=None,
               translate_cb=None, omitUnknownTypes=False, omitRoot=False, forcedTagAttr=None):
-        """
-        This method returns a complete standard XML version of the Bag, including the encoding tag 
-        <?xml version=\'1.0\' encoding=\'UTF-8\'?> ; the content of the Bag is hierarchically represented 
-        as an XML block sub-element of the node <GenRoBag> (see the toXmlBlock() documentation for more details about type representation).
-        Is also possible to write the result on a file, passing the path of the file as the 'filename' parameter.
+        """Return a complete standard XML version of the Bag, including the encoding tag 
+        ``<?xml version=\'1.0\' encoding=\'UTF-8\'?>``; the Bag's content is hierarchically represented 
+        as an XML block sub-element of the ``<GenRoBag>`` node.
         
-        :param filename: an optional parameter, it is the path of the output file; default value is 'None'
-        :param encoding: an optional parameter, is used to set the XML encoding; default value is UTF-8.
+        Is also possible to write the result on a file, passing the path of the file as the ``filename`` parameter.
+        
+        :param bag: the Bag to transform in a XML block version
+        :param filename: the path of the output file. Default value is ``None``
+        :param encoding: allow to set the XML encoding. Default value is ``UTF-8``
+        :param catalog: add???. Default value is ``None``
+        :param typeattrs: add???. Default value is ``True``
+        :param typevalue: add???. Default value is ``True``
+        :param addBagTypeAttr: add???. Default value is ``True``
+        :param onBuildTag: add???. Default value is ``None``
+        :param unresolved: add???. Default value is ``False``
+        :param autocreate: add???. Default value is ``False``
+        :param docHeader: add???. Default value is ``none``
+        :param self_closed_tags: add???. Default value is ``None``
+        :param translate_cb: add???. Default value is ``None``
+        :param omitUnknownTypes: add???. Default value is ``False``
+        :param omitRoot: add???. Default value is ``False``
+        :param forceTagAttr: add???. Default value is ``None``
         :returns: an XML version of the bag.
         
-            >>> mybag=Bag()
-            >>> mybag['aa.bb']=4567
-            >>> mybag.toXml()
-            '<?xml version=\'1.0\' encoding=\'iso-8859-15\'?><GenRoBag><aa><bb T="L">4567</bb></aa></GenRoBag>'
+        >>> mybag = Bag()
+        >>> mybag['aa.bb'] = 4567
+        >>> mybag.toXml()
+        '<?xml version=\'1.0\' encoding=\'iso-8859-15\'?><GenRoBag><aa><bb T="L">4567</bb></aa></GenRoBag>'
         """
         result = docHeader or "<?xml version='1.0' encoding='" + encoding + "'?>\n"
         if not catalog:
@@ -294,14 +331,14 @@ class BagToXml(object):
         self.onBuildTag = onBuildTag
         if not typeattrs:
             self.catalog.addSerializer("asText", bool, lambda b: 'y' * int(b))
-
+            
         self.unresolved = unresolved
         if omitRoot:
             result = result + self.bagToXmlBlock(bag)
         else:
             result = result + self.buildTag('GenRoBag', self.bagToXmlBlock(bag), xmlMode=True)
         result = unicode(result).encode(encoding, 'replace')
-
+        
         if filename:
             if autocreate:
                 dirname = os.path.dirname(filename)
@@ -311,9 +348,17 @@ class BagToXml(object):
             output.write(result)
             output.close()
         return result
-
-
+        
     def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False):
+        """add???
+        
+        :param tagName: add???
+        :param value: add???
+        :param attributes: add???. Default value is ``None``
+        :param cls: add???. Default value is `` ``
+        :param xmlMode: add???. Default value is ``False``
+        :returns: the XML tag that represent self BagNode.
+        """
         #if value == None:
         #    value = ''
         if self.onBuildTag:
@@ -363,12 +408,12 @@ class BagToXml(object):
         originalTag = tagName
         tagName = re.sub('\W', '_', originalTag).replace('__', '_')
         if tagName[0].isdigit(): tagName = '_' + tagName
-
+        
         if tagName != originalTag:
             result = '<%s _tag=%s' % (tagName, saxutils.quoteattr(saxutils.escape(originalTag)))
         else:
             result = '<%s' % tagName;
-
+            
         if self.typevalue and t != '' and t != 'T':
             result = '%s _T="%s"' % (result, t)
         if attributes: result = "%s %s" % (result, attributes)
@@ -378,13 +423,12 @@ class BagToXml(object):
             if not isinstance(value, unicode): value = unicode(value, 'UTF-8')
             #if REGEX_XML_ILLEGAL.search(value): value='<![CDATA[%s]]>' % value
             #else: value = saxutils.escape((value))
-
+            
             if value.endswith('::HTML'):
                 value = value[:-6]
             elif REGEX_XML_ILLEGAL.search(value):
                 value = saxutils.escape(value)
-
-
+                
                 #if REGEX_XML_ILLEGAL.search(value):
                 #    if value.endswith('::HTML'):
                 #        value = value[:-6]
@@ -400,4 +444,3 @@ class BagToXml(object):
             result = '%s>%s</%s>' % (result, value, tagName)
 
         return result
-    

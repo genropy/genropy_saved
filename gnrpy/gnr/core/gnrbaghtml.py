@@ -1,18 +1,19 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-gnrbaghtml.py
+#
+# gnrbaghtml.py
+#
+# Created by Francesco Porcari on 2010-10-16.
+# Copyright (c) 2010 Softwell. All rights reserved.
 
-Created by Francesco Porcari on 2010-10-16.
-Copyright (c) 2010 Softwell. All rights reserved.
-
-"""
 import os
 from gnr.core.gnrstring import toText
 from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
 
 class BagToHtml(object):
+    """add???
+    """
     templates = ''
     print_button = None
     rows_path = 'rows'
@@ -42,6 +43,13 @@ class BagToHtml(object):
     starting_page_number = 0
 
     def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
+        """add???
+        
+        :param locale: add???. Default value is ``en``
+        :param encoding: add???. Default value is ``utf-8``
+        :param templates: add???. Default value is ``None``
+        :param templateLoader: add???. Default value is ``None``
+        """
         self.locale = locale
         self.encoding = encoding
         self.thermo_kwargs = None
@@ -52,9 +60,15 @@ class BagToHtml(object):
             self.templateLoader = templateLoader
 
     def init(self, *args, **kwargs):
+        """add???
+        """
         pass
 
     def outputDocName(self, ext=''):
+        """add???
+        
+        :param ext: add???. Default value is `` ``
+        """
         return 'temp.%s' % ext
 
     def onRecordLoaded(self):
@@ -62,6 +76,8 @@ class BagToHtml(object):
         pass
 
     def orientation(self):
+        """add???
+        """
         if self.page_width>self.page_height:
             return 'Landscape'
         else:
@@ -69,8 +85,17 @@ class BagToHtml(object):
     
     def __call__(self, record=None, filepath=None, folder=None, filename=None, hideTemplate=False, rebuild=True,
                  htmlContent=None, **kwargs):
-        """This method returns the html corresponding to a given record.
-           the html can be loaded from a cached document or created if still doesn't exist.
+        """Return the html corresponding to a given record.
+        The html can be loaded from a cached document or created if still doesn't exist.
+           
+        :param record: add???. Default value is ``None``
+        :param filepath: add???. Default value is ``None``
+        :param folder: add???. Default value is ``None``
+        :param filename: add???. Default value is ``None``
+        :param hideTemplate: add???. Default value is ``None``
+        :param rebuild: add???. Default value is ``None``
+        :param htmlContent: add???. Default value is ``None``
+        :returns: add???
         """
         if record is None:
             record = Bag()
@@ -106,6 +131,8 @@ class BagToHtml(object):
         return result
 
     def prepareTemplates(self):
+        """add???
+        """
         if not self.htmlTemplate:
             self.htmlTemplate = self.templateLoader(self.templates)
         self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
@@ -120,11 +147,25 @@ class BagToHtml(object):
         self.page_margin_bottom = self.page_margin_bottom or self.htmlTemplate['main.page.bottom'] or 0
 
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, **kwargs):
+        """add???
+        
+        :param obj: add???
+        :param locale: add???. Default value is ``None``
+        :param format: add???. Default value is ``None``
+        :param mask: add???. Default value is ``None``
+        :param encoding: add???. Default value is ``None``
+        :returns: add???
+        """
         locale = locale or self.locale
         encoding = locale or self.encoding
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding, **kwargs)
 
     def createHtml(self, filepath=None):
+        """add???
+        
+        :param filepath: add???. Default value is ``None``
+        :returns: add???
+        """
         #filepath = filepath or self.filepath
         self.initializeBuilder()
         self.main()
@@ -132,36 +173,79 @@ class BagToHtml(object):
         return self.builder.html
 
     def showTemplate(self, value):
+        """add???
+        
+        :param value: add???
+        :returns: add???
+        """
         self.showTemplateContent = value
 
     def setTemplates(self, templates):
+        """add???
+        
+        :param templates: add???
+        :returns: add???
+        """
         self.templates = templates
 
     def getTemplates(self, templates):
+        """add???
+        
+        :param templates: add???
+        :returns: add???
+        """
         return self.templates
 
     def initializeBuilder(self):
+        """add???
+        
+        """
         self.builder.initializeSrc()
         self.body = self.builder.body
         self.getNewPage = self.builder.newPage
         self.builder.styleForLayout()
 
     def getData(self, path, default=None):
+        """add???
+        
+        :param path: add???
+        :param default: add???. Default value is ``None``
+        :returns: add???
+        """
         wildchars = []
         if path[0] in wildchars:
             value = 'not yet implemented'
         else:
             value = self._data.getItem(path, default)
         return value
-
+        
     def setData(self, path, value, **kwargs):
+        """add???
+        
+        :param path: add???
+        :param value: add???
+        """
         self._data.setItem(path, value, **kwargs)
-
+        
     def onRecordExit(self, recordBag):
+        """add???
+        
+        :param recordBag: add???
+        """
         return
-
+        
     def field(self, path, default=None, locale=None,
               format=None, mask=None, root=None, **kwargs):
+        """add???
+        
+        :param path: add???
+        :param default: add???. Default value is ``None``
+        :param locale: add???. Default value is ``None``
+        :param format: add???. Default value is ``None``
+        :param mask: add???. Default value is ``None``
+        :param root: add???. Default value is ``None``
+        :returns: add???
+        """
         if root is None:
             root = self._data['record']
         attr = {}
@@ -192,6 +276,10 @@ class BagToHtml(object):
             self.mainLoop()
 
     def pageCounter(self, mask=None):
+        """add???
+        
+        :param mask: add???. Default value is ``None``
+        """
         mask = mask or '%s/%s'
 
         def getPage(currPage=0):
@@ -203,15 +291,21 @@ class BagToHtml(object):
 
 
     def copyHeight(self):
+        """add???
+        """
         return (self.page_height - self.page_margin_top - self.page_margin_bottom -\
                 self.page_header_height - self.page_footer_height -\
                 self.copy_extra_height * (self.copies_per_page - 1)) / self.copies_per_page
 
     def copyWidth(self):
+        """add???
+        """
         return (self.page_width - self.page_margin_left - self.page_margin_right -\
                 self.page_leftbar_width - self.page_rightbar_width)
 
     def mainLoop(self):
+        """add???
+        """
         self.copies = []
         self.lastPage = False
         self.defineStandardStyles()
@@ -221,18 +315,18 @@ class BagToHtml(object):
         self.grid_body_height = self.grid_height - self.grid_header_height - self.grid_footer_height
         for copy in range(self.copies_per_page):
             self.copies.append(dict(grid_body_used=self.grid_height, currPage=-1))
-
+            
         lines = self.getData(self.rows_path)
-
+        
         if lines:
             if isinstance(lines, Bag):
                 nodes = lines.getNodes()
             elif hasattr(lines, 'next'):
                 nodes = list(lines)
-
+                
             if hasattr(self, 'thermo_wrapper') and self.thermo_kwargs:
                 nodes = self.thermo_wrapper(nodes, **self.thermo_kwargs)
-
+                
             for rowDataNode in nodes:
                 self.currRowDataNode = rowDataNode
                 for copy in range(self.copies_per_page):
@@ -247,11 +341,11 @@ class BagToHtml(object):
                     self.currColumn = 0
                     self.currRow = row
                     self.prepareRow(row)
-
+                    
             for copy in range(self.copies_per_page):
                 self.copy = copy
                 self._closePage(True)
-
+                
     def _newPage(self):
         if self.copyValue('currPage') >= 0:
             self._closePage()
@@ -259,7 +353,7 @@ class BagToHtml(object):
         self.copies[self.copy]['grid_body_used'] = 0
         self._createPage()
         self._openPage()
-
+        
     def _get_rowData(self):
         if isinstance(self.currRowDataNode, dict):
             return self.currRowDataNode
@@ -267,18 +361,34 @@ class BagToHtml(object):
             return self.currRowDataNode.attr
         else:
             return self.currRowDataNode.value
-
+            
     rowData = property(_get_rowData)
-
+    
     def rowField(self, path=None, **kwargs):
+        """add???
+        
+        :param path: add???. Default value is ``None``
+        :returns: add???
+        """
         #if self.row_mode=='attribute':
         #    data = self.currRowDataNode.attr
         #else:
         #    data = self.currRowDataNode.value
         return self.field(path, root=self.rowData, **kwargs)
-
+        
     def rowCell(self, field=None, value=None, default=None, locale=None,
                 format=None, mask=None, currency=None, **kwargs):
+        """add???
+        
+        :param field: add???. Default value is ``None``
+        :param value: add???. Default value is ``None``
+        :param default: add???. Default value is ``None``
+        :param locale: add???. Default value is ``None``
+        :param format: add???. Default value is ``None``
+        :param mask: add???. Default value is ``None``
+        :param currency: add???. Default value is ``None``
+        :returns: add???
+        """
         if field:
             if callable(field):
                 value = field()
@@ -314,7 +424,10 @@ class BagToHtml(object):
             #    curr_copy['page_footer'] = self.page_layout.row(height=self.page_footer_height,lbl_height=4,lbl_class='caption').cell()
 
     def mainLayout(self, page):
-        """must be overridden"""
+        """must be overridden
+        
+        :param page: add???
+        """
         pass
 
     def _openPage(self):
@@ -347,11 +460,17 @@ class BagToHtml(object):
         self.copies[self.copy]['body_grid'] = grid
 
     def gridLayout(self, grid):
-        """must be overridden"""
+        """must be overridden
+        
+        :param grid: add???
+        """
         print 'gridLayout must be overridden'
 
     def gridHeader(self, row):
-        """can be overridden"""
+        """can be overridden
+        
+        :param row: add???
+        """
         lbl_height = 4
         headers = self.grid_col_headers
         if ':' in headers:
@@ -365,50 +484,94 @@ class BagToHtml(object):
             row.cell(lbl=lbl, lbl_height=lbl_height, width=self.grid_col_widths[k], style=style)
 
     def gridFooter(self, row):
-        """can be overridden"""
+        """can be overridden
+        
+        :param row: add???
+        """
         print 'gridFooter must be overridden'
 
     def fillBodyGrid(self):
+        """add???
+        """
         row = self.copyValue('body_grid').row()
         for w in self.grid_col_widths:
             row.cell(width=w)
 
     def copyValue(self, valuename):
+        """add???
+        
+        :param valuename: add???
+        """
         return self.copies[self.copy][valuename]
 
     def calcRowHeight(self):
-        """override for special needs"""
+        """override for special needs
+        
+        :returns: add???
+        """
         return self.grid_row_height
 
     def calcGridHeaderHeight(self):
-        """override for special needs"""
+        """override for special needs
+        
+        :returns: add???
+        """
         return self.grid_header_height
 
     def calcGridFooterHeight(self):
-        """override for special needs"""
+        """override for special needs
+        
+        :returns: add???
+        """
         return self.grid_footer_height
 
     def calcDocHeaderHeight(self):
-        """override for special needs"""
+        """override for special needs
+        
+        :returns: add???
+        """
         return self.doc_header_height
 
     def defineCustomStyles(self):
-        """override this for custom styles"""
+        """override this for custom styles
+        
+        :returns: add???
+        """
         pass
 
     def docFooter(self, footer, lastPage=None):
+        """add???
+        
+        :param footer: add???
+        :param lastPage: add???. Default value is ``None``
+        """
         pass
 
     def pageFooter(self, footer, lastPage=None):
+        """add???
+        
+        :param footer: add???
+        :param lastPage: add???. Default value is ``None``
+        """
         pass
 
     def pageHeader(self, header):
+        """add???
+        
+        :param header: add???
+        """
         pass
 
     def docHeader(self, header):
+        """add???
+        
+        :param header: add???
+        """
         pass
 
     def defineStandardStyles(self):
+        """add???
+        """
         self.body.style("""
                         .caption{text-align:center;
                                  color:gray;

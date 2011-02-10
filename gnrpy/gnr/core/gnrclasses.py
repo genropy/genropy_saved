@@ -30,7 +30,7 @@ from decimal import Decimal
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
 
 class GnrClassCatalog(object):
-    """??? Add description!
+    """add???
     """
     __standard = None
 
@@ -56,9 +56,13 @@ class GnrClassCatalog(object):
             
         :param cls: the class itself by reference
         :param key: a string, is a short name of the class, as found in textual values to parse or write
+        :param aliases: other keys to parse using this class. Default value is ``None``
         :param altcls: other classes to write in the same way. All values will be parsed with the main class.
-        :param aliases: other keys to parse using this class
-        :param empty: the class or value to be used for empty parsed values, defualt None, example '' for strings"""
+                       Default value is ``None``
+        :param align: add???. Default value is ``L``
+        :param empty: the class or value to be used for empty parsed values (example ``''`` for strings).
+                      Default value is ``None``
+        """
         self.classes[key] = cls
         self.align[key] = align
         self.empty[key] = empty
@@ -73,6 +77,11 @@ class GnrClassCatalog(object):
         self.aliases[key] = aliases
         
     def getEmpty(self, key):
+        """Add???
+            
+        :param key: add???
+        :returns: add???
+        """
         if isinstance(key, basestring):
             key = self.classes.get(key.upper())
         if key in self.names:
@@ -84,6 +93,11 @@ class GnrClassCatalog(object):
         return v
         
     def getAlign(self, key):
+        """Add???
+            
+        :param key: add???
+        :returns: add???
+        """
         if isinstance(key, basestring):
             key = self.classes.get(key.upper())
         if key in self.names:
@@ -96,16 +110,18 @@ class GnrClassCatalog(object):
         
         :param mode: add???
         :param cls: the class to be converted
-        :param funct: is a function by reference or lambda, will receive an instance and return an appropriate value for the conversion mode"""
+        :param funct: is a function by reference or lambda, will receive an instance and return an appropriate value for the conversion mode
+        """
         m = self.serializers.get(mode, {})
         m[cls] = funct
         self.serializers[mode] = m
-
+        
     def addParser(self, cls, funct):
         """Given a class to convert, specifies the function to use for the actual conversion from text:
         
         :param cls: the class to be converted
-        :param funct: is a function by reference or lambda, will receive a text and return an instance"""
+        :param funct: is a function by reference or lambda, will receive a text and return an instance
+        """
         self.parsers[cls] = funct
         clsname = self.names[cls]
         self.parsers[clsname] = funct
@@ -113,12 +129,29 @@ class GnrClassCatalog(object):
             self.parsers[a] = funct
 
     def getClassKey(self, o):
+        """Add???
+            
+        :param o: add???
+        :returns: add???
+        """
         return self.names[type(o)]
 
     def getClass(self, name):
+        """Add???
+            
+        :param name: add???
+        :returns: add???
+        """
         return self.classes[name]
 
     def asText(self, o, quoted=False, translate_cb=None):
+        """Add???
+            
+        :param o: add???
+        :param quoted: add???. Default value is ``False``
+        :param translate_cb: add???. Default value is ``None``
+        :returns: add???
+        """
         if isinstance(o, basestring):
             result = o
             if translate_cb and result.startswith(
@@ -135,6 +168,11 @@ class GnrClassCatalog(object):
         return result
 
     def quoted(self, s):
+        """Add???
+            
+        :param s: add???
+        :returns: add???
+        """
         if '"' in s:
             s = "'%s'" % s
         else:
@@ -142,6 +180,12 @@ class GnrClassCatalog(object):
         return s
 
     def fromText(self, txt, clsname, **kwargs):
+        """Add???
+            
+        :param txt: add???
+        :param clsname: add???
+        :returns: add???
+        """
         if not clsname:
             return txt
         if not txt:
@@ -158,6 +202,11 @@ class GnrClassCatalog(object):
             return self.classes[clsname](txt)
 
     def fromTypedText(self, txt, **kwargs):
+        """Add???
+            
+        :param txt: add???
+        :returns: add???
+        """
         result = re.split('::(\w*)$', txt)
         if len(result) == 1:
             return txt
@@ -167,6 +216,13 @@ class GnrClassCatalog(object):
             return self.fromText(result[0], result[1])
 
     def asTypedText(self, o, quoted=False, translate_cb=None):
+        """Add???
+            
+        :param o: add???
+        :param quoted: add???. Default value is ``False``
+        :param translate_cb: add???. Default value is ``None``
+        :returns: add???
+        """
         t = self.names.get(type(o), 'T')
         if t == 'T':
             result = self.asText(o, translate_cb=translate_cb)
@@ -177,15 +233,28 @@ class GnrClassCatalog(object):
         return result
 
     def asTextAndType(self, o, translate_cb=None):
+        """Add???
+            
+        :param o: add???
+        :param translate_cb: add???. Default value is ``None``
+        :returns: add???
+        """
         c = self.names.get(type(o))
         if c:
             return (self.asText(o, translate_cb=translate_cb), c)
         return self.asTextAndType(repr(o))
 
     def getType(self, o):
+        """Add???
+            
+        :param o: add???
+        :returns: add???
+        """
         return self.names.get(type(o))
 
     def standardClasses(self):
+        """add???
+        """
         from gnr.core.gnrbag import Bag
 
         self.addClass(cls=unicode, key='T', aliases=['TEXT', 'P', 'A'], altcls=[basestring, str], empty='')
@@ -233,15 +302,32 @@ class GnrClassCatalog(object):
 
 
     def parse_float(self, txt):
+        """Add???
+            
+        :param txt: add???
+        :returns: add???
+        """
         if txt.lower() != 'inf':
             return float(txt)
 
     def parse_datetime(self, txt, workdate=None):
+        """Add???
+            
+        :param txt: add???
+        :param workdate: add???. Default value is ``None``
+        :returns: add???
+        """
         splitted = gnrstring.wordSplit(txt)
         result = datetime.datetime(*[int(el) for el in splitted])
         return result
 
     def parse_date(self, txt, workdate=None):
+        """Add???
+            
+        :param txt: add???
+        :param workdate: add???. Default value is ``None``
+        :returns: add???
+        """
         if txt != '0000-00-00':
             if txt and ISO_MATCH.match(txt):
                 return datetime.date(*[int(el) for el in gnrstring.wordSplit(txt)[0:3]])
@@ -249,16 +335,30 @@ class GnrClassCatalog(object):
                 return decodeDatePeriod(txt, workdate=workdate, returnDate=True)
 
     def parse_time(self, txt):
+        """Add???
+            
+        :param txt: add???
+        :returns: add???
+        """
         if txt and txt != '00:00:00':
             return datetime.time(*[int(el) for el in gnrstring.wordSplit(txt)])
-
+            
     def toJson(self, data):
+        """Add???
+            
+        :param data: add???
+        :returns: add???
+        """
         return gnrstring.toJson(data)
-
+        
     def fromJson(self, data):
+        """Add???
+            
+        :param data: add???
+        :returns: add???
+        """
         return gnrstring.fromJson(data)
-
-
+        
     #def getItaCatalog():
     #c = GnrClassCatalog()
     #c.addSerializer("asText", datetime.date, lambda d: d.strftime('%d/%m/%Y'))

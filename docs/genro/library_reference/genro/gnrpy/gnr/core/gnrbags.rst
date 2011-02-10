@@ -9,18 +9,29 @@
 		It is better to have 100 functions operate on one data structure
 		than 10 functions on 10 data structures.
 		– Alan J. Perlis, Epigrams on Programming
+
+* Index of ``gnr.core.gnrbag`` methods:
 	
-	* Indexes:
+	Main classes:
 	
-		* :ref:`gnrbags_bag`
-		* :ref:`gnrbags_bagnode`
-		
-	* :ref:`gnrbags_classes`
+	* :ref:`gnrbags_bag`
+	* :ref:`gnrbags_bagnode`
+	
+	Other classes:
+	
+	* :ref:`gnrbags_bagcbresolver`
+	* :ref:`gnrbags_bagformula`
+	* :ref:`gnrbags_bagresolver`
+	* :ref:`gnrbags_bagvalidationlist`
+	* :ref:`gnrbags_directoryresolver`
+	* :ref:`gnrbags_urlresolver`
+	
+* The :ref:`gnrbags_classes` classes
 
 .. _gnrbags_bag:
 
-the :class:`Bag` methods
-========================
+:class:`Bag`
+============
 
 	.. module:: gnr.core.gnrbag.Bag
 
@@ -45,8 +56,8 @@ the :class:`Bag` methods
 
 .. _gnrbags_bagnode:
 
-the :class:`BagNode` methods
-============================
+:class:`BagNode`
+================
 
 	.. module:: gnr.core.gnrbag.BagNode
 
@@ -60,10 +71,83 @@ the :class:`BagNode` methods
 	:meth:`getStaticValue`   :meth:`setLabel`         :meth:`value`                
 	======================== ======================== =============================
 
+.. _gnrbags_bagcbresolver:
+
+:class:`BagCbResolver`
+======================
+
+	.. module:: gnr.core.gnrbag.BagCbResolver
+
+	:meth:`load`
+
+.. _gnrbags_bagformula:
+
+:class:`BagFormula`
+===================
+
+	.. module:: gnr.core.gnrbag.BagFormula
+
+	* :meth:`init`
+	* :meth:`load`
+
+.. _gnrbags_bagresolver:
+
+:class:`BagResolver`
+====================
+
+	.. module:: gnr.core.gnrbag.BagResolver
+
+	===================== =================== ============================
+	:meth:`digest`        :meth:`iterkeys`    :meth:`resolverDescription` 
+	:meth:`getAttributes` :meth:`itervalues`  :meth:`resolverSerialize`   
+	:meth:`init`          :meth:`keys`        :meth:`setAttributes`       
+	:meth:`items`         :meth:`load`        :meth:`sum`                 
+	:meth:`iteritems`     :meth:`reset`       :meth:`values`              
+	===================== =================== ============================
+
+.. _gnrbags_bagvalidationlist:
+
+:class:`BagValidationList`
+====================
+
+	.. module:: gnr.core.gnrbag.BagValidationList
+
+	====================== ==========================
+	:meth:`add`            :meth:`validate_case`     
+	:meth:`coerceFromText` :meth:`validate_db`       
+	:meth:`defaultExt`     :meth:`validate_hostaddr` 
+	:meth:`getdata`        :meth:`validate_inList`   
+	:meth:`remove`         :meth:`validate_length`   
+	====================== ==========================
+
+.. _gnrbags_directoryresolver:
+
+:class:`DirectoryResolver`
+===================
+
+	.. module:: gnr.core.gnrbag.DirectoryResolver
+
+	* :meth:`load`
+	* :meth:`makeLabel`
+	* :meth:`processor_default`
+	* :meth:`processor_directory`
+	* :meth:`processor_html`
+	* :meth:`processor_txt`
+	* :meth:`processor_xml`
+
+.. _gnrbags_urlresolver:
+
+:class:`UrlResolver`
+======================
+
+	.. module:: gnr.core.gnrbag.UrlResolver
+
+	:meth:`load`
+
 .. _gnrbags_classes:
 
-The :mod:`gnr.core.gnrbag` classes
-==================================
+:mod:`gnr.core.gnrbag`
+======================
 
 .. automodule:: gnr.core.gnrbag
 	:members:
