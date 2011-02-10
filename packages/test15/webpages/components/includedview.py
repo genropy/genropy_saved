@@ -11,7 +11,7 @@ from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     auto_polling = 0
     user_polling = 0
-    py_requires = 'gnrcomponents/testhandler:TestHandlerFull,foundation/includedview:IncludedView'
+    py_requires = 'gnrcomponents/testhandler:TestHandlerFull,foundation/includedview:IncludedView,gnrcomponents/selectionhandler'
 
     def common_data(self):
         result = Bag()
@@ -42,6 +42,11 @@ class GnrCustomWebPage(object):
         gridEditor.textbox(gridcell='name')
         gridEditor.numbertextbox(gridcell='age')
         gridEditor.textbox(gridcell='work')
+    
+    def prov_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('nome', width='50%')
+        r.fieldcell('@regione.nome', width='50%')
 
     def _test_2_remote_includedview_db(self, pane):
         bc = pane.borderContainer(height='300px')
@@ -49,17 +54,28 @@ class GnrCustomWebPage(object):
                              nodeId='test_db', table='glbl.provincia', autoWidth=True,
                              _onStart=True, selectionPars=dict(order_by='$nome'))
     
-    def test_5_selectiohandler(self, pane):
-        bc = pane.borderContainer(height='300px')        
-        iv = self.includedViewBox(bc, label='Test', datapath='.test_db', filterOn='auto:sigla+nome+codice+regione',
-                             nodeId='test_db', table='glbl.provincia', autoWidth=True,
-                             add_action='menu',
+    def _test_5_selectiohandler(self, pane):
+        bc = pane.borderContainer(height='300px')   
+        pane = bc.contentPane(region='center')     
+        iv = pane.selectionViewBox(frameCode='test_db',label='Test', datapath='.test_db', filterOn='auto:sigla+nome+codice+regione',
+                             nodeId='test_db', table='glbl.provincia',
+                             struct=self.prov_struct,_onStart=True, selectionPars=dict(order_by='$nome'))
+                             
+       #menu = bc.top.right.add_del.addButton.menu(id='mymenu',modifiers='*')
+       #menu.menuline('Open...',action="FIRE .reload;")
+       #menu.menuline('Close',action="alert('Closing...')")
+    
+    def test_6_selectiohandler(self, pane):
+        bc = pane.borderContainer(height='300px')   
+        frame = bc.selectionHandler(label='Test', datapath='.test_db', filterOn='auto:sigla+nome+codice+regione',
+                             nodeId='test_db', table='glbl.provincia', 
+                             checkMainRecord=False,struct=self.prov_struct,
                              _onStart=True, selectionPars=dict(order_by='$nome'))
                              
-        menu = bc.top.right.add_del.addButton.menu(id='mymenu',modifiers='*')
-        menu.menuline('Open...',action="FIRE .reload;")
-        menu.menuline('Close',action="alert('Closing...')")
-
+    #    #menu = bc.top.right.add_del.addButton.menu(id='mymenu',modifiers='*')
+    #    #menu.menuline('Open...',action="FIRE .reload;")
+    #    #menu.menuline('Close',action="alert('Closing...')")
+    #
 
     def _test_3_remote_includedview_editable_bag(self, pane):
         """Includedview editable datamode bag"""

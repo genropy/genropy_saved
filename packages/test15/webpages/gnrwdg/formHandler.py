@@ -114,6 +114,7 @@ class GnrCustomWebPage(object):
                                     """,
                     pkey='=.provincia')
         
+        
     def remote_testPalette(self,pane,pkey=None,**kwargs):
         form = pane.formTester('formRemote_%s' %pkey,startKey=pkey)
             

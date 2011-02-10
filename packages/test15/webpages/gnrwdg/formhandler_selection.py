@@ -10,18 +10,26 @@ from gnr.web.gnrwebstruct import struct_method
 class GnrCustomWebPage(object):
     user_polling=0
     auto_polling=0
-    py_requires="""gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler,
-                  gnrcomponents/palette_manager:PaletteManager"""
+    py_requires="""gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler"""
     
     @struct_method
-    def formTester(self,pane,formId=None,**kwargs):
-        form = pane.frameForm(formId=formId,datapath='.provincia',**kwargs)
-       #form.loader('recordCluster')
-       #form.saver('recordCluster')
-       #form.deleter('recordCluster')
+    def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
+        form = pane.frameForm(frameCode=frameCode,rounded_bottom=10,**kwargs)
+        form.testToolbar()
+        store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Collection',
+                               handler='recordCluster')  
+        fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%")
+        fb.formContent()
+        return form
         
-        form.top.slotToolbar('navigation,*,|,semaphore,|,formcommands,|,locker',lbl_position='B')
-        fb = form.formbuilder(cols=1, border_spacing='4px', width="300px", fld_width="100%",dbtable='glbl.provincia')
+    @struct_method
+    def testToolbar(self,form,startKey=None):
+        left = 'selectrecord,|,' if not startKey else ''
+        tb = form.top.slotToolbar('navigation,*,|,semaphore,|,formcommands,|,locker',border_bottom='1px solid silver')
+        return tb
+        
+    @struct_method
+    def formContent(self,fb):
         fb.field('sigla')
         fb.field('regione')
         fb.field('nome')
@@ -29,26 +37,25 @@ class GnrCustomWebPage(object):
         fb.field('ordine')
         fb.field('ordine_tot')
         fb.field('cap_valido')
-        return form
-
+        return fb
          
     def test_0_base(self,pane):
         bc = pane.borderContainer(height='250px')
         frame = bc.framePane('province',region='left',width='300px')
-        frame.selectionStore('provinceRegione',table='glbl.provincia',where='$regione=:r',
-                          r='^.regione',_fired='^.reload')
+        
         tb = frame.slotToolbar('*,selector,20,reloader',side='top')
         tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
         tb.reloader.button('reload',fire='.reload')
-        frame.includedView(struct='regione',
-                            store='provinceRegione',
+        iv = frame.includedView(struct='regione',
                             autoSelect=True,selectedId='.selectedPkey',
                            selfsubscribe_onSelectedRow='genro.formById("provincia").publish("load",{destPkey:$1.selectedId});',
                            subscribe_form_provincia_onLoaded="this.widget.selectByRowAttr('_pkey',$1.pkey)")
-        
-        center = bc.contentPane(region='center',border='1px solid blue').formTester(formId='provincia')
-
+        iv.selectionStore(table='glbl.provincia',where='$regione=:r',
+                          r='^.regione',_fired='^.reload')
+                          
+        center = bc.contentPane(region='center',border='1px solid blue').formTester(frameCode='provincia')
          
+    
     def _test_0_includedview_store(self,pane):
         pane = pane.framePane(height='200px')
         pane.slotBar('gridtoolbar','selector,*,searchOn',searchOn=True,wdgNodeId='test_0',side='top')
