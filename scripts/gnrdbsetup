@@ -37,11 +37,16 @@ parser.add_option('-v', '--verbose',
                   action='store_true',
                   help="Verbose mode")
 
+parser.add_option('-d', '--debug',
+                dest='debug',
+                action='store_true',
+                help="Debug mode")
+
 parser.add_option('-i', '--instance',
                   dest='instance',
                   help="Use command on instance identified by supplied name")
 
-parser.add_option('-d', '--directory',
+parser.add_option('-D', '--directory',
                   dest='directory',
                   help="Use command on instance identified by supplied directory (overrides -i)")
 
@@ -116,10 +121,11 @@ def set_environment(gnr_config):
 
 def get_app():
     storename = None
+    debug = options.debug==True
     if options.directory:
         instance_path = options.directory
         if os.path.isdir(instance_path):
-            return GnrApp(instance_path)
+            return GnrApp(instance_path, debug=debug)
         else:
             raise Exception("No valid instance provided")
     gnr_config = load_gnr_config()
@@ -131,7 +137,7 @@ def get_app():
         gnr_config = load_gnr_config()
         instance_path = instance_name_to_path(gnr_config, instance_name)
         if os.path.isdir(instance_path):
-            return GnrApp(instance_path), storename
+            return GnrApp(instance_path, debug=debug), storename
         else:
             raise Exception("No valid instance provided")
     if options.site:
@@ -141,7 +147,7 @@ def get_app():
             site_path = os.path.join(gnr_config['gnr.environment_xml.sites?path'] or '', options.site)
         instance_path = os.path.join(site_path, 'instance')
         if os.path.isfile(os.path.join(instance_path, 'instanceconfig.xml')):
-            return GnrApp(instance_path), storename
+            return GnrApp(instance_path,debug=debug), storename
         else:
             raise "No valid instance provided"
     return GnrApp(os.getcwd()), storename
