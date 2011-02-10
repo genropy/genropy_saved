@@ -30,33 +30,46 @@ class IncludedView(BaseComponent):
     py_requires = 'gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,foundation/macrowidgets:FilterBox'    
     
     @struct_method
-    def ivnew_adaptSlotbar(self,pane,label=None,slots=None,filterOn=None,searchOn=None,hasToolbar=False,**kwargs):
+    def ivnew_adaptSlotbar(self,pane,label=None,slots=None,hasToolbar=False,**kwargs):
         assert not callable(label), 'use the attachpoint .footer instead of'
-        searchOn = searchOn or filterOn
+        searchOn = kwargs.pop('searchOn',None) or kwargs.pop('filterOn',None)
         slots = slots.split(',') if slots else []
-        add_kw = dictExtract(kwargs,'add_',True)
-        del_kw = dictExtract(kwargs,'del_',True)
-        upd_kw = dictExtract(kwargs,'upd_',True)
-        tools_kw = dictExtract(kwargs,'tools_',True)
+        add_kw = dictExtract(kwargs,'add_',True,slice_prefix=False)
+        del_kw = dictExtract(kwargs,'del_',True,slice_prefix=False)
+        upd_kw = dictExtract(kwargs,'upd_',True,slice_prefix=False)
+        tools_kw = dictExtract(kwargs,'tools_',True,slice_prefix=False)
 
-        print_kw = dictExtract(kwargs,'print_',True)
-        export_kw = dictExtract(kwargs,'export_',True)
+        print_kw = dictExtract(kwargs,'print_',True,slice_prefix=False)
+        export_kw = dictExtract(kwargs,'export_',True,slice_prefix=False)
+        slotbarKwargs = dict()
         if label:
-            slots.append(label)
+            slots.append('iv_label')
+            slotbarKwargs['iv_label'] = label
             slots.append('*')
         if searchOn:
             slots.append('searchOn')
+        for slot,kw in (('add',add_kw),('del',del_kw),('upd',upd_kw)):
+            if kw:
+                slots.append(slot)
+                slotbarKwargs.update(kw)
         if slots:
             _class = 'pbl_viewBoxLabel' if not hasToolbar else None
-            slotbar = pane.slotBar(slots=','.join(slots),_class=_class,toolbar=hasToolbar,searchOn=searchOn)
-
-            
+            slotbar = pane.slotBar(slots=','.join(slots),_class=_class,toolbar=hasToolbar,searchOn=searchOn,
+                                    _attachname='slotbar',**slotbarKwargs)
+        return kwargs
         
-        #for slot,kw in (('add',add_kw),('del',del_kw),('upd',upd_kw),):
-        #    _class = kw.pop('class')
-        #    kw['_class'] = _class
-        #    if kw:
-        #        slots.append(slot)
+    @struct_method
+    def ivnew_slotbar_add(self,pane,action=None,_class='icnBaseAdd',enable=None,**kwargs):
+        return pane.slotButton(label='!!Add',action=action,baseClass='no_background',iconClass=_class,visible=enable,nodeId='pierone')
+    
+    @struct_method
+    def ivnew_slotbar_del(self,pane,action=None,_class='icnBaseDelete',enable=None,**kwargs):
+        return pane.slotButton(label='!!Delete',action=action,baseClass='no_background',iconClass=_class,visible=enable)
+    
+    @struct_method
+    def ivnew_slotbar_upd(self,pane,action=None,_class='icnBaseEdit',enable=None,**kwargs):
+        return pane.slotButton(label='!!Delete',action=action,baseClass='no_background',iconClass=_class,visible=enable)
+            
     @struct_method
     def ivnew_bagViewBox(self,pane,frameCode=None,selectionPars=None,reloader=None,table=None,
                         _onStart=None,caption=None,parentLock='^status.locked',externalChanges=None,
@@ -70,7 +83,7 @@ class IncludedView(BaseComponent):
         pass
 
     @struct_method
-    def ivnew_selectionViewBox(self,pane,frameCode=None,selectionPars=None,reloader=None,table=None,
+    def ivnew_selectionViewBox(self,pane,frameCode=None,datapath=None,selectionPars=None,reloader=None,table=None,
                         _onStart=None,caption=None,parentLock='^status.locked',externalChanges=None,
                         **kwargs):
         assert frameCode, 'frameCode is mandatory'
@@ -82,9 +95,9 @@ class IncludedView(BaseComponent):
         assert table, 'table is mandatory'
         
         if pane.attributes['tag'].lower()=='bordercontainer':
-            pane.attributes['tag'] = 'ContentPane'
-        frame = pane.framePane(frameCode=frameCode)
-        frame.top.adaptSlotbar(**kwargs)
+            pane.attributes['tag'] = 'ContentPane' 
+        frame = pane.framePane(frameCode=frameCode,datapath=datapath)
+        kwargs = frame.top.adaptSlotbar(**kwargs)
         view = frame.includedView(_attachname='grid',**kwargs)
         selectionPars = selectionPars or dict()
         if reloader:
