@@ -682,6 +682,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 table = gridattr.get('table')
                 if storeNode:
                     table = storeNode.attr.get('table')
+                    gridattr['table'] = table
                 return page._prepareGridStruct(source=source,table=table,gridId=gridId)
             struct = BagCbResolver(getStruct, source=source,gridattr=gridattr,gridId=gridId)
             struct._xmlEager=True
