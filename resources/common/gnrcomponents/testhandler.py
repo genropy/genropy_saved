@@ -7,6 +7,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class TestHandler(BaseComponent):
+    testOnly=False
     def windowTitle(self):
         return 'Test: %s' % self.__module__.__doc__ or 'unnamed'
 
@@ -40,6 +41,8 @@ class TestHandler(BaseComponent):
         test_to_do = [n for n in dir(self) if n.startswith('test_')]
         test_to_do.sort()
         for test_name in test_to_do:
+            if self.testOnly and not self.testOnly in test_name:
+                continue
             test_handler = getattr(self, test_name)
             element = pane.div(border='1px solid gray', margin='5px', datapath='test.%s' % test_name)
             h = element.div()

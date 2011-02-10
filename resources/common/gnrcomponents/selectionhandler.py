@@ -72,9 +72,10 @@ class SelectionHandler(BaseComponent):
                             askBeforeDelete=True, checkMainRecord=True, onDeleting=None, dialogAddRecord=True,
                             onDeleted=None, add_enable=True, del_enable=True,add_action=True,del_action=True,
                             parentSave=False, parentId=None, parentLock='^status.locked', reload_onSaved=True,
-                            footer=None,palette_kwargs=None,dialog_kwargs=None,form_kwargs=None,**kwargs):
+                            footer=None,palette_kwargs=None,dialog_kwargs=None,
+                            form_kwargs=None,
+                            **kwargs):
                             
-            formKw = kwargs.pop('form_kwargs',dict())
             frameCode=frameCode or nodeId
             framegrid = pane.selectionViewBox(
                          frameCode=frameCode,
@@ -115,6 +116,7 @@ class SelectionHandler(BaseComponent):
             form = formRoot.frameForm(frameCode=frameCode,datapath='.form',pkeyPath='.pkey',**form_kwargs)
             form.top.slotToolbar('navigation,*,|,semaphore,|,formcommands,|,locker')
             form.formStore(storepath='.record',table=table,storeType='Collection',handler='recordCluster')
+            return framegrid
             
             
 

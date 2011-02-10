@@ -64,13 +64,14 @@ def extract_kwargs(**extract_kwargs):
         def newFunc(*args, **kwargs):
             for extract_key,extract_value in extract_kwargs.items():
                 grp_key='%s_kwargs' %extract_key
-                curr=kwargs.setdefault(grp_key,dict())
+                curr=kwargs.pop(grp_key,dict())
                 dfltExtract=dict(slice_prefix=True,pop=False)
                 if extract_value is True:
                     dfltExtract['pop']=True
                 elif isinstance(extract_value,dict):
                     dfltExtract.update(extract_value)
-                curr.update(dictExtract(kwargs,extract_key,**dfltExtract))
+                curr.update(dictExtract(kwargs,'%s_' %extract_key,**dfltExtract))
+                kwargs[grp_key] = curr
             return func(*args,**kwargs)
         return newFunc
     return decore

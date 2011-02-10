@@ -10,7 +10,9 @@ from gnr.web.gnrwebstruct import struct_method
 class GnrCustomWebPage(object):
     user_polling=0
     auto_polling=0
-    py_requires="""gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler"""
+    py_requires="""gnrcomponents/testhandler:TestHandlerFull,
+                    gnrcomponents/formhandler:FormHandler,
+                    gnrcomponents/selectionhandler:SelectionHandler"""
     
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
@@ -48,40 +50,30 @@ class GnrCustomWebPage(object):
         tb.reloader.button('reload',fire='.reload')
         iv = frame.includedView(struct='regione',
                             autoSelect=True,selectedId='.selectedPkey',
-                           selfsubscribe_onSelectedRow='genro.formById("provincia").publish("load",{destPkey:$1.selectedId});',
+                           selfsubscribe_onSelectedRow='genro.formById("provincia_form").publish("load",{destPkey:$1.selectedId});',
                            subscribe_form_provincia_onLoaded="this.widget.selectByRowAttr('_pkey',$1.pkey)")
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',
-                          r='^.regione',_fired='^.reload')
+                          r='^.#parent.regione',_fired='^.reload')
                           
         center = bc.contentPane(region='center',border='1px solid blue').formTester(frameCode='provincia')
-         
     
-    def _test_0_includedview_store(self,pane):
-        pane = pane.framePane(height='200px')
-        pane.slotBar('gridtoolbar','selector,*,searchOn',searchOn=True,wdgNodeId='test_0',side='top')
-        pane.includedView(nodeId='test_0',struct='regione',
-                        relativeWorkspace=True,datapath='.tblprovince'
-                          ).selectionStore(table='glbl.provincia',where='$regione=:r',r='^#selector.regione',_fired='^#selector.reload')
+    def test_1_selectionhandler(self,pane):
+        bc =  pane.borderContainer(height='250px')
+        left = bc.borderContainer(region='left',width='300px')
+        formRoot = bc.contentPane(region='center')
+        tb = left.contentPane(region='top').slotToolbar('*,selector,20,reloader',side='top')
+        tb.selector.dbselect(value='^.province.regione',dbtable='glbl.regione',lbl='Regione')
+        
+        gridRoot = left.contentPane(region='center')
+        gridRoot.selectionHandler(struct='regione',
+                                  frameCode='province',
+                                  datapath='.province',
+                                  table='glbl.provincia',
+                                  autoSelect=True,
+                                  form_pane=formRoot,
+                                  selectionPars=dict(where="$regione=:r",r='^.regione'))
         
         
-        
-        
-    def _test_1_includedview_store(self,pane):
-        bc = pane.borderContainer(height='200px')
-        bc.selectionStore(storeCode='provinceRegione',table='glbl.provincia',where='$regione=:r',
-                          r='^#selector.regione',_fired='^#selector.reload')
-        
-        pane = bc.framePane(region='left',width='70%',datapath='.A')
-        pane.slotBar('gridtoolbar','selector,*,searchOn',searchOn=True,wdgNodeId='test_1_a',side='top')
-        pane.includedView(nodeId='test_1_a',struct='full',relativeWorkspace=True,datapath='.tblprovince',
-                         storepath='gnr.stores.provinceRegione.data',store='provinceRegione')
-                         
-                         
-        pane = bc.framePane(region='center',datapath='.B')
-        pane.slotBar('gridtoolbar_b','*,searchOn',searchOn=True,searchOn_width='8em',wdgNodeId='test_1_b',side='top')
-        pane.includedView(nodeId='test_1_b',struct='regione',relativeWorkspace=True,datapath='.tblprovince',
-                         storepath='gnr.stores.provinceRegione.data',store='provinceRegione')
-
 
         
 

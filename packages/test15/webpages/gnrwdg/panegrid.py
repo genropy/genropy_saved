@@ -7,7 +7,7 @@
 from gnr.web.gnrwebstruct import struct_method
 "Test page description"
 class GnrCustomWebPage(object):
-    test_only='_2_'
+    testOnly='zz'
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
 
     def windowTitle(self):
@@ -15,7 +15,7 @@ class GnrCustomWebPage(object):
     
     def test_0_frame_includedview(self,pane):
         """Pane grid """
-        pane = pane.framePane(frameCode='province',height='200px',datapath="bappogrid")
+        pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('*,searchOn')
         view = pane.includedView(nodeId='bappo')
         struct = view.gridStruct('regione')
@@ -35,8 +35,8 @@ class GnrCustomWebPage(object):
         view = pane.includedView(struct=self.regione_struct)
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
         
-    def _test_1_frame_includedview(self,pane):
-        """Pane grid """
+    def test_1_frame_includedview_zz(self,pane):
+        """Pane XX """
         pane = pane.framePane(frameCode='province',height='200px',datapath='piero')
         tbar = pane.top.slotToolbar('*,searchOn')
         view = pane.includedView()

@@ -241,12 +241,10 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         var structpath = objectPop(kw, 'structpath');
         var store = objectPop(kw, 'store');
         var paletteCode=kw.paletteCode
-        storepath = storepath? sourceNode.absDatapath(storepath):'.store';
         structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
         var gridKwargs = {'nodeId':gridId,'datapath':'.grid',
                            'table':objectPop(kw,'table'),
                            'margin':'6px','configurable':true,
-                           'storepath': storepath,
                            'structpath': structpath,
                            'frameCode':frameCode,
                            'autoWidth':false,

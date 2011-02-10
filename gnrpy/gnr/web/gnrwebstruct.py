@@ -545,6 +545,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         attr = self.attributes
         parentTag = attr.get('tag')
         columns = columns or '==gnr.getGridColumns(this);'
+        parent = self
         if parentTag:
             parentTag = parentTag.lower()
         #storepath = storepath or attr.get('storepath') or '.grid.store'
@@ -554,17 +555,17 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         elif parentTag =='includedview':
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
-            attr['storepath'] = storepath
             storeCode = attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
+            parent = self.parent
               
         elif parentTag == 'palettegrid':            
             storeCode=attr.get('paletteCode')
             attr['store'] = storeCode
             attr['table'] = table
-            storepath = storepath or attr.get('storepath') or '.grid.store'
+            storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
-        self.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
+        parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
 
     def dataSelection(self, path, table=None, method='app.getSelection', columns=None, distinct=None,
                       where=None, order_by=None, group_by=None, having=None, columnsFromView=None, **kwargs):

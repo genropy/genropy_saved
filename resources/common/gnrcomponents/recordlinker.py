@@ -19,7 +19,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from gnr.web.gnrbaseclasses import BaseComponent
-
+from gnr.web.gnrwebstruct import struct_method
 import warnings
 
 class RecordLinker(BaseComponent):
@@ -29,6 +29,8 @@ class RecordLinker(BaseComponent):
         warnings.warn("recordLinker is deprecated, use linkerField instead.", DeprecationWarning, stacklevel=2)
         self.linkerField(*args, **kwargs)
 
+    
+    @struct_method
     def linkerField(self, fb, table=None, field=None, dialogPars=None, record_template=None, record_path=None, lbl=None,
                     value=None, width=None, height=None, colspan=1, rowspan=1, disabled=False, default_path=None,
                     zoom=False,
@@ -52,7 +54,7 @@ class RecordLinker(BaseComponent):
 
         # --------------------------------------------------------------------------------------------- Mandatory parameters
 
-        assert table is not None, "table parameter is mandatory"
+        #assert table is not None, "table parameter is mandatory"
         assert dialogPars is not None, "dialogPars is mandatory (and please remember to specify dlgId in your dialogPars)"
         assert 'dlgId' in dialogPars, "dlgId in dialogPars is mandatory"
 
@@ -60,6 +62,10 @@ class RecordLinker(BaseComponent):
         assert not 'savedPath' in dialogPars, "dialogPars must not contain 'savedPath'. The linker uses it internally."
 
         # --------------------------------------------------------------------------------------------- Code
+        if not table:
+            assert field,'field mandatory without table'
+            table = fb.parentfb.tblobj.column(field).relatedColumn().table.fullname
+        
         selectorBox = fb.div(lbl=lbl, lbl_vertical_align='top',
                              min_height=height, width=width, colspan=colspan,
                              rowspan=rowspan, position='relative')
