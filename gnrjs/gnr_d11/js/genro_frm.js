@@ -258,7 +258,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 this.loaded();
             }
         } else  {
-          console.error('missing loader');
+          console.log('missing loader');
+          this.loaded();
         }
     },
     doload_store: function(kw) {
