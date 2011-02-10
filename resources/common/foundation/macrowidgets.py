@@ -247,35 +247,5 @@ class FilterBox(BaseComponent):
                                         gridId=gridId, value="^.current_value", field='=.field')
         filtercontroller.dataController('genro.wdgById(gridId).applyFilter("",null,field);',
                                         gridId=gridId, field='^.field')
-         
-class SlotBar(object):
-    #@struct_method
-    def ____sltb_slotBar(self,pane,slotbarCode=None,slots=None,**kwargs):
-        table = pane.toolbar(_class='sltb_toolbar').table(_class='sltb_table').tbody()
-        kwargs['_class'] = '%s sltb_row' %(kwargs.get('_class') or '') 
-        r = table.tr(**kwargs)
-        if isinstance(slots,basestring):
-            slots = splitAndStrip(slots)
-        for slot in slots:
-            if slot=='*':
-                r.td(_class='sltb_slot_td sltb_elastic_spacer')
-                continue
-            slotname,size = splitAndStrip(slot,':',fixed=2)
-            if size=='*':
-                size = None
-            elif not size:
-                size = '1px'
-            elif size.isdigit():
-                size = '%spx' %size
-            if slotname=='|':
-                r.td(width=size,_class='sltb_slot_td').div(_class='sltb_spacer')
-                continue
-            s= r.td(width=size,_attachname='slot_%s' %slotname,_class='sltb_slot_td')
-            slothandle = getattr(s,'%s_%s' %(slotbarCode,slotname),None)
-            if not slothandle:
-                slothandle = getattr(s,'%s_%s' %('sltb',slotname),None)
-            if slothandle:
-                slothandle()  
-        return r
         
                        
