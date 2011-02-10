@@ -170,7 +170,7 @@ class SelectionToXls(GnrBatch):
     def __init__(self, data=None, table=None, filename=None, columns=None, locale=None, **kwargs):
         if columns:
             columns = columns.split(',')
-        else:
+        elif data:
             columns = data.columns
         self.colHeaders = {}
         if('structure') in kwargs:
