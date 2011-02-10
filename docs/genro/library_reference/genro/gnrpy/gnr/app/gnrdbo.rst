@@ -2,7 +2,7 @@
 :mod:`gnr.app.gnrdbo` -- Counters, tables and other services for the hierarchical database
 ==========================================================================================
 
-	* Indexes:
+* Index of ``gnr.app.gnrdbo`` methods:
 	
 		* :ref:`gnrapp_gnrdbopkg`
 		* :ref:`gnrapp_gnrdbotbl`
@@ -10,12 +10,12 @@
 		* :ref:`gnrapp_tblbase`
 		* :ref:`gnrapp_tblcounter`
 		
-	* :ref:`gnrdbo_classes`
+* The :ref:`gnrdbo_classes` classes
 
 .. _gnrapp_gnrdbopkg:
 
-the :class:`GnrDboPackage` class methods
-========================================
+:class:`GnrDboPackage`
+======================
 
 	.. module:: gnr.app.gnrdbo.GnrDboPackage
 	
@@ -29,8 +29,8 @@ the :class:`GnrDboPackage` class methods
 	
 .. _gnrapp_gnrdbotbl:
 
-the :class:`GnrDboTable` class methods
-========================================
+:class:`GnrDboTable`
+====================
 
 	.. module:: gnr.app.gnrdbo.GnrDboTable
 	
@@ -38,8 +38,8 @@ the :class:`GnrDboTable` class methods
 
 .. _gnrapp_gnrhtbl:
 
-the :class:`GnrHTable` class methods
-========================================
+:class:`GnrHTable`
+==================
 
 	.. module:: gnr.app.gnrdbo.GnrHTable
 	
@@ -50,8 +50,8 @@ the :class:`GnrHTable` class methods
 	
 .. _gnrapp_tblbase:
 
-the :class:`TableBase` class methods
-====================================
+:class:`TableBase`
+==================
 
 	.. module:: gnr.app.gnrdbo.TableBase
 	
@@ -64,8 +64,8 @@ the :class:`TableBase` class methods
 
 .. _gnrapp_tblcounter:
 
-the :class:`Table_counter` class methods
-========================================
+:class:`Table_counter`
+======================
 
 	.. module:: gnr.app.gnrdbo.Table_counter
 	
@@ -79,8 +79,8 @@ the :class:`Table_counter` class methods
 	
 .. _gnrdbo_classes:
 
-the :mod:`gnr.app.gnrdbo` classes
-=================================
+:mod:`gnr.app.gnrdbo`
+=====================
 
 .. automodule:: gnr.app.gnrdbo
     :members:

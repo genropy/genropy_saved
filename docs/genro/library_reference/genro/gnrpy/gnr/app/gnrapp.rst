@@ -2,22 +2,22 @@
 :mod:`gnr.app.gnrapp` -- Application Instances
 ==============================================
 
-	* Indexes:
+* Index of ``gnr.app.gnrapp`` methods:
+	
+	* :ref:`gnrapp_gnrapp`
+	* :ref:`gnrapp_gnravatar`
+	* :ref:`gnrapp_gnrimpexp`
+	* :ref:`gnrapp_gnrmixobj`
+	* :ref:`gnrapp_gnrpackage`
+	* :ref:`gnrapp_gnrsqlappdb`
+	* :ref:`gnrapp_reservedtable_error`
 		
-		* :ref:`gnrapp_gnrapp`
-		* :ref:`gnrapp_gnravatar`
-		* :ref:`gnrapp_gnrimpexp`
-		* :ref:`gnrapp_gnrmixobj`
-		* :ref:`gnrapp_gnrpackage`
-		* :ref:`gnrapp_gnrsqlappdb`
-		* :ref:`gnrapp_reservedtable_error`
-		
-	* :ref:`gnrapp_classes`
+* The :ref:`gnrapp_classes` classes
 
 .. _gnrapp_gnrapp:
 
-the :class:`GnrApp` methods
-===========================
+:class:`GnrApp`
+===============
 
 	.. module:: gnr.app.gnrapp.GnrApp
 	
@@ -34,8 +34,8 @@ the :class:`GnrApp` methods
 
 .. _gnrapp_gnravatar:
 
-the :class:`GnrAvatar` methods
-==============================
+:class:`GnrAvatar`
+==================
 
 	.. module:: gnr.app.gnrapp.GnrAvatar
 
@@ -44,8 +44,8 @@ the :class:`GnrAvatar` methods
 
 .. _gnrapp_gnrimpexp:
 
-the :class:`GnrImportException` methods
-=======================================
+:class:`GnrImportException`
+===========================
 
 	.. module:: gnr.app.gnrapp.GnrImportException
 
@@ -53,8 +53,8 @@ the :class:`GnrImportException` methods
 
 .. _gnrapp_gnrmixobj:
 
-the :class:`GnrMixinObj` methods
-================================
+:class:`GnrMixinObj`
+====================
 
 	.. module:: gnr.app.gnrapp.GnrMixinObj
 
@@ -62,8 +62,8 @@ the :class:`GnrMixinObj` methods
 
 .. _gnrapp_gnrpackage:
 
-the :class:`GnrPackage` methods
-==============================
+:class:`GnrPackage`
+===================
 
 	.. module:: gnr.app.gnrapp.GnrPackage
 
@@ -75,8 +75,8 @@ the :class:`GnrPackage` methods
 
 .. _gnrapp_gnrsqlappdb:
 
-the :class:`GnrSqlAppDb` methods
-================================
+:class:`GnrSqlAppDb`
+====================
 
 	.. module:: gnr.app.gnrapp.GnrSqlAppDb
 
@@ -88,8 +88,8 @@ the :class:`GnrSqlAppDb` methods
 
 .. _gnrapp_reservedtable_error:
 
-the :class:`GnrWriteInReservedTableError` methods
-=================================================
+:class:`GnrWriteInReservedTableError`
+=====================================
 
 	.. module:: gnr.app.gnrapp.GnrWriteInReservedTableError
 
@@ -97,8 +97,8 @@ the :class:`GnrWriteInReservedTableError` methods
 
 .. _gnrapp_classes:
 
-the :class:`GnrApp` classes
-===========================
+:mod:`gnr.app.gnrapp`
+=====================
 
 .. automodule:: gnr.app.gnrapp
     :members:

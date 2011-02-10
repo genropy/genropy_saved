@@ -1,31 +1,82 @@
-===================================================================================
-:mod:`gnr.app.gnrdeploy` -- tools for the creation of a database management project
-===================================================================================
+============================================================
+:mod:`gnr.app.gnrdeploy` -- tools for the creation of a DBMS
+============================================================
 
-	* Indexes:
-	
-		* :ref:`gnrapp_gnrdeploy`
-		
-		* :ref:`gnrapp_gnrdbotbl`
-		* :ref:`gnrapp_gnrhtbl`
-		* :ref:`gnrapp_tblbase`
-		* :ref:`gnrapp_tblcounter`
-	
-	* :ref:`gnrdeploy_classes`
+* Index of ``gnr.app.gnrdeploy`` methods:
+
+	* :ref:`gnrapp_gnrdeploy`
+	* :ref:`gnrapp_modwsgimaker`
+	* :ref:`gnrapp_packagemaker`
+	* :ref:`gnrapp_pathresolver`
+	* :ref:`gnrapp_projectmaker`
+	* :ref:`gnrapp_resourcemaker`
+
+* The :ref:`gnrdeploy_classes` classes
 
 .. _gnrapp_gnrdeploy:
 
-the :class:`???` class methods
-=================================
+:class:`InstanceMaker`
+======================
 
-	.. module:: gnr.app.gnrdeploy.???
+	.. module:: gnr.app.gnrdeploy.InstanceMaker
 	
-	add the table! ???
+	:meth:`do`
+
+.. _gnrapp_modwsgimaker:
+
+:class:`ModWsgiMaker`
+=====================
+
+	.. module:: gnr.app.gnrdeploy.ModWsgiMaker
+
+	there is no method defined.
+
+.. _gnrapp_packagemaker:
+
+:class:`PackageMaker`
+=====================
+
+	.. module:: gnr.app.gnrdeploy.PackageMaker
+
+	:meth:`do`
+
+.. _gnrapp_pathresolver:
+
+:class:`PathResolver`
+=====================
+
+	.. module:: gnr.app.gnrdeploy.PathResolver
+
+	============================= =======================================
+	:meth:`entity_name_to_path`   :meth:`project_name_to_path`           
+	:meth:`instance_name_to_path` :meth:`project_repository_name_to_path`
+	:meth:`js_path`               :meth:`resource_name_to_path`          
+	:meth:`load_gnr_config`       :meth:`set_environment`                
+	:meth:`package_name_to_path`  :meth:`site_name_to_path`              
+	============================= =======================================
+
+.. _gnrapp_projectmaker:
+
+:class:`ProjectMaker`
+=====================
+
+	.. module:: gnr.app.gnrdeploy.ProjectMaker
+
+	:meth:`do`
+
+.. _gnrapp_resourcemaker:
+
+:class:`ResourceMaker`
+======================
+
+	.. module:: gnr.app.gnrdeploy.ResourceMaker
+
+	:meth:`do`
 
 .. _gnrdeploy_classes:
 
-the :mod:`gnr.app.gnrdeploy` classes
-====================================
+:mod:`gnr.app.gnrdeploy`
+========================
 
 .. automodule:: gnr.app.gnrdeploy
     :members:
