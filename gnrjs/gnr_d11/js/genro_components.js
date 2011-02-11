@@ -150,9 +150,9 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var node;
         var frameCode = kw.frameCode;
-        if(frameCode && !kw.nodeId && !kw.formId){
-            kw.nodeId = frameCode+'_frame';
-        }
+        genro.assert(frameCode,'Missing frameCode');
+        sourceNode.attr.nodeId = frameCode+'_frame';
+        sourceNode._registerNodeId();
         objectPop(kw,'datapath');
         var rounded_corners = genro.dom.normalizedRoundedCorners(kw.rounded,objectExtract(kw,'rounded_*',true))
         var bc = sourceNode._('BorderContainer', kw);
@@ -518,16 +518,15 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     }
 });
 
+
 dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var slotbarCode = sourceNode.getInheritedAttributes().slotbarCode;
         kw['showLabel'] = kw.iconClass? (kw['showLabel'] || false):true;        
         var topic = slotbarCode+'_'+objectPop(kw,'publish');
-        var topic = objectPop(kw,'publish');
-        if(kw.action===true || 'action' in kw){
+        if(!kw.action){
             kw.topic = topic;
             kw.command = kw.command || null;
-            //kw['action'] = "genro.publish(topic,{'command':command})";
             kw['action'] = "genro.publish(topic,{'command':command})";
         }
         return sourceNode._('button',kw);
