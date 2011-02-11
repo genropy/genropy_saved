@@ -22,16 +22,16 @@ ANGUILLA                                        AI      AIA     660
 ANTARCTICA                                      AQ      ATA     010
 ANTIGUA AND BARBUDA                             AG      ATG     028
 ARGENTINA                                       AR      ARG     032
-ARMENIA                                         AM      ARM     051  
+ARMENIA                                         AM      ARM     051
 ARUBA                                           AW      ABW     533
 AUSTRALIA                                       AU      AUS     036
 AUSTRIA                                         AT      AUT     040
-AZERBAIJAN                                      AZ      AZE     031  
+AZERBAIJAN                                      AZ      AZE     031
 BAHAMAS                                         BS      BHS     044
 BAHRAIN                                         BH      BHR     048
 BANGLADESH                                      BD      BGD     050
 BARBADOS                                        BB      BRB     052
-BELARUS                                         BY      BLR     112  
+BELARUS                                         BY      BLR     112
 BELGIUM                                         BE      BEL     056
 BELIZE                                          BZ      BLZ     084
 BENIN                                           BJ      BEN     204
@@ -65,10 +65,10 @@ CONGO, Republic of                              CG      COG     178
 COOK ISLANDS                                    CK      COK     184
 COSTA RICA                                      CR      CRI     188
 COTE D'IVOIRE                                   CI      CIV     384
-CROATIA (local name: Hrvatska)                  HR      HRV     191      
+CROATIA (local name: Hrvatska)                  HR      HRV     191
 CUBA                                            CU      CUB     192
 CYPRUS                                          CY      CYP     196
-CZECH REPUBLIC                                  CZ      CZE     203  
+CZECH REPUBLIC                                  CZ      CZE     203
 DENMARK                                         DK      DNK     208
 DJIBOUTI                                        DJ      DJI     262
 DOMINICA                                        DM      DMA     212
@@ -78,7 +78,7 @@ EGYPT                                           EG      EGY     818
 EL SALVADOR                                     SV      SLV     222
 EQUATORIAL GUINEA                               GQ      GNQ     226
 ERITREA                                         ER      ERI     232
-ESTONIA                                         EE      EST     233  
+ESTONIA                                         EE      EST     233
 ETHIOPIA                                        ET      ETH     231
 FALKLAND ISLANDS (MALVINAS)                     FK      FLK     238
 FAROE ISLANDS                                   FO      FRO     234
@@ -90,7 +90,7 @@ FRENCH POLYNESIA                                PF      PYF     258
 FRENCH SOUTHERN TERRITORIES                     TF      ATF     260
 GABON                                           GA      GAB     266
 GAMBIA                                          GM      GMB     270
-GEORGIA                                         GE      GEO     268  
+GEORGIA                                         GE      GEO     268
 GERMANY                                         DE      DEU     276
 GHANA                                           GH      GHA     288
 GIBRALTAR                                       GI      GIB     292
@@ -119,24 +119,24 @@ ITALY                                           IT      ITA     380
 JAMAICA                                         JM      JAM     388
 JAPAN                                           JP      JPN     392
 JORDAN                                          JO      JOR     400
-KAZAKHSTAN                                      KZ      KAZ     398  
+KAZAKHSTAN                                      KZ      KAZ     398
 KENYA                                           KE      KEN     404
 KIRIBATI                                        KI      KIR     296
 KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF          KP      PRK     408
 KOREA, REPUBLIC OF                              KR      KOR     410
 KUWAIT                                          KW      KWT     414
-KYRGYZSTAN                                      KG      KGZ     417  
+KYRGYZSTAN                                      KG      KGZ     417
 LAO PEOPLE'S DEMOCRATIC REPUBLIC                LA      LAO     418
-LATVIA                                          LV      LVA     428  
+LATVIA                                          LV      LVA     428
 LEBANON                                         LB      LBN     422
 LESOTHO                                         LS      LSO     426
 LIBERIA                                         LR      LBR     430
 LIBYAN ARAB JAMAHIRIYA                          LY      LBY     434
 LIECHTENSTEIN                                   LI      LIE     438
-LITHUANIA                                       LT      LTU     440  
+LITHUANIA                                       LT      LTU     440
 LUXEMBOURG                                      LU      LUX     442
 MACAU                                           MO      MAC     446
-MACEDONIA, THE FORMER YUGOSLAV REPUBLIC OF      MK      MKD     807 
+MACEDONIA, THE FORMER YUGOSLAV REPUBLIC OF      MK      MKD     807
 MADAGASCAR                                      MG      MDG     450
 MALAWI                                          MW      MWI     454
 MALAYSIA                                        MY      MYS     458
@@ -147,10 +147,10 @@ MARSHALL ISLANDS                                MH      MHL     584
 MARTINIQUE                                      MQ      MTQ     474
 MAURITANIA                                      MR      MRT     478
 MAURITIUS                                       MU      MUS     480
-MAYOTTE                                         YT      MYT     175  
+MAYOTTE                                         YT      MYT     175
 MEXICO                                          MX      MEX     484
 MICRONESIA, FEDERATED STATES OF                 FM      FSM     583
-MOLDOVA, REPUBLIC OF                            MD      MDA     498  
+MOLDOVA, REPUBLIC OF                            MD      MDA     498
 MONACO                                          MC      MCO     492
 MONGOLIA                                        MN      MNG     496
 MONTSERRAT                                      MS      MSR     500
@@ -203,8 +203,8 @@ SERBIA AND MONTENEGRO                           CS      SCG     891
 SEYCHELLES                                      SC      SYC     690
 SIERRA LEONE                                    SL      SLE     694
 SINGAPORE                                       SG      SGP     702
-SLOVAKIA                                        SK      SVK     703  
-SLOVENIA                                        SI      SVN     705  
+SLOVAKIA                                        SK      SVK     703
+SLOVENIA                                        SI      SVN     705
 SOLOMON ISLANDS                                 SB      SLB     090
 SOMALIA                                         SO      SOM     706
 SOUTH AFRICA                                    ZA      ZAF     710
@@ -219,7 +219,7 @@ SWEDEN                                          SE      SWE     752
 SWITZERLAND                                     CH      CHE     756
 SYRIAN ARAB REPUBLIC                            SY      SYR     760
 TAIWAN                                          TW      TWN     158
-TAJIKISTAN                                      TJ      TJK     762  
+TAJIKISTAN                                      TJ      TJK     762
 TANZANIA, UNITED REPUBLIC OF                    TZ      TZA     834
 THAILAND                                        TH      THA     764
 TIMOR-LESTE                                     TL      TLS     626
@@ -229,7 +229,7 @@ TONGA                                           TO      TON     776
 TRINIDAD AND TOBAGO                             TT      TTO     780
 TUNISIA                                         TN      TUN     788
 TURKEY                                          TR      TUR     792
-TURKMENISTAN                                    TM      TKM     795  
+TURKMENISTAN                                    TM      TKM     795
 TURKS AND CAICOS ISLANDS                        TC      TCA     796
 TUVALU                                          TV      TUV     798
 UGANDA                                          UG      UGA     800
@@ -239,7 +239,7 @@ UNITED KINGDOM                                  GB      GBR     826
 UNITED STATES                                   US      USA     840
 UNITED STATES MINOR OUTLYING ISLANDS            UM      UMI     581
 URUGUAY                                         UY      URY     858
-UZBEKISTAN                                      UZ      UZB     860  
+UZBEKISTAN                                      UZ      UZB     860
 VANUATU                                         VU      VUT     548
 VATICAN CITY STATE (HOLY SEE)                   VA      VAT     336
 VENEZUELA                                       VE      VEN     862
@@ -257,7 +257,5 @@ ZIMBABWE                                        ZW      ZWE     716
                 record = {'name': d[0:47].strip(),
                           'code': d[48:50],
                           'code3': d[56:59],
-                          'nmbr': d[64:68]}
+                          'nmbr': d[64:67]}
                 self.insertOrUpdate(record)
-
-
