@@ -26,7 +26,7 @@
 	* :ref:`gnrbags_directoryresolver`
 	* :ref:`gnrbags_urlresolver`
 	
-* The :ref:`gnrbags_classes` classes
+* :ref:`gnrbags_classes`
 
 .. _gnrbags_bag:
 
@@ -146,8 +146,8 @@
 
 .. _gnrbags_classes:
 
-:mod:`gnr.core.gnrbag`
-======================
+:mod:`gnr.core.gnrbag` - The complete reference list
+====================================================
 
 .. automodule:: gnr.core.gnrbag
 	:members:

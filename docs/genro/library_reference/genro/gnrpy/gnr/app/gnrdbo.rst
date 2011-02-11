@@ -10,7 +10,7 @@
 		* :ref:`gnrapp_tblbase`
 		* :ref:`gnrapp_tblcounter`
 		
-* The :ref:`gnrdbo_classes` classes
+* :ref:`gnrdbo_classes`
 
 .. _gnrapp_gnrdbopkg:
 
@@ -79,8 +79,8 @@
 	
 .. _gnrdbo_classes:
 
-:mod:`gnr.app.gnrdbo`
-=====================
+:mod:`gnr.app.gnrdbo` - The complete reference list
+===================================================
 
 .. automodule:: gnr.app.gnrdbo
     :members:

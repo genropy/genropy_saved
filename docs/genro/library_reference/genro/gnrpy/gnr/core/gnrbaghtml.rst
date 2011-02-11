@@ -6,7 +6,7 @@
 	
 	* :ref:`gnrcore_gnrbaghtml`
 	
-* The :ref:`gnrbaghtml_classes` classes
+* :ref:`gnrbaghtml_classes`
 
 .. _gnrcore_bagtohtml:
 
@@ -30,8 +30,8 @@
 
 .. _gnrbaghtml_classes:
 
-:mod:`gnr.core.gnrbaghtml`
-==========================
+:mod:`gnr.core.gnrbaghtml` - The complete reference list
+========================================================
 
 .. automodule:: gnr.core.gnrbaghtml
 	:members:

@@ -415,7 +415,7 @@ def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
             yield d.date()
         else:
             yield d
-
+            
 def toTime(t):
     """Convert a time, datetime or a string (HH:MM:SS or HH:MM) to a time.
     

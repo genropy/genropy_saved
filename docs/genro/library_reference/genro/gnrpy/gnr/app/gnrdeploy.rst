@@ -11,7 +11,7 @@
 	* :ref:`gnrapp_projectmaker`
 	* :ref:`gnrapp_resourcemaker`
 
-* The :ref:`gnrdeploy_classes` classes
+* :ref:`gnrdeploy_classes`
 
 .. _gnrapp_gnrdeploy:
 
@@ -75,8 +75,8 @@
 
 .. _gnrdeploy_classes:
 
-:mod:`gnr.app.gnrdeploy`
-========================
+:mod:`gnr.app.gnrdeploy` - The complete reference list
+======================================================
 
 .. automodule:: gnr.app.gnrdeploy
     :members:

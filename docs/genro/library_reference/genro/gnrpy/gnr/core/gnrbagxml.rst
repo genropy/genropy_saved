@@ -7,7 +7,7 @@
 	* :ref:`gnrbagxml_bagfromxml`
 	* :ref:`gnrbagxml_bagtoxml`
 	
-* The :ref:`gnrbagxml_classes` classes
+* :ref:`gnrbagxml_classes`
 
 .. _gnrbagxml_bagfromxml:
 
@@ -33,8 +33,8 @@
 	
 .. _gnrbagxml_classes:
 
-:mod:`gnr.core.gnrbagxml`
-=========================
+:mod:`gnr.core.gnrbagxml` - The complete reference list
+=======================================================
 
 .. automodule:: gnr.core.gnrbagxml
     :members:

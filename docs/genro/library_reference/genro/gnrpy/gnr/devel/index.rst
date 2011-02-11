@@ -1,5 +1,5 @@
 =====================================
-:mod:`gnr.devel` -- development utils
+:mod:`gnr.devel` -- Development utils
 =====================================
 
 .. toctree::

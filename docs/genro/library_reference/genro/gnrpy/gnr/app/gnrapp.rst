@@ -12,7 +12,7 @@
 	* :ref:`gnrapp_gnrsqlappdb`
 	* :ref:`gnrapp_reservedtable_error`
 		
-* The :ref:`gnrapp_classes` classes
+* :ref:`gnrapp_classes`
 
 .. _gnrapp_gnrapp:
 
@@ -97,8 +97,8 @@
 
 .. _gnrapp_classes:
 
-:mod:`gnr.app.gnrapp`
-=====================
+:mod:`gnr.app.gnrapp` - The complete reference list
+===================================================
 
 .. automodule:: gnr.app.gnrapp
     :members:

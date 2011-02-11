@@ -6,7 +6,7 @@
 	
 	* :ref:`gnrclasses_gnrclasscatalog`
 	
-* The :ref:`gnrclasses_classes` classes
+* :ref:`gnrclasses_classes`
 
 .. _gnrclasses_gnrclasscatalog:
 
@@ -27,8 +27,8 @@
 
 .. _gnrclasses_classes:
 
-:mod:`gnr.core.gnrclasses`
-==========================
+:mod:`gnr.core.gnrclasses` - The complete reference list
+========================================================
 
 .. automodule:: gnr.core.gnrclasses
 	:members:
