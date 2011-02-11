@@ -163,6 +163,11 @@ dojo.declare('gnr.GenroClient', null, {
     ping:function() {
         genro.rpc.ping();
     },
+    assert:function(condition,msg,level){
+        if(!condition){
+            console[level || 'error'](msg);
+        }
+    },
     bp:function(aux) {
         console.log('bp ' + aux);
         if (aux===true){
@@ -899,6 +904,17 @@ dojo.declare('gnr.GenroClient', null, {
         if (fh) {
             return fh.getFormCluster();
         }
+    },
+    getFrameNode:function(frameCode,side){
+        var frameNode = genro.nodeById(frameCode+'_frame');
+        if(!frameNode){
+            return;
+        }
+        var containerNode =  frameNode.getValue().getNodes()[0]
+        if(!side){
+            return containerNode;
+        }
+        return containerNode.getValue().getNodeByAttr('region',side);
     },
     formById:function(formId) {
         var node = genro.nodeById(formId);
