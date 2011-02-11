@@ -8,6 +8,7 @@ from gnr.web.gnrwebstruct import struct_method
 
 "Test formhandler selection store"
 class GnrCustomWebPage(object):
+    testOnly='_1_'
     user_polling=0
     auto_polling=0
     py_requires="""gnrcomponents/testhandler:TestHandlerFull,
@@ -57,6 +58,9 @@ class GnrCustomWebPage(object):
                           
         center = bc.contentPane(region='center',border='1px solid blue').formTester(frameCode='provincia')
     
+    def formCb(self,pane):
+        pane.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
+        
     def test_1_selectionhandler(self,pane):
         bc =  pane.borderContainer(height='250px')
         left = bc.borderContainer(region='left',width='300px')
@@ -68,9 +72,11 @@ class GnrCustomWebPage(object):
         gridRoot.selectionHandler(struct='regione',
                                   frameCode='province',
                                   datapath='.province',
+                                  label='Province',
                                   table='glbl.provincia',
                                   autoSelect=True,
                                   form_pane=formRoot,
+                                  form_cb=self.formCb,
                                   selectionPars=dict(where="$regione=:r",r='^.regione'))
         
         
