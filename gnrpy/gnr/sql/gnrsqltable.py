@@ -677,11 +677,15 @@ class SqlTable(GnrObject):
             many_tblobj = self.db.table(relblock['mtbl'], pkg=relblock['mpkg'])
             many_key = relblock['mfld']
             relKey = main_record[relblock['ofld']]
-            for sub_recordClusterNode in rel_recordCluster:
-                if sub_recordClusterNode.attr.get('_newrecord') and not(
-                sub_recordClusterNode.attr.get('_deleterecord')):
-                    sub_recordClusterNode.value[many_key] = relKey
-                many_tblobj.writeRecordCluster(sub_recordClusterNode.value, sub_recordClusterNode.getAttr())
+            if rel_recordClusterAttr['one_one']:
+                rel_recordCluster[many_key]=relKey
+                many_tblobj.writeRecordCluster(rel_recordCluster, rel_recordClusterAttr)
+            else:
+                for sub_recordClusterNode in rel_recordCluster:
+                    if sub_recordClusterNode.attr.get('_newrecord') and not(
+                    sub_recordClusterNode.attr.get('_deleterecord')):
+                        sub_recordClusterNode.value[many_key] = relKey
+                    many_tblobj.writeRecordCluster(sub_recordClusterNode.value, sub_recordClusterNode.getAttr())
         return main_record
 
     def xmlDebug(self, data, debugPath, name=None):
@@ -698,7 +702,7 @@ class SqlTable(GnrObject):
             revnodes.reverse()
             for j, n in revnodes:
                 if n.label.startswith('@'):
-                    if n.getAttr('mode') == 'O':
+                    if n.getAttr('mode') == 'O' :
                         relatedOne[n.label[1:]] = nodes.pop(j)
                     else:
                         relatedMany[n.label] = nodes.pop(j)
