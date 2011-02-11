@@ -197,7 +197,7 @@ class GnrPackage(object):
         
         self.tableMixinDict = {}
         folders=[self.packageFolder]
-        folders+=[p.model_path for p in self.getPlugins()]
+        folders+=[p.path for p in self.getPlugins()]
         for folder in folders:
             self.loadTableMixinDict(self.main_module, folder)
         
@@ -226,6 +226,7 @@ class GnrPackage(object):
         if module:
             tbldict = dict([(x[6:], getattr(module, x)) for x in dir(module) if x.startswith('Table_')])
         modelfolder=os.path.join(folder,'model')
+        
         if os.path.isdir(modelfolder):
             tbldict.update(dict([(x[:-3], None) for x in os.listdir(modelfolder) if x.endswith('.py')]))
 
