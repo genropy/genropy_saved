@@ -72,10 +72,11 @@ class GnrCustomWebPage(object):
         frame = pane.framePane(frameCode='frame4',height='200px',width='300px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
                                 center_background='gray',rounded_top=10)
-        top = frame.top.slotToolbar(slotbarCode='myslotbar',slots='*,foo,bar,myaction,10',myaction_action='alert("bravo")',height='20px') 
+        top = frame.top.slotToolbar(slotbarCode='myslotbar',slots='*,foo,bar,xx,myaction,10',
+                                    myaction_action='console.log(genro.getFrameNode("frame4"));',height='20px') 
         top.foo.slotButton(label='Add',iconClass='icnBaseAdd',publish='add')
         top.bar.slotButton(label='remove',iconClass='icnBaseDelete',publish='remove')
-
+        top.xx.button('test',action='console.log(genro.getFrameNode("frame4","top"));')
         frame.numberTextbox(value='^.value',default_value=1,width='5em',
                             subscribe_myslotbar_add="""SET .value=(GET .value)+1;""",
                             subscribe_myslotbar_remove='SET .value= (GET .value) -1;')
