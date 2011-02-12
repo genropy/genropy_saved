@@ -27,6 +27,8 @@ from gnr.core.gnrbag import Bag,BagCbResolver,DirectoryResolver
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 from gnr.core.gnrdict import dictExtract
+from gnr.core.gnrlang import extract_kwargs
+
 from time import time
 
 
@@ -193,32 +195,60 @@ class GnrDomSrc(GnrStructData):
     def nodeById(self, id):
         """docstring for findNode"""
         return self.findNodeByAttr('nodeId', id)
-
-    def framepane(self,frameCode=None,**kwargs):
-        return self.child('FramePane',frameCode=frameCode,autoslots='top,bottom,left,right,center',**kwargs)
     
-    def frameform(self,formId=None,frameCode=None,store=None,slots=None,table=None,**kwargs):
+    
+    def framepane(self,frameCode=None,center_content=None,**kwargs):
+        frame = self.child('FramePane',frameCode=frameCode,autoslots='top,bottom,left,right,center',**kwargs)
+        if callable(center_content):
+            center_content(frame)
+        return frame
+         
+    
+    @extract_kwargs(store=True)
+    def frameform(self,formId=None,frameCode=None,store=None,storeCode=None,slots=None,table=None,store_kwargs=None,**kwargs):
         formId = formId or '%s_form' %frameCode
-        if not store:
-            store = formId
+        if not storeCode:
+            storeCode = formId
         if not table:
-            storeNode = self.root.nodeById('%s_store' %store)
+            storeNode = self.root.nodeById('%s_store' %storeCode)
             if storeNode:
                 table = storeNode.attr['table']
-        return self.child('FrameForm',formId=formId,frameCode=frameCode,store=store,table=table,
+        center_content = kwargs.pop('center_content',None)
+        frame = self.child('FrameForm',formId=formId,frameCode=frameCode,
+                            storeCode=storeCode,table=table,
                           autoslots='top,bottom,left,right,center',**kwargs)
+        if store:
+            if store is True:
+                store = 'recordCluster'
+            store_kwargs['_attachname'] = 'store'
+            store_kwargs['handler'] = store
+            frame.formStore(**store_kwargs)
+        if callable(center_content):
+            center_content(frame)
+        return frame
     
-    def formstore(self,storeCode=None,nodeId=None,table=None,**kwargs):
+    def formstore(self,storeCode=None,storepath=None,handler='recordCluster',
+                    nodeId=None,table=None,storeType=None,parentStore=None,**kwargs):
+        if not storeType:
+            if parentStore:
+                storeType='Collection'
+            else:
+                storeType='Item'
         if self.attributes.get('tag','').lower()=='frameform':
-            self.attributes['table'] = table
+            if table:
+                self.attributes['table'] = table
+            elif 'table' in self.attributes:
+                table = self.attributes['table']
             if not storeCode:
-                storeCode = self.attributes['store']
+                storeCode = self.attributes['storeCode']
+            if not storepath:
+                storepath = '.record'
             else:
                 self.attributes['store'] = storeCode
         assert storeCode,'storeCode mandatory for stores not attached to a form'
         return self.child('formStore',childname='formStore',storeCode=storeCode,table=table,
-                            nodeId = nodeId or '%s_store' %storeCode,
-                            **kwargs)
+                            nodeId = nodeId or '%s_store' %storeCode,storeType=storeType,
+                            storepath=storepath,handler=handler,**kwargs)
                             
     def formstore_handler(self,action,handler_type=None,**kwargs):
         return self.child('handler',action=action,handler_type=handler_type,**kwargs)
@@ -539,6 +569,39 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
 
     def dataRpc(self, path, method, **kwargs):
         return self.child('dataRpc', path=path, method=method, **kwargs)
+        
+    @extract_kwargs(palette=True,dialog=True)
+    def linkedForm(self,frameCode=None,loadEvent=None,formRoot=None,store=True,
+                        dialog_kwargs=None,palette_kwargs=None,formId=None,**kwargs):
+        formId = formId or '%s_form' %frameCode
+        loadSubscriber = 'subscribe_form_%s_onLoading' %formId
+        if formRoot:
+            if isinstance(formRoot,basestring):
+                formRoot = self.pageSource(formRoot)
+        elif dialog_kwargs:
+            if 'height' in dialog_kwargs:
+                kwargs['height'] = dialog_kwargs.pop('height')
+            if 'width' in dialog_kwargs:
+                kwargs['width'] = dialog_kwargs.pop('width')
+                dialog_kwargs['closable'] = dialog_kwargs.get('closable',True)
+                dialog_kwargs[loadSubscriber] = "this.widget.show();"
+            formRoot = self.parent.dialog(**dialog_kwargs)
+        elif palette_kwargs:
+            palette_kwargs[loadSubscriber] = "this.widget.show()"
+            formRoot = self.parent.palettePane(**palette_kwargs)
+        form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=self.attributes.get('table'),store=store,
+                                  **kwargs)
+        if self.attributes['tag'].lower()=='includedview':
+            viewattr = self.attributes
+            storeattr = form.store.attributes
+            storeattr['storeType'] = 'Collection'
+            storeattr['parentStore'] = viewattr['store']
+            self.attributes['connect_%s' %loadEvent] = """
+                                                var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
+                                                genro.getForm("%s").load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
+                                                """ %frameCode
+            self.attributes['subscribe_form_%s_onLoaded' %formId] ="this.widget.selectByRowAttr('_pkey',$1.pkey)"
+        return form
         
         
     def selectionStore(self, storeCode=None,table=None, storepath=None,columns=None,**kwargs):
