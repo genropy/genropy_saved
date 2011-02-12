@@ -70,7 +70,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     onStartForm:function(kw){
         var kw = kw || {};
         this.formDomNode =  genro.domById(this.form_id);
-        var storeCode = this.sourceNode.attr.store;
+        var storeCode = this.sourceNode.attr.storeCode;
         if(storeCode){
             var contentSourceNode = genro.nodeById(this.form_id+'_content');
             var storeId = storeCode+'_store';
@@ -84,15 +84,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var storeType = objectPop(kw, 'storeType')
             objectPop(kw, 'tag');
             this.setStore(storeType, kw);
-            var startKey = kw.startKey || this.store.startKey || this.getCurrentPkey();
-            var kw = {destPkey:startKey};
-            this.load(kw);
+        
             var that = this;
             dojo.connect(this.formContentDomNode,'onclick',function(e){
                 if(genro.activeForm!=that){
                     that.focusCurrentField();
                 }
             });
+            var startKey = kw.startKey || this.store.startKey || this.getCurrentPkey();
+            if(startKey){
+                this.load({destPkey:startKey});
+            }
         }
         
     },
@@ -168,6 +170,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     load: function(kw) {
         var kw = kw || {};
+        if(kw['destPkey']=='*norecord*'){
+            kw['destPkey'] = null;
+        }
         if (false && this.store){
             
         }else{
@@ -268,6 +273,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.setControllerData('loading',true);
         var pkey= ('destPkey' in kw)? kw.destPkey : this.store.getStartPkey();
         this.setCurrentPkey(pkey);
+        this.publish('onLoading',pkey);
         if(pkey){
             if (!sync) {
                 this._showHider();
@@ -384,6 +390,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     },
     setStore:function(storeType,kw){
+        var parentStore = objectPop(kw,'parentStore');
+        var storeType = storeType || parentStore?'Collection':'Item';
+        kw.parentStoreNode = genro.getStore(parentStore);
         this.store = new gnr.formstores[storeType](this,kw);
     },
 
@@ -963,6 +972,7 @@ dojo.declare("gnr.formstores.Base", null, {
         this.form = form;
         this.handlers = objectPop(kw,'handlers') || {};
         this.table = kw.table;
+        this.parentStoreNode = kw.parentStoreNode;
         var base_handler_type = objectPop(kw,'handler');
         var handlerKw = objectExtract(kw,'handler_*');
         var handler,handler_type,method,actionKw;
@@ -984,11 +994,8 @@ dojo.declare("gnr.formstores.Base", null, {
     getStartPkey:function(){
         return;
     },
-    getStoreData:function(){
-        return this.getRelativeData(this.storepath);
-    },
-    getRelativeData:function(path){
-        return this.form.sourceNode.getRelativeData(path);
+    getParentStoreData:function(){
+        return this.parentStoreNode.getRelativeData(this.parentStoreNode.attr.path);
     },
     load_recordCluster:function(table){
         var form=this.form;
@@ -1059,7 +1066,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         }        
     },
     getStoreKey:function(idx){
-        var store = this.getStoreData();
+        var store = this.getParentStoreData();
         if(!store){
             return;
         }
@@ -1074,7 +1081,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         return this.getStoreKey(0);
     },    
     setNavigationStatus:function(pkey){
-        var currIdx = this.getStoreIdx(pkey);
+        var currIdx = this.getParentStoreIdx(pkey);
         var kw = {}
         if(currIdx<0){
             kw.first = true;
@@ -1082,15 +1089,15 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         }
         else if(currIdx==0){
             kw.first = true;
-        }else if(currIdx>=this.getStoreData().len()-1){
+        }else if(currIdx>=this.getParentStoreData().len()-1){
             kw.last = true;
         }
         this.form.publish('navigationStatus',kw);
         return;
     },
-    getStoreIdx:function(pkey){
+    getParentStoreIdx:function(pkey){
         var result = -1;
-        var store = this.getStoreData();
+        var store = this.getParentStoreData();
         var that = this;
         if(pkey && store){
             store=store.getNodes();
@@ -1110,9 +1117,9 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         if(command=='first'){
            idx = 0;
         }else if(command=='last'){
-            idx = this.getStoreData().len()-1;
+            idx = this.getParentStoreData().len()-1;
         }else{
-            idx = this.getStoreIdx(this.form.getCurrentPkey());
+            idx = this.getParentStoreIdx(this.form.getCurrentPkey());
             idx = command=='next'? idx+1:idx-1;
         }
         var pkey = this.getStoreKey(idx);

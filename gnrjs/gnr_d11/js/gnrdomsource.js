@@ -814,6 +814,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     lazyBuildFinalize:function(){
         if(this.attr._lazyBuild){
+            console.log(this,'aaa');
             var lazyBuild = objectPop(this.attr,'_lazyBuild');
             var parent = this.getParentBag();
             var content;
@@ -825,7 +826,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             this.setValue(content);
             var that = this;
-            setTimeout(function(){that.publish('built',{},true)},1);
+            setTimeout(function(){
+                that.publish('built',{},true)
+            },1);
         }        
     },
 

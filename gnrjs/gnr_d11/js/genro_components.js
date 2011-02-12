@@ -151,7 +151,9 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         var node;
         var frameCode = kw.frameCode;
         genro.assert(frameCode,'Missing frameCode');
-        sourceNode.attr.nodeId = frameCode+'_frame';
+        var frameId = frameCode+'_frame';
+        genro.assert(!genro.nodeById(frameId),'existing frame');
+        sourceNode.attr.nodeId = frameId;
         sourceNode._registerNodeId();
         objectPop(kw,'datapath');
         var rounded_corners = genro.dom.normalizedRoundedCorners(kw.rounded,objectExtract(kw,'rounded_*',true))
@@ -562,15 +564,22 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
             }
         }
         attributes['_class'] = (attributes['_class'] || '')+' slotbar  slotbar_'+orientation+' slotbar_'+side
+        var toolbar = objectPop(attributes,'toolbar');
+        if(toolbar===true){
+            toolbar = 'top';
+        }
+        side = side || toolbar;
         if(side){
             attributes['side'] = side;
             attributes['slotbarCode'] = attributes['slotbarCode'] || attributes['frameCode'] +'_'+ side; 
-        if(objectPop(attributes,'toolbar')){
-            attributes['_class'] += ' slotbar_toolbar';
+            if(toolbar){
+                attributes['_class'] += ' slotbar_toolbar';
                 attributes['gradient_from'] = attributes['gradient_from'] || sidePars['gradient_from'] || genro.dom.themeAttribute('toolbar','gradient_from','silver');
                 attributes['gradient_to'] = attributes['gradient_to'] || sidePars['gradient_to'] || genro.dom.themeAttribute('toolbar','gradient_to','whitesmoke');
+                
                 var css3Kw = {'left':[0,'right'],'top':[-90,'bottom'],
                             'right':[180,'left'],'bottom':[90,'top']}
+                attributes['border_'+css3Kw[side][1]] = '1px solid '+ attributes['gradient_from'];
                 attributes['gradient_deg'] = css3Kw[side][0];
             }
         }

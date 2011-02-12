@@ -597,7 +597,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         objectPop(attributes, 'parentDialog');
         objectPop(attributes, 'centerOn');
         objectPop(attributes, 'position');
-        var closable = ('closable' in attributes) ? objectPop(attributes, 'closable') : true;
+        var closable = ('closable' in attributes) ? objectPop(attributes, 'closable') : false;
         attributes.title = attributes.title || '';
         if (!closable) {
             attributes.templateString = "<div class=\"dijitDialog\" tabindex=\"-1\" waiRole=\"dialog\" waiState=\"labelledby-${id}_title\">\n\t<div dojoAttachPoint=\"titleBar\" class=\"dijitDialogTitleBar\">\n\t<span dojoAttachPoint=\"titleNode\" class=\"dijitDialogTitle\" id=\"${id}_title\">${title}</span>\n\t</div>\n\t\t<div dojoAttachPoint=\"containerNode\" class=\"dijitDialogPaneContent\"></div>\n</div>\n";
@@ -607,16 +607,16 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             sourceNode.closeAttrs = objectExtract(attributes, 'close_*');
         }
     },
-    created:function(newobj, savedAttrs, sourceNode) {
+    created:function(widget, savedAttrs, sourceNode) {
         if (dojo_version == '1.5') {
             var position = sourceNode.attr.position;
             if (position) {
                 position = position.split(',');
-                newobj._relativePosition = {x:position[0],y:position[1]};
+                widget._relativePosition = {x:position[0],y:position[1]};
             }
         }
         if (dojo_version == '1.1') {
-            dojo.connect(newobj, "show", newobj,
+            dojo.connect(widget, "show", widget,
                         function() {
                             if (this != genro.dialogStack.slice(-1)[0]) {
                                 genro.dialogStack.push(this);
@@ -626,8 +626,9 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                             }
 
                         });
-            dojo.connect(newobj, "hide", newobj,
+            dojo.connect(widget, "hide", widget,
                         function() {
+                            this.sourceNode.attr._isHidden=true;
                             if (this == genro.dialogStack.slice(-1)[0]) {
                                 genro.dialogStack.pop();
                                 if (genro.dialogStack.length > 0) {
@@ -636,9 +637,9 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                             }
                         });
         }
-        genro.dragDropConnect(newobj.domNode);
+        genro.dragDropConnect(widget.domNode);
         if (genro.isDeveloper){
-            genro.dev.inspectConnect(newobj.domNode);
+            genro.dev.inspectConnect(widget.domNode);
         }
 
     },
@@ -1821,6 +1822,11 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
         var idx = e.rowIndex;
         genro.formById(this.sourceNode.attr.linkedForm).openForm(idx, this.rowIdByIndex(idx));
     },
+    mixin_linkedFormLoad: function(e) {
+        var idx = e.rowIndex;
+        genro.formById(this.sourceNode.attr.linkedForm).load({destPkey:this.rowIdByIndex(idx),destIdx:idx});
+    },
+    
     selfDragColumnsPrepare:function(sourceNode) {
         if (sourceNode.attr.selfDragColumns != 'trashable') {
             gnr.convertFuncAttribute(sourceNode, 'selfDragColumns', 'info');

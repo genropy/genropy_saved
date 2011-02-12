@@ -270,7 +270,7 @@ dojo.declare('gnr.GenroClient', null, {
         /* if (dojo.isSafari && genro.wdgById('pbl_root')){
          setTimeout(genro.forceResize,1);
          }*/
-        dojo.publish('onPageStart', []);
+        //dojo.publish('onPageStart', []);
         var windowTitle = this.getData('gnr.windowTitle');
         if (windowTitle) {
             genro.dom.windowTitle(windowTitle);
@@ -827,7 +827,7 @@ dojo.declare('gnr.GenroClient', null, {
         for (var i = 1; i < arguments.length; i++) {
             args.push(arguments[i]);
         }
-        //console.log('publishing:'+topic);
+        //console.log('publishing:'+topic,args);
         //console.log(args)
         dojo.publish(topic, args);
     },
@@ -905,6 +905,14 @@ dojo.declare('gnr.GenroClient', null, {
             return fh.getFormCluster();
         }
     },
+    getForm:function(frameCode){
+        var frameNode = genro.getFrameNode(frameCode);
+        return frameNode.form;
+    },
+    getStore:function(storeCode){
+        return genro.nodeById(storeCode+'_store');
+    },
+    
     getFrameNode:function(frameCode,side){
         var frameNode = genro.nodeById(frameCode+'_frame');
         if(!frameNode){
