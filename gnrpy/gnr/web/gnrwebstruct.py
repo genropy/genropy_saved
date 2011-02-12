@@ -569,7 +569,14 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
 
     def dataRpc(self, path, method, **kwargs):
         return self.child('dataRpc', path=path, method=method, **kwargs)
-        
+    
+    def datarpc_addcallback(self,cb,**kwargs):
+        self.child('callBack',content=cb,**kwargs)
+        return self
+    def datarpc_adderrback(self,cb,**kwargs):
+        self.child('callBack',content=cb,_isErrBack=True,**kwargs)
+        return self
+    
     @extract_kwargs(palette=True,dialog=True)
     def linkedForm(self,frameCode=None,loadEvent=None,formRoot=None,store=True,
                         dialog_kwargs=None,palette_kwargs=None,formId=None,**kwargs):
