@@ -1034,6 +1034,37 @@ dojo.declare('gnr.GenroClient', null, {
         var cb = funcCreate(async_cb);
         return genro.rpc.remoteCall(method, params, mode, null, null, cb);
     },
+    
+    testDeferred:function(method,kw,handleAs){
+        var callKwargs=kw || {};
+        callKwargs['method'] = method;
+        xhrKwargs = {handleAs:handleAs,
+                    load:function(response,ioArgs){
+                        console.log('load',response,ioArgs)
+                        return response;
+                        },
+                    error:function(response,ioArgs){
+                        console.log('load',response,ioArgs)
+                        return response;
+                        },
+                    handle:function(response,ioArgs){
+                        console.log('load',response,ioArgs)
+                        return response;
+                        }
+                    };
+        httpMethod= 'GET';
+        var deferred = genro.rpc._serverCall(callKwargs, xhrKwargs, httpMethod);
+        deferred.addCallback(function(response,ioArgs){
+            console.log('cb_1',response,ioArgs)
+            response='pippo';
+            return response;
+        })
+        deferred.addCallback(function(response,ioArgs){
+            console.log('cb_2',response,ioArgs)
+            return response;
+        })
+        console.log(deferred);
+    },
 
     setSelectedVal:function(obj, value) {
         /*Set the attr selectedValue*/

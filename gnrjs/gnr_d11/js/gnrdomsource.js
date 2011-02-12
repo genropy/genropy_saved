@@ -296,7 +296,30 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     genro.lockScreen(true, domsource_id);
                 }
                 if (doCall != false) {
-                    genro.rpc.remoteCall(method, kwargs, null, httpMethod, null, cb);
+                    var deferred = genro.rpc.remoteCall(method, kwargs, null, httpMethod, null, cb);
+                    if(this._callbacks__){
+                        deferred.addCallback(function(result){console.log(result)});
+                    }
+                    if(this._callbacks){
+                        
+                        var rpcNode = this;
+                        
+                        this._callbacks.forEach(function(n){
+                            var cblocals = rpcNode.evaluateOnNode(n.attr);
+                            objectUpdate(cblocals,kwargs);
+                            var cbtext = n.getValue();
+                            var isErrBack = objectPop(cblocals,'_isErrBack');
+                            var cb = function(result){
+                                cblocals['result'] = result;
+                                return funcApply(cbtext, cblocals, rpcNode);
+                            }
+                            if(isErrBack){
+                                deferred.addErrback(cb);
+                            }else{
+                                deferred.addCallback(cb);
+                            }
+                        })
+                    }
                 }
             }
             else {
@@ -324,6 +347,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 dataNode.setValue(resolver, true, attributes);
             }
         }
+        
     },
     setAttributeInDatasource: function(attrname, value, doTrigger, attributes, forceChanges) {
         var doTrigger = (doTrigger == false) ? doTrigger : this;
@@ -539,6 +563,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     _bld_datacontroller: function() {
     },
     _bld_datarpc: function() {
+        this._callbacks = this.getValue();
+        this._value = null;
+        console.log(this._callbacks);
     },
     _bld_script: function() {
         if (this.attr.src) {
@@ -590,10 +617,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         // given an object representing dynamic parameters
         // get current values relative to this node
         // eg. values starting with ^. are datapath relative to the current node
+        var result = {};
         for (var attr in pardict) {
-            pardict[attr] = this.currentFromDatasource(pardict[attr]);
+            result[attr] = this.currentFromDatasource(pardict[attr]);
         }
-        return pardict;
+        return result;
     },
     currentAttributes: function() {
         var attributes = {};

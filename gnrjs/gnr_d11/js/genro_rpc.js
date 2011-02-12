@@ -228,7 +228,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (delayOnCall) {
             //add this stuff to handle it
         } else {
-            return this._serverCall_execute(httpMethod, kw, callKwargs);
+            var deferred= this._serverCall_execute(httpMethod, kw, callKwargs);
+            return deferred;
         }
 
     },
@@ -330,6 +331,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                     alert(e.toSource());
                     throw e;
                 }
+                return result;
             });
             //sync = false;
         } else {
@@ -346,8 +348,12 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             'sync': sync,
             'preventCache': preventCache
         };
-        this._serverCall(callKwargs, xhrKwargs, httpMethod);
-        return result;
+        var deferred = this._serverCall(callKwargs, xhrKwargs, httpMethod);
+        if(result){
+            console.log('remoteCall result:', result);
+            return result;
+        }
+        return deferred;
     },
     errorHandler: function(response, ioArgs) {
         genro.dev.handleRpcHttpError(response, ioArgs);
