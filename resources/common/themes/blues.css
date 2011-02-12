@@ -334,9 +334,9 @@
     text-align: center;
 }
 
-._common_d11 .dijitDialogCloseIcon {
+/*._common_d11 .dijitDialogCloseIcon {
     display: none;
-}
+}*/
 
 ._common_d11 .dijitDialog {
     -moz-border-radius: 6px;
