@@ -62,6 +62,10 @@ class GnrCustomWebPage(object):
         pane.div('^.async5')
         #pane.dataRpc('.sync5','give_me_five',sync=True,_fired='^.sync_five',x='=.x')
         pane.dataRpc('.async5', 'give_me_five', _fired='^.async_five', y='=.y')
+    
+    def test_4_deferred(self, pane):
+        pane.button('Cb',action="""genro.testDeferred('give_me_five');""")
+
 
     def rpc_give_me_five(self, x=None, y=None, **kwargs):
         sleep(5)
