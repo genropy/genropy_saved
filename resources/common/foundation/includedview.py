@@ -21,6 +21,8 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebstruct import struct_method
+from gnr.core.gnrlang import extract_kwargs
+
 class IncludedView(BaseComponent):
     """
     IncludedView allows you to manage data of the table in relation many to many. includedViewBox is the main method of this class.
@@ -81,11 +83,12 @@ class IncludedView(BaseComponent):
                         _onStart=None,caption=None,parentLock='^status.locked',externalChanges=None,
                         **kwargs):
         pass
-
+    
+    @extract_kwargs(frame=True)
     @struct_method
     def ivnew_selectionViewBox(self,pane,frameCode=None,datapath=None,selectionPars=None,reloader=None,table=None,
                         _onStart=None,caption=None,parentLock='^status.locked',externalChanges=None,
-                        **kwargs):
+                        frame_kwargs=None,**kwargs):
         assert frameCode, 'frameCode is mandatory'
         assert not 'footer' in kwargs, 'use the attachpoint .footer instead of'
         assert not 'centerPaneCb' in kwargs, 'not supported'
@@ -96,15 +99,16 @@ class IncludedView(BaseComponent):
         
         if pane.attributes['tag'].lower()=='bordercontainer':
             pane.attributes['tag'] = 'ContentPane' 
-        frame = pane.framePane(frameCode=frameCode,datapath=datapath)
+        frame = pane.framePane(frameCode=frameCode,datapath=datapath,**frame_kwargs)
         kwargs = frame.top.adaptSlotbar(**kwargs)
-        view = frame.includedView(_attachname='grid',**kwargs)
+        view = frame.includedView(_attachname='view',**kwargs)
         selectionPars = selectionPars or dict()
         if reloader:
             selectionPars['_reloader'] = reloader
         if _onStart:
             selectionPars['_onStart'] = _onStart
-        view.selectionStore(table=table,_reload='^.reload',**selectionPars)
+        if selectionPars:
+            view.selectionStore(table=table,_reload='^.reload',_attachname='store',**selectionPars)
         return frame
 
     def includedViewBox(self, parentBC, nodeId=None, table=None, datapath=None,
