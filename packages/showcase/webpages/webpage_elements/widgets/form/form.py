@@ -21,7 +21,7 @@ class GnrCustomWebPage(object):
     Every form is characterized by a "load" action and a "save" action: every time user wants to create
     a new record (generally for his database) Genro make a "load": this action allows to reload a "form"
     in its standard form. Until the form isn't completely loaded, the program prevents the user to perform
-    any writing action (the sintax is "genro.formById(f_id).loaded()", where f_id is the formId)
+    any writing action (the syntax is "genro.formById(f_id).loaded()", where f_id is the formId)
     When the load is over, Genro makes user able to write. With the button "save" the program allows user
     to save his progress. Performing the "save" action, Genro completely reload the standard form.
     
@@ -158,7 +158,7 @@ class GnrCustomWebPage(object):
         fb.div('Not null field',
                font_size='.9em', text_align='justify')
         fb.textbox(value='^.fiscal_code', lbl='!!Fiscal code', validate_len='3:10')
-        fb.div('Precise lenght field [3:10]',
+        fb.div('Precise length field [3:10]',
                font_size='.9em', text_align='justify')
         fb.textBox(value='^.job', lbl='!!Job',
                    validate_len='6:',
