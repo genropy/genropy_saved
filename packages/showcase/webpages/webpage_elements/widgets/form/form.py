@@ -113,7 +113,7 @@ class GnrCustomWebPage(object):
         save because you have not made any change.""",
                font_size='.9em', text_align='justify')
         fb.div("""2) Now try to write something in the form (in the name field, in the surname field or
-        in both); after that, try to save. A message will show you that your data has been saved in a GenRoBag.
+        in both); after that, try to save. A message will show you that your data has been saved in a GenRo.
         After that, if you try to save again you will hear a sound noise; this sound indicates that you CAN'T
         save again, even if you change something in the form, UNLESS you click the "load" button. This is a
         way to prevent to rewrite on a save data.)""",
