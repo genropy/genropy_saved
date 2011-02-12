@@ -16,10 +16,11 @@ class GnrCustomWebPage(object):
     
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
-        form = pane.frameForm(frameCode=frameCode,rounded_bottom=10,**kwargs)
+        form = pane.frameForm(frameCode=frameCode,rounded_bottom=10,table='glbl.provincia',
+                            store='recordCluster',store_startKey='*norecord*',**kwargs)
         form.testToolbar(startKey=startKey)
-        store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
-                               handler='recordCluster',startKey=startKey)  
+        #store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
+         #                      handler='recordCluster',startKey=startKey)  
         fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%")
         fb.formContent()
         return form
@@ -31,7 +32,7 @@ class GnrCustomWebPage(object):
         if not startKey:
             fb = tb.selectrecord.formbuilder(cols=1, border_spacing='1px')
             fb.dbselect(value="^.prov",dbtable="glbl.provincia",parentForm=False,#default_value='MI',
-                                        validate_onAccept="console.log('onAccept');console.log(value);this.form.publish('load',{destPkey:value});",
+                                        validate_onAccept="this.form.publish('load',{destPkey:value});",
                                         lbl='Provincia')
         return tb
         
@@ -58,16 +59,16 @@ class GnrCustomWebPage(object):
                             pkeyPath='.prov')
         form.testToolbar()
         store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
-                               handler='recordCluster')
+                               handler='recordCluster',startKey='*norecord*')
         store.handler('load',_onCalling='console.log("xxxx")',default_ordine_tot='100')    
         form.formbuilder(cols=2, border_spacing='3px').formContent()            
         
     def test_1_frameform_external_store(self,pane):
         "Test FrameForm External store"
         store = pane.formStore(storeCode='provincia',storepath='.stores.provincia.record',
-                      table='glbl.provincia',storeType='Item',
+                      table='glbl.provincia',storeType='Item',startKey='*norecord*',
                       handler='recordCluster')
-        form = pane.frameForm(frameCode='provincia_2',store='provincia',border='1px solid silver',datapath='.form',
+        form = pane.frameForm(frameCode='provincia_2',storeCode='provincia',border='1px solid silver',datapath='.form',
                             pkeyPath='.prov',rounded_bottom=10,height='180px',width='600px')
         tb = form.testToolbar()  
         form.formbuilder(cols=2, border_spacing='3px').formContent()         
