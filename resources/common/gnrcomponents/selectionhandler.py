@@ -23,6 +23,8 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
+from gnr.core.gnrdict import dictExtract
+
 import warnings
 
 class SelectionHandler(BaseComponent):
@@ -51,7 +53,7 @@ class SelectionHandler(BaseComponent):
         dialogPars=dict(
     
     """
-    py_requires = 'foundation/includedview:IncludedView,foundation/recorddialog'
+    py_requires = 'foundation/includedview:IncludedView,foundation/recorddialog,gnrcomponents/formhandler:FormHandler'
     
 
     @struct_method
@@ -61,64 +63,49 @@ class SelectionHandler(BaseComponent):
     @struct_method
     def sh_controllers(self,pane):
         pass
+        
+    def sh_adaptKwargs(self,kwargs):
+        if 'frameCode' in kwargs:
+            return
+        kwargs['frameCode'] = kwargs.get('nodeId')
+        dialogPars = kwargs.pop('dialogPars',None)
+        if dialogPars:
+            kwargs['dialog_kwargs'] = dialogPars
+            kwargs['default_kwargs'] = dictExtract(dialogPars,'default_',pop=True)
+            if 'formCb' in dialogPars:
+                kwargs['form_center_content'] = dialogPars.pop('formCb')
+            if 'dlgPars' in dialogPars:
+                dialogPars.update(dialogPars.pop('dlgPars'))
+            
     
-    @extract_kwargs(dialog=True,palette=True,form=True)
+    @extract_kwargs(_adapter='sh_adaptKwargs',dialog=True,palette=True,form=True,default=dict(slice_prefix=False,pop=True))
     @struct_method
     def sh_selectionHandler(self, pane,frameCode=None,
-                            nodeId=None,
-                            table=None, datapath=None, struct=None, label=None,
-                            selectionPars=None, dialogPars=None, reloader=None, externalChanges=None,
-                            hiddencolumns=None, custom_addCondition=None, custom_delCondition=None,
+                            table=None, datapath=None,
+                            custom_addCondition=None, custom_delCondition=None,
                             askBeforeDelete=True, checkMainRecord=True, onDeleting=None, dialogAddRecord=True,
-                            onDeleted=None, add_enable=True, del_enable=True,add_action=True,del_action=True,
+                            onDeleted=None, loadingEvent=None,
                             parentSave=False, parentId=None, parentLock='^status.locked', reload_onSaved=True,
                             footer=None,palette_kwargs=None,dialog_kwargs=None,
-                            form_kwargs=None,
-                            **kwargs):
-                            
-            frameCode=frameCode or nodeId
-            framegrid = pane.selectionViewBox(
-                         frameCode=frameCode,
-                         label=label, datapath=datapath,
-                         #add_enable='^.can_add', del_enable='^.can_del',
-                         #del_action=del_action,
-                         add_action=True,
-                         del_action=True,
-                         nodeId=nodeId, table=table, struct=struct, hiddencolumns=hiddencolumns,
-                         reloader=reloader, externalChanges=externalChanges,
-                         linkedForm='%s_form' % nodeId, openFormEvent='onRowDblClick',
-                         selectionPars=selectionPars, **kwargs)
+                            form_kwargs=None,default_kwargs=None,
+                            **kwargs):            
+            frameview = pane.selectionViewBox(frameCode=frameCode,datapath=datapath,frame__attachname='viewframe',
+                                            table=table, **kwargs)
             if footer:
                 print 'advise: use the attach point instead of footer cb'
-                footer(framegrid.bottom)
-                         
-            framegrid.dataController("""
-                var formNode = genro.formById(form_id);
-                if(!formNode){
-                    this.publish('create_form');
-                    
-                }
-            """,form_id='%s_form' %frameCode,
-                **{'subscribe_%s_form_load'%frameCode:True})
-                
-            formRoot = form_kwargs.pop('pane')
-            if formRoot:
-                if isinstance(formRoot,basestring):
-                    formRoot = self.pageSource(formRoot)
-            elif dialog_kwargs:
-                if 'height' in dialog_kwargs:
-                    form_kwargs['height'] = dialog_kwargs.pop('height')
-                if 'width' in dialog_kwargs:
-                    form_kwargs['width'] = dialog_kwargs.pop('width')
-                formRoot = pane.dialog(**dialog_kwargs)
-            elif palette_kwargs:
-                formRoot = pane.palettePane(**palette_kwargs)
-            form = formRoot.frameForm(frameCode=frameCode,datapath='.form',pkeyPath='.pkey',**form_kwargs)
-            form.top.slotToolbar('navigation,*,|,semaphore,|,formcommands,|,locker')
-            form.formStore(storepath='.record',table=table,storeType='Collection',handler='recordCluster')
-            return framegrid
-            
-            
+                footer(frameview.bottom)
+            form_kwargs['formRoot'] = form_kwargs.pop('pane',None)
+            form_kwargs['frameCode'] = form_kwargs.get('frameCode') or '%s_form' %frameCode
+            form_kwargs['formId'] = form_kwargs.get('formId') or form_kwargs['frameCode']
+            form_kwargs['_attachname'] = 'formframe'
+            if form_kwargs:
+                 form_kwargs['dialog_kwargs'] = dialog_kwargs
+                 form_kwargs['palette_kwargs'] = palette_kwargs
+                 form_kwargs['loadEvent'] = 'onRowDblClick'
+                 form = frameview.view.linkedForm(**form_kwargs)
+                 form.store.handler('load',**default_kwargs)
+                 form.top.slotToolbar('navigation,*,|,semaphore,|,formcommands,|,locker')
+            return frameview
 
     def selectionHandler(self, bc, nodeId=None, table=None, datapath=None, struct=None, label=None,
                          selectionPars=None, dialogPars=None, reloader=None, externalChanges=None,
