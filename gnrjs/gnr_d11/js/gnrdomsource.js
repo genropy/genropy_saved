@@ -296,30 +296,16 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     genro.lockScreen(true, domsource_id);
                 }
                 if (doCall != false) {
+                    this._deferred = null;
                     var deferred = genro.rpc.remoteCall(method, kwargs, null, httpMethod, null, cb);
-                    if(this._callbacks__){
-                        deferred.addCallback(function(result){console.log(result)});
-                    }
                     if(this._callbacks){
-                        
-                        var rpcNode = this;
-                        
+                        var that = this;
                         this._callbacks.forEach(function(n){
-                            var cblocals = rpcNode.evaluateOnNode(n.attr);
-                            objectUpdate(cblocals,kwargs);
-                            var cbtext = n.getValue();
-                            var isErrBack = objectPop(cblocals,'_isErrBack');
-                            var cb = function(result){
-                                cblocals['result'] = result;
-                                return funcApply(cbtext, cblocals, rpcNode);
-                            }
-                            if(isErrBack){
-                                deferred.addErrback(cb);
-                            }else{
-                                deferred.addCallback(cb);
-                            }
+                            var kw = objectUpdate({},kwargs);
+                            genro.rpc.addDeferredCb(deferred,n.getValue(),objectUpdate(kw,n.attr),that);
                         })
                     }
+                    this._deferred = deferred;
                 }
             }
             else {

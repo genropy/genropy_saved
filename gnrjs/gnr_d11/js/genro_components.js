@@ -639,7 +639,11 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
             }
             slotNode = children.popNode(slot);
             if (!that['slot_'+slot] && slotNode){
-                slotValue = slotNode.getValue();
+                if(slotNode.attr.tag=='slot'){
+                    slotValue = slotNode.getValue();
+                }else{
+                    slotValue = new gnr.GnrBag({'slot':slotNode});
+                }
                 if(slotValue instanceof gnr.GnrBag){
                     k=0;
                     slotValue.forEach(function(n){
@@ -653,7 +657,6 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                         }
                         k++;
                     })
-                    
                 }
             }
             if(cell.len()==0){
@@ -794,14 +797,20 @@ dojo.declare("gnr.widgets.FormStore", gnr.widgets.gnrwdg, {
             }
         }
         var handlers = sourceNode.getValue();
-        var action;
+        var action,callbacks;
         sourceNode._value = null;
         sourceNode.attr.handlers = {};
         handlers.forEach(function(n){
             action = objectPop(n.attr,'action');
             if(action){
+                objectPop(n.attr,'tag');
                 sourceNode.attr.handlers[action] = n.attr;
+                callbacks = n.getValue();
+                if(callbacks){
+                    sourceNode.attr.handlers[action]['callbacks'] = callbacks;
+                }
             }
+            
         })
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || storeCode+'_store';
         sourceNode._registerNodeId();

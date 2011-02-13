@@ -285,21 +285,20 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.src.getNode()._('div', '_dlg_quick');
         var node = genro.src.getNode('_dlg_quick').clearValue();
         node.freeze();
-        var dlg = node._('dialog', objectUpdate({nodeId:'_dlg_quick',title:title},kw));
+        var dlg = node._('dialog', objectUpdate({title:title},kw));
         var center = dlg._('div', {_class:'pbl_dialog_center'});
         var bottom = dlg._('div', {_class:'dialog_bottom'});
         dlg.center = center;
         dlg.bottom = bottom;
         dlg.close_action = function() {
-            genro.wdgById('_dlg_quick').hide()
+            dlg.getParentNode().widget.hide()
         };
         dlg.show_action = function() {
             node.unfreeze();
-            genro.wdgById('_dlg_quick').show()
+            dlg.getParentNode().widget.show()
         };
         return dlg;
     },
-
 
     listChoice: function(title, msg, buttons, resultPath, valuePath, storePath) {
         genro.src.getNode()._('div', '_dlg_listChoice');

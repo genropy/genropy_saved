@@ -621,7 +621,13 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                             if (this != genro.dialogStack.slice(-1)[0]) {
                                 genro.dialogStack.push(this);
                                 if (genro.dialogStack.length > 1) {
-                                    genro.dialogStack.slice(-2)[0].hide();
+                                    var parentDialog = genro.dialogStack.slice(-2)[0];
+                                    if(sourceNode.attr._showParent){
+                                        genro.dom.style(this.domNode,'zIndex',1000);
+                                        genro.dom.style(this._underlay.domNode,'zIndex',999);
+                                    }else{
+                                        parentDialog.hide();
+                                    }
                                 }
                             }
 
