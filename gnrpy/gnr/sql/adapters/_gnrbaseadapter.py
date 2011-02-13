@@ -174,6 +174,13 @@ class SqlDbAdapter(object):
         @param schema: schema name
         @return: list of index infos"""
         raise NotImplementedException()
+        
+    def getTableContraints(self, table=None, schema=None):
+        """Get a (list of) dict containing details about a column or all the columns of a table.
+        Each dict has those info: name, position, default, dtype, length, notnull
+        
+        Other info may be present with an adapter-specific prefix."""
+        raise NotImplementedException()
 
     def prepareSqlText(self, sql, kwargs):
         """Subclass in adapter if you want to change some sql syntax or params types.
