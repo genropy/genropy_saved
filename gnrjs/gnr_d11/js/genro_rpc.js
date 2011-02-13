@@ -328,7 +328,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 try {
                     async_cb(result, error);
                 } catch(e) {
-                    alert(e.toSource());
+                    console.error(e);
                     throw e;
                 }
                 return result;
