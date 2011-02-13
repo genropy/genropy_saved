@@ -51,14 +51,21 @@ def main(instance, operation, pkg_table, where=None, filename=None, replace=Fals
         qry = tbl.query(where=where)
         logging.info('%d records found', qry.count())
 
+        pkey = tbl.pkey
         records = data.get(pkg_table) or Bag()
         for n, rec in enumerate(qry.fetch()):
-            r = dict([(k,v) for k,v in rec.items() if not k.startswith('__')])
-            records.addItem('r_%d' % n, Bag(r))
+            r = dict([(k,unicodeToUTF8String(v)) for k,v in rec.items() if not k.startswith('__')])
+            records.addItem(unicodeToUTF8String(r[pkey]), Bag(r))
 
         data.setItem(pkg_table, records)
 
         yaml.dump(data.asDictDeeply(), codecs.open(filename, 'wt','utf-8'))
+
+def unicodeToUTF8String(maybe_unicode):
+    if isinstance(maybe_unicode, unicode):
+        return maybe_unicode.encode('utf-8')
+    else:
+        return maybe_unicode
 
 if __name__ == '__main__':
     main.run()
