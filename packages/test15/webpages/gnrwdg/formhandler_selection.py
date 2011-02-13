@@ -72,6 +72,10 @@ class GnrCustomWebPage(object):
                             dialog_height='300px',
                             dialog_width='400px')
         form.testToolbar()
+        saver = form.store.handler('save')
+        form.store.handler('save',prova='provola').addCallback('console.log("saved:",result);return result;')
+        form.store.handler('save',gatto='is still alive').addCallback('alert("saved"); return result;')
+        
         fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
     
     def formCb(self,pane):

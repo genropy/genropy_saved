@@ -76,12 +76,24 @@ class GnrCustomWebPage(object):
                                     myaction_action='console.log(genro.getFrameNode("frame4"));',height='20px') 
         top.foo.slotButton(label='Add',iconClass='icnBaseAdd',publish='add')
         top.bar.slotButton(label='remove',iconClass='icnBaseDelete',publish='remove')
-        top.xx.button('test',action='console.log(genro.getFrameNode("frame4","top"));')
         frame.numberTextbox(value='^.value',default_value=1,width='5em',
                             subscribe_myslotbar_add="""SET .value=(GET .value)+1;""",
                             subscribe_myslotbar_remove='SET .value= (GET .value) -1;')
     @struct_method
     def mypage_slotbar_myaction(self,pane,_class=None,action=None,publish=None,**kwargs):
         pane.slotButton(label='action',iconClass='icnBaseAction',publish=publish,action=action,visible='^pippo')
+    
+    def test_4_slotbar_js(self,pane):
+        pane.button('Test',
+                    action="""
+                    var dlg = genro.dlg.quickDialog('Test');
+                    dlg.center._('div',{innerHTML:'Bella li'});
+                    var slotbar = dlg.bottom._('slotBar',{slotbarCode:'chooser',slots:'discard,*,cancel,save'})
+                    slotbar._('slotButton','discard',{label:'Discard',publish:'discard'});
+                    slotbar._('slotButton','cancel',{label:'Cancel',publish:'cancel'});
+                    slotbar._('slotButton','save',{label:'Discard',publish:'save'});
+                    dlg.show_action();
+                    """)
+
         
 

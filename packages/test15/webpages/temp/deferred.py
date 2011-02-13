@@ -26,9 +26,9 @@ class GnrCustomWebPage(object):
     def test_2_dataRpc(self, pane):
         pane.numberTextBox(value='^.x',default_value=5)
         pane.numberTextBox(value='^.k',default_value=4)
-        pane.button('Go',fire='^.go')
+        pane.button('Somma',fire='^.go')
         dr = pane.dataRpc('.res','give_me_five',x='=.x',_fired='^.go')
-        dr.addCallback('console.log(result);return result+z+k',z=26,k='=.k')
+        dr.addCallback('return result+z+k',z=26,k='=.k')
         dr.addCallback('console.log(result)')
 
 
