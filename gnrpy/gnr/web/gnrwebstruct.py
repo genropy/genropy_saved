@@ -251,8 +251,12 @@ class GnrDomSrc(GnrStructData):
                             storepath=storepath,handler=handler,**kwargs)
                             
     def formstore_handler(self,action,handler_type=None,**kwargs):
-        return self.child('handler',action=action,handler_type=handler_type,**kwargs)
+        return self.child('formstore_handler',childname=action,action=action,handler_type=handler_type,**kwargs)
             
+    def formstore_handler_addcallback(self,cb,**kwargs):
+        self.child('callBack',content=cb,**kwargs)
+        return self
+
     def h1(self, content=None, **kwargs):
         return self.htmlChild('h1', content=content, **kwargs)
 
@@ -573,6 +577,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def datarpc_addcallback(self,cb,**kwargs):
         self.child('callBack',content=cb,**kwargs)
         return self
+        
     def datarpc_adderrback(self,cb,**kwargs):
         self.child('callBack',content=cb,_isErrBack=True,**kwargs)
         return self

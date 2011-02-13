@@ -346,7 +346,7 @@ class GnrBaseWebPage(GnrObject):
         return record, recinfo
 
 
-    def rpc_saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None, **kwargs):
+    def rpc_saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None,_autoreload=False, **kwargs):
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
         onSavingMethod = 'onSaving'
@@ -376,7 +376,14 @@ class GnrBaseWebPage(GnrObject):
             self.db.commit()
         if not 'caption' in resultAttr:
             resultAttr['caption'] = tblobj.recordCaption(record, rowcaption=rowcaption)
-        return (record[tblobj.pkey], resultAttr)
+        pkey = record[tblobj.pkey]
+        if _autoreload:
+            result = Bag()
+            result.setItem('pkey',pkey,**resultAttr)
+            record,recInfo = self.app.rpc_getRecord(pkey=pkey,table=table)
+            result.setItem('savedRecord',record,**recInfo)
+        else:
+            return (pkey, resultAttr)
 
 
     def rpc_deleteRecordCluster(self, data, table=None, **kwargs):
