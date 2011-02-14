@@ -8,7 +8,7 @@ from gnr.web.gnrwebstruct import struct_method
 
 "Test formhandler selection store"
 class GnrCustomWebPage(object):
-    testOnly='_2_'
+    testOnly='_3_'
     user_polling=0
     auto_polling=0
     py_requires="""gnrcomponents/testhandler:TestHandlerFull,
@@ -76,6 +76,24 @@ class GnrCustomWebPage(object):
         form.store.handler('save',prova='provola').addCallback('console.log("saved:",result);return result;')
         form.store.handler('save',gatto='is still alive').addCallback('alert("saved"); return result;')
         
+        fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
+    
+    def test_3_linkedForm_pane(self,pane):
+        bc = pane.borderContainer(height='250px')
+        frame = bc.framePane('province',region='left',width='300px')
+        tb = frame.slotToolbar('*,selector,20,reloader',side='top')
+        tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
+        tb.reloader.button('reload',fire='.reload')
+        iv = frame.includedView(struct='regione',autoSelect=True)
+        
+        iv.selectionStore(table='glbl.provincia',where='$regione=:r',
+                          r='^.regione',_fired='^.reload')
+        center = bc.contentPane(region='center',border='1px solid blue')
+        form=iv.linkedForm(frameCode='provincia',loadEvent='onSelected',
+                            formRoot=center,store_startKey='*norecord*',
+                            store_onSaved='reload')
+        form.testToolbar()
+        #saver.addCallback('this.form.publish("load",{destPkey:result.getItem("pkey")});')
         fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
     
     def formCb(self,pane):

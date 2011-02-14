@@ -31,6 +31,24 @@ class GnrCustomWebPage(object):
         dr.addCallback('return result+z+k',z=26,k='=.k')
         dr.addCallback('console.log(result)')
 
+    def test_2_syncdata(self, pane):
+        pane.numberTextBox(value='^.x',default_value=5)
+        pane.numberTextBox(value='^.k',default_value=4)
+        pane.button('Somma',fire='^.go')
+        dr = pane.dataController("""var deferred = genro.testDeferredSum(x,k);
+                                    deferred.addCallback(function(result){
+                                        result = result*100;
+                                        return result;
+                                    });
+                                    deferred.addCallback(function(result){
+                                        alert(result);
+                                        return result;
+                                    });
+                                    
+                                    """,x='=.x',k='=.k',_fired='^.go',sync=True)
+       #dr.addCallback('return result+z+k',z=26,k='=.k')
+       #dr.addCallback('console.log(result)')
+
 
     def rpc_give_me_five(self, x=None, **kwargs):
         sleep(x)

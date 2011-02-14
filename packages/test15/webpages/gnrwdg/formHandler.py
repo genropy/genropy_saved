@@ -59,7 +59,7 @@ class GnrCustomWebPage(object):
                             pkeyPath='.prov')
         form.testToolbar()
         store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
-                               handler='recordCluster',startKey='*norecord*')
+                               handler='recordCluster',startKey='*norecord*',onSaved='reload')
         store.handler('load',_onCalling='console.log("xxxx")',default_ordine_tot='100')    
         form.formbuilder(cols=2, border_spacing='3px').formContent()            
         
