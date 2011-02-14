@@ -677,7 +677,7 @@ class SqlTable(GnrObject):
             many_tblobj = self.db.table(relblock['mtbl'], pkg=relblock['mpkg'])
             many_key = relblock['mfld']
             relKey = main_record[relblock['ofld']]
-            if rel_recordClusterAttr['one_one']:
+            if rel_recordCluster.get('one_one', None):
                 rel_recordCluster[many_key]=relKey
                 many_tblobj.writeRecordCluster(rel_recordCluster, rel_recordClusterAttr)
             else:
