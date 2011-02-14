@@ -180,7 +180,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if ('destPkey' in kw) {
                 var currentPkey = this.getCurrentPkey();
                 if (this.changed && (kw.destPkey != currentPkey)) {
-                    this.checkPendingChanges(kw);
+                    this.openPendingChangesDlg(kw);
                     return;
                 }
             }
@@ -206,12 +206,24 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     pendingChangesAnswer:function(kw){
         var command = objectPop(kw,'command');
         if(this.store){
+            var that = this;
+            if(command=='save'){
+                this.do_save(kw.destPkey);
+            }
+            else if(command=='discard'){
+                this.doload_loader(kw);
+            }else{
+                if('cancelCb' in kw){
+                    kw.cancelCb();
+                }
+            }
+            
             
         }else{
             var that = this;
             if(command=='save'){
                 this.setCurrentPkey(kw.destPkey);
-                var deferred = this.save();
+                this.do_save()
             }
             else if(command=='discard'){
                 this.doload_loader(kw);
@@ -355,27 +367,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
         }
     },
-    save: function(always, onSavedCb) {
+    save: function(always) {
         if (!this.opStatus) {
             var always = always || this.getControllerData('is_newrecord');
             if (this.changed || always) {
                 var invalidfields = this.getInvalidFields();
-                //var formChanges = this.getFormChanges(changesOnly);
                 var invalid = (invalidfields.len() > 0);
                 if (invalid) {
                     this.fireControllerData('save_failed','invalid');
                     return 'invalid:' + invalid;
                 }
-                this.setOpStatus('saving');
-                this.fireControllerData('saving');
-                this.onSavedCb = onSavedCb;
-                var saverNode = genro.nodeById(this.form_id + '_saver');
-                if(saverNode){
-                    saverNode.fireNode();
-                    return saverNode._lastDeferred;
-                }else if(this.store) {
-                    this.store.save();
-                }
+                this.do_save();
             } else {
                 this.fireControllerData('save_failed','nochange');
             }
@@ -384,19 +386,57 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             genro.playSound('Basso');
         }
     },
-    saved: function() {
-        var onSavedCb = objectPop(this, 'onSavedCb');
-        this.fireControllerData('saved');
-        if (onSavedCb) {
-            onSavedCb();
+    do_save:function(destPkey){
+        
+        this.setOpStatus('saving');
+        this.fireControllerData('saving');
+        var saverNode = genro.nodeById(this.form_id + '_saver');
+        if(saverNode){
+            saverNode.fireNode();
+            return saverNode._lastDeferred;
+        }else if(this.store) {
+            var onSaved = this.store.onSaved;
+            var deferred=this.store.save(destPkey);
+            if(onSaved){
+                var that,cb;
+                that = this;
+                if(onSaved=='dismiss'){
+                    cb=function(result){that.publish('load',{destPkey:'*norecord*'});};
+                }
+                else if(onSaved=='reload'){
+                    cb=function(resultDict){
+                        destPkey = destPkey || resultDict.savedPkey
+                        if(resultDict.loadedRecord){
+                            console.log('autoreload');
+                            that.setCurrentPkey(destPkey);
+                            that.store.loaded(destPkey,resultDict.loadedRecord);
+                        }else{
+                            
+                            console.log('standard reload');
+                            that.setCurrentPkey(destPkey);
+                            that.load({'destPkey':destPkey});
+                        }
+                    }
+                }
+                deferred.addCallback(function(result){
+                    cb(result);
+                    return result
+                });
+            }
         }
+    },
+    
+    
+    saved: function(result) {
+        this.fireControllerData('saved');
         this.setOpStatus('saved');
         this.publish('message',{message:this.msg_saved,sound:'$onsaved'});
+        return result;
 
     },
     setStore:function(storeType,kw){
         var parentStore = objectPop(kw,'parentStore');
-        var storeType = storeType || parentStore?'Collection':'Item';
+        var storeType = storeType ||(parentStore?'Collection':'Item');
         kw.parentStoreNode = genro.getStore(parentStore);
         this.store = new gnr.formstores[storeType](this,kw);
     },
@@ -978,6 +1018,7 @@ dojo.declare("gnr.formstores.Base", null, {
         this.handlers = objectPop(kw,'handlers') || {};
         this.table = kw.table;
         this.parentStoreNode = kw.parentStoreNode;
+        this.onSaved = kw.onSaved;
         var base_handler_type = objectPop(kw,'handler');
         var handlerKw = objectExtract(kw,'handler_*');
         var handler,handler_type,method,actionKw,callbacks;
@@ -1015,25 +1056,51 @@ dojo.declare("gnr.formstores.Base", null, {
                                                   'virtual_columns':form.getVirtualColumns(),
                                                   'table':this.table},kw),null,'POST',null,cb);
     },
-    save_recordCluster:function(table){
+    save_recordCluster:function(destPkey){
         var form=this.form;
         var that = this;
-        var cb = function(result){
-            return that.saved(result);
-        };
         var saver = this.handlers.save;
         var kw =form.sourceNode.evaluateOnNode(this.handlers.save.kw);
-        saver.autoreload = true;
+        if (destPkey){
+            kw._autoreload=destPkey
+        }else if(this.onSaved=='reload'){
+            kw._autoreload=true
+        }
+        //kw._autoreload = null;
+        var autoreload =kw._autoreload;
+        
+        var cb = function(result){
+            if (result){
+                var resultDict={}
+                if(autoreload){
+                    var loadedRecordNode = result.getNode('loadedRecord');
+                    var pkeyNode = result.getNode('pkey'); 
+                    resultDict.savedPkey=pkeyNode.getValue();
+                    resultDict.savedAttr=pkeyNode.attr;
+                    resultDict.loadedRecord=loadedRecordNode.getValue();
+                    resultDict.loadedAttr=loadedRecordNode.attr;
+                }else{
+                    var pkeyNode=result;
+                    resultDict.savedPkey=pkeyNode.getValue();
+                    resultDict.savedAttr=pkeyNode.attr;
+                    
+                }
+            }
+            that.saved(resultDict);
+            return resultDict;
+        };
+        
         var deferred = genro.rpc.remoteCall('saveRecordCluster',objectUpdate({'data':form.getFormChanges(),
-                                                                              _autoreload:saver.autoreload,
-                                                                             'table':this.table},kw),null,'POST',null,cb);
+                                                                             'table':this.table},kw),null,'POST',null,function(){});
+        deferred.addCallback(cb);
         if(saver.callbacks){
-            var thatnode = this.sourceNode;
+            var thatnode = form.sourceNode;
             saver.callbacks.forEach(function(n){
                 var defkw = objectUpdate({},kw);
                 genro.rpc.addDeferredCb(deferred,n.getValue(),objectUpdate(defkw,n.attr),thatnode);
             });
         }
+        return deferred;
     },
     delete_recordCluster:function(){
         
@@ -1045,11 +1112,11 @@ dojo.declare("gnr.formstores.Base", null, {
     saved:function(result){
         return this.form.saved(result);
     },
-    save:function(){
-        this.handlers.save.method.call(this);
+    save:function(destPkey){
+        return this.handlers.save.method.call(this,destPkey);
     },
     load:function(){
-        this.handlers.load.method.call(this);
+        return this.handlers.load.method.call(this);
     },
     setNavigationStatus:function(){
         return;

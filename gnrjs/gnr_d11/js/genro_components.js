@@ -771,7 +771,8 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
              msgnode.innerHTML = message;
              genro.dom.style(msgnode,kwargs);
              domNode.appendChild(msgnode);
-             genro.dom.effect(domNode,'fadeout',{duration:objectPop(mbKw,'duration'),delay:objectPop(mbKw,'delay'),onEnd:function(){domNode.innerHTML=null;}});
+             var customOnEnd = kwargs.onEnd;
+             genro.dom.effect(domNode,'fadeout',{duration:objectPop(mbKw,'duration'),delay:objectPop(mbKw,'delay'),onEnd:function(){domNode.innerHTML=null;if(customOnEnd){customOnEnd();}}});
         }
         pane._('span',mbKw);
     }

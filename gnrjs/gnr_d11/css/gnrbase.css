@@ -192,12 +192,12 @@ label.ghostlabel span {
 
 .numberTextBox input {
     text-align: right;
-    padding-right: 2px;
+    /*padding-right: 2px;*/
 }
 
 .numberTextBox input:focus {
     text-align: left;
-    padding-left: 2px;
+    /*padding-left: 2px;*/
 }
 
 .gnrfieldlabel {

@@ -559,7 +559,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     _bld_datarpc: function() {
         this._callbacks = this.getValue();
         this._value = null;
-        console.log(this._callbacks);
     },
     _bld_script: function() {
         if (this.attr.src) {
@@ -836,7 +835,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     lazyBuildFinalize:function(){
         if(this.attr._lazyBuild){
-            console.log(this,'aaa');
             var lazyBuild = objectPop(this.attr,'_lazyBuild');
             var parent = this.getParentBag();
             var content;
