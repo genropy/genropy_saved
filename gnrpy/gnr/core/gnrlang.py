@@ -36,18 +36,24 @@ import time
 thread_ws = dict()
 
 class FilterList(list):
-    
+    """add???
+    """
     def __contains__(self, item):
         return len([k for k in self if k == item or k.endswith('*') and item.startswith(k[0:-1])]) > 0
 
 def thlocal():
+    """add???
+    """
     return thread_ws.setdefault(thread.get_ident(), {})
 
 def deprecated(func):
     """This is a decorator which can be used to mark functions
     as deprecated. It will result in a warning being emmitted
-    when the function is used."""
-
+    when the function is used.
+    
+    :param func: add???
+    :returns: add???
+    """
     def newFunc(*args, **kwargs):
         warnings.warn("Call to deprecated function %s." % func.__name__,
                       category=DeprecationWarning, stacklevel=2)
@@ -81,6 +87,10 @@ def extract_kwargs(_adapter=None,**extract_kwargs):
     return decore
 
 def boolean(x):
+    """add???
+    
+    :param x: add???
+    """
     if isinstance(x, basestring):
         x = x.upper()
         if x in ('TRUE', 'T', 'Y', 'YES', '1'):
@@ -90,17 +100,32 @@ def boolean(x):
     return bool(x)
 
 def objectExtract(myobj, f):
+    """add???
+    
+    :param myobj: add???
+    :param f: add???
+    :returns: add???
+    """
     lf = len(f)
     return dict([(k[lf:], getattr(myobj, k)) for k in dir(myobj) if k.startswith(f)])
-
-
+    
 def importModule(module):
+    """add???
+    
+    :param module: add???
+    :returns: add???
+    """
     if module not in sys.modules:
         __import__(module)
     return sys.modules[module]
 
 
 def debug_call(func):
+    """add???
+    
+    :param func: add???
+    :returns: add???
+    """
     def decore(self, *args, **kwargs):
         tloc = thlocal()
         indent = tloc['debug_call_indent'] = tloc.get('debug_call_indent', -1) + 1
@@ -115,6 +140,12 @@ def debug_call(func):
     return decore
 
 def timer_call(time_list=None, print_time=True):
+    """add???
+    
+    :param time_list: add???. Default value is ``None``
+    :param print_time: add???. Default value is ``True``
+    :returns: add???
+    """
     time_list = time_list or []
 
     def decore(func):
@@ -138,6 +169,10 @@ def timer_call(time_list=None, print_time=True):
     return decore
 
 def metadata(**kwargs):
+    """add???
+    
+    :returns: add???
+    """
     def decore(func):
         for k, v in kwargs.items():
             setattr(func, k, v)
@@ -147,12 +182,26 @@ def metadata(**kwargs):
 
 
 def getUuid():
+    """add???
+    
+    :returns: add???
+    """
     return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(), str(thread.get_ident())).bytes)[0:22]
 
 def safe_dict(d):
+    """Use the str method, coercing all the dict keys into a string type
+    
+    :param d: a dict
+    :returns: the dict with string-type keys
+    """
     return dict([(str(k), v) for k, v in d.items()])
 
 def uniquify(seq):
+    """add???
+    
+    :param seq: add???
+    :returns: add???
+    """
     def seen_function(seq):
         seen = set()
         for x in seq:
@@ -160,14 +209,23 @@ def uniquify(seq):
                 continue
             seen.add(x)
             yield x
-
+            
     return list(seen_function(seq))
-
-
+            
 def optArgs(**kwargs):
+    """add???
+    
+    :returns: add???
+    """
     return dict([(k, v) for k, v in kwargs.items() if v != None])
-
+            
 def moduleDict(module, proplist):
+    """add???
+    
+    :param module: add???
+    :param proplist: add???
+    :returns: add???
+    """
     result = {}
     if isinstance(module, basestring):
         module = gnrImport(module)
@@ -179,6 +237,13 @@ def moduleDict(module, proplist):
     return result
 
 def gnrImport(source, importAs=None, avoidDup=False):
+    """add???
+    
+    :param source: add???
+    :param importAs: add???. Default value is ``None``
+    :param avoidDup: add???. Default value is ``False``
+    :returns: add???
+    """
     modkey = source
     path_sep = os.path.sep
     if path_sep in source:
@@ -240,12 +305,25 @@ class GnrException(Exception):
         return self.localizedMsg(self.caption, msgargs)
 
     def setLocalizer(self, localizer):
+        """add???
+        
+        :param localizer: add???
+        """
         self.localizer = localizer
 
     def localize(self, v):
+        """add???
+        
+        :param v: add???
+        """
         return self.localizer.translateText(v[2:])
 
     def localizedMsg(self, msg, msgargs):
+        """add???
+        
+        :param msg: add???
+        :param msgargs: add???
+        """
         if self.localizer:
             msg = self.localize(msg)
             for k, v in msgargs.items():
@@ -258,10 +336,16 @@ class NotImplementedException(GnrException):
 
 
 class GnrObject(object):
+    """add???
+    """
     def __init__(self):
         pass
 
     def mixin(self, cls, **kwargs):
+        """add???
+        
+        :param cls: add???
+        """
         if isinstance(cls, basestring):
             modulename, cls = cls.split(':')
             m = gnrImport(modulename)
@@ -270,8 +354,10 @@ class GnrObject(object):
             else:
                 raise GnrException('cannot import module: %s' % modulename)
         instanceMixin(self, cls, **kwargs)
-
+        
 class GnrImportedModule(object):
+    """add???
+    """
     def __init__(self, source):
         if isinstance(source, basestring):
             self.path = source
@@ -293,15 +379,32 @@ class GnrImportedModule(object):
                 self.path = path
 
     def getPath(self):
+        """get the path of the module
+        
+        :returns: the path
+        """
         return self.path
 
     def getModule(self):
+        """get the module
+        
+        :returns: the module
+        """
         return self.module
 
     def getName(self):
+        """add???
+        
+        :returns: add???
+        """
         return self.name
 
     def getDoc(self, memberName=None):
+        """add???
+        
+        :param memberName: add???. Default value is ``memberName``
+        :returns: add???
+        """
         m = self.module
         if memberName:
             m = self.getMember(memberName)
@@ -312,32 +415,47 @@ class GnrImportedModule(object):
         return doc
 
     def getMember(self, memberName):
+        """add???
+        
+        :param memberName: add???
+        :returns: add???
+        """
         return getattr(self.module, memberName, None)
 
     #    def getImportedMember(self, memberName):
     #        return ImportedMember(self, memberName)
 
     def load(self):
+        """add???
+        """
         if self.path.endswith('py'):
             self.module = imp.load_source(self.name, self.path)
         else:
             self.module = imp.load_compiled(self.name, self.path)
             #globals()[self.name]=self.module
-
+            
     def update(self):
+        """add???
+        """
         self.load()
-
-
+        
 class GnrAddOn(object):
     """A class to be subclassed to inherit some introspection methods"""
-
+        
     def className(self):
+        """The class name
+        
+        :returns: the class name
+        """
         return self.__class__.__name__
-
+        
     def recorderReset(self):
+        "add???"
         self.__recorder__ = []
-
+        
     def recorderWrite(self):
+        """add???
+        """
         frame = sys._getframe(1)
         selector = frame.f_code.co_name
         srcargname, srcargs, srckwargs, vlocals = inspect.getargvalues(frame)
@@ -349,11 +467,20 @@ class GnrAddOn(object):
         kwargs = dict([(key, vlocals[key]) for key in srcargname[nargs:]])
         if  srckwargs: kwargs.update(vlocals[srckwargs])
         self.__recorder__.append((selector, args, kwargs))
-
+        
     def recorderGet(self):
+        """add???
+        
+        :returns: add???
+        """
         return self.__recorder__
-
+        
     def recorderDo(self, recorder=None):
+        """add???
+        
+        :param recorder: add???. Default value is ``None``
+        :returns: add???
+        """
         if not recorder: recorder = self.__recorder__[:]
         result = []
         for command, args, kwargs in recorder:
@@ -362,8 +489,11 @@ class GnrAddOn(object):
         return result
 
     def superdo(self, *args, **kwargs):
-        """like calling super() with the right arguments
+        """like calling :meth:`super()` with the right arguments
+        
         ??? check if it works on multiple levels
+        
+        :returns: add???
          """
         frame = sys._getframe(1)
         superObj = super(self.__class__, self)
@@ -391,10 +521,11 @@ class GnrAddOn(object):
     dosuper = staticmethod(superdo)
 
     def setCallable(self, src, importAs=None, bound=True):
-        """
+        """add???
+        
         :param src: is a string of a python function or an imported function
-        :param importAs: a name for identify the function in error messages
-        :param bound: if true the function will be bounded to this instance
+        :param importAs: a name for identify the function in error messages. Default value is ``None``
+        :param bound: if true the function will be bounded to this instance. Default value is ``True``
         """
         if isinstance(src, basestring):
             if not importAs: importAs = 'abcd'
@@ -413,6 +544,7 @@ class GnrAddOn(object):
 
 
 class GnrRemeberableAddOn(GnrAddOn):
+    """add???"""
     _gnr_members__ = {}
     _gnr_namedmembers__ = {}
     _gnr_remembered_as__ = None
@@ -426,6 +558,10 @@ class GnrRemeberableAddOn(GnrAddOn):
         object.__del__(self)
 
     def rememberMe(self, name=None):
+        """add???
+        
+        :param name: add???. Default value is ``None``.
+        """
         objid = id(self)
         #self._gnr_members__[objid]=weakref.ref(self)
         self._gnr_members__[objid] = self
@@ -438,6 +574,11 @@ class GnrRemeberableAddOn(GnrAddOn):
 
 
     def rememberedMembers(cls):
+        """add???
+        
+        :param cls: add???
+        :returns: add???
+        """
         #return [v() for v in cls._gnr_members__.values()]
         return [v for v in cls._gnr_members__.values()]
 
@@ -445,12 +586,23 @@ class GnrRemeberableAddOn(GnrAddOn):
 
 
     def rememberedNamedMembers(cls):
+        """add???
+        
+        :param cls: add???
+        :returns: add???
+        """
         #return dict([(name,cls._gnr_members__[objid]()) for  name,objid in cls._gnr_namedmembers__.items()])
         return dict([(name, cls._gnr_members__[objid]) for  name, objid in cls._gnr_namedmembers__.items()])
 
     rememberedNamedMembers = classmethod(rememberedNamedMembers)
 
     def rememberedGet(cls, name):
+        """add???
+        
+        :param cls: add???
+        :param name: add???
+        :returns: add???
+        """
         objid = cls._gnr_namedmembers__.get(name, None)
         #if objid:return cls._gnr_members__[objid]()
         if objid: return cls._gnr_members__[objid]
@@ -458,29 +610,36 @@ class GnrRemeberableAddOn(GnrAddOn):
     rememberedGet = classmethod(rememberedGet)
 
 class GnrMetaString(object):
+    """add???
+    """
     _glossary = {}
-
+        
     def glossary(cls):
+        """add???
+        
+        :param cls: add???
+        :returns: add???
+        """
         return cls._glossary.keys()
-
+        
     glossary = classmethod(glossary)
-
+        
     def __init__(self, value):
         self._glossary[value] = None
         self.value = value
-
+        
     def __repr__(self):
         return '(*' + self.value + '*)'
-
+        
     def __str__(self):
         return '(*)' + self.value + '*)'
-
+        
     def __eq__(self, value):
         if isinstance(value, self.__class__):
             return bool(self.value == value.value)
-
-
+            
 class SuperdoTest(object):
+    """add???"""
     def __init__(self, first, second, alfa='alfadef', beta='betadef'):
         pass
 
@@ -495,10 +654,21 @@ class SuperdoTestChildX(SuperdoTest):
         GnrAddOn.dosuper(self)
 
 def addCallable(obj, method):
+    """add???
+    
+    :param obj: add???
+    :param method: add???
+    """
     name = method.__name__
     setattr(obj, name, method)
 
 def addBoundCallable(obj, method, importAs=None):
+    """add???
+    
+    :param obj: add???
+    :param method: add???
+    :param importAs: add???. Default value is ``None``
+    """
     z = type(obj.__init__)
     k = z(method, obj, obj.__class__)
     if not importAs:
@@ -506,28 +676,61 @@ def addBoundCallable(obj, method, importAs=None):
     setattr(obj, importAs, k)
 
 def setMethodFromText(obj, src, importAs):
+    """add???
+    
+    :param obj: add???
+    :param src: add???
+    :param importAs: add???
+    """
     compiled = compile(src, 'xyz', 'exec')
     auxDict = {}
     exec compiled in auxDict
     addBoundCallable(obj, auxDict[importAs], importAs)
 
 def getObjCallables(obj):
+    """add???
+    
+    :param obj: add???
+    :returns: add???
+    """
     return [(k, getattr(obj, k))  for k in dir(obj) if
             callable(getattr(obj, k)) and not k in ('__call__', '__class__', '__cmp__')]
 
 def getObjAttributes(obj):
+    """add???
+    
+    :param obj: add???
+    :returns: add???
+    """
     return [(k, getattr(obj, k))  for k in dir(obj) if not callable(getattr(obj, k))]
 
 def callables(obj):
+    """add???
+    
+    :param obj: add???
+    :returns: add???
+    """
     s = getObjCallables(obj)
     return '\n'.join([x for x, v in s])
 
 def testbound(self, n):
+    """add???
+    
+    :param n: add???
+    :returns: add???
+    """
     self.special = n * '-'
     return self.special
 
 
 def compareInstances(a, b, __visited=None):
+    """add???
+    
+    :param a: add???
+    :param b: add???
+    :param _visited: add???. Default value is ``None``
+    :returns: add???
+    """
     if not __visited:
         __visited = {}
     k1 = str(id(a)) + '-' + str(id(b))
@@ -549,12 +752,20 @@ def compareInstances(a, b, __visited=None):
                     else:
                         return False
     return True
-
+    
 def args(*args, **kwargs):
+    """add???
+    """
     return (args, kwargs)
-
-
+    
 def setCallable(obj, name, argstring=None, func='pass'):
+    """add???
+    
+    :param obj: add???
+    :param name: add???
+    :param argstring: add???. Default value is ``None``
+    :param func: add???. Default value is ``pass``
+    """
     body = '    ' + '\n    '.join(func.split('\n'))
     if argstring:
         argstring = ',' + argstring
@@ -564,20 +775,33 @@ def setCallable(obj, name, argstring=None, func='pass'):
     setMethodFromText(obj, f, name)
 
 def cloneClass(name, source_class):
+    """add???
+    
+    :param name: add???
+    :param source_class: add???
+    :returns: add???
+    """
     return type(name, source_class.__bases__, dict([(k, v) for k, v in source_class.__dict__.items()
                                                     if not k in ('__dict__', '__module__', '__weakref__', '__doc__')]))
-
+                                                    
 def moduleClasses(m):
+    """add???
+    
+    :param m: add???
+    :returns: add???
+    """
     modulename = m.__name__
     return [x for x in dir(m) if (not x.startswith('__')) and  getattr(getattr(m, x), '__module__', None) == modulename]
 
 def classMixin(target_class, source_class, methods=None, only_callables=True,
                exclude='js_requires,css_requires,py_requires', **kwargs):
-    """
-    Add to the class methods from 'source'.
+    """Add to the class methods from 'source'.
     
-    Source isclass
-    
+    :param target_class: add???
+    :param source_class: add???
+    :param methods: add???. Default value is ``None``
+    :param only_callables: add???. Default value is ``True``
+    :param exclude: add???. Default value is ``js_requires,css_requires,py_requires``
     If not 'methods' all methods are added.  
     """
     if isinstance(methods, basestring):
@@ -630,6 +854,10 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
         source_class.__on_class_mixin__(target_class, **kwargs)
 
 def base_visitor(cls):
+    """add???
+    
+    :param cls: add???
+    """
     yield cls
     for base in cls.__bases__:
         for inner_base in base_visitor(base):
@@ -638,12 +866,16 @@ def base_visitor(cls):
 
 def instanceMixin(obj, source, methods=None, attributes=None, only_callables=True,
                   exclude='js_requires,css_requires,py_requires', prefix=None, **kwargs):
-    """
-    Add to the instance obj methods from 'source'.
+    """Add to the instance obj methods from 'source'.
     
-    Source can be an instance or a class
-    
-    If not 'methods' all methods are added.  
+    :param obj: add???
+    :param source: it can be an instance or a class
+    :param methods: If ``None``, then all methods are added. Default value is ``None``
+    :param attributes: add???. Default value is ``None``
+    :param only_callables: add???. Default value is ``True``
+    :param exclude: add???. Default value is ``js_requires,css_requires,py_requires``
+    :param prefix: add???. Default value is ``None``
+    :returns: add???
     """
     if isinstance(methods, basestring):
         methods = methods.split(',')
@@ -694,38 +926,56 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
                 setattr(obj, attribute, getattr(source, attribute))
     if hasattr(source, '__onmixin__'):
         source.__onmixin__.im_func(obj, _mixinsource=source, **kwargs)
-
-
+        
 def safeStr(self, o):
+    """add???
+    
+    :param o: add???
+    :returns: a "safe" string
+    """
     if isinstance(o, unicode):
         return o.encode('UTF-8', 'ignore')
     else:
         return str(o)
-
-
+        
 #def checkGarbage():
 #    gc.collect()
 #    assert not gc.garbage
 
 class GnrExpandible(object):
+    """add???
+    """
     def __onmixin__(self, **kwargs):
         self.__expanders = []
-
+        
     def addExpander(self, expander):
+        """add???
+        
+        :param expander: add???
+        """
         if not expander in self.__expanders:
             expander.parent = self
             #expander.parent=weakref.ref(self)
             self.__expanders.insert(0, expander)
-
+            
     def delExpander(self, expander):
+        """add???
+        
+        :param expander: add???
+        """
         self.__expanders.remove(expander)
-
+        
     def __getattr__(self, attr):
         for expander in self.__expanders:
             if hasattr(expander, attr):
                 return getattr(expander, attr)
-
+                
 def instanceOf(obj, *args, **kwargs):
+    """add???
+    
+    :param obj: add???
+    :returns: the object
+    """
     if isinstance(obj, basestring):
         modulename, clsname = obj.split(':')
         m = gnrImport(modulename)
@@ -734,14 +984,18 @@ def instanceOf(obj, *args, **kwargs):
         return obj(*args, **kwargs)
     else:
         return obj
-
+        
 def errorTxt():
+    """add???
+    
+    :returns: add???
+    """
     el = sys.exc_info()
     tb_text = traceback.format_exc()
     e = el[2]
     while e.tb_next:
         e = e.tb_next
-
+        
     locals_list = []
     for k, v in e.tb_frame.f_locals.items():
         try:
@@ -752,6 +1006,16 @@ def errorTxt():
     return u'%s\n\nLOCALS:\n\n%s' % (tb_text, '\n'.join(locals_list))
 
 def errorLog(proc_name, host=None, from_address='', to_address=None, user=None, password=''):
+    """add???
+    
+    :param proc_name: add???
+    :param host: add???. Default value is ``None``
+    :param from_address: add???. Default value is `` ``
+    :param to_address: add???. Default value is ``None``
+    :param user: add???. Default value is ``None``
+    :param password: add???. Default value is `` ``
+    :returns: add???
+    """
     from gnr.utils.gnrmail import sendmail
 
     ts = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S: ')

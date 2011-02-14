@@ -1,7 +1,7 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
+#  gnrhtml.py
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
@@ -15,26 +15,25 @@ import sys
 
 class GnrHtmlSrcError(Exception):
     pass
-
+    
 class GnrHtmlElem(object):
     def __init__(self, obj, tag):
         self.obj = obj
         self.tag = tag
-
+        
     def __call__(self, *args, **kwargs):
         if self.tag in GnrHtmlSrc.html_autocontent_NS:
             if args:
                 kwargs['content'], args = args[0], args[1:]
         child = self.obj.child(self.tag, *args, **kwargs)
         return child
-
-
+        
 class GnrHtmlSrc(GnrStructData):
     """Structure used to build server-side HTML pages.
     
     Prints and reports are based on this class.
     """
-
+        
     html_base_NS = ['a', 'abbr', 'acronym', 'address', 'area', 'base', 'bdo', 'big', 'blockquote',
                     'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
                     'dfn', 'dl', 'dt', 'em', 'fieldset', 'form', 'frame', 'frameset', 'head', 'hr', 'html',
@@ -42,52 +41,52 @@ class GnrHtmlSrc(GnrStructData):
                     'noscript', 'object', 'ol', 'optgroup', 'option', 'param', 'samp', 'select', 'style',
                     'sub', 'sup', 'table', 'tbody', 'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt',
                     'ul', 'var']
-
+                    
     gnrNS = ['layout', 'row', 'cell']
-
+        
     html_autocontent_NS = ['div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'td', 'li', 'b', 'i', 'small', 'strong',
                            'p', 'pre', 'q', ]
-
+                           
     htmlNS = html_base_NS + html_autocontent_NS
-
+        
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in gnrNS]))
-
+        
     def __getattr__(self, func_name):
         func_namelower = func_name.lower()
         if (func_name != func_namelower) and hasattr(self, func_namelower):
             return getattr(self, func_namelower)
         elif func_namelower in self.genroNameSpace:
             return GnrHtmlElem(self, '%s' % (self.genroNameSpace[func_namelower]))
-
+            
         else:
             raise AttributeError, func_name
-
+            
     def style(self, style='', **kwargs):
         """Creates a ``<style>`` tag.
         """
         self.root.builder.head.child('style', content=style, **kwargs)
-
+        
     def comment(self, content=None):
         """Creates an HTML comment.
         """
         self.child(tag='__flatten__', content='<!--%s-->' % content)
-
+        
     def script(self, script='', _type="text/javascript", **kwargs):
         """Creates a ``<script>`` tag.
         """
         self.root.builder.head.child('script', content=script, _type=_type, **kwargs)
-
+        
     def link(self, href='', **kwargs ):
         """Creates a ``<link>`` tag.
         """
         self.root.builder.head.child('link', href=href, **kwargs)
-
+        
     def csslink(self, href='', media='screen', **kwargs ):
         """Shortcut to create a ``<link rel="stylesheet" type="text/css"">`` tag.
         """
         self.root.builder.head.child('link', href=href, rel="stylesheet", _type="text/css", media=media, **kwargs)
-
+        
     def meta(self, name=None, content=None, http_equiv=None, **kwargs):
         """Creates a ``<meta>`` tag.
         """
@@ -95,27 +94,50 @@ class GnrHtmlSrc(GnrStructData):
         if http_equiv:
             _attributes['http-equiv'] = http_equiv
         self.root.builder.head.child('meta', _name=name, _content=content, _attributes=_attributes, **kwargs)
-
-
+        
     def child(self, tag, *args, **kwargs):
         """Creates a tag.
         """
         for lbl in ['_class', 'class_', '_type', 'type_', '_for', 'for_']:
             if lbl in kwargs:
                 kwargs[lbl.replace('_', '')] = kwargs.pop(lbl)
-
+                
         if 'name' in kwargs:
             kwargs['_name'] = kwargs.pop('name')
         return super(GnrHtmlSrc, self).child(tag, *args, **kwargs)
-
+        
     def layout(self, name='l1', um='mm', top=0, left=0, bottom=0, right=0, width=0, height=0,
                border_width=0.3, border_color='grey', border_style='solid', row_border=True, cell_border=True,
                lbl_height=3, lbl_class='lbl_base', content_class='content_base',
                hasBorderTop=None, hasBorderLeft=None, hasBorderRight=None, hasBorderBottom=None,
                **kwargs):
+        """Build the layout.
+        
+        :param name: the layout name. Default value is ``l1``
+        :param um: add???. Default value is ``mm``
+        :param top: the height of the top region. Default value is ``0``
+        :param left: the width of the left region. Default value is ``0``
+        :param bottom: the height of the bottom region. Default value is ``0``
+        :param right: the width of the right region. Default value is ``0``
+        :param width: layout's width. Default value is ``0``
+        :param height: layout's height. Default value is ``0``
+        :param border_width: add the border width. Default value is ``0.3``
+        :param border_color: add the border color. Default value is ``grey``
+        :param border_style: add the border style. Default value is ``solid``
+        :param row_border: add the row border. Default value is ``True``
+        :param cell_border: add the cell border. Default value is ``True``
+        :param lbl_height: add the label height. Default value is ``3``
+        :param lbl_class: add the label class. Default value is ``lbl_base``
+        :param content_class: add the content class. Default value is ``content_base``
+        :param hasBorderTop: add the top border. Default value is ``None``
+        :param hasBorderLeft: add the left border. Default value is ``None``
+        :param hasBorderRight: add the right border. Default value is ``None``
+        :param hasBorderBottom: add the bottom border. Default value is ``None``
+        :returns: the layout
+        """
         self.style(".%s_layout{border:%s%s %s %s;position:absolute;}" % (
         name, border_width, um, border_style, border_color))
-
+            
         layout = self.child(tag='layout', **kwargs)
         layout.layout_name = name
         layout.layout_class = '%s_layout' % name
@@ -141,9 +163,19 @@ class GnrHtmlSrc(GnrStructData):
         layout.hasBorderBottom = hasBorderBottom
         layout.nested = self.parentNode.getAttr('tag') == 'cell'
         return layout
-
+            
     def row(self, height=0, row_border=None, cell_border=None, lbl_height=None, lbl_class=None, content_class=None,
             **kwargs):
+        """Construct a row.
+        
+        :param height: the row's height. Default value is ``0``
+        :param row_border: the row's border. Default value is ``None``
+        :param cell_border: the row's cell border. Default value is ``None``
+        :param lbl_height: the row's label height. Default value is ``None``
+        :param lbl_class: the row's label class. Default value is ``None``
+        :param content_class: the row's content class. Default value is ``None``
+        :returns: the row
+        """
         assert self.parentNode.getAttr('tag') == 'layout'
         layout = self
         row = self.child(tag='row', **kwargs)
@@ -167,9 +199,20 @@ class GnrHtmlSrc(GnrStructData):
         if not row.height:
             layout.elastic_rows.append(row)
         return row
-
+            
     def cell(self, content=None, width=0, content_class=None, lbl=None, lbl_class=None, lbl_height=None,
              cell_border=None, **kwargs):
+        """Construct a cell.
+        
+        :param content: the row's content. Default value is ``None``
+        :param width: the row's width. Default value is ``0``
+        :param content_class: the row's content class. Default value is ``None``
+        :param lbl: the cell's lbl. Default value is ``None``
+        :param lbl_class: the row's label class. Default value is ``None``
+        :param lbl_height: the row's label height. Default value is ``None``
+        :param cell_border: the row's cell border. Default value is ``None``
+        :returns: the cell
+        """
         assert self.parentNode.getAttr('tag') == 'row'
         row = self
         cell = row.child(tag='cell', **kwargs)
@@ -189,20 +232,35 @@ class GnrHtmlSrc(GnrStructData):
         if not cell.width:
             row.elastic_cells.append(cell)
         return cell
-
-
+            
 class GnrHtmlBuilder(object):
+    """add???
+    """
     styleAttrNames = ['height', 'width', 'top', 'left', 'right', 'bottom',
                       'visibility', 'overflow', 'float', 'clear', 'display',
                       'z_index', 'border', 'position', 'padding', 'margin',
                       'color', 'white_space', 'vertical_align', 'background', 'text'];
-
-
+                      
     def __init__(self, page_height=None, page_width=None, page_margin_top=None,
                  page_margin_left=None, page_margin_right=None, page_margin_bottom=None,
                  showTemplateContent=None,
                  htmlTemplate=None, page_debug=False, srcfactory=None,
                  print_button=None, bodyAttributes=None):
+        """add???
+        
+        :param page_height: define the page height. Default value is ``None``
+        :param page_width: define the page width. Default value is ``None``
+        :param page_margin_top: define the page margin top. Default value is ``None``
+        :param page_margin_left: define the page margin left. Default value is ``None``
+        :param page_margin_right: define the page margin right. Default value is ``None``
+        :param page_margin_bottom: define the page margin bottom. Default value is ``None``
+        :param showTemplateContent: add???. Default value is ``None``
+        :param htmlTemplate: add???. Default value is ``None``
+        :param page_debug: add???. Default value is ``None``
+        :param srcfactory: add???. Default value is ``None``
+        :param print_button: add???. Default value is ``None``
+        :param bodyAttributes: add???. Default value is ``None``
+        """
         self.srcfactory = srcfactory or GnrHtmlSrc
         self.htmlTemplate = htmlTemplate or Bag()
         self.page_height = page_height or self.htmlTemplate['main.page.height'] or 280
@@ -214,8 +272,10 @@ class GnrHtmlBuilder(object):
         self.page_debug = page_debug
         self.print_button = print_button
         self.showTemplateContent = showTemplateContent
-
+            
     def initializeSrc(self, **bodyAttributes):
+        """add???
+        """
         bodyAttributes = bodyAttributes or {}
         self.root = self.srcfactory.makeRoot()
         self.root.builder = self
@@ -240,9 +300,13 @@ class GnrHtmlBuilder(object):
                             font-family:courier;
                         }
                         """)
-
-
+                            
     def prepareTplLayout(self, tpl):
+        """add???
+        
+        :param tpl: add???
+        :returns: add???
+        """
         layout = tpl.layout(top=0, height=self.page_height - self.page_margin_top - self.page_margin_bottom,
                             left=0, width=self.page_width - self.page_margin_left - self.page_margin_right,
                             border=0)
@@ -276,11 +340,14 @@ class GnrHtmlBuilder(object):
                             if innerHTML:
                                 innerHTML = "%s::HTML" % innerHTML
                             regions['%s_%s' % (region, subregion)] = row.cell(content=innerHTML, border=0)
-
+                            
         return regions['center_center']
-
-
+            
     def newPage(self):
+        """add???
+        
+        :returns:
+        """
         firstpage = (len(self.body) == 0)
         border_color = 'red' if self.page_debug else 'white'
         page_break = '' if firstpage else 'page-break-before:always;'
@@ -303,15 +370,16 @@ class GnrHtmlBuilder(object):
         if firstpage and self.print_button:
             tplpage.div(self.print_button, _class='no_print', id='printButton', onclick='window.print();')
         return tplpage
-
+            
     def styleForLayout(self):
+        """add???
+        """
         self.head.style(""".x_br{border-top:none!important;border-left:none!important;}
                            .x_r{border-top:none!important;border-left:none!important;border-bottom:none!important;}
                            .x_b{border-top:none!important;border-left:none!important;border-right:none!important;}
                            .x_{border:none!important;}
                         """)
-
-
+                            
     def toHtml_(self, filepath=None):
         if filepath:
             filepath = expandpath(filepath)
@@ -322,9 +390,12 @@ class GnrHtmlBuilder(object):
                                     forcedTagAttr='tag',
                                     addBagTypeAttr=False, typeattrs=False, self_closed_tags=['meta', 'br', 'img'])
         return self.html
-
-
+            
     def toHtml(self, filepath=None):
+        """add???
+        
+        :param filepath: add???. Default value is ``None``
+        """
         if filepath:
             filepath = expandpath(filepath)
         self.finalize(self.body)
@@ -335,8 +406,12 @@ class GnrHtmlBuilder(object):
                                     addBagTypeAttr=False, typeattrs=False, self_closed_tags=['meta', 'br', 'img'],
                                     docHeader='<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> \n')
         return self.html
-
+            
     def toPdf(self, filename):
+        """add???
+        
+        :param filename: the PDF name
+        """
         from subprocess import call
         if self.page_height<self.page_width:
             self.orientation='Landscape'
@@ -347,8 +422,13 @@ class GnrHtmlBuilder(object):
         else:
             print x
             res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '%s.%s'%(filename, 'html'), filename])
-
+            
     def calculate_style(self, attr, um, **kwargs):
+        """add???
+        
+        :param attr: add???
+        :param um: add???
+        """
         style = attr.pop('style', '')
         style = style.replace('\n', '')
         style_dict = dict([(splitAndStrip(x, ':')) for x in style.split(';') if ':' in x])
@@ -366,8 +446,12 @@ class GnrHtmlBuilder(object):
                     pass
                 style_dict[name] = value
         attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
-
+            
     def styleMaker(self, attr):
+        """add???
+        
+        :param attr: add???
+        """
         style = attr.pop('style', '')
         style = style.replace('\n', '')
         style_dict = dict([(splitAndStrip(x, ':')) for x in style.split(';') if ':' in x])
@@ -375,19 +459,29 @@ class GnrHtmlBuilder(object):
             if oneattr in self.styleAttrNames or ('_' in oneattr and oneattr.split('_')[0] in self.styleAttrNames):
                 style_dict[oneattr.replace('_', '-')] = attr.pop(oneattr)
         attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
-
+            
     def finalize(self, src):
+        """add???
+        
+        :param src: add???
+        """
         for node in src:
             node_tag = node.getAttr('tag')
             node_value = node.value
             getattr(self, 'finalize_%s' % node_tag, self.finalize_pass)(src, node.attr, node.value)
-
+            
             if node_value and isinstance(node_value, GnrHtmlSrc):
                 self.finalize(node_value)
             getattr(self, 'finalize_%s_after' % node_tag, self.finalize_pass)(src, node.attr, node.value)
             self.styleMaker(node.attr)
-
+            
     def finalize_layout(self, parent, attr, layout):
+        """add???
+        
+        :param parent: add???
+        :param attr: add???
+        :param layout: add???
+        """
         borders = '%s%s' % (layout.border_width, layout.um)
         if layout.nested:
             layout.has_topBorder = layout.hasBorderTop if layout.hasBorderTop is not None else bool(
@@ -396,7 +490,7 @@ class GnrHtmlBuilder(object):
             layout.has_rightBorder = layout.hasBorderRight if layout.hasBorderRight is not None else bool(layout.right)
             layout.has_bottomBorder = layout.hasBorderBottom if layout.hasBorderBottom is not None else bool(
                     layout.bottom)
-
+                    
             layout.width = layout.width or parent.width - layout.left - layout.right - int(
                     layout.has_leftBorder) * layout.border_width - int(layout.has_rightBorder) * layout.border_width
             layout.height = layout.height or parent.height - layout.top - layout.bottom - int(
@@ -404,7 +498,7 @@ class GnrHtmlBuilder(object):
             borders = ' '.join(
                     ['%s%s' % (int(getattr(layout, 'has_%sBorder' % side)) * layout.border_width, layout.um) for side in
                      ('top', 'right', 'bottom', 'left')])
-
+                     
         if layout.elastic_rows:
             if layout.height:
                 height = (layout.height - sum(
@@ -418,7 +512,7 @@ class GnrHtmlBuilder(object):
         layout.height = sum([row.height for row in layout.values()]) + layout.border_width * (len(layout) - 1)
         if layout.values():
             layout.values()[-1].row_border = False
-
+                    
         attr['top'] = layout.top
         attr['left'] = layout.left
         attr['bottom'] = layout.bottom
@@ -427,12 +521,18 @@ class GnrHtmlBuilder(object):
         attr['width'] = layout.width
         attr['class'] = ' '.join(x for x in [attr.get('class'), layout.layout_class] if x)
         kw = {'border-width': borders}
-
+                    
         self.calculate_style(attr, layout.um, **kw)
         layout.curr_y = 0
         attr['tag'] = 'div'
-
+                    
     def finalize_row(self, layout, attr, row):
+        """add???
+        
+        :param layout: add???
+        :param attr: add???
+        :param row: add???
+        """
         if row.elastic_cells:
             if layout.width:
                 elastic_width = (layout.width - sum(
@@ -452,9 +552,14 @@ class GnrHtmlBuilder(object):
         layout.curr_y += row.height + layout.border_width
         self.calculate_style(attr, layout.um, position='absolute')
         row.curr_x = 0
-
-
+                    
     def finalize_cell(self, row, attr, cell):
+        """add???
+        
+        :param row: add???
+        :param attr: add???
+        :param cell: add???
+        """
         cell.height = row.height
         width = cell.width
         if cell.lbl:
@@ -474,8 +579,13 @@ class GnrHtmlBuilder(object):
         attr['class'] = ' '.join(x for x in [attr.get('class'), row.layout.layout_class, cell_class] if x)
         row.curr_x += width + right_border_width
         self.calculate_style(attr, row.layout.um)
-
+                    
     def setLabel(self, cell, attr):
+        """add???
+        
+        :param cell: add???
+        :param attr: add???
+        """
         row = cell.row
         layout = row.layout
         um = row.layout.um
@@ -501,15 +611,15 @@ class GnrHtmlBuilder(object):
             content_attr = {'class': content_class, 'top': lbl_height, 'left': 0, 'right': 0}
             self.calculate_style(content_attr, um, position='absolute')
             cell.child('div', content=cur_content_value, **content_attr)
-
+                    
     def finalize_pass(self, src, attr, value):
         pass
-
+                    
 def test0(pane):
     d = 180
     layout = pane.layout(width=d, height=d, um='mm', top=10, left=10, border_width=3,
                          lbl_height=4, lbl_class='z1', content_class='content', _class='mmm')
-
+                         
     layout.style(".z1{font-size:7pt;background-color:silver;text-align:center}")
     layout.style(".z2{font-size:9pt;background-color:pink;text-align:right;}")
     layout.style(".content{font-size:12pt;text-align:center;}")
@@ -546,15 +656,14 @@ def test0(pane):
     r.cell('foo')
     r.cell('bar', width=x)
     r.cell('baz')
-
-
+                    
 def test1(pane):
     layout = pane.layout(width='150', height=150, um='mm', top=10, left=10, border_width=.3,
                          lbl_height=4, lbl_class='z1', content_class='content')
     layout.style(".z1{font-size:7pt;background-color:silver;text-align:center}")
     layout.style(".z2{font-size:9pt;background-color:pink;text-align:right;}")
     layout.style(".content{font-size:12pt;text-align:center;}")
-
+                    
     r = layout.row(height=20)
     r.cell('foo', width=40, lbl='name')
     r.cell()
@@ -578,7 +687,7 @@ def test1(pane):
     r.cell('tt', width=40)
     r.cell('kkkkk')
     r.cell('mmm', width=40)
-
+                    
 def testRowsInner(cell):
     innerLayout = cell.layout(name='inner', um='mm', top=0, left=0, bottom=3, right=0, border_width=1.2,
                               border_color='navy', lbl_height=4,
@@ -586,25 +695,23 @@ def testRowsInner(cell):
     row = innerLayout.row()
     row.cell('aaa', width=30, lbl='bb', background_color='lime')
     row.cell('bbb', width=0, lbl='aa')
-
-
+                    
 def testRows(pane):
     layout = pane.layout(name='outer', width=180, height=130, um='mm',
                          top=1, left=1,
                          border_width=3, border_color='red',
                          lbl_height=4,
                          lbl_class='z1')
-
+                         
     layout.style(".z1{font-size:7pt;background-color:silver;text-align:center}")
-
+                    
     for h in [20, 0, 0, 20]:
         row = layout.row(height=h)
         #row.cell('hhh',lbl='foo', width=60)
         row.cell(lbl='bar')
         testRowsInner(row.cell(lbl='foo', width=60))
         #testRowsInner(row.cell(lbl='bar'))
-
-
+                    
 if __name__ == '__main__':
     builder = GnrHtmlBuilder()
     builder.initializeSrc()

@@ -23,13 +23,13 @@
 import gnrclasses
 
 def dictExtract(mydict, prefix, pop=False, slice_prefix=True):
-    """
-    return a dict of the items with keys starting with prefix.
+    """Return a dict of the items with keys starting with prefix.
     
     :param mydict: sourcedict 
     :param prefix: the prefix of the items you need to extract
     :param pop: removes the items from the sourcedict
     :param slice_prefix: shortens the keys of the output dict removing the prefix
+    :returns: a dict of the items with keys starting with prefix
     """
     lprefix = len(prefix) if slice_prefix else 0
     
@@ -41,11 +41,15 @@ class FakeDict(dict):
     pass
 
 class GnrDict(dict):
+    """An ordered dictionary
     """
-    An ordered dictionary
-    """
-
+    
     def __init__(self, *args, **kwargs):
+        """add???
+        
+        :param args: add???
+        :param kwargs: add???
+        """
         dict.__init__(self)
         self._list = []
         if args:
@@ -56,105 +60,212 @@ class GnrDict(dict):
                 [self.__setitem__(k, v) for k, v in source]
         if kwargs:
             [self.__setitem__(k, v) for k, v in kwargs.items()]
-
+            
     def __setitem__(self, key, value):
+        """add???
+        
+        :param key: add???
+        :param value: add???
+        :returns: add???
+        """
         key = self._label_convert(key)
         if not key in self:
             self._list.append(key)
         dict.__setitem__(self, key, value)
-
+        
     def __iter__(self):
+        """add???
+        
+        :returns: add???
+        """
         return self._list.__iter__()
-
+        
     def __delitem__(self, key):
+        """add???
+        
+        :param key: add???
+        :returns: add???
+        """
         key = self._label_convert(key)
         self._list.remove(key)
         dict.__delitem__(self, key)
-
+        
     def get(self, label, default=None):
+        """add???
+        
+        :param label: add???
+        :param default: add???. Default value is ``None``
+        """
         return dict.get(self, self._label_convert(label), default)
-
+        
     def __getitem__(self, label):
+        """add???
+        
+        :param label: add???
+        :returns: add???
+        """
         return dict.__getitem__(self, self._label_convert(label))
-
+        
     def _label_convert(self, label):
         if isinstance(label, basestring) and label.startswith('#') and label[1:].isdigit():
             label = self._list[int(label[1:])]
         return label
-
+        
     def items(self):
+        """add???
+        
+        :returns: add???
+        """
         return [(k, self[k]) for k in self._list]
-
+        
     def keys(self):
+        """add???
+        
+        :returns: add???
+        """
         return list(self._list)
-
+        
     def index(self, value):
+        """add???
+        
+        :returns: add???
+        """
         if value in self._list:
             return self._list.index(value)
         return -1
-
+        
     def values(self):
+        """add???
+        
+        :returns: add???
+        """
         return [self[k] for k in self._list]
-
+        
     def pop(self, key, dflt=None):
+        """add???
+        
+        :returns: add???
+        """
         key = self._label_convert(key)
         if key in self._list:
             self._list.remove(key)
             return dict.pop(self, key)
         return dflt
-
+        
     def __str__(self):
+        """add???
+        
+        :returns: add???
+        """
         return "{%s}" % (', '.join(["%s: %s" % (repr(k), repr(self[k])) for k in self._list]))
-
+        
     __repr__ = __str__
-
+        
     #def __repr__(self):
     #return "%s ordered on %s" % (dict.__repr__(self), str(self._list))
-
+        
     def clear(self):
+        """add???
+        
+        :returns: add???
+        """
         self._list[:] = []
         dict.clear(self)
-
+        
     def update(self, o, removeNone=False):
+        """add???
+        
+        :param o: add???
+        :param removeNone: add???. Default value is ``False``
+        :returns: add???
+        """
         [self.__setitem__(k, v) for k, v in o.items()]
         if removeNone:
             [self.__delitem__(k) for k, v in o.items() if v == None]
-
+            
     def copy(self):
+        """add???
+        
+        :returns: add???
+        """
         return GnrDict(self)
-
+        
     def setdefault(key, d=None):
+        """add???
+        
+        :param key: add???
+        :param d: add???. Default value is ``None``
+        :returns: add???
+        """
         key = self._label_convert(key)
         if not key in self:
             self.__setitem__(key, d)
         return self[key]
-
+        
     def popitem(self):
+        """add???
+        
+        :returns: add???
+        """
         k = self._list.pop()
         return (k, dict.pop(self, k))
-
+        
     def iteritems(self):
+        """add???
+        
+        :returns: add???
+        """
         for k in self._list:
             yield (k, self[k])
-
+            
     def iterkeys(self):
+        """add???
+        
+        :returns: add???
+        """
         for k in self._list:
             yield k
-
+            
     def itervalues(self):
+        """add???
+        
+        :returns: add???
+        """
         for k in self._list:
             yield self[k]
-
+            
     def __add__(self, o):
+        """add???
+        
+        :returns: add???
+        """
         return GnrDict(self.items() + o.items())
-
+        
     def __sub__(self, o):
+        """add???
+        
+        :param o: add???
+        :returns: add???
+        """
         return GnrDict([(k, self[k]) for k in self if not k in o])
-
+        
     def __getslice__(self, start=None, end=None):
+        """add???
+        
+        :param start: add???. Default value is ``None``
+        :param end: add???. Default value is ``None``
+        :returns: add???
+        """
         return GnrDict([(k, self[k]) for k in self._list[start:end]])
-
+        
     def __setslice__(self, start=None, end=None, val=None):
+        """add???
+        
+        :param start: add???. Default value is ``None``
+        :param end: add???. Default value is ``None``
+        :param val: add???. Default value is ``None``
+        :returns: add???
+        """
         [dict.__delitem__(self, k) for k in self._list[start:end]]
         val = GnrDict(val)
         l = list(self._list)
@@ -163,25 +274,45 @@ class GnrDict(dict):
         l[start:end] = newkeys
         self._list[:] = [x for i, x in enumerate(l) if (x not in newkeys) or i in newkeysrange]
         dict.update(self, val)
-
+        
     def reverse(self):
+        """add???
+        
+        :returns: add???
+        """
         self._list.reverse()
-
+        
     def sort(self, cmpfunc=None):
+        """add???
+        
+        :param cmpfunc: add???. Default value is ``None``
+        :returns: add???
+        """
         self._list.sort(cmpfunc)
-
+        
 class GnrNumericDict(GnrDict):
+    """add???
+    """
     def __getitem__(self, label):
+        """add???
+        
+        :returns: add???
+        """
         if isinstance(label, int):
             return dict.__getitem__(self, self._list[label])
         else:
             return dict.__getitem__(self, self._label_convert(label))
-
+            
     def __iter__(self):
+        """add???
+        
+        :returns: add???
+        """
         for k in self._list:
             yield self[k]
-
+            
 if __name__ == '__main__':
     a = GnrDict([('pino', 55), ('gionni', 88)], ugo=56, mario=False)
     print a.get('#1')
     print a['gvhjf hvj']
+        

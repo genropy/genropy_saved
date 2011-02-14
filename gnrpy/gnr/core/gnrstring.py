@@ -495,7 +495,7 @@ def smartsplit(path, on):
     return pathList
 
 def concat(s1, s2, sep='.'):
-    """join two strings. If the first string is ```None``, return the second string.
+    """join two strings. If the first string is ``None``, return the second string.
     
     :param s1: the first string
     :param s2: the second string
