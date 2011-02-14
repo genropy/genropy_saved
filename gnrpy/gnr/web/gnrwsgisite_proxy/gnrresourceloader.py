@@ -35,6 +35,7 @@ class ResourceLoader(object):
         self.gnr_static_handler = self.site.getStatic('gnr')
         self.build_automap()
         self.page_factories = {}
+        self.default_path = self.site.default_page and self.site.default_page.split('/')
 
 
     def find_webtools(self):
@@ -101,7 +102,7 @@ class ResourceLoader(object):
             self._sitemap = _sitemap
         return self._sitemap
 
-    def get_page_node(self, path_list):
+    def get_page_node(self, path_list, default=False):
         # get the deepest node in the sitemap bag associated with the given url
         page_node = self.sitemap.getDeepestNode('.'.join(path_list))
         if not page_node and self.site.mainpackage: # try in the main package
@@ -116,6 +117,10 @@ class ResourceLoader(object):
                     page_node_attributes = page_node.getInheritedAttributes()
                     if page_node_attributes.get('path'):
                         return page_node, page_node_attributes
+        if self.default_path and not default:
+            page_node, page_node_attributes = self.get_page_node(self.default_path, default=True)
+            page_node._tail_list = list(path_list)
+            return page_node, page_node_attributes
         return None, None
 
 
