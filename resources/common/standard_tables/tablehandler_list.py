@@ -260,8 +260,8 @@ class TableHandlerForm(BaseComponent):
                                    float='left')
         queryfb.div('^.c_0?column_caption', min_width='12em', _class='smallFakeTextBox floatingPopup',
                     nodeId='fastQueryColumn',
-                    onDrop_gnrdbfld="genro.querybuilder.onChangedQueryColumn(this,data);", dropTarget=True,
-                    lbl='!!Search')
+                     dropTarget=True,
+                    lbl='!!Search',**{'onDrop_gnrdbfld_%s' %self.maintable.replace('.','_'):"genro.querybuilder.onChangedQueryColumn(this,data);"})
         optd = queryfb.div(_class='smallFakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
