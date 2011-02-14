@@ -256,6 +256,7 @@ class GnrWsgiSite(object):
         if self.default_uri[-1] != '/':
             self.default_uri += '/'
         self.mainpackage = self.config['wsgi?mainpackage']
+        self.default_page = self.config['wsgi?default_page']
         self.allConnectionsFolder = os.path.join(self.site_path, 'data', '_connections')
         self.allUsersFolder = os.path.join(self.site_path, 'data', '_users')
 
