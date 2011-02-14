@@ -380,8 +380,10 @@ class GnrBaseWebPage(GnrObject):
         if _autoreload:
             result = Bag()
             result.setItem('pkey',pkey,**resultAttr)
-            record,recInfo = self.app.rpc_getRecord(pkey=pkey,table=table)
-            result.setItem('savedRecord',record,**recInfo)
+            keyToLoad=pkey if _autoreload  is  True else _autoreload
+            record,recInfo = self.app.rpc_getRecord(pkey=keyToLoad,table=table)
+            result.setItem('loadedRecord',record,**recInfo)
+            return result
         else:
             return (pkey, resultAttr)
 
