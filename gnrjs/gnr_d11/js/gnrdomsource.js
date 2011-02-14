@@ -296,14 +296,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     genro.lockScreen(true, domsource_id);
                 }
                 if (doCall != false) {
-                    if (!_deferred){
-                        this._deferred ={}
+                    if (!this._deferredRegister){
+                        this._deferredRegister ={}
                     }   
                     var deferred = genro.rpc.remoteCall(method, kwargs, null, httpMethod, null, cb);
-                    this._deferred[deferred.id]= deferred;
+                    this._deferredRegister[deferred.id]= deferred;
+                    this._lastDeferred = deferred;
                     var that = this;
-                    deferred.addCalback(function(result){
-                        delete that._deferred[deferred.id];
+                    deferred.addCallback(function(result){
+                        delete that._deferredRegister[deferred.id];
                         return result
                     })
                     if(this._callbacks){

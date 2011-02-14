@@ -22,7 +22,9 @@ class GnrCustomWebPage(object):
             dlg = pane.dialog(nodeId='mydialog_%i' % k, style='width:300px;',closable=True,
                               title='Very simple dialog n. %i' % k, position='%i,%i' % (100 + k * 10, 100 + k * 10))
             dlg.div('This is a very simple dialog %i' % k)
-            pane.button('Open a dialog %i' % k, action="genro.wdgById('mydialog_%i').show()" % k)
+            fb = pane.formbuilder(cols=1, border_spacing='3px')
+            fb.textbox(value='^.provola_%i'%k)
+            fb.button('Open a dialog %i' % k, action="genro.wdgById('mydialog_%i').show()" % k)
             pane = dlg
 
     def test_3_variable_title(self, pane):

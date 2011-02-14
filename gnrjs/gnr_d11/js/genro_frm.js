@@ -372,7 +372,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 var saverNode = genro.nodeById(this.form_id + '_saver');
                 if(saverNode){
                     saverNode.fireNode();
-                    return saverNode._deferred;
+                    return saverNode._lastDeferred;
                 }else if(this.store) {
                     this.store.save();
                 }
