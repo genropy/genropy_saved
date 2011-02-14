@@ -1,8 +1,8 @@
 .. _genro_library_gnrbags:
 
-===========================================================
-:mod:`gnr.core.gnrbag` and related stuff -- Bags and Struct
-===========================================================
+=======================================
+:mod:`gnr.core.gnrbag`- Bags and Struct
+=======================================
 
 	.. note::
 
@@ -142,7 +142,7 @@
 
 	.. module:: gnr.core.gnrbag.UrlResolver
 
-	:meth:`load`
+	* :meth:`load`
 
 .. _gnrbags_classes:
 
