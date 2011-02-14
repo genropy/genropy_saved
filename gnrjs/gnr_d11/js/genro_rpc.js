@@ -120,6 +120,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var rpc_counter = ioArgs.args['__rpc_counter'];
         delete this.rpc_register['r_' + rpc_counter];
     },
+
     /* callbackArgs 
      args: Object
      the original object argument to the IO call.

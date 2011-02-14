@@ -335,12 +335,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     onFocusForm:function(){
         genro.dom.addClass(this.sourceNode,'form_activeForm');
+        this.focusCurrentField();
     },
     onBlurForm:function(){
         genro.dom.removeClass(this.sourceNode,'form_activeForm');
     },
+    isRegisteredWidget:function(wdg){
+        return (wdg.sourceNode._id in this._register)
+    },
     onFocusElement:function(wdg){
-        if(typeof(wdg.focus)=='function'){
+        if(this.isRegisteredWidget(wdg) && (typeof(wdg.focus)=='function')){
             this.currentFocused=wdg;
         }
     },

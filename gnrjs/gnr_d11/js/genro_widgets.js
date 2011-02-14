@@ -616,30 +616,22 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             }
         }
         if (dojo_version == '1.1') {
+            
             dojo.connect(widget, "show", widget,
                         function() {
                             if (this != genro.dialogStack.slice(-1)[0]) {
-                                genro.dialogStack.push(this);
-                                if (genro.dialogStack.length > 1) {
-                                    var parentDialog = genro.dialogStack.slice(-2)[0];
-                                    if(sourceNode.attr._showParent){
-                                        genro.dom.style(this.domNode,'zIndex',1000);
-                                        genro.dom.style(this._underlay.domNode,'zIndex',999);
-                                    }else{
-                                        parentDialog.hide();
-                                    }
-                                }
+                                var ds=genro.dialogStack
+                                ds.push(this);
+                                var zIndex = 600 + ds.length*2;
+		                        dojo.style(this._underlay.domNode, 'zIndex', zIndex);
+		                        dojo.style(this.domNode, 'zIndex', zIndex + 1);
                             }
 
                         });
             dojo.connect(widget, "hide", widget,
                         function() {
-                            this.sourceNode.attr._isHidden=true;
                             if (this == genro.dialogStack.slice(-1)[0]) {
-                                genro.dialogStack.pop();
-                                if (genro.dialogStack.length > 0) {
-                                    genro.dialogStack.slice(-1)[0].show();
-                                }
+                                genro.dialogStack.pop();                      
                             }
                         });
         }

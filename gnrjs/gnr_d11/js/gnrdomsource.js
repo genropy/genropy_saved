@@ -296,16 +296,23 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     genro.lockScreen(true, domsource_id);
                 }
                 if (doCall != false) {
-                    this._deferred = null;
+                    if (!_deferred){
+                        this._deferred ={}
+                    }   
                     var deferred = genro.rpc.remoteCall(method, kwargs, null, httpMethod, null, cb);
+                    this._deferred[deferred.id]= deferred;
+                    var that = this;
+                    deferred.addCalback(function(result){
+                        delete that._deferred[deferred.id];
+                        return result
+                    })
                     if(this._callbacks){
-                        var that = this;
                         this._callbacks.forEach(function(n){
                             var kw = objectUpdate({},kwargs);
                             genro.rpc.addDeferredCb(deferred,n.getValue(),objectUpdate(kw,n.attr),that);
                         })
                     }
-                    this._deferred = deferred;
+       
                 }
             }
             else {
