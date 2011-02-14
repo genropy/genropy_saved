@@ -625,13 +625,25 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                                 var zIndex = 600 + ds.length*2;
 		                        dojo.style(this._underlay.domNode, 'zIndex', zIndex);
 		                        dojo.style(this.domNode, 'zIndex', zIndex + 1);
+		                         if (genro.dialogStack.length > 1) {
+		                            var parentDialog = genro.dialogStack.slice(-2)[0];
+		                            dojo.forEach(parentDialog._modalconnects, dojo.disconnect);
+                                    parentDialog._modalconnects = [];
+                                   // genro.dialogStack.slice(-2)[0].hide();
+                                }
                             }
 
                         });
             dojo.connect(widget, "hide", widget,
                         function() {
                             if (this == genro.dialogStack.slice(-1)[0]) {
-                                genro.dialogStack.pop();                      
+                                genro.dialogStack.pop();   
+                                if (genro.dialogStack.length > 0) {
+                                     var parentDialog = genro.dialogStack.slice(-1)[0];
+		                             parentDialog._modalconnects.push(dojo.connect(window, "onscroll", parentDialog, "layout"));
+                                     parentDialog._modalconnects.push(dojo.connect(dojo.doc.documentElement, "onkeypress", parentDialog, "_onKey"));
+                                   // genro.dialogStack.slice(-1)[0].show();
+                                }                   
                             }
                         });
         }
