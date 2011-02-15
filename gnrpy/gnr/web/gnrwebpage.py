@@ -291,6 +291,9 @@ class GnrWebPage(GnrBaseWebPage):
             return AUTH_FORBIDDEN
         return AUTH_OK
 
+    def mixinComponent(self, pkg, *path):
+        self.site.resource_loader.mixinPageComponent(self, pkg, *path)
+
     @property
     def isGuest(self):
         return self.user == self.connection.guestname

@@ -72,9 +72,13 @@ class BaseComponent(object):
             if not hasattr(_mixintarget, 'struct_namespaces'):
                 _mixintarget.struct_namespaces = set()
             _mixintarget.struct_namespaces.add(namespace)
+        if css_requires and not hasattr(_mixintarget, 'css_requires'):
+            _mixintarget.css_requires=[] 
         for css in css_requires:
             if css and not css in _mixintarget.css_requires:
                 _mixintarget.css_requires.append(css)
+        if js_requires and not hasattr(_mixintarget, 'js_requires'):
+            _mixintarget.js_requires=[]
         for js in js_requires:
             if js and not js in _mixintarget.js_requires:
                 _mixintarget.js_requires.append(js)

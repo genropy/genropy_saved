@@ -399,6 +399,18 @@ class ResourceLoader(object):
         self.mixinResource(resource_class, resourceDirs, *path)
         return resource_class()
 
+    def mixinPageComponent(self, page, pkg, *path):
+        component=self.loadResource(pkg,*path)
+        css_requires = getattr(component,'css_requires',[])
+        js_requires = getattr(component,'js_requires',[])
+        for css in css_requires:
+            if css and not css in page.css_requires:
+                page.css_requires.append(css)
+        for js in js_requires:
+            if js and not js in page.js_requires:
+                page.js_requires.append(js)
+        page.mixin(component)
+
     def loadTableScript(self, page, table=None, respath=None, class_name=None, _onDefault=None):
         class_name = class_name or 'Main'
         application = self.gnrapp
