@@ -90,7 +90,7 @@ class SelectionHandler(BaseComponent):
                             form_kwargs=None,default_kwargs=None,
                             **kwargs):            
             frameview = pane.selectionViewBox(frameCode=frameCode,datapath=datapath,frame__attachname='viewframe',
-                                            table=table, **kwargs)
+                                            table=table,add_enable=True,del_enable=True, **kwargs)
             if footer:
                 print 'advise: use the attach point instead of footer cb'
                 footer(frameview.bottom)
@@ -102,6 +102,7 @@ class SelectionHandler(BaseComponent):
                  form_kwargs['dialog_kwargs'] = dialog_kwargs
                  form_kwargs['palette_kwargs'] = palette_kwargs
                  form_kwargs['loadEvent'] = 'onRowDblClick'
+                 form_kwargs['store_onSaved'] = form_kwargs.get('store_onSaved','reload')
                  form = frameview.view.linkedForm(**form_kwargs)
                  form.store.handler('load',**default_kwargs)
                  form.top.slotToolbar('navigation,*,|,semaphore,|,formcommands,|,locker')

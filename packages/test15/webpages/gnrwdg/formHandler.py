@@ -53,13 +53,16 @@ class GnrCustomWebPage(object):
     def test_0_frameform(self,pane):
         "Test FrameForm"
         form = pane.frameForm(frameCode='provincia_1',border='1px solid silver',datapath='.form',
-                            rounded_bottom=10,height='180px',width='600px',
+                            rounded_bottom=10,height='180px',width='600px',center_widget='BorderContainer',
                             pkeyPath='.prov')
         form.testToolbar()
         store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
-                               handler='recordCluster',startKey='*norecord*',onSaved='reload')
+                               handler='recordCluster',startKey='*newrecord*',onSaved='reload')
         store.handler('load',_onCalling='console.log("xxxx")',default_ordine_tot='100')    
-        form.formbuilder(cols=2, border_spacing='3px').formContent()            
+        #bc = form.borderContainer(selfsubscribe_built='this.widget.resize()')
+        form.contentPane(region='left',background='red',width='50px')
+        form.contentPane(region='center').formbuilder(cols=2, border_spacing='3px').formContent()  
+                  
         
     def test_1_frameform_external_store(self,pane):
         "Test FrameForm External store"
