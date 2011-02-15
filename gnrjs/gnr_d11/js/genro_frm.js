@@ -236,8 +236,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     openPendingChangesDlg:function(kw){
-         var dlg = genro.dlg.quickDialog('Pending changes',{_showParent:true});
-         dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',height:'50',width:'250px'})
+         var dlg = genro.dlg.quickDialog('Pending changes',{_showParent:true,width:'250px'});
+         dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',height:'50px'})
          var form = this;
          var slotbar = dlg.bottom._('slotBar',{slots:'discard,*,cancel,save',
                                                 action:function(){

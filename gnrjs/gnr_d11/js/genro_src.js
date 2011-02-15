@@ -180,7 +180,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             destination.setSelected(selectedIndex);
         }
         if(destination.resize){
-            destination.resize(dojo.coords(destination.domNode));
+            destination.resize(objectExtract(dojo.coords(destination.domNode),'h,w')); //fixed for safari
         }
 
     },
