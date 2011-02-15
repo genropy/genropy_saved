@@ -18,7 +18,10 @@ AUTH_NOT_LOGGED = 1
 AUTH_FORBIDDEN = -1
 
 class Plugin(GnrBasePlugin):
-    def __call__(self, dojo_theme=None, striped='odd_row,even_row', pdf=False, **kwargs):
+    def __call__(self, *args, **kwargs):
+        dojo_theme=kwargs.get('dojo_theme',None)
+        striped=kwargs.get('striped','odd_row,even_row')
+        pdf=kwargs.get('pdf',False)
         mako_path=kwargs.get('mako_path')
         page = self.page
         dojo_theme = dojo_theme or getattr(self.page, 'dojo_theme', None) or 'tundra'
@@ -45,21 +48,23 @@ class Plugin(GnrBasePlugin):
             page.response.content_type = 'text/html'
             return output
         else:
-            from gnr.pdf.wk2pdf import WK2pdf
-
-            page.response.content_type = 'application/pdf'
-            tmp_name = page.temporaryDocument('tmp.pdf')
-            if page.request.query_string:
-                query_string = '&'.join([q for q in page.query_string.split('&') if not 'pdf' in q.lower()])
-                url = '%s?%s' % (page.path_url, query_string)
-            else:
-                url = page.path_url
-            wkprinter = WK2pdf(url, tmp_name)
-            wkprinter.run()
-            wkprinter.exec_()
-            page.response.add_header("Content-Disposition",
-                                     str("%s; filename=%s.pdf" % ('inline', page.path_url.split('/')[-1] + '.pdf')))
-            tmp_file = open(tmp_name)
-            tmp_content = tmp_file.read()
-            tmp_file.close()
-            return tmp_content
+            pass
+            ## call wkpdf executable
+            #from gnr.pdf.wk2pdf import WK2pdf
+            #
+            #page.response.content_type = 'application/pdf'
+            #tmp_name = page.temporaryDocument('tmp.pdf')
+            #if page.request.query_string:
+            #    query_string = '&'.join([q for q in page.query_string.split('&') if not 'pdf' in q.lower()])
+            #    url = '%s?%s' % (page.path_url, query_string)
+            #else:
+            #    url = page.path_url
+            #wkprinter = WK2pdf(url, tmp_name)
+            #wkprinter.run()
+            #wkprinter.exec_()
+            #page.response.add_header("Content-Disposition",
+            #                         str("%s; filename=%s.pdf" % ('inline', page.path_url.split('/')[-1] + '.pdf')))
+            #tmp_file = open(tmp_name)
+            #tmp_content = tmp_file.read()
+            #tmp_file.close()
+            #return tmp_content
