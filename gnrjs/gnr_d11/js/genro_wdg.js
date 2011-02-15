@@ -33,7 +33,9 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'table' :[ 'width', 'border'],
             'editor' :[ 'height'],
             'embed':['width','height'],
-            'img':['width','height']};
+            'img':['width','height'],
+            'canvas':['width','height']
+            };
         this.tagParameters = {};
         this.tagParameters['button'] = {'caption':'input'};
         this.tagParameters['contentpane'] = {'label':'input','layoutAlign':'select:top,bottom,left,right,client'};
@@ -48,7 +50,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'ins', 'kbd', 'label', 'legend', 'li', 'link', 'map', 'meta', 'noframes', 'noscript',
             'object', 'ol', 'optgroup', 'option', 'p', 'param', 'pre', 'q', 'samp', 'script',
             'select', 'small', 'span', 'strong', 'style', 'sub', 'sup', 'table', 'tbody', 'td',
-            'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt', 'ul', 'var','embed','audio','video'];
+            'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt', 'ul', 'var','embed','audio','video','canvas'];
         for (var i = 0; i < htmlspace.length; i++) {
             tag = htmlspace[i];
             this.namespace[tag.toLowerCase()] = ['html',tag];
