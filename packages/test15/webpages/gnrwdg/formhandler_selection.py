@@ -85,7 +85,6 @@ class GnrCustomWebPage(object):
         tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
         tb.reloader.button('reload',fire='.reload')
         iv = frame.includedView(struct='regione',autoSelect=True)
-        
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',
                           r='^.regione',_fired='^.reload')
         center = bc.contentPane(region='center',border='1px solid blue')

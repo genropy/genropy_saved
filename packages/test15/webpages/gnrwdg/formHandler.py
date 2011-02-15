@@ -18,9 +18,7 @@ class GnrCustomWebPage(object):
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
         form = pane.frameForm(frameCode=frameCode,rounded_bottom=10,table='glbl.provincia',
                             store='recordCluster',store_startKey='*norecord*',**kwargs)
-        form.testToolbar(startKey=startKey)
-        #store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
-         #                      handler='recordCluster',startKey=startKey)  
+        form.testToolbar(startKey=startKey) 
         fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%")
         fb.formContent()
         return form
@@ -95,9 +93,9 @@ class GnrCustomWebPage(object):
         pane.dock(id='test_3_dock')
         pane.palettePane('province',title='Province',dockTo='test_3_dock',
                         _lazyBuild=True,
-                        palette_width='600px',palette_height='300px').formTester('form_palette')
+                        width='600px',height='300px').formTester('form_palette')
         pane.palettePane('province_remote',title='Province Remote',dockTo='test_3_dock',
-                        _lazyBuild='testPalette',palette_width='600px',palette_height='300px')
+                        _lazyBuild='testPalette',width='600px',height='300px')
 
     
     def test_5_formPane_palette_remote(self,pane):
