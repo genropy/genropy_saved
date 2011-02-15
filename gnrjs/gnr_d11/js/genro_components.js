@@ -199,7 +199,8 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
             center = centerNode._value;
         }else{
             centerPars['region'] = 'center';
-            center = bc._('ContentPane',objectUpdate(rounded,centerPars));
+            centerPars['widget'] = centerPars['widget'] || 'ContentPane'
+            center = bc._(centerPars['widget'],objectUpdate(rounded,centerPars));
         }
         return center;
     }
@@ -218,7 +219,9 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
                                                           formId:formId},kw));
         frame._('SlotBar',{'side':'bottom',slots:'*,messageBox,*',_class:'fh_bottom_message',messageBox_subscribeTo:'form_'+formId+'_message'});
         var storeId = kw.store+'_store';
-        frame._('ContentPane',{side:'center','_class':'fh_content','nodeId':formId+'_content',_lazyBuild:true});
+        var centerPars = objectExtract(kw,'center_*');
+        centerPars['widget'] = centerPars['widget'] || 'ContentPane';
+        frame._(centerPars['widget'],{side:'center','_class':'fh_content','nodeId':formId+'_content',_lazyBuild:true});
         return frame;
     }
 });
