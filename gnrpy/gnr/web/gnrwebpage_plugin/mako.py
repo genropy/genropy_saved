@@ -19,9 +19,9 @@ AUTH_FORBIDDEN = -1
 
 class Plugin(GnrBasePlugin):
     def __call__(self, *args, **kwargs):
-        dojo_theme=kwargs.get('dojo_theme',None)
-        striped=kwargs.get('striped','odd_row,even_row')
-        pdf=kwargs.get('pdf',False)
+        dojo_theme=kwargs.pop('dojo_theme',None)
+        striped=kwargs.pop('striped','odd_row,even_row')
+        pdf=kwargs.pop('pdf',False)
         mako_path=kwargs.get('mako_path')
         page = self.page
         dojo_theme = dojo_theme or getattr(self.page, 'dojo_theme', None) or 'tundra'
