@@ -34,6 +34,7 @@ class TableHandler(BaseComponent):
                     foundation/userobject:UserObject,foundation/dialogs"""
     css_requires = 'standard_tables/tablehandler'
     js_requires = 'standard_tables/tablehandler'
+    useNewForms=False
 
     def userCanWrite(self):
         return self.application.checkResourcePermission(self.tableWriteTags(), self.userTags)
@@ -110,7 +111,10 @@ class TableHandler(BaseComponent):
         pages, top, bottom = self.pbl_rootStackContainer(root, title='^list.title_bar', selected='^selectedPage',
                                                          _class='pbl_mainstack', nodeId='tablehandler_mainstack')
         self.pageList(pages)
-        self.pageForm(pages, bottom)
+        if self.useNewForms:
+            self.pageFormNew(pages)
+        else:
+            self.pageForm(pages)
         self.joinConditions()
 
         self.parsePageParameters(root, **kwargs)

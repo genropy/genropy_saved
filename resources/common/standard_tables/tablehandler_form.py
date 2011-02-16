@@ -23,7 +23,22 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class TableHandlerForm(BaseComponent):
-    def pageForm(self, pane, bottom):
+    def pageFormNew(self, sc):
+        form = sc.frameForm(frameCode='formPane',formId='formPane',datapath='form',controllerPath='gnr.forms.formPane',
+                            table=self.maintable,center_widget='BorderContainer',
+                            pkeyPath='.pkey',sqlContext=True,
+                            sqlContextName='sql_record',
+                            sqlContextRoot='form.record',
+                            sqlContextTable=self.maintable)
+        form.dataController("this.form.load({destPkey:pkey});",pkey="=list.selectedId",_fired='^form.doLoad')
+        store = form.formStore(storepath='.record',hander='recordCluster',storeType='Collection',onSaved='reload',
+                        parentStore='th_mainstore')
+        
+        form.top.slotToolbar('navigation,*,|,semaphore,|,formcommands,|,locker')
+        self.formBase(form,region='center')
+
+    
+    def pageForm(self, pane):
         bc = pane.borderContainer(nodeId='formRoot',
                                   sqlContextName='sql_record',
                                   sqlContextRoot='form.record',
@@ -31,9 +46,7 @@ class TableHandlerForm(BaseComponent):
         self.formController(bc)
         self.formToolbar(bc.contentPane(region='top', _class='sttbl_list_top'))
         self.formBase(bc, datapath='form.record', formId='formPane', disabled='^form.locked', region='center')
-        #if self.tblobj.logicalDeletionField:
-        #    self.setLogicalDeletionCheckBox(bottom['left'])
-        #
+
 
     def setLogicalDeletionCheckBox(self, elem):
         box = elem.div(_class='hidden_record_checkbox')

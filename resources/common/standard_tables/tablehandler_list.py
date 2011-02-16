@@ -162,13 +162,7 @@ class TableHandlerForm(BaseComponent):
                                         SET list.selectedId = pkey;
                                         FIRE form.doLoad = true;
                                     } 
-                                    /*else {
-                                        SET form.record = new gnr.GnrBag();
-                                        if (genro.formById("formPane")){
-                                        genro.formById("formPane").reset();}
-                                    }
-                                    if(idx == -2){}
-                                    */""",
+                                    """,
                             idx='^list.selectedIndex')
         pane.dataController("SET status.locked=true;", fired='^status.lock')
         pane.dataController("SET status.locked=false;", fired='^status.unlock', _if='unlockPermission',
@@ -454,6 +448,7 @@ class TableHandlerForm(BaseComponent):
 
         pane.data('list.tableRecordCount', self.tableRecordCount())
         pane.dataSelection('list.data_start', self.maintable, columns='=.columns',
+                            nodeId='th_mainstore_store',
                            where='=list.query.where', sortedBy='=list.grid.sorted',
                            pkeys='=list.query.pkeys', _fired='^list.runQueryDo',
                            selectionName='*', recordResolver=False, condition=condition,
