@@ -3,8 +3,6 @@ GenroPy
 
 GenroPy is a web framework for line-of-business applications in Python and Javascript.
 
-It aims to maximize developer productivity.
-
 License
 *******
 
