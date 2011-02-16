@@ -215,8 +215,8 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
         }
         var frameCode = kw.frameCode;
         formId = formId || frameCode+'_form';
-        var frame = sourceNode._('FramePane',objectUpdate({formDatapath:'.record',controllerPath:'.form',pkeyPath:'.pkey',
-                                                          formId:formId},kw));
+        var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.form',pkeyPath:'.pkey',
+        formId:formId},kw));
         frame._('SlotBar',{'side':'bottom',slots:'*,messageBox,*',_class:'fh_bottom_message',messageBox_subscribeTo:'form_'+formId+'_message'});
         var storeId = kw.store+'_store';
         var centerPars = objectExtract(kw,'center_*');

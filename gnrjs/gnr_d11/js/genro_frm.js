@@ -82,7 +82,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var storeId = storeCode+'_store';
             this.storeNode = genro.nodeById(storeId);
             var storepath = this.storeNode.attr.storepath;
-            this.formDatapath = this.formDatapath || storepath[0]=='.'?'#'+storeId+this.storeNode.attr.storepath:storepath;
+            this.formDatapath = this.sourceNode.attr.formDatapath || ((storepath[0]=='.')?('#'+storeId+this.storeNode.attr.storepath):storepath);
             contentSourceNode.attr.datapath = this.formDatapath;
             contentSourceNode.lazyBuildFinalize();
             this.formContentDomNode = contentSourceNode.widget.domNode;
@@ -461,8 +461,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
 
     openForm:function(idx, pkey) {
-        this.fireControllerData('openFormPkey',pkey);
-        this.fireControllerData('openFormIdx',idx);
+        if(this.store && false){
+            console.log('idx',idx,'pkey',pkey);
+            this.load({destPkey:pkey});
+        }else{
+            this.fireControllerData('openFormPkey',pkey);
+            this.fireControllerData('openFormIdx',idx);
+        }
     },
     getFormData: function() {
         return this.sourceNode.getRelativeData(this.formDatapath, true, new gnr.GnrBag());
