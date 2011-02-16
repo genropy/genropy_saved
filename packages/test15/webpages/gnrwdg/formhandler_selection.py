@@ -8,7 +8,7 @@ from gnr.web.gnrwebstruct import struct_method
 
 "Test formhandler selection store"
 class GnrCustomWebPage(object):
-    testOnly='_3_'
+    testOnly='_2_'
     user_polling=0
     auto_polling=0
     py_requires="""gnrcomponents/testhandler:TestHandlerFull,
@@ -58,8 +58,8 @@ class GnrCustomWebPage(object):
                 
     def test_2_linkedForm(self,pane):
         bc = pane.borderContainer(height='250px')
-        frame = bc.framePane('province',region='left',width='300px')
-        tb = frame.slotToolbar('*,selector,20,reloader',side='top')
+        frame = bc.framePane('province',region='left',width='300px',namespace='iv')
+        tb = frame.top.slotToolbar('*,selector,20,reloader')
         tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
         tb.reloader.button('reload',fire='.reload')
         iv = frame.includedView(struct='regione',autoSelect=True)
@@ -72,10 +72,7 @@ class GnrCustomWebPage(object):
                             dialog_height='300px',
                             dialog_width='400px')
         form.testToolbar()
-        saver = form.store.handler('save')
-        form.store.handler('save',prova='provola').addCallback('console.log("saved:",result);return result;')
-        form.store.handler('save',gatto='is still alive').addCallback('alert("saved"); return result;')
-        
+        saver = form.store.handler('save')        
         fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
     
     def test_3_linkedForm_pane(self,pane):
