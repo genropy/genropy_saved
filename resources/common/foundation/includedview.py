@@ -50,7 +50,7 @@ class IncludedView(BaseComponent):
             slots.append('*')
         if searchOn:
             slots.append('searchOn')
-        for slot,kw in (('add',add_kw),('del',del_kw),('upd',upd_kw)):
+        for slot,kw in (('iv_add',add_kw),('iv_del',del_kw),('iv_upd',upd_kw)):
             if kw:
                 slots.append(slot)
                 slotbarKwargs.update(kw)
@@ -61,15 +61,15 @@ class IncludedView(BaseComponent):
         return kwargs
         
     @struct_method
-    def ivnew_slotbar_add(self,pane,action=None,_class='icnBaseAdd',enable=None,**kwargs):
-        return pane.slotButton(label='!!Add',action=action,baseClass='no_background',iconClass=_class,visible=enable,nodeId='pierone')
+    def ivnew_slotbar_iv_add(self,pane,action=None,_class='icnBaseAdd',enable=None,**kwargs):
+        return pane.slotButton(label='!!Add',action=action,baseClass='no_background',iconClass=_class,visible=enable)
     
     @struct_method
-    def ivnew_slotbar_del(self,pane,action=None,_class='icnBaseDelete',enable=None,**kwargs):
+    def ivnew_slotbar_iv_del(self,pane,action=None,_class='icnBaseDelete',enable=None,**kwargs):
         return pane.slotButton(label='!!Delete',action=action,baseClass='no_background',iconClass=_class,visible=enable)
     
     @struct_method
-    def ivnew_slotbar_upd(self,pane,action=None,_class='icnBaseEdit',enable=None,**kwargs):
+    def ivnew_slotbar_iv_upd(self,pane,action=None,_class='icnBaseEdit',enable=None,**kwargs):
         return pane.slotButton(label='!!Delete',action=action,baseClass='no_background',iconClass=_class,visible=enable)
             
     @struct_method
@@ -99,7 +99,7 @@ class IncludedView(BaseComponent):
         
         if pane.attributes['tag'].lower()=='bordercontainer':
             pane.attributes['tag'] = 'ContentPane' 
-        frame = pane.framePane(frameCode=frameCode,datapath=datapath,**frame_kwargs)
+        frame = pane.framePane(frameCode=frameCode,namespace='iv',datapath=datapath,**frame_kwargs)
         kwargs = frame.top.adaptSlotbar(**kwargs)
         view = frame.includedView(_attachname='view',**kwargs)
         selectionPars = selectionPars or dict()
