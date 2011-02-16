@@ -1051,7 +1051,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var cb = function(result){
             that.loaded(currPkey,result);
         };
-        var kw =form.sourceNode.evaluateOnNode(this.handlers.load.kw)['kw'];
+        var kw =form.sourceNode.evaluateOnNode(this.handlers.load.kw);
         genro.rpc.remoteCall('loadRecordCluster',objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':form.getVirtualColumns(),
                                                   'table':this.table},kw),null,'POST',null,cb);
