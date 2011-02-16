@@ -241,13 +241,15 @@ class GnrDomSrc(GnrStructData):
                 table = self.attributes['table']
             if not storeCode:
                 storeCode = self.attributes['storeCode']
-            if not storepath:
-                storepath = '.record'
             else:
                 self.attributes['store'] = storeCode
+            if not storepath:
+                storepath = '.record'
+                
         assert storeCode,'storeCode mandatory for stores not attached to a form'
         return self.child('formStore',childname='formStore',storeCode=storeCode,table=table,
                             nodeId = nodeId or '%s_store' %storeCode,storeType=storeType,
+                            parentStore=parentStore,
                             storepath=storepath,handler=handler,**kwargs)
                             
     def formstore_handler(self,action,handler_type=None,**kwargs):
