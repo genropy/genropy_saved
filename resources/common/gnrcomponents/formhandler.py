@@ -29,69 +29,75 @@ class FormHandler(BaseComponent):
     py_requires='foundation/macrowidgets:SlotBar'
 
     @struct_method
-    def fh_slotbar_navigation(self,pane,**kwargs):
+    def fh_slotbar_form_navigation(self,pane,**kwargs):
         pane = pane.div(lbl='!!Navigation',_class='slotbar_group')
-        pane.slotbar_first()
-        pane.slotbar_prev()
-        pane.slotbar_next()
-        pane.slotbar_last()
+        pane.slotbar_form_first()
+        pane.slotbar_form_prev()
+        pane.slotbar_form_next()
+        pane.slotbar_form_last()
     
     @struct_method               
-    def fh_slotbar_semaphore(self,pane,**kwargs):
+    def fh_slotbar_form_semaphore(self,pane,**kwargs):
         pane.div(_class='fh_semaphore')
     
     @struct_method          
-    def fh_slotbar_formcommands(self,pane,**kwargs):
+    def fh_slotbar_form_formcommands(self,pane,**kwargs):
         pane = pane.div(lbl='!!Form Commands',_class='slotbar_group')
-        pane.slotbar_save()
-        pane.slotbar_revert()
-        pane.slotbar_delete()
+        pane.slotbar_form_save()
+        pane.slotbar_form_revert()
+        pane.slotbar_form_delete()
+        pane.slotbar_form_add()
 
     
     @struct_method          
-    def fh_slotbar_save(self,pane,**kwargs):
+    def fh_slotbar_form_save(self,pane,**kwargs):
         pane.formButton('!!Save',topic='save',iconClass="tb_button db_save", parentForm=True)
 
     @struct_method          
-    def fh_slotbar_revert(self,pane,**kwargs):
+    def fh_slotbar_form_revert(self,pane,**kwargs):
         pane.formButton('!!Revert',topic='load',iconClass="tb_button db_revert", parentForm=True)
     
     @struct_method          
-    def fh_slotbar_delete(self,pane,**kwargs):
+    def fh_slotbar_form_delete(self,pane,**kwargs):
         pane.formButton('!!Delete',topic='delete',iconClass="tb_button db_del",parentForm=True)
+    
+    @struct_method          
+    def fh_slotbar_form_add(self,pane,**kwargs):
+        pane.formButton('!!Add',topic='navigationEvent',command='add',
+                        iconClass="tb_button db_add",parentForm=True)
 
     @struct_method          
-    def fh_slotbar_first(self,pane,**kwargs):
+    def fh_slotbar_form_first(self,pane,**kwargs):
         pane.formButton('!!First',iconClass="tb_button icnNavFirst",
                     topic='navigationEvent',command='first',
                     formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
     
     @struct_method          
-    def fh_slotbar_prev(self,pane,**kwargs):
+    def fh_slotbar_form_prev(self,pane,**kwargs):
         pane.formButton('!!Prev',iconClass="tb_button icnNavPrev",
                     topic='navigationEvent',command='prev',
                     formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
     
     @struct_method          
-    def fh_slotbar_next(self,pane,**kwargs):
+    def fh_slotbar_form_next(self,pane,**kwargs):
         pane.formButton('!!Next',iconClass="tb_button icnNavNext",
                     topic='navigationEvent',command='next',
                     formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
     
     @struct_method          
-    def fh_slotbar_last(self,pane,**kwargs):
+    def fh_slotbar_form_last(self,pane,**kwargs):
         pane.formButton('!!Last',iconClass="tb_button icnNavLast",
                     topic='navigationEvent',command='last',
                     formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
 
     @struct_method           
     def fh_formButton(self,pane,label=None,iconClass=None,topic=None,command=True,**kwargs):
-        pane.button(label, lbl=label,iconClass=iconClass,topic=topic,
-                    action='this.form.publish(topic,command);',command=command,
-                    showLabel=False,**kwargs)
+        pane.slotButton(label, lbl=label,iconClass=iconClass,topic=topic,
+                    action='this.form.publish(topic,{command:command,modifiers:genro.dom.getEventModifiers(event)});',command=command,
+                    **kwargs)
     
     @struct_method 
-    def fh_slotbar_locker(self,pane,**kwargs):
+    def fh_slotbar_form_locker(self,pane,**kwargs):
         pane.button('!!Locker',width='20px',iconClass='icnBaseUnlocked',showLabel=False,
                     action='this.form.publish("setLocked","toggle");',
                     formsubscribe_onLockChange="""var locked= $1.locked;
