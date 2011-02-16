@@ -22,18 +22,16 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.web.gnrwebstruct import struct_method
 
-
 def _getTreeRowCaption(tblobj):
     if hasattr(tblobj, 'treeRowCaption'):
         return tblobj.treeRowCaption()
     return  '$child_code,$description:%s - %s'
-
+    
 def _getTreeRowCaption2(tblobj):
     if hasattr(tblobj, 'treeRowCaption'):
         return tblobj.treeRowCaption()
     return  '$child_code'
-
-
+    
 class HTableResolver(BagResolver):
     classKwargs = {'cacheTime': 300,
                    'readOnly': False,
@@ -46,7 +44,7 @@ class HTableResolver(BagResolver):
                    'extra_columns':None,
                    '_page': None}
     classArgs = ['table', 'rootpath']
-
+    
     def loadRelated(self, pkey):
         print 'loadRelated'
         db = self._page.db
@@ -60,11 +58,11 @@ class HTableResolver(BagResolver):
                              pkey=row['pkey'], code=row['code'],
                              node_class='tree_related')
         return children
-
+        
     def load(self):
         if self.rootpath and self.rootpath.startswith('*related*'):
             return self.loadRelated(self.rootpath.split(':')[1])
-
+            
         db = self._page.db
         tblobj = db.table(self.table)
         columns = '$code,$parent_code,$description,$child_code,$child_count,$rec_type'
@@ -93,7 +91,7 @@ class HTableResolver(BagResolver):
                                        related_table=self.related_table,
                                        _page=self._page)
                 child_count = 1
-
+                
             else:
                 value = None
             description = row['description']
@@ -109,10 +107,10 @@ class HTableResolver(BagResolver):
                              parent_code=row['parent_code'], description=row['description'],
                              _record=dict(row))#_attributes=dict(row),
             #
-
+            
         children.sort('#a.caption')
         return children
-
+        
     def setRelatedChildren(self, children):
         db = self._page.db
         related_tblobj = db.table(self.related_table)
@@ -125,11 +123,11 @@ class HTableResolver(BagResolver):
                                  caption=caption,
                                  pkey=related_row['pkey'], code=related_row['code'],
                                  node_class='tree_related')
-
+                                 
     def resolverSerialize(self):
         self._initKwargs.pop('_page')
         return BagResolver.resolverSerialize(self)
-
+        
 class HTableHandlerBase(BaseComponent):
     @struct_method
     def ht_htableStore(self, pane, table=None, related_table=None, relation_path=None, storepath='.store', **kwargs):
@@ -144,8 +142,7 @@ class HTableHandlerBase(BaseComponent):
                                      relation_path=relation_path,
                                      rootcaption=tblobj.name_plural, **kwargs)
         pane.data(storepath, data)
-    
-    
+        
     def ht_treeDataStore(self, table=None, rootpath=None,
                          related_table=None,
                          relation_path=None,
@@ -188,11 +185,11 @@ class HTableHandlerBase(BaseComponent):
         result.setItem(rootlabel, value, child_count=child_count, caption=caption, pkey=pkey, code=code,
                        rec_type=rec_type, checked=False,_record=dict(row))
         return result
-
+        
 class HTableHandler(HTableHandlerBase):
     py_require = 'gnrcomponents/selectionhandler:SelectionHandler'
     css_requires = 'public'
-
+    
     def htableHandler(self, parent, nodeId=None, datapath=None, table=None, rootpath=None, label=None,
                       editMode='bc', childTypes=None, dialogPars=None, loadKwargs=None, parentLock=None,
                       where=None, onChecked=None, plainView=False, childsCodes=False, noRecordClass='noRecordSelected'):
@@ -221,68 +218,66 @@ class HTableHandler(HTableHandlerBase):
                                        table=table)
             else:
                 childsCodesDiv.dataRpc(childsCodes, 'getChildsIds', field=None, code='^.edit.record.code', table=table)
-
+                
         if parentLock:
             parent.dataController("SET .edit.status.locked=parentLock;", parentLock=parentLock, datapath=datapath)
             parent.dataController("""SET %s=isLocked;""" % parentLock[1:],
                                   parentLock=parentLock, isLocked='^.edit.status.locked',
                                   _if='parentLock!=isLocked', datapath=datapath)
-
+                                  
         formPanePars = dict(selectedPage='^.edit.selectedPage', _class='pbl_roundedGroup')
-
+        
         if plainView:
             tc = parent.tabContainer(nodeId='%s_tc' % nodeId, region='center')
             parent = tc.contentPane(title='!!Hierarchical')
             self.ht_plainView(tc.borderContainer(title='!!Plain', datapath=datapath), table=table, nodeId=nodeId,
                               disabled=disabled,
                               rootpath=rootpath, editMode=editMode, label=label)
-
+                              
         if editMode == 'bc':
             bc = parent.borderContainer(region='center', datapath=datapath, nodeId=nodeId, margin='2px')
             treepane = bc.borderContainer(region='left', width='220px', splitter=True, _class='pbl_roundedGroup')
             formPanePars['region'] = 'center'
             formBC = bc.borderContainer(region='center')
             commonTop = bc.contentPane(region='top', overflow='hidden')
-
-
-
+            
         elif editMode == 'sc':
             sc = parent.stackContainer(region='center', datapath=datapath, nodeId=nodeId,
                                        selectedPage='^.selectedPage', margin='2px')
             treepane = sc.borderContainer(pageName='tree', _class='pbl_roundedGroup')
             formPanePars['pageName'] = 'edit'
             formBC = sc.borderContainer(region='center')
-
+            
         elif editMode == 'dlg':
             assert dialogPars, 'for editMode == "dlg" dialogPars are mandatory'
             treepane = parent.borderContainer(region='center', datapath=datapath, nodeId=nodeId, margin='2px',
                                               _class='pbl_roundedGroup')
             formBC = self.simpleDialog(treepane, dlgId='%s_dlg' % nodeId, **dialogPars)
             formPanePars['region'] = 'center'
-
+            
             #recordlabel = formBC.contentPane(region='top',_class='pbl_roundedGroupLabel')
             #recordlabel.div('^.edit.record?caption')
         if editMode == 'dlg':
             footer = formBC.contentPane(region='bottom', _class='pbl_roundedGroupBottom')
             footer.button('!!Close', fire='.close')
         formpane = formBC.stackContainer(pageName='edit', **formPanePars)
-
+        
         self.ht_tree(treepane, table=table, nodeId=nodeId, disabled=disabled,
                      rootpath=rootpath, childTypes=childTypes, editMode=editMode, label=label, onChecked=onChecked)
         self.ht_edit(formpane, table=table, nodeId=nodeId, disabled=disabled,
                      rootpath=rootpath, editMode=editMode, loadKwargs=loadKwargs,
                      childTypes=childTypes, commonTop=commonTop, noRecordClass=noRecordClass)
-
+                     
     def rpc_getChildsIds(self, code=None, field=None, table=None):
         field = field or 'code'
         records = self.db.table(table).query(field, where='($code LIKE :code)', code='%s%%' % code,
                                              addPkeyColumn=False).fetch()
         return str([str(f[field]) for f in records]) + '::JS'
-
+        
     def ht_edit_dlg_bottom(self, bc, **kwargs):
         bottom = bc.contentPane(**kwargs)
         bottom.button('!!Close', fire='.close')
-
+        
     def ht_edit(self, sc, table=None, nodeId=None, disabled=None, rootpath=None, editMode=None, loadKwargs=None,
                 childTypes=None, commonTop=None, noRecordClass=''):
         formId = '%s_form' % nodeId
@@ -305,7 +300,7 @@ class HTableHandler(HTableHandlerBase):
                              SET .edit.status.lockLabel = isLocked?unlockLabel:lockLabel;
                                """, isLocked="^.edit.status.locked", lockLabel='!!Lock',
                                unlockLabel='!!Unlock')
-
+                               
         self.ht_edit_toolbar(toolbar, nodeId=nodeId, disabled=disabled, editMode=editMode, childTypes=childTypes)
         bc.dataController("""
                             if(pkey){
@@ -326,7 +321,7 @@ class HTableHandler(HTableHandlerBase):
                                 """ % (nodeId, nodeId), rootpath='=.tree.store?rootpath',
                           selPkey='^.tree.pkey', currPkey='=.edit.pkey', _if='selPkey && (selPkey!=currPkey)',
                           formId=formId)
-
+                          
         bc.dataController("""
                              var rootpath = rootpath || null;
                              if (destPkey!='*newrecord*' && !oldChildCode){
@@ -358,7 +353,7 @@ class HTableHandler(HTableHandlerBase):
                             }
                             SET .tree.path=path;""", code="^.edit.record.code",
                           rootpath='=.tree.store?rootpath', _if='code')
-
+                          
         bc.dataRpc('.edit.del_result', 'deleteDbRow', pkey='=.edit.pkey',
                    _POST=True, table=table, _delStatus='^.edit.delete',
                    _if='_delStatus=="confirm"', _else='genro.dlg.ask(title,msg,null,"#%s.edit.delete")' % nodeId,
@@ -368,7 +363,7 @@ class HTableHandler(HTableHandlerBase):
                                  var path = path.join('.');
                                  $2.treestore.getNode(path).refresh(true)
                                  SET .tree.path = path;""", currpath='=.tree.path', treestore='=.tree.store')
-
+                                 
         getattr(self, formId)(bc, region='center', table=table,
                               datapath='.edit.record', controllerPath='#%s.edit.form' % nodeId,
                               formId=formId,
@@ -383,7 +378,7 @@ class HTableHandler(HTableHandlerBase):
                        table=table, onSaved='FIRE .onSaved;',
                        #onSaving='console.log($1.getNode("child_code"))',
                        rowcaption=_getTreeRowCaption(self.db.table(table)))
-
+                       
     def _ht_add_button(self, pane, childTypes=None, disabled=None):
         if childTypes:
             storepath = childTypes
@@ -397,7 +392,7 @@ class HTableHandler(HTableHandlerBase):
                            margin='2px', _class='buttonIcon icnBaseAdd', showLabel=False,
                            visible='==_tree_caption!=null',
                            _tree_caption='^.tree.caption', _storepath=storepath)
-
+                           
             ddb.menu(storepath=storepath, modifiers='*', _class='smallmenu',
                      action="SET .edit.childType = $1.fullpath; FIRE .edit.add_button;")
         else:
@@ -405,8 +400,7 @@ class HTableHandler(HTableHandlerBase):
                         iconClass='icnBaseAdd', showLabel=False,
                         fire='.edit.add_button', visible='==tree_caption!=null',
                         tree_caption='^.tree.caption')
-
-
+                        
     def ht_edit_toolbar(self, toolbar, nodeId=None, disabled=None, editMode=None, childTypes=None):
         nav = toolbar.div(float='left').div(float='left', nodeId='%s_nav' % nodeId, font_size='.9em')
         self._ht_add_button(toolbar.div(float='left'), childTypes=childTypes, disabled=disabled)
@@ -439,7 +433,7 @@ class HTableHandler(HTableHandlerBase):
                                record_label='^.tree.caption',
                                tree_code='=.tree.code',
                                add_label='!!Add')
-
+                               
         toolbar.dataController("""
                                   if(modifier=="Shift"){
                                         SET .edit.defaults.parent_code = GET .edit.record.parent_code;
@@ -451,9 +445,9 @@ class HTableHandler(HTableHandlerBase):
                                   
                                 """, tree_code='=.tree.code',
                                modifier="^.edit.add_button")
-
+                               
         buttons = toolbar.div(float='right')
-
+        
         spacer = buttons.div(float='right', _class='button_placeholder')
         spacer.button(label='^.edit.status.lockLabel', fire='.edit.status.changelock',
                       iconClass="^.edit.status.statusClass", showLabel=False)
@@ -485,11 +479,10 @@ class HTableHandler(HTableHandlerBase):
                        visible='^.edit.enableDelete',
                        float='right')
         toolbar.dataFormula('.edit.enableDelete', 'child_count==0', child_count='^.tree.child_count')
-
+        
         if editMode == 'sc':
             toolbar.button('!!Tree', action="SET .selectedPage = 'tree';")
-
-
+            
     def ht_plainView(self, bc, table=None, nodeId=None, disabled=None,
                      rootpath=None, editMode=None, label=None):
         gridId = '%s_grid' % nodeId
@@ -507,21 +500,20 @@ class HTableHandler(HTableHandlerBase):
                               selectionPars=getattr(self, '%s_selectionPars' % gridId, default_selectionPars),
                               dialogPars=dialogPars,
                               filterOn=getattr(self, '%s_filterOn' % gridId, '$code,$description'))
-
-
+                              
     def ht_tree(self, bc, table=None, nodeId=None, rootpath=None, disabled=None,
                 childTypes=None, editMode=None, label=None, onChecked=None):
         if editMode != 'bc':
             top = bc.contentPane(region='top', _class='pbl_roundedGroupLabel')
             top.div(label, float='left')
             self._ht_add_button(top.div(float='left'), disabled=disabled, childTypes=childTypes)
-
+            
         tblobj = self.db.table(table)
         center = bc.contentPane(region='center')
         center.data('.tree.store', self.ht_treeDataStore(table=table, rootpath=rootpath, rootcaption=tblobj.name_plural)
                     ,
                     rootpath=rootpath)
-
+                    
         connect_ondblclick = None
         if editMode == 'sc':
             connect_ondblclick = 'SET .selectedPage = "edit";'
@@ -538,11 +530,10 @@ class HTableHandler(HTableHandlerBase):
                     selected_child_count='.tree.child_count',
                     connect_ondblclick=connect_ondblclick,
                     onChecked=onChecked)
-
-
+                    
 class HTablePicker(HTableHandlerBase):
     py_requires = 'foundation/dialogs,foundation/includedview:IncludedView'
-
+    
     def htablePicker(self, parent, table=None, rootpath=None, limit_rec_type=None,
                      input_codes=None,
                      output_codes=None,
@@ -559,15 +550,14 @@ class HTablePicker(HTableHandlerBase):
                                 datapath=datapath, dialogPars=dialogPars, grid_struct=grid_struct,
                                 grid_columns=grid_columns, editMode=editMode,
                                 condition=condition, condition_pars=condition_pars)
-
-
+                                
     def htablePickerOnRelated(self, parent, table=None, rootpath=None, limit_rec_type=None,
                               input_pkeys=None, output_pkeys=None,
                               related_table=None, relation_path=None,
                               nodeId=None, datapath=None, dialogPars=None,
                               caption=None, grid_struct=None, grid_columns=None,
                               grid_applymethod=None,
-
+                              
                               grid_filter=None, default_checked_row=None,
                               condition=None, condition_pars=None, editMode=None, **kwargs):
         self._htablePicker_main(parent, table=table, rootpath=rootpath,
@@ -581,8 +571,7 @@ class HTablePicker(HTableHandlerBase):
                                 grid_applymethod=grid_applymethod,
                                 condition=condition, condition_pars=condition_pars, editMode=editMode,
                                 default_checked_row=default_checked_row)
-
-
+                                    
     def _htablePicker_main(self, parent, table=None, rootpath=None, limit_rec_type=None,
                            input_pkeys=None,
                            input_codes=None,
@@ -606,7 +595,7 @@ class HTablePicker(HTableHandlerBase):
             column??
             resultpath
             """
-
+            
         editMode = editMode or 'dlg'
         grid_where = '$code IN :codes'
         if related_table:
@@ -614,7 +603,7 @@ class HTablePicker(HTableHandlerBase):
         if condition:
             grid_where = '%s AND %s' % (grid_where, condition)
         condition_pars = condition_pars or dict()
-
+            
         tblobj = self.db.table(table)
         default_width = '300px'
         if grid_show:
@@ -627,7 +616,7 @@ class HTablePicker(HTableHandlerBase):
                       grid_applymethod=grid_applymethod,
                       default_checked_row=default_checked_row,
                       output_related_pkeys=output_related_pkeys)
-
+                      
         if editMode == 'dlg':
             dialogPars = dialogPars or dict()
             dialogPars['title'] = dialogPars.get('title', '%s picker' % tblobj.name_long)
@@ -645,18 +634,18 @@ class HTablePicker(HTableHandlerBase):
             bc.dataController("genro.formById(fid).load()", _onStart=True, fid=nodeId,
                               **{"subscribe_%s_open" % nodeId: True})
             # bc.dataController("genro.formById(fid).load()",_onStart=True,fid=nodeId,**{"subscribe_%s_open" %nodeId:True)
-
+            
             #bottom.button('!!Confirm', action='genro.formById(fid).save(true})',
             #                fid=nodeId,float='right')
             bc.dataController('genro.formById(fid).loaded();', fid=nodeId, _fired="^.loaded")
             bc.dataController('genro.formById(fid).saved();', fid=nodeId, _fired="^.saved")
-
+            
             self.ht_pk_center(bc, region='center',
                               formId=nodeId, #form parameter
                               datapath='.data', #form parameter
                               controllerPath='#%s.form' % bcId, #form parameter
                               **params)
-
+                              
         bc.dataRpc('.data.tree', 'ht_pk_getTreeData', table=table,
                    rootpath=rootpath, rootcaption=tblobj.name_plural,
                    input_pkeys=input_pkeys, input_codes=input_codes,
@@ -672,17 +661,17 @@ class HTablePicker(HTableHandlerBase):
                                         FIRE .preview_grid.load;
                                      }
                                      FIRE .loaded;""", _grid_show=grid_show)
-
+                                     
         bc.dataController("""   PUBLISH %s_confirmed; 
                                 FIRE .saved;""" % nodeId,
                           nodeId="%s_saver" % nodeId)
-
+                          
         bc.dataController("""
                             FIRE .prepare_check_status;
                             FIRE .preview_grid.load;
                             """,
                           **{'subscribe_%s_tree_checked' % nodeId: True})
-
+                          
         bc.dataController("""
                             var result_codes = [];
                             var result_pkeys = [];
@@ -704,8 +693,7 @@ class HTablePicker(HTableHandlerBase):
                           _fired="^.prepare_check_status", output_codes=output_codes or False,
                           output_pkeys=output_pkeys or False,
                           treedata='=.data.tree')
-
-
+                          
     def rpc_ht_pk_getTreeData(self, table=None, rootpath=None, limit_rec_type=None, rootcaption=None,
                               input_codes=None, input_pkeys=None, related_table=None,
                               relation_path=None):
@@ -721,7 +709,7 @@ class HTablePicker(HTableHandlerBase):
                                       pkeys=input_pkeys, distinct=True, addPkeyColumn=False)
                 input_codes = q.fetch()
                 input_codes = [r['hcode'] for r in input_codes]
-
+                
         if input_codes:
             if isinstance(input_codes, basestring):
                 input_codes = input_codes.split(',')
@@ -731,7 +719,7 @@ class HTablePicker(HTableHandlerBase):
                     node.setAttr(checked=True)
             self._ht_pk_setParentStatus(result)
         return result
-
+            
     def _ht_pk_setParentStatus(self, bag):
         for node in bag.nodes:
             value = node.getValue('static')
@@ -747,8 +735,7 @@ class HTablePicker(HTableHandlerBase):
                 else:
                     checked = -1
                 node.attr['checked'] = checked
-
-
+                
     def ht_pk_center(self, parentBC, table=None, formId=None, datapath=None,
                      controllerPath=None, region=None, caption=None, grid_struct=None, grid_columns=None,
                      grid_applymethod=None,
@@ -771,16 +758,14 @@ class HTablePicker(HTableHandlerBase):
             treepane = parentBC.contentPane(region=region, datapath=datapath, formId=formId,
                                             controllerPath=controllerPath)
         self._ht_pk_tree(treepane, caption=caption, formId=formId)
-
-
+            
     def _ht_pk_tree(self, pane, caption=None, formId=None, *kwargs):
         pane.tree(storepath='.tree._root_', font_size='.9em',
                   isTree=False, hideValues=True,
                   _fired='^.#parent.reload_tree',
                   nodeId='%s_tree' % formId, eagerCheck=True,
                   inspect='shift', labelAttribute='caption', onChecked=True)
-
-
+                  
     def _ht_pk_view(self, bc, caption=None, gridId=None, table=None, grid_columns=None,
                     grid_applymethod=None,
                     grid_struct=None, grid_where=None, condition_pars=None, related_table=None,
@@ -817,7 +802,7 @@ class HTablePicker(HTableHandlerBase):
                                                 """, checked_row_default=default_checked_row,
                                                 applymethod=grid_applymethod, **condition_pars),
                              )
-
+                             
         bc.dataController("""
                             var l = [];
                             selection.forEach(function(n){
@@ -829,9 +814,4 @@ class HTablePicker(HTableHandlerBase):
                             """, _fired="^.set_output_pkeys", selection='=.preview_grid.selection',
                           output_related_pkeys=output_related_pkeys, _if='output_related_pkeys',
                           **{'subscribe_%s_row_checked' % gridId: True})
-        
-                         
-        
-        
-        
-
+                          
