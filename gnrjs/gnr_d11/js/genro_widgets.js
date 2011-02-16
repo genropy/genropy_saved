@@ -410,9 +410,10 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         }
         return sourceNode.savedAttrs;
     },
+
+    
     created:function(newobj, savedAttrs, sourceNode) {
         if (savedAttrs.rowcount && savedAttrs.tableid) {
-
             var rowcount = savedAttrs.rowcount;
             var tableid = savedAttrs.tableid;
             var fnc = dojo.hitch(newobj, function() {
@@ -482,6 +483,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         }
 
     }
+    
 });
 
 dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {

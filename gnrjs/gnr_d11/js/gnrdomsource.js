@@ -805,7 +805,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     publish:function(msg,kw,recursive){
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+msg;
-        genro.publish(topic,kw);
+        dojo.publish(topic,[kw]);
         if (recursive){
             var children =this.getValue('static');
             if (children instanceof gnr.GnrDomSource){

@@ -103,7 +103,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
-        genro.publish('form_'+this.form_id+'_'+command,kw);
+        dojo.publish('form_'+this.form_id+'_'+command,[kw]);
     },
     subscribe: function(command,cb,scope){
         if(command.indexOf(',')>=0){

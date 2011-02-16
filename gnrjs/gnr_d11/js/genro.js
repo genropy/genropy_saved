@@ -44,16 +44,6 @@ dijit.showTooltip = function(/*String*/ innerHTML, /*DomNode*/ aroundNode) {
     }
     return dijit._masterTT.show(tooltip_text, aroundNode);
 };
-/*String.prototype.startswith=function(start_string){
- len=start_string.length;
- if (this.slice(0,len)==start_string){
- return true
- }
- else
- {
- return false;
- }
- };*/
 
 /* ----------- Class gnr.GenroClient ----------------*/
 dojo.declare('gnr.GenroClient', null, {
@@ -822,14 +812,43 @@ dojo.declare('gnr.GenroClient', null, {
         var objId = object.widgetId;
         dojo.subscribe(objId + '/' + eventname, obj, func);
     },
-    publish:function(topic) {
-        var args = [];
-        for (var i = 1; i < arguments.length; i++) {
-            args.push(arguments[i]);
+    publish:function(topic,kw) {
+        var args = [];  
+        if(typeof(topic)=='string'){
+            //console.log('publishing:'+topic,args);
+            //console.log(args)
+            for (var i = 1; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+            dojo.publish(topic, args);
+            return
         }
-        //console.log('publishing:'+topic,args);
-        //console.log(args)
-        dojo.publish(topic, args);
+        var broadcast=topic['broadcast'];
+        var parent=topic['parent'];
+        var kw=topic['kw'] || kw
+        if('nodeId' in topic){
+            var node= genro.nodeById(topic['nodeId'])
+            if (node){node.publish(topic['topic'],kw);}
+        }else if('form' in topic){
+            var form=genro.getForm(topic['form'])
+            if (form){
+                form.publish(topic['topic'],kw);
+            }
+        }
+        else{
+            dojo.publish(topic['topic'], kw);
+        }
+
+        if (broadcast){
+            dojo.forEach(window.frames,function(f){
+                if (f.genro){
+                    f.genro.publish(topic,kw);
+                }
+            })
+        }
+        if(parent && window.parent && window.parent.genro ){
+            window.parent.genro.publish(topic,kw);
+        }
     },
     absoluteUrl: function(url, kwargs, avoidCache) {
         var base = document.location.pathname;
@@ -907,7 +926,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     getForm:function(frameCode){
         var frameNode = genro.getFrameNode(frameCode);
-        return frameNode.form;
+        return frameNode?frameNode.form:null
     },
     getStore:function(storeCode){
         return genro.nodeById(storeCode+'_store');

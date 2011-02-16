@@ -21,8 +21,7 @@ class GnrCustomWebPage(object):
         top = frame.top.slotBar(slots='foo')
         fb =top.foo.formbuilder(cols=1, border_spacing='2px')
         fb.dbselect(value="^.prov",dbtable="glbl.provincia",lbl='Provincia')
-        fb.dataController("""SET currentPage=pageName;
-                             genro.domById('test_iframe_inside').contentWindow.genro.getForm('baseform').publish('load',{destPkey:pkey});
+        fb.dataController("""SET currentPage=pageName;genro.publish({'topic':'load','broadcast':true,'form':'baseform'},{destPkey:pkey});
                          """,pkey="^.prov",pageName='test_iframe_inside')
         #rpc = fb.dataRpc('dummy','setInFrame',prov='^.prov',framePageId='=frame.test1.page_id')
         #rpc.addCallback('SET currentPage="test_iframe_inside";')
