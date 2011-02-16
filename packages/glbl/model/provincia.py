@@ -12,17 +12,12 @@ class Table(object):
         tbl.column('ordine', 'L', name_long='Ordine Gnr')
         tbl.column('ordine_tot', size='6', name_long='Ordine tot Gnr')
         tbl.column('cap_valido', size='2', name_long='CAP Valido')
-
         
     def baseView_cap(self):
         return "nome,cap_valido"
         
-    
     def baseView_regione(self):
         return "nome:60%,@regione.nome/Regione:40%"
-    
+        
     def baseView_full(self):
         return "sigla:10%,@regione.nome/Regione:40%,nome:20%,@regione.zona:30%"
-
-
-

@@ -9,5 +9,3 @@ class Table(object):
         tbl.column('codice_istat', size='2', name_long='Codice Istat')
         tbl.column('ordine', size='6', name_long='Ordine Gnr')
         tbl.column('zona', size='6', name_long='Zona')
-
-
