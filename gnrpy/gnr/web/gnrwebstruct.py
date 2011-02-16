@@ -215,7 +215,7 @@ class GnrDomSrc(GnrStructData):
                 table = storeNode.attr['table']
         center_content = kwargs.pop('center_content',None)
         frame = self.child('FrameForm',formId=formId,frameCode=frameCode,
-                            storeCode=storeCode,table=table,
+                            namespace='form',storeCode=storeCode,table=table,
                           autoslots='top,bottom,left,right,center',**kwargs)
         if store:
             if store is True:
@@ -595,14 +595,18 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 kwargs['height'] = dialog_kwargs.pop('height')
             if 'width' in dialog_kwargs:
                 kwargs['width'] = dialog_kwargs.pop('width')
-                dialog_kwargs['closable'] = dialog_kwargs.get('closable',True)
+                dialog_kwargs['closable'] = dialog_kwargs.get('closable','publish')
                 dialog_kwargs[loadSubscriber] = "this.widget.show();"
+                dialog_kwargs['selfsubscribe_dismiss'] = "this.widget.hide();"
+                dialog_kwargs['selfsubscribe_close'] = """genro.getForm('%s').publish('navigationEvent',{'command':'dismiss',modifiers:$1.modifiers});
+                                                            """ %frameCode
             formRoot = self.parent.dialog(**dialog_kwargs)
         elif palette_kwargs:
-            palette_kwargs[loadSubscriber] = "this.widget.show()"
+            palette_kwargs[loadSubscriber] = "this.widget.show();"
+            palette_kwargs['selfsubscribe_dismiss'] = "this.widget.hide();"
             formRoot = self.parent.palettePane(**palette_kwargs)
-        form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=self.attributes.get('table'),store=store,
-                                  **kwargs)
+        form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=self.attributes.get('table'),
+                                 store=store,**kwargs)
         if self.attributes['tag'].lower()=='includedview':
             viewattr = self.attributes
             storeattr = form.store.attributes
@@ -772,7 +776,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         kwargs['_class'] = 'frame_footer'
         return self.slotBar(*args,**kwargs)
         
-    def slotBar(self,slots=None,slotbarCode=None,**kwargs):
+    def slotBar(self,slots=None,slotbarCode=None,namespace=None,**kwargs):       
+        namespace = namespace or self.parent.attributes.get('namespace')
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,**kwargs)
         kwargs = tb.attributes
         slots = gnrstring.splitAndStrip(str(slots))
@@ -783,7 +788,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 s=tb.child('slot',name=slot)
                 slothandle = getattr(s,'%s_%s' %(prefix,slot),None)
                 if not slothandle:
-                    slothandle = getattr(s,'%s_%s' %('slotbar',slot),None)
+                    if namespace:
+                        slothandle = getattr(s,'slotbar_%s_%s' %(namespace,slot),None)
+                    if not slothandle:
+                        slothandle = getattr(s,'slotbar_%s' %slot,None)
                 if slothandle:
                     kw = dict()
                     kw[slot] = kwargs.pop(slot,None)
