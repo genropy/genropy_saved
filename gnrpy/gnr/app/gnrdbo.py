@@ -103,18 +103,17 @@ class GnrDboPackage(object):
     def getPreference(self, path, dflt=None):
         """Get a preference for the current package.
         
-        :param path: dotted name of the preference item.
-        :param dflt: default value.
-        :returns:    value of the specified preference, or **dflt** if it is 
-                     missing.
+        :param path: dotted name of the preference item
+        :param dflt: default value. Default value is ``None``
+        :returns: value of the specified preference, or **dflt** if it is missing.
         """
         return self.db.table('adm.preference').getPreference(path, pkg=self.name, dflt=dflt)
 
     def setPreference(self, path, value):
         """Set a preference for the current package.
         
-        :param path:  dotted name of the preference item.
-        :param value: new value.
+        :param path: dotted name of the preference item
+        :param value: new value
         """
         self.db.table('adm.preference').setPreference(path, value, pkg=self.name)
 
@@ -122,17 +121,20 @@ class TableBase(object):
     """add???
     """
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, group='zzz', group_name='!!System'):
-        """add???
+        """Add some useful columns for tables management (*in primis*, the ``id`` column)
         
-        :param tbl: add???
-        :param id: add???. Default value is ``True``
-        :param ins: add???. Default value is ``True``
-        :param upd: add???. Default value is ``True``
-        :param ldel: add???. Default value is ``True``
-        :param md5: add???. Default value is ``True``
+        :param tbl: a database table
+        :param id: if True, insert the ``id`` column. It is normally used as the primary key of a table.
+                   Default value is ``True``
+        :param ins: if True, insert the ``__ins_ts`` column. Allow to know the time (date and hour)
+                    of the entry of a record. Default value is ``True``
+        :param upd: if True, insert the ``__mod_ts`` column. Allow to know the time (date and hour)
+                    of a modify on a record. Default value is ``True``
+        :param ldel: if True, insert the ``__del_ts`` column. Allow to know the time (date and hour)
+                     of the delete of a record. Default value is ``True``
+        :param md5: add???. Default value is ``False``
         :param group: add???. Default value is ``zzz``
         :param group_name: add???. Default value is ``!!System``
-        :returns: add???
         """
         if id:
             tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id')
@@ -160,7 +162,7 @@ class TableBase(object):
         audit = tbl.attributes.get('audit')
         if audit:
             tbl.column('__version','L',name_long='Audit version',onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
-
+            
     def trigger_setTSNow(self, record, fldname):
         """add???
         
@@ -236,7 +238,6 @@ class GnrHTable(TableBase):
         """add???
         
         :param tbl: add???
-        :returns: add???
         """
         columns = tbl['columns'] or []
         if not 'code' in columns:
@@ -246,7 +247,7 @@ class GnrHTable(TableBase):
         if not 'child_code' in columns:
             tbl.column('child_code', name_long='!!Child code', validate_notnull=True,
                        validate_notnull_error='!!Required', base_view=True,
-                       validate_regex='!\.', validate_regex_error='!!Invalid code:"." char is not allowed',
+                       validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed',
                        #unmodifiable=True
                        )
         tbl.column('parent_code', name_long='!!Parent code').relation('%s.code' % tbl.parentNode.label)
@@ -314,7 +315,7 @@ class Table_counter(TableBase):
         :returns: add???
         """
         return True
-
+        
     def config_db(self, pkg):
         """add???
         

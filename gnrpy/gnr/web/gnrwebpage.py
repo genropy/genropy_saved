@@ -526,37 +526,40 @@ class GnrWebPage(GnrBaseWebPage):
         for media in css_genro.keys():
             css_genro[media] = [self.mtimeurl(self.gnrjsversion, 'css', '%s.css' % f) for f in css_genro[media]]
         return css_genro
-
+        
     def _get_domSrcFactory(self):
         return self.frontend.domSrcFactory
-
+        
     domSrcFactory = property(_get_domSrcFactory)
-
+        
     def newSourceRoot(self):
         return self.domSrcFactory.makeRoot(self)
-
+        
     def newGridStruct(self, maintable=None):
+        """add???
+        
+        :param maintable: add???. Default value is ``None``
+        :returns: add???
+        """
         return GnrGridStruct.makeRoot(self, maintable=maintable)
-
-
+        
     def _get_folders(self):
         return {'pages': self.site.pages_dir,
                 'site': self.site.site_path,
                 'current': os.path.dirname(self.filepath)}
-
-        #
+                
     def pageStore(self, page_id=None, triggered=True):
         page_id = page_id or self.page_id
         return self.site.register.pageStore(page_id, triggered=triggered)
-
+        
     def connectionStore(self, connection_id=None, triggered=True):
         connection_id = connection_id or self.connection_id
         return self.site.register.connectionStore(connection_id, triggered=triggered)
-
+        
     def userStore(self, user=None, triggered=True):
         user = user or self.user
         return self.site.register.userStore(user, triggered=triggered)
-
+        
     def rpc_setStoreSubscription(self, storename=None, client_path=None, active=True):
         with self.pageStore() as store:
             subscriptions = store.getItem('_subscriptions')
@@ -566,37 +569,36 @@ class GnrWebPage(GnrBaseWebPage):
             storesub = subscriptions.setdefault(storename, {})
             pathsub = storesub.setdefault(client_path, {})
             pathsub['on'] = active
-
-
+            
     def clientPage(self, page_id=None):
         return ClientPageHandler(self, page_id or self.page_id)
-
+        
     def _get_pkgapp(self):
         if not hasattr(self, '_pkgapp'):
             self._pkgapp = self.site.gnrapp.packages[self.packageId]
         return self._pkgapp
-
+        
     pkgapp = property(_get_pkgapp)
-
+        
     def _get_sitepath(self):
         return self.site.site_path
-
+        
     sitepath = property(_get_sitepath)
-
+        
     def _get_siteUri(self):
         return self.site.home_uri
-
+        
     siteUri = property(_get_siteUri)
-
+        
     def _get_parentdirpath(self):
         try:
             return self._parentdirpath
         except AttributeError:
             self._parentdirpath = self.resolvePath()
             return self._parentdirpath
-
+            
     parentdirpath = property(_get_parentdirpath)
-
+        
     @property
     def subscribedTablesDict(self):
         """return a dict of subscribed tables. any element is a list

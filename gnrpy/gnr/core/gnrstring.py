@@ -50,7 +50,7 @@ try:
             if isinstance(obj, Decimal):
                 return str(obj)
             return json.JSONEncoder.default(self, obj)
-
+            
     class JsonEncoderJS(json.JSONEncoder):
         def default(self, obj):
             if isinstance(obj, datetime.date):
@@ -115,7 +115,7 @@ def getUntilLast(myString, chunk):
         return myString[0:p]
     else:
         return ''
-
+        
 def getFrom(myString, chunk):
     """Return a string after a given chunk
     
@@ -135,7 +135,7 @@ def getFrom(myString, chunk):
         return myString[p + len(chunk):]
     else:
         return ''
-
+        
 def getFromLast(myString, chunk):
     """Return a string after the last occurence of a given chunk.
     
@@ -158,7 +158,7 @@ def getFromLast(myString, chunk):
             
 def wordSplit(text):
     """Return a list that contains the words of the given text
-    
+        
     :param text: text to be splitted
     :returns: a list that contains the words of the given text
     
@@ -166,7 +166,7 @@ def wordSplit(text):
     ['hello', 'my', 'dear', 'friend']
     """
     return REGEX_WRDSPLIT.split(text)
-
+    
 def splitLast(myString, chunk):
     """Return a tuple of two strings, splitting the string at the last occurence of a given chunk.
     
@@ -182,7 +182,7 @@ def splitLast(myString, chunk):
         return myString[0:p], myString[p + len(chunk):]
     else:
         return myString, ''
-
+        
 def getBetween(myString, startChunk, endChunk):
     """Return a string between two given chunks.
     
@@ -208,7 +208,7 @@ def getBetween(myString, startChunk, endChunk):
             return ''
         else:
             return myString[p1 + len(startChunk):p2]
-
+            
 def like(s1, s2, wildcard='%'):
     """
     :param s1: first string
@@ -232,7 +232,7 @@ def like(s1, s2, wildcard='%'):
         return bool(s2.endswith(s1[1:]))
     if s1.endswith(wildcard): return bool(s2.startswith(s1[:-1]))
     return False
-
+    
 def ilike(s1, s2, wildcard='%'):
     """Return the result of :meth:`like()` function ignoring upper-lowercase differencies
     
@@ -241,7 +241,7 @@ def ilike(s1, s2, wildcard='%'):
     :wildcard: a special symbol that stands for one or more characters. Default value is ``%``
     """
     return like(s1.upper(), s2.upper(), wildcard)
-
+    
 def filter(item, include=None, exclude=None, wildcard='%'):
     if include and isinstance(include, basestring):
         include = include.split(',')
@@ -257,7 +257,7 @@ def filter(item, include=None, exclude=None, wildcard='%'):
                 return True
         return False
     return True
-
+    
 def regexDelete(myString, pattern):
     """
     Returns a string obtained deleting from the given string any occurrency
@@ -270,7 +270,7 @@ def regexDelete(myString, pattern):
     'Wn  turns t steering wel'
     """
     return re.sub(pattern, '', myString)
-
+    
 def templateReplace(myString, symbolDict=None, safeMode=False):
     """Allow to replace string's chunks.
     
@@ -280,7 +280,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False):
     
     >>> templateReplace('$foo loves $bar but she loves $aux and not $foo', {'foo':'John','bar':'Sandra','aux':'Steve'})
     'John loves Sandra but she loves Steve and not John'"""
-
+    
     if not '$' in myString or not symbolDict: return myString
     if hasattr(symbolDict, '_htraverse'):
         Tpl = BagTemplate
@@ -290,8 +290,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False):
         return Tpl(myString).safe_substitute(symbolDict)
     else:
         return Tpl(myString).substitute(symbolDict)
-
-
+        
 def asDict(myString, itemSep=',', argSep='=', symbols=None):
     """
     :param myString: a string that represent a list of key-value pairs.
@@ -312,7 +311,7 @@ def asDict(myString, itemSep=',', argSep='=', symbols=None):
     for item in itemList:
         item = item.strip().strip(itemSep)
         key, value = split(item, argSep)
-
+        
         key = key.encode()
         if value.startswith("'"): result[key] = value.strip("'")
         elif value.startswith('"'): result[key] = value.strip('"')
@@ -321,7 +320,7 @@ def asDict(myString, itemSep=',', argSep='=', symbols=None):
             if '$' in value: value = templateReplace(value, symbols)
             result[key] = value
     return result
-
+    
 def stringDict(myDict, itemSep=',', argSep='='):
     """return a string that represents a list of list of key-value pairs taken from a dictionary.
     
@@ -333,7 +332,7 @@ def stringDict(myDict, itemSep=',', argSep='='):
      'width=33,height=22'
     """
     return itemSep.join([argSep.join((str(k), str(v))) for k, v in myDict.items()])
-
+    
 def updateString(source, s, sep=','):
     """Append a new element to a string that represents a set of elements separated by a separation char.
     
@@ -351,8 +350,7 @@ def updateString(source, s, sep=','):
     splitted = split(source, sep)
     if s in splitted: return source
     return sep.join(splitted + [s])
-
-
+    
 def updateStringList(s1, s2, sep=','):
     """add???
     
@@ -365,7 +363,7 @@ def updateStringList(s1, s2, sep=','):
     l1 = set(splitAndStrip(s1))
     l2 = set(splitAndStrip(s2))
     s = set()
-
+    
 def makeSet(*args, **kwargs):
     """add???
     """
@@ -375,10 +373,10 @@ def makeSet(*args, **kwargs):
     if not kwargs.get('keepEmpty', False):
         result.discard('')
     return result
-
+    
 def splitAndStrip(myString, sep=',', n=-1, fixed=0):
     """Split a string in a list of n+1 items, striping white spaces.
-    
+        
     :param myString: the string to be splitted
     :param sep: separation character. Default value is ``,``
     :param n: how many split operations must be done on myString. Default value is ``-1``
@@ -406,13 +404,13 @@ def splitAndStrip(myString, sep=',', n=-1, fixed=0):
             
 def countOf(myString, srcString):
     """add???
-    
+        
     :param myString: add???
     :param srcString: add???
     :returns: add???
     """
     return (len(myString) - len(myString.replace(srcString, ''))) / len(srcString)
-
+    
 def split(path, sep='.'):
     """Return a list splitting a path string at any occurrency of separation character.
     
@@ -422,7 +420,7 @@ def split(path, sep='.'):
     >>> split('first.second.third')
     ['first', 'second', 'third']
     """
-
+    
     if not path: return ['']
     extendedsep = sep[1:]
     sep = sep[0]
@@ -443,7 +441,7 @@ def split(path, sep='.'):
                 if wch: raise  ValueError("wrong level: missing :" + wch.pop())
                 foundsep = True
                 blockLen = res.end()
-
+                
             elif not wch and gr[1] != None:
                 foundsep = True
                 blockLen = res.end() - 1
@@ -461,14 +459,14 @@ def split(path, sep='.'):
                     elif char in '])':
                         if char == wch[-1]: wch.pop()
                         else: raise ValueError("wrong level: missing :" + wch.pop())
-
+                        
         result.append(path[startpos:blockLen])
         start = nextPos
     return result
-
+    
 def smartjoin(mylist, on):
     """Join the given list with the separator substring on and escape each occurrency of on within mylist
-    
+        
     :param mylist: the list to be joined
     :param on: separator substring
     
@@ -477,14 +475,14 @@ def smartjoin(mylist, on):
     """
     escape = "\\" + on
     return on.join([x.replace(on, escape) for x in mylist])
-
+    
 def smartsplit(path, on):
     """Split the string ``path`` with the separator substring ``on`` ignoring the escaped separator chars
     
     :param path: the path to be splitted
     :param on: separator substring
     """
-
+    
     escape = "\\" + on
     if escape in path:
         path = path.replace(escape, chr(1))
@@ -493,10 +491,10 @@ def smartsplit(path, on):
     else:
         pathList = path.split(on)
     return pathList
-
+    
 def concat(s1, s2, sep='.'):
     """join two strings. If the first string is ``None``, return the second string.
-    
+        
     :param s1: the first string
     :param s2: the second string
     :param sep: separation character. Default value is ``.``
@@ -506,8 +504,7 @@ def concat(s1, s2, sep='.'):
         return '%s%s%s' % (s1, sep, s2)
     else:
         return s2
-
-
+        
 def dotEsc(txt):
     """Return a text with all dot char escaped
     
@@ -515,9 +512,9 @@ def dotEsc(txt):
     :returns: the text with all dot char escaped
     """
     return txt.replace('.', '\\.')
-
-#encoding and conversion functions    
-
+    
+#encoding and conversion functions
+    
 def encode(number, base='/16', nChars=None):
     """Return a string that contains the given number in the specified base
        
@@ -527,14 +524,14 @@ def encode(number, base='/16', nChars=None):
        :returns: encoded number as string
     """
     import math
-
+    
     if base in BASE_ENCODE: base = BASE_ENCODE[base]
     b = len(base)
     result = []
     while (number >= 1):
         result.insert(0, base[int(math.fmod(number, b))])
         number = math.floor(number / b)
-
+        
     if (len(result) > nChars): result = []
     elif (len(result) < nChars):
         for x in range(nChars - len(result)):
@@ -543,13 +540,13 @@ def encode(number, base='/16', nChars=None):
     
 def fromIsoDate(datestring):
     """add???
-    
+        
     :param datestring: add???
     :returns: add???
     """
     if datestring and datestring != '0000-00-00':
         return datetime.date(*[int(el) for el in wordSplit(datestring)])
-
+        
 def fromText(mystring, obj, locale=None):
     """add???
     
@@ -560,7 +557,7 @@ def fromText(mystring, obj, locale=None):
     """
     #what?
     return parselocal(mystring, obj, locale=locale)
-
+    
 def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=None):
     """Return a unicode string representing an object of any class.
        
@@ -583,12 +580,11 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
         result = unicode(obj)
     else:
         result = localize(obj, locale=locale, format=format, currency=currency)
-
+        
     if mask:
         result = mask % result
     return result
-
-
+        
 def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     """
     :param dtype: add???.
@@ -605,8 +601,7 @@ def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     if dtype in typeSamples.keys():
         result = len(toText(typeSamples[dtype], format=format, mask=mask))
     return result
-
-
+    
 def boolean(obj):
     """add???
     
@@ -617,11 +612,10 @@ def boolean(obj):
         if obj.lower() in ['n', 'no', 'f', 'false', '0']:
             obj = False
     return bool(obj)
-
-
+    
 def pickleObject(obj, zipfilename=None):
     """Return the Pickle string for the given object.
-    
+        
     :param obj: The given object
     :param zipfilename: add???. Default value is ``None``
     :returns: the Pickle string for the given object
@@ -630,10 +624,10 @@ def pickleObject(obj, zipfilename=None):
     if zipfilename:
         objstr = zipString(objstr, zipfilename)
     return objstr
-
+    
 def unpickleObject(objstr, zipfilename=None):
     """Load an object from a pickle string.
-    
+        
     :param objstr: The given object string
     :param zipfilename: add???. Default value is ``None``
     :returns: the object loaded from the pickle string
@@ -641,10 +635,10 @@ def unpickleObject(objstr, zipfilename=None):
     if zipfilename:
         objstr = unzipString(objstr, zipfilename)
     return cPickle.loads(objstr)
-
+    
 def zipString(mystring, filename):
     """Return a zip compressed version of mystring
-    
+        
     :param mystring: The given string
     :param filename: add???
     :returns: a zip compressed version of ``mystring``
@@ -656,10 +650,10 @@ def zipString(mystring, filename):
     mystring = zipresult.getvalue()
     zipresult.close()
     return mystring
-
+    
 def unzipString(mystring, filename):
     """Extract a zip compressed string
-    
+        
     :param mystring: the compressed string to decompress
     :param filename: add???
     :returns: the decompressed string 
@@ -670,27 +664,27 @@ def unzipString(mystring, filename):
     zip.close()
     zipresult.close()
     return result
-
+    
 def toJson(obj):
     """add???
-    
+        
     :param obj: add???
     :returns: add???
     """
     #non so come testare
     return json.dumps(obj, cls=JsonEncoder)
-
+    
 def toJsonJS(obj):
     """add???
-    
+        
     :param obj: add???
     :returns: add???
     """
     return json.dumps(obj, cls=JsonEncoderJS)
-
+    
 def toSecureJsonJS(obj, key=None):
     """add???
-    
+        
     :param obj: add???
     :param key: add???. Default value is ``None``
     :returns: add???
@@ -709,40 +703,40 @@ def toSecureJsonJS(obj, key=None):
         return '@%s_%s' % (str(t % 10000).zfill(4), result)
     else:
         return result
-
+        
 def slugify(value):
     """add???
-    
+        
     :param value: add???
     :returns: add???
     """
     import unicodedata
-
+    
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
     value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
     return re.sub('[-\s]+', '-', value)
-
+    
 def fromJson(obj):
     """add???
-    
+        
     :param obj: add???
     :returns: add???
     """
     #non so come testare
     return json.loads(obj)
-
+    
 def anyWordIn(wordlist, mystring):
     """Return a list of all the elements included both in ``wordlist`` and in ``mystring``
-    
+        
     :param wordlist: the list of words to be searched in ``mystring``
     :param mystring: the string on which there will be executed the search
     :returns: a list of all the elements included both in ``wordlist`` and in ``mystring``
     """
     return [k for k in wordlist if k in mystring]
-
+    
 def jsquote(str_or_unicode):
     """add???
-    
+        
     :param str_or_unicode: the string to be quoted
     :returns: add???
      
@@ -755,7 +749,7 @@ def jsquote(str_or_unicode):
         return repr(str_or_unicode)
     elif isinstance(str_or_unicode, unicode):
         return repr(str_or_unicode.encode('utf-8'))
-
+        
 if __name__ == '__main__':
     incl = '%.py,%.css'
     excl = '_%,.%'

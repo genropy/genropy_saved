@@ -24,6 +24,8 @@ from gnr.core.gnrbaseservice import GnrBaseService
 import sys
 
 class PrinterConnection(GnrBaseService):
+    """add???
+    """
     service_name='print'
     
     def __init__(self, parent, printer_name=None, printerParams=None, **kwargs):
@@ -35,10 +37,20 @@ class PrinterConnection(GnrBaseService):
             self.initPrinter(printer_name, printerParams, **kwargs)
             
     def initPdf(self, printerParams=None, **kwargs):
+        """add???
+        
+        :param printerParams: add???. Default value is ``None``
+        """
         self.zipped = printerParams.pop('zipped')
         self.printAgent = self.printPdf
         
     def printPdf(self, pdf_list, jobname, outputFilePath=None):
+        """add???
+        
+        :param pdf_list: add???
+        :param jobname: add???
+        :param outputFilePath: add???. Default value is ``None``
+        """
         if self.zipped:
             outputFilePath += '.zip'
             self.parent.zipPdf(pdf_list, outputFilePath)
@@ -48,9 +60,19 @@ class PrinterConnection(GnrBaseService):
         return os.path.basename(outputFilePath)
         
     def printCups(self, pdf_list, jobname, **kwargs):
+        """add???
+        
+        :param pdf_list: add???
+        :param jobname: add???
+        """
         self.cups_connection.printFiles(self.printer_name, pdf_list, jobname, self.printer_options)
         
     def initPrinter(self, printer_name=None, printerParams=None, **kwargs):
+        """add???
+        
+        :param printer_name: add???. Default value is ``None``
+        :param printerParams: add???. Default value is ``None``
+        """
         printerParams = printerParams or Bag()
         self.cups_connection = cups.Connection()
         self.printer_name = printer_name
@@ -69,6 +91,8 @@ class PrinterConnection(GnrBaseService):
         return self.printAgent(pdf_list, jobname, outputFilePath=outputFilePath)
         
 class PrintHandler(object):
+    """add???
+    """
     paper_size = {
         'A4': '!!A4',
         'Legal': '!!Legal',
@@ -88,7 +112,7 @@ class PrintHandler(object):
         'Lower': '!!Lower',
         'LargeCapacity': '!!LargeCapacity'
     }
-    
+        
     def __init__(self, parent=None):
         global HAS_CUPS, HAS_PYPDF
         self.hasCups = HAS_CUPS
@@ -96,6 +120,13 @@ class PrintHandler(object):
         self.parent = parent
         
     def htmlToPdf(self, srcPath, destPath, orientation=None): #srcPathList per ridurre i processi?
+        """add???
+        
+        :param src_path: add???
+        :param destPath: add???
+        :param orientation: add???. Default value is ``None``
+        :returns: add???
+        """
         orientation = orientation or 'Portrait'
         if os.path.isdir(destPath):
             baseName = os.path.splitext(os.path.basename(srcPath))[0]
@@ -109,6 +140,11 @@ class PrintHandler(object):
         return destPath
         
     def autoConvertFiles(self, files, storeFolder):
+        """add???
+        
+        :param files: add???
+        :param storeFolder: add???
+        """
         resultList = []
         for filename in files:
             baseName, ext = os.path.splitext(os.path.basename(filename))
@@ -131,6 +167,8 @@ class PrintHandler(object):
         return resultList
         
     def getPrinters(self):
+        """add???
+        """
         printersBag = Bag()
         if self.hasCups:
             cups_connection = cups.Connection()
@@ -142,6 +180,10 @@ class PrintHandler(object):
         return printersBag
         
     def getPrinterAttributes(self, printer_name):
+        """add???
+        
+        :param printer_name: add???
+        """
         cups_connection = cups.Connection()
         printer_attributes = cups_connection.getPrinterAttributes(printer_name)
         attributesBag = Bag()
@@ -154,9 +196,19 @@ class PrintHandler(object):
         return attributesBag
         
     def getPrinterConnection(self, printer_name=None, printerParams=None, **kwargs):
+        """add???
+        
+        :param printer_name: add???. Default value is ``None``
+        :param printerParams: add???. Default value is ``None``
+        """
         return PrinterConnection(self, printer_name=printer_name, printerParams=printerParams, **kwargs)
         
     def joinPdf(self, pdf_list, output_filepath):
+        """add???
+        
+        :param pdf_list: add???
+        :param output_filepath: add???
+        """
         output_pdf = PdfFileWriter()
         open_files = []
         for input_path in pdf_list:
@@ -174,5 +226,10 @@ class PrintHandler(object):
             input_file.close()
             
     def zipPdf(self, file_list=None, zipPath=None):
+        """add???
+        
+        :param file_list: add???. Default value is ``None``
+        :param zipPath: add???. Default value is ``None``
+        """
         self.parent.zipFiles(file_list=file_list, zipPath=zipPath)
         
