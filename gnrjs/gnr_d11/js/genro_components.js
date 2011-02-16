@@ -532,7 +532,7 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
         if(!kw.action){
             kw.topic = topic;
             kw.command = kw.command || null;
-            kw['action'] = "genro.publish(topic,{'command':command})";
+            kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(e)})";
         }
         return sourceNode._('button',kw);
     }

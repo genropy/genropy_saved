@@ -40,6 +40,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
+        this.frameCode = sourceNode.attr.frameCode;
+        if(this.frameCode){
+            this.formParentNode = genro.getFrameNode(this.frameCode,'frame').getParentNode().getParentNode()
+        }else{
+            this.formParentNode = this.sourceNode.getParentNode();
+        }
         this.subscribe('save,load,loaded,setLocked,navigationEvent,newrecord,deleteItem,pendingChangesAnswer');
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
@@ -173,6 +179,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var kw = kw || {};
         if(kw['destPkey']=='*norecord*'){
             kw['destPkey'] = null;
+            this.setFormData();
         }
         if (this.store){
             this.load_store(kw);
@@ -190,8 +197,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     load_store:function(kw){
         var currentPkey = this.getCurrentPkey();
-        if (this.changed && (kw.destPkey != currentPkey)) {
-            this.openPendingChangesDlg(kw);
+        if (this.changed && kw.destPkey &&(kw.destPkey != currentPkey)) {
+            if(kw.modifiers=='Shift'){
+                this.do_save(kw.destPkey);
+            }else{
+                this.openPendingChangesDlg(kw);
+            }
             return;
         }
         this.doload_store(kw);
@@ -199,6 +210,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     newrecord:function(){
         this.load({destPkey:'*newrecord*'});
     },
+    
     deleteItem:function(){
         this.store.deleteItem();
     },
@@ -211,9 +223,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 this.do_save(kw.destPkey);
             }
             else if(command=='discard'){
-                this.doload_loader(kw);
+                this.doload_store(kw);
             }else{
-                if('cancelCb' in kw){
+                if(kw.cancelCb){
                     kw.cancelCb();
                 }
             }
@@ -228,7 +240,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             else if(command=='discard'){
                 this.doload_loader(kw);
             }else{
-                if('cancelCb' in kw){
+                if(kw.cancelCb){
                     kw.cancelCb();
                 }
             }
@@ -281,6 +293,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     doload_store: function(kw) {
+        if(kw.destPkey=='*dismiss*'){
+            this.reset();
+            this.formParentNode.publish('dismiss');
+            return;
+        }
         var kw = kw || {};
         var sync = kw.sync;
         this.setControllerData('loading',true);
@@ -386,8 +403,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             genro.playSound('Basso');
         }
     },
-    do_save:function(destPkey){
-        
+    do_save:function(destPkey){        
         this.setOpStatus('saving');
         this.fireControllerData('saving');
         var saverNode = genro.nodeById(this.form_id + '_saver');
@@ -396,33 +412,36 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return saverNode._lastDeferred;
         }else if(this.store) {
             var onSaved = this.store.onSaved;
+            if(destPkey=='*dismiss*'){
+                onSaved = 'dismiss';
+            }
             var deferred=this.store.save(destPkey);
-            if(onSaved){
-                var that,cb;
-                that = this;
-                if(onSaved=='dismiss'){
-                    cb=function(result){that.publish('load',{destPkey:'*norecord*'});};
-                }
-                else if(onSaved=='reload'){
-                    cb=function(resultDict){
-                        destPkey = destPkey || resultDict.savedPkey
-                        if(resultDict.loadedRecord){
-                            console.log('autoreload');
-                            that.setCurrentPkey(destPkey);
-                            that.store.loaded(destPkey,resultDict.loadedRecord);
-                        }else{
-                            
-                            console.log('standard reload');
-                            that.setCurrentPkey(destPkey);
-                            that.load({'destPkey':destPkey});
-                        }
+            var that,cb;
+            that = this;
+            if(onSaved=='reload' ||(destPkey&&(destPkey!=this.getCurrentPkey()))|| this.isNewRecord()){
+                cb=function(resultDict){
+                    destPkey = destPkey || resultDict.savedPkey;
+                    if(resultDict.loadedRecord){
+                        that.setCurrentPkey(destPkey);
+                        that.store.loaded(destPkey,resultDict.loadedRecordNode);
+                    }else{
+                        that.setCurrentPkey(destPkey);
+                        that.load({'destPkey':destPkey});
                     }
                 }
-                deferred.addCallback(function(result){
-                    cb(result);
-                    return result
-                });
+            }else{
+                cb=function(result){
+                    that.reset();
+                    if(onSaved=='dismiss'){
+                        that.formParentNode.publish('dismiss');
+                    }
+                };
             }
+            deferred.addCallback(function(result){
+                cb(result);
+                return result
+            });
+
         }
     },
     
@@ -747,8 +766,19 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     
-    navigationEvent:function(command){
-        this.store.navigationEvent(command);
+    navigationEvent:function(kw){
+        var command = kw.command;
+        var pkey;
+        if(command=='add'){
+            pkey = '*newrecord*';
+        }else if (command=='dismiss'){
+            pkey = '*dismiss*';
+        }
+        else{
+            pkey = this.store.navigationEvent(kw);
+        }
+         this.load({destPkey:pkey,modifiers:kw.modifiers,cancelCb:kw.cancelCb});
+        
     }  
 });
 
@@ -1063,7 +1093,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var kw =form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         if (destPkey){
             kw._autoreload=destPkey
-        }else if(this.onSaved=='reload'){
+        }else if(this.onSaved=='reload' || this.form.isNewRecord()){
             kw._autoreload=true
         }
         //kw._autoreload = null;
@@ -1077,8 +1107,8 @@ dojo.declare("gnr.formstores.Base", null, {
                     var pkeyNode = result.getNode('pkey'); 
                     resultDict.savedPkey=pkeyNode.getValue();
                     resultDict.savedAttr=pkeyNode.attr;
-                    resultDict.loadedRecord=loadedRecordNode.getValue();
-                    resultDict.loadedAttr=loadedRecordNode.attr;
+                    resultDict.loadedRecordNode=loadedRecordNode;
+                    //resultDict.loadedAttr=loadedRecordNode.attr;
                 }else{
                     var pkeyNode=result;
                     resultDict.savedPkey=pkeyNode.getValue();
@@ -1121,8 +1151,7 @@ dojo.declare("gnr.formstores.Base", null, {
     setNavigationStatus:function(){
         return;
     },
-    navigationEvent:function(command){
-        return
+    navigationEvent:function(kw){
     }
 });
 
@@ -1195,18 +1224,18 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
             return result;
         }
     },
-    navigationEvent:function(command){
+    navigationEvent:function(kw){
+        var command = kw.command;
         var idx;
         if(command=='first'){
-           idx = 0;
+            idx = 0;
         }else if(command=='last'){
             idx = this.getParentStoreData().len()-1;
         }else{
             idx = this.getParentStoreIdx(this.form.getCurrentPkey());
             idx = command=='next'? idx+1:idx-1;
         }
-        var pkey = this.getStoreKey(idx);
-        this.form.load({destPkey:pkey});
+        return this.getStoreKey(idx);
     }
 });
 

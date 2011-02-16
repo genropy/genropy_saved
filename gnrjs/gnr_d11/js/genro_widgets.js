@@ -603,8 +603,14 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         attributes.title = attributes.title || '';
         if (!closable) {
             attributes.templateString = "<div class=\"dijitDialog\" tabindex=\"-1\" waiRole=\"dialog\" waiState=\"labelledby-${id}_title\">\n\t<div dojoAttachPoint=\"titleBar\" class=\"dijitDialogTitleBar\">\n\t<span dojoAttachPoint=\"titleNode\" class=\"dijitDialogTitle\" id=\"${id}_title\">${title}</span>\n\t</div>\n\t\t<div dojoAttachPoint=\"containerNode\" class=\"dijitDialogPaneContent\"></div>\n</div>\n";
-        } else if (closable == 'ask') {
-            attributes.templateString = "<div class=\"dijitDialog\" tabindex=\"-1\" waiRole=\"dialog\" waiState=\"labelledby-${id}_title\">\n\t<div dojoAttachPoint=\"titleBar\" class=\"dijitDialogTitleBar\">\n\t<span dojoAttachPoint=\"titleNode\" class=\"dijitDialogTitle\" id=\"${id}_title\">${title}</span>\n\t<span dojoAttachPoint=\"closeButtonNode\" class=\"dijitDialogCloseIcon\" dojoAttachEvent=\"onclick: onAskCancel\">\n\t\t<span dojoAttachPoint=\"closeText\" class=\"closeText\">x</span>\n\t</span>\n\t</div>\n\t\t<div dojoAttachPoint=\"containerNode\" class=\"dijitDialogPaneContent\"></div>\n</div>\n";
+        } else if (closable!=true) {
+            var closeAction;
+            if(closable=='ask'){
+                closeAction='onAskCancel';
+            }else if(closable=='publish'){
+                closeAction='onCancelPublish';
+            }
+            attributes.templateString = "<div class=\"dijitDialog\" tabindex=\"-1\" waiRole=\"dialog\" waiState=\"labelledby-${id}_title\">\n\t<div dojoAttachPoint=\"titleBar\" class=\"dijitDialogTitleBar\">\n\t<span dojoAttachPoint=\"titleNode\" class=\"dijitDialogTitle\" id=\"${id}_title\">${title}</span>\n\t<span dojoAttachPoint=\"closeButtonNode\" class=\"dijitDialogCloseIcon\" dojoAttachEvent=\"onclick: "+closeAction+"\">\n\t\t<span dojoAttachPoint=\"closeText\" class=\"closeText\">x</span>\n\t</span>\n\t</div>\n\t\t<div dojoAttachPoint=\"containerNode\" class=\"dijitDialogPaneContent\"></div>\n</div>\n";
 
             sourceNode.closeAttrs = objectExtract(attributes, 'close_*');
         }
@@ -624,7 +630,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                             if (this != genro.dialogStack.slice(-1)[0]) {
                                 var ds=genro.dialogStack
                                 ds.push(this);
-                                var zIndex = 600 + ds.length*2;
+                                var zIndex = 500 + ds.length*2;
 		                        dojo.style(this._underlay.domNode, 'zIndex', zIndex);
 		                        dojo.style(this.domNode, 'zIndex', zIndex + 1);
 		                         if (genro.dialogStack.length > 1) {
@@ -684,6 +690,10 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         genro.dlg.ask('', closeAttrs['msg'], {confirm:closeAttrs['confirm'],
             cancel:closeAttrs['cancel']}, {confirm:closeAction, cancel:''});
     },
+    attributes_mixin_onCancelPublish:function(event) {
+        this.sourceNode.publish('close',{modifiers:genro.dom.getEventModifiers(event)});
+    },
+    
     mixin_setTitle:function(title) {
         this.titleNode.innerHTML = title;
     }
@@ -777,12 +787,18 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
         return {};
     },
     created: function(widget, savedAttrs, sourceNode) {
+        sourceNode.subscribe('switchPage',function(page){
+            this.widget.switchPage(page);
+        });
         dojo.connect(widget, 'addChild', dojo.hitch(this, 'onAddChild', widget));
         dojo.connect(widget, 'removeChild', dojo.hitch(this, 'onRemoveChild', widget));
         //dojo.connect(widget,'_transition',widget, 'onChildTransition');
 
     },
-
+    mixin_switchPage:function(p){
+        var handler = (p==parseInt(p))?'setSelected':'setSelectedPage';
+        this[handler](p);
+    },
     mixin_setSelected:function(p) {
         var child = this.getChildren()[p || 0];
         if (this.getSelected() != child) {
@@ -1039,7 +1055,7 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
     },
 
     created: function(widget, savedAttrs, sourceNode) {
-        widget._startZ = 600;
+        widget._startZ = 700;
         var nodeId = sourceNode.attr.nodeId;
         if (nodeId){
             dojo.connect(widget,'show',function(){

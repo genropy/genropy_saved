@@ -823,8 +823,8 @@ dojo.declare('gnr.GenroClient', null, {
             dojo.publish(topic, args);
             return
         }
-        var broadcast=topic['broadcast'];
         var parent=topic['parent'];
+        var iframe=topic['iframe'];
         var kw=topic['kw'] || kw
         if('nodeId' in topic){
             var node= genro.nodeById(topic['nodeId'])
@@ -836,18 +836,34 @@ dojo.declare('gnr.GenroClient', null, {
             }
         }
         else{
-            dojo.publish(topic['topic'], kw);
+            genro.publish(topic['topic'], kw);
         }
 
-        if (broadcast){
-            dojo.forEach(window.frames,function(f){
-                if (f.genro){
-                    f.genro.publish(topic,kw);
+        if (iframe){
+            var t=objectUpdate({},topic)
+            objectPop(t,'parent')
+            if (iframe=='*'){
+                dojo.forEach(window.frames,function(f){
+                    if (f.genro){
+                        f.genro.publish(t,kw);
+                    }
+                });
+            }else{
+                var iframeNode=genro.domById(iframe);
+                if(iframeNode){
+                    var f =iframeNode.contentWindow;
+                    if(f && f.genro){
+                        f.genro.publish(t,kw);
+                    }
                 }
-            })
+            }     
         }
-        if(parent && window.parent && window.parent.genro ){
-            window.parent.genro.publish(topic,kw);
+        
+        if(parent && (window.parent!=window) && window.parent.genro ){
+            var t=objectUpdate({},topic)
+            objectPop(t,'iframe');
+            objectPop(t,'parent');
+            window.parent.genro.publish(t,kw);
         }
     },
     absoluteUrl: function(url, kwargs, avoidCache) {
@@ -928,6 +944,7 @@ dojo.declare('gnr.GenroClient', null, {
         var frameNode = genro.getFrameNode(frameCode);
         return frameNode?frameNode.form:null
     },
+    
     getStore:function(storeCode){
         return genro.nodeById(storeCode+'_store');
     },
@@ -937,10 +954,14 @@ dojo.declare('gnr.GenroClient', null, {
         if(!frameNode){
             return;
         }
+        if(side=='frame'){
+            return frameNode;
+        }
         var containerNode =  frameNode.getValue().getNodes()[0]
         if(!side){
             return containerNode;
         }
+
         return containerNode.getValue().getNodeByAttr('region',side);
     },
     formById:function(formId) {

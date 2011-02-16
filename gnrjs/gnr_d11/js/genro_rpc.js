@@ -529,7 +529,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         }
         return kwargs;
     },
-    addDeferredCb:function(deferred,func,cblocals,sourceNode){
+    addDeferredCb_:function(deferred,func,cblocals,sourceNode){
         if(sourceNode){
             var cblocals = sourceNode.evaluateOnNode(cblocals);
         }
@@ -544,6 +544,24 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             deferred.addCallback(cb);
         }
     },
+    
+    addDeferredCb:function(deferred,func,cblocals,sourceNode){
+        if(sourceNode){
+            var cblocals = sourceNode.evaluateOnNode(cblocals);
+        }
+        var isErrBack = objectPop(cblocals,'_isErrBack');
+        var cb = function(result){
+            cblocals['result'] = result;
+            var newresult = funcApply(func, cblocals, sourceNode);
+            return  newresult===undefined? result:newresult;
+        }
+        if(isErrBack){
+            deferred.addErrback(cb);
+        }else{
+            deferred.addCallback(cb);
+        }
+    },
+    
     
     ping:function(kw) {
         if (genro.pollingRunning) {
