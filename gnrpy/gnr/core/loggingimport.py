@@ -1,14 +1,12 @@
 """An Python re-implementation of hierarchical module import.
 
-This code is intended to be read, not executed.  However, it does work
+This code is intended to be read, not executed. However, it does work
 -- all you need to do to enable it is "import knee".
 
 (The name is a pun on the klunkier predecessor of this module, "ni".)
-
 """
 
 import sys, imp, __builtin__
-
 
 # Replacement for __import__()
 def import_hook(name, globals=None, locals=None, fromlist=None, level=-1):
@@ -21,7 +19,7 @@ def import_hook(name, globals=None, locals=None, fromlist=None, level=-1):
     if hasattr(m, "__path__"):
         ensure_fromlist(m, fromlist)
     return m
-
+    
 def determine_parent(globals):
     if not globals or  not globals.has_key("__name__"):
         return None
@@ -37,7 +35,7 @@ def determine_parent(globals):
         assert parent.__name__ == pname
         return parent
     return None
-
+    
 def find_head_package(parent, name):
     if '.' in name:
         i = name.find('.')
@@ -58,7 +56,7 @@ def find_head_package(parent, name):
         q = import_module(head, qname, parent)
         if q: return q, tail
     raise ImportError, "No module named " + qname
-
+    
 def load_tail(q, tail):
     m = q
     while tail:
@@ -70,7 +68,7 @@ def load_tail(q, tail):
         if not m:
             raise ImportError, "No module named " + mname
     return m
-
+    
 def ensure_fromlist(m, fromlist, recursive=0):
     for sub in fromlist:
         if sub == "*":
@@ -87,7 +85,7 @@ def ensure_fromlist(m, fromlist, recursive=0):
             submod = import_module(sub, subname, m)
             if not submod:
                 raise ImportError, "No module named " + subname
-
+                
 def import_module(partname, fqname, parent):
     try:
         return sys.modules[fqname]
@@ -105,8 +103,7 @@ def import_module(partname, fqname, parent):
     if parent:
         setattr(parent, partname, m)
     return m
-
-
+    
 # Replacement for reload()
 def reload_hook(module):
     name = module.__name__
@@ -116,12 +113,12 @@ def reload_hook(module):
     pname = name[:i]
     parent = sys.modules[pname]
     return import_module(name[i + 1:], name, parent)
-
-
+    
 # Save the original hooks
 original_import = __builtin__.__import__
 original_reload = __builtin__.reload
-
+    
 # Now install our hooks
 __builtin__.__import__ = import_hook
 __builtin__.reload = reload_hook
+    
