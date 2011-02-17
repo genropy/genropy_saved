@@ -129,11 +129,13 @@ class TableHandlerForm(BaseComponent):
             pane.dataRpc('list.rowtotal', 'app.getRecordCount', _onStart=300,
                          table=self.maintable, where=condition, **condPars)
 
-        pane.dataFormula('list.title_bar', "rowtotal?plural+' : '+rowcount+'/'+rowtotal:plural+' : '+rowcount",
+        pane.dataController("""var listtitle=rowtotal?plural+' : '+rowcount+'/'+rowtotal:plural+' : '+rowcount
+                               SET list.title_bar=listtitle;
+                               var titlebar=(selectedPage == 0)?listtitle:formtitle;
+                               genro.publish('public_caption',titlebar)""",
                          selectedPage='^selectedPage', plural='^list.plural', rowcount='^list.rowcount',
-                         rowtotal='^list.rowtotal', _if='selectedPage == 0', _else='formtitle',
+                         rowtotal='^list.rowtotal',
                          formtitle='^form.title', _init=True)
-
 
         #pane.data('list',dict(plural=self.pluralRecordName(), rowcount=0,
         #                      rowtotal=self.tblobj.query(where=condition,**condPars).count())) # mettere come RPC per aggiornare non solo al caricamento

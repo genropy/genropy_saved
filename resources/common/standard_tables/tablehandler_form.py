@@ -26,7 +26,7 @@ class TableHandlerForm(BaseComponent):
     def pageFormNew(self, sc):
         form = sc.frameForm(frameCode='formPane',formId='formPane',datapath='form',controllerPath='gnr.forms.formPane',
                             table=self.maintable,center_widget='BorderContainer',
-                            pkeyPath='.pkey',sqlContext=True,
+                            pkeyPath='.pkey',
                             sqlContextName='sql_record',
                             sqlContextRoot='form.record',
                             sqlContextTable=self.maintable)

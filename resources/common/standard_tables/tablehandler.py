@@ -104,24 +104,32 @@ class TableHandler(BaseComponent):
         root.dataController("genro.dom.setClass(dojo.body(),'form_edit',selectedPage==1)", selectedPage="^selectedPage")
         self.userObjectDialog()
         self.deleteUserObjectDialog()
+        self.parsePageParameters(root, **kwargs)
+        self.joinConditions()
+
         if hasattr(self.tblobj, 'hasRecordTags') and self.tblobj.hasRecordTags():
             self.tags_main(root)
         self.setOnBeforeUnload(root, cb="genro.getData('gnr.forms.formPane.changed')",
                                msg="!!There are unsaved changes, do you want to close the page without saving?")
+        if self.useNewForms:
+            self.newMain(root)
+            return
         pages, top, bottom = self.pbl_rootStackContainer(root, title='^list.title_bar', selected='^selectedPage',
                                                          _class='pbl_mainstack', nodeId='tablehandler_mainstack')
         self.pageList(pages)
-        if self.useNewForms:
-            self.pageFormNew(pages)
-        else:
-            self.pageForm(pages)
-        self.joinConditions()
+        self.pageForm(pages)
 
-        self.parsePageParameters(root, **kwargs)
 
         #root.defineContext('sql_selection','_serverCtx.sql_selection', self.sqlContextSelection())
         #root.defineContext('sql_record','_serverCtx.sql_record', self.sqlContextRecord())
-
+    
+    def newMain(self,pane):
+        sc = pane.rootStackContainer(center_selected='^selectedPage',
+                                    center_class='pbl_mainstack',
+                                    center_nodeId='tablehandler_mainstack')
+        self.pageList(sc)
+        self.pageFormNew(sc)
+        
     def parsePageParameters(self, root, pkey=None, **kwargs):
         if pkey == '*newrecord*':
             self.startWithNewRecord(root)
