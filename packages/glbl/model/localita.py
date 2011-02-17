@@ -12,6 +12,8 @@ class Table(object):
         tbl.column('codice_comune', size='4', name_long='Codice Comune')
         tbl.column('prefisso_tel', size='4', name_long='Prefisso Tel')
         tbl.column('cap', size='5', name_long='CAP', indexed='y')
-
+    
+    def baseView_min(self):
+        return "nome:80%,prefisso_tel:20%"
 
 
