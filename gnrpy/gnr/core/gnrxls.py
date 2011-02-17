@@ -2,10 +2,8 @@ import xlwt
 import os
 from gnr.core.gnrstring import toText
 
-
 class XlsWriter(object):
     """docstring for XlsWriter"""
-
     def __init__(self, columns=None, coltypes=None, headers=None, filepath=None,
                  font='Times New Roman', format_float='#,##0.00', format_int='#,##0', locale=None):
         self.headers = headers
@@ -15,7 +13,7 @@ class XlsWriter(object):
         self.sheet = self.workbook.add_sheet(os.path.basename(self.filepath))
         self.coltypes = coltypes
         self.locale = locale
-
+        
         self.float_style = xlwt.XFStyle()
         self.float_style.num_format_str = format_float
         self.int_style = xlwt.XFStyle()
@@ -23,35 +21,47 @@ class XlsWriter(object):
         font0 = xlwt.Font()
         font0.name = 'font'
         font0.bold = True
-
+        
         self.hstyle = xlwt.XFStyle()
         self.hstyle.font = font0
-
+        
         self.sheet.panes_frozen = True
         self.sheet.horz_split_pos = 1
         self.colsizes = dict()
-
+        
     def __call__(self, data=None):
         self.writeHeaders()
         for item in data:
             row = self.rowGetter(item)
             self.writeRow(row)
         self.workbookSave()
-
+        
     def rowGetter(self, item):
+        """add???
+        
+        :param item: add???
+        :returns: add???
+        """
         return dict(item)
-
+        
     def writeHeaders(self):
+        """add???
+        """
         for c, header in enumerate(self.headers):
             self.sheet.write(0, c, header, self.hstyle)
             self.colsizes[c] = max(self.colsizes.get(c, 0), self.fitwidth(header))
         self.current_row = 0
-
-
+        
     def workbookSave(self):
+        """add???
+        """
         self.workbook.save(self.filepath)
-
+        
     def writeRow(self, row):
+        """add???
+        
+        :param row: add???
+        """
         self.current_row += 1
         for c, col in enumerate(self.columns):
             value = row.get(col)
@@ -66,9 +76,14 @@ class XlsWriter(object):
                 value = toText(value, self.locale)
                 self.sheet.write(self.current_row, c, value)
             self.colsizes[c] = max(self.colsizes.get(c, 0), self.fitwidth(value))
-
+            
     def fitwidth(self, data, bold=False):
-        '''Try to autofit Arial 10'''
+        """Try to autofit Arial 10
+        
+        :param data: add???
+        :param bold: add???. Default value is ``False``
+        :returns: add???
+        """
         charwidths = {
             '0': 262.637, '1': 262.637, '2': 262.637, '3': 262.637, '4': 262.637, '5': 262.637, '6': 262.637,
             '7': 262.637, '8': 262.637, '9': 262.637, 'a': 262.637, 'b': 262.637, 'c': 262.637, 'd': 262.637,
@@ -93,11 +108,9 @@ class XlsWriter(object):
         if bold:
             units *= 1.1
         return max(units, 700) # Don't go smaller than a reported width of 2
-
-
+            
 class XlsReader(object):
     """docstring for XlsReader"""
-
     def __init__(self, arg):
         self.arg = arg
-        
+          

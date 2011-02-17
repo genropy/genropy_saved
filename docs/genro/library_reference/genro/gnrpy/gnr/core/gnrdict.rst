@@ -3,11 +3,11 @@
 =======================================
 
 * Index of ``gnr.core.gnrdict`` methods:
-	
-	* :ref:`gnrdict_gnrdict`
-	* :ref:`gnrdict_gnrnumericdict`
-	* :ref:`gnrdict_others`
-	
+
+    * :ref:`gnrdict_gnrdict`
+    * :ref:`gnrdict_gnrnumericdict`
+    * :ref:`gnrdict_others`
+    
 * :ref:`gnrdict_classes`
 
 .. _gnrdict_gnrdict:
@@ -15,36 +15,36 @@
 :class:`GnrDict`
 ================
 
-	.. module:: gnr.core.gnrdict.GnrDict
-	
-	================== ==================== ==================
-	:meth:`clear`      :meth:`iterkeys`     :meth:`reverse`   
-	:meth:`copy`       :meth:`itervalues`   :meth:`setdefault`
-	:meth:`get`        :meth:`keys`         :meth:`sort`      
-	:meth:`index`      :meth:`pop`          :meth:`update`    
-	:meth:`items`      :meth:`popitem`      :meth:`values`    
-	:meth:`iteritems`                                         
-	================== ==================== ==================
+    .. module:: gnr.core.gnrdict.GnrDict
+    
+    ================== ==================== ==================
+    :meth:`clear`      :meth:`iterkeys`     :meth:`reverse`   
+    :meth:`copy`       :meth:`itervalues`   :meth:`setdefault`
+    :meth:`get`        :meth:`keys`         :meth:`sort`      
+    :meth:`index`      :meth:`pop`          :meth:`update`    
+    :meth:`items`      :meth:`popitem`      :meth:`values`    
+    :meth:`iteritems`                                         
+    ================== ==================== ==================
 
 .. _gnrdict_gnrnumericdict:
 
 :class:`GnrNumericDict`
 =======================
 
-	.. module:: gnr.core.gnrdict.GnrNumericDict
-	
-	there is no method defined.
-	
+    .. module:: gnr.core.gnrdict.GnrNumericDict
+    
+    there is no method defined.
+
 .. _gnrdict_others:
 
 other methods
 =============
-	
-	These methods don't belong to any class.
-	
-	.. module:: gnr.core.gnrdict
-	
-	* :meth:`dictExtract`
+    
+    These methods don't belong to any class.
+    
+    .. module:: gnr.core.gnrdict
+    
+    * :meth:`dictExtract`
 
 .. _gnrdict_classes:
 
@@ -52,4 +52,4 @@ other methods
 =====================================================
 
 .. automodule:: gnr.core.gnrdict
-	:members:
+    :members:

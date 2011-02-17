@@ -20,53 +20,63 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-
-
-"""
-sys
-"""
 import os
 
 def mkdir(path, privileges=0777):
+    """add???
+    
+    :param path: add???
+    :param priviliges: add???. Default value is ``0777``
+    """
     if path and not os.path.isdir(path):
         head, tail = os.path.split(path)
         mkdir(head, privileges)
         os.mkdir(path, privileges)
-
+        
 def expandpath(path):
+    """add???
+    
+    :param path: add???
+    """
     return os.path.expanduser(os.path.expandvars(path))
-
+    
 def listdirs(path, invisible_files=False):
-    """returns a list of all files contained in path and its descendant"""
-
+    """Return a list of all the files contained in a path and its descendant
+    
+    :param path: the path you want to analyze
+    :param invisible_files: if True, add invisible files to the returned list. Default value is ``False``
+    :returns: a list of all the files contained in a path and its descendant
+    """
+    
     def callb(files, top, names):
         for name in names:
             file_path = os.path.realpath(os.path.join(top, name))
             if (invisible_files or not name.startswith('.')) and os.path.isfile(file_path):
                 files.append(file_path)
-
+                
     files = []
     os.path.walk(path, callb, files)
     return files
-
+        
 def resolvegenropypath(path):
-    """resolvegenropypath(path)
-       added by Jeff.
+    """added by Jeff.
+       
        Relative path may be more appropriate in most cases, but in some cases it may be
        useful to have this construction.
        
-       To make it easier to resolve document paths between different installations 
-       of genropy where sometimes it is installed in the user path and sometimes 
-       at root, ie. /genropy/... or ~/genropy/., so that file path given within 
-       genropy will be resolve to be valid if possibe and we do not have to edit 
-       for example our import files . 
-       Of course I expect it to be rejected and / or refactored"""
-
+       To make it easier to resolve document paths between different installations
+       of genropy where sometimes it is installed in the user path and sometimes
+       at root (i.e. /genropy/... or ~/genropy/.), so that file path given within
+       Genropy will be resolved to be valid if possible and we do not have to edit
+       for example our import files.
+       Of course I expect it to be rejected and/or refactored
+       """
+       
     if path.find('~') == 0:
         path = expandpath(path)
         if os.path.exists(path):
             return path
-
+            
     if path.find('/') == 0:
         if os.path.exists(path):
             return path
@@ -83,7 +93,7 @@ def resolvegenropypath(path):
             path = expandpath(path)
             if os.path.exists(path):
                 return path
-
+                
 if __name__ == '__main__':
     # test for resolvegenropypath
     print resolvegenropypath('~/genropy/genro/projects/devlang/packages/devlang/lib/developers.txt')

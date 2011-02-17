@@ -357,8 +357,7 @@ class GnrNamedList(list):
         return self._index.has_key(x)
         
     def items(self):
-        """Same of ``items`` method's dict
-        """
+        """Same of ``items`` method's dict"""
         items = self._index.items()
         result = [None] * len(items)
         for k, v in items:
@@ -366,16 +365,14 @@ class GnrNamedList(list):
         return result
         
     def iteritems(self):
-        """Same of ``iteritems`` method's dict
-        """
+        """Same of ``iteritems`` method's dict"""
         items = self._index.items()
         result = [None] * len(items)
         for k, v in items:
             yield (k, self[v])
             
     def keys(self):
-        """Same of ``keys`` method's dict
-        """
+        """Same of ``keys`` method's dict"""
         items = self._index.items()
         result = [None] * len(items)
         for k, v in items:

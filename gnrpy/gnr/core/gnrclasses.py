@@ -364,52 +364,57 @@ class GnrClassCatalog(object):
     #c.addSerializer("asText", datetime.date, lambda d: d.strftime('%d/%m/%Y'))
     #c.addSerializer("asText", float, lambda nr: re.sub(r"([-+]?\d{1,3}(\,\d*)?)(?=(\d{3})*(\,|$))",r".\1", ('%.2f' % nr).replace('.',','))[1:])
     #c.addSerializer("asText", int, lambda nr: re.sub(r"([-+]?\d{1,3}(\,\d*)?)(?=(\d{3})*(\,|$))",r".\1", '%i' % nr)[1:])
-    #c.addParser(float, lambda txt: c.parse_float(txt.replace('.','').replace(',','.')))        
+    #c.addParser(float, lambda txt: c.parse_float(txt.replace('.','').replace(',','.')))
     #return c
 
 if __name__ == '__main__':
-    c = GnrClassCatalog()
-    d = datetime.date(2007, 10, 21)
-
-    for l in ('it', 'en', 'fr', 'de', 'es'):
-        for f in ('SHORT', 'MEDIUM', 'LONG', 'FULL'):
-            print c.asText(d, locale=l, format=f)
-
-        print c.asText(2300.456)
-        print c.asText(2300.456, locale=l).encode('utf-8')
-        print c.asText(2300.456, locale=l, format='.2').encode('utf-8')
-        print c.asText(2300.456, locale=l, format='curr').encode('utf-8')
-        print c.asText(2300.456, locale=l, format='curr.3').encode('utf-8')
-        print c.asText(0.45636, locale=l, format='%').encode('utf-8')
-        print c.asText(0.45636, locale=l, format='%.2').encode('utf-8')
-
-    s = GnrClassCatalog.convert().fromTypedText('::B')
-
-    from gnr.core.gnrbag import Bag
-
-    b = Bag(
-            '/Shared Items/ApplicazioniClienti/instances/sw/sync4d/data/2006-12-12/2006-12-12_125817_146241953_UT_Anagrafiche_1.xml')
-
-    s = GnrClassCatalog.convert().fromTypedText('123::L')
-    print s
-    import datetime
-
-    converter = GnrClassDict()
-
-    print converter.asText(24)
-    #>>> '24'
-    print converter.asTypedTuple(24)
-    #>>> ('24','I')
-    print converter.asTypedText(24)
-    #>>> '24::I'
-    print converter.asTypedText(3.7)
-    print repr(converter.asTypedText(u'��'))
-    print converter.asTypedText(datetime.date.today())
-    print converter.asTypedText(datetime.time(11, 23, 54))
-    print converter.asTypedText(datetime.datetime.now())
-    print converter.asTypedText(True)
-    print converter.asTypedText(False)
-
-    print converter.fromText('24', 'I')
-    print converter.fromTypedText('2004-12-2::D')
-    print converter.fromTypedText('2006-07-03 14:09:00.662801::DH')
+    pass
+    # NISO: The following lines don't work properly (asText() doesn't accept the "locale" attribute),
+    #       so I put "pass" on the if __name__ == '__main__':
+    # PLEASE cancel the following lines if they are useless...
+    
+    #c = GnrClassCatalog()
+    #d = datetime.date(2007, 10, 21)
+    #    
+    #for l in ('it', 'en', 'fr', 'de', 'es'):
+    #    for f in ('SHORT', 'MEDIUM', 'LONG', 'FULL'):
+    #        print c.asText(d, locale=l, format=f)
+    #        
+    #    print c.asText(2300.456)
+    #    print c.asText(2300.456, locale=l).encode('utf-8')
+    #    print c.asText(2300.456, locale=l, format='.2').encode('utf-8')
+    #    print c.asText(2300.456, locale=l, format='curr').encode('utf-8')
+    #    print c.asText(2300.456, locale=l, format='curr.3').encode('utf-8')
+    #    print c.asText(0.45636, locale=l, format='%').encode('utf-8')
+    #    print c.asText(0.45636, locale=l, format='%.2').encode('utf-8')
+    #    
+    #s = GnrClassCatalog.convert().fromTypedText('::B')
+    #    
+    #from gnr.core.gnrbag import Bag
+    #    
+    #b = Bag(
+    #        '/Shared Items/ApplicazioniClienti/instances/sw/sync4d/data/2006-12-12/2006-12-12_125817_146241953_UT_Anagrafiche_1.xml')
+    #        
+    #s = GnrClassCatalog.convert().fromTypedText('123::L')
+    #print s
+    #import datetime
+    #    
+    #converter = GnrClassDict()
+    #    
+    #print converter.asText(24)
+    ##>>> '24'
+    #print converter.asTypedTuple(24)
+    ##>>> ('24','I')
+    #print converter.asTypedText(24)
+    ##>>> '24::I'
+    #print converter.asTypedText(3.7)
+    #print repr(converter.asTypedText(u'��'))
+    #print converter.asTypedText(datetime.date.today())
+    #print converter.asTypedText(datetime.time(11, 23, 54))
+    #print converter.asTypedText(datetime.datetime.now())
+    #print converter.asTypedText(True)
+    #print converter.asTypedText(False)
+    #    
+    #print converter.fromText('24', 'I')
+    #print converter.fromTypedText('2004-12-2::D')
+    #print converter.fromTypedText('2006-07-03 14:09:00.662801::DH')
