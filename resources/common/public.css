@@ -636,4 +636,18 @@ element.style {
     background: url(icons/norecord.png) no-repeat;
 }
 
+.pbl_slotbar_label {
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    background-color: #bfb6ae;
+    color: #403b3b;
+    font-size: 0.9em;
+    font-weight: bold;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
 
