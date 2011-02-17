@@ -4,6 +4,8 @@
 manage_users
 ============
 
-	This webpage allow you to save new users in you project.
-	
-	???
+    .. warning:: to be completed!
+
+This webpage allow you to save new users in your project.
+
+???

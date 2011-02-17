@@ -4,4 +4,5 @@
 
 .. toctree::
 
-	utils
+    commands
+    utils

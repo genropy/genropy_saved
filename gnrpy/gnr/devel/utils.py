@@ -2,8 +2,9 @@
 # encoding: utf-8
 """
 Available functionality:
-    - :class:`ProgressBar`, a class to draw text-based progressbars.
-    - :class:`AutoDiscovery`, a class to auto-detect current instance, site, package and
+
+    * :class:`ProgressBar`, a class to draw text-based progressbars.
+    * :class:`AutoDiscovery`, a class to auto-detect current instance, site, package and
       project from ``GENROPY_xxx`` environment variables and/or the current working
       directory.
 """
@@ -26,7 +27,9 @@ from gnr.core.gnrbag import Bag
 def expandpath(path, full=False):
     """Expand user home directory (~) and envioronment variables.
     
-    :param full: if True, returns a normalized path (see os.path.normpath).    
+    :param full: if True, returns a normalized path (see ``os.path.normpath``).
+                 Default value is ``False``
+    :returns: the path expanded
     """
     result = expanduser(expandvars(path))
     if full:
@@ -36,50 +39,49 @@ def expandpath(path, full=False):
 ########################################################################
 class AutoDiscovery(object):
     """Try to guess the current project, package, site and instance.
-    
+        
     Environment variables:
     
     .. envvar:: GENROPY_PROJECT
-
+    
         The name of the current project.
-
+        
     .. envvar:: GENROPY_INSTANCE
-
+    
         The name of the current instance.
-    
+        
     .. envvar:: GENROPY_SITE
-
+    
         The name of the current site.
-    
+        
     .. envvar:: GENROPY_PACKAGE
-
-        The name of the current package.
-
-    We apply these rules:
     
+        The name of the current package.
+        
+    We apply these rules:
+        
         1. look in the environment for a :envvar:`GENROPY_PROJECT`, :envvar:`GENROPY_SITE`,
-           :envvar:`GENROPY_INSTANCE` and :envvar:`GENROPY_PACKAGE` variables. If any are present,
-           we cross-check that they point to the right places by looking at the
-           declared places in the configuration (.gnr/environment.xml) and
-           complain if they don't.
-
+           :envvar:`GENROPY_INSTANCE` and :envvar:`GENROPY_PACKAGE` variables. If anyone is present,
+           we cross-check if they point to the right places. For doing this, we look to the
+           declared places in the configuration (.gnr/environment.xml) and complain if they don't.
+        
         2. if :envvar:`GENROPY_PROJECT` is missing, we look if the current path is inside
-           one of the declared projects in the configuration. If yes, we assume
-           that is the current project. If no, we don't have a current project.
-
+           one of the declared projects in the configuration. If we find one, we assume
+           that it is the current project. If no, we don't have a current project.
+        
         3. if :envvar:`GENROPY_INSTANCE` is missing, we look if the current path is inside
            one of the instances of the current project or if we are inside one
            of the declared instances in the configuration. If yes, we assume
            that is the current instance. If no, we don't have a current instance.
-
-        4. if :envvar:`GENROPY_SITE` is missing... (same as the previous step)
-
-        5. if :envvar:`GENROPY_PACKAGE` is missing... (same as the previous step)
-
+        
+        4. if :envvar:`GENROPY_SITE` is missing... (same as the previous steps)
+        
+        5. if :envvar:`GENROPY_PACKAGE` is missing... (same as the previous steps)
+        
         6. If we have a project, but we don't have an instance/site/package
            -and- the project has only one instance/site/package, then we
            assume that's the current one.
-    
+           
     Attributes:
     
     .. attribute:: current_project
@@ -137,44 +139,43 @@ class AutoDiscovery(object):
     .. attribute:: config_file
     
         path to the configuration file (e.g. ``~/gnr/environment.xml``)
-    
     """
-
+    
     def __init__(self, config_file='~/.gnr/environment.xml'):
-        """Constructor.
-        """
         self.current_project = None
         self.current_package = None
         self.current_instance = None
         self.current_site = None
-
+        
         self.project_packages = None
         self.project_instances = None
         self.project_sites = None
         self.project_commands = None
-
+        
         self.all_projects = {}
         self.all_packages = {}
         self.all_instances = {}
         self.all_sites = {}
         self.all_commands = {}
-
+        
         self.config_file = config_file
-
+        
         self._load_configuration()
         self._auto_discovery()
-
+        
     def report(self, all=False):
-        """Print a summary of what AutoDiscovery found.
-
-        If ``all`` is False, it will print only the current project, instance, packages and site.
-        If ``all`` is True, will print a full report including all available items in this GenroPy installation.
+        """Print a summary of what :class:`AutoDiscovery` class found.
+        
+        :param all: if ``False``, print only the current project, instance, packages and site.
+                    if ``True``, print a full report including all available items in this GenroPy installation.
+                    Default value is ``False``
+        :returns: a print of a summary
         """
         print "Current Project:", repr(self.current_project)
         print "Current Instance:", repr(self.current_instance)
         print "Current Package:", repr(self.current_package)
         print "Current Site:", repr(self.current_site)
-
+        
         if all:
             print "---- Projects ----"
             for p in self.all_projects.values():
@@ -185,8 +186,7 @@ class AutoDiscovery(object):
             print "---- Command files ----"
             for c in self.all_commands.values():
                 print "  %-20s %s" % (c.name, c.path)
-
-
+                
     def _load_configuration(self):
         """Load GenroPy configuration"""
         cfg = Bag(expanduser(self.config_file))
