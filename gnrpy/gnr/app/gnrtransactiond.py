@@ -52,12 +52,12 @@ class GnrAppTransactionAgent(GnrApp):
         self.transaction_tname = '%s.transaction' % self.transaction_pkgid
         self.error_tname = '%s.error' % self.transaction_pkgid
         if self.config['logging.email']:
-            mailhost = self.config['logging.email?host'] or 'mail.softwell.it'
-            fromaddr = self.config['logging.email?fromaddr'] or 'michele.bertoldi@softwell.it'
-            toaddr = self.config['logging.email?toaddr'] or 'michele.bertoldi@softwell.it'
-            subject = self.config['logging.email?subject'] or 'Errore'
-            username = self.config['logging.email?username'] or 'michele.bertoldi@softwell.it'
-            password = self.config['logging.email?password'] or 'r0tr1n9'
+            mailhost = self.config['logging.email?host'] 
+            fromaddr = self.config['logging.email?fromaddr'] 
+            toaddr = self.config['logging.email?toaddr'] 
+            subject = self.config['logging.email?subject'] 
+            username = self.config['logging.email?username'] 
+            password = self.config['logging.email?password']
             if username and password:
                 credentials = (username, password)
             else:
