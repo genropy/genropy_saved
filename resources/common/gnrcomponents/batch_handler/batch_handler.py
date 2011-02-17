@@ -160,7 +160,7 @@ class TableScriptRunner(BaseComponent):
                                 FIRE #table_script_runner.run;
                             }
                             """,
-                           _fired="^.save", pars='=.data',immediate=batch_dict.get('immediate'))
+                           _fired="^.save", pars='=.data',immediate=batch_dict.get('immediate',False))
 
     def rpc_table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectionFilterCb=None,
                              selectedRowidx=None,
