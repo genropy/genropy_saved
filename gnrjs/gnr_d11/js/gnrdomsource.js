@@ -354,8 +354,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             genro._data.setItem(path, value, attributes, {'doTrigger':doTrigger});
         }
     },
-    defineForm: function(form_id, formDatapath, controllerPath, pkeyPath,kw) {
-        this.form = new gnr.GnrFrmHandler(this, form_id, formDatapath, controllerPath, pkeyPath,kw);
+    defineForm: function(formId, formDatapath, controllerPath, pkeyPath,kw) {
+        this.form = new gnr.GnrFrmHandler(this, formId, formDatapath, controllerPath, pkeyPath,kw);
     },
     hasDynamicAttr: function(attr) {
         return (this._dynattr && (attr in this._dynattr));
@@ -700,7 +700,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         if(this.form){
             var formsubscription = objectExtract(attributes, 'formsubscribe_*');
-            var topic_pref = 'form_'+this.form.form_id+'_';
+            var topic_pref = 'form_'+this.form.formId+'_';
             for (var formsubscribe in formsubscription){
                 subscriptions[topic_pref+formsubscribe] = formsubscription[formsubscribe];
             }
@@ -744,7 +744,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (bld_attrs.tooltip) {
             genro.wdg.create('tooltip', null, {label:bld_attrs.tooltip}).connectOneNode(newobj.domNode || newobj);
         }
-
+        this._built=true;
         return newobj;
     },
     _resetDynAttributes : function() {
@@ -810,6 +810,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             var children =this.getValue('static');
             if (children instanceof gnr.GnrDomSource){
                 children.walk(function(n){
+                    if(!n._built){
+                       return true;
+                    }
                     n.publish(msg,kw);
                 });
             }
@@ -1118,7 +1121,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     var form = that.getFormHandler();
                     if(form){
                         that.form = form;
-                        var fid = form.form_id;
+                        var fid = form.formId;
                         var subscriptions = {};
                         for (var formsubcription in formsubscriptions){
                             subscriptions['form_'+fid+'_'+formsubcription] = formsubscriptions[formsubcription];

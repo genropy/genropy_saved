@@ -26,17 +26,23 @@
 //######################## genro  #########################
 
 dojo.declare("gnr.GnrFrmHandler", null, {
-    constructor: function(sourceNode, form_id, formDatapath, controllerPath, pkeyPath,kw) {
+    constructor: function(sourceNode, formId, formDatapath, controllerPath, pkeyPath,formAttr) {
         dojo.subscribe('onPageStart',this,'onStartForm');
         sourceNode.subscribe('built',function(){
             this.form.onStartForm();
         });
-        this.form_id = form_id;
+        for(var k in formAttr){
+            this[k] = formAttr[k];
+        }
+        this.formId = formId;
         this.changed = false;
         this.opStatus = null;
         this.locked = false;
         this.current_field = null;
-        this.controllerPath = controllerPath || 'gnr.forms.' + this.form_id;
+        this.controllerPath = controllerPath;
+        if(!this.store){
+            this.controllerPath = this.controllerPath || 'gnr.forms.' + this.formId;
+        }
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
@@ -69,28 +75,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         };
         this.msg_saved = 'Saved';
         this.msg_unsaved_changes ="Current record has been modified.";
-        for(var k in kw){
-            this[k] = kw[k];
-        }
     },
     onStartForm:function(kw){
         var kw = kw || {};
-        this.formDomNode =  genro.domById(this.form_id);
-        var storeCode = this.sourceNode.attr.storeCode;
-        if(storeCode){
-            var contentSourceNode = genro.nodeById(this.form_id+'_content');
-            var storeId = storeCode+'_store';
-            this.storeNode = genro.nodeById(storeId);
-            var storepath = this.storeNode.attr.storepath;
-            this.formDatapath = this.sourceNode.attr.formDatapath || ((storepath[0]=='.')?('#'+storeId+this.storeNode.attr.storepath):storepath);
-            contentSourceNode.attr.datapath = this.formDatapath;
-            contentSourceNode.lazyBuildFinalize();
+        this.formDomNode =  genro.domById(this.formId);
+        if(this.store){
+            var contentSourceNode = genro.nodeById(this.formId+'_content');
+
             this.formContentDomNode = contentSourceNode.widget.domNode;
-            var kw = objectUpdate({}, this.storeNode.attr);
-            var storeType = objectPop(kw, 'storeType')
-            objectPop(kw, 'tag');
-            this.setStore(storeType, kw);
-        
+            this.store.init(this);            
             var that = this;
             dojo.connect(this.formContentDomNode,'onclick',function(e){
                 if(genro.activeForm!=that){
@@ -109,7 +102,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
-        dojo.publish('form_'+this.form_id+'_'+command,[kw]);
+        dojo.publish('form_'+this.formId+'_'+command,[kw]);
     },
     subscribe: function(command,cb,scope){
         if(command.indexOf(',')>=0){
@@ -119,7 +112,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             });
             return;
         }
-        var topic = 'form_'+this.form_id+'_'+command;
+        var topic = 'form_'+this.formId+'_'+command;
         var scope = scope || this;
         var cb = cb || this[command];
         dojo.subscribe(topic,scope,cb);
@@ -151,7 +144,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     
     resetChanges: function() {
-        var sourceNode = genro.nodeById(this.form_id);
+        var sourceNode = genro.nodeById(this.formId);
         this.getFormData().subscribe('dataLogger',{'upd':dojo.hitch(this, "triggerUPD"),
                                                    'ins':dojo.hitch(this, "triggerINS"),
                                                    'del':dojo.hitch(this, "triggerDEL")
@@ -281,7 +274,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.resetInvalidFields(); // reset invalid fields before loading to intercept required fields during loading process
         //genro.setData('_temp.grids', null);
-        var loaderNode = genro.nodeById(this.form_id + '_loader');
+        var loaderNode = genro.nodeById(this.formId + '_loader');
         if (loaderNode) {
             loaderNode.fireNode();
             if (sync) {
@@ -318,18 +311,18 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         
     },
     _showHider: function(){
-        var formDomNode = genro.domById(this.form_id);
+        var formDomNode = genro.domById(this.formId);
         genro.dom.addClass(formDomNode, 'loadingForm');
         var formHider = document.createElement("div");
-        formHider.id = this.form_id + "_hider";
+        formHider.id = this.formId + "_hider";
         dojo.addClass(formHider, 'formHider');
         formDomNode.appendChild(formHider);
     },
     _hideHider:function(){
-        genro.dom.removeClass(this.form_id, 'loadingForm');
-        var hider = dojo.byId(this.form_id + "_hider");
+        genro.dom.removeClass(this.formId, 'loadingForm');
+        var hider = dojo.byId(this.formId + "_hider");
         if (hider) {
-            genro.domById(this.form_id).removeChild(hider);
+            genro.domById(this.formId).removeChild(hider);
         }
     },
     loaded: function(data) {
@@ -406,7 +399,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     do_save:function(destPkey){        
         this.setOpStatus('saving');
         this.fireControllerData('saving');
-        var saverNode = genro.nodeById(this.form_id + '_saver');
+        var saverNode = genro.nodeById(this.formId + '_saver');
         if(saverNode){
             saverNode.fireNode();
             return saverNode._lastDeferred;
@@ -523,7 +516,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     _getRecordCluster: function(record, changesOnly, result, removed, parentpath) {
         if (record) {
-            var parentpath = parentpath || genro.nodeById(this.form_id).absDatapath('');
+            var parentpath = parentpath || genro.nodeById(this.formId).absDatapath('');
             var data = new gnr.GnrBag();
             data.__isRealChange = false;
             var node, sendBag, value, currpath, sendback;
@@ -1048,12 +1041,14 @@ dojo.declare("gnr.GnrValidator", null, {
 
 //formstores
 dojo.declare("gnr.formstores.Base", null, {
-    constructor:function(form,kw){
-        this.form = form;
-        this.handlers = objectPop(kw,'handlers') || {};
+    constructor:function(kw,handlers){
+        objectPop(kw, 'tag');
+        this.handlers = handlers;
+        this.storepath = objectPop(kw,'storepath');
+        this.startKey = objectPop(kw,'startKey');
         this.table = kw.table;
-        this.parentStoreNode = kw.parentStoreNode;
         this.onSaved = kw.onSaved;
+        this.parentStoreCode = objectPop(kw,'parentStore');
         var base_handler_type = objectPop(kw,'handler');
         var handlerKw = objectExtract(kw,'handler_*');
         var handler,handler_type,method,actionKw,callbacks;
@@ -1073,6 +1068,12 @@ dojo.declare("gnr.formstores.Base", null, {
             that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks};
         });
     },
+    
+    init:function(form){
+        this.form = form;        
+        this.parentStoreNode = genro.getStore(this.parentStoreCode);
+    },
+    
     getStartPkey:function(){
         return;
     },

@@ -1890,6 +1890,11 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
     },
 
     creating_common: function(attributes, sourceNode) {
+        sourceNode.subscribe('built',function(kw){
+            console.log(this);
+           
+            console.log('layout done');
+        });
         if(!sourceNode.attr.storepath){
             if(sourceNode.attr.store){
                 var storeNode = genro.nodeById(sourceNode.attr.store+'_store');

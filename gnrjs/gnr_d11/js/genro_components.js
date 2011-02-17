@@ -157,9 +157,10 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         sourceNode._registerNodeId();
         objectPop(kw,'datapath');
         var rounded_corners = genro.dom.normalizedRoundedCorners(kw.rounded,objectExtract(kw,'rounded_*',true))
+        var centerPars = objectExtract(kw,'center_*');
+
         var bc = sourceNode._('BorderContainer', kw);
         var slot,v;
-        var centerPars = objectExtract(kw,'center_*');
         var sides= kw.design=='sidebar'? ['left','right','top','bottom']:['top','bottom','left','right']
         var corners={'left':['top_left','bottom_left'],'right':['top_right','bottom_right'],'top':['top_left','top_right'],'bottom':['bottom_left','bottom_right']}
         dojo.forEach(sides,function(side){
@@ -209,20 +210,43 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var formId = objectPop(kw,'formId');
-        var storeNode = children.getNode('formStore');
-        if(storeNode){
-            storeNode.attr['_frame'] = true;
-        }
+        var storeNode = children.popNode('formStore');
+        var store = this.createStore(storeNode);
+        var storepath = store.storepath;
         var frameCode = kw.frameCode;
         formId = formId || frameCode+'_form';
-        var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.form',pkeyPath:'.pkey',
-        formId:formId},kw));
+        var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.controller',formDatapath:storepath,pkeyPath:'.pkey',formId:formId,form_store:store},kw));
         frame._('SlotBar',{'side':'bottom',slots:'*,messageBox,*',_class:'fh_bottom_message',messageBox_subscribeTo:'form_'+formId+'_message'});
         var storeId = kw.store+'_store';
         var centerPars = objectExtract(kw,'center_*');
         centerPars['widget'] = centerPars['widget'] || 'ContentPane';
-        frame._(centerPars['widget'],{side:'center','_class':'fh_content','nodeId':formId+'_content',_lazyBuild:true});
+        frame._(centerPars['widget'],{side:'center','_class':'fh_content','nodeId':formId+'_content',datapath:storepath});
         return frame;
+    },
+    createStore:function(storeNode){
+        var storeCode = storeNode.attr.storeCode;
+        storeNode.attr.storepath = storeNode.attr.storepath || '.record';
+        var storeContent = storeNode.getValue();
+        var action,callbacks;
+        storeNode._value = null;
+        var handlers = {};
+        if(storeContent){
+            storeContent.forEach(function(n){
+                action = objectPop(n.attr,'action');
+                if(action){
+                    objectPop(n.attr,'tag');
+                    handlers[action] = n.attr;
+                    callbacks = n.getValue();
+                    if(callbacks){
+                        handlers[action]['callbacks'] = callbacks;
+                    }
+                }
+            });
+        }        
+        var kw = storeNode.attr;
+        var storeType = objectPop(kw,'storeType');
+        storeType = storeType ||(kw.parentStore?'Collection':'Item');
+        return new gnr.formstores[storeType](kw,handlers);
     }
 });
 
@@ -781,45 +805,5 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     }
 });
 
-
-dojo.declare("gnr.widgets.FormStore", gnr.widgets.gnrwdg, {
-    _beforeCreation: function(sourceNode) {
-        var storeCode = sourceNode.attr.storeCode;
-        var formId = sourceNode.getParentNode().getParentNode().attr.formId;
-        if(!sourceNode.attr.storepath){
-            if(formId){
-                sourceNode.attr.storepath='.record';
-            }else{
-                console.error('missing storepath')
-            }
-        }
-        if(!storeCode){
-            if(formId){
-                storeCode = formId+'_store';
-            }else{
-                console.error("missing storeCode in formStore not attached to a form")
-            }
-        }
-        var handlers = sourceNode.getValue();
-        var action,callbacks;
-        sourceNode._value = null;
-        sourceNode.attr.handlers = {};
-        handlers.forEach(function(n){
-            action = objectPop(n.attr,'action');
-            if(action){
-                objectPop(n.attr,'tag');
-                sourceNode.attr.handlers[action] = n.attr;
-                callbacks = n.getValue();
-                if(callbacks){
-                    sourceNode.attr.handlers[action]['callbacks'] = callbacks;
-                }
-            }
-            
-        })
-        sourceNode.attr.nodeId = sourceNode.attr.nodeId || storeCode+'_store';
-        sourceNode._registerNodeId();
-        return false;
-    }
-});
 
 
