@@ -10,7 +10,8 @@ from gnr.web.gnrwebstruct import struct_method
 
 class GnrCustomWebPage(object):
     dojo_source=True
-    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler"
+    testOnly='_10_'
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler,foundation/includedview:IncludedView"
     user_polling=0
     auto_polling=0
     
@@ -62,18 +63,25 @@ class GnrCustomWebPage(object):
         #bc = form.borderContainer(selfsubscribe_built='this.widget.resize()')
         form.contentPane(region='left',background='red',width='50px')
         form.contentPane(region='center').formbuilder(cols=2, border_spacing='3px').formContent()  
-                  
-        
-    def test_1_frameform_external_store(self,pane):
-        "Test FrameForm External store"
-        store = pane.formStore(storeCode='provincia',storepath='.stores.provincia.record',
-                      table='glbl.provincia',storeType='Item',startKey='*norecord*',
-                      handler='recordCluster')
-        form = pane.frameForm(frameCode='provincia_2',storeCode='provincia',border='1px solid silver',datapath='.form',
-                            pkeyPath='.prov',rounded_bottom=10,height='180px',width='600px')
-        tb = form.testToolbar()  
-        form.formbuilder(cols=2, border_spacing='3px').formContent()         
-        
+    
+    
+    def test_10_frameform_iv(self,pane):
+        "Test FrameForm"
+        form = pane.frameForm(frameCode='regione',border='1px solid silver',datapath='.form',
+                            rounded_bottom=10,height='180px',width='600px',center_widget='TabContainer',
+                            pkeyPath='.prov')
+        form.testToolbar()
+        store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
+                               handler='recordCluster',startKey='*norecord*',onSaved='reload')
+        store.handler('load',_onCalling='console.log("xxxx")',default_ordine_tot='100')    
+        form.contentPane(title='Provincia').formbuilder(cols=2, border_spacing='3px').formContent()
+        bc =form.borderContainer(title='Comuni')
+        self.includedViewBox(bc,label='Comuni',datapath='comuni',
+                             nodeId='comuni',table='glbl.localita',
+                             struct='min',
+                             reloader='^#regione_form.record.id', 
+                             selectionPars=dict(where='$provincia=:provincia_id',
+                             provincia_id='^#regione_form.record.sigla'))    
         
     def test_2_formPane_dbl_cp(self,pane):
         bc = pane.borderContainer(height='180px')
