@@ -113,8 +113,6 @@ class GnrDict(dict):
         
     def items(self):
         """add???
-        
-        :returns: add???
         """
         return [(k, self[k]) for k in self._list]
         
@@ -314,5 +312,7 @@ class GnrNumericDict(GnrDict):
 if __name__ == '__main__':
     a = GnrDict([('pino', 55), ('gionni', 88)], ugo=56, mario=False)
     print a.get('#1')
-    print a['gvhjf hvj']
-        
+    try:
+        print a['gvhjf hvj']
+    except:
+        print 36

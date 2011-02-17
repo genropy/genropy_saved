@@ -163,7 +163,7 @@ class GnrStructData(Bag):
 
 
 class GnrStructObj(GnrObject):
-    """It is a tree of GnrObjects that is auto-builded starting from an instance of GnrStructData.
+    """It is a tree of GnrObjects that it is auto-builded starting from an instance of GnrStructData.
     """
         
     def makeRoot(cls, parent, structnode, objclassdict, **kwargs):
@@ -387,12 +387,15 @@ class GnrStructObj(GnrObject):
         return (name.lower() in self.children) or (name.lower() in self.childalias)
         
     def items(self):
+        """Same of ``items`` method's dict, applied on the ``children`` attribute"""
         return self.children.items()
         
     def keys(self):
+        """Same of ``keys`` method's dict, applied on the ``children`` attribute"""
         return self.children.keys()
         
     def values(self):
+        """Same of ``values`` method's dict, applied on the ``children`` attribute"""
         return self.children.values()
         
     def _set_structnode(self, structnode):
@@ -423,27 +426,48 @@ class GnrStructObj(GnrObject):
     parent = property(_get_parent, _set_parent)
         
     def init(self):
+        """add???
+        """
         pass
         
     def newChild(self, child):
+        """add???
+        
+        :param child: add???
+        """
         pass
         
     def afterChildrenCreation(self):
+        """add???
+        """
         pass
         
     def asBag(self):
+        """add???
+        """
         return StructObjResolver(self)
         
 class StructObjResolver(BagResolver):
     def resolverDescription(self):
+        """add???
+        
+        :returns: add???
+        """
         return 'tree'
         
     def init(self, obj):
+        """add???
+        
+        :param obj: add???
+        """
         #self.obj = weakref.ref(obj)
         self.obj = obj
         self.alreadyCalled = False
         
     def expired(self):
+        """add???
+        :returns: add???
+        """
         if self.alreadyCalled:
             #obj = self.obj()
             obj = self.obj
@@ -478,12 +502,19 @@ class StructObjResolver(BagResolver):
         return result
         
 class TestStructModule(object):
+    """add???
+    """
     def __init__(self):
         self.struct = GnrStructData.root()
         self.structdict = {}
         self.roots = {}
         
     def buildOne(self, name, path):
+        """add???
+        
+        :param name: add???
+        :param path: add???
+        """
         node = self.struct.getNode(path)
         self.roots[name] = GnrStructObj.root(node, self.structdict)
         
@@ -491,5 +522,4 @@ class GnrStructureError(Exception):
     pass
         
 if __name__ == '__main__':
-    z = TestStruct()
-    
+    pass
