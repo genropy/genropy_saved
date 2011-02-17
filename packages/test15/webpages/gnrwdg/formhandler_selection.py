@@ -33,7 +33,7 @@ class GnrCustomWebPage(object):
         
     @struct_method
     def formContent(self,fb):
-        fb.field('sigla')
+        fb.field('sigla',validate_nodup=True)
         fb.field('regione')
         fb.field('nome')
         fb.field('codice_istat')
