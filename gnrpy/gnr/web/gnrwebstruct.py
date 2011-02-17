@@ -227,26 +227,24 @@ class GnrDomSrc(GnrStructData):
             center_content(frame)
         return frame
     
-    def formstore(self,storeCode=None,storepath=None,handler='recordCluster',
+    def formstore(self,storepath=None,handler='recordCluster',
                     nodeId=None,table=None,storeType=None,parentStore=None,**kwargs):
+        assert self.attributes.get('tag','').lower()=='frameform', 'formstore can be created only inside a FrameForm'
+        storeCode = self.attributes['frameCode']
+        self.attributes['storeCode'] = storeCode
         if not storeType:
             if parentStore:
                 storeType='Collection'
             else:
                 storeType='Item'
-        if self.attributes.get('tag','').lower()=='frameform':
-            if table:
-                self.attributes['table'] = table
-            elif 'table' in self.attributes:
-                table = self.attributes['table']
-            if not storeCode:
-                storeCode = self.attributes['storeCode']
-            else:
-                self.attributes['store'] = storeCode
-            if not storepath:
-                storepath = '.record'
+                                
+        if table:
+            self.attributes['table'] = table
+        elif 'table' in self.attributes:
+            table = self.attributes['table']
+        if not storepath:
+            storepath = '.record'
                 
-        assert storeCode,'storeCode mandatory for stores not attached to a form'
         return self.child('formStore',childname='formStore',storeCode=storeCode,table=table,
                             nodeId = nodeId or '%s_store' %storeCode,storeType=storeType,
                             parentStore=parentStore,
