@@ -31,13 +31,10 @@ class GnrCustomWebPage(object):
         return fb
         
     def main(self,pane,**kwargs):
-        #pane.dataController("parent.genro.setData('frame.test1.page_id',genro.page_id)",_onStart=True)
-        pane.attributes['selfsubscribe_dismiss'] = """
-                                                    console.log('dismiss');
-                                                    genro.publish({"topic":"switchPage","parent":true,nodeId:"maintab"},0);"""
         form = pane.frameForm(frameCode='baseform',border='1px solid silver',datapath='form',
                             rounded_bottom=10,height='180px',width='600px',
-                            pkeyPath='.prov',background='white')
+                            pkeyPath='.prov',background='white',
+                            formsubscribe_onDismissed='genro.publish({"topic":"switchPage","parent":true,nodeId:"maintab"},0);')
         form.dataController("this.form.publish('load',{destPkey:pkey})",pkey="^pkey")
         form.testToolbar()
         store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',

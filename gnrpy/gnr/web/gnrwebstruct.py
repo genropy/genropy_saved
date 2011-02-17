@@ -587,6 +587,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         dialog_kwargs=None,palette_kwargs=None,formId=None,**kwargs):
         formId = formId or '%s_form' %frameCode
         loadSubscriber = 'subscribe_form_%s_onLoading' %formId
+        closeSubscriber = 'subscribe_form_%s_onDismissed' %formId
+        
         if formRoot:
             if isinstance(formRoot,basestring):
                 formRoot = self.pageSource(formRoot)
@@ -597,13 +599,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 kwargs['width'] = dialog_kwargs.pop('width')
                 dialog_kwargs['closable'] = dialog_kwargs.get('closable','publish')
                 dialog_kwargs[loadSubscriber] = "this.widget.show();"
-                dialog_kwargs['selfsubscribe_dismiss'] = "this.widget.hide();"
-                dialog_kwargs['selfsubscribe_close'] = """genro.getForm('%s').publish('navigationEvent',{'command':'dismiss',modifiers:$1.modifiers});
+                dialog_kwargs[closeSubscriber] = "this.widget.hide();"
+                dialog_kwargs['selfsubscribe_close'] = """genro.getForm('%s').dismiss($1.modifiers);
                                                             """ %frameCode
             formRoot = self.parent.dialog(**dialog_kwargs)
         elif palette_kwargs:
             palette_kwargs[loadSubscriber] = "this.widget.show();"
-            palette_kwargs['selfsubscribe_dismiss'] = "this.widget.hide();"
+            palette_kwargs[closeSubscriber] = "this.widget.hide();"
             formRoot = self.parent.palettePane(**palette_kwargs)
         form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=self.attributes.get('table'),
                                  store=store,**kwargs)

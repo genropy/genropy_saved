@@ -52,7 +52,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }else{
             this.formParentNode = this.sourceNode.getParentNode();
         }
-        this.subscribe('save,load,loaded,setLocked,navigationEvent,newrecord,deleteItem,pendingChangesAnswer');
+        this.subscribe('save,load,loaded,setLocked,navigationEvent,newrecord,deleteItem,pendingChangesAnswer,dismiss');
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
         //this.store=new.....
@@ -142,7 +142,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
 
-    
+    dismiss:function(modifiers){
+        this.publish('navigationEvent',{'command':'dismiss',modifiers:modifiers});
+    },
     resetChanges: function() {
         var sourceNode = genro.nodeById(this.formId);
         this.getFormData().subscribe('dataLogger',{'upd':dojo.hitch(this, "triggerUPD"),
@@ -288,7 +290,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     doload_store: function(kw) {
         if(kw.destPkey=='*dismiss*'){
             this.reset();
-            this.formParentNode.publish('dismiss');
+            this.publish('onDismissed');
             return;
         }
         var kw = kw || {};
@@ -426,7 +428,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 cb=function(result){
                     that.reset();
                     if(onSaved=='dismiss'){
-                        that.formParentNode.publish('dismiss');
+                        that.publish('onDismissed');
                     }
                 };
             }

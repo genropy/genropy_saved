@@ -35,6 +35,10 @@ class FormHandler(BaseComponent):
         pane.slotbar_form_prev()
         pane.slotbar_form_next()
         pane.slotbar_form_last()
+        
+    @struct_method               
+    def fh_slotbar_form_semaphore(self,pane,**kwargs):
+        pane.div(_class='fh_semaphore')
     
     @struct_method               
     def fh_slotbar_form_semaphore(self,pane,**kwargs):
@@ -47,7 +51,11 @@ class FormHandler(BaseComponent):
         pane.slotbar_form_revert()
         pane.slotbar_form_delete()
         pane.slotbar_form_add()
-
+        
+    @struct_method          
+    def fh_slotbar_form_dismiss(self,pane,caption=None,iconClass=None,**kwargs):
+        pane.formButton('!!Dismiss',iconClass="tb_button tb_listview",
+                    topic='navigationEvent',command='dismiss')
     
     @struct_method          
     def fh_slotbar_form_save(self,pane,**kwargs):

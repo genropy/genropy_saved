@@ -24,18 +24,24 @@ from gnr.web.gnrbaseclasses import BaseComponent
 
 class TableHandlerForm(BaseComponent):
     def pageFormNew(self, sc):
+        sc.attributes['center_selfsubscribe_dismiss']='SET list.selectedIndex=-2;',
         form = sc.frameForm(frameCode='formPane',formId='formPane',datapath='form',controllerPath='gnr.forms.formPane',
                             table=self.maintable,center_widget='BorderContainer',
                             pkeyPath='.pkey',
+                            formsubscribe_onDismissed='SET list.selectedIndex=-2;',
                             sqlContextName='sql_record',
                             sqlContextRoot='form.record',
                             sqlContextTable=self.maintable)
         form.dataController("this.form.load({destPkey:pkey});",pkey="=list.selectedId",_fired='^form.doLoad')
         store = form.formStore(storepath='.record',hander='recordCluster',storeType='Collection',onSaved='reload',
                         parentStore='th_mainstore')
+        self.formTitleBase(form)
+        toolbar = form.top.slotToolbar('navigation,|,5,hiddenrecord,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
+                                        dismiss_iconClass='tb_button tb_listview')
         
-        form.top.slotToolbar('navigation,*,|,semaphore,|,formcommands,|,locker')
+        self.setLogicalDeletionCheckBox(toolbar.hiddenrecord)
         self.formBase(form,region='center')
+        
 
     
     def pageForm(self, pane):
