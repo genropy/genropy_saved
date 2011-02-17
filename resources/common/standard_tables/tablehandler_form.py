@@ -28,6 +28,7 @@ class TableHandlerForm(BaseComponent):
         form = sc.frameForm(frameCode='formPane',formId='formPane',datapath='form',controllerPath='gnr.forms.formPane',
                             table=self.maintable,center_widget='BorderContainer',
                             pkeyPath='.pkey',
+                            hasBottomMessage=False,
                             formsubscribe_onDismissed='SET list.selectedIndex=-2;',
                             sqlContextName='sql_record',
                             sqlContextRoot='form.record',
@@ -61,9 +62,9 @@ class TableHandlerForm(BaseComponent):
                      disabled='^form.locked')
         #elem.dataFormula('aux.listpage', '!selectedpage', selectedpage='^selectedPage', _onStart=True)
         elem.dataController("""if(logical_deleted){
-                                   genro.dom.addClass("formRoot", "logicalDeleted");
+                                   genro.dom.addClass("formPane", "logicalDeleted");
                                }else{
-                                   genro.dom.removeClass("formRoot", "logicalDeleted");
+                                   genro.dom.removeClass("formPane", "logicalDeleted");
                                }
                                if($2.kw.reason!=true){
                                    if (delete_ts && !logical_deleted){

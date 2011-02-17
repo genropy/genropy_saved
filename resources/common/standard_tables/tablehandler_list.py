@@ -223,13 +223,19 @@ class TableHandlerForm(BaseComponent):
                             confirm='^list.act_result', action='=list.act_value', _if='confirm=="confirm"',
                             table=self.maintable, selectionName='=list.selectionName')
 
-    def listToolbar(self, pane, datapath=None, arrows=True):
+    def listToolbar(self, pane):
         self.listController(pane)
+        if self.useNewForms and False:
+            self.listSlotToolbar(pane)
+            return
         tb = pane.toolbar(_class='th_toolbar')
         self.listToolbar_lefticons(tb.div(float='left', _class='th_toolbar_left'))
         self.listToolbar_query(tb.div(float='left'))
         self.listToolbar_rightbuttons(tb)
-
+    
+    def listSlotToolbar(self,pane):
+        pane.slotToolbar()
+        
     def listToolbar_lefticons(self, pane):
         buttons = pane.div(_class='button_placeholder', float='left')
         buttons.div(_class='db_treebtn', connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")

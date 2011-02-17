@@ -126,7 +126,8 @@ class TableHandler(BaseComponent):
     def newMain(self,pane):
         sc = pane.rootStackContainer(center_selected='^selectedPage',
                                     center_class='pbl_mainstack',
-                                    center_nodeId='tablehandler_mainstack')
+                                    center_nodeId='tablehandler_mainstack',
+                                    bottom_messageBox_subscribeTo='form_formBase_message')
         self.pageList(sc)
         self.pageFormNew(sc)
         
