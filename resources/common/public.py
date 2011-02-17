@@ -9,6 +9,9 @@
 
 """ public common11 """
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrwebstruct import struct_method
+from gnr.core.gnrlang import extract_kwargs
+
 import os
 
 class Public(BaseComponent):
@@ -85,7 +88,120 @@ class Public(BaseComponent):
         self.simpleDialog(pane, title='!!Waiting', dlgId='pbl_waiting', height='200px', width='300px',
                           cb_center=cb_center,
                           datapath='gnr.tools.waitingdialog', cb_bottom=cb_bottom)
+        
+    @extract_kwargs(top=True,bottom=True)
+    def _pbl_frameroot(self, rootbc, title=None, height=None, width=None, flagsLocale=False,
+                     top_kwargs=None,bottom_kwargs=None,**kwargs):
+        frame = rootbc.framePane(frameCode='public_root',region='center', _class='pbl_root_center',
+                                namespace='public',**kwargs)
+        self.public_frameTopBar(frame.top,title=title,**top_kwargs)
+        self.public_frameBottomBar(frame.bottom,**bottom_kwargs)
+        return frame
+    
+    def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
+        pane.parent.data('_clientCtx.mainBC.left?show', self.pageOptions.get('openMenu', True))            
+        slots = slots or 'menuBtn,workdate,*,caption,*,user,logout,5'
+        if 'caption' in slots:
+            kwargs['caption_title'] = title
+        
+        return pane.slotBar(slots=slots,
+                            _class='pbl_root_top',
+                            **kwargs)
+    
+    def public_frameBottomBar(self,pane,slots=None,**kwargs):
+        slots = slots or '5,dock,*,messageBox,*,devBtn,locBtn,5'
+        if 'messageBox' in slots:
+            pane.parent.dataController("genro.publish('pbl_bottomMsg',{message:msg});",msg="^pbl.bottomMsg") #legacy
+            kwargs['messageBox_subscribeTo']='pbl_bottomMsg'
+        return pane.slotBar(slots=slots,
+                            _class='pbl_root_bottom',
+                            **kwargs)
+        
+    @struct_method
+    def pbl_slotbar_public_menuBtn(self,pane,**kwargs):
+        pane.div(_class='pbl_menu_icon buttonIcon', connect_onclick="PUBLISH main_left_set_status= 'toggle';")
+        
+    @struct_method
+    def pbl_slotbar_public_workdate(self,pane,**kwargs):
+        connect_onclick = None
+        if self.application.checkResourcePermission(self.pbl_canChangeWorkdate(), self.userTags):
+            connect_onclick = 'FIRE #changeWorkdate_dlg.open;'
+        pane.div('^gnr.workdate', format='short',
+                 _class='pbl_slotbar_label buttonIcon',
+                 connect_onclick=connect_onclick)
+        if connect_onclick:
+            self.pbl_workdate_dialog()
+        
+    
+    @struct_method
+    def pbl_slotbar_public_caption(self,pane,title='',**kwargs):   
+        pane.div(title, _class='pbl_title_caption',subscribe_public_caption='this.domNode.innerHTML=$1;',**kwargs)
+        
+    @struct_method
+    def pbl_slotbar_public_pageback(self,pane,**kwargs): 
+        pane.div(connect_onclick="genro.pageBack()", title="!!Back",
+                 _class='icnBaseUpYellow buttonIcon', content='&nbsp;',**kwargs)
+                 
+    @struct_method
+    def pbl_slotbar_public_flagsLocale(self,pane,**kwargs): 
+            pane.dataRpc('aux.locale_ok', 'changeLocale', locale='^aux.locale')
+            pane.dataController('genro.pageReload()', _fired='^aux.locale_ok')
+            pane.button(action="SET aux.locale = 'EN'", title="!!English",
+                      _class='icnIntlEn buttonIcon')
+            pane.button(action="SET aux.locale = 'IT'", title="!!Italian",
+                      _class='icnIntlIt buttonIcon')
+    
+    @struct_method
+    def pbl_slotbar_public_user(self,pane,**kwargs): 
+        if not self.isGuest:
+            pane.div(content=self.user, float='right', _class='pbl_slotbar_label buttonIcon',
+                      connect_onclick='PUBLISH preference_open="user";',**kwargs)
+    
+    @struct_method
+    def pbl_slotbar_public_logout(self,pane,**kwargs):
+        if not self.isGuest:
+            pane.div(connect_onclick="genro.logout()", title="!!Logout",
+                      _class='pbl_logout buttonIcon', content='&nbsp;',**kwargs)
+        
+    @struct_method
+    def pbl_slotbar_public_dock(self,pane,**kwargs):
+        pane.dock(id='default_dock', background='none', border=0)
+        
+    @struct_method
+    def pbl_slotbar_public_locBtn(self,pane,**kwargs):
+        if self.isLocalizer():
+            pane.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass', float='right')
+            pane.dataFormula('gnr.localizerClass', """ 'localizer_'+status;""",
+                            status='^gnr.localizerStatus', _init=True, 
+                            _else="return 'localizer_hidden'")
+                   
+    @struct_method
+    def pbl_slotbar_public_devBtn(self,pane,**kwargs):         
+        if self.isDeveloper():
+            pane.div(connect_onclick='genro.dev.showDebugger();',
+                      _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
+        
+    
+    @struct_method
+    def public_rootStackContainer(self, root, title=None, height=None, width=None,**kwargs):
+        frame = self._pbl_frameroot(root, title, height=height, width=width,center_widget='StackContainer',**kwargs) 
+        return frame
+    
+    @struct_method
+    def public_rootBorderContainer(self, root, title=None, height=None, width=None, **kwargs):
+        frame = self._pbl_frameroot(root, title, height=height, width=width,center_widget='BorderContainer',**kwargs) 
+        return frame
 
+    @struct_method
+    def public_rootTabContainer(self, root, title=None, height=None, width=None, **kwargs):
+        frame = self._pbl_frameroot(root, title, height=height, width=width, center_widget='TabContainer',**kwargs) 
+        return frame
+        
+    @struct_method
+    def public_rootContentPane(self, root, title=None, height=None, width=None,**kwargs):
+        frame = self._pbl_frameroot(root, title, height=height, width=width, **kwargs) 
+        return frame
+        
     def _pbl_root(self, rootbc, title=None, height=None, width=None, centered=None, flagsLocale=False):
         if centered:
             margin = 'auto'
@@ -104,7 +220,7 @@ class Public(BaseComponent):
                                          flagsLocale=flagsLocale)
         center = bc.contentPane(region='center', **kwargs)
         return center, top, bottom
-
+           
     def pbl_rootStackContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
                                **kwargs):
         bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
@@ -140,17 +256,20 @@ class Public(BaseComponent):
                  _class='pbl_workdate buttonIcon',
                  connect_onclick=connect_onclick)
         if connect_onclick:
-            def cb_center(parentBC, **kwargs):
-                pane = parentBC.contentPane(**kwargs)
-                fb = pane.formbuilder(cols=1, border_spacing='5px', margin='25px', margin_top='20px')
-                fb.dateTextBox(value='^.current_date', width='8em', lbl='!!Date')
-
-            dlg = self.formDialog(pane, title='!!Set workdate', datapath='changeWorkdate',
-                                  formId='changeWorkdate', height='100px', width='200px',
-                                  cb_center=cb_center, loadsync=True)
-            dlg.dataController("SET .data.current_date=date;", date="=gnr.workdate", nodeId='changeWorkdate_loader')
-            dlg.dataRpc('gnr.workdate', 'pbl_changeServerWorkdate', newdate='=.data.current_date',
-                        _if='newdate', nodeId='changeWorkdate_saver', _onResult='FIRE .saved;')
+            self.pbl_workdate_dialog()
+    
+    
+    def pbl_workdate_dialog(self):
+        def cb_center(parentBC, **kwargs):
+            pane = parentBC.contentPane(**kwargs)
+            fb = pane.formbuilder(cols=1, border_spacing='5px', margin='25px', margin_top='20px')
+            fb.dateTextBox(value='^.current_date', width='8em', lbl='!!Date')
+        dlg = self.formDialog(self.pageSource(), title='!!Set workdate', datapath='changeWorkdate',
+                              formId='changeWorkdate', height='100px', width='200px',
+                              cb_center=cb_center, loadsync=True)
+        dlg.dataController("SET .data.current_date=date;", date="=gnr.workdate", nodeId='changeWorkdate_loader')
+        dlg.dataRpc('gnr.workdate', 'pbl_changeServerWorkdate', newdate='=.data.current_date',
+                    _if='newdate', nodeId='changeWorkdate_saver', _onResult='FIRE .saved;')
 
     def rpc_pbl_changeServerWorkdate(self, newdate=None):
         if newdate:
