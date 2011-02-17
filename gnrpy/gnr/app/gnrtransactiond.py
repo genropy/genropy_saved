@@ -78,8 +78,8 @@ class GnrAppTransactionAgent(GnrApp):
         rootlogger = logging.getLogger('')
         rootlogger.setLevel(logging.DEBUG)
         rootlogger.addHandler(loghandler)
-
-        self.db.package('admin').mailLog(self.processName)
+        if 'admin' in self.db.packages:
+            self.db.package('admin').mailLog(self.processName)
 
 
     def loop(self):

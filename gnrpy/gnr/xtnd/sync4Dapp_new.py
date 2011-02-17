@@ -19,29 +19,28 @@ from gnr.sql.gnrsqlmodel import DbModelSrc
 
 from gnr.xtnd.sync4Dtransaction import TransactionManager4D
 
+class GnrSync4DException(Exception):
+    pass
 
 class Struct4D(object):
-    def __init__(self, instance_folder, packages_folder=None):
-        self.instance_folder = instance_folder
+    def __init__(self, app, packages_folder=None):
+        self.app = app
+        self.instance_folder = app.instanceFolder
         self.folder4dstructBag = Bag(self.folder4dstruct + '/')['structure']
         self.names4d = self.buildNames4d()
         self.packages_folder = packages_folder
+        
+    @property
+    def folder4d(self):
+        return self.app.folder4d
 
-    def _get_folder4d(self):
-        path = os.path.join(self.instance_folder, 'sync4d')
-        if not os.path.isdir(path):
-            os.mkdir(path)
-        return path
 
-    folder4d = property(_get_folder4d)
-
-    def _get_folder4dstruct(self):
+    @property
+    def folder4dstruct(self):
         path = os.path.join(self.folder4d, 'structure')
         if not os.path.isdir(path):
             os.mkdir(path)
         return path
-
-    folder4dstruct = property(_get_folder4dstruct)
 
     def areaFolder(self, area):
         path = os.path.join(self.packages_folder, area)
@@ -185,9 +184,18 @@ class Struct4D(object):
 
 
 class GnrAppSync4D(GnrApp):
+    
+    def __init__(self, *args, **kwargs):
+        self.sync4d_name = kwargs.pop('sync4d_name','sync4d')
+        super(GnrAppSync4D,self).__init__(*args,**kwargs)
+    
     def onIniting(self):
         basepath = self.config.getAttr('packages', 'path')
-        self.s4d = Struct4D(self.instanceFolder, basepath)
+        if not basepath:
+            basepath = os.path.normpath(os.path.join(self.instanceFolder, '..', '..', 'packages'))
+        if not os.path.isdir(basepath):
+            raise GnrSync4DException('missing package path')
+        self.s4d = Struct4D(self, basepath)
         self.checkChanges = False
         if not self.config['packages']:
             self.rebuildRecipe()
@@ -217,16 +225,16 @@ class GnrAppSync4D(GnrApp):
 
     def _get_processName(self):
         return 'sync4d daemon: %s' % self.instanceFolder
-
     processName = property(_get_processName)
 
-    def _get_folder4d(self):
-        path = os.path.join(self.instanceFolder, 'sync4d')
+    @property
+    def folder4d(self):
+        path = os.path.join(self.instanceFolder, self.sync4d_name)
         if not os.path.isdir(path):
             os.mkdir(path)
         return path
+        
 
-    folder4d = property(_get_folder4d)
 
     def _get_folderdialog4d(self):
         path = os.path.join(self.folder4d, 'dialog4d')
