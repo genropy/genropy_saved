@@ -65,7 +65,7 @@ class GnrCustomWebPage(object):
         tc = bc.tabContainer(region='center', nodeId='doc_tabs', selectedPage='^doc_tabs.selectedPage')
         editorPane = tc.contentPane(title='Edit', pageName='edit', id='editpage')
         bc.dataRpc('preview.pkeys', 'getPreviewPkeys',
-                   maintable='^.maintable', _if='maintable',
+                   maintable='^.maintable', _if='maintable',_POST =True,
                    _onResult="""
                                  var first_row = result[0];
                                  SET preview.selected_id = first_row; 
@@ -101,6 +101,7 @@ class GnrCustomWebPage(object):
                     selected_name='html_template_name', lbl_width='10em', lbl='!!Template',
                     width='20em', hasDownArrow=True)
         fb.dataRpc('preview.renderedtemplate', 'renderTemplate', doctemplate='=form.record',
+                   _POST =True,
                    record_id='^preview.selected_id',
                    templates='^html_template_name', _if='selectedTab=="view"&&doctemplate.getItem("content")',
                    selectedTab='^doc_tabs.selectedPage')
