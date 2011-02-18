@@ -19,6 +19,8 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 # 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrwebstruct import struct_method
+
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import toText, splitAndStrip
 
@@ -191,6 +193,11 @@ class FiltersHandler(BaseComponent):
                 current_filter='^_clientCtx.filter.%s' % self.pagename, _onStart=True)
 
 class TagsHandler(BaseComponent):
+    @struct_method
+    def th_slotbar_tagsbtn(self,pane,**kwargs):
+        pane.slotButton('!!Tags', publish='tagbtn',iconClass="icnTag", showLabel=False,**kwargs)
+    
+    
     def customSqlOp_tagged(self, column=None, value=None, dtype=None, sqlArgs=None, optype_dict=None,
                            whereTranslator=None):
         if optype_dict:

@@ -240,21 +240,6 @@ class TableHandlerForm(BaseComponent):
         buttons = pane.div(_class='button_placeholder', float='left')
         buttons.div(_class='db_treebtn', connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
         buttons.div(_class='db_querybtn', connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
-        if False and self.tblobj.hasRecordTags(): #or self.enableFilter():
-            ddbutton = pane.div(_class='listOptMenu', float='left')
-            menu = ddbutton.dropDownButton('^list.tbar.stacklabel').menu(action="""
-                                                                    SET list.tbar.stacklabel= $1.label;
-                                                                    SET list.tbar.stackpage= $1.page;""",
-                                                                         _class='smallmenu')
-            menu.menuline(label='!!Query', page=0)
-            if self.tblobj.hasRecordTags():
-                menu.menuline(label='!!Tags', page=1)
-                #if self.enableFilter():
-            #    menu.menuline(label='!!Filters',page=2)
-            #
-            pane.data('list.tbar.stacklabel', '!!Query')
-            pane.data('list.tbar.stackpage', 0)
-
 
     def listToolbar_query(self, pane):
         queryfb = pane.formbuilder(cols=5, datapath='list.query.where', _class='query_form',
