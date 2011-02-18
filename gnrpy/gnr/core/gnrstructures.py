@@ -89,7 +89,7 @@ class GnrStructData(Bag):
     root = property(_get_root)
         
     def child(self, tag, name='*_#', content=None, _parentTag=None, _attributes=None, childname=None,**kwargs):
-        """Set a new item of the type tag into the current structure
+        """Set a new item of the ``tag`` type into the current structure
         
         :param tag: structure type
         :param name: structure name. Default value is formed by ``tag_position``
@@ -154,6 +154,7 @@ class GnrStructData(Bag):
         
     def load(self, path):
         """Loads the structure from an XML file
+        
         :param path: path of the file to load
         """
         cls = self.__class__

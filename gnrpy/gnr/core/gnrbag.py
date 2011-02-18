@@ -1833,7 +1833,7 @@ class Bag(GnrObject):
         :param func:  add??? Default value is ``pass``.
         """
         setCallable(self, name, argstring=argstring, func=func)
-
+        
     #-------------------- toXml --------------------------------
     def toXml(self, filename=None, encoding='UTF-8', typeattrs=True, typevalue=True, unresolved=False,
               addBagTypeAttr=True,onBuildTag=None,
@@ -1871,14 +1871,14 @@ class Bag(GnrObject):
         4567</bb></aa></GenRoBag>'
         """
         from gnr.core.gnrbagxml import BagToXml
-
+        
         return BagToXml().build(self, filename=filename, encoding=encoding, typeattrs=typeattrs, typevalue=typevalue,
                                 addBagTypeAttr=addBagTypeAttr,onBuildTag=onBuildTag,
                                 unresolved=unresolved, autocreate=autocreate, forcedTagAttr=forcedTagAttr,
                                 translate_cb=translate_cb, self_closed_tags=self_closed_tags,
                                 omitUnknownTypes=omitUnknownTypes, catalog=catalog, omitRoot=omitRoot,
                                 docHeader=docHeader)
-
+                                
     def fillFrom(self, source):
         """Fill a void Bag from a source (basestring, bag or list).
         

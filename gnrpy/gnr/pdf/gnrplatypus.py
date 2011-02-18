@@ -4,19 +4,18 @@ from reportlab import lib as pdflib
 from reportlab.lib.units import inch
 from reportlab.lib.colors import pink, black, red, blue, green
 
-
 class GnrPdfElem(object):
     def __init__(self, obj, tag, tagType):
         self.obj = obj
         self.tag = tag
         self.tagType = tagType
-
+        
     def __call__(self, *args, **kwargs):
         if not 'tagType' in kwargs:
             kwargs['tagType'] = self.tagType
         child = self.obj.child(self.tag, *args, **kwargs)
         return child
-
+        
 class GnrPdfSrc(GnrStructData):
     pdfDrawNS = ['line', 'grid', 'bezier', 'arc', 'rect', 'ellipse', 'wedge', 'circle', 'roundRect',
                  'drawString', 'drawRightString', 'drawCentredString']
@@ -32,7 +31,7 @@ class GnrPdfSrc(GnrStructData):
     pdfNameSpace.update(dict([(name.lower(), (name, 'RS')) for name in pdfStatusNS]))
     pdfNameSpace.update(dict([(name.lower(), (name, 'GD')) for name in gnrDrawNS]))
     pdfNameSpace.update(dict([(name.lower(), (name, 'GS')) for name in gnrStatusNS]))
-
+        
     def __getattr__(self, fname):
         fnamelower = fname.lower()
         if fnamelower in self.pdfNameSpace:
@@ -41,8 +40,9 @@ class GnrPdfSrc(GnrStructData):
             return getattr(self, fname)
         else:
             raise AttributeError("object has no attribute '%s'" % fname)
-
+            
 class GnrPdf(object):
+    """add???"""
     def __init__(self, filename='test.pdf', pagesize='A4', unit='inch'):
         if isinstance(pagesize, basestring):
             pagesize = getattr(pdflib.pagesizes, pagesize, pdflib.pagesizes.A4)
@@ -52,11 +52,13 @@ class GnrPdf(object):
         self.root = GnrPdfSrc.makeRoot()
         self.unit = unit
         self._pendingDraw = False
-
+        
     def draw(self):
+        """add???
+        """
         self.page()
         self.root.walk(self._drawNode)
-
+        
     def _drawNode(self, node):
         self._pageInProgress = True
         attr = dict(node.attr)
@@ -69,28 +71,35 @@ class GnrPdf(object):
             h(**attr)
             if tagType.endswith('D'):
                 self._pendingDraw = True
-
+                
     def page(self, x=0, y=0):
+        """add???
+        
+        :param x: add???. Default value is ``0``
+        :param y: add???. Default value is ``0``
+        """
         if self._pendingDraw:
             self.canvas.showPage()
             self._pendingDraw = False
         self.canvas.translate(x * self.unit, y * self.unit)
-
+        
     def save(self):
+        """add???
+        """
         self.canvas.save()
-
+        
 if __name__ == '__main__':
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
     from reportlab.lib.styles import getSampleStyleSheet
     from reportlab.rl_config import defaultPageSize
     from reportlab.lib.units import inch
-
+        
     PAGE_HEIGHT = defaultPageSize[1];
     PAGE_WIDTH = defaultPageSize[0]
     styles = getSampleStyleSheet()
     Title = "Hello world"
     pageinfo = "platypus example"
-
+        
     def myFirstPage(canvas, doc):
         canvas.saveState()
         canvas.setFont('Times-Bold', 16)
@@ -98,13 +107,13 @@ if __name__ == '__main__':
         canvas.setFont('Times-Roman', 9)
         canvas.drawString(inch, 0.75 * inch, "First Page / %s" % pageinfo)
         canvas.restoreState()
-
+        
     def myLaterPages(canvas, doc):
         canvas.saveState()
         canvas.setFont('Times-Roman', 9)
         canvas.drawString(inch, 0.75 * inch, "Page %d %s" % (doc.page, pageinfo))
         canvas.restoreState()
-
+        
     def go():
         doc = SimpleDocTemplate("phello.pdf")
         Story = [Spacer(1, 2 * inch)]
@@ -115,5 +124,5 @@ if __name__ == '__main__':
             Story.append(p)
             Story.append(Spacer(1, 0.2 * inch))
         doc.build(Story, onFirstPage=myFirstPage, onLaterPages=myLaterPages)
-
+        
     go()

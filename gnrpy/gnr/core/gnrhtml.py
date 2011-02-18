@@ -170,10 +170,10 @@ class GnrHtmlSrc(GnrStructData):
         
         :param height: the row's height. Default value is ``0``
         :param row_border: the row's border. Default value is ``None``
-        :param cell_border: the row's cell border. Default value is ``None``
-        :param lbl_height: the row's label height. Default value is ``None``
-        :param lbl_class: the row's label class. Default value is ``None``
-        :param content_class: the row's content class. Default value is ``None``
+        :param cell_border: the border of the row's cell. Default value is ``None``
+        :param lbl_height: the height of the row's label. Default value is ``None``
+        :param lbl_class: the class of the row's label. Default value is ``None``
+        :param content_class: the class of the row's content. Default value is ``None``
         :returns: the row
         """
         assert self.parentNode.getAttr('tag') == 'layout'
@@ -208,9 +208,9 @@ class GnrHtmlSrc(GnrStructData):
         :param width: the row's width. Default value is ``0``
         :param content_class: the row's content class. Default value is ``None``
         :param lbl: the cell's lbl. Default value is ``None``
-        :param lbl_class: the row's label class. Default value is ``None``
-        :param lbl_height: the row's label height. Default value is ``None``
-        :param cell_border: the row's cell border. Default value is ``None``
+        :param lbl_class: the class of the row's label. Default value is ``None``
+        :param lbl_height: the height of the row's label. Default value is ``None``
+        :param lbl_height: the border of the row's label. Default value is ``None``
         :returns: the cell
         """
         assert self.parentNode.getAttr('tag') == 'row'
