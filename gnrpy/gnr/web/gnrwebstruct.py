@@ -616,16 +616,20 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeattr['parentStore'] = viewattr['store']
             self.attributes['connect_%s' %loadEvent] = """
                                                 var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
-                                                genro.getForm("%s").load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
+                                                if(rowIndex>-1){
+                                                    genro.getForm("%s").load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
+                                                }
                                                 """ %frameCode
             self.attributes['subscribe_form_%s_onLoaded' %formId] ="this.widget.selectByRowAttr('_pkey',$1.pkey)"
         return form
         
-        
+    def virtualSelectionStore(self, storeCode=None,table=None, storepath=None,columns=None,**kwargs):
+        self.selectionStore(storeCode=storeCode,table=table, storepath=storepath,columns=columns,**kwargs)
+    
     def selectionStore(self, storeCode=None,table=None, storepath=None,columns=None,**kwargs):
         attr = self.attributes
         parentTag = attr.get('tag')
-        columns = columns or '==gnr.getGridColumns(this);'
+        #columns = columns or '==gnr.getGridColumns(this);'
         parent = self
         if parentTag:
             parentTag = parentTag.lower()
@@ -636,6 +640,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         elif parentTag =='includedview':
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
+            
             storeCode = attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
             parent = self.parent
@@ -646,7 +651,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
-        parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
+        parent.child('SelectionStore',storepath=storepath, table=table, nodeId=nodeId,columns=columns,**kwargs)
+        #ds = parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
+        #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
 
     def dataSelection(self, path, table=None, method='app.getSelection', columns=None, distinct=None,
                       where=None, order_by=None, group_by=None, having=None, columnsFromView=None, **kwargs):
@@ -656,6 +663,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             kwargs['_content'] = kwargs.pop('content')
         if not columns:
             if columnsFromView:
+                print 'columnsFromView is deprecated'
                 columns = '=grids.%s.columns' % columnsFromView #it is the view id
             else:
                 columns = '*'
@@ -751,13 +759,14 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         table = gridattr.get('table')
         columns= gridattr.pop('columns',None)
         gridId= gridattr.get('nodeId') 
+        storepath = gridattr.get('storepath')
         source = struct or columns
         page = self.page
         struct = page._prepareGridStruct(source=source,table=table,gridId=gridId)
         if struct:
             self.data(structpath, struct)
             return struct
-        elif source and not table:
+        elif (source and not table) or not storepath:
             def getStruct(source=None,gridattr=None,gridId=None):
                 storeCode = gridattr.get('store') or gridattr.get('nodeId') or gridattr.get('gridId')
                 storeNode = page.pageSource('%s_store' %storeCode)
@@ -765,6 +774,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 if storeNode:
                     table = storeNode.attr.get('table')
                     gridattr['table'] = table
+                    #gridattr['storepath'] = '#%s_store.%s' %(storeCode,storeNode.attr.get('storepath'))
                 return page._prepareGridStruct(source=source,table=table,gridId=gridId)
             struct = BagCbResolver(getStruct, source=source,gridattr=gridattr,gridId=gridId)
             struct._xmlEager=True
