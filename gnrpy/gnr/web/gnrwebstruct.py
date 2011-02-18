@@ -736,7 +736,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return iv
 
     def includedview_legacy(self, storepath=None, structpath=None, struct=None, table=None,
-                      nodeId=None, columns=None, relativeWorkspace=None,**kwargs):
+                      nodeId=None, relativeWorkspace=None,**kwargs):
         nodeId = nodeId or self.page.getUuid()
         prefix = 'grids.%s' %nodeId if not relativeWorkspace else ''
         structpath = structpath or '%s.struct' % prefix
@@ -749,7 +749,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         gridattr=self.attributes
         structpath = gridattr.get('structpath')
         table = gridattr.get('table')
-        columns= gridattr.get('columns')
+        columns= gridattr.pop('columns',None)
         gridId= gridattr.get('nodeId') 
         source = struct or columns
         page = self.page
