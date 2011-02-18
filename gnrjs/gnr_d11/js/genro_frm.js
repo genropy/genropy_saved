@@ -448,12 +448,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         return result;
 
     },
-    setStore:function(storeType,kw){
-        var parentStore = objectPop(kw,'parentStore');
-        var storeType = storeType ||(parentStore?'Collection':'Item');
-        kw.parentStoreNode = genro.getStore(parentStore);
-        this.store = new gnr.formstores[storeType](this,kw);
-    },
 
     openForm:function(idx, pkey) {
         if(this.store && false){
@@ -1073,14 +1067,14 @@ dojo.declare("gnr.formstores.Base", null, {
     
     init:function(form){
         this.form = form;        
-        this.parentStoreNode = genro.getStore(this.parentStoreCode);
+        this.parentStore = genro.getStore(this.parentStoreCode);
     },
     
     getStartPkey:function(){
         return;
     },
     getParentStoreData:function(){
-        return this.parentStoreNode.getRelativeData(this.parentStoreNode.attr.path);
+        return this.parentStore.getData();
     },
     load_recordCluster:function(table){
         var form=this.form;
@@ -1209,7 +1203,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         }
         else if(currIdx==0){
             kw.first = true;
-        }else if(currIdx>=this.getParentStoreData().len()-1){
+        }else if(currIdx>=this.parentStore.len()-1){
             kw.last = true;
         }
         this.form.publish('navigationStatus',kw);
@@ -1232,13 +1226,16 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
             return result;
         }
     },
+    len:function(){
+        return this.getParentStoreData().len();
+    },
     navigationEvent:function(kw){
         var command = kw.command;
         var idx;
         if(command=='first'){
             idx = 0;
         }else if(command=='last'){
-            idx = this.getParentStoreData().len()-1;
+            idx = this.parentStore.len()-1;
         }else{
             idx = this.getParentStoreIdx(this.form.getCurrentPkey());
             idx = command=='next'? idx+1:idx-1;

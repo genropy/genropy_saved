@@ -808,5 +808,50 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     }
 });
 
+//STORES
+
+dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
+     contentKwargs: function(sourceNode, attributes) {
+         if ('name' in attributes){
+             attributes['_name'] = objectPop(attributes,'name');
+         }
+         if ('content' in attributes){
+             attributes['_content'] = objectPop(attributes,'content');
+         }
+         attributes['path'] = attributes['storepath'];
+         attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
+         attributes.method = attributes.method || 'app.getSelection';
+         return attributes;
+     },
+
+     createContent:function(sourceNode, kw,children) {
+         var storeType = objectPop(kw,'virtualSelection')? 'VirtualSelection':'Selection';
+         var selectionStore = sourceNode._('dataRpc',kw);
+         var rpcNode = selectionStore.getParentNode();
+         rpcNode.store = new gnr.stores[storeType](rpcNode);
+         return selectionStore;
+     }
+});
+dojo.declare("gnr.stores.Selection",null,{
+    constructor:function(node){
+        this.selectionNode = node;
+        this.storepath = this.selectionNode.attr.storepath;
+    },
+    getData:function(){
+        return this.selectionNode.getRelativeData(this.storepath);
+    },
+    len:function(){
+        return this.getData().len();
+    }
+
+});
+
+dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
+    len:function(){
+        return this.getData().getParentNode().attr['row_count'];
+    }
+});
+
+
 
 

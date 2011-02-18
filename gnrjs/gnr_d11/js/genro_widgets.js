@@ -38,7 +38,7 @@ gnr.setOrConnectCb = function(widget, name, cb) {
 gnr.getGridColumns = function(storeNode) {
     var columns= {};
     var storeCode;
-    var nodeId=storeNode.attr.nodeId
+    var nodeId=storeNode.attr.nodeId;
     genro.src._main.walk(function(n){
         storeCode = n.attr.store || n.attr.nodeId;
         if(storeCode+'_store'==nodeId){
@@ -1901,10 +1901,9 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
                 if(!storeNode){
                     console.log('missing storepath');
                 }else{
-                    sourceNode.attr.storepath = storeNode.absDatapath(storeNode.attr.path);
+                    sourceNode.attr.storepath = storeNode.absDatapath(storeNode.attr.storepath);//storeNode.absDatapath(storeNode.attr.path);
                 }
             }
-            
         }
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
         var relativeWorkspace= sourceNode.attr.controllerPath || sourceNode.attr.relativeWorkspace;

@@ -946,7 +946,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     
     getStore:function(storeCode){
-        return genro.nodeById(storeCode+'_store');
+        return genro.nodeById(storeCode+'_store').store;
     },
     
     getFrameNode:function(frameCode,side){
