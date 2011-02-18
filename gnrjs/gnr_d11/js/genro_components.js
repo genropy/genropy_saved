@@ -826,25 +826,86 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
 
      createContent:function(sourceNode, kw,children) {
          var storeType = objectPop(kw,'virtualSelection')? 'VirtualSelection':'Selection';
+         var identifier = objectPop(kw,'_identifier') || '_pkey';
          var selectionStore = sourceNode._('dataRpc',kw);
          var rpcNode = selectionStore.getParentNode();
-         rpcNode.store = new gnr.stores[storeType](rpcNode);
+         rpcNode.store = new gnr.stores[storeType](rpcNode,identifier);
          return selectionStore;
      }
 });
-dojo.declare("gnr.stores.Selection",null,{
-    constructor:function(node){
-        this.selectionNode = node;
-        this.storepath = this.selectionNode.attr.storepath;
+
+dojo.declare("gnr.stores._Collection",null,{
+    constructor:function(node,identifier){
+        this.identifier = identifier;
+        this.storeNode = node;
+        this.storepath = this.storeNode.attr.storepath;
     },
     getData:function(){
-        return this.selectionNode.getRelativeData(this.storepath);
+        return this.storeNode.getRelativeData(this.storepath);
     },
+    getNavigationPkey:function(nav,currentPkey){
+        var idx = nav == parseInt(nav) && nav;
+        if(!idx){
+            if(nav=='first'){
+                idx = 0;
+            }else if(nav=='last'){
+                idx = this.len()-1;
+            }else{
+                idx = this.getIdxFromPkey(currentPkey);
+                idx = nav=='next'? idx+1:idx-1;
+            }
+        }
+        return this.getKeyFromIdx(idx);
+    },
+    getKeyFromIdx:function(idx){
+        var data = this.getData();
+        if(!data){
+            return;
+        }
+        var item;
+        data=data.getNodes()
+        if ((idx<0)||( idx>(data.length-1))){
+            return null;
+        }    
+        return this.keyGetter(data[idx]);
+    },
+    getIdxFromPkey:function(pkey){
+        var result = -1;
+        var data = this.getData();
+        var that = this;
+        if(pkey && data){
+            data=data.getNodes();
+            var k = -1;
+            dojo.some(data,function(n){
+                k++;
+                if(that.keyGetter(n)==pkey){
+                    result = k;
+                    return true;
+                }
+            });
+            return result;
+        }
+    },
+})
+
+dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
     len:function(){
         return this.getData().len();
+    },
+    keyGetter :function(n){
+        return n.getValue('static').getItem(this.identifier);
     }
-
 });
+
+dojo.declare("gnr.stores.Selection",gnr.stores._Collection,{
+    len:function(){
+        return this.getData().len();
+    },
+    keyGetter :function(n){
+        return n.attr[this.identifier];
+    }
+});
+
 
 dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     len:function(){

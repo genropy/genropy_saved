@@ -616,11 +616,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeattr['parentStore'] = viewattr['store']
             self.attributes['connect_%s' %loadEvent] = """
                                                 var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
-                                                if(rowIndex>-1){
-                                                    genro.getForm("%s").load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
-                                                }
+                                                genro.getForm("%s").load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
                                                 """ %frameCode
-            self.attributes['subscribe_form_%s_onLoaded' %formId] ="this.widget.selectByRowAttr('_pkey',$1.pkey)"
+            self.attributes['subscribe_form_%s_onLoaded' %formId] ="""
+                                                                    if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
+                                                                        this.widget.selectByRowAttr('_pkey',$1.pkey);
+                                                                    }
+                                                                  """
         return form
         
     def virtualSelectionStore(self, storeCode=None,table=None, storepath=None,columns=None,**kwargs):

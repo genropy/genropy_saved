@@ -8,7 +8,7 @@ from gnr.web.gnrwebstruct import struct_method
 
 "Test formhandler selection store"
 class GnrCustomWebPage(object):
-    testOnly='_2_'
+    testOnly='_3_'
     user_polling=0
     auto_polling=0
     py_requires="""gnrcomponents/testhandler:TestHandlerFull,

@@ -174,6 +174,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var kw = kw || {};
         if(kw['destPkey']=='*norecord*'){
             kw['destPkey'] = null;
+            this.store.setNavigationStatus('*norecord*');
             this.setFormData();
         }
         if (this.store){
@@ -444,6 +445,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     saved: function(result) {
         this.fireControllerData('saved');
         this.setOpStatus('saved');
+        var savedPkey = result;
+        if(this.store){
+            savedPkey = result.savedPkey;
+        }
+        this.publish('onSaved',{pkey:savedPkey});
         this.publish('message',{message:this.msg_saved,sound:'$onsaved'});
         return result;
 
@@ -1162,40 +1168,11 @@ dojo.declare("gnr.formstores.Item", gnr.formstores.Base, {
 });
 
 dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
-    constructor:function(){
-        var _identifier = this._identifier || '_pkey';
-        if(_identifier=='*'){
-            this.keyGetter = function(n){
-                return n.getValue('static');
-            }
-        }else if(_identifier.indexOf('.')==0){
-            var k = _identifier.slice(1);
-            this.keyGetter = function(n){
-                return n.getValue('static').getItem(k);
-            }
-        }else{
-            this.keyGetter = function(n){
-                return n.attr[_identifier];
-            }
-        }        
-    },
-    getStoreKey:function(idx){
-        var store = this.getParentStoreData();
-        if(!store){
-            return;
-        }
-        var item;
-        store=store.getNodes()
-        if ((idx<0)||( idx>(store.length-1))){
-            return null;
-        }    
-        return this.keyGetter(store[idx]);
-    },
     getStartPkey:function(){
-        return this.getStoreKey(0);
+        return this.getNavigationPkey(0);
     },    
     setNavigationStatus:function(pkey){
-        var currIdx = this.getParentStoreIdx(pkey);
+        var currIdx = this.parentStore.getIdxFromPkey(pkey);
         var kw = {}
         if(currIdx<0){
             kw.first = true;
@@ -1209,39 +1186,12 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         this.form.publish('navigationStatus',kw);
         return;
     },
-    getParentStoreIdx:function(pkey){
-        var result = -1;
-        var store = this.getParentStoreData();
-        var that = this;
-        if(pkey && store){
-            store=store.getNodes();
-            var k = -1;
-            dojo.some(store,function(n){
-                k++;
-                if(that.keyGetter(n)==pkey){
-                    result = k;
-                    return true;
-                }
-            });
-            return result;
-        }
-    },
-    len:function(){
-        return this.getParentStoreData().len();
-    },
+
     navigationEvent:function(kw){
         var command = kw.command;
-        var idx;
-        if(command=='first'){
-            idx = 0;
-        }else if(command=='last'){
-            idx = this.parentStore.len()-1;
-        }else{
-            idx = this.getParentStoreIdx(this.form.getCurrentPkey());
-            idx = command=='next'? idx+1:idx-1;
-        }
-        return this.getStoreKey(idx);
+        return this.parentStore.getNavigationPkey(command,this.form.getCurrentPkey());
     }
+    
 });
 
 dojo.declare("gnr.formstores.Hierarchical", gnr.formstores.Base, {
