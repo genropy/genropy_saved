@@ -8,5 +8,6 @@
 	app/index
 	core/index
 	devel/index
+	pdf/index
 	sql/index
 	web/index

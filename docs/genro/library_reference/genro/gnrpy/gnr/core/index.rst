@@ -4,7 +4,7 @@
 
 .. toctree::
 
-	gnrbags
+	gnrbag
 	gnrbaghtml
 	gnrbagxml
 	gnrclasses
