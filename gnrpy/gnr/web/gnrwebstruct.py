@@ -733,14 +733,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             return self.includedview_legacy(*args,**kwargs)
             
     def includedview_inframe(self,frameCode=None,struct=None,storepath=None,structpath=None,
-                            datapath=None,nodeId=None,configurable=True,**kwargs):
+                            datapath=None,nodeId=None,configurable=True,_newGrid=False,**kwargs):
         if datapath is False:
             datapath = None
         else:
             datapath = datapath or '.grid'
         structpath = structpath or '.struct'
         nodeId = nodeId or '%s_grid' %frameCode
-        iv =self.child('includedView',frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
+        wdg = 'NewIncludedView' if _newGrid else 'includedView'
+        iv =self.child(wdg,frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
                           relativeWorkspace=True,configurable=configurable,storepath=storepath,**kwargs)
         iv.gridStruct(struct=struct)
         return iv
