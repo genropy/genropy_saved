@@ -7,7 +7,7 @@
 from gnr.web.gnrwebstruct import struct_method
 "Test page description"
 class GnrCustomWebPage(object):
-    testOnly='zz'
+    testOnly='_0_'
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
 
     def windowTitle(self):
@@ -17,7 +17,7 @@ class GnrCustomWebPage(object):
         """Pane grid """
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('*,searchOn')
-        view = pane.includedView(nodeId='bappo')
+        view = pane.includedView()
         struct = view.gridStruct('regione')
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
         
@@ -58,6 +58,17 @@ class GnrCustomWebPage(object):
         footer = paletteGrid.bottom.slotToolbar('prova,*')
         paletteGrid.top.slotToolbar('searchOn')
         footer.prova.dbSelect(dbtable='glbl.regione',value='^.regione')
+        
+    
+    def test_5_frame_includedview_virtual(self,pane):
+        """virtual grid """
+        pane = pane.framePane(frameCode='province',height='200px')
+        tbar = pane.top.slotToolbar('*,inputsearch')
+        tbar.inputsearch.textbox(value='^.chunk')
+        view = pane.includedView(_newGrid=True)
+        struct = view.gridStruct('min')
+        view.selectionStore(table='glbl.localita',where="$nome ILIKE :chunk",chunk='=="%"+_chunk+"%"',
+                            _chunk='^.chunk',virtualSelection=True)
     
 
    
