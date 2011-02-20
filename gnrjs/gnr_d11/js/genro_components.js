@@ -843,6 +843,9 @@ dojo.declare("gnr.stores._Collection",null,{
     getData:function(){
         return this.storeNode.getRelativeData(this.storepath);
     },
+    
+    getRowByIdx:function(idx){},
+    
     getNavigationPkey:function(nav,currentPkey){
         var idx = nav == parseInt(nav) && nav;
         if(!idx){
@@ -889,28 +892,193 @@ dojo.declare("gnr.stores._Collection",null,{
 })
 
 dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
-    len:function(){
-        return this.getData().len();
-    },
     keyGetter :function(n){
         return n.getValue('static').getItem(this.identifier);
-    }
-});
-
-dojo.declare("gnr.stores.Selection",gnr.stores._Collection,{
+    },
+    getRowByIdx:function(idx){
+        return 
+    },
     len:function(){
         return this.getData().len();
     },
+});
+
+dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     keyGetter :function(n){
         return n.attr[this.identifier];
-    }
+    },
+    absIndex:function(idx){
+        if (this.filterToRebuild) {
+            console.log('invalid filter');
+        }
+        
+        return this.filtered ? this.filtered[inRowIndex] : inRowIndex;
+    },
+    
+    getRowByIdx:function(idx){
+        if (idx < 0) {
+            return {};
+        }
+        inRowIndex = this.absIndex(inRowIndex);
+        var nodes = this.storebag().getNodes();
+        if (nodes.length > inRowIndex) {
+            return this.rowFromBagNode(nodes[inRowIndex]);
+        } else {
+            return {};
+        }
+    },
+    
+    filterExcluded: function(rowdata, index) {
+        return this.collectionStore().filterExcluded(rowdata, index);
+    },
+    applyFilter: function(filtered_value, rendering, filterColumn) {
+        return this.collectionStore().applyFilter(filtered_value, rendering, filterColumn);
+    },
+    filterToRebuild: function(value) {
+        this._filterToRebuild = value;
+    },
+    invalidFilter: function() {
+        return this._filterToRebuild;
+    },
+    setFiltered: function(value) {
+        return this._filtered = value;
+    },
+    filtered:function(){
+        return this._filtered;
+    },
+    
+    
+    mixin_filterExcluded: function(rowdata, index) {
+        if (this.excludeList) {
+            if (dojo.indexOf(this.excludeList, rowdata[this.excludeCol]) != -1) {
+                return;
+            }
+        }
+        this.filtered.push(index);
+    },
+    
+    
+    
+    mixin_applyFilter: function(filtered_value, rendering, filterColumn) {
+        if (filterColumn) {
+            this.filterColumn = filterColumn;
+        }
+        var cb;
+        this.excludeList = null;
+        if (this.excludeListCb) {
+            this.excludeList = this.excludeListCb();
+        }
+        if ((!filtered_value) || ((filtered_value == true) && (!this.filtered_value))) {
+            this.filtered = null;
+            if (this.excludeList) {
+                cb = function(node, index, array) {
+                    var rowdata = this.rowFromBagNode(node);
+                    this.filterExcluded(rowdata, index);
+                };
+                this.filtered = [];
+                dojo.forEach(this.storebag().getNodes(), cb, this);
+            }
+            this.filtered_value = null;
+            this.filtered_compvalue = null;
+        } else {
+            this.filtered = null;
+            this.filtered_value = (filtered_value == true) ? this.filtered_value : filtered_value;
+            this.filtered_compvalue = null;
+            var cb, colType;
+            if (this.filterColumn.indexOf('+') > 0) {
+                colType = 'T';
+            } else {
+                colType = this.cellmap[this.filterColumn]['dtype'] || 'A';
+            }
+            if (colType in {'A':null,'T':null}) {
+                this.filtered_compvalue = new RegExp(this.filtered_value, 'i');
+                cb = function(node, index, array) {
+                    var result;
+                    var columns = this.filterColumn.split('+');
+                    var txt = '';
+                    var rowdata = this.rowFromBagNode(node);
+                    for (var i = 0; i < columns.length; i++) {
+                        txt = txt + ' ' + rowdata[columns[i]];
+                    }
+                    ;
+                    result = this.filtered_compvalue.test(txt);
+                    if (result) {
+                        this.filterExcluded(rowdata, index);
+                    }
+                };
+            } else {
+                cb = function(node, index, array) {
+                    var op = this.filtered_compvalue.op;
+                    var val = this.filtered_compvalue.val;
+                    var rowdata = this.rowFromBagNode(node);
+                    var result = this.filtered_compvalue.func.apply(this, [rowdata[this.filterColumn], val]);
+                    if (result) {
+                        this.filterExcluded(rowdata, index);
+                    }
+                };
+                var toSearch = /^(\s*)([\<\>\=\!\#]+)(\s*)(.+)$/.exec(this.filtered_value);
+                if (toSearch) {
+                    var val;
+                    var op = toSearch[2];
+                    if (op == '=') {
+                        op = '==';
+                    }
+                    if ((op == '!') || (op == '#')) {
+                        op = '!=';
+                    }
+                    if (colType in {'R':null,'L':null,'I':null,'N':null}) {
+                        val = dojo.number.parse(toSearch[4]);
+                    } else if (colType == 'D') {
+                        val = dojo.date.locale.parse(toSearch[4], {formatLength: "short",selector:'date'});
+                    } else if (colType == 'DH') {
+                        val = dojo.date.locale.parse(toSearch[4], {formatLength: "short"});
+                    }
+                    if (op && val) {
+                        var func = "return (colval " + op + " fltval)";
+                        func = funcCreate(func, 'colval,fltval');
+                        this.filtered_compvalue = {'op':op, 'val':val, 'func':func};
+                    }
+                }
+            }
+            if (this.filtered_compvalue) {
+                this.filtered = [];
+                dojo.forEach(this.storebag().getNodes(), cb, this);
+            }
+        }
+        this.filterToRebuild = false;
+        if (!rendering) {
+            this.updateRowCount('*');
+        }
+    },
+    
+    
+
 });
 
 
 dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     len:function(){
         return this.getData().getParentNode().attr['row_count'];
+    },
+    getRowByIdx:function(idx){
+        return 
     }
+    
+    ,mixin_rowByIndex:function(inRowIndex, lazy) {
+        var rowIdx = inRowIndex % this.rowsPerPage;
+        var pageIdx = (inRowIndex - rowIdx) / this.rowsPerPage;
+        if (this.currCachedPageIdx != pageIdx) {
+            this.currCachedPageIdx = pageIdx;
+            this.currCachedPage = this.storebag.getValue().getItem('P_' + pageIdx);
+            if (!this.currCachedPage) {
+                if (lazy) {
+                    return;
+                }
+                this.currCachedPage = this.loadBagPageFromServer(pageIdx);
+            }
+        }
+        return this.currCachedPage ? this.currCachedPage.getNodes()[rowIdx].attr : null;
+    },
 });
 
 

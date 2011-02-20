@@ -2848,108 +2848,108 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
     attributes_mixin_canSort: function() {
         return ('canSort' in this.sourceNode.attr ) ? this.sourceNode.attr.canSort : true;
     },
-    mixin_filterExcluded: function(rowdata, index) {
-        if (this.excludeList) {
-            if (dojo.indexOf(this.excludeList, rowdata[this.excludeCol]) != -1) {
-                return;
-            }
-        }
-        this.filtered.push(index);
+    mixin_filterToRebuild:function(value){
+        this._filterToRebuild=value;
     },
-    mixin_applyFilter: function(filtered_value, rendering, filterColumn) {
+    mixin_invalidFilter:function(){
+        return this._filterToRebuild;
+    },
+    mixin_setFiltered: function(value) {
+        return this._filtered =value;
+    },
+    mixin_filtered:function(){
+        return this._filtered;
+    },
+
+    mixin_applyFilter: function(filterValue, rendering, filterColumn) {
         if (filterColumn) {
             this.filterColumn = filterColumn;
         }
         var cb;
-        this.excludeList = null;
-        if (this.excludeListCb) {
-            this.excludeList = this.excludeListCb();
-        }
-        if ((!filtered_value) || ((filtered_value == true) && (!this.filtered_value))) {
-            this.filtered = null;
-            if (this.excludeList) {
-                cb = function(node, index, array) {
-                    var rowdata = this.rowFromBagNode(node);
-                    this.filterExcluded(rowdata, index);
-                };
-                this.filtered = [];
-                dojo.forEach(this.storebag().getNodes(), cb, this);
-            }
-            this.filtered_value = null;
-            this.filtered_compvalue = null;
+        this.setFiltered(null);
+        this.currentFilterValue = (filterValue == true) ? this.currentFilterValue : filterValue;
+        var that = this;
+        var cb, colType;
+        if (this.filterColumn.indexOf('+') > 0) {
+            colType = 'T';
         } else {
-            this.filtered = null;
-            this.filtered_value = (filtered_value == true) ? this.filtered_value : filtered_value;
-            this.filtered_compvalue = null;
-            var cb, colType;
-            if (this.filterColumn.indexOf('+') > 0) {
-                colType = 'T';
-            } else {
-                colType = this.cellmap[this.filterColumn]['dtype'] || 'A';
-            }
-            if (colType in {'A':null,'T':null}) {
-                this.filtered_compvalue = new RegExp(this.filtered_value, 'i');
-                cb = function(node, index, array) {
-                    var result;
-                    var columns = this.filterColumn.split('+');
-                    var txt = '';
-                    var rowdata = this.rowFromBagNode(node);
-                    for (var i = 0; i < columns.length; i++) {
-                        txt = txt + ' ' + rowdata[columns[i]];
-                    }
-                    ;
-                    result = this.filtered_compvalue.test(txt);
-                    if (result) {
-                        this.filterExcluded(rowdata, index);
-                    }
-                };
-            } else {
-                cb = function(node, index, array) {
-                    var op = this.filtered_compvalue.op;
-                    var val = this.filtered_compvalue.val;
-                    var rowdata = this.rowFromBagNode(node);
-                    var result = this.filtered_compvalue.func.apply(this, [rowdata[this.filterColumn], val]);
-                    if (result) {
-                        this.filterExcluded(rowdata, index);
-                    }
-                };
-                var toSearch = /^(\s*)([\<\>\=\!\#]+)(\s*)(.+)$/.exec(this.filtered_value);
-                if (toSearch) {
-                    var val;
-                    var op = toSearch[2];
-                    if (op == '=') {
-                        op = '==';
-                    }
-                    if ((op == '!') || (op == '#')) {
-                        op = '!=';
-                    }
-                    if (colType in {'R':null,'L':null,'I':null,'N':null}) {
-                        val = dojo.number.parse(toSearch[4]);
-                    } else if (colType == 'D') {
-                        val = dojo.date.locale.parse(toSearch[4], {formatLength: "short",selector:'date'});
-                    } else if (colType == 'DH') {
-                        val = dojo.date.locale.parse(toSearch[4], {formatLength: "short"});
-                    }
-                    if (op && val) {
-                        var func = "return (colval " + op + " fltval)";
-                        func = funcCreate(func, 'colval,fltval');
-                        this.filtered_compvalue = {'op':op, 'val':val, 'func':func};
-                    }
-                }
-            }
-            if (this.filtered_compvalue) {
-                this.filtered = [];
-                dojo.forEach(this.storebag().getNodes(), cb, this);
-            }
+            colType = this.cellmap[this.filterColumn]['dtype'] || 'A';
         }
-        this.filterToRebuild = false;
+        cb = this.compileFilter(this.currentFilterValue,this.filterColumn,colType);
+        this.createFiltered(cb);
+        this.filterToRebuild(false);
         if (!rendering) {
             this.updateRowCount('*');
         }
     },
+    
+    mixin_compileFilter:function(value,filterColumn,colType){
+        if(value==null){
+            return null;
+        }
+        var grid=this;
+        var cb;
+        if (colType in {'A':null,'T':null}) {
+            var regexp = new RegExp(value, 'i');
+            cb = function(rowdata, index, array) {
+                var columns = filterColumn.split('+');
+                var txt = '';
+                for (var i = 0; i < columns.length; i++) {
+                    txt = txt + ' ' + rowdata[columns[i]];
+                }
+                return regexp.test(txt);
+            };
+        } else {
+            var toSearch = /^(\s*)([\<\>\=\!\#]+)(\s*)(.+)$/.exec(value);
+            if (toSearch) {
+                var val;
+                var op = toSearch[2];
+                if (op == '=') {
+                    op = '==';
+                }
+                if ((op == '!') || (op == '#')) {
+                    op = '!=';
+                }
+                if (colType in {'R':null,'L':null,'I':null,'N':null}) {
+                    val = dojo.number.parse(toSearch[4]);
+                } else if (colType == 'D') {
+                    val = dojo.date.locale.parse(toSearch[4], {formatLength: "short",selector:'date'});
+                } else if (colType == 'DH') {
+                    val = dojo.date.locale.parse(toSearch[4], {formatLength: "short"});
+                }
+
+                func = funcCreate("return (colval " +(op || '==')+ " fltval)", 'colval,fltval');
+                
+                cb = function(rowdata, index, array) {
+                    return func.apply(grid, [rowdata[filterColumn], val]);
+                };
+            }
+        }
+        return cb;
+    },
+    
+    mixin_createFiltered:function(cb){
+        this.setFiltered([]);
+        var excludeList = null;
+        if (this.excludeListCb) {
+            excludeList = this.excludeListCb();
+        }
+        var filtered = this.filtered();
+        dojo.forEach(this.storebag().getNodes(), 
+                    function(n,index,array){
+                        var rowdata = this.rowFromBagNode(n);
+                        var result = cb? cb(rowdata,index,array):true; 
+                        if(result){
+                            if ((!excludeList)||(dojo.indexOf(excludeList, rowdata[this.excludeCol]) == -1)) {
+                                filtered.push(index);
+                            }
+                        }
+                    },
+                    this);
+    },
     mixin_newDataStore:function(val, kw) {
         this.updateRowCount(0);
-        this.filtered = null;
+        this.setFiltered(null);
         if (this.sortedBy) {
             var storebag = this.storebag();
             storebag.sort(this.sortedBy);
@@ -2965,7 +2965,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
     },
     mixin_setStorepath:function(val, kw) {
         if ((!this._updatingIncludedView) && (! this._batchUpdating)) {
-            //this.filterToRebuild=true;
             if (kw.evt == 'fired') {
                 var storepath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
                 var storenode = genro._data.getNode(storepath);
@@ -3128,7 +3127,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
 
     patch_updateRowCount:function(n) {
         if ((n == null) || (n == '*')) {
-            if (this.filterToRebuild) {
+            if (this.invalidFilter()) {
                 this.applyFilter(true, true);
             }
         }
@@ -3148,7 +3147,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
         this.sortedBy = sortedBy;
         var storebag = this.storebag();
         storebag.sort(this.sortedBy);
-        this.filterToRebuild = true;
+        this.filterToRebuild(true);
         this.updateRowCount('*');
     },
     mixin_rowBagNodeUpdate: function(idx, data, pkey) {
@@ -3247,8 +3246,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
         else {
             var selectionNode = genro.nodeById(nodeId + '_store') || genro.nodeById(this.sourceNode.attr.store + '_store'); 
             if (selectionNode) {
-                if (this.filtered) {
-                    this.filterToRebuild = true;
+                if (this.filtered()) {
+                    this.filterToRebuild(true);
                 }
                 selectionNode.fireNode();
             }
@@ -3277,14 +3276,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
     },
 
     mixin_absIndex: function(inRowIndex) {
-        if (this.filterToRebuild) {
+        if (this.invalidFilter()) {
             console.log('invalid filter');
         }
-        return this.filtered ? this.filtered[inRowIndex] : inRowIndex;
+        return this.filtered() ? this.filtered()[inRowIndex] : inRowIndex;
     },
     mixin_storeRowCount: function() {
-        if (this.filtered) {
-            return this.filtered.length;
+        if (this.filtered()) {
+            return this.filtered().length;
         } else {
             return this.storebag().len();
         }
@@ -3530,7 +3529,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
             removed.push(storebag.popNode('#' + pos));
         }
         removed.reverse();
-        this.filterToRebuild = true;
+        this.filterToRebuild(true);
         this.updateCounterColumn();
         this.updateRowCount('*');
 
@@ -3768,6 +3767,40 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         }
     }
 });
+
+dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
+    rowByIndex:function(inRowIndex){
+        inRowIndex = this.absIndex(inRowIndex);
+        return this.collectionStore().getRowByIdx(idx);
+    },
+    
+    mixin_collectionStore:function(){
+        if(!this._collectionStore){
+            this._collectionStore = genro.nodeById(sourceNode.attr.store+'_store').store;
+        }
+        return this._collectionStore;
+    },
+    
+    mixin_applyFilter: function(filtered_value, rendering, filterColumn) {
+        return this.collectionStore().applyFilter(filtered_value, rendering, filterColumn);
+    },
+    mixin_filterToRebuild: function(value) {
+        return this.collectionStore().filterToRebuild(value);
+    },
+    mixin_invalidFilter: function() {
+        return this.collectionStore().invalidFilter();
+    },
+    mixin_setFiltered: function(value) {
+        return this.collectionStore.setFiltered(value);
+    },
+    mixin_filtered:function(){
+        return this.collectionStore.filtered();
+    }
+    
+    
+});
+
+
 
 dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
     creating: function(attributes, sourceNode) {
