@@ -366,7 +366,7 @@ class GnrApp(object):
         :returns: add???
         """
         if os.environ.has_key('VIRTUAL_ENV'):
-            config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc'))
+            config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc','gnr'))
             if os.path.isdir(config_path):
                 return Bag(config_path)
             else:
