@@ -616,7 +616,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeattr['parentStore'] = viewattr['store']
             self.attributes['connect_%s' %loadEvent] = """
                                                 var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
-                                                genro.getForm("%s").load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
+                                                if(rowIndex>-1){
+                                                    genro.getForm("%s").load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
+                                                }
                                                 """ %frameCode
             self.attributes['subscribe_form_%s_onLoaded' %formId] ="""
                                                                     if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
@@ -639,16 +641,16 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if storeCode:
             storepath = storepath or 'gnr.stores.%s.data' %storeCode            
         
-        elif parentTag =='includedview':
+        if parentTag =='includedview' or  parentTag =='newincludedview':
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
             
-            storeCode = attr.get('nodeId') or  attr.get('frameCode') 
+            storeCode = storeCode or attr.get('nodeId') or  attr.get('frameCode') 
             attr['store'] = storeCode
             parent = self.parent
               
-        elif parentTag == 'palettegrid':            
-            storeCode=attr.get('paletteCode')
+        if parentTag == 'palettegrid':            
+            storeCode=storeCode or attr.get('paletteCode')
             attr['store'] = storeCode
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
