@@ -525,21 +525,6 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         }
         return kwargs;
     },
-    addDeferredCb_:function(deferred,func,cblocals,sourceNode){
-        if(sourceNode){
-            var cblocals = sourceNode.evaluateOnNode(cblocals);
-        }
-        var isErrBack = objectPop(cblocals,'_isErrBack');
-        var cb = function(result){
-            cblocals['result'] = result;
-            return funcApply(func, cblocals, sourceNode);
-        }
-        if(isErrBack){
-            deferred.addErrback(cb);
-        }else{
-            deferred.addCallback(cb);
-        }
-    },
     
     addDeferredCb:function(deferred,func,cblocals,sourceNode){
         if(sourceNode){

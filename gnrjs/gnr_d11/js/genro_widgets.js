@@ -2834,11 +2834,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
 
     attributes_mixin_get: function(inRowIndex) {
         var rowdata = this.grid.rowCached(inRowIndex);
+        if(!rowdata){
+            console.log('no rowdata:',rowdata);
+        }
         return this._customGetter ? this._customGetter.call(this, rowdata) : rowdata[this.field];
     },
 
     mixin_rowCached:function(inRowIndex) {
-        if (this.currRenderedRowIndex != inRowIndex) {
+        if (this.currRenderedRowIndex !== inRowIndex) {
             this.currRenderedRowIndex = inRowIndex;
             this.currRenderedRow = this.rowByIndex(inRowIndex);
         }
@@ -2849,35 +2852,24 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
         return ('canSort' in this.sourceNode.attr ) ? this.sourceNode.attr.canSort : true;
     },
     mixin_filterToRebuild:function(value){
-        this._filterToRebuild=value;
+        if (this._filtered){
+            this._filterToRebuild=value;
+        }
     },
     mixin_invalidFilter:function(){
         return this._filterToRebuild;
     },
-    mixin_setFiltered: function(value) {
-        return this._filtered =value;
+    mixin_resetFilter: function() {
+        return this._filtered =null;
     },
-    mixin_filtered:function(){
-        return this._filtered;
-    },
-
+    
     mixin_applyFilter: function(filterValue, rendering, filterColumn) {
         if (filterColumn) {
             this.filterColumn = filterColumn;
         }
-        var cb;
-        this.setFiltered(null);
         this.currentFilterValue = (filterValue == true) ? this.currentFilterValue : filterValue;
-        var that = this;
-        var cb, colType;
-        if (this.filterColumn.indexOf('+') > 0) {
-            colType = 'T';
-        } else {
-            colType = this.cellmap[this.filterColumn]['dtype'] || 'A';
-        }
-        cb = this.compileFilter(this.currentFilterValue,this.filterColumn,colType);
-        this.createFiltered(cb);
-        this.filterToRebuild(false);
+        var colType = (this.filterColumn.indexOf('+') > 0) ? 'T':(this.cellmap[this.filterColumn]['dtype'] || 'A');
+        this.createFiltered(this.currentFilterValue,this.filterColumn,colType);
         if (!rendering) {
             this.updateRowCount('*');
         }
@@ -2887,7 +2879,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
         if(value==null){
             return null;
         }
-        var grid=this;
         var cb;
         if (colType in {'A':null,'T':null}) {
             var regexp = new RegExp(value, 'i');
@@ -2904,37 +2895,34 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
             if (toSearch) {
                 var val;
                 var op = toSearch[2];
-                if (op == '=') {
-                    op = '==';
-                }
-                if ((op == '!') || (op == '#')) {
-                    op = '!=';
-                }
+                if (op == '=') {op = '==';}
+                if ((op == '!') || (op == '#')) {op = '!=';}
                 if (colType in {'R':null,'L':null,'I':null,'N':null}) {
                     val = dojo.number.parse(toSearch[4]);
                 } else if (colType == 'D') {
                     val = dojo.date.locale.parse(toSearch[4], {formatLength: "short",selector:'date'});
                 } else if (colType == 'DH') {
                     val = dojo.date.locale.parse(toSearch[4], {formatLength: "short"});
-                }
-
-                func = funcCreate("return (colval " +(op || '==')+ " fltval)", 'colval,fltval');
-                
+                }                
                 cb = function(rowdata, index, array) {
-                    return func.apply(grid, [rowdata[filterColumn], val]);
+                    return genro.compare(op,rowdata[filterColumn],val);
                 };
             }
         }
         return cb;
     },
     
-    mixin_createFiltered:function(cb){
-        this.setFiltered([]);
+    mixin_createFiltered:function(currentFilterValue,filterColumn,colType){
+        var cb = this.compileFilter(currentFilterValue,filterColumn,colType);
+        if (!cb && !this.excludeListCb){
+            this._filtered=null;
+            return null;
+        }
+        var filtered=[]
         var excludeList = null;
         if (this.excludeListCb) {
             excludeList = this.excludeListCb();
         }
-        var filtered = this.filtered();
         dojo.forEach(this.storebag().getNodes(), 
                     function(n,index,array){
                         var rowdata = this.rowFromBagNode(n);
@@ -2946,10 +2934,13 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
                         }
                     },
                     this);
+        this._filtered=filtered;
+        this._filterToRebuild=false;
+        
     },
     mixin_newDataStore:function(val, kw) {
         this.updateRowCount(0);
-        this.setFiltered(null);
+        this.resetFilter();
         if (this.sortedBy) {
             var storebag = this.storebag();
             storebag.sort(this.sortedBy);
@@ -3126,6 +3117,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
     },
 
     patch_updateRowCount:function(n) {
+        if(this.sourceNode._isBuilding){
+            return;
+        }
         if ((n == null) || (n == '*')) {
             if (this.invalidFilter()) {
                 this.applyFilter(true, true);
@@ -3246,9 +3240,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
         else {
             var selectionNode = genro.nodeById(nodeId + '_store') || genro.nodeById(this.sourceNode.attr.store + '_store'); 
             if (selectionNode) {
-                if (this.filtered()) {
-                    this.filterToRebuild(true);
-                }
+                this.filterToRebuild(true);
                 selectionNode.fireNode();
             }
         }
@@ -3279,15 +3271,15 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
         if (this.invalidFilter()) {
             console.log('invalid filter');
         }
-        return this.filtered() ? this.filtered()[inRowIndex] : inRowIndex;
+        return this._filtered? this._filtered[inRowIndex] : inRowIndex;
     },
+    
     mixin_storeRowCount: function() {
-        if (this.filtered()) {
-            return this.filtered().length;
+        if (this._filtered) {
+            return this._filtered.length;
         } else {
             return this.storebag().len();
         }
-
     },
     mixin_rowByIndex:function(inRowIndex) {
         if (inRowIndex < 0) {
@@ -3769,20 +3761,32 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
 });
 
 dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
-    rowByIndex:function(inRowIndex){
-        inRowIndex = this.absIndex(inRowIndex);
-        return this.collectionStore().getRowByIdx(idx);
+    mixin_rowByIndex:function(inRowIndex){
+        return this.collectionStore().getGridRowDataByIdx(this,inRowIndex);
     },
     
+     mixin_storeRowCount: function() {
+        return this.collectionStore().len(true);
+    },
+
     mixin_collectionStore:function(){
         if(!this._collectionStore){
-            this._collectionStore = genro.nodeById(sourceNode.attr.store+'_store').store;
+            this._collectionStore = genro.nodeById(this.sourceNode.attr.store+'_store').store;
+            if(this._collectionStore.chunkSize){
+                this.rowsPerPage = this._collectionStore.chunkSize;
+            }
+            //this._collectionStore.datamode = this.datamode;
         }
         return this._collectionStore;
     },
-    
-    mixin_applyFilter: function(filtered_value, rendering, filterColumn) {
-        return this.collectionStore().applyFilter(filtered_value, rendering, filterColumn);
+    mixin_storeRowCount: function() {
+        var rowcount = this.collectionStore().len(true);
+        console.log(rowcount);
+        return rowcount;
+    },
+
+    mixin_createFiltered:function(currentFilterValue,filterColumn,colType){
+        return this.collectionStore().createFiltered(this,currentFilterValue,filterColumn,colType);
     },
     mixin_filterToRebuild: function(value) {
         return this.collectionStore().filterToRebuild(value);
@@ -3790,13 +3794,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_invalidFilter: function() {
         return this.collectionStore().invalidFilter();
     },
-    mixin_setFiltered: function(value) {
-        return this.collectionStore.setFiltered(value);
-    },
-    mixin_filtered:function(){
-        return this.collectionStore.filtered();
+    mixin_resetFilter: function(value) {
+        return this.collectionStore().resetFilter();
     }
-    
     
 });
 

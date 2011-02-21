@@ -818,34 +818,64 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          if ('content' in attributes){
              attributes['_content'] = objectPop(attributes,'content');
          }
-         attributes['path'] = attributes['storepath'];
+         //attributes['path'] = attributes['storepath'];
          attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
          attributes.method = attributes.method || 'app.getSelection';
          return attributes;
      },
 
      createContent:function(sourceNode, kw,children) {
-         var storeType = objectPop(kw,'virtualSelection')? 'VirtualSelection':'Selection';
+         kw.row_count = objectPop(kw,'chunkSize',0);
+         var storeType = kw.row_count? 'VirtualSelection':'Selection';
          var identifier = objectPop(kw,'_identifier') || '_pkey';
          var selectionStore = sourceNode._('dataRpc',kw);
+         var cb = "this.store.onLoaded(result);"
+         selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
-         rpcNode.store = new gnr.stores[storeType](rpcNode,identifier);
+         rpcNode.store = new gnr.stores[storeType](rpcNode,{'identifier':identifier,'chunkSize':kw.row_count});
          return selectionStore;
      }
 });
 
 dojo.declare("gnr.stores._Collection",null,{
-    constructor:function(node,identifier){
-        this.identifier = identifier;
+    constructor:function(node,kw){
         this.storeNode = node;
         this.storepath = this.storeNode.attr.storepath;
+        this.storeNode.setRelativeData(this.storepath,null);
+        for (var k in kw){
+            this[k] = kw[k];
+        }
     },
+    onLoaded:function(result){
+        this.storeNode.setRelativeData(this.storepath,result);
+        return result;
+    },
+    
     getData:function(){
         return this.storeNode.getRelativeData(this.storepath);
     },
-    
-    getRowByIdx:function(idx){},
-    
+    getItems:function(){
+        return this.getData();
+    },
+    len:function(filtered){
+        if(filtered && this._filtered){
+            return this._filtered.length;
+        }
+        return this.getItems().length;
+    },
+    absIndex:function(idx){
+        if (this.filterToRebuild()) {
+            console.log('invalid filter');
+        }
+        return this._filtered ? this._filtered[idx] : idx;
+    },
+  
+    rowFromItem:function(item,grid){
+        if(grid){
+            return grid.rowFromBagNode(item);
+        }
+        return item;
+    },
     getNavigationPkey:function(nav,currentPkey){
         var idx = nav == parseInt(nav) && nav;
         if(!idx){
@@ -889,6 +919,86 @@ dojo.declare("gnr.stores._Collection",null,{
             return result;
         }
     },
+    getGridRowDataByIdx:function(grid,idx){
+        var rowdata={}
+        var node=this.itemByIdx(idx);
+        if (node){
+            rowdata= grid.rowFromBagNode(node);
+        }
+        return rowdata;
+    },
+    
+    filterToRebuild: function(value) {
+        this._filterToRebuild = value;
+    },
+    invalidFilter: function() {
+        return this._filterToRebuild;
+    },
+    resetFilter: function() {
+        return this._filtered = null;
+    },
+    
+    compileFilter:function(value,filterColumn,colType){
+        if(value==null){
+            return null;
+        }
+        var cb;
+        if (colType in {'A':null,'T':null}) {
+            var regexp = new RegExp(value, 'i');
+            cb = function(rowdata, index, array) {
+                var columns = filterColumn.split('+');
+                var txt = '';
+                for (var i = 0; i < columns.length; i++) {
+                    txt = txt + ' ' + rowdata[columns[i]];
+                }
+                return regexp.test(txt);
+            };
+        } else {
+            var toSearch = /^(\s*)([\<\>\=\!\#]+)(\s*)(.+)$/.exec(value);
+            if (toSearch) {
+                var val;
+                var op = toSearch[2];
+                if (op == '=') {op = '==';}
+                if ((op == '!') || (op == '#')) {op = '!=';}
+                if (colType in {'R':null,'L':null,'I':null,'N':null}) {
+                    val = dojo.number.parse(toSearch[4]);
+                } else if (colType == 'D') {
+                    val = dojo.date.locale.parse(toSearch[4], {formatLength: "short",selector:'date'});
+                } else if (colType == 'DH') {
+                    val = dojo.date.locale.parse(toSearch[4], {formatLength: "short"});
+                }                
+                cb = function(rowdata, index, array) {
+                    return genro.compare(op,rowdata[filterColumn],val);
+                };
+            }
+        }
+        return cb;
+    },
+
+    createFiltered:function(grid,currentFilterValue,filterColumn,colType){
+        var cb = this.compileFilter(currentFilterValue,filterColumn,colType);
+        if (!cb && !grid.excludeListCb){
+            this._filtered = null;
+            return null;
+        }
+        var filtered=[]
+        var excludeList = null;
+        if (grid.excludeListCb) {
+            excludeList = grid.excludeListCb();
+        }
+        dojo.forEach(this.getItems(), 
+                    function(n,index,array){
+                        var rowdata = grid.rowFromBagNode(n);
+                        var result = cb? cb(rowdata,index,array):true; 
+                        if(result){
+                            if ((!excludeList)||(dojo.indexOf(excludeList, rowdata[grid.excludeCol]) == -1)) {
+                                filtered.push(index);
+                            }
+                        }
+                    });
+        this._filtered=filtered;
+        this._filterToRebuild=false;
+    }
 })
 
 dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
@@ -898,187 +1008,128 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
     getRowByIdx:function(idx){
         return 
     },
-    len:function(){
-        return this.getData().len();
+    getItems:function(){
+        var data=this.getData();
+        return data?data.getNodes():[];
     },
+    rowFromItem:function(n,grid){
+        if(grid){
+            return grid.rowFromBagNode(n);
+        }
+        return n.getValue();
+    }
 });
 
 dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     keyGetter :function(n){
         return n.attr[this.identifier];
     },
-    absIndex:function(idx){
-        if (this.filterToRebuild) {
-            console.log('invalid filter');
+    
+    rowFromItem:function(n,grid){
+        if(grid){
+            return grid.rowFromBagNode(n);
         }
-        
-        return this.filtered ? this.filtered[inRowIndex] : inRowIndex;
+        return n.attr();
     },
-    
-    getRowByIdx:function(idx){
-        if (idx < 0) {
-            return {};
-        }
-        inRowIndex = this.absIndex(inRowIndex);
-        var nodes = this.storebag().getNodes();
-        if (nodes.length > inRowIndex) {
-            return this.rowFromBagNode(nodes[inRowIndex]);
-        } else {
-            return {};
-        }
-    },
-    
-    filterExcluded: function(rowdata, index) {
-        return this.collectionStore().filterExcluded(rowdata, index);
-    },
-    applyFilter: function(filtered_value, rendering, filterColumn) {
-        return this.collectionStore().applyFilter(filtered_value, rendering, filterColumn);
-    },
-    filterToRebuild: function(value) {
-        this._filterToRebuild = value;
-    },
-    invalidFilter: function() {
-        return this._filterToRebuild;
-    },
-    setFiltered: function(value) {
-        return this._filtered = value;
-    },
-    filtered:function(){
-        return this._filtered;
-    },
-    
-    
-    mixin_filterExcluded: function(rowdata, index) {
-        if (this.excludeList) {
-            if (dojo.indexOf(this.excludeList, rowdata[this.excludeCol]) != -1) {
-                return;
+    itemByIdx:function(idx){
+        var item=null;
+        if (idx >= 0) {
+            idx = this.absIndex(idx);
+            var nodes=this.getItems()
+            if (idx <= this.len()) {
+                item=nodes[idx]
             }
         }
-        this.filtered.push(index);
-    },
-    
-    
-    
-    mixin_applyFilter: function(filtered_value, rendering, filterColumn) {
-        if (filterColumn) {
-            this.filterColumn = filterColumn;
-        }
-        var cb;
-        this.excludeList = null;
-        if (this.excludeListCb) {
-            this.excludeList = this.excludeListCb();
-        }
-        if ((!filtered_value) || ((filtered_value == true) && (!this.filtered_value))) {
-            this.filtered = null;
-            if (this.excludeList) {
-                cb = function(node, index, array) {
-                    var rowdata = this.rowFromBagNode(node);
-                    this.filterExcluded(rowdata, index);
-                };
-                this.filtered = [];
-                dojo.forEach(this.storebag().getNodes(), cb, this);
-            }
-            this.filtered_value = null;
-            this.filtered_compvalue = null;
-        } else {
-            this.filtered = null;
-            this.filtered_value = (filtered_value == true) ? this.filtered_value : filtered_value;
-            this.filtered_compvalue = null;
-            var cb, colType;
-            if (this.filterColumn.indexOf('+') > 0) {
-                colType = 'T';
-            } else {
-                colType = this.cellmap[this.filterColumn]['dtype'] || 'A';
-            }
-            if (colType in {'A':null,'T':null}) {
-                this.filtered_compvalue = new RegExp(this.filtered_value, 'i');
-                cb = function(node, index, array) {
-                    var result;
-                    var columns = this.filterColumn.split('+');
-                    var txt = '';
-                    var rowdata = this.rowFromBagNode(node);
-                    for (var i = 0; i < columns.length; i++) {
-                        txt = txt + ' ' + rowdata[columns[i]];
-                    }
-                    ;
-                    result = this.filtered_compvalue.test(txt);
-                    if (result) {
-                        this.filterExcluded(rowdata, index);
-                    }
-                };
-            } else {
-                cb = function(node, index, array) {
-                    var op = this.filtered_compvalue.op;
-                    var val = this.filtered_compvalue.val;
-                    var rowdata = this.rowFromBagNode(node);
-                    var result = this.filtered_compvalue.func.apply(this, [rowdata[this.filterColumn], val]);
-                    if (result) {
-                        this.filterExcluded(rowdata, index);
-                    }
-                };
-                var toSearch = /^(\s*)([\<\>\=\!\#]+)(\s*)(.+)$/.exec(this.filtered_value);
-                if (toSearch) {
-                    var val;
-                    var op = toSearch[2];
-                    if (op == '=') {
-                        op = '==';
-                    }
-                    if ((op == '!') || (op == '#')) {
-                        op = '!=';
-                    }
-                    if (colType in {'R':null,'L':null,'I':null,'N':null}) {
-                        val = dojo.number.parse(toSearch[4]);
-                    } else if (colType == 'D') {
-                        val = dojo.date.locale.parse(toSearch[4], {formatLength: "short",selector:'date'});
-                    } else if (colType == 'DH') {
-                        val = dojo.date.locale.parse(toSearch[4], {formatLength: "short"});
-                    }
-                    if (op && val) {
-                        var func = "return (colval " + op + " fltval)";
-                        func = funcCreate(func, 'colval,fltval');
-                        this.filtered_compvalue = {'op':op, 'val':val, 'func':func};
-                    }
-                }
-            }
-            if (this.filtered_compvalue) {
-                this.filtered = [];
-                dojo.forEach(this.storebag().getNodes(), cb, this);
-            }
-        }
-        this.filterToRebuild = false;
-        if (!rendering) {
-            this.updateRowCount('*');
-        }
-    },
-    
-    
+        return item
+    }
 
 });
 
 
 dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     len:function(){
-        return this.getData().getParentNode().attr['row_count'];
+        if(!this.getData()){
+            return 0;
+        }
+        return this.getData().getParentNode().attr['totalrows'];
     },
     getRowByIdx:function(idx){
         return 
-    }
+    },
     
-    ,mixin_rowByIndex:function(inRowIndex, lazy) {
-        var rowIdx = inRowIndex % this.rowsPerPage;
-        var pageIdx = (inRowIndex - rowIdx) / this.rowsPerPage;
+    onLoaded:function(result){
+        var selection = result.getValue(); 
+        var data = new gnr.GnrBag();
+        var resultattr = result.attr;
+        data.setItem('P_0',result.getValue()); 
+        this.rowtotal = resultattr.rowcount;
+        this.totalRowCount = resultattr.totalRowCount;
+        this.selectionName = resultattr.selectionName;
+        this.storeNode.setRelativeData(this.storepath,data,resultattr);
+        return result;
+    },
+    
+    itemByIdx:function(idx) {
+        var rowIdx = idx % this.chunkSize;
+        var pageIdx = (idx - rowIdx) / this.chunkSize;
         if (this.currCachedPageIdx != pageIdx) {
             this.currCachedPageIdx = pageIdx;
-            this.currCachedPage = this.storebag.getValue().getItem('P_' + pageIdx);
+            this.currCachedPage = this.getData().getItem('P_' + pageIdx);
             if (!this.currCachedPage) {
-                if (lazy) {
-                    return;
-                }
-                this.currCachedPage = this.loadBagPageFromServer(pageIdx);
+                //this.currCachedPage = this.loadBagPageFromServer(pageIdx);
+                this.loadBagPageFromServer_async(pageIdx);
             }
         }
-        return this.currCachedPage ? this.currCachedPage.getNodes()[rowIdx].attr : null;
+        return this.currCachedPage ? this.currCachedPage.getNodes()[rowIdx] : null;
     },
+    loadBagPageFromServer:function(pageIdx) {
+        if(!this.getData()){
+            return;
+        }
+        var row_start = pageIdx * this.chunkSize;
+        var kw = this.getData().getParentNode().attr;
+        console.log('before calling page:',pageIdx)
+        var data = genro.rpc.remoteCall(kw.method, {'selectionName':kw.selectionName,
+            'row_start':row_start,
+            'row_count':this.chunkSize,
+            'sortedBy':this.sortedBy,
+            'table':kw.table,
+            'recordResolver':false});
+        data = data.getValue();
+        this.getData().setItem('P_' + pageIdx, data);
+        return data;
+    },
+    loadBagPageFromServer_async:function(pageIdx) {
+        if(!this.pendings){
+            this.pendings = {};
+        }
+        if(pageIdx in this.pendings){
+            console.log('because pending')
+            return;
+        }
+        
+        if(!this.getData()){
+            return;
+        }
+        var that = this;
+        var row_start = pageIdx * this.chunkSize;
+        var kw = this.getData().getParentNode().attr;
+        this.pendings[pageIdx] = genro.rpc.remoteCall(kw.method, {'selectionName':kw.selectionName,
+            'row_start':row_start,
+            'row_count':this.chunkSize,
+            'sortedBy':this.sortedBy,
+            'table':kw.table,
+            'recordResolver':false},
+            null,
+            null,
+            null,
+            function(result){
+                var data = result.getValue();
+                that.getData().setItem('P_' + pageIdx, data);
+                that.currCachedPage = data;
+                objectPop(that.pendings,pageIdx);
+            });    
+    }
 });
 
 

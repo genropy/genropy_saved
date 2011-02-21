@@ -73,31 +73,15 @@ dojo.declare('gnr.GenroClient', null, {
         this.pendingFireAfter = {};
         var plugins = objectExtract(window, 'genro_plugin_*');
         objectUpdate(genro, plugins);
-        this.compareDict = {'==':function(a, b) {
-            return (a == b);
-        },
-            '>':function(a, b) {
-                return (a > b);
-            },
-            '>=':function(a, b) {
-                return (a >= b);
-            },
-            '<':function(a, b) {
-                return (a < b);
-            },
-            '<=':function(a, b) {
-                return (a <= b);
-            },
-            '!=':function(a, b) {
-                return (a != b);
-            },
-            '%':function(a, b) {
-                return (a.indexOf(b) >= 0);
-            },
-            '!%':function(a, b) {
-                return (a.indexOf(b) < 0);
-            }
-        };
+        this.compareDict = { '==' : function(a, b) {return (a == b);},
+                             '>'  : function(a, b) {return (a > b);},
+                             '>=' : function(a, b) {return (a >= b);},
+                             '<'  : function(a, b) {return (a < b);},
+                             '<=' : function(a, b) {return (a <= b);},
+                             '!=' : function(a, b) {return (a != b);},
+                             '%'  : function(a, b) {return (a.indexOf(b) >= 0);},
+                             '!%' : function(a, b) {return (a.indexOf(b) < 0);}
+                             };
         window.onbeforeunload = function(e) {
             var exit;
             if (genro.checkBeforeUnload) {
