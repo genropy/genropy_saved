@@ -1,7 +1,7 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
+#  gnrbatch_new.py
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
@@ -18,29 +18,29 @@ class GnrBatch(object):
         for k, v in kwargs.items():
             if v:
                 setattr(self, k, v)
-
+                
     def set_data(self, data):
         self.data = data
-
+        
     def data_counter(self):
         return len(self.data)
-
+        
     def data_fetcher(self):
         for item in self.data:
             yield item
-
+            
     def pre_process(self):
         pass
-
+        
     def process_chunk(self, chunk):
         pass
-
+        
     def post_process(self):
         pass
-
+        
     def collect_result(self):
         pass
-
+        
     def run(self):
         self.progress = 0
         self.page.btc.thermo_line_update(line='batch_steps', maximum=5, progress=2, message='!!Pre processing')
@@ -48,33 +48,32 @@ class GnrBatch(object):
         self.page.btc.thermo_line_update(line='batch_steps', maximum=5, progress=3, message='!!Executing')
         self.process()
         self.page.btc.thermo_line_update(line='batch_steps', maximum=5, progress=4, message='!!Post processing')
-
+        
         self.post_process()
         self.page.btc.thermo_line_update(line='batch_steps', maximum=5, progress=5, message='!!Collecting results')
-
+        
         result = self.collect_result()
         return result
-
+        
     def process(self):
         self.thermo_start(line='batch_main', msg='')
         for chunk in self.data_fetcher():
             self.thermo_step(line='batch_main', chunk=chunk)
             self.process_chunk(chunk, **self.runKwargs)
             self.progress += 1
-
+            
     def thermo_start(self, line=None, msg=None):
         self.page.btc.thermo_line_start(line=line, maximum=len(self.data),
                                         message=msg)
-
-
+                                        
     def thermo_step(self, line=None, chunk=None):
         self.page.btc.thermo_line_update(line=line, maximum=len(self.data),
                                          message=self.thermo_chunk_message(chunk),
                                          progress=self.progress)
-
+                                         
     def thermo_chunk_message(self, chunk, row):
         pass
-
+        
 class SelectionToXls(GnrBatch):
     def __init__(self, data=None, table=None, filename=None, columns=None, locale=None, **kwargs):
         if columns:
@@ -99,15 +98,15 @@ class SelectionToXls(GnrBatch):
         self.batch_note = "Exporting %s" % self.tblobj.name
         self.batch_cancellable = False
         self.batch_delay = 0.5
-
+        
         #self.thermo_maximum[0] = self.data_counter()
-
+        
     def thermo_chunk_message(self, chunk):
         return self.tblobj.recordCaption(chunk)
-
+        
     def pre_process(self):
         import xlwt
-
+        
         self.workbook = xlwt.Workbook(encoding='latin-1')
         self.sheet = self.workbook.add_sheet(self.filename)
         float_style = xlwt.XFStyle()
@@ -122,7 +121,7 @@ class SelectionToXls(GnrBatch):
         for c, header in enumerate(self.columns):
             self.sheet.write(0, c, self.colHeaders[header], hstyle)
         self.current_row = 1
-
+        
     def process_chunk(self, chunk):
         for c, column in enumerate(self.columns):
             if isinstance(chunk[column], list):
@@ -131,20 +130,20 @@ class SelectionToXls(GnrBatch):
                 value = chunk[column]
             self.sheet.write(self.current_row, c, value)
         self.current_row += 1
-
+        
     def post_process(self):
         self.filePath = self.page.temporaryDocument(self.filename)
         self.fileUrl = self.page.temporaryDocumentUrl(self.filename)
         self.workbook.save(self.filePath)
-
+        
     def collect_result(self):
         return self.fileUrl
-
+        
 class PrintDbData(GnrBatch):
     def __init__(self, table=None, table_resource=None, class_name=None, selection=None,
                  folder=None, printParams=None, pdfParams=None, commitAfterPrint=False, batch_note=None, **kwargs):
         #import cups
-
+        
         super(PrintDbData, self).__init__(**kwargs)
         self.htmlMaker = self.page.site.loadTableScript(page=self.page, table=table,
                                                         respath=table_resource,
@@ -164,27 +163,27 @@ class PrintDbData(GnrBatch):
         self.file_list = []
         self.commitAfterPrint = commitAfterPrint
         self.batch_note = batch_note
-
+        
     @property
     def batch_prefix(self):
         return self.htmlMaker.batch_prefix
-
+        
     @property
     def batch_title(self):
         return self.htmlMaker.batch_title
-
+        
     @property
     def batch_delay(self):
         return self.htmlMaker.batch_delay
-
+        
     @property
     def batch_cancellable(self):
         return self.htmlMaker.batch_cancellable
-
+        
     @property
     def batch_thermo_lines(self):
         return self.htmlMaker.batch_thermo_lines
-
+        
     def collect_result(self):
         filename = None
         if self.file_list:
@@ -192,32 +191,30 @@ class PrintDbData(GnrBatch):
                                                         outputFilePath=self.outputFilePath)
         if filename:
             return self.page.userDocumentUrl('output', 'pdf', filename)
-
-
+            
     def process_chunk(self, chunk, **kwargs):
         html = self.htmlMaker(chunk['pkey'], rebuild=self.rebuild, **kwargs)
         if html != False:
             self.file_list.append(self.print_handler.htmlToPdf(self.htmlMaker.filepath, self.folder))
-
+            
     def thermo_chunk_message(self, chunk):
         return self.data.dbtable.recordCaption(chunk)
-
+        
     def data_fetcher(self):     ##### Rivedere per passare le colonne
         for row in self.data.output('dictlist'):
             yield row
-
+            
     def post_process(self):
         if self.commitAfterPrint:
             self.page.db.commit()
-
+            
 class PrintSelection(PrintDbData):
     pass
-
-
+    
 class PrintRecord(PrintDbData):
     def process(self):
         self.process_chunk(dict(pkey=self.data), **self.runKwargs)
-
+        
 class MailSender(GnrBatch):
     def __init__(self, page=None, table=None, doctemplate=None, selection=None,
                  cc_address=None, bcc_address=None, from_address=None, to_address=None, attachments=None,
@@ -241,11 +238,11 @@ class MailSender(GnrBatch):
         self.ssl = ssl
         self.tls = tls
         self.to_address = to_address
-
+        
     def data_fetcher(self):
         for row in self.data.output('records'):
             yield row
-
+            
     def process_chunk(self, chunk, **kwargs):
         print x
         self.mail_handler.sendmail_template(chunk,
@@ -256,38 +253,37 @@ class MailSender(GnrBatch):
                                             attachments=self.attachments, account=self.accont,
                                             host=self.host, port=self.port, user=self.user, password=self.password,
                                             ssl=self.ssl, tls=self.tls, html=True, async=True)
-
+                                            
 ################################
 class Fake(GnrBatch):
     thermo_rows = 2
-
+        
     def __init__(self, **kwargs):
         super(Fake, self).__init__(**kwargs)
         self.thermo_maximum[1] = 1000
         self.thermo_maximum[2] = 1000
-
+        
     def data_fetcher(self):     ##### Rivedere per passare le colonne
         for row in range(1000):
             yield row
-
+            
     def process_chunk(self, chunk):
         i = 0
         self.thermo_step(row=2, status=0)
         for subrow in range(1000):
             self.thermo_step(row=2, message='fake %i/%i' % (chunk, subrow))
-
+            
     def collect_result(self):
         pass
-
+        
     ##################################
-
+        
 class ProgressThermo(object):
     def __init__(self, name, lines=None, **kwargs):
         self.name = name
         self.lines = lines
         self.lines.update(dict([(k[8:], dict(maximum=v)) for k, v in kwargs.items() if k.startswith('maximum_')]))
-
+        
     def setLine(self, line, **kwargs):
         self.lines[line].update(kwargs)
-        
-        
+           

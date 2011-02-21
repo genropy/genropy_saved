@@ -798,7 +798,7 @@ class SqlQuery(object):
                                                                   excludeLogicalDeleted=self.excludeLogicalDeleted,
                                                                   addPkeyColumn=self.addPkeyColumn,
                                                                   **self.querypars)
-
+                                                                  
     def cursor(self):
         """get a cursor of current selection"""
         return self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname)

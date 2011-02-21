@@ -49,7 +49,7 @@
 
 	.. module:: gnr.app.gnrapp.GnrImportException
 
-	there is no method defined.
+	there is no public method.
 
 .. _gnrapp_gnrmixobj:
 
@@ -58,7 +58,7 @@
 
 	.. module:: gnr.app.gnrapp.GnrMixinObj
 
-	there is no method defined.
+	there is no public method.
 
 .. _gnrapp_gnrpackage:
 
@@ -93,7 +93,7 @@
 
 	.. module:: gnr.app.gnrapp.GnrWriteInReservedTableError
 
-	there is no method defined.
+	there is no public method.
 
 .. _gnrapp_classes:
 

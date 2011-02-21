@@ -29,7 +29,7 @@
 
 	.. module:: gnr.app.gnrdeploy.ModWsgiMaker
 
-	there is no method defined.
+	there is no public method.
 
 .. _gnrapp_packagemaker:
 

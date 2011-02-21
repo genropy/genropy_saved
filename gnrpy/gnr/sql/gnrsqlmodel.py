@@ -360,9 +360,11 @@ class DbModelSrc(GnrStructData):
 
     def index(self, columns=None, name=None, unique=None):
         """Add an index to a column. self must be a column src or an index_list
-        @param columns: list, or tuple, or string separated by commas
-        @param name: index name
-        @unique param: unicity bound"""
+        
+        :param columns: list, or tuple, or string separated by commas. Default value is ``None``
+        :param name: index name. Default value is ``None``
+        :param unique: unicity bound. Default value is ``None``
+        """
         if isinstance(columns, list) or isinstance(columns, tuple):
             columns = ','.join(columns)
         if not name:
@@ -377,21 +379,22 @@ class DbModelSrc(GnrStructData):
                  many_name=None, eager_one=None, eager_many=None, one_one=None, child=None,
                  one_group=None, many_group=None, onUpdate=None, onUpdate_sql=None, onDelete=None,
                  onDelete_sql=None, deferred=None, relation_name=None, **kwargs):
-        """ This method adds a relation in the current model.
-            @param many_relation_tuple: the column of the "many table" as tuple. Eg. ('video','movie','director_id')
-            @param oneColumn: the column of the "one table" as string. Eg. 'video.director.id'
-            @param  one_name: the one_to_many relation's name. Eg. 'movies'
-            @param  many_name: the many_to_one relation's name. Eg. 'director'
-            @param mode: relation (dflt), insensitive, foreignkey
-            @param eager_one: if True ('Y') the one_to_many relation is eager
-            @param eager_many: if True ('Y') the many_to_one relation is eager
-            @param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
-            @param onUpdate:
-            @param onUpdate_sql:
-            @param onDelete:
-            @param onDelete_sql:
-            @param deferred:
-            @param relation_name:
+        """ Add a relation in the current model
+        
+        :param oneColumn: the column of the "one table" as string. Eg. 'video.director.id'
+        :param one_name: the one_to_many relation's name. Eg. 'movies'
+        :param many_name: the many_to_one relation's name. Eg. 'director'
+        :param mode: relation (dflt), insensitive, foreignkey
+        :param eager_one: if True ('Y') the one_to_many relation is eager
+        :param eager_many: if True ('Y') the many_to_one relation is eager
+        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
+        :param onUpdate: add???
+        :param onUpdate_sql: add???
+        :param onDelete: add???
+        :param onDelete_sql: add???
+        :param deferred: add???
+        :param relation_name: add???
+        :returns: add???
         """
 
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode,

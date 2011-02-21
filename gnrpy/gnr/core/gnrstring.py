@@ -568,7 +568,7 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
        :param locale: add???. Default value is ``None``
        :param format: add???. Default value is ``None``
        :param mask: add???. Default value is ``None``
-       :param encoding: add???. Default value is ``None``
+       :param encoding: The multibyte character encoding you choose. Default value is ``None``
        :param currency: add???. Default value is ``None``
        :returns: a unicode string representing an object of any class
        """
@@ -591,7 +591,7 @@ def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     :param locale: add???. Default value is ``None``
     :param format: add???. Default value is ``None``
     :param mask: add???. Default value is ``None``
-    :param encoding: add???. Default value is ``None``
+    :param encoding: The multibyte character encoding you choose. Default value is ``None``
     :returns: add???
     """
     typeSamples = {'B': 'true', 'D': datetime.date(2005, 10, 10), 'H': datetime.time(4, 5),

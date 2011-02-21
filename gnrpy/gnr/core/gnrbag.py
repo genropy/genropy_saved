@@ -418,7 +418,6 @@ class Bag(GnrObject):
     
     Nested elements can be accessed with a path of keys joined with dots.
     """
-
     #-------------------- __init__ --------------------------------
     def __init__(self, source=None):
         """ 

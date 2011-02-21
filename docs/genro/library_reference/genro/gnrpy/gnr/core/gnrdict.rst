@@ -33,7 +33,7 @@
 
     .. module:: gnr.core.gnrdict.GnrNumericDict
     
-    there is no method defined.
+    there is no public method.
 
 .. _gnrdict_others:
 

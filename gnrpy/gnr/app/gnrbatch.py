@@ -1,7 +1,7 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
+#  gnrbatch.py
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
@@ -9,15 +9,14 @@
 
 '''
 Character width dictionary and convenience functions for column sizing
-with xlwt when Arial 10 is the standard font.  Widths were determined
-experimentally using Excel 2000 on Windows XP.  I have no idea how well
-these will work on other setups.  For example, I don't know if system
-video settings will affect the results.  I do know for sure that this
+with xlwt when Arial 10 is the standard font. Widths were determined
+experimentally using Excel 2000 on Windows XP. I have no idea how well
+these will work on other setups. For example, I don't know if system
+video settings will affect the results. I do know for sure that this
 module won't be applicable to other fonts in general.
 
 //John Yeung  2009-09-02
 '''
-
 
 from time import time
 from collections import defaultdict
@@ -39,8 +38,7 @@ charwidths = {
     '/': 146.015, ':': 146.015, ';': 146.015, '<': 291.556, '=': 291.556, '>': 291.556, '?': 262.637,
     '@': 496.356, '[': 146.015, '\\': 146.015, ']': 146.015, '^': 203.852, '_': 262.637, '`': 175.407,
     '{': 175.407, '|': 146.015, '}': 175.407, '~': 291.556}
-
-
+    
 def colwidth(n):
     '''Translate human-readable units to BIFF column width units'''
     if n <= 0:
@@ -48,7 +46,7 @@ def colwidth(n):
     if n <= 1:
         return n * 456
     return 200 + n * 256
-
+    
 def fitwidth(data, bold=False):
     '''Try to autofit Arial 10'''
     units = 220
@@ -60,10 +58,10 @@ def fitwidth(data, bold=False):
     if bold:
         units *= 1.1
     return max(units, 700) # Don't go smaller than a reported width of 2
-
+    
 class GnrBatch(object):
     thermo_rows = 1
-
+    
     def __init__(self, data=None, runKwargs=None, thermocb=None, thermoId=None, thermofield='*', thermodelay=0.5,
                  **kwargs):
         self.thermocb = thermocb or (lambda *a, **kw:None)
@@ -81,26 +79,26 @@ class GnrBatch(object):
         for k, v in kwargs.items():
             if v:
                 setattr(self, k, v)
-
+                
     def data_counter(self):
         return len(self.data)
-
+        
     def data_fetcher(self):
         for item in self.data:
             yield item
-
+            
     def pre_process(self):
         pass
-
+        
     def process_chunk(self, chunk):
         pass
-
+        
     def post_process(self):
         pass
-
+        
     def collect_result(self):
         pass
-
+        
     def run(self):
         self.thermo_init()
         self.pre_process()
@@ -109,15 +107,14 @@ class GnrBatch(object):
         result = self.collect_result()
         self.thermo_end()
         return result
-
-
+        
     def process(self):
         for chunk in self.data_fetcher():
             self.thermo_step(chunk)
             if self.stopped:
                 break
             self.process_chunk(chunk, **self.runKwargs)
-
+            
     def thermo_init(self, row=None):
         if self.thermoId:
             kwargs = dict()
@@ -132,7 +129,7 @@ class GnrBatch(object):
                 self.thermocb(self.thermoId, **kwargs)
             else:
                 self.thermocb(self.thermoId, command='init', **kwargs)
-
+                
     def thermo_reset(self, row, max_value):
         kwargs = dict()
         self.thermo_maximum[row] = max_value
@@ -141,7 +138,7 @@ class GnrBatch(object):
         kwargs['progress_%i' % row] = self.thermo_status[row]
         self.last_thermotime = time()
         return self.thermocb(self.thermoId, **kwargs)
-
+        
     def thermo_step(self, chunk=None, row=1, status=None, message=None, step=1):
         kwargs = dict()
         if status is not None:
@@ -158,14 +155,14 @@ class GnrBatch(object):
                     self.stopped = True
                     self.thermocb(self.thermoId, command='stopped')
                 return result
-
+                
     def thermo_chunk_message(self, chunk, row):
         pass
-
+        
     def thermo_end(self):
         if self.thermoId:
             self.thermocb(self.thermoId, command='end')
-
+            
 class SelectionToXls(GnrBatch):
     def __init__(self, data=None, table=None, filename=None, columns=None, locale=None, **kwargs):
         if columns:
@@ -186,18 +183,17 @@ class SelectionToXls(GnrBatch):
         self.tblobj = self.page.db.table(table)
         self.thermo_maximum[0] = self.data_counter()
         self.colsizes = dict()
-
+        
     def thermo_chunk_message(self, chunk, row):
         if self.thermofield == '*':
             msg = self.tblobj.recordCaption(chunk)
         else:
             msg = chunk[self.thermofield]
         return msg
-
-
+        
     def pre_process(self):
         import xlwt
-
+        
         self.workbook = xlwt.Workbook(encoding='latin-1')
         self.sheet = self.workbook.add_sheet(self.filename)
         self.float_style = xlwt.XFStyle()
@@ -215,7 +211,7 @@ class SelectionToXls(GnrBatch):
             self.sheet.write(0, c, self.colHeaders[header], hstyle)
             self.colsizes[c] = max(self.colsizes.get(c, 0), fitwidth(unicode(self.colHeaders[header])))
         self.current_row = 1
-
+        
     def process_chunk(self, chunk):
         for c, column in enumerate(self.columns):
             if isinstance(chunk[column], list):
@@ -236,17 +232,17 @@ class SelectionToXls(GnrBatch):
             else:
                 self.sheet.write(self.current_row, c, value)
         self.current_row += 1
-
+        
     def post_process(self):
         for colindex, colsize in self.colsizes.items():
             self.sheet.col(colindex).width = colsize
         self.filePath = self.page.temporaryDocument(self.filename)
         self.fileUrl = self.page.temporaryDocumentUrl(self.filename)
         self.workbook.save(self.filePath)
-
+        
     def collect_result(self):
         return self.fileUrl
-
+        
 class MailSender(GnrBatch):
     def __init__(self, page=None, table=None, doctemplate=None, selection=None,
                  cc_address=None, bcc_address=None, from_address=None, to_address=None, attachments=None,
@@ -270,11 +266,11 @@ class MailSender(GnrBatch):
         self.ssl = ssl
         self.tls = tls
         self.to_address = to_address
-
+        
     def data_fetcher(self):
         for row in self.data.output('records'):
             yield row
-
+            
     def process_chunk(self, chunk, **kwargs):
         print x
         self.mail_handler.sendmail_template(chunk,
@@ -285,13 +281,12 @@ class MailSender(GnrBatch):
                                             attachments=self.attachments, account=self.accont,
                                             host=self.host, port=self.port, user=self.user, password=self.password,
                                             ssl=self.ssl, tls=self.tls, html=True, async=True)
-
-
+                                            
 class PrintDbData(GnrBatch):
     def __init__(self, table=None, table_resource=None, class_name=None, selection=None,
                  folder=None, printParams=None, pdfParams=None, commitAfterPrint=False, **kwargs):
         #import cups
-
+        
         super(PrintDbData, self).__init__(**kwargs)
         self.htmlMaker = self.page.site.loadTableScript(page=self.page, table=table,
                                                         respath=table_resource,
@@ -312,15 +307,14 @@ class PrintDbData(GnrBatch):
         self.print_connection = self.print_handler.getPrinterConnection(self.printer_name, printParams)
         self.file_list = []
         self.commitAfterPrint = commitAfterPrint
-
+        
     def thermoHandler(self, row=None, max_value=None, message=None):
         if max_value:
             self.thermo_reset(row, max_value=max_value)
         else:
             self.thermo_step(row=row, message=message)
             return self.stopped
-
-
+            
     def collect_result(self):
         filename = None
         if self.file_list:
@@ -328,67 +322,64 @@ class PrintDbData(GnrBatch):
                                                         outputFilePath=self.outputFilePath)
         if filename:
             return self.page.userDocumentUrl('output', 'pdf', filename)
-
-
+            
     def process_chunk(self, chunk, **kwargs):
         html = self.htmlMaker(chunk['pkey'], rebuild=self.rebuild, **kwargs)
         if html != False:
             self.file_list.append(self.print_handler.htmlToPdf(self.htmlMaker.filepath, self.folder))
-
+            
     def thermo_chunk_message(self, chunk, row):
         if self.thermofield == '*':
             msg = self.data.dbtable.recordCaption(chunk)
         else:
             msg = chunk[self.thermofield]
         return msg
-
+        
     def data_fetcher(self):     ##### Rivedere per passare le colonne
         for row in self.data.output('dictlist'):
             yield row
-
+            
     def post_process(self):
         if self.commitAfterPrint:
             self.page.db.commit()
-
+            
 class PrintSelection(PrintDbData):
     pass
-
-
+    
 class PrintRecord(PrintDbData):
     def process(self):
         self.process_chunk(dict(pkey=self.data), **self.runKwargs)
-
+        
 ################################
 class Fake(GnrBatch):
     thermo_rows = 2
-
+    
     def __init__(self, **kwargs):
         super(Fake, self).__init__(**kwargs)
         self.thermo_maximum[1] = 1000
         self.thermo_maximum[2] = 1000
-
+        
     def data_fetcher(self):     ##### Rivedere per passare le colonne
         for row in range(1000):
             yield row
-
+            
     def process_chunk(self, chunk):
         i = 0
         self.thermo_step(row=2, status=0)
         for subrow in range(1000):
             self.thermo_step(row=2, message='fake %i/%i' % (chunk, subrow))
-
+            
     def collect_result(self):
         pass
-
+        
     ##################################
-
+        
 class ProgressThermo(object):
     def __init__(self, name, lines=None, **kwargs):
         self.name = name
         self.lines = lines
         self.lines.update(dict([(k[8:], dict(maximum=v)) for k, v in kwargs.items() if k.startswith('maximum_')]))
-
+        
     def setLine(self, line, **kwargs):
         self.lines[line].update(kwargs)
-        
-        
+             

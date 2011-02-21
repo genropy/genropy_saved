@@ -22,7 +22,7 @@
 
     .. module:: gnr.core.gnrlang.FilterList
     
-    there is no method defined.
+    there is no public method.
 
 .. _gnrlang_addon:
 
@@ -113,7 +113,7 @@
 
     .. module:: gnr.core.gnrlang.SuperdoTest
 
-    there is no method defined.
+    there is no public method.
 
 .. _gnrlang_others:
 

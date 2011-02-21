@@ -16,7 +16,7 @@
 
 	.. module:: gnr.core.gnrxls.XlsReader
 
-	there is no method defined.
+	there is no public method.
 
 .. _gnrxls_xlswriter:
 

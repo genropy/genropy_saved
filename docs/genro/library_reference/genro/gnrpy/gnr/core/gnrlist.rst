@@ -31,7 +31,7 @@
     
     .. module:: gnr.core.gnrlist.XlsReader
     
-    there is no method defined.
+    there is no public method.
 
 .. _gnrlist_others:
 

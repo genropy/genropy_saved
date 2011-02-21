@@ -392,8 +392,7 @@ class SqlDbAdapter(object):
         self.dbroot.execute('ALTER TABLE %s ADD COLUMN %s' % (sqltable, sqlcol))
 
     def columnSqlDefinition(self, sqlname, dtype, size, notnull, pkey, unique):
-        """
-        returns the statement string for creating a table's column
+        """Return the statement string for creating a table's column
         """
         sql = '"%s" %s' % (sqlname, self.columnSqlType(dtype, size))
         if notnull:
@@ -427,19 +426,24 @@ class SqlDbAdapter(object):
             self.dbroot.execute('DROP TABLE %s;' % sqltable)
 
     def dropIndex(self, index_name, sqlschema=None):
-        """drop an index
-        @param index_name: name of the index (unique in schema)"""
+        """Drop an index
+        
+        :param index_name: name of the index (unique in schema)
+        :param sqlschema: actual sql name of the schema. Default value is ``None``
+        """
         if sqlschema:
             index_name = '%s.%s' % (sqlschema, index_name)
         return "DROP INDEX IF EXISTS %s;" % index_name
 
     def createIndex(self, index_name, columns, table_sql, sqlschema=None, unique=None):
-        """create a new index
-        @param index_name: name of the index (unique in schema)
-        @param columns: comma separated list of columns to include in the index
-        @param table_sql: actual sql name of the table
-        @parm sqlschema: actual sql name of the schema
-        @unique: boolean for unique indexing"""
+        """Create a new index
+        
+        :param index_name: name of the index (unique in schema)
+        :param columns: comma separated list of columns to include in the index
+        :param table_sql: actual sql name of the table
+        :param sqlschema: actual sql name of the schema. Default value is ``None``
+        :unique: boolean for unique indexing. Default value is ``None``
+        """
         if sqlschema:
             table_sql = '%s.%s' % (sqlschema, table_sql)
         if unique:

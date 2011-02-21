@@ -62,7 +62,7 @@ class GnrSqlAppDb(GnrSqlDb):
     def checkTransactionWritable(self, tblobj):
         """add???
 
-        :param tblobj: add???
+        :param tblobj: the table object
         :returns: add???
         """
         if not hasattr(tblobj, '_usesTransaction'):
@@ -74,7 +74,7 @@ class GnrSqlAppDb(GnrSqlDb):
     def delete(self, tblobj, record, **kwargs):
         """add???
 
-        :param tblobj: add???
+        :param tblobj: the table object
         :param record: add???
         :returns: add???
         """
@@ -85,7 +85,7 @@ class GnrSqlAppDb(GnrSqlDb):
     def update(self, tblobj, record, old_record=None, pkey=None,**kwargs):
         """add???
 
-        :param tblobj: add???
+        :param tblobj: the table object
         :param record: add???
         :param old_record: add???. Default value is ``None``
         :param pkey: add???. Default value is ``None``
@@ -98,7 +98,7 @@ class GnrSqlAppDb(GnrSqlDb):
     def insert(self, tblobj, record, **kwargs):
         """add???
 
-        :param tblobj: add???
+        :param tblobj: the table object
         :param record: add???
         :returns: add???
         """
@@ -109,7 +109,7 @@ class GnrSqlAppDb(GnrSqlDb):
     def getResource(self, tblobj, path):
         """add???
 
-        :param tblobj: add???
+        :param tblobj: the table object
         :param path: add???
         :returns: add???
         """
@@ -359,7 +359,7 @@ class GnrApp(object):
                 var = var.upper()
                 if not os.getenv(var):
                     os.environ[var] = str(value)
-
+                    
     def load_gnr_config(self):
         """add???
         
@@ -384,7 +384,7 @@ class GnrApp(object):
             return Bag(config_path)
         log.warn('Missing genro configuration')
         return Bag()
-
+        
     def load_instance_config(self):
         """add???
         
@@ -403,7 +403,7 @@ class GnrApp(object):
                     instance_config.update(self.gnr_config['gnr.instanceconfig.%s_xml' % instance_template] or Bag())
         instance_config.update(base_instance_config)
         return instance_config
-
+        
     def init(self, forTesting=False):
         """add???
         
@@ -425,18 +425,18 @@ class GnrApp(object):
             dbattrs['implementation'] = 'sqlite'
             dbattrs['dbname'] = os.path.join(tempdir, 'testing')
             # We have to use a directory, because genro sqlite adapter will creare a sqlite file for each package
-
+                
             logging.info('Testing database dir: %s', tempdir)
-
+                
             @atexit.register
             def removeTemporaryDirectory():
                 shutil.rmtree(tempdir)
-
+                
         dbattrs['application'] = self
         dbattrs['allow_eager_one'] = ((self.config['eager?one'] or '').lower() == "true")
         dbattrs['allow_eager_many'] = ((self.config['eager?many'] or '').lower() == "true")
         self.db = GnrSqlAppDb(debugger=getattr(self, 'debugger', None), **dbattrs)
-
+        
         pkgMenus = self.config['menu?package'] or []
         if pkgMenus:
             pkgMenus = pkgMenus.split(',')
@@ -467,11 +467,11 @@ class GnrApp(object):
         if forTesting:
             # Create tables in temporary database
             self.db.model.check(applyChanges=True)
-
+                
             if isinstance(forTesting, Bag):
                 self.loadTestingData(forTesting)
         self.onInited()
-
+        
     def loadTestingData(self, bag):
         """Load data used for testing in the database.
         
@@ -944,7 +944,7 @@ class GnrApp(object):
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         """add???
 
-        :param tblobj: add???
+        :param tblobj: the table object
         :param record: add???
         :param event: add???
         :param old_record: add???. Default value is ``None``

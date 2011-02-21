@@ -46,7 +46,7 @@ class BagToHtml(object):
         """add???
         
         :param locale: add???. Default value is ``en``
-        :param encoding: add???. Default value is ``utf-8``
+        :param encoding: The multibyte character encoding you choose. Default value is ``utf-8``
         :param templates: add???. Default value is ``None``
         :param templateLoader: add???. Default value is ``None``
         """
@@ -153,7 +153,7 @@ class BagToHtml(object):
         :param locale: add???. Default value is ``None``
         :param format: add???. Default value is ``None``
         :param mask: add???. Default value is ``None``
-        :param encoding: add???. Default value is ``None``
+        :param encoding: The multibyte character encoding you choose. Default value is ``None``
         :returns: add???
         """
         locale = locale or self.locale

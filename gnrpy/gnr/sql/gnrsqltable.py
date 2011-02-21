@@ -376,7 +376,7 @@ class SqlTable(GnrObject):
             return record.output(mode)
         else:
             return record
-
+            
     def recordAs(self, record, mode='bag', virtual_columns=None):
         """Returns a record in the specified mode.
         
@@ -400,49 +400,46 @@ class SqlTable(GnrObject):
             return self.record(pkey=record.get('pkey', None) or record.get(self.pkey), mode=mode,
                                virtual_columns=virtual_columns)
         return record
-
-
+            
     def defaultValues (self):
-        """Override this to assign defaults to new record.
-           return a dictionary: fill it with defaults
+        """Override this method to assign defaults to new record.
+           
+        :returns: a dictionary - fill it with defaults
         """
         return dict([(x.name, x.attributes['default'])for x in self.columns.values() if 'default' in x.attributes])
-
-
+            
     def query(self, columns='*', where=None, order_by=None,
               distinct=None, limit=None, offset=None,
               group_by=None, having=None, for_update=False,
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
               addPkeyColumn=True, locale=None,
               mode=None, **kwargs):
-        """This method return an object SqlQuery object which represents a query that
-        can be executed with different modes.
-           
-       :param columns:  it represents what the 'SELECT' clause in the traditional SQL query.
-          
+        """This method return a SqlQuery object representing a query. This query is executable with different modes.
+        
+        :param columns: it represents the 'SELECT' clause in the traditional SQL query.
                         It is a string of column names and related fields separated by comma.
                         Each column's name is prefixed with '$'. Related fields uses a syntax based on the char '@'
-                        and 'dot notation'.
-                        e.g. "@member_id.name".For selecting all columns use the char '*'.
-                        columns parameter accepts also special statements such as 'COUNT','DISTINCT' and 'SUM'.
-       
-       :param where:    (optional) This is the sql "WHERE" clause. We suggest not
-                        to use hardcoded values into the where clause, but
-                        refer to variables passed to the query method as kwargs
-                        because using this way will look after all data conversion and string quoting automatically
-                        e.g. where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas
-       
-       :param order_by: (optional)  this param corresponds to sql ORDER BY operator
-       :param distinct: (optional)  this param corresponds to sql DISTINCT operator
-       :param limit: (optional)  number of result's rows.
-       :param offset: (optional)  this param corresponds to sql OFFSET operator
-       :param group_by: (optional)  this param corresponds to sql GROUP BY operator
-       :param having: (optional)  this param corresponds to sql HAVING operator
-       :param relationDict: (optional) a dictionary which associates relationPath names
-                                    with an alias name. eg: {'$member_name':'@member_id.name'}
-       :param sqlparams: (optional)  an optional dictionary for sql query parameters.
-       
-       :param kwargs: another way to pass sql query parameters
+                        and 'dot notation'. (e.g. "@member_id.name").
+                        For selecting all columns use the char '*'.
+                        The ``columns`` parameter accepts also special statements such as 'COUNT', 'DISTINCT' and 'SUM'.
+                        Default value is ``*``
+                        
+        :param where: (optional) This is the sql "WHERE" clause.
+                      We suggest not to use hardcoded values into the where clause, but
+                      refer to variables passed to the query method as kwargs because using this
+                      way will look after all data conversion and string quoting automatically
+                      e.g: where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas
+        
+        :param order_by: (optional) corresponding to the sql ORDER BY operator
+        :param distinct: (optional) corresponding to the sql DISTINCT operator
+        :param limit: (optional) number of result's rows.
+        :param offset: (optional) corresponding to the sql OFFSET operator
+        :param group_by: (optional) corresponding to the sql GROUP BY operator
+        :param having: (optional) corresponding to the sql HAVING operator
+        :param relationDict: (optional) a dictionary which associates relationPath names
+                             with an alias name. e.g: {'$member_name':'@member_id.name'}
+        :param sqlparams: (optional) an optional dictionary for sql query parameters.
+        :param kwargs: another way to pass sql query parameters
         """
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
@@ -451,9 +448,8 @@ class SqlTable(GnrObject):
                          excludeLogicalDeleted=excludeLogicalDeleted,
                          addPkeyColumn=addPkeyColumn, locale=locale,
                          **kwargs)
-
         return query
-
+            
     def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, **kwargs):
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
