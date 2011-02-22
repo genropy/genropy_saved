@@ -4,30 +4,19 @@
 
 * Index of ``gnr.sql.gnrsql`` methods:
 
-    * :ref:`gnrsql_dbstoreshandler`
+    Main classes:
+    
     * :ref:`gnrsql_gnrsqldb`
+    
+    Other classes:
+    
+    * :ref:`gnrsql_dbstoreshandler`
     * :ref:`gnrsql_gnrsqlexception`
     * :ref:`gnrsql_gnrsqlexecexception`
     * :ref:`gnrsql_tempenv`
     
 * :ref:`gnrsql_classes`
 
-.. _gnrsql_dbstoreshandler:
-
-:class:`DbStoresHandler`
-========================
-
-    .. module:: gnr.sql.gnrsql.DbStoresHandler
-    
-    * :meth:`add_dbstore_config`
-    * :meth:`add_store`
-    * :meth:`create_stores`
-    * :meth:`dbstore_align`
-    * :meth:`dbstore_check`
-    * :meth:`drop_dbstore_config`
-    * :meth:`load_config`
-    * :meth:`save_config`
-    
 .. _gnrsql_gnrsqldb:
 
 :class:`GnrSqlDb`
@@ -49,6 +38,22 @@
     :meth:`dbstores`         :meth:`loadModel`         :meth:`setConstraintsDeferred` :meth:`workdate`         
     :meth:`debug`            :meth:`locale`                                                                    
     ======================== ========================= ============================== =========================
+    
+.. _gnrsql_dbstoreshandler:
+
+:class:`DbStoresHandler`
+========================
+
+    .. module:: gnr.sql.gnrsql.DbStoresHandler
+    
+    * :meth:`add_dbstore_config`
+    * :meth:`add_store`
+    * :meth:`create_stores`
+    * :meth:`dbstore_align`
+    * :meth:`dbstore_check`
+    * :meth:`drop_dbstore_config`
+    * :meth:`load_config`
+    * :meth:`save_config`
 
 .. _gnrsql_gnrsqlexception:
 
@@ -62,7 +67,7 @@
 .. _gnrsql_gnrsqlexecexception:
 
 :class:`GnrSqlExecException`
-========================
+============================
 
     .. module:: gnr.sql.gnrsql.GnrSqlExecException
     
@@ -71,7 +76,7 @@
 .. _gnrsql_tempenv:
 
 :class:`TempEnv`
-=================
+================
 
     .. module:: gnr.sql.gnrsql.TempEnv
 

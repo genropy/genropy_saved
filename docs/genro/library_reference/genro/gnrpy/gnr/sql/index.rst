@@ -5,6 +5,7 @@
 .. toctree::
 
 	gnrsql
+	gnrsql_exceptions
 	gnrsqldata
 	gnrsqlmodel
 	gnrsqltable

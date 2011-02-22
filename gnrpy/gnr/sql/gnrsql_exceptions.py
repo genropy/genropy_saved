@@ -25,85 +25,75 @@ __version__ = '1.0b'
 from gnr.core.gnrlang import GnrException
 
 class GnrSqlException(GnrException):
-    """Exception raised for sql errors.
-
-    Attributes:
-        code -- error code
-        message -- explanation of the error
+    """Exceptions raised for sql errors
+        
+    :param code: error code
+    :param message: explanation of the error
     """
-
+    
     def __init__(self, code, message=None):
         if not message and ':' in code:
             code, message = code.split(':', 1)
         self.code = code
         self.message = message
-
+        
 class GnrNonExistingDbException(GnrSqlException):
     def __init__(self, dbname):
         self.dbname = dbname
-
-
+        
 class NotMatchingModelError(GnrSqlException):
     pass
-
+        
 class GnrSqlApplicationException(GnrSqlException):
     pass
-
+        
 class GnrSqlExecutionException(GnrSqlException):
-    """Exception raised for sql execution errors.
-
-    Attributes:
-        expression -- input expression in which the error occurred
-        message -- explanation of the error
+    """Exceptions raised for sql execution errors
+    
+    :param code: error code
+    :param message: explanation of the error
+    :param sql: add???
+    :param params: add???
     """
-
+    
     def __init__(self, code, message, sql, params):
         self.code = code
         self.message = message
         self.sql = sql
         self.params = params
-
+        
 class GnrSqlSaveException(GnrSqlException):
-    """Exception raised for sql errors.
-
-    Attributes:
-        code -- error code
-        message -- explanation of the error
-    """
+    """Exceptions raised for sql errors"""
     pass
-
-
+        
 class GnrSqlDeleteException(GnrSqlException):
-    """Exception raised for sql errors.
-        Attributes:code -- error code
-                   message -- explanation of the error
-    """
+    """Exceptions raised for sql errors"""
     pass
-
+        
 class NotMatchingModelError(GnrSqlException):
     pass
-
-
+        
 class SelectionExecutionError(GnrException):
     pass
-
+        
 class RecordDuplicateError(GnrException):
     pass
-
+        
 class RecordNotExistingError(GnrException):
     pass
-
+        
 class RecordSelectionError(GnrException):
     pass
-
+        
 class GnrSqlMissingField(GnrException):
     pass
-
+        
 class GnrSqlMissingTable(GnrException):
     pass
-
+        
 class GnrSqlMissingColumn(GnrException):
     pass
-
+        
 class GnrSqlRelationError(GnrException):
     pass
+        
