@@ -225,9 +225,6 @@ class TableHandlerForm(BaseComponent):
 
     def listToolbar(self, pane):
         self.listController(pane)
-        if self.useNewForms and False:
-            self.listSlotToolbar(pane)
-            return
         tb = pane.toolbar(_class='th_toolbar')
         self.listToolbar_lefticons(tb.div(float='left', _class='th_toolbar_left'))
         self.listToolbar_query(tb.div(float='left'))
