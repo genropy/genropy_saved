@@ -49,7 +49,6 @@ gnr.getGridColumns = function(storeNode) {
             });
         }
     },'static')
-    console.log(columns);
     var result = '';
     for(var k in columns){
         result+=k+',';
@@ -1890,11 +1889,6 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
     },
 
     creating_common: function(attributes, sourceNode) {
-        sourceNode.subscribe('built',function(kw){
-            console.log(this);
-           
-            console.log('layout done');
-        });
         if(!sourceNode.attr.storepath){
             if(sourceNode.attr.store){
                 var storeNode = genro.nodeById(sourceNode.attr.store+'_store');
@@ -2956,6 +2950,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
     },
     mixin_setStorepath:function(val, kw) {
         if ((!this._updatingIncludedView) && (! this._batchUpdating)) {
+            console.log('upd storepath',kw);
             if (kw.evt == 'fired') {
                 var storepath = this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
                 var storenode = genro._data.getNode(storepath);
@@ -3771,17 +3766,17 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
 
     mixin_collectionStore:function(){
         if(!this._collectionStore){
-            this._collectionStore = genro.nodeById(this.sourceNode.attr.store+'_store').store;
-            if(this._collectionStore.chunkSize){
-                this.rowsPerPage = this._collectionStore.chunkSize;
-            }
-            //this._collectionStore.datamode = this.datamode;
+            var storeNode = genro.nodeById(this.sourceNode.attr.store+'_store');
+            this._collectionStore = storeNode.store;
+            var that = this;
+            storeNode.subscribe('updateRows',function(){
+                that.updateRowCount();
+            });
         }
         return this._collectionStore;
     },
     mixin_storeRowCount: function() {
         var rowcount = this.collectionStore().len(true);
-        console.log(rowcount);
         return rowcount;
     },
 

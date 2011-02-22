@@ -574,6 +574,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def dataRpc(self, path, method, **kwargs):
         return self.child('dataRpc', path=path, method=method, **kwargs)
     
+    def selectionstore_addcallback(self,*args,**kwargs):
+        self.datarpc_addcallback(*args,**kwargs)
+        
     def datarpc_addcallback(self,cb,**kwargs):
         self.child('callBack',content=cb,**kwargs)
         return self
@@ -655,7 +658,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             attr['table'] = table
             storepath = storepath or attr.get('storepath') or '.store'
         nodeId = '%s_store' %storeCode
-        parent.child('SelectionStore',storepath=storepath, table=table, nodeId=nodeId,columns=columns,**kwargs)
+        return parent.child('SelectionStore',storepath=storepath, table=table, nodeId=nodeId,columns=columns,**kwargs)
         #ds = parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
 
@@ -727,7 +730,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return paletteGrid
     
     def includedview(self,*args,**kwargs):
-        frameCode = self.attributes.get('frameCode')
+        frameCode = kwargs.get('parentFrame') or self.attributes.get('frameCode')
         if frameCode:
             kwargs['frameCode'] = frameCode
             return self.includedview_inframe(*args,**kwargs)
@@ -745,7 +748,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         wdg = 'NewIncludedView' if _newGrid else 'includedView'
         iv =self.child(wdg,frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
                           relativeWorkspace=True,configurable=configurable,storepath=storepath,**kwargs)
-        iv.gridStruct(struct=struct)
+        if struct or not structpath:
+            iv.gridStruct(struct=struct)
         return iv
 
     def includedview_legacy(self, storepath=None, structpath=None, struct=None, table=None,
@@ -755,7 +759,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         structpath = structpath or '%s.struct' % prefix
         iv =self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, table=table,
                           relativeWorkspace=relativeWorkspace,**kwargs)
-        iv.gridStruct(struct=struct)
+        if struct or not structpath:
+            iv.gridStruct(struct=struct)
         return iv
             
     def gridStruct(self,struct=None):
@@ -798,7 +803,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,**kwargs)
         kwargs = tb.attributes
         slots = gnrstring.splitAndStrip(str(slots))
-        frameCode = self.attributes.get('frameCode')
+        frameCode = self.parent.attributes.get('frameCode')
         prefix = slotbarCode or frameCode
         for slot in slots:
             if slot!='*' and slot!='|' and not slot.isdigit():

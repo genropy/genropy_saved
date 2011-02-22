@@ -40,10 +40,6 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_semaphore(self,pane,**kwargs):
         pane.div(_class='fh_semaphore')
     
-    @struct_method               
-    def fh_slotbar_form_semaphore(self,pane,**kwargs):
-        pane.div(_class='fh_semaphore')
-    
     @struct_method          
     def fh_slotbar_form_formcommands(self,pane,**kwargs):
         pane = pane.div(lbl='!!Form Commands',_class='slotbar_group')
@@ -66,13 +62,13 @@ class FormHandler(BaseComponent):
         pane.formButton('!!Revert',topic='load',iconClass="tb_button db_revert", parentForm=True)
     
     @struct_method          
-    def fh_slotbar_form_delete(self,pane,**kwargs):
-        pane.formButton('!!Delete',topic='delete',iconClass="tb_button db_del",parentForm=True)
+    def fh_slotbar_form_delete(self,pane,parentForm=True,**kwargs):
+        pane.formButton('!!Delete',topic='delete',iconClass="tb_button db_del",parentForm=parentForm,**kwargs)
     
     @struct_method          
-    def fh_slotbar_form_add(self,pane,**kwargs):
+    def fh_slotbar_form_add(self,pane,parentForm=True,**kwargs):
         pane.formButton('!!Add',topic='navigationEvent',command='add',
-                        iconClass="tb_button db_add",parentForm=True)
+                        iconClass="tb_button db_add",parentForm=parentForm,**kwargs)
 
     @struct_method          
     def fh_slotbar_form_first(self,pane,**kwargs):
@@ -109,7 +105,8 @@ class FormHandler(BaseComponent):
         pane.button('!!Locker',width='20px',iconClass='icnBaseUnlocked',showLabel=False,
                     action='this.form.publish("setLocked","toggle");',
                     formsubscribe_onLockChange="""var locked= $1.locked;
-                                                  this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""")
+                                                  this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""",
+                    **kwargs)
         
     @struct_method
     def recordClusterStore(self,pane,table=None,storeType=None,**kwargs):

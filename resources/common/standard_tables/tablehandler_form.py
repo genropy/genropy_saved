@@ -23,35 +23,6 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class TableHandlerForm(BaseComponent):
-    def pageFormNew(self, sc):
-        sc.attributes['center_selfsubscribe_dismiss']='SET list.selectedIndex=-2;',
-        form = sc.frameForm(frameCode='formPane',formId='formPane',datapath='form',controllerPath='gnr.forms.formPane',
-                            table=self.maintable,center_widget='BorderContainer',
-                            pkeyPath='.pkey',
-                            hasBottomMessage=False,
-                            formsubscribe_onDismissed='SET list.selectedIndex=-2;',
-                            sqlContextName='sql_record',
-                            sqlContextRoot='form.record',
-                            sqlContextTable=self.maintable)
-        form.dataController("this.form.load({destPkey:pkey});",pkey="=list.selectedId",_fired='^form.doLoad')
-        store = form.formStore(storepath='.record',hander='recordCluster',storeType='Collection',onSaved='reload',
-                        parentStore='th_mainstore')
-        self.formTitleBase(form)
-        if self.hasTags:
-            tagSlot = '15,|,tagsbtn,|,'
-            form.dataController("""FIRE #linktag_dlg.open={call_mode:"form"};""",subscribe_framePane_top_tagsbtn=True)            
-        toolbar = form.top.slotToolbar('navigation,|,5,hiddenrecord,%s*,|,semaphore,|,formcommands,|,dismiss,5,locker,5' %tagSlot,
-                                        dismiss_iconClass='tb_button tb_listview')
-
-        self.setLogicalDeletionCheckBox(toolbar.hiddenrecord)
-        self.formBase(form,region='center')
-        
-    def hasTags(self):
-        return hasattr(self.tblobj, 'hasRecordTags') and self.tblobj.hasRecordTags() and\
-               self.application.checkResourcePermission(self.canLinkTag(), self.userTags)
-        
-
-    
     def pageForm(self, pane):
         bc = pane.borderContainer(nodeId='formRoot',
                                   sqlContextName='sql_record',

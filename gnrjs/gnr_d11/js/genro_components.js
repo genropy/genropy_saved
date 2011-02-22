@@ -825,7 +825,9 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
      },
 
      createContent:function(sourceNode, kw,children) {
-         kw.row_count = objectPop(kw,'chunkSize',0);
+         var chunkSize = objectPop(kw,'chunkSize',0);
+         var storeType = chunkSize? 'VirtualSelection':'Selection';
+         kw.row_count = chunkSize;
          var storeType = kw.row_count? 'VirtualSelection':'Selection';
          var identifier = objectPop(kw,'_identifier') || '_pkey';
          var selectionStore = sourceNode._('dataRpc',kw);
@@ -890,6 +892,7 @@ dojo.declare("gnr.stores._Collection",null,{
         }
         return this.getKeyFromIdx(idx);
     },
+    
     getKeyFromIdx:function(idx){
         var data = this.getData();
         if(!data){
@@ -1047,14 +1050,15 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
 
 
 dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
+    constructor:function(){
+        this.pendingPages = {};
+        this.lastIdx =0;
+    },
     len:function(){
         if(!this.getData()){
             return 0;
         }
         return this.getData().getParentNode().attr['totalrows'];
-    },
-    getRowByIdx:function(idx){
-        return 
     },
     
     onLoaded:function(result){
@@ -1069,52 +1073,90 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         return result;
     },
     
-    itemByIdx:function(idx) {
+    itemByIdx:function(idx,sync) {
+        var delta = idx-this.lastIdx;
+        this.lastIdx = idx;
+        var dataPage;
         var rowIdx = idx % this.chunkSize;
         var pageIdx = (idx - rowIdx) / this.chunkSize;
         if (this.currCachedPageIdx != pageIdx) {
-            this.currCachedPageIdx = pageIdx;
-            this.currCachedPage = this.getData().getItem('P_' + pageIdx);
-            if (!this.currCachedPage) {
-                //this.currCachedPage = this.loadBagPageFromServer(pageIdx);
-                this.loadBagPageFromServer_async(pageIdx);
+            if(!sync){
+                dataPage=this.getDataChunk(pageIdx);
+            }else{
+                dataPage=this.getData().getItem('P_' + pageIdx);
+                if (!dataPage){
+                    dataPage = this.loadBagPageFromServer(pageIdx,sync);
+                }
             }
+            
+            if (dataPage){
+                this.currCachedPageIdx = pageIdx;
+                this.currCachedPage=dataPage
+                return this.currCachedPage.getNodes()[rowIdx]
+            }else{
+                this.currCachedPageIdx=-1;
+                this.currCachedPage=null;
+            }
+        }else{
+            if(((delta>0) && ((rowIdx/this.chunkSize)>.7 )) || ((delta<0) && ((rowIdx/this.chunkSize)<.3 ))){
+                var guessPage = delta>0?pageIdx+1:pageIdx-1;
+                if(guessPage>0){
+                    if(guessPage!=this.guessPage){
+                        this.getDataChunk(guessPage);
+                        this.guessPage = guessPage;
+                    }
+                }
+                
+               
+            }
+            return this.currCachedPage.getNodes()[rowIdx]
         }
-        return this.currCachedPage ? this.currCachedPage.getNodes()[rowIdx] : null;
     },
-    loadBagPageFromServer:function(pageIdx) {
-        if(!this.getData()){
-            return;
+    
+    getDataChunk:function(pageIdx){
+
+        if (pageIdx in this.pendingPages){
+            return
+        }else{
+            var pageData=this.getData().getItem('P_' + pageIdx);
+            if (pageData){
+                return pageData;    
+            }
+            if(this.pendingTimeout){
+                if (this.pendingTimeout.idx==pageIdx){
+                    return
+                }else{
+                    clearTimeout(this.pendingTimeout.handler);
+                }
+            }
+            var that = this;
+            this.pendingTimeout={'idx':pageIdx,
+                                'handler':setTimeout(function(){
+                                that.loadBagPageFromServer(pageIdx)
+                                },100)
+            };
+            return
         }
-        var row_start = pageIdx * this.chunkSize;
-        var kw = this.getData().getParentNode().attr;
-        console.log('before calling page:',pageIdx)
-        var data = genro.rpc.remoteCall(kw.method, {'selectionName':kw.selectionName,
-            'row_start':row_start,
-            'row_count':this.chunkSize,
-            'sortedBy':this.sortedBy,
-            'table':kw.table,
-            'recordResolver':false});
-        data = data.getValue();
-        this.getData().setItem('P_' + pageIdx, data);
+    },
+    onChunkLoaded:function(result,pageIdx){
+        var data = result.getValue();
+        this.getData().setItem('P_' + pageIdx, data,null,{'doTrigger':false});
+        objectPop(this.pendingPages,pageIdx);
+        if (this.pendingUpdateGrid){
+            clearTimeout(this.pendingUpdateGrid);
+        }
+        var that = this;
+        this.pendingUpdateGrid=setTimeout(function(){
+            that.storeNode.publish('updateRows');
+        },100);
         return data;
     },
-    loadBagPageFromServer_async:function(pageIdx) {
-        if(!this.pendings){
-            this.pendings = {};
-        }
-        if(pageIdx in this.pendings){
-            console.log('because pending')
-            return;
-        }
-        
-        if(!this.getData()){
-            return;
-        }
+
+    loadBagPageFromServer:function(pageIdx,sync) {
         var that = this;
         var row_start = pageIdx * this.chunkSize;
         var kw = this.getData().getParentNode().attr;
-        this.pendings[pageIdx] = genro.rpc.remoteCall(kw.method, {'selectionName':kw.selectionName,
+        var result = genro.rpc.remoteCall(kw.method, {'selectionName':kw.selectionName,
             'row_start':row_start,
             'row_count':this.chunkSize,
             'sortedBy':this.sortedBy,
@@ -1123,13 +1165,28 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             null,
             null,
             null,
-            function(result){
-                var data = result.getValue();
-                that.getData().setItem('P_' + pageIdx, data);
-                that.currCachedPage = data;
-                objectPop(that.pendings,pageIdx);
-            });    
+            sync?null:function(result){return that.onChunkLoaded(result,pageIdx)});
+        if(sync){
+            return this.onChunkLoaded(result,pageIdx);
+        }else{
+            this.pendingPages[pageIdx] = result;
+        }
+     },
+     
+     getIdxFromPkey:function(pkey){
+        var result = -1;
+        var dataNode = this.getData().getNodeByAttr('_pkey',pkey);
+        if(dataNode){
+            result = dataNode.attr.rowidx;
+        }
+        return result;
+    },
+    getKeyFromIdx:function(idx){
+        var dataNode = this.itemByIdx(idx,true);
+        //var dataNode = this.getData().getNodeByAttr('rowidx',idx);
+        return this.keyGetter(dataNode);
     }
+    
 });
 
 

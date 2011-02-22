@@ -34,7 +34,6 @@ class TableHandler(BaseComponent):
                     foundation/userobject:UserObject,foundation/dialogs"""
     css_requires = 'standard_tables/tablehandler'
     js_requires = 'standard_tables/tablehandler'
-    useNewForms=False
 
     def userCanWrite(self):
         return self.application.checkResourcePermission(self.tableWriteTags(), self.userTags)
@@ -111,26 +110,13 @@ class TableHandler(BaseComponent):
             self.tags_main(root)
         self.setOnBeforeUnload(root, cb="genro.getData('gnr.forms.formPane.changed')",
                                msg="!!There are unsaved changes, do you want to close the page without saving?")
-        if self.useNewForms:
-            self.newMain(root)
-            return
+
         pages, top, bottom = self.pbl_rootStackContainer(root, title='^list.title_bar', selected='^selectedPage',
                                                          _class='pbl_mainstack', nodeId='tablehandler_mainstack')
         self.pageList(pages)
         self.pageForm(pages)
 
 
-        #root.defineContext('sql_selection','_serverCtx.sql_selection', self.sqlContextSelection())
-        #root.defineContext('sql_record','_serverCtx.sql_record', self.sqlContextRecord())
-    
-    def newMain(self,pane):
-        sc = pane.rootStackContainer(center_selected='^selectedPage',
-                                    center_class='pbl_mainstack',
-                                    center_nodeId='tablehandler_mainstack',
-                                    bottom_messageBox_subscribeTo='form_formPane_message')
-        self.pageList(sc)
-        self.pageFormNew(sc)
-        
     def parsePageParameters(self, root, pkey=None, **kwargs):
         if pkey == '*newrecord*':
             self.startWithNewRecord(root)

@@ -93,7 +93,7 @@ class Public(BaseComponent):
     def _pbl_frameroot(self, rootbc, title=None, height=None, width=None, flagsLocale=False,
                      top_kwargs=None,bottom_kwargs=None,**kwargs):
         frame = rootbc.framePane(frameCode='public_root',region='center', _class='pbl_root_center',
-                                namespace='public',**kwargs)
+                                **kwargs)
         self.public_frameTopBar(frame.top,title=title,**top_kwargs)
         self.public_frameBottomBar(frame.bottom,**bottom_kwargs)
         return frame
@@ -118,11 +118,11 @@ class Public(BaseComponent):
                             **kwargs)
         
     @struct_method
-    def pbl_slotbar_public_menuBtn(self,pane,**kwargs):
+    def pbl_public_root_menuBtn(self,pane,**kwargs):
         pane.div(_class='pbl_menu_icon buttonIcon', connect_onclick="PUBLISH main_left_set_status= 'toggle';")
         
     @struct_method
-    def pbl_slotbar_public_workdate(self,pane,**kwargs):
+    def pbl_public_root_workdate(self,pane,**kwargs):
         connect_onclick = None
         if self.application.checkResourcePermission(self.pbl_canChangeWorkdate(), self.userTags):
             connect_onclick = 'FIRE #changeWorkdate_dlg.open;'
@@ -134,16 +134,16 @@ class Public(BaseComponent):
         
     
     @struct_method
-    def pbl_slotbar_public_caption(self,pane,title='',**kwargs):   
+    def pbl_public_root_caption(self,pane,title='',**kwargs):   
         pane.div(title, _class='pbl_title_caption',subscribe_public_caption='this.domNode.innerHTML=$1;',**kwargs)
         
     @struct_method
-    def pbl_slotbar_public_pageback(self,pane,**kwargs): 
+    def pbl_public_root_pageback(self,pane,**kwargs): 
         pane.div(connect_onclick="genro.pageBack()", title="!!Back",
                  _class='icnBaseUpYellow buttonIcon', content='&nbsp;',**kwargs)
                  
     @struct_method
-    def pbl_slotbar_public_flagsLocale(self,pane,**kwargs): 
+    def pbl_public_root_flagsLocale(self,pane,**kwargs): 
             pane.dataRpc('aux.locale_ok', 'changeLocale', locale='^aux.locale')
             pane.dataController('genro.pageReload()', _fired='^aux.locale_ok')
             pane.button(action="SET aux.locale = 'EN'", title="!!English",
@@ -152,23 +152,23 @@ class Public(BaseComponent):
                       _class='icnIntlIt buttonIcon')
     
     @struct_method
-    def pbl_slotbar_public_user(self,pane,**kwargs): 
+    def pbl_public_root_user(self,pane,**kwargs): 
         if not self.isGuest:
             pane.div(content=self.user, float='right', _class='pbl_slotbar_label buttonIcon',
                       connect_onclick='PUBLISH preference_open="user";',**kwargs)
     
     @struct_method
-    def pbl_slotbar_public_logout(self,pane,**kwargs):
+    def pbl_public_root_logout(self,pane,**kwargs):
         if not self.isGuest:
             pane.div(connect_onclick="genro.logout()", title="!!Logout",
                       _class='pbl_logout buttonIcon', content='&nbsp;',**kwargs)
         
     @struct_method
-    def pbl_slotbar_public_dock(self,pane,**kwargs):
+    def pbl_public_root_dock(self,pane,**kwargs):
         pane.dock(id='default_dock', background='none', border=0)
         
     @struct_method
-    def pbl_slotbar_public_locBtn(self,pane,**kwargs):
+    def pbl_public_root_locBtn(self,pane,**kwargs):
         if self.isLocalizer():
             pane.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass', float='right')
             pane.dataFormula('gnr.localizerClass', """ 'localizer_'+status;""",
@@ -176,7 +176,7 @@ class Public(BaseComponent):
                             _else="return 'localizer_hidden'")
                    
     @struct_method
-    def pbl_slotbar_public_devBtn(self,pane,**kwargs):         
+    def pbl_public_root_devBtn(self,pane,**kwargs):         
         if self.isDeveloper():
             pane.div(connect_onclick='genro.dev.showDebugger();',
                       _class='icnBaseEye buttonIcon', float='right', margin_right='5px')

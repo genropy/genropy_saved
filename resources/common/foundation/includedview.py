@@ -61,6 +61,12 @@ class IncludedView(BaseComponent):
         return kwargs
         
     @struct_method
+    def ivnew_slotbar_iv_runbtn(self,pane,action=None,_class='tb_button db_query',enable=None,**kwargs):
+        return pane.slotButton(label='!!Run query',public='runbtn',
+                                action=action,baseClass='no_background',
+                                iconClass=_class,visible=enable)
+
+    @struct_method
     def ivnew_slotbar_iv_add(self,pane,action=None,_class='icnBaseAdd',enable=None,**kwargs):
         return pane.slotButton(label='!!Add',action=action,baseClass='no_background',iconClass=_class,visible=enable)
     

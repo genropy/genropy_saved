@@ -19,6 +19,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag
 
 class TableHandlerForm(BaseComponent):
@@ -48,20 +49,19 @@ class TableHandlerForm(BaseComponent):
                             show='^list.showToolbox', _fired='^gnr.onStart')
         pane.dataFormula('list.showExtendedQuery', "true", _if='where.len()>1', where='^list.query.where')
         self.pageListController(pane)
-        mainbc = pane.borderContainer()
-        self.listToolbar(mainbc.contentPane(region='top', _class='sttbl_list_top'))
-        bc = mainbc.borderContainer(region='center', design='sidebar', liveSplitters=False, nodeId='gridbc')
-        #left
+
+        thframe = pane.framePane(frameCode='mainlist',datapath='list')
+        self.listController(thframe)
+        self.listToolbar(thframe.top)
+        bc = thframe.center.borderContainer(design='sidebar', nodeId='gridbc')
         self.lstToolbox(bc.borderContainer(width='250px', region='left', _class='toolbox', splitter=True, hidden=True))
-        #top
-        self.lstEditors_main(
-                bc.stackContainer(region='top', height='20%', splitter=True, hidden=True, selected='^list.selectedTop'))
+        self.lstEditors_main(bc.stackContainer(region='top', height='20%', splitter=True, hidden=True, selected='^list.selectedTop'))
         self.listBottomPane(bc, region='bottom')
-        #center
         st = bc.stackContainer(region='center', datapath='list.grid', margin='0px',
-                               nodeId='_gridpane_', selected='^list.gridpage')
+                              nodeId='_gridpane_', selected='^list.gridpage')
         self.gridPane(st)
         st.contentPane().div(_class='waiting')
+
 
 
     def listViewStructures(self, pane):
@@ -224,27 +224,42 @@ class TableHandlerForm(BaseComponent):
                             table=self.maintable, selectionName='=list.selectionName')
 
     def listToolbar(self, pane):
-        self.listController(pane)
-        if self.useNewForms and False:
-            self.listSlotToolbar(pane)
-            return
-        tb = pane.toolbar(_class='th_toolbar')
-        self.listToolbar_lefticons(tb.div(float='left', _class='th_toolbar_left'))
-        self.listToolbar_query(tb.div(float='left'))
-        self.listToolbar_rightbuttons(tb)
-    
-    def listSlotToolbar(self,pane):
-        pane.slotToolbar()
-        
-    def listToolbar_lefticons(self, pane):
-        buttons = pane.div(_class='button_placeholder', float='left')
-        buttons.div(_class='db_treebtn', connect_onclick="SET list.showToolbox = ! (GET list.showToolbox);")
-        buttons.div(_class='db_querybtn', connect_onclick="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")
+        toolbarKw = dict()
+        tagSlot = ''
+        tagFilter = ''
+        if self.hasTags():
+            tagSlot = '15,|,tagsbtn,|,'
+            toolbarKw['tagsbtn_mode'] = 'list'
+        if self.enableFilter():
+            tagFilter = 'filtermenu,'
+        pane.slotToolbar('left_top_opener,|,5,queryfb,iv_runbtn,%sviewmenu,%s*,|,form_add,form_locker,5' %(tagSlot,tagFilter),
+                        iv_runbtn_action='FIRE list.runQueryButton;',form_add_parentForm='formPane',
+                        form_locker_parentForm='formPane',**toolbarKw)
 
-
-    def listToolbar_query(self, pane):
-        queryfb = pane.formbuilder(cols=5, datapath='list.query.where', _class='query_form',
-                                   border_spacing='2px', onEnter='genro.fireAfter("list.runQuery",true,10);',
+    @struct_method
+    def th_mainlist_left_top_opener(self,pane,**kwargs):
+        pane.button('!!Show Fields',iconClass='db_treebtn', showLabel=False,action="SET list.showToolbox = ! (GET list.showToolbox);")
+        pane.button('!!Extended Query',iconClass='db_querybtn',showLabel=False, action="SET list.showExtendedQuery =! (GET list.showExtendedQuery);")        
+   
+    @struct_method
+    def th_mainlist_viewmenu(self,pane,**kwargs):
+        ddb = pane.dropdownbutton('!!Select view', showLabel=False,
+                                     iconClass='vieselectorIcn', _class='dropDownNoArrow')
+        ddb.menu(_class='smallmenu', storepath='list.view.menu',
+                 action="""
+                            SET list.view.pyviews?baseview = $1.fullpath;
+                            //to correct the path name
+                            FIRE list.view.new; 
+                            //end to correct
+                            if(GET list.selectionName){
+                                FIRE list.runQuery;
+                            }
+                           """)
+   
+    @struct_method
+    def th_mainlist_queryfb(self, pane,**kwargs):
+        queryfb = pane.formbuilder(cols=5, datapath='.query.where', _class='query_form',
+                                   border_spacing='0', onEnter='genro.fireAfter("list.runQuery",true,10);',
                                    float='left')
         queryfb.div('^.c_0?column_caption', min_width='12em', _class='smallFakeTextBox floatingPopup',
                     nodeId='fastQueryColumn',
@@ -272,28 +287,7 @@ class TableHandlerForm(BaseComponent):
                           connect_onclick="if(GET .c_0?op in genro.querybuilder.helper_op_dict){FIRE list.helper.queryrow='c_0';}"
                           ,
                           _op='^.c_0?op', _class='helperField')
-
-        buttons = pane.div(_class='listbuttons_placeholder')
-        buttons.button('!!Run query', fire='list.runQueryButton',
-                       iconClass="tb_button db_query", showLabel=False)
-        if self.enableFilter():
-            self.th_filtermenu(buttons)
-        ddb = buttons.dropdownbutton('!!Select view', showLabel=False,
-                                     iconClass='vieselectorIcn', _class='dropDownNoArrow')
-        ddb.menu(_class='smallmenu', storepath='list.view.menu',
-                 action="""
-                            SET list.view.pyviews?baseview = $1.fullpath;
-                            //to correct the path name
-                            FIRE list.view.new; 
-                            //end to correct
-                            if(GET list.selectionName){
-                                FIRE list.runQuery;
-                            }
-                           """)
-        if hasattr(self.tblobj, 'hasRecordTags') and self.tblobj.hasRecordTags() and\
-           self.application.checkResourcePermission(self.canLinkTag(), self.userTags):
-            buttons.button('!!Tag', iconClass='icnTag', showLabel=False,
-                           action='FIRE #linktag_dlg.open={call_mode:"list"};')
+        
         queryfb.dataFormula('list.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
                             cnt='^list.currentQueryCount', _if='cnt', _else='',
                             msg='!!Current query will return _rec_ items')
@@ -307,17 +301,6 @@ class TableHandlerForm(BaseComponent):
                                      genro.dlg.alert('^list.currentQueryCountAsString',dlgtitle);
                                   """, _fired="^list.showQueryCountDlg", waitmsg='!!Working.....',
                                dlgtitle='!!Current query record count')
-
-    def listToolbar_rightbuttons(self, pane):
-        pane = pane.div(nodeId='query_buttons', float='right')
-        if self.userCanDelete() or self.userCanWrite():
-            ph = pane.div(_class='button_placeholder', float='right')
-            ph.button(label='^status.lockLabel', fire='status.changelock', iconClass="^status.statusClass",
-                      showLabel=False)
-
-        pane.button('!!Add', float='right', fire='list.newRecord', iconClass="tb_button db_add",
-                    visible='^list.canWrite', showLabel=False)
-
 
     def pageListController(self, pane):
         """docstring for pageListController"""
@@ -370,22 +353,20 @@ class TableHandlerForm(BaseComponent):
         pane.dataController('genro.wdgById("maingrid").updateRowCount(rowcount)', rowcount='^list.rowcount')
 
         pane.dataController("""
-                                var nodeStart=genro.getDataNode('list.data_start');
+                                   var nodeStart=genro.getDataNode('list.grid.store');
                                    var grid=genro.wdgById("maingrid");
-                                   grid.clearBagCache();
+                                   //grid.clearBagCache();
                                    var rowcount=nodeStart.attr.totalrows;
-                                   grid.storebag.attr=objectUpdate({},nodeStart.attr);
-                                   grid.storebag.getValue().setItem('P_0',nodeStart.getValue());
+                                   
                                    SET list.rowcount = rowcount;
                                    SET list.rowtotal = nodeStart.attr.totalRowCount;
                                    SET list.selectionName = nodeStart.attr.selectionName;
-                                   grid.updateRowCount(0);
-                                   grid.updateRowCount(rowcount);
-                                   grid.selection.unselectAll();                            
+                                   //grid.updateRowCount(0);
+                                   //grid.updateRowCount(rowcount);
+                                   //grid.selection.unselectAll();                            
                                    genro.dom.enable("query_buttons");
                                    SET list.queryRunning = false;
                                    SET list.gridpage = 0;
-                                   
                                    PUT list.selectedIndex=null;
                                    if(initialPkey){
                                        SET list.selectedIndex=0;
@@ -441,20 +422,7 @@ class TableHandlerForm(BaseComponent):
                             struct='^list.view.structure', _init=True)
 
         pane.data('list.tableRecordCount', self.tableRecordCount())
-        pane.dataSelection('list.data_start', self.maintable, columns='=.columns',
-                            nodeId='th_mainstore_store',
-                           where='=list.query.where', sortedBy='=list.grid.sorted',
-                           pkeys='=list.query.pkeys', _fired='^list.runQueryDo',
-                           selectionName='*', recordResolver=False, condition=condition,
-                           sqlContextName='standard_list', totalRowCount='=list.tableRecordCount',
-                           row_start='0', row_count=self.rowsPerPage(),
-                           excludeLogicalDeleted='^list.excludeLogicalDeleted',
-                           applymethod='onLoadingSelection',
-                           timeout=180000, selectmethod='=list.selectmethod',
-                           selectmethod_prefix='customQuery',
-                           _onCalling=self.onQueryCalling(),
-                           _onResult='FIRE list.queryEnd=true; SET list.selectmethod=null;',
-                           **condPars)
+
         customOnDrops = dict(
                 [('onDrop_%s' % k[10:], getattr(self, k)()) for k in dir(self) if k.startswith('lstOnDrop_')])
         lstkwargs.update(customOnDrops)
@@ -462,26 +430,42 @@ class TableHandlerForm(BaseComponent):
         lstkwargs[
         'onDrop_%s' % dbfieldcode] = "this.widget.addColumn(data,dropInfo.column);if(this.widget.rowCount>0){genro.fireAfter('list.runQueryDo',true);}"
 
-        gridpane.virtualGrid(nodeId='maingrid', structpath="list.view.structure", storepath=".data", autoWidth=False,
-                             selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted'
-                             ,
-                             connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)'
-                             ,
-                             linkedForm='formPane', openFormEvent='onRowDblClick', dropTypes=None,
-                             dropTarget=True,
-                             selfDragColumns='trashable',
-                             dropTarget_column=dbfieldcode,
-                             dropTarget_grid='explorer_*',
-                             onDrop_gnrdbfld="""this.widget.addColumn(data,dropInfo.column);if(this.widget.rowCount>0){genro.fireAfter('list.runQueryDo',true);}"""
-                             ,
-                             onDrop_gridrow='console.log("dropped gridrow");console.log(data);',
-                             draggable=True, draggable_row=True,
-                             dragClass='draggedItem',
-                             onDrop=""" for (var k in data){
-                                             this.setRelativeData('list.external_drag.'+k,new gnr.GnrBag(data[k]));
-                                          }""",
-                             connect_onRowContextMenu="FIRE list.onSelectionMenu = true;",
-                             **lstkwargs)
+        iv = gridpane.includedView(parentFrame='mainlist',nodeId='maingrid', 
+                                 structpath="list.view.structure", autoWidth=False,
+                                 datapath='.wdg',
+                                 selectedIndex='list.rowIndex', rowsPerPage=self.rowsPerPage(), sortedBy='^list.grid.sorted',
+                                 _newGrid=True,
+                                 connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
+                                 linkedForm='formPane', openFormEvent='onRowDblClick', dropTypes=None,
+                                 dropTarget=True,
+                                 selfDragColumns='trashable',
+                                 dropTarget_column=dbfieldcode,
+                                 dropTarget_grid='explorer_*',
+                                 onDrop_gnrdbfld="""this.widget.addColumn(data,dropInfo.column);if(this.widget.rowCount>0){genro.fireAfter('list.runQueryDo',true);}"""
+                                 ,
+                                 onDrop_gridrow='console.log("dropped gridrow");console.log(data);',
+                                 draggable=True, draggable_row=True,
+                                 dragClass='draggedItem',
+                                 onDrop=""" for (var k in data){
+                                                 this.setRelativeData('list.external_drag.'+k,new gnr.GnrBag(data[k]));
+                                              }""",
+                                 connect_onRowContextMenu="FIRE list.onSelectionMenu = true;",
+                                 **lstkwargs)
+                             
+        store = iv.selectionStore(table=self.maintable, columns='=.columns',
+                           chunkSize=self.rowsPerPage()*4,
+                           where='=list.query.where', sortedBy='=list.grid.sorted',
+                           pkeys='=list.query.pkeys', _fired='^list.runQueryDo',
+                           selectionName='*', recordResolver=False, condition=condition,
+                           sqlContextName='standard_list', totalRowCount='=list.tableRecordCount',
+                           row_start='0', 
+                           excludeLogicalDeleted='^list.excludeLogicalDeleted',
+                           applymethod='onLoadingSelection',
+                           timeout=180000, selectmethod='=list.selectmethod',
+                           selectmethod_prefix='customQuery',
+                           _onCalling=self.onQueryCalling(),
+                           **condPars)
+        store.addCallback('FIRE list.queryEnd=true; SET list.selectmethod=null; return result;')
 
         pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",
                             idx="^gnr.forms.formPane.openFormIdx")
