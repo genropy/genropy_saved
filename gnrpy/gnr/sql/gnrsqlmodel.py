@@ -38,8 +38,9 @@ logger = logging.getLogger(__name__)
 
 class NotExistingTableError(Exception):
     pass
-
+    
 class DbModel(object):
+    """add???"""
     def __init__(self, db):
         #self._db = weakref.ref(db)
         self.db = db
@@ -48,68 +49,87 @@ class DbModel(object):
         self.relations = Bag()
         self._columnsWithRelations = {}
         self.mixins = Bag()
-
+        
     @property
     def debug(self):
+        """add???"""
         return self.db.debug
-
+        
     def build(self):
-        """Db startup operations:
-        - prepares the GnrStructObj root
-        - loads all relations from Db structure
+        """Database startup operations:
+        
+        * prepare the GnrStructObj root
+        * load all relations from Db structure
         """
-
+        
         def _doObjMixinConfig(objmix, pkgsrc):
             if hasattr(objmix, 'config_db'):
                 objmix.config_db(pkgsrc)
             if hasattr(objmix, 'config_db_custom'):
                 objmix.config_db_custom(pkgsrc)
-
+                
         if 'tbl' in self.mixins:
             for pkg in self.mixins['tbl'].keys():
                 pkgsrc = self.src['packages.%s' % pkg]
                 for tblmix in self.mixins['tbl.%s' % pkg].values():
                     tblmix.db = self.db
                     _doObjMixinConfig(tblmix, pkgsrc)
-
+                    
         if 'pkg' in self.mixins:
             for pkg, pkgmix in self.mixins['pkg'].items():
                 pkgsrc = self.src['packages.%s' % pkg]
                 pkgmix.db = self.db
                 _doObjMixinConfig(pkgmix, pkgsrc)
-
+                
         sqldict = moduleDict('gnr.sql.gnrsqlmodel', 'sqlclass,sqlresolver')
         self.obj = DbModelObj.makeRoot(self, self.src, sqldict)
-
+            
         for many_relation_tuple, relation in self._columnsWithRelations.items():
             oneCol = relation.pop('related_column')
             self.addRelation(many_relation_tuple, oneCol, **relation)
         self._columnsWithRelations.clear()
-
+            
     def resolveAlias(self, name):
+        """add???
+        
+        :param name: add???
+        :returns: add???
+        """
         pkg, tbl, col = name.split('.')
         pkg = self.obj[pkg]
         tbl = pkg.table(tbl)
         col = tbl.columns[col]
         return (pkg.name, tbl.name, col.name)
-
+        
     def addRelation(self, many_relation_tuple, oneColumn, mode=None, one_one=None, onDelete=None, onDelete_sql=None,
                     onUpdate=None, onUpdate_sql=None, deferred=None, eager_one=None, eager_many=None, relation_name=None,
                     one_name=None, many_name=None, one_group=None, many_group=None, many_order_by=None):
-        """ This method adds a relation in the current model.
-            @param many_relation_tuple: the column of the "many table" as tuple. Eg. ('video','movie','director_id')
-            @param oneColumn: the column of the "one table" as string. Eg. 'video.director.id'
-            @param  one_name: the one_to_many relation's name. Eg. 'movies'
-            @param  many_name: the many_to_one relation's name. Eg. 'director'
-            @param mode: relation (dflt), insensitive, foreignkey
-            @param eager_one: if True ('Y') the one_to_many relation is eager
-            @param eager_many: if True ('Y') the many_to_one relation is eager
-            @param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
+        """Add a relation in the current model.
+        
+        :param many_relation_tuple: tuple. The column of the "many table". e.g: ('video','movie','director_id')
+        :param oneColumn: string. The column of the "one table". e.g: 'video.director.id'
+        :param mode: relation (dflt), insensitive, foreignkey. Default value is ``None``
+        :param one_one: add???. Default value is ``None``
+        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. Default value is ``None``
+        :param onDelete_sql: add???. Default value is ``None``
+        :param onUpdate: add???. Default value is ``None``
+        :param onUpdate_sql: add???. Default value is ``None``
+        :param deferred: add???. Default value is ``None``
+        :param eager_one: if True ('Y') the one_to_many relation is eager.
+                          Default value is ``None``
+        :param eager_many: if True ('Y') the many_to_one relation is eager.
+                           Default value is ``None``
+        :param relation_name: add???. Default value is ``None``
+        :param one_name: the one_to_many relation's name. e.g: 'movies'. Default value is ``None``
+        :param many_name: the many_to_one relation's name. e.g: 'director'. Default value is ``None``
+        :param one_group: add???. Default value is ``None``
+        :param many_group: add???. Default value is ``None``
+        :param many_order_by: add???. Default value is ``None``
         """
         try:
             many_pkg, many_table, many_field = many_relation_tuple
             many_relation = '.'.join(many_relation_tuple)
-
+            
             one_pkg, one_table, one_field = self.resolveAlias(oneColumn)
             one_relation = '.'.join((one_pkg, one_table, one_field))
             if not (many_field and one_field):
@@ -148,36 +168,45 @@ class DbModel(object):
                 raise
             logger.warning('The relation %s - %s cannot be added', str('.'.join(many_relation_tuple)), str(oneColumn))
             #print 'The relation %s - %s cannot be added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
-
+            
     def checkRelationIndex(self, pkg, table, column):
+        """add???
+        
+        :param pkg: package name
+        :param table: add???
+        :param column: add???
+        """
         tblobj = self.table(table, pkg=pkg)
         indexname = '%s_%s_key' % (table, column)
         if column != tblobj.pkey and not indexname in tblobj.indexes:
             tblobj.indexes.children[indexname] = DbIndexObj(parent=tblobj.indexes, attrs=dict(columns=column))
-
+            
     def load(self, source=None):
-        """Load the modelsrc from a xml source
-        @param source: xml model (diskfile or text or url)
+        """Load the modelsrc from a XML source
+        
+        :param source: XML model (diskfile or text or url). Default value is ``None``
         """
         self.src.update(source)
-
+        
     def importFromDb(self):
         exporter = ModelExtractor(self.db)
         root = DbModelSrc.makeRoot()
         exporter.extractModelSrc(root=root)
         self.src.update(root)
-
+        
     def save(self, path):
-        """save the current modelsrc as xml file at path
-        @param path: the file path
+        """save the current modelsrc as XML file at path
+        
+        :param path: the file path
         """
         self.src.save(path)
-
-
+        
     def check(self, applyChanges=False):
-        """This method verifies the compatibility between the database and the model.
-        It saves sql statements that makes the database compatible with the model.
-        @param applyChanges: if True applies the changes.
+        """Verify the compatibility between the database and the model.
+        
+        Save the sql statements that makes the database compatible with the model.
+        
+        :param applyChanges: if True, apply the changes. Default value is ``False``
         """
         checker = SqlModelChecker(self.db)
         self.modelChanges = checker.checkDb()
@@ -185,35 +214,47 @@ class DbModel(object):
         if applyChanges:
             self.applyModelChanges()
         return bool(self.modelChanges)
-
+        
     def applyModelChanges(self):
+        """add???"""
         if self.modelChanges[0].startswith('CREATE DATABASE'):
             self.db.adapter.createDb()
             self.modelChanges.pop(0)
         for x in self.modelChanges:
             self.db.execute(x)
         self.db.commit()
-
+        
     def _doMixin(self, path, obj):
         if self.db.started:
             raise ConfigureAfterStartError(path)
         self.mixins[path] = obj
-
+        
     def packageMixin(self, pkg, obj):
+        """add???
+        
+        :param pkg: the package name
+        :param obj: add???
+        """
         self._doMixin('pkg.%s' % pkg, obj)
-
+        
     def tableMixin(self, tblpath, obj):
         self._doMixin('tbl.%s' % tblpath, obj)
-
+        
     def package(self, pkg):
-        """Returns a package object
-        @param pkw: package name"""
+        """Return a package object
+        
+        :param pkg: the package name
+        :returns: the package object
+        """
         return self.obj[pkg]
-
+        
     def table(self, tblname, pkg=None):
-        """returns a table object
-        @param table: table name
-        @param pkg: package name"""
+        """Return a table object
+        
+        :param tblname: the table name
+        :param pkg: the package name. Default value is ``None``
+        :returns: a table object
+        """
         if '.' in tblname:
             pkg, tblname = tblname.split('.')[:2]
         if pkg is None:
@@ -224,8 +265,11 @@ class DbModel(object):
         return self.obj[pkg].table(tblname)
 
     def column(self, colname):
-        """returns a column object
-        @param colname: colname name"""
+        """Return a column object
+        
+        :param colname: the column name
+        :returns: a column object
+        """
         colpath = colname.split('.')
         if len(colpath) == 2:
             pkg = None
@@ -233,51 +277,58 @@ class DbModel(object):
         else:
             pkg, tblname, colname = colpath
         return self.table(tblname, pkg=pkg).column(colname)
-
-
+        
 class DbModelSrc(GnrStructData):
+    """A GnrStructData subclass. It is used for the elements of a GenroDb
+    TESTED in a_structure_load_test.py
     """
-       this is a GnrStructData subclass of definition for the elements of a GenroDb
-       TESTED in a_structure_load_test.py
-    """
-
+    
     def package(self, name, sqlschema=None,
                 comment=None,
                 name_short=None, name_long=None, name_full=None,
                 **kwargs):
-        """Add a package to the structure. Child of root.
-        @param name: package name,
-        @param comment: comment about package,
-        @param name_short: name_short,
-        @param name_long: name_long,
-        @param name_full: name_full"""
-
+        """Add a package to the structure.
+        
+        :param name: the package name
+        :param sqlschema: add???. Default value is ``None``
+        :param comment: the package's comment. Default value is ``None``
+        :param name_short: the package's short name. Default value is ``None``
+        :param name_long: the package's long name. Default value is ``None``
+        :param name_full: the package's full name. Default value is ``None``
+        """
         if not 'packages' in self: #if it is the first package it prepares the package_list packages
             self.child('package_list', 'packages')
-
+        
         return self.child('package', 'packages.%s' % name,
                           comment=comment, sqlschema=sqlschema,
                           name_short=name_short, name_long=name_long,
                           name_full=name_full, **kwargs)
-
+                          
     def externalPackage(self, name):
+        """add???
+        
+        :param name: the package name
+        :returns: add???
+        """
         return self.root('packages.%s' % name)
-
+        
     def table(self, name, pkey=None, lastTS=None, rowcaption=None,
               sqlname=None, sqlschema=None,
               comment=None,
               name_short=None, name_long=None, name_full=None,
               **kwargs):
-        """Add a table to the structure. Child of package.
-           @param name: table name,
-           @param sqlschema
-           @param comment: comment about table,
-           @param name_short: name_short,
-           @param name_long: name_long,
-           @param name_full: name_full
-           @param pkey
-           """
-
+        """Add a table to the structure. The table is a child of the package created with the :meth:`package` method
+        
+        :param name: the table name
+        :param pkey: the table's primary key. Default value is ``None``
+        :param lastTS: add???. Default value is ``None``
+        :param sqlschema: add???. Default value is ``None``
+        :param comment: the table's comment. Default value is ``None``
+        :param name_short: the table's short name. Default value is ``None``
+        :param name_long: the table's long name. Default value is ``None``
+        :param name_full: the table's full name. Default value is ``None``
+        :returns: a table
+        """
         if not 'tables' in self:
             #if it is the first table it prepares the table_list tables
             self.child('table_list', 'tables')
@@ -285,34 +336,35 @@ class DbModelSrc(GnrStructData):
                           name_short=name_short, name_long=name_long, name_full=name_full,
                           pkey=pkey, lastTS=lastTS, rowcaption=rowcaption, pkg=self.parentNode.label,
                           **kwargs)
-
+                          
     def column(self, name, dtype=None, size=None,
                default=None, notnull=None, unique=None, indexed=None,
                sqlname=None, comment=None,
                name_short=None, name_long=None, name_full=None,
                group=None, onInserting=None, onUpdating=None, onDeleting=None,
                **kwargs):
-        """ insert a column into a table. Child of table.
-         @param name: column name,
-         @param dtype
-         @param size: string, 'min:max' or fixed lenght 'len'
-         @param comment: comment about column,
-         @param sqlname
-         @param name_short: name_short,
-         @param name_long: name_long,
-         @param name_full: name_full
-         @param default
-         @param notnull
-         @param unique
-         @param indexed
-         @param group: group is a hierarchical path of logical categories and subacategories the columns belongs to.
-                       If the group path starts with '_' the group is "reserved" (invisible).
-                       If it starts with '*' it can be seen only from aministration tools.
-         @param oninserting
-         @param onupdating
-         @param ondeleting
+        """Insert a column into a table. The column is a child of the table created with the :meth:`table` method
+        :param name: the column name
+        :param dtype: the data type. Default value is ``None``
+        :param size: string. ``'min:max'`` or fixed lenght ``'len'``. Default value is ``None``
+        :param default: add???. Default value is ``None``
+        :param notnull: add???. Default value is ``None``
+        :param unique: boolean. Same of the sql UNIQUE. Default value is ``None``
+        :param indexed: add???. Default value is ``None``
+        :param sqlname: add???. Default value is ``None``
+        :param comment: the column's comment. Default value is ``None``
+        :param name_short: the column's short name. Default value is ``None``
+        :param name_long: the column's long name. Default value is ``None``
+        :param name_full: the column's full name. Default value is ``None``
+        :param group: a hierarchical path of logical categories and subacategories the columns belongs to.
+                      If the group path starts with '_' the group is "reserved" (invisible).
+                      If it starts with '*' it can be seen only through administration tools.
+                      Default value is ``None``
+        :param onInserting: add???. Default value is ``None``
+        :param onUpdating: add???. Default value is ``None``
+        :param onDeleting: add???. Default value is ``None``
+        :returns: a column
         """
-
         if '::' in name:
             name, dtype = name.split('::')
         if not 'columns' in self:
@@ -323,11 +375,16 @@ class DbModelSrc(GnrStructData):
                           default=default, notnull=notnull, unique=unique, indexed=indexed,
                           group=group, onInserting=onInserting, onUpdating=onUpdating, onDeleting=onDeleting,
                           **kwargs)
-
+                          
     def virtual_column(self, name, relation_path=None, sql_formula=None, py_method=None, **kwargs):
-        """ insert a related column alias into a table. Child of table.
-            @param name: alias name,
-            @param alias: path of related column
+        """Insert a related column alias into a table. The virtual_column is a child of the table
+        created with the :meth:`table` method
+        
+        :param name: the column name
+        :param relation_path: the column's related path. Default value is ``None``
+        :param sql_formula: add???. Default value is ``None``
+        :param py_method: add???. Default value is ``None``
+        :returns: a related column alias
         """
         if '::' in name: name, dtype = name.split('::')
         if not 'virtual_columns' in self:
@@ -336,20 +393,28 @@ class DbModelSrc(GnrStructData):
                           relation_path=relation_path,
                           sql_formula=sql_formula, py_method=py_method,
                           virtual_column=True, **kwargs)
-
+                          
     def aliasColumn(self, name, relation_path, **kwargs):
+        """Insert an aliasColumn into a table. The aliasColumn is a child of the table
+        created with the :meth:`table` method
+        
+        :param name: the column name
+        :param relation_path: the relation path (e.g: ``@registry_id.name``)
+        :returns: an aliasColumn
+        """
         return self.virtual_column(name, relation_path=relation_path, **kwargs)
-
+        
     def formulaColumn(self, name, sql_formula, dtype='A', **kwargs):
         return self.virtual_column(name, sql_formula=sql_formula, dtype=dtype, **kwargs)
-
+        
     def pyColumn(self, name, py_method, **kwargs):
         return self.virtual_column(name, py_method=py_method, **kwargs)
-
+        
     def aliasTable(self, name, relation_path, **kwargs):
-        """ insert a related table alias into a table. Child of table.
-            @param name: alias name,
-            @param alias: path of related table
+        """Insert a related table alias into a table. Child of table.
+        
+        :param name: alias name,
+        :param alias: path of related table
         """
         if '::' in name: name, dtype = name.split('::')
         if not 'table_aliases' in self:
@@ -362,8 +427,8 @@ class DbModelSrc(GnrStructData):
         """Add an index to a column. self must be a column src or an index_list
         
         :param columns: list, or tuple, or string separated by commas. Default value is ``None``
-        :param name: index name. Default value is ``None``
-        :param unique: unicity bound. Default value is ``None``
+        :param name: the index name. Default value is ``None``
+        :param unique: boolean. Same of the sql UNIQUE. Default value is ``None``
         """
         if isinstance(columns, list) or isinstance(columns, tuple):
             columns = ','.join(columns)
@@ -381,9 +446,9 @@ class DbModelSrc(GnrStructData):
                  onDelete_sql=None, deferred=None, relation_name=None, **kwargs):
         """ Add a relation in the current model
         
-        :param oneColumn: the column of the "one table" as string. Eg. 'video.director.id'
-        :param one_name: the one_to_many relation's name. Eg. 'movies'
-        :param many_name: the many_to_one relation's name. Eg. 'director'
+        :param oneColumn: the column of the "one table" as string. e.g: 'video.director.id'
+        :param one_name: the one_to_many relation's name. e.g: 'movies'
+        :param many_name: the many_to_one relation's name. e.g: 'director'
         :param mode: relation (dflt), insensitive, foreignkey
         :param eager_one: if True ('Y') the one_to_many relation is eager
         :param eager_many: if True ('Y') the many_to_one relation is eager

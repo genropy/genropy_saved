@@ -69,7 +69,7 @@ class GnrDboPackage(object):
     def loadUserObject(self, pkg=None, **kwargs):
         """add???
         
-        :param pkg: add???. Default value is ``None``
+        :param pkg: package name. Default value is ``None``
         :returns: add???
         """
         return self.dbtable('userobject').loadUserObject(pkg=pkg or self.name, **kwargs)
@@ -78,7 +78,7 @@ class GnrDboPackage(object):
         """add???
         
         :param data: add???
-        :param pkg: add???. Default value is ``None``
+        :param pkg: package name. Default value is ``None``
         :returns: add???
         """
         return self.dbtable('userobject').saveUserObject(data, pkg=pkg or self.name, **kwargs)
@@ -87,7 +87,7 @@ class GnrDboPackage(object):
         """add???
         
         :param id: add???
-        :param pkg: add???. Default value is ``None``
+        :param pkg: package name. Default value is ``None``
         :returns: add???
         """
         return self.dbtable('userobject').deleteUserObject(pkg=pkg or self.name, id=id)
@@ -95,7 +95,7 @@ class GnrDboPackage(object):
     def listUserObject(self, pkg=None, **kwargs):
         """add???
         
-        :param pkg: add???. Default value is ``None``
+        :param pkg: package name. Default value is ``None``
         :returns: add???
         """
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
@@ -319,7 +319,7 @@ class Table_counter(TableBase):
     def config_db(self, pkg):
         """add???
         
-        :param pkg: add???
+        :param pkg: package name
         :returns: add???
         """
         tbl = pkg.table('counter', pkey='codekey', name_long='!!Counter', transaction=False)
@@ -338,7 +338,7 @@ class Table_counter(TableBase):
         """add???
         
         :param name: add???
-        :param pkg: add???
+        :param pkg: package name
         :param code: add???
         :param codekey: add???. Default value is ``$YYYY_$MM_$K``
         :param output: add???. Default value is ``$K/$YY$MM.$NNNN``
@@ -386,7 +386,7 @@ class Table_counter(TableBase):
         """add???
         
         :param name: add???
-        :param pkg: add???
+        :param pkg: package name
         :param code: add???
         :param codekey: add???. Default value is ``$YYYY_$MM_$K``
         :param output: add???. Default value is ``$K/$YY$MM.$NNNN``
@@ -407,7 +407,7 @@ class Table_counter(TableBase):
         
         :param codekey: add???
         :param code: add???
-        :param pkg: add???
+        :param pkg: package name
         :param name: add???
         :param lastAssigned: add???
         :returns: add???
@@ -482,7 +482,7 @@ class Table_userobject(TableBase):
     def config_db(self, pkg):
         """add???
         
-        :param pkg: add???
+        :param pkg: package name
         """
         tbl = pkg.table('userobject', pkey='id', name_long='!!User Object', transaction=False)
         self.sysFields(tbl, id=True, ins=True, upd=True)
@@ -505,7 +505,7 @@ class Table_userobject(TableBase):
         :param id: add???. Default value is ``None``
         :param code: add???. Default value is ``None``
         :param objtype: add???. Default value is ``None``
-        :param pkg: add???. Default value is ``None``
+        :param pkg: package name. Default value is ``None``
         :param tbl: add???. Default value is ``None``
         :param userid: add???. Default value is ``None``
         :param description: add???. Default value is ``None``
@@ -557,7 +557,7 @@ class Table_userobject(TableBase):
         """add???
         
         :param id: add???
-        :param pkg: add???. Default value is ``None``
+        :param pkg: package name. Default value is ``None``
         :returns: add???
         """
         self.delete({'id': id})
@@ -566,7 +566,7 @@ class Table_userobject(TableBase):
         """add???
         
         :param objtype: add???. Default value is ``None``
-        :param pkg: add???. Default value is ``None``
+        :param pkg: package name. Default value is ``None``
         :param tbl: add???. Default value is ``None``
         :param userid: add???. Default value is ``None``
         :param authtags: add???. Default value is ``None``
@@ -613,7 +613,7 @@ class Table_recordtag(TableBase):
     def config_db(self, pkg):
         """add???
         
-        :param pkg: add???
+        :param pkg: package name
         :returns: add???
         """
         tbl = pkg.table('recordtag', pkey='id', name_long='!!Record tags', transaction=False)
@@ -711,7 +711,7 @@ class Table_recordtag_link(TableBase):
     def config_db(self, pkg):
         """add???
         
-        :param pkg: add???
+        :param pkg: package name
         :returns: add???
         """
         tbl = pkg.table('recordtag_link', pkey='id', name_long='!!Record tag link', transaction=False)
