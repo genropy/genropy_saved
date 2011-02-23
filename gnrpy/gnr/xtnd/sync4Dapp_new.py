@@ -354,7 +354,7 @@ class GnrAppSync4D(GnrApp):
             self.writeImport(b, file_name=fullname)
 
     def writeTransaction(self, data, attr, file_name=None):
-        if not data:
+        if not attr['from']:
             return
         request_ts = None
         if attr.get('sy_date') and attr.get('sy_time'):
