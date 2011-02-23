@@ -718,15 +718,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                              autoslots='top,left,right,bottom',**kwargs)
         return palette
 
-    def paletteGrid(self,paletteCode=None,struct=None,structpath=None,datapath=None,**kwargs):
+    def paletteGrid(self,paletteCode=None,struct=None,columns=None,structpath=None,datapath=None,**kwargs):
         datapath= datapath or 'gnr.palettes.%s' %paletteCode
         structpath = structpath or '.grid.struct'
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
         paletteGrid = self.child('paletteGrid',paletteCode=paletteCode,
                                 structpath=structpath,datapath=datapath,
                                 autoslots='top,left,right,bottom',**kwargs)
-        if struct:
-            paletteGrid.gridStruct(struct=struct)   
+        if struct or columns or not structpath:
+            paletteGrid.gridStruct(struct=struct,columns=columns)   
         return paletteGrid
     
     def includedview(self,*args,**kwargs):
@@ -737,7 +737,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         else:
             return self.includedview_legacy(*args,**kwargs)
             
-    def includedview_inframe(self,frameCode=None,struct=None,storepath=None,structpath=None,
+    def includedview_inframe(self,frameCode=None,struct=None,columns=None,storepath=None,structpath=None,
                             datapath=None,nodeId=None,configurable=True,_newGrid=False,**kwargs):
         if datapath is False:
             datapath = None
@@ -748,26 +748,26 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         wdg = 'NewIncludedView' if _newGrid else 'includedView'
         iv =self.child(wdg,frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
                           relativeWorkspace=True,configurable=configurable,storepath=storepath,**kwargs)
-        if struct or not structpath:
-            iv.gridStruct(struct=struct)
+        if struct or columns or not structpath:
+            iv.gridStruct(struct=struct,columns=columns)
         return iv
 
-    def includedview_legacy(self, storepath=None, structpath=None, struct=None, table=None,
-                      nodeId=None, relativeWorkspace=None,**kwargs):
+    def includedview_legacy(self, storepath=None, structpath=None, struct=None,columns=None, table=None,
+                      nodeId=None,relativeWorkspace=None,**kwargs):
         nodeId = nodeId or self.page.getUuid()
         prefix = 'grids.%s' %nodeId if not relativeWorkspace else ''
         structpath = structpath or '%s.struct' % prefix
         iv =self.child('includedView', storepath=storepath, structpath=structpath, nodeId=nodeId, table=table,
                           relativeWorkspace=relativeWorkspace,**kwargs)
-        if struct or not structpath:
-            iv.gridStruct(struct=struct)
+        source = struct or columns
+        if struct or columns or not structpath:
+            iv.gridStruct(struct=struct,columns=columns)
         return iv
             
-    def gridStruct(self,struct=None):
+    def gridStruct(self,struct=None,columns=None):
         gridattr=self.attributes
         structpath = gridattr.get('structpath')
         table = gridattr.get('table')
-        columns= gridattr.pop('columns',None)
         gridId= gridattr.get('nodeId') 
         storepath = gridattr.get('storepath')
         source = struct or columns
