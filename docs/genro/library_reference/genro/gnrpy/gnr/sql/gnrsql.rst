@@ -11,9 +11,12 @@
     Other classes:
     
     * :ref:`gnrsql_dbstoreshandler`
+    * :ref:`gnrsql_tempenv`
+    
+    Exceptions classes:
+    
     * :ref:`gnrsql_gnrsqlexception`
     * :ref:`gnrsql_gnrsqlexecexception`
-    * :ref:`gnrsql_tempenv`
     
 * :ref:`gnrsql_classes`
 
@@ -55,6 +58,15 @@
     * :meth:`load_config`
     * :meth:`save_config`
 
+.. _gnrsql_tempenv:
+
+:class:`TempEnv`
+================
+
+    .. module:: gnr.sql.gnrsql.TempEnv
+
+    there is no public method.
+
 .. _gnrsql_gnrsqlexception:
 
 :class:`GnrSqlException`
@@ -72,16 +84,7 @@
     .. module:: gnr.sql.gnrsql.GnrSqlExecException
     
     there is no public method.
-
-.. _gnrsql_tempenv:
-
-:class:`TempEnv`
-================
-
-    .. module:: gnr.sql.gnrsql.TempEnv
-
-    there is no public method.
-
+    
 .. _gnrsql_classes:
 
 :mod:`gnr.sql.gnrsql` - The complete reference list
