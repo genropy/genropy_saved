@@ -51,16 +51,16 @@ class GnrSqlException(GnrException):
     """Standard Gnr Sql Base Exception
     
     * **code**: GNRSQL-001
-    * **description**: Genro SQL base exception
+    * **description**: Genro SQL Base Exception
     """
     code = 'GNRSQL-001'
     description = '!!Genro SQL base exception'
 
 class GnrSqlExecException(GnrSqlException):
-    """Standard Gnr Sql Base Exception
+    """Standard Gnr Sql Execution Exception
     
     * **code**: GNRSQL-002
-    * **description**: Genro SQL execution exception
+    * **description**: Genro SQL Execution Exception
     """
     code = 'GNRSQL-002'
     description = '!!Genro SQL execution exception'

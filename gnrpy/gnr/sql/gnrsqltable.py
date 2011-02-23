@@ -37,43 +37,68 @@ import logging
 gnrlogger = logging.getLogger(__name__)
 
 class GnrSqlSaveException(GnrSqlException):
-    code = 'GNRSQL-03'
+    """Standard Genro SQL Save Exception
+    
+    * **code**: GNRSQL-003
+    * **description**: Genro SQL Save Exception
+    """
+    code = 'GNRSQL-003'
     description = '!!Genro SQL Save Exception'
     caption = "!!The record %(rowcaption)s in table %(tablename)s cannot be saved:%(msg)s"
 
 class GnrSqlDeleteException(GnrSqlException):
-    code = 'GNRSQL-04'
+    """Standard Genro SQL Delete Exception
+    
+    * **code**: GNRSQL-004
+    * **description**: Genro SQL Delete Exception
+    """
+    code = 'GNRSQL-004'
     description = '!!Genro SQL Delete Exception'
     caption = "!!The record %(rowcaption)s in table %(tablename)s cannot be deleted:%(msg)s"
 
 class GnrSqlProtectUpdateException(GnrSqlException):
-    code = 'GNRSQL-11'
+    """Standard Genro SQL Save Exception
+    
+    * **code**: GNRSQL-011
+    * **description**: Genro SQL Save Exception
+    """
+    code = 'GNRSQL-011'
     description = '!!Genro SQL Protect Update Exception'
     caption = "!!The record %(rowcaption)s in table %(tablename)s is not updatable:%(msg)s"
 
 class GnrSqlProtectDeleteException(GnrSqlException):
-    code = 'GNRSQL-12'
-    description = '!!Genro SQL Protect Update Exception'
+    """Standard Genro SQL Protect Delete Exception
+    
+    * **code**: GNRSQL-012
+    * **description**: Genro SQL Protect Delete Exception
+    """
+    code = 'GNRSQL-012'
+    description = '!!Genro SQL Protect Delete Exception'
     caption = "!!The record %(rowcaption)s in table %(tablename)s is not deletable:%(msg)s"
 
 class GnrSqlProtectValidateException(GnrSqlException):
-    code = 'GNRSQL-13'
+    """Standard Genro SQL Protect Validate Exception
+    
+    * **code**: GNRSQL-013
+    * **description**: Genro SQL Protect Validate Exception
+    """
+    code = 'GNRSQL-013'
     description = '!!Genro SQL Protect Validate Exception'
     caption = "!!The record %(rowcaption)s in table %(tablename)s contains invalid data:%(msg)s"
-
+    
 EXCEPTIONS = {'save': GnrSqlSaveException,
               'delete': GnrSqlDeleteException,
               'protect_update': GnrSqlProtectUpdateException,
               'protect_delete': GnrSqlProtectDeleteException,
               'protect_validate': GnrSqlProtectValidateException}
-
+              
 class SqlTable(GnrObject):
-    """This is the base classe for database tables.
+    """The base class for database tables.
     
     Your tables will inherit from it (altough it won't be explicit in your code, since it's done by GenroPy mixin machinery).
     
     In your webpage, package or table methods, you can get a reference to a table by name in this way::
-
+    
         self.db.table('packagename.tablename')
     
     You can also get them from the application instance::
@@ -82,18 +107,24 @@ class SqlTable(GnrObject):
         app.db.table('packagename.tablename')
     
     """
-
     def __init__(self, tblobj):
         self._model = tblobj
         self.name = tblobj.name
         self.fullname = tblobj.fullname
         self.name_long = tblobj.name_long
         self.name_plural = tblobj.name_plural
-
+        
     def use_dbstores(self):
+        """add???"""
         return False
-
+        
     def exception(self, exception, record=None, msg=None, **kwargs):
+        """add???
+        
+        :param exception: the exception raised.
+        :param record: add???. Default value is ``None``
+        :param msg: add???. Default value is ``None``
+        """
         if exception in EXCEPTIONS:
             rowcaption = ''
             if record:
@@ -105,44 +136,53 @@ class SqlTable(GnrObject):
                 e.setLocalizer(self.db.application.site.currentPage.localizer)
             return e
         raise
-
+        
     def __repr__(self):
         return "<SqlTable %s>" % repr(self.fullname)
-
+        
     @property
     def model(self):
         """property model.
-
+        
         Return the corresponding DbTableObj object"""
         return self._model
-
+        
     @property
     def pkg(self):
         """property pkg.
-
+        
         Return the DbPackageObj object that contains the current table"""
         return self.model.pkg
-
+        
     @property
     def db(self):
         """property db
-
+        
         Return the GnrSqlDb object"""
         return self.model.db
-
+        
     dbroot = db
-
+        
     def column(self, name):
         """Returns a column object.
-
+        
         :param name: A column's name or a relation path starting from the current table. (eg. ``@director_id.name``)
         """
         return self.model.column(name)
-
+        
     def fullRelationPath(self, name):
+        """add???
+        
+        :param name: add???
+        :returns: add???
+        """
         return self.model.fullRelationPath(name)
-
+        
     def getColumnPrintWidth(self, column):
+        """add???
+        
+        :param column: add???
+        """
         if column.dtype in ['A', 'C', 'T', 'X', 'P']:
             size = column.attributes.get('size', None)
             if not size:
@@ -168,7 +208,7 @@ class SqlTable(GnrObject):
             result = gnrstring.guessLen(column.dtype,
                                         format=column.attributes.get('print_format', None),
                                         mask=column.attributes.get('print_mask', None))
-
+                                        
         namelong = column.attributes.get('name_long', 'untitled')
         if '\n' in namelong:
             namelong = namelong.split('\n')
@@ -177,86 +217,87 @@ class SqlTable(GnrObject):
         else:
             headerlen = len(namelong)
         return max(result, headerlen)
-
-
+        
     @property
     def attributes(self):
+        """add???"""
         return self.model.attributes
-
+        
     @property
     def pkey(self):
         """property db
-
+        
         Return the DbColumnObj object"""
         return self.model.pkey
-
+        
     @property
     def lastTS(self):
         """property db
-
+        
         Return the DbColumnObj object"""
         return self.model.lastTS
-
+        
     @property
     def logicalDeletionField(self):
         """property db
-
+        
         Return the DbColumnObj object"""
         return self.model.logicalDeletionField
-
+        
     @property
     def noChangeMerge(self):
         """property db
-
-     Return the DbColumnObj object"""
+        
+        Return the DbColumnObj object"""
         return self.model.noChangeMerge
-
+        
     @property
     def rowcaption(self):
         """property rowcaption.
-
+        
         Returns the table's rowcaption"""
         return self.model.rowcaption
-
+        
     @property
     def columns(self):
         """property columns
-
+        
         Returns the DbColumnListObj object"""
         return self.model.columns
-
+        
     @property
     def relations(self):
         """property columns
         
         Returns the DbColumnListObj object"""
         return self.model.relations
-
+        
     @property
     def indexes(self):
         """property indexes
         
         Returns the DbIndexListObj object"""
         return self.model.indexes
-
+        
     @property
     def relations_one(self):
         """property relations_one
         
         Return a bag of relations that start from the current table"""
         return self.model.relations_one
-
+        
     @property
     def relations_many(self):
         """property relations_many
         
         Return a bag of relations that point to the current table"""
         return self.model.relations_many
-
+        
     def recordCoerceTypes(self, record, null='NULL'):
         """Check and coerce types in record.
         
         :param record: an object implementing dict interface as colname, colvalue
+        :param null: add???. Default value is ``NULL``
         """
         converter = self.db.typeConverter
         for k in record.keys():
@@ -274,12 +315,19 @@ class SqlTable(GnrObject):
                             v = converter.fromText(record[k], dtype)
                     if 'rjust' in colattr:
                         v = v.rjust(int(colattr['size']), colattr['rjust'])
-
+                        
                     elif 'ljust' in  colattr:
                         v = v.ljust(int(colattr['size']), colattr['ljust'])
                     record[k] = v
-
+                    
     def buildrecord(self, fields, resolver_one=None, resolver_many=None):
+        """Build a new record
+        
+        :param fields: add???
+        :param resolver_one: add???. Default value is ``None``
+        :param resolver_many: add???. Default value is ``None``
+        :returns: the new record
+        """
         newrecord = Bag()
         for fld_node in self.model.relations:
             fld = fld_node.label
@@ -294,7 +342,7 @@ class SqlTable(GnrObject):
                         info['_from_fld'] = attrs['many_relation']
                         info['_target_fld'] = attrs['one_relation']
                         info['mode'] = attrs['mode']
-
+                        
                         if resolver_one is True:
                             pass # non posso fare il resolver python, il valore di link non c'è ancora
                         else:
@@ -316,11 +364,15 @@ class SqlTable(GnrObject):
                         v = Bag(v)
                     except:
                         pass
-
+                        
             newrecord.setItem(fld, v, info)
         return newrecord
-
+        
     def buildrecord_(self, fields):
+        """add???
+        
+        :param fields: add???
+        """
         newrecord = Bag()
         for fld in self.columns.keys():
             v = fields.get(fld)
@@ -331,37 +383,52 @@ class SqlTable(GnrObject):
                     v = Bag(v)
                 except:
                     pass
-
+                    
             newrecord.setItem(fld, v, info)
         return newrecord
-
+        
     def newrecord(self, assignId=False, resolver_one=None, resolver_many=None, **kwargs):
+        """add???
+        
+        :param assignId: add???. Default value is ``False``
+        :param resolver_one: add???. Default value is ``None``
+        :param resolver_many: add???. Default value is ``None``
+        :returns: the new record
+        """
         newrecord = self.buildrecord(kwargs, resolver_one=resolver_one, resolver_many=resolver_many)
         if assignId:
             newrecord[self.pkey] = self.newPkeyValue()
         return newrecord
-
+        
     def record(self, pkey=None, where=None,
                lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False, virtual_columns=None,
                ignoreDuplicate=False, bagFields=True, joinConditions=None, sqlContextName=None,
                for_update=False, **kwargs):
-        """
-        This method is used to get a single record of the table. It returns a SqlRecordResolver.
-        The record can be identified by
-        - its primary key
-        - one or more conditions passed as kwargs (e.g. username='foo')
-        - a where condition
-         
-        :param pkey: record primary key.
-        :param where: (optional) This is the sql "WHERE" clause. We suggest not to use hardcoded values into the where clause, but
-            refer to variables passed to the selection method as kwargs
-            e.g. where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas
-        :param lazy:
-        :param eager:
-        :param mode: bag, dict, json
-        :param relationDict: (optional) this is a dictionary that contains couples composed by fieldName and relationPath
-            e.g. {'$member_name':'@member_id.name'}
+        """Get a single record of the table. It returns a SqlRecordResolver.
         
+        The record can be identified by:
+        
+        * its primary key
+        * one or more conditions passed as kwargs (e.g. username='foo')
+        * a where condition
+         
+        :param pkey: record primary key. Default value is ``None``
+        :param where: (optional) This is the sql WHERE clause. We suggest not to use hardcoded values into the WHERE clause, but
+                       refer to variables passed to the selection method as kwargs. Default value is ``None``
+                       e.g: ``where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas``
+        :param lazy: add???. Default value is ``None``
+        :param eager: add???. Default value is ``None``
+        :param mode: bag, dict, json. Default value is ``None``
+        :param relationDict: (optional) this is a dictionary that contains couples composed by fieldName and relationPath
+                              e.g: ``{'$member_name':'@member_id.name'}``. Default value is ``None``
+        :param ignoreMissing: add???. Default value is ``False``
+        :param virtual_columns: add???. Default value is ``None``
+        :param ignoreDuplicate: add???. Default value is ``False``
+        :param bagFields: add???. Default value is ``True``
+        :param joinConditions: add???. Default value is ``None``
+        :param sqlContextName: add???. Default value is ``None``
+        :param for_update: add???. Default value is ``False``
+        :returns: the record
         """
         record = SqlRecord(self, pkey=pkey, where=where,
                            lazy=lazy, eager=eager,
@@ -378,13 +445,14 @@ class SqlTable(GnrObject):
             return record
             
     def recordAs(self, record, mode='bag', virtual_columns=None):
-        """Returns a record in the specified mode.
+        """Return a record in the specified mode.
         
-        It accepts and return a record as a bag, dict or primary pkey (as a string).
+        Accept and return a record as a bag, dict or primary pkey (as a string).
         
-        :param record:      a bag, a dict or a string (i.e. the record's pkey)
-        :param mode:        'dict' or 'bag' or 'pkey'
-        :returns:           a bag, a dict or a string (i.e. the record's pkey)
+        :param record: a bag, a dict or a string (i.e. the record's pkey)
+        :param mode: 'dict' or 'bag' or 'pkey'. Default value is ``bag``
+        :param virtual_columns: add???. Default value is ``None``
+        :returns: a bag, a dict or a string (i.e. the record's pkey)
         """
         if isinstance(record, basestring):
             if mode == 'pkey':

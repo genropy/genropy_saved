@@ -108,7 +108,7 @@ class DbModel(object):
         
         :param many_relation_tuple: tuple. The column of the "many table". e.g: ('video','movie','director_id')
         :param oneColumn: string. The column of the "one table". e.g: 'video.director.id'
-        :param mode: relation (dflt), insensitive, foreignkey. Default value is ``None``
+        :param mode: relation, insensitive, foreignkey. Default value is ``None``
         :param one_one: add???. Default value is ``None``
         :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. Default value is ``None``
         :param onDelete_sql: add???. Default value is ``None``
@@ -395,8 +395,8 @@ class DbModelSrc(GnrStructData):
                           virtual_column=True, **kwargs)
                           
     def aliasColumn(self, name, relation_path, **kwargs):
-        """Insert an aliasColumn into a table. The aliasColumn is a child of the table
-        created with the :meth:`table` method
+        """Insert an aliasColumn into a table, that is a column with a relation path.
+        The aliasColumn is a child of the table created with the :meth:`table` method
         
         :param name: the column name
         :param relation_path: the relation path (e.g: ``@registry_id.name``)
@@ -405,26 +405,43 @@ class DbModelSrc(GnrStructData):
         return self.virtual_column(name, relation_path=relation_path, **kwargs)
         
     def formulaColumn(self, name, sql_formula, dtype='A', **kwargs):
+        """Insert a formulaColumn into a table, that is add???. The aliasColumn is a child of the table
+        created with the :meth:`table` method
+        
+        :param name: the column name
+        :param sql_formula: add???
+        :param dtype: the data type. Default value is ``A``
+        :returns: a formulaColumn
+        """
         return self.virtual_column(name, sql_formula=sql_formula, dtype=dtype, **kwargs)
         
     def pyColumn(self, name, py_method, **kwargs):
+        """Insert a pyColumn into a table, that is add???. The aliasColumn is a child of the table
+        created with the :meth:`table` method
+        
+        :param name: the column name
+        :param sql_formula: add???
+        :param dtype: the data type. Default value is ``A``
+        :returns: a formulaColumn
+        """
         return self.virtual_column(name, py_method=py_method, **kwargs)
         
     def aliasTable(self, name, relation_path, **kwargs):
-        """Insert a related table alias into a table. Child of table.
+        """Insert a related table alias into a table. The aliasTable is a child of the table
+        created with the :meth:`table` method
         
-        :param name: alias name,
-        :param alias: path of related table
+        :param name: the aliasTable name
+        :param relation_path: path of the related table
         """
         if '::' in name: name, dtype = name.split('::')
         if not 'table_aliases' in self:
             self.child('tblalias_list', 'table_aliases')
         return self.child('table_alias', 'table_aliases.@%s' % name, relation_path=relation_path, **kwargs)
-
+        
     table_alias = aliasTable
-
+        
     def index(self, columns=None, name=None, unique=None):
-        """Add an index to a column. self must be a column src or an index_list
+        """Add an index to a column. ``self`` must be a column src or an index_list
         
         :param columns: list, or tuple, or string separated by commas. Default value is ``None``
         :param name: the index name. Default value is ``None``
@@ -436,32 +453,39 @@ class DbModelSrc(GnrStructData):
             name = "%s_%s_key" % (self.parentNode.label, columns.replace(',', '_'))
         if not 'indexes' in self:
             self.child('index_list', 'indexes')
-
+            
         child = self.child('index', 'indexes.%s' % name, columns=columns, unique=unique)
         return child
-
+        
     def relation(self, related_column, mode='relation', one_name=None,
                  many_name=None, eager_one=None, eager_many=None, one_one=None, child=None,
                  one_group=None, many_group=None, onUpdate=None, onUpdate_sql=None, onDelete=None,
                  onDelete_sql=None, deferred=None, relation_name=None, **kwargs):
-        """ Add a relation in the current model
+        """Add a relation in the current model
         
-        :param oneColumn: the column of the "one table" as string. e.g: 'video.director.id'
-        :param one_name: the one_to_many relation's name. e.g: 'movies'
-        :param many_name: the many_to_one relation's name. e.g: 'director'
-        :param mode: relation (dflt), insensitive, foreignkey
-        :param eager_one: if True ('Y') the one_to_many relation is eager
-        :param eager_many: if True ('Y') the many_to_one relation is eager
-        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
-        :param onUpdate: add???
-        :param onUpdate_sql: add???
-        :param onDelete: add???
-        :param onDelete_sql: add???
-        :param deferred: add???
-        :param relation_name: add???
-        :returns: add???
+        :param related_column: add???
+        :param mode: relation or insensitive or foreignkey. Default value is ``relation``
+        :param one_name: the one_to_many relation's name. e.g: 'movies'.
+                         Default value is ``None``
+        :param many_name: the many_to_one relation's name. e.g: 'director'.
+                          Default value is ``None``
+        :param eager_one: if True ('Y') the one_to_many relation is eager.
+                          Default value is ``None``
+        :param eager_many: if True ('Y') the many_to_one relation is eager.
+                           Default value is ``None``
+        :param one_one: add???. Default value is ``None``
+        :param child: add???. Default value is ``None``
+        :param one_group: add???. Default value is ``None``
+        :param many_group: add???. Default value is ``None``
+        :param onUpdate: add???. Default value is ``None``
+        :param onUpdate_sql: add???. Default value is ``None``
+        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. Default value is ``None``
+        :param onDelete_sql: add???. Default value is ``None``
+        :param deferred: add???. Default value is ``None``
+        :param relation_name: add???. Default value is ``None``
+        :returns: add???. Default value is ``None``
         """
-
+        
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode,
                             one_name=one_name, many_name=many_name, one_one=one_one, child=child,
                             one_group=one_group, many_group=many_group, deferred=deferred, onUpdate=onUpdate,
@@ -470,13 +494,12 @@ class DbModelSrc(GnrStructData):
                             onDelete_sql=onDelete_sql, relation_name=relation_name,
                             **kwargs)
                             
-  
 class DbModelObj(GnrStructObj):
     """Base class for all the StructObj in this module"""
-
+        
     def init(self):
         self._dbroot = self.root.rootparent.db
-
+        
         mixpath = self._getMixinPath()
         mixobj = self._getMixinObj()
         if mixpath:
@@ -487,119 +510,133 @@ class DbModelObj(GnrStructObj):
                 mixin = '%s:%s' % (self.module.__module__, mixin)
             mixobj.mixin(mixin)
         self.doInit()
-
+        
     def _getMixinPath(self):
         return None
-
+        
     def _getMixinObj(self):
         return self
-
+        
     def doInit(self):
         pass
-
+        
     def _get_dbroot(self):
         return self._dbroot
-
+        
     dbroot = property(_get_dbroot)
     db = dbroot
-
+        
     def _get_adapter(self):
         return self.dbroot.adapter
-
+        
     adapter = property(_get_adapter)
-
+        
     def _get_sqlname(self):
         return self.attributes.get('sqlname', self.name)
-
+        
     sqlname = property(_get_sqlname)
-
+        
     def _set_name_short(self, name):
         self.attributes['name_short'] = name
-
+        
     def _get_name_short(self):
         return self.attributes.get('name_short', self.attributes.get('name_long', self.name))
-
+        
     name_short = property(_get_name_short, _set_name_short)
-
+        
     def _set_name_long(self, name):
         self.attributes['name_long'] = name
-
+        
     def _get_name_long(self):
         return self.attributes.get('name_long', self.name_short)
-
+        
     name_long = property(_get_name_long, _set_name_long)
-
+        
     def _set_name_full(self, name):
         self.attributes['name_full'] = name
-
+        
     def _get_name_full(self):
         return self.attributes.get('name_full', self.name_long)
-
+        
     name_full = property(_get_name_full, _set_name_full)
-
+        
     def getTag(self):
+        """add???"""
         return self.sqlclass or self._sqlclass
-
+        
     def getAttr(self, attr=None, dflt=None):
+        """
+        :param attr: the attribute. Default value is ``None``
+        :param dflt: the default. Default value is ``None``
+        """
         if attr:
             return self.attributes.get(attr, dflt)
         else:
             return self.attributes
-
-
+            
 class DbPackageObj(DbModelObj):
+    """add???"""
     sqlclass = "package"
-
+        
     def _getMixinPath(self):
         return 'pkg.%s' % self.name
-
+        
     def _get_tables(self):
         """property. Returns a SqlTableList"""
         return self['tables'] or {} #temporary FIX
-
+        
     tables = property(_get_tables)
-
+        
     def dbtable(self, name):
-        """returns a table
-        @params name: table's name"""
+        """Return a table
+        
+        :param name: the database table's name
+        :returns: a database table"""
         return self.table(name).dbtable
-
+            
     def table(self, name):
-        """returns a table
-        @params name: table's name"""
+        """Return a table
+        
+        :param name: the table's name
+        :returns: a table
+        """
         table = self['tables.%s' % name]
         if table is None:
             raise GnrSqlMissingTable("Table '%s' undefined in package: '%s'" % (name, self.name))
         return table
-
+        
     def tableSqlName(self, tblobj):
-        """return the name of the given SqlTable
-        @param tblobj: an instance of SqlTable"""
+        """Return the name of the given SqlTable
+        
+        :param tblobj: an instance of SqlTable
+        :returns: the name of the given SqlTable
+        """
         sqlprefix = self.attributes.get('sqlprefix')
         if sqlprefix == '':
             return tblobj.name
         else:
             return '%s_%s' % (sqlprefix or self.name, tblobj.name)
-
-
+            
     def _get_sqlschema(self):
         return self.attributes.get('sqlschema', self.dbroot.main_schema)
-
+            
     sqlschema = property(_get_sqlschema)
-
-
+            
 class DbTableObj(DbModelObj):
+    """add???"""
     sqlclass = 'table'
-
+            
     def doInit(self):
+        """add???"""
         self.dbtable.onIniting()
         self._sqlnamemapper = {}
         self._indexedColumn = {}
         self._fieldTriggers = {}
         self.allcolumns = []
         self.dbtable.onInited()
-
+            
     def afterChildrenCreation(self):
+        """add???"""
         objclassdict = self.root.objclassdict
         if not self.columns:
             self.children['columns'] = objclassdict['column_list'](parent=self)
@@ -613,11 +650,12 @@ class DbTableObj(DbModelObj):
         for colname, indexargs in self._indexedColumn.items():
             indexname = "%s_%s_key" % (self.name, indexargs['columns'].replace(',', '_'))
             indexesobj.children[indexname] = objclassdict['index'](parent=self.indexes, attrs=indexargs)
-
+            
         if not self.relations:
             self.children['relations'] = self.newRelationResolver()
-
+            
     def newRelationResolver(self, **kwargs):
+        """add???"""
         child_kwargs = {'main_tbl': '%s.%s' % (self.pkg.name, self.name),
                         'tbl_name': self.name,
                         'pkg_name': self.pkg.name}
@@ -625,130 +663,129 @@ class DbTableObj(DbModelObj):
         relationTree = RelationTreeResolver(**child_kwargs)
         relationTree.setDbroot(self.dbroot)
         return relationTree
-
-
+        
     def _getMixinPath(self):
         return 'tbl.%s.%s' % (self.pkg.name, self.name)
-
+        
     def _getMixinObj(self):
         self.dbtable = SqlTable(self)
         return self.dbtable
-
+        
     def _get_pkg(self):
         """property. Returns the SqlPackage that contains the current table"""
         return self.parent.parent
-
+        
     pkg = property(_get_pkg)
-
-
+        
     def _get_fullname(self):
         """property. Returns the absolute table's name"""
         return '%s.%s' % (self.pkg.name, self.name)
-
+        
     fullname = property(_get_fullname)
-
+        
     def _get_name_plural(self):
         """property. Returns the absolute table's name"""
         return self.attributes.get('name_plural') or self.name_long
-
+        
     name_plural = property(_get_name_plural)
-
+        
     def _get_sqlschema(self):
         """property. Returns the sqlschema"""
         return self.attributes.get('sqlschema', self.pkg.sqlschema)
-
+        
     sqlschema = property(_get_sqlschema)
-
+        
     def _get_sqlname(self):
         """property. Returns the table's sqlname"""
         sqlname = self.attributes.get('sqlname')
         if not sqlname:
             sqlname = self.pkg.tableSqlName(self)
         return sqlname
-
+        
     sqlname = property(_get_sqlname)
-
+        
     def _get_sqlfullname(self):
         """property. Returns the table's sqlfullname"""
         return '%s.%s' % (self.sqlschema, self.sqlname)
-
+        
     sqlfullname = property(_get_sqlfullname)
-
+        
     def _get_sqlnamemapper(self):
         return self._sqlnamemapper
-
+        
     sqlnamemapper = property(_get_sqlnamemapper)
-
+        
     def _get_pkey(self):
         """property. Returns the table's pkey"""
         return self.attributes.get('pkey', '')
-
+        
     pkey = property(_get_pkey)
-
+        
     def _get_lastTS(self):
         """property. Returns the table's pkey"""
         return self.attributes.get('lastTS', '')
-
+        
     lastTS = property(_get_lastTS)
-
+        
     def _get_logicalDeletionField(self):
         """property. Returns the table's logicalDeletionField"""
         return self.attributes.get('logicalDeletionField', '')
-
+        
     logicalDeletionField = property(_get_logicalDeletionField)
-
+        
     def _get_noChangeMerge(self):
         """property. set noChangeMerge to True to avoid automatic merge of concurrent non conflicting changes"""
         return self.attributes.get('noChangeMerge', '')
-
+        
     noChangeMerge = property(_get_noChangeMerge)
-
-
+        
     def _get_rowcaption(self):
         """property. Returns the table's rowcaption"""
         return self.attributes.get('rowcaption', self.pkey)
-
+        
     rowcaption = property(_get_rowcaption)
-
+        
     def _get_queryfields(self):
         """property. Returns the table's queryfields"""
         return self.attributes.get('queryfields', None)
-
+        
     queryfields = property(_get_queryfields)
-
+        
     def _get_columns(self):
         """Returns an SqlColumnList"""
         return self['columns']
-
+        
     columns = property(_get_columns)
-
+        
     def _get_indexes(self):
         """Returns an SqlIndexedList"""
         return self['indexes']
-
+        
     indexes = property(_get_indexes)
-
+        
     def _get_relations(self):
         return self['relations']
-
+        
     relations = property(_get_relations)
-
+        
     def _get_virtual_columns(self):
         """Returns a DbColAliasListObj"""
         return self['virtual_columns']
-
+        
     virtual_columns = property(_get_virtual_columns)
-
+        
     def _get_table_aliases(self):
         """Returns an DbTblAliasListObj"""
         return self['table_aliases']
-
+        
     table_aliases = property(_get_table_aliases)
-
+        
     def column(self, name):
-        """Returns a column object or None if it doesn't exists.
-        @param name: A column's name or a relation path starting from the current table.
-        Eg:@director_id.name
+        """Return a column object or None if it doesn't exists.
+        
+        :param name: A column's name or a relation path starting from the current table.
+                     e.g: ``@director_id.name``
+        :returns: a column object or None if it doesn't exists.
         """
         col = None
         colalias = None
@@ -782,10 +819,11 @@ class DbTableObj(DbModelObj):
             #if col == None:
         #    raise 'Missing column %s' % name
         return col
-
+        
     def _relatedColumn(self, fieldpath):
-        """Returns a column object corresponding to the relation path
-        @param fieldpath: ex "@member_id.name"
+        """Return a column object corresponding to the relation path
+        
+        :param fieldpath: e.g: ``@member_id.name``
         """
         relpath = fieldpath.split('.')
         firstrel = relpath.pop(0)
@@ -807,12 +845,13 @@ class DbTableObj(DbModelObj):
             else:
                 relpkg, reltbl, relfld = joiner['many_relation'].split('.')
             reltbl = self.dbroot.package(relpkg).table(reltbl)
-
+            
         return reltbl.column('.'.join(relpath))
-
+        
     def fullRelationPath(self, name):
-        """Returns the full relation path to the given column
-        @param fieldpath: ex "@member_id.name"
+        """Return the full relation path to the given column
+        
+        :param name: the name of the relation path. e.g: ``@member_id.name``
         """
         if name.startswith('$'):
             name = name[1:]
@@ -826,20 +865,23 @@ class DbTableObj(DbModelObj):
             if 'table_aliases' in self and rel in self['table_aliases']:
                 relpath = self['table_aliases.%s' % rel].relation_path
                 rel, pathlist = ('%s.%s' % (relpath, pathlist)).split('.', 1)
-
+                    
             reltbl = self.column(rel[1:]).relatedTable()
             return '%s.%s' % (rel, reltbl.fullRelationPath(pathlist))
         else:
             return name
-
-
+            
     def resolveRelationPath(self, relpath):
+        """add???
+        
+        :param relpath: add???
+        """
         if relpath in self.relations:
             return relpath # it is a real relation path with no aliases
-
+            
         relpath = relpath.split('.')
         firstrel = relpath.pop(0)
-
+        
         attrs = self.relations.getAttr(firstrel)
         if not attrs:
             tblalias = self['table_aliases.%s' % firstrel]
@@ -857,8 +899,7 @@ class DbTableObj(DbModelObj):
                 relpkg, reltbl, relfld = joiner['many_relation'].split('.')
             reltbl = self.dbroot.package(relpkg).table(reltbl)
             return '%s.%s' % (firstrel, reltbl.resolveRelationPath('.'.join(relpath)))
-
-
+            
     def _get_relations_one(self):
         """This method returns a bag containing all the ManyToOne relations that point to the current table"""
         result = Bag()
@@ -867,9 +908,9 @@ class DbTableObj(DbModelObj):
                 r = joiner[0]
                 result[r['many_relation'].split('.')[-1]] = r['one_relation']
         return result
-
+        
     relations_one = property(_get_relations_one)
-
+        
     def _get_relations_many(self):
         """This method returns a bag containing all the OneToMany relations that starts from to the current table"""
         result = Bag()
@@ -878,95 +919,107 @@ class DbTableObj(DbModelObj):
                 rel = joiner[0]
                 result.setItem(rel['many_relation'].replace('.', '_'), rel['one_relation'].split('.')[-1], rel)
         return result
-
+        
     relations_many = property(_get_relations_many)
-
+        
     def _get_relatingColumns(self):
         """This method returns a list of columns that joins to the primary key of the table"""
         return self.relations_many.digest('#a.many_relation')
-
+        
     relatingColumns = property(_get_relatingColumns)
-
+        
     def getRelation(self, relpath):
+        """add???
+        
+        :param relpath: add???
+        :returns: add???
+        """
         joiner = self.relations.getAttr(relpath, 'joiner')
         if joiner:
             joiner = joiner[0]
             return {'many': joiner['many_relation'], 'one': joiner['one_relation']}
-
+            
     def getRelationBlock(self, relpath):
+        """add???
+        
+        :param relpath: add???
+        :returns: add???
+        """
         joiner = self.relations.getAttr(relpath, 'joiner')[0]
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
         opkg, otbl, ofld = joiner['one_relation'].split('.')
         return dict(mode=joiner['mode'], mpkg=mpkg, mtbl=mtbl, mfld=mfld, opkg=opkg, otbl=otbl, ofld=ofld)
-
+        
 class DbBaseColumnObj(DbModelObj):
     def _get_dtype(self):
         """property. Returns the data type"""
         return self.attributes.get('dtype', 'T')
-
+        
     dtype = property(_get_dtype)
-
+        
     def _get_isReserved(self):
         #DUBBIO qui nome cammello
         """property. Returns the attribute reserved"""
         return self.attributes.get('group', '').startswith('_')
-
+        
     isReserved = property(_get_isReserved)
-
+        
     def _get_readonly(self):
         """property. Returns the attribute readonly"""
         return (self.attributes.get('readonly', 'N').upper() == 'Y')
-
+        
     readonly = property(_get_readonly)
-
+        
     def _get_pkg(self):
         """property. Returns the SqlPackage"""
         return self.parent.parent.pkg
-
+        
     pkg = property(_get_pkg)
-
+        
     def _get_table(self):
         """property. Returns the SqlTable"""
         return self.parent.parent
-
+        
     table = property(_get_table)
-
+        
     def _get_sqlschema(self):
         """property. Returns the sqlschema"""
         return 'sqlschema', self.table.sqlschema
-
+        
     sqlschema = property(_get_sqlschema)
-
+        
     def _get_sqlfullname(self):
         """property. Returns the sqlfullname"""
         return '%s.%s' % (self.table.sqlfullname, self.sqlname)
-
+        
     sqlfullname = property(_get_sqlfullname)
-
+        
     def _get_fullname(self):
         """property. Returns the fullname"""
         return '%s.%s' % (self.table.fullname, self.name)
-
+        
     fullname = property(_get_fullname)
-
+        
     def _set_print_width(self, size):
         self.attributes['print_width'] = size
-
+        
     def _get_print_width(self):
         if not 'print_width' in self.attributes:
             self.attributes['print_width'] = self.table.dbtable.getColumnPrintWidth(self)
         return self.attributes['print_width']
-
+        
     print_width = property(_get_print_width, _set_print_width)
-
+        
 class DbColumnObj(DbBaseColumnObj):
+    """add???"""
     sqlclass = 'column'
-
+        
     def _captureChildren(self, children):
         self.column_relation = children['relation']
         return False
-
+        
     def doInit(self):
+        """add???"""
         if not self.attributes.get('dtype'):
             if self.attributes.get('size'):
                 self.attributes['dtype'] = 'A'
@@ -990,106 +1043,103 @@ class DbColumnObj(DbBaseColumnObj):
         unique = boolean(self.attributes.get('unique'))
         if indexed or unique:
             self.table._indexedColumn[self.name] = {'columns': self.name, 'unique': unique}
-
+            
         for trigType in ('onInserting', 'onUpdating', 'onDeleting'):
             trigFunc = self.attributes.get(trigType)
             if trigFunc:
                 self.table._fieldTriggers.setdefault(trigType, []).append((self.name, trigFunc))
-
+                    
     def relatedTable(self):
         """Get the SqlTable that is related by the current column"""
         r = self.table.relations.getAttr('@%s' % self.name)
         if r:
             r = r['joiner'][0]
             return self.dbroot.model.table(r['one_relation'])
-
-
+            
     def relatedColumn(self):
         """Get the SqlColumn that is related by the current column"""
         r = self.table.relations.getAttr('@%s' % self.name)
         if r:
             r = r['joiner'][0]
             return self.dbroot.model.column(r['one_relation'])
-
+            
     def relatedColumnJoiner(self):
         """Get the SqlTable that is related by the current column"""
         r = self.table.relations.getAttr('@%s' % self.name)
         if r:
             return r['joiner'][0]
-
+            
 class DbVirtualColumnObj(DbBaseColumnObj):
     sqlclass = 'virtual_column'
-
+        
     def _get_relation_path(self):
         """property. Returns the relation_path"""
         return self.attributes.get('relation_path')
-
+        
     relation_path = property(_get_relation_path)
-
+        
     def _get_sql_formula(self):
         """property. Returns the sql_formula"""
         return self.attributes.get('sql_formula')
-
+        
     sql_formula = property(_get_sql_formula)
-
+        
     def _get_py_method(self):
         """property. Returns the py_method"""
         return self.attributes.get('py_method')
-
+        
     py_method = property(_get_py_method)
-
+        
     def _get_readonly(self):
         """property. Returns the attribute readonly"""
         return True
-
+        
     readonly = property(_get_readonly)
-
+        
     def relatedColumn(self):
         pass
-
+        
 class DbTableAliasObj(DbModelObj):
     sqlclass = 'table_alias'
-
+        
     def _get_relation_path(self):
         """property. Returns the relation_path"""
         return self.attributes['relation_path']
-
+        
     relation_path = property(_get_relation_path)
-
+        
 class DbTblAliasListObj(DbModelObj):
     sqlclass = "tblalias_list"
-
+        
 class DbColAliasListObj(DbModelObj):
     sqlclass = "virtual_columns_list"
-
+        
 class DbColumnListObj(DbModelObj):
     sqlclass = "column_list"
-
+        
 class DbIndexListObj(DbModelObj):
     sqlclass = "index_list"
-
+        
 class DbPackageListObj(DbModelObj):
     sqlclass = "package_list"
-
+        
 class DbTableListObj(DbModelObj):
     sqlclass = "table_list"
-
-
+        
 class DbIndexObj(DbModelObj):
     sqlclass = "index"
-
+        
     def _get_sqlname(self):
         return self.attributes.get('sqlname',
                                    '%s_%s_idx' % (self.table.sqlname, self.getAttr('columns').replace(',', '_')))
-
+                                   
     sqlname = property(_get_sqlname)
-
+        
     def _get_table(self):
         return self.parent.parent
-
+        
     table = property(_get_table)
-
-
+        
 class RelationTreeResolver(BagResolver):
     classKwargs = {'cacheTime': 0,
                    'readOnly': True,
@@ -1099,13 +1149,14 @@ class RelationTreeResolver(BagResolver):
                    'path': None,
                    'parentpath': None
     }
-
+        
     def __init__(self, *args, **kwargs):
         self._lock = threading.RLock()
         self.__fields = None
         super(RelationTreeResolver, self).__init__(*args, **kwargs)
-
+        
     def resolverSerialize(self):
+        """add???"""
         args = list(self._initArgs)
         kwargs = dict(self._initKwargs)
         #kwargs.pop('dbroot')
@@ -1113,20 +1164,25 @@ class RelationTreeResolver(BagResolver):
         #lbl = kwargs.pop('autoRelate', None)
         #if lbl:
         #kwargs[lbl] = '@'+lbl
-
+        
         return BagResolver.resolverSerialize(self, args=args, kwargs=kwargs)
-
+        
     def setDbroot(self, dbroot):
+        """Set the database root
+        
+        :param dbroot: the database root
+        """
         self.dbroot = dbroot
-
+        
     def load(self):
+        """add???"""
         self.main_table_obj = self.dbroot.model.table(self.main_tbl)
         if not self.__fields:
             self._lock.acquire()
             self.__fields = self._fields(self.tbl_name, self.pkg_name, self.path, self.parentpath)
             self._lock.release()
         return self.__fields
-
+        
     def _fields(self, table, pkg_name, path=None, parentpath=None):
         path = path or []
         parentpath = parentpath or []
@@ -1154,7 +1210,7 @@ class RelationTreeResolver(BagResolver):
         result = Bag()
         result.tbl_name = table
         result.pkg_name = pkg_name
-
+        
         cols = self.dbroot.package(pkg_name).table(table)['columns'].values()
         relations = self.dbroot.model.relations('%s.%s' % (pkg_name, table))
         onerels = []
@@ -1190,7 +1246,7 @@ class RelationTreeResolver(BagResolver):
                 child.setDbroot(self.dbroot)
                 result.setItem(lbl, child, col.attributes,
                                joiner=[relpars]) #relpars deve essere una lista???? gardare in getalias sqldata
-
+                               
         for label, relpars, relcol in manyrels:
             sch, tbl, col = relpars['many_relation'].split('.')
             schtbl = '%s_%s' % (sch, tbl)
@@ -1208,24 +1264,26 @@ class RelationTreeResolver(BagResolver):
             child.setDbroot(self.dbroot)
             result.setItem(label, child, joiner=[relpars])
         return result
-
-
+        
 class ModelSrcResolver(BagResolver):
+    """add???"""
     classKwargs = {'cacheTime': 300, 'readOnly': False, 'dbroot': None}
     classArgs = ['dbId']
-
+        
     def load(self):
+        """add???"""
         return self.dbroot.model.src
-
+        
     def resolverSerialize(self):
+        """add???"""
         args = list(self._initArgs)
         kwargs = dict(self._initKwargs)
         kwargs.pop('dbroot')
         return BagResolver.resolverSerialize(self, args=args, kwargs=kwargs)
-
+        
 class ConfigureAfterStartError(Exception):
     pass
-
+        
 if __name__ == '__main__':
-    main()
-
+    pass
+        
