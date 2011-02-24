@@ -9,4 +9,6 @@
 	gnrsqldata
 	gnrsqlmodel
 	gnrsqltable
+	gnrsqlxml2py
 	gnrsqlutils
+	PersistentDB

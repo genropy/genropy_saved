@@ -18,32 +18,30 @@ is not thread-safe at the connection level this will be no problem here.
 For best performance, the application server should keep threads persistent.
 For this, you have to set MinServerThreads = MaxServerThreads in Webware.
 
-For the Python DB-API 2 specification, see:
-	http://www.python.org/peps/pep-0249.html
-For information on Webware for Python, see:
-	http://www.webwareforpython.org
+* For the Python DB-API 2 specification, see: http://www.python.org/peps/pep-0249.html
 
+* For information on Webware for Python, see: http://www.webwareforpython.org
 
-Usage:
+**Usage**:
 
 First you need to set up a generator for your kind of database connections
 by creating an instance of PersistentDB, passing the following parameters:
 
-	creator: either an arbitrary function returning new DB-API 2
-		connection objects or a DB-API 2 compliant database module
-	maxusage: the maximum number of reuses of a single connection
-		(the default of 0 or None means unlimited reuse)
-		Whenever the limit is reached, the connection will be reset.
-	setsession: an optional list of SQL commands that may serve to
-		prepare the session, e.g. ["set datestyle to german", ...].
-	failures: an optional exception class or a tuple of exception classes
-		for which the connection failover mechanism shall be applied,
-		if the default (OperationalError, InternalError) is not adequate
-	closeable: if this is set to true, then closing connections will
-		be allowed, but by default this will be silently ignored
-	threadlocal: an optional class for representing thread-local data
-		that will be used instead of our Python implementation
-		(threading.local is faster, but cannot be used in all cases)
+	* creator: either an arbitrary function returning new DB-API 2
+               connection objects or a DB-API 2 compliant database module
+	* maxusage: the maximum number of reuses of a single connection
+                (the default of 0 or None means unlimited reuse)
+                Whenever the limit is reached, the connection will be reset.
+	* setsession: an optional list of SQL commands that may serve to
+                  prepare the session, e.g. ["set datestyle to german", ...].
+	* failures: an optional exception class or a tuple of exception classes
+                for which the connection failover mechanism shall be applied,
+                if the default (OperationalError, InternalError) is not adequate
+	*closeable: if this is set to true, then closing connections will
+                be allowed, but by default this will be silently ignored
+	* threadlocal: an optional class for representing thread-local data
+                   that will be used instead of our Python implementation
+                   (threading.local is faster, but cannot be used in all cases)
 
 	The creator function or the connect function of the DB-API 2 compliant
 	database module specified as the creator will receive any additional
@@ -52,14 +50,14 @@ by creating an instance of PersistentDB, passing the following parameters:
 	allowing for sophisticated failover and load-balancing mechanisms.
 
 For instance, if you are using pgdb as your DB-API 2 database module and want
-every connection to your local database 'mydb' to be reused 1000 times:
+every connection to your local database 'mydb' to be reused 1000 times::
 
 	import pgdb # import used DB-API 2 module
 	from DBUtils.PersistentDB import PersistentDB
 	persist = PersistentDB(pgdb, 1000, database='mydb')
 
 Once you have set up the generator with these parameters, you can
-request database connections of that kind:
+request database connections of that kind::
 
 	db = persist.connection()
 
@@ -78,28 +76,24 @@ getting connections may become a bit faster, but this may not work in
 all environments (for instance, mod_wsgi is known to cause problems
 since it clears the threading.local data between requests).
 
-
-Requirements:
+**Requirements**:
 
 Python >= 2.2, < 3.0.
 
+**Ideas for improvement**:
 
-Ideas for improvement:
+    * Add a thread for monitoring, restarting (or closing) bad or expired
+      connections (similar to DBConnectionPool/ResourcePool by Warren Smith).
+    * Optionally log usage, bad connections and exceeding of limits.
 
-* Add a thread for monitoring, restarting (or closing) bad or expired
-  connections (similar to DBConnectionPool/ResourcePool by Warren Smith).
-* Optionally log usage, bad connections and exceeding of limits.
+**Copyright, credits and license**:
 
+    * Contributed as supplement for Webware for Python and PyGreSQL
+      by Christoph Zwerschke in September 2005
+    * Based on an idea presented on the Webware developer mailing list
+      by Geoffrey Talvola in July 2005
 
-Copyright, credits and license:
-
-* Contributed as supplement for Webware for Python and PyGreSQL
-  by Christoph Zwerschke in September 2005
-* Based on an idea presented on the Webware developer mailing list
-  by Geoffrey Talvola in July 2005
-
-Licensed under the Open Software License version 2.1.
-
+*Licensed under the Open Software License version 2.1.*
 """
 
 __version__ = '1.0'

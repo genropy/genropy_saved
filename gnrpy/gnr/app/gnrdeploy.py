@@ -420,13 +420,18 @@ class Table(object):
         tbl =  pkg.table('example', rowcaption='hello_code')
         tbl.column('hello_code',size='4',name_long='!!Hello code') # char(4)
         tbl.column('hello_value',size=':40',name_long='!!Hello value') # varchar(40)
-        tbl.column('hello_date', dtype='D',name_long='!!Hello date') # date
+        tbl.column('hello_date',dtype='D',name_long='!!Hello date') # date
+        
         # dtype -> sql
-        #   I       int
-        #   R       float
-        #   DH      datetime
+        #   C       char (can be omitted; you have to specify its size)
         #   D       date
+        #   DH      datetime
         #   H       time
+        #   I       integer
+        #   L       long integer
+        #   R       float
+        #   T       text (can be omitted; you must not specify its size)
+        #   X       XML/Bag
 """)
             examplemodel_py_example.close()
         if not os.path.exists(self.examplewebpage_py_example_path):

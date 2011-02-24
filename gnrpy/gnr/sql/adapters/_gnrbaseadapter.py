@@ -126,9 +126,11 @@ class SqlDbAdapter(object):
         """-- IMPLEMENT THIS --
         Get a list of element names: elements can be any kind of structure supported by a specific db.
         Usually an adapter accept as elType the following: schemata, tables, columns, views
-        @param elType: type of structure element to list
-        @param kwargs: optional parameters, eg. for elType "columns" kwargs could be {'schema':'public', 'table':'mytable'}
-        @return: list of object names"""
+
+        :param elType: type of structure element to list
+        :param kwargs: optional parameters, eg. for elType "columns" kwargs could be {'schema':'public', 'table':'mytable'}
+        :returns: list of object names
+        """
         raise NotImplementedException()
 
     def relations(self):

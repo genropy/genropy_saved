@@ -2,15 +2,19 @@ from gnr.core.gnrbag import Bag
 import shutil
 import os
 
-
 def structToPy(tables, path):
+    """add???
+    
+    :param tables: add???
+    :param path: add???
+    """
     #shutil.rmtree(path,True)
     #os.makedirs(path)
     header = """# encoding: utf-8
-from gnr.core.gnrbag import Bag,BagResolver
+from gnr.core.gnrbag import Bag, BagResolver
 class Table(object):
     def config_db(self, pkg):
-        tbl =  pkg.table('%s',  pkey='%s',name_long='%s')
+        tbl =  pkg.table('%s', pkey='%s', name_long='%s')
 """
     for tablename, columns, attributes in tables.digest('#k,#v.columns,#a'):
         f = file(os.path.join(path, '%s.py' % tablename), 'w')
@@ -25,8 +29,7 @@ class Table(object):
                 atlst.append("%s ='%s'" % (k, v))
             f.write("        tbl.column('%s', %s)  \n" % (colName, ', '.join(atlst)))
         f.close()
-
-
+        
 if __name__ == '__main__':
     xmlPath = '/Users/ale/sviluppo/progetti/contract/packages_imported/zg/model/config_db.xml'
     destPath = '/Users/ale/sviluppo/progetti/contract/packages_imported/zg/model/'
