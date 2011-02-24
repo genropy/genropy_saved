@@ -30,12 +30,10 @@ such as the application server of "Webware for Python."
 Note, however, that the connections themselves may not be
 thread-safe (depending on the used DB-API module).
 
-For the Python DB-API 2 specification, see:
-	http://www.python.org/peps/pep-0249.html
-For information on Webware for Python, see:
-	http://www.webwareforpython.org
+* For the Python DB-API 2 specification, see: http://www.python.org/peps/pep-0249.html
+* For information on Webware for Python, see: http://www.webwareforpython.org
 
-Usage:
+**Usage**:
 
 You can use the connection constructor connect() in the same
 way as you would use the connection constructor of a DB-API 2
@@ -53,7 +51,7 @@ mechanism shall be applied, and you can specify whether is is
 allowed to close the connection (by default this is true).
 When the connection to the database is lost or has been used
 too often, it will be transparently reset in most situations,
-without further notice.
+without further notice::
 
 	import pgdb # import used DB-API 2 module
 	from DBUtils.SteadyDB import connect
@@ -69,8 +67,7 @@ without further notice.
 	...
 	db.close()
 
-
-Ideas for improvement:
+**Ideas for improvement**:
 
 * Alternatively to the maximum number of uses,
   implement a maximum time to live for connections.
@@ -85,7 +82,6 @@ Copyright, credits and license:
   suggested by Ezio Vernacotola in December 2006
 
 Licensed under the Open Software License version 2.1.
-
 """
 
 __version__ = '1.0'
@@ -94,32 +90,30 @@ __date__ = "$Date: 2008-11-29 07:55:36 -0700 (Sat, 29 Nov 2008) $"
 
 import sys
 
-
 class SteadyDBError(Exception):
     """General SteadyDB error."""
-
+    
 class InvalidCursor(SteadyDBError):
     """Database cursor is invalid."""
-
-
+    
 def connect(creator, maxusage=None, setsession=None, failures=None,
             closeable=True, *args, **kwargs):
     """A tough version of the connection constructor of a DB-API 2 module.
-
-     creator: either an arbitrary function returning new DB-API 2 compliant
+        
+     * creator: either an arbitrary function returning new DB-API 2 compliant
          connection objects or a DB-API 2 compliant database module
-     maxusage: maximum usage limit for the underlying DB-API 2 connection
+     * maxusage: maximum usage limit for the underlying DB-API 2 connection
          (number of database operations, 0 or None means unlimited usage)
          callproc(), execute() and executemany() count as one operation.
          When the limit is reached, the connection is automatically reset.
-     setsession: an optional list of SQL commands that may serve to prepare
+     * setsession: an optional list of SQL commands that may serve to prepare
          the session, e.g. ["set datestyle to german", "set time zone mez"]
-     failures: an optional exception class or a tuple of exception classes
+     * failures: an optional exception class or a tuple of exception classes
          for which the failover mechanism shall be applied, if the default
          (OperationalError, InternalError) is not adequate
-     closeable: if this is set to false, then closing the connection will
+     * closeable: if this is set to false, then closing the connection will
          be silently ignored, but by default the connection can be closed
-     args, kwargs: the parameters that shall be passed to the creator
+     * args, kwargs: the parameters that shall be passed to the creator
          function or the connection constructor of the DB-API 2 module
 
      """

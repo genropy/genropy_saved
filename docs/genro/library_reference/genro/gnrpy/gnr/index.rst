@@ -10,4 +10,5 @@
 	devel/index
 	pdf/index
 	sql/index
+	utils/index
 	web/index

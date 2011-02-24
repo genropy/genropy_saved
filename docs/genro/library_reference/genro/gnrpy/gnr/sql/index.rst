@@ -12,3 +12,4 @@
 	gnrsqlxml2py
 	gnrsqlutils
 	PersistentDB
+	SteadyDB

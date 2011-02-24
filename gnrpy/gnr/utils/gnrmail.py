@@ -25,17 +25,26 @@ import smtplib
 from email.MIMEText import MIMEText
 
 def sendmail(host, from_address, to_address, subject, body, user='', password=''):
+    """add???
+    
+    :param host: add???
+    :param from_address: add???
+    :param to_address: add???
+    :param subject: add???
+    :param body: add???
+    :param user: add???. Default value is ``''``
+    :param password: add???. Default value is ``''``
+    """
     msg = MIMEText(body)
-
+    
     if isinstance(to_address, basestring):
         to_address = [k.strip() for k in to_address.split(',')]
     msg['Subject'] = subject
     msg['From'] = from_address
     msg['To'] = ','.join(to_address)
-
+    
     s = smtplib.SMTP(host=host)
     if user:
         s.login(user, password)
     s.sendmail(from_address, to_address, msg.as_string())
     s.close()
-    

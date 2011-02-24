@@ -10,7 +10,6 @@ However, the C implementation turned out to be unusable with mod_wsgi,
 since it does not keep the thread-local data between requests.
 To have a reliable solution that works the same with all Python versions,
 we fall back to this Python implemention in DBUtils.
-
 """
 
 __all__ = ["local"]
@@ -21,10 +20,9 @@ except ImportError: # Python >2.5
     from threading import currentThread as current_thread
 from threading import RLock, enumerate
 
-
 class _localbase(object):
     __slots__ = '_local__key', '_local__args', '_local__lock'
-
+    
     def __new__(cls, *args, **kw):
         self = object.__new__(cls)
         key = '_local__key', 'thread.local.' + str(id(self))
@@ -36,8 +34,7 @@ class _localbase(object):
         dict = object.__getattribute__(self, '__dict__')
         current_thread().__dict__[key] = dict
         return self
-
-
+        
 def _patch(self):
     key = object.__getattribute__(self, '_local__key')
     d = current_thread().__dict__.get(key)
@@ -51,11 +48,10 @@ def _patch(self):
             cls.__init__(self, *args, **kw)
     else:
         object.__setattr__(self, '__dict__', d)
-
-
+        
 class local(_localbase):
     """A class that represents thread-local data."""
-
+        
     def __getattribute__(self, name):
         lock = object.__getattribute__(self, '_local__lock')
         lock.acquire()
@@ -64,7 +60,7 @@ class local(_localbase):
             return object.__getattribute__(self, name)
         finally:
             lock.release()
-
+            
     def __setattr__(self, name, value):
         lock = object.__getattribute__(self, '_local__lock')
         lock.acquire()
@@ -73,7 +69,7 @@ class local(_localbase):
             return object.__setattr__(self, name, value)
         finally:
             lock.release()
-
+            
     def __delattr__(self, name):
         lock = object.__getattribute__(self, '_local__lock')
         lock.acquire()
@@ -82,7 +78,7 @@ class local(_localbase):
             return object.__delattr__(self, name)
         finally:
             lock.release()
-
+            
     def __del__(self):
         try:
             key = object.__getattribute__(self, '_local__key')
@@ -99,3 +95,4 @@ class local(_localbase):
                     del __dict__[key]
                 except KeyError:
                     pass
+                    
