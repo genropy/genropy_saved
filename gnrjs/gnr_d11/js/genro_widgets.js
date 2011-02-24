@@ -3431,6 +3431,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
         var cb;
         var k = 0;
         var changes = [];
+        var serializableChanges = [];
+        var that = this;
         var counterField = this.sourceNode.attr.counterField;
         if (!counterField) {
             return;
@@ -3451,12 +3453,15 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
                 if (k != oldk) {
                     n.setAttribute(counterField, k);
                     changes.push({'node':n,'old':oldk,'new':k});
+                    serializableChanges.push({'_pkey':that.rowIdentity(n.attr),'old':oldk,'new':k})
                 }
                 k++;
             };
         }
         storebag.forEach(cb, 'static');
-        this.sourceNode.publish('counterChanges',changes);
+        if(changes.length>0){
+            this.sourceNode.publish('counterChanges',{'changes':serializableChanges});
+        }
         return changes;
     },
     mixin_addBagRow: function(label, pos, newnode, event, nodupField) {
