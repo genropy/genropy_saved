@@ -2013,7 +2013,18 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
             dojo.subscribe(searchBoxCode+'_changedValue',widget,function(v,field){
                 this.applyFilter(v,null,field);
             });
-        }
+        };
+        widget.domNode.addEventListener("scroll", function() { 
+          if(widget._scroll_timeout){
+              clearTimeout(widget._scroll_timeout)
+          }else{
+              console.log('startScroll',widget)
+              widget.isScrolling=true
+          }
+          widget._scroll_timeout=setTimeout(function(){widget.isScrolling=false;widget._scroll_timeout=null;console.log('endScroll',widget)},500)
+        }, true)
+
+
     },
     _getFilterAutoValues: function(widget,dtypes){
         var structbag = widget.structbag();

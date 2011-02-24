@@ -1112,7 +1112,19 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             return this.currCachedPage.getNodes()[rowIdx]
         }
     },
-    
+    redrawOnMouseUp:function(){
+        var that=this;
+        if(genro.isScrolling){
+            if(this.pendingRedraw){
+                clearTimeout(this.pendingRedraw)
+                this.pendingRedraw=null
+            }
+            this.pendingRedraw=setTimeout(function(){that.pendingRedraw=null;that.redrawOnMouseUp()},10)
+        }else{
+            this.storeNode.publish('updateRows')
+        }
+        
+    },
     getDataChunk:function(pageIdx){
 
         if (pageIdx in this.pendingPages){
@@ -1121,6 +1133,10 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             var pageData=this.getData().getItem('P_' + pageIdx);
             if (pageData){
                 return pageData;    
+            }
+            if(genro.isScrolling){
+                this.redrawOnMouseUp()
+                return
             }
             if(this.pendingTimeout){
                 if (this.pendingTimeout.idx==pageIdx){
@@ -1133,7 +1149,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             this.pendingTimeout={'idx':pageIdx,
                                 'handler':setTimeout(function(){
                                 that.loadBagPageFromServer(pageIdx)
-                                },100)
+                                },10)
             };
             return
         }
@@ -1142,13 +1158,14 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         var data = result.getValue();
         this.getData().setItem('P_' + pageIdx, data,null,{'doTrigger':false});
         objectPop(this.pendingPages,pageIdx);
-        if (this.pendingUpdateGrid){
-            clearTimeout(this.pendingUpdateGrid);
-        }
-        var that = this;
-        this.pendingUpdateGrid=setTimeout(function(){
-            that.storeNode.publish('updateRows');
-        },100);
+        this.storeNode.publish('updateRows')
+       //if (this.pendingUpdateGrid){
+       //    clearTimeout(this.pendingUpdateGrid);
+       //}
+       //var that = this;
+       //this.pendingUpdateGrid=setTimeout(function(){
+       //    that.storeNode.publish('updateRows');
+       //},10);
         return data;
     },
 
