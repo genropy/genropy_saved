@@ -34,6 +34,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
+        if(this.subforms){
+            this.subforms = this.subforms.split(',');
+        }
         this.formId = formId;
         this.changed = false;
         this.opStatus = null;
@@ -1047,10 +1050,11 @@ dojo.declare("gnr.formstores.Base", null, {
         objectPop(kw, 'tag');
         this.handlers = handlers;
         this.storepath = objectPop(kw,'storepath');
-        this.startKey = objectPop(kw,'startKey');
-        this.table = kw.table;
-        this.onSaved = kw.onSaved;
-        this.parentStoreCode = objectPop(kw,'parentStore');
+        this.parentStoreCode = objectPop(kw,'parentStore')
+        //this.startKey = objectPop(kw,'startKey');
+        //this.table = kw.table;
+        //this.onSaved = kw.onSaved;
+        ;
         var base_handler_type = objectPop(kw,'handler');
         var handlerKw = objectExtract(kw,'handler_*');
         var handler,handler_type,method,actionKw,callbacks;
@@ -1069,11 +1073,16 @@ dojo.declare("gnr.formstores.Base", null, {
             callbacks = objectPop(handler,'callbacks');
             that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks};
         });
+        for (k in kw){
+            this[k] = kw[k];
+        }
     },
     
     init:function(form){
-        this.form = form;        
-        this.parentStore = genro.getStore(this.parentStoreCode);
+        this.form = form;
+        if(this.parentStoreCode){
+            this.parentStore = genro.getStore(this.parentStoreCode);
+        }
     },
     
     getStartPkey:function(){
@@ -1082,7 +1091,29 @@ dojo.declare("gnr.formstores.Base", null, {
     getParentStoreData:function(){
         return this.parentStore.getData();
     },
-    load_recordCluster:function(table){
+    load_memory:function(){
+        var sourcebag = this.form.sourceNode.getRelativeData(this.sourcepath);
+        var fields = this.fields.split(',');
+        var result = new gnr.GnrBag();
+        dojo.forEach(fields,function(n){
+            result.setItem(n,sourcebag.getItem(n));
+        });
+        this.loaded(null,result);
+    },
+    save_memory:function(){
+        var fields = this.fields.split(',');
+        var sourcebag = this.form.sourceNode.getRelativeData(this.sourcepath);
+        var form = this.form;
+        dojo.forEach(fields,function(n){
+            sourcebag.setItem(n,form.getFormData(n));
+        });
+        this.saved();
+    },
+    delete_memory:function(){
+        
+    },
+
+    load_recordCluster:function(){
         var form=this.form;
         var that = this;
         var currPkey = this.form.getCurrentPkey();
@@ -1145,6 +1176,9 @@ dojo.declare("gnr.formstores.Base", null, {
     },
     loaded:function(pkey,result){
         this.setNavigationStatus(pkey)
+        if(this.subforms){
+            
+        }
         this.form.loaded(result);
     },
     saved:function(result){

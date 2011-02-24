@@ -23,6 +23,14 @@ class GnrCustomWebPage(object):
         struct = view.gridStruct('regione')
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore')
         
+    def test_10_frame_includedview_relationStore(self,pane):
+        """Pane grid """
+        pane = pane.framePane(frameCode='province',height='200px')
+        tbar = pane.top.slotToolbar('*,searchOn')
+        view = pane.includedView(_newGrid=True)
+        struct = view.gridStruct('regione')
+        view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore')
+        
     def test_zzz_frame_includedview(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='fatture',height='200px')

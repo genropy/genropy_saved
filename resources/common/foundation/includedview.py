@@ -69,6 +69,16 @@ class IncludedView(BaseComponent):
     @struct_method
     def ivnew_slotbar_iv_add(self,pane,action=None,_class='icnBaseAdd',enable=None,**kwargs):
         return pane.slotButton(label='!!Add',action=action,baseClass='no_background',iconClass=_class,visible=enable)
+        
+    @struct_method
+    def ivnew_slotbar_iv_export(self,pane,action=None,_class='buttonIcon icnBaseExport',mode='xls',enable=None,**kwargs):
+        if not action:
+            export_action = 'FIRE .iv_action={action:"%s",export_mode:"%s"};' % (action, mode)
+            
+        return pane.slotButton(label='!!Export',publish='export',mode=mode or 'xls',action=action,
+                                baseClass='no_background',iconClass=_class,visible=enable) 
+        
+            
     
     @struct_method
     def ivnew_slotbar_iv_del(self,pane,action=None,_class='icnBaseDelete',enable=None,**kwargs):

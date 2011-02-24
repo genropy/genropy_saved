@@ -1192,9 +1192,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var method = this.attr.remote;
         var _sourceNode = this;
         kwargs.sync = true;
+        var path = this.absDatapath();
+        
+        var dataNode = genro._data.popNode(path);
+        //dataNode._value = null;
         genro.rpc.remoteCall(method, kwargs, null, null, null,
                             function(result) {
                                 _sourceNode.setValue(result);
+                                genro._data.setItem(path,dataNode);
                                 if (_onRemote) {
                                     _onRemote();
                                 }
