@@ -1,1 +1,1 @@
-Questa cartella, pubblicata nel python path contiene i moduli importabili ed utilizzazzati in tutto il package.
+Questa cartella, pubblicata nel python path contiene i moduli importabili ed utilizzati in tutto il package.
