@@ -3456,6 +3456,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
             };
         }
         storebag.forEach(cb, 'static');
+        this.sourceNode.publish('counterChanges',changes);
         return changes;
     },
     mixin_addBagRow: function(label, pos, newnode, event, nodupField) {
