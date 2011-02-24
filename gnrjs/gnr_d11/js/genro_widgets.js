@@ -3464,6 +3464,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
                 if (k != oldk) {
                     n.setAttribute(counterField, k);
                     changes.push({'node':n,'old':oldk,'new':k});
+                    oldk = oldk || -1;
                     serializableChanges.push({'_pkey':that.rowIdentity(n.attr),'old':oldk,'new':k})
                 }
                 k++;
