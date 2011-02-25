@@ -870,6 +870,9 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
             widget.gnrPageDict[pageName] = child;
         }
     },
+    mixin_onDestroyingChild:function(child){
+        this.removeChild(child);
+    },
     onRemoveChild:function(widget, child) {
         var pageName = child.sourceNode.attr.pageName;
         if (pageName) {

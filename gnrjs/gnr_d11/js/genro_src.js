@@ -106,6 +106,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
         var widget = kw.node.widget;
         if (widget) {
+            var parentWdg = widget.sourceNode.getParentBuiltObj();
+            if(parentWdg && parentWdg.onDestroyingChild){
+                parentWdg.onDestroyingChild(widget);
+            }
             widget.destroyRecursive();
         } else {
             var widgets = dojo.query('[widgetId]', domNode);

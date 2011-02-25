@@ -172,6 +172,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var tag = objectPop(attributes, 'tag').toLowerCase();
         var path = objectPop(attributes, 'path');
         objectPop(attributes, '_onStart');
+        objectPop(attributes, '_onBuilt');
         objectPop(attributes, '_fired_onStart');
 
         var destinationPath, dataNode;
@@ -849,8 +850,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             this.setValue(content);
             var that = this;
+
             setTimeout(function(){
-                that.publish('built',{},true)
+                that._value.walk(function(n){
+                    if(n.attr._onBuilt){
+                        n.fireNode();
+                    }
+                });
             },1);
         }        
     },
@@ -1108,6 +1114,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 this.setTiming(timing);
             }
             var onStart = objectPop(attributes, '_onStart');
+            objectPop(attributes, '_onBuilt');
+
             var subscriptions = objectExtract(attributes, 'subscribe_*');
             var selfsubscriptions = objectExtract(attributes, 'selfsubscribe_*');
             var formsubscriptions = objectExtract(attributes, 'formsubscribe_*');
@@ -1192,14 +1200,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var method = this.attr.remote;
         var _sourceNode = this;
         kwargs.sync = true;
-        var path = this.absDatapath();
-        
-        var dataNode = genro._data.popNode(path);
-        //dataNode._value = null;
         genro.rpc.remoteCall(method, kwargs, null, null, null,
                             function(result) {
                                 _sourceNode.setValue(result);
-                                genro._data.setItem(path,dataNode);
                                 if (_onRemote) {
                                     _onRemote();
                                 }
