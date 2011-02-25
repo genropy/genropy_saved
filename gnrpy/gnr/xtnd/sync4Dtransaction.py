@@ -111,7 +111,10 @@ class TransactionManager4D(object):
         self.db.commit()
 
     def do_sync_trigger(self, data, pkg, table, action):
-        record_data = data.pop('data').asDict(ascii=True, lower=True)
+        record_data = data.pop('data')
+        if not record_data:
+            return
+        record_data = record_data.asDict(ascii=True, lower=True)
         for tr, attr in data.digest('#v,#a'):
             if '.' in attr['from']:
                 sub_pkg, sub_table = attr['from'].split('.', 1)
