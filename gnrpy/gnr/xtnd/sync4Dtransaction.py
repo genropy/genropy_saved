@@ -117,10 +117,10 @@ class TransactionManager4D(object):
         record_data = record_data.asDict(ascii=True, lower=True)
         for tr, attr in data.digest('#v,#a'):
             if '.' in attr['from']:
-                sub_pkg, sub_table = attr['from'].split('.', 1)
+                sub_pkg, sub_table = attr['from'].lower().split('.', 1)
             else:
                 sub_pkg = pkg
-                sub_table = attr['from']
+                sub_table = attr['from'].lower()
             self.do_sync_trigger(tr, sub_pkg, sub_table, attr['mode'])
         self.do_trigger(record_data, '%s.%s' % (pkg, table), action)
 
