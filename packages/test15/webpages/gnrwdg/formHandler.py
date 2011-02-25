@@ -10,7 +10,7 @@ from gnr.web.gnrwebstruct import struct_method
 
 class GnrCustomWebPage(object):
     dojo_source=True
-    testOnly='_10_'
+    testOnly='_customStore_'
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler,foundation/includedview:IncludedView"
     user_polling=0
     auto_polling=0
@@ -60,7 +60,6 @@ class GnrCustomWebPage(object):
         store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
                                handler='recordCluster',startKey='*newrecord*',onSaved='reload')
         store.handler('load',_onCalling='console.log("xxxx")',default_ordine_tot='100')    
-        #bc = form.borderContainer(selfsubscribe_built='this.widget.resize()')
         form.contentPane(region='left',background='red',width='50px')
         form.contentPane(region='center').formbuilder(cols=2, border_spacing='3px').formContent()  
     
@@ -142,6 +141,58 @@ class GnrCustomWebPage(object):
     def rpc_salvaDati(self, dati, **kwargs):
         print "Dati salvati:"
         print dati
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    def test_44_customStore_prova(self,pane):
+        form = pane.frameForm(frameCode='provincia_1',border='1px solid silver',datapath='.form',
+                            rounded_bottom=10,height='180px',width='600px',center_widget='BorderContainer',
+                            pkeyPath='.prov')
+        form.testToolbar()
+        store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
+                               handler='recordCluster',
+                               startKey='*newrecord*',
+                               onSaved='reload')
+        store.handler('save',rpcmethod='miosalvataggio')
+        form.contentPane(region='center').formbuilder(cols=2, border_spacing='3px').formContent()
+    
+    
+    def rpc_miosalvataggio(self,**kwargs):
+        print bazinga
+        
+        
         
         
 
