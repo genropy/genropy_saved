@@ -28,15 +28,15 @@ from gnr.core.gnrdict import GnrDict
 from gnr.core import gnrstring
 
 class GnrStructData(Bag):
-    """This is a subclass of Bag that implements functional syntax for adding
+    """This is a subclass of the :class:`gnr.core.gnrbag.Bag` class that implements functional syntax for adding
     particular elements to the tree.
     """
     
     def makeRoot(cls, source=None, protocls=None):
-        """This method builds the root instance for the given class.
+        """Build the root instance for the given class.
         
-        :param cls: structure class
-        :param source: filepath of xml file
+        :param cls: the structure class
+        :param source: the filepath of the xml file
         :returns: the root instance for the given class
         """
         if protocls:

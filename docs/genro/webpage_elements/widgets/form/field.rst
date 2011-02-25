@@ -5,15 +5,21 @@ field
 =====
 
 	* :ref:`field_def`
+	* :ref:`field_description`
 	* :ref:`field_attributes`
 	* :ref:`field_examples`: :ref:`first_one`, :ref:`second_one`, :ref:`third_one`
 	
 .. _field_def:
 
-Definition and Description
-==========================
+Definition
+==========
 
-	.. method:: pane.field(field=None[, **kwargs])
+    .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.field
+
+.. _field_description:
+
+Description
+===========
 
 	``field`` is used to view and select data included in a database :ref:`genro_database_table` (and, eventually, through the ``zoom`` attribute, is used to modify them).
 

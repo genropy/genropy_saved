@@ -6,16 +6,22 @@ menu
 
 	.. note:: To create a menu, you have to use the ``dropdownbutton`` widget. Go the :ref:`genro_dropdownbutton` page for further details on it.
 	
-	* :ref:`menu_definition_description`
+	* :ref:`menu_def`
+	* :ref:`menu_description`
 	* :ref:`menu_attributes`
 	* :ref:`menu_examples`
 	
 .. _menu_definition_description:
 	
-Definition and Description
-==========================
+Definition
+==========
 
 	.. method:: dropdownbutton.menu([**kwargs])
+
+.. _menu_description:
+
+Description
+===========
 
 	Constructs a button that opens a :ref:`genro_menu` or a ``tooltipdialog``.
 

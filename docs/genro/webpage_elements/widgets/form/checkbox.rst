@@ -5,15 +5,21 @@
 ==========
 
 	* :ref:`checkbox_def`
+	* :ref:`checkbox_description`
 	* :ref:`checkbox_attributes`
 	* :ref:`checkbox_examples`
 	
 .. _checkbox_def:
 
-Definition and Description
-==========================
+Definition
+==========
 
-	.. method:: pane.checkbox(label=None, value=None[, **kwargs])
+    .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.checkbox
+
+.. _checkbox_description:
+
+Description
+===========
 
 	Genro checkbox is the combination between an HTML checkbox and a Dojo checkbox_.
 	

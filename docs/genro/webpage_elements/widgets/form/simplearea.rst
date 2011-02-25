@@ -1,23 +1,29 @@
 .. _genro_simplearea:
 
-================
- simpleTextarea
-================
+==============
+simpleTextarea
+==============
+
+    .. note:: The Genro simpleTextarea has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's simpleTextarea_ documentation.
+
+    .. _simpleTextarea: http://docs.dojocampus.org/dijit/form/SimpleTextarea
 
 	* :ref:`simplearea_def`
+	* :ref:`simplearea_description`
 	* :ref:`simpletextarea_attributes`
 	* :ref:`simpletextarea_examples`
 
 .. _simplearea_def:
 
-Definition and Description
-==========================
+Definition
+==========
 
-	.. note:: The Genro simpleTextarea has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's simpleTextarea_ documentation.
-	
-	.. _simpleTextarea: http://docs.dojocampus.org/dijit/form/SimpleTextarea
+	.. method:: pane.simpleTextarea([**kwargs])
 
-	.. method:: simpleTextarea([**kwargs])
+.. _simplearea_description:
+
+Description
+===========
 
 	With simpletextarea you can add an area for user writing.
 

@@ -5,15 +5,21 @@ button
 ======
 
 	* :ref:`button_def`
+	* :ref:`button_description`
 	* :ref:`button_attributes`
 	* :ref:`button_examples`: :ref:`button_action`, :ref:`button_example_macro`
 	
 .. _button_def:
 
-Definition and Description
-==========================
+Definition
+==========
 
-	.. method:: pane.button(label=None[,**kwargs])
+    .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.button
+    
+.. _button_description:
+
+Description
+===========
 
 	The Genro button takes its basic structure from the Dojo button [#]_.
 	

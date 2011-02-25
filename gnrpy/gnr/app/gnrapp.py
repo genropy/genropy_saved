@@ -573,8 +573,7 @@ class GnrApp(object):
 
             self.localization.update(self._compileLocalization(pkgloc, pkgname=pkg.id))
         self.localizationTime = time.time()
-
-
+        
     def _compileLocalization(self, locbag, pkgname=None):
         """internal method"""
         loc = {}
@@ -584,7 +583,7 @@ class GnrApp(object):
                 if pkgname: _key = '%s|%s' % (pkgname, _key.lower())
                 loc[_key] = dict([(k, v) for k, v in attrs.items() if not k.startswith('_')])
         return loc
-
+        
     def updateLocalization(self, pkg, data, locale):
         """add???
 
@@ -602,7 +601,7 @@ class GnrApp(object):
                 pkglocbag.setItem(lbl, None, _key=k, it=k, en='', fr='', de='')
             pkglocbag.setAttr(lbl, {locale: v})
         pkglocbag.toXml(os.path.join(pkgobj.packageFolder, 'localization.xml'))
-
+        
     def getResource(self, path, pkg=None, locale=None):
         """add???
 
@@ -628,7 +627,7 @@ class GnrApp(object):
         :returns: add???
         """
         return self.packages[self.config.getAttr('authentication', 'pkg')]
-
+        
     def getAvatar(self, user, password=None, authenticate=False, page=None, **kwargs):
         """add???
 
@@ -650,7 +649,7 @@ class GnrApp(object):
                         for pkg in self.packages.values():
                             pkg.onAuthentication(avatar)
                         return avatar
-
+                        
     def auth_xml(self, node, user, password=None, authenticate=False, **kwargs):
         """Authentication from instanceconfig.xml, use it during development or for sysadmin tasks.
         
@@ -659,7 +658,7 @@ class GnrApp(object):
             <xml_auth defaultTags='myusers'>
                 <john pwd='mydog' tags='admin' />
             </xml_auth>
-
+        
         """
         defaultTags = node.getAttr('defaultTags')
         path = node.getAttr('path')
@@ -676,7 +675,7 @@ class GnrApp(object):
                 return self.makeAvatar(user=user, user_name=user_name, user_id=user_id,
                                        login_pwd=password, authenticate=authenticate,
                                        defaultTags=defaultTags, **kw)
-
+                                       
     def auth_py(self, node, user, password=None, authenticate=False, **kwargs):
         """Python authentication. This is mostly used to register new users for the first time. (see ``adm`` package).
         

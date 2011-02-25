@@ -7,16 +7,22 @@ dropdownbutton
 	.. note:: it is mandatory to add a :ref:`genro_menu` to the dropdownbutton to make it work.
 
 	* :ref:`ddb_def`
+	* :ref:`ddb_description`
 	* :ref:`ddb_attributes`
 	* :ref:`ddb_examples`
 
 .. _ddb_def:
 
-Definition and Description
-==========================
+Definition
+==========
 
-	.. method:: pane.dropdownbutton(label=None[, **kwargs])
+	.. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dropdownbutton
 	
+.. _ddb_description:
+
+Description
+===========
+
 	Same definition of Dojo dropdownbutton_.
 	
 	.. _dropdownbutton: http://docs.dojocampus.org/dijit/form/DropDownButton
