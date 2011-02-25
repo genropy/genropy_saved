@@ -3775,9 +3775,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     patch_sort: function() {
         if (!this._virtual){
             return this.sort_replaced();
-        }
-        
-        
+        }        
         var sortInfo = this.sortInfo;
         var order;
         if (sortInfo < 0) {
@@ -3791,20 +3789,23 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         if ((cell.dtype == 'A') || ( cell.dtype == 'T')) {
             sortedBy = sortedBy + '*';
         }
-        var path = this.sourceNode.attrDatapath('sortedBy');
-        genro._data.setItem(path, sortedBy);
-
+        this.setSortedBy(sortedBy);
     },
     mixin_setSortedBy:function(sortedBy) {
         this.sortedBy = sortedBy;
-        this.collectionStore().sort(sortedBy);
-        //var storebag = this.storebag();
-        //storebag.sort(this.sortedBy);
-        //this.filterToRebuild(true);
-        if(!this._virtual){
+        var store = this.collectionStore();
+        store.sortedBy = sortedBy;
+        if (this._virtual){
+            var rowcount = this.rowCount;
+            this.updateRowCount(0);
+            store.clearBagCache();
+            this.updateRowCount(rowcount);
+        }
+        else{
+            store.sort();
+            store.filterToRebuild(true);
             this.updateRowCount('*');
         }
-        
     },
 
 
