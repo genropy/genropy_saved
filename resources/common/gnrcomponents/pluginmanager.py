@@ -26,7 +26,7 @@ class PluggedPageManager(BaseComponent):
                                                     _plugin:true,pageName:'plugin_'+plugin,
                                                     datapath:dpath},
                             {'_position':k});
-                p._('ContentPane',{_lazyBuild:'ppm_pluginTab',
+                p._('ContentPane',{height:'100%',_lazyBuild:'ppm_pluginTab',
                                     remote_handlerName:remoteTemplate.replace('$',plugin),
                                     remote_disabled:disabled});
                 }else{
@@ -44,6 +44,7 @@ class PluggedPageManager(BaseComponent):
             }else{
                 k++;
             }
+            sourceNode.widget.layout();
     }   
     """,plugins=plugins,datapathTemplate=datapathTemplate,startPos=startPos or len(parent),
         remoteTemplate=remoteTemplate,disabled=disabled.replace('^',''))
@@ -52,6 +53,6 @@ class PluggedPageManager(BaseComponent):
         handler = getattr(self, handlerName)
         if 'disabled' in kwargs:
             kwargs['disabled'] = '^%s' %kwargs['disabled']
-        handler(pane,**kwargs)
+        handler(pane.borderContainer(height='100%'),**kwargs)
 
         
