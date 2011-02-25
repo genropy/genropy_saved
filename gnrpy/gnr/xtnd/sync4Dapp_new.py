@@ -395,6 +395,8 @@ class GnrAppSync4D(GnrApp):
         for k, tr, attr in data.digest('#k,#v,#a'):
             if k != 'data':
                 tbl = attr['from']
+                if not tbl:
+                    return
                 if not '.' in tbl:
                     if self.area_zz:
                         pkg = self.area_zz
