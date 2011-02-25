@@ -844,13 +844,23 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             var content;
             if(lazyBuild!==true){
                 content = genro.serverCall('remoteBuilder',objectUpdate({handler:lazyBuild},objectExtract(this.attr,'remote_*')));
+                console.log('content lazybuild')
             }
             else{
                 content = this._value;
             }
-            this.setValue(content);
-            var that = this;
-
+            //questo è il nodo e l'update non va.
+            //quindi bisognerebbe prendere la parentbag
+            // poppare questo nodo e mettere quello noovo
+            // se la parentbag come credo ha un solo figlio
+            // dovrebbe non essere un problema
+            var parent = this.getParentBag();
+            var label=this.label
+            var node = parent.popNode(label);
+            
+            parent.setItem(label,content,this.attr);
+            //this.setValue(content);
+            var that = parent.getNode(label);
             setTimeout(function(){
                 that._value.walk(function(n){
                     if(n.attr._onBuilt){
