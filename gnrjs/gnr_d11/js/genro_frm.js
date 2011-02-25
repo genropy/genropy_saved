@@ -436,10 +436,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     }
                 };
             }
-            deferred.addCallback(function(result){
-                cb(result);
-                return result
-            });
+            if(deferred){
+                deferred.addCallback(function(result){
+                    cb(result);
+                    return result
+                });
+            }
+
 
         }
     },
@@ -1059,6 +1062,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var handlerKw = objectExtract(kw,'handler_*');
         var handler,handler_type,method,actionKw,callbacks;
         var that = this;
+        var rpcmethod;
         dojo.forEach(['save','load','delete'],function(action){
             actionKw = objectExtract(handlerKw,action+'_*');
             handler = objectUpdate({},that.handlers[action]);
@@ -1071,7 +1075,8 @@ dojo.declare("gnr.formstores.Base", null, {
                 method = funcCreate(handler_type);
             }
             callbacks = objectPop(handler,'callbacks');
-            that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks};
+            rpcmethod = objectPop(handler,'rpcmethod');
+            that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks,rpcmethod:rpcmethod};
         });
         for (k in kw){
             this[k] = kw[k];
@@ -1100,6 +1105,8 @@ dojo.declare("gnr.formstores.Base", null, {
         });
         this.loaded(null,result);
     },
+    
+    
     save_memory:function(){
         var fields = this.fields.split(',');
         var sourcebag = this.form.sourceNode.getRelativeData(this.sourcepath);
@@ -1121,7 +1128,8 @@ dojo.declare("gnr.formstores.Base", null, {
             that.loaded(currPkey,result);
         };
         var kw =form.sourceNode.evaluateOnNode(this.handlers.load.kw);
-        genro.rpc.remoteCall('loadRecordCluster',objectUpdate({'pkey':currPkey,
+        this.handlers.load.rpcmethod = this.handlers.load.rpcmethod || 'loadRecordCluster';
+        genro.rpc.remoteCall(this.handlers.load.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':form.getVirtualColumns(),
                                                   'table':this.table},kw),null,'POST',null,cb);
     },
@@ -1158,9 +1166,11 @@ dojo.declare("gnr.formstores.Base", null, {
             that.saved(resultDict);
             return resultDict;
         };
-        
-        var deferred = genro.rpc.remoteCall('saveRecordCluster',objectUpdate({'data':form.getFormChanges(),
-                                                                             'table':this.table},kw),null,'POST',null,function(){});
+        this.handlers.save.rpcmethod = this.handlers.save.rpcmethod || 'saveRecordCluster';
+        var deferred = genro.rpc.remoteCall(this.handlers.save.rpcmethod,
+                                            objectUpdate({'data':form.getFormChanges(),
+                                                          'table':this.table},kw),null,'POST',
+                                                          null,function(){});
         deferred.addCallback(cb);
         if(saver.callbacks){
             var thatnode = form.sourceNode;
