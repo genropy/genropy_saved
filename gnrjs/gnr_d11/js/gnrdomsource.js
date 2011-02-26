@@ -477,6 +477,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             alert('not existing nodeId:' + nodeId);
         }
         var relpath = pathlist.slice(1).join('.');
+        if(relpath=='*S'){
+            //sourceNode instead of datanode
+            return currNode.getFullpath().replace('main.','*S.');
+        }
         path = currNode.absDatapath(relpath ? '.' + relpath : '');
         return path;
     },
@@ -849,11 +853,31 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             else{
                 content = this._value;
             }
-            //questo è il nodo e l'update non va.
-            //quindi bisognerebbe prendere la parentbag
-            // poppare questo nodo e mettere quello noovo
-            // se la parentbag come credo ha un solo figlio
-            // dovrebbe non essere un problema
+            this.setValue(content);
+            var that = this;
+            setTimeout(function(){
+                that._value.walk(function(n){
+                    if(n.attr._onBuilt){
+                        n.fireNode();
+                    }
+                });
+            },1);
+        }        
+    },
+    
+    lazyBuildFinalize_new:function(){
+        if(this.attr._lazyBuild){
+            var lazyBuild = objectPop(this.attr,'_lazyBuild');
+            var parent = this.getParentBag();
+            var content;
+            if(lazyBuild!==true){
+                content = genro.serverCall('remoteBuilder',objectUpdate({handler:lazyBuild},objectExtract(this.attr,'remote_*')));
+                console.log('content lazybuild')
+            }
+            else{
+                content = this._value;
+            }
+
             var parent = this.getParentBag();
             var label=this.label
             var node = parent.popNode(label);
@@ -870,6 +894,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             },1);
         }        
     },
+    
 
     getFrameNode:function(){
         if(this.attr.tag.toLowerCase()=='framepane'){

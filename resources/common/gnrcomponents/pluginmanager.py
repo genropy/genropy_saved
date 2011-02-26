@@ -21,12 +21,12 @@ class PluggedPageManager(BaseComponent):
             dojo.forEach(tablist,function(plugin){
                 if(!content.getItem(plugin)){
                 var dpath = datapathTemplate?datapathTemplate.replace('$',plugin):null;
-                p = sourceNode._('ContentPane',plugin,{'title':plugin.toUpperCase(),
+                p = sourceNode._('BorderContainer',plugin,{'title':plugin.toUpperCase(),
                                                         nodeId:plugin+'_plugin_tab',
                                                     _plugin:true,pageName:'plugin_'+plugin,
                                                     datapath:dpath},
                             {'_position':k});
-                p._('ContentPane',{height:'100%',_lazyBuild:'ppm_pluginTab',
+                p._('BorderContainer',{region:'center',_lazyBuild:'ppm_pluginTab',
                                     remote_handlerName:remoteTemplate.replace('$',plugin),
                                     remote_disabled:disabled});
                 }else{
@@ -53,6 +53,6 @@ class PluggedPageManager(BaseComponent):
         handler = getattr(self, handlerName)
         if 'disabled' in kwargs:
             kwargs['disabled'] = '^%s' %kwargs['disabled']
-        handler(pane.borderContainer(height='100%'),**kwargs)
+        handler(pane,**kwargs)
 
         
