@@ -731,12 +731,19 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         //dojo.hitch(this,'_buildChildren',newobj)
         if(newobj.onShow){
-            var that = this
-            dojo.connect(newobj,'onShow',this,function(){setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
+            dojo.connect(newobj,'onShow',this,'finalizeLazyBuildChildren');
         }
         if(newobj.show){
-            dojo.connect(newobj,'show',this,{setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
+            dojo.connect(newobj,'show',this,'finalizeLazyBuildChildren');
         }
+        //if(newobj.onShow){
+        //    var that = this;
+        //    dojo.connect(newobj,'onShow',this,function(){setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
+        //}
+        //if(newobj.show){
+        //    var that = this;
+        //    dojo.connect(newobj,'show',this,{setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
+        //}
         if (!this.attr._lazyBuild){
             this._buildChildren(newobj);
         }
