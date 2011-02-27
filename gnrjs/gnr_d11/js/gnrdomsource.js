@@ -648,7 +648,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     _buildChildren: function(destination) {
         if (this.attr.remote) {
-            dojo.connect(this.widget, 'onShow', this, 'updateRemoteContent');
+            dojo.connect(this.widget, 'onShow', this, 'updateRemoteContent'); 
         }
         var content = this.getValue('static');
         if (content instanceof gnr.GnrDomSource) {
@@ -731,10 +731,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         //dojo.hitch(this,'_buildChildren',newobj)
         if(newobj.onShow){
-            dojo.connect(newobj,'onShow',this,'finalizeLazyBuildChildren');
+            var that = this
+            dojo.connect(newobj,'onShow',this,function(){setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
         }
         if(newobj.show){
-            dojo.connect(newobj,'show',this,'finalizeLazyBuildChildren');
+            dojo.connect(newobj,'show',this,{setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
         }
         if (!this.attr._lazyBuild){
             this._buildChildren(newobj);

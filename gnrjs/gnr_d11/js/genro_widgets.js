@@ -1946,7 +1946,7 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
     },
 
     creating_structure: function(attributes, sourceNode) {
-        structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
+        var structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         if (structBag) {
             sourceNode.baseStructBag = structBag.deepCopy();
         }
