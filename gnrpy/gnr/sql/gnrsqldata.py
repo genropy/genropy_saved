@@ -45,6 +45,7 @@ COLFINDER = re.compile(r"(\W|^)\$(\w+)")
 RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
 PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*(\w*)\)")
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
+PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
 
 class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by SqlQueryCompiler. 
@@ -139,6 +140,12 @@ class SqlQueryCompiler(object):
         :param basealias: add???. Default value is ``None``
         :returns: add???
         """
+        def expandPref(m):
+            """#PREF(myprefpath,default)"""
+            prefpath = m.group(1)
+            dflt=m.group(2)[1:] if m.group(2) else None
+            return str(curr_tblobj.pkg.getPreference(prefpath,dflt))
+
         def expandEnv(m):
             what = m.group(1)
             par2 = None
@@ -183,6 +190,7 @@ class SqlQueryCompiler(object):
                 subreldict = {}
                 sql_formula = self.updateFieldDict(fldalias.sql_formula, reldict=subreldict)
                 sql_formula = ENVFINDER.sub(expandEnv, sql_formula)
+                sql_formula = PREFFINDER.sub(expandPref, sql_formula)
                 sql_formula = sql_formula.replace('#THIS', alias)
                 subColPars = {}
                 for key, value in subreldict.items():
