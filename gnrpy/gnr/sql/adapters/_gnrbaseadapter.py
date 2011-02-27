@@ -690,13 +690,13 @@ class GnrWhereTranslator(object):
         return '%s ~* :%s' % (column, self.storeArgs(value, dtype, sqlArgs))
 
 
-    def whereFromText(self, table, whereTxt, customColumns=None):
-        result = []
-        sqlArgs = {}
-        tblobj = self.db.table(table)
-        pattern = '(AND|OR)'
-        whereList = re.compile(pattern).split(whereTxt)
-        condList = [cond for cond in whereList if cond not in ('AND', 'OR')]
+   #def whereFromText(self, table, whereTxt, customColumns=None):
+   #    result = []
+   #    sqlArgs = {}
+   #    tblobj = self.db.table(table)
+   #    pattern = '(AND|OR)'
+   #    whereList = re.compile(pattern).split(whereTxt)
+   #    condList = [cond for cond in whereList if cond not in ('AND', 'OR')]
 
 
     def whereFromDict(self, table, whereDict, customColumns=None):
