@@ -730,20 +730,20 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.registerSubscription(subscription, this, handler);
         }
         //dojo.hitch(this,'_buildChildren',newobj)
+       //if(newobj.onShow){
+       //    dojo.connect(newobj,'onShow',this,'finalizeLazyBuildChildren');
+       //}
+       //if(newobj.show){
+       //    dojo.connect(newobj,'show',this,'finalizeLazyBuildChildren');
+       //}
         if(newobj.onShow){
-            dojo.connect(newobj,'onShow',this,'finalizeLazyBuildChildren');
+            var that = this;
+            dojo.connect(newobj,'onShow',this,function(){setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
         }
         if(newobj.show){
-            dojo.connect(newobj,'show',this,'finalizeLazyBuildChildren');
+            var that = this;
+            dojo.connect(newobj,'show',this,function(){setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
         }
-        //if(newobj.onShow){
-        //    var that = this;
-        //    dojo.connect(newobj,'onShow',this,function(){setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
-        //}
-        //if(newobj.show){
-        //    var that = this;
-        //    dojo.connect(newobj,'show',this,{setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
-        //}
         if (!this.attr._lazyBuild){
             this._buildChildren(newobj);
         }
