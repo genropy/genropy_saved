@@ -729,13 +729,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             var handler = funcCreate(subscriptions[subscription]);
             this.registerSubscription(subscription, this, handler);
         }
-        //dojo.hitch(this,'_buildChildren',newobj)
-       //if(newobj.onShow){
-       //    dojo.connect(newobj,'onShow',this,'finalizeLazyBuildChildren');
-       //}
-       //if(newobj.show){
-       //    dojo.connect(newobj,'show',this,'finalizeLazyBuildChildren');
-       //}
         if(newobj.onShow){
             var that = this;
             dojo.connect(newobj,'onShow',this,function(){setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
