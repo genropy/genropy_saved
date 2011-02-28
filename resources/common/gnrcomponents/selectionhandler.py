@@ -188,9 +188,8 @@ class SelectionHandler(BaseComponent):
                                          var onSavedCb = function(){
                                             genro.fireEvent('%s.dlg.pkey','*newrecord*');
                                          }
-                                         deferred = mainForm.save(false);
+                                         var deferred = mainForm.save(false);
                                          deferred.addCallback(onSavedCb);
-                                         console.log(deferred);
                                          return;
                                      }
                                 }
