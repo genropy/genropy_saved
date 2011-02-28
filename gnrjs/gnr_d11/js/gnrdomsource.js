@@ -301,20 +301,21 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         this._deferredRegister ={}
                     }   
                     var deferred = genro.rpc.remoteCall(method, kwargs, null, httpMethod, null, cb);
-                    this._deferredRegister[deferred.id]= deferred;
-                    this._lastDeferred = deferred;
-                    var that = this;
-                    deferred.addCallback(function(result){
-                        delete that._deferredRegister[deferred.id];
-                        return result
-                    })
-                    if(this._callbacks){
-                        this._callbacks.forEach(function(n){
-                            var kw = objectUpdate({},kwargs);
-                            genro.rpc.addDeferredCb(deferred,n.getValue(),objectUpdate(kw,n.attr),that);
+                    if(deferred){
+                        this._deferredRegister[deferred.id]= deferred;
+                        this._lastDeferred = deferred;
+                        var that = this;
+                        deferred.addCallback(function(result){
+                            delete that._deferredRegister[deferred.id];
+                            return result
                         })
+                        if(this._callbacks){
+                            this._callbacks.forEach(function(n){
+                                var kw = objectUpdate({},kwargs);
+                                genro.rpc.addDeferredCb(deferred,n.getValue(),objectUpdate(kw,n.attr),that);
+                            })
+                        }
                     }
-       
                 }
             }
             else {
