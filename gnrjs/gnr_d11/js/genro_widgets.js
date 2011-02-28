@@ -3463,7 +3463,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
         }
         storebag.forEach(cb, 'static');
         if(changes.length>0){
-            this.sourceNode.publish('counterChanges',{'changes':serializableChanges});
+            this.sourceNode.publish('counterChanges',{'changes':serializableChanges,'table':this.sourceNode.attr.table});
         }
         return changes;
     },
