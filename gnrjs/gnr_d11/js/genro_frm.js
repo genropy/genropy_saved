@@ -393,7 +393,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     this.fireControllerData('save_failed','invalid');
                     return 'invalid:' + invalid;
                 }
-                this.do_save();
+                return this.do_save();
             } else {
                 this.fireControllerData('save_failed','nochange');
             }
@@ -442,7 +442,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     return result
                 });
             }
-
+            return deferred;
 
         }
     },
