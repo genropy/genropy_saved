@@ -11,7 +11,11 @@ class PluggedPageManager(BaseComponent):
     
     @struct_method
     def ppm_pluginTabs(self,parent,plugins=None,startPos=None,datapathTemplate=None,remoteTemplate=None,disabled=None):
+        # print 'plugins'
+        # print plugins
         parent.dataController("""
+            //console.log('plugins');
+            //console.log(+plugins);
             var sourceNode = this.getParentNode();
             plugins = plugins? plugins.toLowerCase():'';
             var tablist = plugins.split(',');
