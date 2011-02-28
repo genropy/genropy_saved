@@ -213,7 +213,7 @@ class SelectionHandler(BaseComponent):
                              reloader=reloader, externalChanges=externalChanges,
                              #connect_onRowDblClick='this.widget.editCurrentRow($1.rowIndex);',
                              linkedForm='%s_form' % nodeId, openFormEvent='onRowDblClick',
-                             selectionPars=selectionPars, askBeforeDelete=True, **kwargs)        
+                             selectionPars=selectionPars, askBeforeDelete=True, footer=footer,**kwargs)        
         controller = bc.dataController(datapath=datapath)
         controller.dataController("FIRE .dlg.pkey = pkey;", pkey='^gnr.forms.%s_form.openFormPkey' % nodeId)
         if checkMainRecord:

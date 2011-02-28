@@ -129,10 +129,11 @@ class TableHandlerForm(BaseComponent):
             pane.dataRpc('list.rowtotal', 'app.getRecordCount', _onStart=300,
                          table=self.maintable, where=condition, **condPars)
 
-        pane.dataController("""var listtitle=rowtotal?plural+' : '+rowcount+'/'+rowtotal:plural+' : '+rowcount
-                               SET list.title_bar=listtitle;
+        pane.dataController("""var listtitle=rowtotal?plural+' : '+rowcount+'/'+rowtotal:plural+' : '+rowcount                               
                                var titlebar=(selectedPage == 0)?listtitle:formtitle;
-                               genro.publish('public_caption',titlebar)""",
+                               genro.publish('public_caption',titlebar);
+                               SET list.title_bar=titlebar;
+                               """,
                          selectedPage='^selectedPage', plural='^list.plural', rowcount='^list.rowcount',
                          rowtotal='^list.rowtotal',
                          formtitle='^form.title', _init=True)
