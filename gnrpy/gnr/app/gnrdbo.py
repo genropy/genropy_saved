@@ -6,8 +6,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip
 
 class GnrDboPackage(object):
-    """Base class for packages.
-    """
+    """Base class for packages"""
     def updateFromExternalDb(self,externaldb,empty_before=None):
         """add???
         

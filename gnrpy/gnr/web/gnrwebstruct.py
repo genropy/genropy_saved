@@ -399,10 +399,10 @@ class GnrDomSrc(GnrStructData):
         return self.child('tooltip', label=label, **kwargs)
         
     def data(self, *args, **kwargs):
-        """add???
+        """A server-side Genro controller that allows to define variables from server to client.
         
-        :param args: add???
-        :param kwargs: add???
+        :param args: args[0] includes the path of the value, args[1] includes the value
+        :param kwargs: in the kwargs you can insert the ``_serverpath`` attribute, that... add???
         :returns: a data
         """
         value = None
@@ -534,7 +534,7 @@ class GnrDomSrc(GnrStructData):
         self.child('stylesheet', name=None, content=cssText, href=href, cssTitle=cssTitle)
         
     def cssrule(self, selector=None, **kwargs):
-        """Transform """
+        """add???"""
         selector_replaced = selector.replace('.', '_').replace('#', '_').replace(' ', '_')
         self.child('cssrule', name=selector_replaced, selector=selector, **kwargs)
         
@@ -654,7 +654,7 @@ class GnrDomSrc(GnrStructData):
         return result
         
 class GnrDomSrc_dojo_11(GnrDomSrc):
-    """Add???"""
+    """add???"""
     htmlNS = ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'base', 'bdo', 'big', 'blockquote',
               'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
               'div', 'dfn', 'dl', 'dt', 'em', 'fieldset', 'form', 'frame', 'frameset',
@@ -699,30 +699,58 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     #    self.child('FramePane',slots='top,left,bottom,right',**kwargs)
         
     def dataFormula(self, path, formula, **kwargs):
-        """:param path: the dataFormula's path
+        """Allow to insert a value into a specific address of the :ref:`genro_datastore` calculated through a formula
+        
+        :param path: the dataFormula's path
         :param formula: the dataFormula's formula
+        :param kwargs: formula parameters and other ones
         :returns: the dataFormula
         """
         return self.child('dataFormula', path=path, formula=formula, **kwargs)
         
     def dataScript(self, path, script, **kwargs):
-        """:param path: the dataScript's path
+        """
+        :param path: the dataScript's path
         :param script: the dataScript's formula
         :returns: the dataScript
         """
         return self.child('dataScript', path=path, script=script, **kwargs)
         
     def dataController(self, script=None, **kwargs):
-        """:param path: the dataController's path
-        :param formula: the dataController's script. Default value is ``None``
+        """Allow to execute a Javascript code
+        
+        :param path: the dataController's path
+        :param script: the Javascript code that ``datacontroller`` has to execute. Default value is ``None``
         :returns: the dataController
         """
         return self.child('dataController', script=script, **kwargs)
         
     def dataRpc(self, path, method, **kwargs):
-        """:param path: the dataRpc's path
-        :param method: the dataRpc's method
-        :returns: the dataRpc
+        """Allow the client to make a call to the server and allows the server to perform an action.
+        
+        :param path: MANDATORY - it contains the folder path of the result of the ``dataRpc`` action;
+                     you have to write it even if you don't return any value in the ``dataRpc``
+                     (in this situation it will become a "mandatory but dummy" parameter)
+        :param method: the name of your ``dataRpc``
+        
+        * in the ``**kwargs`` you have to define a parameter who allows the ``dataRpc`` to be triggered
+        
+        To do this, you can use ``_fired='^anotherFolderPath'``; in this case the dataRpc
+        is triggered whenever the value contained in ``anotherFolderPath`` changes;
+        the "_" is used to hide the trigger parameter in the :ref:`genro_datastore`.
+        
+        For using ``dataRpc`` you have to:
+        
+            1. define the ``dataRpc`` into the main with the main method
+            2. create a class method called the ``rpc server method``.
+            In the ``rpc server method`` there will be executed a server action;
+            you can optionally return a value. The relative syntax is::
+            
+                def rpc_RpcName(self,args):
+                    return something
+                
+        * ``RpcName`` is the name of your ``dataRpc``; clearly, you have to put the same name that you gave to the ``dataRpc`` in the main.
+        * ``args`` contains all the paramaters passed from the main.
         """
         return self.child('dataRpc', path=path, method=method, **kwargs)
         
@@ -861,6 +889,17 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                       where=None, order_by=None, group_by=None, having=None, columnsFromView=None, **kwargs):
         """add???
         
+        :param path: add???
+        :param table: add???. Default value is ``None``
+        :param method: add???. Default value is ``app.getSelection``
+        :param columns: add???. Default value is ``None``
+        :param distinct: add???. Default value is ``None``
+        :param where: add???. Default value is ``None``
+        :param order_by: add???. Default value is ``None``
+        :param group_by: add???. Default value is ``None``
+        :param having: add???. Default value is ``None``
+        :param columnsFromView: add???. Default value is ``None``
+        :returns: add???
         """
         if 'name' in kwargs:
             kwargs['_name'] = kwargs.pop('name')
@@ -896,9 +935,28 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         self.data(storepath, store, query_time=t1 - t0, totalize_time=t2 - t1, resolver_load_time=t3 - t2)
         
     def dataRecord(self, path, table, pkey=None, method='app.getRecord', **kwargs):
+        """
+        :param path: add???
+        :param table: add???
+        :param pkey: add???. Default value is ``None``
+        :param method: add???. Default value is ``app.getRecord``
+        :returns: a dataRecord
+        """
         return self.child('dataRpc', path=path, table=table, pkey=pkey, method=method, **kwargs)
         
     def dataRemote(self, path, method, **kwargs):
+        """A synchronous rpc. Call a (specified) rpc as a resolver. When ``dataRemote`` is brought
+        to the client, it will be changed in a Javascript resolver that at the desired path perform
+        the rpc (indicated with the ``remote`` attribute).
+        
+        :param path: the path where the dataRemote will save the result of the rpc
+        :param method: the rpc name that has to be executed
+        :kwargs: additional parameters
+        
+            *``cacheTime=NUMBER``: The cache stores the retrieved value and keeps it for a number of seconds equal to ``NUMBER``
+        
+        :returns: a dataRemote
+        """
         return self.child('dataRemote', path=path, method=method, **kwargs)
         
     def paletteGroup(self,groupCode,**kwargs):

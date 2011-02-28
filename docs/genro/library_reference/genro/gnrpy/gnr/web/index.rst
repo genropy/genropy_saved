@@ -3,5 +3,6 @@
 =============================
 
 .. toctree::
-
-	gnrwebstruct
+    :maxdepth: 1
+    
+    gnrwebstruct

@@ -3,7 +3,8 @@
 ======================================
 
 .. toctree::
-
-	gnrapp
-	gnrdbo
-	gnrdeploy
+    :maxdepth: 1
+    
+    gnrapp
+    gnrdbo
+    gnrdeploy

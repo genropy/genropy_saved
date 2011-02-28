@@ -4,20 +4,26 @@
 filteringSelect
 ===============
 
-	* :ref:`filteringselect_definition_description`
+    .. note:: The Genro filteringSelect has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's filteringSelect_ documentation.
+
+    .. _filteringSelect: http://docs.dojocampus.org/dijit/form/FilteringSelect
+
+	* :ref:`filteringselect_def`
+	* :ref:`filteringselect_description`
 	* :ref:`filteringSelect_attributes`
 	* :ref:`filteringselect_examples`: :ref:`bag_example`, :ref:`values_example`
 	
-.. _filteringselect_definition_description:
+.. _filteringselect_def:
 
-Definition and Description
-==========================
-
-	.. note:: The Genro filteringSelect has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's filteringSelect_ documentation.
-	
-	.. _filteringSelect: http://docs.dojocampus.org/dijit/form/FilteringSelect
+Definition
+==========
 
 	.. method:: pane.filteringSelect([**kwargs])
+
+.. _filteringselect_description:
+
+Description
+===========
 
 	The filteringSelect is a Dojo widget who suggests to user the possible (and unique!) entries of his selection.
 

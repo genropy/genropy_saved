@@ -3,6 +3,7 @@
 ================================
 
 .. toctree::
-
-	gnrmail
-	ssmtplib
+    :maxdepth: 1
+    
+    gnrmail
+    ssmtplib

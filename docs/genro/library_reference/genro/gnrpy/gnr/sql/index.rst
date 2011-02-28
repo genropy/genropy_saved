@@ -3,13 +3,14 @@
 ==================================
 
 .. toctree::
-
-	gnrsql
-	gnrsql_exceptions
-	gnrsqldata
-	gnrsqlmodel
-	gnrsqltable
-	gnrsqlxml2py
-	gnrsqlutils
-	PersistentDB
-	SteadyDB
+    :maxdepth: 1
+    
+    gnrsql
+    gnrsql_exceptions
+    gnrsqldata
+    gnrsqlmodel
+    gnrsqltable
+    gnrsqlxml2py
+    gnrsqlutils
+    PersistentDB
+    SteadyDB

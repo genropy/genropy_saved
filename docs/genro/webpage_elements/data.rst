@@ -13,15 +13,7 @@ data
 Definition
 ==========
 
-	The ``data`` is a server-side Genro controller that allows to define variables from server to client.
-
-	.. method:: pane.data([*args[, **kwargs]])
-
-	*Where*:
-
-		* ``args[0]`` includes the path of the value.
-		* ``args[1]`` includes the value.
-		* in the ``**kwargs`` you can insert the ``_serverpath`` attribute
+    .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.data
 
 .. _data_attr:
 

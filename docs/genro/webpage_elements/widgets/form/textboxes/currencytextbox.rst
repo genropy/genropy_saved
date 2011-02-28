@@ -3,20 +3,26 @@
 =================
  currencyTextbox
 =================
-
-	* :ref:`currencyTextbox_def`
-	* :ref:`currencyTextbox_attributes`
-	* :ref:`currencyTextbox_examples`
-
-	.. note:: We recommend you to read :ref:`genro_textboxes` first.
-
+    
+    .. note:: We recommend you to read :ref:`genro_textboxes` first.
+    
+    * :ref:`currencyTextbox_def`
+    * :ref:`currencyTextBox_description`
+    * :ref:`currencyTextbox_attributes`
+    * :ref:`currencyTextbox_examples`
+    
 .. _currencyTextbox_def:
 
-Definition and Description
-==========================
+Definition
+==========
 
-	.. method:: pane.currencyTextbox([**kwargs])
+    .. method:: pane.currencyTextbox([**kwargs])
 
+.. _currencyTextBox_description:
+
+Description
+===========
+    
     The currencyTextbox inherits all the attributes and behaviors of the numberTextbox widget but are specialized for input monetary values, much like the currency type in spreadsheet programs.
 
 .. _currencyTextbox_attributes:
