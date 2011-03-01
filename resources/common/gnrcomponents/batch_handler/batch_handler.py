@@ -51,7 +51,7 @@ class TableScriptRunner(BaseComponent):
                                        FIRE #table_script_dlg_parameters.open;
                                     """, subscribe_table_script_run=True)
 
-        plugin_main.dataRpc('dummy', 'table_script_run',
+        rpc = plugin_main.dataRpc('dummy', 'table_script_run',
                             _fired='^.run',
                             _onCalling='=.onCalling',
                             _onResult='if(kwargs._publishOnResult){genro.publish(kwargs._publishOnResult);}',
@@ -106,18 +106,6 @@ class TableScriptRunner(BaseComponent):
             parameters_pane = parentBc.contentPane(pageName='params', datapath='.data', **kwargs)
             parameters_pane.mainStack = parentBc.mainStack
             self.table_script_parameters_pane(parameters_pane)
-        self.table_script_waitingpane(parentBc.mainStack.contentPane(pageName='waiting'))
-
-    def table_script_waitingpane(self, pane):
-        bc = pane.borderContainer()
-        bottom = bc.contentPane(region='bottom', _class='dialog_bottom')
-        bottom.button('!!Close', float='right', margin='1px',
-                      action='PUBLISH batch_monitor_off; FIRE .close')
-        center = bc.contentPane(region='center', nodeId='table_script_waitingpane', _class='pbl_viewbox')
-        #center.dataController("""if(page=='waiting'){
-        #                            batch_monitor.create_local_root('table_script_waitingpane');
-        #                         }
-        #                            """, page="^.selected_stack_page")
 
 
     def remote_table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, **kwargs):
@@ -153,7 +141,6 @@ class TableScriptRunner(BaseComponent):
                                 FIRE #table_script_runner.run;
                             }else{
                                 FIRE .close;
-                                //PUBLISH table_script_dlg_parameters_page = 'waiting';
                                 batch_monitor.create_local_root('_pageRoot');
                                 SET #table_script_runner.parameters=pars;
                                 PUBLISH batch_monitor_on;
