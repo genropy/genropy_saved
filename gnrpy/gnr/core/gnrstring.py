@@ -35,6 +35,21 @@ try:
 
     class BagTemplate(Template):
         idpattern = '[_a-z\@][_a-z0-9\.\@]*'
+     
+            
+    
+            
+    class NoneIsBlankMapWrapper(object):
+        
+        def __init__(self,data):
+                self.data=data
+                
+        def __getitem__(self,k):
+            value= self.data[k] 
+            if value is None:
+                value= ''
+            return value
+
 except:
     pass
 
@@ -271,7 +286,7 @@ def regexDelete(myString, pattern):
     """
     return re.sub(pattern, '', myString)
     
-def templateReplace(myString, symbolDict=None, safeMode=False):
+def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True):
     """Allow to replace string's chunks.
     
     :param myString: template string
@@ -284,6 +299,8 @@ def templateReplace(myString, symbolDict=None, safeMode=False):
     if not '$' in myString or not symbolDict: return myString
     if hasattr(symbolDict, '_htraverse'):
         Tpl = BagTemplate
+        if noneIsBlank:
+            symbolDict=NoneIsBlankMapWrapper(symbolDict)
     else:
         Tpl = Template
     if safeMode:
