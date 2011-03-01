@@ -279,7 +279,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this._showHider();
         }
         this.resetInvalidFields(); // reset invalid fields before loading to intercept required fields during loading process
-        //genro.setData('_temp.grids', null);
+        genro.setData('_temp.grids', null);
         var loaderNode = genro.nodeById(this.formId + '_loader');
         if (loaderNode) {
             loaderNode.fireNode();

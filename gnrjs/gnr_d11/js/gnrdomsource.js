@@ -475,7 +475,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var nodeId = pathlist[0].slice(1);
         currNode = nodeId ? genro.nodeById(nodeId) : this;
         if (!currNode) {
-            alert('not existing nodeId:' + nodeId);
+            console.error('not existing nodeId:' + nodeId);
         }
         var relpath = pathlist.slice(1).join('.');
         if(relpath=='*S'){
