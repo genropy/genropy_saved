@@ -138,10 +138,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.src.getNode()._('div', '_dlg_alert');
         var title = title || '';
         var buttons = buttons || {confirm:'OK'};
-        var kw = objectUpdate({'width':'20em'}, kw);
+        //var kw = objectUpdate({'width':'20em'}, kw);
+        var kw = kw || {};
         var resultPath = resultPath || 'dummy';
         var node = genro.src.getNode('_dlg_alert').clearValue().freeze();
-        var dlg = node._('dialog', {nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250,centerOn:'_pageRoot'})._('div', {_class:'dlg_ask',
+        var dlg = node._('dialog', objectUpdate({nodeId:'_dlg_alert', title:title, toggle:"fade", toggleDuration:250,centerOn:'_pageRoot'},kw))._('div', {_class:'dlg_ask',
             'action':"genro.wdgById('_dlg_alert').hide();genro.fireEvent('" + resultPath + "',this.attr.actCode);"});
         dlg._('div', {'innerHTML':msg,'_class':'dlg_ask_msg'});
         var buttonBox = dlg._('div', {'_class':'dlg_ask_btnBox'});
