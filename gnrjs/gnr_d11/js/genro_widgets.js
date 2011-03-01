@@ -629,7 +629,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                             if (this != genro.dialogStack.slice(-1)[0]) {
                                 var ds=genro.dialogStack
                                 ds.push(this);
-                                var zIndex = 500 + ds.length*2;
+                                var zIndex = widget.sourceNode.attr.z_index || (500 + ds.length*2);
 		                        dojo.style(this._underlay.domNode, 'zIndex', zIndex);
 		                        dojo.style(this.domNode, 'zIndex', zIndex + 1);
 		                         if (genro.dialogStack.length > 1) {
