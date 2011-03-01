@@ -27,10 +27,15 @@
 
 dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, formId, formDatapath, controllerPath, pkeyPath,formAttr) {
-        dojo.subscribe('onPageStart',this,'onStartForm');
-        sourceNode.subscribe('built',function(){
-            this.form.onStartForm();
+       //dojo.subscribe('onPageStart',this,'onStartForm');
+       //sourceNode.subscribe('built',function(){
+       //    this.form.onStartForm();
+       //});
+        var that = this;
+        genro.src.afterBuildCalls.push(function(){
+            that.onStartForm();
         });
+        
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
