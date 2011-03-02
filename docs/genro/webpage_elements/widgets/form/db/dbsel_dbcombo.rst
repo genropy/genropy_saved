@@ -18,7 +18,7 @@ Common attributes
     |   Attribute        |          Description                              |   Default                |
     +====================+===================================================+==========================+
     | *dbtable*          | MANDATORY - Select the database                   |  ``None``                |
-    |                    | :ref:`model_table` for database widget   |                          |
+    |                    | :ref:`model_table` for database widget            |                          |
     |                    | query. For further details, check the             |                          |
     |                    | :ref:`genro_dbtable` explanation page             |                          |
     +--------------------+---------------------------------------------------+--------------------------+
