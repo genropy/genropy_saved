@@ -16,7 +16,7 @@ class GnrCustomWebPage(object):
     maintable='glbl.localita'
     py_requires='public:Public,standard_tables:TableHandler'
     def windowTitle(self):
-        return u'!!cdxbase Località'
+        return u'!!Località'
          
     def pageAuthTags(self, method=None, **kwargs):
         return None
@@ -28,7 +28,7 @@ class GnrCustomWebPage(object):
         return None
         
     def barTitle(self):
-        return '!!Fornitori'
+        return u'!!Località'
         
     def columnsBase(self,):
         return """nome/Nome:17,
@@ -38,10 +38,10 @@ class GnrCustomWebPage(object):
                   codice_istat/Istat:6,
                   codice_comune/Codice:4"""
                
-    def formBase(self, parentBC, datapath='', disabled=False, **kwargs):
+    def formBase(self, parentBC, disabled=False, **kwargs):
         pane=parentBC.contentPane(padding='5px',**kwargs).div(_class='pbl_roundedGroup', height='100%')
         pane.div(u'!!Località',_class='pbl_roundedGroupLabel')
-        fb = pane.formbuilder(datapath=datapath,cols=1, margin_left='2em',border_spacing='7px',margin_top='1em',disabled=disabled)
+        fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',margin_top='1em',disabled=disabled)
         fb.field('glbl.localita.nome', width='20em')
         fb.field('glbl.localita.provincia',width='3em')
         fb.field('glbl.localita.prefisso_tel',width='3em')
