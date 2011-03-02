@@ -898,6 +898,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         event.stopPropagation();
         var dropInfo = this.getDragDropInfo(event);
         if (!dropInfo) {
+            event.preventDefault();
             return;
         }
         var domnode = dropInfo.domnode;
@@ -905,6 +906,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var dataTransfer = event.dataTransfer;
         var dragSourceInfo = genro.dom.getDragSourceInfo(dataTransfer);
         if (dragSourceInfo.detachable) {
+            event.preventDefault();
             genro.dom.onDetach(genro.src.nodeBySourceNodeId(dragSourceInfo._id), dropInfo);
             return;
         }
