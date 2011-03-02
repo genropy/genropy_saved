@@ -492,7 +492,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.sourceNode.setRelativeData(this.formDatapath,data || new gnr.GnrBag());
     },
     getDataNodeAttributes:function(){
-        return this.sourceNode.getRelativeData(this.formDatapath).getParentNode().attr;
+        var data = this.sourceNode.getRelativeData(this.formDatapath);
+        if(data){
+            return data.getParentNode().attr;
+        }
+        return {};
+        
     },
     isNewRecord:function(){
         return this.getDataNodeAttributes()._newrecord;
