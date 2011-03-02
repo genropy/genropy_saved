@@ -78,6 +78,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
     },
     _trigger_ins:function(kw) {//da rivedere
+        console.log('trigger_ins',kw);
+
         if(kw.reason=='autocreate'){
             return;
         }
@@ -100,6 +102,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.buildNode(node, where, ind);
     },
     _trigger_del:function(kw) {//da rivedere
+        console.log('trigger_del',kw);
+
         var domNode = kw.node.getDomNode();
         if (!domNode) {
             return;
@@ -123,6 +127,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         var node = kw.node;
     },
     _trigger_upd:function(kw) {//da rivedere
+        console.log('trigger_upd',kw);
         var destination = kw.node.getParentBuiltObj();
         if (!destination) {
             console.log('missing destination in rebuild');
@@ -183,9 +188,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         if (selectedIndex) {
             destination.setSelected(selectedIndex);
         }
-        if(destination.resize){
-            destination.resize(objectExtract(dojo.coords(destination.domNode),'h,w')); //fixed for safari
-        }
+        //if(destination.resize){
+            //destination.resize(objectExtract(dojo.coords(destination.domNode),'h,w')); //fixed for safari
+        //}
 
     },
     buildNode: function(sourceNode, where, ind) {
