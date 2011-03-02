@@ -4,4 +4,4 @@
 
 .. toctree::
 
-	common/index
+    common/index

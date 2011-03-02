@@ -1,34 +1,32 @@
 .. _genro_nodeid:
 
-========
- nodeId
-========
+======
+nodeId
+======
 
-	* :ref:`nodeId_def`
-	* :ref:`nodeId_validity`
-	* :ref:`nodeId_examples`
+    * :ref:`nodeId_def`
+    * :ref:`nodeId_validity`
+    * :ref:`nodeId_examples`
 
 .. _nodeId_def:
 
 Definition and description
 ==========================
 
-	``nodeId`` is an attribute used to ... ???
-
+    *nodeId* is an attribute used to ... ???
+    
 .. _nodeId_validity:
 
-Validity and nodeId value
-=========================
+Validity
+========
 
-	**Validity:** you can give ``nodeId`` attribute to the following objects:
-
-		- ???
-
-	**nodeId value:** the nodeId value of ``nodeId`` is ... ???
-
+    **Validity:** you can give ``nodeId`` attribute to the following objects:
+    
+        * add???
+        
 .. _nodeId_examples:
 
 Examples
 ========
 
-	???
+    add???

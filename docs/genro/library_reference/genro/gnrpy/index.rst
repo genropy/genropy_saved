@@ -3,6 +3,6 @@
 ============
 
 .. toctree::
-	:maxdepth: 2
-
-	gnr/index
+    :maxdepth: 2
+    
+    gnr/index

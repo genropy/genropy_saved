@@ -8,21 +8,21 @@ In GenroPy, le stampe sono gestite come *resource script* delle tabelle. In ques
 
 Per costruire una stampa o un report, si crea una classe derivata da :class:`gnr.web.gnrtablescript.RecordToHtmlNew`. Esempio::
 
-	from gnr.web.gnrtablescript import RecordToHtmlNew 
-
-	class Main(RecordToHtmlNew):
-	    maintable = 'package.tabella'
-	    page_header_height = 0
-	    page_footer_height = 0 
-	    doc_header_height = 10
-	    doc_footer_height = 10
-	    grid_header_height = 6.2
-	    grid_footer_height = 0 
-	    row_mode='attribute'
-	    grid_col_widths=[15,12,0,0,15,17,12,12]
-	    grid_col_headers = 'Data,Ora,Medico,Prestazione,Conv.,Fattura,Importo,Costo'
-	    grid_row_height=10
-	    rows_path = 'rows'
+    from gnr.web.gnrtablescript import RecordToHtmlNew 
+    
+    class Main(RecordToHtmlNew):
+        maintable = 'package.tabella'
+        page_header_height = 0
+        page_footer_height = 0 
+        doc_header_height = 10
+        doc_footer_height = 10
+        grid_header_height = 6.2
+        grid_footer_height = 0 
+        row_mode='attribute'
+        grid_col_widths=[15,12,0,0,15,17,12,12]
+        grid_col_headers = 'Data,Ora,Medico,Prestazione,Conv.,Fattura,Importo,Costo'
+        grid_row_height=10
+        rows_path = 'rows'
 
 Questi parametri possono essere specificati come attributi della classe (scritti usando *underline_come_separatore*) o come metodi della classe (scritti in *camelCase*), nel caso fossero calcolati dinamicamente.
 
@@ -31,10 +31,10 @@ Layout, righe e celle
 
 Per posizionare le cose, abbiamo a disposizione tre oggetti:
 
-	* **layout**. Possono contenere soltanto righe.
-	* **row**. Possono contenere soltanto celle. Le righe hanno l'altezza, se non viene specificata (o se è zero) la riga è elastica.
-	* **celle**. Possono contenere layout. Le celle hanno la larghezza. Due celle attaccate autocollassano i bordi (rimane un bordo solo).
-	
+    * **layout**. Possono contenere soltanto righe.
+    * **row**. Possono contenere soltanto celle. Le righe hanno l'altezza, se non viene specificata (o se è zero) la riga è elastica.
+    * **celle**. Possono contenere layout. Le celle hanno la larghezza. Due celle attaccate autocollassano i bordi (rimane un bordo solo).
+    
 Le lunghezze sono sempre specificate in millimetri (mm). Vedi :mod:`gnr.core.gnrhtml` per ulteriori dettagli.
 
 Attributi e callbacks

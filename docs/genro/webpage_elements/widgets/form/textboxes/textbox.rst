@@ -34,13 +34,13 @@ Attributes
     
     **textbox attributes**:
     
-    * ``constraints``: TBC ???
-    * ``invalidMessage``: tooltip text that appears when the content of the textbox is invalid
-    * ``promptMessage``: tooltip text that appears when the textbox is empty and on focus
-    * ``required``: define if the field is a required field or not. Default value is ``False``
-    * ``regExp``: regular expression pattern to be used for validation. If this is used, don't use regExpGen
-    * ``regExpGen``: TBC. If this is used, do not use regExp ???. Default value is ``None``
-    * ``tooltipPosition``: define where Tooltip will appear. Default value is ``right``
+    * *constraints*: TBC ???
+    * *invalidMessage*: tooltip text that appears when the content of the textbox is invalid
+    * *promptMessage*: tooltip text that appears when the textbox is empty and on focus
+    * *required*: define if the field is a required field or not. Default value is ``False``
+    * *regExp*: regular expression pattern to be used for validation. If this is used, don't use regExpGen
+    * *regExpGen*: TBC. If this is used, do not use regExp ???. Default value is ``None``
+    * *tooltipPosition*: define where Tooltip will appear. Default value is ``right``
 
     **common attributes**:
 

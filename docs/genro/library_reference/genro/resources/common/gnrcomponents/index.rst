@@ -4,4 +4,4 @@
 
 .. toctree::
 
-	selectionhandler
+    selectionhandler

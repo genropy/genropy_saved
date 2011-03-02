@@ -1,14 +1,14 @@
 .. _genro_datacontroller_index:
 
-================
-Data controllers
-================
+===================================================================
+data controllers: dataController, dataFormula, dataScript, dataRpcs
+===================================================================
 
 .. toctree::
-	:maxdepth: 1
-
-	introduction
-	datacontroller
-	dataformula
-	datarpc/index
-	datascript
+    :maxdepth: 1
+    
+    introduction
+    datacontroller
+    dataformula
+    datarpc/index
+    datascript

@@ -5,8 +5,8 @@ Standard table
 ==============
 
 .. toctree::
-	:maxdepth: 2
-
-	introduction
-	standardtable
-	standardtable_light
+    :maxdepth: 2
+    
+    introduction
+    standardtable
+    standardtable_light

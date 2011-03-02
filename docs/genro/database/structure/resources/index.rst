@@ -4,4 +4,4 @@
 resources
 =========
 
-	In the ``resources`` folder .. ???
+    In the ``resources`` folder .. ???

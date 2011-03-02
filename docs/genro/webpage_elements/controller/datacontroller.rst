@@ -7,7 +7,6 @@ dataController
     The ``dataController`` belongs to :ref:`controllers_client` family.
 
     * :ref:`datacontroller_def`
-    * :ref:`datacontroller_attr`
     * :ref:`datacontroller_examples`
 
 .. _datacontroller_def:
@@ -15,19 +14,8 @@ dataController
 Definition
 ==========
     
-    .. method:: pane.dataController(script=None[, **kwargs])
+    .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataController
     
-.. _datacontroller_attr:
-
-Attributes
-==========
-
-    The following parameters allow the dataController to be executed: check for the following :ref:`datacontroller_examples` for further information.
-    
-    **common attributes**:
-    
-        For common attributes (``_init``, ``_onStart``, ``_timing``) see controllers' :ref:`controllers_attributes`
-
 .. _datacontroller_examples:
 
 Examples
@@ -52,7 +40,3 @@ Examples
                                        shooter='^.y')
                 fb.numberTextbox(value='^.y',lbl='y')
                 fb.textbox(value='^.bbb',margin='10px',lbl='bbb')
-
-**Footnotes**:
-	
-.. [#] For further details on the circumflex accent, check :ref:`datastore_syntax`.

@@ -5,7 +5,7 @@ manage_users
 ============
 
     .. warning:: to be completed!
-
-This webpage allow you to save new users in your project.
-
-???
+    
+    This webpage allow you to save new users in your project.
+    
+    add???

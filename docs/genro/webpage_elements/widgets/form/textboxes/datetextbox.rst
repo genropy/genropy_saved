@@ -34,7 +34,7 @@ Attributes
     
     **dateTextbox attributes**:
     
-    * ``popup``: allow to show a calendar dialog. Default value is ``True``
+    * *popup*: allow to show a calendar dialog. Default value is ``True``
     
     **common attributes**:
     

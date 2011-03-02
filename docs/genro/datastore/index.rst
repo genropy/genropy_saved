@@ -5,8 +5,8 @@ datastore
 =========
 
 .. toctree::
-	:maxdepth: 2
-
-	datastore
-	macro
-	examples
+    :maxdepth: 2
+    
+    datastore
+    macro
+    examples

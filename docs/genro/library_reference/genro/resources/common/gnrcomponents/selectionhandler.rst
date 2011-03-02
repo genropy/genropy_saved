@@ -5,4 +5,4 @@
 =======================
 
 .. automodule:: resources.common.gnrcomponents.selectionhandler
-	:members:
+    :members:

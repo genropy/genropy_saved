@@ -12,15 +12,15 @@ Genropy
 .. Be careful with the code below. If you screw the indentation, the doc contents page will appear messed up!
 
 .. toctree::
-	:maxdepth: 2
-	:numbered:
-
-	getting_started
-	library_reference/index
-	components/index
-	database/index
-	wsgi
-	miscellaneous/index
+    :maxdepth: 2
+    :numbered:
+    
+    getting_started
+    library_reference/index
+    components/index
+    database/index
+    wsgi
+    miscellaneous/index
 
 Indices and Tables
 ==================

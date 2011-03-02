@@ -5,7 +5,7 @@ Creation of a project
 =====================
 
 .. toctree::
-	:maxdepth: 2
-
-	introduction
-	firststeps
+    :maxdepth: 2
+    
+    introduction
+    firststeps

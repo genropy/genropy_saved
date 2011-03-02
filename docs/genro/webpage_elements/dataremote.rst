@@ -16,7 +16,7 @@ Definition
     
     **common attributes**:
     
-        For common attributes (``_init``, ``_onStart``, ``_timing``) see controllers' :ref:`controllers_attributes`
+        For common attributes (*_init*, *_onStart*, *_timing*) see controllers' :ref:`controllers_attributes`
 
 .. _dataremote_examples:
 

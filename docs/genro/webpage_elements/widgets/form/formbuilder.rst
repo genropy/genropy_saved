@@ -46,21 +46,21 @@ field's Attributes
 
     The formbuilder supports many attributes for its fields, that are:
     
-    * ``colspan``: Set the number of columns occupied by a single field. Default value is ``1``
-    * ``label``: If possible, set a label for formbuilder right field_part (more details on this example_). Default value is ``None``
-    * ``lbl``: If possible, set a label for formbuilder left field_part (more details on this example_). Default value is ``None``
-    * ``pos``: Choose element position. The default value is the first free position. The syntax is ``pos(NUMBER,NUMBER)``, whereas the first value represents a row, the second value represents a column. Other feature: "pos" accepts as a number row two special characters::
+    * *colspan*: Set the number of columns occupied by a single field. Default value is ``1``
+    * *label*: If possible, set a label for formbuilder right field_part (more details on this example_). Default value is ``None``
+    * *lbl*: If possible, set a label for formbuilder left field_part (more details on this example_). Default value is ``None``
+    * *pos*: Choose element position. The default value is the first free position. The syntax is ``pos(NUMBER,NUMBER)``, whereas the first value represents a row, the second value represents a column. Other feature: "pos" accepts as a number row two special characters::
 
         ``+`` to refer itself at the following row
         ``*`` to refer itself at the current row
 
-    * ``value``: Set a path for formbuilder's values. For more details, see :ref:`genro_datapath`. Default value is ``None``
+    * *value*: Set a path for formbuilder's values. For more details, see :ref:`genro_datapath`. Default value is ``None``
 
     **common attributes**:
 
-    * ``disabled``: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
-    * ``hidden``: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
-    * ``visible``: if False, hide the widget (but keep a place in the :ref:`genro_datastore` for it). For more information, check the :ref:`genro_visible` documentation page
+    * *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
+    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
+    * *visible*: if False, hide the widget (but keep a place in the :ref:`genro_datastore` for it). For more information, check the :ref:`genro_visible` documentation page
 
 .. _formbuilder_examples:
 

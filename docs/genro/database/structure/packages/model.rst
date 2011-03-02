@@ -4,7 +4,7 @@
 ``model``
 =========
 
-	DEF ??? In a model you can put your database :ref:`genro_database_table`.
+    DEF ??? In a model you can put your database :ref:`genro_database_table`.
 
 
 
@@ -13,4 +13,4 @@
 ``example_table.py``
 ====================
 
-	??? ADD example_table.py
+    ??? ADD example_table.py

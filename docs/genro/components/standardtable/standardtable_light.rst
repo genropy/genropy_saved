@@ -1,9 +1,9 @@
 .. _genro_standardtable_light:
 
-======================
- Standard table light
-======================
+====================
+Standard table light
+====================
 
-	.. warning:: to be written!
-	
-	???
+    .. warning:: to be written!
+    
+    add???

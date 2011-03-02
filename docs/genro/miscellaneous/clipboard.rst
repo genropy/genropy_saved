@@ -1,18 +1,8 @@
 .. _genro_clipboard:
 
-*********************************
+=================================
 Miscellaneous notes about GenroPy
-*********************************
-
-Construction of Bags
-====================
-
-There are several ways to build bags in genropy:
-
-* from an XML file;
-* using the instructions from the python module ``gnr.core.gnrbag``, in this case the code is similar to the construction of a dictionary
-* using module ``gnr.core.gnrstructures``  In this case, the code consists of a set of python method calls. This subsequently supports the definition of the database model, in addition to the construction of webpages.
-
+=================================
 
 Mapping models the database structure
 =====================================
@@ -29,7 +19,6 @@ Site, Instance, Packages and Components
 GenroPy applications are divided into several layers, allowing customisation (ensuring an easy upgrade even with customisation) and reuse of code and resources among various projects.
 
 A Project of Genropy consists of:
-
 
 A site:
 	deals with everything related to the configuration for a particular installation includes Web components and configurations that are necessary for the execution over the **Web** typically contains the configuration and WSGI script ``root.py`` ( it is used as the executable if you want to use a debugger, like WingIDE).
@@ -53,7 +42,6 @@ A package:
 Components and Resource:
 	These are common and reusable to a project. They Include both the Javascript and CSS to Python (eg ``includedView``, standard tables). These components are resources should be located in the ``_resources`` folder of the package and sub directories may be used within the ``_resources folder``.  They are used in webpages through ``py_requires``, ``js_requires`` and ``css_requires``. The ``code`` in module gnr.web.gnrwsgisite, manages the mixin resources.
 
-
 Mixin classes at runtime
 ************************
 
@@ -64,33 +52,6 @@ When code changes are made the WSGI application restarts.
 It can perform the mixin of the interface (webpages, components, CSS, JS, etc.) and for the database structure (models).
 
 **TODO:** See the wiki site http://projects.softwell.it/ the page *Customization* for an explanation of the rules of mixin and customization of applications.
-
-GenroPy web operations
-======================
-
-In the construction of the pages, GenroPy first loads the browser (client) with its JavaScript engine (the Genro engine). The the JS engine immediately requests the server to build the recipe for the DOM.  This recipe is returned to the client in a bag.   This is the page description and content of the original datastore form of bags. At this point, the JS can make calls to the python code to further build the page.
-
-In practice, GenroPy behaves in this way:
-
-1. The client makes the HTTP request page ``foo``::
-
-	client ----------- HTTP ----------> server (wsgisite)
-
-2. GenroPy sends a standard blank page, which contains practically only the engine ``gnrjs``::
-
-	client <----- javascript engine --- server (wsgisite)
-
-3. The JavaScript engine calls the server page content, a server side Python function called the ``main`` of ``WebPage`` ::
-
-    js engine ------- ready -----------> server (page ``main.py``)
-
-4. The server sends a description of the page content in high level in terms of widgets, and content of the datastore in the form of bags::
-
-    page js <------ bags ------------- page python
-
-5. From then on, the communication proceeds primarily doing updates to the datastore (or user interface) using the functions rpc::
-
-    page js <- dataRpc() or remote() -> page python
 
 Additional data types, not in the TextMate bundle
 =================================================
@@ -103,15 +64,15 @@ GnrApp
 
 The code to create an instance is as follows::
 
-	#!python
-	from gnr.app.gnrapp import GnrApp
-	instance = GnrApp('my_project')
-
+    #!python
+    from gnr.app.gnrapp import GnrApp
+    instance = GnrApp('my_project')
+    
 1. ``GnrApp.__init__`` loads the configuration of the instance from ``instanceconfig.xml``.
 2. ``GnrApp.init`` running:
-	* the hook ``onIniting``
-	* creates necessary objects from packages
-	* the hook ``onInited``
+    * the hook ``onIniting``
+    * creates necessary objects from packages
+    * the hook ``onInited``
 
 GnrPackage
 ==========
@@ -135,17 +96,17 @@ The table objects are accessible from pages ``self.db.table('package.table')``. 
 
 Example::
 
-	#!python
-
-	db = ...
-	tbl = db.table('common')
-	qry = tbl.query(...)
-	sel = qry.selection()
-
-	# edit records in memory, even adding new fields (eg for calculated fields to send to client)
-	sel.apply(lambda r: dict(area=r.base*r.height))
-
-	sel.output(format)
+    #!python
+    
+    db = ...
+    tbl = db.table('common')
+    qry = tbl.query(...)
+    sel = qry.selection()
+    
+    # edit records in memory, even adding new fields (eg for calculated fields to send to client)
+    sel.apply(lambda r: dict(area=r.base*r.height))
+    
+    sel.output(format)
 
 The selections support various formats:
 
@@ -168,10 +129,10 @@ Useful Tools
 ============
 
 BonjourFoxy:
-	Firefox plugins to see the websites registered in the local network with Bonjour (useful in development)
+    Firefox plugins to see the websites registered in the local network with Bonjour (useful in development)
 
 Navicat:
-	database editor with good support for Postgres
+    database editor with good support for Postgres
 
 
 pycallgraph
@@ -179,7 +140,7 @@ pycallgraph
 
 Use the profiler python calls and shows how to graph using graphviz. To install it, use ``easy_install`` or ``pip``::
 
-	sudo easy_install  -U -Z pycallgraph
+    sudo easy_install  -U -Z pycallgraph
 
 Interesting video on the design of web frameworks
 =================================================
@@ -192,10 +153,10 @@ Useful components (defined as resources)
 ========================================
 
 includedViewBox:
-	list of records useful for implementing views master / detail
+    list of records useful for implementing views master / detail
 
 recordDialog:
-	popup window to edit a single record. Usually used for editing records includedViewBox.
+    popup window to edit a single record. Usually used for editing records includedViewBox.
 
 Studying these two components for more information on how to define complex components using resources.
 
@@ -225,10 +186,10 @@ The resource ``public`` implements the basic elements of the interface Genro.
 It also provides CSS classes:
 
 pbl_RoundedGroup:
-	used to divide the page into two logically separated areas.
+    used to divide the page into two logically separated areas.
 
 pbl_RoundedGroupLabel:
-	to give a title to a group (a pbl_RoundedGroup).
+    to give a title to a group (a pbl_RoundedGroup).
 
 These elements are often used within borderContainers.
 
@@ -238,9 +199,9 @@ Events and activities
 Each interface element (widget or HTML tags) can attach javascript events using the syntax ``connect_<event_name>``.
 Example::
 
-	def divTest(self, parentContainer):
-		cp = parentContainer.contentPane(...)
-		cp.div(connect_onDoubleClick='JS code')
+    def divTest(self, parentContainer):
+        cp = parentContainer.contentPane(...)
+        cp.div(connect_onDoubleClick='JS code')
 
 As a convention, the syntax ``connect_<event_name>`` is used for events or JavaScript dojo, while the syntax ``<event>_action`` is used for events and actions genropy.
 
@@ -257,13 +218,13 @@ Componenti per operare sul datastore
 ====================================
 
 ``data()``:
-	stores a value in the datastore
+    stores a value in the datastore
 
 ``dataFormula()``:
-	Calculate a cell of the datastore from other values (like a spreadsheet)
+    Calculate a cell of the datastore from other values (like a spreadsheet)
 
 ``dataController()``:
-	Running JS code, linking it to an event in the datastore (via a resolver).
+    Running JS code, linking it to an event in the datastore (via a resolver).
 
 Parameters of dataController or dataFormula become delcarations of local variables used in the formula or the same JS.
 
@@ -271,14 +232,14 @@ Remote Operation
 ****************
 
 ``dataRecord()``:
-	**TODO**: to be explored - I question the need to store a database record in the datastore
+    **TODO**: to be explored - I question the need to store a database record in the datastore
 
 ``dataRemote()``:
-	Set a resolver in the datastore. Access to this item in the datastore will be called Python code (defined in a function with the prefix ``rpc_`` ) will return a bag.
+    Set a resolver in the datastore. Access to this item in the datastore will be called Python code (defined in a function with the prefix ``rpc_`` ) will return a bag.
 
 ``dataRpc()``:
-	as above, dataRpc is the function of low-level underlying the previous functionalityi. Can be used to make calls to python code (via triggering resolver as parameters).
-	It is possible to specify js code to call before the call(with the parameter ``onCalling='codice JS'``) or with the results received from the server (``onresult='codice JS'``).
+    as above, dataRpc is the function of low-level underlying the previous functionalityi. Can be used to make calls to python code (via triggering resolver as parameters).
+    It is possible to specify js code to call before the call(with the parameter ``onCalling='codice JS'``) or with the results received from the server (``onresult='codice JS'``).
 
 The parameters of these functions that do not begin with an underscore "_" are passed to the server and are available to Python code called.
 
@@ -298,7 +259,7 @@ FormBuilder
 
 Component to simplify the creation of forms.
 
-Using the method ``field``, You can define fields simply by specifying the name. The widget will be built under the correct type of database field. The method ``field`` accepts the parameter  ``autospan=N``, corresponding to ``colspan = N`` or ``width = '100%'``.
+Using the method *field*, You can define fields simply by specifying the name. The widget will be built under the correct type of database field. The method *field* accepts the parameter  ``autospan=N``, corresponding to ``colspan = N`` or ``width = '100%'``.
 
 Triggers
 ========
@@ -307,8 +268,8 @@ Triggers defined on page
 ************************
 
 It is possible to define methods at the python-level of a web page that are called when the records in a given table are loaded or saved. The names of methods should follow this syntax::
-	on<Operation>
-	on<Operation>_<name_of_package>_<name_of_table>
+    on<Operation>
+    on<Operation>_<name_of_package>_<name_of_table>
 
 possible *Operation* is ``Loading``, ``Saving`` or ``Saved``.
 

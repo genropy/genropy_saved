@@ -20,16 +20,16 @@ Definition
 ==========
     
     .. method:: pane.stackContainer([**kwargs])
-
+    
     A container that has multiple children, but shows only one child at a time (like looking at the pages in a book one by one).
-
+    
     This container is good for wizards, slide shows, and long lists or text blocks.
-
+    
 .. _stack_attributes:
 
 Attributes
 ==========
-
+    
     **stackContainer's attributes**:
     
     add???
@@ -38,14 +38,14 @@ Attributes
     
     **common attributes**:
     
-        For common attributes, see :ref:`genro_layout-common-attributes`
+        For common attributes, see :ref:`genro_layout_common_attributes`
 
 .. _stack_examples:
 
 Examples
 ========
 
-**Simple example:** Here we show you a simple code containing a ``stack container``::
+**Simple example:** Here we show you a simple code containing a ``stackContainer``::
 
     class GnrCustomWebPage(object):
         def main(self,root,**kwargs):

@@ -4,46 +4,45 @@
 instances
 =========
 
-	* :ref:`instances_map`
-	* :ref:`instances_autofill`
-	
-	.. module:: gnr.app.gnrdeploy
-	
-	The ``instances`` folder is... DEFINITION ???
-	
-.. _instances_map:
-
-``instances`` folder content list
-=================================
-	
-	Inside every instance folder you will find a ``custom`` folder, a ``data`` folder and the ``instanceconfig`` file.
-	
-	Click on the following links for more information on them:
-	
-.. toctree::
-	:maxdepth: 1
-	
-	instance_name
-	custom
-	data
-	instanceconfig
-
+    * :ref:`instances_autofill`
+    * :ref:`instances_map`
+    
+    .. module:: gnr.app.gnrdeploy
+    
+    The ``instances`` folder is... add???
+    
 .. _instances_autofill:
 
 autocreation of the ``instances`` folder
 ========================================
 
-	You can create an ``instances`` folder typing::
-	
-		gnrmkinstance instancename
-	
-	where ``instancename`` is the name of your instance (we suggest you to call your instance with the name you gave to your :ref:`genro_structure_mainproject`).
-	
-	Your ``instances`` folder will look like this one:
-	
-	.. image:: ../../../images/structure/structure-instances.png
-	
-	where ``myproject`` is the name of your instance.
-	
-	.. note:: The autocreation of this folder is handled by the :class:`InstanceMaker` class.
-	
+    You can create an ``instances`` folder typing::
+    
+        gnrmkinstance instancename
+        
+    where ``instancename`` is the name of your instance (we suggest you to call your instance with the name you gave to your :ref:`genro_structure_mainproject`).
+    
+    Your ``instances`` folder will look like this one:
+    
+    .. image:: ../../../images/structure/structure-instances.png
+    
+    where ``myproject`` is the name of your instance.
+    
+    .. note:: The autocreation of this folder is handled by the :class:`InstanceMaker` class.
+    
+.. _instances_map:
+
+``instances`` folder content list
+=================================
+
+    If you follow the steps of the previous section, inside your ``instances`` folder you will find an ``instance`` folder including a ``custom`` folder, a ``data`` folder and the ``instanceconfig`` file.
+    
+    Click on the following links for more information on them:
+    
+.. toctree::
+    :maxdepth: 1
+    
+    instance_name
+    custom
+    data
+    instanceconfig

@@ -1,14 +1,14 @@
 .. _genro_installation:
 
-==============
- Installation
-==============
+============
+Installation
+============
 
-	* :ref:`installationRequirements`
-	* :ref:`obtainingGenropy`
-	* :ref:`installingGenropy`
-	* :ref:`configuringGenropy`
-	* :ref:`projectsExamples`
+    * :ref:`installationRequirements`
+    * :ref:`obtainingGenropy`
+    * :ref:`installingGenropy`
+    * :ref:`configuringGenropy`
+    * :ref:`projectsExamples`
 
 .. _installationRequirements:
 
@@ -54,7 +54,7 @@ track local changes. To obtain genropy, type::
 
 If you have the time here is the git alternative::
 
-	git svn clone http://robertolupi@svn.genropy.org/genro/trunk genro
+    git svn clone http://robertolupi@svn.genropy.org/genro/trunk genro
 
 .. _installingGenropy:
 
@@ -63,9 +63,9 @@ Installing GenroPy
 
 The bulk of the work is done thanks to *paver*::
 
-	cd genro
-	cd gnrpy
-	sudo paver develop
+    cd genro
+    cd gnrpy
+    sudo paver develop
 
 .. _configuringGenropy:
 

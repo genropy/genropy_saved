@@ -1,13 +1,13 @@
 .. _genro_datarpc_index:
 
-=======
-dataRpc
-=======
+=================================================
+the dataRpc: dataRpc, dataRecord, dataSelection
+=================================================
 
 .. toctree::
-	:maxdepth: 1
-
-	introduction
-	datarpc
-	datarecord
-	dataselection
+    :maxdepth: 1
+    
+    introduction
+    datarpc
+    datarecord
+    dataselection

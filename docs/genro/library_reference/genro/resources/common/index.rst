@@ -4,5 +4,5 @@
 
 .. toctree::
 
-	foundation/index
-	gnrcomponents/index
+    foundation/index
+    gnrcomponents/index

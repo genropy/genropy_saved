@@ -5,4 +5,4 @@
 ===================
 
 .. automodule:: resources.common.foundation.includedview
-	:members:
+    :members:

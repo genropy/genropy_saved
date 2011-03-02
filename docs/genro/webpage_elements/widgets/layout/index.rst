@@ -5,11 +5,11 @@ Layout widgets
 ==============
 
 .. toctree::
-	:maxdepth: 1
+    :maxdepth: 1
 
-	container
-	bordercontainer
-	contentpane
-	accordioncontainer
-	stackcontainer
-	tabcontainer
+    container
+    bordercontainer
+    contentpane
+    accordioncontainer
+    stackcontainer
+    tabcontainer

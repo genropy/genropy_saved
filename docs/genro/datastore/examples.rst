@@ -4,13 +4,13 @@
 datastore examples
 ==================
 
-	* :ref:`datastore_standardtable_example`
+    * :ref:`datastore_standardtable_example`
 
 .. _datastore_standardtable_example:
 
 The datastore in a standard table
 =================================
 
-	Here we show all the details of the datastore of a :ref:`genro_standardtable`.
-	
-	???
+    Here we show all the details of the datastore of a :ref:`genro_standardtable`.
+    
+    add???

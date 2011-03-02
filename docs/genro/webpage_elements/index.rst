@@ -5,12 +5,12 @@ Webpage elements
 ================
 
 .. toctree::
-	:maxdepth: 1
-
-	introduction
-	widgets/index
-	html
-	css
-	data
-	dataremote
-	controller/index
+    :maxdepth: 1
+    
+    introduction
+    widgets/index
+    html
+    css
+    data
+    dataremote
+    controller/index

@@ -14,9 +14,9 @@
 :class:`XlsReader`
 ==================
 
-	.. module:: gnr.core.gnrxls.XlsReader
-
-	there is no public method.
+    .. module:: gnr.core.gnrxls.XlsReader
+    
+    there is no public method.
 
 .. _gnrxls_xlswriter:
 
@@ -39,5 +39,4 @@
 ====================================================
 
 .. automodule:: gnr.core.gnrxls
-    :members:
-    
+    :members:   

@@ -61,7 +61,7 @@
 
     .. module:: gnr.core.gnrbag.BagNode
 
-    The Genro ``BagNode`` has a relevant number of methods. They are listed here in alphabetical order.
+    The Genro :ref:`bag_bagnode` has a relevant number of methods. They are listed here in alphabetical order.
 
     ======================== ======================== =============================
     :meth:`addValidator`     :meth:`getValue`         :meth:`setStaticValue`       

@@ -3,6 +3,6 @@
 ===============
 
 .. toctree::
-	:maxdepth: 2
-
-	adm/index
+    :maxdepth: 2
+    
+    adm/index

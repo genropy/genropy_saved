@@ -1,15 +1,15 @@
 .. _genro_controllers:
 
-===================
- Genro controllers
-===================
+=================
+Genro controllers
+=================
 
-	??? Explain:
-	
-		- ``^``
-		
-		- ``=``
-		
-		- ``==``
-		
-		- ``.`` is the dot a controller???
+    ??? Explain:
+    
+        - ``^``
+        
+        - ``=``
+        
+        - ``==``
+        
+        - ``.`` is the dot a controller???

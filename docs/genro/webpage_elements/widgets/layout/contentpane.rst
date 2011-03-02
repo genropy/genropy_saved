@@ -5,13 +5,13 @@ contentPane
 ===========
 
     .. note:: The Genro contentPane has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's contentPane_ documentation.
-
+    
     .. _contentPane: http://api.dojotoolkit.org/jsdoc/1.2/dijit.layout.ContentPane
-
+    
     * :ref:`cp_definition`
     * :ref:`cp_attributes`
     * :ref:`cp_examples`
-
+    
 .. _cp_definition:
 
 Definition
@@ -32,7 +32,7 @@ Attributes
 
     **common attributes**:
 
-        For common attributes, see :ref:`genro_layout-common-attributes`.
+        For common attributes, see :ref:`genro_layout_common_attributes`.
 
 .. _cp_examples:
 

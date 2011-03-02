@@ -121,7 +121,7 @@ class GnrDomSrc(GnrStructData):
         return root
         
     makeRoot = classmethod(makeRoot)
-    
+        
     def _get_page(self):
         #return self.root._page()
         return self.root._page
@@ -402,7 +402,8 @@ class GnrDomSrc(GnrStructData):
         """A server-side Genro controller that allows to define variables from server to client.
         
         :param args: args[0] includes the path of the value, args[1] includes the value
-        :param kwargs: in the kwargs you can insert the ``_serverpath`` attribute, that... add???
+        :param kwargs: in the kwargs you can insert the ``_serverpath`` attribute. For more information,
+                       check the :ref:`data_serverpath` example.
         :returns: a data
         """
         value = None
@@ -507,7 +508,7 @@ class GnrDomSrc(GnrStructData):
         return self.child('subscribe', obj=what, objPath=objPath, event=event, content=func, **kwargs)
         
     def css(self, rule, styleRule=''):
-        """Handle the CSS rules
+        """Handle the CSS rules. add???
         
         :param rule: dict or list of CSS rules
         :param styleRule: add???. Default value is ``''``
@@ -570,11 +571,11 @@ class GnrDomSrc(GnrStructData):
         :param disabled: Add a description ???. Default value is ``False``.
         :param rowdatapath: Add a description ???. Default value is ``None``.
         :param head_rows: Add a description ???. Default value is ``None``.
-        :param kwargs: allow to insert some additional paramaters:
+        :param kwargs:
             
-            * datapath: set path for data. For more details, see :ref:`genro-datapath`.
-            * `fld_` + CSSexpression: set a CSS expression to every formbuilder's field. (e.g: fld_color='red', fld_width='100%')
-            * `lbl_` + CSSexpression: set a CSS expression to every lbl's field. (e.g: lbl_width='10em')
+            * *datapath*: set path for data. For more details, see :ref:`genro-datapath`.
+            * *fld_ + CSSexpression*: set a CSS expression to every formbuilder's field. (e.g: fld_color='red', fld_width='100%')
+            * *lbl_ + CSSexpression*: set a CSS expression to every lbl's field. (e.g: lbl_width='10em')
         """
         commonPrefix = ('lbl_', 'fld_', 'row_', 'tdf_', 'tdl_')
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
@@ -719,8 +720,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def dataController(self, script=None, **kwargs):
         """Allow to execute a Javascript code
         
-        :param path: the dataController's path
         :param script: the Javascript code that ``datacontroller`` has to execute. Default value is ``None``
+        :param kwargs: *_init*, *_onStart*, *_timing*. For more information,
+                       check the controllers' :ref:`controllers_attributes` section
         :returns: the dataController
         """
         return self.child('dataController', script=script, **kwargs)
@@ -732,6 +734,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                      you have to write it even if you don't return any value in the ``dataRpc``
                      (in this situation it will become a "mandatory but dummy" parameter)
         :param method: the name of your ``dataRpc``
+        :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
+                       check the :ref:`rpc_attributes` section
         
         * in the ``**kwargs`` you have to define a parameter who allows the ``dataRpc`` to be triggered
         
@@ -899,6 +903,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param group_by: add???. Default value is ``None``
         :param having: add???. Default value is ``None``
         :param columnsFromView: add???. Default value is ``None``
+        :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
+                       check the :ref:`rpc_attributes` section
         :returns: add???
         """
         if 'name' in kwargs:
@@ -917,10 +923,22 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                           having=having, **kwargs)
                           
     def directoryStore(self, rootpath=None, storepath='.store', **kwargs):
+        """add???
+        :param rootpath: add???. Default value is ``None``
+        :param storepath: add???. Default value is ``.store``
+        """
         store = DirectoryResolver(rootpath or '/', **kwargs)()
         self.data(storepath, store)
         
     def tableAnalyzeStore(self, pane, table=None, where=None, group_by=None, storepath='.store', **kwargs):
+        """add???
+        
+        :param pane: add???
+        :param table: add???. Default value is ``None``
+        :param where: add???. Default value is ``None``
+        :param group_by: add???. Default value is ``None``
+        :param storepath: add???. Default value is ``.store``
+        """
         t0 = time()
         tblobj = self.db.table(table)
         columns = [x for x in group_by if not callable(x)]
@@ -935,11 +953,14 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         self.data(storepath, store, query_time=t1 - t0, totalize_time=t2 - t1, resolver_load_time=t3 - t2)
         
     def dataRecord(self, path, table, pkey=None, method='app.getRecord', **kwargs):
-        """
+        """add???
+        
         :param path: add???
         :param table: add???
         :param pkey: add???. Default value is ``None``
         :param method: add???. Default value is ``app.getRecord``
+        :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
+                       check the :ref:`rpc_attributes` section
         :returns: a dataRecord
         """
         return self.child('dataRpc', path=path, table=table, pkey=pkey, method=method, **kwargs)
@@ -951,28 +972,54 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param path: the path where the dataRemote will save the result of the rpc
         :param method: the rpc name that has to be executed
-        :kwargs: additional parameters
-        
-            *``cacheTime=NUMBER``: The cache stores the retrieved value and keeps it for a number of seconds equal to ``NUMBER``
-        
+        :param kwargs: *cacheTime=NUMBER*: The cache stores the retrieved value and keeps
+                       it for a number of seconds equal to ``NUMBER``
         :returns: a dataRemote
         """
         return self.child('dataRemote', path=path, method=method, **kwargs)
         
-    def paletteGroup(self,groupCode,**kwargs):
+    def paletteGroup(self, groupCode, **kwargs):
+        """add???
+        
+        :param groupCode: add???
+        :returns: a paletteGroup
+        """
         return self.child('PaletteGroup',groupCode=groupCode,**kwargs)
         
-    def palettePane(self,paletteCode,datapath=None,**kwargs):
+    def palettePane(self, paletteCode, datapath=None, **kwargs):
+        """add???
+        
+        :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
+        :param datapath: the path of data. Default value is ``None``.
+                         For more information, check the :ref:`genro_datapath` section
+        :returns: a palettePane
+        """
         datapath= datapath or 'gnr.palettes.%s' %paletteCode
         return self.child('PalettePane',paletteCode=paletteCode,datapath=datapath,**kwargs)
         
-    def paletteTree(self,paletteCode,datapath=None,**kwargs): 
-        datapath= datapath or 'gnr.palettes.%s' %paletteCode       
+    def paletteTree(self, paletteCode, datapath=None, **kwargs):
+        """add???
+        
+        :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
+        :param datapath: the path of data. Default value is ``None``.
+                         For more information, check the :ref:`genro_datapath` section
+        :returns: a paletteTree
+        """
+        datapath= datapath or 'gnr.palettes.%s' %paletteCode
         palette = self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,
                              autoslots='top,left,right,bottom',**kwargs)
         return palette
         
-    def paletteGrid(self,paletteCode=None,struct=None,columns=None,structpath=None,datapath=None,**kwargs):
+    def paletteGrid(self, paletteCode=None, struct=None, columns=None, structpath=None, datapath=None, **kwargs):
+        """add???
+        
+        :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
+        :param struct: add???. Default value is ``None``
+        :param columns: add???. Default value is ``None``
+        :param structpath: add???. Default value is ``None``
+        :param datapath: the path of data. Default value is ``None``.
+                         For more information, check the :ref:`genro_datapath` section
+        """
         datapath= datapath or 'gnr.palettes.%s' %paletteCode
         structpath = structpath or '.grid.struct'
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
@@ -980,10 +1027,16 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                                 structpath=structpath,datapath=datapath,
                                 autoslots='top,left,right,bottom',**kwargs)
         if struct or columns or not structpath:
-            paletteGrid.gridStruct(struct=struct,columns=columns)   
+            paletteGrid.gridStruct(struct=struct,columns=columns)
         return paletteGrid
         
-    def includedview(self,*args,**kwargs):
+    def includedview(self, *args, **kwargs):
+        """add???
+        
+        :param args: add???
+        :param kwargs: add???
+        :returns: add???
+        """
         frameCode = kwargs.get('parentFrame') or self.attributes.get('frameCode')
         if frameCode:
             kwargs['frameCode'] = frameCode
@@ -991,8 +1044,22 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         else:
             return self.includedview_legacy(*args,**kwargs)
             
-    def includedview_inframe(self,frameCode=None,struct=None,columns=None,storepath=None,structpath=None,
-                            datapath=None,nodeId=None,configurable=True,_newGrid=False,**kwargs):
+    def includedview_inframe(self, frameCode=None, struct=None, columns=None, storepath=None, structpath=None,
+                             datapath=None, nodeId=None, configurable=True, _newGrid=False, **kwargs):
+        """add???
+        
+        :param frameCode: add???. Default value is ``None``
+        :param struct: add???. Default value is ``None``
+        :param columns: add???. Default value is ``None``
+        :param storepath: add???. Default value is ``None``
+        :param structpath: add???. Default value is ``None``
+        :param datapath: the path of data. Default value is ``None``.
+                         For more information, check the :ref:`genro_datapath` section
+        :param nodeId: add???. Default value is ``None``
+        :param configurable: boolean. add???. Default value is ``True``
+        :param _newGrid: boolean. add???. Default value is ``False``
+        :return: add???
+        """
         if datapath is False:
             datapath = None
         else:
@@ -1007,7 +1074,18 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return iv
         
     def includedview_legacy(self, storepath=None, structpath=None, struct=None,columns=None, table=None,
-                      nodeId=None,relativeWorkspace=None,**kwargs):
+                            nodeId=None, relativeWorkspace=None, **kwargs):
+        """add???
+        
+        :param storepath: add???. Default value is ``None``
+        :param structpath: add???. Default value is ``None``
+        :param struct: add???. Default value is ``None``
+        :param columns: add???. Default value is ``None``
+        :param table: add???. Default value is ``None``
+        :param nodeId: add???. Default value is ``None``
+        :param relativeWorkspace: add???. Default value is ``None``
+        :return: add???
+        """
         nodeId = nodeId or self.page.getUuid()
         prefix = 'grids.%s' %nodeId if not relativeWorkspace else ''
         structpath = structpath or '%s.struct' % prefix
@@ -1018,7 +1096,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             iv.gridStruct(struct=struct,columns=columns)
         return iv
             
-    def gridStruct(self,struct=None,columns=None):
+    def gridStruct(self, struct=None, columns=None):
+        """add???
+        
+        :param struct: add???. Default value is ``None``
+        :param columns: add???. Default value is ``None``
+        """
         gridattr=self.attributes
         structpath = gridattr.get('structpath')
         table = gridattr.get('table')
@@ -1045,14 +1128,31 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             self.data(structpath, struct)
         
     def slotToolbar(self,*args,**kwargs):
+        """add???
+        
+        :param args: add???
+        :param kwargs: add???
+        """
         kwargs['toolbar'] = True
         return self.slotBar(*args,**kwargs)
         
     def slotFooter(self,*args,**kwargs):
+        """add???
+        
+        :param args: add???
+        :param kwargs: add???
+        """
         kwargs['_class'] = 'frame_footer'
         return self.slotBar(*args,**kwargs)
         
-    def slotBar(self,slots=None,slotbarCode=None,namespace=None,**kwargs):       
+    def slotBar(self,slots=None,slotbarCode=None,namespace=None,**kwargs):
+        """add???
+        
+        :param slots: add???. Default value is ``None``
+        :param slotbarCode: add???. Default value is ``None``
+        :param namespace: add???. Default value is ``None``
+        :returns: a slotBar
+        """
         namespace = namespace or self.parent.attributes.get('namespace')
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,**kwargs)
         kwargs = tb.attributes
@@ -1158,6 +1258,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return wdgattr
         
     def wdgAttributesFromColumn(self, fieldobj, **kwargs):
+        """add???
+        
+        :param fieldobj: add???
+        :returns: add???
+        """
         result = {'lbl': fieldobj.name_long, 'dbfield': fieldobj.fullname}
         dtype = result['dtype'] = fieldobj.dtype
         if dtype in ('A', 'C'):
@@ -1246,6 +1351,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return result
         
 class GnrFormBuilder(object):
+    """add???"""
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
                  lblclass='gnrfieldlabel', lblpos='L', lblalign=None, fldalign=None,
                  lblvalign='middle', fldvalign='middle', rowdatapath=None, head_rows=None, commonKwargs=None):
@@ -1273,7 +1379,6 @@ class GnrFormBuilder(object):
         
     def br(self):
         #self.row=self.row+1
-        
         self.col = 999
         return self.tbl
         
@@ -1289,9 +1394,17 @@ class GnrFormBuilder(object):
     tbl = property(_get_tbl)
         
     def place(self, **fieldpars):
+        """add???"""
         return self.setField(fieldpars)
         
     def setField(self, field, row=None, col=None):
+        """add???
+        
+        :param field: add???
+        :param row: add???. Default value is ``None``
+        :param col: add???. Default value is ``None``
+        :returns: add???
+        """
         field = dict(field)
         if 'pos' in field:
             rc = ('%s,0' % field.pop('pos')).split(',')
@@ -1314,6 +1427,12 @@ class GnrFormBuilder(object):
         return self._formCell(self.row, self.col, field)
         
     def setFields(self, fields, rowstart=0, colstart=0):
+        """add???
+        
+        :param fields: add???
+        :param rowstart: add???. Default value is ``0``
+        :param colstart: add???. Default value is ``0``
+        """
         for field in fields:
             self.setField(field)
                 
@@ -1323,6 +1442,12 @@ class GnrFormBuilder(object):
                 self._formRow(j + 1)
                 
     def setRowAttr(self, r, attrs):
+        """add???
+        
+        :param r: add???
+        :param attrs: add???
+        :returns: add???
+        """
         self._fillRows(r)
         if self.lblpos == 'L':
             return self.tbl.setAttr('r_%i' % r, attrs)
@@ -1330,6 +1455,11 @@ class GnrFormBuilder(object):
             return (self.tbl.setAttr('r_%i_l' % r, attrs), self.tbl.setAttr('r_%i_f' % r, attrs))
                 
     def getRowNode(self, r):
+        """add???
+        
+        :param r: add???
+        :returns: add???
+        """
         self._fillRows(r)
         if self.lblpos == 'L':
             return self.tbl.getNode('r_%i' % r)
@@ -1337,6 +1467,11 @@ class GnrFormBuilder(object):
             return (self.tbl.getNode('r_%i_l' % r), self.tbl.getNode('r_%i_f' % r))
                 
     def getRow(self, r):
+        """add???
+        
+        :param r: add???
+        :returns: add???
+        """
         self._fillRows(r)
         if self.lblpos == 'L':
             return self.tbl['r_%i' % r]
@@ -1344,6 +1479,12 @@ class GnrFormBuilder(object):
             return (self.tbl['r_%i_l' % r], self.tbl['r_%i_f' % r])
                 
     def nextCell(self, r, c):
+        """add???
+        
+        :param r: add???
+        :param c: add???
+        :returns: add???
+        """
         def nc(row, r, c):
             c = c + 1
             if c >= self.colmax:
@@ -1363,6 +1504,11 @@ class GnrFormBuilder(object):
         return r, c
                 
     def setRow(self, fields, row=None):
+        """add???
+        
+        :param fields: add???
+        :param row: add???. Default value is ``None``
+        """
         colcurr = -1
         if row is None:
             row = self.rowcurr = self.rowcurr + 1
@@ -1527,12 +1673,22 @@ class GnrDomSrc_dojo_15(GnrDomSrc_dojo_11):
     pass
     
 class GnrGridStruct(GnrStructData):
-    """
+    """add???
+    
     r=struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
+    
     r.child('cell',field='protocollo',width='9em',name='Protocollo')
     """
     
     def makeRoot(cls, page, maintable=None, source=None):
+        """add???
+        
+        :param cls: add???
+        :param page: add???
+        :param maintable: add???. Default value is ``None``
+        :param source: add???. Default value is ``None``
+        :returns: add???
+        """
         root = GnrStructData.makeRoot(source=source, protocls=cls)
         #root._page = weakref.ref(page)
         root._page = page
@@ -1562,10 +1718,22 @@ class GnrGridStruct(GnrStructData):
     tblobj = property(_get_tblobj)
         
     def view(self, tableobj=None, **kwargs):
+        """add???
+        
+        :param tableobj: add???. Default value is ``None``
+        :returns: add???
+        """
         self.tableobj = tableobj
         return self.child('view', **kwargs)
         
     def rows(self, classes=None, cellClasses=None, headerClasses=None, **kwargs):
+        """add???
+        
+        :param classes: add???. Default value is ``None``
+        :param cellClasses: add???. Default value is ``None``
+        :param headerClasses: add???. Default value is ``None``
+        :returns: add???
+        """
         return self.child('rows', classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
         
     def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, headerClasses=None,
@@ -1724,4 +1892,3 @@ if __name__ == '__main__':
     fb.field('.address')
     a = root.toXml()
     print a
-            

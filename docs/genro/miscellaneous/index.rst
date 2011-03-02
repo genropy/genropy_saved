@@ -5,9 +5,9 @@ Documents to revise or adjust
 =============================
 
 .. toctree::
-	:maxdepth: 2
-	
-	clipboard
-	logging
-	print
-	user_interface
+    :maxdepth: 2
+    
+    clipboard
+    logging
+    print
+    user_interface

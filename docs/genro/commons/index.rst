@@ -5,7 +5,7 @@ Commons
 =======
 
 .. toctree::
-	:maxdepth: 2
-
-	attributes/index
-	types/index
+    :maxdepth: 2
+    
+    attributes/index
+    types/index

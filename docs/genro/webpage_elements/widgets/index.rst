@@ -11,8 +11,8 @@ Widgets
     :synopsis:  Genropy user interface elements
 
 .. toctree::
-	:maxdepth: 2
+    :maxdepth: 2
 
-	introduction
-	form/index
-	layout/index
+    introduction
+    form/index
+    layout/index
