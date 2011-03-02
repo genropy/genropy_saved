@@ -157,15 +157,6 @@ Example::
 
 As a convention, the syntax ``connect_<event_name>`` is used for events or JavaScript dojo, while the syntax ``<event>_action`` is used for events and actions genropy.
 
-includedView
-============
-
-The includedView is well documented. Some parameters such as ``formPars`` and ``pickerPars`` are deprecated but (now there is another way to do the same thing.)
-
-The possible specifiers are ``addAction=True`` or ``delAction=True`` to unleash the standard events (modification of records in a recordDialog). In this case, the records are updated in the datastore (ie are treated as logically part of the record in the master table, and the changes will be applied to save the master record).
-
-Using the method ``iv.gridEditor()`` can define the widgets used for editing lines. (The widgets are reused gridEditor, moving them into the DOM of the page, as you move between the lines.)
-
 Componenti per operare sul datastore
 ====================================
 

@@ -53,7 +53,7 @@ Tags
 ``<packages>``
 ==============
     
-    The ``<packages>`` tag allow to include any other package from other projects: this allow you to use every file (like the :ref:`packages_model` and the :ref:`packages_webpages`) of the packages you've imported. If you want to import one package, you have to:
+    The ``<packages>`` tag allow to include any other package from other projects: this allow you to use every file (like the :ref:`packages_model` and the :ref:`webpages_webpages`) of the packages you've imported. If you want to import one package, you have to:
     
     * include its path into the ``<packages>`` of your :ref:`gnr_environment` file::
     
@@ -69,7 +69,7 @@ Tags
         
     where ``mypackage`` is the name of your main package.
     
-    Remember that in the ``<packages>`` tag you have at least put your main package, that is the one where you put your :ref:`packages_model` and :ref:`packages_webpages` folders.
+    Remember that in the ``<packages>`` tag you have at least put your main package, that is the one where you put your :ref:`packages_model` and :ref:`webpages_webpages` folders.
     
 .. _instanceconfig_db:
 

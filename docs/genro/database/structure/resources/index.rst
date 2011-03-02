@@ -7,6 +7,6 @@ resources
 features
 ========
 
-    The resources are called on :ref:`packages_webpages` through :ref:`webpages_py_requires`, :ref:`webpages_js_requires` and :ref:`webpages_css_requires`. The :mod:`gnr.web.gnrwsgisite` module manages the mixin resources.
+    The resources are called on :ref:`webpages_webpages` through :ref:`webpages_py_requires`, :ref:`webpages_js_requires` and :ref:`webpages_css_requires`. The :mod:`gnr.web.gnrwsgisite` module manages the mixin resources.
     
     add???

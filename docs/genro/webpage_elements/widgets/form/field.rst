@@ -21,7 +21,7 @@ Definition
 Description
 ===========
 
-    *field* is used to view and select data included in a database :ref:`packages_model_table` (and, eventually, modify them).
+    *field* is used to view and select data included in a database :ref:`model_table` (and, eventually, modify them).
 
     Its type is inherited from the type of data contained in the table to which *field* refers. For example, if *field* catches data from a :ref:`genro_numbertextbox`, its type is actually a ``numberTextbox``.
 
@@ -49,7 +49,7 @@ Attributes
     * *limit*: The max number of rows displayed in a field as response to user request. The last line is always a line with no characters, so user can choose it to not perform his request
     * *lbl*: Set the Field label. Properly, "lbl" is a formbuilder's child attribute, so if you don't specify it, then *field* will inherit it from the :ref:`genro_name_long` attribute of the requested data
     * *rowcaption*: Allow user to view records through the record's :ref:`genro_name_long` value. Check for more information on :ref:`genro_database_rowcaption` page
-    * *zoom*: Allow to open the linked record in its :ref:`packages_model_table`. For further details, check the :ref:`genro_zoom` page
+    * *zoom*: Allow to open the linked record in its :ref:`model_table`. For further details, check the :ref:`genro_zoom` page
     
     **Common attributes**:
     

@@ -18,7 +18,7 @@ Common attributes
     |   Attribute        |          Description                              |   Default                |
     +====================+===================================================+==========================+
     | *dbtable*          | MANDATORY - Select the database                   |  ``None``                |
-    |                    | :ref:`genro_database_table` for database widget   |                          |
+    |                    | :ref:`model_table` for database widget   |                          |
     |                    | query. For further details, check the             |                          |
     |                    | :ref:`genro_dbtable` explanation page             |                          |
     +--------------------+---------------------------------------------------+--------------------------+
@@ -83,7 +83,7 @@ Selected
 
     **Example:**
 
-    let's consider a simple Genro Project [#]_ including a database :ref:`genro_database_table` and a :ref:`genro_GnrCustomWebPage`. 
+    let's consider a simple Genro Project [#]_ including a database :ref:`model_table` and a :ref:`webpages_GnrCustomWebPage`. 
 
     The table includes a list of actors::
 
@@ -167,7 +167,7 @@ Condition
                 tbl.column('prizes', name_short='Priz.',name_long='Prizes', size='40')
                 tbl.column('number','L',name_long='!!Number')
 
-    Finally, let's introduce a :ref:`genro_GnrCustomWebPage`::
+    Finally, let's introduce a :ref:`webpages_GnrCustomWebPage`::
 
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):

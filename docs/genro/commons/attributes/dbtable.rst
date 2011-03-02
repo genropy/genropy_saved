@@ -16,12 +16,12 @@ Definition and description
     
         dbtable = None
         
-    The *dbtable* attribute is used to specify a path for a database :ref:`genro_database_table` during a user query.
+    The *dbtable* attribute is used to specify a path for a database :ref:`model_table` during a user query.
     
     The syntax is ``packageName.tableName.attributeName``, where:
     
         * ``packageName`` is the name of the package on which you're working [#]_ ;
-        * ``tableName`` is the name of the :ref:`genro_database_table` on which is executed the user query.
+        * ``tableName`` is the name of the :ref:`model_table` on which is executed the user query.
         
     **Validity:** the *dbtable* attribute works on the following form widgets:
     
