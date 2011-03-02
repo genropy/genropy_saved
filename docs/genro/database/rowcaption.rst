@@ -12,17 +12,17 @@
 Definition
 ==========
 
-    ``rowcaption`` is the textual representation of a record, and it is used with all the form widgets that draw their value from a database :ref:`genro_database_table`, that are :ref:`genro_field`, :ref:`genro_dbselect` and :ref:`genro_dbcombobox`.
+    *rowcaption* is the textual representation of a record, and it is used with all the form widgets that draw their value from a database :ref:`genro_database_table`, that are :ref:`genro_field`, :ref:`genro_dbselect` and :ref:`genro_dbcombobox`.
 
 .. _database_description_examples:
 
 Description and examples
 ========================
 
-    ``rowcaption`` can be defined in two places:
+    *rowcaption* can be defined in two places:
     
         * directly into the database table: check :ref:`rowcaption_genro_database_table`
-        * in the query-field (``field``, ``dbselect`` or ``dbcombobox``) placed into the webpage: check :ref:`rowcaption_webpage`
+        * in the query-field (*field*, ``dbselect`` or ``dbcombobox``) placed into the webpage: check :ref:`rowcaption_webpage`
         
 .. _rowcaption_genro_database_table:
 
@@ -61,14 +61,14 @@ rowcaption in the database table
 rowcaption in the query-field
 =============================
     
-    Let's see an example on putting the ``rowcaption`` attribute directly in the webpage::
+    Let's see an example on putting the *rowcaption* attribute directly in the webpage::
     
         class Table(object):
             def config_db(self, pkg):
                 tbl = pkg.table('person',pkey='id',
                                  name_long='!!people',name_plural='!!People')
                                  
-    In this case, we define the table without using the ``rowcaption`` attribute. We have to put it into the webpage, like::
+    In this case, we define the table without using the *rowcaption* attribute. We have to put it into the webpage, like::
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):

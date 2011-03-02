@@ -16,14 +16,14 @@ Definition and description
     
         zoom = False
 
-    ``zoom`` is an attribute used to ???
+    *zoom* is an attribute used to ???
 
 .. _zoom_validity:
 
 Validity
 ========
 
-    **Validity:** you can give ``zoom`` attribute to the following objects:
+    **Validity:** you can give *zoom* attribute to the following objects:
 
         - add???
         

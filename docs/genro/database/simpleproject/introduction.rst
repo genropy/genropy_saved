@@ -4,16 +4,8 @@
 Introduction: the creation of a project
 =======================================
 
-    * :ref:`genro_project_introduction`
     * :ref:`genro_project_creation`
     * :ref:`genro_project_help`
-
-.. _genro_project_introduction:
-
-DBMS
-====
-
-    Genro is a Data Base Management System (DBMS), so it is a software that is able to manage small and great database ensuring to follow great reliability and security standards.
 
 .. _genro_project_creation:
 
