@@ -43,7 +43,7 @@ class GnrCustomWebPage(object):
         pane.div(u'!!Località',_class='pbl_roundedGroupLabel')
         fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',margin_top='1em',disabled=disabled)
         fb.field('glbl.localita.nome', width='20em')
-        fb.field('glbl.localita.provincia',width='3em')
+        fb.field('glbl.localita.provincia',width='15em')
         fb.field('glbl.localita.prefisso_tel',width='3em')
         fb.field('glbl.localita.cap',width='3em')
         fb.field('glbl.localita.codice_istat',width='7em')
