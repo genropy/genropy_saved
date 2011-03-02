@@ -40,7 +40,7 @@ class GnrCustomWebPage(object):
         fb.field('nome', width='20em')
         fb.field('sigla',width='3em')
         fb.field('codice_istat',width='7em')
-        fb.field('regione',width='4em')
+        fb.field('regione',width='15em')
 
     def orderBase(self):
         return 'nome'
