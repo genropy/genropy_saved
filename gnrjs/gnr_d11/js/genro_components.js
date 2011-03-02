@@ -257,9 +257,10 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
     contentKwargs:function(sourceNode, attributes){
         var gridId = attributes.gridId || attributes.paletteCode+'_grid';
         attributes['frameCode'] = attributes.paletteCode;
+        var reloadOnShow = objectPop(attributes,'reloadOnShow');
         attributes.selfsubscribe_showing = function() {
             var grid = genro.wdgById(gridId);
-            if (grid.storebag().len() == 0) {
+            if (grid.storebag().len() == 0 || reloadOnShow==true) {
                 grid.reload();
             }
         }
