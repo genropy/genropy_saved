@@ -184,11 +184,11 @@ Condition
 Columns
 =======
 
-    When a user begins to type something into the ``dbSelect`` (or ``dbCombobox``) field, he will see visualized the database columns specified into the ``rowcaption`` field.
+    When a user begins to type something into the ``dbSelect`` (or ``dbCombobox``) field, he will see visualized the database columns specified into the *rowcaption* field.
 
-    The usual procedure of a ``dbSelect`` query is *to search* through the records owned by the ``rowcaption`` attribute and *to save* the record chosen by the user through record's ID into the :ref:`genro_datastore`.
+    The usual procedure of a ``dbSelect`` query is *to search* through the records owned by the *rowcaption* attribute and *to save* the record chosen by the user through record's ID into the :ref:`genro_datastore`.
 
-    If you define ``columns``, the ``dbSelect`` will continue to visualize only the records owned by the ``rowcaption`` attribute, but ``dbSelect`` will search ONLY through the record columns defined in the ``columns`` attribute.
+    If you define ``columns``, the ``dbSelect`` will continue to visualize only the records owned by the *rowcaption* attribute, but ``dbSelect`` will search ONLY through the record columns defined in the ``columns`` attribute.
 
 .. _db_auxColumns:
 

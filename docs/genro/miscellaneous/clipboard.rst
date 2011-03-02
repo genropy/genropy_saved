@@ -9,41 +9,12 @@ Mapping models the database structure
 
 In GenroPy, the transition from model classes to the database is in this way:
 
-1. The code in files in ``<name of package> / models / <table_name>. py`` builds a bag in python which builds the structure of the table.
+1. The code in file in ``<name of package> / models / <table_name>. py`` builds a bag in python which builds the structure of the table.
 2. The constructed bag is translated into python objects.
-3. Genro script ``gnrdbsetup <project>`` compares these objects with the database structure and performs any updates required.
-
-Site, Instance, Packages and Components
-=======================================
-
-GenroPy applications are divided into several layers, allowing customisation (ensuring an easy upgrade even with customisation) and reuse of code and resources among various projects.
-
-A Project of Genropy consists of:
-
-A site:
-	deals with everything related to the configuration for a particular installation includes Web components and configurations that are necessary for the execution over the **Web** typically contains the configuration and WSGI script ``root.py`` ( it is used as the executable if you want to use a debugger, like WingIDE).
-
-An instance:
-	contains customisations for the particular customer. Usually contains parameters for database access. Has a ``data`` subfolder that you can use to store data in filesystems. When working with the Python interpreter or command line tools, usually working at the instance::
-
-		#!python
-		from gnr.app.gnrapp import GnrApp
-		instance = GnrApp('name_of_project')
-
-	Gio mentioned the concept of sub instance, used to change the application configuration at runtime (eg, for access to historical data already eliminated from the main current database instance).
-
-A package:
-	are the various modules that make up the application code to Genro, including the main package, which is the application developed. Genro provides additional modules that implement common functions for all applications (user management, table of Italian municipalities, etc.).. E 'in the application package (or packages of options), which concentrates most of the Python code (a part of the core framework that is in the package python ``gnr`` and its children).
-
-	The package ``glbl`` already contains a table of locations and Italian municipalities. (**TODO**: ask Giovanni for the table data, as it does not seem to be present in SVN).
-
-	**Note**: the packages of Genro are not Python packages (not a set of linked modules, containing a file `` __init__.py ``), and genre packages can not be imported with the statement ``import <module>`` or ``import from <package> <module or ` class>``.
-
-Components and Resource:
-	These are common and reusable to a project. They Include both the Javascript and CSS to Python (eg ``includedView``, standard tables). These components are resources should be located in the ``_resources`` folder of the package and sub directories may be used within the ``_resources folder``.  They are used in webpages through ``py_requires``, ``js_requires`` and ``css_requires``. The ``code`` in module gnr.web.gnrwsgisite, manages the mixin resources.
+3. Genro script ``gnrdbsetup <projectName>`` compares these objects with the database structure and performs any updates required.
 
 Mixin classes at runtime
-************************
+========================
 
 GenroPy's application class builds *mixin* classes at runtime. The methods and resources (CSS, JS, and Python components) are aggregated at runtime according to specific rules that allow you to customize the behavior for a single install and maintain these customizations, with minimal impact, even for future updates.
 

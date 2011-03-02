@@ -21,18 +21,23 @@ Definition
 Description
 ===========
 
-    *field* is used to view and select data included in a database :ref:`genro_database_table` (and, eventually, through the ``zoom`` attribute, is used to modify them).
+    *field* is used to view and select data included in a database :ref:`genro_database_table` (and, eventually, modify them).
 
     Its type is inherited from the type of data contained in the table to which *field* refers. For example, if *field* catches data from a :ref:`genro_numbertextbox`, its type is actually a ``numberTextbox``.
 
-    *field* MUST be a child of the form widget called :ref:`genro_formbuilder`, and ``formbuilder`` itself MUST have a :ref:`genro_datapath` for inner relative path gears. So, *field* search a form to bind itself to (so don't forget to link every *field* to a ``formbuilder``!).
-
-    The last thing is to specify the database table to which the *field* refers to. There are three different possibilities for doing this, that are:
-
-    * :ref:`first-one`
-    * :ref:`second-one`
-    * :ref:`third-one`
-
+    *field* MUST be a child of the :ref:`genro_formbuilder` form widget, and ``formbuilder`` itself MUST have a :ref:`genro_datapath` for inner relative path gears. So, *field* search a form to bind itself to, so don't forget to link every *field* to a ``formbuilder``! Here is an example::
+        
+        class GnrCustomWebPage(object):
+            def main(self,root,**kwargs):
+                fb = root.formbuilder(datapath='myPathForData')
+                fb.field(...) # The field's content will be explained below...
+            
+    The last thing is to specify the database table to which the *field* refers to. There are three different possibilities for doing this:
+    
+    * :ref:`first_one`
+    * the :ref:`second_one`
+    * :ref:`third_one`
+    
 .. _field_attributes:
 
 Attributes
@@ -40,11 +45,11 @@ Attributes
     
     **field attributes**:
     
-    * *field*: MANDATORY - it is field's query path; its complete syntax is ``packageName.tableName.tableAttributeName``. It can be used in a combo with ``dbtable`` (a ``formbuilder`` attribute) and with the ``maintable``
-    * *limit*: The max number of rows displayed in a field as response to user request. The last line is always a line with no characters, so user can choose it to undo his request
+    * *field*: MANDATORY - the field's query path; the complete syntax is ``packageName.tableName.tableAttributeName``. It can be used in a combo with ``dbtable`` (a ``formbuilder`` attribute) and with the ``maintable``
+    * *limit*: The max number of rows displayed in a field as response to user request. The last line is always a line with no characters, so user can choose it to not perform his request
     * *lbl*: Set the Field label. Properly, "lbl" is a formbuilder's child attribute, so if you don't specify it, then *field* will inherit it from the :ref:`genro_name_long` attribute of the requested data
-    * ``rowcaption``: Allow user to view records through :ref:`genro_name_long` value. Without ``rowcaption``, user will see value ID. Check for more information on :ref:`genro_database_rowcaption` page
-    * ``zoom``: It allows to open the linked record in its :ref:`genro_database_table`. For further details, check :ref:`genro_zoom`
+    * *rowcaption*: Allow user to view records through the record's :ref:`genro_name_long` value. Check for more information on :ref:`genro_database_rowcaption` page
+    * *zoom*: Allow to open the linked record in its :ref:`genro_database_table`. For further details, check the :ref:`genro_zoom` page
     
     **Common attributes**:
     
