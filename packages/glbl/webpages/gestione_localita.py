@@ -35,7 +35,7 @@ class GnrCustomWebPage(object):
                   provincia/Prov:3,
                   prefisso_tel/Prefisso:8,
                   cap/CAP:5,
-                  codice_istat/Istat:6
+                  codice_istat/Istat:6,
                   codice_comune/Codice:4"""
                
     def formBase(self, parentBC, datapath='', disabled=False, **kwargs):
