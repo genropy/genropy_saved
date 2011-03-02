@@ -1,15 +1,16 @@
 .. _genro_components_index:
 
 ==========
-Components
+components
 ==========
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     
     introduction
     writing
     IncludedView <includedview>
     SelectionHandler <selectionhandler>
     standardtable/index
+    recorddialog
     maturity-matrix

@@ -46,74 +46,81 @@ def currentSite():
     return GNRSITE
 
 class GnrSiteException(GnrException):
-    """Gnr Site Exception"""
+    """Standard Genro Site Exception
+    
+    * **code**: GNRSITE-001
+    * **description**: Genro Site Exception
+    """
     code = 'GNRSITE-001'
     description = '!!Genro Site exception'
     caption = "!! Site Error : %(message)s"
-
+    
 class GnrWebServerError(Exception):
     pass
-
+    
 class PrintHandlerError(Exception):
     pass
-
-
+    
 class LockInfo():
     def __init__(self, val=False, **kwargs):
         self._status = val
         self.info = kwargs
-
+        
     def __getattr__(self, attr):
         return getattr(self._status, attr)
-
+        
 class SiteLock(object):
+    """add???"""
     def __init__(self, site, locked_path, expiry=600):
         self.site = site
         self.locked_path = locked_path
         self.expiry = expiry or None
-
+        
     def __enter__(self):
         return self.acquire()
-
+        
     def __exit__(self, type, value, traceback):
         self.release()
-
+        
     def acquire(self):
+        """add???
+        
+        :returns: add???
+        """
         page = self.site.currentPage
         lockinfo = dict(user=page.user,
                         page_id=page.page_id,
                         connection_id=page.connection_id,
                         currtime=time.time())
-
+                        
         result = self.site.shared_data.add(self.locked_path, lockinfo, expiry=self.expiry)
         if result:
             return LockInfo(True)
         else:
             info = self.site.shared_data.get(self.locked_path)
             return LockInfo(False, **info)
-
-
+            
     def release(self):
+        """add???"""
         self.site.shared_data.delete(self.locked_path)
-
+        
 class memoize(object):
     class Node(object):
         __slots__ = ['key', 'value', 'older', 'newer']
-
+        
         def __init__(self, key, value, older=None, newer=None):
             self.key = key
             self.value = value
             self.older = older
             self.newer = newer
-
+            
     def __init__(self, capacity=30):#, keyfunc=lambda *args, **kwargs: cPickle.dumps((args, kwargs))):
         self.capacity = capacity
         #self.keyfunc = keyfunc
         global site_cache
         self.nodes = site_cache or {}
         self.reset()
-
-
+        
     def reset(self):
         for node in self.nodes:
             del self.nodes[node]
@@ -123,8 +130,7 @@ class memoize(object):
         self.count = 1
         self.hits = 0
         self.misses = 0
-
-
+        
     def cached_call(self):
         def decore(func):
             def wrapper(*args, **kwargs):

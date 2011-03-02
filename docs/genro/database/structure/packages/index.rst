@@ -4,12 +4,23 @@
 packages
 ========
 
+    * :ref:`packages_features`
     * :ref:`packages_autofill`
     * :ref:`packages_map`
     
     .. module:: gnr.app.gnrdeploy
     
-    The ``packages`` folder is... add???
+.. _packages_features:
+
+features
+========
+
+    The ``packages`` folder includes the packages for your application.
+    
+    * They are the various modules that make up the application code to Genro, including the main package, which is the application developed.
+    * Genro provides additional modules that implement common functions for all the applications (user management, table of Italian municipalities...)
+    
+    .. note:: the Genro packages are not Python packages (not a set of linked modules, containing a file ``__init__.py``), and Genro packages can't be imported with the statement ``import`` *module* or with ``from`` *module* ``import``
     
 .. _packages_autofill:
     
@@ -46,5 +57,5 @@ autocreation of the ``packages`` folder
     lib
     main
     menu
-    model
-    webpages
+    model/index
+    webpages/index

@@ -4,12 +4,22 @@
 instances
 =========
 
+    * :ref:`instances_features`
     * :ref:`instances_autofill`
     * :ref:`instances_map`
     
     .. module:: gnr.app.gnrdeploy
     
-    The ``instances`` folder is... add???
+.. _instances_features:
+
+features
+========
+
+    The ``instances`` folder:
+    
+    * contains customizations for the particular customer
+    * Usually contains parameters for database access
+    * has a :ref:`instances_data` subfolder that you can use to store data in filesystems
     
 .. _instances_autofill:
 

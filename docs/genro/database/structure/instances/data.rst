@@ -4,4 +4,4 @@
 ``data``
 ========
 
-    The ``data`` folder includes ... ???
+    You can use the ``data`` folder to store data in filesystems

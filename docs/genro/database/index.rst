@@ -11,8 +11,6 @@ Genro Projects
     maintable
     name/index
     rowcaption
-    table
     webpage
-    GnrCustomWebPage
     the ``.gnr`` folder <gnr/index>
     structure/index

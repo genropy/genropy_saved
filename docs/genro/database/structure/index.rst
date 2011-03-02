@@ -18,9 +18,7 @@ project structure help
                 * :ref:`packages_main`
                 * :ref:`packages_menu`
                 * :ref:`packages_model`
-                    * :ref:`model_example_table`
                 * :ref:`packages_webpages`
-                    * :ref:`packages_example_webpages`
         * :ref:`genro_resources_index`
         * :ref:`genro_sites_index`
             * :ref:`sites_sites_name`

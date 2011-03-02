@@ -22,6 +22,9 @@ Description
 
     The ``gridEditor()`` method allow to define the widgets used for editing lines. (The widgets are reused gridEditor, moving them into the DOM of the page, as you move between the lines.)
     
+    includedViewBox:
+        list of records useful for implementing views master / detail
+    
     </LUPI'S CLIPBOARD>
 
 .. _iv_example:

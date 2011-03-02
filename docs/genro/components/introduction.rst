@@ -1,8 +1,8 @@
 .. _genro_components_introduction:
 
-================================
- Introduction to the components
-================================
+==============================
+Introduction to the components
+==============================
 
     A component is ???
     

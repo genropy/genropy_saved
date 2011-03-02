@@ -3,13 +3,25 @@
 =====
 sites
 =====
-
+    
+    * :ref:`sites_features`
     * :ref:`sites_autofill`
     * :ref:`sites_map`
     
     .. module:: gnr.app.gnrdeploy
     
-    The ``sites`` folder is... add???
+.. _sites_features:
+
+features
+========
+    
+    The ``sites`` folder:
+    
+    * deals with everything related to the configuration of a particular installation
+    * includes Web components and configurations that are necessary for the execution over the Web
+    * Typically contains the configuration and WSGI script in the :ref:`sites_root` (it is used as the executable if you want to use a debugger, like WingIDE_)
+    
+    .. _WingIDE: http://www.wingware.com/
     
 .. _sites_autofill:
 

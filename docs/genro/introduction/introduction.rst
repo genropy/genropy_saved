@@ -8,7 +8,7 @@ Introduction to Genro
 
     .. warning:: this section is (until now!) only a sketch.
     
-    Genro is a Data Base Management System (DBMS), so it is a software that is able to manage any database ensuring to follow great reliability and security standards.
+    GenroPy is a Framework for business applications.
     
     (??? continue!)
     

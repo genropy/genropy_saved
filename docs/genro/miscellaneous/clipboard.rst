@@ -28,7 +28,7 @@ Additional data types, not in the TextMate bundle
 =================================================
 
 Tipo ``DH``:
-	TimeStamp
+    TimeStamp
 
 GnrApp
 ======
@@ -105,32 +105,13 @@ BonjourFoxy:
 Navicat:
     database editor with good support for Postgres
 
-
 pycallgraph
 ===========
 
 Use the profiler python calls and shows how to graph using graphviz. To install it, use ``easy_install`` or ``pip``::
 
     sudo easy_install  -U -Z pycallgraph
-
-Interesting video on the design of web frameworks
-=================================================
-
-Djangocon 2008, `Building a better framework`_
-
-.. _Building a better framework: http://www.youtube.com/watch?v=fipFKyW2FA4&feature=related
-
-Useful components (defined as resources)
-========================================
-
-includedViewBox:
-    list of records useful for implementing views master / detail
-
-recordDialog:
-    popup window to edit a single record. Usually used for editing records includedViewBox.
-
-Studying these two components for more information on how to define complex components using resources.
-
+    
 Idea for a useful tool for development in Genro
 ===============================================
 
