@@ -4,11 +4,25 @@
 ``webpages``
 ============
 
-    ???
+    add???
+    
+.. _webpages_py_requires:
 
-.. _packages_example_webpages:
+py_requires
+===========
 
-``example_webpages.py``
-=======================
+    add???
+    
+.. _webpages_js_requires:
 
-    ??? ADD example_webpages.py
+js_requires
+===========
+
+    add???
+    
+.. _webpages_css_requires:
+
+css_requires
+============
+
+    add???
