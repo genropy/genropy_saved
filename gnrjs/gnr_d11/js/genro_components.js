@@ -272,6 +272,7 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         var storepath = objectPop(kw, 'storepath');
         var structpath = objectPop(kw, 'structpath');
         var store = objectPop(kw, 'store');
+        var _newGrid = objectPop(kw,'_newGrid');
         var paletteCode=kw.paletteCode
         structpath = structpath? sourceNode.absDatapath(structpath):'.struct';
         var gridKwargs = {'nodeId':gridId,'datapath':'.grid',
@@ -289,12 +290,14 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         };     
         gridKwargs.draggable_row=true;
         objectUpdate(gridKwargs, objectExtract(kw, 'grid_*'));
+        
         kw['contentWidget'] = 'FramePane';
         var pane = sourceNode._('PalettePane',kw)
         if(kw.searchOn){
             pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:objectPop(kw,'searchOn'),toolbar:true});
         }
-        var grid = pane._('includedview', gridKwargs);
+        
+        pane._(_newGrid?'NewIncludedView':'includedview', gridKwargs);
         return pane;
     }    
 });
@@ -554,12 +557,14 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var slotbarCode = sourceNode.getInheritedAttributes().slotbarCode;
+        var target = kw.target || sourceNode.getInheritedAttributes().target;
         kw['showLabel'] = kw.iconClass? (kw['showLabel'] || false):true;        
-        var topic = slotbarCode+'_'+objectPop(kw,'publish');
+        var topic = (target || slotbarCode)+'_'+objectPop(kw,'publish');
         if(!kw.action){
             kw.topic = topic;
             kw.command = kw.command || null;
-            kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(e)})";
+            kw.opt = objectExtract(kw,'opt_*');
+            kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:opt})";
         }
         return sourceNode._('button',kw);
     }
