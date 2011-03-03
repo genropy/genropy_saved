@@ -36,7 +36,9 @@ class GnrCustomWebPage(object):
     def test_0_dropBoxes(self, pane):
         """Drop Boxes"""
         fb = pane.formbuilder(cols=1)
-        dropboxes = fb.div(onDrop="""for (var k in data){
+        dropboxes = fb.div(onDrop="""
+                                    console.log(dropInfo);
+                                    for (var k in data){
                                        alert(k+' :'+data[k])
                                    }""",
                            lbl='Drop boxes text/plain', dropTypes='*')

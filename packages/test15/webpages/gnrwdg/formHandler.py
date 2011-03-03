@@ -10,7 +10,6 @@ from gnr.web.gnrwebstruct import struct_method
 
 class GnrCustomWebPage(object):
     dojo_source=True
-    testOnly='_customStore_'
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler,foundation/includedview:IncludedView"
     user_polling=0
     auto_polling=0
@@ -94,16 +93,16 @@ class GnrCustomWebPage(object):
         bc.contentPane(region='center')
         tc = topbc.tabContainer(region='left',splitter=True,width='600px',nodeId='mytc')
         topbc.contentPane(region='center').div('pippo')
-        t1 = tc.contentPane(title='Dummy',background_color='red')
-        t2 = tc.contentPane(title='My Form').contentPane(detachable=True,_lazyBuild=True)
-        t2.formTester('form_tc')
+        t1 = tc.contentPane(title='Dummy',background_color='red',onCreated='console.log("I was hoping")')
+        t2 = tc.borderContainer(title='My Form',_lazyBuild=True)
+        t2.formTester('form_tc',region='center')
+        tc.contentPane(title='Third one')
     
     def test_3_formPane_palette(self,pane):
         pane = pane.div(height='30px')
         pane.dock(id='test_3_dock')
         pane.palettePane('province',title='Province',dockTo='test_3_dock',
-                        _lazyBuild=True,
-                        width='600px',height='300px').formTester('form_palette')
+                        width='600px',height='300px',_lazyBuild=True).formTester('form_palette')
         pane.palettePane('province_remote',title='Province Remote',dockTo='test_3_dock',
                         _lazyBuild='testPalette',width='600px',height='300px')
 
@@ -141,58 +140,3 @@ class GnrCustomWebPage(object):
     def rpc_salvaDati(self, dati, **kwargs):
         print "Dati salvati:"
         print dati
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-    def test_44_customStore_prova(self,pane):
-        form = pane.frameForm(frameCode='provincia_1',border='1px solid silver',datapath='.form',
-                            rounded_bottom=10,height='180px',width='600px',center_widget='BorderContainer',
-                            pkeyPath='.prov')
-        form.testToolbar()
-        store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
-                               handler='recordCluster',
-                               startKey='*newrecord*',
-                               onSaved='reload')
-        store.handler('save',rpcmethod='miosalvataggio')
-        form.contentPane(region='center').formbuilder(cols=2, border_spacing='3px').formContent()
-    
-    
-    def rpc_miosalvataggio(self,**kwargs):
-        print bazinga
-        
-        
-        
-        
-

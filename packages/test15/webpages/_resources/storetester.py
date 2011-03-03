@@ -27,6 +27,7 @@ class StoreTester(BaseComponent):
 
 
     def common_pagemenu(self, pane):
+        
         pane.dropdownbutton('Page', float='left').menu(storepath='.pagemenu', selected_page_id='.info.pageId',
                                                        selected_start_ts='.info.start_ts',
                                                        selected_user_agent='.info.user_agent',

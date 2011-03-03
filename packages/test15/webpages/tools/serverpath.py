@@ -45,7 +45,10 @@ class GnrCustomWebPage(object):
         fb.div('^.mysync.answer.1.2.3', lbl='Answer')
         fb.dataRpc('dummy', 'setval', value='^.mydata',
                    serverpath='mytest3.mirror.answer.1.2.3')
-
+                           
+        
+        
+        
     def rpc_setval(self, serverpath=None, value=None):
         with self.pageStore() as store:
             print 'setting at %s value %s' % (serverpath, value)
