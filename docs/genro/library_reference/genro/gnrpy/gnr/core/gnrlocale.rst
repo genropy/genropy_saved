@@ -2,15 +2,17 @@
 :mod:`gnr.core.gnrlocale` - tools for data and time handling
 ============================================================
 
-* Index of ``gnr.core.gnrlocale`` methods:
+* Index of ``gnr.core.gnrlocale`` classes:
+
+    There is no class defined
     
-    * :ref:`gnrlocale_others`
+* :ref:`gnrlocale_others`
     
 * :ref:`gnrlocale_classes`
 
 .. _gnrlocale_others:
 
-Index methods
+Other methods
 =============
 
     These methods don't belong to any class.

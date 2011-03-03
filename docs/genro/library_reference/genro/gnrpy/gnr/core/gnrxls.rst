@@ -2,7 +2,7 @@
 :mod:`gnr.core.gnrxls`
 ======================
 
-* Index of ``gnr.core.gnrxls`` methods:
+* Index of ``gnr.core.gnrxls`` classes:
     
     * :ref:`gnrxls_xlsreader`
     * :ref:`gnrxls_xlswriter`

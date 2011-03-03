@@ -2,7 +2,7 @@
 The :mod:`gnr.core.gnrstructures` structures
 ============================================
 
-* Index of ``gnr.core.gnrstructures`` methods:
+* Index of ``gnr.core.gnrstructures`` classes:
     
     * :ref:`gnrstructures_gnrstructdata`
     * :ref:`gnrstructures_gnrstructobj`

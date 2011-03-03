@@ -2,7 +2,7 @@
 :mod:`gnr.app.gnrdeploy` -- tools for the creation of a DBMS
 ============================================================
 
-* Index of ``gnr.app.gnrdeploy`` methods:
+* Index of ``gnr.app.gnrdeploy`` classes:
 
     * :ref:`gnrapp_gnrdeploy`
     * :ref:`gnrapp_modwsgimaker`

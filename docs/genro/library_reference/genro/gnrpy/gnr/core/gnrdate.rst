@@ -2,11 +2,12 @@
 :mod:`gnr.core.gnrdate` -- Utilities for date and time management
 =================================================================
 
-* Index of ``gnr.core.gnrdate`` methods:
+* Index of ``gnr.core.gnrdate`` classes:
 
     * :ref:`gnrdate_timeinterval`
     * :ref:`gnrdate_timeperiod`
-    * :ref:`gnrdate_others`
+    
+* :ref:`gnrdate_others`
     
 * :ref:`gnrdate_classes`
 
@@ -35,7 +36,7 @@
 
 .. _gnrdate_others:
 
-other methods
+Other methods
 =============
     
     These methods don't belong to any class.

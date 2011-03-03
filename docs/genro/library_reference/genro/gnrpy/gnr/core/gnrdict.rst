@@ -2,11 +2,12 @@
 :mod:`gnr.core.gnrdict` -- Dictionaries
 =======================================
 
-* Index of ``gnr.core.gnrdict`` methods:
+* Index of ``gnr.core.gnrdict`` classes:
 
     * :ref:`gnrdict_gnrdict`
     * :ref:`gnrdict_gnrnumericdict`
-    * :ref:`gnrdict_others`
+
+* :ref:`gnrdict_others`
     
 * :ref:`gnrdict_classes`
 
@@ -37,7 +38,7 @@
 
 .. _gnrdict_others:
 
-other methods
+Other methods
 =============
     
     These methods don't belong to any class.

@@ -2,7 +2,7 @@
 :mod:`gnr.core.gnrbaghtml`
 ==========================
 
-* Index of ``gnr.core.gnrbaghtml`` methods:
+* Index of ``gnr.core.gnrbaghtml`` classes:
 
     * :ref:`gnrcore_gnrbaghtml`
 

@@ -10,7 +10,7 @@
         than 10 functions on 10 data structures.
         – Alan J. Perlis, Epigrams on Programming
 
-* Index of ``gnr.core.gnrbag`` methods:
+* Index of ``gnr.core.gnrbag`` classes:
 
     Main classes:
     

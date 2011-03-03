@@ -2,7 +2,7 @@
 :mod:`gnr.sql.gnrsql_exceptions`
 ================================
 
-* Index of ``gnr.sql.gnrsql_exceptions`` methods:
+* Index of ``gnr.sql.gnrsql_exceptions`` classes:
 
     * :ref:`gnrsqldeleeteexception`
     * :ref:`gnrsql_exceptions_gnrsqlexception`

@@ -2,11 +2,13 @@
 :mod:`gnr.core.gnrlist` - Operations on lists
 =============================================
 
-* Index of ``gnr.core.gnrlist`` methods:
+* Index of ``gnr.core.gnrlist`` classes:
     
     * :ref:`gnrlist_gnrclasscatalog`
     * :ref:`gnrlist_xlsreader`
     
+* :ref:`gnrlist_others`
+
 * :ref:`gnrlist_classes`
 
 .. _gnrlist_gnrclasscatalog:

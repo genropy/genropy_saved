@@ -2,10 +2,11 @@
 :mod:`gnr.core.gnrlog`
 ======================
 
-* Index of ``gnr.core.gnrlist`` methods:
+* Index of ``gnr.core.gnrlist`` classes:
     
     * :ref:`gnrlog_coloredformatter`
-    * :ref:`gnrlog_others`
+    
+* :ref:`gnrlog_others`
     
 * :ref:`gnrlog_classes`
 

@@ -2,7 +2,7 @@
 :mod:`gnr.core.gnrprinthandler`
 ===============================
 
-* Index of ``gnr.core.gnrprinthandler`` methods:
+* Index of ``gnr.core.gnrprinthandler`` classes:
     
     * :ref:`gnrprinthandler_printhandler`
     * :ref:`gnrprinthandler_printerconnection`

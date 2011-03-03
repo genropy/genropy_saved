@@ -2,7 +2,7 @@
 :mod:`gnr.pdf.gnrplatypus`
 ==========================
 
-* Index of ``gnr.pdf.gnrplatypus`` methods:
+* Index of ``gnr.pdf.gnrplatypus`` classes:
 
     * :ref:`gnrplatypus_`
     

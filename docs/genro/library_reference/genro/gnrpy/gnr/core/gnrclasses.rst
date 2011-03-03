@@ -2,7 +2,7 @@
 :mod:`gnr.core.gnrclasses`
 ==========================
 
-* Index of ``gnr.core.gnrclasses`` methods:
+* Index of ``gnr.core.gnrclasses`` classes:
 
     * :ref:`gnrclasses_gnrclasscatalog`
 

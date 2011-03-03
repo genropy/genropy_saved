@@ -2,7 +2,7 @@
 :mod:`gnr.utils.ssmtplib`
 =========================
 
-* Index of ``gnr.utils.ssmtplib`` methods:
+* Index of ``gnr.utils.ssmtplib`` classes:
     
     Main class:
     

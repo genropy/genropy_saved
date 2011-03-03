@@ -22,7 +22,7 @@
 
 
 """
-core.py
+_gnrbasewebpage.py
 
 Created by Giovanni Porcari on 2007-03-24.
 Copyright (c) 2007 Softwell. All rights reserved.
@@ -56,58 +56,87 @@ AUTH_FORBIDDEN = -1
 
 class GnrWebClientError(Exception):
     pass
-
+    
 class GnrWebServerError(Exception):
     pass
-
-
+    
 class GnrBaseWebPage(GnrObject):
+    """add???"""
     def newCookie(self, name, value, **kw):
+        """add???
+        
+        :param name: add???
+        :param value: add???
+        :returns: add???
+        """
         return self.request.newCookie(name, value, **kw)
-
+        
     def newMarshalCookie(self, name, value, secret=None, **kw):
+        """add???
+        
+        :param name: add???
+        :param value: add???
+        :param secret: add???. Default value is ``None``
+        :returns: add???
+        """
         return self.request.newMarshalCookie(name, value, secret=secret, **kw)
-
-
+        
     def get_cookie(self, cookieName, cookieType, secret=None, path=None):
+        """add???
+        
+        :param cookieName: add???
+        :param cookieType: add???
+        :param secret: add???. Default value is ``None``
+        :param path: add???. Default value is ``None``
+        :returns: add???
+        """
         return self.request.get_cookie(cookieName, cookieType,
                                        secret=secret, path=path)
-
+                                       
     def add_cookie(self, cookie):
+        """add???
+        
+        :param cookie: add???
+        """
         self.response.add_cookie(cookie)
-
+        
     def _get_clientContext(self):
         cookie = self.get_cookie('genroContext', 'simple')
         if cookie:
             return Bag(urllib.unquote(cookie.value))
         else:
             return Bag()
-
+            
     def _set_clientContext(self, bag):
         value = urllib.quote(bag.toXml())
         cookie = self.get_cookie('genroContext', 'simple', path=self.site.default_uri)
         cookie.value = value
         self.add_cookie(cookie)
-
+        
     clientContext = property(_get_clientContext, _set_clientContext)
-
+        
     def _get_filename(self):
         try:
             return self._filename
         except AttributeError:
             self._filename = os.path.basename(self.filepath)
             return self._filename
-
+            
     filename = property(_get_filename)
-
-
+        
     def _get_canonical_filename(self):
         return self.filename
-
+        
     canonical_filename = property(_get_canonical_filename)
-
-
+        
     def rpc_decodeDatePeriod(self, datestr, workdate=None, locale=None):
+        """add???
+        
+        :param datestr: add???
+        :param workdate: add???. Default value is ``None``
+        :param locale: add???. Default value is ``None``
+        :returns: add???
+        """
         workdate = workdate or self.workdate
         locale = locale or self.locale
         period = datestr
@@ -127,51 +156,85 @@ class GnrBaseWebPage(GnrObject):
         result['valid'] = valid
         result['period_string'] = gnrdate.periodCaption(locale=locale, *returnDate)
         return result
-
+        
     def mixins(self):
         """Implement this method in your page for mixin the page with methods from the local _resources folder
-        @return: list of mixin names, moduleName:className"""
+        
+        :returns: a list of mixin names, moduleName:className
+        """
         return []
-
+        
     def requestWrite(self, txt, encoding='utf-8'):
+        """add???
+        
+        :param txt: add???
+        :param encoding: add???. Default value is ``utf-8``
+        """
         self.responseWrite(txt, encoding=encoding)
-
+        
     def responseWrite(self, txt, encoding='utf-8'):
+        """add???
+        
+        :param txt: add???
+        :param encoding: add???. Default value is ``utf-8``
+        """
         self.response.write(txt.encode(encoding))
-
-
+        
     def _get_siteStatus(self):
         if not hasattr(self, '_siteStatus'):
             path = os.path.join(self.siteFolder, 'data', '_siteStatus.xml')
-
+            
             if os.path.isfile(path):
                 self._siteStatus = Bag(path)
             else:
                 self._siteStatus = Bag()
         return self._siteStatus
-
+        
     siteStatus = property(_get_siteStatus)
-
+        
     def siteStatusSave(self):
+        """add???"""
         if hasattr(self, '_siteStatus'):
             path = os.path.join(self.siteFolder, 'data', '_siteStatus.xml')
             self._siteStatus.toXml(path)
-
+            
     def pageAuthTags(self, method=None, **kwargs):
+        """add???
+        
+        :param method: add???. Default value is ``None``
+        :returns: add???
+        """
         return ""
-
+        
     def pageLocalDocument(self, docname):
+        """add???
+        
+        :param docname: add???
+        :returns: add???
+        """
         folder = os.path.join(self.connectionFolder, self.page_id)
         if not os.path.isdir(folder):
             os.makedirs(folder)
         return os.path.join(folder, docname)
-
+        
     def freezeSelection(self, selection, name):
+        """add???
+        
+        :param selection: add???
+        :param name: add???
+        :returns: add???
+        """
         path = self.pageLocalDocument(name)
         selection.freeze(path, autocreate=True)
         return path
-
+        
     def unfreezeSelection(self, dbtable=None, name=None):
+        """add???
+        
+        :param dbtable: add???. Default value is ``None``
+        :param name: add???. Default value is ``None``
+        :returns: add???
+        """
         assert name, 'name is mandatory'
         if isinstance(dbtable, basestring):
             dbtable = self.db.table(dbtable)
@@ -179,9 +242,20 @@ class GnrBaseWebPage(GnrObject):
         if dbtable and selection is not None:
             assert dbtable == selection.dbtable, 'unfrozen selection does not belong to the given table'
         return selection
-
+        
     def getUserSelection(self, selectionName=None, selectedRowidx=None, filterCb=None, columns=None,
                          condition=None, table=None, condition_args=None):
+        """add???
+        
+        :param selectionName: add???. Default value is ``None``
+        :param selectedRowidx: add???. Default value is ``None``
+        :param filterCb: add???. Default value is ``None``
+        :param columns: add???. Default value is ``None``
+        :param condition: add???. Default value is ``None``
+        :param table: add???. Default value is ``None``
+        :param condition_args: add???. Default value is ``None``
+        :returns: add???
+        """
         # table is for checking if the selection belong to the table
         assert selectionName, 'selectionName is mandatory'
         if isinstance(table, basestring):
@@ -206,18 +280,27 @@ class GnrBaseWebPage(GnrObject):
                                     pkeys=pkeys, addPkeyColumn=False,
                                     **condition_args).selection()
         return selection
-
-
+        
     def getAbsoluteUrl(self, path, **kwargs):
-        """return an external link to the page
-        @param path: the path to the page from 'pages' folder
+        """Return an external link to the page
+        
+        :param path: the path to the page from 'pages' folder
+        :returns: an external link to the page
         """
         return self.request.construct_url(self.getDomainUrl(path, **kwargs))
-
+        
     def resolvePathAsUrl(self, *args, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         return self.diskPathToUri(self.resolvePath(*args, **kwargs))
-
+        
     def resolvePath(self, *args, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         folder = kwargs.pop('folder', None)
         sitefolder = self.siteFolder
         if folder == '*data':
@@ -239,53 +322,70 @@ class GnrBaseWebPage(GnrObject):
             diskpath = os.path.join(os.path.dirname(self.filename), *args)
         diskpath = os.path.normpath(diskpath)
         return diskpath
-
+        
     def diskPathToUri(self, tofile, fromfile=None):
+        """add???
+        
+        :param tofile: add???
+        :param fromfile: add???. Default value is ``None``
+        :returns: add???
+        """
         fromfile = fromfile or self.filename
         pagesfolder = self.folders['pages']
         relUrl = tofile.replace(pagesfolder, '').lstrip('/')
         path = fromfile.replace(pagesfolder, '')
         rp = '../' * (len(path.split('/')) - 1)
-
+        
         path_info = self.request.path_info
         if path_info: # != '/index'
             rp = rp + '../' * (len(path_info.split('/')) - 1)
         return '%s%s' % (rp, relUrl)
-
+        
     def _get_siteName(self):
         return os.path.basename(self.siteFolder.rstrip('/'))
-
+        
     siteName = property(_get_siteName)
-
-
+        
     def _get_dbconnection(self):
         if not self._dbconnection:
             self._dbconnection = self.db.adapter.connect()
         return
-
+        
     dbconnection = property(_get_dbconnection)
-
-
+        
     def _get_packages(self):
         return self.db.packages
-
+        
     packages = property(_get_packages)
-
+        
     def _get_package(self):
         pkgId = self.packageId
         if pkgId:
             return self.db.package(pkgId)
-
+            
     package = property(_get_package)
-
+        
     def _get_tblobj(self):
         if self.maintable:
             return self.db.table(self.maintable)
-
+            
     tblobj = property(_get_tblobj)
-
+        
     def formSaver(self, formId, table=None, method=None, _fired='', datapath=None,
                   resultPath='dummy', changesOnly=True, onSaving=None, onSaved=None, saveAlways=False, **kwargs):
+        """add???
+        
+        :param formId: add???
+        :param table: add???. Default value is ``None``
+        :param method: add???. Default value is ``None``
+        :param _fired: add???. Default value is ``''``
+        :param datapath: add???. Default value is ``None``
+        :param resultPath: add???. Default value is ``None``
+        :param changesOnly: boolean. add???. Default value is ``True``
+        :param onSaving: add???. Default value is ``None``
+        :param onSaved: add???. Default value is ``None``
+        :param saveAlways: boolean. add???. Default value is ``False``
+        """
         method = method or 'saveRecordCluster'
         controller = self.pageController()
         data = '==genro.getFormCluster("%s");'
@@ -302,7 +402,7 @@ class GnrBaseWebPage(GnrObject):
                             }else if(result instanceof gnr.GnrBag){
                                 $1.data.setItem('record',result);
                             }""" % (formId, onSaving, _onCalling or '')
-
+                            
         _onError = """var cb = function(){genro.formById("%s").status=null;};
                     genro.dlg.ask(kwargs._errorTitle,error,{"confirm":"Confirm"},
                                   {"confirm":cb});""" % formId
@@ -316,10 +416,25 @@ class GnrBaseWebPage(GnrObject):
                            _onResult='genro.formById("%s").saved();%s;' % (formId, onSaved),
                            _onError=_onError, _errorTitle='!!Saving error',
                            table=table, **kwargs)
-
+                           
     def formLoader(self, formId, resultPath, table=None, pkey=None, datapath=None,
                    _fired=None, loadOnStart=False, lock=False,
                    method=None, onLoading=None, onLoaded=None, loadingParameters=None, **kwargs):
+        """add???
+        
+        :param formId: add???
+        :param resultPath: add???
+        :param table: add???. Default value is ``None``
+        :param pkey: add???. Default value is ``None``
+        :param datapath: add???. Default value is ``None``
+        :param _fired: add???. Default value is ``None``
+        :param loadOnStart: boolean add???. Default value is ``False``
+        :param lock: boolean. add???. Default value is ``False``
+        :param method: add???. Default value is ``None``
+        :param onLoading: add???. Default value is ``None``
+        :param onLoaded: add???. Default value is ``None``
+        :param loadingParameters: add???. Default value is ``None``
+        """
         pkey = pkey or '*newrecord*'
         method = method or 'loadRecordCluster'
         onResultScripts = []
@@ -331,22 +446,37 @@ class GnrBaseWebPage(GnrObject):
         controller.dataController('genro.formById(_formId).load();',
                                   _fired=_fired, _onStart=loadOnStart, _delay=1, _formId=formId,
                                   datapath=datapath)
-
+                                  
         controller.dataRpc(resultPath, method=method, pkey=pkey, table=table,
                            nodeId='%s_loader' % formId, datapath=datapath, _onCalling=onLoading,
                            _onResult=';'.join(onResultScripts), lock=lock,
                            loadingParameters=loadingParameters,
                            virtual_columns='==genro.formById(_formId).getVirtualColumns()',
                            _formId=formId, **kwargs)
-
+                           
     def rpc_loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
+        """add???
+        
+        :param table: add???. Default value is ``None``
+        :param pkey: add???. Default value is ``None``
+        :param recordGetter: add???. Default value is ``app.getRecord``
+        :returns: add???
+        """
         table = table or self.maintable
         getterHandler = self.getPublicMethod('rpc', recordGetter)
         record, recinfo = getterHandler(table=table, pkey=pkey, **kwargs)
         return record, recinfo
-
-
-    def rpc_saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None,_autoreload=False, **kwargs):
+        
+    def rpc_saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None, _autoreload=False, **kwargs):
+        """add???
+        
+        :param data: add???
+        :param table: add???. Default value is ``None``
+        :param _nocommit: boolean. add???. Default value is ``False``
+        :param rowcaption: add???. Default value is ``None``
+        :param _autoreload: boolean. add???. Default value is ``False``
+        :returns: add???
+        """
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
         onSavingMethod = 'onSaving'
@@ -386,9 +516,14 @@ class GnrBaseWebPage(GnrObject):
             return result
         else:
             return (pkey, resultAttr)
-
-
+            
     def rpc_deleteRecordCluster(self, data, table=None, **kwargs):
+        """add???
+        
+        :param data: add???
+        :param table: add???. Default value is ``None``
+        :returns: add???
+        """
         maintable = getattr(self, 'maintable')
         table = table or maintable
         tblobj = self.db.table(table)
@@ -404,11 +539,15 @@ class GnrBaseWebPage(GnrObject):
             return 'ok'
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
-
+            
     def rpc_deleteDbRow(self, table, pkey=None, **kwargs):
-        """
-            Method for deleting a single record from a given tablename 
-            and from a record or its pkey.
+        """Method for deleting a single record from a given tablename 
+        and from a record or its pkey
+        
+        :param table: the table from which you want to delete a single record
+        :param pkey: the table's primary key. Default value is ``None``
+        :returns: if it works, returns the primary key and the deleted attribute.
+                  Else, return an exception
         """
         try:
             tblobj = self.db.table(table)
@@ -421,40 +560,77 @@ class GnrBaseWebPage(GnrObject):
             return pkey, deleteAttr
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
-
+            
     def setLoadingParameters(self, table, **kwargs):
+        """add???
+        
+        :param table: add???
+        """
         self.pageSource().dataFormula('gnr.tables.%s.loadingParameters' % table.replace('.', '_'),
                                       '', _onStart=True, **kwargs)
-
+                                      
     def toJson(self, obj):
+        """add???
+        
+        :param obj: add???
+        :returns: add???
+        """
         return toJson(obj)
-
+        
     def setOnBeforeUnload(self, root, cb, msg):
+        """add???
+        
+        :param root: add???
+        :param cb: add???
+        :param msg: add???
+        """
         root.script("""genro.checkBeforeUnload = function(e){
                        if (%s){
                            return "%s";
                        }
                 }""" % (cb, self._(msg)))
-
+                
     def mainLeftContent(self, parentBC, **kwargs):
         pass
-
+        
     def pageController(self, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         return self.pageSource().dataController(**kwargs)
-
-    def pageSource(self, nodeid=None):
-        if nodeid:
-            return self._root.nodeById(nodeid)
+        
+    def pageSource(self, nodeId=None):
+        """add???
+        
+        :param nodeId: add???
+        :returns: add???
+        """
+        if nodeId:
+            return self._root.nodeById(nodeId)
         else:
             return self._root
-
+            
     def rootWidget(self, root, **kwargs):
+        """add???
+        
+        :param root: add???
+        :returns: add???
+        """
         return root.contentPane(**kwargs)
-
+        
     def main(self, root, **kwargs): #You MUST override this !
+        """add???
+        
+        :param root: add???
+        """
         root.h1('You MUST override this main method !!!')
-
+        
     def forbiddenPage(self, root, **kwargs):
+        """add???
+        
+        :param root: add???
+        """
         dlg = root.dialog(toggle="fade", toggleDuration=250, onCreated='widget.show();')
         f = dlg.form()
         f.div(content='Forbidden Page', text_align="center", font_size='24pt')
@@ -464,11 +640,14 @@ class GnrBaseWebPage(GnrObject):
                color='#c90031')
         cell = tbl.tr().td()
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
-
-
+        
     def windowTitle(self):
+        """add???
+        
+        :returns: add???
+        """
         return os.path.splitext(os.path.basename(self.filename))[0].replace('_', ' ').capitalize()
-
+        
     def _errorPage(self, err, method=None, kwargs=None):
         page = self.domSrcFactory.makeRoot(self)
         sc = page.stackContainer(height='80ex', width='50em', selected='^_dev.traceback.page')
@@ -502,13 +681,18 @@ class GnrBaseWebPage(GnrObject):
                     v = 'unicode error'
                 tr.td(v.encode('ascii', 'ignore'))
         return page
-
+            
     def rpc_resolverRecall(self, resolverPars=None, **auxkwargs):
+        """add???
+        
+        :param resolverPars: add???. Default value is ``None``
+        :returns: add???
+        """
         if isinstance(resolverPars, basestring):
             resolverPars = json.loads(resolverPars) #should never happen
         resolverclass = resolverPars['resolverclass']
         resolvermodule = resolverPars['resolvermodule']
-
+        
         args = resolverPars['args'] or []
         kwargs = {}
         for k, v in (resolverPars['kwargs'] or {}).items():
@@ -528,19 +712,26 @@ class GnrBaseWebPage(GnrObject):
         if resolver is not None:
             resolver._page = self
             return resolver()
-
-
-
+            
     def rpc_resetApp(self, **kwargs):
+        """add???"""
         self.siteStatus['resetTime'] = time.time()
         self.siteStatusSave()
-
+        
     def rpc_applyChangesToDb(self, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         return self._checkDb(applychanges=True)
-
+        
     def rpc_checkDb(self):
+        """add???
+        
+        :returns: add???
+        """
         return self._checkDb(applychanges=False)
-
+        
     def _checkDb(self, applychanges=False, changePath=None, **kwargs):
         changes = self.db.checkDb()
         if applychanges:
@@ -553,16 +744,24 @@ class GnrBaseWebPage(GnrObject):
             self.db.commit()
             self.db.checkDb()
         return self.db.model.modelBagChanges
-
+        
     def rpc_tableStatus(self, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         strbag = self._checkDb(applychanges=False)
         for pkgname, pkg in self.db.packages.items():
             for tablename in pkg.tables.keys():
                 records = self.db.query('%s.%s' % (pkgname, tablename)).count()
                 strbag.setAttr('%s.%s' % (pkgname, tablename), recordsnum=records)
         return strbag
-
+        
     def createFileInData(self, *args):
+        """add???
+        
+        :returns: add???
+        """
         if args:
             path = os.path.join(self.siteFolder, 'data', *args)
             dirname = os.path.dirname(path)
@@ -570,8 +769,12 @@ class GnrBaseWebPage(GnrObject):
                 os.makedirs(dirname)
             outfile = file(path, 'w')
             return outfile
-
+            
     def createFileInStatic(self, *args):
+        """add???
+        
+        :returns: add???
+        """
         if args:
             path = os.path.join(self.siteFolder, 'pages', 'static', *args)
             dirname = os.path.dirname(path)
@@ -579,20 +782,25 @@ class GnrBaseWebPage(GnrObject):
                 os.makedirs(dirname)
             outfile = file(path, 'w')
             return outfile
-
+            
     def createFolderInData(self, *args):
+        """add???
+        
+        :returns: add???
+        """
         if args:
             path = os.path.join(self.siteFolder, 'data', *args)
             if not os.path.exists(path):
                 os.makedirs(path)
             return path
-
+            
     def createFolderInStatic(self, *args):
+        """add???
+        
+        :returns: add???
+        """
         if args:
             path = os.path.join(self.siteFolder, 'pages', 'static', *args)
             if not os.path.exists(path):
                 os.makedirs(path)
             return path
-
-    
-

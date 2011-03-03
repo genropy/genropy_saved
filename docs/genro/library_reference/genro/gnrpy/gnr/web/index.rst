@@ -5,5 +5,9 @@
 .. toctree::
     :maxdepth: 1
     
+    _gnrbasewebpage
+    gnrbaseclasses
+    gnrcookie
     gnrwebstruct
+    gnrwebutils
     gnrwsgisite

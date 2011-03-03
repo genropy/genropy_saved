@@ -2,11 +2,12 @@
 :mod:`gnr.devel.commands`
 =========================
 
-* Index of ``gnr.devel.commands`` methods:
+* Index of ``gnr.devel.commands`` classes:
 
     * :ref:`commands_cmdrunner`
     * :ref:`commands_gnrcommand`
-    * :ref:`commands_others`
+
+* :ref:`commands_others`
     
 * :ref:`commands_classes`
 

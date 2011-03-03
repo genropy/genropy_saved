@@ -2,7 +2,7 @@
 :mod:`gnr.sql.gnrsqlmodel` -- Database Model
 =================================================
 
-* Index of ``gnr.sql.gnrsqlmodel`` methods:
+* Index of ``gnr.sql.gnrsqlmodel`` classes:
 
     Main classes:
     

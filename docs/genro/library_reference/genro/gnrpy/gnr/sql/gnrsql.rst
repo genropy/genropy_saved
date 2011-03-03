@@ -2,7 +2,7 @@
 :mod:`gnr.sql.gnrsql`
 =====================
 
-* Index of ``gnr.sql.gnrsql`` methods:
+* Index of ``gnr.sql.gnrsql`` classes:
 
     Main classes:
     

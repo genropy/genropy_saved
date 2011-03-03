@@ -2,10 +2,11 @@
 :mod:`gnr.core.gnrmailhandler`
 ==============================
 
-* Index of ``gnr.core.gnrmailhandler`` methods:
+* Index of ``gnr.core.gnrmailhandler`` classes:
     
     * :ref:`gnrmailhandler_mailhandler`
-    * :ref:`gnrmailhandler_others`
+
+* :ref:`gnrmailhandler_others`
     
 * :ref:`gnrmailhandler_classes`
 

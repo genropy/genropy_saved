@@ -2,7 +2,7 @@
 :mod:`gnr.sql.SteadyDB`
 =======================
 
-* Index of ``gnr.sql.SteadyDB`` methods:
+* Index of ``gnr.sql.SteadyDB`` classes:
     
     Classes:
     

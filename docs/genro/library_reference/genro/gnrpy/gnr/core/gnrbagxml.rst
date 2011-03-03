@@ -2,7 +2,7 @@
 :mod:`gnr.core.gnrbagxml`
 =========================
 
-* Index of ``gnr.core.gnrbagxml`` methods:
+* Index of ``gnr.core.gnrbagxml`` classes:
 
     * :ref:`gnrbagxml_bagfromxml`
     * :ref:`gnrbagxml_bagtoxml`

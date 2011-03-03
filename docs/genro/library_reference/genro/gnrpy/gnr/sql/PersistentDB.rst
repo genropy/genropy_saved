@@ -2,7 +2,7 @@
 :mod:`gnr.sql.PersistentDB`
 ===========================
 
-* Index of ``gnr.sql.PersistentDB`` methods:
+* Index of ``gnr.sql.PersistentDB`` classes:
     
     Main class:
     

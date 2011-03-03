@@ -21,7 +21,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 try:
     from gnr.pdf.gnrrml import GnrPdf
-
+    
     class GnrWebPDF(GnrPdf):
         def getPdf(self, table, record, filename=None, folder=None):
             record = self.db.table(table).recordAs(record, mode='bag')
@@ -31,10 +31,33 @@ try:
             self.createStory(record)
 except ImportError:
     class GnrWebPDF(object):
+        """add???"""
         def getPdf(self, *args, **kwargs):
             pass
-
+            
 def plain_redirect (page, params):
+    """Return the following string::
+    
+        <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+        <html lang="en">
+            <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <script>
+                    window.location = '%s?%s';
+                </script>
+            </head>
+            <body>
+            </body>
+        </html>
+    
+    where in place of the first ``%s`` goes the *page* parameter
+    and in the second ``%s`` goes the *params* parameter.
+    
+    :param page: add???
+    :param params: add???
+    :returns: a string
+    """
     return """<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
     <html lang="en">
@@ -48,4 +71,3 @@ def plain_redirect (page, params):
         </body>
         </html>
 """ % (page, params)
-

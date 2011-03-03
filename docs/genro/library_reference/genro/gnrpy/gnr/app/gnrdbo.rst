@@ -2,7 +2,7 @@
 :mod:`gnr.app.gnrdbo` -- Counters, tables and other services for the hierarchical database
 ==========================================================================================
 
-* Index of ``gnr.app.gnrdbo`` methods:
+* Index of ``gnr.app.gnrdbo`` classes:
 
     * :ref:`gnrapp_gnrdbopkg`
     * :ref:`gnrapp_gnrdbotbl`

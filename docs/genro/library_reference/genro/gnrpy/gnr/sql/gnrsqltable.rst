@@ -2,7 +2,7 @@
 :mod:`gnr.sql.gnrsqltable` -- Database Tables
 =============================================
 
-* Index of ``gnr.sql.gnrsqltable`` methods:
+* Index of ``gnr.sql.gnrsqltable`` classes:
     
     Main class:
     

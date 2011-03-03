@@ -2,7 +2,7 @@
 :mod:`gnr.app.gnrapp` -- Application Instances
 ==============================================
 
-* Index of ``gnr.app.gnrapp`` methods:
+* Index of ``gnr.app.gnrapp`` classes:
     
     * :ref:`gnrapp_gnrapp`
     * :ref:`gnrapp_gnravatar`

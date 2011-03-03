@@ -20,7 +20,6 @@
 # Ported to WebOb
 
 """
-
 This module contains classes to support HTTP State Management
 Mechanism, also known as Cookies. The classes provide simple
 ways for creating, parsing and digitally signing cookies, as
@@ -39,7 +38,6 @@ of Expires, but my limited tests show that Max-Age is ignored
 by the two browsers tested (IE and Safari). As a result of this,
 perhaps trying to be RFC-compliant (by automatically providing
 Max-Age and Version) could be a waste of cookie space...
-
 """
 
 import time
@@ -62,16 +60,16 @@ class metaCookie(type):
         "commentURL", "discard", "port",
         # Microsoft Extension
         "httponly" )
-
+        
         # _valid_attr + property values
         # (note __slots__ is a new Python feature, it
         # prevents any other attribute from being set)
         __slots__ = _valid_attr + ("name", "value", "_value",
                                    "_expires", "__data__")
-
+                                   
         clsdict["_valid_attr"] = _valid_attr
         clsdict["__slots__"] = __slots__
-
+        
         def set_expires(self, value):
             if type(value) == type(""):
                 # if it's a string, it should be
@@ -87,68 +85,66 @@ class metaCookie(type):
                 t = value
                 value = time.strftime("%a, %d-%b-%Y %H:%M:%S GMT",
                                       time.gmtime(t))
-
+                                      
             self._expires = "%s" % value
-
+            
         def get_expires(self):
             return self._expires
-
+            
         clsdict["expires"] = property(fget=get_expires, fset=set_expires)
-
+            
         return type.__new__(cls, clsname, bases, clsdict)
-
+            
 class Cookie(object):
-    """
-    This class implements the basic Cookie functionality. Note that
+    """This class implements the basic Cookie functionality. Note that
     unlike the Python Standard Library Cookie class, this class represents
     a single cookie (not a list of Morsels).
     """
-
+    
     __metaclass__ = metaCookie
-
+    
     DOWNGRADE = 0
     IGNORE = 1
     EXCEPTION = 3
-
+    
     def parse(Class, str, secret=None, **kw):
-        """
-        Parse a Cookie or Set-Cookie header value, and return
+        """Parse a Cookie or Set-Cookie header value, and return
         a dict of Cookies. Note: the string should NOT include the
         header name, only the value.
+        
+        :param Class: add???
+        :param str: add???
+        :param secret: add???. Default value is ``None``
+        :returns: a dict of Cookies
         """
-
         dict = _parse_cookie(str, Class, **kw)
         return dict
-
+            
     parse = classmethod(parse)
-
+            
     def __init__(self, name, value, **kw):
-        """
-        This constructor takes at least a name and value as the
+        """This constructor takes at least a name and value as the
         arguments, as well as optionally any of allowed cookie attributes
         as defined in the existing cookie standards. 
         """
         self.name, self.value = name, value
-
+        
         for k in kw:
             setattr(self, k.lower(), kw[k])
-
+            
         # subclasses can use this for internal stuff
         self.__data__ = {}
-
-
+        
     def __str__(self):
-        """
-        Provides the string representation of the Cookie suitable for
+        """Provide the string representation of the Cookie suitable for
         sending to the browser. Note that the actual header name will
         not be part of the string.
-
+        
         This method makes no attempt to automatically double-quote
         strings that contain special characters, even though the RFC's
         dictate this. This is because doing so seems to confuse most
         browsers out there.
         """
-
         result = ["%s=%s" % (self.name, self.value)]
         for name in self._valid_attr:
             if hasattr(self, name):
@@ -157,26 +153,31 @@ class Cookie(object):
                 else:
                     result.append("%s=%s" % (name, getattr(self, name)))
         return "; ".join(result)
-
+        
     def __repr__(self):
         return '<%s: %s>' % (self.__class__.__name__,
                              str(self))
-
-
+                             
 class SignedCookie(Cookie):
-    """
-    This is a variation of Cookie that provides automatic
+    """This is a variation of Cookie that provides automatic
     cryptographic signing of cookies and verification. It uses
     the HMAC support in the Python standard library. This ensures
-    that the cookie has not been tamprered with on the client side.
-
+    that the cookie has not been tampered with the client side.
+    
     Note that this class does not encrypt cookie data, thus it
     is still plainly visible as part of the cookie.
     """
-
     def parse(Class, s, secret, mismatch=Cookie.DOWNGRADE, **kw):
+        """add???
+        
+        :parse Class: add???
+        :parse s: add???
+        :parse secret: add???
+        :parse mismatch: add???. Default valus is ``Cookie.DOWNGRADE``
+        :returns: add???
+        """
         dict = _parse_cookie(s, Class, **kw)
-
+        
         del_list = []
         for k in dict:
             c = dict[k]
@@ -190,26 +191,31 @@ class SignedCookie(Cookie):
                 else:
                     # downgrade to Cookie
                     dict[k] = Cookie.parse(Cookie.__str__(c))[k]
-
+                    
         for k in del_list:
             del dict[k]
-
+            
         return dict
-
+        
     parse = classmethod(parse)
-
+        
     def __init__(self, name, value, secret=None, **kw):
         Cookie.__init__(self, name, value, **kw)
-
+        
         self.__data__["secret"] = secret
-
+        
     def hexdigest(self, str):
+        """add???
+        
+        :param str: add???
+        :returns: add???
+        """
         if not self.__data__["secret"]:
             raise CookieError, "Cannot sign without a secret"
         _hmac = hmac.new(self.__data__["secret"], self.name)
         _hmac.update(str)
         return _hmac.hexdigest()
-
+        
     def __str__(self):
         result = ["%s=%s%s" % (self.name, self.hexdigest(self.value),
                                self.value)]
@@ -220,39 +226,48 @@ class SignedCookie(Cookie):
                 else:
                     result.append("%s=%s" % (name, getattr(self, name)))
         return "; ".join(result)
-
+        
     def unsign(self, secret):
+        """add???
+        
+        :param secret: add???
+        """
         sig, val = self.value[:32], self.value[32:]
-
+        
         mac = hmac.new(secret, self.name)
         mac.update(val)
-
+        
         if mac.hexdigest() == sig:
             self.value = val
             self.__data__["secret"] = secret
         else:
             raise CookieError, "Incorrectly Signed Cookie: %s=%s" % (self.name, self.value)
-
-
+            
 class MarshalCookie(SignedCookie):
-    """
-    This is a variation of SignedCookie that can store more than
+    """This is a variation of SignedCookie that can store more than
     just strings. It will automatically marshal the cookie value,
     therefore any marshallable object can be used as value.
-
+    
     The standard library Cookie module provides the ability to pickle
     data, which is a major security problem. It is believed that unmarshalling
     (as opposed to unpickling) is safe, yet we still err on the side of caution
     which is why this class is a subclass of SignedCooke making sure what
     we are about to unmarshal passes the digital signature test.
-
+    
     Here is a link to a sugesstion that marshalling is safer than unpickling
     http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&selm=7xn0hcugmy.fsf%40ruckus.brouhaha.com
     """
-
     def parse(Class, s, secret, mismatch=Cookie.DOWNGRADE, **kw):
+        """add???
+        
+        :parse Class: add???
+        :parse s: add???
+        :parse secret: add???
+        :parse mismatch: add???. Default valus is ``Cookie.DOWNGRADE``
+        :returns: add???
+        """
         dict = _parse_cookie(s, Class, **kw)
-
+        
         del_list = []
         for k in dict:
             c = dict[k]
@@ -266,20 +281,20 @@ class MarshalCookie(SignedCookie):
                 else:
                     # downgrade to Cookie
                     dict[k] = Cookie.parse(Cookie.__str__(c))[k]
-
+                    
         for k in del_list:
             del dict[k]
-
+            
         return dict
-
+        
     parse = classmethod(parse)
-
+        
     def __str__(self):
         m = base64.encodestring(marshal.dumps(self.value))
         # on long cookies, the base64 encoding can contain multiple lines
         # separated by \n or \r\n
         m = ''.join(m.split())
-
+        
         result = ["%s=%s%s" % (self.name, self.hexdigest(m), m)]
         for name in self._valid_attr:
             if hasattr(self, name):
@@ -288,89 +303,104 @@ class MarshalCookie(SignedCookie):
                 else:
                     result.append("%s=%s" % (name, getattr(self, name)))
         return "; ".join(result)
-
+        
     def unmarshal(self, secret):
+        """add???
+        
+        :param secret: add???
+        """
         self.unsign(secret)
-
+        
         try:
             data = base64.decodestring(self.value)
         except:
             raise CookieError, "Cannot base64 Decode Cookie: %s=%s" % (self.name, self.value)
-
+            
         try:
             self.value = marshal.loads(data)
         except (EOFError, ValueError, TypeError):
             raise CookieError, "Cannot Unmarshal Cookie: %s=%s" % (self.name, self.value)
-
-
+            
 # This is a simplified and in some places corrected
 # (at least I think it is) pattern from standard lib Cookie.py
 
 _cookiePattern = re.compile(
         r"(?x)"                       # Verbose pattern
-        r"[,\ ]*"                        # space/comma (RFC2616 4.2) before attr-val is eaten
+        r"[,\ ]*"                     # space/comma (RFC2616 4.2) before attr-val is eaten
         r"(?P<key>"                   # Start of group 'key'
-        r"[^;\ =]+"                     # anything but ';', ' ' or '='
+        r"[^;\ =]+"                   # anything but ';', ' ' or '='
         r")"                          # End of group 'key'
         r"\ *(=\ *)?"                 # a space, then may be "=", more space
         r"(?P<val>"                   # Start of group 'val'
-        r'"(?:[^\\"]|\\.)*"'            # a doublequoted string
-        r"|"                            # or
-        r"[^;]*"                        # any word or empty string
+        r'"(?:[^\\"]|\\.)*"'          # a doublequoted string
+        r"|"                          # or
+        r"[^;]*"                      # any word or empty string
         r")"                          # End of group 'val'
         r"\s*;?"                      # probably ending in a semi-colon
         )
-
+        
 def _parse_cookie(str, Class, names=None):
     # XXX problem is we should allow duplicate
     # strings
     result = {}
-
+        
     matchIter = _cookiePattern.finditer(str)
-
+        
     for match in matchIter:
         key, val = match.group("key"), match.group("val")
-
+        
         # We just ditch the cookies names which start with a dollar sign since
         # those are in fact RFC2965 cookies attributes. See bug [#MODPYTHON-3].
         if key[0] != '$' and names is None or key in names:
             result[key] = Class(key, val)
-
+            
     return result
-
+    
 def add_cookie(res, cookie, value="", **kw):
+    """Set a cookie in outgoing headers and add a cache
+    directive so that caches don't cache the cookie
+    
+    :param res: add???
+    :param cookie: add???
+    :param value: add???. Default value is ``""``
     """
-    Sets a cookie in outgoing headers and adds a cache
-    directive so that caches don't cache the cookie.
-    """
-
     # is this a cookie?
     if not isinstance(cookie, Cookie):
         # make a cookie
         cookie = Cookie(cookie, value, **kw)
-
+        
     if not res.headers.has_key("Set-Cookie"):
         res.headers.add("Cache-Control", 'no-cache="set-cookie"')
-
+        
     res.headers.add("Set-Cookie", str(cookie))
 
 def get_cookies(req, Class=Cookie, **kw):
-    """
-    A shorthand for retrieveing and parsing cookies given
+    """A shorthand for retrieveing and parsing cookies given
     a Cookie class. The class must be one of the classes from
     this module.
+    
+    :param req: add???
+    :param Class: add???. Default value is ``Cookie``
+    :returns: add???
     """
-
     if not req.headers.has_key("cookie"):
         return {}
-
+        
     cookies = req.headers["cookie"]
     if type(cookies) == type([]):
         cookies = '; '.join(cookies)
-
+        
     return Class.parse(cookies, **kw)
-
+        
 def get_cookie(req, name, Class=Cookie, **kw):
+    """add???
+    
+    :param req: add???
+    :param name: add???
+    :param Class: add???. Default valus is ``Cookie``
+    :returns: add???
+    """
     cookies = get_cookies(req, Class, names=[name], **kw)
     if cookies.has_key(name):
         return cookies[name]
+        

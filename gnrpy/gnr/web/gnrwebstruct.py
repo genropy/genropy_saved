@@ -111,7 +111,7 @@ class GnrDomSrc(GnrStructData):
         method and return it
         
         :param cls: the structure class
-        :param page: add???
+        :param page: the webpage instance
         :param source: the filepath of the xml file
         :returns: the root instance for the given class
         """
@@ -753,7 +753,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 def rpc_RpcName(self,args):
                     return something
                 
-        * ``RpcName`` is the name of your ``dataRpc``; clearly, you have to put the same name that you gave to the ``dataRpc`` in the main.
+        * ``RpcName`` is the name of your ``dataRpc``; clearly, you have to put the same name that
+          you gave to the ``dataRpc`` in the main.
         * ``args`` contains all the paramaters passed from the main.
         """
         return self.child('dataRpc', path=path, method=method, **kwargs)
@@ -1676,7 +1677,7 @@ class GnrDomSrc_dojo_15(GnrDomSrc_dojo_11):
 class GnrGridStruct(GnrStructData):
     """add???
     
-    r=struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
+    r = struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
     
     r.child('cell',field='protocollo',width='9em',name='Protocollo')
     """
@@ -1739,12 +1740,34 @@ class GnrGridStruct(GnrStructData):
         
     def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, headerClasses=None,
              **kwargs):
+        """add???
+        
+        :param field: add???. Default value is ``None``
+        :param name: add???. Default value is ``None``
+        :param width: add???. Default value is ``None``
+        :param dtype: add???. Default value is ``None``
+        :param classes: add???. Default value is ``None``
+        :param cellClasses: add???. Default value is ``None``
+        :param headerClasses: add???. Default value is ``None``
+        :returns: a cell
+        """
         return self.child('cell', content='', field=field, _name=name or field, width=width, dtype=dtype,
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                           
     def checkboxcell(self, field=None, falseclass=None,
                      trueclass=None, classes='row_checker', action=None, name=' ',
                      calculated=False, radioButton=False, **kwargs):
+        """add???
+        
+        :param field: add???. Default value is ``None``
+        :param falseclasses: add???. Default value is ``None``
+        :param trueclasses: add???. Default value is ``None``
+        :param classes: add???. Default value is ``row_checker``
+        :param action: add???. Default value is ``None``
+        :param name: add???. Default value is ``''``
+        :param calculated: boolean. add???. Default value is ``False``
+        :param radioButton: boolean. add???. Default value is ``False``
+        """
         if not field:
             field = '_checked'
             calculated = True
@@ -1769,6 +1792,11 @@ class GnrGridStruct(GnrStructData):
                   , dtype='B', **kwargs)
                   
     def defaultArgsForDType(self, dtype):
+        """add???
+        
+        :param dtype: the data type
+        :return: add???
+        """
         if dtype == 'B':
             return dict(format_trueclass="checkboxOn", format_falseclass="checkboxOff")
         else:
@@ -1776,6 +1804,19 @@ class GnrGridStruct(GnrStructData):
                 
     def fieldcell(self, field, _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None, zoom=False, **user_kwargs):
+        """add???
+        
+        :param field: add???
+        :param _as: add???. Default value is ``None``
+        :param name: add???. Default value is ``None``
+        :param width: add???. Default value is ``None``
+        :param dtype: add???. Default value is ``None``
+        :param classes: add???. Default value is ``None``
+        :param cellClasses: add???. Default value is ``None``
+        :param headerClasses: add???. Default value is ``None``
+        :param zoom: add???. Default value is ``False``
+        :returns: add???
+        """
         if not self.tblobj:
             self.root._missing_table = True
             return
@@ -1811,7 +1852,12 @@ class GnrGridStruct(GnrStructData):
                          classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                          
     def fields(self, columns, unit='em', totalWidth=None):
-        """
+        """add???
+        
+        :param columns: add???
+        :param unit: the field unit. Default value is ``em``
+        :param totalWidth: add???. Default value is ``None``
+        
         r.fields('name/Name:20,address/My Addr:130px....')
         """
         tableobj = self.tblobj
@@ -1862,6 +1908,10 @@ class GnrGridStruct(GnrStructData):
             self.cell(field=field, name=names[j], width='%i%s' % (widths[j], unit), dtype=dtypes[j], **fld_kwargs[j])
             
     def getFieldNames(self, columns=None):
+        """add???
+        
+        :param columns: add???. Default value is ``None``
+        """
         if columns is None:
             columns = []
         for v, fld in self.digest('#v,#a.field'):

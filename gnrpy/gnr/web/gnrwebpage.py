@@ -22,8 +22,6 @@
 
 
 """
-gnrwebpage.py
-
 Created by Giovanni Porcari on 2007-03-24.
 Copyright (c) 2007 Softwell. All rights reserved.
 """
@@ -62,9 +60,9 @@ PAGE_REFRESH = 20
 
 class GnrWebPageException(GnrException):
     pass
-
-
+    
 class GnrWebPage(GnrBaseWebPage):
+    """add???"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None, filepath=None,
                  packageId=None, basename=None, environ=None):
         self.site = site
@@ -104,7 +102,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.dojo_theme = request_kwargs.pop('dojo_theme', None) or getattr(self, 'dojo_theme', None)
         self.dojo_version = request_kwargs.pop('dojo_version', None) or getattr(self, 'dojo_version', None)
         self.debugopt = request_kwargs.pop('debugopt', None)
-
+            
         self.callcounter = request_kwargs.pop('callcounter', None) or 'begin'
         if not hasattr(self, 'dojo_source'):
             self.dojo_source = self.site.config['dojo?source']
@@ -121,10 +119,10 @@ class GnrWebPage(GnrBaseWebPage):
         self.onIniting(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = request_kwargs or {}
-
+            
     def onPreIniting(self, *request_args, **request_kwargs):
         pass
-
+            
     def _check_page_id(self, page_id=None, kwargs=None):
         if page_id:
             if not self.connection.connection_id:
@@ -146,9 +144,14 @@ class GnrWebPage(GnrBaseWebPage):
             self.page_id = getUuid()
             workdate = kwargs.pop('_workdate_', None)# or datetime.date.today()
             return self.site.register.new_page(self.page_id, self, data=dict(pageArgs=kwargs, workdate=workdate))
-
-
+            
     def get_call_handler(self, request_args, request_kwargs):
+        """add???
+        
+        :param request_args: add???
+        :param request_kwargs: add???
+        :returns: add???
+        """
         if '_plugin' in request_kwargs:
             self._call_handler_type = 'plugin'
             return self.pluginhandler.get_plugin(request_kwargs['_plugin'], request_args=request_args,
@@ -162,10 +165,9 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             self._call_handler_type = 'root'
             return self.rootPage
-
-
+            
         # ##### BEGIN: PROXY DEFINITION ########
-
+        
     def _get_frontend(self):
         if not hasattr(self, '_frontend'):
             if not hasattr(self, 'page_frontend') and hasattr(self, 'dojo_version'):
@@ -174,53 +176,51 @@ class GnrWebPage(GnrBaseWebPage):
             frontend_class = getattr(frontend_module, 'GnrWebFrontend')
             self._frontend = frontend_class(self)
         return self._frontend
-
+        
     frontend = property(_get_frontend)
-
+        
     def _get_localizer(self):
         if not hasattr(self, '_localizer'):
             self._localizer = GnrWebLocalizer(self)
         return self._localizer
-
+        
     localizer = property(_get_localizer)
-
-
+        
     def _get_debugger(self):
         if not hasattr(self, '_debugger'):
             self._debugger = GnrWebDebugger(self)
         return self._debugger
-
+        
     debugger = property(_get_debugger)
-
+        
     def _get_utils(self):
         if not hasattr(self, '_utils'):
             self._utils = GnrWebUtils(self)
         return self._utils
-
+        
     utils = property(_get_utils)
-
-
+        
     def _get_rpc(self):
         if not hasattr(self, '_rpc'):
             self._rpc = GnrWebRpc(self)
         return self._rpc
-
+        
     rpc = property(_get_rpc)
-
+        
     def _get_pluginhandler(self):
         if not hasattr(self, '_pluginhandler'):
             self._pluginhandler = GnrWebPluginHandler(self)
         return self._pluginhandler
-
+        
     pluginhandler = property(_get_pluginhandler)
-
+        
     def _get_jstools(self):
         if not hasattr(self, '_jstools'):
             self._jstools = GnrWebJSTools(self)
         return self._jstools
-
+        
     jstools = property(_get_jstools)
-
+        
     def _get_db(self):
         if not hasattr(self, '_db'):
             self._db = self.application.db
@@ -233,32 +233,31 @@ class GnrWebPage(GnrBaseWebPage):
                 kwargs = dbenv() or {}
                 self._db.updateEnv(**kwargs)
         return self._db
-
+        
     db = property(_get_db)
-
+        
     def _get_workdate(self):
         return self._workdate or datetime.date.today()
-
+        
     def _set_workdate(self, workdate):
         with self.pageStore() as store:
             store.setItem('workdate', workdate)
         self._workdate = workdate
         self.db.workdate = workdate
-
+        
     workdate = property(_get_workdate, _set_workdate)
     ###### END: PROXY DEFINITION #########
-
-
+        
     def __call__(self):
         """Internal method dispatcher"""
         self.onInit() ### kept for compatibility
         self._onBegin()
         args = self._call_args
         kwargs = self._call_kwargs
-        result = self._call_handler(*args, **kwargs)
+        result = self._call_handler(*args, **kwargs) 
         self._onEnd()
         return result
-
+        
     def _rpcDispatcher(self, method=None, mode='bag', **kwargs):
         parameters = self.site.parse_kwargs(kwargs, workdate=self.workdate)
         self._lastUserEventTs = parameters.pop('_lastUserEventTs', None)
@@ -275,10 +274,10 @@ class GnrWebPage(GnrBaseWebPage):
                 self.rpc.error = str(e)
                 result = None
         result_handler = getattr(self.rpc, 'result_%s' % mode.lower())
-
+        
         return_result = result_handler(result)
         return return_result
-
+        
     def _checkAuth(self, method=None, **parameters):
         pageTags = self.pageAuthTags(method=method, **parameters)
         if not pageTags:
@@ -290,18 +289,32 @@ class GnrWebPage(GnrBaseWebPage):
         if not self.application.checkResourcePermission(pageTags, self.userTags):
             return AUTH_FORBIDDEN
         return AUTH_OK
-
+        
     def mixinComponent(self, pkg, *path):
+        """add???
+        
+        :param pkg: add???
+        :param \*path: add???
+        """
         self.site.resource_loader.mixinPageComponent(self, pkg, *path)
-
+        
     @property
     def isGuest(self):
+        """add???
+        
+        :returns: add???
+        """
         return self.user == self.connection.guestname
-
+        
     def rpc_doLogin(self, login=None, guestName=None, **kwargs):
-        """Service method that set user's avatar into its connection if
-        - The user exists and his password is correct.
-        - The user is guest
+        """Service method. Set user's avatar into its connection if:
+        
+            * The user exists and his password is correct.
+            * The user is a guest
+            
+        :param login: add???. Default value is ``None``
+        :param guestName: add???. Default value is ``None``
+        :returns: add???
         """
         loginPars = {}
         if guestName:
@@ -314,7 +327,7 @@ class GnrWebPage(GnrBaseWebPage):
             #self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
             #                            user_tags=avatar.user_tags)
             self.connection.change_user(avatar)
-
+            
             self.setInClientData('gnr.avatar', Bag(avatar.as_dict()))
             self.site.onAuthenticated(avatar)
             login['message'] = ''
@@ -322,59 +335,72 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             login['message'] = 'invalid login'
         return (login, loginPars)
-
+        
     def onInit(self):
         # subclass hook
         pass
-
+        
     def onIniting(self, request_args, request_kwargs):
         """Callback onIniting called in early stages of page initialization"""
         pass
-
+        
     def onSaving(self, recordCluster, recordClusterAttr, resultAttr=None):
         pass
-
+        
     def onSaved(self, record, resultAttr=None, **kwargs):
         pass
-
+        
     def onDeleting(self, recordCluster, recordClusterAttr):
         pass
-
+        
     def onDeleted(self, record):
         pass
-
+        
     def onBegin(self):
         pass
-
+        
     def _onBegin(self):
         self.onBegin()
         self._publish_event('onBegin')
-
+        
     def onEnd(self):
         pass
-
+        
     def getService(self, service_type):
+        """add???
+        
+        :param service_type: add???
+        :returns: add???
+        """
         return self.site.getService(service_type)
-
+        
     def _onEnd(self):
         self._publish_event('onEnd')
         self.onEnd()
-
+        
     def collectClientDatachanges(self):
+        """add???
+        
+        :returns: add???
+        """
         self._publish_event('onCollectDatachanges')
         result = self.site.get_datachanges(self.page_id, user=self.user,
                                            local_datachanges=self.local_datachanges)
         return result
-
+        
     def _subscribe_event(self, event, caller):
         assert hasattr(caller, 'event_%s' % event)
         self._event_subscribers.setdefault(event, []).append(caller)
-
+        
     def _publish_event(self, event):
         for subscriber in self._event_subscribers.get(event, []):
             getattr(subscriber, 'event_%s' % event)()
-
+            
     def rootPage(self, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         self.charset = 'utf-8'
         arg_dict = self.build_arg_dict(**kwargs)
         tpl = self.pagetemplate
@@ -388,49 +414,75 @@ class GnrWebPage(GnrBaseWebPage):
             raise GnrWebPageException("No template %s found in %s" % (tpl, str(self.tpldirectories)))
         self.htmlHeaders()
         return mytemplate.render(mainpage=self, **arg_dict)
-
-
+        
     def _set_locale(self, val):
         self._locale = val
-
+        
     def _get_locale(self): # TODO IMPLEMENT DEFAULT FROM APP OR AVATAR 
         if not hasattr(self, '_locale'):
             self._locale = self.connection.locale or self.request.headers.get('Accept-Language', 'en').split(',')[
                                                      0] or 'en'
         return self._locale
-
+        
     locale = property(_get_locale, _set_locale)
-
+        
     def rpc_changeLocale(self, locale):
+        """add???
+        
+        :param locale: add???
+        """
         self.connection.locale = locale.lower()
-
-
+        
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, dtype=None):
+        """add???
+        
+        :param obj: add???
+        :param locale: add???. Default value is ``None``
+        :param format: add???. Default value is ``None``
+        :param mask: add???. Default value is ``None``
+        :param encoding: add???. Default value is ``None``
+        :param dtype: add???. Default value is ``None``
+        :returns: add???
+        """
         locale = locale or self.locale
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
-
+        
     def getUuid(self):
+        """add???
+        
+        :returns: add???
+        """
         return getUuid()
-
+        
     def addHtmlHeader(self, tag, innerHtml='', **kwargs):
+        """add???
+        
+        :param tag: add???
+        :param innerHtml: add???. Default value is ``''``
+        """
         attrString = ' '.join(['%s="%s"' % (k, str(v)) for k, v in kwargs.items()])
         self._htmlHeaders.append('<%s %s>%s</%s>' % (tag, attrString, innerHtml, tag))
-
+        
     def htmlHeaders(self):
         pass
-
+        
     def _get_pageArgs(self):
         return self.pageStore().getItem('pageArgs') or {}
-
+        
     pageArgs = property(_get_pageArgs)
-
-
+        
     def _(self, txt):
         if txt.startswith('!!'):
             txt = self.localizer.translateText(txt[2:])
         return txt
-
+        
     def getPublicMethod(self, prefix, method):
+        """add???
+        
+        :param prefix: add???
+        :param method: add???
+        :returns: add???
+        """
         handler = None
         if '.' in method:
             proxy_name, submethod = method.split('.', 1)
@@ -443,8 +495,12 @@ class GnrWebPage(GnrBaseWebPage):
         else:
             handler = getattr(self, '%s_%s' % (prefix, method))
         return handler
-
+        
     def build_arg_dict(self, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         gnr_static_handler = self.site.getStatic('gnr')
         gnrModulePath = gnr_static_handler.url(self.gnrjsversion)
         arg_dict = {}
@@ -478,30 +534,52 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['css_requires'] = css_path
         arg_dict['css_media_requires'] = css_media_path
         return arg_dict
-
+        
     def mtimeurl(self, *args):
+        """add???
+        
+        :returns: add???
+        """
         gnr_static_handler = self.site.getStatic('gnr')
         fpath = gnr_static_handler.path(*args)
         mtime = os.stat(fpath).st_mtime
         url = gnr_static_handler.url(*args)
         url = '%s?mtime=%0.0f' % (url, mtime)
         return url
-
+        
     def homeUrl(self):
+        """add???
+        
+        :returns: add???
+        """
         return self.site.home_uri
-
+        
     def packageUrl(self, *args, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         pkg = kwargs.get('pkg', self.packageId)
         return self.site.pkg_page_url(pkg, *args)
-
+        
     def getDomainUrl(self, path='', **kwargs):
+        """add???
+        
+        :param path: add???. Default value is ``''``
+        :returns: add???
+        """
         params = urllib.urlencode(kwargs)
         path = '%s/%s' % (self.site.home_uri.rstrip('/'), path.lstrip('/'))
         if params:
             path = '%s?%s' % (path, params)
         return path
-
+        
     def externalUrl(self, path, **kwargs):
+        """add???
+        
+        :param path: add???. Default value is ``''``
+        :returns: add???
+        """
         params = urllib.urlencode(kwargs)
         #path = os.path.join(self.homeUrl(), path)
         if path == '': path = self.siteUri
@@ -509,19 +587,35 @@ class GnrWebPage(GnrBaseWebPage):
         if params:
             path = '%s?%s' % (path, params)
         return path
-
+        
     def externalUrlToken(self, path, _expiry=None, _host=None, method='root', **kwargs):
+        """add???
+        
+        :param path: add???
+        :param _expiry: add???. Default value is ``None``
+        :param host: add???. Default value is ``None``
+        :param method: add???. Default value is ``root``
+        :returns: add???
+        """
         assert 'sys' in self.site.gnrapp.packages
         external_token = self.db.table('sys.external_token').create_token(path, expiry=_expiry, allowed_host=_host,
                                                                           method=method, parameters=kwargs,
                                                                           exec_user=self.user)
         return self.externalUrl(path, gnrtoken=external_token)
-
+        
     def get_bodyclasses(self):   #  ancora necessario _common_d11?
+        """add???
+        
+        :returns: add???
+        """
         return '%s _common_d11 pkg_%s page_%s %s' % (
         self.frontend.theme or '', self.packageId, self.pagename, getattr(self, 'bodyclasses', ''))
-
+        
     def get_css_genro(self):
+        """add???
+        
+        :returns: add???
+        """
         css_genro = self.frontend.css_genro_frontend()
         for media in css_genro.keys():
             css_genro[media] = [self.mtimeurl(self.gnrjsversion, 'css', '%s.css' % f) for f in css_genro[media]]
@@ -533,6 +627,10 @@ class GnrWebPage(GnrBaseWebPage):
     domSrcFactory = property(_get_domSrcFactory)
         
     def newSourceRoot(self):
+        """add???
+        
+        :returns: add???
+        """
         return self.domSrcFactory.makeRoot(self)
         
     def newGridStruct(self, maintable=None):
@@ -549,18 +647,42 @@ class GnrWebPage(GnrBaseWebPage):
                 'current': os.path.dirname(self.filepath)}
                 
     def pageStore(self, page_id=None, triggered=True):
+        """add???
+        
+        :param page_id: add???. Deafult value is ``None``
+        :param triggered: boolean. add???. Deafult value is ``True``
+        :returns: add???
+        """
         page_id = page_id or self.page_id
         return self.site.register.pageStore(page_id, triggered=triggered)
         
     def connectionStore(self, connection_id=None, triggered=True):
+        """add???
+        
+        :param connection_id: add???. Default value is ``None``
+        :param triggered: boolean. add???. Default value is ``True``
+        :returns: add???
+        """
         connection_id = connection_id or self.connection_id
         return self.site.register.connectionStore(connection_id, triggered=triggered)
         
     def userStore(self, user=None, triggered=True):
+        """add???
+        
+        :param user: add???. Default value is ``None``
+        :param triggered: boolean. add???. Default value is ``True``
+        :returns: add???
+        """
         user = user or self.user
         return self.site.register.userStore(user, triggered=triggered)
         
     def rpc_setStoreSubscription(self, storename=None, client_path=None, active=True):
+        """add???
+        
+        :param storename: add???. Default value is ``None``
+        :param client_path: add???. Default value is ``None``
+        :param active: boolean. add???. Default value is ``True``
+        """
         with self.pageStore() as store:
             subscriptions = store.getItem('_subscriptions')
             if subscriptions is None:
@@ -571,6 +693,11 @@ class GnrWebPage(GnrBaseWebPage):
             pathsub['on'] = active
             
     def clientPage(self, page_id=None):
+        """add???
+        
+        :param page_id: add???. Default value is ``None``
+        :returns: add???
+        """
         return ClientPageHandler(self, page_id or self.page_id)
         
     def _get_pkgapp(self):
@@ -601,8 +728,8 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def subscribedTablesDict(self):
-        """return a dict of subscribed tables. any element is a list
-           of page_id that subscribe that page"""
+        """return a dict of subscribed tables. Every element is a list
+           of *page_id*\'s that subscribe that page"""
         if not hasattr(self, '_subscribedTablesDict'):
             self._subscribedTablesDict = self.db.table('adm.served_page').subscribedTablesDict()
         return self._subscribedTablesDict
@@ -883,14 +1010,13 @@ class GnrWebPage(GnrBaseWebPage):
             #except Exception,err:
         else:
             return (self._errorPage(err), pageattr)
-
+            
     def onMain(self): #You CAN override this !
         pass
-
+            
     def mainLeftTop(self, pane):
         pass
-
-
+            
     def mainLeftContent(self, parentBC, **kwargs):
         plugin_list = getattr(self, 'plugin_list', None)
         if not plugin_list:

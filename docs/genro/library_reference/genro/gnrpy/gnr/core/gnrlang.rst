@@ -2,7 +2,7 @@
 :mod:`gnr.core.gnrlang`
 =======================
 
-* Index of ``gnr.core.gnrlang`` methods:
+* Index of ``gnr.core.gnrlang`` classes:
     
     * :ref:`gnrlang_filterlist`
     * :ref:`gnrlang_addon`
@@ -11,7 +11,8 @@
     * :ref:`gnrlang_gnrmetastring`
     * :ref:`gnrlang_gnrobject`
     * :ref:`gnrlang_gnrrememberable`
-    * :ref:`gnrlang_others`
+    
+* :ref:`gnrlang_others`
     
 * :ref:`gnrlang_classes`
 
@@ -117,7 +118,7 @@
 
 .. _gnrlang_others:
 
-other methods
+Other methods
 =============
 
     These methods don't belong to any class.

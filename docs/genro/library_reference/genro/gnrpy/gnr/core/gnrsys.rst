@@ -2,15 +2,17 @@
 :mod:`gnr.core.gnrsys`
 ======================
 
-* Index of ``gnr.core.gnrsys`` methods:
+* Index of ``gnr.core.gnrsys`` classes:
+
+    There is no class defined
     
-    * :ref:`gnrsys_others`
+* :ref:`gnrsys_others`
     
 * :ref:`gnrsys_classes`
 
 .. _gnrsys_others:
 
-Index methods
+Other methods
 =============
 
     These methods don't belong to any class.

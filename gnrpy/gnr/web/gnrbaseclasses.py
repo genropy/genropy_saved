@@ -22,8 +22,6 @@
 
 
 """
-core.py
-
 Created by Giovanni Porcari on 2007-03-24.
 Copyright (c) 2007 Softwell. All rights reserved.
 """
@@ -34,16 +32,19 @@ from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrbag import Bag
 
 def page_mixin(func):
+    """add???
+    
+    :returns: add???
+    """
     def decore(self, obj, *args, **kwargs):
         setattr(func, '_mixin_type', 'page')
         result = func(self, obj, *args, **kwargs)
         return result
-
+        
     return decore
-
+        
 class BaseComponent(object):
-    """docstring for BaseComponent"""
-
+    """add???"""
     def __onmixin__(self, _mixinsource, site=None):
         js_requires = splitAndStrip(getattr(_mixinsource, 'js_requires', ''), ',')
         css_requires = splitAndStrip(getattr(_mixinsource, 'css_requires', ''), ',')
@@ -54,7 +55,7 @@ class BaseComponent(object):
         for js in js_requires:
             if js and not js in self.js_requires:
                 self.js_requires.append(js)
-
+                
         #self.css_requires.extend(css_requires)
         #self.js_requires.extend(js_requires)
         if py_requires:
@@ -62,7 +63,7 @@ class BaseComponent(object):
                 site.page_pyrequires_mixin(self, py_requires)
             elif hasattr(self, '_pyrequiresMixin'):
                 self._pyrequiresMixin(py_requires)
-
+                
     @classmethod
     def __on_class_mixin__(cls, _mixintarget, **kwargs):
         js_requires = [x for x in splitAndStrip(getattr(cls, 'js_requires', ''), ',') if x]
@@ -82,38 +83,35 @@ class BaseComponent(object):
         for js in js_requires:
             if js and not js in _mixintarget.js_requires:
                 _mixintarget.js_requires.append(js)
-
-
+                
     @classmethod
     def __py_requires__(cls, target_class, **kwargs):
         from gnr.web.gnrwsgisite import currentSite
-
+        
         loader = currentSite().resource_loader
         return loader.py_requires_iterator(cls, target_class)
-
-
+        
 class BaseResource(GnrObject):
     """Base class for a webpage resource."""
-
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             if v:
                 setattr(self, k, v)
-
+                
 class BaseProxy(object):
     """Base class for a webpage proxy."""
-
+        
     def __init__(self, **kwargs):
         for argname, argvalue in kwargs.items():
             setattr(self, argname, argvalue)
-
+            
 class BaseWebtool(object):
     pass
-
+        
 class TableScriptToHtml(BagToHtml):
     rows_table = None
     virtual_columns = None
-
+        
     def __init__(self, page=None, resource_table=None, **kwargs):
         super(TableScriptToHtml, self).__init__(**kwargs)
         self.page = page
@@ -125,7 +123,7 @@ class TableScriptToHtml(BagToHtml):
         self.thermo_wrapper = self.page.btc.thermo_wrapper
         self.print_handler = self.page.getService('print')
         self.record = None
-
+        
     def __call__(self, record=None, pdf=None, downloadAs=None, thermo=None, **kwargs):
         if not record:
             return
@@ -148,30 +146,56 @@ class TableScriptToHtml(BagToHtml):
             return self.pdfpath
             #with open(temp.name,'rb') as f:
             #    result=f.read()
-
+            
     def get_record_caption(self, item, progress, maximum, **kwargs):
+        """add???
+        
+        :param item: add???
+        :param progress: add???
+        :param maximum: add???
+        :returns: add???
+        """
         if self.rows_table:
             tblobj = self.db.table(self.rows_table)
             caption = '%s (%i/%i)' % (tblobj.recordCaption(item.value), progress, maximum)
         else:
             caption = '%i/%i' % (progress, maximum)
         return caption
-
-
+        
     def getHtmlPath(self, *args, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         return self.page.site.getStaticPath('page:html', *args, **kwargs)
-
+        
     def getPdfPath(self, *args, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         return self.page.site.getStaticPath('page:pdf', *args, **kwargs)
-
+        
     def getHtmlUrl(self, *args, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         return self.page.site.getStaticUrl('page:html', *args, **kwargs)
-
+        
     def getPdfUrl(self, *args, **kwargs):
+        """add???
+        
+        :returns: add???
+        """
         return self.page.site.getStaticUrl('page:pdf', *args, **kwargs)
-
-
+        
     def outputDocName(self, ext=''):
+        """add???
+        
+        :param ext: add???. Default value is ``''``
+        :returns: add???
+        """
         if ext and not ext[0] == '.':
             ext = '.%s' % ext
         caption = ''
@@ -179,4 +203,3 @@ class TableScriptToHtml(BagToHtml):
             caption = slugify(self.tblobj.recordCaption(self.getData('record')))
         doc_name = '%s_%s%s' % (self.tblobj.name, caption, ext)
         return doc_name
-    

@@ -2,7 +2,7 @@
 :mod:`gnr.sql.gnrsqldata` -- Queries and Selections
 ===================================================
 
-* Index of ``gnr.sql.gnrsql`` methods:
+* Index of ``gnr.sql.gnrsql`` classes:
 
     Main classes:
     

@@ -2,7 +2,7 @@
 :mod:`gnr.pdf.gnrhtml`
 ======================
 
-* Index of ``gnr.pdf.gnrhtml`` methods:
+* Index of ``gnr.pdf.gnrhtml`` classes:
 
     * :ref:`gnrhtml_gnrhtmlpdf`
     * :ref:`gnrhtml_gnrhtmlsrc`
