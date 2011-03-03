@@ -119,6 +119,10 @@ class GnrSqlAppDb(GnrSqlDb):
         resource.table = tblobj
         resource.db = self
         return resource
+        
+    def getFromStore(self, path, dflt):
+        return self.application.site.currentPage.pageStore().getItem(path,dflt)
+        
 
 class GnrPackagePlugin(object):
     def __init__(self, pkg, path):
