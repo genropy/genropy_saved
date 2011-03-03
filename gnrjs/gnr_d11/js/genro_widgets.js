@@ -1743,6 +1743,10 @@ dojo.declare("gnr.widgets.TimeTextBox", gnr.widgets.baseDojo, {
         if ('ftype' in attributes) {
             attributes.constraints['type'] = objectPop(attributes['ftype']);
         }
+        if ('popup' in attributes && (objectPop(attributes, 'popup') == false)) {
+            attributes.popupClass = null;
+        }
+        
     },
     mixin_setPickInterval:function(interval) {
         var timeInt = 'T00:' + interval + ':00';
