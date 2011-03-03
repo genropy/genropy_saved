@@ -68,7 +68,7 @@ class GnrWebPage(GnrBaseWebPage):
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None, filepath=None,
                  packageId=None, basename=None, environ=None):
         self.site = site
-        self.user_agent = request.user_agent
+        self.user_agent = request.user_agent or []
         self.user_ip = request.remote_addr
         self._environ = environ
         self.isTouchDevice = ('iPad' in self.user_agent or 'iPhone' in self.user_agent)
