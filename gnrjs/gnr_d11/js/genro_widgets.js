@@ -2000,6 +2000,11 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
         dojo.subscribe(nodeId + '_reload', widget, function(keep_selection) {
             this.reload(keep_selection !== false)
         });
+        dojo.subscribe(nodeId + '_serverAction',widget,function(kw){
+            if(this.serverAction){
+                this.serverAction(kw);
+            }
+        });
         //dojo.subscribe(gridId+'_searchbox_keyUp',this,function(v){console.log(v)});
         var searchBoxCode =(sourceNode.attr.frameCode || nodeId)+'_searchbox';
         var searchBoxNode = genro.nodeById(searchBoxCode);
@@ -3773,8 +3778,6 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         return this.collectionStore().len(true);
     },
 
-
-
     patch_sort: function() {
         if (!this._virtual){
             return this.sort_replaced();
@@ -3794,6 +3797,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         }
         this.setSortedBy(sortedBy);
     },
+    
     mixin_setSortedBy:function(sortedBy) {
         this.sortedBy = sortedBy;
         var store = this.collectionStore();
@@ -3860,6 +3864,21 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     },
     mixin_resetFilter: function(value) {
         return this.collectionStore().resetFilter();
+    },
+    
+    mixin_serverAction:function(kw){
+        var options = objectPop(kw,'opt');
+        var method = objectPop(options,"method") || "app.includedViewAction";
+        var kwargs = objectUpdate({},options);
+        kwargs['action'] = objectPop(kw,'command');
+        kwargs['selectedRowIdx'] = this.getSelectedRowidx();
+        kwargs['table'] =this.sourceNode.attr.table;
+        kwargs['datamode'] = this.datamode;
+        kwargs['struct'] = this.structbag();
+        kwargs['data'] = this.collectionStore().getData();
+        var cb = function(result){genro.download(result);};
+        kwargs['meta'] = objectExtract(this.sourceNode.attr, 'meta_*', true);
+        genro.rpc.remoteCall(method, kwargs, null, 'POST', null,cb);
     }
     
 });
