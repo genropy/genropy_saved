@@ -430,7 +430,7 @@ class GnrDomSrc(GnrStructData):
             with self.page.pageStore() as store:
                 store.setItem(kwargs['_serverpath'], value)
                 store.subscribe_path(kwargs['_serverpath'])
-        return self.child('data', __cls=className, content=value, path=path, **kwargs)
+        return self.child('data', __cls=className, content=value,_returnStruct=False, path=path, **kwargs)
         
     def script(self, content='', **kwargs):
         """Handle the <script> html tag
@@ -1066,6 +1066,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             datapath = datapath or '.grid'
         structpath = structpath or '.struct'
         nodeId = nodeId or '%s_grid' %frameCode
+        self.attributes['target'] = nodeId
         wdg = 'NewIncludedView' if _newGrid else 'includedView'
         iv =self.child(wdg,frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
                           relativeWorkspace=True,configurable=configurable,storepath=storepath,**kwargs)
