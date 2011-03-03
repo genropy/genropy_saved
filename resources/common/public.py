@@ -135,7 +135,9 @@ class Public(BaseComponent):
     
     @struct_method
     def pbl_public_root_caption(self,pane,title='',**kwargs):   
-        pane.div(title, _class='pbl_title_caption',subscribe_public_caption='this.domNode.innerHTML=$1;',**kwargs)
+        pane.div(title, _class='pbl_title_caption',
+                    subscribe_public_caption='this.domNode.innerHTML=$1;',
+                    draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',**kwargs)
         
     @struct_method
     def pbl_public_root_pageback(self,pane,**kwargs): 
