@@ -78,8 +78,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
     },
     _trigger_ins:function(kw) {//da rivedere
-        console.log('trigger_ins',kw);
-
+        //console.log('trigger_ins',kw);
         if(kw.reason=='autocreate'){
             return;
         }
@@ -102,8 +101,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.buildNode(node, where, ind);
     },
     _trigger_del:function(kw) {//da rivedere
-        console.log('trigger_del',kw);
-
+        //console.log('trigger_del',kw);
         var domNode = kw.node.getDomNode();
         if (!domNode) {
             return;
@@ -127,7 +125,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         var node = kw.node;
     },
     _trigger_upd:function(kw) {//da rivedere
-        console.log('trigger_upd',kw);
+        //console.log('trigger_upd',kw);
         var destination = kw.node.getParentBuiltObj();
         if (!destination) {
             console.log('missing destination in rebuild');
