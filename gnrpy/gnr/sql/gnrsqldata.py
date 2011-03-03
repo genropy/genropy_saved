@@ -46,6 +46,8 @@ RELFINDER = re.compile(r"(\W|^)(\@([\w.@:]+))")
 PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*(\w*)\)")
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
+STOREFINDER = re.compile(r"#STORE\(([^,)]+)(,[^),]+)?\)")
+
 
 class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by SqlQueryCompiler. 
@@ -145,6 +147,12 @@ class SqlQueryCompiler(object):
             prefpath = m.group(1)
             dflt=m.group(2)[1:] if m.group(2) else None
             return str(curr_tblobj.pkg.getPreference(prefpath,dflt))
+        
+        def expandStore(m):
+            """#STORE(mystorepath,default)"""
+            storepath = m.group(1)
+            dflt=m.group(2)[1:] if m.group(2) else None
+            return self.db.getFromStore(storepath,dflt)
 
         def expandEnv(m):
             what = m.group(1)
@@ -191,6 +199,7 @@ class SqlQueryCompiler(object):
                 sql_formula = self.updateFieldDict(fldalias.sql_formula, reldict=subreldict)
                 sql_formula = ENVFINDER.sub(expandEnv, sql_formula)
                 sql_formula = PREFFINDER.sub(expandPref, sql_formula)
+                sql_formula = STOREFINDER.sub(expandStore, sql_formula)
                 sql_formula = sql_formula.replace('#THIS', alias)
                 subColPars = {}
                 for key, value in subreldict.items():
