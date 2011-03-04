@@ -30,7 +30,7 @@ class TableHandlerForm(BaseComponent):
                                   sqlContextTable=self.maintable)
         self.formController(bc)
         self.formToolbar(bc.contentPane(region='top', _class='sttbl_list_top'))
-        self.formBase(bc, datapath='form.record', formId='formPane', disabled='^form.locked', region='center')
+        self.formBase(bc, datapath='form.record', formId='formPane', disabled='^form.locked',form_locked=True, region='center')
 
 
     def setLogicalDeletionCheckBox(self, elem):
@@ -58,6 +58,7 @@ class TableHandlerForm(BaseComponent):
         self.formTitleBase(pane)
         pane.dataFormula('form.locked', 'statusLocked || recordLocked || false', statusLocked='^status.locked',
                          recordLocked='=form.recordLocked', fired='^gnr.forms.formPane.loaded')
+        pane.dataController("",_fired="")
         pane.dataController("""window.location.hash=(pkey == '*newrecord*')?null:'pk_'+pkey;""",
                                fired='^gnr.forms.formPane.loaded', pkey='=form.record?_pkey',_if='pkey')
         pane.dataController("genro.dom.setClass(dojo.body(),'form_locked',locked)", locked="^form.locked")
@@ -86,7 +87,8 @@ class TableHandlerForm(BaseComponent):
                                  //if not unlockable return
                                  //placeholder 
                                 }
-                                SET status.locked=!isLocked
+                                SET status.locked=!isLocked;
+                                genro.formById('formPane').setLocked(!isLocked);
                             """, _fired='^status.changelock',
                             isLocked='=status.locked')
         pane.dataController("""SET status.statusClass = isLocked?'tb_button icnBaseLocked':'tb_button icnBaseUnlocked';
