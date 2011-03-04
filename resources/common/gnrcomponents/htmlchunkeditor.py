@@ -5,12 +5,15 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrwebstruct import struct_method
+
 from gnr.core.gnrbag import Bag
 
 class ChunkEditor(BaseComponent):
     py_requires = 'foundation/dialogs,foundation/macrowidgets:RichTextEditor'
-
-    def htmlChunk(self, pane, nodeId=None, data=None, dflt=None, table=None, **kwargs):
+    
+    @struct_method
+    def htmlchunk_htmlChunk(self, pane, nodeId=None, data=None, dflt=None, table=None, **kwargs):
         pane.div(innerHTML="==dataTemplate(tpl,data)",
                  tpl="^gnr.htmlchunk.%s.content" % nodeId,
                  data=data,

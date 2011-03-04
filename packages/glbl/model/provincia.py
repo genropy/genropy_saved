@@ -12,6 +12,7 @@ class Table(object):
         tbl.column('ordine', 'L', name_long='Ordine Gnr')
         tbl.column('ordine_tot', size='6', name_long='Ordine tot Gnr')
         tbl.column('cap_valido', size='2', name_long='CAP Valido')
+        tbl.column('auxdata','X',name_long='!!test')
         
     def baseView_cap(self):
         return "nome,cap_valido"

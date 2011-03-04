@@ -45,19 +45,19 @@ class IncludedView(BaseComponent):
         export_kw = dictExtract(kwargs,'export_',True,slice_prefix=False)
         slotbarKwargs = dict()
         if label:
-            slots.append('iv_label')
-            slotbarKwargs['iv_label'] = label
+            slots.append('label')
+            slotbarKwargs['label'] = label
             slots.append('*')
         if searchOn:
             slots.append('searchOn')
-        for slot,kw in (('iv_add',add_kw),('iv_del',del_kw),('iv_upd',upd_kw)):
+        for slot,kw in (('add',add_kw),('del',del_kw),('upd',upd_kw)):
             if kw:
                 slots.append(slot)
                 slotbarKwargs.update(kw)
         if slots:
             _class = 'pbl_viewBoxLabel' if not hasToolbar else None
             slotbar = pane.slotBar(slots=','.join(slots),_class=_class,toolbar=hasToolbar,searchOn=searchOn,
-                                    _attachname='slotbar',**slotbarKwargs)
+                                    _attachname='slotbar',namespace='iv',**slotbarKwargs)
         return kwargs
         
     @struct_method

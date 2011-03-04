@@ -8,7 +8,7 @@ from gnr.web.gnrwebstruct import struct_method
 
 "Test formhandler selection store"
 class GnrCustomWebPage(object):
-    testOnly='_3_'
+    testOnly='_2_'
     user_polling=0
     auto_polling=0
     py_requires="""gnrcomponents/testhandler:TestHandlerFull,
@@ -95,27 +95,37 @@ class GnrCustomWebPage(object):
     def formCb(self,pane):
         pane.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
         
-    def __test_1_selectionhandler(self,pane):
-        bc =  pane.borderContainer(height='250px')
-        left = bc.borderContainer(region='left',width='300px')
-        formRoot = bc.contentPane(region='center')
-        tb = left.contentPane(region='top').slotToolbar('*,selector,20,reloader',side='top')
-        tb.selector.dbselect(value='^.province.regione',dbtable='glbl.regione',lbl='Regione')
+    
+
+    def test_4_linkedForm_pane_nested(self,pane):
+        mainframe = pane.frameForm(frameCode='regione',width='600px',height='500px',
+                                center_widget='BorderContainer',table='glbl.regione',
+                                store='recordCluster',store_startKey='*norecord*')
+        tb = mainframe.slotToolbar('*,selector,20,reloader',side='top')
+        tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione',
+                             validate_onAccept='this.form.load({"destPkey":value});',parentForm=False)
+        left = mainframe.contentPane(region='left',margin='2px')
+        left.div('!!Regione',background='darkblue',color='white',rounded_top=12)
+        fb = left.formbuilder(cols=2, border_spacing='3px')
+        fb.field('sigla')
+        fb.field('nome')
+        fb.field('codice_istat')
+        fb.field('ordine')
+        fb.field('zona')
         
-        gridRoot = left.contentPane(region='center')
-        gridRoot.selectionHandler(struct='regione',
-                                  frameCode='province',
-                                  datapath='.province',
-                                  label='Province',
-                                  table='glbl.provincia',
-                                  autoSelect=True,
-                                  form_pane=formRoot,
-                                  form_cb=self.formCb,
-                                  selectionPars=dict(where="$regione=:r",r='^.regione'))
-        
-        
+        left = mainframe.contentPane(region='left',margin='2px')
 
         
-
+    
+    def xxx(self,pane):
+        tb.reloader.button('reload',fire='.reload')
+        iv = frame.includedView(struct='regione',autoSelect=True)
+        iv.selectionStore(table='glbl.provincia',where='$regione=:r',
+                          r='^.regione',_fired='^.reload')
+        center = bc.contentPane(region='center',border='1px solid blue')
+        form=iv.linkedForm(frameCode='provincia',loadEvent='onSelected',
+                            formRoot=center,store_startKey='*norecord*',
+                            store_onSaved='reload')
+        form.testToolbar()
     
         
