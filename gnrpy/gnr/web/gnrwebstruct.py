@@ -825,7 +825,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             formRoot = self.parent.palettePane(**palette_kwargs)
         form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=self.attributes.get('table'),
                                  store=store,**kwargs)
-        if self.attributes['tag'].lower()=='includedview':
+        parentTag = self.attributes['tag'].lower()
+        if parentTag=='includedview' or parentTag=='newincludedview':
             viewattr = self.attributes
             storeattr = form.store.attributes
             storeattr['storeType'] = 'Collection'
@@ -837,10 +838,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                                                 }
                                                 """ %frameCode
             self.attributes['subscribe_form_%s_onLoaded' %formId] ="""
+                                                                    console.log($1);
                                                                     if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
                                                                         this.widget.selectByRowAttr('_pkey',$1.pkey);
                                                                     }
                                                                   """
+            self.attributes['subscribe_form_%s_onSaved' %formId] = "this.widget.reload();"
+            self.attributes['subscribe_form_%s_onDeleted' %formId] = "this.widget.reload(true);"
+            self.attributes['selfsubscribe_add'] = 'genro.getForm("%s").load({destPkey:"*newrecord*"});' %frameCode
+            self.attributes['selfsubscribe_del'] = "alert('should delete')"
         return form
         
     def virtualSelectionStore(self,storeCode=None,table=None,storepath=None,columns=None,**kwargs):
