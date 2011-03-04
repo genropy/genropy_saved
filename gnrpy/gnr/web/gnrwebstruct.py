@@ -1787,6 +1787,9 @@ class GnrGridStruct(GnrStructData):
                                                                     var checked = !storebag.getItem(valuepath);
                                                                     
                                                                     storebag.setItem(valuepath, checked);
+                                                                    this.publish('checked_%(field)s',{row:this.widget.rowByIndex(idx),
+                                                                                                      pkey:this.widget.rowIdByIndex(idx),
+                                                                                                      checked:checked});
                                                                     %(action)s
                                                                     """ % dict(field=field, action=action or '')
                   , dtype='B', **kwargs)
