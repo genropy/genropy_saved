@@ -1,4 +1,4 @@
-.. _genro_commons_types_types:
+.. _genro_commons_types:
 
 ==========
 Data types
