@@ -11,29 +11,44 @@ Genro macros
 SET
 ===
 
-    state a value and triggers any associated events (ie any observers or resolver connected by "^")
+    State a value and triggers any associated events (ie any observers or resolver connected by "^").
+    
+    **Example**: ``SET Goofy='aaa'`` it is a shortcut for the following command:
+    
+        * ``this.setRelativeData("goofy",aaa)``.
     
 .. _genro_put:
 
 PUT
 ===
     
-    set a value, but does not trigger the events associated
+    Set a value, but does not trigger the events associated.
     
 .. _genro_get:
     
 GET
 ===
 
-    read the contents of a value in the datastore
+    Read the contents of a value in the :ref:`genro_datastore`
+    
+    **Example**: ``GET Goofy`` it is a shortcut for the following command:
+    
+        * ``this.getRelativeData("Goofy")``.
 
 .. _genro_fire:
 
 FIRE
 ====
 
-    set a value in the datastore, and then trigger the events associated. After that reset the value to zero (without triggering events [#]_). It is used when you need to trigger events through a temporary parameter to the Observers.
-	
+    Set a value in the ``datastore``, and then trigger the events associated. After that reset the value to zero (without triggering events [#]_). It is used when you need to trigger events through a temporary parameter to the Observers.
+    
+    It is a shortcut for the following commands: `this.setRelativeData("pippo",aaa)` and `this.setRelativeData("pippo",null)`
+    
+    **Example**: ``FIRE Goofy='aaa'`` it is a shortcut for the following commands:
+    
+        * ``this.setRelativeData("goofy",aaa)``
+        * ``this.setRelativeData("pippo",null)``
+        
 **Footnotes:**
 
 .. [#] In this way the trigger can be used more than once time.
