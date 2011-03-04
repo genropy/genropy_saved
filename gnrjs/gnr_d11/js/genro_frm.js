@@ -347,11 +347,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controllerData.fireItem('loaded');
         this.updateStatus();
         this.setOpStatus();
+        
         if(this.store){
             //modalita nuova
             this.setDisabled(false)
-            this.focus();
         }
+        this.focus();
         
     },
     
