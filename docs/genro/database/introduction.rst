@@ -1,6 +1,6 @@
-=============================================
-Introduction to the Genro database management
-=============================================
+===============================
+Introduction to a Genro Project
+===============================
 
     GenroPy is a Framework for business applications.
     

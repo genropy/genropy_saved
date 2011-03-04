@@ -8,9 +8,7 @@ Genro Projects
     
     introduction
     simpleproject/index
-    maintable
     name/index
-    rowcaption
     webpage_creation
     the ``.gnr`` folder <gnr/index>
     structure/index

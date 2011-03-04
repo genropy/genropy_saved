@@ -9,8 +9,8 @@ components
     
     introduction
     writing
+    list-maturity-matrix
     IncludedView <includedview>
     SelectionHandler <selectionhandler>
     standardtable/index
     recorddialog
-    maturity-matrix

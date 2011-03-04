@@ -8,6 +8,7 @@
     _gnrbasewebpage
     gnrbaseclasses
     gnrcookie
+    gnrwebpage
     gnrwebstruct
     gnrwebutils
     gnrwsgisite
