@@ -980,13 +980,13 @@ div.dojoxDock {
 }
 
 .radioOn {
-    background: url(icons/checkMarkOn.png) no-repeat center center;
+    background: url(icons/radioOn.gif) no-repeat center center;
     width: 15px;
     height: 15px;
 }
 
 .radioOff {
-    background: url(icons/checkMarkOff.png) no-repeat center center;
+    background: url(icons/radioOff.gif) no-repeat center center;
     width: 15px;
     height: 15px;
 }
