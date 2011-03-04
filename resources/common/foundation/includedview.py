@@ -65,23 +65,23 @@ class IncludedView(BaseComponent):
         return pane.slotButton(label='!!Run query',public='runbtn',
                                 action=action,baseClass='no_background',
                                 iconClass=_class,visible=enable)
-
-    @struct_method
-    def ivnew_slotbar_iv_add(self,pane,action=None,_class='icnBaseAdd',enable=None,**kwargs):
-        return pane.slotButton(label='!!Add',action=action,baseClass='no_background',iconClass=_class,visible=enable)
         
     @struct_method
-    def ivnew_slotbar_iv_export(self,pane,_class='buttonIcon icnBaseExport',mode='xls',enable=None,target=None,**kwargs):
+    def ivnew_slotbar_iv_export(self,pane,_class='buttonIcon icnBaseExport',mode='xls',enable=None,**kwargs):
         return pane.slotButton(label='!!Export',publish='serverAction',command='export',opt_export_mode=mode or 'xls',
-                                baseClass='no_background',iconClass=_class,visible=enable,target=target,**kwargs) 
-        
+                                baseClass='no_background',iconClass=_class,visible=enable,**kwargs) 
+       
     @struct_method
-    def ivnew_slotbar_iv_del(self,pane,action=None,_class='icnBaseDelete',enable=None,**kwargs):
-        return pane.slotButton(label='!!Delete',action=action,baseClass='no_background',iconClass=_class,visible=enable)
+    def ivnew_slotbar_iv_add(self,pane,_class='icnBaseAdd',enable=None,**kwargs):
+        return pane.slotButton(label='!!Add',publish='add',baseClass='no_background',iconClass=_class,visible=enable,**kwargs)
+         
+    @struct_method
+    def ivnew_slotbar_iv_del(self,pane,_class='icnBaseDelete',enable=None,**kwargs):
+        return pane.slotButton(label='!!Delete',publish='del',baseClass='no_background',iconClass=_class,visible=enable,**kwargs)
     
     @struct_method
-    def ivnew_slotbar_iv_upd(self,pane,action=None,_class='icnBaseEdit',enable=None,**kwargs):
-        return pane.slotButton(label='!!Delete',action=action,baseClass='no_background',iconClass=_class,visible=enable)
+    def ivnew_slotbar_iv_upd(self,pane,_class='icnBaseEdit',enable=None,**kwargs):
+        return pane.slotButton(label='!!Delete',publish='upd',baseClass='no_background',iconClass=_class,visible=enable,**kwargs)
             
     @struct_method
     def ivnew_bagViewBox(self,pane,frameCode=None,selectionPars=None,reloader=None,table=None,
