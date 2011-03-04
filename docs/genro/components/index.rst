@@ -1,7 +1,7 @@
 .. _genro_components_index:
 
 ==========
-components
+Components
 ==========
 
 .. toctree::
@@ -10,7 +10,4 @@ components
     introduction
     writing
     list-maturity-matrix
-    IncludedView <includedview>
-    SelectionHandler <selectionhandler>
-    standardtable/index
-    recorddialog
+    components/index

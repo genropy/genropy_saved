@@ -1,9 +1,13 @@
 .. _genro_components_components_index:
 
-Components
-==========
+==================
+list of components
+==================
 
 .. toctree::
     :maxdepth: 2
     
-    
+    IncludedView <includedview>
+    SelectionHandler <selectionhandler>
+    standardtable/index
+    recorddialog
