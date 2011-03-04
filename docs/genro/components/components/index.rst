@@ -8,6 +8,7 @@ list of components
     :maxdepth: 2
     
     IncludedView <includedview>
+    login_component
     SelectionHandler <selectionhandler>
     standardtable/index
     recorddialog
