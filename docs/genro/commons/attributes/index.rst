@@ -14,5 +14,6 @@ Common attributes
     hidden
     label
     nodeId
+    rowcaption
     visible
     zoom

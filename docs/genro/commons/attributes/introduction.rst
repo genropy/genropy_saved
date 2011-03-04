@@ -14,5 +14,6 @@ common attributes
     * *hidden*: see :ref:`genro_hidden`
     * *label*: see :ref:`genro_label`
     * *nodeId*: see :ref:`genro_nodeid`
+    * *rowcaption*: see :ref:`genro_database_rowcaption`
     * *value*: see :ref:`genro_datapath`
     * *visible*: see :ref:`genro_visible`
