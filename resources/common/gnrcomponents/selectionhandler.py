@@ -71,7 +71,7 @@ class SelectionHandler(BaseComponent):
         dialogPars = kwargs.pop('dialogPars',None)
         if dialogPars:
             kwargs['dialog_kwargs'] = dialogPars
-            kwargs['default_kwargs'] = dictExtract(dialogPars,'default_',pop=True)
+            kwargs['default_kwargs'] = dictExtract(dialogPars,'default_',slice_prefix=False,pop=True)
             if 'formCb' in dialogPars:
                 kwargs['form_center_content'] = dialogPars.pop('formCb')
             if 'dlgPars' in dialogPars:
