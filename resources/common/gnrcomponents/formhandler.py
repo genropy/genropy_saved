@@ -63,7 +63,8 @@ class FormHandler(BaseComponent):
     
     @struct_method          
     def fh_slotbar_form_delete(self,pane,parentForm=True,**kwargs):
-        pane.formButton('!!Delete',topic='delete',iconClass="tb_button db_del",parentForm=parentForm,**kwargs)
+        pane.formButton('!!Delete',topic='deleteItem',
+                        iconClass="tb_button db_del",parentForm=parentForm,**kwargs)
     
     @struct_method          
     def fh_slotbar_form_add(self,pane,parentForm=True,**kwargs):
