@@ -404,8 +404,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 formContentDomNode = this.sourceNode.widget.getSelected().domNode;
             }
             var node = node || dijit.getFirstInTabbingOrder(formContentDomNode);
-            node.focus();
-            
+            if(node){
+                node.focus();
+            }
         }
     },
     onFocusForm:function(){
