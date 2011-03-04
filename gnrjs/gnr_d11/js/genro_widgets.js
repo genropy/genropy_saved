@@ -3884,7 +3884,6 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         kwargs['meta'] = objectExtract(this.sourceNode.attr, 'meta_*', true);
         genro.rpc.remoteCall(method, kwargs, null, 'POST', null,cb);
     }
-    
 });
 
 
