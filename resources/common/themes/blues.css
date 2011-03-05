@@ -728,13 +728,14 @@
 /* @group form */
 
 .sectionLabel {
-    color: rgba(0, 51, 102, 0.4);
+    color: #707070 !important;
+    opacity: 0.5 !important;
     text-align: left;
     font-style: italic;
     font-weight: bold;
     text-decoration: underline;
     font-variant: small-caps;
-    margin-left: 2px;
+    margin-left: 3px;
 }
 
 
