@@ -458,14 +458,14 @@ class SqlTable(GnrObject):
             if mode == 'pkey':
                 return record
             else:
-                return self.record(pkey=record, mode=mode, virtual_columns=virtual_columns)
+                return self.record(pkey=record, mode=mode, virtual_columns=virtual_columns,ignoreMissing=True)
         if mode == 'pkey':
             # The record is either a dict or a bag, so it accepts indexing operations
             return record.get('pkey', None) or record.get(self.pkey)
         if mode == 'dict' and not isinstance(record, dict):
             return dict([(k, v) for k, v in record.items() if not k.startswith('@')])
         if mode == 'bag' and (virtual_columns or not isinstance(record, Bag)):
-            return self.record(pkey=record.get('pkey', None) or record.get(self.pkey), mode=mode,
+            return self.record(pkey=record.get('pkey', None) or record.get(self.pkey), mode=mode,ignoreMissing=True,
                                virtual_columns=virtual_columns)
         return record
             
