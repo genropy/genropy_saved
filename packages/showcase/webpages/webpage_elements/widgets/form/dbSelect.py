@@ -9,17 +9,25 @@
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-
+    
     def test_1_basic(self, pane):
         """Basic test"""
-        fb = pane.formbuilder(border_spacing='10px', datapath='test1')
+        fb = pane.formbuilder(cols=2, border_spacing='10px', datapath='test1')
         fb.div("""In this test you can see the basic funcionalities of the dbSelect attribute:
-                the "dbtable" attribute allows to search from a database table,""",
-               font_size='.9em', text_align='justify')
+                  the "dbtable" attribute allows to search from a database table,""",
+                  font_size='.9em', text_align='justify', colspan=2)
         fb.div("""saving the ID of the chosen record.""",
-               font_size='.9em', text_align='justify')
-        fb.dbSelect(dbtable='showcase.person', value='^test1.person_id', lbl='Star')
-
+                  font_size='.9em', text_align='justify', colspan=2)
+        fb.div('Star (value saved in "test1/person_id")',color='#94697C', colspan=2)
+        fb.dbSelect(dbtable='showcase.person', value='^test1.person_id', limit=10, colspan=1)
+        fb.div("""Default values for a dbSelect: limit=10 (number of viewed records scrolling the
+                  dbSelect), hasDownArrow=False, ignoreCase""",
+                  font_size='.9em', text_align='justify', colspan=1)
+        fb.div('Star (value saved in "test1/person_id_2")',color='#94697C', colspan=2)
+        fb.dbSelect(dbtable='showcase.person', value='^test1.person_id_2', hasDownArrow=True)
+        fb.div("""The hasDownArrow=True override the limit=10, and let the user see all the entries""",
+                  font_size='.9em', text_align='justify', colspan=1)
+                    
     def test_2_selected(self, pane):
         """"Selected" attribute"""
         fb = pane.formbuilder(border_spacing='10px', datapath='test2')
@@ -34,7 +42,7 @@ class GnrCustomWebPage(object):
                font_size='.9em', text_align='justify')
         fb.dbSelect(dbtable='showcase.person', value='^.person_id', lbl='Star',
                     selected_name='.name', selected_year='.year')
-
+                    
     def test_3_advanced(self, pane):
         """"Condition" attribute"""
         fb = pane.formbuilder(border_spacing='10px', datapath='test3')
@@ -49,9 +57,3 @@ class GnrCustomWebPage(object):
         fb.dbSelect(dbtable='showcase.cast', value='^.movie_id', lbl='Movie',
                     condition='$person_id=:pid', condition_pid='=.person_id',
                     alternatePkey='movie_id')
-
-        # The next rows belong to old stuff...
-
-        # def main(self,root,cache=False,**kwargs):
-        #     if cache:
-        #         root.script('genro.cache_dbselect = true;')
