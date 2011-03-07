@@ -203,6 +203,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         ;
         var delayOnCall = objectPop(callKwargs, '_delayOnCall');
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs, sourceNode));
+        objectPop(callKwargs, '_destFullpath');
         callKwargs._lastUserEventTs = asTypedTxt(genro._lastUserEventTs, 'DH');
         if (genro.auto_polling > 0) {
             this._call_auto_polling();
@@ -628,8 +629,10 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var isGetter = false;
 
         var kwargs = {'sync':true,
+            'columns':'==gnr.getGridColumns(_destFullpath);',
             'from_fld':params._from_fld, 'target_fld':params._target_fld, 'relation_value':params._relation_value,
             'sqlContextName':params._sqlContextName,order_by:params.many_order_by};
+        
         kwargs.method = 'app.getRelatedSelection';
 
         var resolver = new gnr.GnrRemoteResolver(kwargs, isGetter, cacheTime);
