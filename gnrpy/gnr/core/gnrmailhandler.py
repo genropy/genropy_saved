@@ -93,9 +93,9 @@ class MailHandler(GnrBaseService):
                          authentication). Default value is ``None``
         :param port: if a non standard port is used then it can be overridden.
                      Default value is ``None``
-        :param ssl: if True, attempt to use the ssl port. Else standard smtp port is used.
+        :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
                     Default value is ``None``
-        :param default: add???. Default value is ``False``
+        :param default: boolean. add???. Default value is ``False``
         """
         self.smtp_accounts[name] = dict(from_address=from_address,
                                         smtp_host=smtp_host, username=username,
@@ -140,9 +140,9 @@ class MailHandler(GnrBaseService):
                      Default value is ``None``
         :param password: the username's password (if a username is required for
                          authentication). Default value is ``None``
-        :param ssl: if True, attempt to use the ssl port. Else standard smtp port is used.
+        :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
                     Default value is ``None``
-        :param tls: allow to communicate with an smtp server. Default value is ``False``.
+        :param tls: boolean. Allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
                     
                     1. no encryption
@@ -172,7 +172,7 @@ class MailHandler(GnrBaseService):
                      Default value is ``None``
         :param password: the username's password (if a username is required for
                          authentication). Default value is ``None``
-        :param ssl: if True, attempt to use the ssl port. Else standard smtp port is used.
+        :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
                     Default value is ``None``
         :param tls: allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
@@ -290,7 +290,7 @@ class MailHandler(GnrBaseService):
                      Default value is ``None``
         :param password: the username's password (if a username is required for
                          authentication). Default value is ``None``
-        :param ssl: if True, attempt to use the ssl port. Else standard smtp port is used.
+        :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
                     Default value is ``None``
         :param tls: allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
@@ -299,11 +299,11 @@ class MailHandler(GnrBaseService):
                     2. ssl -> all data is encrypted on a ssl layer
                     3. tls -> server and client begin communitation in a unsecure way and after a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
         
-        :param html: if True, html tags can be used in the body of the email. Appropriate headers are attached.
+        :param html: boolean. If ``True``, html tags can be used in the body of the email. Appropriate headers are attached.
                      The default value is ``False``.
         :param charset: a different charser may be defined by its standard name.
                         Default value is ``utf-8``.
-        :param async: if True, then a separate process is spawned to send the email and control
+        :param async: boolean. If ``True``, then a separate process is spawned to send the email and control
                       is returned immediately to the calling function. The default value is ``False``.
         """
         
@@ -354,7 +354,7 @@ class MailHandler(GnrBaseService):
                      Default value is ``None``
         :param password: the username's password (if a username is required for
                          authentication). Default value is ``None``
-        :param ssl: if True, attempt to use the ssl port. Else standard smtp port is used.
+        :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
                     Default value is ``None``
         :param tls: allow to communicate with an smtp server (the default value is ``False``). You may choose three ways:
                     
@@ -365,7 +365,7 @@ class MailHandler(GnrBaseService):
                     3. tls -> server and client begin communitation in a unsecure way and after
                                a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
                     
-        :param html: if True then html tags can be used in the body of the email. Appropriate headers are attached.
+        :param html: boolean. If ``True`` then html tags can be used in the body of the email. Appropriate headers are attached.
                      The default value is ``False``.
         :param charset: a different charser may be defined by its standard name.
                         Default value is ``utf-8``.
@@ -423,7 +423,7 @@ class MailHandler(GnrBaseService):
                      Default value is ``None``
         :param password: the username's password (if a username is required for
                          authentication). Default value is ``None``
-        :param ssl: if True, attempt to use the ssl port. Else standard smtp port is used.
+        :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
                     Default value is ``None``
         :param tls: allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
@@ -432,7 +432,7 @@ class MailHandler(GnrBaseService):
                     2. ssl -> all data is encrypted on a ssl layer
                     3. tls -> server and client begin communitation in a unsecure way and after a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
         
-        :param html: if True, html tags can be used in the body of the email. Appropriate headers are attached.
+        :param html: boolean. If ``True``, html tags can be used in the body of the email. Appropriate headers are attached.
                      The default value is ``False``.
         
         ???

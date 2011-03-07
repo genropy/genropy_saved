@@ -41,7 +41,8 @@ def sortByItem(l, *args, **kwargs):
     
     :param l: the list
     :param args: a list of keys to sort for. Each key can be reverse sorted by adding ``:d`` to the key.
-    :param hkeys: if True and a key contains ``.``, then it is interpreted as a hierarchical path and sub dict are looked for
+    :param hkeys: if ``True`` and a key contains ``.``, then it is interpreted as a hierarchical
+                  path and sub dict are looked for
     :returns: the list
     """
     def safeCmp(a, b):

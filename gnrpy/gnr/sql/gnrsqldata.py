@@ -968,7 +968,7 @@ class SqlQuery(object):
         """Return the fetch as a dict of the given key
         
         :param key: the key you give (if None, it takes the pkey). Default value is ``None``
-        :param asBag: boolean. If True, return the result as a Bag. If False, return the
+        :param asBag: boolean. If ``True``, return the result as a Bag. If False, return the
                       result as a dict. Default value is ``False``
         :returns:
         """

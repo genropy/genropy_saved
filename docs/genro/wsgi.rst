@@ -37,7 +37,7 @@ WSGI
 Apache WSGI
 ===========
 
-    To use WSGI with apache, you must install the module and configure ``mod_wsgi``::
+    To use WSGI with apache, you must install and configure the module ``mod_wsgi``::
         
         <VirtualHost *:80>
         ServerAdmin webmaster@localhost

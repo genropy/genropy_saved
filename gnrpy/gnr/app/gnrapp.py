@@ -299,8 +299,8 @@ class GnrApp(object):
         
     :param instanceFolder: instance folder or name
     :param custom_config:  a bag or dictionary that will override configuration value
-    :param forTesting:  if False, setup the application normally.
-                        if True, setup the application for testing with a temporary sqlite database.
+    :param forTesting:  if ``False``, setup the application normally.
+                        if ``True``, setup the application for testing with a temporary sqlite database.
                         if it's a bag, setup the application for testing and import test data from this bag.
                         (see :meth:`loadTestingData`)
     

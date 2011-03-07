@@ -44,7 +44,7 @@ def listdirs(path, invisible_files=False):
     """Return a list of all the files contained in a path and its descendant
     
     :param path: the path you want to analyze
-    :param invisible_files: if True, add invisible files to the returned list. Default value is ``False``
+    :param invisible_files: boolean. If ``True``, add invisible files to the returned list. Default value is ``False``
     :returns: a list of all the files contained in a path and its descendant
     """
     

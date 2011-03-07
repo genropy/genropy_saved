@@ -13,7 +13,7 @@ def formatter_message(message, use_color=True):
     """Change the format message
     
     :param message: the message to be changed
-    :param use_color: if True, add color to the message
+    :param use_color: boolean. If ``True``, add color to the message
     :returns: the message with the new format
     """
     if use_color:

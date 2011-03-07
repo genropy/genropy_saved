@@ -23,8 +23,9 @@ log = logging.getLogger(__name__)
 
 class GnrMixinError(Exception):
     pass
-
+    
 class ResourceLoader(object):
+    """add???"""
     def __init__(self, site=None):
         self.site = site
         self.site_path = self.site.site_path
@@ -36,12 +37,12 @@ class ResourceLoader(object):
         self.build_automap()
         self.page_factories = {}
         self.default_path = self.site.default_page and self.site.default_page.split('/')
-
-
+        
     def find_webtools(self):
+        """add???"""
         def isgnrwebtool(cls):
             return inspect.isclass(cls) and issubclass(cls, BaseWebtool) and cls is not BaseWebtool
-
+            
         tools = {}
         webtool_pathlist = []
         if 'webtools' in self.gnr_config['gnr.environment_xml']:
@@ -65,8 +66,9 @@ class ResourceLoader(object):
                     except ImportError:
                         pass
         return tools
-
+        
     def build_automap(self):
+        """add???"""
         def handleNode(node, pkg=None):
             attr = node.attr
             file_name = attr['file_name']
@@ -79,10 +81,10 @@ class ResourceLoader(object):
             node.label = file_name
             if node._value is None:
                 node._value = ''
-
+                
         self.automap = DirectoryResolver(os.path.join(self.site_path, 'pages'), ext='py', include='*.py',
                                          exclude='_*,.*,*.pyc')()
-
+                                         
         self.automap.walk(handleNode, _mode='', pkg='*')
         for package in self.site.gnrapp.packages.values():
             packagemap = DirectoryResolver(os.path.join(package.packageFolder, 'webpages'),
@@ -90,9 +92,10 @@ class ResourceLoader(object):
             packagemap.walk(handleNode, _mode='', pkg=package.id)
             self.automap.setItem(package.id, packagemap, name=package.attributes.get('name_long') or package.id)
         self.automap.toXml(os.path.join(self.site_path, 'automap.xml'))
-
+        
     @property
     def sitemap(self):
+        """add???"""
         if not hasattr(self, '_sitemap'):
             sitemap_path = os.path.join(self.site_path, 'sitemap.xml')
             if not os.path.isfile(sitemap_path):
@@ -101,9 +104,13 @@ class ResourceLoader(object):
             _sitemap.setBackRef()
             self._sitemap = _sitemap
         return self._sitemap
-
+        
     def get_page_node(self, path_list, default=False):
-        # get the deepest node in the sitemap bag associated with the given url
+        """Get the deepest node in the sitemap bag associated with the given url
+        
+        :param path_list: add???
+        :param default: add???. Default value is ``False``
+        """
         page_node = self.sitemap.getDeepestNode('.'.join(path_list))
         if not page_node and self.site.mainpackage: # try in the main package
             page_node = self.sitemap.getDeepestNode('.'.join([self.site.mainpackage] + path_list))
@@ -122,8 +129,7 @@ class ResourceLoader(object):
             page_node._tail_list = list(path_list)
             return page_node, page_node_attributes
         return None, None
-
-
+        
     def __call__(self, path_list, request, response, environ=None):
         page_node, page_node_attributes = self.get_page_node(path_list)
         if not page_node:
@@ -136,14 +142,20 @@ class ResourceLoader(object):
                           request_kwargs=self.site.parse_request_params(request.params), request_args=request_args,
                           filepath=path, packageId=pkg, basename=path, environ=environ)
         return page
-
+        
     def get_page_class(self, path=None, pkg=None):
+        """add???
+        
+        :param path: add???. Default value is ``None``
+        :param pkg: add???. Default value is ``None``
+        :returns: add???
+        """
         if pkg == '*':
             module_path = os.path.join(self.site_path, path)
             pkg = self.site.config['packages?default']
         else:
             module_path = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages', path)
-
+            
         # if module_path in self.page_factories:
         #    return self.page_factories[module_path]
         page_module = gnrImport(module_path, avoidDup=True)
@@ -184,9 +196,13 @@ class ResourceLoader(object):
         self.page_class_custom_mixin(page_class, path, pkg=pkg)
         self.page_factories[module_path] = page_class
         return page_class
-
+        
     def page_class_base_mixin(self, page_class, pkg=None):
-        """Looks for custom classes in the package"""
+        """Look for custom classes in the package
+        
+        :param page_classe: add???
+        :param pkg: add???. Default value is ``None``
+        """
         if pkg:
             package = self.gnrapp.packages[pkg]
         if package and package.webPageMixin:
@@ -195,9 +211,13 @@ class ResourceLoader(object):
             classMixin(page_class, self.gnrapp.webPageCustom, only_callables=False) # then the application custom
         if package and package.webPageMixinCustom:
             classMixin(page_class, package.webPageMixinCustom, only_callables=False) # finally the package custom
-
+            
     def plugin_webpage_classes(self, path, pkg=None):
-        """Look in the plugins folders for a file named as the current webpage and get all classes"""
+        """Look in the plugins folders for a file named as the current webpage and get all classes
+        
+        :param path: add???
+        :param pkg: add???. Default value is ``None``
+        """
         plugin_webpage_classes = []
         path = path.split(os.path.sep)
         pkg = pkg and self.site.gnrapp.packages[pkg]
@@ -211,15 +231,22 @@ class ResourceLoader(object):
                     if component_page_class:
                         plugin_webpage_classes.append(component_page_class)
         return plugin_webpage_classes
-
-
+        
     def page_class_plugin_mixin(self, page_class, plugin_webpage_classes):
-        """Mixin the current class with  plugin_webpage_classes"""
+        """Mixin the current class with the *plugin_webpage_classes* attribute
+        
+        :param page_class: add???
+        :param plugin_webpage_classes: add???
+        """
         for plugin_webpage_class in plugin_webpage_classes:
             classMixin(page_class, plugin_webpage_class, only_callables=False)
-
+            
     def page_class_custom_mixin(self, page_class, path, pkg=None):
-        """Look in the instance custom folder for a file named as the current webpage"""
+        """Look in the instance custom folder for a file named as the current webpage
+        
+        :param page_class: add???
+        :param pkg: add???. Default value is ``None``
+        """
         path = path.split(os.path.sep)
         if pkg:
             customPagePath = os.path.join(self.gnrapp.customFolder, pkg, 'webpages', *path)
@@ -228,9 +255,13 @@ class ResourceLoader(object):
                 component_page_class = getattr(component_page_module, 'WebPage', None)
                 if component_page_class:
                     classMixin(page_class, component_page_class, only_callables=False)
-
+                    
     def page_class_resourceDirs(self, page_class, path, pkg=None):
-        """Build page resources dirs"""
+        """Build page resources directories
+        
+        :param page_class: add???
+        :param pkg: add???. Default value is ``None``
+        """
         if pkg:
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
         else:
@@ -244,10 +275,10 @@ class ResourceLoader(object):
             if os.path.isdir(fpath):
                 result.append(fpath) # we add a custom resource folder for current package
         fpath = os.path.join(self.site_path, '_resources')
-
+        
         if os.path.isdir(fpath):
             result.append(fpath) # we add a custom resource folder for common package
-
+            
         while curdir.startswith(pagesPath):
             fpath = os.path.join(curdir, '_resources')
             if os.path.isdir(fpath):
@@ -263,8 +294,12 @@ class ResourceLoader(object):
         resources_list = self.site.resources_dirs
         result.extend(resources_list)
         return result
-
+        
     def package_resourceDirs(self, pkg):
+        """add???
+        
+        :param pkg: add???
+        """
         pkg = self.gnrapp.packages[pkg]
         if not hasattr(pkg, '_resourceDirs'):
             pagesPath = os.path.join(pkg.packageFolder, 'webpages')
@@ -274,7 +309,7 @@ class ResourceLoader(object):
             fpath = os.path.join(self.site_path, '_custom', pkg.id, '_resources')
             if os.path.isdir(fpath):
                 result.append(fpath) # we add a custom resource folder for current package
-
+                
             if resourcePkg:
                 for rp in resourcePkg.split(','):
                     fpath = os.path.join(self.site_path, '_custom', pkg.id, '_resources')
@@ -288,9 +323,9 @@ class ResourceLoader(object):
             # so we return a list of any possible resource folder starting from
         # most customized and ending with most generic ones
         return pkg._resourceDirs
-
-
+        
     def site_resources(self):
+        """add???"""
         resources = Bag()
         for pkg in self.site.gnrapp.packages.values():
             rsrc_path = os.path.join(pkg.packageFolder, 'resources')
@@ -315,8 +350,13 @@ class ResourceLoader(object):
         if auto_resource_path:
             resources[self.site_name] = os.path.realpath(auto_resource_path)
         return resources
-
+        
     def resource_name_to_path(self, res_id, safe=True):
+        """add???
+        
+        :param res_id: add???
+        :param safe: add???. Default value is ``True``
+        """
         project_resource_path = os.path.normpath(os.path.join(self.site_path, '..', '..', 'resources', res_id))
         if os.path.isdir(project_resource_path):
             log.debug('resource_name_to_path(%s) -> %s (project)' % (repr(res_id),repr(project_resource_path)))
@@ -330,14 +370,24 @@ class ResourceLoader(object):
         log.debug('resource_name_to_path(%s) not found.' % repr(res_id))
         if safe:
             raise Exception('Error: resource %s not found' % res_id)
-
+            
     def page_pyrequires_mixin(self, page_class, py_requires):
+        """add???
+        
+        :param page_class: add???
+        :param py_requires: add???
+        """
         for mix in py_requires:
             if mix:
                 self.mixinResource(page_class, page_class.resourceDirs, mix)
-
-
+                
     def mixinResource(self, kls, resourceDirs, *path):
+        """add???
+        
+        :param kls: add???
+        :param resourceDirs: add???
+        :param \*path: add???
+        """
         path = os.path.join(*path)
         if ':' in path:
             modName, clsName = path.split(':')
@@ -350,8 +400,13 @@ class ResourceLoader(object):
                 classMixin(kls, '%s:%s' % (modPath, clsName), only_callables=False, site=self)
         else:
             raise GnrMixinError('Cannot import component %s' % modName)
-
+            
     def py_requires_iterator(self, source_class, target_class):
+        """add???
+        
+        :param source_class: add???
+        :param target_class: add???
+        """
         resourceDirs = target_class.resourceDirs
         py_requires = [x for x in splitAndStrip(getattr(source_class, 'py_requires', ''), ',') if x] or []
         for path in py_requires:
@@ -367,9 +422,14 @@ class ResourceLoader(object):
                     #classMixin(kls,'%s:%s'%(modPath,clsName),only_callables=False,site=self)
             else:
                 raise GnrMixinError('Cannot import component %s' % modName)
-
+                
     def getResourceList(self, resourceDirs, path, ext=None):
-        """Find a resource in current _resources folder or in parent folders one"""
+        """Find a resource in the current ``_resources`` folder or in parent folders one
+        
+        :param resourceDirs: add???
+        :param path: add???
+        :param ext: add???. Default value is ``None``
+        """
         result = []
         if ext == 'css' or ext == 'js':
             locations = resourceDirs[:]
@@ -391,15 +451,27 @@ class ResourceLoader(object):
                 else:
                     result.append(fpath)
         return result
-
+        
     def loadResource(self, pkg, *path):
+        """add???
+        
+        :param pkg: add???
+        :param \* path: add???
+        :returns: add???
+        """
         resourceDirs = self.package_resourceDirs(pkg)
         resource_class = cloneClass('CustomResource', BaseResource)
         resource_class.resourceDirs = resourceDirs
         self.mixinResource(resource_class, resourceDirs, *path)
         return resource_class()
-
+        
     def mixinPageComponent(self, page, pkg, *path):
+        """add???
+        
+        :param page: add???
+        :param pkg: add???
+        :param \* path: add???
+        """
         component=self.loadResource(pkg,*path)
         css_requires = getattr(component,'css_requires',[])
         js_requires = getattr(component,'js_requires',[])
@@ -410,8 +482,16 @@ class ResourceLoader(object):
             if js and not js in page.js_requires:
                 page.js_requires.append(js)
         page.mixin(component)
-
+        
     def loadTableScript(self, page, table=None, respath=None, class_name=None, _onDefault=None):
+        """add???
+        
+        :param page: add???
+        :param table: add???. Default value is ``None``
+        :param respath: add???. Default value is ``None``
+        :param class_name: add???. Default value is ``None``
+        :param _onDefault: add???. Default value is ``None``
+        """
         class_name = class_name or 'Main'
         application = self.gnrapp
         if not table:
@@ -445,9 +525,15 @@ class ResourceLoader(object):
             return self.loadTableScript(page, table=table, respath=respath, _onDefault=True)
         else:
             raise GnrWebServerError('Cannot import component %s' % modName)
-
-
+            
     def resourcesAtPath(self, pkg, path, ext):
+        """add???
+        
+        :param pkg: add???
+        :param path: add???
+        :param ext: add???
+        :returns: add???
+        """
         result = Bag()
         locations = list(self.package_resourceDirs(pkg))
         for dpath in locations:
@@ -456,5 +542,3 @@ class ResourceLoader(object):
                 b = DirectoryResolver(dirpath, include='*.py', dropext=True)
                 result.update(b, resolved=True)
         return result
-
-        

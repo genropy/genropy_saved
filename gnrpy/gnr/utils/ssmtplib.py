@@ -61,9 +61,9 @@ class SMTP_SSL(smtplib.SMTP):
     def __init__(self, host='', port=0, local_hostname=None, keyfile=None, certfile=None):
         """Initialize a new SSL SMTP object.
         
-        If specified, `host' is the name of the remote host to which this object
-        will connect. If specified, `port' specifies the port (on `host') to
-        which this object will connect. `local_hostname' is the name of the
+        If specified, *host* is the name of the remote host to which this object
+        will connect. If specified, *port* specifies the port (on `host') to
+        which this object will connect. *local_hostname* is the name of the
         localhost. By default, the value of socket.getfqdn() is used.
         
         An SMTPConnectError is raised if the SMTP host does not respond 
@@ -71,7 +71,7 @@ class SMTP_SSL(smtplib.SMTP):
         
         An SMTPSSLError is raised if SSL negotiation fails.
         
-        Warning: This object uses socket.ssl(), which does not do client-side
+        .. warning:: This object uses socket.ssl(), which does not do client-side
         verification of the server's cert.
         """
         self.certfile = certfile

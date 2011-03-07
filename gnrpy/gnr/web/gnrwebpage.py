@@ -868,10 +868,10 @@ class GnrWebPage(GnrBaseWebPage):
     def onServingCss(self, css_requires):
         """add???
         
-        :param: add???
+        :param css_requires: add???
         """
         pass
-
+        
     def getResourceUri(self, path, ext=None, add_mtime=False):
         fpath = self.getResource(path, ext=ext)
         url = None
@@ -896,30 +896,30 @@ class GnrWebPage(GnrBaseWebPage):
             mtime = os.stat(fpath).st_mtime
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
-
+        
     def getResource(self, path, ext=None):
         result = self.site.resource_loader.getResourceList(self.resourceDirs, path, ext=ext)
         if result:
             return result[0]
-
+            
     def setPreference(self, path, data, pkg=''):
         self.site.setPreference(path, data, pkg=pkg)
-
+        
     def getPreference(self, path, pkg='', dflt=''):
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
-
+        
     def getUserPreference(self, path, pkg='', dflt='', username=''):
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
-
+        
     def rpc_getUserPreference(self, path='*'):
         return self.getUserPreference(path)
-
+        
     def rpc_getAppPreference(self, path='*'):
         return self.getPreference(path)
-
+        
     def setUserPreference(self, path, data, pkg='', username=''):
         self.site.setUserPreference(path, data, pkg=pkg, username=username)
-
+        
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, public=False, replace=False):
         if filters:
@@ -941,18 +941,17 @@ class GnrWebPage(GnrBaseWebPage):
             else:
                 with self.clientPage(page_id=page_id) as clientPage:
                     clientPage.set(path, value, attributes=attributes, reason=reason, fired=fired)
-
-
+                    
     def rpc_sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
         self.site.sendMessageToClient(message, pageId=pageId, filters=filters, origin=self, msg_path=msg_path)
-
+        
     def _get_package_folder(self):
         if not hasattr(self, '_package_folder'):
             self._package_folder = os.path.join(self.site.gnrapp.packages[self.packageId].packageFolder, 'webpages')
         return self._package_folder
-
+        
     package_folder = property(_get_package_folder)
-
+        
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
         page = self.domSrcFactory.makeRoot(self)
         self._root = page
@@ -1448,4 +1447,3 @@ class ClientDataChange(object):
     def __repr__(self):
         return "Datachange path:%s, reason:%s, value:%s, attributes:%s" % (
         self.path, self.reason, self.value, self.attributes)
-             

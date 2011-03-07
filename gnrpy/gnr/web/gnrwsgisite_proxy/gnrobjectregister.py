@@ -389,30 +389,29 @@ class BaseRegister(object):
         self.site = site
         self.sd = self.site.shared_data
         self.init(**kwargs)
-
-
+        
     def __enter__(self):
         self.sd.lock(self.prefix)
         return self
-
+        
     def __exit__(self, type, value, tb):
         self.sd.unlock(self.prefix)
-
+        
     def init(self, **kwargs):
         pass
-
+        
     def make_store(self, register_item_id, triggered=None):
         return ServerStore(self, register_item_id=register_item_id, triggered=triggered)
-
+        
     def create(self, obj):
         pass
-
+        
     def item_key(self, register_item_id):
         return '%s_IT_%s' % (self.prefix, register_item_id)
-
+        
     def lastused_key(self, register_item_id):
         return '%s_LU_%s' % (self.prefix, register_item_id)
-
+        
     @lock_item
     #@debug_call
     def update_lastused(self, register_item_id, ts=None):
@@ -421,17 +420,17 @@ class BaseRegister(object):
         if last_used:
             ts = max(last_used[1], ts) if ts else last_used[1]
         self.sd.set(last_used_key, (datetime.now(), ts), 0)
-
+        
     #@debug_call
     def read(self, register_item_id):
         register_item = self.sd.get(self.item_key(register_item_id))
         if register_item:
             self._set_last_ts_in_item(register_item)
         return register_item
-
+        
     def exists(self, register_item_id):
         return self.sd.get(self.item_key(register_item_id)) is not None
-
+        
     @lock_item
     #@debug_call
     def write(self, register_item):
@@ -444,11 +443,10 @@ class BaseRegister(object):
             self.update_lastused(register_item_id, register_item['start_ts'])
         self.set_index(register_item)
         self.on_write(register_item)
-
-
+        
     def on_write(self, register_item):
         pass
-
+        
     def _get_index_key(self, index_name=None):
         if index_name == '*':
             ind_key = '%s_MASTERINDEX' % self.prefix
@@ -457,7 +455,7 @@ class BaseRegister(object):
         else:
             ind_key = '%s_INDEX' % self.prefix
         return ind_key
-
+        
     @lock_index
     #@debug_call
     def set_index(self, register_item, index_name=None):
@@ -478,7 +476,7 @@ class BaseRegister(object):
             index[register_item_id] = True
         sd.set(ind_key, index, 0)
         self.log('set_index:writing', index=index)
-
+        
     @lock_index
     #@debug_call
     def _remove_index(self, register_item_id, index_name=None):
@@ -490,7 +488,7 @@ class BaseRegister(object):
             self.log('_remove_index', register_item_id=register_item_id, index_name=index_name, ind_key=ind_key)
             index.pop(register_item_id, None)
             self._index_rewrite(index_name, index)
-
+            
     def _index_rewrite(self, index_name, index):
         self.log('_index_rewrite', index_name=index_name, index=index)
         sd = self.sd
@@ -503,7 +501,7 @@ class BaseRegister(object):
             return
         sd.set(ind_key, index, 0)
         self.log('_index_rewrite:index updated', ind_key=ind_key)
-
+        
     @lock_item
     #@debug_call
     def pop(self, register_item_id):
@@ -516,7 +514,7 @@ class BaseRegister(object):
         self._remove_index(register_item_id)
         self.on_pop(register_item_id, register_item)
         return register_item
-
+        
     def on_pop(self, register_item_id, register_item):
         pass
 

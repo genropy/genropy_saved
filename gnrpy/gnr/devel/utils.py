@@ -27,7 +27,7 @@ from gnr.core.gnrbag import Bag
 def expandpath(path, full=False):
     """Expand user home directory (~) and envioronment variables.
     
-    :param full: if True, returns a normalized path (see ``os.path.normpath``).
+    :param full: boolean. If ``True``, returns a normalized path (see ``os.path.normpath``).
                  Default value is ``False``
     :returns: the path expanded
     """

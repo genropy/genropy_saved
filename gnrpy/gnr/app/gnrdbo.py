@@ -122,15 +122,15 @@ class TableBase(object):
         """Add some useful columns for tables management (*in primis*, the ``id`` column)
         
         :param tbl: a database table
-        :param id: if True, insert the ``id`` column. It is normally used as the primary key of a table.
+        :param id: boolean. If ``True``, insert the ``id`` column. It is normally used as the primary key of a table.
                    Default value is ``True``
-        :param ins: if True, insert the ``__ins_ts`` column. Allow to know the time (date and hour)
+        :param ins: boolean. If ``True``, insert the ``__ins_ts`` column. Allow to know the time (date and hour)
                     of the entry of a record. Default value is ``True``
-        :param upd: if True, insert the ``__mod_ts`` column. Allow to know the time (date and hour)
+        :param upd: boolean. If ``True``, insert the ``__mod_ts`` column. Allow to know the time (date and hour)
                     of a modify on a record. Default value is ``True``
-        :param ldel: if True, insert the ``__del_ts`` column. Allow to know the time (date and hour)
+        :param ldel: boolean. If ``True``, insert the ``__del_ts`` column. Allow to know the time (date and hour)
                      of the delete of a record. Default value is ``True``
-        :param md5: add???. Default value is ``False``
+        :param md5: boolean. add???. Default value is ``False``
         :param group: add???. Default value is ``zzz``
         :param group_name: add???. Default value is ``!!System``
         """

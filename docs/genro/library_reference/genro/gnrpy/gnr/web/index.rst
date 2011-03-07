@@ -12,3 +12,4 @@
     gnrwebstruct
     gnrwebutils
     gnrwsgisite
+    gnrwsgisite_proxy/index

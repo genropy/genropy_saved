@@ -188,7 +188,7 @@ class GnrSqlDb(GnrObject):
     def checkDb(self, applyChanges=False):
         """Check if the database structure is compatible with the current model
         
-        :param applyChanges: boolean. If True, all the changes are executed and committed. Default value is ``False``
+        :param applyChanges: boolean. If ``True``, all the changes are executed and committed. Default value is ``False``
         """
         return self.model.check(applyChanges=applyChanges)
         

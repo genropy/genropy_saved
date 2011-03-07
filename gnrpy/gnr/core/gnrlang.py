@@ -236,7 +236,7 @@ def gnrImport(source, importAs=None, avoidDup=False):
     
     :param source: add???
     :param importAs: add???. Default value is ``None``
-    :param avoidDup: add???. Default value is ``False``
+    :param avoidDup: if ``True``, allow to avoid duplicates. Default value is ``False``
     :returns: add???
     """
     modkey = source
@@ -514,7 +514,7 @@ class GnrAddOn(object):
         
         :param src: is a string of a python function or an imported function
         :param importAs: a name for identify the function in error messages. Default value is ``None``
-        :param bound: if true the function will be bounded to this instance. Default value is ``True``
+        :param bound: boolean. If ``True`` the function will be bounded to this instance. Default value is ``True``
         """
         if isinstance(src, basestring):
             if not importAs: importAs = 'abcd'

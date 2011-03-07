@@ -706,16 +706,16 @@ class Bag(GnrObject):
                 elif cmd.startswith('d:') or cmd.startswith('digest:'):
                     result = currvalue.digest(mode.split(':')[1])
         return result
-
+        
     def _htraverse(self, pathlist, autocreate=False, returnLastMatch=False):
         """Receive a hierarchical path as a list and execute one step of the path,
         calling itself recursively. If autocreate mode is True, the method creates all the not
         existing nodes of the pathlist. Return the current node's value.
         
         :param pathlist: list of nodes' labels.
-        :param autocreate:  if True, it creates all the not existing nodes of the pathlist.
+        :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist.
         Default value is ``False``.
-        :param returnLastMatch:  add??? Default value is ``False``.
+        :param returnLastMatch: boolean. add??? Default value is ``False``.
         """
         curr = self
         if isinstance(pathlist, basestring):
@@ -1235,8 +1235,8 @@ class Bag(GnrObject):
         """Return the BagNode stored at the relative path.
             
         :param path: path of the given node. Default value is ``None``.
-        :param asTuple:  add??? Default value is ``False``.
-        :param autocreate:  if True, it creates all the not existing nodes of the pathlist. Default value is ``False``.
+        :param asTuple: boolean. add??? Default value is ``False``.
+        :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist. Default value is ``False``.
         :param default: the default return value for a not found node. Default value is ``None``.
         """
         if not path:
@@ -1435,7 +1435,7 @@ class Bag(GnrObject):
             +----------------------------+----------------------------------------------------------------------+
             
         :param _validators:  it specifies the value's validators to set. Default value is ``None``.
-        :param **kwargs: attributes AND/OR validators.
+        :param \*\*kwargs: attributes AND/OR validators.
         
         Example:
         
@@ -1497,7 +1497,7 @@ class Bag(GnrObject):
         :param _updattr:  add??? Default value is ``False``.
         :param _validators:  it specifies the value's validators to set. Default value is ``None``.
         :param _removeNullAttributes:  add??? Default value is ``True``.
-        :param **kwargs: attributes AND/OR validators.
+        :param \*\*kwargs: attributes AND/OR validators.
         
         >>> mybag = Bag()
         >>> mybag.setItem('a',1)
@@ -1618,7 +1618,7 @@ class Bag(GnrObject):
         """Set a BagFormula resolver.
         
         :param formula: a string that represents the expression with symbolic vars.
-        :param **kwargs: links between symbols and paths associated to their values.
+        :param \*\*kwargs: links between symbols and paths associated to their values.
         """
         self.setBackRef()
         if self._symbols == None:
@@ -1831,20 +1831,20 @@ class Bag(GnrObject):
         Is also possible to write the result on a file, passing the path of the file
         as the 'filename' parameter.
         
-        :param filename:  it's the path of the output file. Default value is ``None``.
-        :param encoding:  set the XML encoding. Default value is ``UTF-8``.
-        :param typeattrs: if True, keep the attribute's types. Default value is ``True``.
-        :param typevalue: if True, keep the value's type. Default value is ``True``.
-        :param unresolved:  add??? Default value is ``False``.
-        :param addBagTypeAttr:  add??? Default value is ``True``.
-        :param autocreate:  if True, it creates all the not existing nodes of the pathlist. Default value is ``False``.
-        :param translate_cb:  add??? Default value is ``None``.
-        :param self_closed_tags:  add??? Default value is ``None``.
-        :param omitUnknownTypes:  add??? Default value is ``False``.
-        :param catalog:  add??? Default value is ``None``.
-        :param omitRoot:  if False, add a tag root called ``<GenRoBag>``. Default value is ``False``.
-        :param forcedTagAttr:  add??? Default value is ``None``.
-        :param docHeader:  set an header string, out of the ``<GenRoBag>`` tag. Default value is ``None``.
+        :param filename: it's the path of the output file. Default value is ``None``.
+        :param encoding: set the XML encoding. Default value is ``UTF-8``.
+        :param typeattrs: boolean. If ``True``, keep the attribute's types. Default value is ``True``.
+        :param typevalue: boolean. If ``True``, keep the value's type. Default value is ``True``.
+        :param unresolved: boolean. add??? Default value is ``False``.
+        :param addBagTypeAttr: boolean. add??? Default value is ``True``.
+        :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist. Default value is ``False``.
+        :param translate_cb: add??? Default value is ``None``.
+        :param self_closed_tags: add??? Default value is ``None``.
+        :param omitUnknownTypes: boolean. add??? Default value is ``False``.
+        :param catalog: add??? Default value is ``None``.
+        :param omitRoot: boolean. If ``False``, add a tag root called ``<GenRoBag>``. Default value is ``False``.
+        :param forcedTagAttr: add??? Default value is ``None``.
+        :param docHeader: set an header string, out of the ``<GenRoBag>`` tag. Default value is ``None``.
         
         >>> mybag=Bag()
         >>> mybag['aa.bb']=4567

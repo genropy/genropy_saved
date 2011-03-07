@@ -115,9 +115,9 @@ class DbModel(object):
         :param onUpdate: add???. Default value is ``None``
         :param onUpdate_sql: add???. Default value is ``None``
         :param deferred: add???. Default value is ``None``
-        :param eager_one: if True ('Y') the one_to_many relation is eager.
+        :param eager_one: boolean. If ``True`` ('Y') the one_to_many relation is eager.
                           Default value is ``None``
-        :param eager_many: if True ('Y') the many_to_one relation is eager.
+        :param eager_many: boolean. If ``True`` ('Y') the many_to_one relation is eager.
                            Default value is ``None``
         :param relation_name: add???. Default value is ``None``
         :param one_name: the one_to_many relation's name. e.g: 'movies'. Default value is ``None``
@@ -206,7 +206,7 @@ class DbModel(object):
         
         Save the sql statements that makes the database compatible with the model.
         
-        :param applyChanges: if True, apply the changes. Default value is ``False``
+        :param applyChanges: boolean. If ``True``, apply the changes. Default value is ``False``
         """
         checker = SqlModelChecker(self.db)
         self.modelChanges = checker.checkDb()
@@ -469,9 +469,9 @@ class DbModelSrc(GnrStructData):
                          Default value is ``None``
         :param many_name: the many_to_one relation's name. e.g: 'director'.
                           Default value is ``None``
-        :param eager_one: if True ('Y') the one_to_many relation is eager.
+        :param eager_one: boolean. If ``True`` the one_to_many relation is eager.
                           Default value is ``None``
-        :param eager_many: if True ('Y') the many_to_one relation is eager.
+        :param eager_many: boolean. If ``True`` the many_to_one relation is eager.
                            Default value is ``None``
         :param one_one: add???. Default value is ``None``
         :param child: add???. Default value is ``None``
