@@ -319,7 +319,8 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 if (typeof(val) == 'string') {
                     var dynval = stringStrip(val);
                     if (dynval.indexOf('==') == 0) {
-                        val = genro.evaluate(dynval.slice(2));
+                        //val = genro.evaluate(dynval.slice(2));
+                        val = funcApply("return "+dynval.slice(2),source,sourceNode)
                     } else if ((dynval.indexOf('^') == 0) || (dynval.indexOf('=') == 0)) {
                         path = dynval.slice(1);
                         if (sourceNode) {
