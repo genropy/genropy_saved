@@ -25,9 +25,11 @@ from gnr.web.gnrbaseclasses import BaseComponent
 class TableHandlerForm(BaseComponent):
     def pageForm(self, pane):
         bc = pane.borderContainer(nodeId='formRoot',
-                                  sqlContextName='sql_record',
-                                  sqlContextRoot='form.record',
-                                  sqlContextTable=self.maintable)
+                                  #sqlContextName='sql_record',
+                                  #sqlContextRoot='form.record',
+                                  #sqlContextTable=self.maintable
+                                  
+                                  )
         self.formController(bc)
         self.formToolbar(bc.contentPane(region='top', _class='sttbl_list_top'))
         self.formBase(bc, datapath='form.record', formId='formPane', disabled='^form.locked',form_locked=True, region='center')
