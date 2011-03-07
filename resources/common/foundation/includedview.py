@@ -236,9 +236,10 @@ class IncludedView(BaseComponent):
         if not datapath:
             if storepath.startswith('.'):
                 inherited_attributes = parentBC.parentNode.getInheritedAttributes()
-                assert inherited_attributes.has_key('sqlContextRoot'),\
-                'please specify an absolute storepath, if sqlContextRoot is not available'
-                storepath = '%s%s' % (inherited_attributes['sqlContextRoot'], storepath)
+                #assert inherited_attributes.has_key('sqlContextRoot'),\
+                #'please specify an absolute storepath, if sqlContextRoot is not available'
+                #storepath = '%s%s' % (inherited_attributes['sqlContextRoot'], storepath)
+                storepath = '#%s%s' % (inherited_attributes['formId'], storepath)
         viewPars = dict(kwargs)
         if nodeId and table and configurable is not False:
             configurable = True
