@@ -29,12 +29,14 @@ class TableHandlerForm(BaseComponent):
                             table=self.maintable,center_widget='BorderContainer',
                             pkeyPath='.pkey',hasBottomMessage=False,
                             formsubscribe_onDismissed='SET list.selectedIndex=-2;',
-                            sqlContextName='sql_record',
-                            sqlContextRoot='form.record',
-                            sqlContextTable=self.maintable)
+                            #sqlContextName='sql_record',
+                            #sqlContextRoot='form.record',
+                            #sqlContextTable=self.maintable
+                            )
         form.dataController("this.form.load({destPkey:pkey});",pkey="=list.selectedId",_fired='^form.doLoad')
         store = form.formStore(storepath='.record',hander='recordCluster',storeType='Collection',onSaved='reload',
                         parentStore='maingrid')
+        store.handler('load',sqlContextName='sql_record')
         self.formTitleBase(form)
         toolbarKw = dict()
         tagSlot = ''
