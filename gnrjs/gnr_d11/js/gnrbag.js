@@ -2040,6 +2040,7 @@ dojo.declare("gnr.GnrBagResolver", null, {
     resolve: function(optkwargs, destinationNode) {
         var destFullpath = destinationNode ? destinationNode.getFullpath(null, genro._data) : '';
         var kwargs = objectUpdate({}, this.kwargs); // update kwargs
+        kwargs._destFullpath=destFullpath;
         if (optkwargs) {
             objectUpdate(kwargs, optkwargs);
         }
@@ -2051,7 +2052,7 @@ dojo.declare("gnr.GnrBagResolver", null, {
                 this.lastUpdate = new Date();
                 return r;
             });
-            var result = this.load(kwargs); // non isGetter cannot change kwargs
+            var result = this.load(kwargs,destinationNode); // non isGetter cannot change kwargs
 
             if (result instanceof dojo.Deferred) {
                 //this._mainDeferred = result; // keep a reference for avoid garbage collector
