@@ -44,7 +44,7 @@ from gnr.web.gnrwebpage_proxy.debugger import GnrWebDebugger
 from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
-from gnr.web.gnrwebstruct import GnrGridStruct
+from gnr.web.gnrwebstruct import GnrGridStruct, struct_method
 from gnr.core.gnrlang import gnrImport, GnrException
 from gnr.core.gnrbag import Bag, BagResolver,BagCbResolver
 from gnr.core.gnrlang import deprecated
@@ -1097,10 +1097,10 @@ class GnrWebPage(GnrBaseWebPage):
         with self.pageStore(pageId) as store:
             store.setItem(path, value)
 
-    def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None,
-                           query_columns=None, **kwargs):
-        self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
-                                       path=relation_path, columns=query_columns)
+   #def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None,
+   #                       query_columns=None, **kwargs):
+   #    self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
+   #                                   path=relation_path, columns=query_columns)
 
     def rpc_getPrinters(self):
         print_handler = self.getService('print')
@@ -1240,11 +1240,11 @@ class GnrWebPage(GnrBaseWebPage):
         self.addToContext(value=value, serverpath='_sqlctx.conditions.%s' % path,
                           clientpath='gnr.sqlctx.conditions.%s' % path)
 
-    def setJoinColumns(self, ctxname, target_fld, from_fld, joincolumns):
-        path = '%s.%s_%s' % (ctxname, target_fld.replace('.', '_'), from_fld.replace('.', '_'))
-        serverpath = '_sqlctx.columns.%s' % path
-        clientpath = 'gnr.sqlctx.columns.%s' % path
-        self.addToContext(value=joincolumns, serverpath=serverpath, clientpath=clientpath)
+   #def setJoinColumns(self, ctxname, target_fld, from_fld, joincolumns):
+   #    path = '%s.%s_%s' % (ctxname, target_fld.replace('.', '_'), from_fld.replace('.', '_'))
+   #    serverpath = '_sqlctx.columns.%s' % path
+   #    clientpath = 'gnr.sqlctx.columns.%s' % path
+   #    self.addToContext(value=joincolumns, serverpath=serverpath, clientpath=clientpath)
         
     def _prepareGridStruct(self,source=None,table=None,gridId=None):
         struct = None
