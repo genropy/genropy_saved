@@ -39,7 +39,6 @@ var genro_plugin_grid_configurator = {
         dlg.show_action();
     },
 
-
     gridConfiguratorMenu:function(gridId) {
         var menuId = 'confMenu_' + gridId;
         var menu_wdg = dijit.byId(menuId);
@@ -59,7 +58,7 @@ var genro_plugin_grid_configurator = {
                 action:function() {
                     genro.grid_configurator.loadCustomView(gridId, this.attr.pkey);
                 },
-                _class:'smallmenu',datapath:menu_datapath});
+                _class:'smallmenu',datapath:menu_datapath,modifiers:'Shift'});
             node.unfreeze();
             menu_wdg = dijit.byId(menuId);
         }
@@ -70,16 +69,36 @@ var genro_plugin_grid_configurator = {
         });
     },
 
-    onGridCreated:function(sourceNode) {
-        if (sourceNode.attr.configurable && sourceNode.attr.nodeId) {
-            var gridId = sourceNode.attr.nodeId;
+    addGridConfigurator:function(sourceNode){
+        sourceNode.attr.selfDragColumns = 'trashable';
+        var table = sourceNode.attr.table;
+        if(!table && sourceNode.attr.storepath){
+            table = genro.getDataNode(sourceNode.widget.absStorepath()).attr.dbtable;
+            sourceNode.attr.table = table; 
+        }
+        if(table){
+            var tablecode = table.replace('.', '_');
+            sourceNode.attr['onDrop_gnrdbfld_' + tablecode] = function(dropInfo, data) {
+                var grid = this.widget;
+                grid.addColumn(data, dropInfo.column);
+                if (grid.rowCount > 0) {
+                    setTimeout(function() {
+                        grid.reload();
+                    }, 1);
+                }
+            };
+            sourceNode.attr.dropTarget_column = sourceNode.attr.dropTarget_column ? sourceNode.attr.dropTarget_column + ',' + 'gnrdbfld_' + tablecode : 'gnrdbfld_' + tablecode;
+            sourceNode.dropModes.column = sourceNode.attr.dropTarget_column;
             var cb = function() {
-                genro.grid_configurator.gridConfiguratorMenu(gridId);
+                genro.grid_configurator.gridConfiguratorMenu(sourceNode.attr.nodeId);
             };
             setTimeout(cb, 1);
+            
         }
+        sourceNode._gridConfiguratorBuilt=true;
     },
-    onStructCreating:function(sourceNode) {
+    
+    onStructCreating:function(sourceNode,structBag) {
         var gridId = sourceNode.attr.nodeId;
         var loadedCustomViewId = genro.getFromStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + gridId);
         if (loadedCustomViewId) {
@@ -89,6 +108,7 @@ var genro_plugin_grid_configurator = {
             sourceNode.selectedView = result.attr;
             sourceNode.setRelativeData(sourceNode.gridControllerPath + '.confMenu.selectedViewPkey', sourceNode.selectedView ? sourceNode.selectedView.id : null);
         }
+        return structBag;
     },
 
     loadGridBaseView:function(gridId) {
