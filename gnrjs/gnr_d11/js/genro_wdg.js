@@ -464,6 +464,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
     },
 
     filterEvent: function (e, modifiers, validclass) {
+        modifiers = modifiers?modifiers.toLowerCase():modifiers;
         var result = false;
         var target = e.target;
         if (validclass && target.className && dojo.every(validclass.split(','), function(item) {
