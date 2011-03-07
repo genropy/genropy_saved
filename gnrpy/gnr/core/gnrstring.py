@@ -32,13 +32,10 @@ logger = logging.getLogger(__name__)
 
 try:
     from string import Template
-
+    
     class BagTemplate(Template):
         idpattern = '[_a-z\@][_a-z0-9\.\@]*'
-     
-            
-    
-            
+        
     class NoneIsBlankMapWrapper(object):
         
         def __init__(self,data):
@@ -49,7 +46,7 @@ try:
             if value is None:
                 value= ''
             return value
-
+            
 except:
     pass
 

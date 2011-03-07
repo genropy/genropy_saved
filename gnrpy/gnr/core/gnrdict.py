@@ -41,15 +41,8 @@ class FakeDict(dict):
     pass
 
 class GnrDict(dict):
-    """An ordered dictionary
-    """
-    
+    """An ordered dictionary"""
     def __init__(self, *args, **kwargs):
-        """add???
-        
-        :param args: add???
-        :param kwargs: add???
-        """
         dict.__init__(self)
         self._list = []
         if args:
@@ -62,30 +55,15 @@ class GnrDict(dict):
             [self.__setitem__(k, v) for k, v in kwargs.items()]
             
     def __setitem__(self, key, value):
-        """add???
-        
-        :param key: add???
-        :param value: add???
-        :returns: add???
-        """
         key = self._label_convert(key)
         if not key in self:
             self._list.append(key)
         dict.__setitem__(self, key, value)
         
     def __iter__(self):
-        """add???
-        
-        :returns: add???
-        """
         return self._list.__iter__()
         
     def __delitem__(self, key):
-        """add???
-        
-        :param key: add???
-        :returns: add???
-        """
         key = self._label_convert(key)
         self._list.remove(key)
         dict.__delitem__(self, key)
@@ -99,11 +77,6 @@ class GnrDict(dict):
         return dict.get(self, self._label_convert(label), default)
         
     def __getitem__(self, label):
-        """add???
-        
-        :param label: add???
-        :returns: add???
-        """
         return dict.__getitem__(self, self._label_convert(label))
         
     def _label_convert(self, label):
@@ -112,8 +85,7 @@ class GnrDict(dict):
         return label
         
     def items(self):
-        """add???
-        """
+        """add???"""
         return [(k, self[k]) for k in self._list]
         
     def keys(self):
@@ -151,10 +123,6 @@ class GnrDict(dict):
         return dflt
         
     def __str__(self):
-        """add???
-        
-        :returns: add???
-        """
         return "{%s}" % (', '.join(["%s: %s" % (repr(k), repr(self[k])) for k in self._list]))
         
     __repr__ = __str__
@@ -233,37 +201,15 @@ class GnrDict(dict):
             yield self[k]
             
     def __add__(self, o):
-        """add???
-        
-        :returns: add???
-        """
         return GnrDict(self.items() + o.items())
         
     def __sub__(self, o):
-        """add???
-        
-        :param o: add???
-        :returns: add???
-        """
         return GnrDict([(k, self[k]) for k in self if not k in o])
         
     def __getslice__(self, start=None, end=None):
-        """add???
-        
-        :param start: add???. Default value is ``None``
-        :param end: add???. Default value is ``None``
-        :returns: add???
-        """
         return GnrDict([(k, self[k]) for k in self._list[start:end]])
         
     def __setslice__(self, start=None, end=None, val=None):
-        """add???
-        
-        :param start: add???. Default value is ``None``
-        :param end: add???. Default value is ``None``
-        :param val: add???. Default value is ``None``
-        :returns: add???
-        """
         [dict.__delitem__(self, k) for k in self._list[start:end]]
         val = GnrDict(val)
         l = list(self._list)
@@ -289,23 +235,14 @@ class GnrDict(dict):
         self._list.sort(cmpfunc)
         
 class GnrNumericDict(GnrDict):
-    """add???
-    """
+    """add???"""
     def __getitem__(self, label):
-        """add???
-        
-        :returns: add???
-        """
         if isinstance(label, int):
             return dict.__getitem__(self, self._list[label])
         else:
             return dict.__getitem__(self, self._label_convert(label))
             
     def __iter__(self):
-        """add???
-        
-        :returns: add???
-        """
         for k in self._list:
             yield self[k]
             

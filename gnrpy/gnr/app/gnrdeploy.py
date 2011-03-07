@@ -14,8 +14,6 @@ class PathResolver(object):
             project='projects')
             
     def __init__(self, gnr_config=None):
-        """add???
-        """
         self.gnr_config = gnr_config or self.load_gnr_config()
         
     def load_gnr_config(self):
@@ -143,12 +141,6 @@ class ProjectMaker(object):
     """add???
     """
     def __init__(self, project_name, base_path=None):
-        """add???
-        
-        :param project_name: add???
-        :param base_path: add???. Default value is ``None``
-        :returns: add???
-        """
         self.project_name = project_name
         self.base_path = base_path or '.'
         
@@ -173,19 +165,6 @@ class SiteMaker(object):
     """
     def __init__(self, site_name, base_path=None, resources=None, instance=None, dojo_version='11',
                  wsgi_port=None, wsgi_reload=None, wsgi_mainpackage=None, wsgi_debug=None, config=None):
-        """add???
-        
-        :param site_name: add???
-        :param base_path: add???. Default value is ``None``
-        :param resources: add???. Default value is ``None``
-        :param instance: add???. Default value is ``None``
-        :param dojo_version: add???. Default value is ``11``
-        :param wsgi_port: add???. Default value is ``None``
-        :param wsgi_reload: add???. Default value is ``None``
-        :param wsgi_mainpackage: add???. Default value is ``None``
-        :param wsgi_debug: add???. Default value is ``None``
-        :param config: add???. Default value is ``None``
-        """
         self.site_name = site_name
         self.base_path = base_path or '.'
         self.resources = resources or []
@@ -259,22 +238,6 @@ class InstanceMaker(object):
     def __init__(self, instance_name, base_path=None, packages=None, authentication=True, authentication_pkg=None,
                  db_dbname=None, db_implementation=None, db_host=None, db_port=None,
                  db_user=None, db_password=None, use_dbstores=False, config=None):
-        """add???
-        
-        :param instance_name: add???
-        :param base_path: add???. Default value is ``None``
-        :param packages: add???. Default value is ``None``
-        :param authentication: add???. Default value is ``True``
-        :param authentication_pkg: add???. Default value is ``None``
-        :param db_dbname: add???. Default value is ``None``
-        :param db_implementation: add???. Default value is ``None``
-        :param db_host: add???. Default value is ``None``
-        :param db_port: add???. Default value is ``None``
-        :param db_user: add???. Default value is ``None``
-        :param db_password: add???. Default value is ``None``
-        :param use_dbstores: add???. Default value is ``False``
-        :param config: add???. Default value is ``None``
-        """
         self.instance_name = instance_name
         self.base_path = base_path or '.'
         self.packages = packages or []
@@ -345,17 +308,6 @@ class PackageMaker(object):
     def __init__(self, package_name, base_path=None, sqlschema=None,
                  name_short=None, name_long=None, name_full=None,
                  login_url=None, comment=None):
-        """add???
-        
-        :param package_name: add???
-        :param base_path: add???. Default value is ``None``
-        :param sql_schema: add???. Default value is ``None``
-        :param name_short: add???. Default value is ``None``
-        :param name_long: add???. Default value is ``None``
-        :param name_full: add???. Default value is ``None``
-        :param login_url: add???. Default value is ``None``
-        :param comment: add???. Default value is ``None``
-        """
         self.package_name = package_name
         self.base_path = base_path or '.'
         self.name_short = name_short or self.package_name.capitalize()
@@ -366,8 +318,7 @@ class PackageMaker(object):
         self.login_url = login_url or '%s/login' % self.package_name
         
     def do(self):
-        """add???
-        """
+        """add???"""
         self.package_path = os.path.join(self.base_path, self.package_name)
         self.model_path = os.path.join(self.package_path, 'model')
         self.lib_path = os.path.join(self.package_path, 'lib')

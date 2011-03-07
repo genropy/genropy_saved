@@ -90,9 +90,7 @@ class GnrSqlDb(GnrObject):
         :param debugger: the database main_schema. Default value is ``None``
         :param application: the database main_schema. Default value is ``None``
         :param allow_eager_many: the database main_schema. Default value is ``False``
-        :param allow_eager_one: the database main_schema. Default value is ``False``
-        """
-        
+        :param allow_eager_one: the database main_schema. Default value is ``False``"""
         self.implementation = implementation
         self.dbname = dbname
         self.host = host
@@ -431,9 +429,6 @@ class GnrSqlDb(GnrObject):
         return self.model.package(pkg)
             
     def _get_packages(self):
-        """add???
-        
-        :param pkw: package name"""
         return self.model.obj
             
     packages = property(_get_packages)

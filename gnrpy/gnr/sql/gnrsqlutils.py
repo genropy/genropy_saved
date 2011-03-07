@@ -191,7 +191,8 @@ class SqlModelChecker(object):
     def _checkSqlSchema(self, obj):
         """If the package/table/view is defined in a new schema that's not in the actual_schemata
         the new schema is created and its name is appended to self.actual_schemata.
-        Returns the schema name.
+        
+        :returns: the schema name.
         """
         sqlschema = obj.sqlschema
         if sqlschema and not (sqlschema in self.actual_schemata) and not (sqlschema == self.db.main_schema):
@@ -205,7 +206,6 @@ class SqlModelChecker(object):
         adding/deleting/editing table's columns calling the :meth:`_buildColumn` method.
         
         :param tbl: the table to be checked
-        :returns: add???
         """
         tablechanges = []
         
@@ -397,22 +397,22 @@ class SqlModelChecker(object):
         
     def _buildView(self, node, sqlschema=None):
         """Prepare the sql statement for adding the new view.
-        Return the statement.
-        """
+        
+        :returns: the statement"""
         sql = []
         sql.append(self.sqlView(node, sqlschema=sqlschema))
         return sql
         
     def _buildColumn(self, col):
         """Prepare the sql statement for adding the new column to the given table.
-        Return the statement.
-        """
+        
+        :returns: the statement"""
         return 'ALTER TABLE %s ADD COLUMN %s' % (col.table.sqlfullname, self._sqlColumn(col))
         
     def _alterColumnType(self, col, new_dtype, new_size=None):
         """Prepare the sql statement for altering the type of a given column.
-        Return the statement.
-        """
+        
+        :returns: the statement"""
         sqlType = self.db.adapter.columnSqlType(new_dtype, new_size)
         return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s' % (col.table.sqlfullname, col.sqlname, sqlType)
         
@@ -426,8 +426,8 @@ class SqlModelChecker(object):
         
     def _buildForeignKey(self, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):
         """Prepare the sql statement for adding the new constraint to the given table.
-        Return the statement.
-        """
+        
+        :returns: the statement"""
         c_name = 'fk_%s_%s' % (m_tbl, m_fld)
         statement = self.db.adapter.addForeignKeySql(c_name, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del,
                                                      init_deferred)
@@ -435,15 +435,14 @@ class SqlModelChecker(object):
         
     def _dropForeignKey(self, referencing_package, referencing_table, referencing_field):
         """Prepare the sql statement for dropping the givent constraint from the given table.
-        Return the statement.
-        """
+        
+        :returns: the statement"""
         constraint_name = 'fk_%s_%s' % (referencing_table, referencing_field)
         statement = 'ALTER TABLE %s.%s DROP CONSTRAINT %s' % (referencing_package, referencing_table, constraint_name)
         return statement
         
     def _sqlTable(self, tbl):
-        """Return the sql statement string that creates the new table
-        """
+        """Return the sql statement string that creates the new table"""
         tablename = '%s.%s' % (tbl.sqlschema, tbl.sqlname)
         
         sqlfields = []
@@ -452,13 +451,11 @@ class SqlModelChecker(object):
         return 'CREATE TABLE %s (%s);' % (tablename, ', '.join(sqlfields))
         
     def _sqlDatabase(self, tbl):
-        """Return the sql statement string that creates the new database
-        """
+        """Return the sql statement string that creates the new database"""
         return 'CREATE DATABASE "Dooo"  WITH ENCODING "UNICODE";'
         
     def _sqlTableIndexes(self, tbl):
-        """Return the list of statements for building table's indexes.
-        """
+        """Return the list of statements for building table's indexes"""
         tablename = tbl.sqlname
         sqlschema = tbl.sqlschema
         pkey = tbl.pkey
@@ -475,15 +472,13 @@ class SqlModelChecker(object):
         return (sqlindexes, bagindexes)
         
     def _buildIndex(self, tablename, iname, icols, unique=None, sqlschema=None, pkey=None):
-        """Return the statement string for creating a table's index
-        """
+        """Return the statement string for creating a table's index"""
         if icols != pkey:
             return self.db.adapter.createIndex(iname, columns=icols, table_sql=tablename, sqlschema=sqlschema,
                                                unique=unique)
                                                
     def _sqlColumn(self, col):
-        """Return the statement string for creating a table's column
-        """
+        """Return the statement string for creating a table's column"""
         return self.db.adapter.columnSqlDefinition(sqlname=col.sqlname,
                                                    dtype=col.dtype, size=col.getAttr('size'),
                                                    notnull=col.getAttr('notnull', False),
@@ -494,5 +489,4 @@ if __name__ == '__main__':
                   host='localhost', user='postgres', password='postgres',
                   main_schema=None)
     db.importModelFromDb()
-    db.saveModel('/Users/fporcari/Desktop/testmodel', 'py')
-    
+    db.saveModel('/Users/fporcari/Desktop/testmodel', 'py') 

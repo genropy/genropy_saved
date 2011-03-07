@@ -54,8 +54,7 @@ class GnrPdf(object):
         self._pendingDraw = False
         
     def draw(self):
-        """add???
-        """
+        """add???"""
         self.page()
         self.root.walk(self._drawNode)
         
@@ -84,8 +83,7 @@ class GnrPdf(object):
         self.canvas.translate(x * self.unit, y * self.unit)
         
     def save(self):
-        """add???
-        """
+        """add???"""
         self.canvas.save()
         
 if __name__ == '__main__':

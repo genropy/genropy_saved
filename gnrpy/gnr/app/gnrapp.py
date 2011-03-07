@@ -312,15 +312,7 @@ class GnrApp(object):
     >>> testgarden.db.table('showcase.person').query().count()
     12
     """
-
     def __init__(self, instanceFolder, custom_config=None, forTesting=False, debug=False, **kwargs):
-        """add???
-
-        :param instanceFolder: add???
-        :param custom_config: add???. Default value is ``None``
-        :param forTesting: add???. Default value is ``None``
-        :returns: add???
-        """
         self.aux_instances = {}
         self.gnr_config = self.load_gnr_config()
         self.debug=debug
@@ -579,7 +571,6 @@ class GnrApp(object):
         self.localizationTime = time.time()
         
     def _compileLocalization(self, locbag, pkgname=None):
-        """internal method"""
         loc = {}
         for attrs in locbag.digest('#a'):
             _key = attrs.get('_key')
@@ -969,21 +960,10 @@ class GnrApp(object):
             instance_name = self.config['aux_instances.%s?name' % name] or name
             self.aux_instances[name] = GnrApp(instance_name)
         return self.aux_instances[name]
-
-
+        
 class GnrAvatar(object):
-    """add???
-    """
+    """add???"""
     def __init__(self, user, user_name=None, user_id=None, tags='', login_pwd=None, **kwargs):
-        """add???
-
-        :param user: add???
-        :param user_name: add???. Default value is ``None``
-        :param user_id: add???. Default value is ``None``
-        :param tags: add???. Default value is `` ``
-        :param login_pwd: add???. Default value is ``None``
-        :returns: add???
-        """
         self.user = user
         self.user_name = user_name
         self.user_id = user_id
@@ -994,7 +974,7 @@ class GnrAvatar(object):
 
     def addTags(self, tags):
         """add???
-
+        
         :param tags: add???
         :returns: add???
         """
@@ -1005,29 +985,26 @@ class GnrAvatar(object):
             if not tag in t:
                 t.append(tag)
         self.tags = ','.join(t)
-
+        
     def __getattr__(self, fname):
         if fname in self.extra_kwargs:
             return self.extra_kwargs.get(fname)
         else:
             raise AttributeError("register_item has no attribute '%s'" % fname)
-
-
+            
     def as_dict(self):
         """add???
-
+        
         :returns: add???
         """
         return dict(user=self.user, user_tags=self.user_tags,
                     user_id=self.user_id, user_name=self.user_name,
                     **self.extra_kwargs)
-
+                    
 class GnrWriteInReservedTableError(Exception):
-    """add???
-    """
+    """add???"""
     pass
-
-
+    
 if __name__ == '__main__':
     pass # Non Scrivere qui, pena: castrazione!
          # Don't write here, otherwise: castration!

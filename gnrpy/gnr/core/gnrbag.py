@@ -124,15 +124,6 @@ class BagNode(object):
 
     def __init__(self, parentbag, label, value=None, attr=None, resolver=None,
                  validators=None, _removeNullAttributes=True):
-        """
-        :param parentbag: Bag than contains the node.
-        :param label: label that identifies the node.
-        :param value: value of the node. Default value is ``None``.
-        :param attr: node's attributes. Default value is ``None``.
-        :param resolver: a BagResolver. Default value is ``None``.
-        :param validators: a dict with all validators pairs. Default value is ``None``.
-        :param _removeNullAttributes:  add??? Default value is ``True``.
-        """
         self.label = label
         self.locked = False
         self._value = None
@@ -146,10 +137,9 @@ class BagNode(object):
         if validators:
             self.setValidators(validators)
         self.setValue(value, trigger=False)
-
+        
     def __eq__(self, other):
-        """
-        One BagNode is equal to another one if its key, value, attributes and resolvers are the same of the other one.
+        """One BagNode is equal to another one if its key, value, attributes and resolvers are the same of the other one.
         """
         try:
             if isinstance(other, self.__class__) and (self.attr == other.attr):
@@ -161,18 +151,18 @@ class BagNode(object):
                 return False
         except:
             return False
-
+            
     def setValidators(self, validators):
         """add???
         """
         for k, v in validators.items():
             self.addValidator(k, v)
-
+            
     def _get_parentbag(self):
         if self._parentbag:
             return self._parentbag
             #return self._parentbag()
-
+            
     def _set_parentbag(self, parentbag):
         self._parentbag = None
         if parentbag != None:
@@ -270,34 +260,31 @@ class BagNode(object):
         """Get node's value in static mode
         """
         return self.getValue('static')
-
+        
     def setStaticValue(self, value):
-        """Set node's value in static mode
-        """
+        """Set node's value in static mode"""
         self._value = value
-
+        
     staticvalue = property(getStaticValue, setStaticValue)
-
+        
     def _set_resolver(self, resolver):
-        """Set a resolver in the node
-        """
+        """Set a resolver in the node"""
         if not resolver is None:
             resolver.parentNode = self
         self._resolver = resolver
-
+        
     def _get_resolver(self):
         """Get node's resolver
         """
         return self._resolver
-
+        
     resolver = property(_get_resolver, _set_resolver)
-
+        
     def resetResolver(self):
-        """add???
-        """
+        """add???"""
         self._resolver.reset()
         self.setValue(None)
-
+        
     def getAttr(self, label=None, default=None):
         """It returns the value of an attribute. You have to specify the attribute's label.
         If it doesn't exist then it returns a default value.
@@ -308,24 +295,23 @@ class BagNode(object):
         if not label or label == '#':
             return self.attr
         return self.attr.get(label, default)
-
+        
     def getInheritedAttributes(self):
-        """add???
-        """
+        """add???"""
         inherited = {}
         if self.parentbag:
             if self.parentbag.parentNode:
                 inherited = self.parentbag.parentNode.getInheritedAttributes()
         inherited.update(self.attr)
         return inherited
-
+        
     def hasAttr(self, label=None, value=None):
         """Check if a node has the given pair label-value in its attributes' dictionary.
         """
         if not label in self.attr: return False
         if value: return (self.attr[label] == value)
         return True
-
+        
     def setAttr(self, attr=None, trigger=True, _updattr=True, _removeNullAttributes=True, **kwargs):
         """It receives one or more key-value couple, passed as a dict or as named parameters,
         and sets them as attributes of the node.
@@ -1054,8 +1040,7 @@ class Bag(GnrObject):
         #-------------------- clear --------------------------------
 
     def clear(self):
-        """Clear the Bag
-        """
+        """Clear the Bag"""
         oldnodes = self._nodes
         self._nodes = []
         if self.backref:
@@ -2336,8 +2321,7 @@ class BagValidationList(object):
             self.validators.remove(validator)
             
     def __call__(self, value, oldvalue):
-        """Apply the validation to a BagNode value.
-        """
+        """Apply the validation to a BagNode value."""
         for validator in self.validators:
             value = validator(value, oldvalue, self.validatorsdata[validator])
         return value
@@ -2566,127 +2550,114 @@ class BagResolver(object):
         attr['args'] = self._initArgs
         attr['kwargs'] = self._initKwargs
         return attr
-
+        
     def __getitem__(self, k):
         return self().__getitem__(k)
-
+        
     def _htraverse(self, *args, **kwargs):
         return self()._htraverse(*args, **kwargs)
-
+        
     def keys(self):
-        """same method of the dict :meth:`keys()`
-        """
+        """same method of the dict :meth:`keys()`"""
         return self().keys()
-
+        
     def items(self):
-        """same method of the dict :meth:`items()`
-        """
+        """same method of the dict :meth:`items()`"""
         return self().items()
-
+        
     def values(self):
-        """same method of the dict :meth:`values()`
-        """
+        """same method of the dict :meth:`values()`"""
         return self().values()
-
+        
     def digest(self, k=None):
-        """same method of the dict :meth:`digest()`
-        """
+        """same method of the dict :meth:`digest()`"""
         return self().digest(k)
-
+        
     def sum(self, k=None):
-        """add???
-        """
+        """add???"""
         return self().sum(k)
-
+        
     def iterkeys(self):
-        """add???
-        """
+        """add???"""
         return self().iterkeys()
-
+        
     def iteritems(self):
-        """add???
-        """
+        """add???"""
         return self().iteritems()
 
     def itervalues(self):
-        """add???
-        """
+        """add???"""
         return self().itervalues()
-
+        
     def __iter__(self):
         return self().__iter__()
-
+        
     def __contains__(self):
         return self().__contains__()
-
+        
     def __len__(self):
         return len(self())
-
+        
     def getAttributes(self):
-        """add???
-        """
+        """add???"""
         return self._attributes
-
+        
     def setAttributes(self, attributes):
-        """add???
-        """
+        """add???"""
         self._attributes = attributes or dict()
-
+        
     attributes = property(getAttributes, setAttributes)
-
+        
     def resolverDescription(self):
-        """add???
-        """
+        """add???"""
         return repr(self)
-
+        
     def __str__(self):
         return self.resolverDescription()
-
+        
 class GeoCoderBag(Bag):
     def setGeocode(self, key, address):
         """add???
+        
+        :param key: add???
+        :param address: add???
         """
         url = "http://maps.google.com/maps/geo?%s" % urllib.urlencode(dict(q=address, output='xml'))
         result = Bag()
-
+        
         def setData(n):
             v = n.getValue()
             if isinstance(v, basestring):
                 result[n.label] = v
-
+                
         answer = Bag(url)['#0.#0.Placemark']
         if answer:
             answer.walk(setData)
         self[key] = result
-
+        
 class BagCbResolver(BagResolver):
-    """A standard resolver. Call a callback method, passing its kwargs parameters.
-    """
+    """A standard resolver. Call a callback method, passing its kwargs parameters."""
     classArgs = ['method']
-
+        
     def load(self):
-        """add???
-        """
+        """add???"""
         return self.method(**self.kwargs)
-
+        
 class UrlResolver(BagResolver):
-    """add???
-    """
+    """add???"""
     classKwargs = {'cacheTime': 300, 'readOnly': True}
     classArgs = ['url']
-
+        
     def load(self):
-        """add???
-        """
+        """add???"""
         x = urllib.urlopen(self.url)
         result = {}
         result['data'] = x.read()
         result['info'] = x.info()
         return result
-
+        
 class DirectoryResolver(BagResolver):
-    """add???
-    """
+    """add???"""
     classKwargs = {'cacheTime': 500,
                    'readOnly': True,
                    'invisible': False,
@@ -2699,10 +2670,9 @@ class DirectoryResolver(BagResolver):
                    'processors': None
     }
     classArgs = ['path', 'relocate']
-
+    
     def load(self):
-        """add???
-        """
+        """add???"""
         extensions = dict([((ext.split(':') + (ext.split(':'))))[0:2] for ext in self.ext.split(',')])
         extensions['directory'] = 'directory'
         result = Bag()
@@ -2737,7 +2707,7 @@ class DirectoryResolver(BagResolver):
                     mtime = stat.st_mtime
                 except OSError:
                     mtime = ''
-
+                    
                 if self.callback:
                     moreattr = self.callback(fullpath)
                 else:
@@ -2745,7 +2715,7 @@ class DirectoryResolver(BagResolver):
                 result.setItem(label, handler(fullpath), file_name=fname, file_ext=ext, rel_path=relpath,
                                abs_path=fullpath, mtime=mtime, nodecaption=nodecaption, **moreattr)
         return result
-
+        
     def makeLabel(self, name, ext):
         """add???
         
@@ -2755,14 +2725,14 @@ class DirectoryResolver(BagResolver):
         if ext != 'directory' and not self.dropext:
             name = '%s_%s' % (name, ext)
         return name.replace('.', '_')
-
+        
     def processor_directory(self, path):
         """add???
         
         :param path: add???
         """
         return DirectoryResolver(path, os.path.join(self.relocate, os.path.basename(path)), **self.instanceKwargs)
-
+        
     def processor_xml(self, path):
         """add???
         
@@ -2795,7 +2765,7 @@ class TxtDocResolver(BagResolver):
                    'readOnly': True
     }
     classArgs = ['path']
-
+        
     def load(self):
         f = file(self.path, mode='r')
         result = f.read()
@@ -2813,17 +2783,15 @@ class XmlDocResolver(BagResolver):
 
 
 class BagFormula(BagResolver):
-    """Calculate the value of an algebric espression.
-    """
+    """Calculate the value of an algebric espression"""
     classKwargs = {'cacheTime': 0,
                    'formula': '',
                    'parameters': None, 'readOnly': True
     }
     classArgs = ['formula', 'parameters']
-
+        
     def init(self):
-        """add???
-        """
+        """add???"""
         parameters = {}
         for key, value in self.parameters.items():
             if key.startswith('_'):
@@ -2831,39 +2799,37 @@ class BagFormula(BagResolver):
             else:
                 parameters[key] = "curr['%s']" % value
         self.expression = gnrstring.templateReplace(self.formula, parameters)
-
+        
     def load(self):
-        """add???
-        """
+        """add???"""
         curr = self.parentNode.parentbag
         return eval(self.expression)
-
+        
 ########################### start experimental features#######################
 class BagResolverNew(object):
-
     def __init__(self, cacheTime=0, readOnly=True,
                  serializerStore=None, **kwargs):
         self.serializerStore = serializerStore
         self.kwargs = {}
         self._updateKwargs(dict(cacheTime=cacheTime, readOnly=readOnly))
         self._updateKwargs(kwargs)
-
+        
     def _get_serializerStore(self):
         if self._serializerStore is None:
             return self._serializerStore
         else:
             return self._serializerStore
             #return self._serializerStore()
-
+            
     def _set_serializerStore(self, serializerStore):
         if serializerStore is None:
             self._serializerStore = serializerStore
         else:
             #self._serializerStore = weakref.ref(serializerStore)
             self._serializerStore = serializerStore
-
+            
     serializerStore = property(_get_serializerStore, _set_serializerStore)
-
+        
     def _getPar(self, name):
         attr = getattr(self, name)
         if isinstance(attr, basestring) or\
@@ -2876,28 +2842,28 @@ class BagResolverNew(object):
             key = '%s' % name
             self.serializerStore[key] = attr
             return key
-
+            
     def __eq__(self, other):
         try:
             if isinstance(other, self.__class__) and (self.kwargs == other.kwargs):
                 return True
         except:
             return False
-
+            
     def _get_parentNode(self):
         if self._parentNode:
             return self._parentNode
             #return self._parentNode()
-
+            
     def _set_parentNode(self, parentNode):
         if parentNode == None:
             self._parentNode = None
         else:
             #self._parentNode = weakref.ref(parentNode)
             self._parentNode = parentNode
-
+            
     parentNode = property(_get_parentNode, _set_parentNode)
-
+        
     def _set_cacheTime(self, cacheTime):
         self._cacheTime = cacheTime
         if cacheTime != 0:
@@ -2907,23 +2873,23 @@ class BagResolverNew(object):
                 self._cacheTimeDelta = timedelta(0, cacheTime)
             self._cache = None
             self._cacheLastUpdate = datetime.min
-
+            
     def _get_cacheTime(self):
         return self._cacheTime
-
+        
     cacheTime = property(_get_cacheTime, _set_cacheTime)
-
+        
     def reset(self):
         self._cache = None
         self._cacheLastUpdate = datetime.min
-
+        
     def _get_expired(self):
         if self._cacheTime == 0 or self._cacheLastUpdate == datetime.min:
             return True
         return ((datetime.now() - self._cacheLastUpdate ) > self._cacheTimeDelta)
-
+        
     expired = property(_get_expired)
-
+        
     def _updateKwargs(self, kwargs):
         reset = False
         for k, v in kwargs.items():
@@ -2933,14 +2899,14 @@ class BagResolverNew(object):
                 setattr(self, k, v)
         if reset:
             self.reset()
-
+            
     def __call__(self, **kwargs):
         if kwargs:
             self._updateKwargs(kwargs)
-
+            
         if self.cacheTime == 0:
             return self.load()
-
+            
         if self.expired:
             result = self.load()
             self._cacheLastUpdate = datetime.now()
@@ -2948,7 +2914,7 @@ class BagResolverNew(object):
         else:
             result = self._cache
         return result
-
+        
     def load(self):
         """.. deprecated:: 0.7
         .. note:: This method have to be rewritten."""

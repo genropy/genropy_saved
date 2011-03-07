@@ -250,8 +250,7 @@ def readXLS(doc):
         yield GnrNamedList(index, row)
         
 class XlsReader(object):
-    """Read an XLS file
-    """
+    """Read an XLS file"""
     def __init__(self, docname):
         import xlrd
         import os.path
@@ -312,7 +311,7 @@ class GnrNamedList(list):
     #    except:
     #        if x > len(self._index):
     #            raise
-
+        
     def __setitem__(self, x, v):
         if type(x) != int:
             n = self._index.get(x)
@@ -338,7 +337,7 @@ class GnrNamedList(list):
         
     def get(self, x, default=None):
         """Same of ``get`` method's dict
-
+        
         :param x: add???
         :param default: the value returned if ``self[x]`` is ``None``. Default value is ``None``
         :returns: add???
@@ -428,5 +427,4 @@ class GnrNamedList(list):
         if columns:
             return [self[k] for k in columns]
         else:
-            return self.values()
-            
+            return self.values()     

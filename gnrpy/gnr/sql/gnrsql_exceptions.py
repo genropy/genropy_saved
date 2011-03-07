@@ -30,7 +30,6 @@ class GnrSqlException(GnrException):
     :param code: error code
     :param message: explanation of the error
     """
-    
     def __init__(self, code, message=None):
         if not message and ':' in code:
             code, message = code.split(':', 1)

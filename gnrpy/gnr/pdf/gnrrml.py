@@ -823,8 +823,7 @@ class GnrRmlSrc(GnrStructData):
                           frontSize=frontSize, leading=leading, width=width, maxWidth=maxWidth, height=height,
                           textAnchor=textAnchor, visible=visible, leftPadding=leftPadding, rightPadding=rightPadding,
                           topPadding=topPadding, bottomPadding=bottomPadding, **kwargs)
-
-
+                          
 class GnrPdf(object):
     def __init__(self, filename=None, debug=None, compression=None, invariant=None, **kwargs):
         self.root = GnrRmlSrc.makeRoot()

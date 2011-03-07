@@ -377,8 +377,7 @@ class GnrHtmlSrc(GnrStructData):
         return css
         
 class GnrHtmlPdf(object):
-    """add???
-    """
+    """add???"""
     def __init__(self, filename=None, **kwargs):
         self.root = GnrHtmlSrc.makeRoot()
         html = self.root.html()

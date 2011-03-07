@@ -61,11 +61,11 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return ''
 
     def connect(self):
+        """Return a new connection object: provides cursors accessible by col number or col name
+        
+        :returns: a new connection object"""
         import MySQLdb
         from MySQLdb.cursors import DictCursor
-
-        """Return a new connection object: provides cursors accessible by col number or col name
-    @return: a new connection object"""
         dbroot = self.dbroot
         #kwargs = dict(host=dbroot.host, db=dbroot.dbname, user=dbroot.user, passwd=dbroot.password, 
         # port=dbroot.port, use_unicode=True, cursorclass=GnrDictCursor)
@@ -81,9 +81,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """Change the format of named arguments in the query from ':argname' to '%(argname)s'.
         Replace the 'REGEXP' operator with '~*'.
         Replace the ILIKE operator with LIKE: sqlite LIKE is case insensitive
-        @param sql: the sql string to execute.
-        @param kwargs: the params dict
-        @return: tuple (sql, kwargs)
+        
+        :param sql: the sql string to execute.
+        :param kwargs: the params dict
+        :returns: tuple (sql, kwargs)
         """
         sql = sql.replace('ILIKE', 'LIKE').replace('ilike', 'like').replace('~*', ' REGEXP ')
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
@@ -160,10 +161,11 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return 'FOR UPDATE'
 
     def listElements(self, elType, **kwargs):
-        """Get a list of element names.
-        @param elType: one of the following: schemata, tables, columns, views.
-        @param kwargs: schema, table
-        @return: list of object names"""
+        """Get a list of element names
+        
+        :param elType: one of the following: schemata, tables, columns, views.
+        :param kwargs: schema, table
+        :returns: list of object names"""
         query = getattr(self, '_list_%s' % elType)()
         result = self.dbroot.execute(query, kwargs).fetchall()
         return [r[0] for r in result]
@@ -190,7 +192,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """Get a list of all relations in the db. 
         Each element of the list is a list (or tuple) with this elements:
         [foreign_constraint_name, many_schema, many_tbl, [many_col, ...], unique_constraint_name, one_schema, one_tbl, [one_col, ...]]
-        @return: list of relation's details
+        
+        :returns: list of relation's details
         """
         return []
         #sql = """SELECT r.constraint_name AS ref,
@@ -233,10 +236,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         #return ref_dict.values()
 
     def getPkey(self, table, schema):
-        """
-        @param table: table name
-        @param schema: schema name
-        @return: list of columns wich are the primary key for the table"""
+        """:param table: table name
+        :param schema: schema name
+        :returns: list of columns wich are the primary key for the table"""
         sql = """SELECT k.column_name        AS col
                 FROM   information_schema.key_column_usage      AS k 
                 JOIN   information_schema.table_constraints     AS c
@@ -324,8 +326,7 @@ class GnrDictCursor(DictCursor):
             self.index = dict()
             self._rows = _rows
         self._result = None
-
-
+            
 #    def __init__(self, *args, **kwargs):
 #        kwargs['row_factory'] = GnrDictRow
 #        DictCursorBase.__init__(self, *args, **kwargs)
@@ -338,13 +339,12 @@ class GnrDictCursor(DictCursor):
 #        if self._query_executed:
 #            self._build_index()
 #        return res
-
-
+            
 class GnrWhereTranslator(GnrWhereTranslator_base):
     def op_startswith(self, column, value, dtype, sqlArgs):
         "Starts with"
         return '%s LIKE :%s' % (column, self.storeArgs('%s%%' % value, dtype, sqlArgs))
-
+            
     def op_contains(self, column, value, dtype, sqlArgs):
         "Contains"
         return '%s LIKE :%s' % (column, self.storeArgs('%%%s%%' % value, dtype, sqlArgs))

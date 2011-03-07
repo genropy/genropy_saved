@@ -30,17 +30,16 @@ from decimal import Decimal
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
 
 class GnrClassCatalog(object):
-    """add???
-    """
+    """add???"""
     __standard = None
-
+    
     def convert(cls):
         if cls.__standard == None:
             cls.__standard = GnrClassCatalog()
         return cls.__standard
-
+        
     convert = classmethod(convert)
-
+        
     def __init__(self):
         self.names = {}
         self.classes = {}
@@ -200,7 +199,7 @@ class GnrClassCatalog(object):
             return f(txt, **kwargs)
         else:
             return self.classes[clsname](txt)
-
+            
     def fromTypedText(self, txt, **kwargs):
         """Add???
             
@@ -214,7 +213,7 @@ class GnrClassCatalog(object):
             return self.fromText(result[0], result[1], **kwargs)
         else:
             return self.fromText(result[0], result[1])
-
+            
     def asTypedText(self, o, quoted=False, translate_cb=None):
         """Add???
             
@@ -231,7 +230,7 @@ class GnrClassCatalog(object):
         if quoted:
             result = self.quoted(result)
         return result
-
+        
     def asTextAndType(self, o, translate_cb=None):
         """Add???
             
@@ -243,7 +242,7 @@ class GnrClassCatalog(object):
         if c:
             return (self.asText(o, translate_cb=translate_cb), c)
         return self.asTextAndType(repr(o))
-
+        
     def getType(self, o):
         """Add???
             
@@ -251,56 +250,53 @@ class GnrClassCatalog(object):
         :returns: add???
         """
         return self.names.get(type(o))
-
+        
     def standardClasses(self):
         """add???
         """
         from gnr.core.gnrbag import Bag
-
+        
         self.addClass(cls=unicode, key='T', aliases=['TEXT', 'P', 'A'], altcls=[basestring, str], empty='')
         #self.addSerializer("asText", unicode, lambda txt: txt)
-
-
+        
         self.addClass(cls=float, key='R', aliases=['REAL', 'FLOAT', 'F'], align='R', empty=0.0)
         self.addParser(float, self.parse_float)
-
+        
         self.addClass(cls=int, key='L', aliases=['LONG', 'LONGINT', 'I', 'INT', 'INTEGER'], altcls=[long], align='R',
                       empty=0)
-
+                      
         self.addClass(cls=bool, key='B', aliases=['BOOL', 'BOOLEAN'], empty=False)
-
+        
         self.addParser(bool, lambda txt: (txt.upper() in ['Y', 'TRUE', 'YES', '1']))
-
+        
         self.addClass(cls=datetime.date, key='D', aliases=['DATE'], empty=None)
         self.addParser(datetime.date, self.parse_date)
-
+        
         self.addClass(cls=datetime.datetime, key='DH', aliases=['DATETIME', 'DT'], empty=None)
         self.addParser(datetime.datetime, self.parse_datetime)
-
+        
         self.addClass(cls=datetime.time, key='H', aliases=['TIME'], empty=None)
         self.addParser(datetime.time, self.parse_time)
-
+        
         self.addClass(cls=Bag, key='BAG', aliases=['BAG', 'GNRBAG', 'bag', 'gnrbag'], empty=Bag)
         self.addParser(Bag, lambda txt: Bag(txt))
-
+        
         self.addClass(cls=type(None), key='NN', aliases=['NONE', 'NULL'], empty=None)
         self.addParser(type(None), lambda txt: None)
         self.addSerializer("asText", type(None), lambda txt: '')
-
+        
         self.addClass(cls=Decimal, key='N', aliases=['NUMERIC', 'DECIMAL'], align='R', empty=Decimal('0'))
         self.addParser(Decimal, lambda txt: Decimal(txt))
         #self.addSerializer("asText",type(None), lambda txt: '')
         #self.addClass(cls=type(None), key='NN', aliases=['NONE', 'NULL'], empty=None)
         #self.addParser(type(None), lambda txt: None)
         #self.addSerializer("asText",type(None), lambda txt: '')
-
-
+        
         self.addClass(cls=list, altcls=[dict, tuple], key='JS', empty=None)
         self.addSerializer("asText", list, self.toJson)
         self.addSerializer("asText", tuple, self.toJson)
         self.addSerializer("asText", dict, self.toJson)
-
-
+        
     def parse_float(self, txt):
         """Add???
             
@@ -309,7 +305,7 @@ class GnrClassCatalog(object):
         """
         if txt.lower() != 'inf':
             return float(txt)
-
+            
     def parse_datetime(self, txt, workdate=None):
         """Add???
             
@@ -320,7 +316,7 @@ class GnrClassCatalog(object):
         splitted = gnrstring.wordSplit(txt)
         result = datetime.datetime(*[int(el) for el in splitted])
         return result
-
+        
     def parse_date(self, txt, workdate=None):
         """Add???
             
@@ -333,7 +329,7 @@ class GnrClassCatalog(object):
                 return datetime.date(*[int(el) for el in gnrstring.wordSplit(txt)[0:3]])
             else:
                 return decodeDatePeriod(txt, workdate=workdate, returnDate=True)
-
+                
     def parse_time(self, txt):
         """Add???
             
@@ -366,12 +362,12 @@ class GnrClassCatalog(object):
     #c.addSerializer("asText", int, lambda nr: re.sub(r"([-+]?\d{1,3}(\,\d*)?)(?=(\d{3})*(\,|$))",r".\1", '%i' % nr)[1:])
     #c.addParser(float, lambda txt: c.parse_float(txt.replace('.','').replace(',','.')))
     #return c
-
+        
 if __name__ == '__main__':
     pass
     # NISO: The following lines don't work properly (asText() doesn't accept the "locale" attribute),
     #       so I put "pass" on the if __name__ == '__main__':
-    # PLEASE cancel the following lines if they are useless...
+    #       PLEASE cancel the following lines if they are useless...
     
     #c = GnrClassCatalog()
     #d = datetime.date(2007, 10, 21)

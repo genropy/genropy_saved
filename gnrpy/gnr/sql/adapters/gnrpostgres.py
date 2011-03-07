@@ -68,7 +68,8 @@ class SqlDbAdapter(SqlDbBaseAdapter):
 
     def connect(self):
         """Return a new connection object: provides cursors accessible by col number or col name
-        @return: a new connection object"""
+        
+        :returns: a new connection object"""
         dbroot = self.dbroot
         kwargs = self.dbroot.get_connection_params()
         #kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password, port=dbroot.port)
@@ -82,17 +83,17 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         finally:
             self._lock.release()
         return conn
-
-
+        
     def prepareSqlText(self, sql, kwargs):
         """Change the format of named arguments in the query from ':argname' to '%(argname)s'.
         Replace the 'REGEXP' operator with '~*'.
-        @param sql: the sql string to execute.
-        @param kwargs: the params dict
-        @return: tuple (sql, kwargs)
+        
+        :param sql: the sql string to execute.
+        :param kwargs: the params dict
+        :returns: tuple (sql, kwargs)
         """
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
-
+        
     def _managerConnection(self):
         dbroot = self.dbroot
         kwargs = dict(host=dbroot.host, database='template1', user=dbroot.user,
@@ -136,29 +137,31 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         curs.execute("DROP DATABASE %s;" % name)
         curs.close()
         conn.close()
-
+        
     def dump(self, filename):
-        """
-        Dump an existing database
-        @param name: db name
+        """Dump an existing database
+        
+        :param filename: db name
+        :returns: add???
         """
         from subprocess import call
-
+        
         return call(['pg_dump', self.dbroot.dbname, '-U', self.dbroot.user, '-f', filename])
-
-
+        
     def restore(self, filename):
         """-- IMPLEMENT THIS --
         Drop an existing database
-        @param name: db name
+        
+        :param filename: db name
+        :returns: add???
         """
         from subprocess import call
-
+        
         return call(['psql', self.dbroot.dbname, '-U', self.dbroot.user, '-f', filename])
-
+        
     def createTableAs(self, sqltable, query, sqlparams):
         self.dbroot.execute("CREATE TABLE %s WITH OIDS AS %s;" % (sqltable, query), sqlparams)
-
+        
     def vacuum(self, table='', full=False): #TODO: TEST IT, SEEMS TO LOCK SUBSEQUENT TRANSACTIONS!!!
         """Perform analyze routines on the db"""
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
@@ -167,15 +170,16 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         else:
             self.dbroot.execute('VACUUM ANALYZE %s;' % table)
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
-
+        
     def listen(self, msg, timeout=10, onNotify=None, onTimeout=None):
         """Listen for message 'msg' on the current connection using the Postgres LISTEN - NOTIFY method.
         onTimeout callbacks are executed on every timeout, onNotify on messages.
         Callbacks returns False to stop, or True to continue listening.
-        @param msg: name of the message to wait for
-        @param timeout: seconds to wait for the message
-        @param onNotify: function to execute on arrive of message
-        @param onTimeout: function to execute on timeout
+        
+        :param msg: name of the message to wait for
+        :param timeout: seconds to wait for the message
+        :param onNotify: function to execute on arrive of message
+        :param onTimeout: function to execute on timeout
         """
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         curs = self.dbroot.execute('LISTEN %s;' % msg)
@@ -197,27 +201,29 @@ class SqlDbAdapter(SqlDbBaseAdapter):
                     if onNotify != None:
                         listening = onNotify(curs.connection.notifies.pop())
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
-
+        
     def notify(self, msg, autocommit=False):
         """Notify a message to listener processes using the Postgres LISTEN - NOTIFY method.
-        @param msg: name of the message to notify
-        @param autocommit: if False (default) you have to commit transaction, and the message is actually sent on commit"""
+        
+        :param msg: name of the message to notify
+        :param autocommit: if False (default) you have to commit transaction, and the message is actually sent on commit"""
         self.dbroot.execute('NOTIFY %s;' % msg)
         if autocommit:
             self.dbroot.commit()
-
+            
     def listElements(self, elType, **kwargs):
         """Get a list of element names.
-        @param elType: one of the following: schemata, tables, columns, views.
-        @param kwargs: schema, table
-        @return: list of object names"""
+        
+        :param elType: one of the following: schemata, tables, columns, views.
+        :param kwargs: schema, table
+        :returns: list of object names"""
         query = getattr(self, '_list_%s' % elType)()
         try:
             result = self.dbroot.execute(query, kwargs).fetchall()
         except psycopg2.OperationalError:
             raise GnrNonExistingDbException(self.dbroot.dbname)
         return [r[0] for r in result]
-
+        
     def dbExists(self, dbname):
         conn = self._managerConnection()
         curs = conn.cursor()
@@ -228,7 +234,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         curs = None
         conn = None
         return dbname in dbnames
-
+        
     def _list_databases(self):
         return 'SELECT datname FROM pg_catalog.pg_database;'
 
@@ -300,10 +306,9 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return ref_dict.values()
 
     def getPkey(self, table, schema):
-        """
-        @param table: table name
-        @param schema: schema name
-        @return: list of columns wich are the primary key for the table"""
+        """:param table: table name
+        :param schema: schema name
+        :return: list of columns wich are the primary key for the table"""
         sql = """SELECT k.column_name        AS col
                 FROM   information_schema.key_column_usage      AS k 
                 JOIN   information_schema.table_constraints     AS c
@@ -319,9 +324,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def getIndexesForTable(self, table, schema):
         """Get a (list of) dict containing details about all the indexes of a table.
         Each dict has those info: name, primary (bool), unique (bool), columns (comma separated string)
-        @param table: table name
-        @param schema: schema name
-        @return: list of index infos"""
+        
+        :param table: table name
+        :param schema: schema name
+        :returns: list of index infos"""
         sql = """SELECT indcls.relname AS name, indisunique AS unique, indisprimary AS primary, indkey AS columns
                     FROM pg_index
                LEFT JOIN pg_class AS indcls ON indexrelid=indcls.oid 
@@ -350,13 +356,13 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         result = self.dbroot.execute(sql % (filtertable,filterschema),
                                       dict(schema=schema,
                                            table=table)).fetchall()
-        
+            
         res_bag = Bag()
         for row in result:
             row=dict(row)
             res_bag.setItem('%(table_schema)s.%(table_name)s.%(column_name)s'%row,row['constraint_name'])
         return res_bag
-
+            
     def getColInfo(self, table, schema, column=None):
         """Get a (list of) dict containing details about a column or all the columns of a table.
         Each dict has those info: name, position, default, dtype, length, notnull

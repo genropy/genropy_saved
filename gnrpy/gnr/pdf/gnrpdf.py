@@ -19,8 +19,7 @@ class GnrPdfElem(object):
         return child
         
 class GnrPdfSrc(GnrStructData):
-    """add???
-    """
+    """add???"""
     pdfDrawNS = ['line', 'grid', 'bezier', 'arc', 'rect', 'ellipse', 'wedge', 'circle', 'roundRect',
                  'drawString', 'drawRightString', 'drawCentredString']
     pdfStatusNS = ['setFillColorCMYK', 'setStrokeColorCMYK',
@@ -35,7 +34,7 @@ class GnrPdfSrc(GnrStructData):
     pdfNameSpace.update(dict([(name.lower(), (name, 'RS')) for name in pdfStatusNS]))
     pdfNameSpace.update(dict([(name.lower(), (name, 'GD')) for name in gnrDrawNS]))
     pdfNameSpace.update(dict([(name.lower(), (name, 'GS')) for name in gnrStatusNS]))
-
+        
     def __getattr__(self, fname):
         fnamelower = fname.lower()
         if fnamelower in self.pdfNameSpace:
@@ -62,10 +61,9 @@ class GnrPdfSrc(GnrStructData):
         :param text: add???. Default value is ``None``
         """
         self.child('drawString', x=x, y=y, text=text, **kwargs)
-
+        
 class GnrPdf(object):
-    """add???
-    """
+    """add???"""
     autoConvert = ('x', 'y', 'height', 'width', 'radius',
                    'x1', 'x2', 'x3', 'x4', 'y1', 'y2', 'y3', 'y4'
                                                              'lowerx', 'lowery', 'upperx', 'uppery')
@@ -89,13 +87,11 @@ class GnrPdf(object):
         self._log.append('%s - %s - %s' % (txt, str(args), str(kwargs)))
         
     def toXml(self, *args, **kwargs):
-        """add???
-        """
+        """add???"""
         return self.root.toXml(*args, **kwargs)
         
     def draw(self):
-        """add???
-        """
+        """add???"""
         self._draw(self.root)
         
     def _draw(self, bag):
@@ -175,8 +171,7 @@ class GnrPdf(object):
         self.log("translate", x, y)
         
     def save(self):
-        """add???
-        """
+        """add???"""
         self.canvas.save()
         
 if __name__ == '__main__':

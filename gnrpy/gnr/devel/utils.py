@@ -272,19 +272,18 @@ class AutoDiscovery(object):
         
             the absolute path to this item
         """
-
+        
         def __init__(self, path):
             self.path = expandpath(path, full=True)
             self.name = basename(path)
-
+            
         def _is_valid(self):
-            """Returns if this is a valid item.
-            Subclasses override it."""
+            """Return if this is a valid item. Subclasses override it."""
             return True
-
+            
         def __repr__(self):
             return "<%s %s in %s>" % (self.__class__.__name__, repr(self.name), repr(self.path))
-
+            
         @classmethod
         def all(cls, base_path):
             if isdir(base_path):
@@ -294,11 +293,9 @@ class AutoDiscovery(object):
                     item = cls(path)
                     if item._is_valid():
                         yield item.name, item
-
+                        
     class Project(Item):
-        """
-        Project have these additional methods:
-        """
+        """Project have these additional methods:"""
 
         common_project_dirs = 'instances sites packages commands'.split()
 

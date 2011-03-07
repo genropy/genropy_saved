@@ -503,8 +503,7 @@ class StructObjResolver(BagResolver):
         return result
         
 class TestStructModule(object):
-    """add???
-    """
+    """add???"""
     def __init__(self):
         self.struct = GnrStructData.root()
         self.structdict = {}

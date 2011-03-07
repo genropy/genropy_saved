@@ -234,8 +234,7 @@ class GnrHtmlSrc(GnrStructData):
         return cell
             
 class GnrHtmlBuilder(object):
-    """add???
-    """
+    """add???"""
     styleAttrNames = ['height', 'width', 'top', 'left', 'right', 'bottom',
                       'visibility', 'overflow', 'float', 'clear', 'display',
                       'z_index', 'border', 'position', 'padding', 'margin',
@@ -246,21 +245,6 @@ class GnrHtmlBuilder(object):
                  showTemplateContent=None,
                  htmlTemplate=None, page_debug=False, srcfactory=None,
                  print_button=None, bodyAttributes=None):
-        """add???
-        
-        :param page_height: define the page height. Default value is ``None``
-        :param page_width: define the page width. Default value is ``None``
-        :param page_margin_top: define the page margin top. Default value is ``None``
-        :param page_margin_left: define the page margin left. Default value is ``None``
-        :param page_margin_right: define the page margin right. Default value is ``None``
-        :param page_margin_bottom: define the page margin bottom. Default value is ``None``
-        :param showTemplateContent: add???. Default value is ``None``
-        :param htmlTemplate: add???. Default value is ``None``
-        :param page_debug: add???. Default value is ``None``
-        :param srcfactory: add???. Default value is ``None``
-        :param print_button: add???. Default value is ``None``
-        :param bodyAttributes: add???. Default value is ``None``
-        """
         self.srcfactory = srcfactory or GnrHtmlSrc
         self.htmlTemplate = htmlTemplate or Bag()
         self.page_height = page_height or self.htmlTemplate['main.page.height'] or 280
@@ -346,7 +330,7 @@ class GnrHtmlBuilder(object):
     def newPage(self):
         """add???
         
-        :returns:
+        :returns: add???
         """
         firstpage = (len(self.body) == 0)
         border_color = 'red' if self.page_debug else 'white'
@@ -372,8 +356,7 @@ class GnrHtmlBuilder(object):
         return tplpage
             
     def styleForLayout(self):
-        """add???
-        """
+        """add???"""
         self.head.style(""".x_br{border-top:none!important;border-left:none!important;}
                            .x_r{border-top:none!important;border-left:none!important;border-bottom:none!important;}
                            .x_b{border-top:none!important;border-left:none!important;border-right:none!important;}
@@ -395,6 +378,7 @@ class GnrHtmlBuilder(object):
         """add???
         
         :param filepath: add???. Default value is ``None``
+        :returns: add???
         """
         if filepath:
             filepath = expandpath(filepath)
@@ -614,7 +598,7 @@ class GnrHtmlBuilder(object):
                     
     def finalize_pass(self, src, attr, value):
         pass
-                    
+        
 def test0(pane):
     d = 180
     layout = pane.layout(width=d, height=d, um='mm', top=10, left=10, border_width=3,

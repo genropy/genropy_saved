@@ -31,8 +31,7 @@ COLORS = {
 }
 
 class ColoredFormatter(logging.Formatter):
-    """A formatter for the python :mod:`logging` module that colors the log messages depending on their severity.
-    """
+    """A formatter for the python :mod:`logging` module that colors the log messages depending on their severity"""
     
     def __init__(self, msg, use_color=True):
         logging.Formatter.__init__(self, msg)

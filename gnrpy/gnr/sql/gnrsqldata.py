@@ -598,10 +598,6 @@ class SqlQueryCompiler(object):
         return self.cpl
         
     def _handle_virtual_columns(self, virtual_columns):
-        """add???
-        
-        :param virtual_columns: add???
-        """
         if isinstance(virtual_columns, basestring):
             virtual_columns = gnrstring.splitAndStrip(virtual_columns, ',')
         tbl_virtual_columns = self.tblobj.virtual_columns
@@ -2168,14 +2164,6 @@ class SqlRecord(object):
         return dict([(str(k), self.result[v]) for k, v in self.compiled.dicttemplate.items()])
         
     def _loadRecord(self, result, sqlresult, template, resolver_one=None, resolver_many=None):
-        """add???
-        
-        :param result: boolean. add???
-        :param sqlresult: boolean. add???
-        :param template: boolean. add???
-        :param resolver_one: boolean. add???. Default value is ``None``
-        :param resolver_many: boolean. add???. Default value is ``None``
-        """
         for k, v, args in template.digest('#k,#v,#a'):
             dtype = args.get('dtype')
             info = dict(args)
@@ -2312,4 +2300,3 @@ class SqlRecordBag(Bag):
             return self._db
         
     db = property(_get_db, _set_db)
-    
