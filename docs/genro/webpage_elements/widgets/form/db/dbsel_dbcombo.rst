@@ -5,7 +5,7 @@ dbSelect and dbCombobox: common attributes
 ==========================================
 
     * :ref:`db_genro_attributes`
-    * :ref:`db_examples`: :ref:`db_selected`, :ref:`db_condition`, :ref:`db_columns` and :ref:`db_auxColumns`
+    * :ref:`db_examples`: :ref:`db_selected`, :ref:`db_condition`, :ref:`db_columns` and :ref:`db_auxColumns`, :ref:`db_hasdownarrow`
 
 .. _db_genro_attributes:
 
@@ -14,60 +14,54 @@ Common attributes
 
     Here we show the attributes that belong both to :ref:`genro_dbselect` than to :ref:`genro_dbcombobox`:
     
-    +--------------------+---------------------------------------------------+--------------------------+
-    |   Attribute        |          Description                              |   Default                |
-    +====================+===================================================+==========================+
-    | *dbtable*          | MANDATORY - Select the database                   |  ``None``                |
-    |                    | :ref:`model_table` for database widget            |                          |
-    |                    | query. For further details, check the             |                          |
-    |                    | :ref:`genro_dbtable` explanation page             |                          |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *alternatePkey*    | Alternate primary key: allow to save user choice  |  ``None``                |
-    |                    | through a different parameter respect to the      |                          |
-    |                    | default ID. You can set any other field's         |                          |
-    |                    | parameter as alternatePkey                        |                          |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *auxColumns*       | Show in a pop-up menu below the input textbox     |  ``None``                |
-    |                    | query parameters (*columns* is MANDATORY).        |                          |
-    |                    | Check :ref:`db_auxColumns` explanation for        |                          |
-    |                    | further details                                   |                          |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *columns*          | Check :ref:`db_columns` explanation for           |  ``None``                |
-    |                    | further details                                   |                          |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *condition*        | Start a SQL query. Check :ref:`db_condition`      |  ``None``                |
-    |                    | example for further details                       |                          |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *disabled*         | If True, user can't act on the widget.            |  ``False``               |
-    |                    | For more details, see :ref:`genro_disabled`       |                          |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *hidden*           | Hide the widget. See :ref:`genro_hidden`          |  ``False``               |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *label*            | You can't use the *label* attribute; if you       |  ``None``                |
-    |                    | want to give a label to your widget, check the    |                          |
-    |                    | :ref:`lbl_formbuilder` example                    |                          |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *limit*            | Set the number of visible choices on the pop-up   |  ``10``                  |
-    |                    | menu below the input textbox during user typing   |                          |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *rowcaption*       | Allow user to view records through                |  ``None``                |
-    |                    | :ref:`genro_name_long` value.                     |                          |
-    |                    | Without *rowcaption*, user will see value ID.     |                          |
-    |                    | Check for more information the                    |                          |
-    |                    | :ref:`genro_database_rowcaption` page             |                          |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *selected*         | You can add different parameters with the sintax: |  ``None``                |
-    |                    | ``selected_nameOfATableColumn='datapathFolder'``. |                          |
-    |                    | See :ref:`db_selected` example for further details|                          |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *value*            | Set a path for widget's values.                   |  ``None``                |
-    |                    | For more details, see :ref:`genro_datapath`       |                          |
-    +--------------------+---------------------------------------------------+--------------------------+
-    | *visible*          | if False, hide the widget (but keep a place in the|  ``True``                |
-    |                    | :ref:`genro_datastore` for it). For more          |                          |
-    |                    | information, check the :ref:`genro_visible`       |                          |
-    |                    | documentation page                                |                          |
-    +--------------------+---------------------------------------------------+--------------------------+
+    ==================== =================================================== ========================== ======================================
+       Attribute                   Description                                  Default                       Example                        
+    ==================== =================================================== ========================== ======================================
+     *dbtable*            MANDATORY - Select the database                      ``None``                 :ref:`genro_dbtable` explanation page
+                          :ref:`model_table` for database widget                                                                             
+                          query.                                                                                                             
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *alternatePkey*      Alternate primary key: allow to save user choice     ``None``                
+                          through a different parameter respect to the                                 
+                          default ID. You can set any other field's                                    
+                          parameter as alternatePkey                                                   
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *auxColumns*         Show in a pop-up menu below the input textbox        ``None``                 :ref:`db_auxColumns` explanation page
+                          query parameters (*columns* becomes MANDATORY).                                                                    
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *columns*            Additional view                                      ``None``                 :ref:`db_columns` example            
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *condition*          Start a SQL query.                                   ``None``                 :ref:`db_condition` example          
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *disabled*           If True, user can't act on the widget.               ``False``                :ref:`genro_disabled` explanation page
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *hasDownArrow*       If True, show an arrow and let the user choose       ``False``                :ref:`db_hasdownarrow` example
+                          from all the entries (so, the *limit* attribute                              
+                          is overridden.                                         
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *hidden*             Hide the widget.                                     ``False``                :ref:`genro_hidden` explanation page
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *ignoreCase*         If True, allow the user to ignore the case           ``True``                
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *label*              You can't use the *label* attribute; if you          ``None``                 :ref:`lbl_formbuilder` example
+                          want to give a label to your widget, check the                               
+                          :ref:`lbl_formbuilder` example                                               
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *limit*              Set the number of visible choices on the pop-up      ``10``                  
+                          menu below the input textbox during user typing                              
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *rowcaption*         Allow user to view records through                   ``None``                 :ref:`genro_database_rowcaption` page 
+                          :ref:`genro_name_long` value.                                                
+                          Without *rowcaption*, user will see value ID.                                
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *selected*           You can add different parameters with the sintax:    ``None``                 :ref:`db_selected` example
+                          ``selected_nameOfATableColumn='datapathFolder'``.                            
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *value*              Set a path for widget's values.                      ``None``                 :ref:`genro_datapath` explanation page
+    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
+     *visible*            if False, hide the widget (but keep a place in       ``True``                 :ref:`genro_visible` explanation page
+                          the :ref:`genro_datastore` for it).                                           
+    ==================== =================================================== ========================== ======================================
     
 .. _db_examples:
 
@@ -123,7 +117,7 @@ Selected
 Condition
 =========
 
-    With the ``condition`` attribute you can write a SQL query.
+    With the *condition* attribute you can write a SQL query.
     
     **syntax**::
     
@@ -136,7 +130,7 @@ Condition
     **Example:** let's start from the previous example (:ref:`db_selected`) where we had a list of actors included into a ``table`` called "person". Let's introduce a ``table`` called "movie" that contains a lot of title films on which the actors have participated::
 
         # encoding: utf-8
-
+        
         class Table(object):
             def config_db(self,pkg):
                 tbl = pkg.table('movie',pkey='id')
@@ -149,11 +143,11 @@ Condition
                 tbl.column('nationality', name_short='Ntl', name_long='Nationality')
                 tbl.column('description', name_short='Dsc', name_long='Movie description')
                 tbl.column('number','L',name_long='!!Number')
-
+                
     The two tables ("movie" and "person") will be linked through a :ref:`table_relation` table called "cast"::
-
+    
         # encoding: utf-8
-
+        
         class Table(object):
             def config_db(self,pkg):
                 tbl = pkg.table('cast',pkey='id',rowcaption='@movie_id.title',
@@ -166,9 +160,9 @@ Condition
                 tbl.column('role', name_short='Rl.',name_long='Role')
                 tbl.column('prizes', name_short='Priz.',name_long='Prizes', size='40')
                 tbl.column('number','L',name_long='!!Number')
-
+                
     Finally, let's introduce a :ref:`webpages_GnrCustomWebPage`::
-
+    
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
                 fb = root.formbuilder(cols=2,border_spacing='10px',datapath='myform')
@@ -186,16 +180,16 @@ Columns
 
     When a user begins to type something into the ``dbSelect`` (or ``dbCombobox``) field, he will see visualized the database columns specified into the *rowcaption* field.
 
-    The usual procedure of a ``dbSelect`` query is *to search* through the records owned by the *rowcaption* attribute and *to save* the record chosen by the user through record's ID into the :ref:`genro_datastore`.
+    The usual procedure of a ``dbSelect`` query is to search through the records owned by the *rowcaption* attribute and to save the record chosen by the user through record's ID into the :ref:`genro_datastore`.
 
-    If you define ``columns``, the ``dbSelect`` will continue to visualize only the records owned by the *rowcaption* attribute, but ``dbSelect`` will search ONLY through the record columns defined in the ``columns`` attribute.
+    If you define *columns*, the ``dbSelect`` will continue to visualize only the records owned by the *rowcaption* attribute, but ``dbSelect`` will search ONLY through the record columns defined in the *columns* attribute.
 
 .. _db_auxColumns:
 
 auxColumns
 ==========
 
-    The ``auxColumns`` attribute allow to visualize in a menu below the dbSelect (or dbCombobox) some additional fields.
+    The *auxColumns* attribute allow to visualize in a menu below the dbSelect (or dbCombobox) some additional fields.
 
     **Example**::
 
@@ -204,6 +198,33 @@ auxColumns
                 root.dbCombobox(dbtable='showcase.person',value='^.person_id',
                                 lbl='Star', auxColumns='$nationality')
 
+.. _db_hasdownarrow:
+
+hasDownArrow
+============
+
+    If True, the *hasDownArrow* attribute inserts a "down arrow", letting the user the possibility to search between ALL the entries (so the *limit* attribute is overridden)
+    
+    **Example**::
+        
+        class GnrCustomWebPage(object):
+            def main(self,root,**kwargs):
+                fb = root.formbuilder(cols=2, border_spacing='10px', datapath='test1')
+                fb.div("""In this test you can see the basic funcionalities of the dbSelect attribute:
+                          the "dbtable" attribute allows to search from a database table,""",
+                          font_size='.9em', text_align='justify', colspan=2)
+                fb.div("""saving the ID of the chosen record.""",
+                          font_size='.9em', text_align='justify', colspan=2)
+                fb.div('Star (value saved in "test1/person_id")',color='#94697C', colspan=2)
+                fb.dbSelect(dbtable='showcase.person', value='^test1.person_id', limit=10, colspan=1)
+                fb.div("""Default values for a dbSelect: limit=10 (number of viewed records scrolling the
+                          dbSelect), hasDownArrow=False""",
+                          font_size='.9em', text_align='justify', colspan=1)
+                fb.div('Star (value saved in "test1/person_id_2")',color='#94697C', colspan=2)
+                fb.dbSelect(dbtable='showcase.person', value='^test1.person_id_2', hasDownArrow=True)
+                fb.div("""The hasDownArrow=True override the limit=10, and let the user see all the entries""",
+                          font_size='.9em', text_align='justify', colspan=1)
+                          
 **Footnotes:**
 
 .. [#] For more information on a creation of a project, check the :ref:`genro_simple_introduction` page.

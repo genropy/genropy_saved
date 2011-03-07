@@ -59,8 +59,8 @@ Other methods
     
 .. _gnrcookie_classes:
 
-:mod:`gnrcookie` - The complete reference list
-==============================================
+:mod:`gnr.web.gnrcookie` - The complete reference list
+======================================================
 
 .. automodule:: gnr.web.gnrcookie
     :members:

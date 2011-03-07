@@ -1,7 +1,7 @@
 .. _genro_components_index:
 
 ==========
-Components
+components
 ==========
 
 .. toctree::

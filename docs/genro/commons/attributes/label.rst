@@ -18,8 +18,8 @@ Definition and description
     
 .. _lbl_formbuilder:
 
-Usage of a label through the formbuilder widget
-===============================================
+label through formbuilder
+=========================
 
     If your widget doesn't support the *label* attribute but you want to give to it a label, you have to:
     

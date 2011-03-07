@@ -28,11 +28,9 @@ Components location
     
     The components MUST be situated in some folders named ``resources``: it doesn't matter where these folders are, because the program search the component in every folder of the code using the mixin. However, for keeping a reasonable level of order, every ``resources`` folder is kept into a project folder as one of its primary subfolder.
     
-    If we suppose to have a project called ``myproject`` and a resource called (guess what?) ``my_component``, you will find your component right here:
+    If we suppose to have a project called ``myproject`` and a component called ``my_component.py``, you will find your component in the :ref:`genro_resources_index` folder of your Genro :ref:`genro_structure_mainproject` [#]_:
     
     .. image:: ../images/components/mycomponent.png
-    
-    (As you can see in the image, a Genro :ref:`genro_structure_mainproject` is composed by four main folders, that are: :ref:`genro_instances_index`, :ref:`genro_packages_index`, :ref:`genro_resources_index`, :ref:`genro_sites_index` - click on them for more informations about a project and its folders)
     
     Genro provides another possible place for components::
     
@@ -42,7 +40,7 @@ Components location
     
     where ``projectName`` is the name of your project and ``packageName`` is the name of your package.
     
-    BUT, if you place your component in a ``_resources`` folder, it can be used only in your project (that is, ONLY in any one of your packages that belong to that project.)
+    BUT, if you place your component in a ``_resources`` folder, it can be used only in your project - that is, ONLY in any one of your packages that belong to that project. For more information, check the :ref:`genro_webpage_resources` documentation page.
     
 .. _components_requirements:
 
@@ -69,9 +67,9 @@ Active and passive components
 
     We can distighuish between active and passive components:
     
-    * **Active components**: the components that override the main method.
+    * **active components**: these components override the main method.
     
-    * **Passive components**: the components that doesn't have their own main method.
+    * **passive components**: these components don't have their own main method.
     
     Usually, a single component is *active* OR *passive*, but this is merely our convention. You can create a component that is BOTH *active* and *passive*.
 
@@ -84,5 +82,6 @@ List of all the components
 
 **Footnotes**:
 
+.. [#] As you can see in the image, a Genro :ref:`genro_structure_mainproject` is composed by four main folders, that are: :ref:`genro_instances_index`, :ref:`genro_packages_index`, :ref:`genro_resources_index`, :ref:`genro_sites_index` - click on these links for more informations about a project and its subfolders.
 .. [#] Obviously, if you create a component please remember to put in the right place! (Check the :ref:`components_location` paragraph for more information on the component positioning)
     

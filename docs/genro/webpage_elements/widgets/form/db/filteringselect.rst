@@ -38,12 +38,12 @@ Attributes
 
     **filteringSelect attributes**:
     
-    * ``ignoreCase``: If True, user can write in filteringSelect ignoring the case. Default value is ``True``.
+    * *ignoreCase*: If True, user can write in filteringSelect ignoring the case. Default value is ``True``.
     
     To fill a filteringSelect, you can use one of these two attributes:
     
-    * ``storepath``: specify a path from which the filteringSelect will get values. For more information, check the :ref:`bag_example` example.
-    * ``values``: Set all the possible values for user choice. For more information, check the example below_.
+    * *storepath*: specify a path from which the filteringSelect will get values. For more information, check the :ref:`bag_example` example.
+    * *values*: Set all the possible values for user choice. For more information, check the example below_.
     
     **Common attributes**:
     
@@ -114,6 +114,6 @@ Filling a filteringSelect through "values" attribute
                                      values="""SC:Soccer,BK:Basket,HK:Hockey,
                                      TE:Tennis,BB:Baseball,SB:Snowboard""")
                                      
-    .. note:: Pay attention not to confuse *value* with ``values``: *value* is used to allocate user data in a well determined :ref:`genro_datapath`, while ``values`` is used to fill the filteringSelect.
+    .. note:: Pay attention not to confuse *value* with *values*: *value* is used to allocate user data in a well determined :ref:`genro_datapath`, while *values* is used to fill the filteringSelect.
     
     .. warning:: Unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :ref:`genro_validations`).

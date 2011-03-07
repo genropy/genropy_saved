@@ -19,6 +19,7 @@ project structure help
                 * :ref:`packages_menu`
                 * :ref:`packages_model`
                 * :ref:`packages_webpages`
+                    * :ref:`genro_webpage_resources`
         * :ref:`genro_resources_index`
         * :ref:`genro_sites_index`
             * :ref:`sites_sites_name`

@@ -38,9 +38,9 @@ Attributes
     
     **combobox attributes**:
     
-    * ``hasDownArrow``: If True, create the selection arrow. Default value is ``True``.
-    * ``ignoreCase``: If True, user can write ignoring the case. Default value is ``True``.
-    * ``values``: Set all the possible values for user choice. Default value is ``None``. For more information, check the :ref:`values-attribute` example
+    * *hasDownArrow*: If True, create the selection arrow. Default value is ``True``.
+    * *ignoreCase*: If True, user can write ignoring the case. Default value is ``True``.
+    * *values*: Set all the possible values for user choice. Default value is ``None``. For more information, check the :ref:`values-attribute` example
     
     **Common attributes**:
     
@@ -59,7 +59,7 @@ Examples
     .. _values:
     .. _values-attribute:
 
-Fill comboBox through ``values`` attribute
+Fill comboBox through *values* attribute
 ==========================================
 
     You can add values to combobox using the "values" attribute; check this example for the correct syntax::
@@ -68,7 +68,7 @@ Fill comboBox through ``values`` attribute
             def main(self,root,**kwargs):
                 root.combobox(value='^.record.values',values='Football,Golf,Karate')
 
-    .. note:: Pay attention not to confuse *value* with ``values``: *value* is used to allocate user data in a well determined :ref:`genro_datapath`, while ``values`` is used to fill the comboBox.
+    .. note:: Pay attention not to confuse *value* with *values*: *value* is used to allocate user data in a well determined :ref:`genro_datapath`, while *values* is used to fill the comboBox.
 
     .. _here:
     .. _Bag:

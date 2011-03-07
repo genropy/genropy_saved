@@ -34,8 +34,8 @@ other methods
     
 .. _gnrwebutils_classes:
 
-:mod:`gnrwebutils` - The complete reference list
-================================================
+:mod:`gnr.web.gnrwebutils` - The complete reference list
+========================================================
 
 .. automodule:: gnr.web.gnrwebutils
     :members:

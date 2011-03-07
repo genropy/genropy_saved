@@ -4,9 +4,10 @@
 ``webpages``
 ============
 
-    add??? In the ``webpages`` folder you can put your database :ref:`webpages_webpages`\s.
+    In the ``webpages`` folder you can put the :ref:`webpages_webpages`\s and the :ref:`genro_css`
     
 .. toctree::
     :maxdepth: 1
     
+    _resources/index
     webpages

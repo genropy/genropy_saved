@@ -78,8 +78,8 @@
 
 .. _gnrwsgisite_classes:
 
-:mod:`gnrwsgisite` - The complete reference list
-================================================
+:mod:`gnr.web.gnrwsgisite` - The complete reference list
+========================================================
 
 .. automodule:: gnr.web.gnrwsgisite
     :members:

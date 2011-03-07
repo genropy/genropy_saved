@@ -1,8 +1,8 @@
 .. _genro_library_gnrwebpage:
 
-==========================
+=========================
 :mod:`gnr.web.gnrwebpage`
-==========================
+=========================
 
 .. warning:: TO BE DONE!!! add???
 
@@ -24,8 +24,8 @@
 
 .. _gnrwebpage_classes:
 
-:mod:`gnrwebpage` - The complete reference list
-===============================================
+:mod:`gnr.web.gnrwebpage` - The complete reference list
+=======================================================
 
 .. automodule:: gnr.web.gnrwebpage
     :members:
