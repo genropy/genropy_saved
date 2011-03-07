@@ -704,6 +704,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         } else {
             changes.setItem(changekey, null);
         }
+        dojo.forEach(changes.getNodes(),function(n){
+            if((changekey!=n.label) && (n.label.indexOf(changekey)==0)){
+                changes.popNode(n.label);
+            }
+        });
         this.updateStatus();
     },
     getChangeKey:function(changekey) {
