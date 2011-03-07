@@ -1,11 +1,10 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
+#  rml.py
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 # --------------------------- GnrWebPage subclass ---------------------------
 from gnr.web.gnrwebpage_plugin.gnrbaseplugin import GnrBasePlugin

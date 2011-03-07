@@ -20,10 +20,9 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-"""
-Created by Giovanni Porcari on 2007-03-24.
-Copyright (c) 2007 Softwell. All rights reserved.
-"""
+#Created by Giovanni Porcari on 2007-03-24.
+#Copyright (c) 2007 Softwell. All rights reserved.
+
 import os
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrstring import  splitAndStrip, slugify
@@ -108,6 +107,7 @@ class BaseWebtool(object):
     pass
         
 class TableScriptToHtml(BagToHtml):
+    """add???"""
     rows_table = None
     virtual_columns = None
         

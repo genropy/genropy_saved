@@ -1,11 +1,11 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
+#  utils.py
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
+
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 import os
 import urllib

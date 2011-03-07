@@ -5,7 +5,6 @@
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 '''
 Character width dictionary and convenience functions for column sizing

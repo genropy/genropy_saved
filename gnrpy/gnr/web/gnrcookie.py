@@ -170,10 +170,10 @@ class SignedCookie(Cookie):
     def parse(Class, s, secret, mismatch=Cookie.DOWNGRADE, **kw):
         """add???
         
-        :parse Class: add???
-        :parse s: add???
-        :parse secret: add???
-        :parse mismatch: add???. Default valus is ``Cookie.DOWNGRADE``
+        :param Class: add???
+        :param s: add???
+        :param secret: add???
+        :param mismatch: add???. Default valus is ``Cookie.DOWNGRADE``
         :returns: add???
         """
         dict = _parse_cookie(s, Class, **kw)

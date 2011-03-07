@@ -1,11 +1,10 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
+#  pluginhandler.py
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 import os
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy

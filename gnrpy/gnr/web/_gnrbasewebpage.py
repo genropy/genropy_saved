@@ -20,13 +20,11 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+#_gnrbasewebpage.py
 
-"""
-_gnrbasewebpage.py
+#Created by Giovanni Porcari on 2007-03-24.
+#Copyright (c) 2007 Softwell. All rights reserved.
 
-Created by Giovanni Porcari on 2007-03-24.
-Copyright (c) 2007 Softwell. All rights reserved.
-"""
 import os
 import sys
 import time

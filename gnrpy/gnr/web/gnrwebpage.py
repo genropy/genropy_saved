@@ -20,11 +20,9 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+#Created by Giovanni Porcari on 2007-03-24.
+#Copyright (c) 2007 Softwell. All rights reserved.
 
-"""
-Created by Giovanni Porcari on 2007-03-24.
-Copyright (c) 2007 Softwell. All rights reserved.
-"""
 import urllib
 from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
@@ -121,6 +119,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._call_kwargs = request_kwargs or {}
             
     def onPreIniting(self, *request_args, **request_kwargs):
+        """add???"""
         pass
             
     def _check_page_id(self, page_id=None, kwargs=None):
@@ -337,26 +336,52 @@ class GnrWebPage(GnrBaseWebPage):
         return (login, loginPars)
         
     def onInit(self):
+        """add???"""
         # subclass hook
         pass
         
     def onIniting(self, request_args, request_kwargs):
-        """Callback onIniting called in early stages of page initialization"""
+        """Callback onIniting called in early stages of page initialization
+        
+        :param request_args: add???
+        :param request_kwargs: add???
+        """
         pass
         
     def onSaving(self, recordCluster, recordClusterAttr, resultAttr=None):
+        """add???
+        
+        :param recordCluster: add???
+        :param recordClusterAttr: add???
+        :param resultAttr: add???. Default value is ``None``
+        """
         pass
         
     def onSaved(self, record, resultAttr=None, **kwargs):
+        """add???
+        
+        :param record: add???
+        :param resultAttr: add???. Default value is ``None``
+        """
         pass
         
     def onDeleting(self, recordCluster, recordClusterAttr):
+        """add???
+        
+        :param recordCluster: add???
+        :param recordClusterAttr: add???
+        """
         pass
         
     def onDeleted(self, record):
+        """add???
+        
+        :param record: add???
+        """
         pass
         
     def onBegin(self):
+        """add???"""
         pass
         
     def _onBegin(self):
@@ -364,6 +389,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._publish_event('onBegin')
         
     def onEnd(self):
+        """add???"""
         pass
         
     def getService(self, service_type):
@@ -464,6 +490,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._htmlHeaders.append('<%s %s>%s</%s>' % (tag, attrString, innerHtml, tag))
         
     def htmlHeaders(self):
+        """add???"""
         pass
         
     def _get_pageArgs(self):
@@ -593,7 +620,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param _expiry: add???. Default value is ``None``
-        :param host: add???. Default value is ``None``
+        :param _host: add???. Default value is ``None``
         :param method: add???. Default value is ``root``
         :returns: add???
         """
@@ -728,49 +755,54 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def subscribedTablesDict(self):
-        """return a dict of subscribed tables. Every element is a list
+        """Return a dict of subscribed tables. Every element is a list
            of *page_id*\'s that subscribe that page"""
         if not hasattr(self, '_subscribedTablesDict'):
             self._subscribedTablesDict = self.db.table('adm.served_page').subscribedTablesDict()
         return self._subscribedTablesDict
-
+        
     @property
     def application(self):
+        """add???"""
         return self.site.gnrapp
-
+        
     @property
     def app(self):
+        """add???"""
         if not hasattr(self, '_app'):
             self._app = GnrWebAppHandler(self)
         return self._app
-
+        
     @property
     def btc(self):
+        """add???"""
         if not hasattr(self, '_btc'):
             self._btc = GnrWebBatch(self)
         return self._btc
-
-        #
+        
     @property
     def catalog(self):
+        """add???"""
         return self.application.catalog
-
+        
     @property
     def userTags(self):
+        """add???"""
         return self.connection.user_tags
-
+        
     @property
     def user(self):
+        """add???"""
         return self.connection.user
-
-
+        
     @property
     def connection_id(self):
+        """add???"""
         return self.connection.connection_id
-
+        
     def _set_avatar(self, avatar):
         self._avatar = avatar
-
+        
     def _get_avatar(self):
         if self.isGuest:
             return
@@ -780,17 +812,31 @@ class GnrWebPage(GnrBaseWebPage):
             self._avatar = self.application.getAvatar(self.user, tags=connection.user_tags, page=self,
                                                       **avatar_extra)
         return self._avatar
-
+        
     avatar = property(_get_avatar, _set_avatar)
-
-
+        
     def checkPermission(self, pagepath, relative=True):
+        """add???
+        
+        :param pagepath: add???
+        :param relative: add???. Default value is ``True``
+        :returns: add???
+        """
         return self.application.checkResourcePermission(self.auth_tags, self.userTags)
-
+        
     def get_css_theme(self):
+        """add???
+        
+        :returns: add???
+        """
         return self.css_theme
-
+        
     def get_css_path(self, requires=None):
+        """Get the css path included in the :ref:`webpages_css_requires`.
+        
+        :param requires: If None, get the css_requires string included in a :ref:`webpages_webpages`
+        :returns: add???
+        """
         requires = [r for r in (requires or self.css_requires) if r]
         css_theme = self.get_css_theme()
         if css_theme:
@@ -818,8 +864,12 @@ class GnrWebPage(GnrBaseWebPage):
         if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
             css_requires.append('%s.css' % self.pagename)
         return css_requires, css_media_requires
-
+        
     def onServingCss(self, css_requires):
+        """add???
+        
+        :param: add???
+        """
         pass
 
     def getResourceUri(self, path, ext=None, add_mtime=False):
