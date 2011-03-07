@@ -184,11 +184,6 @@ class TableHandler(BaseComponent):
         d.div(position='absolute', top='28px', right='4px',
               bottom='4px', left='4px').includedView(storepath='%s.errors' % resultpath, struct=struct)
 
-
-    #def rpc_setViewColumns(self, gridId=None, relation_path=None, query_columns=None, **kwargs):
-    #    self.app.setContextJoinColumns(self.maintable, contextName='sql_record', reason=gridId,
-    #                                   path=relation_path, columns=query_columns)
-
     def xmlDebug(self, bag, filename):
         bag.toXml(self.pageLocalDocument('%s.xml' % filename))
 
