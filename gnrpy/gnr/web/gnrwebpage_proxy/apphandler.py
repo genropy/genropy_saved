@@ -261,38 +261,38 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self.page.getPublicMethod('rpc', joinBag['applymethod'])(record, **applyPars)
         return (record, recInfo)
 
-    def setContextJoinColumns(self, table, contextName='', reason=None, path=None, columns=None):
-        tblobj = self.db.table(table)
-        relation = tblobj.model.getRelation(path)
-        if not relation:
-            return
-        target_fld = relation['many'].replace('.', '_')
-        from_fld = relation['one'].replace('.', '_')
-        ctxpath = '_sqlctx.columns.%s.%s_%s' % (contextName, target_fld, from_fld)
-        with self.page.pageStore() as store:
-            reasons = store.getItem('%s._reasons' % ctxpath)
-            if reasons is None:
-                reasons = Bag()
-                store.setItem('%s._reasons' % ctxpath, reasons)
-            reasons.setItem(reason or '*', columns)
-            query_set = set()
-            for columns in reasons.values():
-                query_set.update(columns.split(','))
-            store.setItem(ctxpath, ','.join(query_set))
+  #def setContextJoinColumns(self, table, contextName='', reason=None, path=None, columns=None):
+  #    tblobj = self.db.table(table)
+  #    relation = tblobj.model.getRelation(path)
+  #    if not relation:
+  #        return
+  #    target_fld = relation['many'].replace('.', '_')
+  #    from_fld = relation['one'].replace('.', '_')
+  #    ctxpath = '_sqlctx.columns.%s.%s_%s' % (contextName, target_fld, from_fld)
+  #    with self.page.pageStore() as store:
+  #        reasons = store.getItem('%s._reasons' % ctxpath)
+  #        if reasons is None:
+  #            reasons = Bag()
+  #            store.setItem('%s._reasons' % ctxpath, reasons)
+  #        reasons.setItem(reason or '*', columns)
+  #        query_set = set()
+  #        for columns in reasons.values():
+  #            query_set.update(columns.split(','))
+  #        store.setItem(ctxpath, ','.join(query_set))
 
     def rpc_getRelatedSelection(self, from_fld, target_fld, relation_value=None,
                                 columns='', query_columns=None,
                                 condition=None, js_resolver_one='relOneResolver',
                                 sqlContextName=None, **kwargs):
-        if columns:
-            raise 'COLUMNS PARAMETER NOT EXPECTED!!'
+        if query_columns:
+            print 'QUERY COLUMNS PARAMETER NOT EXPECTED!!'
         columns = columns or query_columns
         t = time.time()
         joinBag = None
         if sqlContextName:
             joinBag = self._getSqlContextConditions(sqlContextName, target_fld=target_fld, from_fld=from_fld)
-            if not columns:
-                columns = self._getSqlContextColumns(sqlContextName, target_fld=target_fld, from_fld=from_fld)
+          # if not columns:
+          #     columns = self._getSqlContextColumns(sqlContextName, target_fld=target_fld, from_fld=from_fld)
 
         columns = columns or '*'
         pkg, tbl, related_field = target_fld.split('.')
@@ -450,10 +450,10 @@ class GnrWebAppHandler(GnrBaseProxy):
             result = result[('%s_%s' % (target_fld, from_fld)).replace('.', '_')]
         return result
 
-    def _getSqlContextColumns(self, contextName, target_fld, from_fld):
-        result = self.page.pageStore().getItem('_sqlctx.columns.%s' % contextName)
-        if result:
-            return result[('%s_%s' % (target_fld, from_fld)).replace('.', '_')]
+   #def _getSqlContextColumns(self, contextName, target_fld, from_fld):
+   #    result = self.page.pageStore().getItem('_sqlctx.columns.%s' % contextName)
+   #    if result:
+   #        return result[('%s_%s' % (target_fld, from_fld)).replace('.', '_')]
 
     def _joinConditionsFromContext(self, obj, sqlContextName):
         sqlContextBag = self._getSqlContextConditions(sqlContextName)
