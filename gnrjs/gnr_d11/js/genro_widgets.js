@@ -35,19 +35,29 @@ gnr.setOrConnectCb = function(widget, name, cb) {
         widget[name] = cb;
     }
 };
+
 gnr.getGridColumns = function(storeNode) {
+    var storeNodeId,destFullpath;
+    
+    if(typeof(storeNode)=='string'){
+        destFullpath=storeNode;
+    }else{
+        storeNodeId=storeNode.attr.nodeId;
+    }
     var columns= {};
     var storeCode;
-    var nodeId=storeNode.attr.nodeId;
     genro.src._main.walk(function(n){
-        storeCode = n.attr.store || n.attr.nodeId;
-        if(storeCode+'_store'==nodeId){
-            n.widget.selectionKeeper('save');
-            var cols = n.getRelativeData('.columns').split(',');
-            dojo.forEach(cols,function(c){
-                columns[c] = c;
-            });
+        if(n.widget && n.widget.selectionKeeper){
+            storeCode = n.attr.store || n.attr.nodeId;
+            if((storeCode+'_store'==storeNodeId)||(destFullpath == n.widget.absStorepath())){
+                n.widget.selectionKeeper('save');
+                var cols = n.widget.query_columns.split(',');
+                dojo.forEach(cols,function(c){
+                    columns[c] = c;
+                });
+            }
         }
+        
     },'static')
     var result = '';
     for(var k in columns){
@@ -1909,24 +1919,10 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
         sourceNode.attr.nodeId = sourceNode.attr.nodeId || 'grid_' + sourceNode.getStringId();
         var relativeWorkspace= sourceNode.attr.controllerPath || sourceNode.attr.relativeWorkspace;
         sourceNode.gridControllerPath = relativeWorkspace ? sourceNode.absDatapath() : 'grids.' + sourceNode.attr.nodeId;
-        if (sourceNode.attr.configurable) {
-            sourceNode.attr.selfDragColumns = 'trashable';
-            var tablecode = sourceNode.attr.table.replace('.', '_');
-            sourceNode.attr['onDrop_gnrdbfld_' + tablecode] = function(dropInfo, data) {
-                var grid = this.widget;
-                grid.addColumn(data, dropInfo.column);
-                if (grid.rowCount > 0) {
-                    setTimeout(function() {
-                        grid.reload();
-                    }, 1);
-                }
-            };
-            sourceNode.attr.dropTarget_column = sourceNode.attr.dropTarget_column ? sourceNode.attr.dropTarget_column + ',' + 'gnrdbfld_' + tablecode : 'gnrdbfld_' + tablecode;
-        }
         if (sourceNode.attr.selfDragRows) {
             this.selfDragRowsPrepare(sourceNode);
         }
-        if (sourceNode.attr.selfDragColumns) {
+        if (sourceNode.attr.selfDragColumns || sourceNode.attr.configurable) {
             this.selfDragColumnsPrepare(sourceNode);
         }
         var savedAttrs = objectExtract(attributes, 'selected*');
@@ -1955,9 +1951,9 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
             sourceNode.baseStructBag = structBag.deepCopy();
         }
         if (genro.grid_configurator) {
-            genro.grid_configurator.onStructCreating(sourceNode);
+            structBag = genro.grid_configurator.onStructCreating(sourceNode,structBag);
         }
-        attributes.structBag = structBag;
+        attributes.structBag = structBag; 
         sourceNode.registerDynAttr('structpath');
         attributes.cellmap = {};
         attributes.structure = this.structFromBag(sourceNode, attributes.structBag, attributes.cellmap);
@@ -1970,10 +1966,16 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
     },
     created_common:function(widget, savedAttrs, sourceNode) {
         var nodeId = sourceNode.attr.nodeId;
-        if (genro.grid_configurator) {
-            genro.grid_configurator.onGridCreated(sourceNode);
-        }
         var gridContent = sourceNode.getValue();
+        if (genro.grid_configurator) {
+            dojo.connect(widget,'newDataStore',function(){
+                if(sourceNode.attr.configurable && !sourceNode._gridConfiguratorBuilt){
+                    genro.grid_configurator.addGridConfigurator(sourceNode);
+                }
+            });
+            //genro.grid_configurator.onGridCreated(sourceNode);
+        }
+        
         if (gridContent instanceof gnr.GnrBag) {
             var gridEditorNode = gridContent.getNodeByAttr('tag', 'grideditor',true);
             if (gridEditorNode) {
@@ -3257,9 +3259,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
 
     mixin_onSetStructpath: function(structBag) {
         this.query_columns = this.gnr.getQueryColumns(this.sourceNode, structBag);
-        if (this.rpcViewColumns) {
-            this.rpcViewColumns.call();
-        }
+       //if (this.rpcViewColumns) {
+       //    this.rpcViewColumns.call();
+       //}
 
         //var columns = gnr.columnsFromStruct(structure);
         //   if(this.sourceNode.hiddencolumns){
@@ -3301,9 +3303,12 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
     },
     mixin_dataNodeByIndex:function(inRowIndex) {
         inRowIndex = this.absIndex(inRowIndex);
-        var nodes = this.storebag().getNodes();
-        if (nodes.length > inRowIndex) {
-            return nodes[inRowIndex];
+        var storebag = this.storebag();
+        if(storebag instanceof gnr.GnrBag){
+            var nodes = storebag.getNodes();
+            if (nodes.length > inRowIndex) {
+                return nodes[inRowIndex];
+            };
         }
     },
     mixin_getSelectedNodes: function() {
@@ -3635,19 +3640,23 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         this.creating_structure(attributes, sourceNode);
         sourceNode.registerDynAttr('storepath');
         attributes.query_columns = this.getQueryColumns(sourceNode, attributes.structBag);
-        var inAttrs = sourceNode.getInheritedAttributes();
-        var ctxRoot = sourceNode.absDatapath(inAttrs.sqlContextRoot);
-        var abs_storepath = sourceNode.absDatapath(sourceNode.attr.storepath);
-        var relation_path = abs_storepath;
-        if (abs_storepath.indexOf(ctxRoot) == 0) {
-            relation_path = abs_storepath.replace(ctxRoot + '.', '');
-        }
-        attributes.relation_path = relation_path;
-        attributes.sqlContextName = inAttrs['sqlContextName'];
-        attributes.sqlContextTable = inAttrs['sqlContextTable'];
+        //var inAttrs = sourceNode.getInheritedAttributes();
+        //var ctxRoot = sourceNode.absDatapath(inAttrs.sqlContextRoot);
+       //var abs_storepath = sourceNode.absDatapath(sourceNode.attr.storepath);
+       //attributes['abs_storepath'] = abs_storepath;
+       //var relation_path = abs_storepath;
+       //if (abs_storepath.indexOf(ctxRoot) == 0) {
+       //    relation_path = abs_storepath.replace(ctxRoot + '.', '');
+       //}
+       //attributes.relation_path = relation_path;
+        //attributes.sqlContextName = inAttrs['sqlContextName'];
+        //attributes.sqlContextTable = inAttrs['sqlContextTable'];
         if (attributes.excludeListCb) {
             attributes.excludeListCb = funcCreate(attributes.excludeListCb);
         }
+    },
+    mixin_absStorepath:function(){
+        return this.sourceNode.absDatapath(this.sourceNode.attr.storepath);
     },
 
     getQueryColumns:function(sourceNode, structure) {
@@ -3716,7 +3725,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         if (sourceNode.attr.multiSelect == false) {
             widget.selection.multiSelect = false;
         }
-        widget.rpcViewColumns();
+        //widget.rpcViewColumns();
         widget.updateRowCount('*');
     },
     mixin_structbag:function() {
@@ -3763,14 +3772,14 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     mixin_setEditorEnabled: function(enabled) {
         this.editorEnabled = enabled;
     },
-    mixin_rpcViewColumns: function() {
-        if ((this.relation_path) && (this.relation_path.indexOf('@') == 0)) {
-            genro.rpc.remoteCall('setViewColumns', {query_columns:this.query_columns,
-                contextName:this.sqlContextName,
-                contextTable:this.sqlContextTable,
-                relation_path:this.relation_path});
-        }
-    }
+   //mixin_rpcViewColumns: function() {
+   //    if ((this.relation_path) && (this.relation_path.indexOf('@') == 0)) {
+   //        genro.rpc.remoteCall('setViewColumns', {query_columns:this.query_columns,
+   //            contextName:this.sqlContextName,
+   //            contextTable:this.sqlContextTable,
+   //            relation_path:this.relation_path});
+   //    }
+   //}
 });
 
 dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
@@ -3826,7 +3835,6 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             this._collectionStore = storeNode.store;
             var that = this;
             storeNode.subscribe('updateRows',function(){
-                console.log('bingo');
                 that.updateRowCount();
             });
             
@@ -3836,14 +3844,13 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             if(store._scroll_timeout){
                 clearTimeout(store._scroll_timeout)
             }else{
-                console.log('startScroll',store)
                 store.isScrolling=true
             }
             store._scroll_timeout=setTimeout(function(){
                 store.isScrolling=false;
                 store._scroll_timeout=null;
                 storeNode.publish('updateRows');
-                console.log('endScroll',store)},500);
+                },500);
             }, true);
             
         }
