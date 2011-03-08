@@ -154,7 +154,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.publish('navigationEvent',{'command':'dismiss',modifiers:modifiers});
     },
     resetChanges: function() {
-        var sourceNode = genro.nodeById(this.formId);
         this.getFormData().subscribe('dataLogger',{'upd':dojo.hitch(this, "triggerUPD"),
                                                    'ins':dojo.hitch(this, "triggerINS"),
                                                    'del':dojo.hitch(this, "triggerDEL")
@@ -577,7 +576,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     _getRecordCluster: function(record, changesOnly, result, removed, parentpath) {
         if (record) {
-            var parentpath = parentpath || genro.nodeById(this.formId).absDatapath('');
+            var parentpath = parentpath || this.sourceNode.absDatapath(this.formDatapath);
             var data = new gnr.GnrBag();
             data.__isRealChange = false;
             var node, sendBag, value, currpath, sendback;
