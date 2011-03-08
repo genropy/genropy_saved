@@ -266,6 +266,7 @@ class GnrHtmlBuilder(object):
         self.htmlBag = self.root.html()
         self.head = self.htmlBag.head()
         self.body = self.htmlBag.body(**bodyAttributes)
+        self.head.meta(http_equiv="Content-Type", content="text/html; charset=UTF-8")
         self.body.style("""
                         .no_print{
                             display:none;
@@ -404,7 +405,6 @@ class GnrHtmlBuilder(object):
         if sys.platform.startswith('linux'):
             res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '%s.%s'%(filename, 'html'), filename])
         else:
-            print x
             res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '%s.%s'%(filename, 'html'), filename])
             
     def calculate_style(self, attr, um, **kwargs):
