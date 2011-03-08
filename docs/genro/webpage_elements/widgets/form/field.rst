@@ -1,4 +1,4 @@
-	.. _genro_field:
+.. _genro_field:
 
 =====
 field
@@ -21,7 +21,7 @@ Definition
 Description
 ===========
 
-    *field* is used to view and select data included in a database :ref:`model_table` (and, eventually, modify them).
+    *field* is used to view, select and modify data included in a database :ref:`model_table`.
 
     Its type is inherited from the type of data contained in the table to which *field* refers. For example, if *field* catches data from a :ref:`genro_numbertextbox`, its type is actually a ``numberTextbox``.
 
@@ -36,7 +36,7 @@ Description
     
     * :ref:`first_one`
     * the :ref:`second_one`
-    * :ref:`third_one`
+    * :ref:`second_one`
     
 .. _field_attributes:
 
@@ -45,19 +45,29 @@ Attributes
     
     **field attributes**:
     
-    * *field*: MANDATORY - the field's query path; the complete syntax is ``packageName.tableName.tableAttributeName``. It can be used in a combo with ``dbtable`` (a ``formbuilder`` attribute) and with the ``maintable``
-    * *limit*: The max number of rows displayed in a field as response to user request. The last line is always a line with no characters, so user can choose it to not perform his request
-    * *lbl*: Set the Field label. Properly, "lbl" is a formbuilder's child attribute, so if you don't specify it, then *field* will inherit it from the :ref:`genro_name_long` attribute of the requested data
-    * *rowcaption*: Allow user to view records through the record's :ref:`genro_name_long` value. Check for more information on :ref:`genro_database_rowcaption` page
-    * *zoom*: Allow to open the linked record in its :ref:`model_table`. For further details, check the :ref:`genro_zoom` page
-    
+    * *field*: MANDATORY - the field's query path; the complete syntax is ``packageName.tableName.tableAttributeName``.
+      It can be used in a combo with *dbtable* attribute (a ``formbuilder`` attribute) and with the ``maintable``.
+      For more information, check the :ref:`webpages_maintable` section.
+    * *limit*: The max number of rows displayed in a field as response to user request.
+      The last line is always a line with no characters, so user can choose it to not perform his request
+    * *lbl*: Set the Field label. Properly, "lbl" is a formbuilder's child attribute, so if you don't specify
+      it, then *field* will inherit it from the :ref:`genro_name_long` attribute of the requested data
+    * *rowcaption*: Allow user to view records through the record's :ref:`genro_name_long` value. Check for
+      more information on :ref:`genro_database_rowcaption` page
+    * *zoom*: Allow to open the linked record in its :ref:`model_table`. For further details, check the
+      :ref:`genro_zoom` page
+      
     **Common attributes**:
     
-    * *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
-    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
-    * *visible*: if False, hide the widget (but keep a place in the :ref:`genro_datastore` for it). For more information, check the :ref:`genro_visible` documentation page
-    
+    * *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information,
+      check the :ref:`genro_disabled` documentation page
+    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
+      check the :ref:`genro_hidden` documentation page
+    * *label*: You can't use the *label* attribute; if you want to give a label to your widget,
+      check the :ref:`lbl_formbuilder` example
+    * *visible*: if False, hide the widget (but keep a place in the :ref:`genro_datastore` for it).
+      For more information, check the :ref:`genro_visible` documentation page
+
 .. _field_examples:
 
 Examples
@@ -65,17 +75,17 @@ Examples
 
 .. _first_one:
 
-dbtable on the formbuilder
-==========================
+*dbtable* on the formbuilder
+============================
 
-    You can set the ``dbtable`` attribute on the formbuilder, like::
+    You can set the *dbtable* attribute on the formbuilder, like::
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
                 fb = root.formbuilder(datapath='test1',dbtable='showcase.cast')
                 
     where ``showcase`` is the name of the package and ``cast`` is the name of the ``table``. At this point, the field will be like::
-    
+                
                 fb.field('person_id',rowcaption='$name')
                 
     So, the first value of the field contains the name of the attribute you want to save in the :ref:`genro_datastore` (for rowcaption explanation, check :ref:`field_attributes`).
@@ -96,8 +106,8 @@ maintable
                 fb.field('person_id',rowcaption='$name')
                 
     If you have more than one ``formbuilder``, the ``maintable`` is being applied to EVERY ``formbuilder``.
-    
-.. _third_one:
+
+.. _second_one:
 
 internal dbtable
 ================
@@ -109,4 +119,4 @@ internal dbtable
                 fb = root.formbuilder(datapath='test3')
                 fb.field('showcase.cast.person_id',rowcaption='$name')
 
-    In this example, the first *field* attribute (its query-path) has the syntax ``packageName.tableName.tableAttributeName``. Genro trasforms the *field* into a ``dbselect``, splitting the query-path in two: ``packageName.tableName`` will go as the string applied to the ``dbtable`` attribute, while the ``tableAttributeName`` will go as the string applied to the *value* attribute. So, the path of field value will be ``/test1/person_id/ID``, where ``test1`` is the name we chose for the datapath, ``person_id`` is the name of the attribute we chose for user query contained in the database model called ``cast`` and the ID is the record ID.
+    In this example, the first *field* attribute (its query-path) has the syntax ``packageName.tableName.tableAttributeName``. Genro trasforms the *field* into a ``dbselect``, splitting the query-path in two: ``packageName.tableName`` will go as the string applied to the *dbtable* attribute, while the ``tableAttributeName`` will go as the string applied to the *value* attribute. So, the path of field value will be ``/test1/person_id/ID``, where ``test1`` is the name we chose for the datapath, ``person_id`` is the name of the attribute we chose for user query contained in the database model called ``cast`` and the ID is the record ID.

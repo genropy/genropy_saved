@@ -13,26 +13,26 @@ The build phase
     
     In practice, GenroPy behaves in this way:
     
-    1. The client makes the HTTP request page ``foo`` through :ref:`genro_wsgi` site::
+    #. The client makes the HTTP request page ``foo`` through :ref:`genro_wsgi` site::
     
         client ----------- HTTP ----------> server (wsgisite)
         
-    2. GenroPy sends a standard blank page, which contains practically only the engine ``gnrjs``::
+    #. GenroPy sends a standard blank page, which contains practically only the engine ``gnrjs``::
     
         client <----- Javascript engine --- server (wsgisite)
         
-    3. The JavaScript engine calls the server page content, that is a server side Python function called the ``main`` of ``WebPage`` ::
+    #. The JavaScript engine calls the server page content, that is a server side Python function called the ``main`` of ``WebPage`` ::
     
-        js engine ------- ready ----------> server (page ``main.py``)
+        js engine ------- ready ----------> server
         
-    4. The server sends a description of the page content in high level in terms of widgets, and content of the :ref:`genro_datastore` in the form of bags::
+    #. The server sends a description of the page content in high level in terms of widgets, and content of the :ref:`genro_datastore` in the form of bags::
         
         page js <-------- bags ------------ page python
         
-    5. From then on, the communication proceeds primarily doing updates to the datastore (or user interface) using the functions rpc::
+    #. From then on, the communication proceeds primarily doing updates to the datastore (or user interface) using the functions rpc::
     
         page js <- dataRpc() or remote() -> page python
-
+        
     Genro creates a :ref:`genro_bag_intro` using genropy syntax and this ``Bag`` is sent as XML to the client. In the client, widgets and html elements [#]_ will be stored in the struct bag (??? find a name for the struct Bag!), while data elements will be placed in the :ref:`genro_datastore`.
 
     When the XML arrives and the two bags are created a builder is started that will use the struct bag to create html and dojo elements. The builder will also 'link' data bag with the related widgets using the '^' syntax [#]_.

@@ -4,7 +4,7 @@
 table
 =====
 
-    .. warning:: completerly to redo!
+    .. warning:: completely to redo!
     
     * :ref:`table_definition`
     * :ref:`table_description`

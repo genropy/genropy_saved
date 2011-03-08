@@ -1,6 +1,6 @@
-======================
-:mod:`gnr.core.gnrsys`
-======================
+===================
+``gnr.core.gnrsys``
+===================
 
 * Index of ``gnr.core.gnrsys`` classes:
 

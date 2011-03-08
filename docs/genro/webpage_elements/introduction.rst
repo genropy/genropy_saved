@@ -42,7 +42,6 @@ Introduction to Genro webpage elements
     * **controller elements** - They receive input and initiate a response by making calls on model objects.
         
         * Check the :ref:`genro_controllers_intro`;
-        * list of :ref:`genro_datacontroller-index`.
+        * list of :ref:`genro_datacontroller_index`.
         
-    For further details on a creation of a webpage, please check :ref:`genro_webpage`.
-    
+    For further details on a creation of a webpage, please check :ref:`genro_webpage`.    

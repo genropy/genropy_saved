@@ -1,8 +1,8 @@
 .. _genro_widgets_introduction:
 
-=================================
- Introduction to widget elements
-=================================
+===============================
+Introduction to widget elements
+===============================
 
     .. note:: We recommend you to read the :ref:`genro_datapath` paragraph before reading this section, because every widget is able to save its values through the *datapath* and *value* attributes.
 

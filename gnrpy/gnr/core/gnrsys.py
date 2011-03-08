@@ -23,10 +23,10 @@
 import os
 
 def mkdir(path, privileges=0777):
-    """add???
+    """Create a directory named *path* with numeric mode *privileges*.
     
-    :param path: add???
-    :param priviliges: add???. Default value is ``0777``
+    :param path: the name of the directory
+    :param privileges: the current umask value is first masked out. Default value is ``0777`` (octal)
     """
     if path and not os.path.isdir(path):
         head, tail = os.path.split(path)
@@ -34,9 +34,10 @@ def mkdir(path, privileges=0777):
         os.mkdir(path, privileges)
         
 def expandpath(path):
-    """add???
+    """Expand user home directory (~) and environment variables.
     
-    :param path: add???
+    :param path: the path to expand
+    :returns: the path expanded
     """
     return os.path.expanduser(os.path.expandvars(path))
     

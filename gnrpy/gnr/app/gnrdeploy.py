@@ -4,8 +4,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import expandpath
 
 class PathResolver(object):
-    """add???
-    """
+    """add???"""
     entities = dict(
             instance='instances',
             site='sites',
@@ -46,7 +45,7 @@ class PathResolver(object):
     def js_path(self, lib_type='gnr', version='11'):
         """add???
         
-        :param lyb_type: add???. Default value is ``gnr``
+        :param lib_type: add???. Default value is ``gnr``
         :param version: add???. Default value is ``11``
         :returns: add???
         """
@@ -138,15 +137,13 @@ class PathResolver(object):
             raise Exception('Error: Project Repository %s not found' % project_repository_name)
             
 class ProjectMaker(object):
-    """add???
-    """
+    """add???"""
     def __init__(self, project_name, base_path=None):
         self.project_name = project_name
         self.base_path = base_path or '.'
         
     def do(self):
-        """add???
-        """
+        """add???"""
         self.project_path = os.path.join(self.base_path, self.project_name)
         self.packages_path = os.path.join(self.project_path, 'packages')
         self.sites_path = os.path.join(self.project_path, 'sites')
@@ -158,9 +155,9 @@ class ProjectMaker(object):
                 
 class SiteMaker(object):
     """Handle the autocreation of the ``sites`` folder. To autocreate the ``sites`` folder, please type in your console::
-    
+        
         gnrmksite sitesname
-    
+        
     where ``sitesname`` is the name of your ``sites`` folder.
     """
     def __init__(self, site_name, base_path=None, resources=None, instance=None, dojo_version='11',
@@ -177,8 +174,7 @@ class SiteMaker(object):
         self.config = config
         
     def do(self):
-        """add???
-        """
+        """add???"""
         self.site_path = os.path.join(self.base_path, self.site_name)
         pages_path = os.path.join(self.site_path, 'pages')
         root_py_path = os.path.join(self.site_path, 'root.py')
@@ -201,8 +197,7 @@ def application(environ,start_response):
 if __name__ == '__main__':
     from gnr.web.server import NewServer
     server=NewServer(__file__)
-    server.run()
-""")
+    server.run()""")
             root_py.close()
         if not os.path.isfile(siteconfig_xml_path):
             if not self.config:
@@ -230,9 +225,9 @@ if __name__ == '__main__':
 
 class InstanceMaker(object):
     """Handle the autocreation of the ``instances`` folder. To autocreate the ``instances`` folder, please type in your console::
-    
+        
         gnrmkinstance instancesname
-    
+        
     where ``instancesname`` is the name of your ``instances`` folder.
     """
     def __init__(self, instance_name, base_path=None, packages=None, authentication=True, authentication_pkg=None,
@@ -261,8 +256,7 @@ class InstanceMaker(object):
         self.config = config
         
     def do(self):
-        """add???
-        """
+        """add???"""
         self.instance_path = os.path.join(self.base_path, self.instance_name)
         custom_path = os.path.join(self.instance_path, 'custom')
         data_path = os.path.join(self.instance_path, 'data')
@@ -300,9 +294,9 @@ class InstanceMaker(object):
             
 class PackageMaker(object):
     """Handle the autocreation of the ``packages`` folder. To autocreate the ``packages`` folder, please type in your console::
-    
+        
         gnrmkpackage packagesname
-    
+        
     where ``packagesname`` is the name of your ``packages`` folder.
     """
     def __init__(self, package_name, base_path=None, sqlschema=None,
@@ -350,13 +344,13 @@ class Package(GnrDboPackage):
     def config_attributes(self):
         return dict(comment='%(comment)s',sqlschema='%(sqlschema)s',
                 name_short='%(name_short)s', name_long='%(name_long)s', name_full='%(name_full)s')
-
+                
     def config_db(self, pkg):
         pass
-
+        
     def loginUrl(self):
         return '%(login_url)s'
-
+        
 class Table(GnrDboTable):
     pass
 """ % main_py_options)
@@ -382,22 +376,19 @@ class Table(object):
         #   L       long integer
         #   R       float
         #   T       text (can be omitted; you must not specify its size)
-        #   X       XML/Bag
-""")
+        #   X       XML/Bag""")
             examplemodel_py_example.close()
         if not os.path.exists(self.examplewebpage_py_example_path):
             examplewebpage_py_example = open(self.examplewebpage_py_example_path, 'w')
             examplewebpage_py_example.write("""# -*- coding: UTF-8 -*-
-
+            
 class GnrCustomWebPage(object):
     def main(self, root, **kwargs):
-        pass
-""")
+        pass""")
             examplewebpage_py_example.close()
-
+            
 class ResourceMaker(object):
-    """add???
-    """
+    """add???"""
     def __init__(self, resource_name, base_path=None):
         """add???
         
@@ -406,20 +397,18 @@ class ResourceMaker(object):
         """
         self.resource_name = resource_name
         self.base_path = base_path or '.'
-
+        
     def do(self):
-        """add???
-        """
+        """add???"""
         self.resource_path = os.path.join(self.base_path, self.resource_name)
         for path in (self.resource_path, ):
             if not os.path.isdir(path):
                 os.mkdir(path)
-
+                
 class ModWsgiMaker(object):
-    """add???
-    """
+    """add???"""
     pass
-
+        
 if __name__ == '__main__':
     pather = PathResolver()
     print pather.package_name_to_path('edicon')

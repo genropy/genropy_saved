@@ -24,30 +24,29 @@
 from gnr.core.gnrhtml import GnrHtmlSrc, GnrHtmlBuilder
 from gnr.web.gnrwebpage import GnrWebPage
 
-
 class GnrHtmlPage(GnrWebPage):
     srcfactory = GnrHtmlSrc
-
+    
     def __init__disabled_(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                           filepath=None, packageId=None, basename=None):
         self.packageId = packageId
         self.filepath = filepath
         self.site = site
-
+        
         self._call_args = request_args or tuple()
         self._call_kwargs = request_kwargs or {}
         self._user_login = None
         self._user = None
-
+        
     def main(self, *args, **kwargs):
         pass
-
+        
     def gnr_css(self):
         css_genro = self.get_css_genro()
         for css_media, css_link in css_genro.items():
             import_statements = ';\n'.join(css_link)
             self.builder.head.style(import_statements + ';', type="text/css", media=css_media)
-
+            
     def rootPage(self, *args, **kwargs):
         self.builder.initializeSrc(_class=self.theme)
         self.body = self.builder.body
@@ -58,11 +57,10 @@ class GnrHtmlPage(GnrWebPage):
             self.theme = kwargs.pop('pagetemplate')
         self.main(self.body, *args, **kwargs)
         return self.builder.toHtml()
-
+        
     def onIniting(self, request_args=None, request_kwargs=None):
         self.builder = GnrHtmlBuilder(srcfactory=self.srcfactory)
-
-
+        
 class GnrHtmlDojoSrc(GnrHtmlSrc):
     html_base_NS = ['a', 'abbr', 'acronym', 'address', 'area', 'base', 'bdo', 'big', 'blockquote',
                     'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
@@ -71,14 +69,14 @@ class GnrHtmlDojoSrc(GnrHtmlSrc):
                     'noscript', 'object', 'ol', 'optgroup', 'option', 'param', 'samp', 'select', 'style',
                     'sub', 'sup', 'table', 'tbody', 'textarea', 'tfoot', 'th', 'thead', 'title', 'tr', 'tt',
                     'ul', 'var']
-
+                    
     gnrNS = ['layout', 'row', 'cell']
-
+        
     html_autocontent_NS = ['div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'td', 'li', 'b', 'i', 'small', 'strong',
                            'p', 'pre', 'q', ]
-
+                           
     htmlNS = html_base_NS + html_autocontent_NS
-
+        
     widgetcatalog = {'CheckBox': 'dijit.form.CheckBox',
                      'RadioButton': 'dijit.form.CheckBox',
                      'ComboBox': 'dijit.form.ComboBox',
@@ -153,11 +151,10 @@ class GnrHtmlDojoSrc(GnrHtmlSrc):
     genroNameSpace.update(dict([(name.lower(), name) for name in gnrNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in widgetNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in gnr_dojoNS]))
-
-
+        
 class GnrHtmlDojoPage(GnrHtmlPage):
     srcfactory = GnrHtmlDojoSrc
-
+        
     def dojo(self, version=None, theme=None):
         theme = theme or self.theme
         version = version or self.dojo_version
@@ -168,7 +165,7 @@ class GnrHtmlDojoPage(GnrHtmlPage):
                 ['@import url("%s")' % self.site.dojo_static_url(version, 'dojo', f) for f in css_dojo])
         self.body.script(src=self.site.dojo_static_url(version, 'dojo', 'dojo', 'dojo.js'), djConfig=djConfig)
         self.builder.head.style(import_statements + ';\n', type="text/css")
-
+            
     def finalizeDojo(self):
         widgetcatalog = GnrHtmlDojoSrc.widgetcatalog
         dojorequire = {}
@@ -176,7 +173,7 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         if dojorequire:
             dojorequires = ''.join(dojorequire.values())
             self.builder.body.script(dojorequires)
-
+            
     def finalizeDojo_inner(self, src, widgetcatalog, dojorequire):
         for node in src:
             attr = node.attr
@@ -190,7 +187,7 @@ class GnrHtmlDojoPage(GnrHtmlPage):
                 attr['tag'] = 'div'
             if node_value and isinstance(node_value, GnrHtmlSrc):
                 self.finalizeDojo_inner(node_value, widgetcatalog, dojorequire)
-
+                
     def rootPage(self, *args, **kwargs):
         self.theme = kwargs.pop('theme', None) or self.theme
         pagetemplate = kwargs.pop('pagetemplate', None)
@@ -203,5 +200,3 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         result = self.builder.toHtml()
         #print result #commented out by Jeff
         return result
-        
-    

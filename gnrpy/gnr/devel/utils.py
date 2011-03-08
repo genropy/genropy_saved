@@ -2,11 +2,10 @@
 # encoding: utf-8
 """
 Available functionality:
-
+    
     * :class:`ProgressBar`, a class to draw text-based progressbars.
     * :class:`AutoDiscovery`, a class to auto-detect current instance, site, package and
-      project from ``GENROPY_xxx`` environment variables and/or the current working
-      directory.
+      project from ``GENROPY_xxx`` environment variables and/or the current working directory.
 """
 
 from __future__ import with_statement
@@ -25,8 +24,9 @@ from gnr.core.gnrbag import Bag
 ########################################################################
 
 def expandpath(path, full=False):
-    """Expand user home directory (~) and envioronment variables.
+    """Expand user home directory (~) and environment variables.
     
+    :param path: the path to expand
     :param full: boolean. If ``True``, returns a normalized path (see ``os.path.normpath``).
                  Default value is ``False``
     :returns: the path expanded
@@ -35,7 +35,7 @@ def expandpath(path, full=False):
     if full:
         result = normpath(result)
     return result
-
+    
 ########################################################################
 class AutoDiscovery(object):
     """Try to guess the current project, package, site and instance.
