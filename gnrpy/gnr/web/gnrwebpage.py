@@ -228,6 +228,10 @@ class GnrWebPage(GnrBaseWebPage):
             avatar = self.avatar
             if avatar:
                 self._db.updateEnv(**self.avatar.extra_kwargs)
+            storeDbEnv = self.pageStore().getItem('dbenv')
+            if storeDbEnv:
+                self._db.updateEnv(**dict(storeDbEnv))
+                    
             for dbenv in [getattr(self, x) for x in dir(self) if x.startswith('dbenv_')]:
                 kwargs = dbenv() or {}
                 self._db.updateEnv(**kwargs)
