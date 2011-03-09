@@ -11,5 +11,6 @@ Layout widgets
     bordercontainer
     contentpane
     accordioncontainer
+    splitcontainer
     stackcontainer
     tabcontainer

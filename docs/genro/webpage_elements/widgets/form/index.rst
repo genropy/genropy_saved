@@ -1,7 +1,7 @@
 .. _genro_form_index:
 
 ============
-Form widgets
+form widgets
 ============
 
 .. toctree::
@@ -11,6 +11,7 @@ Form widgets
     checkbox
     dropdownbutton
     field
+    fieldcell
     formbuilder
     menu
     numberspinner

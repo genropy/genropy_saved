@@ -36,14 +36,19 @@ Tags
 ====
 
     Let's see its content:
-
-    * The file begins and ends with a ``<GenRoBag>`` tag: that's because during the execution of the project, this file is being converted in a :ref:`genro_bag_intro`.
+    
+    * The file begins and ends with a ``<GenRoBag>`` tag: that's because during the execution
+      of the project, this file is being converted in a :ref:`genro_bag_intro`.
     * *<connection_timeout>*: ???.
     * *<connection_refresh>*: ???.
-    * *<wsgi>*: allow to define some connections properties used by the :ref:`genro_wsgi`. For more information, check the :ref:`siteconfig_wsgi` paragraph.
-    * *<jslib>*: allow to specify the dojo version used. For more information, check the :ref:`siteconfig_jslib` paragraph.
-    * *<gui>*: allow to specify the CSS theme. For more information, check the :ref:`siteconfig_gui` paragraph.
-    * *<dojo*: allow to specify the Dojo version. For more information, check the :ref:`siteconfig_dojo` paragraph.
+    * *<wsgi>*: allow to define some connections properties used by the :ref:`genro_wsgi`.
+      For more information, check the :ref:`siteconfig_wsgi` paragraph.
+    * *<jslib>*: allow to specify the dojo version used. For more information,
+      check the :ref:`siteconfig_jslib` paragraph.
+    * *<gui>*: allow to specify the CSS theme. For more information,
+      check the :ref:`siteconfig_gui` paragraph.
+    * *<dojo*: allow to specify the Dojo version. For more information,
+      check the :ref:`siteconfig_dojo` paragraph.
     * *<resources>*: ???
     
 .. _siteconfig_wsgi:
@@ -94,7 +99,8 @@ Tags
     
         <gui css_theme='aqua'/>
         
-    The Genro CSS themes override the Dojo theme you're using. For more information, check :ref:`css_dojo_themes` the and the :ref:`css_genro_themes` sections.
+    The Genro CSS themes override the Dojo theme you're using. For more information, check
+    the :ref:`css_dojo_themes` and the :ref:`css_genro_themes` sections.
     
 .. _siteconfig_dojo:
 

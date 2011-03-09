@@ -167,12 +167,12 @@ Componenti per operare sul datastore
     Calculate a cell of the datastore from other values (like a spreadsheet)
 
 ``dataController()``:
-    Running JS code, linking it to an event in the datastore (via a resolver).
+    Running JS code, linking it to an event in the datastore (through a resolver).
 
 Parameters of dataController or dataFormula become delcarations of local variables used in the formula or the same JS.
 
 Remote Operation
-****************
+================
 
 ``dataRecord()``:
     **TODO**: to be explored - I question the need to store a database record in the datastore
@@ -181,7 +181,7 @@ Remote Operation
     Set a resolver in the datastore. Access to this item in the datastore will be called Python code (defined in a function with the prefix ``rpc_`` ) will return a bag.
 
 ``dataRpc()``:
-    as above, dataRpc is the function of low-level underlying the previous functionalityi. Can be used to make calls to python code (via triggering resolver as parameters).
+    as above, dataRpc is the function of low-level underlying the previous functionality. It can be used to make calls to python code (via triggering resolver as parameters).
     It is possible to specify js code to call before the call(with the parameter ``onCalling='codice JS'``) or with the results received from the server (``onresult='codice JS'``).
 
 The parameters of these functions that do not begin with an underscore "_" are passed to the server and are available to Python code called.
@@ -197,18 +197,11 @@ Functions can return:
 
 There is also an API to make changes to the datastore in RPCs.
 
-FormBuilder
-===========
-
-Component to simplify the creation of forms.
-
-Using the method *field*, You can define fields simply by specifying the name. The widget will be built under the correct type of database field. The method *field* accepts the parameter  ``autospan=N``, corresponding to ``colspan = N`` or ``width = '100%'``.
-
 Triggers
 ========
 
 Triggers defined on page
-************************
+========================
 
 It is possible to define methods at the python-level of a web page that are called when the records in a given table are loaded or saved. The names of methods should follow this syntax::
     on<Operation>
@@ -219,7 +212,7 @@ possible *Operation* is ``Loading``, ``Saving`` or ``Saved``.
 This is implemented at rpc/web layer.
 
 Triggers on table
-*****************
+=================
 
 At the table level, events are similarly available ``Inserting``/``Inserted``, ``Updating``/``Updated`` e ``Deleting``/``Deleted``.
 

@@ -25,14 +25,16 @@ Datastore syntax
     
     The path followed by the syntax in the datastore:
     
-    * ``path.absolute.in.datastore``
-    * ``.path.relative.in.datastore``
-    * ``#ID.path.relative.to.the.ID``
+    * ``path`` --> absolute path in datastore
+    * ``.path`` --> relative path in datastore
+    * ``#ID`` --> path relative to the ID
     
     The path indicates the access path to data to every element of the datastore (it is implemented by reading the Bag interface, and thus includes many things: for example, you can also specify the CSS classes of an HTML element linking them to an element of the datastore), using the prefixes:
 
     * "^" (circumflex accent): ``^access.to.resolver``, setting an observer at this node. The component will be informed of changes to the datastore
-    * equal: ``=accessed.from.resolver``, reads the contents of the datastore.
+    * equal: ``=accessed.from.resolver``, reads the datastore content.
+    
+    For more information on absolute and relative paths, check the :ref:`genro_datapath` documentation page.
 
 .. _datastore_access:
 

@@ -1,8 +1,8 @@
 .. _webpages_webpages:
 
-================
-GnrCustomWebPage
-================
+=======
+webpage
+=======
 
     * :ref:`webpages_introduction`
     * :ref:`webpages_GnrCustomWebPage`
@@ -31,11 +31,11 @@ Introduction on a GnrCustomWebPage
         * Check the :ref:`genro_widgets_introduction`;
         * description and list of all the :ref:`genro_widgets_index`.
     
-    * **HTML elements**:
+    * **HTML elements** - standard HTML elements.
     
         * Check the :ref:`genro_html_introduction`.
     
-    * **CSS elements**:
+    * **CSS elements** - standard CSS elements.
     
         * Check the :ref:`genro_css`.
     
@@ -71,7 +71,7 @@ GnrCustomWebPage
         
         # encoding: utf-8
     
-    #. Then you have to introduce the GnrCustomWebPage class with the following declaration line::
+    #. After that you have to introduce the GnrCustomWebPage class with the following declaration line::
     
         class GnrCustomWebPage(object):
         
@@ -102,19 +102,17 @@ GnrCustomWebPage
                 # Here goes the rest of your code...
                 
     In the following section we describe the :ref:`webpages_variables`.
-
-.. _webpages_variables:
+    
+    .. _webpages_variables:
 
 webpages variables
 ==================
-
-    .. module:: gnr.web.gnrwsgisite_proxy.gnrresourceloader.ResourceLoader
     
     With the term ``webpages variables`` we mean that Genro provides some defined variables that you can use to customize your webpages.
     
-    (You can check the method that handle the webpages variables: the :meth:`get_page_class` method)
+    .. note:: every ``webpages variable`` act only on the single webpage you insert it.
     
-.. _webpages_dojo_theme:
+    .. _webpages_dojo_theme:
 
 dojo_theme
 ==========
@@ -130,41 +128,44 @@ dojo_theme
         
         dojo_theme = 'nihilo'
     
-.. _webpages_dojo_version:
+    .. _webpages_dojo_version:
 
 dojo_version
 ============
     
     * Description: allow to specify the Dojo version of your :ref:`genro_structure_mainproject`. You have to
       write the version supported without the dot (e.g: write '11' for Dojo '1.1')
-    * Default value: the value you specify in the :ref:`siteconfig_dojo` tag of your :ref:`sites_siteconfig` or '11' (i.e: Dojo 1.1)
-      if your ``<Dojo>`` tag is ``None``.
+    * Default value: the value you specify in the :ref:`siteconfig_dojo` tag of your :ref:`sites_siteconfig`.
+      If you didn't specify it, the default value is '11'
     * Example::
     
         dojo_version = '11'
     
-.. _webpages_theme:
+    .. _webpages_theme:
 
 theme
 =====
 
-    * Description: allow to change the Genro's page theme. A Genro theme add some features to the Dojo theme you choose for your project.
-    
-    .. note:: to change the Dojo theme, you have to change it into your :ref:`sites_siteconfig` file, changing the features of the :ref:`siteconfig_gui` tag.
-    
-    * Default value: the value you specify in the :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig`
-      or 'tundra' (i.e: Dojo Tundra theme)
+    * Description: allow to change the Genro's page theme. A Genro theme add some CSS features to the Dojo theme
+      you are using in your project (to change the Dojo theme, you can only change it through the
+      :ref:`webpages_dojo_theme` webpage variable)
+    * Default value: the value you specify in the :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig`.
+      If you didn't specify it, the default value is ``add???``.
     * Example::
     
-        theme = 'aqua' add???
+        theme = 'aqua'
     
-.. _webpages_gnrjsversion:
+    .. note:: if you want to define a Genro theme in all of your webpages, define it in the
+              :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig`
+    
+    .. _webpages_gnrjsversion:
 
 gnrjsversion
 ============
 
     * Description: Genro Javascript libraries compatible with the relative Dojo version.
-    * Default value: the value you specify in the :ref:`siteconfig_jslib` tag of your :ref:`sites_siteconfig` or '11' (i.e: libraries compatible with Dojo 1.1)
+    * Default value: the value you specify in the :ref:`siteconfig_jslib` tag of your :ref:`sites_siteconfig`.
+      If you didn't specify it, the default value is '11' (i.e: Genro JS libraries compatible with Dojo 1.1)
     * Example::
     
         gnrjsversion = '11'
@@ -174,11 +175,17 @@ gnrjsversion
 maintable
 =========
     
-    * Description: allow to create shortcuts for users query through the :ref:`genro_field` attribute.
+    * Description: allow to create shortcuts for users query through the :ref:`genro_field` or
+      :ref:`genro_fieldcell` Genro :ref:`genro_form_index`, or through a :ref:`genro_struct`
+    * Syntax: maintable = 'packageName.tableName', where ``packageName`` is the name of your package
+      (for more information, check the :ref:`genro_packages_index` page), ``tableName`` is the name
+      of the :ref:`model_table`
     * Default value: ``None``
-    * Example: add???
+    * Example::
     
-.. _webpages_recordlock:
+        maintable = 'agenda.call'
+    
+    .. _webpages_recordlock:
 
 recordLock
 ==========
@@ -187,77 +194,95 @@ recordLock
     * Default value: add???
     * Example: add???
     
-.. _webpages_user_polling:
+    .. _webpages_user_polling:
 
 user_polling
 ============
 
-    * Description: add???
-    * Default value: ``3`` (units: seconds)
+    * Description: set the user polling frequency (units: seconds)
+    * Default value: ``3``
     * Example::
     
-        user_polling = 1
+        user_polling = 3
         
     .. _webpages_auto_polling:
 
 auto_polling
 ============
 
-    * Description: add???
-    * Default value: ``30`` (units: seconds)
+    * Description: set the auto polling frequency (units: seconds)
+    * Default value: ``30``
     * Example::
     
-        auto_polling = 5
+        auto_polling = 30
     
     .. _webpages_eagers:
 
 eagers
 ======
 
-    * Description: add???
-    * Default value: ``add???``
+    * Description: a dict that allows to give a hierarchy to the :ref:`bag_resolver`\s call of a :ref:`sql_relation`:
+      The relations you put in the eagers are resolved before the other ones.
+    * Syntax: 
+        
+        * *key*: ``packageName.tableName``, where ``packageName`` is the name of your package (for more information,
+          check the :ref:`genro_packages_index` page), ``tableName`` is the name of the :ref:`model_table`.
+        * *value*: includes a :ref:`sql_relation`
+    * Default value: ``{}`` (an empty dict)
+    * Example::
     
-.. _webpages_py_requires:
+        eagers = {'writers.contracts':'@sy_publisherid'}
+    
+    .. _webpages_py_requires:
 
 py_requires
 ===========
 
     * Description: add???
     * Default value: ``add???``
+    * Example::
     
-.. _webpages_js_requires:
+        add???
+    
+    .. _webpages_js_requires:
 
 js_requires
 ===========
 
     * Description: add???
     * Default value: ``add???``
+    * Example::
     
-.. _webpages_pageOptions:
+        add???
+    
+    .. _webpages_pageOptions:
 
 pageOptions
 ===========
 
     * Description: a dict with page options. add??? --> pageOptions = {'enableZoom':False,'openMenu':False}
     * Default value: ``add???``
+    * Example::
     
-.. _webpages_css_requires:
+        add???
+    
+    .. _webpages_css_requires:
 
 css_requires
 ============
 
     * Description: add??? With the *css_requires* you can specify the path of your CSS files ...
     * Default value: ``add???``
-
-.. _webpages_auth_tags:
+    
+    .. _webpages_auth_tags:
 
 auth_tags
 =========
 
     * Description: add???
     * Default value: ``add???``
-
-.. _webpages_dojo_source:
+    
+    .. _webpages_dojo_source:
 
 dojo_source
 ===========

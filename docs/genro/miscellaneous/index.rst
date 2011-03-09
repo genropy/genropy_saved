@@ -10,4 +10,6 @@ Documents to revise or adjust
     clipboard
     logging
     print
+    sql
+    struct
     user_interface

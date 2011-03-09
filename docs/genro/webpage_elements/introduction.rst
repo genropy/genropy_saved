@@ -1,4 +1,4 @@
-.. _genro_webpage_elements_introduction:
+.. _genro_webpage_elements_intro:
 
 ======================================
 Introduction to Genro webpage elements
@@ -16,18 +16,18 @@ Introduction to Genro webpage elements
     * The containers are able to contain other Containers or ContentPanes.
     * The ContentPanes are able to contain widgets or HTML elements.
     
-    You can act on a Genro webpage through:
+    You can act on a Genro :ref:`webpages_webpages` through:
     
     * **Widgets elements** - Used to create the webpage's layout and to introduce the input elements (button, checkbox, etc).
     
         * Check the :ref:`genro_widgets_introduction`;
         * description and list of all the :ref:`genro_widgets_index`.
     
-    * **HTML elements**:
+    * **HTML elements** - standard HTML elements.
     
         * Check the :ref:`genro_html_introduction`.
     
-    * **CSS elements**:
+    * **CSS elements** - standard CSS elements.
     
         * Check the :ref:`genro_css`.
     

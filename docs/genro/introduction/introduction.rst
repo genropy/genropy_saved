@@ -1,4 +1,4 @@
-.. _genro_introduction_introduction:
+.. _genro_introduction:
 
 .. note (from Filippo Astolfi): this section is only sketched; I think that Genro Team must dedicate great time for this section so that every reader can understand the power of this software.
 
@@ -10,7 +10,12 @@ Introduction to Genro
     
     GenroPy is a Framework for business applications.
     
-    (??? continue!)
+    (add??? continue!)
+    
+Client / Server
+===============
+    
+    add???
     
 Genro values
 ============

@@ -665,10 +665,11 @@ class GnrWebPage(GnrBaseWebPage):
         return self.domSrcFactory.makeRoot(self)
         
     def newGridStruct(self, maintable=None):
-        """add???
+        """Allow to create a Grid Struct.
         
-        :param maintable: add???. Default value is ``None``
-        :returns: add???
+        :param maintable: the table to which the struct refers to. For more information,
+                          check the :ref:`webpages_maintable` section. Default value is ``None``
+        :returns: the Grid Struct
         """
         return GnrGridStruct.makeRoot(self, maintable=maintable)
         
