@@ -36,7 +36,7 @@ Description
     
     * :ref:`first_one`
     * the :ref:`second_one`
-    * :ref:`second_one`
+    * :ref:`third_one`
     
 .. _field_attributes:
 
@@ -107,7 +107,7 @@ maintable
                 
     If you have more than one ``formbuilder``, the ``maintable`` is being applied to EVERY ``formbuilder``.
 
-.. _second_one:
+.. _third_one:
 
 internal dbtable
 ================
