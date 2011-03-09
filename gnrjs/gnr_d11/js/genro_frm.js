@@ -1115,7 +1115,7 @@ dojo.declare("gnr.formstores.Base", null, {
         //this.table = kw.table;
         //this.onSaved = kw.onSaved;
         ;
-        var base_handler_type = objectPop(kw,'handler');
+        var handler = objectPop(kw,'handler');
         var handlerKw = objectExtract(kw,'handler_*');
         var handler,handler_type,method,actionKw,callbacks;
         var that = this;
@@ -1123,7 +1123,6 @@ dojo.declare("gnr.formstores.Base", null, {
         dojo.forEach(['save','load','del'],function(action){
             actionKw = objectExtract(handlerKw,action+'_*');
             handler = objectUpdate({},that.handlers[action]);
-            handler_type = objectPop(handler,'handler_type') || objectPop(handlerKw,action)||base_handler_type;
             if(typeof(handler_type)=='function'){
                 method = handler_type;
             }else if(that[action+'_'+handler_type]){
