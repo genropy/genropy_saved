@@ -17,7 +17,7 @@ Definition
     
     .. module:: gnr.web.gnrwebpage
     
-    A component is a tool that gathers some useful features that can be used in more than one project. Every component can be rewritten in most of its part (method) overriding some of its portions, ensuring the ability to customize for your particular purpose.
+    A component is a class that gathers some useful features that can be used in more than one project. Every component can be rewritten in most of its part (method) overriding some of its portions, ensuring the ability to customize for your particular purpose.
     
     A component is built through the :class:`BaseComponent` class
     
@@ -26,9 +26,9 @@ Definition
 Components location
 ===================
     
-    The components MUST be situated in some folders named ``resources``: it doesn't matter where these folders are, because the program search the component in every folder of the code using the mixin. However, for keeping a reasonable level of order, every ``resources`` folder is kept into a project folder as one of its primary subfolder.
+    The components MUST be situated in folders named ``resources``: it doesn't matter where these folders are, because Genro search components in every folder of the code using mixin. However, for keeping a reasonable level of order, every ``resources`` folder is kept into a project folder as one of its primary subfolder.
     
-    If we suppose to have a project called ``myproject`` and a component called ``my_component.py``, you will find your component in the :ref:`genro_resources_index` folder of your Genro :ref:`genro_structure_mainproject` [#]_:
+    If you have a project called ``myproject`` and a component called ``my_component.py``, you have to put your component in the :ref:`genro_resources_index` folder of your Genro :ref:`genro_structure_mainproject` [#]_:
     
     .. image:: ../images/components/mycomponent.png
     
@@ -47,9 +47,9 @@ Components location
 Components requirements
 =======================
 
-    To use a component you have to set in your :ref:`webpages_webpages`\s some requirements: every component has to be called through the ``py_requires``.
+    To use a component you have to set in your :ref:`webpages_webpages`\s a requirement: every component has to be called through the :ref:`webpages_py_requires` webpage variable.
     
-    The general syntax is::
+    * Syntax::
     
         py_requires = 'fileName:componentClassName'
         
@@ -62,16 +62,16 @@ Components requirements
     
 .. _components_active_passive:
 
-Active and passive components
-=============================
+Active or passive component
+===========================
 
-    We can distighuish between active and passive components:
+    We can distighuish between active and passive component:
     
-    * **active components**: these components override the main method.
+    * **active component**: a component that override the main method.
     
-    * **passive components**: these components don't have their own main method.
+    * **passive component**: a component that doesn't have its own main method.
     
-    Usually, a single component is *active* OR *passive*, but this is merely our convention. You can create a component that is BOTH *active* and *passive*.
+    .. note:: Usually, a component is *active* OR *passive*, but this is merely a convention. You can create a component that is BOTH *active* and *passive*.
 
 .. _components_list:
 
@@ -83,5 +83,5 @@ List of all the components
 **Footnotes**:
 
 .. [#] As you can see in the image, a Genro :ref:`genro_structure_mainproject` is composed by four main folders, that are: :ref:`genro_instances_index`, :ref:`genro_packages_index`, :ref:`genro_resources_index`, :ref:`genro_sites_index` - click on these links for more informations about a project and its subfolders.
-.. [#] Obviously, if you create a component please remember to put in the right place! (Check the :ref:`components_location` paragraph for more information on the component positioning)
+.. [#] Obviously, if you create a component please remember to put in a ``resources`` folder! (Check the :ref:`components_location` paragraph for more information on the component positioning)
     

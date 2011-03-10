@@ -1,8 +1,8 @@
 .. _genro_sites_index:
 
-=====
-sites
-=====
+=========
+``sites``
+=========
     
     * :ref:`sites_features`
     * :ref:`sites_autofill`

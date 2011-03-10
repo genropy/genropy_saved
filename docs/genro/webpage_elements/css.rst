@@ -46,12 +46,13 @@ Dojo themes
     
 .. _css_genro_themes:
 
-Genro themes
-============
+CSS themes
+==========
 
-    Genro themes are css themes that modify the current Dojo theme of your webpage, adding or deleting some of their features.
+    CSS themes are Genro themes that modify the current Dojo theme of your webpage, adding or deleting some of their features.
     
-    You can define your default Genro theme in the :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig`.
+    You can define your default CSS theme in the :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig` or in a single
+    :ref:`webpages_webpages` through the :ref:`webpages_css_theme` webpage variable.
     
     We list here the main Genro themes currently available:
     

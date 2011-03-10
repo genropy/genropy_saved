@@ -1,8 +1,8 @@
 .. _genro_instances_index:
 
-=========
-instances
-=========
+=============
+``instances``
+=============
 
     * :ref:`instances_features`
     * :ref:`instances_autofill`
