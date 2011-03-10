@@ -539,6 +539,8 @@ class GnrWhereTranslator(object):
                     continue
 
                 dtype = tblobj.column(column).dtype
+                if value is None and attr.get('value_caption'):
+                    value = sqlArgs.pop(attr['value_caption'])
                 onecondition = self.prepareCondition(column, op, value, dtype, sqlArgs)
 
             if onecondition:
@@ -558,7 +560,6 @@ class GnrWhereTranslator(object):
             value = str(value)
             column = 'CAST (%s as text)' % column
             dtype = 'A'
-
         ophandler = getattr(self, 'op_%s' % op, None)
         if ophandler:
             result = ophandler(column=column, value=value, dtype=dtype, sqlArgs=sqlArgs)

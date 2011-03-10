@@ -482,7 +482,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                          recordResolver=True, selectionName='', structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, selectmethod_prefix='rpc', expressions=None, sum_columns=None,
-                         sortedBy=None, excludeLogicalDeleted=True, **kwargs):
+                         sortedBy=None, excludeLogicalDeleted=True,savedQuery=None,savedView=None, **kwargs):
         t = time.time()
         tblobj = self.db.table(table)
 
@@ -510,6 +510,10 @@ class GnrWebAppHandler(GnrBaseProxy):
                 newSelection = False
         if newSelection:
             debug = 'fromDb'
+            if savedQuery:            
+                where = tblobj.pkg.loadUserObject(code=savedQuery, objtype='query', tbl=tblobj.fullname)[0]
+            if savedView:
+                columns = tblobj.pkg.loadUserObject(code=savedView, objtype='view', tbl=tblobj.fullname)[0]
             if selectmethod:
                 selecthandler = self.page.getPublicMethod(selectmethod_prefix, selectmethod)
             else:
@@ -594,7 +598,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                               relationDict=None, sqlparams=None, row_start=None, row_count=None,
                               recordResolver=None, selectionName=None, pkeys=None, fromSelection=None,
                               sortedBy=None, sqlContextName=None,
-                              excludeLogicalDeleted=True, **kwargs):
+                              excludeLogicalDeleted=True,**kwargs):
         sqlContextBag = None
         if sqlContextName:
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
