@@ -869,7 +869,18 @@ class GnrWebPage(GnrBaseWebPage):
         if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
             css_requires.append('%s.css' % self.pagename)
         return css_requires, css_media_requires
-        
+
+    def getResourceList(self, path, ext=None):
+        return self.site.resource_loader.getResourceList(self.resourceDirs, path, ext=ext)
+
+    def getResourceUriList(self, path, ext=None, add_mtime=False):
+        flist = self.getResourceList(path, ext=ext)
+        return [self.resolveResourceUri(f, add_mtime=add_mtime) for f in flist]
+
+    def getResourceExternalUriList(self,path, ext=None, add_mtime=False):
+        flist = self.getResourceList(path, ext=ext)
+        return [self.externalUrl(self.resolveResourceUri(f, add_mtime=add_mtime)) for f in flist]
+
     def onServingCss(self, css_requires):
         """add???
         
@@ -879,9 +890,13 @@ class GnrWebPage(GnrBaseWebPage):
         
     def getResourceUri(self, path, ext=None, add_mtime=False):
         fpath = self.getResource(path, ext=ext)
-        url = None
         if not fpath:
             return
+        return self.resolveResourceUri(fpath, add_mtime=add_mtime)
+
+
+    def resolveResourceUri(self, fpath, add_mtime=False):
+        url = None
         if fpath.startswith(self.site.site_path):
             uripath = fpath[len(self.site.site_path):].lstrip('/').split(os.path.sep)
             url = self.site.getStatic('site').url(*uripath)

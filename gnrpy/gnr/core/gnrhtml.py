@@ -243,7 +243,7 @@ class GnrHtmlBuilder(object):
     def __init__(self, page_height=None, page_width=None, page_margin_top=None,
                  page_margin_left=None, page_margin_right=None, page_margin_bottom=None,
                  showTemplateContent=None,
-                 htmlTemplate=None, page_debug=False, srcfactory=None,
+                 htmlTemplate=None, page_debug=False, srcfactory=None, css_requires=None,
                  print_button=None, bodyAttributes=None):
         self.srcfactory = srcfactory or GnrHtmlSrc
         self.htmlTemplate = htmlTemplate or Bag()
@@ -255,6 +255,7 @@ class GnrHtmlBuilder(object):
         self.page_margin_bottom = page_margin_bottom or self.htmlTemplate['main.page.bottom'] or 0
         self.page_debug = page_debug
         self.print_button = print_button
+        self.css_requires = css_requires or []
         self.showTemplateContent = showTemplateContent
             
     def initializeSrc(self, **bodyAttributes):
@@ -267,6 +268,8 @@ class GnrHtmlBuilder(object):
         self.head = self.htmlBag.head()
         self.body = self.htmlBag.body(**bodyAttributes)
         self.head.meta(http_equiv="Content-Type", content="text/html; charset=UTF-8")
+        for css_require in self.css_requires:
+            self.head.csslink(href=css_require)
         self.body.style("""
                         .no_print{
                             display:none;

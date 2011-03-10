@@ -41,6 +41,7 @@ class BagToHtml(object):
     copies_per_page = 1
     copy_extra_height = 0
     starting_page_number = 0
+    css_requires = ''
     
     def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
         self.locale = locale
@@ -108,11 +109,14 @@ class BagToHtml(object):
                                       page_margin_top=self.page_margin_top, page_margin_bottom=self.page_margin_bottom,
                                       page_margin_left=self.page_margin_left, page_margin_right=self.page_margin_right,
                                       page_debug=self.page_debug, print_button=self.print_button,
-                                      htmlTemplate=self.htmlTemplate,
+                                      htmlTemplate=self.htmlTemplate, css_requires=self.get_css_requires(),
                                       showTemplateContent=self.showTemplateContent)
         result = self.createHtml(filepath=self.filepath)
         return result
-        
+
+    def get_css_requires(self):
+        return self.css_requires.split(',')
+
     def prepareTemplates(self):
         """add???"""
         if not self.htmlTemplate:

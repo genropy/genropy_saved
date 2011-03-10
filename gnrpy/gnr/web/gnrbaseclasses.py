@@ -145,7 +145,15 @@ class TableScriptToHtml(BagToHtml):
             return self.pdfpath
             #with open(temp.name,'rb') as f:
             #    result=f.read()
-            
+
+    def get_css_requires(self):
+        css_requires = []
+        for css_require in self.css_requires.split(','):
+            if not css_require.startswith('http'):
+                css_requires.extend(self.page.getResourceExternalUriList(css_require,'css'))
+            else:
+                css_requires.append(css_require)
+        return css_requires
     def get_record_caption(self, item, progress, maximum, **kwargs):
         """add???
         
