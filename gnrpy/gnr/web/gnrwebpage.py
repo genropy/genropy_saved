@@ -335,6 +335,7 @@ class GnrWebPage(GnrBaseWebPage):
             self.site.onAuthenticated(avatar)
             login['message'] = ''
             loginPars = avatar.loginPars
+            loginPars.update(avatar.extra_kwargs)
         else:
             login['message'] = 'invalid login'
         return (login, loginPars)

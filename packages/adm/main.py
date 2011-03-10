@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_userobject
+from gnr.core.gnrdict import dictExtract
 import hashlib
 from datetime import datetime
 
@@ -26,7 +27,7 @@ class Package(GnrDboPackage):
             kwargs['pwd'] = user_record.pop('md5pwd')
             kwargs['user_id'] = user_record['id']
             kwargs['user_name'] = '%s %s' % (user_record['firstname'], user_record['lastname'])
-            #result['md5len']=len(result['pwd'])
+            kwargs.update(dictExtract(user_record, 'avatar_'))
             return kwargs
 
     def onAuthentication(self, avatar):
