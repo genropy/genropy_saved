@@ -437,6 +437,7 @@ class GnrApp(object):
         if pkgMenus:
             pkgMenus = pkgMenus.split(',')
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
+            sys.path.append(apppkg.libPath)
             if not attrs.get('path'):
                 attrs['path'] = self.pkg_name_to_path(pkgid)
             if not os.path.isabs(attrs['path']):
@@ -454,7 +455,7 @@ class GnrApp(object):
             self.db.packageMixin('%s' % (pkgid), apppkg.pkgMixin)
             for tblname, mixobj in apppkg.tableMixinDict.items():
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)
-            sys.path.append(apppkg.libPath)
+
         self.db.inTransactionDaemon = False
         self.db.startup()
         if len(self.config['menu']) == 1:
