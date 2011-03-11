@@ -1104,7 +1104,7 @@ dojo.declare("gnr.GnrValidator", null, {
     }
 });
 
-//formstores
+///formstores
 dojo.declare("gnr.formstores.Base", null, {
     constructor:function(kw,handlers){
         objectPop(kw, 'tag');
@@ -1115,7 +1115,7 @@ dojo.declare("gnr.formstores.Base", null, {
         //this.table = kw.table;
         //this.onSaved = kw.onSaved;
         ;
-        var handler = objectPop(kw,'handler');
+        var base_handler_type = objectPop(kw,'handler');
         var handlerKw = objectExtract(kw,'handler_*');
         var handler,handler_type,method,actionKw,callbacks;
         var that = this;
@@ -1123,6 +1123,7 @@ dojo.declare("gnr.formstores.Base", null, {
         dojo.forEach(['save','load','del'],function(action){
             actionKw = objectExtract(handlerKw,action+'_*');
             handler = objectUpdate({},that.handlers[action]);
+            handler_type = objectPop(handler,'handler_type') || objectPop(handlerKw,action)||base_handler_type;
             if(typeof(handler_type)=='function'){
                 method = handler_type;
             }else if(that[action+'_'+handler_type]){
@@ -1322,5 +1323,4 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
 dojo.declare("gnr.formstores.Hierarchical", gnr.formstores.Base, {
 
 });
-
 
