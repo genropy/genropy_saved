@@ -1,13 +1,11 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
+#  gestione_localita.py
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
-""" Localita """
 import time
 import os
 from gnr.core.gnrbag import Bag
@@ -15,6 +13,7 @@ from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
     maintable='glbl.localita'
     py_requires='public:Public,standard_tables:TableHandler'
+    
     def windowTitle(self):
         return u'!!Località'
          
@@ -37,7 +36,7 @@ class GnrCustomWebPage(object):
                   cap/CAP:5,
                   codice_istat/Istat:6,
                   codice_comune/Codice:4"""
-               
+                  
     def formBase(self, parentBC, disabled=False, **kwargs):
         pane=parentBC.contentPane(padding='5px',**kwargs).div(_class='pbl_roundedGroup', height='100%')
         pane.div(u'!!Località',_class='pbl_roundedGroupLabel')
@@ -48,11 +47,10 @@ class GnrCustomWebPage(object):
         fb.field('glbl.localita.cap',width='3em')
         fb.field('glbl.localita.codice_istat',width='7em')
         fb.field('glbl.localita.codice_comune',width='4em')
-
+        
     def orderBase(self):
         return 'nome'
-    
+        
     def queryBase(self):
         return dict(column='nome',op='contains', val=None)
-    
-                      
+        

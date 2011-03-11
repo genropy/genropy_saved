@@ -1,13 +1,10 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
+#  regione.py
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
-
-""" Student """
 
 from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
@@ -16,22 +13,22 @@ class GnrCustomWebPage(object):
     
     def pageAuthTags(self, method=None, **kwargs):
         pass
-
+        
     def tableWriteTags(self):
         pass
-
+        
     def tableDeleteTags(self):
         pass
-
+        
     def windowTitle(self):
         return '!!Regioni'
-
+        
     def barTitle(self):
         return '!!Regioni'
         
     def columnsBase(self,):
         return """sigla:8,nome:8,ordine:12,zona:10"""
-   
+        
     def formBase2(self,parentBC,disabled=False,**kwargs):
         bc = parentBC.borderContainer(  **kwargs)
         fb = bc.contentPane(region='top', height='20ex', splitter=True).formbuilder(cols=2)
@@ -44,12 +41,12 @@ class GnrCustomWebPage(object):
         center = bc.borderContainer(region='center')
         gridpane = center.contentPane(region='left', width='50%', splitter=True)
         recordBC = center.borderContainer(region='center')
-
+        
         self.includedRecordPane(gridpane, gridId='provGrid', storepath='.@glbl_provincia_regione',
                                             struct=self._structProvinceGrid(),
                                             gridPars=dict(autoWidth=True),
                                             recordBC=recordBC, recordPaneCb=self.includedRegione)
-
+                                            
     def formBase(self,parentBC,disabled=False,**kwargs):
         bc = parentBC.borderContainer(  **kwargs)
         pane = bc.contentPane(region='top', height='20ex', splitter=True)
@@ -61,13 +58,13 @@ class GnrCustomWebPage(object):
         fb.field('glbl.regione.zona')
         
         gridpane = bc.borderContainer(region='center')
-
+        
         self.includedRecordDialog(gridpane, gridId='provGrid', storepath='.@glbl_provincia_regione',
                                 struct=self._structProvinceGrid(), 
                                 gridPars=dict(autoWidth=True),
                                 recordPaneCb=self.includedRegioneDialog
                                 )
-                
+                                
     def includedRegioneDialog(self, parentDialog, **kwargs):
         bc = parentDialog.borderContainer(width='40em', height='40ex', **kwargs)
         self.includedRegione(bc)
@@ -89,13 +86,11 @@ class GnrCustomWebPage(object):
         r.fieldcell('codice_istat')
         r.fieldcell('ordine')
         r.fieldcell('cap_valido')
-
         return struct
-           
+        
     def orderBase(self):
         return 'ordine'
-    
+        
     def queryBase(self):
         return dict(column='nome',op='startswith')
-    
-    
+        

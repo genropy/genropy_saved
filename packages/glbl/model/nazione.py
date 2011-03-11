@@ -4,11 +4,11 @@
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('nazione', pkey='code', name_long='Nazione', rowcaption='code,name')
-        tbl.column('code', size='2', group='_', readOnly='y', name_long='Code')
-        tbl.column('name', size=':48', name_long='Name')
-        tbl.column('code3', size='3', name_long='Code3')
-        tbl.column('nmbr', size='3', name_long='Num.Code')
-
+        tbl.column('code', size='2', group='_', readOnly=True, name_long='!!Code')
+        tbl.column('name', size=':48', name_long='!!Name')
+        tbl.column('code3', size='3', name_long='!!Code3')
+        tbl.column('nmbr', size='3', name_long='!!Num.Code')
+        
     def populate(self):
         data = """
 AALAND ISLANDS                                  AX      ALA     248

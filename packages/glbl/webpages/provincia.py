@@ -1,17 +1,15 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
+#  provincia.py
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
-
-""" Provincia """
 
 class GnrCustomWebPage(object):
     maintable='glbl.provincia'
     py_requires='public:Public,standard_tables:TableHandler'
+    
     def windowTitle(self):
         return u'!!Provincia'
          
@@ -41,11 +39,10 @@ class GnrCustomWebPage(object):
         fb.field('sigla',width='3em')
         fb.field('codice_istat',width='7em')
         fb.field('regione',width='15em')
-
+        
     def orderBase(self):
         return 'nome'
-    
+        
     def queryBase(self):
         return dict(column='nome',op='contains', val=None)
-    
-                      
+        
