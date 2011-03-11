@@ -326,13 +326,13 @@ class GnrWebPage(GnrBaseWebPage):
             avatar = self.application.getAvatar(login['user'], password=login['password'],
                                                 authenticate=True, page=self, **kwargs)
         if avatar:
+            self.site.onAuthenticated(avatar)
             self.avatar = avatar
             #self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
             #                            user_tags=avatar.user_tags)
             self.connection.change_user(avatar)
             
             self.setInClientData('gnr.avatar', Bag(avatar.as_dict()))
-            self.site.onAuthenticated(avatar)
             login['message'] = ''
             loginPars = avatar.loginPars
             loginPars.update(avatar.extra_kwargs)
