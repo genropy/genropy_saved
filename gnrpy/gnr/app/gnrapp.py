@@ -160,6 +160,7 @@ class GnrPackage(object):
         self.application = application
         self.packageFolder = os.path.join(path, filename)
         self.libPath = os.path.join(self.packageFolder, 'lib')
+        sys.path.append(apppkg.libPath)
         self.attributes = {}
         self.tableMixins = {}
         self.plugins = {}
@@ -442,7 +443,6 @@ class GnrApp(object):
             if not os.path.isabs(attrs['path']):
                 attrs['path'] = self.realPath(attrs['path'])
             apppkg = GnrPackage(pkgid, self, **attrs)
-            sys.path.append(apppkg.libPath)
             if apppkg.pkgMenu and (not pkgMenus or pkgid in pkgMenus):
                 #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
                 if len(apppkg.pkgMenu) == 1:
