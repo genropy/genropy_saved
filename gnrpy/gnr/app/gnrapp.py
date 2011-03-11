@@ -437,12 +437,12 @@ class GnrApp(object):
         if pkgMenus:
             pkgMenus = pkgMenus.split(',')
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
-            sys.path.append(apppkg.libPath)
             if not attrs.get('path'):
                 attrs['path'] = self.pkg_name_to_path(pkgid)
             if not os.path.isabs(attrs['path']):
                 attrs['path'] = self.realPath(attrs['path'])
             apppkg = GnrPackage(pkgid, self, **attrs)
+            sys.path.append(apppkg.libPath)
             if apppkg.pkgMenu and (not pkgMenus or pkgid in pkgMenus):
                 #self.config['menu.%s' %pkgid] = apppkg.pkgMenu
                 if len(apppkg.pkgMenu) == 1:
