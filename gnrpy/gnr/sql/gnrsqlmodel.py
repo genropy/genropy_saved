@@ -377,7 +377,7 @@ class DbModelSrc(GnrStructData):
                           **kwargs)
                           
     def virtual_column(self, name, relation_path=None, sql_formula=None, py_method=None, **kwargs):
-        """Insert a related column alias into a table. The virtual_column is a child of the table
+        """Insert a related alias column into a table. The virtual_column is a child of the table
         created with the :meth:`table` method
         
         :param name: the column name

@@ -1817,9 +1817,11 @@ class GnrGridStruct(GnrStructData):
         
         :param field: add???
         :param _as: add???. Default value is ``None``
-        :param name: add???. Default value is ``None``
-        :param width: add???. Default value is ``None``
-        :param dtype: add???. Default value is ``None``
+        :param name: with *name* you can change the default fieldcell label (that is the
+                     :ref:`genro_name_long` of the field to which the fieldcell refers to).
+                     Default value is ``None``
+        :param width: the fieldcell width. Default value is ``None``
+        :param dtype: the fieldcell data type. Default value is ``None``
         :param classes: add???. Default value is ``None``
         :param cellClasses: add???. Default value is ``None``
         :param headerClasses: add???. Default value is ``None``

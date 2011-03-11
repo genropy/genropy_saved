@@ -122,13 +122,13 @@ class TableBase(object):
         """Add some useful columns for tables management (*in primis*, the ``id`` column)
         
         :param tbl: a database table
-        :param id: boolean. If ``True``, insert the ``id`` column. It is normally used as the primary key of a table.
+        :param id: boolean. If ``True``, create the ``id`` column. It is normally used as the primary key of a table.
                    Default value is ``True``
-        :param ins: boolean. If ``True``, insert the ``__ins_ts`` column. Allow to know the time (date and hour)
+        :param ins: boolean. If ``True``, create the ``__ins_ts`` column. Allow to know the time (date and hour)
                     of the entry of a record. Default value is ``True``
-        :param upd: boolean. If ``True``, insert the ``__mod_ts`` column. Allow to know the time (date and hour)
+        :param upd: boolean. If ``True``, create the ``__mod_ts`` column. Allow to know the time (date and hour)
                     of a modify on a record. Default value is ``True``
-        :param ldel: boolean. If ``True``, insert the ``__del_ts`` column. Allow to know the time (date and hour)
+        :param ldel: boolean. If ``True``, create the ``__del_ts`` column. Allow to know the time (date and hour)
                      of the delete of a record. Default value is ``True``
         :param md5: boolean. add???. Default value is ``False``
         :param group: add???. Default value is ``zzz``
@@ -295,7 +295,6 @@ class GnrDboTable(TableBase):
         
 class Table_counter(TableBase):
     """This table is automatically created for every package that inherit from GnrDboPackage."""
-        
     def use_dbstores(self):
         """add???
         
@@ -353,20 +352,20 @@ class Table_counter(TableBase):
         """
         ymd = self.getYmd(date, phyear=phyear)
         codekey = '%s_%s' % (pkg, self.counterCode(code, codekey, ymd))
-
+        
         record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
         if not record:
             self.lock()
             record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
             if not record:
                 record = self.createCounter(codekey, code, pkg, name, lastAssigned)
-
+                
         counter = record['counter'] + 1
         record['counter'] = counter
         record['last_used'] = date
         self.update(record)
         return self.formatCode(code, output, ymd, counter)
-
+        
     def getLastCounterDate(self, name, pkg, code,
                            codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN',
                            date=None, phyear=False, lastAssigned=0):
@@ -443,11 +442,11 @@ class Table_counter(TableBase):
         return output
         
     def getYmd(self, date, phyear=False):
-        """Returns a tuple (y,m,d) of strings from a date.
+        """Return a tuple (year, month, date) of strings from a date.
         
         :param date: datetime
-        :param phyear: physical year (not yet implemented)
-        :returns: a tuple of strings (y,m,d)
+        :param phyear: physical year (not yet implemented). Default value is ``False``
+        :returns: a tuple of strings (year, month, date)
         """
         if not date:
             return ('0000', '00', '00')
