@@ -145,7 +145,6 @@ css_theme
       to the Dojo theme you are using in your project (to change the Dojo theme, you can only change it
       through the :ref:`webpages_dojo_theme` webpage variable)
     * Default value: the value you specify in the :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig`.
-      If you didn't specify it, the default value is ``add???``.
     * Example::
     
         css_theme = 'aqua'

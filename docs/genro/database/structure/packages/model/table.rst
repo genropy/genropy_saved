@@ -3,8 +3,6 @@
 =====
 table
 =====
-
-    .. warning:: completely to redo!
     
     * :ref:`table_definition`
     * :ref:`table_description`
@@ -16,15 +14,49 @@ table
 Definition
 ==========
 
-    A table is ... ???
-
+    A table allows to manage the database. add???(here I need an help for documentation...)
+    
+    * introduce the following lines::
+    
+        # encoding: utf-8
+        
+        class Table(object): # add???(a mixin class?)
+        
+        class TableBase
+        
+    .. automethod:: gnr.app.gnrdbo.Table_counter.config_db
+        
+            def config_db(self, pkg):
+            
+    * introdurre la table::
+        
+        tbl = pkg.table('azienda', pkey='id', rowcaption='@anagrafica_id.ragione_sociale',
+                              name_long='!!Azienda', name_plural='!!Aziende')
+    
+    * introdurre il sysFields::
+        
+        self.sysFields(tbl, group='_')
+        
+    .. automethod:: gnr.app.gnrdbo.TableBase.sysFields
+    
+    * introdurre le column(s):
+        
+        tbl.column('tipologia',size=':22',name_long='!!Tipologia')
+        
+    * parlare delle column con la relation...
+        
+        tbl.column('anagrafica_id',size=':22',name_long='!!Anagrafica id',group='_').relation('sw_base.anagrafica.id', mode='foreignkey')
+        
+    .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc.column
+    
 .. _table_description:
 
 Description
 ===========
 
-    ??? Introduce the rowcaption attribute and put the link to the relative page for further details (:ref:`genro_database_rowcaption`).
-
+    * introduce the rowcaption attribute and put the link to the relative page for further details (:ref:`genro_database_rowcaption`).
+    * speak about column 
+    
 .. _table_relation:
 
 relation
