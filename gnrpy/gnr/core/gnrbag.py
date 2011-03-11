@@ -719,6 +719,7 @@ class Bag(GnrObject):
         """
         curr = self
         if isinstance(pathlist, basestring):
+            orpa=pathlist
             pathlist = gnrstring.smartsplit(pathlist.replace('../', '#^.'), '.')
             pathlist = [x for x in pathlist if x]
             if not pathlist:
@@ -1208,7 +1209,7 @@ class Bag(GnrObject):
         if node:
             node._tail_list = []
             if tail_path:
-                node._tail_list = tail_path.split('.')
+                node._tail_list =  gnrstring.smartsplit(tail_path.replace('../', '#^.'), '.')
             return node
             #return None
 

@@ -501,7 +501,7 @@ def smartsplit(path, on):
     if escape in path:
         path = path.replace(escape, chr(1))
         pathList = path.split(on)
-        pathList = [x.replace(chr(1), on) for x in pathList]
+        pathList = [x.replace(chr(1), escape) for x in pathList]
     else:
         pathList = path.split(on)
     return pathList

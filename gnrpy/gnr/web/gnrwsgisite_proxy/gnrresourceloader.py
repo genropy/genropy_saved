@@ -111,22 +111,29 @@ class ResourceLoader(object):
         :param path_list: add???
         :param default: add???. Default value is ``False``
         """
+        def escape_path_list(path_list):
+            return [p.replace('.','\\.') for p in path_list]
+        def unescape_path_list(path_list):
+            return [p.replace('\\.','.') for p in path_list]
+        path_list = escape_path_list(path_list)
         page_node = self.sitemap.getDeepestNode('.'.join(path_list))
         if not page_node and self.site.mainpackage: # try in the main package
             page_node = self.sitemap.getDeepestNode('.'.join([self.site.mainpackage] + path_list))
         if page_node:
             page_node_attributes = page_node.getInheritedAttributes()
             if page_node_attributes.get('path'):
+                page_node._tail_list=unescape_path_list(getattr(page_node,'_tail_list',[]))
                 return page_node, page_node_attributes
             else:
                 page_node = self.sitemap.getDeepestNode('.'.join(path_list + ['index']))
                 if page_node:
                     page_node_attributes = page_node.getInheritedAttributes()
                     if page_node_attributes.get('path'):
+                        page_node._tail_list=unescape_path_list(getattr(page_node,'_tail_list',[]))
                         return page_node, page_node_attributes
         if self.default_path and not default:
             page_node, page_node_attributes = self.get_page_node(self.default_path, default=True)
-            page_node._tail_list = list(path_list)
+            page_node._tail_list =  unescape_path_list(path_list)
             return page_node, page_node_attributes
         return None, None
         
