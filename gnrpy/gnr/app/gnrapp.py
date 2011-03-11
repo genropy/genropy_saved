@@ -160,7 +160,7 @@ class GnrPackage(object):
         self.application = application
         self.packageFolder = os.path.join(path, filename)
         self.libPath = os.path.join(self.packageFolder, 'lib')
-        sys.path.append(apppkg.libPath)
+        sys.path.append(self.libPath)
         self.attributes = {}
         self.tableMixins = {}
         self.plugins = {}
