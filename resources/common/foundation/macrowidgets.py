@@ -179,7 +179,7 @@ class RichTextEditor(BaseComponent):
 
     def rte_toolbar_standard(self):
         return """[
-                   ['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink'],
+                   ['Source','-','Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink','-','Templates'],
                    ['Image','Table','HorizontalRule','PageBreak'],
                    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
                    ['Styles','Format','Font','FontSize'],
