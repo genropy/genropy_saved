@@ -17,7 +17,7 @@ class GnrCustomWebPage(object):
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
         form = pane.frameForm(frameCode=frameCode,rounded_bottom=10,table='glbl.provincia',
-                            store='recordCluster',store_startKey='*norecord*',**kwargs)
+                            store='recordCluster',store_startKey=startKey or '*norecord*',**kwargs)
         form.testToolbar(startKey=startKey) 
         fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%")
         fb.formContent()
