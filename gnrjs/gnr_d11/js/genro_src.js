@@ -186,9 +186,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         if (selectedIndex) {
             destination.setSelected(selectedIndex);
         }
-        //if(destination.resize){
-            //destination.resize(objectExtract(dojo.coords(destination.domNode),'h,w')); //fixed for safari
-        //}
+       //if(destination.resize){
+       //   destination.resize(objectExtract(dojo.coords(destination.domNode),'h,w')); //fixed for safari
+       //}
 
     },
     buildNode: function(sourceNode, where, ind) {
