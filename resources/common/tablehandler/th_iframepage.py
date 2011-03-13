@@ -9,20 +9,21 @@ from gnr.web.gnrwebpage import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag
 
-class TableHandlerPage(BaseComponent):
-    def onIniting(self, url_parts, request_kwargs):
-        self.mixin_path = '/'.join(url_parts)
-        pkg = url_parts.pop(0)
-        tablename = url_parts.pop(0)
-        table = '%s.%s' %(pkg,tablename)
-        self.maintable = str(table)
-        self.mixinComponent(pkg,'tables',tablename,'lists','%s:Main' %tablename)
-        while len(url_parts)>0: 
-            url_parts.pop(0)
+class TableHandler(BaseComponent):
+    @struct_method
+    def th_stackTableHandler(self,pane,table=None,inputForm=None,listForm=None,**kwargs):
+        sc = pane.stackContainer(**kwargs)
+        sc.contentPane(pageName='view').iframeTableHandler(table=table,inputForm=sc.contentPane(pageName='form'))
 
-    def main(self, root,**kwargs):
-        frame = root.framePane(frameCode='mainstack',datapath='main',center_widget='StackContainer')
-        frame.iframe()
+    @struct_method
+    def th_iframeTableHandler(self,pane,table=None,inputPane=None,inputForm=None,listForm=None,**kwargs):
+        pkg,table = table.split('.')
+        formRunnerUrl='/adm/thpages/formrunner'
+        viewRunnerUrl='/adm/thpages/viewrunner'
+        pane.contentPane(detachable=True).contentPane(margin='5px',overflow='hidden').iframe(src='%s/%s/%s' %(viewRunnerUrl,pkg,table),border=0,height='100%',width='100%')
+        if inputPane is not None:
+            inputPane.contentPane(detachable=True).contentPane(margin='5px',overflow='hidden').iframe(src='%s/%s/%s' %(formRunnerUrl,pkg,table),border=0,height='100%',width='100%')
+
 
 class RecordPage(BaseComponent):
     py_requires='gnrcomponents/formhandler:FormHandler'
@@ -31,17 +32,15 @@ class RecordPage(BaseComponent):
 
     def tableDeleteTags(self):
         return 'user'
-
-    def pageAuthTags(self, method=None, **kwargs):
-        return 'user'
         
     def onIniting(self, url_parts, request_kwargs):
         self.mixin_path = '/'.join(url_parts)
         pkg = url_parts.pop(0)
         tablename = url_parts.pop(0)
         table = '%s.%s' %(pkg,tablename)
+        name = request_kwargs.pop('formName','default')
         self.maintable = table
-        self.mixinComponent(pkg,'tables',tablename,'forms','%s:Main' %tablename)
+        self.mixinComponent(pkg,'tables',tablename,'thform','%s:Main' %name)
         if url_parts:
             request_kwargs['pkey'] = url_parts.pop(0)
         while len(url_parts)>0: 
@@ -55,7 +54,7 @@ class RecordPage(BaseComponent):
             self._userRecord = self.db.table('adm.user').record(username=user).output('bag')
         return self._userRecord[path]
     
-    def main(self, root, pkey='*newrecord*',**kwargs):
+    def main(self, root, pkey='*norecord*',**kwargs):
         form = root.frameForm(frameCode = 'mainform', datapath= 'form',
                               pkeyPath='.pkey',
                               center_widget='BorderContainer')
@@ -70,7 +69,7 @@ class RecordPage(BaseComponent):
     def formCb(self, bc):
         pass
 
-class ListPage(BaseComponent):
+class ViewPage(BaseComponent):
     py_requires=""" tablehandler/th_core,
                     tablehandler/th_extra:TagsHandler,
                      tablehandler/th_extra:QueryHelper,
@@ -85,7 +84,8 @@ class ListPage(BaseComponent):
         tablename = url_parts.pop(0)
         table = '%s.%s' %(pkg,tablename)
         self.maintable = str(table)
-        self.mixinComponent(pkg,'tables',tablename,'lists','%s:Main' %tablename)
+        name = request_kwargs.pop('listName','default')
+        self.mixinComponent(pkg,'tables',tablename,'thview','%s:Main' %name)
         while len(url_parts)>0: 
             url_parts.pop(0)
             
@@ -100,7 +100,12 @@ class ListPage(BaseComponent):
         frame = root.framePane(frameCode='mainlist',datapath='list')
         self.listToolbar(frame.top)
         self.listController(frame)
-        iv = frame.includedView(struct=self.lstBase,_newGrid=True)
+        iv = frame.includedView(struct=self.lstBase,_newGrid=True,
+                                connect_onSelected="""
+                                                var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
+                                                if(rowIndex>-1){
+                                                    window.parent.genro.publish({'topic':'load','iframe':'*','form':'mainform'},{destPkey:this.widget.rowIdByIndex(rowIndex)})
+                                                }""")
         store = iv.selectionStore(table=self.maintable, columns='=.columns',
                            chunkSize=self.rowsPerPage()*4,
                            where='=.query.where', sortedBy='=.sorted',
