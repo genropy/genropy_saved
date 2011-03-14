@@ -1,4 +1,4 @@
-.. _genro_form_introduction:
+.. _genro_form_widgets_introduction:
 
 ================================
 Introduction to the form widgets

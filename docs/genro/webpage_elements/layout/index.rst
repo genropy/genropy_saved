@@ -1,8 +1,8 @@
 .. _genro_layout_index:
 
-==============
-Layout widgets
-==============
+===============
+Layout elements
+===============
 
 .. toctree::
     :maxdepth: 1

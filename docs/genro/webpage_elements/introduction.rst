@@ -23,18 +23,27 @@ Introduction to Genro webpage elements
     
     You can act on a Genro :ref:`webpages_webpages` through:
     
+    * **Layout elements** - they allow to create the webpage's layout of your webpages.
+    
+        * Check the :ref:`genro_layout_introduction`
+        * description and list of all the :ref:`genro_layout_index`
+    
     * **HTML elements** - standard HTML elements.
     
-        * Check the :ref:`genro_html` to learn the Genro syntax for HTML.
+        * Check the :ref:`genro_html` documentation page to learn the Genro syntax for HTML
     
     * **CSS elements** - standard CSS elements.
     
-        * Check the :ref:`genro_css` to learn the Genro Syntax for CSS.
+        * Check the :ref:`genro_css` documentation page to learn the Genro Syntax for CSS
         
-    * **Widgets elements** - Used to create the webpage's layout and to introduce the input elements (button, checkbox, etc).
+    * **Widgets elements** - The primary UI
     
-        * Check the :ref:`genro_widgets_introduction`;
-        * description and list of all the :ref:`genro_widgets_index`.
+        * Check the :ref:`genro_form_widgets_introduction`
+        * description and list of all the :ref:`genro_form_widgets_index`
+    
+    * **Forms** - the standard way to let the user enter data that are sent to a server for processing.
+    
+        * Check the :ref:`genro_form_intro` documentation page
         
     * **data elements** - Used to define variables from server to client.
     

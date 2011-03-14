@@ -16,7 +16,7 @@ Definition
     
     add???
     
-.. _border_attributes:
+.. _frame_attributes:
 
 Attributes
 ==========
