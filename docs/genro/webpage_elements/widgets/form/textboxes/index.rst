@@ -7,7 +7,7 @@ Textboxes
 .. toctree::
     :maxdepth: 1
     
-    textboxes
+    introduction <introduction>
     textbox
     currencytextbox
     datetextbox
