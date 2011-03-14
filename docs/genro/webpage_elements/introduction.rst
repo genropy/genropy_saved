@@ -3,6 +3,16 @@
 ======================================
 Introduction to Genro webpage elements
 ======================================
+
+    .. note:: We recommend you to read the :ref:`genro_datapath` paragraph before reading this section and learn the
+              behavior of *datapath* and *value* attributes, because every webpage element is able to save its values
+              through these two attributes.
+    
+    ???Genro uses Dojo widget elements. They allow you to create the layout of the webpage and allow you to
+    introduce the input elements (like a button, a checkbox, etc).
+    
+    ???Most of the Genro widget syntax inherit from the Dojo syntax; however, you can check the relative
+    documentation of a widget for a complete reference of our language.
     
     Genro utilizes Dojo_ (for other documentation see also `Dojo Campus`_).
     
@@ -11,26 +21,21 @@ Introduction to Genro webpage elements
     .. _Dojo: http://www.dojotoolkit.org/
     .. _Dojo Campus: http://dojocampus.org/
     
-    In Dojo, the widgets can be of two types: the Containers and the ContentPanes.
-    
-    * The containers are able to contain other Containers or ContentPanes.
-    * The ContentPanes are able to contain widgets or HTML elements.
-    
     You can act on a Genro :ref:`webpages_webpages` through:
     
+    * **HTML elements** - standard HTML elements.
+    
+        * Check the :ref:`genro_html` to learn the Genro syntax for HTML.
+    
+    * **CSS elements** - standard CSS elements.
+    
+        * Check the :ref:`genro_css` to learn the Genro Syntax for CSS.
+        
     * **Widgets elements** - Used to create the webpage's layout and to introduce the input elements (button, checkbox, etc).
     
         * Check the :ref:`genro_widgets_introduction`;
         * description and list of all the :ref:`genro_widgets_index`.
-    
-    * **HTML elements** - standard HTML elements.
-    
-        * Check the :ref:`genro_html_introduction`.
-    
-    * **CSS elements** - standard CSS elements.
-    
-        * Check the :ref:`genro_css`.
-    
+        
     * **data elements** - Used to define variables from server to client.
     
         * Check the :ref:`genro_data` page.

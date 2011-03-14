@@ -8,9 +8,10 @@ Webpage elements
     :maxdepth: 1
     
     introduction
-    widgets/index
     html
     css
+    layout/index
     data
     dataremote
     controller/index
+    form/index

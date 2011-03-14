@@ -1,4 +1,4 @@
-.. _genro_html_introduction:
+.. _genro_html:
 
 =============
 HTML elements
