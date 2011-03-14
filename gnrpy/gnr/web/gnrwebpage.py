@@ -110,6 +110,7 @@ class GnrWebPage(GnrBaseWebPage):
                                            connection_id=request_kwargs.pop('_connection_id', None),
                                            user=request_kwargs.pop('_user', None))
         page_id = request_kwargs.pop('page_id', None)
+        self.instantiateProxies()
         self.onPreIniting(request_args, request_kwargs)
         self._call_handler = self.get_call_handler(request_args, request_kwargs)
         self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
@@ -121,7 +122,13 @@ class GnrWebPage(GnrBaseWebPage):
     def onPreIniting(self, *request_args, **request_kwargs):
         """add???"""
         pass
-            
+
+    def instantiateProxies(self):
+        proxy_classes = [(p[:-11],getattr(self,p, None)) for p in dir(self) if p.endswith('_proxyclass')]
+        for proxy_name,proxy_class in proxy_classes:
+            if proxy_class:
+                setattr(self,proxy_name,proxy_class(self))
+
     def _check_page_id(self, page_id=None, kwargs=None):
         if page_id:
             if not self.connection.connection_id:
