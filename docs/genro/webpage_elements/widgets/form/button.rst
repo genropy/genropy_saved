@@ -21,9 +21,11 @@ Definition
 Description
 ===========
 
-    The Genro button takes its basic structure from the Dojo button [#]_.
+    The Genro button takes its basic structure from the Dojo button: it is a Dojo widget used as a
+    representation of an html button.
     
-    Button is a Dojo widget used as a representation of an html button. You may define its purpose through the "action" attribute (explained below), a javascript command executed by clicking on the button itself.
+    **Added Genro feature**: You may define its purpose through the *action* attribute (explained below),
+    a javascript command executed by clicking on the button itself.
 
 .. _button_attributes:
 
@@ -91,9 +93,5 @@ Usage of some Genro macro
     It is important for you to know that the ``FIRE`` command in the button is a shortcut for a script that puts ``True`` in the destination path (allowing to the action of the button to be executed) and then put again ``False`` (allowing to the button to be reusable!).
 
 **Footnotes:**
-
-.. [#] To show the Dojo button definition, please click here_.
-
-.. _here: http://docs.dojocampus.org/dijit/form/Button
 
 .. [#] In Genro there are four macros used as a shortcut that you can use in place of some Javascript command. They are ``FIRE``, ``GET``, ``SET``, ``PUT``. For more details, check the :ref:`genro_macro` page.

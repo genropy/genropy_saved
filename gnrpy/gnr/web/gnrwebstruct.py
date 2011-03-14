@@ -1207,6 +1207,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self.child('menuline', label=label, **kwargs)
         
     def field(self, field=None, **kwargs):
+        """add???"""
         kwargs = self._fieldDecode(field, **kwargs)
         tag = kwargs.pop('tag')
         return self.child(tag, **kwargs)
@@ -1813,19 +1814,22 @@ class GnrGridStruct(GnrStructData):
                 
     def fieldcell(self, field, _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None, zoom=False, **user_kwargs):
-        """add???
+        """A form widget that inherits every attribute from the :ref:`genro_field` widget.
         
-        :param field: add???
+        :param field: MANDATORY - it contains the name of the :ref:`genro_field` from which
+                      the fieldcell inherits.
         :param _as: add???. Default value is ``None``
-        :param name: with *name* you can change the default fieldcell label (that is the
-                     :ref:`genro_name_long` of the field to which the fieldcell refers to).
-                     Default value is ``None``
+        :param name: with *name* you can override the :ref:`genro_name_long` of the
+                     :ref:`genro_field` form widget. Default value is ``None``
         :param width: the fieldcell width. Default value is ``None``
-        :param dtype: the fieldcell data type. Default value is ``None``
+        :param dtype: you can override the *dtype* of the :ref:`genro_field` form widget.
+                      Default value is ``None``
         :param classes: add???. Default value is ``None``
         :param cellClasses: add???. Default value is ``None``
         :param headerClasses: add???. Default value is ``None``
-        :param zoom: add???. Default value is ``False``
+        :param zoom: a link to the object to which the fieldcell refers to.
+                     For more information, check the :ref:`genro_zoom` documentation page.
+                     Default value is ``False``
         :returns: add???
         """
         if not self.tblobj:

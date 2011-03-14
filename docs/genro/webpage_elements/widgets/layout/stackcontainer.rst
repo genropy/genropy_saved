@@ -4,13 +4,11 @@
 stackContainer
 ==============
     
-    .. note:: The Genro stackContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's stackContainer_ documentation.
-
-    .. _stackContainer: http://docs.dojocampus.org/dijit/layout/StackContainer
-
+    .. note:: The Genro stackContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's stackContainer documentation.
+    
     * :ref:`stack_def`
     * :ref:`stack_attributes`
-    * :ref:`stack_examples`
+    * :ref:`stack_examples`: :ref:`stack_examples_simple`
 
 .. _stack_def:
 
@@ -46,8 +44,13 @@ Attributes
 Examples
 ========
 
-    **Simple example:** Here we show you a simple code containing a ``stackContainer``, in which the *selectedPage*
-    is linked with the filteringSelect keys::
+.. _stack_examples_simple:
+
+simple example
+--------------
+
+    Here we show you a simple code containing a ``stackContainer``, in which the *selectedPage*
+    is linked with the :ref:`genro_filteringselect` keys::
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):

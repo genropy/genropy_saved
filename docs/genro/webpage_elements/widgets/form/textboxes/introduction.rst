@@ -1,12 +1,10 @@
-	.. _genro_textboxes:
+.. _genro_textboxes:
 
 =========================
 introduction to textboxes
 =========================
-
-    .. note:: The Genro textboxes have been taken from Dojo without adding any modifies. In this page and in the next one you will find some interesting features that we want to point up. For more information, check the Dojo's documentation.
     
-    Textbox is a form widget used to insert data.
+    The textboxes are form widgets used to insert input data.
     
     There are different textbox types:
     
@@ -15,7 +13,10 @@ introduction to textboxes
     * :ref:`genro_datetextbox`
     * :ref:`genro_numbertextbox`
     * :ref:`genro_timetextbox`
-
+    
+    The main additional feature to the Dojo textboxes is the compatibility with the Genro validations.
+    For more information, check the :ref:`genro_validations` documentation page.
+    
 .. _textboxes_attributes:
 
 Common attributes

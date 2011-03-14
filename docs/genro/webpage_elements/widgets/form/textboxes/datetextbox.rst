@@ -1,24 +1,24 @@
 .. _genro_datetextbox:
 
-=============
- dateTextbox
-=============
+===========
+dateTextbox
+===========
 
     .. note:: We recommend you to read :ref:`genro_textboxes` first.
     
-    * :ref:`dateTextbox_def`
-    * :ref:`dateTextbox_description`
-    * :ref:`dateTextbox_attributes`
-    * :ref:`dateTextbox_examples`
+    * :ref:`datetextbox_def`
+    * :ref:`datetextbox_description`
+    * :ref:`datetextbox_attributes`
+    * :ref:`datetextbox_examples`: :ref:`datetextbox_examples_simple`
 
-.. _dateTextbox_def:
+.. _datetextbox_def:
 
 Definition
 ==========
 
     .. method:: pane.dateTextbox([**kwargs])
 
-.. _dateTextbox_description:
+.. _datetextbox_description:
 
 Description
 ===========
@@ -27,7 +27,7 @@ Description
     
     .. note:: We remind you that the used format type of data is: dd/mm/yyyy
 
-.. _dateTextbox_attributes:
+.. _datetextbox_attributes:
 
 Attributes
 ==========
@@ -40,11 +40,16 @@ Attributes
     
         For common attributes, see :ref:`textboxes_attributes`
         
-.. _dateTextbox_examples:
+.. _datetextbox_examples:
 
 Examples
 ========
-    
+
+.. _datetextbox_examples_simple:
+
+simple example
+--------------
+
     Example::
     
         class GnrCustomWebPage(object):

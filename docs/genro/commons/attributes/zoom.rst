@@ -12,20 +12,24 @@ zoom
 Definition and description
 ==========================
 
-    ::
-    
-        zoom = False
-
-    *zoom* is an attribute used to ???
+    Boolean. If ``True``, allow the user to open in a different tab (or window) a page including
+    the object the zoom refers to.
 
 .. _zoom_validity:
 
 Validity
 ========
 
-    **Validity:** you can give *zoom* attribute to the following objects:
-
-        - add???
+    You can give *zoom* attribute to the following objects:
+    
+    * :ref:`genro_form_index`:
+    
+        * :ref:`genro_field`
+        * :ref:`genro_fieldcell`
+    
+    * :ref:`genro_components_index`:
+    
+        * :ref:`genro_linkerField`
         
 .. _zoom_examples:
 
@@ -33,3 +37,4 @@ Examples
 ========
 
     add???
+                  

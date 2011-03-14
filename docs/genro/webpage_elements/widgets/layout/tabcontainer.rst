@@ -4,11 +4,12 @@
 tabContainer
 ============
 
+    .. note:: The Genro tabContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's tabContainer documentation.
+
     * :ref:`tab_definition`
     * :ref:`tab_attributes`
-    * :ref:`tab_examples`
-    
-    * attributes explanation: :ref:`tab_selected`, :ref:`tab_tabposition`
+    * :ref:`tab_examples`: :ref:`tab_examples_simple`
+    * :ref:`tab_attr_exp`: :ref:`tab_selected`, :ref:`tab_tabposition`
 
 .. _tab_definition:
 
@@ -32,31 +33,39 @@ Attributes
 
     **attributes of the tabContainer's children (paneContainers)**:
     
-        There aren't particular attributes.
-
+    There aren't particular attributes.
+    
     **common attributes**:
-
-        For common attributes, see :ref:`genro_layout_common_attributes`
-
+    
+    For common attributes, see :ref:`genro_layout_common_attributes`
+    
 .. _tab_examples:
 
 Examples
 ========
 
-.. _tab_simple:
+.. _tab_examples_simple:
 
-**Simple example:** Here we show you a simple example of a ``tabContainer``::
+simple example
+--------------
 
-    class GnrCustomWebPage(object):
-        def main(self,root,**kwargs):
-            tc = pane.tabContainer(height='200px')
-            cp = tc.contentPane(title='title place',iconClass='icnBaseAction')
-            tc.contentPane(title='Second tab').button('Dummy button (no action)',margin='10px')
+    Here we show you a simple example of a ``tabContainer``::
+    
+        class GnrCustomWebPage(object):
+            def main(self,root,**kwargs):
+                tc = pane.tabContainer(height='200px')
+                cp = tc.contentPane(title='title place',iconClass='icnBaseAction')
+                tc.contentPane(title='Second tab').button('Dummy button (no action)',margin='10px')
+
+.. _tab_attr_exp:
+
+Attributes explanation
+======================
 
 .. _tab_selected:
 
 "selected" attribute
-====================
+--------------------
 
     With the *selected* attribute Genro create a folder path in the :ref:`genro_datastore` where lies a number indicating the tab selected (for the first tab you'll find 0, for the second one 1 and so on).
     
@@ -71,10 +80,10 @@ Examples
 .. _tab_tabposition:
 
 "tabPosition" attribute
-=======================
+-----------------------
 
     In the following example we show you all the possibilities for the *tabPosition* attribute::
-
+    
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
                 bc = pane.borderContainer(height='460px')

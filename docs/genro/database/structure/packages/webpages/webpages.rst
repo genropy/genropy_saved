@@ -58,7 +58,9 @@ Introduction on a GnrCustomWebPage
 
 GnrCustomWebPage
 ================
-
+    
+    add??? (non esiste una classe gnrcustomwebpages quando vai a mettere le cose vanno a finire dentro un istanza di GnrWebPage)
+    
     The GnrCustomWebPage (Genro Custom Webpage) is add???(a mixin class?) through which you can build your webpages.
     
     #. A webpage file has to begin with a line code that specify the location to the python executable in your machine::
@@ -303,16 +305,19 @@ css_requires
         
     .. note:: The CSS files you want to use must be placed into a folder named "``resources``" (or "``_resources``")
               
-              * For more information about Genro CSS, please check the :ref:`genro_css` documentation page.
-              * For more information about their location in a Genro :ref:`genro_structure_mainproject`, please check the
-                :ref:`genro_webpage_resources` documentation page.
+              * For more information about Genro CSS, please check the :ref:`genro_css`
+                documentation page.
+              * For more information about their location in a Genro :ref:`genro_structure_mainproject`,
+                please check the :ref:`genro_webpage_resources` documentation page.
     
     .. _webpages_auth_tags:
 
 auth_tags
 ---------
 
-    * Description: add???
+    .. module:: gnr.web._gnrbasewebpage.GnrBaseWebPage
+    
+    * Description: add???. Link it to the :meth:`pageAuthTags` method...
     * Default value: ``add???``
     * Example:
     
@@ -322,15 +327,15 @@ auth_tags
 
 dojo_source
 -----------
-
-    add???
     
-    * Description: add???
-    * Default value: boolean. Default value is add???(``True``?)
+    * Description: boolean. Webpage variable for Dojo developers. If ``True``, you can read the
+      javascript code decompressed [#]_.
+    * Default value: Default value is ``False`` (compressed Javascript)
     * Example:
     
-        add???
+        dojo_source = True
 
 **Footnotes**:
 
 .. [#] For more information on active and passive components, please check the :ref:`components_active_passive` documentation section.
+.. [#] Dojo is usually sent compressed to the client. But if you want to debug it, it is better to read it uncompressed

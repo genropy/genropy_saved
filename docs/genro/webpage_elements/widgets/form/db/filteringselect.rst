@@ -4,13 +4,11 @@
 filteringSelect
 ===============
 
-    .. note:: The Genro filteringSelect has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's filteringSelect_ documentation.
-
-    .. _filteringSelect: http://docs.dojocampus.org/dijit/form/FilteringSelect
-
+    .. note:: The Genro filteringSelect has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's filteringSelect documentation.
+    
     * :ref:`filteringselect_def`
     * :ref:`filteringselect_description`
-    * :ref:`filteringSelect_attributes`
+    * :ref:`filteringselect_attributes`
     * :ref:`filteringselect_examples`: :ref:`bag_example`, :ref:`values_example`
     
 .. _filteringselect_def:
@@ -31,7 +29,7 @@ Description
     
     If user types a wrong entry (that is a word that doesn't corresponds to any of the filteringSelect values) the key in :ref:`genro_datastore` will be saved as ``undefined``.
 
-.. _filteringSelect_attributes:
+.. _filteringselect_attributes:
 
 Attributes
 ==========
@@ -116,4 +114,4 @@ Filling a filteringSelect through "values" attribute
                                      
     .. note:: Pay attention not to confuse *value* with *values*: *value* is used to allocate user data in a well determined :ref:`genro_datapath`, while *values* is used to fill the filteringSelect.
     
-    .. warning:: Unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a "validate" attribute (see :ref:`genro_validations`).
+    .. warning:: Unlike Dojo, actually filteringSelect doesn't warn user for its wrong insertion. You can add a warning for the user through a *validate* attribute (see :ref:`genro_validations`).

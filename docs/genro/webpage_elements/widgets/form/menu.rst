@@ -4,14 +4,15 @@
 menu
 ====
 
-    .. note:: To create a menu, you have to use the ``dropdownbutton`` widget. Go the :ref:`genro_dropdownbutton` page for further details on it.
+    .. note:: To create a menu, you have to use the ``dropdownbutton`` widget. For more information,
+              check the :ref:`genro_dropdownbutton` documentation page.
     
     * :ref:`menu_def`
     * :ref:`menu_description`
     * :ref:`menu_attributes`
-    * :ref:`menu_examples`
+    * :ref:`menu_examples`: :ref:`menu_examples_simple`
     
-.. _menu_definition_description:
+.. _menu_def:
     
 Definition
 ==========
@@ -25,7 +26,7 @@ Description
 
     Constructs a button that opens a :ref:`genro_menu` or a ``tooltipdialog``.
     
-    * You can create a *menu* with::
+    * You can create a *menu* appending it to a dropdownbutton::
     
         ddb = pane.dropdownbutton('NameOfTheMenu')
         menu = ddb.menu()
@@ -55,7 +56,7 @@ Attributes
     
     * *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
-    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, you have to give it to the dropdownbutton. Check the following_ example.
+    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, you have to give it to the dropdownbutton. Check the :ref:`menu_examples_simple`.
     * *visible*: if False, hide the widget (but keep a place in the :ref:`genro_datastore` for it). For more information, check the :ref:`genro_visible` documentation page
 
 .. _menu_examples:
@@ -63,12 +64,15 @@ Attributes
 Examples
 ========
 
-.. _following:
+.. _menu_examples_simple:
+
+simple example
+--------------
 
     **Example**::
         
         def main(self,root,**kwargs):
-            ddb = pane.dropdownbutton('Menu')    # Same meaning: ddb=pane.dropdownbutton(label='Menu')
+            ddb = root.dropdownbutton('Menu')    # Same meaning: ddb=pane.dropdownbutton(label='Menu')
             dmenu = ddb.menu()
             dmenu.menuline('Open...',action="alert('Opening...')")
             dmenu.menuline('Close',action="alert('Closing...')")

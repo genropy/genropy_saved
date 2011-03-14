@@ -4,6 +4,8 @@
 table
 =====
     
+    .. warning:: completely to be completed!!
+    
     * :ref:`table_definition`
     * :ref:`table_description`
     * :ref:`table_relation`
@@ -13,6 +15,8 @@ table
 
 Definition
 ==========
+
+    In relational databases and flat file databases, a table is a set of data elements (values) that is organized using a model of vertical columns (which are identified by their name) and horizontal rows. A table has a specified number of columns, but can have any number of rows. Each row is identified by the values appearing in a particular column subset which has been identified as a candidate key.
 
     A table allows to manage the database. add???(here I need an help for documentation...)
     

@@ -4,14 +4,12 @@
 simpleTextarea
 ==============
 
-    .. note:: The Genro simpleTextarea has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's simpleTextarea_ documentation.
-
-    .. _simpleTextarea: http://docs.dojocampus.org/dijit/form/SimpleTextarea
+    .. note:: The Genro simpleTextarea has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's simpleTextarea documentation.
     
     * :ref:`simplearea_def`
     * :ref:`simplearea_description`
-    * :ref:`simpletextarea_attributes`
-    * :ref:`simpletextarea_examples`
+    * :ref:`simplearea_attributes`
+    * :ref:`simplearea_examples`: :ref:`simplearea_examples_simple`
 
 .. _simplearea_def:
 
@@ -27,7 +25,7 @@ Description
 
     With simpletextarea you can add an area for user writing.
 
-.. _simpletextarea_attributes:
+.. _simplearea_attributes:
 
 Attributes
 ==========
@@ -44,12 +42,17 @@ Attributes
     * *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
     * *visible*: if False, hide the widget (but keep a place in the :ref:`genro_datastore` for it). For more information, check the :ref:`genro_visible` documentation page
     
-.. _simpletextarea_examples:
+.. _simplearea_examples:
 
 Examples
 ========
 
-    Let's see a code example::
+.. _simplearea_examples_simple:
+
+simple example
+--------------
+
+    Let's see a simple example::
         
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):

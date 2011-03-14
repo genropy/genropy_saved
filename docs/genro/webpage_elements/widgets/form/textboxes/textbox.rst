@@ -9,7 +9,7 @@ textbox
     * :ref:`textbox_def`
     * :ref:`textbox_description`
     * :ref:`textbox_attributes`
-    * :ref:`textbox_examples`
+    * :ref:`textbox_examples`: :ref:`textbox_examples_simple`
 
 .. _textbox_def:
 
@@ -23,10 +23,8 @@ Definition
 Description
 ===========
 
-    Textbox is used to insert a text. Genro textbox is taken from Dojo ValidationTextBox (version 1.5; to show it, click here_.), so it supports all of Dojo ValidationTextBox attributes.
-
-    .. _here: http://docs.dojocampus.org/dijit/form/ValidationTextBox
-
+    Textbox is used to insert a text. Genro textbox is taken from Dojo ValidationTextBox, so it supports all of Dojo ValidationTextBox attributes.
+    
 .. _textbox_attributes:
 
 Attributes
@@ -50,6 +48,11 @@ Attributes
 
 Examples
 ========
+
+.. _textbox_examples_simple:
+
+simple example
+--------------
 
     Let's see a code example::
     

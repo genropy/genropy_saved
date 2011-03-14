@@ -1,31 +1,31 @@
 .. _genro_currencytextbox:
 
-=================
- currencyTextbox
-=================
+===============
+currencyTextbox
+===============
     
     .. note:: We recommend you to read :ref:`genro_textboxes` first.
     
-    * :ref:`currencyTextbox_def`
-    * :ref:`currencyTextBox_description`
-    * :ref:`currencyTextbox_attributes`
-    * :ref:`currencyTextbox_examples`
+    * :ref:`currencytextbox_def`
+    * :ref:`currencytextBox_description`
+    * :ref:`currencytextbox_attributes`
+    * :ref:`currencytextbox_examples`: :ref:`currencyTextbox_examples_simple`
     
-.. _currencyTextbox_def:
+.. _currencytextbox_def:
 
 Definition
 ==========
 
     .. method:: pane.currencyTextbox([**kwargs])
 
-.. _currencyTextBox_description:
+.. _currencytextBox_description:
 
 Description
 ===========
     
     The currencyTextbox inherits all the attributes and behaviors of the numberTextbox widget but are specialized for input monetary values, much like the currency type in spreadsheet programs.
 
-.. _currencyTextbox_attributes:
+.. _currencytextbox_attributes:
 
 Attributes
 ==========
@@ -40,13 +40,18 @@ Attributes
     
         For common attributes, see :ref:`textboxes_attributes`
 
-.. _currencyTextbox_examples:
+.. _currencytextbox_examples:
 
 Examples
 ========
 
-    Example::
+.. _currencytextbox_examples_simple:
 
+simple example
+--------------
+
+    Example::
+    
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
                 root.currencyTextBox(value='^amount',default=1123.34,

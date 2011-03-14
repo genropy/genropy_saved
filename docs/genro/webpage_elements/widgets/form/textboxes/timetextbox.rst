@@ -6,19 +6,19 @@ timeTextbox
 
     .. note:: We recommend you to read :ref:`genro_textboxes` first.
     
-    * :ref:`timeTextbox_def`
-    * :ref:`timeTextbox_description`
-    * :ref:`timeTextbox_attributes`
-    * :ref:`timeTextbox_examples`
+    * :ref:`timetextbox_def`
+    * :ref:`timetextbox_description`
+    * :ref:`timetextbox_attributes`
+    * :ref:`timetextbox_examples`: :ref:`timetextbox_examples_simple`
     
-.. _timeTextbox_def:
+.. _timetextbox_def:
 
 Definition
 ==========
 
     .. method:: pane.timeTextbox([**kwargs])
     
-.. _timeTextbox_description:
+.. _timetextbox_description:
 
 Description
 ===========
@@ -27,7 +27,7 @@ Description
     
     ..note:: The timeTextbox syntax is: hh:mm
     
-.. _timeTextbox_attributes:
+.. _timetextbox_attributes:
 
 Attributes
 ==========
@@ -40,13 +40,18 @@ Attributes
 
         For common attributes, see :ref:`textboxes_attributes`
 
-.. _timeTextbox_examples:
+.. _timetextbox_examples:
 
 Examples
 ========
 
-    Example::
+.. _timetextbox_examples_simple:
 
+simple example
+--------------
+
+    Example::
+    
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
                 root.timeTextBox(value='^timeTextbox')

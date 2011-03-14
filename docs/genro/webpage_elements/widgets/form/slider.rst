@@ -4,14 +4,12 @@
 slider
 ======
 
-    .. note:: the Genro sliders has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's slider_ documentation.
-
-    .. _slider: http://docs.dojocampus.org/dijit/form/Slider
+    .. note:: the Genro sliders has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's slider documentation.
     
     * :ref:`slider_def`
     * :ref:`slider_description`
     * :ref:`slider_attributes`
-    * :ref:`slider_examples`
+    * :ref:`slider_examples`: :ref:`slider_examples_simple`
 
 .. _slider_def:
 
@@ -36,12 +34,12 @@ Attributes
     
     **slider attributes**:
     
-    * ``width``: (horizontalSlider) MANDATORY - define the width of your horizontalSlider
+    * *width*: (horizontalSlider) MANDATORY - define the width of your horizontalSlider
     * *height*: (verticalSlider) MANDATORY - define the height of your verticalSlider
     * *default*: Add a default value in your slider. Default value is 0
-    * ``intermediateChanges``: (Boolean) If True, it allows to changes value of slider during slider move
-    * ``maximum``: Add the maximum value of the slider. Default value is 100
-    * ``minimum``: Add the minimum value of the slider. Default value is 0
+    * *intermediateChanges*: (Boolean) If True, it allows to changes value of slider during slider move
+    * *maximum*: Add the maximum value of the slider. Default value is 100
+    * *minimum*: Add the minimum value of the slider. Default value is 0
     
     **common attributes**:
     
@@ -56,7 +54,12 @@ Attributes
 Examples
 ========
 
-    Let's see a code example::
+.. _slider_examples_simple:
+
+simple example
+--------------
+
+    Let's see a simple example::
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):

@@ -4,11 +4,13 @@
 togglebutton
 ============
 
+    .. note:: The Genro togglebutton has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's togglebutton documentation.
+    
     * :ref:`togglebutton_def`
     * :ref:`togglebutton_description`
     * :ref:`togglebutton_attributes`
     * :ref:`togglebutton_examples`
-
+    
 .. _togglebutton_def:
 
 Definition
@@ -21,7 +23,9 @@ Definition
 Description
 ===========
 
-    A toggle button is a button that represents a setting with a ``True`` or ``False`` state. Togglebuttons look similar to command buttons and display a graphic or text (or both) to identify themselves.
+    A toggle button is a button that represents a setting with a ``True`` or ``False`` state.
+    
+    Togglebuttons look similar to command buttons and display a graphic or text (or both) to identify themselves.
 
 .. _togglebutton_attributes:
 
@@ -30,10 +34,12 @@ Attributes
     
     **togglebutton attributes**:
     
-    * ``iconClass``: CSS attribute to insert a button image. Default value is ``None``. If you want to use the togglebutton as a boolean widget, we recommend you to use ``iconClass="dijitRadioIcon"``, like in the following line code [#]_::
+    * ``iconClass``: CSS attribute to insert a button image. Default value is ``None``.
+    
+      If you want to use the togglebutton as a boolean widget, you can use ``iconClass="dijitRadioIcon"``, like in the following line code [#]_::
     
         fb.togglebutton(value='^.toggle1', iconClass="dijitRadioIcon", label='a togglebutton')
-
+        
     **common attributes**:
     
     * *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page

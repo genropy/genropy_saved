@@ -15,7 +15,7 @@ Introduction to widget elements
 widgets
 =======
     
-    The widget elements are divided in two categories, that are:
+    The widget elements are divided in the following categories:
     
         * The :ref:`genro_form_index`
         * The :ref:`genro_layout_index`

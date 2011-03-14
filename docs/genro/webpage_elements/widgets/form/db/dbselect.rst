@@ -6,7 +6,7 @@ dbSelect
 
     * :ref:`dbselect_def`
     * :ref:`dbselect_attributes`
-    * :ref:`dbselect_examples`
+    * :ref:`dbselect_examples`: :ref:`dbselect_examples_simple`
 
 .. _dbselect_def:
 
@@ -23,10 +23,22 @@ Definition and Description
     
     To specify the table related to the dbSelect you have to use the mandatory :ref:`genro_dbtable` attribute.
     
+.. _dbselect_attributes:
+
+dbSelect attributes
+===================
+
+    For the list of dbSelect attributes, please check :ref:`db_genro_attributes`.
+    
 .. _dbselect_examples:
 
 Examples
 ========
+
+.. _dbselect_examples_simple:
+
+simple example
+--------------
 
     Let's see a code example::
     
@@ -35,14 +47,7 @@ Examples
                 fb=pane.formbuilder(datapath='test1',cols=2)
                 fb.dbSelect(dbtable='showcase.person',rowcaption='$name',
                             value='^.person_id',lbl='Star')
-
-.. _dbselect_attributes:
-
-dbSelect attributes
-===================
-
-    For the list of dbSelect attributes, please check :ref:`db_genro_attributes`.
-
+                            
 **Footnotes**
 
 .. [#] It should have been called "dbFilteringSelect", but it has been shortened in "dbSelect".

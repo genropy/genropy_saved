@@ -6,26 +6,26 @@ numberTextbox
 
     .. note:: We recommend you to read :ref:`genro_textboxes` first.
 
-    * :ref:`numberTextbox_def`
-    * :ref:`numberTextbox_description`
-    * :ref:`numberTextbox_attributes`
-    * :ref:`numberTextbox_examples`
+    * :ref:`numbertextbox_def`
+    * :ref:`numbertextbox_description`
+    * :ref:`numbertextbox_attributes`
+    * :ref:`numbertextbox_examples`: :ref:`numbertextbox_examples_simple`
 
-.. _numberTextbox_def:
+.. _numbertextbox_def:
 
 Definition
 ==========
 
     .. method:: pane.numberTextbox([**kwargs])
     
-.. _numberTextbox_description:
+.. _numbertextbox_description:
     
 Description
 ===========
 
     A simple number textbox.
     
-.. _numberTextbox_attributes:
+.. _numbertextbox_attributes:
 
 Attributes
 ==========
@@ -39,10 +39,15 @@ Attributes
 
         For common attributes, see :ref:`textboxes_attributes`
 
-.. _numberTextbox_examples:
+.. _numbertextbox_examples:
 
 Examples
 ========
+
+.. _numbertextbox_examples_simple:
+
+simple example
+--------------
 
     Example::
     

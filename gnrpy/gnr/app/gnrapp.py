@@ -654,7 +654,6 @@ class GnrApp(object):
             <xml_auth defaultTags='myusers'>
                 <john pwd='mydog' tags='admin' />
             </xml_auth>
-        
         """
         defaultTags = node.getAttr('defaultTags')
         path = node.getAttr('path')

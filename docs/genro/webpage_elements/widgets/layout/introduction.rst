@@ -1,25 +1,41 @@
 .. _genro_layout_introduction:
 
-==============================
-Introduction to the containers
-==============================
+==================================
+Introduction to the layout widgets
+==================================
 
     In Genro you can use layout containers to put panes (or other containers) in specific regions of your page.
+    Every container has its children, that are :ref:`genro_contentpane`\s (For example, the accordionContainer
+    has the accordionPanes as its children)
     
     There are five regions: top, left, right, bottom and a mandatory center.
     
-    As we previously said [#]_, Genro inherit its forms (containers and panes) directly from Dojo.
+    As we previously said [#]_, Genro inherits some of its forms (containers and panes) directly from Dojo.
     
-    The containers are:
+    There are also some layout widgets built directly through the Genro framework.
     
-    * the :ref:`genro_bordercontainer`;
-    * the :ref:`genro_contentpane`;
-    * the :ref:`genro_accordioncontainer`;
-    * the :ref:`genro_splitcontainer`;
-    * the :ref:`genro_stackcontainer`;
-    * the :ref:`genro_tabcontainer`.
+.. _genro_layout_widgets:
+
+Genro layout widgets
+====================
+
+    The **Genro** layout widgets are:
     
-    Every container has its children (that are contentPanes). For example, in the accordionContainer you have the accordionPanes.
+    * the :ref:`genro_framepane`
+    
+.. _dojo_layout_widgets:
+
+Dojo layout widgets
+===================
+
+    The **Dojo** layout widgets are:
+    
+    * the :ref:`genro_bordercontainer`
+    * the :ref:`genro_contentpane`
+    * the :ref:`genro_accordioncontainer`
+    * the :ref:`genro_splitcontainer`
+    * the :ref:`genro_stackcontainer`
+    * the :ref:`genro_tabcontainer`
     
 .. _genro_layout_common_attributes:
 
@@ -38,4 +54,4 @@ Common attributes
 
 **Footnotes**
 
-.. [#] We have introduced the containers in the :ref:`genro_webpage-elements-introduction` page.
+.. [#] We have introduced the containers in the :ref:`genro_webpage_elements_intro` page.

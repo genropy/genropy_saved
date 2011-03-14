@@ -4,6 +4,8 @@
 checkbox
 ========
 
+    .. note:: The Genro checkbox has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's checkbox documentation.
+
     * :ref:`checkbox_def`
     * :ref:`checkbox_description`
     * :ref:`checkbox_attributes`
@@ -21,10 +23,10 @@ Definition
 Description
 ===========
 
-    Genro checkbox is the combination between an HTML checkbox and a Dojo checkbox_.
-    
-    .. _checkbox: http://docs.dojocampus.org/dijit/form/CheckBox
+    CheckBox widgets in dijit are very intuitive and easy to use. Markup constructs for check boxes resemble the same as HTML but dojo provides more control and styling options than a conventional check box.
 
+    Conceptually, native HTML checkboxes have 2 separate values; the first being the boolean checked state, and the second being the text value that is submitted with the containing FORM element if the checked state is true. To resolve this dichotomy, the value of a CheckBox widget is false when unchecked, but the text value when checked. Setting the value to true will check the box (but leave the submittable text string unchanged) while false will uncheck it. Setting the value to a text string will check the box and set the value to be submitted to the indicated text string.
+    
 .. _checkbox_attributes:
     
 Attributes

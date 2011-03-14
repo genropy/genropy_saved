@@ -4,13 +4,11 @@
 borderContainer
 ===============
 
-    .. note:: The Genro borderContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's borderContainer_ documentation.
-    
-    .. _borderContainer: http://docs.dojocampus.org/dijit/layout/BorderContainer
+    .. note:: The Genro borderContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's borderContainer documentation.
     
     * :ref:`border_def`
     * :ref:`border_attributes`
-    * :ref:`border_examples`
+    * :ref:`border_examples`: :ref:`border_examples_simple`
     * :ref:`border_attr_exp`: :ref:`border_regions`, :ref:`border_splitter`
     
 .. _border_def:
@@ -36,13 +34,12 @@ Attributes
     
     **borderContainer's attributes**:
     
-    * *regions*: Allow to act on regions. Check the :ref:`border_regions` example
+    * *regions*: Allow to act on regions. For more information, check the :ref:`border_regions` example
     
     **attributes of the borderContainer's children (paneContainers)**:
     
-    * ``splitter``: If true, user can modify the width of the paneContainer. For more information, check :ref:`border_splitter` page
-    
-    .. _border-common-attributes:
+    * *splitter*: If true, user can modify the width of the paneContainer. For more information,
+      check :ref:`border_splitter` example
     
     **Common attributes**:
     
@@ -53,8 +50,13 @@ Attributes
 Examples
 ========
 
-**Simple example:** Here we show you a simple code containing a ``borderContainer``::
+.. _border_examples_simple:
 
+simple example
+--------------
+
+    Here we show you a simple code containing a ``borderContainer``::
+    
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
                 bc = root.borderContainer(height='400px')
@@ -66,18 +68,20 @@ Examples
 
 .. _border_attr_exp:
 
-Attributes' explanation
-=======================
+Attributes explanation
+======================
 
 .. _border_regions:
 
-Regions attribute
-=================
+*regions* attribute
+-------------------
 
-    With the "regions" attribute you can act on the regions of the borderContainer's children. You can modify their dimensions, and see them in the :ref:`genro_datastore`.
+    With the *regions* attribute you can act on the regions of the borderContainer's children. You can modify
+    their dimensions, and see them in the :ref:`genro_datastore`.
     
     The syntax is: ``regions='folderName'``.
-    If you have to interact with the regions, the syntax is: ``folderName.regionName``; so, if you have to interact with the "left" region, you have to write: ``folderName.left``.
+    If you have to interact with the regions, the syntax is: ``folderName.regionName``; so, if you have to
+    interact with the "left" region, you have to write: ``folderName.left``.
     
     In this example, we give the name "regions" as folder name of the *regions* attribute::
     
@@ -121,10 +125,10 @@ Regions attribute
                                
 .. _border_splitter:
 
-Splitter attribute
-==================
+*splitter* attribute
+--------------------
 
-    Here we show you an example for the ``splitter`` attribute::
+    Here we show you an example for the *splitter* attribute::
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
@@ -135,4 +139,4 @@ Splitter attribute
                 bottom = bc.contentPane(region='bottom',height='80px',background_color='grey',splitter=True)
                 center = bc.contentPane(region='center',background_color='silver',padding='10px')
                 
-    .. note:: The ``splitter`` attribute is NOT supported by the center region (that is, you cannot apply ``splitter=True`` on a contentPane including ``region='center'``).
+    .. note:: The *splitter* attribute is NOT supported by the center region (that is, you cannot apply ``splitter=True`` on a contentPane including ``region='center'``).

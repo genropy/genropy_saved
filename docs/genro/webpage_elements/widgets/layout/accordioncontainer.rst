@@ -4,13 +4,11 @@
 accordionContainer
 ==================
 
-    .. note:: The Genro accordionContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's accordionContainer_ documentation.
-    
-    .. _accordionContainer: http://docs.dojocampus.org/dijit/layout/AccordionContainer
+    .. note:: The Genro accordionContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's accordionContainer documentation.
     
     * :ref:`accordion_def`
     * :ref:`accordion_attributes`
-    * :ref:`accordion_examples`
+    * :ref:`accordion_examples`: :ref:`accordion_examples_simple`
     
 .. _accordion_def:
 
@@ -34,7 +32,7 @@ Attributes
         
     **attributes of the accordionContainer's children (accordionPanes)**:
     
-    * ``title``: MANDATORY - Set the accordionPane's title. Default value is ``None``
+    * *title*: MANDATORY - Set the accordionPane's title. Default value is ``None``
     
     **common attributes**:
     
@@ -45,11 +43,16 @@ Attributes
 Examples
 ========
 
-**Simple example:** Here we show you a simple code containing an ``accordion container``::
+.. _accordion_examples_simple:
 
-    class GnrCustomWebPage(object):
-        def main(self,root,**kwargs):
-            ac = root.accordionContainer()
-            ac.accordionPane(title='Pane one')
-            ac.accordionPane(title='Pane two')
-            ac.accordionPane(title='Pane three')
+simple example
+--------------
+
+    Here we show you a simple code containing an ``accordion container``::
+    
+        class GnrCustomWebPage(object):
+            def main(self,root,**kwargs):
+                ac = root.accordionContainer()
+                ac.accordionPane(title='Pane one')
+                ac.accordionPane(title='Pane two')
+                ac.accordionPane(title='Pane three')

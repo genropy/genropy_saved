@@ -22,7 +22,7 @@ Description and examples
     *rowcaption* can be defined in two places:
 
         * directly into the database table: check :ref:`rowcaption_model_table`
-        * in the query-field (*field*, ``dbselect`` or ``dbcombobox``) placed into the webpage: check :ref:`rowcaption_webpage`
+        * in the query-field (``field``, ``dbselect`` or ``dbcombobox``) placed into the webpage: check :ref:`rowcaption_webpage`
 
 .. _rowcaption_model_table:
 

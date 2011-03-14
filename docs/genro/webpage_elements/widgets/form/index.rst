@@ -7,6 +7,7 @@ form widgets
 .. toctree::
     :maxdepth: 1
     
+    introduction <introduction>
     button
     checkbox
     dropdownbutton
@@ -20,4 +21,4 @@ form widgets
     slider
     togglebutton
     db/index
-    textboxes/index
+    textboxes: dateTextbox, numberTextbox, textbox and timeTextbox <textboxes/index>

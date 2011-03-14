@@ -197,10 +197,10 @@ class GnrBaseWebPage(GnrObject):
             self._siteStatus.toXml(path)
             
     def pageAuthTags(self, method=None, **kwargs):
-        """add???
+        """Allow to define users authorizations
         
         :param method: add???. Default value is ``None``
-        :returns: add???
+        :returns: a string containing add???
         """
         return ""
         

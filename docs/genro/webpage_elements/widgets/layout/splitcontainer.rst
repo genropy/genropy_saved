@@ -6,9 +6,7 @@ splitContainer
 
     .. warning:: This page has to be completed!! add???
     
-    .. note:: add???(is it true???) The Genro splitContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's splitContainer_ documentation.
-
-    .. _splitContainer: http://docs.dojocampus.org/dijit/layout/splitContainer
+    .. note:: The Genro splitContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's splitContainer documentation.
 
     * :ref:`split_def`
     * :ref:`split_attributes`

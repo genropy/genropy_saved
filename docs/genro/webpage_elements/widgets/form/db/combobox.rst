@@ -4,10 +4,8 @@
 comboBox
 ========
 
-    .. note:: The Genro combobox has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's combobox_ documentation.
-
-    .. _combobox: http://docs.dojocampus.org/dijit/form/ComboBox
-
+    .. note:: The Genro combobox has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's combobox documentation.
+    
     * :ref:`combobox_def`
     * :ref:`combobox_description`
     * :ref:`combobox_attributes`
