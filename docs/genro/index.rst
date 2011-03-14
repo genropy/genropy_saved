@@ -16,9 +16,9 @@ Genropy
     :numbered:
     
     getting_started
+    webpage_elements/index
     database/index
     components/index
-    wsgi
     miscellaneous/index
     library_reference/index
     

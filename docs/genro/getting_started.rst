@@ -9,7 +9,6 @@ Getting started
     
     installation
     introduction/index
-    webpage_elements/index
     datastore/index
     commons/index
     bag/index
