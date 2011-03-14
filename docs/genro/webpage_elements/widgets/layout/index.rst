@@ -6,8 +6,8 @@ Layout widgets
 
 .. toctree::
     :maxdepth: 1
-
-    container
+    
+    introduction
     bordercontainer
     contentpane
     accordioncontainer
