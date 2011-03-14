@@ -35,6 +35,10 @@ import time
 
 thread_ws = dict()
 
+class BaseProxy(object):
+    def __init__(self, main):
+        self.main=main
+
 class FilterList(list):
     """add???"""
     def __contains__(self, item):
@@ -813,13 +817,22 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
         for cls_address in py_requires_iterator:
             classMixin(target_class, cls_address, methods=methods,
                        only_callables=only_callables, exclude=exclude, **kwargs)
-    exclude_list = dir(type) + ['__weakref__', '__onmixin__', '__on_class_mixin__', '__py_requires__']
+    exclude_list = dir(type) + ['__weakref__', '__onmixin__', '__on_class_mixin__', '__py_requires__','proxy']
     if exclude:
         exclude_list.extend(exclude.split(','))
     mlist = [k for k in dir(source_class) if
              ((only_callables and callable(getattr(source_class, k))) or not only_callables) and not k in exclude_list]
     if methods:
         mlist = filter(lambda item: item in FilterList(methods), mlist)
+    proxy = getattr(source_class, 'proxy', None)
+    if proxy:
+        if proxy==True:
+            proxy = source_class.__name__.lower()
+        proxy_class = getattr(target_class, '%s_proxyclass'%proxy, None)
+        if not proxy_class:
+            proxy_class = BaseProxy
+            setattr(target_class,'%s_proxyclass'%proxy,proxy_class)
+        target_class = proxy_class
     for name in mlist:
         original = target_class.__dict__.get(name)
         base_generator = base_visitor(source_class)
