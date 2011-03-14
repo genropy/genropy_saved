@@ -1,16 +1,8 @@
 	.. _genro_textboxes:
 
-==================================
- an Introduction to the Textboxes
-==================================
-
-    * :ref:`textboxes_introduction`
-    * :ref:`textboxes_attributes`
-    
-.. _textboxes_introduction:
-
-Definition
-==========
+=========================
+introduction to textboxes
+=========================
 
     .. note:: The Genro textboxes have been taken from Dojo without adding any modifies. In this page and in the next one you will find some interesting features that we want to point up. For more information, check the Dojo's documentation.
     
