@@ -3,18 +3,12 @@
 ================================
 Introduction to the form widgets
 ================================
-
-    In Genro you can use the form widgets. But what is a form widget? Dojo defines them in this way:
-    *It roughly means a widget that appear inside a form, but technically we think of it as
-    “anything that has a value”.*
     
-    As we previously said [#]_, Genro inherits some of its form widgets directly from Dojo (:ref:`dojo_form_widgets`)
+    We can divide the form widgets in three categories:
     
-    There are also some form widgets that have been taken from Dojo adding some features.
-    (:ref:`dojo_improved_form_widgets`)
-    
-    Finally, there are some widgets built directly through the Genro framework
-    (:ref:`genro_form_widgets`)
+    #. the :ref:`dojo_form_widgets`
+    #. the :ref:`dojo_improved_form_widgets`
+    #. the :ref:`genro_form_widgets`
     
 .. _genro_form_widgets:
 
@@ -31,10 +25,10 @@ Genro form widgets
     
 .. _dojo_improved_form_widgets:
 
-Dojo-improved form widgets
+modified-Dojo form widgets
 ==========================
 
-    The **Dojo-improved** form widgets are:
+    The **modified-Dojo** form widgets are:
     
     * :ref:`genro_button`
     * :ref:`genro_menu`
@@ -63,8 +57,4 @@ Dojo form widgets
     * :ref:`genro_simplearea`
     * :ref:`genro_slider`
     * :ref:`genro_togglebutton`
-    
-**Footnotes**
-
-.. [#] We have introduced the form widgets in the :ref:`genro_webpage_elements_intro` page.
     

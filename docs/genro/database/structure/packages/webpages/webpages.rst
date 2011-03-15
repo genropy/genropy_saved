@@ -4,54 +4,19 @@
 webpage
 =======
 
-    * :ref:`webpages_introduction`
     * :ref:`webpages_GnrCustomWebPage`
-    * :ref:`webpages_variables`:
+    * :ref:`webpages_variables`
     
-        * Components variables: :ref:`webpages_py_requires`
-        * CSS variables: :ref:`webpages_css_requires`, :ref:`webpages_css_theme`
-        * Dojo variables: :ref:`webpages_dojo_source`, :ref:`webpages_dojo_theme`, :ref:`webpages_dojo_version`
-        * Javascript variables: :ref:`webpages_js_requires`
-        * Page options: :ref:`webpages_pageOptions`
-        * Polling variables: :ref:`webpages_auto_polling`, :ref:`webpages_user_polling`
-        * Other variables: :ref:`webpages_auth_tags`, :ref:`webpages_eagers`, :ref:`webpages_gnrjsversion`,
-          :ref:`webpages_maintable`, :ref:`webpages_recordlock`
-        
-.. _webpages_introduction:
-
-Introduction on a GnrCustomWebPage
-==================================
-
-    Genro provides the application GUI using webpages. GnrCustomWebPage. The standard usage of Genro GnrCustomWebPages is to use them in a combo with some :ref:`model_table`\s to create a DBMS :ref:`genro_structure_mainproject`.
+    Genro provides the application GUI using webpages.
     
-    You can act on a Genro webpage through many elements: please check every relative section if you need to learn more about them.
+    add???(Introduce the GnrCustomWebPage)
     
-    * **Widgets elements** - Used to create the webpage's layout and to introduce the input elements (button, checkbox, etc).
+    The standard usage of Genro GnrCustomWebPages is to use them in a combo with some :ref:`model_table`\s
+    to create a DBMS :ref:`genro_structure_mainproject`.
     
-        * Check the :ref:`genro_widgets_introduction`;
-        * description and list of all the :ref:`genro_widgets_index`.
+    You can act on a Genro webpage through many webpage elements: please check the
+    :ref:`genro_webpage_elements_intro` to Genro webpage elements if you need to learn more about them.
     
-    * **HTML elements** - standard HTML elements.
-    
-        * Check the :ref:`genro_html_introduction`.
-    
-    * **CSS elements** - standard CSS elements.
-    
-        * Check the :ref:`genro_css`.
-    
-    * **data elements** - Used to define variables from server to client.
-    
-        * Check the :ref:`genro_data` page.
-        
-    * **dataRemote elements** - Synchronous rpc.
-        
-        * Check the :ref:`genro_dataremote` page.
-    
-    * **controller elements** - They receive input and initiate a response by making calls on model objects.
-        
-        * Check the :ref:`genro_controllers_intro`;
-        * list of :ref:`genro_datacontroller_index`.
-        
     We are going now to introduce the :ref:`webpages_GnrCustomWebPage`, the standard class used to build the webpages.
 
 .. _webpages_GnrCustomWebPage:
@@ -98,8 +63,6 @@ GnrCustomWebPage
                 root.div('Hello world!')
                 # Here goes the rest of your code...
                 
-    In the following section we describe the :ref:`webpages_variables`.
-    
     .. _webpages_variables:
 
 webpages variables
@@ -109,6 +72,90 @@ webpages variables
     
     .. note:: The webpages variables act only on the single webpage you insert it.
     
+    * Components variables: :ref:`webpages_py_requires`
+    * CSS variables: :ref:`webpages_css_requires`, :ref:`webpages_css_theme`
+    * Dojo variables: :ref:`webpages_dojo_source`, :ref:`webpages_dojo_theme`, :ref:`webpages_dojo_version`
+    * Javascript variables: :ref:`webpages_js_requires`
+    * Page options: :ref:`webpages_pageOptions`
+    * Polling variables: :ref:`webpages_auto_polling`, :ref:`webpages_user_polling`
+    * Other variables: :ref:`webpages_auth_tags`, :ref:`webpages_eagers`, :ref:`webpages_gnrjsversion`,
+      :ref:`webpages_maintable`, :ref:`webpages_recordlock`
+      
+.. _webpages_py_requires:
+
+py_requires
+-----------
+
+* Description: a string that allows to include some components to your project.
+* Syntax: ``py_requires = 'fileName:componentClassName'``
+
+    Where:
+    
+    * ``fileName`` is the name of the file including the component (write it without its ``.py`` extension)
+    * ``componentClassName`` is the name of the component class
+    
+* Default value: ``None``
+* Example::
+
+    py_requires = 'public:Public,standard_tables:TableHandler,public:IncludedView'
+
+In this example you are calling the ``Public`` and the ``IncludedView`` classes of the ``public.py`` file
+and the ``TableHandler`` class of the ``standard_tables.py`` file.
+
+.. note:: The components you want to use must be placed into a folder named "``resources``" (or "``_resources``")
+          
+          * For more information about components check the :ref:`genro_components_index` documentation page
+          * For more information about their location in a Genro :ref:`genro_structure_mainproject`,
+            please check the :ref:`genro_webpage_resources` documentation page.
+            
+.. _webpages_css_requires:
+
+css_requires
+------------
+
+* Description: allow to import some css files.
+* Default value: ``None``
+* Example:
+
+    css_requires = 'my_css'
+    
+This line implies that you have created a CSS file called ``my_css.js``
+    
+.. note:: The CSS files you want to use must be placed into a folder named "``resources``" (or "``_resources``")
+          
+          * For more information about Genro CSS, please check the :ref:`genro_css`
+            documentation page.
+          * For more information about their location in a Genro :ref:`genro_structure_mainproject`,
+            please check the :ref:`genro_webpage_resources` documentation page.
+            
+.. _webpages_css_theme:
+
+css_theme
+---------
+
+    * Description: a string that allows to change the Genro's page theme. A Genro theme add some CSS features
+      to the Dojo theme you are using in your project (to change the Dojo theme, you can only change it
+      through the :ref:`webpages_dojo_theme` webpage variable)
+    * Default value: the value you specify in the :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig`.
+    * Example::
+    
+        css_theme = 'aqua'
+    
+    .. note:: if you want to define a Genro theme in all of your webpages, define it in the
+              :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig`
+              
+    .. _webpages_dojo_source:
+
+dojo_source
+-----------
+
+* Description: boolean. Webpage variable for Dojo developers. If ``True``, you can read the
+  javascript code decompressed [#]_.
+* Default value: Default value is ``False`` (compressed Javascript)
+* Example:
+
+    dojo_source = True
+
     .. _webpages_dojo_theme:
 
 dojo_theme
@@ -124,7 +171,7 @@ dojo_theme
     * Example::
         
         dojo_theme = 'nihilo'
-    
+        
     .. _webpages_dojo_version:
 
 dojo_version
@@ -137,24 +184,92 @@ dojo_version
     * Example::
     
         dojo_version = '11'
-    
-    .. _webpages_css_theme:
+        
+.. _webpages_js_requires:
 
-css_theme
+js_requires
+-----------
+
+* Description: allow to import some javascript files
+* Default value: ``None``
+* Example::
+
+    js_requires = 'wizard'
+    
+This line implies that you have created a js file called ``wizard.js``
+    
+.. note:: The js files you want to use must be placed into a folder named "``resources``" (or "``_resources``")
+          
+          * For more information about Genro js and their location in Genro, please check the
+            :ref:`genro_webpage_resources` documentation page.
+
+.. _webpages_pageOptions:
+
+pageOptions
+-----------
+
+* Description: a dict with page options. add??? --> pageOptions = {'enableZoom':False,'openMenu':False}
+* Default value: ``add???``
+* Example::
+
+    add???
+    
+.. _webpages_auto_polling:
+
+auto_polling
+------------
+
+* Description: set a number for auto-polling frequency (units: seconds)
+* Default value: ``30``
+* Example::
+
+    auto_polling = 30
+    
+.. _webpages_user_polling:
+
+user_polling
+------------
+
+* Description: set a number for user-polling frequency (units: seconds)
+* Default value: ``3``
+* Example::
+
+    user_polling = 3
+    
+.. _webpages_auth_tags:
+
+auth_tags
 ---------
 
-    * Description: a string that allows to change the Genro's page theme. A Genro theme add some CSS features
-      to the Dojo theme you are using in your project (to change the Dojo theme, you can only change it
-      through the :ref:`webpages_dojo_theme` webpage variable)
-    * Default value: the value you specify in the :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig`.
-    * Example::
+.. module:: gnr.web._gnrbasewebpage.GnrBaseWebPage
+
+* Description: add???. Link it to the :meth:`pageAuthTags` method...
+* Default value: ``add???``
+* Example:
+
+    add???
     
-        css_theme = 'aqua'
+.. _webpages_eagers:
+
+eagers
+------
+
+* Description: a dict that allows to give a hierarchy to the :ref:`bag_resolver` calls of a :ref:`sql_relation`:
+  the relations you put in the eagers are resolved before the other ones.
+* Syntax: 
     
-    .. note:: if you want to define a Genro theme in all of your webpages, define it in the
-              :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig`
+    * *key*: ``packageName.tableName``, where:
     
-    .. _webpages_gnrjsversion:
+        * ``packageName`` is the name of your package (for more information check the :ref:`genro_packages_index` page)
+        * ``tableName`` is the name of the :ref:`model_table`
+        
+    * *value*: includes a :ref:`sql_relation`
+* Default value: ``{}`` (an empty dict)
+* Example::
+
+    eagers = {'writers.contracts':'@sy_publisherid'}
+    
+.. _webpages_gnrjsversion:
 
 gnrjsversion
 ------------
@@ -165,14 +280,14 @@ gnrjsversion
     * Example::
     
         gnrjsversion = '11'
-    
+        
     .. _webpages_maintable:
 
 maintable
 ---------
     
     * Description: a string that allows to create shortcuts for user queries through some Genro
-      :ref:`genro_form_index` (like :ref:`genro_field` or :ref:`genro_fieldcell`)
+      :ref:`genro_form_widgets_index` (like :ref:`genro_field` or :ref:`genro_fieldcell`)
     * Syntax: ``maintable = 'packageName.tableName'``, where:
     
         * ``packageName`` is the name of your package (for more information, check the :ref:`genro_packages_index` page)
@@ -182,7 +297,7 @@ maintable
     * Example::
     
         maintable = 'agenda.call'
-    
+        
     .. _webpages_recordlock:
 
 recordLock
@@ -192,149 +307,6 @@ recordLock
     * Default value: add???
     * Example: add???
     
-    .. _webpages_user_polling:
-
-user_polling
-------------
-    
-    * Description: set a number for user-polling frequency (units: seconds)
-    * Default value: ``3``
-    * Example::
-    
-        user_polling = 3
-        
-    .. _webpages_auto_polling:
-
-auto_polling
-------------
-
-    * Description: set a number for auto-polling frequency (units: seconds)
-    * Default value: ``30``
-    * Example::
-    
-        auto_polling = 30
-    
-    .. _webpages_eagers:
-
-eagers
-------
-
-    * Description: a dict that allows to give a hierarchy to the :ref:`bag_resolver` calls of a :ref:`sql_relation`:
-      the relations you put in the eagers are resolved before the other ones.
-    * Syntax: 
-        
-        * *key*: ``packageName.tableName``, where:
-        
-            * ``packageName`` is the name of your package (for more information check the :ref:`genro_packages_index` page)
-            * ``tableName`` is the name of the :ref:`model_table`
-            
-        * *value*: includes a :ref:`sql_relation`
-    * Default value: ``{}`` (an empty dict)
-    * Example::
-    
-        eagers = {'writers.contracts':'@sy_publisherid'}
-    
-    .. _webpages_py_requires:
-
-py_requires
------------
-
-    * Description: a string that allows to include some components to your project.
-    * Syntax: ``py_requires = 'fileName:componentClassName'``
-    
-        Where:
-        
-        * ``fileName`` is the name of the file including the component (write it without its ``.py`` extension)
-        * ``componentClassName`` is the name of the component class
-        
-    * Default value: ``None``
-    * Example::
-    
-        py_requires = 'public:Public,standard_tables:TableHandler,public:IncludedView'
-    
-    In this example you are calling the ``Public`` and the ``IncludedView`` classes of the ``public.py`` file
-    and the ``TableHandler`` class of the ``standard_tables.py`` file.
-    
-    .. note:: The components you want to use must be placed into a folder named "``resources``" (or "``_resources``")
-              
-              * For more information about components check the :ref:`genro_components_index` documentation page
-              * For more information about their location in a Genro :ref:`genro_structure_mainproject`,
-                please check the :ref:`genro_webpage_resources` documentation page.
-    
-    .. _webpages_js_requires:
-
-js_requires
------------
-
-    * Description: allow to import some javascript files
-    * Default value: ``None``
-    * Example::
-    
-        js_requires = 'wizard'
-        
-    This line implies that you have created a js file called ``wizard.js``
-        
-    .. note:: The js files you want to use must be placed into a folder named "``resources``" (or "``_resources``")
-              
-              * For more information about Genro js and their location in Genro, please check the
-                :ref:`genro_webpage_resources` documentation page.
-    
-    .. _webpages_pageOptions:
-
-pageOptions
------------
-
-    * Description: a dict with page options. add??? --> pageOptions = {'enableZoom':False,'openMenu':False}
-    * Default value: ``add???``
-    * Example::
-    
-        add???
-    
-    .. _webpages_css_requires:
-
-css_requires
-------------
-
-    * Description: allow to import some css files.
-    * Default value: ``None``
-    * Example:
-    
-        css_requires = 'my_css'
-        
-    This line implies that you have created a CSS file called ``my_css.js``
-        
-    .. note:: The CSS files you want to use must be placed into a folder named "``resources``" (or "``_resources``")
-              
-              * For more information about Genro CSS, please check the :ref:`genro_css`
-                documentation page.
-              * For more information about their location in a Genro :ref:`genro_structure_mainproject`,
-                please check the :ref:`genro_webpage_resources` documentation page.
-    
-    .. _webpages_auth_tags:
-
-auth_tags
----------
-
-    .. module:: gnr.web._gnrbasewebpage.GnrBaseWebPage
-    
-    * Description: add???. Link it to the :meth:`pageAuthTags` method...
-    * Default value: ``add???``
-    * Example:
-    
-        add???
-    
-    .. _webpages_dojo_source:
-
-dojo_source
------------
-    
-    * Description: boolean. Webpage variable for Dojo developers. If ``True``, you can read the
-      javascript code decompressed [#]_.
-    * Default value: Default value is ``False`` (compressed Javascript)
-    * Example:
-    
-        dojo_source = True
-
 **Footnotes**:
 
 .. [#] For more information on active and passive components, please check the :ref:`components_active_passive` documentation section.

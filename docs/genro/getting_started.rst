@@ -9,6 +9,3 @@ Getting started
     
     installation
     introduction/index
-    datastore/index
-    commons/index
-    bag/index

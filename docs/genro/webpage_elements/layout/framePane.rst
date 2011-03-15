@@ -7,7 +7,7 @@ framePane
     * :ref:`frame_def`
     * :ref:`frame_attributes`
     * :ref:`frame_examples`
-    * :ref:`frame_attr_exp`: ???
+    * :ref:`frame_attr_exp`
     
 .. _frame_def:
 

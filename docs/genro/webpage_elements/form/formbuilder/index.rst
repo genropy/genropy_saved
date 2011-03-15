@@ -62,7 +62,7 @@ field's Attributes
 
     * *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
-    * *visible*: if False, hide the widget (but keep a place in the :ref:`genro_datastore` for it). For more information, check the :ref:`genro_visible` documentation page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`genro_visible` documentation page
 
 .. _formbuilder_examples:
 
@@ -73,15 +73,15 @@ Examples
 
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
-                fb=root.formbuilder(datapath='test3',cols=3,fld_width='100%',width='100%')
-                fb.textbox(value='^.name',lbl='Name')
-                fb.textbox(value='^.surname',colspan=2,lbl='Surname')
-                fb.numberTextbox(value='^.age',lbl="Age")
-                fb.dateTextbox(value='^.birthdate',lbl='Birthdate')
-                fb.filteringSelect(value='^.sex',values='M:Male,F:Female',lbl='Sex')
-                fb.textbox(value='^.job.profession',lbl='Job')
-                fb.textbox(value='^.job.company_name',lbl='Company name')
-                fb.textbox(value='^.job.fiscal_code',lbl='Fiscal code')
+                bc = root.borderContainer(datapath='testForm')
+                fb = bc.formbuilder(cols=2,width='10em',disabled='^.disabled',hidden='^.hidden',visible='^.visible')
+                fb.textbox(value='^.name', lbl='Name')
+                fb.textbox(value='^.surname', lbl='Surname')
+                fb.numberTextbox(value='^.age', lbl="Age", width='4em')
+                fb.dateTextbox(value='^.birthdate', lbl='Birthdate')
+                fb.filteringSelect(value='^.sex', values='M:Male,F:Female', lbl='Sex')
+                fb.textbox(value='^.job.profession', lbl='Job')
+                fb.textbox(value='^.job.company_name', lbl='Company name')
 
 .. _formbuilder_other_features:
 

@@ -22,7 +22,7 @@ Validity
 
     You can give *zoom* attribute to the following objects:
     
-    * :ref:`genro_form_index`:
+    * :ref:`genro_form_widgets_index`:
     
         * :ref:`genro_field`
         * :ref:`genro_fieldcell`

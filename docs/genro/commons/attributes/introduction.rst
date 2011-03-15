@@ -17,3 +17,4 @@ common attributes
     * *rowcaption*: see :ref:`genro_database_rowcaption`
     * *value*: see :ref:`genro_datapath`
     * *visible*: see :ref:`genro_visible`
+    * *zoom*: see :ref:`genro_zoom`

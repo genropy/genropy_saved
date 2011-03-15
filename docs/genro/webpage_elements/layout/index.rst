@@ -1,7 +1,7 @@
 .. _genro_layout_index:
 
 ===============
-Layout elements
+layout elements
 ===============
 
 .. toctree::

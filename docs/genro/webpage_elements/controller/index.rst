@@ -1,8 +1,8 @@
 .. _genro_datacontroller_index:
 
-===================================================================
-data controllers: dataController, dataFormula, dataScript, dataRpcs
-===================================================================
+===========
+controllers
+===========
 
 .. toctree::
     :maxdepth: 1

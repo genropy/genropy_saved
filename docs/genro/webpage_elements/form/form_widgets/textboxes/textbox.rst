@@ -23,7 +23,8 @@ Definition
 Description
 ===========
 
-    Textbox is used to insert a text. Genro textbox is taken from Dojo ValidationTextBox, so it supports all of Dojo ValidationTextBox attributes.
+    Textbox is used to insert a text. Genro textbox is taken from Dojo ValidationTextBox (add??? Is it true?),
+    so it supports all of Dojo ValidationTextBox attributes.
     
 .. _textbox_attributes:
 

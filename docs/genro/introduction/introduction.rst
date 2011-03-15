@@ -1,16 +1,34 @@
 .. _genro_introduction:
 
-.. note (from Filippo Astolfi): this section is only sketched; I think that Genro Team must dedicate great time for this section so that every reader can understand the power of this software.
-
-=====================
-Introduction to Genro
-=====================
+=======================
+Introduction to GenroPy
+=======================
 
     .. warning:: this section is (until now!) only a sketch.
     
-    GenroPy is a Framework for business applications.
+    GenroPy (or Genro) is a Framework for business applications.
     
-    (add??? continue!)
+    (add??? continue!!!)
+    
+Programs used and supported versions
+====================================
+
+    The GenroPy framework is built on different languages: we list here all the used languages
+    with the supported version:
+    
+    ===================== =======================
+     **Language**          **Supported version** 
+    ===================== =======================
+     CSS                   add???                
+    --------------------- -----------------------
+     Dojo [#]_             1.1                   
+    --------------------- -----------------------
+     HTML                  add???                
+    --------------------- -----------------------
+     Javascript            add???                
+    --------------------- -----------------------
+     add???otherprograms   add???                
+    ===================== =======================
     
 Client / Server
 ===============
@@ -20,21 +38,22 @@ Client / Server
 Genro values
 ============
 
-    ??? Explain how Genro handle folder, subfolder... (the '.' syntax)
+    * ??? Explain how Genro handle folder, subfolder through the '.' syntax and through the usage of the Bag.
+    * Then explain the :ref:`genro_datastore`
     
-    
-It is better for you to know
-============================
+Other things
+============
     
     * :ref:`genro_controllers` ???
-    
     * all the objects are NOT case sensitive; for example, you can use the Dojo widget called ComboBox writing::
     
         pane.combobox()
         pane.Combobox()
         pane.comboBox()
         
-The datastore: a short introduction
-===================================
+**Footnotes**:
 
-    Another powerful tool of Genro is the datastore. The datastore is ... ??? (add documentation linking this part to the :ref:`genro_datastore` page)
+.. [#] For Dojo documentation check the official Dojo_ webpage. For additional documentation see also `Dojo Campus`_.
+    
+    .. _Dojo: http://www.dojotoolkit.org/
+    .. _Dojo Campus: http://dojocampus.org/

@@ -43,7 +43,7 @@ Attributes
     * *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
     * *label*: the dropdownbutton's *label*.
-    * *visible*: if False, hide the widget (but keep a place in the :ref:`genro_datastore` for it). For more information, check the :ref:`genro_visible` documentation page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`genro_visible` documentation page
 
 .. _ddb_examples:
 
