@@ -685,7 +685,17 @@ class GnrWebPage(GnrBaseWebPage):
         return {'pages': self.site.pages_dir,
                 'site': self.site.site_path,
                 'current': os.path.dirname(self.filepath)}
-                
+              
+    def subscribeTable(self,table,subscribe=True):
+        with self.pageStore() as store:
+            subscribed_tables = store.register_item['subscribed_tables']
+            if subscribe:
+                if not table in subscribed_tables:
+                    subscribed_tables.append(table)
+            else:
+                if table in subscribed_tables:
+                    subscribed_tables.remove(table)
+    
     def pageStore(self, page_id=None, triggered=True):
         """add???
         
@@ -1002,6 +1012,8 @@ class GnrWebPage(GnrBaseWebPage):
                 if dbselect_cache:
                     page.script('genro.cache_dbselect = true')
                 page.data('gnr.windowTitle', self.windowTitle())
+                page.dataRemote('gnr._pageStore','getPageStoreData',cacheTime=1)
+                page.dataController("genro.publish('dbevent_'+_node.label,_node.attr);",dbevent="^gnr.dbevent")
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))
                 page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
                 page.data('gnr.homeUrl', self.site.home_uri)
@@ -1093,6 +1105,9 @@ class GnrWebPage(GnrBaseWebPage):
     def onMain(self): #You CAN override this !
         pass
             
+    def rpc_getPageStoreData(self):
+        return self.pageStore().getItem('')
+        
     def mainLeftTop(self, pane):
         pass
             
