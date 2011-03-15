@@ -838,9 +838,11 @@ class GnrWebPage(GnrBaseWebPage):
         return self.application.checkResourcePermission(self.auth_tags, self.userTags)
         
     def get_css_theme(self):
-        """add???
+        """Get the css_theme. The css_theme get is the one defined the :ref:`siteconfig_gui` tag of
+        your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
+        :ref:`webpages_css_theme` webpage variable
         
-        :returns: add???
+        :returns: the css theme
         """
         return self.css_theme
         

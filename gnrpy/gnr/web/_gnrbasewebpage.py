@@ -640,9 +640,9 @@ class GnrBaseWebPage(GnrObject):
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
         
     def windowTitle(self):
-        """add???
+        """Return the window title.
         
-        :returns: add???
+        :returns: the window title.
         """
         return os.path.splitext(os.path.basename(self.filename))[0].replace('_', ' ').capitalize()
         
