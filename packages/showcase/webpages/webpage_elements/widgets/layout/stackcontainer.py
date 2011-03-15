@@ -8,18 +8,15 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-
-    def test_1_basic(self, pane):
-        """Basic stack container"""
-        bc = pane.borderContainer(height='300px')
-        top = bc.contentPane(region='top', height='33px', background_color='#f2c922')
-        top.button('page 1', action='SET stack_selected=0')
-        top.button('page 2', action='SET stack_selected=1')
-        top.button('page 3', action='SET stack_selected=2')
-        sc = bc.stackContainer(region='center', selected='^stack_selected')
-        
-        # ... to be finished!!
-        #sc.contentPane('Hello 1', src=???)
-        #sc.contentPane('Hello 2', src=???)
-        #sc.contentPane('Hello 3', src=???)
+    
+    def test_0_stackcontainer_named(self, pane):
+        """Stack page"""
+        bc = pane.borderContainer(height='100px')
+        top = bc.contentPane(region='top', height='18px', rounded=5, background='#2B65AC').filteringSelect(value='^.selectedPage',
+                                                                                            values='lb:light blue,le:light yellow,blue:blue',
+                                                                                            rounded=5)
+        sc = bc.stackContainer(region='center', selectedPage='^.selectedPage')
+        sc1 = sc.contentPane(background='#7CBEF8', pageName='lb', rounded=5)
+        sc1.div('Hello!', color='white')
+        sc2 = sc.contentPane(background='#EFE237', pageName='le', rounded=5)
+        sc3 = sc.contentPane(background='blue', pageName='blue', rounded=5)

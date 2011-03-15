@@ -6,12 +6,9 @@
 
 """Tab container"""
 
-from gnr.core.gnrbag import Bag
-
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-
+    
     def test_1_basic(self, pane):
         """Basic tabs - horizontal tabs"""
         tc = pane.tabContainer(height='200px', selected='^selected.tab')
