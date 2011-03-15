@@ -1624,6 +1624,9 @@ textarea:disabled {
 .dojoxGrid-header .cannotBeDropped {
     background: #ffa997 !important;
 }
+.selectionLocalChange{
+    font-style:italic;
+}
 
 .rowsetdragging {
     position: absolute;
