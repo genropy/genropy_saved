@@ -58,7 +58,7 @@ class RecordPage(BaseComponent):
         form = root.frameForm(frameCode = 'mainform', datapath= 'form',
                               pkeyPath='.pkey',
                               center_widget='BorderContainer')
-        form.formStore(storepath ='.record',
+        store = form.formStore(storepath ='.record',
                        table= self.maintable,
                        handler = 'recordCluster',
                        onSaved='reload',
@@ -118,6 +118,8 @@ class ViewPage(BaseComponent):
                            timeout=180000, selectmethod='=.selectmethod',
                            selectmethod_prefix='customQuery',
                            _onCalling=self.onQueryCalling(),
+                           subscribe_maingrid_reload=True,
+                           externalChanges=True,
                            **condPars)  
         store.addCallback('FIRE list.queryEnd=true; SET list.selectmethod=null; return result;')
         frame.data('.baseQuery', self.queryFromQueryBase())
