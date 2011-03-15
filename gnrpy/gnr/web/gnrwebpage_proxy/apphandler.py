@@ -476,16 +476,37 @@ class GnrWebAppHandler(GnrBaseProxy):
             result.update(optkwargs)
         return result
 
+    def rpc_checkFreezedSelection(self,pkey=None,selectionName=None,where=None,dbevent=None,table=None,**kwargs):
+        selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
+        if selection is not None:
+            wasInSelection = bool(filter(lambda r: r['pkey']==pkey,selection.data))
+            print 'a'
+            if dbevent=='D' and not wasInSelection:
+                return
+            print 'b'
+            kwargs.pop('where_attr',None)
+            tblobj = self.db.table(table)
+            if isinstance(where,Bag):
+                where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
+            where = "( %s ) AND ( %s =:_pkey)" % (where,tblobj.pkey)
+            willBeInSelection = bool(tblobj.query(where=where,_pkey=pkey,limit=1,**kwargs).fetch())
+            if dbevent=='I' and not willBeInSelection:
+                return
+            if dbevent=='U' and not wasInSelection and not willBeInSelection:
+                return
+            return True
+                             
     def rpc_getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
                          relationDict=None, sqlparams=None, row_start='0', row_count='0',
                          recordResolver=True, selectionName='', structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, selectmethod_prefix='rpc', expressions=None, sum_columns=None,
-                         sortedBy=None, excludeLogicalDeleted=True,savedQuery=None,savedView=None, **kwargs):
+                         sortedBy=None, excludeLogicalDeleted=True,savedQuery=None,savedView=None, externalChanges=None,**kwargs):
         t = time.time()
         tblobj = self.db.table(table)
-
+        if externalChanges is not None:
+            self.page.subscribeTable(table,externalChanges)
         row_start = int(row_start)
         row_count = int(row_count)
         newSelection = True
@@ -606,10 +627,16 @@ class GnrWebAppHandler(GnrBaseProxy):
             fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
             pkeys = fromSelection.output('pkeylist')
         if pkeys:
-            where = 't0.%s in :pkeys' % tblobj.pkey
             if isinstance(pkeys, basestring):
                 pkeys = pkeys.split(',')
-            kwargs['pkeys'] = pkeys
+            if len(pkeys)==0:
+                kwargs['limit'] = 0
+            elif len(pkeys)==1:
+                where = 't0.%s =:_pkey' % tblobj.pkey
+                kwargs['_pkey'] = pkeys[0]
+            else:
+                where = 't0.%s in :pkeys' % tblobj.pkey
+                kwargs['pkeys'] = pkeys
         elif isinstance(where, Bag):
             kwargs.pop('where_attr',None)
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
