@@ -684,13 +684,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                
     #gnrNS=['menu','menuBar','menuItem','Tree','Select','DbSelect','Combobox','Data',
     #'Css','Script','Func','BagFilteringTable','DbTableFilter','TreeCheck']
-    gnrNS = ['DbSelect', 'DbComboBox', 'DbView', 'DbForm', 'DbQuery', 'DbField', 'dataFormula', 'dataScript', 'dataRpc',
-             'dataController',
-             'dataRemote', 'gridView', 'viewHeader', 'viewRow', 'script', 'func',
+    gnrNS = ['DbSelect', 'DbComboBox', 'DbView', 'DbForm', 'DbQuery', 'DbField',
+             'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
+             'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-            'tinyMCE', 'protovis', 'PaletteGroup','PalettePane','BagNodeEditor',
-            'PaletteBagNodeEditor','Palette','PaletteTree','SearchBox','FormStore',
-            'FramePane','FrameForm','SlotButton']
+             'tinyMCE', 'protovis', 'PaletteGroup', 'PalettePane', 'BagNodeEditor',
+             'PaletteBagNodeEditor', 'Palette', 'PaletteTree', 'SearchBox', 'FormStore',
+             'FramePane', 'FrameForm', 'SlotButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -1065,7 +1065,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param nodeId: add???. Default value is ``None``
         :param configurable: boolean. add???. Default value is ``True``
         :param _newGrid: boolean. add???. Default value is ``False``
-        :return: add???
+        :returns: add???
         """
         if datapath is False:
             datapath = None
@@ -1092,7 +1092,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param table: add???. Default value is ``None``
         :param nodeId: add???. Default value is ``None``
         :param relativeWorkspace: add???. Default value is ``None``
-        :return: add???
+        :returns: add???
         """
         nodeId = nodeId or self.page.getUuid()
         prefix = 'grids.%s' %nodeId if not relativeWorkspace else ''
@@ -1805,7 +1805,7 @@ class GnrGridStruct(GnrStructData):
         """add???
         
         :param dtype: the data type
-        :return: add???
+        :returns: add???
         """
         if dtype == 'B':
             return dict(format_trueclass="checkboxOn", format_falseclass="checkboxOff")
