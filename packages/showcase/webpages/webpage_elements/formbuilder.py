@@ -9,7 +9,7 @@
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-
+    
     def test_1_basic(self, pane):
         """Standard formbuilder"""
         pane.div("""Since we haven't changed any of the default attributes of the formbuilder,
@@ -20,7 +20,7 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(datapath='test1')
         fb.textbox(value='^.name', lbl='Name')
         fb.textbox(value='^.surname', lbl='Surname')
-
+        
     def test_2_structure(self, pane):
         """Formbuilder structure"""
         pane.div("""Every formbuilder column is splitted in two parts (left one and right one):
@@ -44,7 +44,7 @@ class GnrCustomWebPage(object):
         fb.radiobutton('Mozilla Firefox', value='^.radio2', group='genre1')
         fb.checkbox(value='^.tennis', label='Tennis')
         fb.radiobutton('Google Chrome', value='^.radio3', group='genre1')
-
+        
     def test_3_attributes(self, pane):
         """Formbuilder attributes"""
         pane.div("""When a formbuilder attribute begins with "lbl_" (like "lbl_width='10px'"),
@@ -69,60 +69,70 @@ class GnrCustomWebPage(object):
                  font_size='.9em', text_align='justify')
         pane.div("\"fld_width\" set the dimension of every field.",
                  font_size='.9em', text_align='justify')
-
-        fb = pane.formbuilder(datapath='test3', cols=3, fld_width='100%', width='100%', lbl_color='red')
+                 
+        fb = pane.formbuilder(datapath='test3', cols=2, fld_width='100%', width='100%', lbl_color='red')
         fb.textbox(value='^.name', lbl='Name')
-        fb.textbox(value='^.surname', colspan=2, lbl='Surname')
+        fb.textbox(value='^.surname', lbl='Surname')
         fb.numberTextbox(value='^.age', lbl="Age")
-        fb.dateTextbox(value='^.birthdate', lbl='Birthdate')
+        fb.textbox(value='^.mail', lbl='Mail')
         fb.filteringSelect(value='^.sex', values='M:Male,F:Female', lbl='Sex')
         fb.textbox(value='^.job.profession', lbl='Job')
         fb.textbox(value='^.job.company_name', lbl='Company name')
         fb.textbox(value='^.job.fiscal_code', lbl='Fiscal code')
-
+        
     def test_4_disabled(self, pane):
-        """Disabled"""
-        pane.div("""In this test you can see the effect of the "disabled" formbuilder attribute: if True
-                    user can't write in the form (use the checkbox to activate this attribute).""",
-                 font_size='.9em', text_align='justify')
-        fb = pane.formbuilder(datapath='test5', cols=3, fld_width='100%', width='100%', disabled='^disab')
-        fb.checkbox(value='^disab', label='disable form')
+        """Disabled, hidden and visible"""
+        bc = pane.borderContainer(datapath='test4')
+        bc.data('^.visible',True)
+        bc.div("""In this test you can see the effect of the three attributes
+                  applied on the formbuilder:""",font_size='.9em', text_align='justify')
+        bc.div("disabled: if True, user can't write in the form",font_size='.9em', text_align='justify')
+        bc.div("hidden: if True, the formbuilder is hidden",font_size='.9em', text_align='justify')
+        bc.div("visible: if False, user can't see the formbuilder and its form fields",
+                font_size='.9em', text_align='justify')
+        fb = bc.formbuilder()
+        fb.checkbox(value='^.disabled', label='Disable form')
+        fb.checkbox(value='^.hidden', label='Hidden form')
+        fb.checkbox(value='^.visible', label='Visible form')
+        
+        fb = bc.formbuilder(cols=2,width='10em',disabled='^.disabled',hidden='^.hidden',visible='^.visible')
         fb.textbox(value='^.name', lbl='Name')
         fb.textbox(value='^.surname', lbl='Surname')
-        fb.numberTextbox(value='^.age', lbl="Age")
+        fb.numberTextbox(value='^.age', lbl="Age", width='4em')
         fb.dateTextbox(value='^.birthdate', lbl='Birthdate')
         fb.filteringSelect(value='^.sex', values='M:Male,F:Female', lbl='Sex')
         fb.textbox(value='^.job.profession', lbl='Job')
         fb.textbox(value='^.job.company_name', lbl='Company name')
-
+        
     # This is a bad test to correct the lblpos and lblalign functioning...
     def test_5_pos_align(self, pane):
         """lblpos and lblalign"""
         pane.div('lblpos = \'L\' ')
-        fb = pane.formbuilder(cols=2, lblpos='L')
-        fb.textbox(value='^top', lbl='left')
-        fb.textbox(value='^top2', lbl='left')
-        fb.textbox(value='^top3', lbl='left')
-        fb.textbox(value='^top4', lbl='left')
-
+        bc = pane.borderContainer(datapath='test5')
+        fb = bc.formbuilder(cols=2, lblpos='L')
+        fb.textbox(value='^.top', lbl='left')
+        fb.textbox(value='^.top2', lbl='left')
+        fb.textbox(value='^.top3', lbl='left')
+        fb.textbox(value='^.top4', lbl='left')
+        
         pane.div('lblpos = \'T\' ')
-        fb = pane.formbuilder(cols=2, lblpos='T')
-        fb.textbox(value='^top', lbl='top')
-        fb.textbox(value='^top2', lbl='top')
-        fb.textbox(value='^top3', lbl='top')
-        fb.textbox(value='^top4', lbl='top')
-
+        fb = bc.formbuilder(cols=2, lblpos='T')
+        fb.textbox(value='^.top', lbl='top')
+        fb.textbox(value='^.top2', lbl='top')
+        fb.textbox(value='^.top3', lbl='top')
+        fb.textbox(value='^.top4', lbl='top')
+        
         pane.div('lblalign = \'left\' ')
-        fb = pane.formbuilder(cols=2, lblpos='T', lblalign='left')
-        fb.textbox(value='^top', lbl='left')
-        fb.textbox(value='^top2', lbl='left')
-        fb.textbox(value='^top3', lbl='left')
-        fb.textbox(value='^top4', lbl='left')
-
+        fb = bc.formbuilder(cols=2, lblpos='T', lblalign='left')
+        fb.textbox(value='^.top', lbl='left')
+        fb.textbox(value='^.top2', lbl='left')
+        fb.textbox(value='^.top3', lbl='left')
+        fb.textbox(value='^.top4', lbl='left')
+        
         pane.div('lblalign = \'right\' ')
-        fb = pane.formbuilder(cols=2, lblpos='T', lblalign='right')
-        fb.textbox(value='^top', lbl='right')
-        fb.textbox(value='^top2', lbl='right')
-        fb.textbox(value='^top3', lbl='right')
-        fb.textbox(value='^top4', lbl='right')
+        fb = bc.formbuilder(cols=2, lblpos='T', lblalign='right')
+        fb.textbox(value='^.top', lbl='right')
+        fb.textbox(value='^.top2', lbl='right')
+        fb.textbox(value='^.top3', lbl='right')
+        fb.textbox(value='^.top4', lbl='right')
         
