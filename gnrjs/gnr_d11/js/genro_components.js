@@ -826,6 +826,9 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          //attributes['path'] = attributes['storepath'];
          attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
          attributes.method = attributes.method || 'app.getSelection';
+         if('chunkSize' in attributes && !('selectionName' in attributes)){
+             attributes['selectionName'] = '*';
+         }
          return attributes;
      },
 
@@ -1036,6 +1039,72 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
 });
 
 dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
+    constructor:function(){
+        var that = this;
+        dojo.subscribe('dbevent_'+this.storeNode.attr.table.replace('.','_'),this,function(kw){
+           that.onExternalChange(kw);          
+        });
+    },
+    onExternalChange:function(kw){
+        var willBeInSelection,node;
+        var that = this;
+        if(kw.dbevent=='D'){
+            this.checkExternalChange(kw,false);
+        }
+        else{
+            genro.rpc.remoteCall('app.getSelection', 
+                                objectUpdate({'dbevent':kw.dbevent,'_sourceNode':this.storeNode,
+                                              'condition':'$'+kw.pkeycol+'=:_pkey',_pkey:kw.pkey,limit:1},
+                                              this.storeNode.attr),
+                                null,null,null,
+                                function(result){
+                                             willBeInSelection = result.attr.totalrows>0;
+                                             if(willBeInSelection){
+                                                 node = result.getValue().getNode('#0');
+                                             }
+                                             that.checkExternalChange(kw,willBeInSelection,node);
+                                             return result;
+                                    });
+        }
+
+    },
+    
+    checkExternalChange:function(kw,willBeInSelection,node){
+        if(kw.dbevent=='I' && !willBeInSelection){
+            return;
+        }
+        var wasInSelection =false;
+        var data = this.getData();
+        data.forEach(function(n){
+            if(n.attr._pkey==kw.pkey){
+                wasInSelection = n;
+                return true;
+            }
+        },'static');
+        if(kw.dbevent=='D' ){
+            if(wasInSelection){
+                if(data){
+                    data.popNode(wasInSelection.label);
+                }
+            }
+        }else if(kw.dbevent=='U'){
+            if(wasInSelection){
+                if(willBeInSelection){
+                    wasInSelection.updAttributes(node.attr,true);
+                }else{
+                    data.popNode(wasInSelection.label);
+                }
+            }
+            else if(willBeInSelection){
+                data.setItem('#id',node);
+            }
+        }else if(willBeInSelection){
+            data.setItem('#id',node);
+        }        
+        this.sort();
+        this.storeNode.publish('updateRows');
+    },
+    
     keyGetter :function(n){
         return n.attr[this.identifier];
     },
@@ -1067,13 +1136,13 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.lastIdx =0;
     },
     len:function(){
-        if(!this.getData()){
-            return 0;
-        }
-        return this.getData().getParentNode().attr['totalrows'];
+        var data = this.getData();
+        var len = data?data.getParentNode().attr['totalrows']:0;
+        return len;
     },
     
     onLoaded:function(result){
+        this.clearBagCache();
         var selection = result.getValue(); 
         var data = new gnr.GnrBag();
         var resultattr = result.attr;
@@ -1084,18 +1153,40 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.storeNode.setRelativeData(this.storepath,data,resultattr);
         return result;
     },
+    onExternalChangeResult:function(kw,result){
+        console.log(kw,result)
+        if(result==true){
+            this.storeNode.fireNode();
+        }
+    },
+    
+    onExternalChange:function(kw){
+        var selectionKw = this.getData().getParentNode().attr;
+        var that = this;
+        var rpc_attr = objectUpdate({},this.storeNode.attr);
+        objectUpdate(rpc_attr,{'selectionName':selectionKw.selectionName,
+                                'dbevent':kw.dbevent,'_sourceNode':this.storeNode,
+                                'pkey':kw.pkey})
+        var result = genro.rpc.remoteCall('app.checkFreezedSelection', 
+                                            rpc_attr,null,null,null,
+                                         function(result){
+                                             that.onExternalChangeResult(kw,result)
+                                             return result;
+                                          });
+    },
+
     
     clearBagCache:function() {
-        this.getData().clear();
+        var data = this.getData()
+        if(data){
+            data.clear();
+        }
         this.currRenderedRowIndex = null;
         this.currRenderedRow = null;
         this.currCachedPageIdx = null;
         this.currCachedPage = null;
     },
-    
 
-    
-    
     itemByIdx:function(idx,sync) {
         var delta = idx-this.lastIdx;
         this.lastIdx = idx;
