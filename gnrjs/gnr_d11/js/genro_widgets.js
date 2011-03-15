@@ -63,6 +63,10 @@ gnr.getGridColumns = function(storeNode) {
     for(var k in columns){
         result+=k+',';
     }
+    if(storeNodeId){
+        storeNode._currentColumns=result;
+    }
+    
     return result;
 };
 gnr.columnsFromStruct = function(struct, columns) {
@@ -3791,10 +3795,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         return this.collectionStore().len(true);
     },
 
-    patch_sort: function() {
-        if (!this._virtual){
-            return this.sort_replaced();
-        }        
+    patch_sort: function() {  
         var sortInfo = this.sortInfo;
         var order;
         if (sortInfo < 0) {
@@ -3804,13 +3805,27 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             order = 'a';
         }
         var cell = this.layout.cells[sortInfo - 1];
-        var sortedBy = cell.field + ':' + order;
+        var sortedBy;
+        if(this._virtual){
+            sortedBy = cell.field + ':' + order;
+        }else{
+            if (this.datamode == 'bag') {
+                sortedBy = cell.field + ':' + order;
+            } else {
+                sortedBy = '#a.' + cell.field + ':' + order;
+            }
+        }
         if ((cell.dtype == 'A') || ( cell.dtype == 'T')) {
             sortedBy = sortedBy + '*';
         }
         this.setSortedBy(sortedBy);
+
+        //else {
+        //    var path = this.sourceNode.attrDatapath('sortedBy');
+        //    genro._data.setItem(path, sortedBy);
+        //}        
     },
-    
+        
     mixin_setSortedBy:function(sortedBy) {
         this.sortedBy = sortedBy;
         var store = this.collectionStore();

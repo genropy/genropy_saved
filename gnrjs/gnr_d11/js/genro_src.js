@@ -314,6 +314,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             source = genro.evaluate(source);
         }
         if (source) {
+            sourceNode = sourceNode || objectPop(source,'_sourceNode');
             for (var prop in source) {
                 var val = source[prop];
                 if (typeof(val) == 'string') {

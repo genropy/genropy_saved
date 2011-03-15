@@ -50,8 +50,7 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
             this.onloading(kwargs);
         }
         var sync = this.xhrKwargs.sync;
-        var sourceNode = objectPop(kwargs, '_sourceNode');
-        var result = genro.rpc._serverCall(kwargs, this.xhrKwargs, this.httpMethod, sourceNode);
+        var result = genro.rpc._serverCall(kwargs, this.xhrKwargs, this.httpMethod);
         if (sync) {
             result.addCallback(function(value) {
                 result = value;
@@ -160,7 +159,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     serverCall:function(callKwargs, xhrKwargs, httpMethod) {
 
     },
-    _serverCall:function(callKwargs, xhrKwargs, httpMethod, sourceNode) {
+    _serverCall:function(callKwargs, xhrKwargs, httpMethod) {
         // s=serverCall({method:'moltiplica', op1:3, op2:7},{timeout:300,handleAs'xml',load=function(){}}
         /* 
          callKwargs :       The parameters for the server call. For genropy webpage
@@ -202,7 +201,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         }
         ;
         var delayOnCall = objectPop(callKwargs, '_delayOnCall');
-        callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs, sourceNode));
+        callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
         objectPop(callKwargs, '_destFullpath');
         callKwargs._lastUserEventTs = asTypedTxt(genro._lastUserEventTs, 'DH');
         if (genro.auto_polling > 0) {
