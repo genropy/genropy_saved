@@ -982,7 +982,7 @@ class GnrWsgiSite(object):
             page = self.currentPage
             for page_id in subscribers.keys():
                 page.setInClientData('gnr.dbevent.%s' % tblobj.fullname.replace('.', '_'), value,
-                                     attributes=dict(dbevent=event), page_id=page_id)
+                                     attributes=dict(dbevent=event,pkey=value[tblobj.pkey],pkeycol=tblobj.pkey), page_id=page_id)
                                      
     def sendMessageToClient(self, value, pageId=None, filters=None, origin=None, msg_path=None):
         """Send a message
