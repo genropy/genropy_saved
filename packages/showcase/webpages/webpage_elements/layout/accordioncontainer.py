@@ -19,5 +19,5 @@ class GnrCustomWebPage(object):
                 font_size='.9em', text_align='justify', margin='10px')
         ap2 = ac.accordionPane(title='Pane two')
         ap3 = ac.accordionPane(title='Pane three')
-        ap3.div("""The content of a pane will be showned when user chooses the corresponding pane.""",
+        ap3.div("""The content of a pane will be shown when user chooses the corresponding pane.""",
                 font_size='.9em', text_align='justify', margin='10px')
