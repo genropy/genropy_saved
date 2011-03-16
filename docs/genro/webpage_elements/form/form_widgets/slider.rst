@@ -41,7 +41,7 @@ Attributes
     * *maximum*: Add the maximum value of the slider. Default value is 100
     * *minimum*: Add the minimum value of the slider. Default value is 0
     
-    **common attributes**:
+    **commons attributes**:
     
     * *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page

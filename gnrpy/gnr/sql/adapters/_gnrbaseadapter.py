@@ -187,16 +187,18 @@ class SqlDbAdapter(object):
     def prepareSqlText(self, sql, kwargs):
         """Subclass in adapter if you want to change some sql syntax or params types.
         Example: for a search condition using regex, sqlite wants 'REGEXP', while postgres wants '~*'
-        @param sql: the sql string to execute.
-        @param kwargs: the params dict
-        @return: tuple (sql, kwargs)
+        
+        :param sql: the sql string to execute.
+        :param \*\*kwargs: the params dict
+        :returns: tuple (sql, kwargs)
         """
         return sql, kwargs
 
     def existsRecord(self, dbtable, record_data):
         """Test if a record yet exists in the db.
-        @param dbtable: a SqlTable object
-        @param record_data: a dict compatible object containing at least one entry for the pkey column of the table."""
+        
+        :param dbtable: a SqlTable object
+        :param record_data: a dict compatible object containing at least one entry for the pkey column of the table."""
         tblobj = dbtable.model
         pkey = tblobj.pkey
         result = self.dbroot.execute(

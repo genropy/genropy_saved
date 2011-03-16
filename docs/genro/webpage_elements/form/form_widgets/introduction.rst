@@ -6,14 +6,14 @@ Introduction to the form widgets
     
     We can divide the form widgets in three categories:
     
-    #. the :ref:`dojo_form_widgets`
-    #. the :ref:`dojo_improved_form_widgets`
     #. the :ref:`genro_form_widgets`
+    #. the :ref:`dojo_improved_form_widgets`
+    #. the :ref:`dojo_form_widgets`
     
 .. _genro_form_widgets:
 
 Genro form widgets
-==================
+------------------
 
     The **Genro** form widgets are:
     
@@ -26,7 +26,7 @@ Genro form widgets
 .. _dojo_improved_form_widgets:
 
 modified-Dojo form widgets
-==========================
+--------------------------
 
     The **modified-Dojo** form widgets are:
     
@@ -44,7 +44,7 @@ modified-Dojo form widgets
 .. _dojo_form_widgets:
 
 Dojo form widgets
-=================
+-----------------
     
     The **Dojo** form widgets are:
     

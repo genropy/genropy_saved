@@ -45,7 +45,7 @@ Dojo layout elements
 Common attributes
 =================
 
-    There are some common attributes that you can use with all the containers and panes:
+    There are some commons attributes that you can use with all the containers and panes:
     
     * *datapath*: set the root's path of data. Default value is ``None``. For more details, check
       the :ref:`genro_datapath` page

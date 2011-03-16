@@ -43,7 +43,7 @@ Attributes
     
     **Common attributes**:
     
-        For common attributes, see :ref:`genro_layout_common_attributes`
+        For commons attributes, see :ref:`genro_layout_common_attributes`
         
 .. _border_examples:
 

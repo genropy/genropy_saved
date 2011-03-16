@@ -24,7 +24,7 @@ Common attributes
 
     Here we show the attributes that belong to every textbox:
     
-    **common attributes**:
+    **commons attributes**:
     
     * *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information,
       check the :ref:`genro_disabled` documentation page

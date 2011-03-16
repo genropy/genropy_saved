@@ -36,9 +36,9 @@ Attributes
 
         There aren't particular attributes.
 
-    **common attributes**:
+    **commons attributes**:
 
-        For common attributes, see :ref:`textboxes_attributes`
+        For commons attributes, see :ref:`textboxes_attributes`
 
 .. _timetextbox_examples:
 

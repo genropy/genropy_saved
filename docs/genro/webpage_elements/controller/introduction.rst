@@ -49,10 +49,10 @@ server-side controllers
 
 .. _controllers_attributes:
 
-common attributes
+commons attributes
 =================
 
-    Let's see all the controllers' common attributes:
+    Let's see all the controllers' commons attributes:
     
     * *_init*: Boolean; if True, the controller is executed when the line containing *_init* is read. Default value is ``False``. For more information, check the :ref:`controllers_init` example.
     * *_onStart*: Boolean; if True, the controller is executed only after that all the line codes are read. Default value is ``False``. For more information, check the :ref:`controllers_onStart` example.

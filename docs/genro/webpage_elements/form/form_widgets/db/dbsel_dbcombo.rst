@@ -1,7 +1,7 @@
 .. _genro_dbselect_dbcombobox:
 	
 ==========================================
-dbSelect and dbCombobox: common attributes
+dbSelect and dbCombobox: commons attributes
 ==========================================
 
     * :ref:`db_genro_attributes`

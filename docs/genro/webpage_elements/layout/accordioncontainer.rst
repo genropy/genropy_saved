@@ -34,9 +34,9 @@ Attributes
     
     * *title*: MANDATORY - Set the accordionPane's title. Default value is ``None``
     
-    **common attributes**:
+    **commons attributes**:
     
-        For common attributes, see :ref:`genro_layout_common_attributes`
+        For commons attributes, see :ref:`genro_layout_common_attributes`
         
 .. _accordion_examples:
 

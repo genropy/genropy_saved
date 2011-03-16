@@ -36,9 +36,9 @@ Attributes
     
     * *popup*: allow to show a calendar dialog. Default value is ``True``
     
-    **common attributes**:
+    **commons attributes**:
     
-        For common attributes, see :ref:`textboxes_attributes`
+        For commons attributes, see :ref:`textboxes_attributes`
         
 .. _datetextbox_examples:
 

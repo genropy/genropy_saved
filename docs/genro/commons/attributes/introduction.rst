@@ -1,7 +1,7 @@
 .. _genro_attributes:
 
 =================
-common attributes
+commons attributes
 =================
 
     In this section we report all those attributes that are common to many Genro objects.

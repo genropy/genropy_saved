@@ -52,7 +52,7 @@ Attributes
     
     * *action*: allow to execute a javascript callback. For more information, check the :ref:`button_action` section of the ``button`` form widget.
     
-    **common attributes**:
+    **commons attributes**:
     
     * *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page

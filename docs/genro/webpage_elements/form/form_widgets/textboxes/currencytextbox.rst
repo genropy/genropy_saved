@@ -36,9 +36,9 @@ Attributes
     * *default*: Add a default number to your widget. Default value is ``None``
     * *locale*: specify currency format type. Default value is ``it``
     
-    **common attributes**:
+    **commons attributes**:
     
-        For common attributes, see :ref:`textboxes_attributes`
+        For commons attributes, see :ref:`textboxes_attributes`
 
 .. _currencytextbox_examples:
 

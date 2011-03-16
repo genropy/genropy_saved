@@ -7,6 +7,7 @@ CSS elements
     * :ref:`css_introduction`
     * :ref:`css_dojo_themes`
     * :ref:`css_genro_themes`
+    * :ref:`css_genro_names`
 
 .. _css_introduction:
 
@@ -15,7 +16,7 @@ Introduction
 
     CSS is a simple mechanism for adding style (e.g., fonts, colors, spacing) to Web documents.
     
-    * When you use CSS on a Genro :ref:`webpages_webpages` keep in mind that the only difference
+    * When you use CSS on a Genro :ref:`webpages_webpages` keep in mind that the main difference
       with standard CSS lies in this rule:
       
       **you have to use the "_" symbol in place of the "-" symbol**::
@@ -30,9 +31,13 @@ Introduction
         
     You should also know that:
         
-    * You can import css files in your :ref:`genro_structure_mainproject` through the *css_requires* variable: check the :ref:`webpages_css_requires` section for further details.
+    * You can import css files in your :ref:`genro_structure_mainproject` through the *css_requires*
+      variable: check the :ref:`webpages_css_requires` section for further details.
     
     * Genro allows to use :ref:`css_dojo_themes` and :ref:`css_genro_themes`.
+    
+    * There are some CSS attributes that have a different name respect to their standard CSS name:
+      check the :ref:`css_genro_names` section for the complete list
     
 .. _css_dojo_themes:
 
@@ -60,3 +65,41 @@ CSS themes
     * *blue*
     * *elephant*
     * *pro*
+
+.. _css_genro_names:
+
+Genro CSS names
+===============
+
+    We list here all the CSS attributes that have a different name respect to the standard CSS name.
+    
+    Click on the standard CSS name to go to the documentation line on the corresponding Genro CSS attribute:
+    
+    **Standard CSS name**:
+    
+    * :ref:`border-radius <css_border_radius>`
+    * :ref:`box-shadow <css_box_shadow>`
+    * other attributes: add???
+    
+    .. _css_border_radius:
+    
+    **border-radius**:
+    
+    * Genro CSS name: rounded
+    * Example::
+    
+        rounded=10
+        
+    * Features: the *rounded* attribute support the top/bottom/left/right extensions::
+    
+        rounded=10,rounded_bottom=0
+    
+    .. _css_box_shadow:
+    
+    **box-shadow**:
+    
+    * Genro CSS name: shadow
+    * Example::
+    
+        shadow='5px 5px 5px gray' 
+    

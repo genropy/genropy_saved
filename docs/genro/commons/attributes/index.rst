@@ -7,7 +7,7 @@ Common attributes
 .. toctree::
     :maxdepth: 1
     
-    introduction to common attributes <introduction>
+    introduction to commons attributes <introduction>
     datapath
     dbtable
     disabled

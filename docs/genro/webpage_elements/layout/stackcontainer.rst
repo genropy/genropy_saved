@@ -35,9 +35,9 @@ Attributes
     
     * *pageName*: allow to identify the selected page.
     
-    **common attributes**:
+    **commons attributes**:
     
-        For common attributes, see :ref:`genro_layout_common_attributes`
+        For commons attributes, see :ref:`genro_layout_common_attributes`
 
 .. _stack_examples:
 

@@ -41,9 +41,9 @@ Attributes
     * *regExpGen*: TBC. If this is used, do not use regExp ???. Default value is ``None``
     * *tooltipPosition*: define where Tooltip will appear. Default value is ``right``
 
-    **common attributes**:
+    **commons attributes**:
 
-        For common attributes, see :ref:`textboxes_attributes`
+        For commons attributes, see :ref:`textboxes_attributes`
 
 .. _textbox_examples:
 

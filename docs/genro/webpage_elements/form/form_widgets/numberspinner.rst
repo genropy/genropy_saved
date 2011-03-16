@@ -41,7 +41,7 @@ Attributes
     * *min*: set the minimum value of the numberSpinner. Default value is ``None``.
     * *max*: set the maximum value of the numberSpinner. Default value is ``None``.
     
-    **common attributes**:
+    **commons attributes**:
     
     * *disabled*: if True, allow to disable this widget. Default value is ``False``. For more information, check the :ref:`genro_disabled` documentation page
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page

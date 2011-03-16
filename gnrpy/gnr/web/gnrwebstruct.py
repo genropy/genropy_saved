@@ -401,9 +401,9 @@ class GnrDomSrc(GnrStructData):
     def data(self, *args, **kwargs):
         """A server-side Genro controller that allows to define variables from server to client.
         
-        :param args: args[0] includes the path of the value, args[1] includes the value
-        :param kwargs: in the kwargs you can insert the ``_serverpath`` attribute. For more information,
-                       check the :ref:`data_serverpath` example.
+        :param \*args: args[0] includes the path of the value, args[1] includes the value
+        :param \*\*kwargs: in the kwargs you can insert the ``_serverpath`` attribute. For more information,
+                           check the :ref:`data_serverpath` example.
         :returns: a data
         """
         value = None
@@ -571,11 +571,16 @@ class GnrDomSrc(GnrStructData):
         :param disabled: Add a description ???. Default value is ``False``.
         :param rowdatapath: Add a description ???. Default value is ``None``.
         :param head_rows: Add a description ???. Default value is ``None``.
-        :param kwargs:
-            
-            * *datapath*: set path for data. For more details, see :ref:`genro-datapath`.
-            * *fld_ + CSSexpression*: set a CSS expression to every formbuilder's field. (e.g: fld_color='red', fld_width='100%')
-            * *lbl_ + CSSexpression*: set a CSS expression to every lbl's field. (e.g: lbl_width='10em')
+        :param \*\*kwargs: *border_spacing*: define the space between form fields. Default value is ``6px``
+                           
+                           *datapath*: set the root's path of formbuilder's fields. For more details,
+                           check the :ref:`genro-datapath` documentation page.
+                           
+                           *fld_ + CSSexpression*: set a CSS expression to every formbuilder's field.
+                           (e.g: fld_color='red', fld_width='100%')
+                           
+                           *lbl_ + CSSexpression*: set a CSS expression to every lbl's field.
+                           (e.g: lbl_width='10em')
         """
         commonPrefix = ('lbl_', 'fld_', 'row_', 'tdf_', 'tdl_')
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
