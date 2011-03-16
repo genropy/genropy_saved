@@ -640,11 +640,13 @@ class GnrApp(object):
                     avatar = getattr(self, 'auth_%s' % node.label.replace('_auth', ''))(node, user, password=password,
                                                                                         authenticate=authenticate,
                                                                                         **kwargs)
+                                                                             
                     if not (avatar is None):
                         avatar.page = page
                         for pkg in self.packages.values():
                             pkg.onAuthentication(avatar)
                         return avatar
+            
                         
     def auth_xml(self, node, user, password=None, authenticate=False, **kwargs):
         """Authentication from instanceconfig.xml, use it during development or for sysadmin tasks.
@@ -753,7 +755,7 @@ class GnrApp(object):
         else:
             valid = True
         if valid:
-            return GnrAvatar(user=user, user_name=user_name, user_id=user_id, tags=tags, login_pwd=login_pwd, **kwargs)
+            return GnrAvatar(user=user, user_name=user_name, user_id=user_id, tags=tags,login_pwd=login_pwd, pwd=pwd, **kwargs)
 
     def validatePassword(self, login_pwd, pwd=None, user=None):
         """add???
@@ -767,6 +769,7 @@ class GnrApp(object):
             if not user:
                 return False
             pwd = self.getAvatar(user, login_pwd, authenticate=False).pwd
+            
         if '::' in login_pwd:
             u, p = login_pwd.split('::')
             avt = self.getAvatar(u, p, True)
@@ -963,12 +966,13 @@ class GnrApp(object):
         
 class GnrAvatar(object):
     """add???"""
-    def __init__(self, user, user_name=None, user_id=None, tags='', login_pwd=None, **kwargs):
+    def __init__(self, user, user_name=None, user_id=None, login_pwd=None,pwd=None,tags='', **kwargs):
         self.user = user
         self.user_name = user_name
         self.user_id = user_id
         self.user_tags = tags
-        self.pwd = login_pwd
+        self.pwd = pwd
+        self.login_pwd = login_pwd
         self.loginPars = {'tags': self.user_tags}
         self.extra_kwargs = kwargs or dict()
 
