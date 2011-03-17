@@ -26,7 +26,7 @@ class GnrCustomWebPage(object):
         return '!!Audit'
         
     def columnsBase(self):
-        return 'tablename:20%,event:5%,record_pkey:10%,version:5%,data:40%'
+        return 'tablename:20%,event:5%,record_pkey:10%,version:5%,transaction_id:10%,data:30%'
             
     def orderBase(self):
         return '$tablename'

@@ -11,6 +11,7 @@ class Table(object):
         tbl.column('record_pkey',name_long='!!Record Pkey')
         tbl.column('version','L',name_long='!!Version')
         tbl.column('data','X',name_long='!!Data')
+        tbl.column('transaction_id',name_long='!!Transaction id')
     
     def getXmlRecord(self,record=None):
         if not isinstance(record,Bag):
@@ -24,8 +25,9 @@ class Table(object):
         if not username:
             username = self.db.currentEnv.get('user') 
         version = record.get('__version',0)
+        print 'currentEnv', self.db.currentEnv
         audit_record = dict(tablename=tblobj.fullname,event=event,username=username,
-                      record_pkey=record[tblobj.pkey],version=version)
+                      record_pkey=record[tblobj.pkey],version=version,transaction_id=self.db.currentEnv.get('env_transaction_id'))
         if event == 'I' or event=='D':
             audit_record['data'] = self.getXmlRecord(record)
         if event == 'U':
