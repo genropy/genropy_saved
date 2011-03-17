@@ -839,7 +839,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          var storeType = kw.row_count? 'VirtualSelection':'Selection';
          var identifier = objectPop(kw,'_identifier') || '_pkey';
          var selectionStore = sourceNode._('dataRpc',kw);
-         var cb = "this.store.onLoaded(result);"
+         var cb = "this.store.onLoaded(result,_isFiredNode);"
          selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
          rpcNode.store = new gnr.stores[storeType](rpcNode,{'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType});
@@ -941,7 +941,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var rowdata={}
         var node=this.itemByIdx(idx);
         if (node){
-            rowdata= grid.rowFromBagNode(node);
+            rowdata= grid.rowFromBagNode(node,this.externalChangedKeys);
         }
         return rowdata;
     },
@@ -1042,68 +1042,92 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     constructor:function(){
         var that = this;
         dojo.subscribe('dbevent_'+this.storeNode.attr.table.replace('.','_'),this,function(kw){
-           that.onExternalChange(kw);          
+           that.onExternalChange(kw.changelist,kw.pkeycol);          
         });
     },
-    onExternalChange:function(kw){
-        var willBeInSelection,node;
+    onExternalChange:function(changelist,pkeycol){
+        var eventdict = {};
+        var dbevt,pkeys,wasInSelection,willBeInSelection;
+        var insOrUpdKeys = [];
+        var delKeys = [];
+        var data = this.getData();
         var that = this;
-        if(kw.dbevent=='D'){
-            this.checkExternalChange(kw,false);
+        if(!data){
+            return;
         }
-        else{
+        dojo.forEach(changelist,function(change){
+            if (change['dbevent']=='D'){
+                delKeys.push(change.pkey);
+            }else{
+                insOrUpdKeys.push(change.pkey);
+            }
+        });
+        if (insOrUpdKeys.length>0) {
             genro.rpc.remoteCall('app.getSelection', 
-                                objectUpdate({'dbevent':kw.dbevent,'_sourceNode':this.storeNode,
-                                              'condition':'$'+kw.pkeycol+'=:_pkey',_pkey:kw.pkey,limit:1},
+                                objectUpdate({'_sourceNode':this.storeNode,
+                                              'condition':' $'+pkeycol+' IN :_pkeys',_pkeys:insOrUpdKeys},
                                               this.storeNode.attr),
                                 null,null,null,
                                 function(result){
-                                             willBeInSelection = result.attr.totalrows>0;
-                                             if(willBeInSelection){
-                                                 node = result.getValue().getNode('#0');
-                                             }
-                                             that.checkExternalChange(kw,willBeInSelection,node);
-                                             return result;
+                                            willBeInSelection={};
+                                            result.getValue().forEach(function(n){
+                                                willBeInSelection[n.attr['_pkey']] = n.attr;
+                                            },'static');
+                                            that.checkExternalChange(delKeys,insOrUpdKeys,willBeInSelection);
+                                            return result;
                                     });
+        }else if (delKeys.length>0) {
+            this.checkExternalChange(delKeys,[],[]);
         }
 
     },
-    
-    checkExternalChange:function(kw,willBeInSelection,node){
-        if(kw.dbevent=='I' && !willBeInSelection){
-            return;
-        }
-        var wasInSelection =false;
+    checkExternalChange:function(delKeys,insOrUpdKeys,willBeInSelection){
+        var wasInSelection;
+        var changed = false;
         var data = this.getData();
-        data.forEach(function(n){
-            if(n.attr._pkey==kw.pkey){
-                wasInSelection = n;
-                return true;
-            }
-        },'static');
-        if(kw.dbevent=='D' ){
-            if(wasInSelection){
-                if(data){
-                    data.popNode(wasInSelection.label);
+        var that = this;
+        var pkeys,wasInSelection,wasInSelectionNode,willBeInSelectionNode,pkey;
+        this.externalChangedKeys = this.externalChangedKeys || {};
+        var wasInSelectionCb = function(pkeys){
+            var result = {};
+            data.forEach(function(n){
+                if (dojo.indexOf(pkeys,n.attr._pkey)>=0){
+                    result[n.attr._pkey] = n;
                 }
+            },'static');  
+            return result;
+        };
+        if(delKeys.length>0){
+            wasInSelection = wasInSelectionCb(delKeys);
+             for(pkey in wasInSelection){
+                 data.popNode(wasInSelection[pkey].label);
             }
-        }else if(kw.dbevent=='U'){
-            if(wasInSelection){
-                if(willBeInSelection){
-                    wasInSelection.updAttributes(node.attr,true);
-                }else{
-                    data.popNode(wasInSelection.label);
-                }
-            }
-            else if(willBeInSelection){
-                data.setItem('#id',node);
-            }
-        }else if(willBeInSelection){
-            data.setItem('#id',node);
-        }        
-        this.sort();
-        this.storeNode.publish('updateRows');
+        }
+        if(insOrUpdKeys.length>0){
+            wasInSelection = wasInSelectionCb(insOrUpdKeys);
+            dojo.forEach(insOrUpdKeys,function(pkey){
+                    wasInSelectionNode = wasInSelection[pkey];
+                    willBeInSelectionNode = willBeInSelection[pkey];
+                    if(wasInSelectionNode){
+                        if (willBeInSelectionNode) {
+                            that.externalChangedKeys[pkey] = true;
+                            data.getNode(willBeInSelectionNode.label).updAttributes(willBeInSelectionNode.attr,true);
+                            changed = true;
+                        }else{
+                            data.popNode(wasInSelectionNode.label);
+                        }
+                    }else if(willBeInSelectionNode){
+                        that.externalChangedKeys[pkey] = true;
+                        data.setItem('#id',willBeInSelectionNode);
+                    }
+                });
+        }
+        if(this.sortedBy){
+            this.sort();
+            this.storeNode.publish('updateRows');
+        }
     },
+
     
     keyGetter :function(n){
         return n.attr[this.identifier];
@@ -1141,7 +1165,10 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         return len;
     },
     
-    onLoaded:function(result){
+    onLoaded:function(result,_isFiredNode){
+        if(!_isFiredNode){
+            this.externalChangedKeys = null;
+        }
         this.clearBagCache();
         var selection = result.getValue(); 
         var data = new gnr.GnrBag();
@@ -1153,24 +1180,27 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.storeNode.setRelativeData(this.storepath,data,resultattr);
         return result;
     },
-    onExternalChangeResult:function(kw,result){
-        console.log(kw,result)
-        if(result==true){
+    onExternalChangeResult:function(changelist,result){
+        if(changelist.length>0){
+            var that = this;
+            this.externalChangedKeys = this.externalChangedKeys || {};
+            dojo.forEach(changelist,function(n){
+                that.externalChangedKeys[n.pkey] = true;
+            });
             this.storeNode.fireNode();
         }
     },
     
-    onExternalChange:function(kw){
+    onExternalChange:function(changelist){
         var selectionKw = this.getData().getParentNode().attr;
         var that = this;
         var rpc_attr = objectUpdate({},this.storeNode.attr);
         objectUpdate(rpc_attr,{'selectionName':selectionKw.selectionName,
-                                'dbevent':kw.dbevent,'_sourceNode':this.storeNode,
-                                'pkey':kw.pkey})
+                                'changelist':changelist,'_sourceNode':this.storeNode});
         var result = genro.rpc.remoteCall('app.checkFreezedSelection', 
                                             rpc_attr,null,null,null,
                                          function(result){
-                                             that.onExternalChangeResult(kw,result)
+                                             that.onExternalChangeResult(changelist,result)
                                              return result;
                                           });
     },

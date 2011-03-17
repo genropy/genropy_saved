@@ -161,6 +161,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
 
     setDataNodeValueDo:function(node, kw, trigger_reason, subscription_args) {
+        var isFiredNode=!node;
         var attributes = objectUpdate({}, this.attr);
         var _userChanges = objectPop(attributes, '_userChanges');
         var _trace = objectPop(attributes, '_trace');
@@ -312,6 +313,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         if(this._callbacks){
                             this._callbacks.forEach(function(n){
                                 var kw = objectUpdate({},kwargs);
+                                kw['_isFiredNode'] = isFiredNode;
                                 genro.rpc.addDeferredCb(deferred,n.getValue(),objectUpdate(kw,n.attr),that);
                             })
                         }

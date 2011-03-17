@@ -3349,8 +3349,15 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
         return storebag.columns(col)[0];
     },
 
-    mixin_rowFromBagNode:function(node) {
+    mixin_rowFromBagNode:function(node,externalChangedKeys) {
         var result = objectUpdate({}, node.attr);
+        if(externalChangedKeys){
+            var pkey = result[this._identifier];
+            var change = externalChangedKeys[pkey];
+            if(change){
+                result._customClasses= result._customClasses? result._customClasses+' selectionLocalChange':'selectionLocalChange';
+            }
+        }
         if (this.datamode == 'bag') {
             var value = node.getValue();
             if (value) {
