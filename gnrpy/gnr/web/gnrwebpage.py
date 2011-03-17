@@ -1013,7 +1013,7 @@ class GnrWebPage(GnrBaseWebPage):
                     page.script('genro.cache_dbselect = true')
                 page.data('gnr.windowTitle', self.windowTitle())
                 page.dataRemote('gnr._pageStore','getPageStoreData',cacheTime=1)
-                page.dataController("genro.publish('dbevent_'+_node.label,_node.attr);",dbevent="^gnr.dbevent")
+                page.dataController("genro.publish('dbevent_'+_node.label,{'changelist':change.getItem('#0'),pkeycol:_node.attr.pkeycol});",change="^gnr.dbchanges")
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))
                 page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
                 page.data('gnr.homeUrl', self.site.home_uri)

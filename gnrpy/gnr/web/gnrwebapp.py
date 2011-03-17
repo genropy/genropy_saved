@@ -18,6 +18,10 @@ class GnrWsgiWebApp(GnrApp):
         super(GnrWsgiWebApp, self).notifyDbEvent(tblobj, record, event, old_record=old_record)
         self.site.notifyDbEvent(tblobj, record, event, old_record=old_record)
 
+    def onDbCommitted(self):
+        super(GnrWsgiWebApp, self).onDbCommitted()
+        self.site.onDbCommitted()
+            
     def _get_pagePackageId(self, filename):
         _packageId = None
         fpath, last = os.path.split(os.path.realpath(filename))

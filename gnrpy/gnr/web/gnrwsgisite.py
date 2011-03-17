@@ -968,6 +968,23 @@ class GnrWsgiSite(object):
             if self.debug or page.isDeveloper():
                 page.debugger.output(debugtype, **kwargs)
                 
+    def onDbCommitted(self):
+        dbeventsDict= self.db.currentEnv.get('dbevents')
+        if not dbeventsDict:
+            return
+        page = self.currentPage
+        for table,dbevents in dbeventsDict.items():
+            if dbevents:
+                tblobj = self.db.table(table)
+                if tblobj.attributes.get('broadcast'):
+                    subscribers = self.register.pages(index_name=table)
+                else:
+                    subscribers = None
+                for page_id in subscribers.keys():
+                    page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,
+                                            attributes=dict(pkeycol=tblobj.pkey), 
+                                            page_id=page_id)
+
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         """add???
         
