@@ -252,14 +252,14 @@ class BagToXml(object):
         elif isinstance(nodeValue, BagAsXml):
             result = self.buildTag(node.label, nodeValue, node.attr, '', xmlMode=True)
 
-        elif ((isinstance(nodeValue, list) or isinstance(nodeValue, dict))):
-            nodeValue = gnrstring.toJson(nodeValue)
-            result = self.buildTag(node.label, nodeValue, node.attr)
-        elif nodeValue and (isinstance(nodeValue, list) or isinstance(nodeValue, tuple)):
-            result = self.buildTag(node.label,
-                                   '\n'.join([self.buildTag('C', c) for c in nodeValue]),
-                                   node.attr, cls='A%s' % self.catalog.getClassKey(nodeValue[0]),
-                                   xmlMode=True)
+        #elif ((isinstance(nodeValue, list) or isinstance(nodeValue, dict))):
+        #    nodeValue = gnrstring.toJson(nodeValue)
+        #    result = self.buildTag(node.label, nodeValue, node.attr)
+        #elif nodeValue and (isinstance(nodeValue, list) or isinstance(nodeValue, tuple)):
+        #    result = self.buildTag(node.label,
+        #                           '\n'.join([self.buildTag('C', c) for c in nodeValue]),
+        #                           node.attr, cls='A%s' % self.catalog.getClassKey(nodeValue[0]),
+        #                           xmlMode=True)
         else:
             result = self.buildTag(node.label, nodeValue, node.attr)
         return result
