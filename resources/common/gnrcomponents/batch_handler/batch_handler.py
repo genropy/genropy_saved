@@ -141,7 +141,7 @@ class TableScriptRunner(BaseComponent):
                                 FIRE #table_script_runner.run;
                             }else{
                                 FIRE .close;
-                                batch_monitor.create_local_root('_pageRoot');
+                                batch_monitor.create_local_root();
                                 SET #table_script_runner.parameters=pars;
                                 PUBLISH batch_monitor_on;
                                 FIRE #table_script_runner.run;

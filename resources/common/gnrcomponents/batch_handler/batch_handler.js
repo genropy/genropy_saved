@@ -34,13 +34,14 @@ batch_monitor.on_datachange = function(kw) {
     }
 };
 
-batch_monitor.create_local_root__ = function(parentId) {
-    var hiderLayer = genro.dom.makeHiderLayer(parentId);
-    hiderLayer.clearValue();
-    hiderLayer._('div', {width:'200px',position:'absolute',nodeId:'bm_local_rootnode'});
-};
 
-batch_monitor.create_local_root = function(parentId) {
+batch_monitor.create_local_root = function(sync) {
+    if(sync){
+        localRoot = genro.dlg.quickDialog('Local Batch',{nodeId:'localBatches_root'});
+        localRoot.center._('div',{nodeId:'bm_local_rootnode',height:'85px',width:'200px',overflow_x:'hidden'});
+        localRoot.show_action();
+        return;
+    }
     var paletteBtc = genro.wdgById('localBatches_floating');
     if(!paletteBtc){
         genro.src.getNode()._('div', '_devBtcRoot_');
