@@ -476,25 +476,30 @@ class GnrWebAppHandler(GnrBaseProxy):
             result.update(optkwargs)
         return result
 
-    def rpc_checkFreezedSelection(self,pkey=None,selectionName=None,where=None,dbevent=None,table=None,**kwargs):
+    def rpc_checkFreezedSelection(self,changelist=None,selectionName=None,where=None,table=None,**kwargs):
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
+        needUpdate = False
         if selection is not None:
-            wasInSelection = bool(filter(lambda r: r['pkey']==pkey,selection.data))
-            print 'a'
-            if dbevent=='D' and not wasInSelection:
-                return
-            print 'b'
             kwargs.pop('where_attr',None)
             tblobj = self.db.table(table)
             if isinstance(where,Bag):
                 where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
-            where = "( %s ) AND ( %s =:_pkey)" % (where,tblobj.pkey)
-            willBeInSelection = bool(tblobj.query(where=where,_pkey=pkey,limit=1,**kwargs).fetch())
-            if dbevent=='I' and not willBeInSelection:
-                return
-            if dbevent=='U' and not wasInSelection and not willBeInSelection:
-                return
-            return True
+            where = " ( %s ) AND ( $%s IN :_pkeys ) " % (where,tblobj.pkey)
+            eventdict = {}
+            for change in changelist:
+                eventdict.setdefault(change['dbevent'],[]).append(change['pkey'])
+            for dbevent,pkeys in eventdict.items():
+                wasInSelection = bool(filter(lambda r: r['pkey'] in pkeys,selection.data))
+                if dbevent=='D' and not wasInSelection:
+                    continue
+                willBeInSelection = bool(tblobj.query(where=where,_pkeys=pkeys,limit=1,**kwargs).fetch())
+                if dbevent=='I' and not willBeInSelection:
+                    continue
+                if dbevent=='U' and not wasInSelection and not willBeInSelection:
+                    continue
+                needUpdate = True
+                break
+        return needUpdate
                              
     def rpc_getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
