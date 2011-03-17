@@ -22,6 +22,8 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 
 from gnr.core.gnrbag import Bag
+from gnr.core.gnranalyzingbag import AnalyzingBag
+
 from gnr.core.gnrstring import toText, splitAndStrip
 
 import os
@@ -465,9 +467,18 @@ class StatsHandler(BaseComponent):
         pane.dataRpc('.root', 'stats_totalize', selectionName='=list.selectionName',
                      tot_mode='^.tot_mode', _if='tot_mode&&(selectedTab==1) && selectionName', timeout=300000,
                      totalrecords='=list.rowcount', selectedTab='=list.selectedTab',
-                     _onCalling="""genro.wdgById("_stats_load_dlg").show();
-                                     SET #_grid_total.data = null;SET #_grid_detail.data = null;""",
-                     _onResult='FIRE .reload_tree;genro.wdgById("_stats_load_dlg").hide();',
+                     _onCalling="""
+                            batch_monitor.create_local_root(true);
+                            PUBLISH batch_monitor_on;
+                     """,
+                     _onResult="""
+                        genro.wdgById('localBatches_root').hide();
+                        PUBLISH batch_monitor_off;
+                        FIRE .reload_tree;
+                     """,
+                    #_onCalling="""genro.wdgById("_stats_load_dlg").show();
+                    #                SET #_grid_total.data = null;SET #_grid_detail.data = null;""",
+                    #_onResult='FIRE .reload_tree;genro.wdgById("_stats_load_dlg").hide();',
                      _fired='^.do_totalize')
         pane.dataController("""SET .root.data = null; FIRE .reload_tree; FIRE .do_totalize;""", _fired="^list.queryEnd")
         dlg = pane.dialog(nodeId='_stats_load_dlg', title='!!Loading')
@@ -582,8 +593,11 @@ class StatsHandler(BaseComponent):
                            collect_cols=None, distinct_cols=None, key_col=None, captionCb=None,
                            tot_mode=None, **kwargs):
         selection = self.stats_get_selection(selectionName)
-        selection.totalize()
-
+        analyzer = AnalyzingBag()
+        self.btc.batch_create(batch_id='%s_%s' % (selectionName, self.getUuid()),
+                              title='Stats',
+                              delay=.8,
+                              note='Stats')
         group_by = group_by or self.stats_group_by(tot_mode)
         sum_cols = sum_cols or self.stats_sum_cols(tot_mode)
         keep_cols = keep_cols or self.stats_keep_cols(tot_mode)
@@ -617,11 +631,12 @@ class StatsHandler(BaseComponent):
         if distinct_cols:
             distinct_cols = [x.replace('@', '_').replace('.', '_') for x in distinct_cols]
         result = Bag()
-        data = selection.totalize(group_by=group_by, sum=sum_cols, keep=keep_cols,
-                                  collect=collect_cols, distinct=distinct_cols,
-                                  key=key_col, captionCb=captionCb)
+        analyzer.analyze(self.btc.thermo_wrapper(selection, 'stat_tot', message='Row', keep=True),
+                            group_by=group_by, sum=sum_cols, keep=keep_cols,
+                            collect=collect_cols, distinct=distinct_cols,
+                            key=key_col, captionCb=captionCb)
         self.freezeSelection(selection, selectionName)
-        result.setItem('data', data, caption=self.stats_modes_dict()[tot_mode])
+        result.setItem('data', analyzer, caption=self.stats_modes_dict()[tot_mode])
         return result
 
     def stats_captionCb(self, tot_mode):
