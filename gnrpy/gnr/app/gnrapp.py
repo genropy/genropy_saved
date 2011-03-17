@@ -37,6 +37,8 @@ from gnr.utils import ssmtplib
 from gnr.app.gnrdeploy import PathResolver
 from gnr.core.gnrclasses import GnrClassCatalog
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrlang import getUuid
+
 
 from gnr.core.gnrlang import  gnrImport, instanceMixin, GnrException
 from gnr.core.gnrstring import makeSet, toText, splitAndStrip, like, boolean
@@ -119,6 +121,9 @@ class GnrSqlAppDb(GnrSqlDb):
         resource.table = tblobj
         resource.db = self
         return resource
+    
+    def onDbCommitted(self):
+        self.application.onDbCommitted()
         
     def getFromStore(self, path, dflt):
         return self.application.site.currentPage.pageStore().getItem(path,dflt)
@@ -937,6 +942,10 @@ class GnrApp(object):
         :param package: add???. Default value is ``None``
         """
         raise e
+    
+    def onDbCommitted(self):
+        pass
+
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         """add???
@@ -947,6 +956,13 @@ class GnrApp(object):
         :param old_record: add???. Default value is ``None``
         :returns: add???
         """
+        currentEnv = self.db.currentEnv
+        if not 'env_transaction_id' in currentEnv:
+            dbevents=dict()
+            self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dbevents)
+        else:
+            dbevents=currentEnv['dbevents']
+        dbevents.setdefault(tblobj.fullname,[]).append(dict(dbevent=event,pkey=record.get(tblobj.pkey)))
         audit_mode = tblobj.attributes.get('audit')
         if audit_mode:
             self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
