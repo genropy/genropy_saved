@@ -312,6 +312,7 @@ class GnrSqlDb(GnrObject):
         with self.tempEnv(storename=storename):
             for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple)]:
                 sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])
+           
                 sqlargs.pop(k)
                 sqlargs.update(dict([('%s%i' % (k, i), ov) for i, ov in enumerate(v)]))
                 sql = re.sub(':%s(\W|$)' % k, sqllist, sql)
@@ -387,6 +388,10 @@ class GnrSqlDb(GnrObject):
     def commit(self):
         """Commit a transaction"""
         self.connection.commit()
+        self.onDbCommitted()
+    
+    def onDbCommitted(self):
+        pass
         
     def setConstraintsDeferred(self):
         """add???"""
