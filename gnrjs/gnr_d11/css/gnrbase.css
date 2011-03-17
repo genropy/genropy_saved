@@ -1624,9 +1624,13 @@ textarea:disabled {
 .dojoxGrid-header .cannotBeDropped {
     background: #ffa997 !important;
 }
-.selectionLocalChange{
+.selectionLocalChange .cellContent{
     font-style:italic;
+    background:yellow;
+    color:black;
 }
+
+
 
 .rowsetdragging {
     position: absolute;
