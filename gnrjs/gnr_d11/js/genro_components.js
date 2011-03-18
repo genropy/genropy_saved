@@ -69,17 +69,6 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         floating_kwargs.onCreated = function(widget) {
             setTimeout(function() {
                 if(showOnStart){
-                    var lazyChildren = widget.sourceNode.finalizeLazyBuildChildren();
-                    if(lazyChildren && lazyChildren.length==1){
-                        var layoutwdg = lazyChildren[0].getWidget();
-                        var newcoords = dojo.coords(widget.domNode);
-                        var layoutcoords = dojo.coords(layoutwdg.domNode);
-                        newcoords['l'] =  newcoords['l']-(layoutcoords['w']-newcoords['w']);
-                        newcoords['t'] =  newcoords['t']-(layoutcoords['h']-newcoords['h']+16);
-                        newcoords['h'] = layoutcoords['h']+16;
-                        newcoords['w'] = layoutcoords['w'];
-                        widget.resize(newcoords);
-                    }
                     widget.show();
                     widget.bringToTop();
                 }

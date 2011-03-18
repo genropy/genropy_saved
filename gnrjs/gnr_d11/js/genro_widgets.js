@@ -607,7 +607,13 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         this._domtag = 'div';
         this._dojotag = 'Dialog';
     },
-
+    patch_show:function(cb){
+        this.onShowing();
+        this.show_replaced(cb);
+    },
+    mixin_onShowing:function(){
+        this.sourceNode.finalizeLazyBuildChildren();
+    },
     creating:function(attributes, sourceNode) {
         objectPop(attributes, 'parentDialog');
         objectPop(attributes, 'centerOn');
@@ -1077,6 +1083,24 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
             dojo.connect(widget,'show',function(){
                 genro.publish(nodeId+'_show');
             });
+        }
+    },
+    patch_show:function(cb){
+        this.onShowing();
+        this.show_replaced(cb);
+    },
+    mixin_onShowing:function(){
+        var lazyChildren = this.sourceNode.finalizeLazyBuildChildren();
+        this.domNode.style.display="";
+        if(lazyChildren && lazyChildren.length==1){
+            var layoutwdg = lazyChildren[0].getWidget();
+            var newcoords = dojo.coords(this.domNode);
+            var layoutcoords = dojo.coords(layoutwdg.domNode);
+            newcoords['l'] =  newcoords['l']-(layoutcoords['w']-newcoords['w']);
+            newcoords['t'] =  newcoords['t']-(layoutcoords['h']-newcoords['h']+16);
+            newcoords['h'] = layoutcoords['h']+16;
+            newcoords['w'] = layoutcoords['w'];
+            this.resize(newcoords);
         }
     }
 
