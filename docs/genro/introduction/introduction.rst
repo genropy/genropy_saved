@@ -51,6 +51,20 @@ Other things
         pane.Combobox()
         pane.comboBox()
         
+    .. _genro_???:
+    
+Different syntaxes
+==================
+
+    **Old syntax**::
+    
+        add???
+    
+    **New syntax**::
+    
+        frame.top.slotBar()
+    
+    
 **Footnotes**:
 
 .. [#] For Dojo documentation check the official Dojo_ webpage. For additional documentation see also `Dojo Campus`_.

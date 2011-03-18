@@ -4,6 +4,8 @@
 validations
 ===========
     
+    .. warning:: to be completed!! add???
+    
     add??? parlare della form, e quindi dire che le validazioni rendono vere o false le form (cioè, se anche un solo
     valore ha una validazione sbagliata, la form non è valida)
     

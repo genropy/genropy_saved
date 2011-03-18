@@ -15,5 +15,6 @@ Documents to revise, adjust or to choose where to put
     print
     sql
     struct
+    textmate
     user_interface
     wsgi

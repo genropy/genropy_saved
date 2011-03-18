@@ -4,7 +4,7 @@
 ``model``
 =========
 
-    add??? In the ``model`` folder you can put your database :ref:`model_table`\s.
+    add??? In the ``model`` folder you can put your database :ref:`genro_table`\s.
     
 .. toctree::
     :maxdepth: 1

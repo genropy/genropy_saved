@@ -4,6 +4,8 @@
 fieldcell
 =========
 
+    .. warning:: to be completed!! add???
+    
     * :ref:`fieldcell_def`
     * :ref:`fieldcell_examples`
     
@@ -14,9 +16,7 @@ Definition
 
     .. automethod:: gnr.web.gnrwebstruct.GnrGridStruct.fieldcell
     
-    The Genro ``fieldcell`` inherits the structure and the attributes of the :ref:`genro_field` form widget.
-    
-    
+    The Genro ``fieldcell`` inherits the structure and the attributes of the :ref:`genro_field` form widget. add???
     
 .. _fieldcell_examples:
 

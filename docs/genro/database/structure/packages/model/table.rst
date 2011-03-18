@@ -1,12 +1,13 @@
-.. _model_table:
+.. _genro_table:
 
 =====
 table
 =====
     
-    .. warning:: completely to be completed!!
+    .. warning:: completely to be written!!
     
     * :ref:`table_definition`
+    * :ref:`table_creation`
     * :ref:`table_description`
     * :ref:`table_relation`
     * :ref:`table_examples`
@@ -16,38 +17,59 @@ table
 Definition
 ==========
 
-    In relational databases and flat file databases, a table is a set of data elements (values) that is organized using a model of vertical columns (which are identified by their name) and horizontal rows. A table has a specified number of columns, but can have any number of rows. Each row is identified by the values appearing in a particular column subset which has been identified as a candidate key.
-
+    In relational databases and flat file databases, a table is a set of data elements (values)
+    that is organized using a model of vertical columns (which are identified by their name) and
+    horizontal rows. A table has a specified number of columns, but can have any number of rows.
+    Each row is identified by the values appearing in a particular column subset which has been
+    identified as a candidate key.
+    
     A table allows to manage the database. add???(here I need an help for documentation...)
     
-    * introduce the following lines::
+.. _table_creation:
+    
+Creation of a table
+===================
+
+    To autocreate a table header, you have to install Textmate_ with :ref:`textmate_bundle`.
+    
+    .. _Textmate: http://macromates.com/
+    
+    If you have them, then you can write "table" and then press the "Tab" key.
+    
+    Alternatively, you can write by yourself the header lines:
+    
+    * First write::
     
         # encoding: utf-8
-        
+    
+    Explain...
+    
+    ::
+    
         class Table(object): # add???(a mixin class?)
         
-        class TableBase
+        class TableBase ???
         
     .. automethod:: gnr.app.gnrdbo.Table_counter.config_db
         
             def config_db(self, pkg):
             
-    * introdurre la table::
+    * introduce a table::
         
         tbl = pkg.table('azienda', pkey='id', rowcaption='@anagrafica_id.ragione_sociale',
-                              name_long='!!Azienda', name_plural='!!Aziende')
+                         name_long='!!Azienda', name_plural='!!Aziende') # in English!!!!add???
     
-    * introdurre il sysFields::
+    * introduce the sysFields::
         
         self.sysFields(tbl, group='_')
         
     .. automethod:: gnr.app.gnrdbo.TableBase.sysFields
     
-    * introdurre le column(s):
+    * introduce column(s):
         
         tbl.column('tipologia',size=':22',name_long='!!Tipologia')
         
-    * parlare delle column con la relation...
+    * speak about *relation* feature...
         
         tbl.column('anagrafica_id',size=':22',name_long='!!Anagrafica id',group='_').relation('sw_base.anagrafica.id', mode='foreignkey')
         
@@ -74,7 +96,7 @@ relation
 
 ..(use OmniGraffle!!)
 
-    Suppose to create a database of directors and films. In this database you have created a :ref:`model_table` for the directors (called ``person.py``), a ``table`` for the films (called ``movie.py``) and a :ref:`table_relation` table between directors and films (called ``cast.py``).
+    Suppose to create a database of directors and films. In this database you have created a :ref:`genro_table` for the directors (called ``person.py``), a ``table`` for the films (called ``movie.py``) and a :ref:`table_relation` table between directors and films (called ``cast.py``).
 
 ..add a figure...
 

@@ -1,8 +1,8 @@
 .. _genro_components_introduction:
 
-==============================
-Introduction to the components
-==============================
+============
+Introduction
+============
 
     * :ref:`components_def`
     * :ref:`components_location`
