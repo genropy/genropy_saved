@@ -854,7 +854,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             self.attributes['selfsubscribe_del'] = "alert('should delete')"
         return form
         
-    def virtualSelectionStore(self,storeCode=None,table=None,storepath=None,columns=None,**kwargs):
+    def virtualSelectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
         """add???
         
         :param storeCode: add???. Default value is ``None``
@@ -864,7 +864,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         self.selectionStore(storeCode=storeCode,table=table, storepath=storepath,columns=columns,**kwargs)
         
-    def selectionStore(self,storeCode=None,table=None,storepath=None,columns=None,**kwargs):
+    def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
         """add???
         
         :param storeCode: add???. Default value is ``None``
