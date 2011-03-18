@@ -597,7 +597,7 @@ class StatsHandler(BaseComponent):
         self.btc.batch_create(batch_id='%s_%s' % (selectionName, self.getUuid()),
                               title='Stats',
                               delay=.8,
-                              note='Stats')
+                              note='Stats',userBatch=False)
         group_by = group_by or self.stats_group_by(tot_mode)
         sum_cols = sum_cols or self.stats_sum_cols(tot_mode)
         keep_cols = keep_cols or self.stats_keep_cols(tot_mode)

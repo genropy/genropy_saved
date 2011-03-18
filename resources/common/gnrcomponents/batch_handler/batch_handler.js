@@ -19,18 +19,18 @@ batch_monitor.on_datachange = function(kw) {
     var node = kw.node;
     if (callname in batch_monitor) {
         var batch_id = node.attr.batch_id || node.label;
-        var sourceNode = this.get_batch_sourceNode(batch_id);
-        if (sourceNode) {
-            this[callname].call(this, node, sourceNode);
-            if (this.owner_page_batch(batch_id)) {
+        if(node.attr.userBatch){
+            var sourceNode = this.get_batch_sourceNode(batch_id);
+             if (sourceNode) {
+                 this[callname].call(this, node, sourceNode);
+             }
+        }
+        if (this.owner_page_batch(batch_id)) {
                 var sourceNode = this.get_batch_sourceNode(batch_id, true);
                 if (sourceNode) {
                     this[callname].call(this, node, sourceNode);
                 }
-
-            }
         }
-
     }
 };
 

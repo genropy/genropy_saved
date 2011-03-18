@@ -80,7 +80,7 @@ class GnrWebBatch(GnrBaseProxy):
 
 
     #@debug_call
-    def batch_create(self, batch_id=None, title=None, thermo_lines=None, note=None, cancellable=True, delay=1):
+    def batch_create(self, batch_id=None, title=None, thermo_lines=None, note=None, cancellable=True, delay=1,userBatch=True):
         self.batch_id = batch_id or self.page.getUuid()
         self.title = title
         self.line_codes = []
@@ -95,13 +95,15 @@ class GnrWebBatch(GnrBaseProxy):
         self.start_ts = datetime.now()
         self.last_ts = self.start_ts
         self.cancellable = True
+        self.userBatch = userBatch
         self.delay = delay
 
         with self.page.userStore() as store:
             store.drop_datachanges(self.batch_path)
             newbatch = Bag(dict(title=title, start_ts=self.start_ts, lines=thermo_lines, note=note,
                                 owner_page_id=self.page.page_id,
-                                thermo=Bag(dict([(k, None) for k in self.line_codes], cancellable=cancellable))))
+                                thermo=Bag(dict([(k, None) for k in self.line_codes], cancellable=cancellable,
+                                userBatch=userBatch))))
             store.set_datachange(self.batch_path, newbatch, reason='btc_create')
         return batch_id
 
