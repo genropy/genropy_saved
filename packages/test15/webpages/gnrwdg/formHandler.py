@@ -19,7 +19,7 @@ class GnrCustomWebPage(object):
         form = pane.frameForm(frameCode=frameCode,rounded_bottom=10,table='glbl.provincia',
                             store='recordCluster',store_startKey=startKey or '*norecord*',**kwargs)
         form.testToolbar(startKey=startKey) 
-        fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%")
+        fb = form.formbuilder(cols=2, border_spacing='4px',fld_width="100%")
         fb.formContent()
         return form
         
@@ -114,8 +114,6 @@ class GnrCustomWebPage(object):
                                  var palette = genro.src.create('palettePane',{'paletteCode':paletteCode,
                                                                     title:'Palette:'+pkey,
                                                                     _lazyBuild:'testPalette',
-                                                                    width:'600px',
-                                                                    height:'300px',
                                                                     dockTo:false, //'test_3_dock:open',
                                                                     remote_pkey:pkey},
                                                                     paletteCode);
@@ -124,7 +122,7 @@ class GnrCustomWebPage(object):
         
         
     def remote_testPalette(self,pane,pkey=None,**kwargs):
-        form = pane.formTester('formRemote_%s' %pkey,startKey=pkey)
+        form = pane.formTester('formRemote_%s' %pkey,startKey=pkey,height='200px',width='700px')
             
     def test_4_formPane_dialog(self,pane):
         pane.button('Show dialog',action='genro.wdgById("province_dlg").show()')
