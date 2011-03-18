@@ -69,8 +69,25 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
     getWidget:function() {
-        return  this.widget || dijit.getEnclosingWidget(this.domNode);
+        if(this.domNode){
+            return dijit.getEnclosingWidget(this.domNode);
+        }
+        var curr = this;
+        var currvalue;
+        while(curr && !curr.widget){
+            currvalue = curr.getValue();
+            if(currvalue instanceof gnr.GnrBag){
+                curr = currvalue.getNode('#0');
+            }else{
+                return;
+            }
+        }
+        return curr.widget;
     },
+    
+    
+    
+    
     getParentWidget:function() {
         var parentNode = this.getParentNode();
         if (parentNode) {
@@ -738,9 +755,12 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         if(newobj.show){
             var that = this;
+            var layoutwdg = newobj;
             dojo.connect(newobj,'show',this,function(){setTimeout(function(){
-                    that.finalizeLazyBuildChildren()
-                    newobj.resize(objectExtract(dojo.coords(newobj.domNode),'h,w'));
+                    var lazyChildren = that.finalizeLazyBuildChildren();
+                    if(lazyChildren && lazyChildren.length){
+                        newobj.resize(objectExtract(dojo.coords(layoutwdg.domNode),'h,w'));
+                    }
                 },1)});
         }
         if (!this.attr._lazyBuild){
@@ -803,17 +823,17 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         curr[idLst[idLst.length - 1]] = obj;
     },
     finalizeLazyBuildChildren:function(){
+        var lazyChildren = null;
         if(this.attr._lazyBuild){
-            this.lazyBuildFinalize();
+            lazyChildren = this.lazyBuildFinalize();
         }else{
-            this.getValue('static').walk(function(n){
+            lazyChildren = this.getValue('static').walk(function(n){
                 if(n.attr._lazyBuild){
-                    n.lazyBuildFinalize();
-                    return true;
+                   return n.lazyBuildFinalize();
                 }
             });
         }
-        
+        return lazyChildren;
     },
     publish:function(msg,kw,recursive){
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+msg;
@@ -855,7 +875,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             var content;
             if(lazyBuild!==true){
                 content = genro.serverCall('remoteBuilder',objectUpdate({handler:lazyBuild},objectExtract(this.attr,'remote_*')));
-                console.log('content lazybuild')
             }
             else{
                 content = this._value;
@@ -869,6 +888,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     }
                 });
             },1);
+            return content.getNodes();
         }        
     },
     

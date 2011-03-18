@@ -46,6 +46,7 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         var right = objectPop(attributes, 'right');
         var top = objectPop(attributes, 'top');
         var bottom = objectPop(attributes, 'bottom');
+        var lazyContent = objectPop(attributes,'lazyContent');
         if ((left === null) && (right === null) && (top === null) && (bottom === null)) {
             this._last_floating = this._last_floating || {top:0,right:0};
             this._last_floating['top'] += 10;
@@ -65,13 +66,24 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
             objectPop(floating_kwargs, 'visibility');
             showOnStart = true;
         }
-        if (showOnStart) {
-            floating_kwargs.onCreated = function(widget) {
-                setTimeout(function() {
+        floating_kwargs.onCreated = function(widget) {
+            setTimeout(function() {
+                if(showOnStart){
+                    var lazyChildren = widget.sourceNode.finalizeLazyBuildChildren();
+                    if(lazyChildren && lazyChildren.length==1){
+                        var layoutwdg = lazyChildren[0].getWidget();
+                        var newcoords = dojo.coords(widget.domNode);
+                        var layoutcoords = dojo.coords(layoutwdg.domNode);
+                        newcoords['l'] =  newcoords['l']-(layoutcoords['w']-newcoords['w']);
+                        newcoords['t'] =  newcoords['t']-(layoutcoords['h']-newcoords['h']+16);
+                        newcoords['h'] = layoutcoords['h']+16;
+                        newcoords['w'] = layoutcoords['w'];
+                        widget.resize(newcoords);
+                    }
                     widget.show();
                     widget.bringToTop();
-                }, 1);
-            };
+                }
+            }, 1);
         }
         if (!dockTo && dockTo !== false) {
             dockTo = 'default_dock';
