@@ -102,9 +102,9 @@ class GnrCustomWebPage(object):
         pane = pane.div(height='30px')
         pane.dock(id='test_3_dock')
         pane.palettePane('province',title='Province',dockTo='test_3_dock',
-                        width='600px',height='300px',_lazyBuild=True).formTester('form_palette')
+                        _lazyBuild=True).formTester('form_palette',width='600px',height='300px')
         pane.palettePane('province_remote',title='Province Remote',dockTo='test_3_dock',
-                        _lazyBuild='testPalette',width='600px',height='300px')
+                        _lazyBuild='testPalette')
 
     
     def test_5_formPane_palette_remote(self,pane):
