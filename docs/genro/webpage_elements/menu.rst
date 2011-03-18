@@ -4,7 +4,7 @@
 menu
 ====
 
-    .. note:: To create a menu, you have to use the ``dropdownbutton`` widget. For more information,
+    .. note:: To create a menu, you have to use the ``dropdownbutton`` form widget. For more information,
               check the :ref:`genro_dropdownbutton` documentation page.
     
     * :ref:`menu_def`

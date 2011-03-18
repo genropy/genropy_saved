@@ -83,7 +83,8 @@ Genro CSS names
     
     .. _css_border_radius:
     
-    **border-radius**:
+border-radius
+-------------
     
     * Genro CSS name: rounded
     * Example::
@@ -92,14 +93,15 @@ Genro CSS names
         
     * Features: the *rounded* attribute support the top/bottom/left/right extensions::
     
-        rounded=10,rounded_bottom=0
+        rounded=10, rounded_bottom=0
     
     .. _css_box_shadow:
     
-    **box-shadow**:
-    
+box-shadow
+----------
+
     * Genro CSS name: shadow
     * Example::
     
-        shadow='5px 5px 5px gray' 
-    
+        shadow='5px 5px 5px gray'
+        

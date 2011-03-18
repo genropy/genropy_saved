@@ -19,8 +19,6 @@ Genro form widgets
     
     * :ref:`genro_dbcombobox`
     * :ref:`genro_dbselect`
-    * :ref:`genro_field`
-    * :ref:`genro_fieldcell`
     * :ref:`genro_formbuilder`
     
 .. _dojo_improved_form_widgets:
@@ -31,7 +29,6 @@ modified-Dojo form widgets
     The **modified-Dojo** form widgets are:
     
     * :ref:`genro_button`
-    * :ref:`genro_menu`
     
     Textboxes:
     

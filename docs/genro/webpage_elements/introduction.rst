@@ -8,7 +8,7 @@ introduction
               behavior of *datapath* and *value* attributes, because every webpage element is able to save its values
               through these two attributes.
     
-    You can act on a Genro :ref:`webpages_webpages` through:
+    You can act on a Genro :ref:`webpages_webpages` mainly through:
     
     * :ref:`genro_layout_index` - they allow to create the webpage's layout of your webpages
     * :ref:`genro_html` - standard HTML elements
@@ -18,3 +18,12 @@ introduction
     * :ref:`genro_data` *elements* - Used to define variables from server to client
     * :ref:`genro_dataremote` *elements* - Synchronous rpc
     * :ref:`genro_datacontroller_index` - They receive input and initiate a response by making calls on model objects
+    
+    There are other webpage elements:
+    
+    * :ref:`genro_field` - add???
+    * :ref:`genro_fieldcell` - add???
+    * :ref:`genro_menu` - add???
+    * :ref:`genro_toolbar` - add???
+    * :ref:`genro_tree` - add???
+    

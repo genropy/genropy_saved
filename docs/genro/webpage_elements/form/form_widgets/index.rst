@@ -11,10 +11,7 @@ form widgets
     button
     checkbox
     dropdownbutton
-    field
-    fieldcell
     formbuilder
-    menu
     numberspinner
     radiobutton
     simplearea
