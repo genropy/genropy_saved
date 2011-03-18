@@ -976,10 +976,9 @@ class GnrWsgiSite(object):
         for table,dbevents in dbeventsDict.items():
             if dbevents:
                 tblobj = self.db.table(table)
-                if tblobj.attributes.get('broadcast'):
-                    subscribers = self.register.pages(index_name=table)
-                else:
-                    subscribers = None
+                if tblobj.attributes.get('broadcast') is not True:
+                    continue
+                subscribers = self.register.pages(index_name=table)
                 for page_id in subscribers.keys():
                     page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,
                                             attributes=dict(pkeycol=tblobj.pkey), 
@@ -993,7 +992,7 @@ class GnrWsgiSite(object):
         :param event: add???
         :param old_record: add???. Default value is ``None``
         """
-        if tblobj.attributes.get('broadcast'):
+        if tblobj.attributes.get('broadcast') == 'old':
             subscribers = self.register.pages(index_name=tblobj.fullname)
             value = Bag([(k, v) for k, v in record.items() if not k.startswith('@')])
             page = self.currentPage
