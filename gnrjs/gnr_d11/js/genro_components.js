@@ -554,6 +554,18 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.ConnectedTooltipDialog", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var ddbId = sourceNode.getStringId();
+        var ddb = sourceNode._('dropdownbutton',{hidden:true,id:ddbId});
+        var ttattr = {connect_onOpen:'this.widget.resize();'};
+        
+        ttattr.selfsubscribe_show=function(){
+            dijit.byId(ddbId)._openDropDown(this.getDomNode());
+        }
+        return ddb._('tooltipdialog',objectUpdate(ttattr,kw));
+    }
+});
 
 dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {

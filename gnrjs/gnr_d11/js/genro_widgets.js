@@ -176,6 +176,8 @@ dojo.declare("gnr.widgets.baseHtml", null, {
         savedAttrs['dropTargetCb'] = objectPop(attributes, 'dropTargetCb');
 
         savedAttrs.connectedMenu = objectPop(attributes, 'connectedMenu');
+        savedAttrs.tooltipDialog = objectPop(attributes, 'tooltipDialog');
+
         savedAttrs.onEnter = objectPop(attributes, 'onEnter');
         objectUpdate(savedAttrs, this.creating(attributes, sourceNode));
         var formId = objectPop(attributes, 'formId');
@@ -258,9 +260,9 @@ dojo.declare("gnr.widgets.baseHtml", null, {
 
     _created:function(newobj, savedAttrs, sourceNode, ind) {
         this.created(newobj, savedAttrs, sourceNode);
+        var domNode = newobj.domNode || newobj;
         if (savedAttrs.connectedMenu) {
             var menu = savedAttrs.connectedMenu;
-            var domNode = newobj.domNode || newobj;
             if (typeof(menu) == 'string') {
                 menu = dijit.byId(menu);
             }
@@ -269,9 +271,17 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             }
 
         }
+        
         if (!sourceNode) {
             return;
         }
+        if (savedAttrs.tooltipDialog){
+            genro.src.afterBuildCalls.push(function(){
+                var tooltipDialog = genro.wdgById(savedAttrs.tooltipDialog);
+                tooltipDialog.attachTo(sourceNode);
+            });
+        }
+        
         if (savedAttrs.dropTargetCb) {
             sourceNode.dropTargetCb = funcCreate(savedAttrs.dropTargetCb, 'dropInfo', sourceNode);
         }
@@ -601,6 +611,51 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
     // }
 
 });
+
+dojo.declare("gnr.widgets.TooltipDialog", gnr.widgets.baseDojo, {
+    constructor: function(application) {
+        this._domtag = 'div';
+        this._dojotag = 'TooltipDialog';
+    },
+    _beforeCreation:function(sourceNode){
+        console.log('creating tdialog');
+        if(sourceNode.getParentNode().attr.tag.toLowerCase()!='dropdownbutton'){
+            console.log('patch tdialog');
+            var content = sourceNode._value;
+            var attr = sourceNode.attr;
+            genro.src.afterBuildCalls.push(function(){
+                sourceNode.widget.attachTo(sourceNode.getParentNode());
+            });
+            var nodeId = objectPop(attr,'nodeId') || 'ddb_'+sourceNode.getStringId();
+            var modifiers = objectPop(attr,'modifiers');
+            var evt = objectPop(attr,'evt');
+
+            sourceNode.clearValue();
+            sourceNode.attr = {tag:'dropDownButton',hidden:true,nodeId:nodeId,modifiers:modifiers,evt:evt,
+                               selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);"};
+            content.clearBackRef();
+            sourceNode._('TooltipDialog',objectUpdate(attr,{'content':content,connect_onOpen:"this.widget.onOpening(this.widget._lastEvent)"}));
+        }
+    },
+    
+    mixin_onOpening:function(e){},
+    mixin_attachTo:function(destSourceNode){
+        console.log('attacch')
+        var evt = this.sourceNode.attr.evt || 'onclick';
+        var modifiers =this.sourceNode.attr.modifiers || '*';
+        var domNode = destSourceNode.getDomNode();
+        var sourceNode = this.sourceNode;
+        dojo.connect(domNode,evt,function(e){
+            if(genro.wdg.filterEvent(e,modifiers)){
+                sourceNode.publish('open',{'evt':e,'domNode':e.target})
+            } 
+        });
+    },
+    
+    created:function(widget, savedAttrs, sourceNode){
+    }
+});
+
 dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
     constructor: function(application) {
         this._attachTo = 'mainWindow';

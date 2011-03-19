@@ -200,6 +200,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             cb = this.afterBuildCalls.pop();
             cb.call();
         }
+        console.log("END BUILD");
     },
 
 

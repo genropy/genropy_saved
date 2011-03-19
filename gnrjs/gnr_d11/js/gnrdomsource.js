@@ -684,6 +684,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         node._registerInForm();
                         node[aux].call(node);
                     } else {
+                        //console.log('building',node.attr.tag);
                         node.build(destination, -1); // append to parent
                     }
                     
