@@ -13,6 +13,7 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler,foundation/includedview:IncludedView"
     user_polling=0
     auto_polling=0
+    testOnly='_8_'
     
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
@@ -105,7 +106,13 @@ class GnrCustomWebPage(object):
                         _lazyBuild=True).formTester('form_palette',width='600px',height='300px')
         pane.palettePane('province_remote',title='Province Remote',dockTo='test_3_dock',
                         _lazyBuild='testPalette')
-
+                        
+    
+    def test_8_formPane_tooltipForm(self,pane):
+        box = pane.div(height='30px',width='100px',background='red',provincia='MI')
+        box.span('Milano')
+        dlg = box.tooltipDialog(title='Milano',modifiers='shift',connect_onOpening='console.log(arguments);genro.formById("form_ttdialog").load({destPkey:e.target.sourceNode.attr.provincia});')
+        dlg.formTester('form_ttdialog',height='300px',width='500px')
     
     def test_5_formPane_palette_remote(self,pane):
         fb = pane.formbuilder(cols=4, border_spacing='2px')
