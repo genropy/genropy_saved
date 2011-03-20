@@ -693,7 +693,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'dataFormula', 'dataScript', 'dataRpc', 'dataController', 'dataRemote',
              'gridView', 'viewHeader', 'viewRow', 'script', 'func',
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
-             'tinyMCE', 'protovis', 'PaletteGroup', 'PalettePane', 'BagNodeEditor',
+             'tinyMCE', 'protovis', 'PaletteGroup', 'PalettePane','TooltipPane', 'BagNodeEditor',
              'PaletteBagNodeEditor', 'Palette', 'PaletteTree', 'SearchBox', 'FormStore',
              'FramePane', 'FrameForm', 'SlotButton']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
