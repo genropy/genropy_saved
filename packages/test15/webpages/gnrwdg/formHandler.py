@@ -17,7 +17,7 @@ class GnrCustomWebPage(object):
     
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
-        form = pane.frameForm(frameCode=frameCode,rounded_bottom=10,table='glbl.provincia',
+        form = pane.frameForm(frameCode=frameCode,table='glbl.provincia',
                             store='recordCluster',store_startKey=startKey or '*norecord*',**kwargs)
         form.testToolbar(startKey=startKey) 
         fb = form.formbuilder(cols=2, border_spacing='4px',fld_width="100%")
@@ -111,8 +111,8 @@ class GnrCustomWebPage(object):
     def test_8_formPane_tooltipForm(self,pane):
         box = pane.div(height='30px',width='100px',background='red',provincia='MI')
         box.span('Milano')
-        dlg = box.tooltipDialog(title='Milano',modifiers='shift',connect_onOpening='console.log(arguments);genro.formById("form_ttdialog").load({destPkey:e.target.sourceNode.attr.provincia});')
-        dlg.formTester('form_ttdialog',height='300px',width='500px')
+        dlg = box.tooltipPane(title='Milano',modifiers='shift',xconnect_onOpening='console.log(arguments);genro.formById("form_ttdialog").load({destPkey:e.target.sourceNode.attr.provincia});')
+        dlg.formTester('form_ttdialog',height='300px',width='500px',background='white',rounded=6)
     
     def test_5_formPane_palette_remote(self,pane):
         fb = pane.formbuilder(cols=4, border_spacing='2px')
