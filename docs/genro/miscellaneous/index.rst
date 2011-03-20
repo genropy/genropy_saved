@@ -7,7 +7,6 @@ Documents to revise, adjust or to choose where to put
 .. toctree::
     :maxdepth: 2
     
-    ../bag/index
     clipboard
     ../commons/index
     ../datastore/index

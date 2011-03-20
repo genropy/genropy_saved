@@ -50,7 +50,7 @@ server-side controllers
 .. _controllers_attributes:
 
 commons attributes
-=================
+==================
 
     Let's see all the controllers' commons attributes:
     

@@ -11,7 +11,6 @@ form widgets
     button
     checkbox
     dropdownbutton
-    formbuilder
     numberspinner
     radiobutton
     simplearea

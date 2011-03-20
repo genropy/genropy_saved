@@ -21,8 +21,6 @@ introduction
     
     There are other webpage elements:
     
-    * :ref:`genro_field` - add???
-    * :ref:`genro_fieldcell` - add???
     * :ref:`genro_menu` - add???
     * :ref:`genro_toolbar` - add???
     * :ref:`genro_tree` - add???

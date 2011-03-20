@@ -16,6 +16,7 @@ Genropy
     :numbered:
     
     getting_started
+    bag/index
     webpage_elements/index
     database/index
     components/index

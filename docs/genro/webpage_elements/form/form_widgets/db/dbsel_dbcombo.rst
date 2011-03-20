@@ -1,8 +1,8 @@
 .. _genro_dbselect_dbcombobox:
 	
-==========================================
+===========================================
 dbSelect and dbCombobox: commons attributes
-==========================================
+===========================================
 
     * :ref:`db_genro_attributes`
     * :ref:`db_examples`: :ref:`db_selected`, :ref:`db_condition`, :ref:`db_columns` and :ref:`db_auxColumns`, :ref:`db_hasdownarrow`
@@ -18,7 +18,7 @@ Common attributes
        Attribute                   Description                                  Default                       Example                        
     ==================== =================================================== ========================== ======================================
      *dbtable*            MANDATORY - Select the database                      ``None``                 :ref:`genro_dbtable` explanation page
-                          :ref:`model_table` for database widget                                                                             
+                          :ref:`genro_table` for database widget                                                                             
                           query.                                                                                                             
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
      *alternatePkey*      Alternate primary key: allow to save user choice     ``None``                
@@ -77,7 +77,7 @@ Selected
 
     **Example:**
 
-    let's consider a simple Genro Project [#]_ including a database :ref:`model_table` and a :ref:`webpages_GnrCustomWebPage`. 
+    let's consider a simple Genro Project [#]_ including a database :ref:`genro_table` and a :ref:`webpages_GnrCustomWebPage`. 
 
     The table includes a list of actors::
 
