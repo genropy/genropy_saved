@@ -18,6 +18,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         var children = sourceNode.getValue();
         sourceNode.clearValue();
         var content = this.createContent(sourceNode, contentKwargs,children);
+        genro.assert(content,'create content must return');
         content.concat(children);
         sourceNode._stripData(true);
         sourceNode.unfreeze(true);
@@ -37,6 +38,38 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
     },
     defaultDatapath:function(attributes) {
         return null;
+    }
+});
+
+dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw, children) {
+        
+        var ddbId = sourceNode.getStringId();
+        var modifiers = objectPop(kw,'modifiers') || '*';
+        var onOpening = objectPop(kw,'onOpening');
+        if (onOpening){
+            onOpening = funcCreate(onOpening,'e,sourceNode',sourceNode);
+        }
+        var evt = objectPop(kw,'evt') || 'onclick';
+        
+        var parentDomNode = sourceNode.getParentNode().domNode;
+        dojo.connect(parentDomNode,evt,function(e){
+            if(genro.wdg.filterEvent(e,modifiers)){
+                if(!onOpening || onOpening(e,e.target.sourceNode)){
+                    genro.publish(ddbId+'_open',{'evt':e,'domNode':e.target})
+                }
+            } 
+        });
+        
+        var ddb = sourceNode._('dropDownButton',{hidden:true,nodeId:ddbId,modifiers:modifiers,evt:evt,
+                                selfsubscribe_open:"this.widget.dropDown._lastEvent=$1.evt;this.widget._openDropDown($1.domNode);"});
+
+        kw['connect_onOpen'] = function(){
+            console.log('aaa')
+            //x.ppp
+            this.widget.resize();
+        }
+        return  ddb._('TooltipDialog',kw);
     }
 });
 

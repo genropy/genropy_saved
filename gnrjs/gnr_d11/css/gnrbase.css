@@ -1253,6 +1253,9 @@ div.dojoxDock {
     font-size: 12px;
     padding: 0px;
 }
+._common_d11  .dijitTooltipFocusNode{
+    padding:0px;
+}
 
 .tundra .dijitDialog {
     z-index: 499;

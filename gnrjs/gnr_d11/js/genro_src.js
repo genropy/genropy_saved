@@ -64,7 +64,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
     },
     nodeTrigger:function(kw) {
-        if (kw.node.isFreezed()){
+        if (kw.node.isFreezed() || kw.node._isBuilding){
             return;
         }
         this.pendingBuild.push(kw);
@@ -200,7 +200,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             cb = this.afterBuildCalls.pop();
             cb.call();
         }
-        console.log("END BUILD");
     },
 
 
