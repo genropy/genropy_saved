@@ -979,8 +979,9 @@ class GnrWsgiSite(object):
                 if tblobj.attributes.get('broadcast') is not True:
                     continue
                 subscribers = self.register.pages(index_name=table)
-                for page_id in subscribers.keys():
-                    page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,
+                if subscribers:
+                    for page_id in subscribers.keys():
+                        page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,
                                             attributes=dict(pkeycol=tblobj.pkey), 
                                             page_id=page_id)
 
