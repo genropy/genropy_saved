@@ -219,7 +219,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         if isinstance(where, Bag):
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
         if condition:
-            where = '(%s) AND (%s)' % (where, condition)
+            where = '( %s ) AND ( %s )' % (where, condition)
         return tblobj.query(columns=columns, distinct=distinct, where=where,
                             relationDict=relationDict, sqlparams=sqlparams, **kwargs).count()
 
@@ -300,7 +300,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         where = "$%s = :val_%s" % (related_field, related_field)
         kwargs[str('val_%s' % related_field)] = relation_value
         if condition:
-            where = '(%s) AND (%s)' % (where, condition)
+            where = ' ( %s ) AND ( %s ) ' % (where, condition)
         query = self.db.query(dbtable, columns=columns, where=where,
                               sqlContextName=sqlContextName, **kwargs)
 
@@ -646,7 +646,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             kwargs.pop('where_attr',None)
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
         if condition and not pkeys:
-            where = '( %s ) AND ( %s )' % (where, condition)
+            where = ' ( %s ) AND ( %s ) ' % (where, condition)
         query = tblobj.query(columns=columns, distinct=distinct, where=where,
                              order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                              relationDict=relationDict, sqlparams=sqlparams, locale=self.page.locale,
