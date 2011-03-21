@@ -375,20 +375,15 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             });
 
         }
-        if(newobj.validate && false ){
+        if(newobj.validate){
             newobj.validate_replaced = newobj.validate;
             newobj.validate = function(isFocused){
-                    if ((this.sourceNode.attr.lazyDojoValidate!=false) && isFocused){
-                        return true
-                    }
-                    else{
-                        var isValid = this.validate_replaced(isFocused);
-                        if (this.sourceNode.form && !isFocused){
-                           this.sourceNode.form.dojoValidation(this,isValid) 
-                        }
-                        return isValid;
-                    }
-                }            
+                var isValid = this.validate_replaced(isFocused);
+                if (this.sourceNode.form && !isFocused){
+                    this.sourceNode.form.dojoValidation(this,isValid) 
+                }
+                return isValid;
+            }            
         }
     },
     onDragStart:function(dragInfo) {
