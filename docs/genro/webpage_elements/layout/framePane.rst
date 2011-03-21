@@ -4,48 +4,34 @@
 framePane
 =========
     
-    .. warning:: to be completed!! add???
-    
-    * :ref:`frame_def`
+    * :ref:`frame_def`: :ref:`frame_sides`
     * :ref:`frame_attributes`
     * :ref:`frame_examples`
     
-    ::
-    
-        Clipboard
-            
-            **Struct method**
-                
-                from gnr.web.gnrwebstruct import struct_method
-                
-                ...
-                
-                top.bar.myslot()
-                
-                ...
-                
-                ::
-                
-                    @struct_method
-                    def myslot(self,pane):
-                        pane.button(label='Bar',iconClass='icnBaseAdd',lbl='Bar',showLabel=False)
-                        
 .. _frame_def:
 
 Definition
 ==========
     
-    A framePane is a :ref:`genro_contentpane` with *sides* attribute added:
-    *top*, *bottom*, *left* and *right* side [#]_.
+    A framePane is a :ref:`genro_bordercontainer` with :ref:`frame_sides` attribute added: these sides
+    follow the Dojo borderContainer suddivision: there is indeed the *top*, the *bottom*, the *left*
+    and the *right* side.
     
-    In the *sides* we can add buttons, icons, menus and so on and use them to execute 'tasks'.
-    In the *top side* we usually keep a :ref:`genro_toolbar` and in the *bottom side* a footer.
+.. _frame_sides:
+    
+sides
+-----
+    
+    Through the *sides* attribute we can add buttons, icons or menus and use them to execute 'tasks':
+    you may have a button to export excel, one to print and so on.
+    
+    For example, in the *top side* you can keep a :ref:`genro_toolbar` with a selector for
+    :ref:`genro_table`\'s records [#]_ and in the *bottom side* you can keep a place for messages
+    that will inform the user of the correct (or uncorrect) execution of its action.
+    
     Every *side* can be highly customized with regard to the look and with regard to its tools.
     
-    Some tools are *standard*: you may have a button to export excel, one for print and so on.
-    
-    A toolbar may contain a selector for :ref:`genro_table`\'s records [#]_ or just
-    a message that will inform the user of the proper execution of an action and so on.
+    You can add a framePane to a :ref:`genro_paletteadd???`
     
 .. _frame_attributes:
 
@@ -54,16 +40,28 @@ Attributes
     
     **framePane's attributes**:
     
-    * *frameCode*: MANDATORY - add??? --> create the frameId...
-    * *design='sidebar'* add???
-    * *center*:
+    * *frameCode*: MANDATORY - autocreate a :ref:`genro_nodeid` for the framePane AND autocreate hierarchic nodeIds
+      for every framePane child. Default value is ``None``.
+      
+      Example::
+      
+        frameCode='frame1'
+      
+    * *design (Dojo attribute)*: framePane operates in a choice of two layout modes: the design attribute may be set to
+      ``headline`` or ``sidebar``. With the ``headline`` layout, the top and bottom sections extend the entire
+      width of the box and the remaining regions are placed in the middle. With the ``sidebar`` layout, the
+      side panels take priority, extending the full height of the box. Default value is ``headline``.
+      
+    * *center*: allow to give CSS attributes to your *center* region.
     
-        *center_border='5px solid #bbb'*
-        *center_background='#A7A7A7'*
+      Example::
+      
+        center_border='5px solid #bbb'
+        center_background='#A7A7A7'
     
     **Common attributes**:
     
-        For commons attributes, see add??? --> :ref:`genro_layout_common_attributes`
+        For common attributes, check the :ref:`genro_layout_common_attributes` section.
         
 .. _frame_examples:
 
@@ -79,10 +77,15 @@ simple example
         
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
-                bc = root.borderContainer(height='400px')
-                add???
-                
+                frame = root.framePane(frameCode='frame1', height='200px', margin='10px',
+                                       border='1px solid #bbb', shadow='3px 3px 5px gray',
+                                       center_background='gray', rounded=20, design='sidebar')
+    
+    where:
+    
+    * the *rounded* attribute is the CSS :ref:`css_border_radius` attribute
+    * the *shadow* attribute is the CSS :ref:`css_box_shadow` attribute
+    
 **Footnotes**:
 
-.. [#] The internal code defines it as a :ref:`genro_bordercontainer`, but you have to see it as a ``contentPane`` with *sides*.
 .. [#] Like a :ref:`iv_searchbox` of the :ref:`genro_includedview` component

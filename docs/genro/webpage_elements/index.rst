@@ -1,7 +1,7 @@
 .. _genro_webpage_elements_index:
 
 ================
-Webpage elements
+webpage elements
 ================
 
 .. toctree::

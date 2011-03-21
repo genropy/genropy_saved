@@ -10,6 +10,7 @@ Documents to revise, adjust or to choose where to put
     clipboard
     ../commons/index
     ../datastore/index
+    fine_syntax
     logging
     print
     sql

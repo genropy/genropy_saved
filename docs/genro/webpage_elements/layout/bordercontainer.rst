@@ -4,7 +4,11 @@
 borderContainer
 ===============
 
-    .. note:: The Genro borderContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's borderContainer documentation.
+    .. note:: The Genro borderContainer has been taken from Dojo without adding any modifies. In this page you will
+              find some interesting features that we want to point up. For more information, check the Dojo's
+              borderContainer documentation.
+              
+    .. note:: In GenroPy you can find the :ref:`genro_framepane`, an enhancement of the Dojo borderContainer.
     
     * :ref:`border_def`
     * :ref:`border_attributes`
@@ -34,11 +38,16 @@ Attributes
     
     **borderContainer's attributes**:
     
-    * *regions*: Allow to act on regions. For more information, check the :ref:`border_regions` example
+    * *design (Dojo attribute)*: BorderContainer operates in a choice of two layout modes: the design attribute may be set to
+      ``headline`` or ``sidebar``. With the ``headline`` layout, the top and bottom sections extend the entire
+      width of the box and the remaining regions are placed in the middle. With the ``sidebar`` layout, the
+      side panels take priority, extending the full height of the box. Default value is ``headline``.
+    * *regions (Genro attribute)*: allow to act on the borderContainer's regions. For more information, check
+      the :ref:`border_regions` example
     
     **attributes of the borderContainer's children (paneContainers)**:
     
-    * *splitter*: If true, user can modify the width of the paneContainer. For more information,
+    * *splitter (Dojo attribute)*: If true, user can modify the width of the paneContainer. For more information,
       check :ref:`border_splitter` example
     
     **Common attributes**:
@@ -92,7 +101,7 @@ Attributes explanation
         root.data('regions.left?show',False) # these two lines have the same meaning
         root.data('regions.left',show=False)
         
-    or you can modify their dimensions with a Javascript line code::
+    or you can modify their dimensions::
     
         genro.setData('regions.left','150px')
         
