@@ -232,7 +232,7 @@ class TableHandlerForm(BaseComponent):
             toolbarKw['tagsbtn_mode'] = 'list'
         if self.enableFilter():
             tagFilter = 'filtermenu,'
-        pane.slotToolbar('left_top_opener,|,5,queryfb,iv_runbtn,%sviewmenu,%s*,|,form_add,form_locker,5' %(tagSlot,tagFilter),
+        pane.slotToolbar('left_top_opener,|,5,queryfb,iv_runbtn,%sviewmenu,%s*,|,list_add,list_locker,5' %(tagSlot,tagFilter),
                         iv_runbtn_action='FIRE list.runQueryButton;',form_add_parentForm='formPane',
                         form_locker_parentForm='formPane',**toolbarKw)
 
@@ -255,6 +255,20 @@ class TableHandlerForm(BaseComponent):
                                 FIRE list.runQuery;
                             }
                            """)
+    
+    @struct_method
+    def th_mainlist_list_add(self, pane,**kwargs):
+        pane.slotButton('!!Add',action='FIRE list.newRecord;',
+                        iconClass="tb_button db_add",
+                        subscribe_form_formPane_onLockChange="this.widget.setDisabled($1.locked);",**kwargs)
+        
+    @struct_method
+    def th_mainlist_list_locker(self, pane,**kwargs):
+        pane.button('!!Locker',width='20px',iconClass='icnBaseUnlocked',showLabel=False,
+                    action='genro.formById("formPane").publish("setLocked","toggle");',
+                    subscribe_form_formPane_onLockChange="""var locked= $1.locked;
+                                                  this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""")
+        
    
     @struct_method
     def th_mainlist_queryfb(self, pane,**kwargs):

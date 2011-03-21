@@ -28,6 +28,7 @@ class TableHandlerForm(BaseComponent):
         form = sc.frameForm(frameCode='formPane',formId='formPane',datapath='form',controllerPath='gnr.forms.formPane',
                             table=self.maintable,center_widget='BorderContainer',
                             pkeyPath='.pkey',hasBottomMessage=False,
+                            form_locked=True,
                             formsubscribe_onDismissed='SET list.selectedIndex=-2;',
                             #sqlContextName='sql_record',
                             #sqlContextRoot='form.record',
