@@ -517,6 +517,7 @@ dojo.declare("gnr.GridEditor", null, {
         this.widgetRootNode = gridEditorNode;
         gridEditorColumns.forEach(function(node) {
             attr = node.attr;
+            attr['parentForm'] = false;
             if (!attr.gridcell) {
                 throw "Missing gridcell parameter";
             }
@@ -533,7 +534,7 @@ dojo.declare("gnr.GridEditor", null, {
 
         dojo.connect(widget, editOn[0], function(e) {
             if (genro.wdg.filterEvent(e, modifier)) {
-                if (grid.editorEnabled && _this.editableCell(e.cellIndex) && !grid.gnrediting) {
+                if (_this.enabled() && _this.editableCell(e.cellIndex) && !grid.gnrediting) {
                     dojo.stopEvent(e);
                     if (_this.grid._delayedEditing) {
                         clearTimeout(_this.grid._delayedEditing);
@@ -545,6 +546,15 @@ dojo.declare("gnr.GridEditor", null, {
             }
         });
     },
+    enabled:function(){
+        var form = this.grid.sourceNode.form;
+        if(form && form.store){
+            return !form.locked;
+        }else{
+            return this.grid.editorEnabled;
+        }
+    },
+    
     onEditCell:function(start) {
         var grid = this.grid;
         grid.gnrediting = start;

@@ -3820,7 +3820,7 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     },
     mixin_setEditorEnabled: function(enabled) {
         this.editorEnabled = enabled;
-    },
+    }
    //mixin_rpcViewColumns: function() {
    //    if ((this.relation_path) && (this.relation_path.indexOf('@') == 0)) {
    //        genro.rpc.remoteCall('setViewColumns', {query_columns:this.query_columns,
