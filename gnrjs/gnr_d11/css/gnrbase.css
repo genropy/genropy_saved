@@ -60,6 +60,10 @@ label.ghostlabel span {
     display: none;
 }
 
+.dijitReset {
+    color: black;
+}
+
 .tundra .dijitError {
     background-color: #fff2f5;
     background-image: none;
@@ -1438,6 +1442,176 @@ textarea:disabled {
 }
 
 /* @end */
+/* @group 2011-Paolo*/
+
+/* @group Toolbar */
+ .dijitToolbar {
+    background: none;
+    background-color: #EDEDEE;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+    color: #383838;
+    /*-moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD) repeat scroll 0 0 #E1E9E9*/
+}
+/* @end */
+/* @group Buttons */
+
+.tundra .dijitToolbar .dijitButton,
+.tundra .dijitToolbar .dijitToggleButton,
+.tundra .dijitToolbar .dijitDropDownButton {
+    border-top: 1px solid #E3E3E3;
+    background-color:#F8F8F8;
+    border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
+}
+.tundra .dijitToolbar .dijitButtonChecked,
+.tundra .dijitToolbar .dijitToggleButtonChecked {
+    background-color:#d4dff2;
+    border:1px solid #316ac5;
+    margin: 1px !important;
+    padding: 0px !important;
+}
+.tundra .dijitToolbar .dijitButtonCheckedHover,
+.tundra .dijitToolbar .dijitToggleButtonCheckedHover
+ {
+    background-color:#abc1e5;
+    border:1px solid #316ac5;
+    margin: 1px !important;
+    padding: 0px !important;
+
+}
+.tundra .dijitToolbar .dijitButtonHover,
+.tundra .dijitToolbar .dijitToggleButtonHover,
+.tundra .dijitToolbar .dijitDropDownButtonHover {
+    
+    /*
+    border: 1px solid #316ac5;
+    background-color:#abc1e5;
+    */
+    border: 1px solid #CECECE;
+    background-color:#CECECE;
+    border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#E3E3E3), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #E3E3E3, #CDCDCD);
+}
+.tundra .dijitToolbar label {   
+    padding: 3px 3px 0 6px;
+}
+.dj_ie .tundra .dijitToolbar .dijitComboButton .dijitButtonContentsFocused,
+.dj_ie .tundra .dijitToolbar .dijitComboButton .dijitDownArrowButtonFocused,
+.dj_ff2 .tundra.dijitToolbar .dijitComboButton .dijitButtonContentsFocused,
+.dj_ff2 .tundra .dijitToolbar .dijitComboButton .dijitDownArrowButtonFocused {
+    border: 1px black dotted !important;    
+}
+.dj_ie6 .tundra .dijitToolbar .dijitButton,
+.dj_ie6 .tundra .dijitToolbar .dijitToggleButton,
+.dj_ie6 .tundra .dijitToolbar .dijitDropDownButton {
+    
+    margin: 2px;
+    padding: 0px 2px;
+    border: 0px;
+}
+.dj_ie6 .tundra .dijitToolbar .dijitButtonChecked,
+.dj_ie6 .tundra .dijitToolbar .dijitToggleButtonChecked,
+.dj_ie6 .tundra .dijitToolbar .dijitDropDownButtonChecked {
+    background-color:#c1d2ee;
+    border:1px solid #316ac5;
+    margin: 1px !important;
+    padding: 0px 2px !important;
+}
+.dj_ie6 .tundra .dijitToolbar .dijitButtonCheckedHover,
+.dj_ie6 .tundra .dijitToolbar .dijitToggleButtonCheckedHover,
+.dj_ie6 .tundra .dijitToolbar .dijitDropDownButtonCheckedHover {
+    background-color:#c1d2ee;
+    border:1px solid #316ac5;
+    margin: 1px !important;
+    padding: 0px 2px !important;
+}
+.dj_ie6 .tundra .dijitToolbar .dijitButtonHover,
+.dj_ie6 .tundra .dijitToolbar .dijitToggleButtonHover,
+.dj_ie6 .tundra .dijitToolbar .dijitDropDownButtonHover  {
+    background-color:#c1d2ee;
+    border:1px solid #316ac5;
+    margin: 1px !important;
+    padding: 0px 2px !important;
+}
+/* @end */
+/* @group DojoxGrid*/
+.tundra .dojoxGrid-cell {
+	border: 1px dotted #D5CDB5;
+	border-top: 0px;
+	padding: 3px 3px 3px 3px;
+	text-align: left;
+	overflow: hidden;
+}
+.dj_ie6 .tundra .dojoxGrid-cell {
+	border: 1px solid white;
+	border-right: 1px solid #D5CDB5;
+}
+.tundra .dojoxGrid-cell-focus {
+	border: 1px solid #949494;
+	border-top:0px;
+	border-left:0px;
+
+}
+.tundra .dojoxGrid-cell-over {
+	border: 1px dotted #a6a6a6;
+	border-top: 0px;
+
+}
+.tundra .dojoxGrid-cell-focus.dojoxGrid-cell-over {
+	border: 1px solid #949494;
+	border-top:0px;
+	border-left:0px;
+}
+.tundra .dijitTextBoxFocused {
+    background: #FFFFAD;
+    outline:none;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(white), to(#FFFFAD));
+    background-image: -moz-linear-gradient(-90deg, white, #FFFFAD);}
+}
+
+/* @end */
+/* @group PatchDojox */
+.tundra .dojoxDockNode {
+	border: 1px solid #adadad;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 3px;
+	cursor:pointer; 
+	list-style: none;
+	padding: 2px;
+	margin: 0px;
+	height: 16px;
+	width: auto;
+	float: left;
+    background-color: #EDEDEE;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);}
+/* @end */
+/* @group PatchDojox */
+.tundra .smallbox{
+    width: 350px;
+    height: 200px;
+    margin: auto;
+    background-color: #B4CCDF;
+    background-image:-webkit-gradient(linear, 40% 0%,60% 100% ,from(white), to(#CDCDCD));
+    background-image: -moz-linear-gradient(-90deg, transparent, #CDCDCD);
+    border: 1px solid #E3E3E3;
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+    -moz-box-shadow:#A7A7A7 4px 4px 4px;
+    -webkit-box-shadow:#A7A7A7 4px 4px 4px;
+}
+/* @end */
+
+/* @end */
+
 
 /* @group SlotBar */
 .slotbar_group{
@@ -1540,8 +1714,9 @@ textarea:disabled {
 	position:absolute;
 	top: 2px;
 	bottom: 2px;
-    background:gray;
+    background:#CECECE;
 	width: 1px;
+	border-right:1px solid #E3E3E3;
 }
 .slotbar_vertical .slotbar_spacer{
     height:100%;
@@ -1769,14 +1944,6 @@ table.draggedItem {
     background-color: orange;
 }
 
-.dijitTextBoxFocused .cls_DbComboBox {
-    background: #d2f9da;
-
-}
-
-.dijitTextBoxFocused .cls_DbSelect {
-    background: #fdfdcf;
-}
 
 /* @end */
 
