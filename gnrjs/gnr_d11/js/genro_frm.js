@@ -434,8 +434,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if (!this.opStatus) {
             var always = always || this.getControllerData('is_newrecord');
             if (this.changed || always) {
-                var invalidfields = this.getInvalidFields();
-                var invalid = (invalidfields.len() > 0);
+                var invalid = !this.isValid();
                 if (invalid) {
                     this.fireControllerData('save_failed','invalid');
                     return 'invalid:' + invalid;
@@ -744,10 +743,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.updateStatus();
     },
+    isValid:function(){
+        return ((this.getInvalidFields().len() == 0) && (this.getInvalidDojo().len()==0));
+    },
     updateStatus:function(){
-        var invalidfields = this.getInvalidFields();
-        var invalid = (invalidfields.len() > 0);
-        this.setControllerData('valid',!invalid);
+        var isValid = this.isValid();
+        this.setControllerData('valid',isValid);
         var status;
         if(this.pkeyPath && !this.getCurrentPkey()){
             status = 'noItem';
@@ -755,7 +756,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         else if(this.isReadOnly()){
             status = 'readOnly';
         }
-        else if(invalid){
+        else if(!isValid){
             status = 'error'
         }
         else{
@@ -794,6 +795,17 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
         }
     },
+    dojoValidation:function(wdg,isValid){
+        var node_identifier=wdg.sourceNode.getStringId()
+        var dojoValid=this.getControllerData().getItem('invalidDojo')
+        if(isValid){
+            dojoValid.popNode(node_identifier)
+        }else{
+            dojoValid.setItem(node_identifier,null)
+        }
+        this.updateStatus();
+    },
+    
     focusFirstInvalidField: function() {
         if (dojo.isIE > 0) {
             return;
@@ -806,8 +818,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     getInvalidFields: function() {
         return this.getControllerData().getItem('invalidFields') || new gnr.GnrBag();
     },
+    getInvalidDojo: function() {
+        return this.getControllerData().getItem('invalidDojo') || new gnr.GnrBag();
+    },
+    
     resetInvalidFields:function(){
         this.getControllerData().setItem('invalidFields',new gnr.GnrBag());
+        this.getControllerData().setItem('invalidDojo',new gnr.GnrBag());
         this.updateStatus();
     },
     getChangesLogger: function() {
@@ -893,6 +910,7 @@ dojo.declare("gnr.GnrValidator", null, {
         ;
         return result;
     },
+    
     callValidation: function(validation, value, sourceNode, validations, parameters) {
         var errorcode, modified, iswarning, errormessage;
 
