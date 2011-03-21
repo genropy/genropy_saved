@@ -268,7 +268,9 @@ class GnrWebPage(GnrBaseWebPage):
         self._onEnd()
         return result
         
-    def _rpcDispatcher(self, method=None, mode='bag', **kwargs):
+    def _rpcDispatcher(self, *args, **kwargs):
+        method = kwargs.pop('method',None)
+        mode = kwargs.pop('mode','bag')
         parameters = self.site.parse_kwargs(kwargs, workdate=self.workdate)
         self._lastUserEventTs = parameters.pop('_lastUserEventTs', None)
         self.site.handle_clientchanges(self.page_id, parameters)
@@ -434,7 +436,7 @@ class GnrWebPage(GnrBaseWebPage):
         for subscriber in self._event_subscribers.get(event, []):
             getattr(subscriber, 'event_%s' % event)()
             
-    def rootPage(self, **kwargs):
+    def rootPage(self,*args, **kwargs):
         """add???
         
         :returns: add???

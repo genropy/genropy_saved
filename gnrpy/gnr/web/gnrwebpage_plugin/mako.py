@@ -47,7 +47,6 @@ class Plugin(GnrBasePlugin):
             output = template.render(**arg_dict)
         except httpexceptions.HTTPException, exc:
             return exc
-
         if not pdf:
             page.response.content_type = 'text/html'
             return output
