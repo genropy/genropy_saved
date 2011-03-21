@@ -52,7 +52,7 @@ dojo.declare("gnr.widgets.TooltipPane", gnr.widgets.gnrwdg, {
         }
         var evt = objectPop(kw,'evt') || 'onclick';
         
-        var parentDomNode = sourceNode.getParentNode().domNode;
+        var parentDomNode = sourceNode.getParentNode().getDomNode();
         dojo.connect(parentDomNode,evt,function(e){
             if(genro.wdg.filterEvent(e,modifiers)){
                 if(!onOpening || onOpening(e,e.target.sourceNode)){
