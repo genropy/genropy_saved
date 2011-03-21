@@ -260,7 +260,7 @@ class TableHandlerForm(BaseComponent):
     def th_mainlist_list_add(self, pane,**kwargs):
         pane.slotButton('!!Add',action='FIRE list.newRecord;',
                         iconClass="tb_button db_add",
-                        subscribe_form_formPane_onLockChange="this.widget.setDisabled($1.locked);",**kwargs)
+                        subscribe_form_formPane_onLockChange="this.widget.setAttribute('disabled',$1.locked);",**kwargs)
         
     @struct_method
     def th_mainlist_list_locker(self, pane,**kwargs):
