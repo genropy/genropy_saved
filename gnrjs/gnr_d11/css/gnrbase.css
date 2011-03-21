@@ -1614,6 +1614,10 @@ textarea:disabled {
 
 
 /* @group SlotBar */
+.slotbar .dojoxDock{
+    top:1px;
+}
+
 .slotbar_group{
     white-space:nowrap;
 }
