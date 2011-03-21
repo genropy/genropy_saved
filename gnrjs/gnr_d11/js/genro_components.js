@@ -908,7 +908,7 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     getData:function(){
-        return this.storeNode.getRelativeData(this.storepath);
+        return this.storeNode.getRelativeData(this.storepath) || new gnr.GnrBag();
     },
     getItems:function(){
         return this.getData();
