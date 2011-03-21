@@ -865,7 +865,7 @@ class GnrWebPage(GnrBaseWebPage):
         :returns: add???
         """
         requires = [r for r in (requires or self.css_requires) if r]
-        css_theme = self.get_css_theme()
+        css_theme = self.get_css_theme() or 'aqua'
         if css_theme:
             requires.append('themes/%s' % self.css_theme)
         self.onServingCss(requires)
