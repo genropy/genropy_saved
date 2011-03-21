@@ -375,7 +375,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             });
 
         }
-        if(newobj.validate){
+        if(newobj.validate && false ){
             newobj.validate_replaced = newobj.validate;
             newobj.validate = function(isFocused){
                     if ((this.sourceNode.attr.lazyDojoValidate!=false) && isFocused){
