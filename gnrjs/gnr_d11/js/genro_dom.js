@@ -1216,6 +1216,18 @@ dojo.declare("gnr.GnrDomHandler", null, {
             z_index:1000,background_color:'rgba(255,255,255,0.5)',id:parentId + '_hider'};
         var kw = objectUpdate(default_kw, kw);
         return rootNode._('div', kw).getParentNode();
+    },
+    isHidden:function(what){
+        var what = this.getDomNode(what);
+        var coords = dojo.coords(what);
+        for(var c in coords){
+            console.log(c,coords[c]);
+            if(coords[c]!=0){
+                console.log('non son nascosto')
+                return false;
+            }
+        }
+        return true;
     }
 
 });

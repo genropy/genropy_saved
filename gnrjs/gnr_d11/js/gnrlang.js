@@ -620,7 +620,7 @@ function convertToText(value, params) {
 
     }
 
-    else if (value instanceof gnr.GnrBag) {
+    else if (value.toXml) {
         result = ['bag',value.toXml({mode:'static'})];
     }
     else if (t == 'object') {

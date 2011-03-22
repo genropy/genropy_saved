@@ -819,7 +819,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             lazyChildren = this.lazyBuildFinalize();
         }else{
             lazyChildren = this.getValue('static').walk(function(n){
-                if(n.attr._lazyBuild){
+                if(n.attr._lazyBuild && !genro.dom.isHidden(n)){
                    return n.lazyBuildFinalize();
                 }
             });
