@@ -7,7 +7,7 @@ filteringSelect, comboBox, dbSelect and dbCombobox
 .. toctree::
     :maxdepth: 1
     
-    general introduction <db>
+    introduction
     filteringselect
     combobox
     dbselect
