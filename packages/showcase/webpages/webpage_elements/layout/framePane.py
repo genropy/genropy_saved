@@ -4,9 +4,7 @@
 # Created by Filippo Astolfi on 2011-01-30.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-"""Test page description"""
-
-from gnr.web.gnrwebstruct import struct_method
+"""framePane"""
 
 class GnrCustomWebPage(object):
     py_requires = 'gnrcomponents/testhandler:TestHandlerFull'
