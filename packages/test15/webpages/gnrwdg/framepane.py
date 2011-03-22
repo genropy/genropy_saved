@@ -4,11 +4,13 @@
 # Created by Francesco Porcari on 2011-01-30.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+"""Test page description"""
+
 from gnr.web.gnrwebstruct import struct_method
-"Test page description"
+
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
-
+    
     def windowTitle(self):
         return 'SlotBar test'
          
@@ -21,9 +23,7 @@ class GnrCustomWebPage(object):
         bottom = frame.bottom.slotBar(slots='btoh,*,|,bt2,30',height='30px')
         bottom.btoh.slotButton(label='Ok')
         bottom.bt2.slotButton(label='ciao ciao')
-
-
-    
+        
     def _test_1_slotbar_sidebar(self,pane):
         """Design sidebar"""
         frame = pane.framePane(frameCode='frame2',height='200px',width='300px',shadow='3px 3px 5px gray',
@@ -44,9 +44,7 @@ class GnrCustomWebPage(object):
         #left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='20px')
         right = frame.right.slotToolbar(slots='30,foo,*,bar,30',width='20px') 
         bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px')
-       
         
-    
     def _test_2_slotbar_headline(self,pane):
         """Change gradients"""
         frame = pane.framePane(frameCode='frame3',height='200px',width='300px',shadow='3px 3px 5px gray',
@@ -56,7 +54,7 @@ class GnrCustomWebPage(object):
         left = frame.left.slotToolbar(slots='30,foo,*,bar,30',width='20px')  
         bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px')
         right = frame.right.slotToolbar(slots='30,foo,*,bar,30',width='20px')
-           
+        
     def _test_2_slotbar_sidebar(self,pane):
         """Change gradients"""
         frame = pane.framePane(frameCode='frame3',height='200px',width='300px',shadow='3px 3px 5px gray',
@@ -82,7 +80,7 @@ class GnrCustomWebPage(object):
     @struct_method
     def mypage_slotbar_myaction(self,pane,_class=None,action=None,publish=None,**kwargs):
         pane.slotButton(label='action',iconClass='icnBaseAction',publish=publish,action=action,visible='^pippo')
-    
+        
     def test_4_slotbar_js(self,pane):
         pane.button('Test',
                     action="""
@@ -92,8 +90,4 @@ class GnrCustomWebPage(object):
                     slotbar._('slotButton','discard',{label:'Discard',publish:'discard'});
                     slotbar._('slotButton','cancel',{label:'Cancel',publish:'cancel'});
                     slotbar._('slotButton','save',{label:'Discard',publish:'save'});
-                    dlg.show_action();
-                    """)
-
-        
-
+                    dlg.show_action();""")

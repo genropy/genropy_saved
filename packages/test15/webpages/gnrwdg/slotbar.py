@@ -4,15 +4,15 @@
 # Created by Francesco Porcari on 2011-01-30.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+"""Test page description"""
+
 from gnr.web.gnrwebstruct import struct_method
-"Test page description"
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
-
+    
     def windowTitle(self):
         return 'SlotBar test'
         
-         
     def test_0_slotbar_base(self,pane):
         """First test description"""
         frame = pane.framePane(frameCode='frameOne',height='100px',shadow='3px 3px 5px gray',
@@ -55,8 +55,6 @@ class GnrCustomWebPage(object):
         sl.foo.button(label='Add',iconClass='icnBaseAdd',showLabel=False)
         sl.bar.button(label='Del',iconClass='icnBaseOk',showLabel=False)
         sl.spam.div(height='18px',width='16px',background='blue')
-
-                                
         
     @struct_method
     def myslot(self,pane):
