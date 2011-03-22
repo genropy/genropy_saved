@@ -10,11 +10,12 @@ import datetime
 
 class GnrCustomWebPage(object):
     py_requires = 'gnrcomponents/testhandler:TestHandlerFull'
+    dojo_theme = 'soria'
     
     def windowTitle(self):
          return 'slotBar and slotToolbar'
          
-    def test_1_simple(self,pane):
+    def _test_1_simple(self,pane):
         """simple example"""
         workdate = str(datetime.datetime.now().date())
         frame = pane.framePane(frameCode='dummy',height='150px',margin='10px',
@@ -31,11 +32,18 @@ class GnrCustomWebPage(object):
     def test_2_features(self,pane):
         """Some added features"""
         workdate = str(datetime.datetime.now().date())
-        frame = pane.framePane(frameCode='framecode',height='300px',shadow='3px 3px 5px gray',
-                               border='1px solid #bbb',margin='10px',center_background='gray',rounded=10)
-        top = frame.top.slotToolbar(slotbarCode='top',slots='10,hello,*,foo,*,dummy',height='25px')
-        top.hello.div(workdate)
-        top.foo.div('Schedule',font_size='14pt')
+        pane.data('color','yellow')
+        pane.data('from','#4BA21A')
+        pane.data('to','#7ED932')
+        
+        frame = pane.framePane(frameCode='framecode',height='400px',
+                               shadow='3px 3px 5px gray',rounded=10,
+                               border='1px solid #bbb',margin='10px',
+                               center_background='#E1E9E9')
+        top = frame.top.slotToolbar(slotbarCode='top',slots='10,hello,*,foo,*,dummy',
+                                    height='25px',gradient_from='^from',gradient_to='^to')
+        top.hello.div(workdate,color='^color')
+        top.foo.div('Schedule',font_size='14pt',color='^color')
         top.dummy.button(label='add',iconClass='icnBaseAdd',showLabel=False,
                          action="alert('Added a row in your grid')")
         top.dummy.button(label='del',iconClass='icnBaseDelete',showLabel=False,
@@ -46,13 +54,31 @@ class GnrCustomWebPage(object):
                          action="alert('PDF created')")
         top.dummy.button(label='print',iconClass='icnBasePrinter',showLabel=False,
                          action="alert('Printed')")
+                         
+        left = frame.left.slotToolbar(slotbarCode='left',slots='10,foo,*',width='40px',
+                                      gradient_from='^from',gradient_to='^to')
+        left.foo.button('new grid',action="alert('New schedule!')")
+        left.foo.button('save grid',action="alert('Saved!')")
+        left.foo.button('load grid',action="alert('Loaded!')")
+        left.foo.button('exit', action="alert('Exited!')")
         
-        left = frame.left.slotToolbar(slotbarCode='left',slots='10,new,foo,bar,dummy,*',width='40px')
-        left.new.button('new grid', action="alert('New schedule!')")
-        left.foo.button('save grid', action="alert('Saved!')")
-        left.bar.button('load grid', action="alert('Loaded!')")
-        left.dummy.button('exit', action="alert('Exited!')")
+        right = frame.right.slotToolbar(slotbarCode='left',slots='20,dummy,*',
+                                        width='200px',gradient_from='^from',gradient_to='^to')
+        fb = right.dummy.formbuilder(lbl_color='^color')
+        fb.div('Settings',font_size='12pt',color='^color')
+        fb.comboBox(lbl='color',values='black,white,yellow',value='^color',width='90px')
+        fb.filteringSelect(lbl='gradient_from',value='^from',width='90px',
+                           values="""#0065E7:dark Blue,#4BA21A:dark Green,
+                                     #E3AA00:dark Orange,#C413A9:dark Pink,
+                                     #960000:Dark Red""")
+        fb.filteringSelect(lbl='gradient_to',value='^to',width='90px',
+                           values="""#29DFFA:light Blue,#7ED932:light Green,
+                                     #F4DC7F:light Orange,#FFCCED:light Pink,
+                                     #FD4042:light Red""")
         
-        bottom = frame.bottom.slotToolbar(slots='300,bar,*,searchOn',height='20px')
-        bottom.bar.div('Here goes the messages for user')
+        bottom = frame.bottom.slotToolbar(slots='300,bar,*,searchOn',height='20px',
+                                          gradient_from='^from',gradient_to='^to')
+        bottom.bar.div('Here goes the messages for user',color='^color')
         
+        frame.div('Here goes the \"center\" content',margin='20px')
+                           
