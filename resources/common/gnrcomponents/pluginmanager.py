@@ -51,7 +51,7 @@ class PluggedPageManager(BaseComponent):
             sourceNode.widget.layout();
     }   
     """,plugins=plugins,datapathTemplate=datapathTemplate,startPos=startPos or len(parent),
-        remoteTemplate=remoteTemplate,disabled=disabled.replace('^',''))
+        remoteTemplate=remoteTemplate,disabled=(disabled or '').replace('^',''))
     
     def remote_ppm_pluginTab(self,pane,handlerName=None,**kwargs):
         handler = getattr(self, handlerName)
