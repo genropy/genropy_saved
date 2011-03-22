@@ -246,6 +246,9 @@ class GnrSharedData_dict(GnrSharedData):
     def flush_all(self):
         self.storage = {}
 
+    def disconnect_all(self):
+        pass
+
 class GnrSharedData_memcache(GnrSharedData):
     def __init__(self, site, memcache_config=None, debug=None):
         """
@@ -258,6 +261,9 @@ class GnrSharedData_memcache(GnrSharedData):
         self.storage = memcache.Client(server_list, debug=debug)
         self.visited_keys = {} #MIKI:not used Do we really need it?
         self._test(False)
+
+    def disconnect_all(self):
+        self.storage.disconnect_all()
 
     def _test(self, doraise=True):
         if not self.storage.get_stats():

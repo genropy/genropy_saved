@@ -687,6 +687,7 @@ class GnrWsgiSite(object):
         """add???"""
         self.currentPage = None
         self.db.closeConnection()
+        self.shared_data.disconnect_all()
         
     def serve_tool(self, path_list, environ, start_response, **kwargs):
         """add???
@@ -706,7 +707,7 @@ class GnrWsgiSite(object):
         kwargs['environ'] = environ
         kwargs['response'] = response
         result = tool(*args, **kwargs)
-        content_type = getattr(tool, 'content_type')
+        content_type = getattr(tool, 'content_type', None)
         if content_type:
             response.content_type = content_type
         headers = getattr(tool, 'headers', [])
@@ -956,6 +957,7 @@ class GnrWsgiSite(object):
         self.register.drop_page(page_id)
         self.pageLog('close', page_id=page_id)
         self.clearRecordLocks(page_id=page_id)
+
         
     def debugger(self, debugtype, **kwargs):
         """Send debug information to the client, if debugging is enabled.
