@@ -192,7 +192,8 @@ class GnrClassCatalog(object):
         if clsname == 'JS':
             try:
                 return self.fromJson(txt)
-            except:
+            except Exception, e:
+                print 'error decoding json ',e
                 return txt
         f = self.parsers.get(clsname, None)
         if f:
