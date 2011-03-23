@@ -187,7 +187,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         var node;
         var frameCode = kw.frameCode;
         if(frameCode.indexOf('#')){
-            frameCode.replace('#',sourceNode._id);
+            frameCode = frameCode.replace('#',sourceNode.getStringId());
         }
         genro.assert(frameCode,'Missing frameCode');
         var frameId = frameCode+'_frame';
