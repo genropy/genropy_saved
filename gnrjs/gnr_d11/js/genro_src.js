@@ -121,6 +121,15 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             });
             dojo._destroyElement(domNode);
         }
+        var parentNode = kw.node.getParentNode();
+        var lastComponentLabel;
+        while(parentNode && parentNode._isComponentNode){
+            lastComponentLabel = parentNode.label;
+            parentNode = parentNode.getParentNode();
+         }
+         if (parentNode){
+             parentNode.getValue().popNode(lastComponentLabel);
+         }
         this.refreshSourceIndexAndSubscribers();
         var node = kw.node;
     },
@@ -342,10 +351,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         return obj;
     },
     create: function(widget,pars,path) {
-        var path = path || '_temp.'+this.getNode()._id;
-        var source = genro.src.getNode(path).getParentBag();
-        source.delItem('#0');
-        return source._(widget,pars);        
+       //var path = path || '_temp.'+this.getNode()._id;
+       //var source = genro.src.getNode(path).getParentBag();
+       //source.delItem('#0');
+        return genro.src.getNode()._(widget,path,pars);        
     },
 
 });

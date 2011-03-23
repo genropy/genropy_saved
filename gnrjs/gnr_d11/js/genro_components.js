@@ -20,8 +20,10 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         var content = this.createContent(sourceNode, contentKwargs,children);
         genro.assert(content,'create content must return');
         content.concat(children);
+        sourceNode._isComponentNode=true;
         sourceNode._stripData(true);
         sourceNode.unfreeze(true);
+        
         return false;
     },
     onStructChild:function(attributes) {
@@ -408,7 +410,7 @@ dojo.declare("gnr.widgets.BagNodeEditor", gnr.widgets.gnrwdg, {
         gnrwdg.bagpath = bagpath;
         gnrwdg.valuePath = valuePath;
         gnrwdg.readOnly = readOnly;
-        dojo.subscribe(topic, this, function(item) {
+        sourceNode.registerSubscription(topic, this, function(item) {
             gnrwdg.gnr.setCurrentNode(gnrwdg, item)
         });
         var grid = box._('includedview', {'storepath':'.data','structpath':'gnr._dev.bagNodeEditorStruct',
@@ -534,7 +536,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
             selected_col:'.field',selected_caption:'.caption'});
         
         searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp});
-        dojo.subscribe(nodeId + '_updmenu', this, function(searchOn) {
+        sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
             menubag = this._prepareSearchBoxMenu(searchOn, databag);
         });
         return searchbox;
@@ -1087,7 +1089,7 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
 dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     constructor:function(){
         var that = this;
-        dojo.subscribe('dbevent_'+this.storeNode.attr.table.replace('.','_'),this,function(kw){
+        this.storeNode.registerSubscription('dbevent_'+this.storeNode.attr.table.replace('.','_'),this,function(kw){
            that.onExternalChange(kw.changelist,kw.pkeycol);          
         });
     },
@@ -1243,7 +1245,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         var rpc_attr = objectUpdate({},this.storeNode.attr);
         objectUpdate(rpc_attr,{'selectionName':selectionKw.selectionName,
                                 'changelist':changelist,'_sourceNode':this.storeNode});
-        var result = genro.rpc.remoteCall('app.checkFreezedSelection', 
+        genro.rpc.remoteCall('app.checkFreezedSelection', 
                                             rpc_attr,null,null,null,
                                          function(result){
                                              that.onExternalChangeResult(changelist,result)

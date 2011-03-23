@@ -62,12 +62,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
 
     },
-    getParentDomNode:function() {
-        var parentNode = this.getParentNode();
-        if (parentNode) {
-            return parentNode.getDomNode();
-        }
-    },
+
     getWidget:function() {
         if(this.domNode){
             return dijit.getEnclosingWidget(this.domNode);
@@ -882,37 +877,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return content.getNodes();
         }        
     },
-    
-    lazyBuildFinalize_new:function(){
-        if(this.attr._lazyBuild){
-            var lazyBuild = objectPop(this.attr,'_lazyBuild');
-            var parent = this.getParentBag();
-            var content;
-            if(lazyBuild!==true){
-                content = genro.serverCall('remoteBuilder',objectUpdate({handler:lazyBuild},objectExtract(this.attr,'remote_*')));
-                console.log('content lazybuild')
-            }
-            else{
-                content = this._value;
-            }
-
-            var parent = this.getParentBag();
-            var label=this.label
-            var node = parent.popNode(label);
-            
-            parent.setItem(label,content,this.attr);
-            //this.setValue(content);
-            var that = parent.getNode(label);
-            setTimeout(function(){
-                that._value.walk(function(n){
-                    if(n.attr._onBuilt){
-                        n.fireNode();
-                    }
-                });
-            },1);
-        }        
-    },
-    
 
     getFrameNode:function(){
         if(this.attr.tag.toLowerCase()=='framepane'){

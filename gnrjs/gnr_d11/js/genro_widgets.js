@@ -1099,10 +1099,15 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
             });
         }
     },
+    patch_close:function(cb){
+        this.sourceNode.getParentBag().popNode(this.sourceNode.label);
+    },
+    
     patch_show:function(cb){
         this.onShowing();
         this.show_replaced(cb);
     },
+    
     mixin_onShowing:function(){
         var lazyChildren = this.sourceNode.finalizeLazyBuildChildren();
         this.domNode.style.display="";
@@ -2045,10 +2050,10 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
         objectFuncReplace(widget.selection, 'clickSelectEvent', function(e) {
             this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey, e.shiftKey);
         });
-        dojo.subscribe(nodeId + '_reload', widget, function(keep_selection) {
+        sourceNode.registerSubscription(nodeId + '_reload', widget, function(keep_selection) {
             this.reload(keep_selection !== false)
         });
-        dojo.subscribe(nodeId + '_serverAction',widget,function(kw){
+        sourceNode.registerSubscription(nodeId + '_serverAction',widget,function(kw){
             if(this.serverAction){
                 this.serverAction(kw);
             }
@@ -2066,7 +2071,7 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
                 dojo.connect(widget,'onSetStructpath',widget,cb);
                 setTimeout(function(){cb.call(widget)},1);
             }
-            dojo.subscribe(searchBoxCode+'_changedValue',widget,function(v,field){
+            sourceNode.registerSubscription(searchBoxCode+'_changedValue',widget,function(v,field){
                 this.applyFilter(v,null,field);
             });
         };
@@ -4473,7 +4478,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
             var searchBoxCode = (sourceNode.attr.frameCode || nodeId)+'_searchbox';
             var searchBoxNode = genro.nodeById(searchBoxCode);
             if (searchBoxNode){
-                dojo.subscribe(searchBoxCode+'_changedValue',widget,function(v,field){
+                sourceNode.registerSubscription(searchBoxCode+'_changedValue',widget,function(v,field){
                     this.applyFilter(v);
                 });
             }

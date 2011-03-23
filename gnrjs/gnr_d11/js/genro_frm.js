@@ -124,7 +124,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var topic = 'form_'+this.formId+'_'+command;
         var scope = scope || this;
         var cb = cb || this[command];
-        dojo.subscribe(topic,scope,cb);
+        this.sourceNode.registerSubscription(topic,scope,cb);
     },
     setDisabled:function(disable){
         disable = disable || this.isProtected();

@@ -8,7 +8,7 @@ dojo.declare("gnr.widgets.protovis", gnr.widgets.baseHtml, {
         }
     },
     created: function(newobj, savedAttrs, sourceNode) {
-        dojo.subscribe(sourceNode.attr.nodeId + '_render', this, function() {
+        sourceNode.registerSubscription(sourceNode.attr.nodeId + '_render', this, function() {
             this.render(newobj);
         });
 

@@ -1220,10 +1220,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
     isHidden:function(what){
         var what = this.getDomNode(what);
         var coords = dojo.coords(what);
-        for(var c in coords){
-            console.log(c,coords[c]);
-            if(coords[c]!=0){
-                console.log('non son nascosto')
+        for(var k in coords){
+            if(coords[k]!=0){
                 return false;
             }
         }
