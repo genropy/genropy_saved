@@ -127,7 +127,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             lastComponentLabel = parentNode.label;
             parentNode = parentNode.getParentNode();
          }
-         if (parentNode){
+         if (parentNode && lastComponentLabel){
              parentNode.getValue().popNode(lastComponentLabel);
          }
         this.refreshSourceIndexAndSubscribers();
