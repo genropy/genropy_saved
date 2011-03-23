@@ -629,7 +629,7 @@ class DbStoresHandler(object):
     def create_stores(self, check=False):
         """add???"""
         for name in self.config.digest('#a.file_name'):
-            self.add_store(name, check=True)
+            self.add_store(name, check=check)
             
     def add_store(self, storename, check=False):
         """add???
