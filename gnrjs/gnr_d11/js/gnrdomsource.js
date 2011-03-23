@@ -713,6 +713,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         var subscriptions = objectExtract(attributes, 'subscribe_*');
         var selfsubscription = objectExtract(attributes, 'selfsubscribe_*');
+        var formsubscription = objectExtract(attributes, 'formsubscribe_*');
+
         var attrname;
         var ind = ind || 0;
         if (bld_attrs.onCreating) {
@@ -723,7 +725,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.subscribe(selfsubscribe,selfsubscription[selfsubscribe]);
         }
         if(this.form){
-            var formsubscription = objectExtract(attributes, 'formsubscribe_*');
             var topic_pref = 'form_'+this.form.formId+'_';
             for (var formsubscribe in formsubscription){
                 subscriptions[topic_pref+formsubscribe] = formsubscription[formsubscribe];

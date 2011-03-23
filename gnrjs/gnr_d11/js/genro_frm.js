@@ -602,7 +602,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     this._getRecordCluster(value, changesOnly, data, false, currpath);
                 }
                 else if (value instanceof gnr.GnrBag) {
-                    sendBag = (sendback == true) || this.hasChangesAtPath(currpath);
+                    sendBag = (sendback == true) || isNewRecord || this.hasChangesAtPath(currpath);
                     if (sendBag) {
                         value.walk(function(n){
                             if('_loadedValue' in n.attr){
