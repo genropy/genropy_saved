@@ -956,13 +956,20 @@ class GnrApp(object):
         :param old_record: add???. Default value is ``None``
         :returns: add???
         """
+        
+            
+            
         currentEnv = self.db.currentEnv
         if not 'env_transaction_id' in currentEnv:
-            dbevents=dict()
-            self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dbevents)
-        else:
+            self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
+        broadcast = tblobj.attributes.get('broadcast')
+        if broadcast and broadcast != '*old*':
             dbevents=currentEnv['dbevents']
-        dbevents.setdefault(tblobj.fullname,[]).append(dict(dbevent=event,pkey=record.get(tblobj.pkey)))
+            r=dict(dbevent=event,pkey=record.get(tblobj.pkey))
+            if broadcast is not True:
+                for field in broadcast.split(','):
+                    r[field] = self.catalog.asTypedText(record.get(field))
+            dbevents.setdefault(tblobj.fullname,[]).append(r)
         audit_mode = tblobj.attributes.get('audit')
         if audit_mode:
             self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
