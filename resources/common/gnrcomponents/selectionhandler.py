@@ -222,9 +222,18 @@ class SelectionHandler(BaseComponent):
                 main_record_id = '^form.record.%s' % self.db.table(self.maintable).pkey
         else:
             main_record_id = True
+            
+            
         if parentLock:
-            controller.dataController("""SET .status.locked=parentLock;""",
-                                      parentLock=parentLock)
+            controller.dataController("""
+                                        if(_reason=='node'){
+                                            parentLock = parentLock;
+                                        }else{
+                                            parentLock = locked;
+                                        }
+                                        SET .status.locked=parentLock;
+                                        """,
+                                      parentLock=parentLock,formsubscribe_onLockChange=True)
             controller.dataController("""
                                         SET %s=isLocked;""" % parentLock[1:],
                                       parentLock=parentLock, isLocked='^.status.locked',
@@ -238,6 +247,7 @@ class SelectionHandler(BaseComponent):
                                 """,
                                   _fired='^.status.changelock',
                                   isLocked='=.status.locked')
+                                  
         controller.dataController("""
                                 SET .status.statusClass = isLocked?'tb_button icnBaseLocked':'tb_button icnBaseUnlocked';
                                 SET .status.lockLabel = isLocked?unlockLabel:lockLabel;
