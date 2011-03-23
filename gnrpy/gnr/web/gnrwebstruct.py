@@ -1080,7 +1080,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         nodeId = nodeId or '%s_grid' %frameCode
         self.attributes['target'] = nodeId
         wdg = 'NewIncludedView' if _newGrid else 'includedView'
-        relativeWorkspace = kwargs.get('relativeWorkspace',True)
+        relativeWorkspace = kwargs.pop('relativeWorkspace',True)
         iv =self.child(wdg,frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
                           relativeWorkspace=relativeWorkspace,configurable=configurable,storepath=storepath,**kwargs)
         if struct or columns or not structpath:
@@ -1797,6 +1797,7 @@ class GnrGridStruct(GnrStructData):
                                                                     if (!this.widget.editorEnabled){
                                                                         return;
                                                                     }
+                                                                    console.log('kw',kw,'valuepath',valuepath,'storebag',storebag,'sourceNode',this);
                                                                     var checked = !storebag.getItem(valuepath);
                                                                     
                                                                     storebag.setItem(valuepath, checked);
