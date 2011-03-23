@@ -487,13 +487,16 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     symbolicDatapath:function(path) {
         var pathlist = path.split('.');
         var nodeId = pathlist[0].slice(1);
+        if(nodeId=='FORM'){
+            nodeId = this.getInheritedAttributes().formId;
+        }
         currNode = nodeId ? genro.nodeById(nodeId) : this;
+
         if (!currNode) {
             console.error('not existing nodeId:' + nodeId);
         }
         var relpath = pathlist.slice(1).join('.');
         if(relpath=='*S'){
-            //sourceNode instead of datanode
             return currNode.getFullpath().replace('main.','*S.');
         }
         path = currNode.absDatapath(relpath ? '.' + relpath : '');
