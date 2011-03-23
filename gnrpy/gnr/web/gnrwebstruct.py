@@ -1057,7 +1057,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             return self.includedview_legacy(*args,**kwargs)
             
     def includedview_inframe(self, frameCode=None, struct=None, columns=None, storepath=None, structpath=None,
-                             datapath=None, nodeId=None, configurable=True, _newGrid=False, **kwargs):
+                             datapath=None, nodeId=None, configurable=True, _newGrid=False,**kwargs):
         """add???
         
         :param frameCode: add???. Default value is ``None``
@@ -1080,8 +1080,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         nodeId = nodeId or '%s_grid' %frameCode
         self.attributes['target'] = nodeId
         wdg = 'NewIncludedView' if _newGrid else 'includedView'
+        relativeWorkspace = kwargs.get('relativeWorkspace',True)
         iv =self.child(wdg,frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
-                          relativeWorkspace=True,configurable=configurable,storepath=storepath,**kwargs)
+                          relativeWorkspace=relativeWorkspace,configurable=configurable,storepath=storepath,**kwargs)
         if struct or columns or not structpath:
             iv.gridStruct(struct=struct,columns=columns)
         return iv
