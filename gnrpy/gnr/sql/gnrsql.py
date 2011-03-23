@@ -613,7 +613,8 @@ class DbStoresHandler(object):
         """add???"""
         self.config = Bag()
         if os.path.isdir(self.config_folder):
-            self.config = Bag(self.config_folder)['#0'] or Bag()
+            config = Bag(self.config_folder)['#0'] or Bag()
+            self.config=config.deepcopy()
             
     def save_config(self):
         """add???"""
