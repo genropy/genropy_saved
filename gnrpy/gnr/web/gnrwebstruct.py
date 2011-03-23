@@ -233,6 +233,8 @@ class GnrDomSrc(GnrStructData):
         :param center_content: add???. Default value is ``None``
         :returns: the framepane
         """
+        if '#' in frameCode:
+            frameCode = frameCode.replace('#',self.page.getUuid())
         frame = self.child('FramePane',frameCode=frameCode,autoslots='top,bottom,left,right,center',**kwargs)
         if callable(center_content):
             center_content(frame)
@@ -1072,12 +1074,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param _newGrid: boolean. add???. Default value is ``False``
         :returns: add???
         """
+        nodeId = nodeId or '%s_grid' %frameCode
+
         if datapath is False:
             datapath = None
         else:
-            datapath = datapath or '.grid'
+            datapath = datapath or '#FORM.%s' %nodeId
         structpath = structpath or '.struct'
-        nodeId = nodeId or '%s_grid' %frameCode
         self.attributes['target'] = nodeId
         wdg = 'NewIncludedView' if _newGrid else 'includedView'
         relativeWorkspace = kwargs.pop('relativeWorkspace',True)
