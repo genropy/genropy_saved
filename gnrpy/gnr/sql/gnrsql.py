@@ -626,10 +626,10 @@ class DbStoresHandler(object):
             dbstore_config.setItem('db', None, **params)
             dbstore_config.toXml(os.path.join(self.config_folder, '%s.xml' % name), autocreate=True)
             
-    def create_stores(self):
+    def create_stores(self, check=False):
         """add???"""
         for name in self.config.digest('#a.file_name'):
-            self.add_store(name)
+            self.add_store(name, check=True)
             
     def add_store(self, storename, check=False):
         """add???
