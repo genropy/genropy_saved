@@ -618,7 +618,12 @@ class DbStoresHandler(object):
     def save_config(self):
         """add???"""
         try:
-            shutil.rmtree(self.config_folder, True)
+            if os.path.isdir(self.config_folder):
+                config_files = os.listdir(self.config_folder)
+                for config_file in config_files:
+                    filepath = os.path.join(self.config_folder, config_file)
+                    if os.path.isfile(filepath):
+                        os.remove(filepath)
         except OSError:
             pass
         for name, params in self.config.digest('#a.file_name,#v.#0?#'):
