@@ -839,7 +839,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     
     slot_searchOn:function(pane,slotValue,slotKw,frameCode){
         var div = pane._('div',{'width':slotKw.width || '15em'});
-        div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox'});
+        div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox',parentForm:false});
 
     },
     slot_messageBox:function(pane,slotValue,slotKw,frameCode){        
