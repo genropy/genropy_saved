@@ -101,6 +101,7 @@ class ViewPage(BaseComponent):
         self.listToolbar(frame.top)
         self.listController(frame)
         iv = frame.includedView(struct=self.lstBase,_newGrid=True,
+                                datapath='.grid',
                                 connect_onSelected="""
                                                 var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
                                                 if(rowIndex>-1){
