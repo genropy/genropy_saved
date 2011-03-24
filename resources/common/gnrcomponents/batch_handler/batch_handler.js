@@ -19,7 +19,7 @@ batch_monitor.on_datachange = function(kw) {
     var node = kw.node;
     if (callname in batch_monitor) {
         var batch_id = node.attr.batch_id || node.label;
-        if(node.attr.userBatch){
+        if(!node.attr.userBatch){
             var sourceNode = this.get_batch_sourceNode(batch_id);
              if (sourceNode) {
                  this[callname].call(this, node, sourceNode);
