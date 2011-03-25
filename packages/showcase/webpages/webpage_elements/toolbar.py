@@ -30,7 +30,7 @@ class GnrCustomWebPage(object):
         bottom.foo.div('Hello! (from the bottom slotBar)')
         
     def test_2_features(self,pane):
-        """framPane, slotToolbar and CSS 3"""
+        """framePane, slotToolbar and CSS 3"""
         workdate = str(datetime.datetime.now().date())
         pane.data('.color','white')
         pane.data('.from','#4BA21A')
