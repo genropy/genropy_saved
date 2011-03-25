@@ -1079,8 +1079,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if datapath is False:
             datapath = None
         else:
-            in_attr = self.getInheritedAttributes()
-            default_datapath = '#FORM.%s' %nodeId if 'form_id' in in_attr else '.grid'
+            default_datapath = '#FORM.%s' %nodeId 
             datapath = datapath or default_datapath
         structpath = structpath or '.struct'
         self.attributes['target'] = nodeId
