@@ -16,5 +16,6 @@ form widgets
     simplearea
     slider
     togglebutton
+    tooltipdialog
     db/index
     textboxes: dateTextbox, numberTextbox, textbox and timeTextbox <textboxes/index>

@@ -25,9 +25,9 @@ Definition
 Description
 ===========
 
-    Same definition of Dojo dropdownbutton.
+    The dropdownbutton is a button that allow to make more than one action.
     
-    Constructs a button that opens a :ref:`genro_menu` or a ``tooltipdialog``.
+    It can be also used to build a :ref:`genro_menu` or a :ref:`genro_tooltipdialog`.
     
 .. _ddb_attributes:
 
@@ -50,4 +50,7 @@ Attributes
 Examples
 ========
 
-    For some examples of dropdownbutton, please check the :ref:`genro_menu` page.
+    You can check an example in combo with a menu in the :ref:`menu_examples_simple` menu section.
+    
+    add???
+    

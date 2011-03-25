@@ -12,8 +12,10 @@ Common attributes
     dbtable
     disabled
     hidden
+    html_elements
     label
     nodeId
     rowcaption
+    tooltip
     visible
     zoom

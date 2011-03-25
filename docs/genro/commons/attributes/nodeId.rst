@@ -16,7 +16,7 @@ Definition and description
     *nodeId* is an attribute used to give an ID to an object.
     
     Some object supports the *Code* attribute. For example, the :ref:`genro_framepane` has got the
-    *frameCode* and the :ref:`genro_toolbar` have got the slotbarCode.
+    *frameCode* and :ref:`genro_toolbar` have got the slotbarCode.
     Through the *Code* attribute, the *nodeId* is automatically created in the object to which you
     give the code and in every child of this object.
     

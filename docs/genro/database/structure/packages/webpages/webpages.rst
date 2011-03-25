@@ -215,6 +215,7 @@ pageOptions
     
         pageOptions = {'enableZoom':False,'openMenu':False}
         
+        
     .. _webpages_auto_polling:
 
 auto_polling

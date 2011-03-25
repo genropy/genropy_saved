@@ -1,8 +1,8 @@
 .. _genro_db:
 
-==================================================
-filteringSelect, comboBox, dbSelect and dbCombobox
-==================================================
+============
+Introduction
+============
 
     In this section we introduce four input field used to get a value chosen from a list of values or from a database.
     
@@ -13,7 +13,8 @@ filteringSelect, comboBox, dbSelect and dbCombobox
       a dictionary. The users can choose between "values", while in the :ref:`genro_datastore` the users
       choice is saved through its specific "key".
     * :ref:`genro_combobox`: the Dojo comboBox is a graphical user widget that permits the user to select
-      a value from multiple options (you have to provide this list of acceptable values).
+      a value from multiple options (you have to provide this list of acceptable values). Like an input
+      text field, user can also type values that doesn't belong to the list of accetable ones.
         
     **Values from a database** [#]_:
         

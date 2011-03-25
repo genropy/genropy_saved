@@ -93,7 +93,8 @@ border-radius
         
     * Features: the *rounded* attribute support the top/bottom/left/right extensions::
     
-        rounded=10, rounded_bottom=0
+        rounded=10
+        rounded_bottom_right=8 # you can even write "rounded_right_bottom=8"... it is the same!
     
     .. _css_box_shadow:
     
@@ -104,4 +105,12 @@ box-shadow
     * Example::
     
         shadow='5px 5px 5px gray'
+        
+      You can write them separately::
+        
+        shadow_x='5px'
+        shadow_y='5px'
+        shadow_blur='5px'
+        
+    add??? Other features from "css3make.py"
         

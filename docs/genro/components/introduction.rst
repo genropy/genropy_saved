@@ -17,7 +17,7 @@ Definition
     
     .. module:: gnr.web.gnrwebpage
     
-    A component is a class that gathers some useful features that can be used in more than one project. Every component can be rewritten in most of its part (method) overriding some of its portions, ensuring the ability to customize for your particular purpose.
+    A component is a python file that gathers some useful features (classes) that can be used in more than one project. Every component can be rewritten in most of its part (method) overriding some of its portions, ensuring the ability to customize for your particular purpose.
     
     A component is built through the :class:`BaseComponent` class
     

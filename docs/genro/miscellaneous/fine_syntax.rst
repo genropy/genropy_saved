@@ -24,8 +24,8 @@ _attachname
 
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc
 
-    The *_attachname* attribute allow to give an alternative name for a :ref:`genro_contentpane` or
-    for others :ref:`genro_layout_index`.
+    The *_attachname* attribute allow to give an alternative name for a :ref:`genro_contentpane`
+    or for others :ref:`genro_layout_index`.
     
     You have to define the *_attachname* as an attribute of one of your layout elements,
     then you have to use the :meth:`getAttach` method to append it to its layout father.

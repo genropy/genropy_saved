@@ -4,7 +4,8 @@
 HTML elements
 =============
 
-    You can use an HTML element following the device of the Genro HTML syntax: in Genro, every HTML element is defined as a Python function, like::
+    You can use an HTML element following the device of the Genro HTML syntax: in Genro, every HTML element
+    is defined as a Python function, like::
     
         <!-- HTML code: -->
         <div>I like Genropy!</div>
@@ -12,7 +13,8 @@ HTML elements
         # Genro code:
         div('I like Genropy!')
     
-    Obviously, you have to give a kinship to every element of your code; let's see in the following example how kinship works in Genro:
+    Obviously, you have to give a kinship to every element of your code; let's see in the following example
+    how kinship works in Genro:
     
     **HTML code**::
     
@@ -35,7 +37,12 @@ HTML elements
             bc = root.borderContainer(height='400px')
             bc.div('I like Genropy!')
             
-    As you can see in ``bc.div('I like Genropy!')``, Genro syntax use the point (``.``) to specify the kinship; you can append more than one son at a time to your father. In the following example, ``pane`` is the son of a ``borderContainer``, ``div`` is ``pane``'s son and ``IncludedView`` is ``div``'s son::
+    As you can see in ``bc.div('I like Genropy!')``, Genro syntax use the point (``.``) to specify the kinship;
+    you can append more than one son at a time to your father. In the following example, ``pane`` is the son of
+    a ``borderContainer``, ``div`` is ``pane``'s son and ``IncludedView`` is ``div``'s son::
     
         pane.div(width='100%',height='300px').IncludedView(struct=self._gridStruct2(),
-                                                           storepath='lista_regioni',nodeId='regioni_grid')        
+                                                           storepath='lista_regioni',nodeId='regioni_grid')
+                                                           
+   .. note:: for a complete list of HTML elements, check the :ref:`genro_html_elements` documentation page
+   

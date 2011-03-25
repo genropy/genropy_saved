@@ -45,12 +45,7 @@ Other things
 ============
     
     * :ref:`genro_controllers` ???
-    * all the objects are NOT case sensitive; for example, you can use the Dojo widget called ComboBox writing::
     
-        pane.combobox()
-        pane.Combobox()
-        pane.comboBox()
-        
     .. _genro_???:
     
 Different syntaxes

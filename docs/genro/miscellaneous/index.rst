@@ -11,10 +11,12 @@ Documents to revise, adjust or to choose where to put
     ../commons/index
     ../datastore/index
     fine_syntax
+    ../grid/index
     logging
     print
     sql
     struct
     textmate
+    trigger
     user_interface
     wsgi

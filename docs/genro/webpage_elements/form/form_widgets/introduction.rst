@@ -29,6 +29,7 @@ modified-Dojo form widgets
     The **modified-Dojo** form widgets are:
     
     * :ref:`genro_button`
+    * :ref:`genro_tooltipdialog`
     
     Textboxes:
     

@@ -32,7 +32,7 @@ Attributes
     
     **tree attributes**:
     
-    add???
+    * *hideValues*: boolean. add??? Default value is ``False``
     
     **commons attributes**:
     
