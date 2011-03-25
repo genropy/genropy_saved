@@ -13,34 +13,20 @@ class GnrCustomWebPage(object):
         return ''
          
     def test_1_tooltipPane(self,pane):
-        pane.script("""
-        
-        dojo.connect(dijit,'_place',function(){
-            console.log(arguments);
-        });
-        """)
         dlg = pane.div(height='40px',width='40px',background='red').tooltipPane(tooltipCode='test1')
         dlg.div(height='300px',width='400px')
         pane.div(height='40px',width='40px',background='blue').tooltip("<div style='height:300px;width:200px;'>ciao</div>")
         
-   #def test_1_ddb(self,pane):
-   #    """First test description"""
-   #    t = pane.dropDownButton('test').tooltipDialog(title='Mario')
-   #    t.div('ciao',height='300px',width='200px')
-   #    #box.tooltipDialog(height='300px',width='400px',title='Mario')
-   #    #box.ConnectedTooltipDialog(title='AAA')
-    
-   #def test_2_div(self,pane):
-   #    """First test description"""
-   #    box = pane.div(height='30px',width='30px',background='red')
-   #    t = box.tooltipDialog(title='Mario',modifiers='shift')
-   #    t.div('ciao',height='300px',width='200px')
    #
     def test_3_div(self,pane):
-        #pane.attributes['_class'] = 'xxxx'
-        t = pane.tooltipPane(nodeId='pippo',evt='onclick',modifiers='shift',onOpening='return sourceNode.attr.connected;')
-        t.div('ciao',height='100px',width='200px')
+        t = pane.tooltipPane(nodeId='pippo',evt='onclick',modifiers='shift',onOpening='return sourceNode.attr.miotipo=="pippo";')
+        box = t.div(height='200px',width='300px',rounded='10',background='lime',shadow='2px 2px 4px navy')
+        fb = box.formbuilder(cols=1, border_spacing='2px')
+        fb.textbox(value='^campo1',lbl='Campo1')
+        fb.textbox(value='^campo2',lbl='Campo2')
+        fb.button('Vai')
+        
         for color in ('red','green','blue'):
-            pane.div(height='30px',width='30px',margin='50px',background=color,connected=True)
+            pane.div(height='30px',width='30px',margin='50px',background=color,miotipo='pippo')
     
 
