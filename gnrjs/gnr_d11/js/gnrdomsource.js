@@ -490,8 +490,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(nodeId=='FORM'){
             nodeId = this.getInheritedAttributes().formId;
         }
-        currNode = nodeId ? genro.nodeById(nodeId) : this;
-
+        currNode = nodeId ? genro.nodeById(nodeId) : this.getParentNode();
         if (!currNode) {
             console.error('not existing nodeId:' + nodeId);
         }
@@ -525,7 +524,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     }
                 }
                 if (datapath.indexOf('#') == 0) {
-                    datapath = this.symbolicDatapath(datapath);
+                    datapath = currNode.symbolicDatapath(datapath);
                 }
                 path = datapath + path;
             }

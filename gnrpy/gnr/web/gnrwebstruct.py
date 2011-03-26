@@ -1079,8 +1079,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if datapath is False:
             datapath = None
         else:
-            default_datapath = '#FORM.%s' %nodeId 
-            datapath = datapath or default_datapath
+            datapath = datapath or '#FORM.%s' %nodeId 
         structpath = structpath or '.struct'
         self.attributes['target'] = nodeId
         wdg = 'NewIncludedView' if _newGrid else 'includedView'
