@@ -107,7 +107,7 @@ class Public(BaseComponent):
         if 'caption' in slots:
             kwargs['caption_title'] = title
         
-        return pane.slotBar(slots=slots,_attachname='bar',
+        return pane.slotBar(slots=slots,childname='bar',
                             _class='pbl_root_top',
                             **kwargs)
     
@@ -116,7 +116,7 @@ class Public(BaseComponent):
         if 'messageBox' in slots:
             pane.parent.dataController("genro.publish('pbl_bottomMsg',{message:msg});",msg="^pbl.bottomMsg") #legacy
             kwargs['messageBox_subscribeTo']=kwargs.get('messageBox_subscribeTo') or 'pbl_bottomMsg'
-        return pane.slotBar(slots=slots,_attachname='bar',
+        return pane.slotBar(slots=slots,childname='bar',
                             _class='pbl_root_bottom',
                             **kwargs)
         
