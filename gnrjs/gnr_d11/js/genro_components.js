@@ -1092,9 +1092,11 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
 dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     constructor:function(){
         var that = this;
-        this.storeNode.registerSubscription('dbevent_'+this.storeNode.attr.table.replace('.','_'),this,function(kw){
+        var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,function(kw){
            that.onExternalChange(kw.changelist,kw.pkeycol);          
-        });
+        })};
+        genro.src.afterBuildCalls.push(cb);
+
     },
     onExternalChange:function(changelist,pkeycol){
         var eventdict = {};
