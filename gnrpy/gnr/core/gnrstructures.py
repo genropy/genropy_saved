@@ -88,7 +88,7 @@ class GnrStructData(Bag):
             
     root = property(_get_root)
         
-    def child(self, tag, name='*_#', content=None, _parentTag=None, _attributes=None, childname=None,_returnStruct=True,**kwargs):
+    def child(self, tag, childname='*_#', childcontent=None, content=None,_parentTag=None, _attributes=None,_returnStruct=True,**kwargs):
         """Set a new item of the ``tag`` type into the current structure
         
         :param tag: structure type
@@ -100,12 +100,10 @@ class GnrStructData(Bag):
         :returns: the new structure if content is ``None``, else the parent
         """
         where = self
-        childname = childname or name
-        childcontent = content
+        if childcontent is None:
+            childcontent = content
         if _attributes:
             kwargs.update(_attributes)
-        if '_name' in kwargs:
-            kwargs['name'] = kwargs.pop('_name')
         if '_content' in kwargs:
             kwargs['content'] = kwargs.pop('_content')
         if not childname:

@@ -27,7 +27,7 @@ from gnr.core.gnrbag import Bag,BagCbResolver,DirectoryResolver
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 from gnr.core.gnrdict import dictExtract
-from gnr.core.gnrlang import extract_kwargs
+from gnr.core.gnrlang import extract_kwargs,deprecated
 
 from time import time
 from copy import copy
@@ -145,14 +145,14 @@ class GnrDomSrc(GnrStructData):
         if fname in self._external_methods:
             handler = getattr(self.page, self._external_methods[fname])
             return lambda *args, **kwargs: handler(self, *args,**kwargs)
-        for n in self._nodes:
-            if n.attr.get('_attachname') == fname:
-                return n._value
+        attachnode = self.getNode(fname)
+        if attachnode:
+            return attachnode._value
         autoslots = self._parentNode.attr.get('autoslots')
         if autoslots:
             autoslots = autoslots.split(',')
             if fname in autoslots:
-                return self.child('autoslot',name=fname,_attachname=fname)
+                return self.child('autoslot',childname=fname)
         parentTag = self._parentNode.attr.get('tag','').lower()
         if parentTag and not fnamelower.startswith(parentTag):
             subtag = ('%s_%s' %(parentTag,fname)).lower()
@@ -160,23 +160,23 @@ class GnrDomSrc(GnrStructData):
                 return getattr(self,subtag)
         raise AttributeError("object has no attribute '%s'" % fname)
         
-    def getAttach(self, attachname):
+    @deprecated
+    def getAttach(self, childname):
         """add???
         
-        :param attachname: add???
+        :param childname: add???
         :returns: ``None``
         """
-        for n in self._nodes:
-            if n.attr.get('_attachname') == attachname:
-                return n._value
-        return None
+        childnode = self.getNode(childname)
+        if childnode:
+            return childnode._value
         
-    def child(self, tag, name=None, envelope=None, **kwargs):
+    def child(self, tag, childname=None, envelope=None, **kwargs):
         """Set a new item of the ``tag`` type into the current structure through
         the :meth:`gnr.core.gnrstructures.GnrStructData.child` and return it
         
         :param tag: add???
-        :param name: add???. Default value is ``None``
+        :param childname: add???. Default value is ``None``
         :param envelope: add???. Default value is ``None``
         :returns: a child
         """
@@ -195,28 +195,28 @@ class GnrDomSrc(GnrStructData):
                     return self.fbuilder.br()
                 if not 'disabled' in kwargs:
                     kwargs['disabled'] = self.childrenDisabled
-                return self.fbuilder.place(tag=tag, name=name, **kwargs)
+                return self.fbuilder.place(tag=tag, childname=childname, **kwargs)
         if envelope:
-            obj = GnrStructData.child(self, 'div', name='*_#', **envelope)
+            obj = GnrStructData.child(self, 'div', childname='*_#', **envelope)
         else:
             obj = self
-        return GnrStructData.child(obj, tag, name=name, **kwargs)
+        return GnrStructData.child(obj, tag, childname=childname, **kwargs)
         
-    def htmlChild(self, tag, content, value=None, **kwargs):
+    def htmlChild(self, tag, childcontent, value=None, **kwargs):
         """Create an html child and return it
         
         :param tag: the html tag
-        :param content: the html content
+        :param childcontent: the html content
         :param value: add???. Default value is ``None``
         :returns: the child
         """
-        if content :
-            kwargs['innerHTML'] = content
-            content = None
+        if childcontent :
+            kwargs['innerHTML'] = childcontent
+            childcontent = None
         elif value:
             kwargs['innerHTML'] = value
             value = None
-        return self.child(tag, content=content, **kwargs)
+        return self.child(tag, childcontent=childcontent, **kwargs)
         
     def nodeById(self, id):
         """add???
@@ -226,18 +226,18 @@ class GnrDomSrc(GnrStructData):
         """
         return self.findNodeByAttr('nodeId', id)
         
-    def framepane(self,frameCode=None,center_content=None,**kwargs):
+    def framepane(self,frameCode=None,centerCb=None,**kwargs):
         """Create a framepane.
         
         :param frameCode: the framepane code. Default value is ``None``
-        :param center_content: add???. Default value is ``None``
+        :param centerCb: add???. Default value is ``None``
         :returns: the framepane
         """
         if '#' in frameCode:
             frameCode = frameCode.replace('#',self.page.getUuid())
         frame = self.child('FramePane',frameCode=frameCode,autoslots='top,bottom,left,right,center',**kwargs)
-        if callable(center_content):
-            center_content(frame)
+        if callable(centerCb):
+            centerCb(frame)
         return frame
         
     @extract_kwargs(store=True)
@@ -260,18 +260,18 @@ class GnrDomSrc(GnrStructData):
             storeNode = self.root.nodeById('%s_store' %storeCode)
             if storeNode:
                 table = storeNode.attr['table']
-        center_content = kwargs.pop('center_content',None)
+        centerCb = kwargs.pop('centerCb',None)
         frame = self.child('FrameForm',formId=formId,frameCode=frameCode,
                             namespace='form',storeCode=storeCode,table=table,
                             autoslots='top,bottom,left,right,center',**kwargs)
         if store:
             if store is True:
                 store = 'recordCluster'
-            store_kwargs['_attachname'] = 'store'
+            store_kwargs['childname'] = 'store'
             store_kwargs['handler'] = store
             frame.formStore(**store_kwargs)
-        if callable(center_content):
-            center_content(frame)
+        if callable(centerCb):
+            centerCb(frame)
         return frame
         
     def formstore(self,storepath=None,handler='recordCluster',
@@ -322,75 +322,75 @@ class GnrDomSrc(GnrStructData):
         :param cb: add???
         :returns: add???
         """
-        self.child('callBack',content=cb,**kwargs)
+        self.child('callBack',childcontent=cb,**kwargs)
         return self
         
-    def h1(self, content=None, **kwargs):
-        return self.htmlChild('h1', content=content, **kwargs)
+    def h1(self, childcontent=None, **kwargs):
+        return self.htmlChild('h1',  childcontent=childcontent, **kwargs)
         
-    def h2(self, content=None, **kwargs):
-        return self.htmlChild('h2', content=content, **kwargs)
+    def h2(self, childcontent=None, **kwargs):
+        return self.htmlChild('h2', childcontent=childcontent, **kwargs)
         
-    def h3(self, content=None, **kwargs):
-        return self.htmlChild('h3', content=content, **kwargs)
+    def h3(self, childcontent=None, **kwargs):
+        return self.htmlChild('h3', childcontent=childcontent, **kwargs)
         
-    def h4(self, content=None, **kwargs):
-        return self.htmlChild('h4', content=content, **kwargs)
+    def h4(self, childcontent=None, **kwargs):
+        return self.htmlChild('h4', childcontent=childcontent, **kwargs)
         
-    def h5(self, content=None, **kwargs):
-        return self.htmlChild('h5', content=content, **kwargs)
+    def h5(self, childcontent=None, **kwargs):
+        return self.htmlChild('h5', childcontent=childcontent, **kwargs)
         
-    def h6(self, content=None, **kwargs):
-        return self.htmlChild('h6', content=content, **kwargs)
+    def h6(self, childcontent=None, **kwargs):
+        return self.htmlChild('h6', childcontent=childcontent, **kwargs)
         
-    def li(self, content=None, **kwargs):
-        return self.htmlChild('li', content=content, **kwargs)
+    def li(self, childcontent=None, **kwargs):
+        return self.htmlChild('li', childcontent=childcontent, **kwargs)
         
-    def td(self, content=None, **kwargs):
-        return self.htmlChild('td', content=content, **kwargs)
+    def td(self, childcontent=None, **kwargs):
+        return self.htmlChild('td', childcontent=childcontent, **kwargs)
         
-    def th(self, content=None, **kwargs):
-        return self.htmlChild('th', content=content, **kwargs)
+    def th(self, childcontent=None, **kwargs):
+        return self.htmlChild('th', childcontent=childcontent, **kwargs)
         
-    def span(self, content=None, **kwargs):
-        return self.htmlChild('span', content=content, **kwargs)
+    def span(self, childcontent=None, **kwargs):
+        return self.htmlChild('span', childcontent=childcontent, **kwargs)
         
-    def pre(self, content=None, **kwargs):
-        return self.htmlChild('pre', content=content, **kwargs)
+    def pre(self, childcontent=None, **kwargs):
+        return self.htmlChild('pre', childcontent=childcontent, **kwargs)
         
-    def div(self, content=None, **kwargs):
-        return self.htmlChild('div', content=content, **kwargs)
+    def div(self, childcontent=None, **kwargs):
+        return self.htmlChild('div', childcontent=childcontent, **kwargs)
         
-    def a(self, content=None, **kwargs):
-        return self.htmlChild('a', content=content, **kwargs)
+    def a(self, childcontent=None, **kwargs):
+        return self.htmlChild('a', childcontent=childcontent, **kwargs)
         
-    def dt(self, content=None, **kwargs):
-        return self.htmlChild('dt', content=content, **kwargs)
+    def dt(self, childcontent=None, **kwargs):
+        return self.htmlChild('dt', childcontent=childcontent, **kwargs)
         
-    def option(self, content=None, **kwargs):
-        return self.child('option', content=content, **kwargs)
+    def option(self, childcontent=None, **kwargs):
+        return self.child('option', childcontent=childcontent, **kwargs)
         
-    def caption(self, content=None, **kwargs):
-        return self.htmlChild('caption', content=content, **kwargs)
+    def caption(self, childcontent=None, **kwargs):
+        return self.htmlChild('caption', childcontent=childcontent, **kwargs)
         
     def button(self, caption=None, **kwargs):
         return self.child('button', caption=caption, **kwargs)
         
-    def column(self, label='', field='', expr='', name='', **kwargs):
-        """add???
-        
-        :param label: add???. Default value is ``''``
-        :param field: add???. Default value is ``''``
-        :param expr: add???. Default value is ``''``
-        :param name: add???. Default value is ``''``
-        """
-        if not 'columns' in self:
-            self['columns'] = Bag()
-        if not field:
-            field = label.lower()
-        columns = self['columns']
-        name = 'C_%s' % str(len(columns))
-        columns.setItem(name, None, label=label, field=field, expr=expr, **kwargs)
+   #def column(self, label='', field='', expr='', name='', **kwargs):
+   #    """add???
+   #    
+   #    :param label: add???. Default value is ``''``
+   #    :param field: add???. Default value is ``''``
+   #    :param expr: add???. Default value is ``''``
+   #    :param name: add???. Default value is ``''``
+   #    """
+   #    if not 'columns' in self:
+   #        self['columns'] = Bag()
+   #    if not field:
+   #        field = label.lower()
+   #    columns = self['columns']
+   #    name = 'C_%s' % str(len(columns))
+   #    columns.setItem(name, None, label=label, field=field, expr=expr, **kwargs)
         
     def tooltip(self, label='', **kwargs):
         """Handle a tooltip
@@ -432,7 +432,7 @@ class GnrDomSrc(GnrStructData):
             with self.page.pageStore() as store:
                 store.setItem(kwargs['_serverpath'], value)
                 store.subscribe_path(kwargs['_serverpath'])
-        return self.child('data', __cls=className, content=value,_returnStruct=False, path=path, **kwargs)
+        return self.child('data', __cls=className,childcontent=value,_returnStruct=False, path=path, **kwargs)
         
     def script(self, content='', **kwargs):
         """Handle the <script> html tag
@@ -440,7 +440,7 @@ class GnrDomSrc(GnrStructData):
         :param content: the <script> content. Default value is ``None``
         :returns: the <script> html tag
         """
-        return self.child('script', content=content, **kwargs)
+        return self.child('script', childcontent=content, **kwargs)
         
     def remote(self, method, lazy=True, **kwargs):
         """add???
@@ -476,7 +476,7 @@ class GnrDomSrc(GnrStructData):
         if not funcbody:
             funcbody = pars
             pars = ''
-        return self.child('func', name=name, pars=pars, content=funcbody, **kwargs)
+        return self.child('func', childname=name, pars=pars, childcontent=funcbody, **kwargs)
         
     def connect(self, event='', pars='', funcbody=None, **kwargs):
         """add???
@@ -493,7 +493,7 @@ class GnrDomSrc(GnrStructData):
         elif not funcbody:
             funcbody = pars
             pars = ''
-        return self.child('connect', event=event, pars=pars, content=funcbody, **kwargs)
+        return self.child('connect', event=event, pars=pars, childcontent=funcbody, **kwargs)
         
     def subscribe(self, what, event, func=None, **kwargs):
         """add???
@@ -507,7 +507,7 @@ class GnrDomSrc(GnrStructData):
         if not isinstance(what, basestring):
             objPath = what.fullpath
             what = None
-        return self.child('subscribe', obj=what, objPath=objPath, event=event, content=func, **kwargs)
+        return self.child('subscribe', obj=what, objPath=objPath, event=event, childcontent=func, **kwargs)
         
     def css(self, rule, styleRule=''):
         """Handle the CSS rules. add???
@@ -524,7 +524,7 @@ class GnrDomSrc(GnrStructData):
             if not styleRule.endswith(';'):
                 styleRule = styleRule + ';'
             styleRule = '%s {%s}' % (rule, styleRule)
-        return self.child('css', name=None, content=styleRule)
+        return self.child('css', childcontent=styleRule)
         
     def styleSheet(self, cssText=None, cssTitle=None, href=None):
         """Create the styleSheet
@@ -534,12 +534,12 @@ class GnrDomSrc(GnrStructData):
         :param href: add???. Default value is ``None``
         :returns: add???
         """
-        self.child('stylesheet', name=None, content=cssText, href=href, cssTitle=cssTitle)
+        self.child('stylesheet',childname=None, childcontent=cssText, href=href, cssTitle=cssTitle)
         
     def cssrule(self, selector=None, **kwargs):
         """add???"""
         selector_replaced = selector.replace('.', '_').replace('#', '_').replace(' ', '_')
-        self.child('cssrule', name=selector_replaced, selector=selector, **kwargs)
+        self.child('cssrule',childname=selector_replaced, selector=selector, **kwargs)
         
     def macro(self, name='', source='', **kwargs):
         """add???
@@ -548,7 +548,7 @@ class GnrDomSrc(GnrStructData):
         :param source: add???. Default value is ``''``
         :returns: add???
         """
-        return self.child('macro', name=name, content=source, **kwargs)
+        return self.child('macro', childname=name, childcontent=source, **kwargs)
         
     def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
                     lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
@@ -781,7 +781,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param kwargs: add???
         :returns: add???
         """
-        self.child('callBack',content=cb,**kwargs)
+        self.child('callBack',childcontent=cb,**kwargs)
         return self
         
     def datarpc_adderrback(self,cb,**kwargs):
@@ -791,7 +791,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param kwargs: add???
         :returns: add???
         """
-        self.child('callBack',content=cb,_isErrBack=True,**kwargs)
+        self.child('callBack',childcontent=cb,_isErrBack=True,**kwargs)
         return self
         
     @extract_kwargs(palette=True,dialog=True)
@@ -1059,7 +1059,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             return self.includedview_legacy(*args,**kwargs)
             
     def includedview_inframe(self, frameCode=None, struct=None, columns=None, storepath=None, structpath=None,
-                             datapath=None, nodeId=None, configurable=True, _newGrid=False,**kwargs):
+                             datapath=None, nodeId=None, configurable=True, _newGrid=False,childname=None,**kwargs):
         """add???
         
         :param frameCode: add???. Default value is ``None``
@@ -1085,7 +1085,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         wdg = 'NewIncludedView' if _newGrid else 'includedView'
         relativeWorkspace = kwargs.pop('relativeWorkspace',True)
         iv =self.child(wdg,frameCode=frameCode, datapath=datapath,structpath=structpath, nodeId=nodeId,
-                          relativeWorkspace=relativeWorkspace,configurable=configurable,storepath=storepath,**kwargs)
+                     childname=childname or 'iv',
+                     relativeWorkspace=relativeWorkspace,configurable=configurable,storepath=storepath,**kwargs)
         if struct or columns or not structpath:
             iv.gridStruct(struct=struct,columns=columns)
         return iv
@@ -1178,7 +1179,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         prefix = slotbarCode or frameCode
         for slot in slots:
             if slot!='*' and slot!='|' and not slot.isdigit():
-                s=tb.child('slot',name=slot)
+                s=tb.child('slot',childname=slot)
                 slothandle = getattr(s,'%s_%s' %(prefix,slot),None)
                 if not slothandle:
                     if namespace:
@@ -1191,8 +1192,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     kw.update(dictExtract(kwargs,'%s_' %slot,True))
                     kw['frameCode'] = frameCode
                     slothandle(**kw)
-                else:
-                    s.attributes['_attachname'] = slot
         return tb
         
         #se ritorni la toolbar hai una toolbar vuota 
@@ -1549,11 +1548,11 @@ class GnrFormBuilder(object):
         else:
             rdp = None
         if self.lblpos == 'L':
-            self.tbl.tr(name='r_%i' % r, datapath=rdp)
+            self.tbl.tr(childname='r_%i' % r, datapath=rdp)
                 
         elif self.lblpos == 'T':
-            self.tbl.tr(name='r_%i_l' % r, datapath=rdp)
-            self.tbl.tr(name='r_%i_f' % r, datapath=rdp)
+            self.tbl.tr(childname='r_%i_l' % r, datapath=rdp)
+            self.tbl.tr(childname='r_%i_f' % r, datapath=rdp)
         self.rowlast = max(self.rowlast, r)
                 
         for c in range(self.colmax):
@@ -1623,21 +1622,21 @@ class GnrFormBuilder(object):
             else:
                 lbl_kwargs['_class'] = self.lblclass
             if lblhref:
-                cell = row.td(name='c_%i_l' % c, content=lbl, align=lblalign, vertical_align=lblvalign, **td_lbl_attr)
+                cell = row.td(childname='c_%i_l' % c, childcontent=lbl, align=lblalign, vertical_align=lblvalign, **td_lbl_attr)
                 if lblvalue:
                     lbl_kwargs['tabindex'] = -1 # prevent tab navigation to the zoom link
-                    cell.a(content=lblvalue, href=lblhref, **lbl_kwargs)
+                    cell.a(childcontent=lblvalue, href=lblhref, **lbl_kwargs)
             else:
-                cell = row.td(name='c_%i_l' % c, align=lblalign, vertical_align=lblvalign, **td_lbl_attr)
+                cell = row.td(childname='c_%i_l' % c, align=lblalign, vertical_align=lblvalign, **td_lbl_attr)
                 if lbl:
-                    cell.div(content=lbl, **lbl_kwargs)
+                    cell.div(childcontent=lbl, **lbl_kwargs)
             for k, v in row_attributes.items():
                 # TODO: warn if row_attributes already contains the attribute k (and it has a different value)
                 row.parentNode.attr[k] = v
             if colspan > 1:
                 kwargs['colspan'] = str(colspan * 2 - 1)
             kwargs.update(td_field_attr)
-            td = row.td(name='c_%i_f' % c, align=fldalign, vertical_align=fldvalign, _class=self.fieldclass, **kwargs)
+            td = row.td(childname='c_%i_f' % c, align=fldalign, vertical_align=fldvalign, _class=self.fieldclass, **kwargs)
             if colspan > 1:
                 for cs in range(c + 1, c + colspan):
                     row.delItem('c_%i_l' % cs)
@@ -1658,8 +1657,8 @@ class GnrFormBuilder(object):
                 lbl_kwargs['_class'] = self.lblclass + ' ' + lbl_kwargs['_class']
             else:
                 lbl_kwargs['_class'] = self.lblclass
-            row[0].td(name='c_%i' % c, content=lbl, align=lblalign, vertical_align=lblvalign, **lbl_kwargs)
-            td = row[1].td(name='c_%i' % c, align=fldalign, vertical_align=fldvalign, **kwargs)
+            row[0].td(childname='c_%i' % c, childcontent=lbl, align=lblalign, vertical_align=lblvalign, **lbl_kwargs)
+            td = row[1].td(childname='c_%i' % c, align=fldalign, vertical_align=fldvalign, **kwargs)
             for k, v in row_attributes.items():
                 # TODO: warn if row_attributes already contains the attribute k (and it has a different value)
                 row[0].parentNode.attr[k] = v
@@ -1767,7 +1766,7 @@ class GnrGridStruct(GnrStructData):
         :param headerClasses: add???. Default value is ``None``
         :returns: a cell
         """
-        return self.child('cell', content='', field=field, _name=name or field, width=width, dtype=dtype,
+        return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                           
     def checkboxcell(self, field=None, falseclass=None,
@@ -1929,7 +1928,7 @@ class GnrGridStruct(GnrStructData):
             for j, w in enumerate(widths):
                 widths[j] = int(w * totalWidth / wtot)
         for j, field in enumerate(fields):
-            #self.child('cell', field=field, _name=names[j], width='%i%s'%(widths[j],unit), dtype=dtypes[j])
+            #self.child('cell', field=field, childname=names[j], width='%i%s'%(widths[j],unit), dtype=dtypes[j])
             self.cell(field=field, name=names[j], width='%i%s' % (widths[j], unit), dtype=dtypes[j], **fld_kwargs[j])
             
     def getFieldNames(self, columns=None):

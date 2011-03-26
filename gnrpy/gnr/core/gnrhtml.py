@@ -93,7 +93,7 @@ class GnrHtmlSrc(GnrStructData):
         _attributes = dict()
         if http_equiv:
             _attributes['http-equiv'] = http_equiv
-        self.root.builder.head.child('meta', _name=name, _content=content, _attributes=_attributes, **kwargs)
+        self.root.builder.head.child('meta', name=name, _content=content, _attributes=_attributes, **kwargs)
         
     def child(self, tag, *args, **kwargs):
         """Creates a tag.
