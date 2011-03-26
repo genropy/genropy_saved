@@ -485,12 +485,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return path? ((path.indexOf('^') == 0) || (path.indexOf('=') == 0)):false;
     },
     symbolicDatapath:function(path) {
+        var attachpath;
         var pathlist = path.split('.');
         var nodeId = pathlist[0].slice(1);
-        if(nodeId=='FORM'){
-            nodeId = this.getInheritedAttributes().formId;
-        }
-        currNode = nodeId ? genro.nodeById(nodeId) : this.getParentNode();
+        var currNode = genro.nodeById(nodeId,this); 
         if (!currNode) {
             console.error('not existing nodeId:' + nodeId);
         }
@@ -1353,13 +1351,17 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
         var content;
         tag = tag.toLowerCase();
         if (tag) {
-
             if (name instanceof Object) {
-                var extrakw = attributes;
-                var attributes = name;
+                var extrakw = attributes || {};
+                var attributes = name || {};
                 var name = '';
+                if('childname' in attributes){
+                    name = name || objectPop(attributes,'childname');
+                }
             }
             var attributes = attributes || {};
+        
+
             if (attributes && ('remote' in attributes)) {
                 var remattr = objectUpdate({}, objectPop(attributes, 'remote'));
                 remattr['handler'] = objectPop(remattr, 'method');

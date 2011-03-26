@@ -214,7 +214,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
                          node.attr['rounded_'+c] = v;
                      }
                  })             
-                 bc._('ContentPane',{'region':side}).setItem('#id',node._value,node.attr);
+                 bc._('ContentPane',side,{'region':side}).setItem('#id',node._value,node.attr);
              }
         });
         slot = children.popNode('center');

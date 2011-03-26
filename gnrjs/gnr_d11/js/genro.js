@@ -954,12 +954,24 @@ dojo.declare('gnr.GenroClient', null, {
             return node.form;
         }
     },
-    nodeById:function(nodeId) {
-        var node = genro.src._index[nodeId];
+    nodeById:function(nodeId,scope) {
+        var attachpath,node;
+        if(nodeId.indexOf('/')>=0){
+            attachpath=nodeId.split('/')
+            nodeId=attachpath[0]
+            attachpath = attachpath.slice(1).join('.');
+        }
+        if(nodeId=='FORM'){
+            nodeId = scope.getInheritedAttributes().formId;
+            if (!nodeId){
+                node=scope.getParentNode();
+            }
+        }
+        var node =node || genro.src._index[nodeId];
         if (!node && genro.src.building) {
             node = genro.src._main.getNodeByAttr('nodeId', nodeId);
         }
-        return node;
+        return attachpath?node._value.getNode(attachpath):node;
     },
     domById:function(nodeId) {
         var node = this.nodeById(nodeId);
