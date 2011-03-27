@@ -405,7 +405,7 @@ class Bag(GnrObject):
     Nested elements can be accessed with a path of keys joined with dots.
     """
     #-------------------- __init__ --------------------------------
-    def __init__(self, source=None):
+    def __init__(self, source=None,**kwargs):
         """ 
         A new bag can be created in various ways:
         
@@ -424,9 +424,16 @@ class Bag(GnrObject):
         self._del_subscribers = {}
         self._modified = None
         self._rootattributes = None
+        source=source or kwargs
         if source:
             self.fillFrom(source)
-
+            
+    def z__getattr__(self,label):
+        k=self._index(label)
+        if k>=0:
+            return self._nodes[k]._value
+        raise AttributeError("object has no attribute '%s'" % label)
+        
     def _get_parent(self):
         if self._parent:
             return self._parent
@@ -1764,13 +1771,6 @@ class Bag(GnrObject):
                 if el.label == label:
                     result = idx
                     break
-                    #if result == -1:
-                    #    lowlabel = label.lower()
-                    #    for idx,el in enumerate(self._nodes):
-                    #        if el.label.lower() == lowlabel:
-                    #            result=idx
-                    #            gnrlogger.warning('Case insensitive result: %s in %s' % (label, str(self.keys())))
-                    #            break
         return result
 
     #-------------------- pickle --------------------------------
