@@ -7,10 +7,18 @@
 from gnr.web.gnrwebstruct import struct_method
 "Test page description"
 class GnrCustomWebPage(object):
-    testOnly='_export'
+    testOnly='_target_action'
     user_polling = 0
     auto_polling = 0
     py_requires="gnrcomponents/testhandler:TestHandlerFull,foundation/includedview"
+   
+    def test_7_frame_includedview_target_action(self,pane):
+        pane = pane.framePane(frameCode='province',height='200px')
+        tbar = pane.top.slotToolbar('*,iv_add')
+        view = pane.includedView(selfsubscribe_add='console.log("receiving add");')
+        struct = view.gridStruct('regione')
+        view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore')
+
     
     def test_0_frame_includedview_newgrid(self,pane):
         """Pane grid """
