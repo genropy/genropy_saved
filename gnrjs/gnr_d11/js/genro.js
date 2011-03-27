@@ -955,23 +955,29 @@ dojo.declare('gnr.GenroClient', null, {
         }
     },
     nodeById:function(nodeId,scope) {
-        var attachpath,node;
-        if(nodeId.indexOf('/')>=0){
-            attachpath=nodeId.split('/')
-            nodeId=attachpath[0]
-            attachpath = attachpath.slice(1).join('.');
+        var childpath,node;
+        if(nodeId[0]=='/'){
+            var node = scope.getAncestorByAttr('nodeId');
+            childpath = nodeId.slice(1).replace(/\//g,'.');
         }
-        if(nodeId=='FORM'){
-            nodeId = scope.getInheritedAttributes().formId;
-            if (!nodeId){
-                node=scope.getParentNode();
+        else{
+            if(nodeId.indexOf('/')>=0){
+                childpath=nodeId.split('/')
+                nodeId=childpath[0]
+                childpath = childpath.slice(1).join('.');
             }
+            if(nodeId=='FORM'){
+                nodeId = scope.getInheritedAttributes().formId;
+                if (!nodeId){
+                    node=scope.getParentNode();
+                }
+            }            
         }
         var node =node || genro.src._index[nodeId];
         if (!node && genro.src.building) {
             node = genro.src._main.getNodeByAttr('nodeId', nodeId);
         }
-        return attachpath?node._value.getNode(attachpath):node;
+        return childpath?node._value.getNode(childpath):node;
     },
     domById:function(nodeId) {
         var node = this.nodeById(nodeId);

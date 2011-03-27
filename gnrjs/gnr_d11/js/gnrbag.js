@@ -307,23 +307,47 @@ dojo.declare("gnr.GnrBagNode", null, {
         }
         return this.attr;
     },
-
-    getInheritedAttributes: function() {
-        var inherited = {};
-        var parentbag = this.getParentBag();
-        if (parentbag) {
-            var parentnode = parentbag.getParentNode();
-            if (parentnode) {
-                if (parentnode.stopInherite) {
-                    inherited = objectUpdate(inherited, parentnode.attr);
-                } else {
-                    inherited = parentnode.getInheritedAttributes();
-
-                }
+    getInheritedAttributes: function(attrname) {
+        var curr = this;
+        if(attrname){
+            while(curr && !curr.attr[attrname]){
+                curr = curr.getParentNode();
             }
+            return curr?curr.attr[attrname]:null;
+        }else{
+            var inherited = {};
+            var parentnode = this.getParentNode();
+            if (parentnode){
+                inherited =parentnode.stopInherite? objectUpdate(inherited, parentnode.attr) : parentnode.getInheritedAttributes();
+            } 
+            return objectUpdate(inherited, this.attr);
         }
-        return objectUpdate(inherited, this.attr);
     },
+    
+    getAncestorByAttr:function(attrname){
+        while(curr && !(attrname in curr.attr)){
+            curr = curr.getParentNode();
+        }
+        return curr;
+    },
+
+   //
+   // getInheritedAttributes: function() {
+   //     var inherited = {};
+   //     var parentbag = this.getParentBag();
+   //     if (parentbag) {
+   //         var parentnode = parentbag.getParentNode();
+   //         if (parentnode) {
+   //             if (parentnode.stopInherite) {
+   //                 inherited = objectUpdate(inherited, parentnode.attr);
+   //             } else {
+   //                 inherited = parentnode.getInheritedAttributes();
+   //
+   //             }
+   //         }
+   //     }
+   //     return objectUpdate(inherited, this.attr);
+   // },
     /**
      * @id hasAttr
      */

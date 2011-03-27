@@ -47,6 +47,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     getBuiltObj:function() {
         return this.widget || this.domNode;
     },
+    
     getParentBuiltObj:function() {
         var parentNode = this.getParentNode();
         if (parentNode) {

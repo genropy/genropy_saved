@@ -249,7 +249,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var formId = objectPop(kw,'formId');
-        var storeNode = children.popNode('formStore');
+        var storeNode = children.popNode('store');
         var store = this.createStore(storeNode);
         var storepath = store.storepath;
         var frameCode = kw.frameCode;
@@ -606,13 +606,28 @@ dojo.declare("gnr.widgets.ConnectedTooltipDialog", gnr.widgets.gnrwdg, {
 });
 
 dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
+    
+    /*
+    target= node that should receive the publish. if target==false no node.
+    if target startswith '/' it means that we should use a path relative to the
+    parent node id
+    */
     createContent:function(sourceNode, kw,children) {
-        var slotbarCode = sourceNode.getInheritedAttributes().slotbarCode;
-        var target = kw.target || sourceNode.getInheritedAttributes().target;
-        kw['showLabel'] = kw.iconClass? (kw['showLabel'] || false):true;        
-        var topic = (target || slotbarCode)+'_'+objectPop(kw,'publish');
+        var inherithed=sourceNode.getInheritedAttributes()
+        kw['showLabel'] = kw.iconClass? (kw['showLabel'] || false):true; 
+        var targetNode,prefix;
+        if ('target' in inherithed){
+            target =inherithed.target 
+            if(target!=false){
+                targetNode = genro.nodeById(target,sourceNode);
+                prefix = (targetNode.attr.nodeId || targetNode.getStringId())
+            }
+        }else{
+            prefix=inherithed.slotbarCode
+        }
+        var publish=objectPop(kw,'publish')
         if(!kw.action){
-            kw.topic = topic;
+            kw.topic = prefix?prefix+'_'+publish:publish;
             kw.command = kw.command || null;
             kw.opt = objectExtract(kw,'opt_*');
             kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:opt})";

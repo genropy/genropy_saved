@@ -1960,6 +1960,7 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
                     console.log('missing storepath');
                 }else{
                     sourceNode.attr.storepath = storeNode.absDatapath(storeNode.attr.storepath);//storeNode.absDatapath(storeNode.attr.path);
+                    sourceNode._useStore=true;
                 }
             }
         }
@@ -3172,7 +3173,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
     },
 
     patch_updateRowCount:function(n) {
-        if(this.sourceNode._isBuilding){
+        if(this.sourceNode._isBuilding && this.sourceNode._useStore){
             return;
         }
         if ((n == null) || (n == '*')) {
