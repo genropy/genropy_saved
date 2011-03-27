@@ -136,7 +136,7 @@ class GnrDomSrc(GnrStructData):
             
     parentfb = property(_get_parentfb)
             
-    def __getattr__(self, fname):
+    def __getattr__(self, fname): 
         fnamelower = fname.lower()
         if (fname != fnamelower) and hasattr(self, fnamelower):
             return getattr(self, fnamelower)
@@ -159,7 +159,7 @@ class GnrDomSrc(GnrStructData):
             if hasattr(self,subtag):
                 return getattr(self,subtag)
         raise AttributeError("object has no attribute '%s'" % fname)
-        
+    
     @deprecated
     def getAttach(self, childname):
         """add???
@@ -267,7 +267,6 @@ class GnrDomSrc(GnrStructData):
         if store:
             if store is True:
                 store = 'recordCluster'
-            store_kwargs['childname'] = 'store'
             store_kwargs['handler'] = store
             frame.formStore(**store_kwargs)
         if callable(centerCb):
@@ -302,7 +301,7 @@ class GnrDomSrc(GnrStructData):
         if not storepath:
             storepath = '.record'
         
-        return self.child('formStore',childname='formStore',storeCode=storeCode,table=table,
+        return self.child('formStore',childname='store',storeCode=storeCode,table=table,
                             nodeId = nodeId or '%s_store' %storeCode,storeType=storeType,
                             parentStore=parentStore,
                             storepath=storepath,handler=handler,**kwargs)
