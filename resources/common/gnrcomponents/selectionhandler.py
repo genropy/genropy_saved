@@ -73,7 +73,7 @@ class SelectionHandler(BaseComponent):
             kwargs['dialog_kwargs'] = dialogPars
             kwargs['default_kwargs'] = dictExtract(dialogPars,'default_',slice_prefix=False,pop=True)
             if 'formCb' in dialogPars:
-                kwargs['form_center_content'] = dialogPars.pop('formCb')
+                kwargs['form_centerCb'] = dialogPars.pop('formCb')
             if 'dlgPars' in dialogPars:
                 dialogPars.update(dialogPars.pop('dlgPars'))
             
@@ -89,7 +89,7 @@ class SelectionHandler(BaseComponent):
                             footer=None,palette_kwargs=None,dialog_kwargs=None,
                             form_kwargs=None,default_kwargs=None,
                             **kwargs):            
-            frameview = pane.selectionViewBox(frameCode=frameCode,datapath=datapath,frame__attachname='viewframe',
+            frameview = pane.selectionViewBox(frameCode=frameCode,datapath=datapath,frame_childname='viewframe',
                                             table=table,add_enable=True,del_enable=True, **kwargs)
             if footer:
                 print 'advise: use the attach point instead of footer cb'
@@ -97,7 +97,7 @@ class SelectionHandler(BaseComponent):
             form_kwargs['formRoot'] = form_kwargs.pop('pane',None)
             form_kwargs['frameCode'] = form_kwargs.get('frameCode') or '%s_form' %frameCode
             form_kwargs['formId'] = form_kwargs.get('formId') or form_kwargs['frameCode']
-            form_kwargs['_attachname'] = 'formframe'
+            form_kwargs['childname'] = 'formframe'
             if form_kwargs:
                  form_kwargs['dialog_kwargs'] = dialog_kwargs
                  form_kwargs['palette_kwargs'] = palette_kwargs

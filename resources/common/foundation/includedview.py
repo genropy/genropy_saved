@@ -72,11 +72,11 @@ class IncludedView(BaseComponent):
                                 baseClass='no_background',iconClass=_class,visible=enable,**kwargs) 
        
     @struct_method
-    def ivnew_slotbar_iv_add(self,pane,_class='icnBaseAdd',enable=None,frametarget='iv',**kwargs):
-        return pane.slotButton(label='!!Add',publish='add',baseClass='no_background',frametarget=frametarget,iconClass=_class,visible=enable,**kwargs)
+    def ivnew_slotbar_iv_add(self,pane,_class='icnBaseAdd',enable=None,target='/center/iv',**kwargs):
+        return pane.slotButton(label='!!Add',publish='add',baseClass='no_background',target=target,iconClass=_class,visible=enable,**kwargs)
          
     @struct_method
-    def ivnew_slotbar_iv_del(self,pane,_class='icnBaseDelete',enable=None,**kwargs):
+    def ivnew_slotbar_iv_del(self,pane,_class='icnBaseDelete',enable=None,target='/center/iv',**kwargs):
         return pane.slotButton(label='!!Delete',publish='del',baseClass='no_background',iconClass=_class,visible=enable,**kwargs)
     
     @struct_method
@@ -112,7 +112,7 @@ class IncludedView(BaseComponent):
             pane.attributes['tag'] = 'ContentPane' 
         frame = pane.framePane(frameCode=frameCode,namespace='iv',datapath=datapath,**frame_kwargs)
         kwargs = frame.top.adaptSlotbar(**kwargs)
-        view = frame.includedView(childname='view',**kwargs)
+        view = frame.includedView(**kwargs)
         selectionPars = selectionPars or dict()
         if reloader:
             selectionPars['_reloader'] = reloader
@@ -253,8 +253,7 @@ class IncludedView(BaseComponent):
                 dropmode = 'dropTarget_%s' % mode
                 viewPars[dropmode] = '%s,%s' % (viewPars[dropmode], dropCode) if dropmode in viewPars else dropCode
                 viewPars['onDrop_%s' % dropCode] = 'FIRE .dropped_%s = data' % dropCode
-                viewPars[
-                'onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode #provo?si
+                viewPars['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode #provo?si
                 # 
         controllerPath = datapath or 'grids.%s' % gridId
         storepath = storepath or '.selection'
