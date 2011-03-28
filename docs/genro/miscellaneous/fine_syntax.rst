@@ -17,20 +17,20 @@ Fine syntax
 Attributes
 ==========
 
-.. _attributes_attachname:
+.. _attributes_childname:
 
-_attachname
------------
+_childname
+----------
 
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc
-
-    The *_attachname* attribute allow to give an alternative name for a :ref:`genro_contentpane`
-    or for others :ref:`genro_layout_index`.
     
-    You have to define the *_attachname* as an attribute of one of your layout elements,
-    then you have to use the :meth:`getAttach` method to append it to its layout father.
+    The *_childname* attribute allow to give an alternative name for a :ref:`genro_webpage_elements_index`.
     
-    This attribute is thought to speed up your programming work.
+    You have to define the *_childname* as an attribute of one of your elements, then
+    you have to use the :meth:`getAttach`(add???) method to append it to its layout father.
+    
+    This attribute is thought to speed up your programming work and...??? (explain of the chain of the
+    nodeId that you can call through the "/")
     
     **Example**::
     

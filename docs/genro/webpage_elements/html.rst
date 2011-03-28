@@ -44,5 +44,5 @@ HTML elements
         pane.div(width='100%',height='300px').IncludedView(struct=self._gridStruct2(),
                                                            storepath='lista_regioni',nodeId='regioni_grid')
                                                            
-   .. note:: for a complete list of HTML elements, check the :ref:`genro_html_elements` documentation page
+   .. note:: check the :ref:`genro_html_elements` documentation page for tips on some HTML elements.
    

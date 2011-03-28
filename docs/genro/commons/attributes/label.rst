@@ -14,7 +14,8 @@ Definition and description
 
     Allow to add a label to your widget.
     
-    .. note:: Not all the widgets support it. In every widget page is specified if the attribute is supported or not. In the next section, we describe you the way to turn around the problem.
+    .. note:: Not all the widgets support it. In every widget page is specified if the attribute is
+              supported or not. In the next section, we describe you the way to turn around the problem.
     
 .. _lbl_formbuilder:
 

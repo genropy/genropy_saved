@@ -6,7 +6,7 @@ framePane
     
     * :ref:`frame_def`: :ref:`frame_sides`
     * :ref:`frame_attributes`
-    * :ref:`frame_examples`
+    * :ref:`frame_examples`: :ref:`frame_examples_simple` :ref:`toolbar_example`
     
 .. _frame_def:
 
@@ -85,6 +85,14 @@ simple example
     
     * the *rounded* attribute is the CSS :ref:`css_border_radius` attribute
     * the *shadow* attribute is the CSS :ref:`css_box_shadow` attribute
+    
+.. _toolbar_example:
+
+slotToolbar, slotBar example
+----------------------------
+    
+    For some examples with the slotToolbar and the slotBar, please check the
+    :ref:`genro_toolbar` documentation page
     
 **Footnotes**:
 

@@ -6,8 +6,6 @@ dropdownbutton
 
     .. note:: The Genro dropdownbutton has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's dropdownbutton documentation.
     
-    .. note:: it is mandatory to add a :ref:`genro_menu` to the dropdownbutton to make it work.
-    
     * :ref:`ddb_def`
     * :ref:`ddb_description`
     * :ref:`ddb_attributes`
@@ -52,5 +50,5 @@ Examples
 
     You can check an example in combo with a menu in the :ref:`menu_examples_simple` menu section.
     
-    add???
+    add??? an another example
     
