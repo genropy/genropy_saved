@@ -3043,7 +3043,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
                     if (parent_lv == 1 || (parent_lv == 2 && this.datamode == 'bag')) {
                         this.updateRowCount();
                         //fa srotellare in presenza di parametri con ==
-                        this.setSelectedIndex(kw.ind);
+                        if(parent_lv == 1){
+                            this.setSelectedIndex(kw.ind);
+                        }
                     } else {
                         //if ((storebag == kw.where) && (parent_lv<1)){
                         //}
