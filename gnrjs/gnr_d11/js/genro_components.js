@@ -923,6 +923,7 @@ dojo.declare("gnr.stores._Collection",null,{
         }
     },
     onLoaded:function(result){
+        this.externalChangedKeys = null;
         this.storeNode.setRelativeData(this.storepath,result);
         return result;
     },
@@ -1107,11 +1108,12 @@ dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
 dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     constructor:function(){
         var that = this;
-        var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,function(kw){
-           that.onExternalChange(kw.changelist,kw.pkeycol);          
-        })};
-        genro.src.afterBuildCalls.push(cb);
-
+        if(this.storeNode.attr.externalChanges){
+            var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,function(kw){
+                that.onExternalChange(kw.changelist,kw.pkeycol);          
+                })};
+                genro.src.afterBuildCalls.push(cb);
+        }
     },
     onExternalChange:function(changelist,pkeycol){
         var eventdict = {};
@@ -1139,7 +1141,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                                 function(result){
                                             willBeInSelection={};
                                             result.getValue().forEach(function(n){
-                                                willBeInSelection[n.attr['_pkey']] = n.attr;
+                                                willBeInSelection[n.attr['_pkey']] = n;
                                             },'static');
                                             that.checkExternalChange(delKeys,insOrUpdKeys,willBeInSelection);
                                             return result;
