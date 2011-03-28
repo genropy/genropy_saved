@@ -38,6 +38,13 @@ class TableHandlerForm(BaseComponent):
         store = form.formStore(storepath='.record',hander='recordCluster',storeType='Collection',onSaved='reload',
                         parentStore='maingrid')
         store.handler('load',sqlContextName='sql_record')
+        form.dataController("""
+                                console.log('locked',locked)
+                                SET form.locked=locked;
+                                SET form.canWrite = !locked
+                                """,formsubscribe_onLockChange=True)
+        form.data('form.canWrite',False)
+        
         self.formTitleBase(form)
         toolbarKw = dict()
         tagSlot = ''
