@@ -4,7 +4,7 @@
 Introduction
 ============
 
-    A form on a webpage allows the users to enter data that are sent to a server for processing.
+    A form allows the users to enter data that are sent to a server for processing.
     
     Let's see an example of form:
     
@@ -12,11 +12,14 @@ Introduction
     
     In genro you can easy handle the creation of a form through the :ref:`genro_formbuilder`.
     
-    The ``formbuilder`` uses:
+    The formbuilder uses:
     
-    * :ref:`genro_form_widgets_index` for users interactions
-    * (optional) :ref:`genro_validations` to check the correct form of these insertions.
+    * :ref:`genro_form_widgets_index`: for users interaction
+    * :ref:`genro_validations`: check the correct form of users input
+    * :ref:`genro_field`: a widget creator used to view, select or modify data included in
+      a database :ref:`genro_table`.
     
-    In the management of a form, there is also the :ref:`genro_field`. It looks like a widget but properly
-    it isn't a widget: it's a widget creator, and it is used to view, select or modify data included in a
-    database :ref:`genro_table`.
+    The form will be saved into a :ref:`genro_bag_index`. Every row is composed by a single
+    form field, with the following sintax::
+    
+        <field_name _loadedValue="::NN">record_value</field_name>
