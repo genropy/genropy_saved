@@ -1542,6 +1542,10 @@ textarea:disabled {
 }
 /* @end */
 /* @group DojoxGrid*/
+.tundra .filteredGrid .dojoxGrid-cell{
+    border-color:red;
+}
+
 .tundra .dojoxGrid-cell {
 	border: 1px dotted #D5CDB5;
 	border-top: 0px;

@@ -2074,6 +2074,7 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
             }
             sourceNode.registerSubscription(searchBoxCode+'_changedValue',widget,function(v,field){
                 this.applyFilter(v,null,field);
+                genro.dom.setClass(this.domNode,'filteredGrid',v);
             });
         };
     },
