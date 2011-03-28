@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+
+# 
+# #!/usr/bin/env python
 # encoding: utf-8
 """
 Created by Softwell on 2008-07-10.
@@ -8,7 +10,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 # --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
     maintable = 'devlang.language'
-    py_requires = 'public:Public,standard_tables:TableHandler,gnrcomponents/selectionhandler'
+    py_requires = 'piero,public:Public,standard_tables:TableHandler,gnrcomponents/selectionhandler'
     js_requires = 'devlang'
     subscribed_tables = 'devlang.dev_lang' # ask to be notified for changes in this table (s)
     # 
@@ -20,6 +22,7 @@ class GnrCustomWebPage(object):
         return struct
 
     def formBase(self, parentBC, disabled=False, **kwargs):
+        print x
         layout = parentBC.borderContainer(**kwargs)
         left = layout.contentPane(region='left', _class='pbl_roundedGroup', margin='10px', width='40%')
         left.div('!!Languages', _class='pbl_roundedGroupLabel')
