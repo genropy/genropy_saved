@@ -15,4 +15,6 @@ class Table(object):
                                                                                          many_order_by='@developer_id.last_name')
         tbl.column('level', dtype='L', name_long='!!Level')
         tbl.column('_row_counter', 'L', name_long='!!N')
+        tbl.aliasColumn('developer_name',relation_path='@developer_id.name_full',
+                        group='x',name_long='Developer name')
         

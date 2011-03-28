@@ -20,4 +20,7 @@ class Table(object):
         tbl.column('latlonbox', name_long='!!Lat lon box')
         tbl.column('coordinates', name_long='!!Coordinates')
         tbl.formulaColumn('name_full', "($first_name ||' '|| $last_name)", name_long='!!Full name') # formula
-        
+        tbl.formulaColumn('n_lang', """(SELECT count(*)
+                                        FROM devlang.devlang_dev_lang
+                                        WHERE developer_id = #THIS.id)""", 
+                           name_long='!!Number of languages') # formula
