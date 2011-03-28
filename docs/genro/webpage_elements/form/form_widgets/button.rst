@@ -24,8 +24,7 @@ Description
     The Genro button takes its basic structure from the Dojo button: it is a Dojo widget used as a
     representation of an html button.
     
-    **Added Genro feature**: You may define its purpose through the *action* attribute (explained below),
-    a javascript command executed by clicking on the button itself.
+    **Added Genro feature**: You may define a javascript callback through the *action* attribute (explained below).
 
 .. _button_attributes:
 
@@ -52,7 +51,7 @@ Examples
 .. _button_action:
 
 action
-======
+------
 
     The *action* attribute is a javascript onclick callback that receives all the ``**kwargs`` parameters.
     
@@ -62,16 +61,36 @@ action
         
     where ``'I\'m a button'`` is the label of the button.
     
+    Other *action* examples::
+    
+        class GnrCustomWebPage(object):
+            def main(self,root,**kwargs):
+                fb = root.formbuilder(cols=2)
+                fb.div('The action attribute allow to write javascript code.',
+                        font_size='.9em',text_align='justify',colspan=2)
+                fb.button('Button',action="alert('Hello!')",tooltip='click me!')
+                fb.div("""Create an alert message through "action" attribute.
+                          There is a tooltip, too.""",
+                        font_size='.9em',text_align='justify')
+                fb.button('Format your system', action='confirm("Sure?")')
+                fb.div('Create a confirm message through "action" attribute.',
+                        font_size='.9em',text_align='justify')
+                fb.button('Calculate Res', action="SET .res = screen.width+' x '+screen.height;")
+                fb.textbox(lbl='res',value='^.res',width='6em')
+    
 .. _button_example_macro:
 
-Usage of some Genro macro
-=========================
+Genro macros
+------------
     
-    With the *action* attribute you can also use one of the four Genro macro [#]_; for example you can use the :ref:`genro_fire` macro within the "action" attribute: it will launch an alert message. The syntax is::
+    With the *action* attribute you can also use one of the Genro macro [#]_; for example
+    you can use the :ref:`genro_fire` macro within the "action" attribute: it will launch
+    an alert message. The syntax is::
     
         action="FIRE 'javascript command'"
         
-    So, you can create an example using a button with the ``FIRE`` command combined with a dataController, using the following syntax::
+    So, you can create an example using a button with the ``FIRE`` command combined with a
+    dataController, using the following syntax::
     
         pane.dataController('write-JS-Here!',_fired="^startJS")     # in place of "write-JS-here" you have
                                                                     #     to write some Javascript code
@@ -90,8 +109,10 @@ Usage of some Genro macro
         pane.dataController('''alert(msg);''', msg='^msg')
         pane.button('Click me!', fire_Click = 'msg')
         
-    It is important for you to know that the ``FIRE`` command in the button is a shortcut for a script that puts ``True`` in the destination path (allowing to the action of the button to be executed) and then put again ``False`` (allowing to the button to be reusable!).
+    It is important for you to know that the ``FIRE`` command in the button is a shortcut for a
+    script that puts ``True`` in the destination path (allowing to the action of the button to be
+    executed) and then put again ``False`` (allowing to the button to be reusable!).
 
 **Footnotes:**
 
-.. [#] In Genro there are four macros used as a shortcut that you can use in place of some Javascript command. They are ``FIRE``, ``GET``, ``SET``, ``PUT``. For more details, check the :ref:`genro_macro` page.
+.. [#] In Genro there are different macros used as a shortcut that you can use in place of some Javascript command. For a complete list and relative explanation, check the :ref:`genro_macro` documentation page.

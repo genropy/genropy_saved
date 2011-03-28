@@ -19,7 +19,6 @@ Genro form widgets
     
     * :ref:`genro_dbcombobox`
     * :ref:`genro_dbselect`
-    * :ref:`genro_formbuilder`
     
 .. _dojo_improved_form_widgets:
 

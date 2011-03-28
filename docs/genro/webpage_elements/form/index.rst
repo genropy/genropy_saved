@@ -5,10 +5,10 @@ form
 ====
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     
     introduction <introduction>
     formbuilder/index
-    form_validations/index
     form_widgets/index
+    form_validations/index
     field/index
