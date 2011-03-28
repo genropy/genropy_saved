@@ -10,12 +10,22 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
-    def test_1_action(self,pane):
+    def test_0_action(self,pane):
         """Action attribute"""
         fb = pane.formbuilder(cols=2)
         fb.button('Button',action="alert('Hello!')",tooltip='click me!')
         fb.div(""" This button is used to create an alert message through "action" attribute.
                  """,font_size='.9em',text_align='justify')
+                 
+    def test_1_button(self,pane):
+        """Button and Textbox"""
+        pane.div("""This button will launch an alert message with the textbox content.
+                 """,font_size='.9em',text_align='justify')
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.button('Alert message',iconClass="icnBaseOk",action='alert(textbox)',
+                   textbox='^.tbValue')
+        fb.textBox(value='^.tbValue')
+        fb.data('.tbValue','Hello')
         
     def test_2_fire(self,pane):
         """FIRE attribute"""

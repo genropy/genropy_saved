@@ -95,3 +95,15 @@ class GnrCustomWebPage(object):
         sb.dummy.button(label='',iconClass='icnBasePref',showLabel=False,
                         action="alert('A wonderful action!')")
         frame.div('Here goes the \"center\" content.',margin='20px')
+        
+    def test_3_div(self,pane):
+        """slotToolbar and toolBar attached on a div"""
+        top = pane.div().slotToolbar(slotbarCode='top',slots='hello,foo,dummy',
+                                     gradient_from='red',gradient_to='white')
+        top.hello.div('Hello!')
+        top.foo.div('MyTitle',font_size='14pt',color='^.color')
+        top.dummy.button(label='add',iconClass='icnBaseAdd',action="alert('Added!')")
+        
+        pane.div().slotBar(slotbarCode='yeah',slots='hello,*,hello2',
+                           gradient_from='purple',gradient_to='white',
+                           gradient_degree='36')
