@@ -1366,7 +1366,7 @@ dojo.declare("gnr.GnrBag", null, {
         }
         else if (autocreate) {
             node = this.newNode(this, label, /*value=*/ _default);
-            i = this._nodes.length;
+            var i = this._nodes.length;
             this._nodes = this._nodes.concat(node);
             if (this._backref) {
                 this.onNodeTrigger({'evt':'ins','node':node,'where':this,'ind':i,'reason':'autocreate'});
