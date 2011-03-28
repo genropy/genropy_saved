@@ -23,13 +23,15 @@ class GnrCustomWebPage(object):
     
     def test_0_firsttest(self,pane):
         """First test description"""
-        frame = pane.framePane('gridtest',height='400px')
+        frame = pane.framePane('gridtest',height='400px',_class='no_over')
         tbar = frame.top.slotToolbar('*,iv_add')
         frame.data('.mybag', self.common_data())
         iv = frame.includedView(storepath='.mybag',datapath=False,struct=self.common_struct,datamode='bag',
+                                editorEnabled=True,selectedIndex='.currIndex',
                                 selfsubscribe_add="""this.widget.addBagRow('#id', '*', this.widget.newBagRow());
                                                      this.widget.editBagRow(null,1000);
                                                      """,onCreated="console.log('widget',widget);widget.updateRowCount('*');")
+        iv.dataController("genro.bp(currIndex)",currIndex="^.currIndex")
         gridEditor = iv.gridEditor()
         gridEditor.textbox(gridcell='name')
         gridEditor.numbertextbox(gridcell='age')
