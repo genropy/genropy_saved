@@ -427,13 +427,7 @@ class Bag(GnrObject):
         source=source or kwargs
         if source:
             self.fillFrom(source)
-    # to test for inherited     
-    #def __getattr__(self,label):
-    #    k=self._index(label)
-    #    if k>=0:
-    #        return self._nodes[k]._value
-    #    raise AttributeError("object has no attribute '%s'" % label)
-    #    
+                    
     def _get_parent(self):
         if self._parent:
             return self._parent
