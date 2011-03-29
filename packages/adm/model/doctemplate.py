@@ -46,8 +46,8 @@ class Table(object):
             record.update(extraData)
         record.setItem('_env_', Bag(self.db.currentEnv))
         record.setItem('_template_', templateBuilder.doctemplate_info)
-        templateBuilder.record = record
-        return templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate, record, True))
+        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate, record, True),record=record)
+        return body
 
     def getTemplateBuilder(self, doctemplate=None, templates=None):
         doctemplate = self.recordAs(doctemplate, 'bag')
@@ -60,5 +60,22 @@ class Table(object):
         htmlbuilder.data_tblobj = self.db.table(doctemplate_info['maintable'])
         htmlbuilder.doctemplate_info = doctemplate_info
         return htmlbuilder
+    
+    def sendMail(self,record_id=None,doctemplate=None,templates=None,**kwargs):
+        htmlBuilder = self.getTemplateBuilder(doctemplate=doctemplate,templates=templates)
+        body = self.renderTemplate(htmlBuilder, record_id=record_id)
+        datasource = htmlBuilder.record
+        metadata = htmlBuilder.doctemplate_info.getItem('metadata')
+        datasource['_meta_'] = metadata
+        site = self.db.application.site
+        site.mail_handler.sendmail_template(datasource=datasource,
+                                            body= body,
+                                            from_address= site.getPreference('mail.from_address', pkg='adm'),
+                                            smtp_host= site.getPreference('mail.smtp_host',pkg='adm'),
+                                            port=int(site.getPreference('mail.port', pkg='adm')),
+                                            password=site.getPreference('mail.password', pkg='adm'),
+                                            user= site.getPreference('mail.user', pkg='adm'),
+                                            html=True,ssl=False,tls=site.getPreference('mail.tls', pkg='adm'),
+                                            **kwargs)
         
         
