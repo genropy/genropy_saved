@@ -308,11 +308,13 @@ class MailHandler(GnrBaseService):
         """
         
         def get_templated(field):
-            value = datasource.get(field)
-            
+            value = datasource.getItem('_meta_.%s' % field)
+            if not value:
+                value = datasource.getItem(field)
             if value:
                 return templateReplace(value, datasource)
                 
+        #datasource--to
         to_address = to_address or get_templated('to_address')
         cc_address = cc_address or get_templated('cc_address')
         bcc_address = bcc_address or get_templated('bcc_address')
