@@ -39,11 +39,14 @@ class TableHandlerForm(BaseComponent):
                         parentStore='maingrid')
         store.handler('load',sqlContextName='sql_record')
         form.dataController("""
-                                console.log('locked',locked)
                                 SET form.locked=locked;
-                                SET form.canWrite = !locked
                                 """,formsubscribe_onLockChange=True)
-        form.data('form.canWrite',False)
+        form.data('form.locked',True)
+        form.dataController("genro.dom.setClass(dojo.body(),'form_locked',locked)", locked="^form.locked")
+        form.dataFormula('form.canWrite', '(!locked ) && writePermission', locked='^form.locked',
+                         writePermission='=usr.writePermission', _init=True)
+        form.dataFormula('form.canDelete', '(!locked) && deletePermission', locked='^form.locked',
+                         deletePermission='=usr.deletePermission', _init=True)
         
         self.formTitleBase(form)
         toolbarKw = dict()
