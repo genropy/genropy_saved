@@ -1,8 +1,6 @@
 from gnr.core.gnrbag import Bag
-
-from paste import fileapp, httpexceptions
+from paste import httpexceptions
 from paste import request as paste_request
-from paste.httpheaders import ETAG
 from weberror.evalexception import EvalException
 from paste.exceptions.errormiddleware import ErrorMiddleware
 from webob import Request, Response
@@ -11,14 +9,13 @@ import os
 import glob
 import logging
 from time import time
-from gnr.core.gnrlang import gnrImport, boolean, deprecated
+from gnr.core.gnrlang import deprecated
 from gnr.core.gnrlang import GnrException
 from threading import RLock
 import thread
 import mimetypes
 from gnr.core.gnrsys import expandpath
 import cPickle
-import inspect
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrmailhandler import MailHandler
@@ -26,11 +23,8 @@ from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
 from gnr.web.gnrwsgisite_proxy.gnrstatichandler import StaticHandlerManager
-
 from gnr.web.gnrwsgisite_proxy.gnrshareddata import GnrSharedData_dict, GnrSharedData_memcache
 from gnr.web.gnrwsgisite_proxy.gnrobjectregister import SiteRegister
-import random
-import shutil
 
 mimetypes.init()
 site_cache = {}
@@ -612,6 +606,7 @@ class GnrWsgiSite(object):
             if not isinstance(result, basestring):
                 return result
             response = self.setResultInResponse(result, response, totaltime=time() - t)
+            self.cleanup()
             return response(environ, start_response)
             
         if path_list and path_list[0].startswith('_tools'):
