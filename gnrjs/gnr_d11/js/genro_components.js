@@ -630,7 +630,7 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
             kw.topic = prefix?prefix+'_'+publish:publish;
             kw.command = kw.command || null;
             kw.opt = objectExtract(kw,'opt_*');
-            kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:opt})";
+            kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:opt,_counter:_counter});";
         }
         return sourceNode._('button',kw);
     }

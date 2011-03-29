@@ -1521,23 +1521,41 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
             dojo.style(buttonNode, savedAttrs['_style']);
         }
     },
+
     onClick:function(e) {
+        var inattr = this.getInheritedAttributes();
+        if(!inattr._delay){
+            return this.widget._onClickDo(e,inattr);
+        }
+        if(this._pendingClick){
+            clearTimeout(this._pendingClick);
+        }
+        var that = this;
+        this._pendingClickCount = (this._pendingClickCount || 0)+1;
+        this._pendingClick = setTimeout(function(){
+            var count = that._pendingClickCount;
+            that._pendingClickCount = 0;
+            that.widget._onClickDo(e,inattr,count);
+        },inattr._delay);
+    },
+    mixin__onClickDo:function(e,inattr,count) {
         var modifier = eventToString(e);
-        var action = this.getInheritedAttributes().action;
+        var action = inattr.action;
+        var sourceNode = this.sourceNode;
         if (action) {
             //funcCreate(action).call(this,e);
-            funcApply(action, objectUpdate(this.currentAttributes(), {event:e}), this);
+            funcApply(action, objectUpdate(sourceNode.currentAttributes(), {event:e,_counter:count}), sourceNode);
         }
-        if (this.attr.fire) {
+        if (sourceNode.attr.fire) {
             var s = eventToString(e) || true;
-            this.setRelativeData(this.attr.fire, s, {modifier:modifier}, true);
+            sourceNode.setRelativeData(sourceNode.attr.fire, s, {modifier:modifier,_counter:count}, true);
         }
-        if(this.attr.publish){
-            genro.publish(this.attr.publish,true);
+        if(sourceNode.attr.publish){
+            genro.publish(sourceNode.attr.publish,true);
         }
-        var fire_list = objectExtract(this.attr, 'fire_*', true);
+        var fire_list = objectExtract(sourceNode.attr, 'fire_*', true);
         for (var fire in fire_list) {
-            this.setRelativeData(fire_list[fire], fire, {modifier:modifier}, true);
+            sourceNode.setRelativeData(fire_list[fire], fire, {modifier:modifier,_counter:count}, true);
         }
     },
     mixin_setIconClass:function(iconClass){

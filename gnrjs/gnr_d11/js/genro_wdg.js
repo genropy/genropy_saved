@@ -534,24 +534,26 @@ dojo.declare("gnr.GridEditor", null, {
 
         dojo.connect(widget, editOn[0], function(e) {
             if (genro.wdg.filterEvent(e, modifier)) {
+                //dojo.stopEvent(e);
                 if (_this.enabled() && _this.editableCell(e.cellIndex) && !grid.gnrediting) {
-                    dojo.stopEvent(e);
-                    if (_this.grid._delayedEditing) {
-                        clearTimeout(_this.grid._delayedEditing);
-                    }
-                    _this.grid._delayedEditing = setTimeout(function() {
-                        _this.startEdit(e.rowIndex, e.cellIndex);
-                    }, 1);
+                    _this.startEdit(e.rowIndex, e.cellIndex);
+                   //if (_this.grid._delayedEditing) {
+                   //    clearTimeout(_this.grid._delayedEditing);
+                   //}
+                   //_this.grid._delayedEditing = setTimeout(function() {
+                   //    _this.startEdit(e.rowIndex, e.cellIndex);
+                   //}, 1);
                 }
             }
         });
     },
     enabled:function(){
-        var form = this.grid.sourceNode.form;
+        var gridSourceNode = this.grid.sourceNode;
+        var form = gridSourceNode.form;
         if(form && form.store){
             return !form.locked;
         }else{
-            return this.grid.editorEnabled;
+            return 'editorEnabled' in gridSourceNode.attr? this.grid.editorEnabled:true;
         }
     },
     
