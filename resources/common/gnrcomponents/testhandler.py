@@ -38,10 +38,19 @@ class TestHandler(BaseComponent):
         m.menuline('Soria')
 
     def testHandler_loop(self, pane):
+        def skip_test(test_name):
+            if not self.testOnly:
+                return False
+            if isinstance(self.testOnly, basestring):
+                self.testOnly = [self.testOnly]
+            for testOne in self.testOnly:
+                if testOne in test_name:
+                    return False
+            return True
         test_to_do = [n for n in dir(self) if n.startswith('test_')]
         test_to_do.sort()
         for test_name in test_to_do:
-            if self.testOnly and not self.testOnly in test_name:
+            if skip_test(test_name):
                 continue
             test_handler = getattr(self, test_name)
             element = pane.div(border='1px solid gray', margin='5px', datapath='test.%s' % test_name)
@@ -55,8 +64,18 @@ class TestHandler(BaseComponent):
 
 class TestHandlerBase(TestHandler):
     def main_root(self, root, **kwargs):
+        if self._call_args:
+            if '*' in self._call_args:
+                self.testOnly = False
+            else:
+                self.testOnly = ['_%s_' % str(a) for a in self._call_args]
         self.testHandler(root)
 
 class TestHandlerFull(TestHandler):
     def main(self, root, **kwargs):
+        if self._call_args:
+            if '*' in self._call_args:
+                self.testOnly = False
+            else:
+                self.testOnly = ['_%s_' % str(a) for a in self._call_args]
         self.testHandler(root)
