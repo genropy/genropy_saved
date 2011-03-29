@@ -16,14 +16,14 @@ struct
       
     * spiegare il metodo child(): la child di fatto è una setItem
     
-        pane.div() == pane.setItem('xxx',None,tag='div') == pane.child(tag='div',**kwabx)
+        pane.div() == pane.setItem('xxx',None,tag='div') == pane.child(tag='div',**kwargs)
     
     * Example::
     
         def structUnita(self):
             struct = self.newGridStruct('cdxbase.tabella_millesimale_riga')
-            r = struct.view().rows(classes='df_grid', cellClasses='df_cells', headerClasses='df_headers')
-            r.fieldcell('@unita_immobiliare_id.nome',name=u'Unità',width='12em')
-            r.fieldcell('@unita_immobiliare_id.tipo',name='Tipo',width='15em')
-            r.fieldcell('valore',name='Valore',width='10em')
+            r = struct.view().rows()
+            r.fieldcell(...)
+            r.fieldcell(...)
+            r.fieldcell(...)
             return struct

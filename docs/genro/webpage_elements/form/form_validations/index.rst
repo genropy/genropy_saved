@@ -6,11 +6,13 @@ validations
     
     * :ref:`validations_def`
     * :ref:`validations_list`
+    * :ref:`validations_other_list`
+    * :ref:`validations_common`
     * :ref:`validations_example`: :ref:`validations_form_example`
 
 .. _validations_def:
 
-Definition
+definition
 ==========
 
     To make obligations onto user input filling out a :ref:`genro_form_index`,
@@ -25,135 +27,112 @@ Definition
     users can't save the actual record on which they are writing until the wrong
     insertions are corrected.
     
+    For every validation, you have a list of :ref:`validations_common` through which
+    you can modify the standard validation features.
+    
 .. _validations_list:
 
-Validations list
+validations list
 ================
 
     Let's see a complete list of Genro validations:
     
-    * :ref:`genro_validate_call`
-    * :ref:`genro_validate_case`
-    * :ref:`genro_validate_dbselect`
-    * :ref:`genro_validate_email`
-    * :ref:`genro_validate_empty`
-    * :ref:`genro_validate_exist`
-    * :ref:`genro_validate_gridnodup`
-    * :ref:`genro_validate_len`
-    * :ref:`genro_validate_nodup`
-    * :ref:`genro_validate_notnull`
-    * :ref:`genro_validate_regex`
-    * :ref:`genro_validate_remote`
+    * *validate_call*: add???
+    * *validate_dbselect*: used in the :ref:`genro_dbselect` form widget.
+      If ``True``, prevents the user to write a name that is not included in the
+      table related to the dbSelect. Default value in a dbSelect is ``True``
+    * *validate_email*: validate an email format::
     
-.. _genro_validate_call:
-
-validate_call
--------------
-
-    add???
+        root.textbox(value='^.email',validate_email=True)
+        
+    * *validate_empty*: add???
+    * *validate_exist*: add???
+    * *validate_gridnodup*: add???
+    * *validate_len*: you have many options:
     
-.. _genro_validate_case:
-
-validate_case
--------------
-
-    add???
+        * *validate_len=NUMBER*: set the precise lenght of the field::
+        
+            root.textbox(value='^.fiscal_code',validate_len='16')
+            root.textbox(value='^.fiscal_code',validate_len=30)
+        
+        * *validate_len='NUMBER:NUMBER'*: set minimum and maximum values for field's lenght::
+        
+            root.textbox(value='^.name',validate_len='5:30') # from 5 to 30 digits!
+            root.textbox(value='^.fiscal_code',validate_len=':16') # max number: 16
+            root.textbox(value='^.surname',validate_len='2:') # at least 2 digits!
+            
+    * *validate_nodup*: add???
+    * *validate_notnull*: if `True`, set the field as a required field::
     
-.. _genro_validate_dbselect:
-
-validate_dbselect
------------------
-
-    add???
+        root.textbox(value='^.name', validate_notnull=True)
+        root.textbox(value='^.surname', validate_notnull=True)
+        
+    * *validate_regex*: add???
+    * *validate_remote*: add???
     
-.. _genro_validate_email:
+.. _validations_other_list:
 
-validate_email
---------------
-
-    add???
+other validations
+=================
     
-.. _genro_validate_empty:
-
-validate_empty
---------------
-
-    add???
+    The following validations have a small difference with a normal validation: they control
+    the correct user input, and if they find it wrong, they automatically change it.
     
-.. _genro_validate_exist:
-
-validate_exist
---------------
-
-    add???
+    * *validate_case*: you have many options:
     
-.. _genro_validate_gridnodup:
-
-validate_gridnodup
-------------------
-
-    add???
+        * *validate_case='c'*: (Capitalize) Set the first letter of every word uppercase
+        * *validate_case='u'*: (Uppercase) Set every letter of every word uppercase
+        * *validate_case='l'*: (Lowercase) Set every letter of every word lowcase
+        
+          Example::
+          
+            root.textbox(value='^.name',validate_case='c')
+            root.textbox(value='^.fiscal_code',validate_case='u')
+          
+.. _validations_common:
     
-.. _genro_validate_len:
-
-validate_len
-------------
-
-    add???
+common validations
+==================
     
-.. _genro_validate_nodup:
-
-validate_nodup
---------------
-
-    add???
+    **Syntax**: ``validate_`` + ``validationName_`` + ``validationAttribute``
+        
+    Where:
     
-.. _genro_validate_notnull:
-
-validate_notnull
-----------------
-
-    add???
+    * ``validate_`` is a string, common to every common validation
+    * ``validationName`` is one of the Genro validations
+    * ``validationAttribute`` is one of the validation attributes
     
-.. _genro_validate_regex:
-
-validate_regex
---------------
-
-    add???
+    Here follows a complete list of the common validations:
     
-.. _genro_validate_remote:
-
-validate_remote
----------------
-
-    add???
+    * *validate_validationName_error*: set a hint tooltip appearing on mouse click
+      for user uncorrect input
+      
+      Example::
+      
+        root.textbox(value='^.email',
+                     validate_email=True,
+                     validate_email_error='Hint tooltip')
+                     
+    * *validate_validationName_onAccept*: perform a javascript action after
+      a correct input
     
+      Example::
+      
+        root.timetextbox(value='^.orario.inizio',
+                         validate_onAccept="if (value){SET .orario.fine=value;}")
+        root.timetextbox(value='^.orario.fine')
+        
+    * *validate_validationName_onReject*: perform a javascript action after
+      an uncorrect input
     
-    validationTags: ['dbselect','notnull','empty','case','len','email','regex','call','nodup','exist','remote'],
-    
-    Let's see validations in details:
-    
-    * validate_notnull:
-    
-        * validate_notnull=True,                    --> Set field as a required field
-        * validate_notnull_error='Hint tooltip'     --> Set a hint tooltip appearing on mouse click for user uncorrect input
-    * validate_len:
-        validate_len='NUMBER:NUMBER'                --> Minimum and maximum values for field's lenght
-    * validate_onReject:
-        validate_onReject='alert(" ")'  --> alert window (rejected writing user)
-    * validate_onAccept:
-        validate_onAccept='alert(" ")'  --> alert window (confirmed writing user)
-    * validate_email:
-        validate_email=True             --> validate an e-mail format.
-    * validate_case
-        validate_case='c'   --> 'Capitalize', set first letter of every word uppercase
-        validate_case='u'   --> 'Uppercase', set every letter of every word uppercase
-        validate_case='l'   --> 'Lowercase', set every letter of every word lowcase
-    
+      Example::
+      
+        root.textBox(value='^.short_string',validate_len=':10',
+                     validate_onReject='alert("The string "+"\'"+value+"\'"+" is too long")')
+        
 .. _validations_example:
 
-Examples
+examples
 ========
 
 .. _validations_form_example:
@@ -161,27 +140,30 @@ Examples
 form example
 ------------
 
-    class GnrCustomWebPage(object):
-        def main(self,root,**kwargs):
-            fb = root.formbuilder(cols=2)
-            fb.textbox(value='^.name',lbl='Name', validate_case='c')
-            fb.div('Capitalized field')
-            fb.textbox(value='^.surname',lbl='Surname', validate_case='c')
-            fb.div('Capitalized field')
-            fb.textbox(value='^.job',lbl='Profession',
-                       validate_case='l',
-                       validate_notnull=True,validate_notnull_error='!!Required field')
-            fb.div('Not null field; lowercase field')
-            fb.textbox(value='^.address', lbl='!!Address')
-            fb.div('No validation is required')
-            fb.textbox(value='^.fiscal_code',lbl='!!Fiscal code',
-                       validate_len='16',validate_case='u')
-            fb.div('Uppercased field; Precise length field [16]')
-            fb.textBox(value='^.long',lbl='Long string',validate_len='6:',
-                       validate_onReject='alert("The string "+"\'"+value+"\'"+" is too short")')
-            fb.div('Insert 6 or more characters (wrong input notification)')
-            fb.textBox(value='^.email', lbl="email", validate_email=True,
-                       validate_onAccept='alert("Correct email format")',
-                       validate_notnull=True)
-            fb.div('required correct e-mail form (correct input notification)')
+    ::
+    
+        class GnrCustomWebPage(object):
+            def main(self,root,**kwargs):
+                fb = root.formbuilder(cols=2)
+                # In the following textbox we use the lbl attribute, because they are included in a formbuilder
+                fb.textbox(value='^.name',lbl='Name', validate_case='c')
+                fb.div('Capitalized field')
+                fb.textbox(value='^.surname',lbl='Surname', validate_case='c')
+                fb.div('Capitalized field')
+                fb.textbox(value='^.job',lbl='Profession',
+                           validate_case='l',
+                           validate_notnull=True,validate_notnull_error='Required field!')
+                fb.div('Not null field; lowercase field')
+                fb.textbox(value='^.address', lbl='Address')
+                fb.div('No validation is required')
+                fb.textbox(value='^.fiscal_code',lbl='Fiscal code',
+                           validate_len='16',validate_case='u')
+                fb.div('Uppercased field; Precise length field [16]')
+                fb.textBox(value='^.long',lbl='Long string',validate_len='6:',
+                           validate_onReject='alert("The string "+"\'"+value+"\'"+" is too short")')
+                fb.div('Insert 6 or more characters (wrong input notification)')
+                fb.textBox(value='^.email', lbl="email", validate_email=True,
+                           validate_onAccept='alert("Correct email format")',
+                           validate_notnull=True)
+                fb.div('required correct e-mail form (correct input notification)')
             

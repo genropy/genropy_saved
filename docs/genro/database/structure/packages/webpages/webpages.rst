@@ -198,23 +198,27 @@ js_requires
         
     This line implies that you have created a js file called ``wizard.js``
         
-    .. note:: The js files you want to use must be placed into a folder named "``resources``" (or "``_resources``")
+    .. note:: The js files you want to use must be placed into a folder named "``resources``"
+              (or "``_resources``")
               
-              * For more information about Genro js and their location in Genro, please check the
-                :ref:`genro_webpage_resources` documentation page.
+              * For more information about Genro js and their location in Genro, please check
+                the :ref:`genro_webpage_resources` documentation page.
                 
     .. _webpages_pageOptions:
 
 pageOptions
 -----------
 
-    * Description: a dict with page options. add??? -->
+    * Description: a dict with page options:
     
-    * Default value: ``add???``
+        * *openMenu*: if ``True``, the project menu (included in the :ref:`packages_menu` file)
+          of the webpage is opened when the page is loaded. Default value is ``True``
+        
+        * *enableZoom*: if ``True``, add???
+        
     * Example::
     
         pageOptions = {'enableZoom':False,'openMenu':False}
-        
         
     .. _webpages_auto_polling:
 
