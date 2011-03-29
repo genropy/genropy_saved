@@ -909,6 +909,42 @@ function funcApply(fnc, parsobj, scope) {
     return result;
 }
 
+function deltaDays(dateStart,dateEnd,excludeWD){
+    var excludeWD = excludeWD || '';
+    var delta = 1;
+    var result = 0;
+    var currDate = new Date(dateStart);
+    var wd;
+    if(dateStart>dateEnd){
+        delta = -1;
+    }
+    while(currDate.toLocaleDateString()!=dateEnd.toLocaleDateString()){
+        result+=delta;
+        currDate.setDate(currDate.getDate()+delta);
+        wd = currDate.getDay();
+    }
+    return result;
+};
+
+function addDaysToDate(dateStart,daysToAdd,excludeWD){
+    var excludeWD = excludeWD || '';
+    var currDate = new Date(dateStart);
+    var delta = 1;
+    var wd;
+    if(daysToAdd<0){
+        daysToAdd = -daysToAdd;
+        delta = -1
+    }
+    while(daysToAdd>0){
+        currDate.setDate(currDate.getDate()+delta);
+        wd = currDate.getDay();
+        if(excludeWD.indexOf(wd)<0){
+            daysToAdd--;
+        }
+    }
+    return currDate
+};
+
 function localeParser(/*String*/value, /*Object?*/options) {
     // summary:
     //      Convert a properly formatted string to a primitive Date object,
