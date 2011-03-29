@@ -8,7 +8,7 @@ from gnr.web.gnrwebstruct import struct_method
 
 "Test formhandler selection store"
 class GnrCustomWebPage(object):
-    testOnly='_4_'
+    testOnly='_2_'
     user_polling=0
     auto_polling=0
     py_requires="""gnrcomponents/testhandler:TestHandlerFull,
@@ -58,19 +58,18 @@ class GnrCustomWebPage(object):
                 
     def test_2_linkedForm(self,pane):
         bc = pane.borderContainer(height='250px')
-        frame = bc.framePane('province',region='left',width='300px',namespace='iv')
-        tb = frame.top.slotToolbar('*,selector,20,reloader')
+        frame = bc.framePane('province',region='left',width='300px')
+        tb = frame.top.slotToolbar('selector,*,iv_add,10')
         tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
-        tb.reloader.button('reload',fire='.reload')
         iv = frame.includedView(struct='regione',autoSelect=True)
-        
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',
                           r='^.regione',_fired='^.reload')
         center = bc.contentPane(region='center',border='1px solid blue')
-        form=iv.linkedForm(frameCode='provincia',loadEvent='onRowDblClick',
+        form = iv.linkedForm(frameCode='provincia',loadEvent='onRowDblClick',
                             dialog_title='Prova',
                             dialog_height='300px',
                             dialog_width='400px')
+        form.store.handler('load',default_regione='=#province_frame.regione')
         form.testToolbar()
         saver = form.store.handler('save')        
         fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
