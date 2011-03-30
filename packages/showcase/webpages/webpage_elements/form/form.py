@@ -9,7 +9,7 @@
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-
+    
     """A form is a method to manage both data loading and data saving.
     
     Every form is characterized by a formId (MANDATORY) and by a datapath (MANDATORY):
@@ -85,20 +85,6 @@ class GnrCustomWebPage(object):
     the following sintax:
         <field_name _loadedValue="::NN">record_value</field_name>
     """
-
-    #   - Other forms, attributes and items:
-    #       In this section we report forms/attributes that have been used in this example
-    #       despite they didn't strictly belonging to form.
-    #       We also suggest you the file (if it has been created!) where you can find
-    #       some documentation about them.
-    #
-    #       ## name ##          --> ## file ##
-    #       borderContainer     --> webpages/widgets/layout/border.py
-    #       button              --> button.py
-    #       contentPane         --> webpages/widgets/layout/border.py
-    #       formbuilder         --> formbuilder.py
-    #       textbox             --> textbox.py
-
     def test_1_basicForm(self, pane):
         """Basic Form"""
         bc = pane.borderContainer(height='250px', datapath='test1')
@@ -120,8 +106,8 @@ class GnrCustomWebPage(object):
                font_size='.9em', text_align='justify', margin_bottom='10px')
         fb.textbox(value='^.name', lbl='!!Name')
         fb.textbox(value='^.surname', lbl='!!Surname')
-
-    def test_2_validations(self, pane):
+        
+    def _test_2_validations(self, pane):
         """Validations"""
         bc = pane.borderContainer(height='350px', datapath='test2')
         formpane = self._formpane(bc, datapath='test2', formId='test2', loader='basic')
@@ -165,12 +151,13 @@ class GnrCustomWebPage(object):
                    validate_onReject='alert("The name "+"\'"+value+"\'"+" is too short")')
         fb.div('Insert 6 or more characters (try to write less than six characters!)',
                font_size='.9em', text_align='justify')
-        fb.textBox(value='^.email_2', lbl="e-mail",
-                   validate_email=True)
+        fb.textBox(value='^.email_2', lbl="e-mail", validate_email=True,
+                  validate_onAccept='alert("Correct email format")',
+                  validate_notnull=True)
         fb.div('required e-mail correct form',
                font_size='.9em', text_align='justify')
-
-    def test_3_prova(self, pane):
+               
+    def _test_3_prova(self, pane):
         """Genro and Dojo validations"""
         bc = pane.borderContainer(height='350px', datapath='test3')
         formpane = self._formpane(bc, datapath='test3', formId='test3', loader='basic')
@@ -182,7 +169,7 @@ class GnrCustomWebPage(object):
         self.dateTextbox(tc2)
         self.timeTextbox(tc2)
         self.textArea(tc2)
-
+        
     def _formpane(self, bc, datapath=None, formId=None, loader=None):
         right = bc.contentPane(region='right', width='200px', splitter=True)
         center = bc.contentPane(region='center', formId=formId, datapath='.data', controllerPath='%s.form' % datapath)
@@ -196,9 +183,8 @@ class GnrCustomWebPage(object):
             bc.dataController("alert(saved_data.toXml()); genro.formById(f_id).saved();", nodeId="%s_saver" % formId,
                               saved_data='=.data', f_id=formId) #fire node
             bc.dataController("alert(msg)", msg="^.form.save_failed")
-
         return center
-
+        
     def genroValidation(self, tc):
         tc.dataController("""var bag = new gnr.GnrBag();
                             bag.setItem('name','pippo');
@@ -216,7 +202,7 @@ class GnrCustomWebPage(object):
         fb.button('Load', fire='^test.doload')
         fb.button('Save', action='genro.formById("testform").save()', disabled='== !(_changed && _valid)',
                   _changed='^gnr.forms.testform.changed', _valid='^gnr.forms.testform.valid')
-
+                  
         fb.button('Set Value', action='SET .name="John"', colspan=2)
         fb.textBox(value='^.len', tooltip='Here you define the size of \'Name(Len)\' textbox. (Format --> 4:7)',
                    lbl="Len (*)")
@@ -255,7 +241,7 @@ class GnrCustomWebPage(object):
         fb.textBox(value='^.remote', validate_remote="nameremote", validate_name='^.name',
                    validate_remote_error='different from name field\'s value inserted',
                    tooltip='for validation, insert the same words of box labelled \'Name\'', lbl='remote Name (*)')
-
+                   
     def rpc_nameremote(self, value=None, name=None, **kwargs):
         if not value:
             return
@@ -265,28 +251,28 @@ class GnrCustomWebPage(object):
             return result
         else:
             return 'remote'
-
+            
     def numberTextbox(self, tc):
         fb = tc.contentPane(title='numberTextbox', datapath='.numberTextbox').formbuilder(cols=2, border_spacing='10px')
         fb.numberTextbox(value='^.age', lbl="Age", default=36)
         fb.numberTextbox(value='^.age', lbl="Age echo")
-
+        
     def currencyTextbox(self, tc):
         fb = tc.contentPane(title='currencyTextbox', datapath='.currencyTextbox').formbuilder(cols=2,
                                                                                               border_spacing='10px')
         fb.currencyTextbox(value='^.amount', default=1123.34, currency='EUR', locale='it', lbl="Age")
         fb.currencyTextbox(value='^.amount', currency='EUR', locale='it', lbl="Age echo")
-
+        
     def dateTextbox(self, tc):
         fb = tc.contentPane(title='dateTextbox', datapath='.dateTextbox').formbuilder(cols=2, border_spacing='10px')
         fb.dateTextbox(value='^.birthday', lbl='Birthday')
         fb.dateTextbox(value='^.birthday', lbl='Birthday echo')
-
+        
     def timeTextbox(self, tc):
         fb = tc.contentPane(title='timeTextbox', datapath='.timeTextbox').formbuilder(cols=2, border_spacing='10px')
         fb.timeTextbox(value='^.meetingAt', lbl='Meeting Time')
         fb.timeTextbox(value='^.meetingAt', lbl='Meeting Time echo')
-
+        
     def textArea(self, tc):
         fb = tc.contentPane(title='textArea', datapath='.textArea').formbuilder(cols=2, border_spacing='10px')
         fb.textArea(value='^.remarks', lbl='Remarks')

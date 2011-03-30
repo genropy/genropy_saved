@@ -13,10 +13,18 @@ class GnrCustomWebPage(object):
     def test_0_action(self,pane):
         """Action attribute"""
         fb = pane.formbuilder(cols=2)
+        fb.div('The action attribute allow to write javascript code.',
+                font_size='.9em',text_align='justify',colspan=2)
         fb.button('Button',action="alert('Hello!')",tooltip='click me!')
-        fb.div(""" This button is used to create an alert message through "action" attribute.
-                 """,font_size='.9em',text_align='justify')
-                 
+        fb.div("""Create an alert message through "action" attribute.
+                  There is a tooltip, too.""",
+                font_size='.9em',text_align='justify')
+        fb.button('Confirm', action='confirm("Sure?")')
+        fb.div('Create a confirm message through "action" attribute.',
+                font_size='.9em',text_align='justify')
+        fb.button('Resolution', action="SET .res = screen.width+' x '+screen.height;")
+        fb.textbox(lbl='screen res',value='^.res',width='6em')
+        
     def test_1_button(self,pane):
         """Button and Textbox"""
         pane.div("""This button will launch an alert message with the textbox content.
