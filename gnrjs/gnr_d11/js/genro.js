@@ -957,8 +957,17 @@ dojo.declare('gnr.GenroClient', null, {
     nodeById:function(nodeId,scope) {
         var childpath,node;
         if(nodeId[0]=='/'){
-            var node = scope.getAncestorByAttr('nodeId');
             childpath = nodeId.slice(1).replace(/\//g,'.');
+            if(scope.attr.nodeId){
+                node=scope;
+            }else{
+                childpath = scope.label+'.'+childpath;
+                node = scope.getParentNode();
+                while(node && !node.attr.nodeId){
+                    childpath=node.label+'.'+childpath;
+                    node = node.getParentNode();            
+                }
+            }
         }
         else{
             if(nodeId.indexOf('/')>=0){
@@ -966,6 +975,14 @@ dojo.declare('gnr.GenroClient', null, {
                 nodeId=childpath[0]
                 childpath = childpath.slice(1).join('.');
             }
+            if(nodeId=='FORMDATA'){
+                nodeId = scope.form;
+                if(scope.form.store){
+                    node = scope.form.formContentDomNode.sourceNode;
+                }else{
+                    node = scope.form.sourceNode;
+                }
+            } 
             if(nodeId=='FORM'){
                 nodeId = scope.getInheritedAttributes().formId;
                 if (!nodeId){

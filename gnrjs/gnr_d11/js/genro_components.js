@@ -606,18 +606,12 @@ dojo.declare("gnr.widgets.ConnectedTooltipDialog", gnr.widgets.gnrwdg, {
 });
 
 dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
-    
-    /*
-    target= node that should receive the publish. if target==false no node.
-    if target startswith '/' it means that we should use a path relative to the
-    parent node id
-    */
     createContent:function(sourceNode, kw,children) {
         var inherithed=sourceNode.getInheritedAttributes()
         kw['showLabel'] = kw.iconClass? (kw['showLabel'] || false):true; 
         var targetNode,prefix;
         if ('target' in inherithed){
-            target =inherithed.target 
+            target =inherithed.target
             if(target!=false){
                 targetNode = genro.nodeById(target,sourceNode);
                 prefix = (targetNode.attr.nodeId || targetNode.getStringId())
