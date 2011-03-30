@@ -8,10 +8,10 @@
 //});
 
 dojo.declare("gnr.GnrQueryBuilder", null, {
-    constructor: function(nodeId, maintable, datapath) {
+    constructor: function(nodeId, maintable, querybag) {
         this.nodeId = nodeId;
         this.maintable = maintable;
-        this.datapath = datapath;
+        this.querybag = querybag;
         this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
             'D':'date','DH':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
@@ -97,24 +97,23 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
 
     buildQueryPane: function(startNode, datapath) {
         var startNode = startNode || genro.nodeById(this.nodeId);
-        var datapath = datapath || this.datapath;
-        var querydata = genro.getData(datapath);
-        startNode.clearValue();
-        startNode.freeze();
-        this._buildQueryGroup(startNode, querydata, 0);
-        startNode.unfreeze();
+        if(startNode){
+            startNode.clearValue();
+            startNode.freeze();
+            this._buildQueryGroup(startNode, this.querybag, 0);
+            startNode.unfreeze();
+        }
     },
     addDelFunc : function(mode, pos, e) {
-        var datapath,addblock;
+        var querybag,addblock;
         if (e) {
             var target = e.target;
             addblock = e.altKey;
-            datapath = target.sourceNode.absDatapath();
+            querybag = target.sourceNode.getRelativeData();
         } else {
             addblock = false;
-            datapath = this.datapath;
+            querybag = this.querybag;
         }
-        var querybag = genro.getData(datapath);
         if (mode == 'add') {
             if (addblock) {
                 querybag.setItem('new', null, {jc:'and'}, {_position:pos});
@@ -134,7 +133,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         this.buildQueryPane();
     },
     createQuery:function(pars) {
-        var querybag = genro.getData(this.datapath);
+        var querybag = this.querybag;
         querybag.clear();
         querybag.setItem('c_0', 0);
         querybag.setItem('c_0', pars.val, {op:pars.op,
@@ -144,7 +143,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         this.buildQueryPane();
     },
     cleanQueryPane:function() {
-        var querybag = genro._(this.datapath);
+        var querybag = this.querybag;
         var wrongLinesPathlist = [];
         var cb = function(node) {
             var attr = node.attr;
@@ -236,86 +235,14 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             node = bagnodes[i];
             this._buildQueryRow(tbl._('tr', {_class:'^.' + node.label + '?css_class'}), bagnodes[i], i, level);
         }
-    },
-    saveQueryDialog:function(title, actions, buttons, labels) {
-        var querypath = this.datapath;
-        genro.src.getNode()._('div', '_dlg_savequery');
-        var buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
-        var labels = labels || {code:'Code', description:'Description', priv:'Private', tags:'Tags'};
-        var node = genro.src.getNode('_dlg_savequery').clearValue().freeze();
-        var dlg = node._('dialog', {nodeId:'_dlg_savequery',title:title})._('div', {_class:'dlg_ask'});
-
-        var inputs = dlg._('div', {padding:'10px',font_size:'.8'})._('table', {border_spacing:'8px'})._('tbody');
-        var tr;
-        tr = inputs._('tr');
-        tr._('td')._('div', {'innerHTML':labels['code'],_class:'gnrfieldlabel',font_weight:'bold'});
-        tr._('td')._('textBox', {'value':'^' + querypath + '?code',width:'25em',_class:'gnrfield'});
-
-        tr = inputs._('tr');
-        tr._('td')._('div', {'innerHTML':labels['description'],_class:'gnrfieldlabel',font_weight:'bold'});
-        tr._('td')._('textarea', {'value':'^' + querypath + '?description',width:'25em',border:'1px solid gray',_class:'gnrfield'});
-
-        tr = inputs._('tr');
-        tr._('td')._('div', {'innerHTML':labels['priv'],_class:'gnrfieldlabel',font_weight:'bold'});
-        tr._('td')._('checkbox', {'value':'^' + querypath + '?private',_class:'gnrfield'});
-        tr = inputs._('tr');
-        tr._('td')._('div', {'innerHTML':labels['tags'],_class:'gnrfieldlabel',font_weight:'bold'});
-        tr._('td')._('textBox', {'value':'^' + querypath + '?auth_tags',width:'25em',_class:'gnrfield'});
-
-        var btns = dlg._('div', {'action':"genro.wdgById('_dlg_savequery').hide();if (this.attr.act){this.attr.act.call()}"});
-        for (var btn in buttons) {
-            btns._('button', {'_class':'dlg_ask_btn','label':buttons[btn],'act':actions[btn]});
-        }
-        node.unfreeze();
-        genro.wdgById('_dlg_savequery').show();
-    },
-
-    deleteQueryDialog:function(title, actions, buttons, confirmMessage, noQueryMessage) {
-        var qnode = genro.getDataNode(this.datapath);
-        var pkey = qnode.getAttr('id');
-        if (pkey) {
-            genro.dlg.ask(title, confirmMessage.replace('$', qnode.getAttr('code')), buttons, actions);
-        } else {
-            genro.dlg.alert(noQueryMessage);
-        }
-    },
-    doDelete:function() {
-        genro.deleteUserObject(this.datapath);
-        this.addDelFunc('add', 1);
-        this.buildQueryPane();
-    },
-
-    _queryParametersDialog: function(kw, resultpath, title, buttons) {
-        var querypath = this.datapath;
-        genro.src.getNode()._('div', '_dlg_loadquery');
-        var buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
-        var node = genro.src.getNode('_dlg_loadquery').clearValue().freeze();
-        var dlg = node._('dialog', {nodeId:'_dlg_loadquery',title:title})._('div', {_class:'dlg_ask'});
-
-        var inputs = dlg._('div', {padding:'10px',font_size:'.8'})._('table', {border_spacing:'8px'})._('tbody');
-
-        var tr, path, attrs;
-        for (path in kw) {
-            attrs = kw[path];
-            tr = inputs._('tr');
-            tr._('td')._('div', {'innerHTML':attrs['column_caption'] + ' ' + attrs['op_caption'],
-                _class:'gnrfieldlabel', font_weight:'bold'});
-            tr._('td')._('textBox', {'value':'^' + querypath + '.' + path, width:'25em', _class:'gnrfield'});
-        }
-        ;
-        var btns = dlg._('div', {'action':"genro.wdgById('_dlg_loadquery').hide();genro.setData('" + resultpath + "',this.attr.actCode);"});
-
-        for (var btn in buttons) {
-            btns._('button', {'_class':'dlg_ask_btn','label':buttons[btn],'actCode':btn});
-        }
-        node.unfreeze();
-        genro.wdgById('_dlg_loadquery').show();
     }
+    
 });
 dojo.declare("gnr.GnrQueryAnalyzer", null, {
-    constructor: function(nodeId, wherepath, triggerpath) {
+    constructor: function(nodeId, sourceNode, triggerpath) {
         this.nodeId = nodeId;
-        this.wherepath = wherepath;
+        this.sourceNode = sourceNode;
+        this.wherepath = this.sourceNode.absDatapath()+'.query.where';
         this.triggerpath = triggerpath;
     },
     checkQueryLineValue:function(sourceNode, value) {
@@ -350,7 +277,7 @@ dojo.declare("gnr.GnrQueryAnalyzer", null, {
     buildParsDialog:function(parslist) {
         genro.src.getNode()._('div', '_dlg_ask_querypars');
         var buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
-        var action = "genro.wdgById('_dlg_ask_querypars').hide(); genro.fireEvent('" + this.triggerpath + "');";
+        var action = "genro.wdgById('_dlg_ask_querypars').hide(); FIRE "+ this.triggerpath + ";";
         var node = genro.src.getNode('_dlg_ask_querypars').clearValue().freeze();
         var dlg = node._('dialog', {nodeId:'_dlg_ask_querypars',title:'Complete query',datapath:this.wherepath});
 

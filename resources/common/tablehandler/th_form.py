@@ -21,11 +21,13 @@
 
 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrwebstruct import struct_method
 
 class TableHandlerForm(BaseComponent):
-    def pageForm(self, sc):
+    @struct_method
+    def th_formPage(self, sc,frameCode=None):
         sc.attributes['center_selfsubscribe_dismiss']='SET list.selectedIndex=-2;',
-        form = sc.frameForm(frameCode='formPane',formId='formPane',datapath='form',controllerPath='gnr.forms.formPane',
+        form = sc.frameForm(frameCode=frameCode,formId='formPane',datapath='form',controllerPath='gnr.forms.formPane',
                             table=self.maintable,center_widget='BorderContainer',
                             pkeyPath='.pkey',hasBottomMessage=False,
                             form_locked=True,

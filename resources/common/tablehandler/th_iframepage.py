@@ -10,10 +10,18 @@ from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag
 
 class TableHandler(BaseComponent):
+    py_requires='tablehandler/th_list:TableHandlerListBase'
+    
     @struct_method
-    def th_stackTableHandler(self,pane,table=None,inputForm=None,listForm=None,**kwargs):
-        sc = pane.stackContainer(**kwargs)
-        sc.contentPane(pageName='view').iframeTableHandler(table=table,inputForm=sc.contentPane(pageName='form'))
+    def th_stackTableHandler(self,pane,table=None,datapath=None,inputForm='default',listForm='default',**kwargs):
+        pkg,tablename = table.split('.')
+        tableCode = table.replace('.','_')
+        self.mixinComponent(pkg,'tables',tablename,'thform','%s:Main' %inputForm)
+        self.mixinComponent(pkg,'tables',tablename,'thview','%s:Main' %listForm)
+        sc = pane.stackContainer(datapath=datapath or '.%s'%tableCode,**kwargs)
+        viewpage = sc.contentPane(pageName='view').listPage(frameCode='%s_list' %tableCode,table=table,
+                                                            linkedForm='%s_form' %tableCode)
+        #formpage = sc.contentPane(pageName='form')
 
     @struct_method
     def th_iframeTableHandler(self,pane,table=None,inputPane=None,inputForm=None,listForm=None,**kwargs):

@@ -23,43 +23,9 @@ from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
 
-class IncludedView(BaseComponent):
-    """
-    IncludedView allows you to manage data of the table in relation many to many. includedViewBox is the main method of this class.
-    """
+class IncludedViewBase(BaseComponent):
     css_requires = 'public'
-    js_requires = 'public'
-    py_requires = 'gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,foundation/macrowidgets:FilterBox'    
-    
-    @struct_method
-    def ivnew_adaptSlotbar(self,pane,label=None,slots=None,hasToolbar=False,**kwargs):
-        assert not callable(label), 'use the attachpoint .footer instead of'
-        searchOn = kwargs.pop('searchOn',None) or kwargs.pop('filterOn',None)
-        slots = slots.split(',') if slots else []
-        add_kw = dictExtract(kwargs,'add_',True,slice_prefix=False)
-        del_kw = dictExtract(kwargs,'del_',True,slice_prefix=False)
-        upd_kw = dictExtract(kwargs,'upd_',True,slice_prefix=False)
-        tools_kw = dictExtract(kwargs,'tools_',True,slice_prefix=False)
 
-        print_kw = dictExtract(kwargs,'print_',True,slice_prefix=False)
-        export_kw = dictExtract(kwargs,'export_',True,slice_prefix=False)
-        slotbarKwargs = dict()
-        if label:
-            slots.append('label')
-            slotbarKwargs['label'] = label
-            slots.append('*')
-        if searchOn:
-            slots.append('searchOn')
-        for slot,kw in (('add',add_kw),('del',del_kw),('upd',upd_kw)):
-            if kw:
-                slots.append(slot)
-                slotbarKwargs.update(kw)
-        if slots:
-            _class = 'pbl_viewBoxLabel' if not hasToolbar else None
-            slotbar = pane.slotBar(slots=','.join(slots),_class=_class,toolbar=hasToolbar,searchOn=searchOn,
-                                    childname='slotbar',namespace='iv',**slotbarKwargs)
-        return kwargs
-        
     @struct_method
     def ivnew_slotbar_iv_runbtn(self,pane,action=None,_class='tb_button db_query',enable=None,**kwargs):
         return pane.slotButton(label='!!Run query',publish='runbtn',
@@ -94,6 +60,43 @@ class IncludedView(BaseComponent):
                         _onStart=None,caption=None,parentLock='^status.locked',externalChanges=None,
                         **kwargs):
         pass
+
+class IncludedView(IncludedViewBase):
+    """
+    IncludedView allows you to manage data of the table in relation many to many. includedViewBox is the main method of this class.
+    """
+    js_requires = 'public'
+    py_requires = 'gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,foundation/macrowidgets:FilterBox'    
+    
+    @struct_method
+    def ivnew_adaptSlotbar(self,pane,label=None,slots=None,hasToolbar=False,**kwargs):
+        assert not callable(label), 'use the attachpoint .footer instead of'
+        searchOn = kwargs.pop('searchOn',None) or kwargs.pop('filterOn',None)
+        slots = slots.split(',') if slots else []
+        add_kw = dictExtract(kwargs,'add_',True,slice_prefix=False)
+        del_kw = dictExtract(kwargs,'del_',True,slice_prefix=False)
+        upd_kw = dictExtract(kwargs,'upd_',True,slice_prefix=False)
+        tools_kw = dictExtract(kwargs,'tools_',True,slice_prefix=False)
+
+        print_kw = dictExtract(kwargs,'print_',True,slice_prefix=False)
+        export_kw = dictExtract(kwargs,'export_',True,slice_prefix=False)
+        slotbarKwargs = dict()
+        if label:
+            slots.append('label')
+            slotbarKwargs['label'] = label
+            slots.append('*')
+        if searchOn:
+            slots.append('searchOn')
+        for slot,kw in (('add',add_kw),('del',del_kw),('upd',upd_kw)):
+            if kw:
+                slots.append(slot)
+                slotbarKwargs.update(kw)
+        if slots:
+            _class = 'pbl_viewBoxLabel' if not hasToolbar else None
+            slotbar = pane.slotBar(slots=','.join(slots),_class=_class,toolbar=hasToolbar,searchOn=searchOn,
+                                    childname='slotbar',namespace='iv',**slotbarKwargs)
+        return kwargs
+        
     
     @extract_kwargs(frame=True)
     @struct_method

@@ -611,11 +611,14 @@ element.style {
     background-color: whitesmoke;
 }
 
-._common_d11 .no_selected .dojoxGrid-row .dojoxGrid-cell {
+._common_d11 .no_over .dojoxGrid-row-over .dojoxGrid-cell {
     background-color: whitesmoke;
 }
+._common_d11 .no_over .dojoxGrid-row-selected .dojoxGrid-cell {
+    background-color: #AEC7E3;
+}
 
-._common_d11 .no_over .dojoxGrid-row-over .dojoxGrid-cell {
+._common_d11 .no_selected .dojoxGrid-row .dojoxGrid-cell {
     background-color: whitesmoke;
 }
 

@@ -25,12 +25,75 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 """
 
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.web.gnrwebstruct import struct_method
+
 from gnr.core.gnrbag import Bag
+
+
+class TableHandlerCommon(BaseComponent):
+    def userCanWrite(self):
+        return self.application.checkResourcePermission(self.tableWriteTags(), self.userTags)
+
+    def userCanDelete(self):
+        return self.application.checkResourcePermission(self.tableDeleteTags(), self.userTags)
+
+    def tableWriteTags(self):
+        return 'superadmin'
+
+    def tableDeleteTags(self):
+        return 'superadmin'
+
+    def rpc_onLoadingSelection(self, selection):
+        """ovverride if you need"""
+        pass
+
+    def rowsPerPage(self):
+        return 25
+
+    def hiddencolumnsBase(self):
+        return
+
+    def hierarchicalViewConf(self):
+        return None
+
+    def hierarchicalEdit(self):
+        return None
+
+    def formTitleBase(self, pane):
+        pane.data('form.title', self.tblobj.attributes.get('name_long', 'Record'))
+
+
+    def onSavingFormBase(self):
+        """JS ONCALLING OF RPCSAVING PROCESS
+           params inside js:
+           data: what you send
+           form: the formBase js object
+           if you return false the rpc is not called;
+        """
+        return None
 
 class TableHandlerToolbox(BaseComponent):
     py_requires = 'gnrcomponents/batch_handler/batch_handler:TableScriptRunner'
 
+    def _th_toolboxController(self,pane):
+        pane.data('list.showToolbox', False)
+        pane.data('list.showExtendedQuery', False)
+        pane.dataController("""genro.wdgById("gridbc").showHideRegion("top",showquery);genro.resizeAll();""",
+                            showquery='^list.showExtendedQuery',
+                            _fired='^gnr.onStart')
+        pane.dataController("""if(page=='view'){SET list.selectedTop=1;}
+                                   else if(page=='query'){SET list.selectedTop=0;}
+                                """, page='^list.toolboxSelected')
+
+        pane.dataController("""genro.wdgById("gridbc").showHideRegion("left",show);
+                                genro.resizeAll();
+                               genro.publish('main_left_set_status',!show);
+                               """,
+                            show='^list.showToolbox', _fired='^gnr.onStart')
+        pane.dataFormula('list.showExtendedQuery', "true", _if='where.len()>1', where='^list.query.where')
+        
     def lstToolbox(self, bc):
+        self._th_toolboxController(bc)
         if self.tblobj.logicalDeletionField:
             delprefpane = bc.contentPane(region='bottom', height='20px', background_color='lightgray',
                                          _class='pbl_roundedGroup', margin='3px')
@@ -207,7 +270,7 @@ class LstUserObjects(BaseComponent):
                            _fired="^#deleteUserObject.deleted", restype=restype,
                            objtype='=#userobject_dlg.pars.objtype',
                            _if='objtype==restype')
-        top.div(content='^.%s?code' % resname, _class='st_editor_title')
+        top.div('^.%s?code' % resname, _class='st_editor_title')
         pane.div(_class='st_editor_body st_editor_%s' % restype, nodeId='%s_root' % restype, datapath=datapath)
 
 
@@ -263,40 +326,4 @@ class LstQueryHandler(BaseComponent):
         pane.dataRpc('list.query.where', 'load_query', id='^list.query.selectedId', _if='id',
                      _onResult='genro.querybuilder.buildQueryPane();')
 
-    def rpc_load_query(self, **kwargs):
-        return self.rpc_loadUserObject(**kwargs)
 
-    def rpc_save_query(self, userobject, userobject_attr):
-        return self.rpc_saveUserObject(userobject, userobject_attr)
-
-    def rpc_list_query(self, **kwargs):
-        return self.rpc_listUserObject(objtype='query', **kwargs)
-
-    def rpc_list_view(self, **kwargs):
-        return self.rpc_listUserObject(objtype='view', **kwargs)
-
-    def rpc_getQuickQuery(self, **kwargs):
-        result = self.rpc_listUserObject(objtype='query', tbl=self.maintable, onlyQuicklist=True, **kwargs)
-        return result
-
-    def rpc_fieldExplorer(self, table=None, omit=None):
-        result = self.rpc_relationExplorer(table=table, omit=omit)
-        customQuery = self.listCustomCbBag('customQuery_')
-        if customQuery:
-            result.addItem('-', None)
-            #mettere customQuery dentro result in modo opportuno
-            for cq in customQuery:
-                result.addItem(cq.label, None, caption=cq.attr['caption'],
-                               action='SET list.selectmethod= $1.fullpath; FIRE list.runQuery;')
-
-        result.addItem('-', None)
-        jsresolver = "genro.rpc.remoteResolver('getQuickQuery',null,{cacheTime:'5'})"
-        result.addItem('custquery', jsresolver, _T='JS', caption='!!Custom query',
-                       action='FIRE list.query_id = $1.pkey;')
-        return result
-
-
-    def rpc_getQuickView(self, **kwargs):
-        result = self.rpc_listUserObject(objtype='view', tbl=self.maintable, onlyQuicklist=True, **kwargs)
-        return result
-        

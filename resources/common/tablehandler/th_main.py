@@ -9,77 +9,13 @@ from gnr.web.gnrbaseclasses import BaseComponent
 class TableHandler(BaseComponent):
     py_requires = """
                      tablehandler/th_form,
-                     tablehandler/th_list,
+                     tablehandler/th_list_legacy:TableHandlerListLegacy,
                      tablehandler/th_core,
                      tablehandler/th_extra:TagsHandler,
-                     tablehandler/th_extra:QueryHelper,
                      tablehandler/th_extra:FiltersHandler,
                      tablehandler/th_extra:HierarchicalViewHandler,
                     foundation/userobject:UserObject,foundation/dialogs"""
     css_requires = 'tablehandler/th_style'
-    js_requires = 'tablehandler/th_script'
-    
-    def userCanWrite(self):
-        return self.application.checkResourcePermission(self.tableWriteTags(), self.userTags)
-
-    def userCanDelete(self):
-        return self.application.checkResourcePermission(self.tableDeleteTags(), self.userTags)
-
-    def tableWriteTags(self):
-        return 'superadmin'
-
-    def tableDeleteTags(self):
-        return 'superadmin'
-
-    def rpc_onLoadingSelection(self, selection):
-        """ovverride if you need"""
-        pass
-
-    def rowsPerPage(self):
-        return 25
-
-    def hiddencolumnsBase(self):
-        return
-
-    def hierarchicalViewConf(self):
-        return None
-
-    def hierarchicalEdit(self):
-        return None
-
-    def conditionBase(self):
-        return (None, None)
-
-    def enableFilter(self):
-        #to deprecate
-        return True
-
-    def tableRecordCount(self):
-        """redefine to avoid the count query"""
-        return True
-
-    def formTitleBase(self, pane):
-        pane.data('form.title', self.tblobj.attributes.get('name_long', 'Record'))
-
-    def columnsBase(self):
-        return ''
-
-    def orderBase(self):
-        return ''
-
-    def onSavingFormBase(self):
-        """JS ONCALLING OF RPCSAVING PROCESS
-           params inside js:
-           data: what you send
-           form: the formBase js object
-           if you return false the rpc is not called;
-        """
-        return None
-
-    def lstBase(self, struct):
-        r = struct.view().rows()
-        r.fields(self.columnsBase())
-        return struct
 
     def main(self, root, **kwargs):
         root.data('selectedPage', 0)
@@ -99,8 +35,8 @@ class TableHandler(BaseComponent):
                                     center_class='pbl_mainstack',
                                     center_nodeId='tablehandler_mainstack',
                                     bottom_messageBox_subscribeTo='form_formPane_message')
-        self.pageList(sc)
-        self.pageForm(sc)
+        sc.listPage(frameCode='mainlist')
+        sc.formPage(frameCode='formPane')
         
     def parsePageParameters(self, root, pkey=None, **kwargs):
         if pkey == '*newrecord*':
