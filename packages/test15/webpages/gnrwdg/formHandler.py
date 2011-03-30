@@ -13,7 +13,7 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler,foundation/includedview:IncludedView"
     user_polling=0
     auto_polling=0
-    testOnly='_8_'
+    testOnly='_5_'
     
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
@@ -37,7 +37,7 @@ class GnrCustomWebPage(object):
         
     @struct_method
     def formContent(self,fb):
-        fb.field('sigla')
+        fb.field('sigla', validate_len='2:2',validate_len_min_error='Too Short')
         fb.field('regione')
         fb.field('nome')
         fb.field('codice_istat')

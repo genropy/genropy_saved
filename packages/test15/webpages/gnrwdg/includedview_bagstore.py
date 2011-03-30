@@ -7,6 +7,7 @@
 
 from gnr.core.gnrbag import Bag
 class GnrCustomWebPage(object):
+    dojo_source = True
     py_requires="gnrcomponents/testhandler:TestHandlerFull,foundation/includedview"
     def common_struct(self, struct):
         r = struct.view().rows()
@@ -23,15 +24,18 @@ class GnrCustomWebPage(object):
     
     def test_0_firsttest(self,pane):
         """First test description"""
-        frame = pane.framePane('gridtest',height='400px',_class='no_over')
-        tbar = frame.top.slotToolbar('*,iv_add')
+        frame = pane.framePane('gridtest',height='400px',_class='no_over',datapath='.test')
+        tbar = frame.top.slotToolbar('*,iv_add',iv_add__delay=300)
         frame.data('.mybag', self.common_data())
+        frame.dataController("console.log(data)",data="=#",fired='tt')
         iv = frame.includedView(storepath='.mybag',datapath=False,struct=self.common_struct,datamode='bag',
-                                editorEnabled=True,selectedIndex='.currIndex',
-                                selfsubscribe_add="""this.widget.addBagRow('#id', '*', this.widget.newBagRow());
-                                                     this.widget.editBagRow(null,1000);
-                                                     """,onCreated="console.log('widget',widget);widget.updateRowCount('*');")
-        iv.dataController("genro.bp(currIndex)",currIndex="^.currIndex")
+                                selectedIndex='.currIndex',
+                                selfsubscribe_add="""
+                                                     for(var i=0; i<$1._counter;i++){
+                                                        this.widget.addBagRow('#id', '*', this.widget.newBagRow());
+                                                     }
+                                                     this.widget.editBagRow(null);
+                                                     """)
         gridEditor = iv.gridEditor()
         gridEditor.textbox(gridcell='name')
         gridEditor.numbertextbox(gridcell='age')
