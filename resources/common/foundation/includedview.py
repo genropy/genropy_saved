@@ -62,9 +62,9 @@ class IncludedView(BaseComponent):
         
     @struct_method
     def ivnew_slotbar_iv_runbtn(self,pane,action=None,_class='tb_button db_query',enable=None,**kwargs):
-        return pane.slotButton(label='!!Run query',public='runbtn',
+        return pane.slotButton(label='!!Run query',publish='runbtn',
                                 action=action,baseClass='no_background',
-                                iconClass=_class,visible=enable)
+                                iconClass=_class,visible=enable,**kwargs)
         
     @struct_method
     def ivnew_slotbar_iv_export(self,pane,_class='buttonIcon icnBaseExport',mode='xls',enable=None,**kwargs):
@@ -72,11 +72,11 @@ class IncludedView(BaseComponent):
                                 baseClass='no_background',iconClass=_class,visible=enable,**kwargs) 
        
     @struct_method
-    def ivnew_slotbar_iv_add(self,pane,_class='icnBaseAdd',enable=None,target='/center/iv',**kwargs):
-        return pane.slotButton(label='!!Add',publish='add',baseClass='no_background',target=target,iconClass=_class,visible=enable,**kwargs)
+    def ivnew_slotbar_iv_add(self,pane,_class='icnBaseAdd',enable=None,**kwargs):
+        return pane.slotButton(label='!!Add',publish='add',baseClass='no_background',iconClass=_class,visible=enable,**kwargs)
          
     @struct_method
-    def ivnew_slotbar_iv_del(self,pane,_class='icnBaseDelete',enable=None,target='/center/iv',**kwargs):
+    def ivnew_slotbar_iv_del(self,pane,_class='icnBaseDelete',enable=None,**kwargs):
         return pane.slotButton(label='!!Delete',publish='del',baseClass='no_background',iconClass=_class,visible=enable,**kwargs)
     
     @struct_method
@@ -110,7 +110,7 @@ class IncludedView(BaseComponent):
         
         if pane.attributes['tag'].lower()=='bordercontainer':
             pane.attributes['tag'] = 'ContentPane' 
-        frame = pane.framePane(frameCode=frameCode,namespace='iv',datapath=datapath,**frame_kwargs)
+        frame = pane.framePane(frameCode=frameCode,datapath=datapath,**frame_kwargs)
         kwargs = frame.top.adaptSlotbar(**kwargs)
         view = frame.includedView(**kwargs)
         selectionPars = selectionPars or dict()
@@ -239,7 +239,7 @@ class IncludedView(BaseComponent):
                 #assert inherited_attributes.has_key('sqlContextRoot'),\
                 #'please specify an absolute storepath, if sqlContextRoot is not available'
                 #storepath = '%s%s' % (inherited_attributes['sqlContextRoot'], storepath)
-                storepath = '#%s%s' % (inherited_attributes['formId'], storepath)
+                storepath = '#FORMDATA%s' %storepath
         viewPars = dict(kwargs)
         if nodeId and table and configurable is not False:
             configurable = True
