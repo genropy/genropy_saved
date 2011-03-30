@@ -978,7 +978,7 @@ dojo.declare('gnr.GenroClient', null, {
             if(nodeId=='FORMDATA'){
                 nodeId = scope.form;
                 if(scope.form.store){
-                    node = scope.form.formContentDomNode.sourceNode;
+                    nodeId = scope.form.formId+'_content';
                 }else{
                     node = scope.form.sourceNode;
                 }
