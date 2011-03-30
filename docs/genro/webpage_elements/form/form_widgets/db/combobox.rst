@@ -36,6 +36,7 @@ Attributes
     
     **combobox attributes**:
     
+    * *default* (or *default_value*): a default value for your combobox.
     * *hasDownArrow*: If True, create the selection arrow. Default value is ``True``.
     * *ignoreCase*: If True, user can write ignoring the case. Default value is ``True``.
     * *values*: Set all the possible values for user choice. Default value is ``None``. For more information, check the :ref:`values-attribute` example

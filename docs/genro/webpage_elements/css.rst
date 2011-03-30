@@ -71,7 +71,8 @@ CSS themes
 Genro CSS names
 ===============
 
-    We list here all the CSS attributes that have a different name respect to the standard CSS name.
+    We list here all the CSS attributes that have a different name respect to the standard CSS name
+    (or all the attributes that should have an owner name, like -moz-, -webkit- and so on).
     
     Click on the standard CSS name to go to the documentation line on the corresponding Genro CSS attribute:
     
@@ -79,7 +80,9 @@ Genro CSS names
     
     * :ref:`border-radius <css_border_radius>`
     * :ref:`box-shadow <css_box_shadow>`
-    * other attributes: add???
+    * :ref:`css_transform`: :ref:`rotate <css_rotate>`, :ref:`translate <css_translate>`,
+      :ref:`scale <css_scale>`, :ref:`skew <css_skew>`
+    * :ref:`css_transition`
     
     .. _css_border_radius:
     
@@ -104,13 +107,69 @@ box-shadow
     * Genro CSS name: shadow
     * Example::
     
-        shadow='5px 5px 5px gray'
+        shadow='3px 3px 5px gray inset'
         
       You can write them separately::
         
-        shadow_x='5px'
-        shadow_y='5px'
+        shadow_x='3px'
+        shadow_y='3px'
         shadow_blur='5px'
+        shadow_color='gray'
+        shadow_inset=True
+
+    .. _css_transform:
+
+transform
+---------
+
+    .. _css_rotate:
+    
+    **rotate**
+    
+    * Genro CSS name: rotate
+    * Example::
+    
+        transform_rotate=-90
         
-    add??? Other features from "css3make.py"
+    .. _css_translate:
+    
+    **traslate**
+    
+    * Genro CSS name: translate
+    * Example::
+    
+        transform_translate_x=10
+        transform_translate_y=30
         
+    .. _css_scale:
+    
+    **scale**
+    
+    * Genro CSS name: scale
+    * Example::
+    
+        transform_scale_x=30
+        transform_scale_y=45
+        
+    .. _css_skew:
+    
+    **skew**
+    
+    * Genro CSS name: skew
+    * Example::
+        
+        transform_skew_x=20
+        transform_skew_y=36
+        
+    .. _css_transition:
+
+transition
+----------
+
+    * Genro CSS name: transition
+    * Example::
+        
+        transition='all 3s'
+        transition_function=linear # possible values: linear,ease,ease-in,ease-out,ease-in-out
+        transition_duration=NUMBER # NUMBER of seconds
+    

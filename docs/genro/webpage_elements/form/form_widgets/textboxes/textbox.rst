@@ -23,8 +23,7 @@ Definition
 Description
 ===========
 
-    Textbox is used to insert a text. Genro textbox is taken from Dojo ValidationTextBox (add??? Is it true?),
-    so it supports all of Dojo ValidationTextBox attributes.
+    Textbox is used to insert a text
     
 .. _textbox_attributes:
 
@@ -34,6 +33,7 @@ Attributes
     **textbox attributes**:
     
     * *constraints*: TBC ???
+    * *default* (or *default_value*): a default text message
     * *invalidMessage*: tooltip text that appears when the content of the textbox is invalid
     * *promptMessage*: tooltip text that appears when the textbox is empty and on focus
     * *required*: define if the field is a required field or not. Default value is ``False``

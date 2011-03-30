@@ -91,6 +91,11 @@ Attributes
             * 270 --> the color nuance follows the y axis towards the negative numbers
             * 360 --> same meaning of the 0 value
             
+        * *gradient_color_NUMBER*: you can specify more than two colors in place of the
+          colors defined through the *gradient_from* and the *gradient_to* attributes::
+            
+            gradient_color_0='pink,15',gradient_color_1='yellow,50',gradient_color_2='red,100'
+            
         Pay attention: if you use the slotToolbar you CAN'T modify the *gradient_deg* attribute.
         You can only modify the *gradient_from* and the *gradient_to* attributes::
         
@@ -131,12 +136,16 @@ Attributes
         on the :ref:`genro_formbuilder`, to modify the labels you have to use the *lbl* attribute,
         not the *label* attribute::
         
-            lbl_position='T', lbl_color='red', lbl_font_size='7px'
+            lbl_position='T' # possible values: 'T' (top), 'B' (bottom), 'L' (left), 'R' (right)
+            lbl_font_size='7px' # possible values: px, em, ex
+            lbl_color='red' # possible values: any of the RGB color
+            lbl_width='12px' # possible values: px, em, ex
+            lbl_transform_rotate='-90' # a value from 0 to 360 (or from -360 to 0)
             
       * You can also add :ref:`iv_searchbox`, :ref:`iv_searchon` or :ref:`iv_messageBox`, attributes of
         the includedView component::
         
-            slots='20,dummy,*,searchOn'
+            slots='20,messageBox,*,searchOn'
             
         For more information, check the :ref:`genro_includedview` documentation page
         
