@@ -1181,11 +1181,11 @@ class Bag(GnrObject):
             if node.hasAttr(attr, value):
                 path.append(node.label)
                 return node
-            if isinstance(node.value, Bag): bags.append(node)
+            if isinstance(node._value, Bag): bags.append(node)
 
         for node in bags:
             nl = [node.label]
-            n = node.value.getNodeByAttr(attr, value, path=nl)
+            n = node._value.getNodeByAttr(attr, value, path=nl)
             if n:
                 path.extend(nl)
                 return n
