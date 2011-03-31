@@ -6,7 +6,7 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 
-class Main(BaseComponent):
+class Form(BaseComponent):
     def formCb(self,pane,**kwargs):
         #pane=parent.contentPane(padding='5px',**kwargs).div(_class='pbl_roundedGroup', height='100%')
         pane.div(u'!!Località',_class='pbl_roundedGroupLabel')
@@ -17,6 +17,7 @@ class Main(BaseComponent):
         fb.field('cap',width='3em')
         fb.field('codice_istat',width='7em')
         fb.field('codice_comune',width='4em')
+        fb.button('Pippo')
         
     
     
