@@ -1929,11 +1929,11 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
     },
     mixin_openLinkedForm: function(e) {
         var idx = e.rowIndex;
-        genro.formById(this.sourceNode.attr.linkedForm).openForm(idx, this.rowIdByIndex(idx));
+        genro.getForm(this.sourceNode.attr.linkedForm).openForm(idx, this.rowIdByIndex(idx));
     },
     mixin_linkedFormLoad: function(e) {
         var idx = e.rowIndex;
-        genro.formById(this.sourceNode.attr.linkedForm).load({destPkey:this.rowIdByIndex(idx),destIdx:idx});
+        genro.getForm(this.sourceNode.attr.linkedForm).load({destPkey:this.rowIdByIndex(idx),destIdx:idx});
     },
     
     selfDragColumnsPrepare:function(sourceNode) {
@@ -2064,6 +2064,12 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
             dojo.connect(widget, sourceNode.attr.openFormEvent, widget, 'openLinkedForm');
             if (genro.isTouchDevice) {
                 dojo.connect(widget, 'longTouch', widget, 'openLinkedForm');
+            }
+        }
+        if (sourceNode.attr.loadFormEvent) {
+            dojo.connect(widget, sourceNode.attr.loadFormEvent, widget, 'linkedFormLoad');
+            if (genro.isTouchDevice) {
+                dojo.connect(widget, 'longTouch', widget, 'linkedFormLoad');
             }
         }
         objectFuncReplace(widget.selection, 'clickSelectEvent', function(e) {

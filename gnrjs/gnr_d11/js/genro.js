@@ -926,7 +926,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     getForm:function(frameCode){
         var frameNode = genro.getFrameNode(frameCode);
-        return frameNode?frameNode.form:null
+        return frameNode?frameNode.form:genro.formById(frameCode);
     },
     
     getStore:function(storeCode){
