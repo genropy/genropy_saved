@@ -28,9 +28,9 @@ from gnr.web.gnrwebstruct import struct_method
 class TableHandlerFormBase(BaseComponent):
     py_requires='gnrcomponents/formhandler:FormHandler'
     @struct_method
-    def th_formPage(self, pane,frameCode=None,table=None):
+    def th_formPage(self, pane,frameCode=None,table=None,**kwargs):
         form = pane.frameForm(frameCode=frameCode,datapath='.form',childname='form',
-                            table=table,form_locked=True)
+                            table=table,form_locked=True,**kwargs)
         store = form.formStore(storepath='.record',hander='recordCluster',storeType='Collection',onSaved='reload',)                 
         toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
                                         dismiss_iconClass='tb_button tb_listview',namespace='form')

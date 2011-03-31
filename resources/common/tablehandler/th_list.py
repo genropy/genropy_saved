@@ -167,9 +167,9 @@ class TableHandlerList(BaseComponent):
 
 class TableHandlerListBase(TableHandlerList):
     @struct_method
-    def th_listPage(self,pane,table=None,frameCode=None,linkedForm=None):
+    def th_listPage(self,pane,table=None,frameCode=None,linkedForm=None,**kwargs):
         #self.query_helper_main(pane)
-        frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',table=table,linkedForm=linkedForm)
+        frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',table=table,linkedForm=linkedForm,**kwargs)
         frame.data('.table',table=table)
         self._th_listController(frame,table=table)
         frame.top.listToolbar(table)
