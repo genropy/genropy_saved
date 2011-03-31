@@ -23,7 +23,22 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 
-class TableHandlerForm(BaseComponent):
+
+
+class TableHandlerFormBase(BaseComponent):
+    py_requires='gnrcomponents/formhandler:FormHandler'
+    @struct_method
+    def th_formPage(self, pane,frameCode=None,table=None):
+        form = pane.frameForm(frameCode=frameCode,datapath='.form',childname='form',
+                            table=table,form_locked=True)
+        store = form.formStore(storepath='.record',hander='recordCluster',storeType='Collection',onSaved='reload',)                 
+        toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
+                                        dismiss_iconClass='tb_button tb_listview',namespace='form')
+        self.formCb(form)
+        return form
+
+class TableHandlerFormLegacy(BaseComponent):
+    py_requires='gnrcomponents/formhandler:FormHandler'
     @struct_method
     def th_formPage(self, sc,frameCode=None):
         sc.attributes['center_selfsubscribe_dismiss']='SET list.selectedIndex=-2;',

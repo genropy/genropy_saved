@@ -8,10 +8,10 @@
 //});
 
 dojo.declare("gnr.GnrQueryBuilder", null, {
-    constructor: function(nodeId, maintable, querybag) {
-        this.nodeId = nodeId;
+    constructor: function(sourceNode, maintable,rootId) {
+        this.sourceNode = sourceNode;
+        this.rootId = rootId;
         this.maintable = maintable;
-        this.querybag = querybag;
         this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
             'D':'date','DH':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
@@ -96,11 +96,11 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
     },
 
     buildQueryPane: function(startNode, datapath) {
-        var startNode = startNode || genro.nodeById(this.nodeId);
+        var startNode = startNode || genro.nodeById(this.rootId);
         if(startNode){
             startNode.clearValue();
             startNode.freeze();
-            this._buildQueryGroup(startNode, this.querybag, 0);
+            this._buildQueryGroup(startNode, this.sourceNode.getRelativeData('.query.where'), 0);
             startNode.unfreeze();
         }
     },
@@ -112,7 +112,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             querybag = target.sourceNode.getRelativeData();
         } else {
             addblock = false;
-            querybag = this.querybag;
+            querybag = this.sourceNode.getRelativeData('.query.where');
         }
         if (mode == 'add') {
             if (addblock) {
@@ -133,7 +133,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         this.buildQueryPane();
     },
     createQuery:function(pars) {
-        var querybag = this.querybag;
+        var querybag = this.sourceNode.getRelativeData('.query.where');
         querybag.clear();
         querybag.setItem('c_0', 0);
         querybag.setItem('c_0', pars.val, {op:pars.op,
@@ -143,7 +143,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         this.buildQueryPane();
     },
     cleanQueryPane:function() {
-        var querybag = this.querybag;
+        var querybag = this.sourceNode.getRelativeData('.query.where');
         var wrongLinesPathlist = [];
         var cb = function(node) {
             var attr = node.attr;
@@ -239,8 +239,8 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
     
 });
 dojo.declare("gnr.GnrQueryAnalyzer", null, {
-    constructor: function(nodeId, sourceNode, triggerpath) {
-        this.nodeId = nodeId;
+    constructor: function(sourceNode, triggerpath,rootId) {
+        this.rootId = rootId;
         this.sourceNode = sourceNode;
         this.wherepath = this.sourceNode.absDatapath()+'.query.where';
         this.triggerpath = triggerpath;

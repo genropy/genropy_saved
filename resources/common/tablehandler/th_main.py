@@ -8,14 +8,14 @@ from gnr.web.gnrbaseclasses import BaseComponent
 
 class TableHandler(BaseComponent):
     py_requires = """
-                     tablehandler/th_form,
+                     tablehandler/th_form:TableHandlerFormLegacy,
                      tablehandler/th_list_legacy:TableHandlerListLegacy,
                      tablehandler/th_core,
                      tablehandler/th_extra:TagsHandler,
                      tablehandler/th_extra:FiltersHandler,
                      tablehandler/th_extra:HierarchicalViewHandler,
                     foundation/userobject:UserObject,foundation/dialogs"""
-    css_requires = 'tablehandler/th_style'
+    #css_requires = 'tablehandler/th_style'
 
     def main(self, root, **kwargs):
         root.data('selectedPage', 0)

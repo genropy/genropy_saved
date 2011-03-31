@@ -10,7 +10,7 @@ from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrbag import Bag
 
 class TableHandler(BaseComponent):
-    py_requires='tablehandler/th_list:TableHandlerListBase'
+    py_requires='tablehandler/th_list:TableHandlerListBase,tablehandler/th_form:TableHandlerFormBase'
     
     @struct_method
     def th_stackTableHandler(self,pane,table=None,datapath=None,inputForm='default',listForm='default',**kwargs):
@@ -18,10 +18,15 @@ class TableHandler(BaseComponent):
         tableCode = table.replace('.','_')
         self.mixinComponent(pkg,'tables',tablename,'thform','%s:Main' %inputForm)
         self.mixinComponent(pkg,'tables',tablename,'thview','%s:Main' %listForm)
-        sc = pane.stackContainer(datapath=datapath or '.%s'%tableCode,**kwargs)
+        sc = pane.stackContainer(datapath=datapath or '.%s'%tableCode,selectedPage='^.selectedPage',**kwargs)
         viewpage = sc.contentPane(pageName='view').listPage(frameCode='%s_list' %tableCode,table=table,
                                                             linkedForm='%s_form' %tableCode)
-        #formpage = sc.contentPane(pageName='form')
+        formpage = sc.contentPane(pageName='form').formPage(frameCode='%s_form' %tableCode,table=table)
+        formpage.attributes['formsubscribe_onLoaded'] = 'SET .#parent.selectedPage="form";'
+        formpage.attributes['formsubscribe_onDismissed'] = 'SET .#parent.selectedPage="view";'
+        formpage.store.attributes['parentStore'] = '%s_list_grid' %tableCode
+        viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
+        viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);' #'genro.getForm(this.attr.linkedForm).deleteItem({});'
 
     @struct_method
     def th_iframeTableHandler(self,pane,table=None,inputPane=None,inputForm=None,listForm=None,**kwargs):

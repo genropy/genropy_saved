@@ -25,6 +25,8 @@ from gnr.core.gnrbag import Bag
 
 class TableHandlerList(BaseComponent):
     js_requires = 'tablehandler/th_script'
+    css_requires = 'tablehandler/th_style'
+
     py_requires = """foundation/includedview:IncludedViewBase,
                      tablehandler/th_extra:QueryHelper,
                      tablehandler/th_core:LstQueryHandler,
@@ -34,7 +36,7 @@ class TableHandlerList(BaseComponent):
     def th_slotbar_queryfb(self, pane,table=None,**kwargs):
         table = table or self.maintable
         queryfb = pane.formbuilder(cols=5, datapath='.query.where', _class='query_form',
-                                   border_spacing='0', onEnter='genro.fireAfter("list.runQuery",true,10);',
+                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});',
                                    float='left')
         queryfb.div('^.c_0?column_caption', min_width='12em', _class='smallFakeTextBox floatingPopup',
                     nodeId='fastQueryColumn',
@@ -90,11 +92,11 @@ class TableHandlerList(BaseComponent):
         pane.data('.excludeLogicalDeleted', True)
         pane.data('aux.showDeleted', False)
         pane.dataController(
-                """genro.querybuilder = new gnr.GnrQueryBuilder("query_root",table, querybag);""" 
-                , _init=True,table='=.table',querybag='=.query.where')
+                """genro.querybuilder = new gnr.GnrQueryBuilder(this,table,"query_root");""" 
+                , _init=True,table='=.table')
         pane.dataController(
-                """genro.queryanalyzer = new gnr.GnrQueryAnalyzer("translator_root",this,".runQueryDo")"""
-                , querybag='=.query.where',_onStart=True)
+                """genro.queryanalyzer = new gnr.GnrQueryAnalyzer(this,".runQueryDo","translator_root")"""
+                ,_onStart=True)
         pane.dataController("""genro.querybuilder.createMenues();
                                   dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
                                   dijit.byId('qb_not_menu').bindDomNode(genro.domById('fastQueryNot'));
@@ -167,11 +169,16 @@ class TableHandlerListBase(TableHandlerList):
     @struct_method
     def th_listPage(self,pane,table=None,frameCode=None,linkedForm=None):
         #self.query_helper_main(pane)
-        frame = pane.framePane(frameCode=frameCode,datapath='.list',table=table,linkedForm=linkedForm)
+        frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',table=table,linkedForm=linkedForm)
         frame.data('.table',table=table)
         self._th_listController(frame,table=table)
         frame.top.listToolbar(table)
-        frame.gridPane(table=table)
+        footer = frame.bottom.slotToolbar('*,th_dock')
+        footer.th_dock.div(width='100px',height='20px').dock(id='th_dock')
+        pane.palettePane('_queryTool',title='Query tool',nodeId='query_root',
+                        dockTo='th_dock',datapath='.list.query.where',height='150px',width='400px')
+        frame.gridPane(table=table,linkedForm=linkedForm)
+        return frame
     
     @struct_method
     def th_listToolbar(self,pane,table=None):
@@ -207,10 +214,9 @@ class TableHandlerListBase(TableHandlerList):
         pane.data('.tableRecordCount', self.tableRecordCount())
 
         iv = pane.includedView(autoWidth=False,datapath=False,selectedId='.selectedId',
-                                 rowsPerPage=self.rowsPerPage(), sortedBy='^.sorted',
+                                rowsPerPage=self.rowsPerPage(), sortedBy='^.sorted',
                                  _newGrid=True,
-                                 #connect_onSelectionChanged='SET list.noSelection = (genro.wdgById("maingrid").selection.getSelectedCount()==0)',
-                                 linkedForm=linkedForm, openFormEvent='onRowDblClick', dropTypes=None,
+                                 linkedForm=linkedForm, loadFormEvent='onRowDblClick', dropTypes=None,
                                  dropTarget=True,
                                  draggable=True, draggable_row=True,
                                  struct=self.lstBase,
@@ -219,13 +225,11 @@ class TableHandlerListBase(TableHandlerList):
                                                  this.setRelativeData('list.external_drag.'+k,new gnr.GnrBag(data[k]));
                                               }""",
                                 selfsubscribe_runbtn="""
-                                                        console.log('aa')
                                                         if($1.modifiers=='Shift'){
                                                             FIRE .showQueryCountDlg;
                                                          }else{
                                                             FIRE .runQuery;
                                                          }""")
-                                 #connect_onRowContextMenu="FIRE list.onSelectionMenu = true;")
                              
         store = iv.selectionStore(table=table, columns='=.columns',
                            chunkSize=self.rowsPerPage()*4,
@@ -233,7 +237,7 @@ class TableHandlerListBase(TableHandlerList):
                            pkeys='=.query.pkeys', _fired='^.runQueryDo',
                            selectionName='*', recordResolver=False, condition=condition,
                            sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
-                           row_start='0', 
+                           row_start='0', externalChanges=True,
                            excludeLogicalDeleted='^.excludeLogicalDeleted',
                            applymethod='onLoadingSelection',
                            timeout=180000, selectmethod='=.selectmethod',
