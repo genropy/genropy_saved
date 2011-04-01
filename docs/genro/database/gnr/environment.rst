@@ -4,7 +4,7 @@
 ``environment.xml``
 ===================
 
-    The ``environment.xml`` allow to define the root for your :ref:`genro_structure_mainproject` folders. Every project folder includes the following subfolders:
+    The ``environment.xml`` allow to define the root for your :ref:`genro_project` folders. Every project folder includes the following subfolders:
     
     * the :ref:`genro_instances_index` folder
     * the :ref:`genro_packages_index` folder

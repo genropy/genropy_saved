@@ -19,7 +19,7 @@ WSGI
     .. _Paste: http://pythonpaste.org/
     .. _WebOb: http://pythonpaste.org/webob/reference.html
     
-    We report here the WSGI declaration (you can find it in the :ref:`sites_root` file, within the :ref:`genro_sites_index` folder of every Genro :ref:`genro_structure_mainproject`)::
+    We report here the WSGI declaration (you can find it in the :ref:`sites_root` file, within the :ref:`genro_sites_index` folder of every Genro :ref:`genro_project`)::
     
         import sys
         sys.stdout = sys.stderr

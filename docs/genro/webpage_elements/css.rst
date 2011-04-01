@@ -31,7 +31,7 @@ Introduction
         
     You should also know that:
         
-    * You can import css files in your :ref:`genro_structure_mainproject` through the *css_requires*
+    * You can import css files in your :ref:`genro_project` through the *css_requires*
       variable: check the :ref:`webpages_css_requires` section for further details.
     
     * Genro allows to use :ref:`css_dojo_themes` and :ref:`css_genro_themes`.

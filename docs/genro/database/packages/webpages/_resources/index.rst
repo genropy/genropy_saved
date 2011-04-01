@@ -5,7 +5,7 @@
 ==============
 
     In the ``_resources`` folder you can put every *private* resource for your
-    :ref:`genro_structure_mainproject` (follow the relative links for more information about them):
+    :ref:`genro_project` (follow the relative links for more information about them):
     
     * javascript files
     * :ref:`genro_css`

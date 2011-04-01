@@ -32,7 +32,7 @@ autocreation of the ``sites`` folder
     
         gnrmksite sitesname
         
-    where ``sitesname`` is the name of your ``sites`` folder (that we suggest you to call as your :ref:`genro_structure_mainproject` folder).
+    where ``sitesname`` is the name of your ``sites`` folder (that we suggest you to call as your :ref:`genro_project` folder).
     
     Your ``sites`` folder will look like this one:
     

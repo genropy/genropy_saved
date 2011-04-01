@@ -18,9 +18,9 @@ Description of the file
 
     The ``instanceconfig`` is an XML file that allow to handle different aspects of your projects. Among other things it allows you to:
     
-    * define the packages you want to use in your :ref:`genro_structure_mainproject`
+    * define the packages you want to use in your :ref:`genro_project`
     * define the name of your database
-    * handle the permits of your :ref:`genro_structure_mainproject`
+    * handle the permits of your :ref:`genro_project`
     
     With the :ref:`instances_autofill` the ``instanceconfig`` will look like this one::
     

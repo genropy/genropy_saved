@@ -24,7 +24,7 @@ introduction
     
     Where:
     
-    * The :ref:`gnr_environment` allow to define the root for your :ref:`genro_structure_mainproject` folders.
+    * The :ref:`gnr_environment` allow to define the root for your :ref:`genro_project` folders.
     * The :ref:`genro_gnr_instanceconfig_default` of the ``instanceconfig`` folder set the default values for every :ref:`instances_instanceconfig` file of your projects.
     * The :ref:`genro_gnr_siteconfig_default` of the ``siteconfig`` folder set the default values for every :ref:`sites_siteconfig` file of your projects.
     

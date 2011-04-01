@@ -12,7 +12,7 @@ webpage
     add???(Introduce the GnrCustomWebPage)
     
     The standard usage of Genro GnrCustomWebPages is to use them in a combo with some :ref:`genro_table`\s
-    to create a DBMS :ref:`genro_structure_mainproject`.
+    to create a DBMS :ref:`genro_project`.
     
     You can act on a Genro webpage through many webpage elements: please check the
     :ref:`genro_webpage_elements_intro` to Genro webpage elements if you need to learn more about them.
@@ -110,7 +110,7 @@ py_requires
               "``resources``" (or "``_resources``")
               
               * For more information about components check the :ref:`genro_components_index` documentation page
-              * For more information about their location in a Genro :ref:`genro_structure_mainproject`,
+              * For more information about their location in a Genro :ref:`genro_project`,
                 please check the :ref:`genro_webpage_resources` documentation page.
             
     .. _webpages_css_requires:
@@ -130,7 +130,7 @@ css_requires
               
               * For more information about Genro CSS, please check the :ref:`genro_css`
                 documentation page.
-              * For more information about their location in a Genro :ref:`genro_structure_mainproject`,
+              * For more information about their location in a Genro :ref:`genro_project`,
                 please check the :ref:`genro_webpage_resources` documentation page.
                 
     .. _webpages_css_theme:
@@ -182,7 +182,7 @@ dojo_theme
 dojo_version
 ------------
     
-    * Description: a number that allows to specify the Dojo version of your :ref:`genro_structure_mainproject`.
+    * Description: a number that allows to specify the Dojo version of your :ref:`genro_project`.
       You have to write the version supported without the dot (e.g: write '11' for Dojo '1.1')
     * Default value: the value you specify in the :ref:`siteconfig_dojo` tag of your :ref:`sites_siteconfig`.
       If you didn't specify it, the default value is '11'

@@ -30,7 +30,7 @@ autocreation of the ``instances`` folder
     
         gnrmkinstance instancename
         
-    where ``instancename`` is the name of your instance (we suggest you to call your instance with the name you gave to your :ref:`genro_structure_mainproject`).
+    where ``instancename`` is the name of your instance (we suggest you to call your instance with the name you gave to your :ref:`genro_project`).
     
     Your ``instances`` folder will look like this one:
     

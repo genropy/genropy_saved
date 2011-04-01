@@ -28,7 +28,7 @@ Components location
     
     The components MUST be situated in folders named ``resources``: it doesn't matter where these folders are, because Genro search components in every folder of the code using mixin. However, for keeping a reasonable level of order, every ``resources`` folder is kept into a project folder as one of its primary subfolder.
     
-    If you have a project called ``myproject`` and a component called ``my_component.py``, you have to put your component in the :ref:`genro_resources_index` folder of your Genro :ref:`genro_structure_mainproject` [#]_:
+    If you have a project called ``myproject`` and a component called ``my_component.py``, you have to put your component in the :ref:`genro_resources_index` folder of your Genro :ref:`genro_project` [#]_:
     
     .. image:: ../images/components/mycomponent.png
     
@@ -82,6 +82,6 @@ List of all the components
 
 **Footnotes**:
 
-.. [#] As you can see in the image, a Genro :ref:`genro_structure_mainproject` is composed by four main folders, that are: :ref:`genro_instances_index`, :ref:`genro_packages_index`, :ref:`genro_resources_index`, :ref:`genro_sites_index` - click on these links for more informations about a project and its subfolders.
+.. [#] As you can see in the image, a Genro :ref:`genro_project` is composed by four main folders, that are: :ref:`genro_instances_index`, :ref:`genro_packages_index`, :ref:`genro_resources_index`, :ref:`genro_sites_index` - click on these links for more informations about a project and its subfolders.
 .. [#] Obviously, if you create a component please remember to put in a ``resources`` folder! (Check the :ref:`components_location` paragraph for more information on the component positioning)
     
