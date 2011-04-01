@@ -4,8 +4,11 @@
 # Created by Francesco Porcari on 2011-03-31.
 # Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.gnrwebpage import BaseComponent
+from gnr.core.gnrlang import hook
 
+hook_name='glbl.localita'
 class Form(BaseComponent):
+    @hook
     def form(self,pane,**kwargs):
         #pane=parent.contentPane(padding='5px',**kwargs).div(_class='pbl_roundedGroup', height='100%')
         pane.div(u'!!Località',_class='pbl_roundedGroupLabel')
@@ -18,6 +21,7 @@ class Form(BaseComponent):
         fb.field('codice_comune',width='4em')
 
 class View(BaseComponent):
+    @hook
     def struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('nome',width='50%')
@@ -26,10 +30,10 @@ class View(BaseComponent):
         r.fieldcell('codice_comune',width='10%')
         r.fieldcell('prefisso_tel',width='5%')
         r.fieldcell('cap',width='5%')
-        
+    @hook
     def order(self):
         return 'nome'
-        
+    @hook
     def query(self):
         return dict(column='nome',op='contains', val=None)
         
