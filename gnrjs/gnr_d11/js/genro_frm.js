@@ -797,12 +797,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     dojoValidation:function(wdg,isValid){
-        var node_identifier=wdg.sourceNode.getStringId()
-        var dojoValid=this.getControllerData().getItem('invalidDojo')
+        var node_identifier=wdg.sourceNode.getStringId();
+        var dojoValid=this.getInvalidDojo();
         if(isValid){
-            dojoValid.popNode(node_identifier)
+            dojoValid.popNode(node_identifier);
         }else{
-            dojoValid.setItem(node_identifier,null)
+            dojoValid.setItem(node_identifier,null);
         }
         this.updateStatus();
     },
