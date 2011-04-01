@@ -20,4 +20,5 @@ Documents to revise, adjust or to choose where to put
     trigger
     tutorial/index
     user_interface
+    webpage_creation
     wsgi
