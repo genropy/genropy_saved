@@ -35,6 +35,11 @@ import time
 
 thread_ws = dict()
 
+def hook(func):
+    func._hook_name = sys.modules[func.__module__].hook_name.replace('.','_')
+    return func
+
+
 class BaseProxy(object):
     def __init__(self, main):
         self.main=main
@@ -903,8 +908,10 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         method = getattr(source, name).im_func
         k = instmethod(method, obj, obj.__class__)
         name_as = name
-        if prefix:
-            name_as = '%s_%s' % (prefix, name)
+        hook_name = getattr(method, '_hook_name',None)
+        curr_prefix = hook_name or prefix
+        if curr_prefix:
+            name_as = '%s_%s' % (curr_prefix, name)
         if hasattr(obj, name_as):
             original = getattr(obj, name_as)
             setattr(obj, name_as + '_', original)
