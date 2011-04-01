@@ -1,16 +1,15 @@
 ===============================
 Introduction to a Genro Project
 ===============================
-
-    GenroPy is a Framework for business applications.
     
-    The GenroPy applications are divided into several layers, allowing customization (ensuring an
-    easy upgrade even with customization) and reuse of code and resources among various projects.
+    The Genro applications (or projects) are divided into several layers, allowing customization
+    (ensuring an easy upgrade even with customization) and reuse of code and resources among
+    various projects.
 
 .. _genro_SIPC:
 
-Genropy Project
-===============
+Genro Project
+=============
     
     A Genropy Project consists of:
     

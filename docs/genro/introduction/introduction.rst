@@ -56,8 +56,22 @@ Different syntaxes
     **New syntax**::
     
         frame.top.slotBar()
+        
+.. _genro_controllers:
+
+Genro controllers
+=================
+
+    ??? Explain:
     
-    
+        - ``^``
+        
+        - ``=``
+        
+        - ``==``
+        
+        - ``.`` is the dot a controller???
+        
 **Footnotes**:
 
 .. [#] For Dojo documentation check the official Dojo_ webpage. For additional documentation see also `Dojo Campus`_.
