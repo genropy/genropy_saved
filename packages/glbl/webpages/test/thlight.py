@@ -7,11 +7,13 @@
 "Test page description"
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull,tablehandler/th_components:StackTableHandler"
-
-    def windowTitle(self):
-        return ''
          
-    def test_0_firsttest(self,pane):
+    def test_0_localita(self,pane):
         """First test description"""
         sc = pane.stackTableHandler(height='400px',table='glbl.localita',inputForm='thform/default')
         sc.form.store.handler('load',default_provincia='MI')
+
+    def test_1_provincia(self,pane):
+        """First test description"""
+        sc = pane.stackTableHandler(height='400px',table='glbl.provincia',inputForm='thform/default')
+        sc.form.store.handler('load',default_regione='LOM')
