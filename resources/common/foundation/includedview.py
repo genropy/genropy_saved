@@ -156,7 +156,7 @@ class IncludedView(IncludedViewBase):
                     can only accept borderContainer and doesn't accept contentPane.
         * `nodeId`: the includedViewbox's Id. For more information, check :ref:`genro_nodeid` page.
           Default value is ``None``.
-        * `table`: the includedViewbox's reference :ref:`genro_database_table`.
+        * `table`: the includedViewbox's reference :ref:`genro_table`.
           Default value is ``None``.
         * `datapath`: allow to create a hierarchy of your data’s addresses into the datastore.
           Default value is ``None``.
@@ -231,7 +231,7 @@ class IncludedView(IncludedViewBase):
         * `reloader`: <#NISO ??? Add description! />. Default value is ``None``.
         * `externalChanges`: <#NISO ??? Add description! />. Default value is ``None``.
         * `addOnCb`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `zoom`: It allows to open the linked record in its :ref:`genro_database_table`. For further details, check :ref:`genro_zoom`. Default value is ``True``.
+        * `zoom`: It allows to open the linked record in its :ref:`genro_table`. For further details, check :ref:`genro_zoom`. Default value is ``True``.
         * `hasToolbar`: <#NISO ??? Add description! />. Default value is ``False``.
         * `canSort`: <#NISO ??? Add description! />. Default value is ``True``.
         * `fromPicker_target_fields`: allow to bind the picker's table. columns to the includedView columns of the many to many table.
