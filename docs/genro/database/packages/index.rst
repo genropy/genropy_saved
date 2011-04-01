@@ -26,7 +26,7 @@ autocreation of the ``packages`` folder
     
     Your ``packages`` folder will look like this one:
     
-    .. image:: ../../../images/structure/structure-packages.png
+    .. image:: ../../images/structure/structure-packages.png
     
     where ``myproject`` is the name of your package.
     
@@ -44,7 +44,6 @@ autocreation of the ``packages`` folder
 .. toctree::
     :maxdepth: 1
     
-    package_name
     lib
     main
     menu

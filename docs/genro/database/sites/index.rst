@@ -36,7 +36,7 @@ autocreation of the ``sites`` folder
     
     Your ``sites`` folder will look like this one:
     
-    .. image:: ../../../images/structure/structure-sites.png
+    .. image:: ../../images/structure/structure-sites.png
     
     .. note:: The autocreation of this folder is handled by the :class:`SiteMaker` class.
     
@@ -52,7 +52,6 @@ autocreation of the ``sites`` folder
 .. toctree::
     :maxdepth: 1
     
-    sites_name
     pages
     root
     siteconfig

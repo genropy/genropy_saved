@@ -30,11 +30,12 @@ autocreation of the ``instances`` folder
     
         gnrmkinstance instancename
         
-    where ``instancename`` is the name of your instance (we suggest you to call your instance with the name you gave to your :ref:`genro_project`).
+    where ``instancename`` is the name of your instance (we suggest you to call your instance
+    with the name you gave to your :ref:`genro_project`).
     
     Your ``instances`` folder will look like this one:
     
-    .. image:: ../../../images/structure/structure-instances.png
+    .. image:: ../../images/structure/structure-instances.png
     
     where ``myproject`` is the name of your instance.
     
@@ -45,14 +46,15 @@ autocreation of the ``instances`` folder
 ``instances`` folder content list
 =================================
 
-    If you follow the steps of the previous section, inside your ``instances`` folder you will find an ``instance`` folder including a ``custom`` folder, a ``data`` folder and the ``instanceconfig`` file.
+    If you follow the steps of the previous section, inside your ``instances`` folder you will
+    find an ``instance`` folder including a ``custom`` folder, a ``data`` folder and the
+    ``instanceconfig`` file.
     
     Click on the following links for more information on them:
     
 .. toctree::
     :maxdepth: 1
     
-    instance_name
     custom
     data
     instanceconfig

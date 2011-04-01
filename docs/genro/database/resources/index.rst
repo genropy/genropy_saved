@@ -35,7 +35,7 @@ public and private resources
     *public*, but if you define them into the ``_resources`` folder (you have to create it
     into your ``packages/webpages`` folder) your resources will be *private*:
     
-    .. image:: ../../../images/structure/structure-resources.png
+    .. image:: ../../images/structure/structure-resources.png
     
     * If you define your resources into the ``resources`` folder your resources are
       *public*, so you can use them in ANY of the package you have into your project.

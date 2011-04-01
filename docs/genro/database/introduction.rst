@@ -15,8 +15,8 @@ project
     * It deals with everything related to the configuration of a particular installation
     * It includes Web components and configurations that are necessary for the execution
       over the Web
-    * Typically, it contains the configuration and WSGI script in the :ref:`sites_root` (it is used as
-      the executable if you want to use a debugger, like WingIDE_)
+    * Typically, it contains the configuration and WSGI script in the :ref:`sites_root`
+      (it is used as the executable if you want to use a debugger, like WingIDE_)
     
     .. _WingIDE: http://www.wingware.com/
     
@@ -62,24 +62,29 @@ project structure help
     In this section you can find a tree structure that represents a common structure of a Genro project.
     
     * :ref:`genro_project` folder
-        * :ref:`genro_instances_index` folder - include all your instances folder
-            * :ref:`instances_instance_name` folder (*instance_name* is the name of one of your instance folder)
-                * :ref:`instances_custom` folder
-                * :ref:`instances_data` folder
-                * :ref:`instances_instanceconfig`
-        * :ref:`genro_packages_index` folder
-            * :ref:`packages_package_name` folder (*package_name* is the name of one of your package folder)
-                * :ref:`packages_lib` folder
-                * :ref:`packages_main`
-                * :ref:`packages_menu`
-                * :ref:`packages_model` folder
-                * :ref:`packages_webpages` folder
-                    * :ref:`genro_webpage_resources` folder
-                    * one or more :ref:`webpages_webpages`\s
+        * :ref:`genro_instances_index` folder - here lies all your instance folder.
+          Every instance folder has got:
+          
+          * a :ref:`instances_custom` folder
+          * a :ref:`instances_data` folder
+          * an :ref:`instances_instanceconfig` file
+          
+        * :ref:`genro_packages_index` folder - here lies all your package folder.
+          Every package folder has got:
+          
+          * a :ref:`packages_lib` folder
+          * a :ref:`packages_main` file
+          * a :ref:`packages_menu` file
+          * a :ref:`packages_model` folder
+          * a :ref:`packages_webpages` folder
+              * :ref:`genro_webpage_resources` folder
+              * one or more :ref:`webpages_webpages`\s
+                    
         * :ref:`genro_resources_index` folder
-        * :ref:`genro_sites_index` folder
-            * :ref:`sites_sites_name` folder - (*sites_name* is the name of one of your site folder)
-                * :ref:`sites_pages`
-                * :ref:`sites_root`
-                * :ref:`sites_siteconfig`
+        * :ref:`genro_sites_index` folder - here lies all your sites folder.
+          Every site folder has got:
+          
+          * a :ref:`sites_pages` folder
+          * a :ref:`sites_root` file
+          * a :ref:`sites_siteconfig` file
     

@@ -15,7 +15,7 @@
     defined. If you want to use them in other projects, you can define them in the
     :ref:`genro_resources_index` folder:
     
-    .. image:: ../../../../../images/structure/structure-resources.png
+    .. image:: ../../../../images/structure/structure-resources.png
     
     .. note::
     
