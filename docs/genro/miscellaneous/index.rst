@@ -18,5 +18,6 @@ Documents to revise, adjust or to choose where to put
     struct
     textmate
     trigger
+    tutorial/index
     user_interface
     wsgi
