@@ -8,9 +8,20 @@ project
     (ensuring an easy upgrade even with customization) and reuse of code and resources among
     various projects.
     
-    A Genropy Project consists of:
+    A Genropy Project is structured in a main ``project`` folder with 4 subfolders, called:
+    ``sites``, ``instances``, ``packages``, ``resources``
     
-    **A ``sites`` folder**
+    You can build a project with its four main subfolders with the command line [#]_::
+    
+        gnrmkproject projectname -a
+        
+    where ``projectname`` is the name you want for your project.
+    
+    If you create a project called "myproject", you will obtain this structure:
+    
+    .. image:: ../images/myproject.png
+    
+    **The ``sites`` folder**
     
     * It deals with everything related to the configuration of a particular installation
     * It includes Web components and configurations that are necessary for the execution
@@ -22,7 +33,7 @@ project
     
     Check the :ref:`genro_sites_index` documentation page for further explanations
     
-    **An ``instances`` folder**:
+    **The ``instances`` folder**:
     
     * It contains customizations for the particular customer
     * Usually contains parameters for database access
@@ -36,7 +47,7 @@ project
         
     Check the :ref:`genro_instances_index` documentation page for further explanations
     
-    **A ``packages`` folder**:
+    **The ``packages`` folder**:
     
     * They are the various modules that make up the application code to Genro, including the main
       package, which is the application developed.
@@ -49,7 +60,7 @@ project
     
     Check the :ref:`genro_packages_index` documentation page for further explanations
     
-    **A ``resources`` folder**:
+    **The ``resources`` folder**:
     
     It contains components and resources, that are common tools reusable for more than one project.
     
@@ -87,4 +98,8 @@ project structure help
           * a :ref:`sites_pages` folder
           * a :ref:`sites_root` file
           * a :ref:`sites_siteconfig` file
+          
+**Footnotes**:
+
+.. [#] For a complete reference of the project building options, please check the :ref:`genro_project_help` section
     

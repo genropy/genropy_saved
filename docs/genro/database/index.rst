@@ -8,7 +8,6 @@ Genro Projects
     :maxdepth: 2
     
     introduction
-    mainproject
     instances/index
     packages/index
     resources/index
