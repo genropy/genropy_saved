@@ -28,7 +28,7 @@ class GnrCustomWebPage(object):
 
     def main_sc(self, root,th_pkg=None,th_table=None, **kwargs):
         table = '%s.%s' %(th_pkg,th_table)
-        sc = root.stackTableHandler(table=table,datapath='th',**kwargs)
+        sc = root.stackTableHandler(table=table,datapath=table.replace('.','_'),**kwargs)
         #sc.form.store.handler('load',default_provincia='MI')
         
   # def main_frame(self, rootBC, **kwargs):
