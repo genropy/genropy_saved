@@ -45,7 +45,7 @@ class TableHandlerCommon(BaseComponent):
         print 'resolving hook %s %s' %(method,table)
         def emptyCb(*args,**kwargs):
             pass
-        return getattr(self,method,emptyCb) 
+        return getattr(self,'%s_%s' %(table.replace('.','_'),method),emptyCb) 
         
     def userCanWrite(self):
         return self.application.checkResourcePermission(self.tableWriteTags(), self.userTags)

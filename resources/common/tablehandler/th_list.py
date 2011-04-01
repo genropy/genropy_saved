@@ -174,9 +174,10 @@ class TableHandlerListBase(TableHandlerList):
         self._th_listController(frame,table=table)
         frame.top.listToolbar(table)
         footer = frame.bottom.slotToolbar('*,th_dock')
-        footer.th_dock.div(width='100px',height='20px').dock(id='th_dock')
-        pane.palettePane('_queryTool',title='Query tool',nodeId='query_root',
-                        dockTo='th_dock',datapath='.list.query.where',height='150px',width='400px')
+       #dock_id = '%s_th_dock' %table.replace('.','_')
+       #footer.th_dock.div(width='100px',height='20px').dock(id = dock_id)
+       #pane.palettePane('_queryTool',title='Query tool',nodeId='query_root',
+       #                dockTo='th_dock',datapath='.list.query.where',height='150px',width='400px')
         frame.gridPane(table=table,linkedForm=linkedForm)
         return frame
     
@@ -208,7 +209,7 @@ class TableHandlerListBase(TableHandlerList):
         }
         
         SET .columns = columns;
-        """, hiddencolumns=self.self._th_hook('hiddencolumns',table=table)(),
+        """, hiddencolumns=self._th_hook('hiddencolumns',table=table)(),
                             struct='^list.view.structure', _init=True)
 
         pane.data('.tableRecordCount', self.tableRecordCount())
@@ -260,4 +261,4 @@ class TableHandlerListBase(TableHandlerList):
                             """,
                             _onStart=True, baseQuery='=.baseQuery', maintable='=.table',
                             fired='^.query.new',
-                            runOnStart=self._th_hook('query')().get('runOnStart', False))
+                            runOnStart=self._th_hook('query',table=table)().get('runOnStart', False))
