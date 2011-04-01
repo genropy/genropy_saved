@@ -24,7 +24,7 @@ Create a Genro project
     
     .. image:: ../../images/myproject.png
     
-    .. note:: the Genro team prefer to call their projects using only lowercase letters.
+    .. note:: the Genro Team prefers to call their projects using only lowercase letters.
     
     However, if you want to create a project with both site and instance default features (that we will explain later in the following sections), you have to write::
     
@@ -63,9 +63,7 @@ terminal help
                                 Specify WSGI autoreload
           -d WSGI_DEBUG, --wsgi-debug=WSGI_DEBUG
                                 Specify WSGI debug
-
-    As you can see in the previous snapshot, you can use ``-p``, ``-r`` and ``-d`` to specify some :ref:`genro_wsgi` features.
-
+                                
 **Footnotes**:
 
 .. [#] ``gnrmkproject`` abbrevation has the meaning of ``GeNRo MaKe PROJECT``.

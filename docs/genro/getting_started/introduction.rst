@@ -26,6 +26,8 @@ Programs used and supported versions
      HTML                  add???                
     --------------------- -----------------------
      Javascript            add???                
+    --------------------- -----------------------
+     Python                add???                
     ===================== =======================
     
 Client / Server
