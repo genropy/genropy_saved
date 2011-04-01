@@ -6,7 +6,7 @@
 from gnr.web.gnrwebpage import BaseComponent
 
 class Form(BaseComponent):
-    def formCb(self,pane,**kwargs):
+    def form(self,pane,**kwargs):
         #pane=parent.contentPane(padding='5px',**kwargs).div(_class='pbl_roundedGroup', height='100%')
         pane.div(u'!!Località',_class='pbl_roundedGroupLabel')
         fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',margin_top='1em')
@@ -18,7 +18,7 @@ class Form(BaseComponent):
         fb.field('codice_comune',width='4em')
 
 class View(BaseComponent):
-    def lstBase(self,struct):
+    def struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('nome',width='50%')
         r.fieldcell('provincia',width='20%')
@@ -27,9 +27,9 @@ class View(BaseComponent):
         r.fieldcell('prefisso_tel',width='5%')
         r.fieldcell('cap',width='5%')
         
-    def orderBase(self):
+    def order(self):
         return 'nome'
         
-    def queryBase(self):
+    def query(self):
         return dict(column='nome',op='contains', val=None)
         
