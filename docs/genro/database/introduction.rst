@@ -14,18 +14,19 @@ Genropy Project
     
     A Genropy Project consists of:
     
-    **A site**
+    **A ``sites`` folder**
     
     * It deals with everything related to the configuration of a particular installation
-    * It includes Web components and configurations that are necessary for the execution over the Web
+    * It includes Web components and configurations that are necessary for the execution
+      over the Web
     * Typically, it contains the configuration and WSGI script in the :ref:`sites_root` (it is used as
-    the executable if you want to use a debugger, like WingIDE_)
+      the executable if you want to use a debugger, like WingIDE_)
     
     .. _WingIDE: http://www.wingware.com/
     
     Check the :ref:`genro_sites_index` documentation page for further explanations
     
-    **An instance**:
+    **An ``instances`` folder**:
     
     * It contains customizations for the particular customer
     * Usually contains parameters for database access
@@ -42,7 +43,7 @@ Genropy Project
     
     Check the :ref:`genro_instances_index` documentation page for further explanations
     
-    **Packages**:
+    **A ``packages`` folder**:
     
     * They are the various modules that make up the application code to Genro, including the main
       package, which is the application developed.
@@ -55,9 +56,9 @@ Genropy Project
     
     Check the :ref:`genro_packages_index` documentation page for further explanations
     
-    **Components and Resources**:
+    **A ``resources`` folder**:
     
-    The components and the resources are common tools reusable for more than one project.
+    It contains components and resources, that are common tools reusable for more than one project.
     
     Check the :ref:`genro_components_index` and the :ref:`genro_resources_index` documentation
     pages for further explanations

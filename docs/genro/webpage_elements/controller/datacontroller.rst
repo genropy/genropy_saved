@@ -16,6 +16,10 @@ Definition
     
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataController
     
+    **commons attributes**:
+    
+        For commons attributes (*_init*, *_onStart*, *_timing*) see controllers' :ref:`controllers_attributes`
+    
 .. _datacontroller_examples:
 
 Examples

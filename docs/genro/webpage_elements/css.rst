@@ -80,6 +80,7 @@ Genro CSS names
     
     * :ref:`border-radius <css_border_radius>`
     * :ref:`box-shadow <css_box_shadow>`
+    * :ref:`-moz-linear-gradient, -webkit-gradient<css_gradient_color>`
     * :ref:`css_transform`: :ref:`rotate <css_rotate>`, :ref:`translate <css_translate>`,
       :ref:`scale <css_scale>`, :ref:`skew <css_skew>`
     * :ref:`css_transition`
@@ -90,6 +91,13 @@ border-radius
 -------------
     
     * Genro CSS name: rounded
+    * Syntax: rounded=NUMBER
+      
+      Where:
+
+        * ``rounded``: is a keyword
+        * ``NUMBER``: is a number
+        
     * Example::
     
         rounded=10
@@ -105,6 +113,14 @@ box-shadow
 ----------
 
     * Genro CSS name: shadow
+    * Syntax: shadow='NUMBER1,NUMBER2,NUMBER3,COLOR,inset'
+    
+      Where:
+
+        * ``NUMBER1...NUMBER3``: are the shadow on the x axis, the shadow on the y axis and the blur
+        * ``COLOR``: is the shadow color
+        * ``inset``: keyword for inset feature
+        
     * Example::
     
         shadow='3px 3px 5px gray inset'
@@ -116,7 +132,32 @@ box-shadow
         shadow_blur='5px'
         shadow_color='gray'
         shadow_inset=True
-
+        
+    .. _css_gradient_color:
+    
+-moz-linear-gradient, -webkit-gradient
+--------------------------------------
+    
+    * Genro CSS name: gradient_color
+    * Syntax: gradient_color_NUMBER='COLOR,OTHER_NUMBER'
+    
+      Where:
+      
+      * ``gradient_color``: is a keyword
+      * ``NUMBER``: is a keyword number. If you use more than one gradient_color,
+        please pay attention to not repeat NUMBER
+      * ``COLOR``: the color you choose for your object
+      * ``OTHER_NUMBER``: the percentage of your object width to be colored with COLOR
+      
+    * Example::
+    
+        pane.div('hello',width='8em',
+                  gradient_color_3='blue,15',
+                  gradient_color_7='teal,36',
+                  gradient_color_1='yellow,50',
+                  gradient_color_0='pink,80',
+                  gradient_color_2='red,100')
+                  
     .. _css_transform:
 
 transform
@@ -127,6 +168,13 @@ transform
     **rotate**
     
     * Genro CSS name: rotate
+    * Syntax: transform_rotate=NUMBER
+    
+      Where:
+      
+      * ``transform_rotate``: is a keyword
+      * ``NUMBER``: is a periodic number [0,360]
+    
     * Example::
     
         transform_rotate=-90

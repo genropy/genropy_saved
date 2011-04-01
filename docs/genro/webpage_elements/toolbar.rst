@@ -96,6 +96,8 @@ Attributes
             
             gradient_color_0='pink,15',gradient_color_1='yellow,50',gradient_color_2='red,100'
             
+          For more information, check the CSS :ref:`css_gradient_color` section.
+            
         Pay attention: if you use the slotToolbar you CAN'T modify the *gradient_deg* attribute.
         You can only modify the *gradient_from* and the *gradient_to* attributes::
         

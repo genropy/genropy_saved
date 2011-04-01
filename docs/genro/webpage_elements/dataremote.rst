@@ -17,7 +17,7 @@ Definition
     **commons attributes**:
     
         For commons attributes (*_init*, *_onStart*, *_timing*) see controllers' :ref:`controllers_attributes`
-
+        
 .. _dataremote_examples:
 
 Examples
@@ -35,4 +35,3 @@ Examples
                 
             def rpc_get_time(self, **kwargs):
                 return datetime.datetime.now()
-                

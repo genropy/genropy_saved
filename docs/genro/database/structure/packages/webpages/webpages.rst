@@ -74,11 +74,13 @@ webpages variables
     
     * Components variables: :ref:`webpages_py_requires`
     * CSS variables: :ref:`webpages_css_requires`, :ref:`webpages_css_theme`
-    * Dojo variables: :ref:`webpages_dojo_source`, :ref:`webpages_dojo_theme`, :ref:`webpages_dojo_version`
+    * Dojo variables: :ref:`webpages_dojo_source`, :ref:`webpages_dojo_theme`,
+      :ref:`webpages_dojo_version`
     * Javascript variables: :ref:`webpages_js_requires`
     * Page options: :ref:`webpages_pageOptions`
     * Polling variables: :ref:`webpages_auto_polling`, :ref:`webpages_user_polling`
-    * Other variables: :ref:`webpages_auth_tags`, :ref:`webpages_eagers`, :ref:`webpages_gnrjsversion`,
+    * Other variables: :ref:`webpages_auth_tags`, :ref:`webpages_eagers`,
+      :ref:`webpages_gnrjsversion`,
       :ref:`webpages_maintable`, :ref:`webpages_recordlock`
       
     .. _webpages_py_requires:
@@ -86,12 +88,14 @@ webpages variables
 py_requires
 -----------
 
-    * Description: a string that allows to include some components to your project.
+    * Description: a string that allows to include some :ref:`genro_components_index` to
+      your project.
     * Syntax: ``py_requires = 'fileName:componentClassName'``
     
         Where:
         
-        * ``fileName`` is the name of the file including the component (write it without its ``.py`` extension)
+        * ``fileName`` is the name of the file including the component (write it without
+          its ``.py`` extension)
         * ``componentClassName`` is the name of the component class
         
     * Default value: ``None``
@@ -99,10 +103,11 @@ py_requires
     
         py_requires = 'public:Public,standard_tables:TableHandler,public:IncludedView'
     
-    In this example you are calling the ``Public`` and the ``IncludedView`` classes of the ``public.py`` file
-    and the ``TableHandler`` class of the ``standard_tables.py`` file.
+    In this example you are calling the ``Public`` and the ``IncludedView`` classes of the
+    ``public.py`` file and the ``TableHandler`` class of the ``standard_tables.py`` file.
     
-    .. note:: The components you want to use must be placed into a folder named "``resources``" (or "``_resources``")
+    .. note:: The components you want to use must be placed into a folder named
+              "``resources``" (or "``_resources``")
               
               * For more information about components check the :ref:`genro_components_index` documentation page
               * For more information about their location in a Genro :ref:`genro_structure_mainproject`,

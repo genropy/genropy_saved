@@ -16,8 +16,10 @@ Definition
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataFormula
     
-    .. note:: dataFormula does not have to be necessarily a mathematical formula!
+    **commons attributes**:
     
+        For commons attributes (*_init*, *_onStart*, *_timing*) see controllers' :ref:`controllers_attributes`
+        
 .. _dataformula_examples:
 
 Examples
@@ -34,3 +36,5 @@ Examples
                 fb.numberTextBox(value='^height',places=2)
                 fb.dataFormula('area','base * height', base='^base', height='^height')
                 fb.numberTextBox(lbl='!!Area',value='^area',places=2,border='2px solid grey',padding='2px')
+    
+    .. note:: dataFormula does not have to be necessarily a mathematical formula!
