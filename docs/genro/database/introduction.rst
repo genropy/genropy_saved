@@ -54,3 +54,30 @@ Introduction to a Genro Project
     Check the :ref:`genro_components_index` and the :ref:`genro_resources_index` documentation
     pages for further explanations
     
+project structure help
+======================
+
+    In this section you can find a tree structure that represents a common structure of a Genro project.
+    
+    * :ref:`genro_structure_mainproject` folder
+        * :ref:`genro_instances_index` folder - include all your instances folder
+            * :ref:`instances_instance_name` folder (*instance_name* is the name of one of your instance folder)
+                * :ref:`instances_custom` folder
+                * :ref:`instances_data` folder
+                * :ref:`instances_instanceconfig`
+        * :ref:`genro_packages_index` folder
+            * :ref:`packages_package_name` folder (*package_name* is the name of one of your package folder)
+                * :ref:`packages_lib` folder
+                * :ref:`packages_main`
+                * :ref:`packages_menu`
+                * :ref:`packages_model` folder
+                * :ref:`packages_webpages` folder
+                    * :ref:`genro_webpage_resources` folder
+                    * one or more :ref:`webpages_webpages`\s
+        * :ref:`genro_resources_index` folder
+        * :ref:`genro_sites_index` folder
+            * :ref:`sites_sites_name` folder - (*sites_name* is the name of one of your site folder)
+                * :ref:`sites_pages`
+                * :ref:`sites_root`
+                * :ref:`sites_siteconfig`
+    

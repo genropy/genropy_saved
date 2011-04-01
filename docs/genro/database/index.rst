@@ -9,5 +9,9 @@ Genro Projects
     
     introduction
     webpage_creation
+    mainproject
+    instances/index
+    packages/index
+    resources/index
+    sites/index
     the ``.gnr`` folder <gnr/index>
-    structure/index
