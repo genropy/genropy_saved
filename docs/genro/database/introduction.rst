@@ -38,9 +38,6 @@ Genropy Project
         from gnr.app.gnrapp import GnrApp
         instance = GnrApp('name_of_project')
         
-    * add??? the concept of sub instance, used to change the application configuration at runtime
-      (e.g: to access to historical data already eliminated from the main current database instance)
-    
     Check the :ref:`genro_instances_index` documentation page for further explanations
     
     **A ``packages`` folder**:
