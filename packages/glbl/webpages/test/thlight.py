@@ -6,7 +6,7 @@
 
 "Test page description"
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull,tablehandler/th_core:StackTableHandler"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,tablehandler/th_components:StackTableHandler"
 
     def windowTitle(self):
         return ''
