@@ -22,7 +22,7 @@ autocreation of the ``packages`` folder
     
         gnrmkpackage packagename
         
-    where ``packagename`` is the name of your package (we suggest you to call your package with the name you gave to your :ref:`genro_structure_mainproject`).
+    where ``packagename`` is the name of your package (we suggest you to call your package with the name you gave to your :ref:`genro_project`).
     
     Your ``packages`` folder will look like this one:
     

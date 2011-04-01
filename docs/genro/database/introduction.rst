@@ -1,6 +1,8 @@
-===============================
-Introduction to a Genro Project
-===============================
+.. _genro_project:
+
+=======
+project
+=======
     
     The Genro applications (or projects) are divided into several layers, allowing customization
     (ensuring an easy upgrade even with customization) and reuse of code and resources among
@@ -59,7 +61,7 @@ project structure help
 
     In this section you can find a tree structure that represents a common structure of a Genro project.
     
-    * :ref:`genro_structure_mainproject` folder
+    * :ref:`genro_project` folder
         * :ref:`genro_instances_index` folder - include all your instances folder
             * :ref:`instances_instance_name` folder (*instance_name* is the name of one of your instance folder)
                 * :ref:`instances_custom` folder

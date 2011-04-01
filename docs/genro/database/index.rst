@@ -8,7 +8,6 @@ Genro Projects
     :maxdepth: 2
     
     introduction
-    webpage_creation
     mainproject
     instances/index
     packages/index

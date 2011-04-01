@@ -1,10 +1,12 @@
-.. _genro_structure_mainproject:
+.. _genro_project_folder:
 
-=======
-project
-=======
+===========
+``project``
+===========
 
-    The ``project`` folder is a folder that includes all the stuff of a project. You can autocreate it with its main subfolders with the command line::
+    The ``project`` folder is a folder that includes all the stuff of a project.
+    
+    You can autocreate a project with its main subfolders with the command line::
     
         gnrmkproject projectname -a
         
