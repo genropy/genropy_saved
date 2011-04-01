@@ -38,5 +38,5 @@ Index of .gnr files
 .. toctree::
 
     environment
-    instanceconfig/index
-    siteconfig/index
+    instanceconfig
+    siteconfig
