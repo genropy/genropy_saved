@@ -6,6 +6,7 @@ class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
     dojo_theme = 'tundra'
     def test_1_rounded(self, pane):
+        """rounded"""
         sl = pane.slotBar('fld,test,*')
         fb = sl.fld.formbuilder(cols=2,lbl_position='L',
                                 lbl_font_size='10px',lbl_color='teal')
@@ -33,6 +34,7 @@ class GnrCustomWebPage(object):
                     rounded_bottom_right='^.bottom_right')
         
     def test_2_shadow(self, pane):
+        """shadow"""
         sl = pane.slotBar('x,y,blur,color,inset,*,test1,*',
                           lbl_font_size='10px',lbl_width='12px',
                           lbl_position='L',lbl_transform_rotate='-90',lbl_color='teal',
@@ -54,6 +56,7 @@ class GnrCustomWebPage(object):
                      shadow_color='^.color',shadow_inset='^.inset')
         
     def test_3_gradient(self, pane):
+        """gradient"""
         sl = pane.slotBar('deg,fld,*,test,*,test1,*',lbl_position='B',lbl_font_size='8px')
         sl.deg.verticalSlider(value='^.deg',minimum=0,maximum=360,default=10,
                               intermediateChanges=True,height='100px',lbl='Deg')
@@ -78,6 +81,7 @@ class GnrCustomWebPage(object):
                      gradient_deg='^.deg')
                      
     def test_4_transform(self, pane):
+        """transform"""
         sl = pane.slotBar('fld,*,test,*')
         fb = sl.fld.formbuilder(lbl_font_size='10px',lbl_color='teal')
         fb.horizontalSlider(value='^.rotate',minimum=0,maximum=180,lbl='rotate',
@@ -101,6 +105,7 @@ class GnrCustomWebPage(object):
                     transform_skew_x='^.skew_x',transform_skew_y='^.skew_y')
                     
     def test_5_transition(self, pane):
+        """transition"""
         sl = pane.slotBar('w,color,mode,duration,*,test',lbl_position='T',
                            lbl_font_size='10px',lbl_color='teal')
         sl.w.textbox(value='^.w',lbl='width',default='3px',width='5em')
@@ -110,3 +115,13 @@ class GnrCustomWebPage(object):
         sl.duration.numbertextbox(lbl='duration',default=2,value='^.duration',width='8em')
         sl.test.div(width='^.w',background='^.color',height='50px',border='1px solid gray',
                     transition='all 3s',transition_function='.^function',transition_duration='^.duration')
+        
+    def test_6_gradient_color(self, pane):
+        """gradient_color"""
+        pane.div('hello',width='8em',
+                  gradient_color_3='blue,15',
+                  gradient_color_7='teal,36',
+                  gradient_color_1='yellow,50',
+                  gradient_color_0='pink,80',
+                  gradient_color_2='red,100')
+                  
