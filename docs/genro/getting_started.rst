@@ -8,4 +8,4 @@ Getting started
     :maxdepth: 2
     
     installation
-    introduction/index
+    introduction
