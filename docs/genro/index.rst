@@ -15,7 +15,7 @@ Genropy
     :maxdepth: 2
     :numbered:
     
-    getting_started
+    getting_started/index
     bag/index
     webpage_elements/index
     database/index
