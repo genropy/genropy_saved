@@ -1,5 +1,6 @@
 .. _genro_database_index:
 
+==============
 Genro Projects
 ==============
 

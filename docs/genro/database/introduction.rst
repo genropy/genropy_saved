@@ -5,11 +5,6 @@ Introduction to a Genro Project
     The Genro applications (or projects) are divided into several layers, allowing customization
     (ensuring an easy upgrade even with customization) and reuse of code and resources among
     various projects.
-
-.. _genro_SIPC:
-
-Genro Project
-=============
     
     A Genropy Project consists of:
     
