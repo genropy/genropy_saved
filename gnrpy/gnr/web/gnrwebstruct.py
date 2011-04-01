@@ -561,7 +561,7 @@ class GnrDomSrc(GnrStructData):
         and that's because formbuilder can manage automatically fields and their positioning.
         
         :param cols: set columns number. Default value is ``1``.
-        :param table: set the database table. For more details, see :ref:`genro-dbtable`. Default value is ``None``.
+        :param table: set the database table. For more details, see :ref:`genro_dbtable`. Default value is ``None``.
         :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'`` (actually it is the unique defined class).
         :param lblclass: set label style. Default value is ``'gnrfieldlabel'``.
         :param lblpos: set label position. ``L``: set label on the left side of text field.
@@ -578,7 +578,7 @@ class GnrDomSrc(GnrStructData):
         :param \*\*kwargs: *border_spacing*: define the space between form fields. Default value is ``6px``
                            
                            *datapath*: set the root's path of formbuilder's fields. For more details,
-                           check the :ref:`genro-datapath` documentation page.
+                           check the :ref:`genro_datapath` documentation page.
                            
                            *fld_ + CSSexpression*: set a CSS expression to every formbuilder's field.
                            (e.g: fld_color='red', fld_width='100%')

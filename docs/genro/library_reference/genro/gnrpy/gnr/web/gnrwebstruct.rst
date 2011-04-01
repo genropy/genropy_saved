@@ -76,11 +76,11 @@
     .. module:: gnr.web.gnrwebstruct.GnrGridStruct
     
     =========================== =============================
-    :meth:`cell`                :meth:`fields`
-    :meth:`checkboxcell`        :meth:`getFieldNames`       
-    :meth:`defaultArgsForDType` :meth:`makeRoot`       
-    :meth:`fieldcell`           :meth:`rows`       
-    :meth:`fieldnames`          :meth:`view`       
+    :meth:`cell`                :meth:`fields`               
+    :meth:`checkboxcell`        :meth:`getFieldNames`        
+    :meth:`defaultArgsForDType` :meth:`makeRoot`             
+    :meth:`fieldcell`           :meth:`rows`                 
+    :meth:`fieldnames`          :meth:`view`                 
     =========================== =============================
     
 .. _gnrwebstruct_others:

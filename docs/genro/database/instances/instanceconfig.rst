@@ -4,10 +4,12 @@
 ``instanceconfig.xml``
 ======================
 
-    .. note:: We recommend you to read the :ref:`gnr_introduction` to the ``genro_gnr_index`` folder before reading this section.
+    .. note:: We recommend you to read the :ref:`gnr_introduction` to the ``genro_gnr_index``
+              folder before reading this section.
     
     * :ref:`instanceconfig_description`
-    * :ref:`instanceconfig_tags`: :ref:`instanceconfig_packages`, :ref:`instanceconfig_db`, :ref:`instanceconfig_authentication`, :ref:`instanceconfig_xml_auth`, :ref:`instanceconfig_py_auth`
+    * :ref:`instanceconfig_tags`: :ref:`instanceconfig_packages`, :ref:`instanceconfig_db`,
+      :ref:`instanceconfig_authentication`, :ref:`instanceconfig_xml_auth`, :ref:`instanceconfig_py_auth`
     
     .. module:: gnr.app.gnrapp.GnrApp
     
@@ -16,7 +18,8 @@
 Description of the file
 =======================
 
-    The ``instanceconfig`` is an XML file that allow to handle different aspects of your projects. Among other things it allows you to:
+    The ``instanceconfig`` is an XML file that allow to handle different aspects of your projects.
+    Among other things it allows you to:
     
     * define the packages you want to use in your :ref:`genro_project`
     * define the name of your database
@@ -42,18 +45,25 @@ Tags
 
     Let's see its content:
 
-    * The file begins and ends with a ``<GenRoBag>`` tag: that's because during the execution of the project, this file is being converted in a :ref:`genro_bag_intro`.
-    * The ``<packages>`` tag allow to include any other package from other projects; Genro will search it through its mixin tecnique. For more information, check the :ref:`instanceconfig_packages` paragraph.
-    * The ``<db>`` tag includes the name of your database. For more information, check the :ref:`instances_db` paragraph.
-    * The ``<authentication>`` tag allow to handle all the access authorization to your project. Check the :ref:`instances_authentication` paragraph for more information.
-    * The ``_T="NN"`` is a special attribute that allow to keep track of datatypes (for more information, check the :ref:`bag_from_to_XML` section).
+    * The file begins and ends with a ``<GenRoBag>`` tag: that's because during the execution of the
+      project, this file is being converted in a :ref:`genro_bag_intro`.
+    * The ``<packages>`` tag allow to include any other package from other projects; Genro will search
+      it through its mixin tecnique. For more information, check the :ref:`instanceconfig_packages` paragraph.
+    * The ``<db>`` tag includes the name of your database. For more information, check the
+      :ref:`instanceconfig_db` paragraph.
+    * The ``<authentication>`` tag allow to handle all the access authorization to your project. Check the
+      :ref:`instanceconfig_authentication` paragraph for more information.
+    * The ``_T="NN"`` is a special attribute that allow to keep track of datatypes (for more information,
+      check the :ref:`bag_from_to_XML` section).
     
 .. _instanceconfig_packages:
 
 ``<packages>``
 ==============
     
-    The ``<packages>`` tag allow to include any other package from other projects: this allow you to use every file (like the :ref:`packages_model` and the :ref:`webpages_webpages`) of the packages you've imported. If you want to import one package, you have to:
+    The ``<packages>`` tag allow to include any other package from other projects: this allow you to use
+    every file (like the :ref:`packages_model` and the :ref:`webpages_webpages`) of the packages you've
+    imported. If you want to import one package, you have to:
     
     * include its path into the ``<packages>`` of your :ref:`gnr_environment` file::
     
@@ -69,7 +79,8 @@ Tags
         
     where ``mypackage`` is the name of your main package.
     
-    Remember that in the ``<packages>`` tag you have at least put your main package, that is the one where you put your :ref:`packages_model` and :ref:`webpages_webpages` folders.
+    Remember that in the ``<packages>`` tag you have at least put your main package, that is the one where
+    you put your :ref:`packages_model` and :ref:`webpages_webpages` folders.
     
 .. _instanceconfig_db:
 
@@ -83,12 +94,14 @@ Tags
     There are many options you can add:
     
     * ``dbname``: specify the name of the database
-    * ``implementation``: you can choose the SQL database engine. By default Genro will be use postgreSQL_ (implementation="postgres")
+    * ``implementation``: you can choose the SQL database engine. By default Genro will be use
+      postgreSQL_ (implementation="postgres")
     * ``host``: specify the host. Default value is ???
     * ``password``: the password of the SQL database engine.
     * ``user``: the user of the SQL database engine.
     
-    .. note:: We suggest you to keep the usage of postgreSQL_, but, if you prefer, you can use MySQL_ or SQLite_.
+    .. note:: We suggest you to keep the usage of postgreSQL_, but, if you prefer, you can use
+              MySQL_ or SQLite_.
     
     .. _postgreSQL: http://www.postgresql.org/
     .. _MySQL: http://www.mysql.it/
@@ -96,7 +109,8 @@ Tags
     
     This is an example of ``<db>``::
     
-        <db implementation="postgres" host="localhost" password="superSecurePwd" user="postgres" dbname="mypersonaldatabase" />
+        <db implementation="postgres" host="localhost" password="superSecurePwd" user="postgres"
+        dbname="mypersonaldatabase" />
         
 .. _instanceconfig_authentication:
 
@@ -109,9 +123,11 @@ Tags
     
         <authentication pkg="adm"></authentication>
         
-    The ``<adm>`` package allow to manage the authenitcations. For more information, check the :ref:`genro_library_adm` paragraph.
+    The ``<adm>`` package allow to manage the authenitcations. For more information, check the
+    :ref:`genro_library_adm` paragraph.
     
-    Inside the ``<authentication>`` tag we have to define two different tags: the ``<py_auth>`` and the ``<xml_auth>``.
+    Inside the ``<authentication>`` tag we have to define two different tags: the ``<py_auth>``
+    and the ``<xml_auth>``.
     
 .. _instanceconfig_xml_auth:
 
@@ -120,7 +136,10 @@ Tags
 
     .. note:: the ``<xml_auth>`` tag uses the :meth:`auth_xml` method of the ``GnrApp`` class.
     
-    The ``<xml_auth>`` tag is a support tag that comes in handy to the :ref:`instanceconfig_py_auth` tag; it allows to you (i.e. the programmer) to enter the first time into the webpage called :ref:`genro_packages_adm_webpages_manage_users` (of the :ref:`genro_library_adm` package), so that you can give to your customers (and to you!) a user and a password to access to your project.
+    The ``<xml_auth>`` tag is a support tag that comes in handy to the :ref:`instanceconfig_py_auth`
+    tag; it allows to you (i.e. the programmer) to enter the first time into the webpage called
+    :ref:`genro_packages_adm_webpages_manage_users` (of the :ref:`genro_library_adm` package), so that
+    you can give to your customers (and to you!) a user and a password to access to your project.
     
     The ``<xml_auth>`` attributes are:
     
@@ -154,11 +173,14 @@ Tags
     
         http://127.0.0.1:yourPort/adm/manage_users
         
-    where in place of ``yourPort`` you have to put your port (e.g. 8090) that you have set in your :ref:`sites_siteconfig`::
+    where in place of ``yourPort`` you have to put your port (e.g. 8090) that you have set in your
+    :ref:`sites_siteconfig`::
     
         http://127.0.0.1:8090/adm/manage_users
     
-    Once you're there you will find a :ref:`genro_standardtable`; open :ref:`genro_st_padlock` (you can do it because you entered with xml authorization) and set all the users you need (your one, the customers one...).
+    Once you're there you will find a :ref:`genro_standardtable`; open :ref:`genro_st_padlock` (you can
+    do it because you entered with xml authorization) and set all the users you need (your one, the
+    customers one...).
     
     So, your ``<authentication>`` tag will look like this one::
     
