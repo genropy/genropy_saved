@@ -26,29 +26,34 @@ Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
+from gnr.core.gnrlang import extract_kwargs
+
 
 from gnr.core.gnrbag import Bag
 
-
-
 class StackTableHandler(BaseComponent):
     py_requires='tablehandler/th_list:TableHandlerListBase,tablehandler/th_form:TableHandlerFormBase'
+    
+    @extract_kwargs(widget=True)
     @struct_method
-    def th_stackTableHandler(self,pane,table=None,datapath=None,formName=None,viewName=None,**kwargs):
+    def th_stackTableHandler(self,pane,table=None,datapath=None,th_formName=None,th_viewName=None,th_iframe=False,widget_kwargs=True,**kwargs):
         pkg,tablename = table.split('.')
         tableCode = table.replace('.','_')
         defaultName = 'th_%s' %tablename
-        formName = formName or defaultName
-        viewName = viewName or defaultName
-        self.mixinComponent(pkg,'tables',tablename,'%s:Form' %formName)
-        self.mixinComponent(pkg,'tables',tablename,'%s:View' %viewName)
+        formName = th_formName or defaultName
+        viewName = th_viewName or defaultName
         sc = pane.stackContainer(datapath=datapath or '.%s'%tableCode,selectedPage='^.selectedPage',**kwargs)
-        viewpage = sc.listPage(frameCode='%s_list' %tableCode,table=table,
-                                linkedForm='%s_form' %tableCode,pageName='view')
-        formpage = sc.formPage(frameCode='%s_form' %tableCode,table=table,pageName='form')
-        formpage.attributes['formsubscribe_onLoaded'] = 'SET .#parent.selectedPage="form";'
-        formpage.attributes['formsubscribe_onDismissed'] = 'SET .#parent.selectedPage="view";'
-        formpage.store.attributes['parentStore'] = '%s_list_grid' %tableCode
-        viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
-        viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);' #'genro.getForm(this.attr.linkedForm).deleteItem({});'
+        if th_iframe:
+            print 'iframe'
+        else:
+            self.mixinComponent(pkg,'tables',tablename,'%s:Form' %formName)
+            self.mixinComponent(pkg,'tables',tablename,'%s:View' %viewName)
+            viewpage = sc.listPage(frameCode='%s_list' %tableCode,table=table,
+                                    linkedForm='%s_form' %tableCode,pageName='view')
+            formpage = sc.formPage(frameCode='%s_form' %tableCode,table=table,pageName='form')
+            formpage.attributes['formsubscribe_onLoaded'] = 'SET .#parent.selectedPage="form";'
+            formpage.attributes['formsubscribe_onDismissed'] = 'SET .#parent.selectedPage="view";'
+            formpage.store.attributes['parentStore'] = '%s_list_grid' %tableCode
+            viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
+            viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);' #'genro.getForm(this.attr.linkedForm).deleteItem({});'
         return sc

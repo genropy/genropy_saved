@@ -70,4 +70,3 @@ class TableHandler(BaseComponent):
         r.cell('lbl', name='Field', width='10em', headerStyles='display:none;', cellClasses='infoLabels', odd=False)
         r.cell('val', name='Value', width='10em', headerStyles='display:none;', cellClasses='infoValues', odd=False)
         return struct
-

@@ -88,7 +88,7 @@ class ViewPage(BaseComponent):
             
             
     def main(self, root,**kwargs):
-        condition = self.conditionBase()
+        condition = self._th_hook('condition')()
         condPars = {}
         if condition:
             condPars = condition[1] or {}
@@ -135,7 +135,7 @@ class ViewPage(BaseComponent):
                             """,
                             _onStart=True, baseQuery='=list.baseQuery', maintable=self.maintable,
                             fired='^list.query.new',
-                            runOnStart=self.queryBase().get('runOnStart', False))
+                            runOnStart=self._th_hook('query')().get('runOnStart', False))
                            
     
     
@@ -228,7 +228,7 @@ class ViewPage(BaseComponent):
         pane.data('usr.deletePermission', self.userCanDelete())
         pane.data('usr.unlockPermission', self.userCanDelete() or self.userCanWrite())
         pane.dataFormula('status.locked', 'true', _onStart=True)
-        condition = self.conditionBase()
+        condition = self._th_hook('condition')()
         condPars = {}
         if condition:
             condPars = condition[1] or {}
@@ -382,7 +382,7 @@ class ViewPage(BaseComponent):
       
     def queryFromQueryBase(self):
         result = Bag()
-        querybase = self.queryBase()
+        querybase = self._th_hook('query')()
         op_not = querybase.get('op_not', 'yes')
         column = querybase.get('column')
         column_dtype = None

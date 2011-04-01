@@ -31,6 +31,22 @@ from gnr.core.gnrbag import Bag
 
 
 class TableHandlerCommon(BaseComponent):
+    
+    def _th_hook(self,method,table=None,asDict=False):
+        if hasattr(self,'legacy_dict'):
+            method=self.legacy_dict.get(method,method)
+        if asDict:
+            prefix='%s_'% method
+            return dict([(fname,self._th_hook(fname,table)) for fname in dir(self) 
+                                     if fname.startswith(prefix) and fname != prefix]) 
+        if hasattr(self,'legacy_dict'):
+            print 'getting legacy name for method %s' %method
+            return getattr(self,method)          
+        print 'resolving hook %s %s' %(method,table)
+        def emptyCb(*args,**kwargs):
+            pass
+        return getattr(self,method,emptyCb) 
+        
     def userCanWrite(self):
         return self.application.checkResourcePermission(self.tableWriteTags(), self.userTags)
 
@@ -203,7 +219,7 @@ class ListViewHandler(BaseComponent):
 
     def rpc_new_view(self, filldefaults=False, **kwargs):
         if filldefaults:
-            result = self.lstBase(self.newGridStruct())
+            result = self._th_hook('struct')(self.newGridStruct())
         else:
             result = self.newGridStruct()
             result.view().rows()

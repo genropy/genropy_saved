@@ -4,6 +4,8 @@ from gnr.core.gnrbag import Bag
 
 class TableHandlerListLegacy(BaseComponent):
     py_requires='tablehandler/th_list:TableHandlerList'
+    legacy_dict = dict(form='formBase',struct='lstBase',query='queryBase',order='orderBase',condition='conditionBase',hiddencolumns='hiddencolumnsBase')
+    
     @struct_method
     def th_listPage(self,pane,frameCode=None):
         self.query_helper_main(pane)
@@ -43,7 +45,7 @@ class TableHandlerListLegacy(BaseComponent):
         def setInStructureCb(label, handler):
             structures.setItem(label, handler(self.newGridStruct(maintable=self.maintable)), objtype='view', tbl=self.maintable)
 
-        viewMenu = self._th_listCustomCbBag('lstBase_', 'lstBase', cb=setInStructureCb)
+        viewMenu = self._th_listCustomCbBag('struct', cb=setInStructureCb)
         viewMenu.addItem('-', None)
         jsresolver = "genro.rpc.remoteResolver('getQuickView',null,{cacheTime:'5'})"
         viewMenu.addItem('savedview', jsresolver, _T='JS', caption='!!Custom view',
@@ -55,7 +57,22 @@ class TableHandlerListLegacy(BaseComponent):
         viewMenu.setItem('saveview', None, caption='!!Save view', action="FIRE list.save_userobject='view';")
         pane.data('list.view.menu', viewMenu)
         pane.data('list.view.pyviews', structures, baseview='_base')
-
+        
+    def _th_listCustomCbBag(self, basename=None, cb=None):
+        customViewDict = self._th_hook(basename,asDict=True)
+        cblist = sorted(customViewDict.keys())
+        menuBag = Bag()
+        basehandler = self._th_hook(basename)
+        menuBag.setItem('_base', None, caption=basehandler.__doc__ or 'Base')
+        if cb:
+            cb('_base',basehandler)
+        for funcname in cblist:
+            name = funcname.split('_',1)[1]
+            handler = customViewDict[funcname]
+            if cb:
+                cb(name, handler)
+            menuBag.setItem(name, None, caption=handler.__doc__ or name.title() or 'Base')
+        return menuBag
 
 
     def _th_listController_legacy(self, pane):
@@ -65,7 +82,7 @@ class TableHandlerListLegacy(BaseComponent):
         pane.data('usr.deletePermission', self.userCanDelete())
         pane.data('usr.unlockPermission', self.userCanDelete() or self.userCanWrite())
         pane.dataFormula('status.locked', 'true', _onStart=True)
-        condition = self.conditionBase()
+        condition = self._th_hook('condition')()
         condPars = {}
         if condition:
             condPars = condition[1] or {}
@@ -172,7 +189,6 @@ class TableHandlerListLegacy(BaseComponent):
                             table=self.maintable, selectionName='=list.selectionName')
 
 
-
     def _th_pageListController(self, pane):
         """docstring for pageListController"""        
         pane.dataController('SET list.noSelection=true;SET list.rowIndex=null;', fired='^list.runQuery', _init=True)
@@ -235,21 +251,6 @@ class TableHandlerListLegacy(BaseComponent):
                                        SET initialPkey=null;
                                    }
                                 """, fired='^list.queryEnd', initialPkey='=initialPkey')
-
-    def _th_listCustomCbBag(self, prefix=None, basename=None, cb=None):
-        cblist = sorted(
-                [func_name for func_name in dir(self) if func_name.startswith(prefix) and func_name != prefix]) or []
-        if basename:
-            cblist = [basename] + cblist
-        menuBag = Bag()
-        for funcname in cblist:
-            name = funcname[len(prefix):]
-            handler = getattr(self, funcname)
-            label = name or '_base'
-            if cb:
-                cb(label, handler)
-            menuBag.setItem(label, None, caption=handler.__doc__ or name.title() or 'Base')
-        return menuBag
         
     @struct_method
     def th_mainlist_left_top_opener(self,pane,**kwargs):
@@ -333,8 +334,8 @@ class TableHandlerListLegacy(BaseComponent):
 
         else:
             gridpane = pane
-        pane.data('.sorted', self.orderBase())
-        condition = self.conditionBase()
+        pane.data('.sorted', self._th_hook('order')())
+        condition = self._th_hook('condition')()
         condPars = {}
         if condition:
             condPars = condition[1] or {}
@@ -347,7 +348,7 @@ class TableHandlerListLegacy(BaseComponent):
         }
         
         SET .columns = columns;
-        """, hiddencolumns=self.hiddencolumnsBase(),
+        """, hiddencolumns=self._th_hook('hiddencolumns')(),
                             struct='^list.view.structure', _init=True)
 
         pane.data('list.tableRecordCount', self.tableRecordCount())
@@ -419,7 +420,7 @@ class TableHandlerListLegacy(BaseComponent):
                             """,
                             _onStart=True, baseQuery='=list.baseQuery', maintable=self.maintable,
                             fired='^list.query.new',
-                            runOnStart=self.queryBase().get('runOnStart', False))
+                            runOnStart=self._th_hook('query')().get('runOnStart', False))
 
     def _th_setFilter(self):
         filterpath = 'filter.%s' % self.pagename

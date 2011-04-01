@@ -34,7 +34,7 @@ class TableHandlerFormBase(BaseComponent):
         store = form.formStore(storepath='.record',hander='recordCluster',storeType='Collection',onSaved='reload',)                 
         toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
                                         dismiss_iconClass='tb_button tb_listview',namespace='form')
-        self.formCb(form)
+        self._th_hook('form',table=table)(form)
         return form
 
 class TableHandlerFormLegacy(BaseComponent):
@@ -75,7 +75,7 @@ class TableHandlerFormLegacy(BaseComponent):
                                         dismiss_iconClass='tb_button tb_listview',**toolbarKw)
 
         self.setLogicalDeletionCheckBox(toolbar.hiddenrecord)
-        self.formBase(form,region='center')
+        self._th_hook('form')(form,region='center')
         
     def setLogicalDeletionCheckBox(self, elem):
         box = elem.div(_class='hidden_record_checkbox')

@@ -684,7 +684,7 @@ class HierarchicalViewHandler(BaseComponent):
                                                                             disabled='== !_changed',
                                                                             _changed='^gnr.forms.formPane.changed',
                                                                             showLabel=False, hidden='^status.locked')
-        self.formBase(center.borderContainer(), datapath='.form.record', disabled='^form.locked', region='center',
+        self._th_hook('form')(center.borderContainer(), datapath='.form.record', disabled='^form.locked', region='center',
                       formId='hv_formPane')
 
     def hv_tree_edit(self, pane):

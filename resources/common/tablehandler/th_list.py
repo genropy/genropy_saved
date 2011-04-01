@@ -41,7 +41,7 @@ class TableHandlerList(BaseComponent):
         queryfb.div('^.c_0?column_caption', min_width='12em', _class='smallFakeTextBox floatingPopup',
                     nodeId='fastQueryColumn',
                      dropTarget=True,
-                    lbl='!!Search',**{'onDrop_gnrdbfld_%s' %table.replace('.','_'):"genro.querybuilder.onChangedQueryColumn(this,data);"})
+                    lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder.onChangedQueryColumn(this,data);"})
         optd = queryfb.div(_class='smallFakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
@@ -124,7 +124,7 @@ class TableHandlerList(BaseComponent):
         table = table or self.maintable
         tblobj = self.db.table(table)
         result = Bag()
-        querybase = self.queryBase()
+        querybase = self._th_hook('query',table=table)()
         op_not = querybase.get('op_not', 'yes')
         column = querybase.get('column')
         column_dtype = None
@@ -194,8 +194,8 @@ class TableHandlerListBase(TableHandlerList):
     @struct_method
     def th_gridPane(self, pane,table=None,linkedForm=None):
         table = table or self.maintable
-        pane.data('.sorted', self.orderBase())
-        condition = self.conditionBase()
+        pane.data('.sorted', self._th_hook('order',table=table)())
+        condition = self._th_hook('condition',table=table)()
         condPars = {}
         if condition:
             condPars = condition[1] or {}
@@ -208,7 +208,7 @@ class TableHandlerListBase(TableHandlerList):
         }
         
         SET .columns = columns;
-        """, hiddencolumns=self.hiddencolumnsBase(),
+        """, hiddencolumns=self.self._th_hook('hiddencolumns',table=table)(),
                             struct='^list.view.structure', _init=True)
 
         pane.data('.tableRecordCount', self.tableRecordCount())
@@ -219,7 +219,7 @@ class TableHandlerListBase(TableHandlerList):
                                  linkedForm=linkedForm, loadFormEvent='onRowDblClick', dropTypes=None,
                                  dropTarget=True,
                                  draggable=True, draggable_row=True,
-                                 struct=self.lstBase,
+                                 struct=self._th_hook('struct',table),
                                  dragClass='draggedItem',
                                  onDrop=""" for (var k in data){
                                                  this.setRelativeData('list.external_drag.'+k,new gnr.GnrBag(data[k]));
@@ -260,4 +260,4 @@ class TableHandlerListBase(TableHandlerList):
                             """,
                             _onStart=True, baseQuery='=.baseQuery', maintable='=.table',
                             fired='^.query.new',
-                            runOnStart=self.queryBase().get('runOnStart', False))
+                            runOnStart=self._th_hook('query')().get('runOnStart', False))
