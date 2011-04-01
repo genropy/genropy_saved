@@ -29,28 +29,6 @@ from gnr.web.gnrwebstruct import struct_method
 
 from gnr.core.gnrbag import Bag
 
-class StackTableHandler(BaseComponent):
-    py_requires='tablehandler/th_list:TableHandlerListBase,tablehandler/th_form:TableHandlerFormBase'
-    @struct_method
-    def th_stackTableHandler(self,pane,table=None,datapath=None,formName=None,viewName=None,**kwargs):
-        pkg,tablename = table.split('.')
-        tableCode = table.replace('.','_')
-        defaultName = 'th_%s' %tablename
-        formName = formName or defaultName
-        viewName = viewName or defaultName
-        self.mixinComponent(pkg,'tables',tablename,'%s:Form' %formName)
-        self.mixinComponent(pkg,'tables',tablename,'%s:View' %viewName)
-        sc = pane.stackContainer(datapath=datapath or '.%s'%tableCode,selectedPage='^.selectedPage',**kwargs)
-        viewpage = sc.listPage(frameCode='%s_list' %tableCode,table=table,
-                                linkedForm='%s_form' %tableCode,pageName='view')
-        formpage = sc.formPage(frameCode='%s_form' %tableCode,table=table,pageName='form')
-        formpage.attributes['formsubscribe_onLoaded'] = 'SET .#parent.selectedPage="form";'
-        formpage.attributes['formsubscribe_onDismissed'] = 'SET .#parent.selectedPage="view";'
-        formpage.store.attributes['parentStore'] = '%s_list_grid' %tableCode
-        viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
-        viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);' #'genro.getForm(this.attr.linkedForm).deleteItem({});'
-        return sc
-
 
 class TableHandlerCommon(BaseComponent):
     def userCanWrite(self):
