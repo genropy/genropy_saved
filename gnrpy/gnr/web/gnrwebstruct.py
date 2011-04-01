@@ -324,6 +324,9 @@ class GnrDomSrc(GnrStructData):
         self.child('callBack',childcontent=cb,**kwargs)
         return self
         
+    def htmlform(self,childcontent=None,**kwargs):
+        return self.htmlChild('form',  childcontent=childcontent, **kwargs)
+
     def h1(self, childcontent=None, **kwargs):
         return self.htmlChild('h1',  childcontent=childcontent, **kwargs)
         
@@ -664,7 +667,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     """add???"""
     htmlNS = ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'base', 'bdo', 'big', 'blockquote',
               'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
-              'div', 'dfn', 'dl', 'dt', 'em', 'fieldset', 'form', 'frame', 'frameset',
+              'div', 'dfn', 'dl', 'dt', 'em', 'fieldset', 'frame', 'frameset',
               'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'hr', 'html', 'i', 'iframe', 'img', 'input',
               'ins', 'kbd', 'label', 'legend', 'li', 'link', 'map', 'meta', 'noframes', 'noscript',
               'object', 'ol', 'optgroup', 'option', 'p', 'param', 'pre', 'q', 'samp',
