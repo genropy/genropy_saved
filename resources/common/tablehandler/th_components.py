@@ -33,7 +33,6 @@ from gnr.core.gnrbag import Bag
 
 class StackTableHandler(BaseComponent):
     py_requires='tablehandler/th_list:TableHandlerListBase,tablehandler/th_form:TableHandlerFormBase'
-    
     @extract_kwargs(widget=True)
     @struct_method
     def th_stackTableHandler(self,pane,table=None,datapath=None,th_formName=None,th_viewName=None,th_iframe=False,widget_kwargs=True,**kwargs):
@@ -46,8 +45,8 @@ class StackTableHandler(BaseComponent):
         if th_iframe:
             print 'iframe'
         else:
-            self.mixinComponent(pkg,'tables',tablename,'%s:Form' %formName)
-            self.mixinComponent(pkg,'tables',tablename,'%s:View' %viewName)
+            self.mixinComponent(pkg,'tables',tablename,'%s:Form' %formName,mangling_th=tableCode)
+            self.mixinComponent(pkg,'tables',tablename,'%s:View' %viewName,mangling_th=tableCode)
             viewpage = sc.listPage(frameCode='%s_list' %tableCode,table=table,
                                     linkedForm='%s_form' %tableCode,pageName='view')
             formpage = sc.formPage(frameCode='%s_form' %tableCode,table=table,pageName='form')
