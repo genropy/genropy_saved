@@ -35,10 +35,6 @@ import time
 
 thread_ws = dict()
 
-def hook(func):
-    func._hook_name = sys.modules[func.__module__].hook_name.replace('.','_')
-    return func
-
 
 class BaseProxy(object):
     def __init__(self, main):
@@ -864,8 +860,10 @@ def base_visitor(cls):
         for inner_base in base_visitor(base):
             yield inner_base
             
+@extract_kwargs(mangling=True)       
 def instanceMixin(obj, source, methods=None, attributes=None, only_callables=True,
-                  exclude='js_requires,css_requires,py_requires', prefix=None, **kwargs):
+                  exclude='js_requires,css_requires,py_requires',
+                  prefix=None,mangling_kwargs=None,**kwargs):
     """Add to the instance obj methods from 'source'.
     
     :param obj: add???
@@ -904,12 +902,18 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     instmethod = type(obj.__init__)
     if methods:
         mlist = filter(lambda item: item in FilterList(methods), mlist)
+        
     for name in mlist:
         method = getattr(source, name).im_func
         k = instmethod(method, obj, obj.__class__)
+        curr_prefix = prefix
         name_as = name
-        hook_name = getattr(method, '_hook_name',None)
-        curr_prefix = hook_name or prefix
+        if mangling_kwargs and '_' in name:
+            splitted_name=name.split('_',1)
+            mangling = mangling_kwargs.get(splitted_name[0],None)
+            if mangling:
+                curr_prefix=mangling
+                name=splitted_name[1]
         if curr_prefix:
             name_as = '%s_%s' % (curr_prefix, name)
         if hasattr(obj, name_as):
