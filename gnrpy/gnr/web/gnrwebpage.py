@@ -302,13 +302,13 @@ class GnrWebPage(GnrBaseWebPage):
             return AUTH_FORBIDDEN
         return AUTH_OK
         
-    def mixinComponent(self, pkg, *path):
+    def mixinComponent(self, pkg, *path,**kwargs):
         """add???
         
         :param pkg: add???
         :param \*path: add???
         """
-        self.site.resource_loader.mixinPageComponent(self, pkg, *path)
+        self.site.resource_loader.mixinPageComponent(self, pkg, *path,**kwargs)
         
     @property
     def isGuest(self):
