@@ -472,7 +472,7 @@ class ResourceLoader(object):
         self.mixinResource(resource_class, resourceDirs, *path)
         return resource_class()
         
-    def mixinPageComponent(self, page, pkg, *path):
+    def mixinPageComponent(self, page, pkg, *path,**kwargs):
         """add???
         
         :param page: add???
@@ -488,7 +488,7 @@ class ResourceLoader(object):
         for js in js_requires:
             if js and not js in page.js_requires:
                 page.js_requires.append(js)
-        page.mixin(component)
+        page.mixin(component,**kwargs)
         
     def loadTableScript(self, page, table=None, respath=None, class_name=None, _onDefault=None):
         """add???
