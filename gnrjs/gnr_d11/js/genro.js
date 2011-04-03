@@ -996,16 +996,16 @@ dojo.declare('gnr.GenroClient', null, {
         }
         return childpath?node._value.getNode(childpath):node;
     },
-    domById:function(nodeId) {
-        var node = this.nodeById(nodeId);
+    domById:function(nodeId,scope) {
+        var node = this.nodeById(nodeId,scope);
         if (node) {
             return node.getDomNode();
         } else {
             return dojo.byId(nodeId);
         }
     },
-    wdgById:function(nodeId) {
-        var node = this.nodeById(nodeId);
+    wdgById:function(nodeId,scope) {
+        var node = this.nodeById(nodeId,scope);
         if (node) {
             return node.getWidget();
         }
