@@ -431,6 +431,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         return value;
     },
+    
     currentFromDatasource: function(value, autocreate, dflt) {
         var path;
         if (typeof(value) == 'string') {
@@ -485,11 +486,23 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     isPointerPath: function(path) {
         return path? ((path.indexOf('^') == 0) || (path.indexOf('=') == 0)):false;
     },
+    nodeById:function(nodeId){
+        return genro.nodeById(nodeId,this); 
+    },
+    
+    wdgById:function(nodeId){
+        return genro.wdgById(nodeId,this); 
+    },
+    
+    domById:function(nodeId){
+        return genro.domById(nodeId,this); 
+    },
+    
     symbolicDatapath:function(path) {
         var attachpath;
         var pathlist = path.split('.');
         var nodeId = pathlist[0].slice(1);
-        var currNode = genro.nodeById(nodeId,this); 
+        var currNode = this.nodeById(nodeId); 
         if (!currNode) {
             console.error('not existing nodeId:' + nodeId);
         }
