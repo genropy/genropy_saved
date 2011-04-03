@@ -412,7 +412,7 @@ class TableHandlerListLegacy(BaseComponent):
                      excludeLogicalDeleted='=list.excludeLogicalDeleted',
                      **condPars)
         pane.dataController("""genro.setData("list.query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
-                               genro.querybuilder.buildQueryPane(); 
+                               genro.querybuilder(maintable).buildQueryPane(); 
                                SET list.view.selectedId = null;
                                if(!fired&&runOnStart){
                                     FIRE list.runQuery

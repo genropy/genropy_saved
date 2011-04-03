@@ -262,8 +262,9 @@ class LstUserObjects(BaseComponent):
         parentdatapath, resname = datapath.rsplit('.', 1)
         top = pane.div(_class='st_editor_bar', datapath=parentdatapath)
         save_action = 'FIRE list.save_userobject="%s";' % restype
+        tablecode = self.maintable.replace('.','_')
         if restype == 'query':
-            save_action = 'genro.querybuilder.cleanQueryPane(); %s' % save_action
+            save_action = 'genro.querybuilder("%s").cleanQueryPane(); %s' % (tablecode,save_action)
         top.div(_class='icnBase10_Doc buttonIcon', float='right',
                 connect_onclick=" SET list.%s.selectedId = null ;FIRE .new=true;" % restype,
                 margin_right='5px', margin_top='2px', tooltip='!!New %s' % restype);
@@ -339,6 +340,6 @@ class LstQueryHandler(BaseComponent):
     def savedQueryController(self, pane):
         pane.dataRemote('list.query.saved_menu', 'list_query', tbl=self.maintable, cacheTime=3)
         pane.dataRpc('list.query.where', 'load_query', id='^list.query.selectedId', _if='id',
-                     _onResult='genro.querybuilder.buildQueryPane();')
+                     _onResult='genro.querybuilder("%s").buildQueryPane();' %self.maintable.replace('.','_'))
 
 

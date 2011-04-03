@@ -35,33 +35,34 @@ class TableHandlerList(BaseComponent):
     @struct_method
     def th_slotbar_queryfb(self, pane,table=None,**kwargs):
         table = table or self.maintable
+        tablecode = table.replace('.','_')
         queryfb = pane.formbuilder(cols=5, datapath='.query.where', _class='query_form',
                                    border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});',
                                    float='left')
         queryfb.div('^.c_0?column_caption', min_width='12em', _class='smallFakeTextBox floatingPopup',
-                    nodeId='fastQueryColumn',
+                    nodeId='%s_fastQueryColumn' %tablecode,
                      dropTarget=True,
-                    lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder.onChangedQueryColumn(this,data);"})
+                    lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder('%s').onChangedQueryColumn(this,data);" %table})
         optd = queryfb.div(_class='smallFakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
-                 display='inline-block', width='1.5em', _class='floatingPopup', nodeId='fastQueryNot',
+                 display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %tablecode,
                  border_right='1px solid silver')
-        optd.div('^.c_0?op_caption', min_width='7em', nodeId='fastQueryOp', readonly=True,
+        optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %tablecode, readonly=True,
                  selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
-                 connectedMenu='==genro.querybuilder.getOpMenuId(_dtype);',
-                 action="genro.querybuilder.onChangedQueryOp($2,$1);",
+                 connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %table,
+                 action="genro.querybuilder('%s').onChangedQueryOp($2,$1);" %table,
                  _dtype='^.c_0?column_dtype',
                  _class='floatingPopup', display='inline-block', padding_left='2px')
         value_textbox = queryfb.textbox(lbl='!!Value', value='^.c_0', width='12em', lbl_width='5em',
                                         _autoselect=True,
                                         row_class='^.c_0?css_class', position='relative',
-                                        disabled='==(_op in genro.querybuilder.helper_op_dict)', _op='^.c_0?op',
-                                        validate_onAccept='genro.queryanalyzer.checkQueryLineValue(this,value);',
+                                        disabled='==(_op in genro.querybuilder("%s").helper_op_dict)'  %table, _op='^.c_0?op',
+                                        validate_onAccept='genro.queryanalyzer("%s").checkQueryLineValue(this,value);' %table,
                                         _class='st_conditionValue')
 
-        value_textbox.div('^.c_0', hidden='==!(_op in genro.querybuilder.helper_op_dict)',
-                          connect_onclick="if(GET .c_0?op in genro.querybuilder.helper_op_dict){FIRE list.helper.queryrow='c_0';}",
+        value_textbox.div('^.c_0', hidden='==!(_op in  genro.querybuilder("%s").helper_op_dict)' %table,
+                          connect_onclick="if(GET .c_0?op in genro.querybuilder('%s').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='c_0';}" %table,
                           _op='^.c_0?op', _class='helperField')
 
     def onQueryCalling(self):
@@ -71,15 +72,15 @@ class TableHandlerList(BaseComponent):
         table = table or self.maintable
         pane.data('.baseQuery', self.getQueryBag(table=table))
         pane.dataController("""
-                               genro.querybuilder.cleanQueryPane(); 
+                               genro.querybuilder(table).cleanQueryPane(); 
                                SET .queryRunning = true;
-                               var parslist = genro.queryanalyzer.translateQueryPars();
+                               var parslist = genro.queryanalyzer(table).translateQueryPars();
                                if (parslist.length>0){
-                                  genro.queryanalyzer.buildParsDialog(parslist);
+                                  genro.queryanalyzer(table).buildParsDialog(parslist);
                                }else{
                                   FIRE .runQueryDo = true;
                                }
-                            """,_fired="^.runQuery")
+                            """,table=table,_fired="^.runQuery")
         pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
                             cnt='^.currentQueryCount', _if='cnt', _else='',
                             msg='!!Current query will return _rec_ items')
@@ -92,15 +93,19 @@ class TableHandlerList(BaseComponent):
         pane.data('.excludeLogicalDeleted', True)
         pane.data('aux.showDeleted', False)
         pane.dataController(
-                """genro.querybuilder = new gnr.GnrQueryBuilder(this,table,"query_root");""" 
-                , _init=True,table='=.table')
-        pane.dataController(
-                """genro.queryanalyzer = new gnr.GnrQueryAnalyzer(this,".runQueryDo","translator_root")"""
-                ,_onStart=True)
-        pane.dataController("""genro.querybuilder.createMenues();
-                                  dijit.byId('qb_fields_menu').bindDomNode(genro.domById('fastQueryColumn'));
-                                  dijit.byId('qb_not_menu').bindDomNode(genro.domById('fastQueryNot'));
-                                  genro.querybuilder.buildQueryPane();""", _onStart=True)
+                """this._querybuilder = new gnr.GnrQueryBuilder(this,table,"query_root");
+                   var qb = this._querybuilder;
+                   this._queryanalyzer = new gnr.GnrQueryAnalyzer(this,table);
+                """ 
+                , _init=True,table=table,nodeId='%s_queryscripts' %table.replace('.','_'))
+        
+        pane.dataController("""
+                    var qb = genro.querybuilder(table);
+                    qb.createMenues();
+                    dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
+                    dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
+                    qb.buildQueryPane();
+        """,_onStart=True,table=table)
 
     def rpc_fieldExplorer(self, table=None, omit=None):
         result = self.rpc_relationExplorer(table=table, omit=omit)
@@ -174,10 +179,12 @@ class TableHandlerListBase(TableHandlerList):
         self._th_listController(frame,table=table)
         frame.top.listToolbar(table)
         footer = frame.bottom.slotToolbar('*,th_dock')
-       #dock_id = '%s_th_dock' %table.replace('.','_')
-       #footer.th_dock.div(width='100px',height='20px').dock(id = dock_id)
-       #pane.palettePane('_queryTool',title='Query tool',nodeId='query_root',
-       #                dockTo='th_dock',datapath='.list.query.where',height='150px',width='400px')
+        tablecode = table.replace('.','_')
+        dock_id = '%s_th_dock' %tablecode
+        
+        footer.th_dock.div(width='100px',height='20px').dock(id = dock_id)
+        pane.palettePane('%s_queryTool' %tablecode,title='Query tool',nodeId='%s_query_root' %tablecode,
+                        dockTo=dock_id,datapath='.list.query.where',height='150px',width='400px')
         frame.gridPane(table=table,linkedForm=linkedForm)
         return frame
     
@@ -253,12 +260,12 @@ class TableHandlerListBase(TableHandlerList):
                      excludeLogicalDeleted='=.excludeLogicalDeleted',
                      **condPars)
         pane.dataController("""this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
-                               genro.querybuilder.buildQueryPane(); 
+                               genro.querybuilder(maintable).buildQueryPane(); 
                                SET .view.selectedId = null;
                                if(!fired&&runOnStart){
                                     FIRE .runQuery
                                }
                             """,
-                            _onStart=True, baseQuery='=.baseQuery', maintable='=.table',
+                            _onStart=True, baseQuery='=.baseQuery', maintable=table,
                             fired='^.query.new',
                             runOnStart=self._th_hook('query',table=table)().get('runOnStart', False))
