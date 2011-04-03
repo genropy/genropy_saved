@@ -23,13 +23,12 @@ class GnrCustomWebPage(object):
         th_widget = kwargs.pop('th_widget','sc')
         handler = getattr(self,'main_%s' %th_widget)
         assert handler, 'not exitsting handler for widget %s' %th_widget
-        #pane = root.rootContentPane(title='Test',datapath='test')
         handler(root,**kwargs)
 
     def main_sc(self, root,th_pkg=None,th_table=None, **kwargs):
         table = '%s.%s' %(th_pkg,th_table)
-        sc = root.stackTableHandler(table=table,datapath=table.replace('.','_'),**kwargs)
-        #sc.form.store.handler('load',default_provincia='MI')
+        root.stackTableHandler(table=table,datapath=table.replace('.','_'),**kwargs)
+
         
   # def main_frame(self, rootBC, **kwargs):
   #     bc = root.borderContainer(height='600px')
