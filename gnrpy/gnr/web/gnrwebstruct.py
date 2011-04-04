@@ -1077,11 +1077,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :returns: add???
         """
         nodeId = nodeId or '%s_grid' %frameCode
-        
         if datapath is False:
             datapath = None
-        else:
+        elif storepath:
             datapath = datapath or '#FORM.%s' %nodeId 
+        else:
+            datapath = '.grid'
         structpath = structpath or '.struct'
         self.attributes['target'] = nodeId
         wdg = 'NewIncludedView' if _newGrid else 'includedView'
