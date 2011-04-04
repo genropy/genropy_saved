@@ -40,9 +40,7 @@ class TableHandlerCommon(BaseComponent):
             return dict([(fname,self._th_hook(fname,table)) for fname in dir(self) 
                                      if fname.startswith(prefix) and fname != prefix]) 
         if hasattr(self,'legacy_dict'):
-            print 'getting legacy name for method %s' %method
             return getattr(self,method)          
-        print 'resolving hook %s %s' %(method,table)
         def emptyCb(*args,**kwargs):
             pass
         return getattr(self,'%s_%s' %(table.replace('.','_'),method),emptyCb) 
