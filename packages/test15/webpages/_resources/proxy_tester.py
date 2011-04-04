@@ -9,6 +9,10 @@ from gnr.web.gnrbaseclasses import BaseComponent
 class Proxy_test(BaseComponent):
     proxy=True
 
+
+    def miaForm(self,pane):
+        pass
+        
     def ciao(self):
         return 'ciao'
 

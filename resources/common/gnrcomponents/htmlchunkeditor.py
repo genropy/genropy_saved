@@ -20,17 +20,17 @@ class ChunkEditor(BaseComponent):
                  connect_ondblclick="""console.log('ondblclick')
                                       SET gnr.htmlchunk.editor.path ='gnr.htmlchunk.%s';
                                       var table = GET gnr.htmlchunk.%s.table;
-                                      SET #chunkeditor.table = table;
+                                      SET #chunkeditor.table = this.attr.table;
                                       FIRE #chunkeditor.open;
                                     """ % (nodeId, nodeId),
-                 nodeId=nodeId, **kwargs)
+                 nodeId=nodeId,table=table, **kwargs)
 
         loadedchunk = self.rpc_loadChunk(code=nodeId, dflt=dflt)
         controller = pane.dataController(datapath='gnr.htmlchunk.%s' % nodeId)
         controller.data('.content', loadedchunk)
-        controller.dataFormula('.table', 'table', table='%s?table' % data)
         controller.dataRpc('dummy', 'saveChunk', code=nodeId, data='=.content', _fired='^#chunkeditor.save',
                            _onResult='FIRE #chunkeditor.close')
+        return pane
 
 
     def onMain_chunkeditor(self):

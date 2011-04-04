@@ -14,10 +14,5 @@ class GnrCustomWebPage(object):
         return ''
 
     def main_root(self, root, **kwargs):
-        root.div('hello')
-        root.button('rpcrun', fire='run')
-        root.dataRpc('dummy', 'dummy', _fired='^run')
-
-    def rpc_dummy(self):
-        return ''
+        root.button('test',action='alert(_counter)',_delay=300)
         

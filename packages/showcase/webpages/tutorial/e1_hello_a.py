@@ -7,10 +7,10 @@
 import datetime
 
 class GnrCustomWebPage(object):
-    def windowTitle(self):
-        return '!!Hello world'
-
     def main(self, root, **kwargs):
+        root.div('hello')
+        
+    def main_(self, root, **kwargs):
         root.button('What is the time?', action='FIRE get_time;')
         root.dataRpc('result', 'giveMeTime', _fired='^get_time')
         root.div('^result')
