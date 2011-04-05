@@ -64,6 +64,6 @@ La stampa può essere invocata in vari modi: si può mettere un bottone in una s
 Esempio::
 
     def bottomPane_stampaPrestazioni(self,pane):
-        pane.button(fire="#stampaprestazione.open",label='!!Stampa prestazioni')
+        pane.button(fire="#stampaprestazione.open",label='Stampa prestazioni')
         self.serverPrint(pane,name='stampaprestazione',table_resource='html_res/medico_prestazioni',
                         parameters_cb=self.cb_period,docName='prestazioni_medici',thermoParams=True)

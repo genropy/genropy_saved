@@ -39,8 +39,13 @@ Genro Bundle
 Shortcuts
 =========
 
-    .. note:: To use shortcuts, write the shortcut, then press the *Tab* key.
+    Here some general advices for shortcuts:
     
+    * To use shortcuts, write the shortcut, then press the *Tab* key.
+    * Many shortcuts will create some fields with two exclamation mark (``!!``) as begin string.
+      The ``!!`` feature allows to create a multilanguage :ref:`genro_project`. For more information,
+      check the :ref:`genro_languages` documentation page.
+      
 .. _shortcuts_web:
     
 Web shortcuts

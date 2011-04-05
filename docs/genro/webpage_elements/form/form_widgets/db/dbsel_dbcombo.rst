@@ -90,7 +90,7 @@ Selected
                 tbl.column('name',name_short='N.',name_long='Name')
                 tbl.column('year','L',name_short='Yr',name_long='Birth Year')
                 tbl.column('nationality',name_short='Ntl',name_long='Nationality')
-                tbl.column('number','L',name_long='!!Number')
+                tbl.column('number','L',name_long='Number')
 
     here we show the webpage::
 
@@ -142,7 +142,7 @@ Condition
                 tbl.column('year', 'L', name_short='Yr',name_long='Year',indexed=True)
                 tbl.column('nationality', name_short='Ntl', name_long='Nationality')
                 tbl.column('description', name_short='Dsc', name_long='Movie description')
-                tbl.column('number','L',name_long='!!Number')
+                tbl.column('number','L',name_long='Number')
                 
     The two tables ("movie" and "person") will be linked through a :ref:`table_relation` table called "cast"::
     
@@ -151,7 +151,7 @@ Condition
         class Table(object):
             def config_db(self,pkg):
                 tbl = pkg.table('cast',pkey='id',rowcaption='@movie_id.title',
-                                 name_long='!!Cast',name_plural='!!Casts')
+                                 name_long='Cast',name_plural='Casts')
                 tbl.column('id',size='22',group='_',readOnly=True,name_long='Id')
                 tbl.column('movie_id',size='22', name_short='Mid', 
                             name_long='Movie id').relation('movie.id',mode='foreignkey')
@@ -159,7 +159,7 @@ Condition
                             name_long='Person id').relation('person.id',mode='foreignkey')
                 tbl.column('role', name_short='Rl.',name_long='Role')
                 tbl.column('prizes', name_short='Priz.',name_long='Prizes', size='40')
-                tbl.column('number','L',name_long='!!Number')
+                tbl.column('number','L',name_long='Number')
                 
     Finally, let's introduce a :ref:`webpages_GnrCustomWebPage`::
     

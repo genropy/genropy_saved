@@ -35,6 +35,6 @@ Examples
                 fb.horizontalSlider(lbl='Height',value='^height',width='200px',minimum=1,maximum=100)
                 fb.numberTextBox(value='^height',places=2)
                 fb.dataFormula('area','base * height', base='^base', height='^height')
-                fb.numberTextBox(lbl='!!Area',value='^area',places=2,border='2px solid grey',padding='2px')
+                fb.numberTextBox(lbl='Area',value='^area',places=2,border='2px solid grey',padding='2px')
     
     .. note:: dataFormula does not have to be necessarily a mathematical formula!

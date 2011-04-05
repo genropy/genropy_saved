@@ -5,13 +5,14 @@ Documents to revise, adjust or to choose where to put
 =====================================================
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     
     clipboard
     ../commons/index
     ../datastore/index
     fine_syntax
     ../grid/index
+    languages
     logging
     print
     sql

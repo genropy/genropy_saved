@@ -55,8 +55,8 @@ Creation of a table
             
     * introduce a table::
         
-        tbl = pkg.table('azienda', pkey='id', rowcaption='@anagrafica_id.ragione_sociale',
-                         name_long='!!Azienda', name_plural='!!Aziende') # in English!!!!add???
+        tbl = pkg.table('company', pkey='id', rowcaption='@registry_id.name',
+                         name_long='Company', name_plural='Companies')
                          
     * table attributes:
         
@@ -64,8 +64,8 @@ Creation of a table
         * rowcaption
         * name_long
         * name_plural
-        * audit='lazy' --> consente di visualizzare (DOVE??? Mi sembra una cosa di adm) le modifiche ad un record.
-                           Non fa niente quando si crea un nuovo record.
+        * audit='lazy' --> consente di visualizzare (DOVE??? Mi sembra una cosa di adm) le modifiche
+                           ad un record. Non fa niente quando si crea un nuovo record.
     
     * introduce the sysFields::
         
@@ -145,4 +145,4 @@ Examples
                 tbl.column('name', name_short='N.', name_long='Name')
                 tbl.column('year', 'L', name_short='Yr', name_long='Birth Year')
                 tbl.column('nationality', name_short='Ntl',name_long='Nationality')
-                tbl.column('number','L',name_long='!!Number')
+                tbl.column('number','L',name_long='Number')
