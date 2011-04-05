@@ -5,22 +5,21 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
-
+from gnr.web.gnrwebpage import rpc_method
 class Proxy_test(BaseComponent):
     proxy=True
 
+    def ciao_test(self):
 
-    def miaForm(self,pane):
-        pass
-        
-    def ciao(self):
         return 'ciao'
 
-    def rpc_ciao(self):
+    @public_method
+    def ciao(self):
         return 'ciao'
 
 class Proxy_test2(BaseComponent):
     proxy='proxy_test'
 
-    def rpc_ciao(self):
+    @public_method
+    def ciao(self):
         return 'ciao2'

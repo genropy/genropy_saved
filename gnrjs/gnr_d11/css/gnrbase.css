@@ -1410,12 +1410,58 @@ textarea:disabled {
     color: inherit;
 }
 
+.countBox {
+    padding-left: 5px;
+    padding-right: 20px;
+    cursor: default;
+    font-variant: small-caps;
+}
+
+.countBoxPartial {
+    border: 1px solid #AEB6BD;
+    border-right: 0px;
+    -moz-border-radius-topleft: 12px;
+    -moz-border-radius-bottomleft: 12px;
+    -webkit-border-radius-topleft: 12px;
+    -webkit-border-radius-bottomleft: 12px;
+    display: inline-block;
+    text-align: right;
+    padding-right: 2px;
+    width: 100%;
+    background: #D5E5F6;
+    color: #7791AB;
+}
+.unfilteredCount .countBoxPartial {
+    display: none;
+    
+}
+.countBoxTotal {
+    border: 1px solid #AEB6BD;
+    -moz-border-radius-topright: 12px;
+    -moz-border-radius-bottomright: 12px;
+    -webkit-border-radius-topright: 12px;
+    -webkit-border-radius-bottomright: 12px;
+    text-align: left;
+    padding-left: 2px;
+    display: inline-block;
+    background: #F2ECD4;
+    width: 100%;
+    color: #9C9474;
+}
+.unfilteredCount .countBoxTotal {
+    -moz-border-radius-topleft: 12px;
+    -moz-border-radius-bottomleft: 12px;
+    -webkit-border-radius-topleft: 12px;
+    -webkit-border-radius-bottomleft: 12px;
+    text-align: center;
+    padding-right: 2px;
+}
 .searchInputBox {
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
     padding-left: 5px;
     padding-right: 20px;
-    border: 1px solid gray;
+    border: 1px solid #AEB6BD;
     background: white url(icons/base10/lens.gif) no-repeat 95%;
 }
 .searchInputBox>input{

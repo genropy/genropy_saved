@@ -623,7 +623,7 @@ def boolean(obj):
     :returns: add???
     """
     if obj and isinstance(obj, basestring):
-        if obj.lower() in ['n', 'no', 'f', 'false', '0']:
+        if obj.lower() in ('n', 'no', 'f', 'false', '0'):
             obj = False
     return bool(obj)
     

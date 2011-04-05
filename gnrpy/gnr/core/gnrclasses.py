@@ -267,7 +267,6 @@ class GnrClassCatalog(object):
                       empty=0)
                       
         self.addClass(cls=bool, key='B', aliases=['BOOL', 'BOOLEAN'], empty=False)
-        
         self.addParser(bool, lambda txt: (txt.upper() in ['Y', 'TRUE', 'YES', '1']))
         
         self.addClass(cls=datetime.date, key='D', aliases=['DATE'], empty=None)
@@ -297,6 +296,14 @@ class GnrClassCatalog(object):
         self.addSerializer("asText", list, self.toJson)
         self.addSerializer("asText", tuple, self.toJson)
         self.addSerializer("asText", dict, self.toJson)
+        self.addClass(cls=type(self.__init__), key='RPC', empty=None)
+        self.addSerializer("asText", type(self.__init__), self.funcName)
+        
+    def funcName(self, func):
+        funcName = func.__name__
+        if hasattr(func, 'proxy_name'):
+            funcName = '%s.%s'%(getattr(func, 'proxy_name'),funcName)
+        return funcName
         
     def parse_float(self, txt):
         """Add???

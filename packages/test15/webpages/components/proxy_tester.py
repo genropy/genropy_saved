@@ -11,10 +11,10 @@ class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull,proxy_tester"
 
     def test_0_data(self, pane):
-        pane.div(self.proxy_test.ciao())
+        pane.div(self.proxy_test.ciao_test())
 
 
     def test_1_data(self, pane):
 
         pane.div('^test')
-        pane.dataRpc('^test','proxy_test.ciao',_onStart=True)
+        pane.dataRpc('^test',self.proxy_test.ciao,_onStart=True)

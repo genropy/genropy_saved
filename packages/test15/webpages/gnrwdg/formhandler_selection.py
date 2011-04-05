@@ -5,7 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrwebstruct import struct_method
-
+from gnr.web.gnrwebpage import rpc_method
 "Test formhandler selection store"
 class GnrCustomWebPage(object):
     testOnly='_2_'
@@ -55,7 +55,27 @@ class GnrCustomWebPage(object):
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',r='^.regione',_fired='^.reload')
                           
         center = bc.contentPane(region='center',border='1px solid blue').formTester(frameCode='provincia')
-                
+    
+        
+    def test_1_base(self,pane):
+        bc = pane.borderContainer(height='250px')
+        frame = bc.framePane('province',region='left',width='600px')
+        
+        tb = frame.top.slotToolbar('selector,searchOn,reloader,count')
+        tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
+        tb.reloader.button('reload',fire='.reload')
+        iv = frame.includedView(struct='regione',autoSelect=True,selectedId='.selectedPkey',
+                           selfsubscribe_onSelectedRow='genro.formById("provincia_form").publish("load",{destPkey:$1.selectedId});',
+                           subscribe_form_provincia_onLoaded="this.widget.selectByRowAttr('_pkey',$1.pkey)")
+        iv.selectionStore(table='glbl.provincia',where='$regione=:r',r='^.regione',_fired='^.reload')
+                          
+        center = bc.contentPane(region='center').formTester(frameCode='provincia')
+        center.dataRpc('test',self.test, _onStart=True)
+        
+    @public_method
+    def test(self):
+        return 'Funzio'
+    
     def test_2_linkedForm(self,pane):
         bc = pane.borderContainer(height='250px')
         frame = bc.framePane('province',region='left',width='300px')

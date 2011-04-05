@@ -575,7 +575,6 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
 
 });
 
-
 dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
         var groupCode = objectPop(kw, 'groupCode');
@@ -849,6 +848,12 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     slot_searchOn:function(pane,slotValue,slotKw,frameCode){
         var div = pane._('div',{'width':slotKw.width || '15em'});
         div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox',parentForm:false});
+
+    },
+    slot_count:function(pane,slotValue,slotKw,frameCode){
+        var div = pane._('div',{'width':slotKw.width || '1.5em',datapath:'.count',nodeId:frameCode+'_countbox', _class:'countBox'});
+        div._('div',{innerHTML:'^.showed',_class:'countBoxPartial'});
+        div._('div',{innerHTML:'^.total',_class:'countBoxTotal'});
 
     },
     slot_messageBox:function(pane,slotValue,slotKw,frameCode){        

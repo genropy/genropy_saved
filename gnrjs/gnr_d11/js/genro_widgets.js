@@ -2076,7 +2076,7 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
             this.clickSelect(e.rowIndex, e.ctrlKey || e.metaKey, e.shiftKey);
         });
         sourceNode.registerSubscription(nodeId + '_reload', widget, function(keep_selection) {
-            this.reload(keep_selection !== false)
+            this.reload(keep_selection !== false);
         });
         sourceNode.registerSubscription(nodeId + '_serverAction',widget,function(kw){
             if(this.serverAction){
@@ -2099,8 +2099,22 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
             sourceNode.registerSubscription(searchBoxCode+'_changedValue',widget,function(v,field){
                 this.applyFilter(v,null,field);
                 genro.dom.setClass(this.domNode,'filteredGrid',v);
+                this.updateTotalsCount();
+                
             });
         };
+        
+    },
+    mixin_updateTotalsCount: function(countBoxNode){
+        var countBoxCode =(this.sourceNode.attr.frameCode || nodeId)+'_countbox';
+        var countBoxNode = genro.nodeById(countBoxCode);
+        if (countBoxNode){
+            var showed = this.rowCount;
+            var total = this.storebag().len();
+            genro.dom.setClass(countBoxNode,'unfilteredCount',showed==total);
+            countBoxNode.setRelativeData('.showed', showed);
+            countBoxNode.setRelativeData('.total', total);
+        }
     },
     _getFilterAutoValues: function(widget,dtypes){
         var structbag = widget.structbag();
@@ -3219,6 +3233,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
         this.currRenderedRowIndex = null;
         this.currRenderedRow = null;
         this.updateRowCount_replaced(n);
+        
+        this.updateTotalsCount();
     },
     mixin_setSortedBy:function(sortedBy) {
         this.sortedBy = sortedBy;

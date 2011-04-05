@@ -844,6 +844,8 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             if name in base_class.__dict__:
                 new = base_class.__dict__.get(name)
                 found = True
+        if callable(new):
+            new.proxy_name = proxy
         setattr(target_class, name, new)
         if original:
             setattr(target_class, '%s_' % name, original)

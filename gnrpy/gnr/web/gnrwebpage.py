@@ -56,6 +56,13 @@ AUTH_FORBIDDEN = -1
 PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
 
+def public_method(func):
+    """This is a decorator which can be used to mark functions
+    as rpc.
+    """
+    func.is_rpc = True
+    return func
+
 class GnrWebPageException(GnrException):
     pass
     
@@ -532,9 +539,13 @@ class GnrWebPage(GnrBaseWebPage):
                 proxy_class = self.pluginhandler.get_plugin(proxy_name)
                 proxy_object = proxy_class(self)
             if proxy_object:
-                handler = getattr(proxy_object, '%s_%s' % (prefix, submethod), None)
+                handler = getattr(proxy_object, submethod, None)
+                if not handler or not getattr(handler, 'is_rpc', False):
+                    handler = getattr(proxy_object, '%s_%s' % (prefix, submethod), None)
         else:
-            handler = getattr(self, '%s_%s' % (prefix, method))
+            handler = getattr(self, method, None)
+            if not handler or not getattr(handler, 'is_rpc', False):
+                handler = getattr(self, '%s_%s' % (prefix, method))
         return handler
         
     def build_arg_dict(self, **kwargs):

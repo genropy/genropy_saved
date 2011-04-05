@@ -393,7 +393,7 @@ class BagToXml(object):
                 attributes = dict([(k, v) for k, v in attributes.items()
                                    if type(v) in (basestring, str, unicode, int, float, long,
                                                   datetime.date, datetime.time, datetime.datetime,
-                                                  bool, type(None), list, tuple, dict, Decimal)
+                                                  bool, type(None), list, tuple, dict, Decimal) or (callable(v) and hasattr(v,'is_rpc'))
                                    ])
             else:
                 attributes = dict([(k, v) for k, v in attributes.items()])
