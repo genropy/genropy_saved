@@ -5,7 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrwebstruct import struct_method
-from gnr.web.gnrwebpage import rpc_method
+from gnr.web.gnrwebpage import public_method
 "Test formhandler selection store"
 class GnrCustomWebPage(object):
     testOnly='_2_'
