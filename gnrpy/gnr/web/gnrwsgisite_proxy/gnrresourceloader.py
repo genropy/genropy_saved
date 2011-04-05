@@ -521,12 +521,13 @@ class ResourceLoader(object):
             basePath = modPathList.pop(0)
             resource_module = gnrImport(basePath, avoidDup=True)
             resource_class = getattr(resource_module, class_name, None)
-            resource_obj = resource_class(page=page, resource_table=table)
             for modPath in modPathList:
                 resource_module = gnrImport(modPath, avoidDup=True)
-                resource_class = getattr(resource_module, class_name, None)
+                resource_class =cloneClass('CustomResource', resource_class)
+                custom_resource_class = getattr(resource_module, class_name, None)
                 if resource_class:
-                    instanceMixin(resource_obj, resource_class, only_callables=False)
+                    classMixin(resource_class, custom_resource_class, only_callables=False)
+            resource_obj = resource_class(page=page, resource_table=table)
             return resource_obj
         elif not _onDefault:
             return self.loadTableScript(page, table=table, respath=respath, _onDefault=True)
