@@ -91,7 +91,7 @@ class TableHandlerList(BaseComponent):
                                dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
         pane.data('.table',table)
         pane.data('.excludeLogicalDeleted', True)
-        pane.data('aux.showDeleted', False)
+        pane.data('.showDeleted', False)
         pane.dataController(
                 """this._querybuilder = new gnr.GnrQueryBuilder(this,table,"query_root");
                    var qb = this._querybuilder;

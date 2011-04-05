@@ -43,16 +43,26 @@ class StackTableHandler(BaseComponent):
         viewName = th_viewName or defaultName
         sc = pane.stackContainer(datapath=datapath or '.%s'%tableCode,selectedPage='^.selectedPage',**kwargs)
         if th_iframe:
-            print 'iframe'
+            self.th_stackIframe(sc,pkg,tablename)            
         else:
             self.mixinComponent(pkg,'tables',tablename,'%s:Form' %formName,mangling_th=tableCode)
             self.mixinComponent(pkg,'tables',tablename,'%s:View' %viewName,mangling_th=tableCode)
             viewpage = sc.listPage(frameCode='%s_list' %tableCode,table=table,
                                     linkedForm='%s_form' %tableCode,pageName='view')
-            formpage = sc.formPage(frameCode='%s_form' %tableCode,table=table,pageName='form')
+            formpage = sc.formPage(frameCode='%s_form' %tableCode,table=table,pageName='form',
+                                    parentStore='%s_list_grid' %tableCode)
             formpage.attributes['formsubscribe_onLoaded'] = 'SET .#parent.selectedPage="form";'
             formpage.attributes['formsubscribe_onDismissed'] = 'SET .#parent.selectedPage="view";'
-            formpage.store.attributes['parentStore'] = '%s_list_grid' %tableCode
             viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
             viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);' #'genro.getForm(this.attr.linkedForm).deleteItem({});'
         return sc
+        
+        
+        
+    def th_stackIframe(self,sc,pkg,tablename):
+        formRunnerUrl='/adm/th/formrunner'
+        viewRunnerUrl='/adm/th/viewrunner'
+        sc.contentPane(detachable=True,pageName='view').contentPane(margin='5px',overflow='hidden'
+                            ).iframe(src='%s/%s/%s' %(viewRunnerUrl,pkg,tablename),border=0,height='100%',width='100%')
+        sc.contentPane(detachable=True,pageName='form').contentPane(margin='5px',overflow='hidden',_lazyBuild=True,
+                            ).iframe(src='%s/%s/%s' %(formRunnerUrl,pkg,tablename),border=0,height='100%',width='100%')

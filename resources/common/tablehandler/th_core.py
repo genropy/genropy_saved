@@ -110,10 +110,10 @@ class TableHandlerToolbox(BaseComponent):
         if self.tblobj.logicalDeletionField:
             delprefpane = bc.contentPane(region='bottom', height='20px', background_color='lightgray',
                                          _class='pbl_roundedGroup', margin='3px')
-            delprefpane.checkbox(value='^aux.showDeleted', label='!!Show hidden records')
+            delprefpane.checkbox(value='^list.showDeleted', label='!!Show hidden records')
             delprefpane.checkbox(value='^list.tableRecordCount', label='!!Show total count', margin_left='5px')
             delprefpane.dataController("""SET list.excludeLogicalDeleted = showDeleted? 'mark':true;""",
-                                       showDeleted='^aux.showDeleted')
+                                       showDeleted='^list.showDeleted')
         self.toolboxFields(bc.contentPane(region='top', height='50%', splitter=True))
         tc = bc.tabContainer(region='center', selectedPage='^list.toolboxSelected', margin='5px', margin_top='10px')
         self.toolboxQueries(

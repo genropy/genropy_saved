@@ -22,9 +22,9 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             'D':'date','DH':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
         this.helper_op_dict = {'in':'in','tagged':'tagged'};
-        genro.setDataFromRemote('gnr.qb.fieldstree', "relationExplorer", {table:maintable, omit:'_'});
-        this.treefield = genro.getData('gnr.qb.fieldstree');
-        genro.setDataFromRemote('gnr.qb.fieldsmenu', "fieldExplorer", {table:maintable, omit:'_*'});
+        genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldstree', "relationExplorer", {table:maintable, omit:'_'});
+        this.treefield = genro.getData('gnr.qb.'+this.tablecode+'.fieldstree');
+        genro.setDataFromRemote('gnr.qb.'+this.tablecode+'.fieldsmenu', "fieldExplorer", {table:maintable, omit:'_*'});
         genro.setDataFromRemote('gnr.qb.sqlop', "getSqlOperators");
     },
 
@@ -49,7 +49,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         node.freeze();
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.jc',id:this.relativeId('qb_jc_menu')});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:this.relativeId('qb_not_menu')});
-        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.fieldsmenu',id:this.relativeId('qb_fields_menu'),
+        node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',id:this.relativeId('qb_fields_menu'),
             action:"genro.querybuilder('"+this.maintable+"').onChangedQueryColumn($2,$1,$2.attr.relpath);"});
 
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:this.relativeId('qb_op_menu')});
