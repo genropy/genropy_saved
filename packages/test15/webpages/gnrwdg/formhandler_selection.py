@@ -70,11 +70,7 @@ class GnrCustomWebPage(object):
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',r='^.regione',_fired='^.reload')
                           
         center = bc.contentPane(region='center').formTester(frameCode='provincia')
-        center.dataRpc('test',self.test, _onStart=True)
-        
-    @public_method
-    def test(self):
-        return 'Funzio'
+
     
     def test_2_linkedForm(self,pane):
         bc = pane.borderContainer(height='250px')
