@@ -301,6 +301,8 @@ class GnrClassCatalog(object):
         
     def funcName(self, func):
         funcName = func.__name__
+        if funcName.startswith('rpc_'):
+            funcName = funcName[4:]
         if hasattr(func, 'proxy_name'):
             funcName = '%s.%s'%(getattr(func, 'proxy_name'),funcName)
         return funcName
