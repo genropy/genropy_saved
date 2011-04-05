@@ -2106,7 +2106,7 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
         
     },
     mixin_updateTotalsCount: function(countBoxNode){
-        var countBoxCode =(this.sourceNode.attr.frameCode || nodeId)+'_countbox';
+        var countBoxCode =(this.sourceNode.attr.frameCode || this.sourceNode.attr.nodeId)+'_countbox';
         var countBoxNode = genro.nodeById(countBoxCode);
         if (countBoxNode){
             var showed = this.rowCount;
