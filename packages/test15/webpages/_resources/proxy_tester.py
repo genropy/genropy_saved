@@ -5,7 +5,7 @@
 # Copyright (c) 2010 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.web.gnrwebpage import rpc_method
+from gnr.web.gnrwebpage import public_method
 class Proxy_test(BaseComponent):
     proxy=True
 
