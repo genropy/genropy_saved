@@ -235,12 +235,12 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         if(centerNode){
             objectPop(centerNode.attr,'side');
             centerNode.attr['region'] = 'center';
-            bc.setItem('#id',centerNode._value,objectUpdate(rounded,centerNode.attr));
+            bc.setItem('center',centerNode._value,objectUpdate(rounded,centerNode.attr));
             center = centerNode._value;
         }else{
             centerPars['region'] = 'center';
             centerPars['widget'] = centerPars['widget'] || 'ContentPane'
-            center = bc._(centerPars['widget'],objectUpdate(rounded,centerPars));
+            center = bc._(centerPars['widget'],'center',objectUpdate(rounded,centerPars));
         }
         return center;
     }
