@@ -796,6 +796,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         self.child('callBack',childcontent=cb,_isErrBack=True,**kwargs)
         return self
         
+    def slotButton(self,label=None,**kwargs):
+        return self.child(tag='SlotButton',label=label,**kwargs)
+        
     @extract_kwargs(palette=True,dialog=True)
     def linkedForm(self,frameCode=None,loadEvent=None,formRoot=None,store=True,
                         dialog_kwargs=None,palette_kwargs=None,formId=None,**kwargs):
