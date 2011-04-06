@@ -32,7 +32,7 @@ dojo.declare('gnr.ext.includedViewPicker', null, {
             lastPos = grid.addBagRow(null, null, newnodes[i], null, nodupField);
         }
         grid.batchUpdating(false);
-        grid.filterToRebuild(true);
+        grid.filterToRebuild = true;
         grid.updateRowCount('*');
         grid.selection.select(lastPos);
         grid.loadingContent(false);
