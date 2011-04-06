@@ -17,6 +17,7 @@ Definition
 ===========
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc.formbuilder
+        :noindex:
 
 .. _formbuilder_description:
 

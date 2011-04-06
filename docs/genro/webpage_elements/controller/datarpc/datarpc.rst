@@ -15,10 +15,11 @@ Definition
 ==========
     
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataRpc
+        :noindex:
     
     * In the rpc you can return something, but as we explained in the ``dataRpc`` :ref:`datarpc_def` paragraph,
-    you can skip this parameter if you want to perform only a server action; alternatively, it allows to return
-    a value into the ``path`` of the ``dataRpc``.
+      you can skip this parameter if you want to perform only a server action; alternatively, it allows to
+      return a value into the ``path`` of the ``dataRpc``.
     
 .. _datarpc_examples:
     

@@ -8,4 +8,3 @@ HTML elements
     
     * *ghost*: add???
     * *tip*: the HTML tip. You can use it on every object.
-    ...

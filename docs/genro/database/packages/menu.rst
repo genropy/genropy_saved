@@ -31,7 +31,7 @@ Introduction
         
     Where:
     
-    * ``tagName`` is the name of the tag (it is not important)
+    * ``tagName`` is the name of the tag (it doesn't appear on menu view)
     * ``label=''`` includes the name of the menu voice
     * ``file=''`` includes the name of the related :ref:`webpages_webpages` file, without
       their extension (``.py``)
@@ -102,7 +102,7 @@ basepath
             </agenda>
             <calendar label='Calendar' basepath="/office/calendar" >
                 <recurrences label='Recurrences' file="recurrences"/>
-                <administration label='Administration' file="admin"/>
+                <management label='Management' file="management"/>
             </calendar>
         </GenRoBag>
         
@@ -111,40 +111,41 @@ basepath
 tags
 ----
 
-    If you have defined the :ref:`genro_permits`(add???) of your :ref:`webpages_webpages`,
-    you can modify the menu view depending on the user permits: for doing this, you have
-    to use the *tags* attribute.
+    If you have defined the permits [#]_ of your :ref:`webpages_webpages`, you can modify the
+    menu view depending on the user permits: for doing this, you have to use the *tags*
+    attribute.
     
     **Syntax**::
     
         tags="nameOfPermit"
         
-    where ``nameOfPermit`` is the name of the permit, defined in the add???. For more
-    information, please check the add??? documentation page.
+    where ``nameOfPermit`` is the name of the permit, defined in the
+    :ref:`instanceconfig_authentication` of the :ref:`instances_instanceconfig` file.
+    For more information, please check the relative documentation page.
     
     **Example**:
     
     We refers now to the example of the :ref:`features_basepath` section.
     
-    If you want that the webpage called ``admin.py`` is viewed only by the users with 
+    If you want that the webpage called ``management.py`` is viewed only by the users with
     "admin" permits, you have to add the attribute ``tags="admin"`` to the
-    <administration> tag and you have to add the ``tags="user"`` to the folder that
-    includes the <administration> tag::
+    <management> tag and you have to add the ``tags="user"`` to the folder that
+    includes the <management> tag::
     
         <?xml version="1.0" encoding="UTF-8"?>
         <GenRoBag>
             <agenda label='Agenda' basepath="/office/agenda" >
                 ...
             </agenda>
-            <calendar label='Calendar' basepath="/office/calendar"
-                      tags="staff"> <!-- "staff": allow every user to see this folder -->
+            <calendar label='Calendar' basepath="/office/calendar" tags="user"> <!-- tags="staff": allow every
+                                                                                     user to see this folder      -->
                 <recurrences label='Recurrences' file="recurrences"/>
-                <administration label='Administration' file="admin"
-                      tags="admin"/> <!-- "admin": only admin user will see this menu line -->
+                <management label='Management' file="management" tags="admin"/> <!-- tags="admin": only admin
+                                                                                     user will see this menu line -->
             </calendar>
         </GenRoBag>
     
-.. _features_icons:
+    .. _features_icons:
     
 menu icons
 ----------
@@ -154,3 +155,4 @@ menu icons
 **Footnotes**:
 
 .. [#] To autocreate it, follows the instruction of the :ref:`packages_autofill` section.
+.. [#] You handle the permits through the :ref:`instanceconfig_authentication` tag of the :ref:`instances_instanceconfig` file

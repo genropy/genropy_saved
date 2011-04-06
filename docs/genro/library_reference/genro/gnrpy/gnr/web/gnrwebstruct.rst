@@ -22,16 +22,16 @@
 
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc
 
-    ==================== ====================================== ===============================
-    :meth:`child`        :meth:`formstore_handler`              :meth:`makeRoot`               
-    :meth:`column`       :meth:`formstore_handler_addcallback`  :meth:`nodeById`               
-    :meth:`connect`      :meth:`framepane`                      :meth:`place`                  
-    :meth:`css`          :meth:`func`                           :meth:`remote`                 
-    :meth:`cssrule`      :meth:`getAttach`                      :meth:`script`                 
-    :meth:`data`         :meth:`getField`                       :meth:`styleSheet`             
-    :meth:`formbuilder`  :meth:`htmlChild`                      :meth:`subscribe`              
-    :meth:`formstore`    :meth:`macro`                          :meth:`tooltip`                
-    ==================== ====================================== ===============================
+    ========================= ====================================== ===============================
+    :meth:`child`              :meth:`formstore_handler_addcallback`  :meth:`nodeById`              
+    :meth:`connect`            :meth:`framepane`                      :meth:`place`                 
+    :meth:`css`                :meth:`func`                           :meth:`remote`                
+    :meth:`cssrule`            :meth:`getAttach`                      :meth:`script`                
+    :meth:`data`               :meth:`getField`                       :meth:`styleSheet`            
+    :meth:`formbuilder`        :meth:`htmlChild`                      :meth:`subscribe`             
+    :meth:`formstore`          :meth:`macro`                          :meth:`tooltip`               
+    :meth:`formstore_handler`  :meth:`makeRoot`                                                     
+    ========================= ====================================== ===============================
 
 .. _gnrwebstruct_gnrdomsrcdojo11:
 

@@ -18,6 +18,7 @@ An introduction to the standard table
 the padlock
 ===========
 
-    The standardtable support an authorization system, so someone can only read, someone can read and write, and so on. The padlock is the graphical rappresentation of the :ref:`genro_disabled` attribute... ??? continue!
+    The standardtable support an authorization system, so someone can only read, someone can read and write,
+    and so on. The padlock is the graphical rappresentation of the :ref:`genro_disabled` attribute... ??? continue!
     
     .. image:: ../../../images/components/standardtable-padlock.png

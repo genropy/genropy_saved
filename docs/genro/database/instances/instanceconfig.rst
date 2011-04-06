@@ -4,13 +4,14 @@
 ``instanceconfig.xml``
 ======================
 
-    .. note:: We recommend you to read the :ref:`gnr_introduction` to the ``genro_gnr_index``
-              folder before reading this section.
+    .. note:: We recommend you to read the :ref:`gnr_introduction` to the ``.gnr`` folder
+              before reading this section.
     
     * :ref:`instanceconfig_description`
     * :ref:`instanceconfig_tags`: :ref:`instanceconfig_packages`, :ref:`instanceconfig_db`,
-      :ref:`instanceconfig_authentication`, :ref:`instanceconfig_xml_auth`, :ref:`instanceconfig_py_auth`
-    
+      :ref:`instanceconfig_authentication` (:ref:`instanceconfig_xml_auth`,
+      :ref:`instanceconfig_py_auth`)
+        
     .. module:: gnr.app.gnrapp.GnrApp
     
 .. _instanceconfig_description:
@@ -132,7 +133,7 @@ Tags
 .. _instanceconfig_xml_auth:
 
 ``<xml_auth>``
-==============
+--------------
 
     .. note:: the ``<xml_auth>`` tag uses the :meth:`auth_xml` method of the ``GnrApp`` class.
     
@@ -163,7 +164,7 @@ Tags
 .. _instanceconfig_py_auth:
 
 ``<py_auth>``
-=============
+-------------
 
     .. note:: the ``<py_auth>`` tag uses the :meth:`auth_py` method of the ``GnrApp`` class.
     

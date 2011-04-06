@@ -19,6 +19,7 @@ Definition
 ==========
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dropdownbutton
+        :noindex:
     
 .. _ddb_description:
 
