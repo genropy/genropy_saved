@@ -204,8 +204,8 @@ Remote Operation
 Triggers
 ========
 
-Triggers defined on page
-========================
+Triggers defined on a page
+--------------------------
 
     It is possible to define methods at the python-level of a web page that are called when the
     records in a given table are loaded or saved. The names of methods should follow this syntax::
@@ -213,12 +213,12 @@ Triggers defined on page
         on<Operation>
         on<Operation>_<name_of_package>_<name_of_table>
     
-    possible *Operation*s are: ``Loading``, ``Saving`` or ``Saved``.
+    Possible *Operation*s are: ``Loading``, ``Saving`` or ``Saved``.
     
     This is implemented at rpc/web layer.
 
-Triggers on table
-=================
+Triggers on a table
+-------------------
 
     At the table level, events are similarly available ``Inserting``/``Inserted``,
     ``Updating``/``Updated`` e ``Deleting``/``Deleted``.
