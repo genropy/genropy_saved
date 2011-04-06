@@ -16,9 +16,9 @@ class PathResolver(object):
         self.gnr_config = gnr_config or self.load_gnr_config()
         
     def load_gnr_config(self):
-        """add???
+        """Load the gnr configuration.
         
-        :returns: add???
+        :returns: a Bag with the gnr configuration path
         """
         home_config_path = expandpath('~/.gnr')
         global_config_path = expandpath(os.path.join('/etc/gnr'))
@@ -34,8 +34,7 @@ class PathResolver(object):
     def set_environment(self, config):
         """add???
         
-        :param config: add???
-        :returns: add???
+        :param config: a Bag with the gnr configuration path
         """
         for var, value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
             var = var.upper()
@@ -45,9 +44,11 @@ class PathResolver(object):
     def js_path(self, lib_type='gnr', version='11'):
         """add???
         
-        :param lib_type: add???. Default value is ``gnr``
-        :param version: add???. Default value is ``11``
-        :returns: add???
+        :param lib_type: Genro Javascript library == gnr. Default value is ``gnr``
+        :param version: the Genro Javascript library version related to the Dojo one. The number of Dojo
+                        version is written without any dot. E.g: '11' is in place of '1.1'.
+                        Default value is '11'
+        :returns: the configuration static js path, with *lib_type* and *version* specified
         """
         path = self.gnr_config['gnr.environment_xml.static.js.%s_%s?path' % (lib_type, version)]
         if path:
@@ -137,13 +138,21 @@ class PathResolver(object):
             raise Exception('Error: Project Repository %s not found' % project_repository_name)
             
 class ProjectMaker(object):
-    """add???"""
+    """Handle the autocreation of a package.
+    
+    To autocreate a package, please type in your console::
+        
+        gnrmkpackage packagename
+        
+    where ``packagename`` is the name of your ``package`` folder."""
     def __init__(self, project_name, base_path=None):
         self.project_name = project_name
         self.base_path = base_path or '.'
         
     def do(self):
-        """add???"""
+        """Create the project path with its subfolders paths: the path of the ``packages`` folder,
+        the path of the ``sites`` folder, the path of the ``instances`` folder and the path of the
+        ``resources`` folder."""
         self.project_path = os.path.join(self.base_path, self.project_name)
         self.packages_path = os.path.join(self.project_path, 'packages')
         self.sites_path = os.path.join(self.project_path, 'sites')
@@ -154,11 +163,13 @@ class ProjectMaker(object):
                 os.mkdir(path)
                 
 class SiteMaker(object):
-    """Handle the autocreation of the ``sites`` folder. To autocreate the ``sites`` folder, please type in your console::
+    """Handle the autocreation of the ``sites`` folder.
+    
+    To autocreate the ``sites`` folder, please type in your console::
         
         gnrmksite sitesname
         
-    where ``sitesname`` is the name of your ``sites`` folder.
+    where 'sitesname' is the name of your ``sites`` folder.
     """
     def __init__(self, site_name, base_path=None, resources=None, instance=None, dojo_version='11',
                  wsgi_port=None, wsgi_reload=None, wsgi_mainpackage=None, wsgi_debug=None, config=None):
@@ -222,9 +233,11 @@ if __name__ == '__main__':
             else:
                 siteconfig = self.config
             siteconfig.toXml(siteconfig_xml_path)
-
+            
 class InstanceMaker(object):
-    """Handle the autocreation of the ``instances`` folder. To autocreate the ``instances`` folder, please type in your console::
+    """Handle the autocreation of the ``instances`` folder.
+    
+    To autocreate the ``instances`` folder, please type in your console::
         
         gnrmkinstance instancesname
         
@@ -293,7 +306,9 @@ class InstanceMaker(object):
             instanceconfig.toXml(instanceconfig_xml_path)
             
 class PackageMaker(object):
-    """Handle the autocreation of the ``packages`` folder. To autocreate the ``packages`` folder, please type in your console::
+    """Handle the autocreation of the ``packages`` folder.
+    
+    To autocreate the ``packages`` folder, please type in your console::
         
         gnrmkpackage packagesname
         
@@ -312,7 +327,7 @@ class PackageMaker(object):
         self.login_url = login_url or '%s/login' % self.package_name
         
     def do(self):
-        """add???"""
+        """Creates the files of the ``packages`` folder"""
         self.package_path = os.path.join(self.base_path, self.package_name)
         self.model_path = os.path.join(self.package_path, 'model')
         self.lib_path = os.path.join(self.package_path, 'lib')
@@ -388,13 +403,8 @@ class GnrCustomWebPage(object):
             examplewebpage_py_example.close()
             
 class ResourceMaker(object):
-    """add???"""
+    """Handle the creation of the ``resources`` folder"""
     def __init__(self, resource_name, base_path=None):
-        """add???
-        
-        :param resource_name: add???
-        :param base_path: add???. Default value is ``None``
-        """
         self.resource_name = resource_name
         self.base_path = base_path or '.'
         

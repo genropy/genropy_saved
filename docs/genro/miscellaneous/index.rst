@@ -11,7 +11,7 @@ Documents to revise, adjust or to choose where to put
     ../commons/index
     ../datastore/index
     fine_syntax
-    ../grid/index
+    grid/index
     languages
     logging
     print

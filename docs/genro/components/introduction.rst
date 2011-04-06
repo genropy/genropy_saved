@@ -15,7 +15,7 @@ Introduction
 Definition
 ==========
     
-    A component is a python file that gathers some useful features (classes) that can be used in more
+    A component is a file that gathers some useful features (classes) that can be used in more
     than one project. Every component can be rewritten in most of its parts (methods) overriding some
     of its portions. This ensures the ability to customize a component for your specific purpose.
     

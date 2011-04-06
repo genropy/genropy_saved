@@ -4,6 +4,16 @@
 ``siteconfig``
 ==============
 
+    * :ref:`genro_gnr_siteconfig_default`
+    * :ref:`sitesconfig_description`
+    * :ref:`sitesconfig_tags`:
+        
+        * :ref:`siteconfig_wsgi`
+        * :ref:`siteconfig_jslib`
+        * :ref:`siteconfig_gui`
+        * :ref:`siteconfig_dojo`
+        * :ref:`siteconfig_resources`
+      
     The ``siteconfig`` folder includes a single file: ``default.xml``
     
 .. _genro_gnr_siteconfig_default:
@@ -11,11 +21,24 @@
 ``default.xml``
 ===============
 
-    The ``default.xml`` of the ``.gnr/siteconfig`` folder set the default values of your :ref:`sites_siteconfig` files.
+    The ``default.xml`` of the ``.gnr/siteconfig`` folder set the default values of every
+    :ref:`sites_siteconfig` file of all your projects.
     
-    You can obviously redefine the values of the ``siteconfig`` file for every project you make, setting the features directly in the :ref:`sites_siteconfig` of the specific project.
+    You can obviously redefine the values of the ``siteconfig`` file for every project you make,
+    setting the features directly in the :ref:`sites_siteconfig` of the specific project.
     
-    Let's see its structure::
+.. _sitesconfig_description:
+
+description of the file
+=======================
+
+    The ``sitesconfig`` is an XML file that allow to:
+    
+    * handle the timeout and the refresh of the connection
+    * define your project port
+    * import dojo and genro engines
+    
+    With the :ref:`sites_autofill` the ``siteconfig`` will look like this one::
     
         <?xml version='1.0' encoding='UTF-8'?>
         <GenRoBag>
@@ -24,5 +47,129 @@
             <connection_refresh _T="NN"></connection_refresh>
             <dojo _T="NN" version="11"></dojo>
         </GenRoBag>
+    
+.. _sitesconfig_tags:
+
+Tags
+====
+
+    Let's see its content:
+    
+    * The file begins and ends with a ``<GenRoBag>`` tag: that's because during the execution
+      of the project, this file is being converted in a :ref:`genro_bag_intro`.
+    * *<connection_timeout>*: handle the connection timeout.
+    * *<connection_refresh>*: handle the connection refresh.
+    * *<wsgi>*: allow to define some connections properties used by the :ref:`genro_wsgi`.
+      For more information, check the :ref:`siteconfig_wsgi` section.
+    * *<jslib>*: allow to specify the dojo version used. For more information,
+      check the :ref:`siteconfig_jslib` section.
+    * *<gui>*: allow to specify the CSS theme. For more information,
+      check the :ref:`siteconfig_gui` section.
+    * *<dojo*: allow to specify the Dojo version. For more information, check the
+      :ref:`siteconfig_dojo` section.
+    * *<resources>*: allow to specify the path for common resources. For more information,
+      check the :ref:`siteconfig_resources` section.
+      
+.. _siteconfig_wsgi:
+
+``<wsgi>``
+----------
+
+    Allow to define some connections properties used by the :ref:`genro_wsgi`:
+    
+    * *port*: specify the port number
+    * *reload*: boolean. If ``True``, ... ???
+    * *debug*: boolean. If ``True``, ... ???
+    
+    This is an example of the ``<wsgi>`` tag::
+    
+        <wsgi port="8083" reload="true" debug="false"/>
         
-    We remind the detailed explanations of the various tags on the :ref:`sites_siteconfig` documentation page.
+    There is also the *mainpackage* property, but you have to define it into the local siteconfig
+    of your project:
+    
+    * *mainpackage*: a string including the name of your main package::
+    
+        <wsgi port="8083" reload="true" debug="false" mainpackage="agenda" />
+    
+.. _siteconfig_jslib:
+
+``<jslib>``
+-----------
+
+    Allow to specify the javascript version used:
+    
+    * *dojo_version*: the Dojo version used. Use the following syntax: '11' for Dojo 1.1, '13'
+      for Dojo 1.3, and so on.
+    * *gnr_version*: the version of Genro javascript libraries. Use the following syntax:
+      '11' for Genro JS 1.1, '13' for Genro JS 1.3, and so on.
+      
+    This is an example of the ``<jslib>`` tag::
+    
+        <jslib dojo_version="11" gnr_version='11' />
+        
+.. _siteconfig_gui:
+
+``<gui>``
+---------
+
+    Allow to specify the Genro CSS theme. You can choose between many themes:
+    
+    * *aqua*
+    * *blue*
+    * *elephant*
+    * *pro*
+    
+    This is an example of the ``<gui>`` tag::
+    
+        <gui css_theme='aqua'/>
+        
+    The Genro CSS themes override the Dojo theme you're using. For more information, check
+    the :ref:`css_dojo_themes` and the :ref:`css_genro_themes` sections.
+    
+.. _siteconfig_dojo:
+
+``<dojo>``
+----------
+
+    Allow to specify the Dojo version.
+    
+    Here we list its attributes:
+    
+    * *version*: Dojo version. Use the following syntax: '11' for dojo 1.1, '13' for dojo 1.3,
+      and so on.
+    
+    This is an example of the ``<dojo>`` tag::
+    
+        <dojo version="11"></dojo>
+        
+.. _siteconfig_resources:
+
+``<resources>``
+---------------
+
+    Allow to specify the path for common resources.
+    
+    There are two tags:
+    
+    * The ``<common/>`` tag: write it to be able to use a lot of Genro tools:
+        
+        * Genro :ref:`genro_components_index`
+        * Genro :ref:`css_genro_themes`
+        * add???
+        
+      .. note:: It is strongly recommended to insert this tag.
+      
+    * The ``<js_libs/>`` tag: write it to be able to use the javascript_resources
+      (add??? a link and a relative page!):
+      
+        * The CKEDITOR
+        * add???
+      
+    If you insert the two tags you will have the ``<resources>`` folder made in this way::
+        
+        <resources >
+            <common/>
+            <js_libs/>
+        </resources>
+        

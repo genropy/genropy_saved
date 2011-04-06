@@ -3,5 +3,7 @@
 ==========================================
 
 .. toctree::
-
+    :maxdepth: 1
+    
     includedview
+    macrowidgets
