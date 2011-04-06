@@ -124,7 +124,7 @@ function dataTemplate(str, data, path, showAlways) {
     if (!str) {
         return '';
     }
-    var regexpr = /\$([a-z0-9.@?_]+)/g;
+    var regexpr = /\$([a-zA-Z0-9.@?_]+)/g;
     var result;
     var is_empty = true;
     if (!data && !showAlways) {
