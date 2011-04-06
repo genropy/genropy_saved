@@ -148,7 +148,7 @@ class TableHandlerToolbox(BaseComponent):
 
     def toolboxFields(self, pane):
         treediv = pane.div(_class='treeContainer')
-        treediv.tree(storepath='gnr.qb.fieldstree', persist=False,
+        treediv.tree(storepath='gnr.qb.%s.fieldstree' %self.maintable.replace('.','_'), persist=False,
                      inspect='shift', labelAttribute='caption',
                      _class='fieldsTree',
                      hideValues=True, nodeId='treeField',
