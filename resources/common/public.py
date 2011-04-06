@@ -128,12 +128,8 @@ class Public(BaseComponent):
     @struct_method
     def public_publicRoot_menuBtn(self,pane,**kwargs):
         pane.div(_class='pbl_menu_icon buttonIcon', connect_onclick="""
-                                if(this.attr._inframe){
-                                    genro.publish({'topic':'main_left_set_status',parent:true},'toggle');
-                                }else{
                                     PUBLISH main_left_set_status= 'toggle';
-                                }
-                                """,_inframe='inframe' in self.pageArgs)
+                                """)
         
     @struct_method
     def public_publicRoot_workdate(self,pane,**kwargs):
