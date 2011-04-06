@@ -128,8 +128,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     setDisabled:function(disable){
         var disable = disable || this.isProtected();
-        var node;
-        var nodeToDel = [];
         for (var k in this._register){
             this._register[k].setDisabled(disable);
         }
