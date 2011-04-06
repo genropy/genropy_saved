@@ -129,6 +129,19 @@ class GnrWebPage(GnrBaseWebPage):
     def onPreIniting(self, *request_args, **request_kwargs):
         """add???"""
         pass
+        
+    @property
+    def call_args(self):
+        return self._call_args
+        
+    def getCallArgs(self,*args):
+        if not args:
+            return self._call_args
+        result = dict()           
+        lenargs = len(self._call_args) 
+        for i,arg in enumerate(args):
+            result[arg] = self._call_args[i] if i<lenargs else None
+        return result 
 
     def instantiateProxies(self):
         proxy_classes = [(p[:-11],getattr(self,p, None)) for p in dir(self) if p.endswith('_proxyclass')]
@@ -1126,7 +1139,7 @@ class GnrWebPage(GnrBaseWebPage):
             
     def mainLeftContent(self, parentBC, **kwargs):
         plugin_list = getattr(self, 'plugin_list', None)
-        if not plugin_list:
+        if not plugin_list or 'inframe' in self.pageArgs:
             return
         bc = parentBC.borderContainer(_class='main_left_tab', width='200px', datapath='gnr.main_container.left',
                                       **kwargs)
