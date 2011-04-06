@@ -72,17 +72,19 @@ class SmsMobyt(GnrBaseService):
         if self.auth=='md5':
             ticket=[]
             for k in ['id', 'operation', 'rcpt', 'from', 'data']:
-                if parameters[k]:
+                if parameters.get(k):
                     ticket.append(parameters[k])
                 else:
-                    parameters.pop(k)
+                    parameters.pop(k,None)
             ticket.append(self.password)
             parameters['ticket'] = hashlib.md5(''.join(ticket)).hexdigest().strip()
         else:
             parameters['password'] = password
         parameters=urllib.urlencode(parameters)
+        print parameters
         if not async:
-            urllib2.urlopen(self.url,parameters)
+            url= urllib2.urlopen(self.url,parameters)
+            print url.read()
         else:
             thread.start_new_thread(urllib2.urlopen,(self.url,parameters))
 
