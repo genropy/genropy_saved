@@ -1013,7 +1013,9 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     filterToRebuild: function(value) {
-        this._filterToRebuild = value;
+        if (this._filtered){
+            this._filterToRebuild=value;
+        }
     },
     invalidFilter: function() {
         return this._filterToRebuild;
