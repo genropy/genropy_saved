@@ -100,8 +100,20 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         var ind = kw.ind;
         this.buildNode(node, where, ind);
     },
+    
+    _unregisterFromForm:function(oldvalue){
+        if(oldvalue instanceof gnr.GnrBag){
+            oldvalue.walk(function(n){
+                if(n.form){
+                    n.form.unregisterChild(n);
+                }
+            });
+        }
+    },
+    
     _trigger_del:function(kw) {//da rivedere
         //console.log('trigger_del',kw);
+        this._unregisterFromForm(kw.node._value);
         var domNode = kw.node.getDomNode();
         if (!domNode) {
             return;
@@ -133,13 +145,14 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.refreshSourceIndexAndSubscribers();
         var node = kw.node;
     },
+
     _trigger_upd:function(kw) {//da rivedere
         //console.log('trigger_upd',kw);
         var destination = kw.node.getParentBuiltObj();
         if (!destination) {
             console.log('missing destination in rebuild');
         }
-        ;
+        this._unregisterFromForm(kw.oldvalue);
         var domNode = kw.node.getDomNode();//get the domnode
         var newNode = document.createElement('div');
         var widget = kw.node.widget;
