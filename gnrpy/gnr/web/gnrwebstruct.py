@@ -379,13 +379,6 @@ class GnrDomSrc(GnrStructData):
         return self.child('button', caption=caption, **kwargs)
         
    #def column(self, label='', field='', expr='', name='', **kwargs):
-   #    """add???
-   #    
-   #    :param label: add???. Default value is ``''``
-   #    :param field: add???. Default value is ``''``
-   #    :param expr: add???. Default value is ``''``
-   #    :param name: add???. Default value is ``''``
-   #    """
    #    if not 'columns' in self:
    #        self['columns'] = Bag()
    #    if not field:
