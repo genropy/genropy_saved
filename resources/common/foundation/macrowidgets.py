@@ -143,30 +143,30 @@ class SelectionBrowser(BaseComponent):
                             rowcount=rowcount)
 
 class RichTextEditor(BaseComponent):
-    """  This is the default toolbar definition used by the editor. It contains all editor features.
-         Any of these options can be used in the toolbar= parameter.  We are passing a string parameter 
-         to create a javascript array that is passed to the widget
-         to see more options, go to:
-         http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html#.stylesCombo_stylesSet
-          config.toolbar_Full =
-              [
-               ['Source','-','Save','NewPage','Preview','-','Templates'],
-               ['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print', 'SpellChecker', 'Scayt'],
-               ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
-               ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField'],
-               '/',
-               ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
-               ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote'],
-               ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
-               ['Link','Unlink','Anchor'],
-               ['Image','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak'],
-               '/',
-               ['Styles','Format','Font','FontSize'],
-               ['TextColor','BGColor'],
-               ['Maximize', 'ShowBlocks','-','About']
-              ];
+    """This is the default toolbar definition used by the editor. It contains all editor features.
+    Any of these options can be used in the toolbar= parameter. We pass a string parameter 
+    to create a javascript array that is passed to the widget.
+    
+    To see more options, go to:
+    http://docs.cksource.com/ckeditor_api/symbols/CKEDITOR.config.html#.stylesCombo_stylesSet
+     config.toolbar_Full =
+         [
+          ['Source','-','Save','NewPage','Preview','-','Templates'],
+          ['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print', 'SpellChecker', 'Scayt'],
+          ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
+          ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton', 'HiddenField'],
+          '/',
+          ['Bold','Italic','Underline','Strike','-','Subscript','Superscript'],
+          ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote'],
+          ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+          ['Link','Unlink','Anchor'],
+          ['Image','Flash','Table','HorizontalRule','Smiley','SpecialChar','PageBreak'],
+          '/',
+          ['Styles','Format','Font','FontSize'],
+          ['TextColor','BGColor'],
+          ['Maximize', 'ShowBlocks','-','About']
+         ];
     """
-
     css_requires = 'rich_edit'
     js_requires = 'ckeditor/ckeditor'
 
