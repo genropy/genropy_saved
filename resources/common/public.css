@@ -23,6 +23,11 @@
     background: transparent url(icons/menu_plugin.png) no-repeat center;
 }
 
+.iframemenu_plugin_icon {
+    height: 16px;
+    width: 16px;
+    background: transparent url(icons/menu_plugin.png) no-repeat center;
+}
 /* @end */
 
 /* @group zoom */

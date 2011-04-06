@@ -19,7 +19,7 @@ class Public(BaseComponent):
     css_requires = 'public'
     plugin_list = 'menu_plugin,batch_monitor,chat_plugin'
     js_requires = 'public'
-    py_requires = """foundation/menu:Menu,
+    py_requires = """foundation/menu:MenuLink,
                      foundation/dialogs,
                      foundation/macrowidgets,
                      gnrcomponents/batch_handler/batch_handler:BatchMonitor,
@@ -35,12 +35,17 @@ class Public(BaseComponent):
             self._userRecord = self.db.table('adm.user').record(username=user).output('bag')
         return self._userRecord[path]
 
+        
     def onMain_pbl(self):
+
         pane = self.pageSource()
         userTable = self.pbl_userTable()
         if not self.isGuest and userTable:
             pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
         pane.data('gnr.workdate', self.workdate)
+        if 'inframe' in self.pageArgs:
+            return
+            
         self._pbl_dialogs(pane)
         #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
         if self.db.packages['adm']:
@@ -122,7 +127,13 @@ class Public(BaseComponent):
         
     @struct_method
     def public_publicRoot_menuBtn(self,pane,**kwargs):
-        pane.div(_class='pbl_menu_icon buttonIcon', connect_onclick="PUBLISH main_left_set_status= 'toggle';")
+        pane.div(_class='pbl_menu_icon buttonIcon', connect_onclick="""
+                                if(this.attr._inframe){
+                                    genro.publish({'topic':'main_left_set_status',parent:true},'toggle');
+                                }else{
+                                    PUBLISH main_left_set_status= 'toggle';
+                                }
+                                """,_inframe='inframe' in self.pageArgs)
         
     @struct_method
     def public_publicRoot_workdate(self,pane,**kwargs):
@@ -188,7 +199,7 @@ class Public(BaseComponent):
         
     
     @struct_method
-    def public_rootStackContainer(self, root, title=None, height=None, width=None,**kwargs):
+    def public_rootStackContainer(self, root, title=None, height=None, width=None,selectedPage=None,**kwargs):
         frame = self._pbl_frameroot(root, title, height=height, width=width,center_widget='StackContainer',**kwargs) 
         return frame
     

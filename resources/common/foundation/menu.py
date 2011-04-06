@@ -27,40 +27,8 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag, BagResolver
 import os
 
-class Menu(BaseComponent):
+class MenuBase(BaseComponent):
     css_requires = 'menu'
-
-    def mainLeft_menu_plugin(self, tc):
-        pane = tc.contentPane(title="Menu", pageName='menu_plugin')
-        self.menu_menuPane(
-                pane.div(position='absolute', top='2px', left='0', right='2px', bottom='2px', overflow='auto'))
-
-    def menu_menuPane(self, pane, **kwargs):
-        b = Bag()
-        b['root'] = MenuResolver(path=None, pagepath=self.pagepath)
-        pane.data('gnr.appmenu', b)
-        #leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
-        pane.tree(id="_gnr_main_menu_tree", storepath='gnr.appmenu.root', selected_file='gnr.filepath',
-                  labelAttribute='label',
-                  hideValues=True,
-                  _class='menutree',
-                  persist='site',
-                  inspect='shift',
-                  identifier='#p',
-                  getIconClass='return node.attr.iconClass || "treeNoIcon"',
-                  getLabelClass='return node.attr.labelClass',
-                  openOnClick=True,
-                  autoCollapse=True,
-                  getLabel="""if(node.attr.file){
-                                        var url = genro.joinPath(genro.baseUrl, node.attr.file);
-                                        return 'innerHTML:<a href="'+url+'"><div style="width:100%;height:100%;">'+node.attr.label+'</div></a>'}
-                                        else  
-                                        {return node.attr.label};""",
-                  nodeId='_menutree_')
-        pane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);", fired='^gnr.onStart',
-                            appmenu="=gnr.appmenu", _if="appmenu.len()==0")
-
-
     def getUserMenu(self, fullMenubag):
         def userMenu(userTags, menubag, level, basepath):
             result = Bag()
@@ -106,6 +74,65 @@ class Menu(BaseComponent):
         while len(result) == 1:
             result = result['#0']
         return result
+        
+    def mainLeft_menu_plugin(self, tc):
+        pane = tc.contentPane(title="Menu", pageName='menu_plugin')
+        self.menu_menuPane(pane.div(position='absolute', top='2px', left='0', right='2px', bottom='2px', overflow='auto'))
+
+class MenuIframes(MenuBase):
+    def mainLeft_iframemenu_plugin(self, tc):
+        pane = tc.contentPane(title="Menu", pageName='menu_plugin')
+        self.menu_iframemenuPane(pane.div(position='absolute', top='2px', left='0', right='2px', bottom='2px', overflow='auto'))
+        
+    def menu_iframemenuPane(self, pane, **kwargs):
+        b = Bag()
+        b['root'] = MenuResolver(path=None, pagepath=self.pagepath)
+        pane.data('gnr.appmenu', b)
+        #leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
+        pane.tree(id="_gnr_main_menu_tree", storepath='gnr.appmenu.root', selected_file='gnr.filepath',
+                  labelAttribute='label',
+                  hideValues=True,
+                  _class='menutree',
+                  persist='site',
+                  inspect='shift',
+                  identifier='#p',
+                  getIconClass='return node.attr.iconClass || "treeNoIcon"',
+                  getLabelClass='return node.attr.labelClass',
+                  openOnClick=True,
+                  connect_onClick='this.publish("selected",objectUpdate({name:$1.label,"file":null,table:null},$1.attr));',
+                  autoCollapse=True,
+                  nodeId='_menutree_')
+        pane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);", fired='^gnr.onStart',
+                            appmenu="=gnr.appmenu", _if="appmenu.len()==0")
+
+class MenuLink(MenuBase):
+    def menu_menuPane(self, pane, **kwargs):
+        b = Bag()
+        b['root'] = MenuResolver(path=None, pagepath=self.pagepath)
+        pane.data('gnr.appmenu', b)
+        #leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
+        pane.tree(id="_gnr_main_menu_tree", storepath='gnr.appmenu.root', selected_file='gnr.filepath',
+                  labelAttribute='label',
+                  hideValues=True,
+                  _class='menutree',
+                  persist='site',
+                  inspect='shift',
+                  identifier='#p',
+                  getIconClass='return node.attr.iconClass || "treeNoIcon"',
+                  getLabelClass='return node.attr.labelClass',
+                  openOnClick=True,
+                  autoCollapse=True,
+                  getLabel="""if(node.attr.file){
+                                        var url = genro.joinPath(genro.baseUrl, node.attr.file);
+                                        return 'innerHTML:<a href="'+url+'"><div style="width:100%;height:100%;">'+node.attr.label+'</div></a>'}
+                                        else  
+                                        {return node.attr.label};""",
+                  nodeId='_menutree_')
+        pane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);", fired='^gnr.onStart',
+                            appmenu="=gnr.appmenu", _if="appmenu.len()==0")
+
+
+
 
 class MenuResolver(BagResolver):
     classKwargs = {'cacheTime': 300,
