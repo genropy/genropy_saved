@@ -1,19 +1,24 @@
 # -*- coding: UTF-8 -*-
 
-# framedindex.py
-# Created by Francesco Porcari on 2011-04-05.
+# frameindex.py
+# Created by Francesco Porcari on 2011-04-06.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-class GnrCustomWebPage(object):
+from gnr.web.gnrwebpage import BaseComponent
+
+class Mixin(BaseComponent):
     py_requires='public:Public,foundation/menu:MenuIframes'
     plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin'
-         
+    index_url = None
+    showTabs = False
+    
     def rootWidget(self, root, **kwargs):
-        return root.stackContainer(selectedPage='^selectedFrame',nodeId='center_stack',region='center')
+        tag = 'TabContainer' if self.showTabs else 'StackContainer'
+        return root.child(tag=tag,selectedPage='^selectedFrame',nodeId='center_stack',region='center')
     
     def main(self, root, **kwargs):
-        #root = root.rootContentPane(title='ciao')
-        #root.contentPane(pageName='__base__').div('test')
+        if self.index_url:
+            root.contentPane(pageName='index',title='Index').iframe(height='100%', width='100%', src=self.index_url, border='0px')
         root.dataController("""
             var sc = genro.nodeById("center_stack");
             var page = sc.getValue().getItem(name);
