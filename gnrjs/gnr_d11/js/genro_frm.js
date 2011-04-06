@@ -127,7 +127,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.sourceNode.registerSubscription(topic,scope,cb);
     },
     setDisabled:function(disable){
-        disable = disable || this.isProtected();
+        var disable = disable || this.isProtected();
+        var node;
+        var nodeToDel = [];
         for (var k in this._register){
             this._register[k].setDisabled(disable);
         }
@@ -150,6 +152,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             return;
         }
     },
+    
+    unregisterChild:function(sourceNode){
+        if(this._register[sourceNode._id]){
+            delete this._register[sourceNode._id];
+        }
+    },
+    
 
     dismiss:function(modifiers){
         this.publish('navigationEvent',{'command':'dismiss',modifiers:modifiers});
