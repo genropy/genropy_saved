@@ -184,22 +184,21 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         curs = self.dbroot.execute('LISTEN %s;' % msg)
         listening = True
+        conn = curs.connection
+        if psycopg2.__version__.startswith('2.0'):
+            selector = curs
+            pg_go = curs.isready
+        else:
+            selector = conn
+            pg_go = conn.poll
         while listening:
-            selector = curs.connection
-            if psycopg2.__version__.startswith('2.0'):
-                selector = curs
             if select.select([selector], [], [], timeout) == ([], [], []):
                 if onTimeout != None:
                     listening = onTimeout()
             else:
-                if psycopg2.__version__.startswith('2.0'):
-                    pg_go = curs.isready
-                else:
-                    pg_go = curs.connection.poll
-                
                 if pg_go():
                     if onNotify != None:
-                        listening = onNotify(curs.connection.notifies.pop())
+                        listening = onNotify(conn.notifies.pop())
         self.dbroot.connection.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
         
     def notify(self, msg, autocommit=False):
@@ -409,20 +408,15 @@ class SqlDbAdapter(SqlDbBaseAdapter):
 class GnrDictConnection(_connection):
     """A connection that uses DictCursor automatically."""
 
-    _lock = threading.Lock()
 
     def __init__(self, *args, **kwargs):
         super(GnrDictConnection, self).__init__(*args, **kwargs)
 
     def cursor(self, name=None):
-        self._lock.acquire()
-        try:
-            if name:
-                cur = super(GnrDictConnection, self).cursor(name, cursor_factory=GnrDictCursor)
-            else:
-                cur = super(GnrDictConnection, self).cursor(cursor_factory=GnrDictCursor)
-        finally:
-            self._lock.release()
+        if name:
+            cur = super(GnrDictConnection, self).cursor(name, cursor_factory=GnrDictCursor)
+        else:
+            cur = super(GnrDictConnection, self).cursor(cursor_factory=GnrDictCursor)
         return cur
 
 class GnrDictCursor(_cursor):
