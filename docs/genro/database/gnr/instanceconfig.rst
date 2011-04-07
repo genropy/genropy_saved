@@ -165,14 +165,15 @@ Tags
     
     * The first attribute is the name of your temporary user (in the example below, ``nameUser``)
     * `pwd`: the password of your temporary user
-    * `tags`: the level of authorization of your user:
+    * `tags`: the level of authorization of your user; you can use every tag you want, there is no
+      keyword for any user. For example, you may want to use these four level authorizations:
     
         * `_DEV_`: developer
         * `admin`: administrator
         * `user`: user
         * `staff`: staff
         
-    Let's see an example::
+    And your ``<xml_auth>`` will be something like::
     
         <xml_auth defaultTags="users,xml">
             <myName pwd="superSecurePwd" tags="_DEV_,admin,user,staff"/>

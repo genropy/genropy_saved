@@ -5,7 +5,7 @@ Genro Projects
 ==============
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
     
     introduction
     the ``.gnr`` folder <gnr/index>

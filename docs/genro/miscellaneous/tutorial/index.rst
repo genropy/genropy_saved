@@ -1,7 +1,7 @@
 .. _genro_simpleproject_index:
 
 =====================
-Creation of a project
+creation of a project
 =====================
 
 .. toctree::
