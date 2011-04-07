@@ -43,8 +43,8 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
     },
     
     createMenues: function() {
-        genro.src.getNode()._('div', '_qbmenues');
-        var node = genro.src.getNode('_qbmenues');
+        genro.src.getNode()._('div', this.relativeId('_qbmenues'));
+        var node = genro.src.getNode(this.relativeId('_qbmenues'));
         node.clearValue();
         node.freeze();
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.jc',id:this.relativeId('qb_jc_menu')});

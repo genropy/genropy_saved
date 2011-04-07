@@ -28,9 +28,6 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
 
-
-from gnr.core.gnrbag import Bag
-
 class StackTableHandler(BaseComponent):
     py_requires='tablehandler/th_list:TableHandlerListBase,tablehandler/th_form:TableHandlerFormBase'
     @extract_kwargs(widget=True)
@@ -41,12 +38,17 @@ class StackTableHandler(BaseComponent):
         defaultName = 'th_%s' %tablename
         formName = th_formName or defaultName
         viewName = th_viewName or defaultName
+        if not ':' in formName:
+            formName = '%s:Form' %formName
+        if not ':' in viewName:
+            viewName = '%s:View' %viewName
+        
         sc = pane.stackContainer(datapath=datapath or '.%s'%tableCode,selectedPage='^.selectedPage',**kwargs)
         if th_iframe:
             self.th_stackIframe(sc,pkg,tablename)            
         else:
-            self.mixinComponent(pkg,'tables',tablename,'%s:Form' %formName,mangling_th=tableCode)
-            self.mixinComponent(pkg,'tables',tablename,'%s:View' %viewName,mangling_th=tableCode)
+            self.mixinComponent(pkg,'tables',tablename,formName,mangling_th=tableCode)
+            self.mixinComponent(pkg,'tables',tablename,viewName,mangling_th=tableCode)
             viewpage = sc.listPage(frameCode='%s_list' %tableCode,table=table,
                                     linkedForm='%s_form' %tableCode,pageName='view')
             formpage = sc.formPage(frameCode='%s_form' %tableCode,table=table,pageName='form',
