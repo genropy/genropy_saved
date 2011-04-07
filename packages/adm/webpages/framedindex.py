@@ -21,17 +21,17 @@ class GnrCustomWebPage(object):
             if(!page){
                  page = sc._('ContentPane',name,{pageName:name,title:label,overflow:'hidden',nodeId:name});
                  url = file;
+                 var urlPars = {inframe:true};
                  if(table){
                     url = '/adm/th/thrunner/'+table.replace('.','/');
-                 }
-                 else{
-                    url = file;
-                    if(url.indexOf('?')>0){
-                        url+='&&inframe=true'
-                    }else{
-                        url+='?inframe=true'
+                    if(formName){
+                        urlPars['th_formName'] = formName;
+                    }
+                    if(viewName){
+                        urlPars['th_viewName'] = viewName;
                     }
                  }
+                 url = genro.addParamsToUrl(url,urlPars);
              }
             SET selectedFrame = name;
             if(url){
