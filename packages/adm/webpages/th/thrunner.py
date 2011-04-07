@@ -19,6 +19,7 @@ class GnrCustomWebPage(object):
 
     def main_sc(self, root,th_pkg=None,th_table=None, th_public=True,**kwargs):
         table = '%s.%s' %(th_pkg,th_table)
+        self.maintable = table
         if th_public:
             tblobj = self.db.table(table)
             root = root.rootContentPane(title=tblobj.name_long)
