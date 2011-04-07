@@ -104,6 +104,28 @@ dojo.declare("gnr.GnrDomHandler", null, {
         e.type = "text/javascript";
         document.getElementsByTagName("head")[0].appendChild(e);
     },
+    loadExternal:function(urlList){
+        var urlList;
+        if (typeof(urlList)=='string'){
+            if (urlList.indexOf(',')>-1){
+                urlList = urlList.split(',');
+            }
+            else{
+                urlList=[urlList];
+            }
+        }
+        dojo.forEach(urlList,function(url){
+            var name = url.split('?')[0];
+            var splitted_name = name.split('.');
+            var file_ext =splitted_name[splitted_name.length-1].toLowerCase()
+            if (file_ext=='js'){
+                this.loadJs(url);
+            }
+            else if (file_ext=='css'){
+                this.loadCss(url);
+            }
+        });
+    },
 
     addClass: function(where, cls) {
         if (typeof(cls) == 'string') {
