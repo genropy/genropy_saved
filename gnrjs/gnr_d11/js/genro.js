@@ -292,7 +292,29 @@ dojo.declare('gnr.GenroClient', null, {
         }
         //genro.currentFocusedElement = wdg;
     },
-    
+    loadExternal:function(urlList){
+        var urlList;
+        if (typeof(urlList)=='string'){
+            if (urlList.indexOf(',')>-1){
+                urlList = urlList.split(',');
+            }
+            else{
+                urlList=[urlList];
+            }
+        }
+        var main = genro.src.getSource();
+        dojo.forEach(urlList,function(url){
+            var name = url.split('?')[0];
+            var splitted_name = name.split('.');
+            var file_ext =splitted_name[splitted_name.length-1].toLowerCase()
+            if (file_ext=='js'){
+                main._('script',{type:"text/javascript",src:url});
+            }
+            else if (file_ext=='css'){
+                main._('link',{type:"text/css",rel:"stylesheet",href:url});
+            }
+        });
+    },
     standardEventConnection:function(pane){
         var pane = pane || genro.domById('mainWindow');
         dojo.connect(pane,'onclick',function(e){
