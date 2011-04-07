@@ -430,7 +430,7 @@ class ResourceLoader(object):
             else:
                 raise GnrMixinError('Cannot import component %s' % modName)
                 
-    def getResourceList(self, resourceDirs, path, ext=None):
+    def getResourceList(self, resourceDirs, path, ext=None,pkg=None):
         """Find a resource in the current ``_resources`` folder or in parent folders one
         
         :param resourceDirs: add???
@@ -483,11 +483,11 @@ class ResourceLoader(object):
         css_requires = getattr(component,'css_requires',[])
         js_requires = getattr(component,'js_requires',[])
         for css in css_requires:
-            if css and not css in page.css_requires:
-                page.css_requires.append(css)
+            if css and not css in page.dynamic_css_requires and not css in page.css_requires:
+                page.dynamic_css_requires[css] = page.getResourceUri(css,'css',add_mtime=True,pkg=pkg)
         for js in js_requires:
-            if js and not js in page.js_requires:
-                page.js_requires.append(js)
+            if js and not js in page.dynamic_js_requires and not js in page.js_requires:
+                page.dynamic_js_requires[js] = page.getResourceUri(js,'js',add_mtime=True,pkg=pkg)
         page.mixin(component,**kwargs)
         
     def loadTableScript(self, page, table=None, respath=None, class_name=None, _onDefault=None):

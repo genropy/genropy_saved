@@ -106,6 +106,8 @@ class GnrWebPage(GnrBaseWebPage):
                                                                                                       'gui?css_theme']
         self.dojo_theme = request_kwargs.pop('dojo_theme', None) or getattr(self, 'dojo_theme', None)
         self.dojo_version = request_kwargs.pop('dojo_version', None) or getattr(self, 'dojo_version', None)
+        self.dynamic_js_requires= {}
+        self.dynamic_css_requires= {}
         self.debugopt = request_kwargs.pop('debugopt', None)
             
         self.callcounter = request_kwargs.pop('callcounter', None) or 'begin'
@@ -934,24 +936,26 @@ class GnrWebPage(GnrBaseWebPage):
         """
         pass
         
-    def getResourceUri(self, path, ext=None, add_mtime=False):
-        fpath = self.getResource(path, ext=ext)
+    def getResourceUri(self, path, ext=None, add_mtime=False,pkg=None):
+        fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
             return
-        return self.resolveResourceUri(fpath, add_mtime=add_mtime)
+        return self.resolveResourceUri(fpath, add_mtime=add_mtime,pkg=pkg)
 
 
-    def resolveResourceUri(self, fpath, add_mtime=False):
-        url = None
+    def resolveResourceUri(self, fpath, add_mtime=False,pkg=None):
+        url = None 
+        packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
+        pkg = pkg or self.packageId
         if fpath.startswith(self.site.site_path):
             uripath = fpath[len(self.site.site_path):].lstrip('/').split(os.path.sep)
             url = self.site.getStatic('site').url(*uripath)
         elif fpath.startswith(self.site.pages_dir):
             uripath = fpath[len(self.site.pages_dir):].lstrip('/').split(os.path.sep)
             url = self.site.getStatic('pages').url(*uripath)
-        elif fpath.startswith(self.package_folder):
-            uripath = fpath[len(self.package_folder):].lstrip('/').split(os.path.sep)
-            url = self.site.getStatic('pkg').url(self.packageId, *uripath)
+        elif fpath.startswith(packageFolder):
+            uripath = fpath[len(packageFolder):].lstrip('/').split(os.path.sep)
+            url = self.site.getStatic('pkg').url(pkg, *uripath)
         else:
             for rsrc, rsrc_path in self.site.resources.items():
                 if fpath.startswith(rsrc_path):
@@ -963,8 +967,11 @@ class GnrWebPage(GnrBaseWebPage):
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
         
-    def getResource(self, path, ext=None):
-        result = self.site.resource_loader.getResourceList(self.resourceDirs, path, ext=ext)
+    def getResource(self, path, ext=None,pkg=None):
+        resourceDirs = self.resourceDirs
+        if pkg:
+            resourceDirs = self.site.resource_loader.package_resourceDirs(pkg)
+        result = self.site.resource_loader.getResourceList(resourceDirs, path, ext=ext)
         if result:
             return result[0]
             
@@ -1013,11 +1020,10 @@ class GnrWebPage(GnrBaseWebPage):
         
     def _get_package_folder(self):
         if not hasattr(self, '_package_folder'):
-            self._package_folder = os.path.join(self.site.gnrapp.packages[self.packageId].packageFolder, 'webpages')
+            self._package_folder = self.site.getPackageFolder(self.packageId)
         return self._package_folder
-        
     package_folder = property(_get_package_folder)
-        
+    
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
         page = self.domSrcFactory.makeRoot(self)
         self._root = page
@@ -1106,7 +1112,14 @@ class GnrWebPage(GnrBaseWebPage):
                                     user_polling="^gnr.polling.user_polling",
                                     auto_polling="^gnr.polling.auto_polling",
                                     _onStart=True)
-
+                if self.dynamic_css_requires:
+                    for v in self.dynamic_css_requires.values():
+                        if v:
+                            page.script('genro.dom.loadCss("%s")' %v)
+                if self.dynamic_js_requires:
+                    for v in self.dynamic_js_requires.values():
+                        if v:
+                            page.script('genro.dom.loadJs("%s")' %v)
                 if self._pendingContextToCreate:
                     self._createContext(root, self._pendingContextToCreate)
                 if self.user:

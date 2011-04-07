@@ -527,6 +527,9 @@ class GnrWsgiSite(object):
         
     sitemap = property(_get_sitemap)
     
+    def getPackageFolder(self,pkg):
+        return os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
+        
     def loadResource(self, pkg, *path):
         """add???
         
