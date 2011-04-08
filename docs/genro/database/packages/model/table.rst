@@ -4,11 +4,15 @@
 table
 =====
     
-    .. warning:: to be completed!!
-    
     * :ref:`table_definition`
     * :ref:`table_creation`
-    * :ref:`table_relation`
+    * :ref:`table_columns`:
+    
+        * the simple :ref:`table_column` (and :ref:`table_relation`\s)
+        * the :ref:`table_aliascolumn`
+        * the :ref:`table_formulacolumn`
+        * the :ref:`table_virtualcolumn`
+        
     * :ref:`table_examples`
     
 .. _table_definition:
@@ -16,19 +20,13 @@ table
 Definition
 ==========
 
-    In relational databases and flat file databases, a table is a set of data elements (values)
-    that is organized using a model of vertical columns (which are identified by their name) and
-    horizontal rows. A table has a specified number of columns, while the number of rows is equal
-    to the records inserted. Each row is identified by the values appearing in a particular
-    column subset which has been identified as a candidate key.
-    
-    A table allows to manage the database. add???(here I need an help for documentation...)
+    .. automethod:: gnr.sql.gnrsqlmodel.DbModelSrc.table
     
 .. _table_creation:
     
 Creation of a table
 ===================
-
+    
     To autocreate a table header, you have to install Textmate_ with :ref:`textmate_bundle`.
     
     .. _Textmate: http://macromates.com/
@@ -37,11 +35,12 @@ Creation of a table
     
     Alternatively, you can write by yourself the header lines:
     
-    * First write::
+    * First write the following line for the utf-8 encoding::
     
         # encoding: utf-8
     
-    Explain...
+    Now we have to introduce the right class for a table; there are many options (that we will discuss
+    in the :ref:`genro_table_class` documentation page)
     
     ::
     
@@ -69,16 +68,28 @@ Creation of a table
     
     * introduce the sysFields::
         
-        self.sysFields(tbl, group='_')
+        self.sysFields(tbl)
         
     .. automethod:: gnr.app.gnrdbo.TableBase.sysFields
+
+.. _table_columns:
+
+Table columns
+=============
+
+    There are a lot of columns type you can use:
+    
+    * the simple :ref:`table_column` (and :ref:`table_relation`\s)
+    * the :ref:`table_aliascolumn`
+    * the :ref:`table_formulacolumn`
+    * the :ref:`table_virtualcolumn`
 
 .. _table_column:
 
 column
 ------
 
-    .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc.column
+    .. automethod:: gnr.sql.gnrsqlmodel.DbModelSrc.column
     
     * introduce column(s):
         
@@ -99,13 +110,14 @@ relation
     attributi di *relation*:
     
     * mode='foreignkey'
-      se non si mette il mode='foreignkey', la relazione è puramente logica, ed è senza nessun controllo di integrità referenziale
-      quando si vuole interagire con il database, mettere mode='foreignkey' --> diventa una relazione 
+      se non si mette il mode='foreignkey', la relazione è puramente logica, ed è senza nessun controllo
+      di integrità referenziale quando si vuole interagire con il database, mettere mode='foreignkey' -->
+      diventa una relazione SQL. Nel 99% dei casi bisogna metterlo!
     * onDelete='cascade' add??? (altri attributi?)
     * one_one='*' add??? permette di rendere la relazione "simmetrica"
     * one_group add???
-    * relation_name='nome' + storepath='nome' --> mi permette di non riscrivere tutta la relazione (@blabla.@bleble.nome) che è
-      contenuta nella column con il relation...
+    * relation_name='nome' + storepath='nome' --> mi permette di non riscrivere tutta la relazione
+      (@blabla.@bleble.nome) che è contenuta nella column con il relation...
       
 .. _table_aliascolumn:
 

@@ -317,7 +317,7 @@ class DbModelSrc(GnrStructData):
               comment=None,
               name_short=None, name_long=None, name_full=None,
               **kwargs):
-        """Add a table to the structure. The table is a child of the package created with the :meth:`package` method
+        """Add a table to the structure.
         
         :param name: the table name
         :param pkey: the table's primary key. Default value is ``None``
@@ -343,7 +343,8 @@ class DbModelSrc(GnrStructData):
                name_short=None, name_long=None, name_full=None,
                group=None, onInserting=None, onUpdating=None, onDeleting=None,
                **kwargs):
-        """Insert a column into a table. The column is a child of the table created with the :meth:`table` method
+        """Insert a column into a table.
+        
         :param name: the column name
         :param dtype: the data type. Default value is ``None``
         :param size: string. ``'min:max'`` or fixed lenght ``'len'``. Default value is ``None``

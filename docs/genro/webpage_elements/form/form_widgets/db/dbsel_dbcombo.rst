@@ -5,14 +5,16 @@ dbSelect and dbCombobox: commons attributes
 ===========================================
 
     * :ref:`db_genro_attributes`
-    * :ref:`db_examples`: :ref:`db_selected`, :ref:`db_condition`, :ref:`db_columns` and :ref:`db_auxColumns`, :ref:`db_hasdownarrow`
+    * :ref:`db_examples`: :ref:`db_selected`, :ref:`db_condition`, :ref:`db_columns`
+      and :ref:`db_auxColumns`, :ref:`db_hasdownarrow`
 
 .. _db_genro_attributes:
 
 Common attributes
 =================
 
-    Here we show the attributes that belong both to :ref:`genro_dbselect` than to :ref:`genro_dbcombobox`:
+    Here we show the attributes that belong both to :ref:`genro_dbselect` than
+    to :ref:`genro_dbcombobox`:
     
     ==================== =================================================== ========================== ======================================
        Attribute                   Description                                  Default                       Example                        
@@ -73,11 +75,15 @@ Examples
 Selected
 ========
 
-    With the *selected* attribute you can draw multiple attributes to the :ref:`genro_datastore` through a single *dbSelect* or ``dbCombobox``; the sintax is ``selected_nameOfATableColumn='datapathFolder'``.
+    With the *selected* attribute you can draw multiple attributes to the :ref:`genro_datastore`
+    through a single *dbSelect* or ``dbCombobox``; the sintax is::
+    
+        selected_nameOfATableColumn='datapathFolder'
 
     **Example:**
 
-    let's consider a simple Genro Project [#]_ including a database :ref:`genro_table` and a :ref:`webpages_GnrCustomWebPage`. 
+    let's consider a simple Genro Project [#]_ including a database :ref:`genro_table`
+    and a :ref:`webpages_GnrCustomWebPage`. 
 
     The table includes a list of actors::
 
@@ -100,13 +106,17 @@ Selected
                 fb.dbSelect(dbtable='showcase.person',value='^.person_id',lbl='Star',
                             selected_name='.name',selected_year='.year')
 
-    This dbSelect allows user to choose from the ``table`` called "person" an actor; after user choice has been done, the dbSelect will do these operations:
+    This dbSelect allows user to choose from the ``table`` called "person" an actor;
+    after user choice has been done, the dbSelect will do these operations:
 
     * a save of the auctor's ID into the :ref:`genro_datastore` at the path: ``/myform/person_id``;
-    * through the syntax ``selected_name='.name'``, dbSelect will do a save of the value of the actor's column named "name" into the path: ``/myform/name``;
-    * through the syntax ``selected_year='.year'``, dbSelect will do a save of the value of the actor's column named "year" into the path: ``/myform/year``;
+    * through the syntax ``selected_name='.name'``, dbSelect will do a save of the value of
+      the actor's column named "name" into the path: ``/myform/name``;
+    * through the syntax ``selected_year='.year'``, dbSelect will do a save of the value of
+      the actor's column named "year" into the path: ``/myform/year``;
     
-    So, for example, if user will choose "Cate Blanchett" from the actors' list, Genro will save the following values in the following folders::
+    So, for example, if user will choose "Cate Blanchett" from the actors' list, Genro will
+    save the following values in the following folders::
         
         /myform/person_id/EuSy8OPJP_Kax4yGokSauw
         /myform/name/"Cate Blanchett"
@@ -127,8 +137,10 @@ Condition
     
         condition_something='=PathOfValue'
         
-    **Example:** let's start from the previous example (:ref:`db_selected`) where we had a list of actors included into a ``table`` called "person". Let's introduce a ``table`` called "movie" that contains a lot of title films on which the actors have participated::
-
+    **Example:** let's start from the previous example (:ref:`db_selected`) where we had a
+    list of actors included into a ``table`` called "person". Let's introduce a ``table``
+    called "movie" that contains a lot of title films on which the actors have participated::
+    
         # encoding: utf-8
         
         class Table(object):
@@ -144,7 +156,8 @@ Condition
                 tbl.column('description', name_short='Dsc', name_long='Movie description')
                 tbl.column('number','L',name_long='Number')
                 
-    The two tables ("movie" and "person") will be linked through a :ref:`table_relation` table called "cast"::
+    The two tables ("movie" and "person") will be linked through a relation table called "cast"
+    (in this table we use a :ref:`table_relation` applied to a column)::
     
         # encoding: utf-8
         
@@ -171,25 +184,32 @@ Condition
                             condition='$person_id=:pid',condition_pid='=.person_id',
                             alternatePkey='movie_id')
                             
-    The first dbSelect allows the user to choose an actor from the database. The second dbSelect allows the user to choose from a movie made exclusively by the chosen actor.
+    The first dbSelect allows the user to choose an actor from the database. The second dbSelect
+    allows the user to choose from a movie made exclusively by the chosen actor.
 
 .. _db_columns:
 
 Columns
 =======
 
-    When a user begins to type something into the ``dbSelect`` (or ``dbCombobox``) field, he will see visualized the database columns specified into the *rowcaption* field.
+    When a user begins to type something into the ``dbSelect`` (or ``dbCombobox``) field, he will
+    see visualized the database columns specified into the *rowcaption* field.
 
-    The usual procedure of a ``dbSelect`` query is to search through the records owned by the *rowcaption* attribute and to save the record chosen by the user through record's ID into the :ref:`genro_datastore`.
+    The usual procedure of a ``dbSelect`` query is to search through the records owned by the
+    *rowcaption* attribute and to save the record chosen by the user through record's ID into
+    the :ref:`genro_datastore`.
 
-    If you define *columns*, the ``dbSelect`` will continue to visualize only the records owned by the *rowcaption* attribute, but ``dbSelect`` will search ONLY through the record columns defined in the *columns* attribute.
+    If you define *columns*, the ``dbSelect`` will continue to visualize only the records owned
+    by the *rowcaption* attribute, but ``dbSelect`` will search ONLY through the record columns
+    defined in the *columns* attribute.
 
 .. _db_auxColumns:
 
 auxColumns
 ==========
 
-    The *auxColumns* attribute allow to visualize in a menu below the dbSelect (or dbCombobox) some additional fields.
+    The *auxColumns* attribute allow to visualize in a menu below the dbSelect (or dbCombobox)
+    some additional fields.
 
     **Example**::
 
@@ -203,7 +223,8 @@ auxColumns
 hasDownArrow
 ============
 
-    If True, the *hasDownArrow* attribute inserts a "down arrow", letting the user the possibility to search between ALL the entries (so the *limit* attribute is overridden)
+    If True, the *hasDownArrow* attribute inserts a "down arrow", letting the user the possibility
+    to search between ALL the entries (so the *limit* attribute is overridden)
     
     **Example**::
         

@@ -47,7 +47,6 @@ PERIODFINDER = re.compile(r"#PERIOD\s*\(\s*((?:\$|@)?[\w\.\@]+)\s*,\s*(\w*)\)")
 ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
 
-
 class SqlCompiledQuery(object):
     """SqlCompiledQuery is a private class used by SqlQueryCompiler. 
        It is used to store all parameters needed to compile a query string."""
@@ -112,7 +111,7 @@ class SqlQueryCompiler(object):
         self._currColKey = None
         self.locale = locale
         
-    def init (self, lazy=None, eager=None):
+    def init(self, lazy=None, eager=None):
         """add???
         
         :param lazy: add???. Default value is ``None``
@@ -299,7 +298,7 @@ class SqlQueryCompiler(object):
         
         A joinCondition is a dict containing:
         
-        * `condition`: the condition as a where clause, the columns of the target table are referenced as $tbl.colname
+        * `condition`: the condition as a WHERE clause, the columns of the target table are referenced as $tbl.colname
         * `params`: a dict of params used in the condition clause
         * `one_one`: True if a many relation becomes a one relation because of the condition
         
@@ -352,8 +351,8 @@ class SqlQueryCompiler(object):
             *@rel1.@rel2         --> returns all columns of rel2 target table
             *@rel1.@rel2.prefix_ --> returns all columns of rel2 target table starting with prefix_
         
-        :param bagFields: boolean, True to include fields of type Bag ('X') when columns is * or contains *@relname.filter
-                          Default value is ``False``
+        :param bagFields: boolean, True to include fields of type Bag ('X') when columns is * or contains
+                          ``*@relname.filter``. Default value is ``False``
         :returns: a list of columns
         """
         if flt.startswith('@'):
