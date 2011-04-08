@@ -252,6 +252,7 @@ class ResourceLoader(object):
         """Look in the instance custom folder for a file named as the current webpage
         
         :param page_class: add???
+        :param path: add???
         :param pkg: add???. Default value is ``None``
         """
         path = path.split(os.path.sep)
@@ -267,6 +268,7 @@ class ResourceLoader(object):
         """Build page resources directories
         
         :param page_class: add???
+        :param path: add???
         :param pkg: add???. Default value is ``None``
         """
         if pkg:
