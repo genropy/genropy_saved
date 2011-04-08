@@ -68,3 +68,17 @@ class StackTableHandler(BaseComponent):
                             ).iframe(src='%s/%s/%s' %(viewRunnerUrl,pkg,tablename),border=0,height='100%',width='100%')
         sc.contentPane(detachable=True,pageName='form').contentPane(margin='5px',overflow='hidden',_lazyBuild=True,
                             ).iframe(src='%s/%s/%s' %(formRunnerUrl,pkg,tablename),border=0,height='100%',width='100%')
+                            
+class StackTableHandlerRunner(BaseComponent):
+    py_requires = """public:Public,tablehandler/th_components:StackTableHandler"""
+    plugin_list=''
+
+    def onMain_pbl(self):
+        pass
+
+    def main(self,root,formResource=None,viewResource=None,**kwargs):
+        root = root.rootContentPane(title=self.tblobj.name_long,datapath=self.maintable.replace('.','_'))
+        root.stackTableHandler(table=self.maintable,th_formName=formResource,th_viewName=viewResource,**kwargs)
+        
+    
+     
