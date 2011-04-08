@@ -871,7 +871,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 });
 
 dojo.declare("gnr.GnrValidator", null, {
-    validationTags: ['dbselect','notnull','empty','case','len','email','regex','call','nodup','exist','remote'],
+    validationTags: ['dbselect','notnull','empty','case','len','min','max','email','regex','call','nodup','exist','remote'],
     getCurrentValidations: function(sourceNode) {
         return sourceNode.evaluateOnNode(objectExtract(sourceNode.attr, 'validate_*', true));
     },
@@ -1041,6 +1041,15 @@ dojo.declare("gnr.GnrValidator", null, {
             }
         }
     },
+    
+    validate_min: function(param, value) {
+        return value>=param;
+    },
+    
+    validate_max: function(param, value) {
+        return value<=param;
+    },
+    
     validate_len: function(param, value) {
         if (value) {
             if (param.indexOf(':') >= 0) {

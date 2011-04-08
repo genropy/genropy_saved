@@ -4217,7 +4217,7 @@ dojo.declare("gnr.widgets.FilteringSelect", gnr.widgets.BaseCombo, {
     },
     connectForUpdate: function(widget, sourceNode) {
         var selattr = objectExtract(widget.sourceNode.attr, 'selected_*', true);
-        if (objectNotEmpty(selattr)) {
+        if (objectNotEmpty(selattr) || sourceNode.attr.selectedCaption) {
             dojo.connect(widget, '_doSelect', widget, function() {
                 this._updateSelect(this.item);
             });
