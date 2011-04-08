@@ -105,9 +105,6 @@ Project autocreation
     
     .. image:: ../images/myproject2.png
     
-    If you're new on the idea of a project, we suggest you, before continuing on this chapter,
-    to check the tutorial on the :ref:`genro_simpleproject_index`
-    
 **Footnotes**:
 
 .. [#] Genro provides additional modules that implement common functions for all the applications
