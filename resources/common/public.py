@@ -172,12 +172,16 @@ class Public(BaseComponent):
         if not self.isGuest:
             pane.div(content=self.user, float='right', _class='pbl_slotbar_label buttonIcon',
                       connect_onclick='PUBLISH preference_open="user";',**kwargs)
+        else:
+            pane.div()
     
     @struct_method
     def public_publicRoot_logout(self,pane,**kwargs):
         if not self.isGuest:
             pane.div(connect_onclick="genro.logout()", title="!!Logout",
                       _class='pbl_logout buttonIcon', content='&nbsp;',**kwargs)
+        else:
+            pane.div()
         
     @struct_method
     def public_publicRoot_dock(self,pane,**kwargs):
@@ -190,12 +194,16 @@ class Public(BaseComponent):
             pane.dataFormula('gnr.localizerClass', """ 'localizer_'+status;""",
                             status='^gnr.localizerStatus', _init=True, 
                             _else="return 'localizer_hidden'")
+        else:
+            pane.div()
                    
     @struct_method
     def public_publicRoot_devBtn(self,pane,**kwargs):         
         if self.isDeveloper():
             pane.div(connect_onclick='genro.dev.showDebugger();',
                       _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
+        else:
+            pane.div()
         
     
     @struct_method
@@ -326,6 +334,7 @@ class Public(BaseComponent):
                       _class='pbl_logout buttonIcon', content='&nbsp;', float='right')
             right.div(content=self.user, float='right', _class='pbl_username buttonIcon',
                       connect_onclick='PUBLISH preference_open="user";')
+                      
 
         return center
 
