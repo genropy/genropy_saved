@@ -273,8 +273,7 @@ class GnrDomSrc(GnrStructData):
             centerCb(frame)
         return frame
         
-    def formstore(self,storepath=None,handler='recordCluster',
-                    nodeId=None,table=None,storeType=None,parentStore=None,**kwargs):
+    def formstore(self,handler='recordCluster',nodeId=None,table=None,storeType=None,parentStore=None,**kwargs):
         """add???
         
         :param storepath: add???. Default value is ``None``
@@ -297,14 +296,10 @@ class GnrDomSrc(GnrStructData):
         if table:
             self.attributes['table'] = table
         elif 'table' in self.attributes:
-            table = self.attributes['table']
-        if not storepath:
-            storepath = '.record'
-        
+            table = self.attributes['table']        
         return self.child('formStore',childname='store',storeCode=storeCode,table=table,
                             nodeId = nodeId or '%s_store' %storeCode,storeType=storeType,
-                            parentStore=parentStore,
-                            storepath=storepath,handler=handler,**kwargs)
+                            parentStore=parentStore,handler=handler,**kwargs)
                             
     def formstore_handler(self,action,handler_type=None,**kwargs):
         """add???
