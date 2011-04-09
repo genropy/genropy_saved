@@ -36,7 +36,8 @@ class TableHandlerFormBase(BaseComponent):
             self.th_formPageCollection(form,parentStore=parentStore)
         elif startKey:
             self.th_formPageItem(form, startKey=startKey)
-        self._th_hook('form',table=table)(form)
+        center = form.center.contentPane(datapath='.record')
+        self._th_hook('form',table=table)(center)
         return form
         
     def th_formPageCollection(self,form,parentStore=None):
