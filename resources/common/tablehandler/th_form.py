@@ -89,7 +89,8 @@ class TableHandlerFormLegacy(BaseComponent):
                                         dismiss_iconClass='tb_button tb_listview',**toolbarKw)
 
         self.setLogicalDeletionCheckBox(toolbar.hiddenrecord)
-        self._th_hook('form')(form,region='center')
+        center = form.center.contentPane(datapath='.record')
+        self._th_hook('form')(center)
         
     def setLogicalDeletionCheckBox(self, elem):
         box = elem.div(_class='hidden_record_checkbox')
