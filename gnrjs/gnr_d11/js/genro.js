@@ -975,10 +975,10 @@ dojo.declare('gnr.GenroClient', null, {
                 nodeId=childpath[0]
                 childpath = childpath.slice(1).join('.');
             }
-            if(nodeId=='FORMDATA'){
+            if(nodeId=='RECORD'){
                 nodeId = scope.form;
                 if(scope.form.store){
-                    nodeId = scope.form.formId+'_content';
+                    node = scope.form.contentSourceNode;
                 }else{
                     node = scope.form.sourceNode;
                 }

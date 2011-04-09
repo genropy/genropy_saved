@@ -50,6 +50,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
+        this.formDomNode = this.sourceNode.getDomNode();
+        this.contentSourceNode = this.store? this.sourceNode.getValue().getNode('center'):sourceNode;
+        this.formContentDomNode = this.contentSourceNode.getDomNode();
         this.frameCode = sourceNode.attr.frameCode;
         if(this.frameCode){
             this.formParentNode = genro.getFrameNode(this.frameCode,'frame').getParentNode().getParentNode()
@@ -86,11 +89,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     onStartForm:function(kw){
         var kw = kw || {};
-        this.formDomNode =  genro.domById(this.formId);
         if(this.store){
-            var contentSourceNode = genro.nodeById(this.formId+'_content');
-
-            this.formContentDomNode = contentSourceNode.widget.domNode;
             this.store.init(this);            
             var that = this;
             dojo.connect(this.formContentDomNode,'onclick',function(e){
@@ -360,12 +359,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         
     },
     _showHider: function(){
-        var formDomNode = genro.domById(this.formId);
-        genro.dom.addClass(formDomNode, 'loadingForm');
+        genro.dom.addClass(this.formDomNode, 'loadingForm');
         var formHider = document.createElement("div");
         formHider.id = this.formId + "_hider";
         dojo.addClass(formHider, 'formHider');
-        formDomNode.appendChild(formHider);
+        this.formDomNode.appendChild(formHider);
     },
     _hideHider:function(){
         genro.dom.removeClass(this.formId, 'loadingForm');
@@ -1144,7 +1142,7 @@ dojo.declare("gnr.formstores.Base", null, {
     constructor:function(kw,handlers){
         objectPop(kw, 'tag');
         this.handlers = handlers;
-        this.storepath = objectPop(kw,'storepath');
+        this.storepath = '.record';
         this.parentStoreCode = objectPop(kw,'parentStore')
         //this.startKey = objectPop(kw,'startKey');
         //this.table = kw.table;

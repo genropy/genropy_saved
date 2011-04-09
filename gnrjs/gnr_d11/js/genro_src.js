@@ -107,7 +107,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 if(n.form){
                     n.form.unregisterChild(n);
                 }
-            });
+            },'static');
         }
     },
     

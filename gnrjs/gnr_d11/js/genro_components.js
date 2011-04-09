@@ -250,23 +250,22 @@ dojo.declare("gnr.widgets.FrameForm", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var formId = objectPop(kw,'formId');
         var storeNode = children.popNode('store');
+        var contentNode = children.getNode('center.#0');
+        genro.assert(contentNode,'missing contentNode:  attach to form.center a layout widget');
+        contentNode.attr['_class'] =  contentNode.attr['_class'] + ' fh_content';
         var store = this.createStore(storeNode);
-        var storepath = store.storepath;
         var frameCode = kw.frameCode;
         formId = formId || frameCode+'_form';
-        var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.controller',formDatapath:storepath,pkeyPath:'.pkey',formId:formId,form_store:store},kw));
+        var frame = sourceNode._('FramePane',objectUpdate({controllerPath:'.controller',formDatapath:'.record',
+                                                            pkeyPath:'.pkey',formId:formId,form_store:store},kw));
         if(kw.hasBottomMessage!==false){
             frame._('SlotBar',{'side':'bottom',slots:'*,messageBox,*',_class:'fh_bottom_message',messageBox_subscribeTo:'form_'+formId+'_message'});
         }
         var storeId = kw.store+'_store';
-        var centerPars = objectExtract(kw,'center_*');
-        centerPars['widget'] = objectPop(centerPars,'widget') || 'ContentPane';
-        frame._(centerPars['widget'],objectUpdate({side:'center','_class':'fh_content','nodeId':formId+'_content',datapath:storepath},centerPars));
         return frame;
     },
     createStore:function(storeNode){
         var storeCode = storeNode.attr.storeCode;
-        storeNode.attr.storepath = storeNode.attr.storepath || '.record';
         var storeContent = storeNode.getValue();
         var action,callbacks;
         storeNode._value = null;
