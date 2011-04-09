@@ -50,9 +50,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDatapath = formDatapath;
         this.pkeyPath = pkeyPath;
         this.sourceNode = sourceNode;
-        this.formDomNode = this.sourceNode.getDomNode();
         this.contentSourceNode = this.store? this.sourceNode.getValue().getNode('center'):sourceNode;
-        this.formContentDomNode = this.contentSourceNode.getDomNode();
+        
         this.frameCode = sourceNode.attr.frameCode;
         if(this.frameCode){
             this.formParentNode = genro.getFrameNode(this.frameCode,'frame').getParentNode().getParentNode()
@@ -89,6 +88,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     onStartForm:function(kw){
         var kw = kw || {};
+        this.formDomNode = this.sourceNode.getDomNode();
+        this.formContentDomNode = this.contentSourceNode.getDomNode();
         if(this.store){
             this.store.init(this);            
             var that = this;
