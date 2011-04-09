@@ -17,6 +17,7 @@ class Mixin(BaseComponent):
         return root.child(tag=tag,selectedPage='^selectedFrame',nodeId='center_stack',region='center')
     
     def main(self, root, **kwargs):
+        root.dataController("PUBLISH main_left_set_status='open';",_onStart=True)
         if self.index_url:
             root.contentPane(pageName='index',title='Index').iframe(height='100%', width='100%', src=self.index_url, border='0px')
         root.dataController("""

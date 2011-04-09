@@ -6,6 +6,7 @@
 
 class GnrCustomWebPage(object):
     py_requires = """public:Public,tablehandler/th_components:StackTableHandler"""
+    css_requires='public'
     plugin_list=''
     def onMain_pbl(self):
         pass
