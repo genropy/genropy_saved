@@ -13,14 +13,15 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler,foundation/includedview:IncludedView"
     user_polling=0
     auto_polling=0
-    testOnly='_5_'
+    testOnly='_11_'
     
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
         form = pane.frameForm(frameCode=frameCode,table='glbl.provincia',
                             store='recordCluster',store_startKey=startKey or '*norecord*',**kwargs)
         form.testToolbar(startKey=startKey) 
-        fb = form.formbuilder(cols=2, border_spacing='4px',fld_width="100%")
+        pane = form.center.contentPane(datapath='.record')
+        fb = pane.formbuilder(cols=2, border_spacing='4px',fld_width="100%")
         fb.formContent()
         return form
         
@@ -54,27 +55,25 @@ class GnrCustomWebPage(object):
     def test_0_frameform(self,pane):
         "Test FrameForm"
         form = pane.frameForm(frameCode='provincia_1',border='1px solid silver',datapath='.form',
-                            rounded_bottom=10,height='180px',width='600px',center_widget='BorderContainer',
-                            pkeyPath='.prov')
+                            rounded_bottom=10,height='180px',width='600px',pkeyPath='.prov')
         form.testToolbar()
-        store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
-                               handler='recordCluster',startKey='*newrecord*',onSaved='reload')
+        store = form.formStore(table='glbl.provincia',storeType='Item',handler='recordCluster',startKey='*newrecord*',onSaved='reload')
         store.handler('load',_onCalling='console.log("xxxx")',default_ordine_tot='100')    
-        form.contentPane(region='left',background='red',width='50px')
-        form.contentPane(region='center').formbuilder(cols=2, border_spacing='3px').formContent()  
+        bc = form.center.borderContainer(datapath='.record')
+        bc.contentPane(region='left',background='red',width='50px')
+        bc.contentPane(region='center').formbuilder(cols=2, border_spacing='3px').formContent()  
     
     
     def test_10_frameform_iv(self,pane):
         "Test FrameForm"
         form = pane.frameForm(frameCode='regione',border='1px solid silver',datapath='.form',
-                            rounded_bottom=10,height='180px',width='600px',center_widget='TabContainer',
-                            pkeyPath='.prov')
+                            rounded_bottom=10,height='180px',width='600px',pkeyPath='.prov')
         form.testToolbar()
-        store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
-                               handler='recordCluster',startKey='*norecord*',onSaved='reload')
+        store = form.formStore(table='glbl.provincia',storeType='Item',handler='recordCluster',startKey='*norecord*',onSaved='reload')
         store.handler('load',_onCalling='console.log("xxxx")',default_ordine_tot='100')    
-        form.contentPane(title='Provincia').formbuilder(cols=2, border_spacing='3px').formContent()
-        bc =form.borderContainer(title='Comuni')
+        tc = form.center.tabContainer(datapath='.record')
+        tc.contentPane(title='Provincia').formbuilder(cols=2, border_spacing='3px').formContent()
+        bc =tc.borderContainer(title='Comuni')
         self.includedViewBox(bc,label='Comuni',datapath='comuni',
                              nodeId='comuni',table='glbl.localita',
                              struct='min',
@@ -145,3 +144,42 @@ class GnrCustomWebPage(object):
     def rpc_salvaDati(self, dati, **kwargs):
         print "Dati salvati:"
         print dati
+        
+        
+
+    def test_111_frame_formdatapath(self,pane):
+        form = pane.frameForm(frameCode='regione',border='1px solid silver',datapath='.form',
+                            rounded_bottom=10,height='180px',width='600px',
+                            pkeyPath='.prov')
+        form.formStore(table='glbl.provincia',storeType='Item',
+                      handler='recordCluster',startKey='MI',onSaved='reload')
+        form.testToolbar()
+        tc = form.center.tabContainer()
+        pane =tc.contentPane(title='profile',datapath='.record')
+        fb = pane.formbuilder(cols=1, border_spacing='2px')
+        fb.field('sigla', validate_len='2:2',validate_len_min_error='Too Short')
+        fb.field('regione')
+        fb.field('nome')
+        fb.field('codice_istat')
+        fb.field('ordine')
+        fb.field('ordine_tot')
+        fb.field('cap_valido')
+        
+        slot_viewer = tc.contentPane(title='view',datapath='.viewer')
+        
+        
+        
+       #store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
+       #                       handler='recordCluster',startKey='MI',onSaved='reload')
+       #form.center.div('^.sigla')
+        
+        
+        #fb = form.formbuilder(cols=1, border_spacing='2px')
+        #fb.div('^.pippo')
+        #fb.field('sigla', validate_len='2:2',validate_len_min_error='Too Short')
+        #fb.field('regione')
+        #fb.field('nome')
+        #fb.field('codice_istat')
+        #fb.field('ordine')
+        #fb.field('ordine_tot')
+        #fb.field('cap_valido')

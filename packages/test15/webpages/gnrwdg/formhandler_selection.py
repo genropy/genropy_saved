@@ -17,11 +17,11 @@ class GnrCustomWebPage(object):
     
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
-        form = pane.frameForm(frameCode=frameCode,rounded_bottom=10,**kwargs)
+        form = pane.frameForm(frameCode=frameCode,rounded_bottom=10,childname='form',**kwargs)
         form.testToolbar()
-        store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Collection',
+        store = form.formStore(table='glbl.provincia',storeType='Collection',
                                handler='recordCluster')  
-        fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%")
+        fb = form.center.contentPane(datapath='.record').formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%")
         fb.formContent()
         return form
         
@@ -54,13 +54,12 @@ class GnrCustomWebPage(object):
                            subscribe_form_provincia_onLoaded="this.widget.selectByRowAttr('_pkey',$1.pkey)")
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',r='^.regione',_fired='^.reload')
                           
-        center = bc.contentPane(region='center',border='1px solid blue').formTester(frameCode='provincia')
-    
+        form = bc.contentPane(region='center',border='1px solid blue').formTester(frameCode='provincia')
+        form.store.attributes['parentStore'] = 'province_grid'
         
     def test_1_base(self,pane):
         bc = pane.borderContainer(height='250px')
-        frame = bc.framePane('province',region='left',width='600px')
-        
+        frame = bc.framePane('province_1',region='left',width='600px')
         tb = frame.top.slotToolbar('selector,searchOn,reloader,count')
         tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
         tb.reloader.button('reload',fire='.reload')
@@ -68,8 +67,8 @@ class GnrCustomWebPage(object):
                            selfsubscribe_onSelectedRow='genro.formById("provincia_form").publish("load",{destPkey:$1.selectedId});',
                            subscribe_form_provincia_onLoaded="this.widget.selectByRowAttr('_pkey',$1.pkey)")
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',r='^.regione',_fired='^.reload')
-                          
-        center = bc.contentPane(region='center').formTester(frameCode='provincia')
+        form = bc.contentPane(region='center').formTester(frameCode='provincia')
+        form.store.attributes['parentStore'] = 'province_1_grid'
 
     
     def test_2_linkedForm(self,pane):
@@ -88,7 +87,8 @@ class GnrCustomWebPage(object):
         form.store.handler('load',default_regione='=#province_frame.regione')
         form.testToolbar()
         saver = form.store.handler('save')        
-        fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
+        pane = form.center.contentPane(datapath='.record')
+        fb = pane.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
     
     def test_3_linkedForm_pane(self,pane):
         bc = pane.borderContainer(height='250px')
@@ -105,7 +105,8 @@ class GnrCustomWebPage(object):
                             store_onSaved='reload')
         form.testToolbar()
         #saver.addCallback('this.form.publish("load",{destPkey:result.getItem("pkey")});')
-        fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
+        pane = form.center.contentPane(datapath='.record')
+        fb = pane.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
     
     def formCb(self,pane):
         pane.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
@@ -113,13 +114,13 @@ class GnrCustomWebPage(object):
     
 
     def test_4_linkedForm_pane_nested(self,pane):
-        mainform = pane.frameForm(frameCode='regione',height='500px',
-                                center_widget='BorderContainer',table='glbl.regione',
+        mainform = pane.frameForm(frameCode='regione',height='500px',table='glbl.regione',
                                 store='recordCluster',store_startKey='*norecord*')
         tb = mainform.top.slotToolbar('selector,*,|,semaphore,|,formcommands,|,locker')
         tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione',
                              validate_onAccept='this.form.load({"destPkey":value});',parentForm=False)
-        regione = mainform.contentPane(region='left',margin='2px')
+        bc = mainform.center.borderContainer(datapath='.record')
+        regione = bc.contentPane(region='left',margin='2px')
         regione.div('!!Regione',background='darkblue',color='white',rounded_top=12,padding='4px')
         fb = regione.formbuilder(cols=2, border_spacing='3px')
         fb.field('sigla')
@@ -127,7 +128,7 @@ class GnrCustomWebPage(object):
         fb.field('codice_istat')
         fb.field('ordine')
         fb.field('zona')
-        province = mainform.framePane('province_regione',region='center',margin='2px',datapath='.#parent.provincia')
+        province = bc.framePane('province_regione',region='center',margin='2px',datapath='.#parent.provincia')
         province.top.slotToolbar('*,iv_add,iv_del',iv_add_parentForm=True,iv_del_parentForm=True)
         iv = province.includedView(struct='regione',autoSelect=True)
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',r='^.#parent.record.sigla')
@@ -135,12 +136,10 @@ class GnrCustomWebPage(object):
                             dialog_title='Provincia',dialog_height='300px',dialog_width='400px',store_onSaved='reload')
         form.testToolbar()
         saver = form.store.handler('save')        
-        fb = form.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()        
+        fb = form.center.contentPane(datapath='.record').formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()        
         fb.textbox(value='^.auxdata.prova',lbl='Prova')
         fb.textbox(value='^.auxdata.mia',lbl='Mia')
         fb.textbox(value='^.auxdata.foo.bar',lbl='Bar')
-
-
     
     def xxx(self,pane):
         tb.reloader.button('reload',fire='.reload')
