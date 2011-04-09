@@ -957,14 +957,18 @@ dojo.declare('gnr.GenroClient', null, {
     nodeById:function(nodeId,scope) {
         var childpath,node;
         if(nodeId[0]=='/'){
-            childpath = nodeId.slice(1).replace(/\//g,'.');
+            childpath = nodeId.slice(1);
             if(scope.attr.nodeId){
                 node=scope;
             }else{
-                childpath = scope.label+'.'+childpath;
+                if(scope.attr._childname){
+                    childpath = scope.attr._childname+'/'+childpath;
+                }
                 node = scope.getParentNode();
                 while(node && !node.attr.nodeId){
-                    childpath=node.label+'.'+childpath;
+                    if(node.attr._childname){
+                        childpath = node.attr._childname+'/'+childpath;
+                    }                    
                     node = node.getParentNode();            
                 }
             }
@@ -973,12 +977,12 @@ dojo.declare('gnr.GenroClient', null, {
             if(nodeId.indexOf('/')>=0){
                 childpath=nodeId.split('/')
                 nodeId=childpath[0]
-                childpath = childpath.slice(1).join('.');
+                childpath = childpath.slice(1).join('/');
             }
             if(nodeId=='RECORD'){
                 nodeId = scope.form;
                 if(scope.form.store){
-                    node = scope.form.contentSourceNode;
+                    node = scope.form.contentSourceNode;                    
                 }else{
                     node = scope.form.sourceNode;
                 }
@@ -994,8 +998,9 @@ dojo.declare('gnr.GenroClient', null, {
         if (!node && genro.src.building) {
             node = genro.src._main.getNodeByAttr('nodeId', nodeId);
         }
-        return childpath?node._value.getNode(childpath):node;
+        return childpath?node._value.getChild(childpath):node;
     },
+    
     domById:function(nodeId,scope) {
         var node = this.nodeById(nodeId,scope);
         if (node) {
