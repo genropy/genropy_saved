@@ -37,7 +37,8 @@ class GnrCustomWebPage(object):
                             formsubscribe_onDismissed='genro.publish({"topic":"switchPage","parent":true,nodeId:"maintab"},0);')
         form.dataController("this.form.publish('load',{destPkey:pkey})",pkey="^pkey")
         form.testToolbar()
-        store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
+        store = form.formStore(table='glbl.provincia',storeType='Item',
                                handler='recordCluster',startKey='*norecord*',onSaved='dismiss')
-        form.formbuilder(cols=2, border_spacing='3px').formContent()    
+            
+        form.center.contentPane(datapath='.record').formbuilder(cols=2, border_spacing='3px').formContent()    
         
