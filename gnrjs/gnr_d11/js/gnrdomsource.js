@@ -63,7 +63,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
 
     },
-
+    
     getWidget:function() {
         if(this.domNode){
             return dijit.getEnclosingWidget(this.domNode);
@@ -1414,6 +1414,26 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
         } else if (this.parent != null) {
             return this.parent.component();
         }
+    },
+    getChild:function(childpath){
+        childpath = childpath.split('/');
+        var curr = this;
+        dojo.forEach(childpath,function(childname){
+            node=curr.walk(function(n){
+                if('_childname' in n.attr){
+                    return n.attr._childname==childname?n:true;
+                }
+            },'static');
+            if (node==true){
+                return;
+            }else{
+                curr=node.getValue();
+                if(!(curr instanceof gnr.GnrBag)){
+                    return;
+                }
+            }
+        });
+        return node;
     }
 });
 
