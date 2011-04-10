@@ -363,12 +363,13 @@ class HTableHandler(HTableHandlerBase):
                                  var path = path.join('.');
                                  $2.treestore.getNode(path).refresh(true)
                                  SET .tree.path = path;""", currpath='=.tree.path', treestore='=.tree.store')
-                                 
-        getattr(self, formId)(bc, region='center', table=table,
-                              datapath='.edit.record', controllerPath='#%s.edit.form' % nodeId,
-                              formId=formId,
-                              disabled=disabled,
-                              pkeyPath='#%s.edit.pkey' % nodeId)
+        
+        center = bc.contentPane(region='center',formId=formId,datapath='.edit', 
+                               controllerPath='#%s.edit.form' % nodeId,formDatapath='.record',
+                               pkeyPath='#%s.edit.pkey' % nodeId)       
+        getattr(self, formId)(center , table=table,
+                              datapath='.record',
+                              disabled=disabled)
         tblobj = self.db.table(table)
         loadKwargs = loadKwargs or dict()
         loadKwargs['default_parent_code'] = '=.defaults.parent_code'
