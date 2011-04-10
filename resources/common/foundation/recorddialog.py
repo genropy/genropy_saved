@@ -196,8 +196,8 @@ class RecordDialog(BaseComponent):
         bottomCb = bottomCb or getattr(self, 'recordDialog_bottom')
         bottomCb(bottom)
         stack = bc.stackContainer(region='center', _class='pbl_background', formId=formId,
-                                  selected='^#%s.stackPane' % dlgId, datapath=record_datapath or '.record')
-        formCb(stack, disabled=disabled, table=table)
+                                  selected='^#%s.stackPane' % dlgId,formDatapath='.record')
+        formCb(stack.contentPane(datapath=record_datapath or '.record'), disabled=disabled, table=table)
 
     #Jeff suggests that the margins be taken out of the code and put into the css
     def recordDialog_bottom(self, pane):

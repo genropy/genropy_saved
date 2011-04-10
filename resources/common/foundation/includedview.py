@@ -247,7 +247,7 @@ class IncludedView(IncludedViewBase):
                 #assert inherited_attributes.has_key('sqlContextRoot'),\
                 #'please specify an absolute storepath, if sqlContextRoot is not available'
                 #storepath = '%s%s' % (inherited_attributes['sqlContextRoot'], storepath)
-                storepath = '#RECORD%s' %storepath
+                storepath = '#FORM.record%s' %storepath
         viewPars = dict(kwargs)
         if nodeId and table and configurable is not False:
             configurable = True
