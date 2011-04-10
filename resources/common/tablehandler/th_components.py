@@ -53,6 +53,7 @@ class StackTableHandler(BaseComponent):
                                     linkedForm='%s_form' %tableCode,pageName='view')
             formpage = sc.formPage(frameCode='%s_form' %tableCode,table=table,pageName='form',
                                     parentStore='%s_list_grid' %tableCode)
+                
             formpage.attributes['formsubscribe_onLoaded'] = 'SET .#parent.selectedPage="form";'
             formpage.attributes['formsubscribe_onDismissed'] = 'SET .#parent.selectedPage="view";'
             viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
@@ -72,11 +73,15 @@ class StackTableHandler(BaseComponent):
 class StackTableHandlerRunner(BaseComponent):
     py_requires = """public:Public,tablehandler/th_components:StackTableHandler"""
     plugin_list=''
-
+    formResource = None
+    viewResource = None
+    
     def onMain_pbl(self):
         pass
 
     def main(self,root,formResource=None,viewResource=None,**kwargs):
+        formResource = formResource or self.formResource
+        viewResource = viewResource or self.viewResource
         root = root.rootContentPane(title=self.tblobj.name_long,datapath=self.maintable.replace('.','_'))
         root.stackTableHandler(table=self.maintable,th_formName=formResource,th_viewName=viewResource,**kwargs)
         

@@ -29,15 +29,18 @@ class TableHandlerFormBase(BaseComponent):
     py_requires='gnrcomponents/formhandler:FormHandler,tablehandler/th_core:TableHandlerCommon'
     css_requires='public'
     @struct_method
-    def th_formPage(self, pane,frameCode=None,table=None,parentStore=None,startKey=None,**kwargs):
-        form = pane.frameForm(frameCode=frameCode,datapath='.form',childname='form',
+    def th_formPage(self, th,frameCode=None,table=None,parentStore=None,startKey=None,**kwargs):
+        form = th.frameForm(frameCode=frameCode,datapath='.form',childname='form',
                             table=table,form_locked=True,**kwargs)
         if parentStore:
             self.th_formPageCollection(form,parentStore=parentStore)
         elif startKey:
             self.th_formPageItem(form, startKey=startKey)
-        center = form.center.contentPane(datapath='.record')
-        self._th_hook('form',table=table)(center)
+        if hasattr(self,'th_main'):
+            self.th_main(th)
+        else:
+            center = form.center.contentPane(datapath='.record')
+            self._th_hook('form',table=table)(center)
         return form
         
     def th_formPageCollection(self,form,parentStore=None):
