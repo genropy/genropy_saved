@@ -29,6 +29,18 @@ class TableHandlerFormBase(BaseComponent):
     py_requires='gnrcomponents/formhandler:FormHandler,tablehandler/th_core:TableHandlerCommon'
     css_requires='public'
     @struct_method
+    def th_linkedFormPage(self, th,table=None,**kwargs):
+        form = th.list.iv.linkedForm(frameCode=table.replace('.','_'),datapath='.form',childname='form',**kwargs)  
+        toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
+                                        dismiss_iconClass='tb_button tb_listview',namespace='form')
+        if table == self.maintable and hasattr(self,'th_main'):
+            self.th_main(th)
+        else:
+            center = form.center.contentPane(datapath='.record')
+            self._th_hook('form',table=table)(center)
+        return form
+    
+    @struct_method
     def th_formPage(self, th,frameCode=None,table=None,parentStore=None,startKey=None,**kwargs):
         form = th.frameForm(frameCode=frameCode,datapath='.form',childname='form',
                             table=table,form_locked=True,**kwargs)
@@ -36,7 +48,7 @@ class TableHandlerFormBase(BaseComponent):
             self.th_formPageCollection(form,parentStore=parentStore)
         elif startKey:
             self.th_formPageItem(form, startKey=startKey)
-        if hasattr(self,'th_main'):
+        if table == self.maintable and hasattr(self,'th_main'):
             self.th_main(th)
         else:
             center = form.center.contentPane(datapath='.record')

@@ -28,12 +28,38 @@ from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
 
-class StackTableHandler(BaseComponent):
+class TableHandlerBase(BaseComponent):
     py_requires='tablehandler/th_list:TableHandlerListBase,tablehandler/th_form:TableHandlerFormBase'
-    @extract_kwargs(widget=True,condition=True)
+    
+    @extract_kwargs(widget=True,dialog=True)
+    @struct_method
+    def th_dialogTableHandler(self,pane,table=None,datapath=None,formResource=None,viewResource=None,
+                            th_iframe=False,widget_kwargs=None,dialog_kwargs=None,reloader=None,**kwargs):
+        pane = self._commonTableHandler(pane,table=table,datapath=datapath,formResource=formResource,viewResource=viewResource,
+                                        th_iframe=th_iframe,reloader=reloader,
+                                        widget_kwargs=dict(tag='ContentPane'),**kwargs)
+        form = pane.linkedFormPage(pageName='form',table=table,loadEvent='onRowDblClick',
+                            form_locked=True,dialog_kwargs=dialog_kwargs)     
+        pane.form = form        
+        return pane
+
+    @extract_kwargs(widget=True)
     @struct_method
     def th_stackTableHandler(self,pane,table=None,datapath=None,formResource=None,viewResource=None,
-                            th_iframe=False,widget_kwargs=None,condition_kwargs=None,**kwargs):
+                            th_iframe=False,widget_kwargs=None,reloader=None,**kwargs):
+        widget_kwargs['tag'] = 'StackContainer'
+        widget_kwargs['selectedPage'] = '^.selectedPage'
+        wdg = self._commonTableHandler(pane,table=table,datapath=datapath,formResource=formResource,
+                                        viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,
+                                        widget_kwargs=widget_kwargs,**kwargs)
+        
+        wdg.linkedFormPage(formRoot=wdg,pageName='form',table=table,loadEvent='onRowDblClick',
+                            form_locked=True,**kwargs)                    
+        return wdg
+    
+   
+    def _commonTableHandler(self,pane,table=None,datapath=None,formResource=None,viewResource=None,
+                            th_iframe=False,widget_kwargs=None,reloader=None,**kwargs):
         pkg,tablename = table.split('.')
         tableCode = table.replace('.','_')
         defaultModule = 'th_%s' %tablename
@@ -49,23 +75,16 @@ class StackTableHandler(BaseComponent):
         formResource = getResourceName(formResource,defaultModule,'Form')
         viewResource = getResourceName(viewResource,defaultModule,'View')
         
-        sc = pane.stackContainer(datapath=datapath or '.%s'%tableCode,selectedPage='^.selectedPage',**kwargs)
+        wdg = pane.child(datapath=datapath or '.%s'%tableCode,**widget_kwargs)
         if th_iframe:
-            self.th_stackIframe(sc,pkg,tablename)            
+            self.th_stackIframe(wdg,pkg,tablename)            
         else:
             self.mixinComponent(pkg,'tables',tablename,formResource,defaultModule=defaultModule,defaultClass='Form',mangling_th=tableCode)
             self.mixinComponent(pkg,'tables',tablename,viewResource,defaultModule=defaultModule,defaultClass='View',mangling_th=tableCode)
-            viewpage = sc.listPage(frameCode='%s_list' %tableCode,table=table,
-                                    linkedForm='%s_form' %tableCode,pageName='view',
-                                    **condition_kwargs)
-            formpage = sc.formPage(frameCode='%s_form' %tableCode,table=table,pageName='form',
-                                    parentStore='%s_list_grid' %tableCode)
-                
-            formpage.attributes['formsubscribe_onLoaded'] = 'SET .#parent.selectedPage="form";'
-            formpage.attributes['formsubscribe_onDismissed'] = 'SET .#parent.selectedPage="view";'
+            viewpage = wdg.listPage(frameCode='%s_list' %tableCode,table=table,pageName='view',reloader=reloader)
             viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
             viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);' #'genro.getForm(this.attr.linkedForm).deleteItem({});'
-        return sc
+        return wdg
                 
     def th_stackIframe(self,sc,pkg,tablename):
         formRunnerUrl='/adm/th/formrunner'
@@ -75,11 +94,10 @@ class StackTableHandler(BaseComponent):
         sc.contentPane(detachable=True,pageName='form').contentPane(margin='5px',overflow='hidden',_lazyBuild=True,
                             ).iframe(src='%s/%s/%s' %(formRunnerUrl,pkg,tablename),border=0,height='100%',width='100%')
     
-    
-    
+
                             
 class StackTableHandlerRunner(BaseComponent):
-    py_requires = """public:Public,tablehandler/th_components:StackTableHandler"""
+    py_requires = """public:Public,tablehandler/th_components:TableHandlerBase"""
     plugin_list=''
     formResource = None
     viewResource = None
@@ -90,8 +108,8 @@ class StackTableHandlerRunner(BaseComponent):
     def main(self,root,th_formResource=None,th_viewResource=None,**kwargs):
         formResource = th_formResource or self.formResource
         viewResource = th_viewResource or self.viewResource
-        root = root.rootContentPane(title=self.tblobj.name_long,datapath=self.maintable.replace('.','_'))
-        root.stackTableHandler(table=self.maintable,formResource=formResource,viewResource=viewResource,**kwargs)
+        root = root.rootContentPane(title=self.tblobj.name_long)
+        root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),formResource=formResource,viewResource=viewResource,**kwargs)
         
     
      

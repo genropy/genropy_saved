@@ -172,9 +172,9 @@ class TableHandlerList(BaseComponent):
 
 class TableHandlerListBase(TableHandlerList):
     @struct_method
-    def th_listPage(self,pane,table=None,frameCode=None,linkedForm=None,**kwargs):
+    def th_listPage(self,pane,table=None,frameCode=None,linkedForm=None,reloader=None,**kwargs):
         #self.query_helper_main(pane)
-        frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',table=table,linkedForm=linkedForm,**kwargs)
+        frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',**kwargs)
         frame.data('.table',table=table)
         self._th_listController(frame,table=table)
         frame.top.listToolbar(table)
@@ -185,7 +185,7 @@ class TableHandlerListBase(TableHandlerList):
         footer.th_dock.div(width='100px',height='20px').dock(id = dock_id)
         pane.palettePane('%s_queryTool' %tablecode,title='Query tool',nodeId='%s_query_root' %tablecode,
                         dockTo=dock_id,datapath='.list.query.where',height='150px',width='400px')
-        frame.gridPane(table=table,linkedForm=linkedForm)
+        frame.gridPane(table=table,reloader=reloader)
         return frame
     
     @struct_method
@@ -200,14 +200,20 @@ class TableHandlerListBase(TableHandlerList):
                     subscribe_form_formPane_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""")
     @struct_method
-    def th_gridPane(self, pane,table=None,linkedForm=None):
+    def th_gridPane(self, pane,table=None,reloader=None):
         table = table or self.maintable
         pane.data('.sorted', self._th_hook('order',table=table)())
+        
         condition = self._th_hook('condition',table=table)()
+        
         condPars = {}
-        if condition:
+        if isinstance(condition,dict):
+            condPars = condition
+            condition = condPars.pop('condition')
+        elif condition:
             condPars = condition[1] or {}
             condition = condition[0]
+            
         pane.dataController("""
         var columns = gnr.columnsFromStruct(struct);
         if(hiddencolumns){
@@ -217,14 +223,14 @@ class TableHandlerListBase(TableHandlerList):
         
         SET .columns = columns;
         """, hiddencolumns=self._th_hook('hiddencolumns',table=table)(),
-                            struct='^list.view.structure', _init=True)
+                            struct='^.view.structure', _init=True)
 
         pane.data('.tableRecordCount', self.tableRecordCount())
 
         iv = pane.includedView(autoWidth=False,datapath=False,selectedId='.selectedId',
                                 rowsPerPage=self.rowsPerPage(), sortedBy='^.sorted',
                                  _newGrid=True,
-                                 linkedForm=linkedForm, loadFormEvent='onRowDblClick', dropTypes=None,
+                                 dropTypes=None,
                                  dropTarget=True,
                                  draggable=True, draggable_row=True,
                                  struct=self._th_hook('struct',table),
@@ -242,7 +248,7 @@ class TableHandlerListBase(TableHandlerList):
         store = iv.selectionStore(table=table, columns='=.columns',
                            chunkSize=self.rowsPerPage()*4,
                            where='=.query.where', sortedBy='=.sorted',
-                           pkeys='=.query.pkeys', _fired='^.runQueryDo',
+                           pkeys='=.query.pkeys', _fired='^.runQueryDo',_parentPkey='^#FORM.pkey',
                            selectionName='*', recordResolver=False, condition=condition,
                            sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
                            row_start='0', externalChanges=True,
@@ -251,12 +257,12 @@ class TableHandlerListBase(TableHandlerList):
                            timeout=180000, selectmethod='=.selectmethod',
                            selectmethod_prefix='customQuery',
                            _onCalling=self.onQueryCalling(),
-                           **condPars)
+                           _reloader=reloader,**condPars)
                            
         store.addCallback('FIRE .queryEnd=true; SET .selectmethod=null; return result;')
         pane.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                      fired='^.updateCurrentQueryCount',
-                     table='.table', where='=.query.where',
+                     table=table, where='=.query.where',
                      excludeLogicalDeleted='=.excludeLogicalDeleted',
                      **condPars)
         pane.dataController("""this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
