@@ -174,8 +174,9 @@ def parselocal_time(txt, locale):
 def parselocal(txt, cls, locale=None):
     """add???
     
-    :param cls: ???add
-    :param locale: ???add. Default value is ``None``
+    :param txt: add???
+    :param cls: add???
+    :param locale: add???. Default value is ``None``
     :returns: an object of the ``cls`` class
     """
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
@@ -186,9 +187,9 @@ def parselocal(txt, cls, locale=None):
     f = TYPES_LOCALPARSERS_DICT.get(cls)
     if f:
         if locale:
-            locale = Locale(locale)
+            locale = Locale(locale) #NISO: there is no method called Locale in genro!
         else:
-            locale = Locale()
+            locale = Locale() #NISO: there is no method called Locale in genro!
         return f(txt, locale)
         
 def getMonthNames(locale=None):

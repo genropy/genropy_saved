@@ -11,31 +11,36 @@ webpage
     
     add???(Introduce the GnrCustomWebPage)
     
-    The standard usage of Genro GnrCustomWebPages is to use them in a combo with some :ref:`genro_table`\s
-    to create a DBMS :ref:`genro_project`.
+    The standard usage of Genro GnrCustomWebPages is to use them in a combo with some
+    :ref:`genro_table`\s to create a DBMS :ref:`genro_project`.
     
     You can act on a Genro webpage through many webpage elements: please check the
-    :ref:`genro_webpage_elements_intro` to Genro webpage elements if you need to learn more about them.
+    :ref:`genro_webpage_elements_intro` to Genro webpage elements if you need to learn
+    more about them.
     
-    We are going now to introduce the :ref:`webpages_GnrCustomWebPage`, the standard class used to build the webpages.
+    We are going now to introduce the :ref:`webpages_GnrCustomWebPage`, the standard class
+    used to build the webpages.
 
 .. _webpages_GnrCustomWebPage:
 
 GnrCustomWebPage
 ================
     
-    add??? (non esiste una classe gnrcustomwebpages quando vai a mettere le cose vanno a finire dentro un istanza di GnrWebPage)
+    add??? (non esiste una classe gnrcustomwebpages quando vai a mettere le cose vanno a finire
+    dentro un istanza di GnrWebPage)
     
-    The GnrCustomWebPage (Genro Custom Webpage) is add???(a mixin class?) through which you can build your webpages.
+    The GnrCustomWebPage (Genro Custom Webpage) is add???(a mixin class?) through which you can
+    build your webpages.
     
-    #. A webpage file has to begin with a line code that specify the location to the python executable in your machine::
+    #. A webpage file has to begin with a line code that specify the location to the python
+       executable in your machine::
     
         #!/usr/bin/env python
         
-    #. Then you have to (optionally) specify the encoding you are using::
+    #. Then you have to specify the encoding. For example::
         
         # encoding: utf-8
-    
+        
     #. After that you have to introduce the GnrCustomWebPage class with the following declaration line::
     
         class GnrCustomWebPage(object):
@@ -68,7 +73,8 @@ GnrCustomWebPage
 webpages variables
 ==================
     
-    With the term ``webpages variables`` we mean that Genro provides some defined variables that you can use to customize your webpages.
+    With the term ``webpages variables`` we mean that Genro provides some defined variables that you
+    can use to customize your webpages.
     
     .. note:: The webpages variables act only on the single webpage you insert it.
     
@@ -109,7 +115,8 @@ py_requires
     .. note:: The components you want to use must be placed into a folder named
               "``resources``" (or "``_resources``")
               
-              * For more information about components check the :ref:`genro_components_index` documentation page
+              * For more information about components check the :ref:`genro_components_index`
+                documentation page
               * For more information about their location in a Genro :ref:`genro_project`,
                 please check the :ref:`genro_webpage_resources` documentation page.
             
@@ -120,13 +127,14 @@ css_requires
 
     * Description: allow to import some css files.
     * Default value: ``None``
-    * Example:
+    * Example::
     
-        css_requires = 'my_css'
+        css_requires = 'my_style'
         
-    This line implies that you have created a CSS file called ``my_css.js``
+    This line implies that you have created a CSS file called ``my_style.css``
         
-    .. note:: The CSS files you want to use must be placed into a folder named "``resources``" (or "``_resources``")
+    .. note:: The CSS files you want to use must be placed into a folder named "``resources``"
+              (or "``_resources``")
               
               * For more information about Genro CSS, please check the :ref:`genro_css`
                 documentation page.
@@ -138,9 +146,9 @@ css_requires
 css_theme
 ---------
 
-    * Description: a string that allows to change the Genro's page theme. A Genro theme add some CSS features
-      to the Dojo theme you are using in your project (to change the Dojo theme, you can only change it
-      through the :ref:`webpages_dojo_theme` webpage variable)
+    * Description: a string that allows to change the Genro's page theme. A Genro theme add some
+      CSS features to the Dojo theme you are using in your project (to change the Dojo theme, you
+      can only change it through the :ref:`webpages_dojo_theme` webpage variable)
     * Default value: the value you specify in the :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig`.
     * Example::
     
@@ -157,7 +165,7 @@ dojo_source
     * Description: boolean. Webpage variable for Dojo developers. If ``True``, you can read the
       javascript code decompressed [#]_.
     * Default value: Default value is ``False`` (compressed Javascript)
-    * Example:
+    * Example::
     
         dojo_source = True
     
@@ -256,7 +264,7 @@ auth_tags
     
     * Description: add???. Link it to the :meth:`pageAuthTags` method...
     * Default value: ``add???``
-    * Example:
+    * Example::
     
         add???
     
@@ -265,13 +273,14 @@ auth_tags
 eagers
 ------
 
-    * Description: a dict that allows to give a hierarchy to the :ref:`bag_resolver` calls of a :ref:`sql_relation`:
-      the relations you put in the eagers are resolved before the other ones.
+    * Description: a dict that allows to give a hierarchy to the :ref:`bag_resolver` calls of
+      a :ref:`sql_relation`: the relations you put in the eagers are resolved before the other ones.
     * Syntax: 
         
         * *key*: ``packageName.tableName``, where:
         
-            * ``packageName`` is the name of your package (for more information check the :ref:`genro_packages_index` page)
+            * ``packageName`` is the name of your package (for more information check the
+              :ref:`genro_packages_index` page)
             * ``tableName`` is the name of the :ref:`genro_table`
             
         * *value*: includes a :ref:`sql_relation`
@@ -301,8 +310,9 @@ maintable
       :ref:`genro_form_widgets_index` (like :ref:`genro_field` or :ref:`genro_fieldcell`)
     * Syntax: ``maintable = 'packageName.tableName'``, where:
     
-        * ``packageName`` is the name of your package (for more information, check the :ref:`genro_packages_index` page)
-        * ``tableName`` is the name of the :ref:`genro_table`   
+        * ``packageName`` is the name of your package (for more information, check the
+          :ref:`genro_packages_index` page)
+        * ``tableName`` is the name of the :ref:`genro_table`
     
     * Default value: ``None``
     * Example::

@@ -95,9 +95,11 @@ EXCEPTIONS = {'save': GnrSqlSaveException,
 class SqlTable(GnrObject):
     """The base class for database tables.
     
-    Your tables will inherit from it (altough it won't be explicit in your code, since it's done by GenroPy mixin machinery).
+    Your tables will inherit from it (altough it won't be explicit in your code, since it's
+    done by GenroPy mixin machinery).
     
-    In your webpage, package or table methods, you can get a reference to a table by name in this way::
+    In your webpage, package or table methods, you can get a reference to a table by name it
+    in this way::
     
         self.db.table('packagename.tablename')
     
@@ -179,9 +181,10 @@ class SqlTable(GnrObject):
         return self.model.fullRelationPath(name)
         
     def getColumnPrintWidth(self, column):
-        """add???
+        """Allow to find the correct width for printing.
         
-        :param column: add???
+        :param column: the column to print
+        :returns: the print width
         """
         if column.dtype in ['A', 'C', 'T', 'X', 'P']:
             size = column.attributes.get('size', None)
@@ -413,9 +416,9 @@ class SqlTable(GnrObject):
         * a where condition
          
         :param pkey: record primary key. Default value is ``None``
-        :param where: (optional) This is the sql WHERE clause. We suggest not to use hardcoded values into the WHERE clause, but
-                       refer to variables passed to the selection method as kwargs. Default value is ``None``
-                       e.g: ``where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas``
+        :param where: (optional) This is the sql WHERE clause. We suggest not to use hardcoded values into the
+                      WHERE clause, but refer to variables passed to the selection method as kwargs. Default value
+                      is ``None``. E.g: ``where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas``
         :param lazy: add???. Default value is ``None``
         :param eager: add???. Default value is ``None``
         :param mode: bag, dict, json. Default value is ``None``
@@ -482,7 +485,8 @@ class SqlTable(GnrObject):
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
               addPkeyColumn=True, locale=None,
               mode=None, **kwargs):
-        """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query. This query is executable with different modes.
+        """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
+        This query is executable with different modes.
         
         :param columns: Represent the SELECT clause in the traditional SQL query.
                         It is a string of column names and related fields separated by comma.
@@ -577,7 +581,7 @@ class SqlTable(GnrObject):
         :param sqlArgs: add???. Default value is ``None``
         :returns: add???
         
-        Not sure what this is, but here is the existing docstrings in all its glory::
+        Not sure what this is, but here is the previous existing docstrings in all their glory::
         
             <c_0 column="invoice_num" op="ISNULL" rem='without invoice' />
             <c_1 column="@anagrafica.provincia" op="IN" jc='AND'>MI,FI,TO</condition>

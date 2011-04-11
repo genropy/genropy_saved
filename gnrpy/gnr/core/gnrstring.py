@@ -169,7 +169,7 @@ def getFromLast(myString, chunk):
         return ''
             
 def wordSplit(text):
-    """Return a list that contains the words of the given text
+    """Return a list that contains the words of the given ``text``
         
     :param text: text to be splitted
     :returns: a list that contains the words of the given text
@@ -180,7 +180,10 @@ def wordSplit(text):
     return REGEX_WRDSPLIT.split(text)
     
 def splitLast(myString, chunk):
-    """Return a tuple of two strings, splitting the string at the last occurence of a given chunk.
+    """Return a tuple of two strings created by splitting the string at the last
+    occurence of a given chunk. If the chunk is not included in the string, return
+    a tuple of two strings, with ``myString`` as the first one and with an
+    empty string as the second one.
     
     :param myString: string to be splitted
     :param chunk: substring that bounds the result string
@@ -188,6 +191,9 @@ def splitLast(myString, chunk):
     
     >>> splitLast('hello my dear friend', 'e')
     ('hello my dear fri', 'nd')
+    
+    >>> splitLast(a, 'w')
+    ('Hello my dear friend', '')
     """
     p = myString.rfind(chunk)
     if p > -1:
@@ -222,10 +228,12 @@ def getBetween(myString, startChunk, endChunk):
             return myString[p1 + len(startChunk):p2]
             
 def like(s1, s2, wildcard='%'):
-    """
+    """Return ``True`` if ... Return ``False`` if ... add???
+    
     :param s1: first string
     :param s2: second string
-    :wildcard: a special symbol that stands for one or more characters. Default value is ``%``
+    :wildcard: a special string. Default value is ``%``
+    :returns: add???
     
     >>> like('*dog*', 'adogert', '*')
     True
@@ -246,15 +254,24 @@ def like(s1, s2, wildcard='%'):
     return False
     
 def ilike(s1, s2, wildcard='%'):
-    """Return the result of :meth:`like()` function ignoring upper-lowercase differencies
+    """Return ``True`` if ... Return ``False`` if ... add???
     
     :param s1: first string
     :param s2: second string
-    :wildcard: a special symbol that stands for one or more characters. Default value is ``%``
+    :wildcard: a special string. Default value is ``%``
+    :returns: add???
     """
     return like(s1.upper(), s2.upper(), wildcard)
     
 def filter(item, include=None, exclude=None, wildcard='%'):
+    """add???
+    
+    :param item: add???
+    :param include: add???. Default value is ``None``
+    :param exclude: add???. Default value is ``None``
+    :param wildcard: add???. Default value is ``%``
+    :returns: add???
+    """
     if include and isinstance(include, basestring):
         include = include.split(',')
     if exclude and isinstance(exclude, basestring):
@@ -271,12 +288,12 @@ def filter(item, include=None, exclude=None, wildcard='%'):
     return True
     
 def regexDelete(myString, pattern):
-    """
-    Returns a string obtained deleting from the given string any occurrency
+    """Return a string obtained deleting from the given string any occurrency
     of the given pattern.
     
     :param myString: the string to be shortened
     :param pattern: pattern of chars that must be deleted from myString
+    :returns: a string
     
     >>> regexDelete('When he turns the steering wheel', 'he')
     'Wn  turns t steering wel'
@@ -288,7 +305,9 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True):
     
     :param myString: template string
     :param symbolDict: dictionary that links symbol and values. Default value is ``None``.
-    :param safeMode: flag that implies the use of :meth:`substitute()` and :meth:`or safe_substitute()` Python methods. Default value is ``False``.
+    :param safeMode: if ``True`` (``False``) uses the ``safe_substitute()`` (``substitute()``) Python method.
+                     Default value is ``False``.
+    :param noneIsBlank: add???. Default value is ``True``
     
     >>> templateReplace('$foo loves $bar but she loves $aux and not $foo', {'foo':'John','bar':'Sandra','aux':'Steve'})
     'John loves Sandra but she loves Steve and not John'"""
@@ -306,11 +325,14 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True):
         return Tpl(myString).substitute(symbolDict)
         
 def asDict(myString, itemSep=',', argSep='=', symbols=None):
-    """
+    """Return a dict from a key-value like string (or an empty dict, if there is no string)
+    
     :param myString: a string that represent a list of key-value pairs.
     :param itemSep: the separator char between each key-value pair. Default value is ``,``
-    :param argSep: the separator key and value. Default value is ``=``
-    :param symbols: a dictionary that eventually contains value for templates in myString, Default value is ``False``
+    :param argSep: the separator between keys and values. Default value is ``=``
+    :param symbols: a dictionary that eventually contains value for templates in myString.
+                    Default value is ``False``
+    :returns: a dict from a key-value like string (or an empty dict, if there is no string)
     
     >>> asDict('height=22, weight=73')
     {'weight': '73', 'height': '22'}
@@ -336,11 +358,12 @@ def asDict(myString, itemSep=',', argSep='=', symbols=None):
     return result
     
 def stringDict(myDict, itemSep=',', argSep='='):
-    """return a string that represents a list of list of key-value pairs taken from a dictionary.
+    """Return a string of key-value pairs taken from a dictionary.
     
-    :param myDict: dictionary to be transformed in a string
+    :param myDict: dictionary to transform in a string
     :param itemSep: the separator char between each key-value pair. Default value is ``,``
-    :param argSep: the separator key and value. Default value is ``=``
+    :param argSep: the separator between keys and values. Default value is ``=``
+    :returns: a string of key-value pairs taken from a dictionary
     
     >>> stringDict({'height':22,'width':33})
      'width=33,height=22'
@@ -348,7 +371,8 @@ def stringDict(myDict, itemSep=',', argSep='='):
     return itemSep.join([argSep.join((str(k), str(v))) for k, v in myDict.items()])
     
 def updateString(source, s, sep=','):
-    """Append a new element to a string that represents a set of elements separated by a separation char.
+    """Append a new ``s`` string to the ``source`` string. The two strings are linked by 
+    a ``sep`` char. If there isn't ``source`` string, return the ``s`` string.
     
     :param source: initial string
     :param s: string to be added
@@ -357,7 +381,7 @@ def updateString(source, s, sep=','):
     >>> updateString('I drink cola', 'beer')
     'I drink cola,beer'
     
-    >>> gs.updateString('I drink cola', 'beer', ' and ')
+    >>> updateString('I drink cola', 'beer', ' and ')
     'I drink cola and beer'
     """
     if not source: return s
@@ -415,13 +439,19 @@ def splitAndStrip(myString, sep=',', n=-1, fixed=0):
             return dlist + result
     else:
         return result[0:abs(fixed)]
-            
-def countOf(myString, srcString):
-    """add???
         
-    :param myString: add???
-    :param srcString: add???
-    :returns: add???
+def countOf(myString, srcString):
+    """Return the number of the recurrence of the ``srcString`` string
+    into the ``myString`` string
+        
+    :param myString: the string to be compared with ``srcString``
+    :param srcString: the string to compare
+    :returns: the number of the recurrence of the ``srcString`` into ``myString``
+    
+    >>> a = 'hello hello heeeello hello helo hi'
+    >>> b = 'hello'
+    >>> countOf(a,b)
+    3
     """
     return (len(myString) - len(myString.replace(srcString, ''))) / len(srcString)
     
@@ -479,10 +509,12 @@ def split(path, sep='.'):
     return result
     
 def smartjoin(mylist, on):
-    """Join the given list with the separator substring on and escape each occurrency of on within mylist
+    """Join a list with the separator substring ``on`` escaping each occurrency
+    of ``on`` within the given list
         
     :param mylist: the list to be joined
     :param on: separator substring
+    :returns: the joined string
     
     >>> smartjoin(['Hello, dog', 'you', 'are', 'yellow'], ',')
     'Hello\\, dog,you,are,yellow'
@@ -491,7 +523,8 @@ def smartjoin(mylist, on):
     return on.join([x.replace(on, escape) for x in mylist])
     
 def smartsplit(path, on):
-    """Split the string ``path`` with the separator substring ``on`` ignoring the escaped separator chars
+    """Split the string ``path`` with the separator substring ``on`` ignoring the
+    escaped separator chars
     
     :param path: the path to be splitted
     :param on: separator substring
@@ -507,12 +540,13 @@ def smartsplit(path, on):
     return pathList
     
 def concat(s1, s2, sep='.'):
-    """join two strings. If the first string is ``None``, return the second string.
-        
+    """join two strings through the separator attribute ``sep``. If the first string is ``None``,
+    return the second string.
+    
     :param s1: the first string
     :param s2: the second string
     :param sep: separation character. Default value is ``.``
-    :returns: the two strings joined
+    :returns: a string with the two strings joined
     """
     if s1:
         return '%s%s%s' % (s1, sep, s2)
@@ -532,10 +566,10 @@ def dotEsc(txt):
 def encode(number, base='/16', nChars=None):
     """Return a string that contains the given number in the specified base
        
-       :param number: number to encode
-       :param base: base of encoding. Default value is ``/16``
-       :param nChar: number of characters of the result. Default value is ``None``
-       :returns: encoded number as string
+    :param number: number to encode
+    :param base: base of encoding. Default value is ``/16``
+    :param nChar: number of characters of the result. Default value is ``None``
+    :returns: encoded number as string
     """
     import math
     
@@ -574,18 +608,18 @@ def fromText(mystring, obj, locale=None):
     
 def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=None):
     """Return a unicode string representing an object of any class.
-       
-       If there are ``locale`` or ``format`` parameters Babel is used to format the value 
-       according to the given localization or format.
-       
-       :param obj: the object to be transformed in a string
-       :param locale: add???. Default value is ``None``
-       :param format: add???. Default value is ``None``
-       :param mask: add???. Default value is ``None``
-       :param encoding: The multibyte character encoding you choose. Default value is ``None``
-       :param currency: add???. Default value is ``None``
-       :returns: a unicode string representing an object of any class
-       """
+    
+    If there are ``locale`` or ``format`` parameters Babel is used to format the value
+    according to the given localization or format.
+    
+    :param obj: the object to be transformed in a string
+    :param locale: add???. Default value is ``None``
+    :param format: add???. Default value is ``None``
+    :param mask: add???. Default value is ``None``
+    :param encoding: The multibyte character encoding you choose. Default value is ``None``
+    :param currency: add???. Default value is ``None``
+    :returns: a unicode string representing an object of any class
+    """
     if isinstance(obj, list) or isinstance(obj, tuple):
         return ','.join([toText(v) for v in obj])
         #what?
@@ -600,7 +634,8 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
     return result
         
 def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
-    """
+    """add???
+    
     :param dtype: add???.
     :param locale: add???. Default value is ``None``
     :param format: add???. Default value is ``None``
@@ -617,10 +652,17 @@ def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     return result
     
 def boolean(obj):
-    """add???
+    """Return ``False`` if the given ``obj`` string is one of the following values:
     
-    :param obj: The given object
-    :returns: add???
+    * 'n'
+    * 'no'
+    * 'f'
+    * 'false'
+    * '0'
+    
+    (the ``obj`` is lowered before comparing it)
+    
+    :param obj: The given list
     """
     if obj and isinstance(obj, basestring):
         if obj.lower() in ('n', 'no', 'f', 'false', '0'):
