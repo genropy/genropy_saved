@@ -26,8 +26,8 @@ webpage
 GnrCustomWebPage
 ================
     
-    add??? (non esiste una classe gnrcustomwebpages quando vai a mettere le cose vanno a finire
-    dentro un istanza di GnrWebPage)
+    add??? (this isn't a real GnrCustomWebPage class, it is created through a GnrWebPage
+    istance...)
     
     The GnrCustomWebPage (Genro Custom Webpage) is add???(a mixin class?) through which you can
     build your webpages.
