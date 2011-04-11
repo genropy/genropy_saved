@@ -789,7 +789,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
     @extract_kwargs(palette=True,dialog=True)
     def linkedForm(self,frameCode=None,loadEvent=None,formRoot=None,store=True,
-                        dialog_kwargs=None,palette_kwargs=None,formId=None,**kwargs):
+                        dialog_kwargs=None,palette_kwargs=None,formId=None,pageName=None,attachTo=None,**kwargs):
         """add???
         
         :param frameCode: add???. Default value is ``None``
@@ -808,6 +808,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         if formRoot:
             if isinstance(formRoot,basestring):
                 formRoot = self.pageSource(formRoot)
+            if pageName:
+                formRoot.attributes[loadSubscriber] = 'this.widget.switchPage(1);'
+                formRoot.attributes[closeSubscriber] = 'this.widget.switchPage(0);'
         elif dialog_kwargs:
             if 'height' in dialog_kwargs:
                 kwargs['height'] = dialog_kwargs.pop('height')
@@ -823,8 +826,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             palette_kwargs[loadSubscriber] = "this.widget.show();"
             palette_kwargs[closeSubscriber] = "this.widget.hide();"
             formRoot = self.parent.palettePane(**palette_kwargs)
+
+
         form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=self.attributes.get('table'),
-                                 store=store,**kwargs)
+                                 store=store,pageName=pageName,**kwargs)
         parentTag = self.attributes['tag'].lower()
         if parentTag=='includedview' or parentTag=='newincludedview':
             viewattr = self.attributes
@@ -838,7 +843,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                                                 }
                                                 """ %frameCode
             self.attributes['subscribe_form_%s_onLoaded' %formId] ="""
-                                                                    console.log($1);
                                                                     if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
                                                                         this.widget.selectByRowAttr('_pkey',$1.pkey);
                                                                     }
