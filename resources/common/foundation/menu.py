@@ -99,7 +99,7 @@ class MenuIframes(MenuBase):
                   getIconClass='return node.attr.iconClass || "treeNoIcon"',
                   getLabelClass='return node.attr.labelClass',
                   openOnClick=True,
-                  connect_onClick='this.publish("selected",objectUpdate({name:$1.label,"file":null,table:null,formName:null,viewName:null},$1.attr));',
+                  connect_onClick='this.publish("selected",objectUpdate({name:$1.label,"file":null,table:null,formResource:null,viewResource:null},$1.attr));',
                   autoCollapse=True,
                   nodeId='_menutree_')
         pane.dataController("genro.wdgById('_gnrRoot').showHideRegion('left', false);", fired='^gnr.onStart',
