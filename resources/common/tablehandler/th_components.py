@@ -32,23 +32,28 @@ class StackTableHandler(BaseComponent):
     py_requires='tablehandler/th_list:TableHandlerListBase,tablehandler/th_form:TableHandlerFormBase'
     @extract_kwargs(widget=True)
     @struct_method
-    def th_stackTableHandler(self,pane,table=None,datapath=None,th_formName=None,th_viewName=None,th_iframe=False,widget_kwargs=True,**kwargs):
+    def th_stackTableHandler(self,pane,table=None,datapath=None,formResource=None,viewResource=None,th_iframe=False,widget_kwargs=True,**kwargs):
         pkg,tablename = table.split('.')
         tableCode = table.replace('.','_')
-        defaultName = 'th_%s' %tablename
-        formName = th_formName or defaultName
-        viewName = th_viewName or defaultName
-        if not ':' in formName:
-            formName = '%s:Form' %formName
-        if not ':' in viewName:
-            viewName = '%s:View' %viewName
+        defaultModule = 'th_%s' %tablename
+        def getResourceName(name=None,defaultModule=None,defaultClass=None):
+            if not name:
+                return '%s:%s' %(defaultModule,defaultClass)
+            if not ':' in name:
+                return '%s:%s' %(name,defaultClass)
+            if name.startswith(':'):
+                return '%s%s' %(defaultModule,name)
+            return name
+        
+        formResource = getResourceName(formResource,defaultModule,'Form')
+        viewResource = getResourceName(viewResource,defaultModule,'View')
         
         sc = pane.stackContainer(datapath=datapath or '.%s'%tableCode,selectedPage='^.selectedPage',**kwargs)
         if th_iframe:
             self.th_stackIframe(sc,pkg,tablename)            
         else:
-            self.mixinComponent(pkg,'tables',tablename,formName,mangling_th=tableCode)
-            self.mixinComponent(pkg,'tables',tablename,viewName,mangling_th=tableCode)
+            self.mixinComponent(pkg,'tables',tablename,formResource,defaultModule=defaultModule,defaultClass='Form',mangling_th=tableCode)
+            self.mixinComponent(pkg,'tables',tablename,viewResource,defaultModule=defaultModule,defaultClass='View',mangling_th=tableCode)
             viewpage = sc.listPage(frameCode='%s_list' %tableCode,table=table,
                                     linkedForm='%s_form' %tableCode,pageName='view')
             formpage = sc.formPage(frameCode='%s_form' %tableCode,table=table,pageName='form',
@@ -59,9 +64,7 @@ class StackTableHandler(BaseComponent):
             viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
             viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);' #'genro.getForm(this.attr.linkedForm).deleteItem({});'
         return sc
-        
-        
-        
+                
     def th_stackIframe(self,sc,pkg,tablename):
         formRunnerUrl='/adm/th/formrunner'
         viewRunnerUrl='/adm/th/viewrunner'
@@ -69,6 +72,9 @@ class StackTableHandler(BaseComponent):
                             ).iframe(src='%s/%s/%s' %(viewRunnerUrl,pkg,tablename),border=0,height='100%',width='100%')
         sc.contentPane(detachable=True,pageName='form').contentPane(margin='5px',overflow='hidden',_lazyBuild=True,
                             ).iframe(src='%s/%s/%s' %(formRunnerUrl,pkg,tablename),border=0,height='100%',width='100%')
+    
+    
+    
                             
 class StackTableHandlerRunner(BaseComponent):
     py_requires = """public:Public,tablehandler/th_components:StackTableHandler"""
@@ -79,11 +85,11 @@ class StackTableHandlerRunner(BaseComponent):
     def onMain_pbl(self):
         pass
 
-    def main(self,root,formResource=None,viewResource=None,**kwargs):
-        formResource = formResource or self.formResource
-        viewResource = viewResource or self.viewResource
+    def main(self,root,th_formResource=None,th_viewResource=None,**kwargs):
+        formResource = th_formResource or self.formResource
+        viewResource = th_viewResource or self.viewResource
         root = root.rootContentPane(title=self.tblobj.name_long,datapath=self.maintable.replace('.','_'))
-        root.stackTableHandler(table=self.maintable,th_formName=formResource,th_viewName=viewResource,**kwargs)
+        root.stackTableHandler(table=self.maintable,formResource=formResource,viewResource=viewResource,**kwargs)
         
     
      
