@@ -29,7 +29,7 @@ import os
 import shutil
 
 from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip
-
+from mako.lookup import TemplateLookup
 from gnr.core.gnrlang import getUuid
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
@@ -1462,7 +1462,6 @@ class LazyBagResolver(BagResolver):
 
         
 class GnrMakoPage(GnrWebPage):
-    from mako.lookup import TemplateLookup
     def onPreIniting(self, request_args, request_kwargs):
         request_kwargs['_plugin'] = 'mako'
         request_kwargs['mako_path'] = self.mako_template()
