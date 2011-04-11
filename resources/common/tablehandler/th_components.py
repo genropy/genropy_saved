@@ -30,9 +30,10 @@ from gnr.core.gnrlang import extract_kwargs
 
 class StackTableHandler(BaseComponent):
     py_requires='tablehandler/th_list:TableHandlerListBase,tablehandler/th_form:TableHandlerFormBase'
-    @extract_kwargs(widget=True)
+    @extract_kwargs(widget=True,condition=True)
     @struct_method
-    def th_stackTableHandler(self,pane,table=None,datapath=None,formResource=None,viewResource=None,th_iframe=False,widget_kwargs=True,**kwargs):
+    def th_stackTableHandler(self,pane,table=None,datapath=None,formResource=None,viewResource=None,
+                            th_iframe=False,widget_kwargs=None,condition_kwargs=None,**kwargs):
         pkg,tablename = table.split('.')
         tableCode = table.replace('.','_')
         defaultModule = 'th_%s' %tablename
@@ -55,7 +56,8 @@ class StackTableHandler(BaseComponent):
             self.mixinComponent(pkg,'tables',tablename,formResource,defaultModule=defaultModule,defaultClass='Form',mangling_th=tableCode)
             self.mixinComponent(pkg,'tables',tablename,viewResource,defaultModule=defaultModule,defaultClass='View',mangling_th=tableCode)
             viewpage = sc.listPage(frameCode='%s_list' %tableCode,table=table,
-                                    linkedForm='%s_form' %tableCode,pageName='view')
+                                    linkedForm='%s_form' %tableCode,pageName='view',
+                                    **condition_kwargs)
             formpage = sc.formPage(frameCode='%s_form' %tableCode,table=table,pageName='form',
                                     parentStore='%s_list_grid' %tableCode)
                 
