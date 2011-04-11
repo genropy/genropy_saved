@@ -1473,7 +1473,6 @@ class GnrMakoPage(GnrWebPage):
 class GnrGenshiPage(GnrWebPage):
     def onPreIniting(self, request_args, request_kwargs):
         from genshi.template import TemplateLoader
-        
         request_kwargs['_plugin'] = 'genshi'
         request_kwargs['genshi_path'] = self.genshi_template()
 
