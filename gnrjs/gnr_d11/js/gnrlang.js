@@ -318,6 +318,9 @@ function objectMixin(obj, source) {
 
 function objectUpdate(obj, source, removeNulls) {
     if (source) {
+        if (source instanceof gnr.GnrBag){
+            source = source.asDict();
+        }
         var val;
         for (var prop in source) {
             val = source[prop];
