@@ -31,7 +31,6 @@ import shutil
 from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip
 
 from gnr.core.gnrlang import getUuid
-from mako.lookup import TemplateLookup
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
@@ -1463,9 +1462,22 @@ class LazyBagResolver(BagResolver):
 
         
 class GnrMakoPage(GnrWebPage):
+    from mako.lookup import TemplateLookup
     def onPreIniting(self, request_args, request_kwargs):
         request_kwargs['_plugin'] = 'mako'
         request_kwargs['mako_path'] = self.mako_template()
+
+    def mako_template(self):
+        pass
+
+class GnrGenshiPage(GnrWebPage):
+    from genshi.template import TemplateLoader
+    def onPreIniting(self, request_args, request_kwargs):
+        request_kwargs['_plugin'] = 'genshi'
+        request_kwargs['genshi_path'] = self.genshi_template()
+
+    def genshi_template(self):
+        pass
 
 class ClientPageHandler(object):
     """proxi for making actions on client page"""
