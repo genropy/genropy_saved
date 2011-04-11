@@ -36,19 +36,20 @@ class TableHandlerList(BaseComponent):
     def th_slotbar_queryfb(self, pane,table=None,**kwargs):
         table = table or self.maintable
         tablecode = table.replace('.','_')
+        mangling = pane.getInheritedAttributes()['th_root']
         queryfb = pane.formbuilder(cols=5, datapath='.query.where', _class='query_form',
                                    border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});',
                                    float='left')
         queryfb.div('^.c_0?column_caption', min_width='12em', _class='smallFakeTextBox floatingPopup',
-                    nodeId='%s_fastQueryColumn' %tablecode,
+                    nodeId='%s_fastQueryColumn' %mangling,
                      dropTarget=True,
                     lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder('%s').onChangedQueryColumn(this,data);" %table})
         optd = queryfb.div(_class='smallFakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
-                 display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %tablecode,
+                 display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %mangling,
                  border_right='1px solid silver')
-        optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %tablecode, readonly=True,
+        optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %mangling, readonly=True,
                  selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
                  connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %table,
                  action="genro.querybuilder('%s').onChangedQueryOp($2,$1);" %table,
@@ -70,7 +71,7 @@ class TableHandlerList(BaseComponent):
         
     def _th_listController(self,pane,table=None):
         table = table or self.maintable
-        pane.data('.baseQuery', self.getQueryBag(table=table))
+        pane.data('.baseQuery', self.getQueryBag(table=table,mangler=pane))
         pane.dataController("""
                                genro.querybuilder(table).cleanQueryPane(); 
                                SET .queryRunning = true;
@@ -125,11 +126,11 @@ class TableHandlerList(BaseComponent):
         return result
 
 
-    def getQueryBag(self,table=None):
+    def getQueryBag(self,table=None,mangler=None):
         table = table or self.maintable
         tblobj = self.db.table(table)
         result = Bag()
-        querybase = self._th_hook('query',table=table)()
+        querybase = self._th_hook('query',mangler=mangler)()
         op_not = querybase.get('op_not', 'yes')
         column = querybase.get('column')
         column_dtype = None
@@ -175,15 +176,16 @@ class TableHandlerListBase(TableHandlerList):
     def th_listPage(self,pane,table=None,frameCode=None,linkedForm=None,reloader=None,**kwargs):
         #self.query_helper_main(pane)
         frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',**kwargs)
+        mangling =frameCode
         frame.data('.table',table=table)
         self._th_listController(frame,table=table)
         frame.top.listToolbar(table)
         footer = frame.bottom.slotToolbar('*,th_dock')
         tablecode = table.replace('.','_')
-        dock_id = '%s_th_dock' %tablecode
+        dock_id = '%s_th_dock' %mangling
         
         footer.th_dock.div(width='100px',height='20px').dock(id = dock_id)
-        pane.palettePane('%s_queryTool' %tablecode,title='Query tool',nodeId='%s_query_root' %tablecode,
+        pane.palettePane('%s_queryTool' %mangling,title='Query tool',nodeId='%s_query_root' %mangling,
                         dockTo=dock_id,datapath='.list.query.where',height='150px',width='400px')
         frame.gridPane(table=table,reloader=reloader)
         return frame
@@ -202,9 +204,9 @@ class TableHandlerListBase(TableHandlerList):
     @struct_method
     def th_gridPane(self, pane,table=None,reloader=None):
         table = table or self.maintable
-        pane.data('.sorted', self._th_hook('order',table=table)())
+        pane.data('.sorted', self._th_hook('order',mangler=pane)())
         
-        condition = self._th_hook('condition',table=table)()
+        condition = self._th_hook('condition',mangler=pane)()
         
         condPars = {}
         if isinstance(condition,dict):
@@ -222,7 +224,7 @@ class TableHandlerListBase(TableHandlerList):
         }
         
         SET .columns = columns;
-        """, hiddencolumns=self._th_hook('hiddencolumns',table=table)(),
+        """, hiddencolumns=self._th_hook('hiddencolumns',mangler=pane)(),
                             struct='^.view.structure', _init=True)
 
         pane.data('.tableRecordCount', self.tableRecordCount())
@@ -233,7 +235,7 @@ class TableHandlerListBase(TableHandlerList):
                                  dropTypes=None,
                                  dropTarget=True,
                                  draggable=True, draggable_row=True,
-                                 struct=self._th_hook('struct',table),
+                                 struct=self._th_hook('struct',mangler=pane),
                                  dragClass='draggedItem',
                                  onDrop=""" for (var k in data){
                                                  this.setRelativeData('list.external_drag.'+k,new gnr.GnrBag(data[k]));
@@ -274,4 +276,4 @@ class TableHandlerListBase(TableHandlerList):
                             """,
                             _onStart=True, baseQuery='=.baseQuery', maintable=table,
                             fired='^.query.new',
-                            runOnStart=self._th_hook('query',table=table)().get('runOnStart', False))
+                            runOnStart=self._th_hook('query',mangler=pane)().get('runOnStart', False))

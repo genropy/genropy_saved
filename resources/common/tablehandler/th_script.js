@@ -18,6 +18,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         this.rootId = rootId;
         this.maintable = maintable;
         this.tablecode = maintable.replace('.','_');
+        this.mangling = sourceNode.getInheritedAttributes()['th_root'];
         this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
             'D':'date','DH':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
@@ -35,11 +36,11 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
     },
     
     relativeId:function(id){
-        return this.tablecode + '_' + id;
+        return this.mangling + '_' + id;
     },
     
     getRelativeNode:function(id){
-        return genro.nodeById(this.tablecode + '_' + id);
+        return genro.nodeById(this.relativeId(id));
     },
     
     createMenues: function() {

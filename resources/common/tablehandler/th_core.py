@@ -32,18 +32,20 @@ from gnr.core.gnrbag import Bag
 
 class TableHandlerCommon(BaseComponent):
     
-    def _th_hook(self,method,table=None,asDict=False):
+    def _th_hook(self,method,mangler=None,asDict=False):
+        if isinstance(mangler,Bag):
+            mangler = mangler.getInheritedAttributes().get('th_root')
         if hasattr(self,'legacy_dict'):
             method=self.legacy_dict.get(method,method)
         if asDict:
             prefix='%s_'% method
-            return dict([(fname,self._th_hook(fname,table)) for fname in dir(self) 
+            return dict([(fname,self._th_hook(fname,mangler)) for fname in dir(self) 
                                      if fname.startswith(prefix) and fname != prefix]) 
         if hasattr(self,'legacy_dict'):
             return getattr(self,method)          
         def emptyCb(*args,**kwargs):
             pass
-        return getattr(self,'%s_%s' %(table.replace('.','_'),method),emptyCb) 
+        return getattr(self,'%s_%s' %(mangler.replace('.','_'),method),emptyCb) 
         
     def userCanWrite(self):
         return self.application.checkResourcePermission(self.tableWriteTags(), self.userTags)

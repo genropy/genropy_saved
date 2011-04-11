@@ -30,19 +30,21 @@ class TableHandlerFormBase(BaseComponent):
     css_requires='public'
     @struct_method
     def th_linkedFormPage(self, th,table=None,**kwargs):
-        form = th.list.iv.linkedForm(frameCode=table.replace('.','_'),datapath='.form',childname='form',**kwargs)  
+        th_root=th.attributes['thform_root']
+        form = th.list.iv.linkedForm(frameCode=th_root,th_root=th_root,datapath='.form',childname='form',**kwargs)  
         toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
                                         dismiss_iconClass='tb_button tb_listview',namespace='form')
         if table == self.maintable and hasattr(self,'th_main'):
             self.th_main(th)
         else:
             center = form.center.contentPane(datapath='.record')
-            self._th_hook('form',table=table)(center)
+            self._th_hook('form',mangler=th_root)(center)
         return form
     
     @struct_method
     def th_formPage(self, th,frameCode=None,table=None,parentStore=None,startKey=None,**kwargs):
-        form = th.frameForm(frameCode=frameCode,datapath='.form',childname='form',
+        th_root=th.attributes['thform_root']
+        form = th.frameForm(frameCode=th_root,th_root=th_root,datapath='.form',childname='form',
                             table=table,form_locked=True,**kwargs)
         if parentStore:
             self.th_formPageCollection(form,parentStore=parentStore)
@@ -52,7 +54,7 @@ class TableHandlerFormBase(BaseComponent):
             self.th_main(th)
         else:
             center = form.center.contentPane(datapath='.record')
-            self._th_hook('form',table=table)(center)
+            self._th_hook('form',mangler=frameCode)(center)
         return form
         
     def th_formPageCollection(self,form,parentStore=None):
@@ -76,11 +78,7 @@ class TableHandlerFormLegacy(BaseComponent):
                             table=self.maintable,center_widget='BorderContainer',
                             pkeyPath='.pkey',hasBottomMessage=False,
                             form_locked=True,
-                            formsubscribe_onDismissed='SET list.selectedIndex=-2;',
-                            #sqlContextName='sql_record',
-                            #sqlContextRoot='form.record',
-                            #sqlContextTable=self.maintable
-                            )
+                            formsubscribe_onDismissed='SET list.selectedIndex=-2;')
         form.dataController("this.form.load({destPkey:pkey});",pkey="=list.selectedId",_fired='^form.doLoad')
         store = form.formStore(storepath='.record',hander='recordCluster',storeType='Collection',onSaved='reload',
                         parentStore='maingrid')
