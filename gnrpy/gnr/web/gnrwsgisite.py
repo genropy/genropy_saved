@@ -570,11 +570,14 @@ class GnrWsgiSite(object):
         :returns: add???
         """
         out_dict = dict()
-        for name, value in params.items():
-            if name.endswith('[]'):
-                out_dict.setdefault(name[:-2], []).append(value)
-            else:
-                out_dict[name] = value
+        for name in params.iterkeys():
+            try:
+                if name.endswith('[]'):
+                    out_dict[name[:-2]]=params.getall(name)
+                else:
+                    out_dict[name] = params.getone(name)
+            except UnicodeDecodeError:
+                pass
         return out_dict
         
     def dispatcher(self, environ, start_response):
