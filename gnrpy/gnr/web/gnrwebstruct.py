@@ -1320,10 +1320,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         pass
                     else:
                         zoomUrl = 'adm/th/thrunner/%s' %lnktblobj.fullname.replace('.', '/')
-                        result['lbl_href'] = '#'
                         result['lbl_zoomUrl'] = zoomUrl
                         result['lbl_pkey'] = '.%s' % fieldobj.name
-                        result['lbl_connect_onclick'] = "genro.dlg.zoomPalette(this)"                    
+                        result['lbl_connect_onclick'] = "genro.dlg.zoomPalette(this,$1);"                    
                 result['lbl__class'] = 'gnrzoomlabel'
             result['lbl'] = fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
             result['tag'] = 'DbSelect'
