@@ -24,6 +24,7 @@ Component for thermo:
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class TableHandler(BaseComponent):
+    _legacy=True
     py_requires = """standard_tables/tablehandler_core,
                      standard_tables/tablehandler_form,
                      standard_tables/tablehandler_list,

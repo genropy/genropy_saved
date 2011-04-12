@@ -16,6 +16,7 @@ from gnr.core.gnrstring import splitAndStrip, toText
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class GetInfoPage(BaseComponent):
+    columnsDict = {}
     py_requires = 'reportcmp/getinfo:QuickQueryTool'
 
     def rootPage(self, *args, **kwargs):
@@ -68,7 +69,7 @@ class QuickQueryTool(object):
     def qqt_parametricQuery(self, table, columns='', group_by='', order_by='',
                             having=None, distinct=None, limit=None, columnsDict=None, **kwargs):
         group_by, columns = self._prepareColumnsAndGroupBy(columns, group_by)
-        wherelist, sqlArgs = self.qqt_prepareConditions(table, customColumns=columnsDict, **kwargs)
+        w  = self.qqt_prepareConditions(table, customColumns=columnsDict, **kwargs)
         tblobj = self.db.table(table)
         q = tblobj.query(columns=columns,
                          where=' AND '.join(wherelist),
