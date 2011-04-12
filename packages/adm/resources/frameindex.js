@@ -10,10 +10,10 @@ frameIndex.selectIframePage=function(sourceNode,name,label,file,table,formResour
          var urlPars = {inframe:true};
          if(table){
             url = '/adm/th/thrunner/'+table.replace('.','/');
-            if(formName){
+            if(formResource){
                 urlPars['th_formResource'] = formResource;
             }
-            if(viewName){
+            if(viewResource){
                 urlPars['th_viewResource'] = viewResource;
             }
          }
