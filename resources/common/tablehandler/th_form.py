@@ -77,7 +77,7 @@ class TableHandlerFormLegacy(BaseComponent):
         form = sc.frameForm(frameCode=frameCode,formId='formPane',datapath='form',controllerPath='gnr.forms.formPane',
                             table=self.maintable,center_widget='BorderContainer',
                             pkeyPath='.pkey',hasBottomMessage=False,
-                            form_locked=True,
+                            form_locked=True,th_root=frameCode,
                             formsubscribe_onDismissed='SET list.selectedIndex=-2;')
         form.dataController("this.form.load({destPkey:pkey});",pkey="=list.selectedId",_fired='^form.doLoad')
         store = form.formStore(storepath='.record',hander='recordCluster',storeType='Collection',onSaved='reload',

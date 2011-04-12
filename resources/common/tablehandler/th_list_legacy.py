@@ -10,7 +10,7 @@ class TableHandlerListLegacy(BaseComponent):
     def th_listPage(self,pane,frameCode=None):
         self.query_helper_main(pane)
         self._th_setFilter()
-        thframe = pane.framePane(frameCode='mainlist',datapath='list')
+        thframe = pane.framePane(frameCode=frameCode,th_root=frameCode,datapath='list')
         self._th_pageListController(thframe)
         self._th_listController_legacy(thframe)
         thframe.top.listToolbar()

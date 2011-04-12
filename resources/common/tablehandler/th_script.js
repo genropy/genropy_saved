@@ -36,7 +36,12 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
     },
     
     relativeId:function(id){
-        return this.mangling + '_' + id;
+        if(this.mangling){
+             return this.mangling + '_' + id;
+        }else{
+            return this.tablecode+'_'+id;
+        }
+       
     },
     
     getRelativeNode:function(id){
