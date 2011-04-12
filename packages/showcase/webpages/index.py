@@ -26,8 +26,8 @@ class GnrCustomWebPage(object):
                                                                                                 right='20px', top='2px')
 
         buttons.button('Page', action='SET stack_selected=0')
-        buttons.button('Source', action='SET stack_selected=1', disabled=False)
-        buttons.button('Documentation', action='SET stack_selected=2', disabled=False)
+        buttons.button('Source', action='SET stack_selected=1')
+        buttons.button('Documentation', action='SET stack_selected=2')
 
         sc = center.stackContainer(region='center', selected='^stack_selected')
         sc.contentPane(overflow='hidden').iframe(height='100%', width='100%', border='0', src='^iframe.selected_page')
