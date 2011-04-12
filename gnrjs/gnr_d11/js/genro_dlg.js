@@ -300,6 +300,20 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         };
         return dlg;
     },
+    
+    zoomPalette:function(sourceNode){
+        var pkey = sourceNode.getRelativeData(sourceNode.attr.pkey);
+        var zoomUrl = '/'+sourceNode.attr.zoomUrl+'/'+pkey+'?th_public=false';
+        var paletteCode='external_'+sourceNode.getStringId();
+        genro.src.getNode()._('div',paletteCode);
+        var node = genro.src.getNode(paletteCode).clearValue();
+        node.freeze();
+        var palette = node._('palettePane',paletteCode,{'paletteCode':paletteCode,
+                                                      title:'Palette:'+pkey,_lazyBuild:true,overflow:'hidden',
+                                                      dockTo:false,width:'400px',height:'200px'})
+        palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
+        node.unfreeze(); 
+    },
 
     listChoice: function(title, msg, buttons, resultPath, valuePath, storePath) {
         genro.src.getNode()._('div', '_dlg_listChoice');

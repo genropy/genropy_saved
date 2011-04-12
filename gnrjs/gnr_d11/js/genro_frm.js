@@ -101,7 +101,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var startKey = kw.startKey || this.store.startKey || this.getCurrentPkey();
             this.setLocked(this.locked);
             if(startKey){
-                this.load({destPkey:startKey});
+                var that = this;
+                setTimeout(function(){that.load({destPkey:startKey});},1);
             }
         }
         
