@@ -301,16 +301,16 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         return dlg;
     },
     
-    zoomPalette:function(sourceNode){
+    zoomPalette:function(sourceNode,evt){
         var pkey = sourceNode.getRelativeData(sourceNode.attr.pkey);
         var zoomUrl = '/'+sourceNode.attr.zoomUrl+'/'+pkey+'?th_public=false';
         var paletteCode='external_'+sourceNode.getStringId();
         genro.src.getNode()._('div',paletteCode);
         var node = genro.src.getNode(paletteCode).clearValue();
         node.freeze();
-        var palette = node._('palettePane',paletteCode,{'paletteCode':paletteCode,
+        var palette = node._('palettePane',paletteCode,{'paletteCode':paletteCode,top:_px(evt.clientY),left:_px(evt.clientX),
                                                       title:'Palette:'+pkey,_lazyBuild:true,overflow:'hidden',
-                                                      dockTo:false,width:'400px',height:'200px'})
+                                                      dockTo:false,width:'600px',height:'300px'})
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
         node.unfreeze(); 
     },

@@ -28,6 +28,13 @@
 var _lf = '\n';
 var _crlf = '\r\n';
 var _tab = '\t';
+function _px(v){
+    v+='';
+    if(v.indexOf('px')<0){
+        v+='px';
+    }
+    return v;
+};
 function bagAsObj(bag) {
     var result = {};
     var parentNode = bag.getParentNode();
