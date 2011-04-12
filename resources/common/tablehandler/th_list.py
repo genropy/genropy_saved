@@ -248,7 +248,7 @@ class TableHandlerListBase(TableHandlerList):
                                                          }""")
                              
         store = iv.selectionStore(table=table, columns='=.columns',
-                           chunkSize=self.rowsPerPage()*4,
+                           chunkSize=self.rowsPerPage()*4,childname='store',
                            where='=.query.where', sortedBy='=.sorted',
                            pkeys='=.query.pkeys', _fired='^.runQueryDo',_parentPkey='^#FORM.pkey',
                            selectionName='*', recordResolver=False, condition=condition,
