@@ -716,7 +716,7 @@ class GnrWhereTranslator(object):
                 negate = ' NOT '
                 ksplit.pop()
             column = '_'.join(ksplit)
-            if column in customColumns:
+            if customColumns and column in customColumns:
                 custom = customColumns[column]
                 if callable(custom):
                     condition = custom(column, sqlArgs)
