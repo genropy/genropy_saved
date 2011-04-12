@@ -9,7 +9,7 @@
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
-    py_requires = """tablehandler/th_list:TableHandlerListBase"""
+    py_requires = """tablehandler/th_list:TableHandlerBase"""
 
     def main(self,root,th_pkg=None,th_table=None,th_pkey=None,th_viewResource=None,th_loadEvent=None,**kwargs):
         call_args = self.getCallArgs('th_pkg','th_table')

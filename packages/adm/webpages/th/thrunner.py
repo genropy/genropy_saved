@@ -5,7 +5,7 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 class GnrCustomWebPage(object):
-    py_requires = """public:Public,tablehandler/th_components:StackTableHandler"""
+    py_requires = """public:Public,tablehandler/th_components:TableHandlerBase"""
     css_requires='public'
     plugin_list=''
     def onMain_pbl(self):

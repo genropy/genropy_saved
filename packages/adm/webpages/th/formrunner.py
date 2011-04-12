@@ -9,7 +9,7 @@
 
 # --------------------------- GnrWebPage subclass ---------------------------
 class GnrCustomWebPage(object):
-    py_requires = """tablehandler/th_form:TableHandlerFormBase"""
+    py_requires = """tablehandler/th_form:TableHandlerBase"""
 
 
     def main(self,root,th_formResource=None,**kwargs):
