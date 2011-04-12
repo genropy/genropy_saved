@@ -42,6 +42,8 @@
 .gnrzoomlabel {
     text-decoration: none;
     padding-left: 15px;
+    display:inline;
+    cursor:pointer;
 }
 
 .gnrzoomlabel:hover {
