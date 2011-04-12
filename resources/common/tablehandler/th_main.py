@@ -9,6 +9,7 @@ from gnr.web.gnrwebstruct import struct_method
 
 
 class TableHandler(BaseComponent):
+    _legacy=True
     py_requires = """
                      tablehandler/th_form:TableHandlerFormLegacy,
                      tablehandler/th_list_legacy:TableHandlerListLegacy,

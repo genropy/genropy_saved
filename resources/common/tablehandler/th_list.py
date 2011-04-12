@@ -71,7 +71,6 @@ class TableHandlerList(BaseComponent):
         
     def _th_listController(self,pane,table=None):
         table = table or self.maintable
-        pane.data('.baseQuery', self.getQueryBag(table=table,mangler=pane))
         pane.dataController("""
                                genro.querybuilder(table).cleanQueryPane(); 
                                SET .queryRunning = true;
@@ -126,11 +125,10 @@ class TableHandlerList(BaseComponent):
         return result
 
 
-    def getQueryBag(self,table=None,mangler=None):
+    def _prepareQueryBag(self,querybase,table=None):
         table = table or self.maintable
         tblobj = self.db.table(table)
         result = Bag()
-        querybase = self._th_hook('query',mangler=mangler)()
         op_not = querybase.get('op_not', 'yes')
         column = querybase.get('column')
         column_dtype = None
@@ -173,7 +171,7 @@ class TableHandlerList(BaseComponent):
 
 class TableHandlerListBase(TableHandlerList):
     @struct_method
-    def th_listPage(self,pane,table=None,frameCode=None,linkedForm=None,reloader=None,**kwargs):
+    def th_listPage(self,pane,table=None,th_pkey=None,frameCode=None,reloader=None,**kwargs):
         #self.query_helper_main(pane)
         frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',**kwargs)
         mangling =frameCode
@@ -187,7 +185,7 @@ class TableHandlerListBase(TableHandlerList):
         footer.th_dock.div(width='100px',height='20px').dock(id = dock_id)
         pane.palettePane('%s_queryTool' %mangling,title='Query tool',nodeId='%s_query_root' %mangling,
                         dockTo=dock_id,datapath='.list.query.where',height='150px',width='400px')
-        frame.gridPane(table=table,reloader=reloader)
+        frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey)
         return frame
     
     @struct_method
@@ -202,12 +200,18 @@ class TableHandlerListBase(TableHandlerList):
                     subscribe_form_formPane_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""")
     @struct_method
-    def th_gridPane(self, pane,table=None,reloader=None):
+    def th_gridPane(self, pane,table=None,reloader=None,th_pkey=None):
         table = table or self.maintable
-        pane.data('.sorted', self._th_hook('order',mangler=pane)())
+        mangler = pane.getInheritedAttributes()['th_root']
+        pane.data('.sorted', self._th_hook('order',mangler=mangler)())
+        condition = self._th_hook('condition',mangler=mangler)()
         
-        condition = self._th_hook('condition',mangler=pane)()
-        
+        if th_pkey:
+            querybase = dict(column=self.db.table(table).pkey,op='equal',val=th_pkey,runOnStart=True)
+        else:
+            querybase = self._th_hook('query',mangler=mangler)()
+        pane.data('.baseQuery', self._prepareQueryBag(querybase,table=table))
+
         condPars = {}
         if isinstance(condition,dict):
             condPars = condition
@@ -224,7 +228,7 @@ class TableHandlerListBase(TableHandlerList):
         }
         
         SET .columns = columns;
-        """, hiddencolumns=self._th_hook('hiddencolumns',mangler=pane)(),
+        """, hiddencolumns=self._th_hook('hiddencolumns',mangler=mangler)(),
                             struct='^.view.structure', _init=True)
 
         pane.data('.tableRecordCount', self.tableRecordCount())
@@ -235,7 +239,7 @@ class TableHandlerListBase(TableHandlerList):
                                  dropTypes=None,
                                  dropTarget=True,
                                  draggable=True, draggable_row=True,
-                                 struct=self._th_hook('struct',mangler=pane),
+                                 struct=self._th_hook('struct',mangler=mangler),
                                  dragClass='draggedItem',
                                  onDrop=""" for (var k in data){
                                                  this.setRelativeData('list.external_drag.'+k,new gnr.GnrBag(data[k]));
@@ -267,6 +271,7 @@ class TableHandlerListBase(TableHandlerList):
                      table=table, where='=.query.where',
                      excludeLogicalDeleted='=.excludeLogicalDeleted',
                      **condPars)
+        
         pane.dataController("""this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
                                genro.querybuilder(maintable).buildQueryPane(); 
                                SET .view.selectedId = null;
@@ -276,4 +281,4 @@ class TableHandlerListBase(TableHandlerList):
                             """,
                             _onStart=True, baseQuery='=.baseQuery', maintable=table,
                             fired='^.query.new',
-                            runOnStart=self._th_hook('query',mangler=pane)().get('runOnStart', False))
+                            runOnStart=querybase.get('runOnStart', False))
