@@ -1308,12 +1308,22 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 size = 5
             defaultZoom = self.page.pageOptions.get('enableZoom', True)
             if kwargs.get('zoom', defaultZoom):
-                if hasattr(lnktblobj.dbtable, 'zoomUrl'):
-                    zoomPage = lnktblobj.dbtable.zoomUrl()
+                if hasattr(self.page,'_legacy'):
+                    if hasattr(lnktblobj.dbtable, 'zoomUrl'):
+                        zoomPage = lnktblobj.dbtable.zoomUrl()
+                    else:
+                        zoomPage = lnktblobj.fullname.replace('.', '/')
+                    result['lbl_href'] = "=='/%s?pkey='+pkey" % zoomPage
+                    result['lbl_pkey'] = '^.%s' % fieldobj.name
                 else:
-                    zoomPage = lnktblobj.fullname.replace('.', '/')
-                result['lbl_href'] = "=='/%s?pkey='+pkey" % zoomPage
-                result['lbl_pkey'] = '^.%s' % fieldobj.name
+                    if hasattr(lnktblobj.dbtable, 'zoomUrl'):
+                        pass
+                    else:
+                        zoomUrl = 'adm/th/thrunner/%s' %lnktblobj.fullname.replace('.', '/')
+                        result['lbl_href'] = '#'
+                        result['lbl_zoomUrl'] = zoomUrl
+                        result['lbl_pkey'] = '.%s' % fieldobj.name
+                        result['lbl_connect_onclick'] = "genro.dlg.zoomPalette(this)"                    
                 result['lbl__class'] = 'gnrzoomlabel'
             result['lbl'] = fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
             result['tag'] = 'DbSelect'
