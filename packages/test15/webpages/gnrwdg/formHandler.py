@@ -13,7 +13,6 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler,foundation/includedview:IncludedView"
     user_polling=0
     auto_polling=0
-    testOnly='_11_'
     
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
