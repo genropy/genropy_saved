@@ -8,12 +8,14 @@ from gnr.web.gnrbaseclasses import BaseComponent
 class Form(BaseComponent):
 
     def th_form(self,pane,**kwargs):
-        pane.div(u'!!Provincia',_class='pbl_roundedGroupLabel')
         fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',margin_top='1em')
         fb.field('nome', width='20em')
         fb.field('sigla',width='3em')
         fb.field('codice_istat',width='7em')
         fb.field('regione',width='15em')
+        
+    def th_dialog(self):
+        return dict(height='300px',width='500px')
 
 class View(BaseComponent):
     def th_struct(self,struct):
