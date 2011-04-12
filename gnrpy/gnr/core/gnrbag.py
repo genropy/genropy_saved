@@ -113,12 +113,11 @@ class BagDeprecatedCall(BagException):
         
 class BagNode(object):
     """
-    BagNode is the element type which a Bag is composed of. That's why it's
-    possible to say that a Bag is a collection of BagNodes. A BagNode is an 
-    object that gather within itself, three main things:
+    BagNode is the element type which a Bag is composed of. That's why it's possible to say that a Bag
+    is a collection of BagNodes. A BagNode is an object that gather within itself, three main things:
     
     :param label: can be only a string.
-    :param value: can be anything even a BagNode. If you have get the xml of the Bag it should be serializable.
+    :param value: can be anything even a BagNode. If you got the xml of the Bag it should be serializable.
     :param attributes: dictionary that contains node's metadata
     """
 

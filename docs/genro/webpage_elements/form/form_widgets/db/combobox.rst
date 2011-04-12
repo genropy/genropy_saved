@@ -61,13 +61,15 @@ Examples
 Fill comboBox through *values* attribute
 ==========================================
 
-    You can add values to combobox using the "values" attribute; check this example for the correct syntax::
+    You can add values to combobox using the "values" attribute; check this example for the
+    correct syntax::
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
                 root.combobox(value='^.record.values',values='Football,Golf,Karate')
 
-    .. note:: Pay attention not to confuse *value* with *values*: *value* is used to allocate user data in a well determined :ref:`genro_datapath`, while *values* is used to fill the comboBox.
+    .. note:: Pay attention not to confuse *value* with *values*: *value* is used to allocate user
+              data in a well determined :ref:`genro_datapath`, while *values* is used to fill the comboBox.
 
     .. _here:
     .. _Bag:
@@ -76,7 +78,9 @@ Fill comboBox through *values* attribute
 Fill comboBox through a Bag
 ===========================
 
-    Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation (:ref:`genro_bag_intro` introduction page and :ref:`genro_data` page), we'll show here how you can add values to ``combobox`` using a ``Bag``.
+    Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation
+    (:ref:`genro_bag_intro` introduction page and :ref:`genro_data` page), we'll show here how
+    you can add values to ``combobox`` using a ``Bag``.
     
     **Example**::
 
@@ -102,4 +106,5 @@ Fill comboBox through a Bag
                 mytable['r6.Description'] = 'Snowboard'
                 return mytable
                 
-    The advantage of using a Bag is that you can add attributes to your records, but you lose the keys (they aren't supported from combobox).
+    The advantage of using a Bag is that you can add attributes to your records, but you lose the keys
+    (they aren't supported from combobox).

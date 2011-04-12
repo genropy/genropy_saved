@@ -11,7 +11,7 @@ The build phase
 
     In the construction of the pages, first GenroPy loads the browser (client) with its JavaScript engine
     (the Genro engine). Then the Javascript engine immediately requests the server to build the recipe for
-    the DOM. This recipe is returned to the client in a :ref:`genro_bag_intro`. This is the page description
+    the DOM. This recipe is returned to the client in a :ref:`genro_bag_index`. This is the page description
     and content of the original datastore form of bags. At this point, the JS can make calls to the python
     code to further buildings on the page.
     

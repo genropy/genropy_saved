@@ -10,26 +10,6 @@ Introduction to GenroPy
     
     (add??? continue!!!)
     
-Programs used and supported versions
-====================================
-
-    The GenroPy framework is built on different languages: we list here all the used languages
-    with the supported version:
-    
-    ===================== =======================
-     **Language**          **Supported version** 
-    ===================== =======================
-     CSS                   3                     
-    --------------------- -----------------------
-     Dojo [#]_             1.1                   
-    --------------------- -----------------------
-     HTML                  add???                
-    --------------------- -----------------------
-     Javascript            add???                
-    --------------------- -----------------------
-     Python                add???                
-    ===================== =======================
-    
 Client / Server
 ===============
     
@@ -46,19 +26,6 @@ Other things
     
     * :ref:`genro_controllers` ???
     
-    .. _genro_???:
-    
-Different syntaxes
-==================
-
-    **Old syntax**::
-    
-        add???
-    
-    **New syntax**::
-    
-        frame.top.slotBar()
-        
 .. _genro_controllers:
 
 Genro controllers

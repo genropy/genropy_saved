@@ -88,9 +88,8 @@ class GnrBaseWebPage(GnrObject):
         :param path: add???. Default value is ``None``
         :returns: add???
         """
-        return self.request.get_cookie(cookieName, cookieType,
-                                       secret=secret, path=path)
-                                       
+        return self.request.get_cookie(cookieName, cookieType, secret=secret, path=path)
+        
     def add_cookie(self, cookie):
         """add???
         
@@ -156,7 +155,8 @@ class GnrBaseWebPage(GnrObject):
         return result
         
     def mixins(self):
-        """Implement this method in your page for mixin the page with methods from the local _resources folder
+        """Implement this method in your page for mixin the page with methods from the local
+        :ref:`genro_webpage_resources` folder.
         
         :returns: a list of mixin names, moduleName:className
         """
@@ -200,7 +200,7 @@ class GnrBaseWebPage(GnrObject):
         """Allow to define users authorizations
         
         :param method: add???. Default value is ``None``
-        :returns: a string containing add???
+        :returns: a string containing the users authorizations
         """
         return ""
         
@@ -282,7 +282,8 @@ class GnrBaseWebPage(GnrObject):
     def getAbsoluteUrl(self, path, **kwargs):
         """Return an external link to the page
         
-        :param path: the path to the page from 'pages' folder
+        :param path: the path to the page from the :ref:`sites_pages` folder
+                     of a :ref:`genro_project`
         :returns: an external link to the page
         """
         return self.request.construct_url(self.getDomainUrl(path, **kwargs))
@@ -640,10 +641,7 @@ class GnrBaseWebPage(GnrObject):
         cell.div(float='right', padding='2px').button('Back', action='genro.pageBack()')
         
     def windowTitle(self):
-        """Return the window title.
-        
-        :returns: the window title.
-        """
+        """Return the window title"""
         return os.path.splitext(os.path.basename(self.filename))[0].replace('_', ' ').capitalize()
         
     def _errorPage(self, err, method=None, kwargs=None):

@@ -56,19 +56,17 @@ PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
 
 def public_method(func):
-    """This is a decorator which can be used to mark functions
-    as rpc.
-    """
+    """This is a decorator which can be used to mark functions as rpc."""
     func.is_rpc = True
     return func
-
+    
 class GnrWebPageException(GnrException):
     pass
     
 class GnrWebPage(GnrBaseWebPage):
-    """add???"""
-    def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None, filepath=None,
-                 packageId=None, basename=None, environ=None):
+    """Standard class to create :ref:`webpages_webpages`\s."""
+    def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
+                 filepath=None, packageId=None, basename=None, environ=None):
         self.site = site
         self.user_agent = request.user_agent or []
         self.user_ip = request.remote_addr
@@ -133,9 +131,11 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def call_args(self):
+        """add???"""
         return self._call_args
         
     def getCallArgs(self,*args):
+        """add???"""
         if not args:
             return self._call_args
         result = dict()           
@@ -143,13 +143,14 @@ class GnrWebPage(GnrBaseWebPage):
         for i,arg in enumerate(args):
             result[arg] = self._call_args[i] if i<lenargs else None
         return result 
-
+        
     def instantiateProxies(self):
+        """add???"""
         proxy_classes = [(p[:-11],getattr(self,p, None)) for p in dir(self) if p.endswith('_proxyclass')]
         for proxy_name,proxy_class in proxy_classes:
             if proxy_class:
                 setattr(self,proxy_name,proxy_class(self))
-
+                
     def _check_page_id(self, page_id=None, kwargs=None):
         if page_id:
             if not self.connection.connection_id:
@@ -714,6 +715,12 @@ class GnrWebPage(GnrBaseWebPage):
                 'current': os.path.dirname(self.filepath)}
               
     def subscribeTable(self,table,subscribe=True):
+        """add???
+        
+        :param table: add???
+        :param subscribe: add???. Default value is ``True``
+        :returns: add???
+        """
         with self.pageStore() as store:
             subscribed_tables = store.register_item['subscribed_tables']
             if subscribe:
@@ -722,7 +729,7 @@ class GnrWebPage(GnrBaseWebPage):
             else:
                 if table in subscribed_tables:
                     subscribed_tables.remove(table)
-    
+                    
     def pageStore(self, page_id=None, triggered=True):
         """add???
         
@@ -916,15 +923,35 @@ class GnrWebPage(GnrBaseWebPage):
         if os.path.isfile(self.resolvePath('%s.css' % self.pagename)):
             css_requires.append('%s.css' % self.pagename)
         return css_requires, css_media_requires
-
+        
     def getResourceList(self, path, ext=None):
+        """add???
+        
+        :param path: add???
+        :param ext: add???. Default value is ``None``
+        :returns: add???
+        """
         return self.site.resource_loader.getResourceList(self.resourceDirs, path, ext=ext)
-
+        
     def getResourceUriList(self, path, ext=None, add_mtime=False):
+        """add???
+        
+        :param path: add???
+        :param ext: add???. Default value is ``None``
+        :param add_mtime: add???. Default value is ``False``
+        :returns: add???
+        """
         flist = self.getResourceList(path, ext=ext)
         return [self.resolveResourceUri(f, add_mtime=add_mtime) for f in flist]
-
-    def getResourceExternalUriList(self,path, ext=None, add_mtime=False):
+        
+    def getResourceExternalUriList(self, path, ext=None, add_mtime=False):
+        """add???
+        
+        :param path: add???
+        :param ext: add???. Default value is ``None``
+        :param add_mtime: add???. Default value is ``False``
+        :returns: add???
+        """
         flist = self.getResourceList(path, ext=ext)
         return [self.externalUrl(self.resolveResourceUri(f, add_mtime=add_mtime)) for f in flist]
 
@@ -935,14 +962,28 @@ class GnrWebPage(GnrBaseWebPage):
         """
         pass
         
-    def getResourceUri(self, path, ext=None, add_mtime=False,pkg=None):
+    def getResourceUri(self, path, ext=None, add_mtime=False, pkg=None):
+        """add???
+        
+        :param path: add???
+        :param ext: add???. Default value is ``None``
+        :param add_mtime: add???. Default value is ``False``
+        :param pkg: add???. Default value is ``None``
+        :returns: add???
+        """
         fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
             return
         return self.resolveResourceUri(fpath, add_mtime=add_mtime,pkg=pkg)
-
-
-    def resolveResourceUri(self, fpath, add_mtime=False,pkg=None):
+        
+    def resolveResourceUri(self, fpath, add_mtime=False, pkg=None):
+        """add???
+        
+        :param fpath: add???
+        :param add_mtime: add???. Default value is ``False``
+        :param pkg: add???. Default value is ``None``
+        :returns: add???
+        """
         url = None 
         packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
         pkg = pkg or self.packageId
@@ -966,7 +1007,14 @@ class GnrWebPage(GnrBaseWebPage):
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
         
-    def getResource(self, path, ext=None,pkg=None):
+    def getResource(self, path, ext=None, pkg=None):
+        """add???
+        
+        :param path: add???
+        :param ext: add???. Default value is ``None``
+        :param pkg: add???. Default value is ``None``
+        :returns: add???
+        """
         resourceDirs = self.resourceDirs
         if pkg:
             resourceDirs = self.site.resource_loader.package_resourceDirs(pkg)
@@ -975,25 +1023,77 @@ class GnrWebPage(GnrBaseWebPage):
             return result[0]
             
     def setPreference(self, path, data, pkg=''):
+        """add???
+        
+        :param path: add???
+        :param data: add???
+        :param pkg: add???. Default value is ``''``
+        :returns: add???
+        """
         self.site.setPreference(path, data, pkg=pkg)
         
     def getPreference(self, path, pkg='', dflt=''):
+        """add???
+        
+        :param path: add???
+        :param pkg: add???. Default value is ``''``
+        :param dflt: add???. Default value is ``''``
+        :returns: add???
+        """
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
         
     def getUserPreference(self, path, pkg='', dflt='', username=''):
+        """add???
+        
+        :param path: add???
+        :param pkg: add???. Default value is ``''``
+        :param dflt: add???. Default value is ``''``
+        :param username: add???. Default value is ``''``
+        :returns: add???
+        """
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
         
     def rpc_getUserPreference(self, path='*'):
+        """add???
+        
+        :param path: add???. Default value is ``*``
+        :returns: add???
+        """
         return self.getUserPreference(path)
         
     def rpc_getAppPreference(self, path='*'):
+        """add???
+        
+        :param path: add???. Default value is ``*``
+        :returns: add???
+        """
         return self.getPreference(path)
         
     def setUserPreference(self, path, data, pkg='', username=''):
+        """add???
+        
+        :param path: add???
+        :param data: add???
+        :param pkg: add???. Default value is ``''``
+        :param username: add???. Default value is ``''``
+        :returns: add???
+        """
         self.site.setUserPreference(path, data, pkg=pkg, username=username)
         
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, public=False, replace=False):
+        """add???
+        
+        :param path: add???
+        :param value: add???. Default value is ``None``
+        :param attributes: add???. Default value is ``None``
+        :param page_id: add???. Default value is ``None``
+        :param filters: add???. Default value is ``None``
+        :param fired: add???. Default value is ``False``
+        :param reason: add???. Default value is ``None``
+        :param public: add???. Default value is ``False``
+        :param replace: add???. Default value is ``False``
+        """
         if filters:
             pages = self.site.register.pages(filters=filters)
         else:
@@ -1015,6 +1115,13 @@ class GnrWebPage(GnrBaseWebPage):
                     clientPage.set(path, value, attributes=attributes, reason=reason, fired=fired)
                     
     def rpc_sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
+        """add???
+        
+        :param message: add???
+        :param page_id: add???. Default value is ``None``
+        :param filters: add???. Default value is ``None``
+        :param msg_path: add???. Default value is ``None``
+        """
         self.site.sendMessageToClient(message, pageId=pageId, filters=filters, origin=self, msg_path=msg_path)
         
     def _get_package_folder(self):
@@ -1024,6 +1131,12 @@ class GnrWebPage(GnrBaseWebPage):
     package_folder = property(_get_package_folder)
     
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
+        """add???
+        
+        :param \_auth: add???. Default value is ``AUTH_OK``
+        :param debugger: add???. Default value is ``None``
+        :returns: add???
+        """
         page = self.domSrcFactory.makeRoot(self)
         self._root = page
         pageattr = {}
@@ -1057,14 +1170,14 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
                 page.dataController("genro.getDataNode(nodePath).refresh(true);",
                                     nodePath="^gnr.serverEvent.refreshNode")
-
+                                    
                 page.dataController('if(url){genro.download(url)};', url='^gnr.downloadurl')
                 page.dataController("""if(url){
                                         genro.download(url,null,"print")
                                         };""", url='^gnr.printurl')
-
+                                        
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
-
+                
                 root = page.borderContainer(design='sidebar', height='100%', nodeId='_gnrRoot',
                                             _class='hideSplitter notvisible',
                                             regions='^_clientCtx.mainBC')
@@ -1141,15 +1254,22 @@ class GnrWebPage(GnrBaseWebPage):
             return (self._errorPage(err), pageattr)
             
     def onMain(self): #You CAN override this !
+        """add???"""
         pass
             
     def rpc_getPageStoreData(self):
+        """add???"""
         return self.pageStore().getItem('')
         
     def mainLeftTop(self, pane):
+        """add???"""
         pass
             
     def mainLeftContent(self, parentBC, **kwargs):
+        """add???
+        
+        :param parentBC: add???
+        """
         plugin_list = getattr(self, 'plugin_list', None)
         if not plugin_list or 'inframe' in self.pageArgs:
             return
@@ -1164,14 +1284,14 @@ class GnrWebPage(GnrBaseWebPage):
                              genro.dom.setClass(genro.domById('plugin_block_'+page),'selected_plugin',selected);
                             """,
                           subscribe_gnr_main_left_center_selected=True)
-
+                          
         sc.dataController("""
                             var command= main_left_status[0]?'open':'close';
                             genro.publish(page+'_'+(command=='open'?'on':'off'));
                             """,
                           subscribe_main_left_status=True,
                           page='=.selected')
-
+                          
         for plugin in self.plugin_list.split(','):
             cb = getattr(self, 'mainLeft_%s' % plugin)
             assert cb, 'Plugin %s not found' % plugin
@@ -1180,38 +1300,51 @@ class GnrWebPage(GnrBaseWebPage):
                             PUBLISH main_left_set_status = true;
                             SET .selected=plugin;
                           """, **{'subscribe_%s_open' % plugin: True, 'plugin': plugin})
-
+                          
             getattr(plugin_dock,plugin).div(_class='plugin_block %s_icon' % plugin,
                                             connect_onclick="""SET .selected="%s";""" % plugin,
                                             id='plugin_block_%s' % plugin)
-
+                                            
     def onMainCalls(self):
+        """add???"""
         calls = [m for m in dir(self) if m.startswith('onMain_')]
         for m in calls:
             getattr(self, m)()
         self.onMain()
-
+        
     def rpc_onClosePage(self, **kwargs):
+        """add???"""
         self.site.onClosePage(self)
         #self.pageFolderRemove()
-
+        
     def pageFolderRemove(self):
+        """add???"""
         shutil.rmtree(os.path.join(self.connectionFolder, self.page_id), True)
-
+        
     def rpc_callTableScript(self, table=None, respath=None, class_name='Main', downloadAs=None, **kwargs):
-        """Call a script from a table's resources (i.e. ``_resources/tables/<table>/<respath>``).
+        """Call a script from a table's local resources (i.e. ``_resources/tables/<table>/<respath>``).
         
         This is typically used to customize prints and batch jobs for a particular installation.
+        
+        :param table: add???. Default value is ``None``
+        :param respath: add???. Default value is ``None``
+        :param class_name: add???. Default value is ``'Main'``
+        :param downloadAs: add???. Default value is ``None``
+        :returns: add???
         """
         if downloadAs:
             import mimetypes
-
+            
             self.response.content_type = mimetypes.guess_type(downloadAs)[0]
             self.response.add_header("Content-Disposition", str("attachment; filename=%s" % downloadAs))
         return self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name,
                                          downloadAs=downloadAs, **kwargs)
-
+                                         
     def rpc_remoteBuilder(self, handler=None, **kwargs):
+        """add???
+        
+        :param handler: add???. Default value is ``None``
+        """
         handler = self.getPublicMethod('remote', handler)
         if handler:
             pane = self.newSourceRoot()
@@ -1221,34 +1354,55 @@ class GnrWebPage(GnrBaseWebPage):
                     kwargs[k[0:-5]] = kwargs.pop(k)[1:]
             handler(pane, **kwargs)
             return pane
-
+            
     def rpc_ping(self, **kwargs):
+        """add???"""
         pass
-
+        
     def rpc_setInServer(self, path, value=None, pageId=None, **kwargs):
+        """add???
+        
+        :param path: add???
+        :param value: add???. Default value is ``None``
+        :param pageId: add???. Default value is ``None``
+        """
         with self.pageStore(pageId) as store:
             store.setItem(path, value)
-
+            
    #def rpc_setViewColumns(self, contextTable=None, gridId=None, relation_path=None, contextName=None,
    #                       query_columns=None, **kwargs):
    #    self.app.setContextJoinColumns(table=contextTable, contextName=contextName, reason=gridId,
    #                                   path=relation_path, columns=query_columns)
-
+        
     def rpc_getPrinters(self):
+        """add???"""
         print_handler = self.getService('print')
         if print_handler:
             return print_handler.getPrinters()
-
+            
     def rpc_getPrinterAttributes(self, printer_name):
+        """add???
+        
+        :param printer_name: add???
+        :returns: add???
+        """
         if printer_name and printer_name != 'PDF':
             attributes = self.getService('print').getPrinterAttributes(printer_name)
             return attributes
-
+            
     def rpc_relationExplorer(self, table=None, prevRelation='', prevCaption='',
                              omit='', **kwargs):
+        """add???
+        
+        :param table: add???. Default value is ``None``
+        :param prevRelation: add???. Default value is ``''``
+        :param prevCaption: add???. Default value is ``''``
+        :param omit: add???. Default value is ``''``
+        :returns: add???
+        """
         if not table:
             return Bag()
-
+            
         def buildLinkResolver(node, prevRelation, prevCaption):
             nodeattr = node.getAttr()
             if not 'name_long' in nodeattr:
@@ -1265,84 +1419,107 @@ class GnrWebPage(GnrBaseWebPage):
                 node.setValue(jsresolver % (
                 jsquote("%s.%s" % (relpkg, reltbl)), jsquote(concat(prevRelation, node.label)),
                 jsquote(nodeattr['fullcaption']), jsquote(omit)))
-
+                
         result = self.db.relationExplorer(table=table,
                                           prevRelation=prevRelation,
                                           omit=omit,
                                           **kwargs)
         result.walk(buildLinkResolver, prevRelation=prevRelation, prevCaption=prevCaption)
         return result
-
+        
     def rpc_setInClientPage(self, pageId=None, changepath=None, value=None, fired=None, attr=None, reason=None):
+        """add???
+        
+        :param pageId: add???. Default value is ``None``
+        :param changepath: add???. Default value is ``None``
+        :param value: add???. Default value is ``None``
+        :param fired: add???. Default value is ``None``
+        :param attr: add???. Default value is ``None``
+        :param reason: add???. Default value is ``None``
+        """
         with self.clientPage(pageId) as clientPage:
             clientPage.set(changepath, value, attr=attr, reason=reason, fired=fired)
-
+            
     def getAuxInstance(self, name):
+        """add???"""
         return self.site.getAuxInstance(name)
-
+        
     def _get_connectionFolder(self):
         return os.path.join(self.site.allConnectionsFolder, self.connection_id)
-
+        
     connectionFolder = property(_get_connectionFolder)
-
+        
     def _get_userFolder(self):
         user = self.user or 'Anonymous'
         return os.path.join(self.site.allUsersFolder, user)
-
+        
     userFolder = property(_get_userFolder)
-
+    
     def temporaryDocument(self, *args):
+        """add???"""
         return self.connectionDocument('temp', *args)
-
+        
     def temporaryDocumentUrl(self, *args, **kwargs):
+        """add???"""
         return self.connectionDocumentUrl('temp', *args, **kwargs)
-
-
+        
     def connectionDocument(self, *args):
+        """add???"""
         filepath = os.path.join(self.connectionFolder, self.page_id, *args)
         folder = os.path.dirname(filepath)
         if not os.path.isdir(folder):
             os.makedirs(folder)
         return filepath
-
+        
     def userDocument(self, *args):
+        """add???"""
         filepath = os.path.join(self.userFolder, *args)
         folder = os.path.dirname(filepath)
         if not os.path.isdir(folder):
             os.makedirs(folder)
         return filepath
-
+        
     def connectionDocumentUrl(self, *args, **kwargs):
+        """add???"""
         if kwargs:
             return self.site.getStatic('conn').kwargs_url(self.connection_id, self.page_id, *args, **kwargs)
         else:
             return self.site.getStatic('conn').url(self.connection_id, self.page_id, *args)
-
+            
     def userDocumentUrl(self, *args, **kwargs):
+        """add???"""
         if kwargs:
             return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs_url)
         else:
             return self.site.getStatic('user').url(self.user, *args)
-
+            
     def isLocalizer(self):
+        """add???"""
         return (self.userTags and ('_TRD_' in self.userTags))
-
+        
     def isDeveloper(self):
+        """add???"""
         return (self.userTags and ('_DEV_' in self.userTags))
-
+        
     def addToContext(self, value=None, serverpath=None, clientpath=None):
+        """add???
+        
+        :param value: add???. Default value is ``None``
+        :param serverpath: add???. Default value is ``None``
+        :param clientpath: add???. Default value is ``None``
+        """
         self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
-
+        
     def _createContext(self, root, pendingContext):
         with self.pageStore() as store:
             for value, serverpath, clientpath in pendingContext:
                 store.setItem(serverpath, value)
         for value, serverpath, clientpath in pendingContext:
             root.child('data', __cls='bag', content=value, path=clientpath, _serverpath=serverpath)
-
+            
     def setJoinCondition(self, ctxname, target_fld='*', from_fld='*', condition=None, one_one=None, applymethod=None,
                          **kwargs):
-        """define join condition in a given context (ctxname)
+        """Define a join condition in a given context (ctxname)
            the condition is used to limit the automatic selection of related records
            If target_fld AND from_fld equals to '*' the condition is an additional where clause added to any selection
            
@@ -1368,10 +1545,10 @@ class GnrWebPage(GnrBaseWebPage):
         path = '%s.%s_%s' % (ctxname, target_fld.replace('.', '_'), from_fld.replace('.', '_'))
         value = Bag(dict(target_fld=target_fld, from_fld=from_fld, condition=condition, one_one=one_one,
                          applymethod=applymethod, params=Bag(kwargs)))
-
+                         
         self.addToContext(value=value, serverpath='_sqlctx.conditions.%s' % path,
                           clientpath='gnr.sqlctx.conditions.%s' % path)
-
+                          
    #def setJoinColumns(self, ctxname, target_fld, from_fld, joincolumns):
    #    path = '%s.%s_%s' % (ctxname, target_fld.replace('.', '_'), from_fld.replace('.', '_'))
    #    serverpath = '_sqlctx.columns.%s' % path
@@ -1403,28 +1580,42 @@ class GnrWebPage(GnrBaseWebPage):
         return struct
         
     def rpc_getGridStruct(self,struct,table):
+        """add???
+        
+        :param struct: add???
+        :param table: add???
+        :returns: add???
+        """
         return self._prepareGridStruct(struct,table)
         
     def lazyBag(self, bag, name=None, location='page:resolvers'):
+        """add???
+        
+        :param bag: add???
+        :param name: add???. Default value is ``None``
+        :param location: add???. Default value is ``page:resolvers``
+        :returns: add???
+        """
         freeze_path = self.site.getStaticPath(location, name, autocreate=-1)
         bag.makePicklable()
         bag.pickle('%s.pik' % freeze_path)
         return LazyBagResolver(resolverName=name, location=location, _page=self, sourceBag=bag)
-
+        
     ##### BEGIN: DEPRECATED METHODS ###
     @deprecated
     def _get_config(self):
         return self.site.config
-
+        
     config = property(_get_config)
-
+        
     @deprecated
     def log(self, msg):
         self.debugger.log(msg)
-
+        
     ##### END: DEPRECATED METHODS #####
 
 class LazyBagResolver(BagResolver):
+    """add???"""
     classKwargs = {'cacheTime': -1,
                    'readOnly': False,
                    'resolverName': None,
@@ -1434,13 +1625,14 @@ class LazyBagResolver(BagResolver):
                    'path': None,
                    'filter':None}
     classArgs = ['path']
-
+        
     def load(self):
+        """add???"""
         if not self.sourceBag:
             self.getSource()
         sourceBag = self.sourceBag[self.path]
         if self.filter:
-
+            
             flt,v=splitAndStrip(self.filter,'=',fixed=2)
             if  v:
                 cb=lambda n: flt in n.attr and v in n.attr[flt]
@@ -1455,63 +1647,70 @@ class LazyBagResolver(BagResolver):
                 value = LazyBagResolver(path=path, resolverName=self.resolverName, location=self.location)
             result.setItem(n.label, value, n.attr)
         return result
-     
+        
     def getSource(self):
+        """add???"""
         filepath = self._page.site.getStaticPath(self.location, self.resolverName)
         self.sourceBag = Bag('%s.pik' % filepath)
-
         
 class GnrMakoPage(GnrWebPage):
+    """add???"""
     def onPreIniting(self, request_args, request_kwargs):
+        """add???"""
         request_kwargs['_plugin'] = 'mako'
         request_kwargs['mako_path'] = self.mako_template()
-
+        
     def mako_template(self):
+        """add???"""
         pass
-
+        
 class GnrGenshiPage(GnrWebPage):
+    """add???"""
     def onPreIniting(self, request_args, request_kwargs):
+        """add???"""
         from genshi.template import TemplateLoader
         request_kwargs['_plugin'] = 'genshi'
         request_kwargs['genshi_path'] = self.genshi_template()
-
+        
     def genshi_template(self):
+        """add???"""
         pass
-
+        
 class ClientPageHandler(object):
-    """proxi for making actions on client page"""
-
+    """proxi to make actions on a client page"""
+        
     def __init__(self, parent_page, page_id=None):
         self.parent_page = parent_page
         self.page_id = page_id or parent_page.page_id
         self.pageStore = self.parent_page.pageStore(page_id=self.page_id)
         self.store = None
-
+        
     def set(self, path, value, attributes=None, fired=None, reason=None, replace=False):
+        """add???"""
         self.store.set_datachange(path, value, attributes=attributes, fired=fired, reason=reason, replace=replace)
-
+        
     def __enter__(self):
         self.store = self.pageStore.__enter__()
         return self
-
+        
     def __exit__(self, type, value, tb):
         self.pageStore.__exit__(type, value, tb)
-
+        
     def jsexec(self, path, value, **kwargs):
+        """add???"""
         pass
-
-
+        
     def copyData(self, srcpath, dstpath=None, page_id=None):
         """
-        self.clientPage(page_id="nknnn").copyData('foo.bar','spam.egg') #copia sulla MIA pagina
-        self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',page_id='xxxxxx') #copia sulla  pagina xxxxxx
-        self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',pageStore=True) #copia sul mio pageStore
-        self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',page_id='xxxxxx' ,pageStore=True) #copia sul pageStore della pagina xxxx
-
+        self.clientPage(page_id="nknnn").copyData('foo.bar','spam.egg') # copy on MY page
+        self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',page_id='xxxxxx') # copy on the xxxxxx page
+        self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',pageStore=True) # copy on my pageStore
+        self.clientPage(page_id="nknnn").copyData('foo.bar','bub.egg',page_id='xxxxxx' ,pageStore=True) # copy on the pageStore of the xxxx page
         """
         pass
-
+        
 class ClientDataChange(object):
+    """add???"""
     def __init__(self, path, value, attributes=None, reason=None, fired=False,
                  change_ts=None, change_idx=None, delete=False, **kwargs):
         self.path = path
@@ -1522,11 +1721,15 @@ class ClientDataChange(object):
         self.change_ts = change_ts or datetime.datetime.now()
         self.change_idx = change_idx
         self.delete = delete
-
+        
     def __eq__(self, other):
         return self.path == other.path and self.reason == other.reason and self.fired == other.fired
-
+        
     def update(self, other):
+        """add???
+        
+        :param other: add???
+        """
         if hasattr(self.value, 'update') and hasattr(other.value, 'update'):
             self.value.update(other.value)
         else:
@@ -1534,11 +1737,11 @@ class ClientDataChange(object):
         if other.attributes:
             self.attributes = self.attributes or dict()
             self.attributes.update(other.attributes)
-
+            
     def __str__(self):
         return "Datachange path:%s, reason:%s, value:%s, attributes:%s" % (
         self.path, self.reason, self.value, self.attributes)
-
+            
     def __repr__(self):
         return "Datachange path:%s, reason:%s, value:%s, attributes:%s" % (
         self.path, self.reason, self.value, self.attributes)

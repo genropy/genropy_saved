@@ -52,9 +52,9 @@ def yearDecode(datestr):
 
 def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None, locale=None, isEndPeriod=False):
     """Parse a string representing a date or a period.
-
+    
     :param datestr: the string to be interpreted
-    :param workdate: a date of reference for calculate relative periods (e.g: tomorrow or this week).
+    :param workdate: a date of reference to calculate relative periods (e.g: tomorrow; e.g: this week).
                      Default value is ``None``
     :param months: names of months according to locale (just for caching). Default value is ``None``
     :param days: names of weekdays according to locale (just for caching). Default value is ``None``
@@ -62,10 +62,10 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
     :param locale: the current locale string (e.g: en, en_us, it). Default value is ``None``
     :param isEndPeriod: if the string represents a period, return the end date (default return the start date)
     :returns: datetime.date or tuple(year,month) or None
-
-    Special keywords like ``today`` or the name of a month can be translated in all languages and support synonimous,
-    e.g: ``this month`` or ``month``.
-
+    
+    Special keywords like ``today`` or the name of a month can be translated in all languages
+    and support synonimous. (e.g: this month; e.g: month)
+    
     The input string can be:
     
     * a year: e.g. 2007 or 07
