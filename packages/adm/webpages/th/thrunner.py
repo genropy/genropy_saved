@@ -30,4 +30,8 @@ class GnrCustomWebPage(object):
             root_attributes = root.attributes
             root_attributes['tag'] = 'ContentPane'
             root_attributes['_class'] = ''
-        root.stackTableHandler(table=table,datapath=table.replace('.','_'),**kwargs)
+        th = root.stackTableHandler(table=table,datapath=table.replace('.','_'),**kwargs)
+        #root.dataController("""
+        #genro.publish({"topic":"switchPage","parent":true,nodeId:"maintab"}
+        #
+        #""",_onStart=True,dialog_pars = self._th_hook('dialog',mangling=th))
