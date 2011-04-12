@@ -4091,7 +4091,12 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
         }
     },
     connectForUpdate: function(widget, sourceNode) {
-        return;
+        var selattr = objectExtract(widget.sourceNode.attr, 'selected_*', true);
+        if (objectNotEmpty(selattr) || sourceNode.attr.selectedCaption) {
+            dojo.connect(widget, '_doSelect', widget, function() {
+                this._updateSelect(this.item);
+            });
+        }
     }
 });
 dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
@@ -4213,14 +4218,6 @@ dojo.declare("gnr.widgets.FilteringSelect", gnr.widgets.BaseCombo, {
         if (!this._isvalid) {
             this.valueNode.value = null;
             this.setDisplayedValue('');
-        }
-    },
-    connectForUpdate: function(widget, sourceNode) {
-        var selattr = objectExtract(widget.sourceNode.attr, 'selected_*', true);
-        if (objectNotEmpty(selattr) || sourceNode.attr.selectedCaption) {
-            dojo.connect(widget, '_doSelect', widget, function() {
-                this._updateSelect(this.item);
-            });
         }
     }
 });
