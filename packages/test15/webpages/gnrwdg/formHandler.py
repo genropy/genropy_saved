@@ -127,7 +127,7 @@ class GnrCustomWebPage(object):
         
         
     def remote_testPalette(self,pane,pkey=None,**kwargs):
-        form = pane.formTester('formRemote_%s' %pkey,startKey=pkey,height='200px',width='700px')
+        form = pane.formTester('formRemote_%s' %pkey,startKey=pkey,height='200px',width='400px')
             
     def test_4_formPane_dialog(self,pane):
         pane.button('Show dialog',action='genro.wdgById("province_dlg").show()')

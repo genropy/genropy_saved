@@ -1089,7 +1089,10 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/FloatingPane.css");
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/ResizeHandle.css");
     },
-
+    creating: function(attributes, sourceNode) {
+        console.log('floating attr',attributes);
+        
+    },
     created: function(widget, savedAttrs, sourceNode) {
         widget._startZ = 700;
         var nodeId = sourceNode.attr.nodeId;
@@ -1109,8 +1112,8 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
     },
     
     mixin_onShowing:function(){
-        var lazyChildren = this.sourceNode.finalizeLazyBuildChildren();
         this.domNode.style.display="";
+        var lazyChildren = this.sourceNode.finalizeLazyBuildChildren();
         if(lazyChildren && lazyChildren.length==1){
             var layoutwdg = lazyChildren[0].getWidget();
             var newcoords = dojo.coords(this.domNode);
@@ -1121,8 +1124,21 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
             newcoords['w'] = layoutcoords['w'];
             this.resize(newcoords);
         }
+    },
+    mixin_setBoxAttributes:function(kw){
+        var dimensionDict = {'height':'h','width':'w','left':'l','right':'r','t':'top'};
+        var resizer = {};
+        for (var k in kw){
+            if(k in dimensionDict){
+                resizer[dimensionDict[k]] = parseInt(kw[k].replace('px',''));
+            }else{
+                this.setAttribute(k,kw[k]);
+            }
+        }
+        if(objectNotEmpty(resizer)){
+            this.resize(resizer);
+        }
     }
-
 });
 
 
@@ -1249,6 +1265,16 @@ dojo.declare("gnr.widgets.ContentPane", gnr.widgets.baseDojo, {
         attributes.isLoaded = true;
         this.setControllerTitle(attributes, sourceNode);
     }
+   //created: function(widget, savedAttrs, sourceNode) {
+   //    if(sourceNode._value){
+   //        var containers = {'bordercontainer':true,'tabcontainer':true,'stackcontainer':true,'contentpane':true}
+   //        var childtag = sourceNode._value.getItem('#0?tag');
+   //        console.log(chi)
+   //        if(childtag && childtag.toLowerCase() in containers){
+   //            widget.domNode.style.overflow ='hidden';
+   //        }
+   //    }
+   //}
 });
 
 dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {

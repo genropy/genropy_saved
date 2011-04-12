@@ -812,7 +812,9 @@ dojo.declare('gnr.GenroClient', null, {
         var kw=topic['kw'] || kw
         if('nodeId' in topic){
             var node= genro.nodeById(topic['nodeId'])
-            if (node){node.publish(topic['topic'],kw);}
+            if (node){
+                node.publish(topic['topic'],kw);
+            }
         }else if('form' in topic){
             var form=genro.getForm(topic['form'])
             if (form){

@@ -303,16 +303,27 @@ dojo.declare("gnr.GnrDlgHandler", null, {
     
     zoomPalette:function(sourceNode,evt){
         var pkey = sourceNode.getRelativeData(sourceNode.attr.pkey);
-        var zoomUrl = '/'+sourceNode.attr.zoomUrl+'/'+pkey+'?th_public=false';
         var paletteCode='external_'+sourceNode.getStringId();
+        var wdg = genro.wdgById(paletteCode+'_floating');
+        if(wdg){
+            wdg.show();
+            return;
+        }
+        
+        var zoomUrl = '/'+sourceNode.attr.zoomUrl+'/'+pkey+'?th_public=false&&th_parentId='+paletteCode+'_floating';
         genro.src.getNode()._('div',paletteCode);
         var node = genro.src.getNode(paletteCode).clearValue();
         node.freeze();
-        var palette = node._('palettePane',paletteCode,{'paletteCode':paletteCode,top:_px(evt.clientY),left:_px(evt.clientX),
-                                                      title:'Palette:'+pkey,_lazyBuild:true,overflow:'hidden',
-                                                      dockTo:false,width:'600px',height:'300px'})
+        
+        var paletteAttr = {'paletteCode':paletteCode,top:_px(evt.clientY),left:_px(evt.clientX),
+                                                      title:'Palette:'+pkey,overflow:'hidden',_lazyBuild:true,
+                                                      dockTo:'default_dock:open',width:'1px',height:'1px',
+                                                      palette_transition:'all .7s'};
+        paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
+        var palette = node._('palettePane',paletteCode,paletteAttr);
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
         node.unfreeze(); 
+
     },
 
     listChoice: function(title, msg, buttons, resultPath, valuePath, storePath) {

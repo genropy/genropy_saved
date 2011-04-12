@@ -19,7 +19,7 @@ class GnrCustomWebPage(object):
         assert handler, 'not exitsting handler for widget %s' %th_widget
         handler(root,**kwargs)
 
-    def main_sc(self, root,th_pkg=None,th_table=None,th_public=True,**kwargs):
+    def main_sc(self, root,th_pkg=None,th_table=None,th_public=True,th_parentId=None,**kwargs):
         th_public = boolean(th_public)
         table = '%s.%s' %(th_pkg,th_table)
         self.maintable = table
@@ -31,7 +31,10 @@ class GnrCustomWebPage(object):
             root_attributes['tag'] = 'ContentPane'
             root_attributes['_class'] = ''
         th = root.stackTableHandler(table=table,datapath=table.replace('.','_'),**kwargs)
-        #root.dataController("""
-        #genro.publish({"topic":"switchPage","parent":true,nodeId:"maintab"}
-        #
-        #""",_onStart=True,dialog_pars = self._th_hook('dialog',mangling=th))
+        dialog_pars = self._th_hook('dialog',mangler=th.form)()
+        dialog_pars = dialog_pars or dict(height='600px',width='900px')
+        root.dataController("""
+        if(parentId!='null'){
+            genro.publish({"topic":"resize","parent":true,nodeId:parentId},dialog_pars);
+        }
+        """,_init=True,dialog_pars=dialog_pars,parentId=th_parentId or 'null')

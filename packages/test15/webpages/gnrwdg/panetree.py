@@ -7,10 +7,11 @@
 "Test page description"
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    css_requires='csstest'
 
     def windowTitle(self):
         return ''
          
     def test_0_firsttest(self,pane):
         """First test description"""
-        pass
+        pane.div(height='6px',width='6px',background='red',_class='hiddenDock').palettePane('pippo',title='Pippo',dockTo='*')
