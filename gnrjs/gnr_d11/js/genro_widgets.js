@@ -3754,17 +3754,6 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         this.creating_structure(attributes, sourceNode);
         sourceNode.registerDynAttr('storepath');
         attributes.query_columns = this.getQueryColumns(sourceNode, attributes.structBag);
-        //var inAttrs = sourceNode.getInheritedAttributes();
-        //var ctxRoot = sourceNode.absDatapath(inAttrs.sqlContextRoot);
-       //var abs_storepath = sourceNode.absDatapath(sourceNode.attr.storepath);
-       //attributes['abs_storepath'] = abs_storepath;
-       //var relation_path = abs_storepath;
-       //if (abs_storepath.indexOf(ctxRoot) == 0) {
-       //    relation_path = abs_storepath.replace(ctxRoot + '.', '');
-       //}
-       //attributes.relation_path = relation_path;
-        //attributes.sqlContextName = inAttrs['sqlContextName'];
-        //attributes.sqlContextTable = inAttrs['sqlContextTable'];
         if (attributes.excludeListCb) {
             attributes.excludeListCb = funcCreate(attributes.excludeListCb);
         }
