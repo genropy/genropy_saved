@@ -1222,7 +1222,11 @@ dojo.declare("gnr.formstores.Base", null, {
         var cb = function(result){
             that.loaded(currPkey,result);
         };
-        var kw = objectUpdate(objectUpdate({},this.handlers.load.kw),default_kw);
+        var dkw = {};
+        for (var k in default_kw){
+            dkw['default_'+k] = default_kw[k];
+        }
+        var kw = objectUpdate(objectUpdate({},this.handlers.load.kw),dkw);
         kw =form.sourceNode.evaluateOnNode(kw);
         this.handlers.load.rpcmethod = this.handlers.load.rpcmethod || 'loadRecordCluster';
         genro.rpc.remoteCall(this.handlers.load.rpcmethod ,objectUpdate({'pkey':currPkey,
