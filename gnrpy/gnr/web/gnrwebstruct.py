@@ -1054,7 +1054,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
         
         
-    newincludedview_dragAndDrop = includedview_dragAndDrop
+    def includedview_dragAndDrop(self,dropCodes=None,**kwargs):
+        self.includedview_dragAndDrop(dropCodes=dropCodes,**kwargs)
     
         
     def includedview(self, *args, **kwargs):
