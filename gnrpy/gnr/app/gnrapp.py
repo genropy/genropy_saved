@@ -963,10 +963,10 @@ class GnrApp(object):
         if not 'env_transaction_id' in currentEnv:
             self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
         broadcast = tblobj.attributes.get('broadcast')
-        if broadcast and broadcast != '*old*':
+        if broadcast is not False and broadcast != '*old*':
             dbevents=currentEnv['dbevents']
             r=dict(dbevent=event,pkey=record.get(tblobj.pkey))
-            if broadcast is not True:
+            if broadcast and broadcast is not True:
                 for field in broadcast.split(','):
                     r[field] = self.catalog.asTypedText(record.get(field))
             dbevents.setdefault(tblobj.fullname,[]).append(r)
