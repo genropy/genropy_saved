@@ -185,7 +185,7 @@ class TableHandlerListBase(TableHandlerList):
         if self._queryTool:
             frame.top.listToolbar(table)
         else:
-            frame.top.slotToolbar('*,searchOn,count,10,|,iv_add,iv_del,10',searchOn_parentForm=False,iv_del_parentForm=True,iv_add_parentForm=True)
+            frame.top.slotToolbar('*,searchOn,count,10,|,iv_add,iv_del,10',iv_del_parentForm=True,iv_add_parentForm=True)
         if self._queryTool:
 
             footer = frame.bottom.slotToolbar('*,th_dock')
@@ -292,7 +292,7 @@ class TableHandlerListBase(TableHandlerList):
                             """,
                             _onStart=True, baseQuery='=.baseQuery', maintable=table,
                             fired='^.query.new',
-                            runOnStart=querybase and querybase.get('runOnStart', False))
+                            runOnStart=(querybase and querybase.get('runOnStart', False)) or False)
        #else:
        #    iv.selectionStore(table=table,childname='store',
        #                       where=condition, order_by=order_by,
