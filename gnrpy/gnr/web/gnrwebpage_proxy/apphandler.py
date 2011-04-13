@@ -646,7 +646,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             kwargs.pop('where_attr',None)
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
         if condition and not pkeys:
-            where = ' ( %s ) AND ( %s ) ' % (where, condition)
+            where = ' ( %s ) AND ( %s ) ' % (where, condition) if where else condition
         query = tblobj.query(columns=columns, distinct=distinct, where=where,
                              order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                              relationDict=relationDict, sqlparams=sqlparams, locale=self.page.locale,
