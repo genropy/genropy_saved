@@ -171,12 +171,15 @@ class TableHandlerList(BaseComponent):
 
 class TableHandlerListBase(TableHandlerList):
     @struct_method
-    def th_listPage(self,pane,table=None,th_pkey=None,frameCode=None,reloader=None,**kwargs):
+    def th_listPage(self,pane,table=None,th_pkey=None,frameCode=None,reloader=None,virtualStore=None,**kwargs):
         #self.query_helper_main(pane)
         frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',center_overflow='hidden',**kwargs)
         mangling =frameCode
         frame.data('.table',table=table)
-        self._th_listController(frame,table=table)
+        if virtualStore:
+            self._th_listController(frame,table=table)
+        else:
+            frame.top.slotToolbar('*,searchOn,iv_add,iv_del,10',searchOn_parentForm=False,iv_del_parentForm=True,iv_add_parentForm=True)
         frame.top.listToolbar(table)
         footer = frame.bottom.slotToolbar('*,th_dock')
         tablecode = table.replace('.','_')
@@ -185,7 +188,7 @@ class TableHandlerListBase(TableHandlerList):
         footer.th_dock.div(width='100px',height='20px').dock(id = dock_id)
         pane.palettePane('%s_queryTool' %mangling,title='Query tool',nodeId='%s_query_root' %mangling,
                         dockTo=dock_id,datapath='.list.query.where',height='150px',width='400px')
-        frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey)
+        frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey,virtualStore=virtualStore)
         return frame
     
     @struct_method
@@ -200,10 +203,11 @@ class TableHandlerListBase(TableHandlerList):
                     subscribe_form_formPane_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""")
     @struct_method
-    def th_gridPane(self, pane,table=None,reloader=None,th_pkey=None):
+    def th_gridPane(self, pane,table=None,reloader=None,th_pkey=None,virtualStore=None):
         table = table or self.maintable
         mangler = pane.getInheritedAttributes()['th_root']
-        pane.data('.sorted', self._th_hook('order',mangler=mangler)())
+        order_by=self._th_hook('order',mangler=mangler)()
+        pane.data('.sorted',order_by)
         condition = self._th_hook('condition',mangler=mangler)()
         
         if th_pkey:
@@ -250,28 +254,29 @@ class TableHandlerListBase(TableHandlerList):
                                                          }else{
                                                             FIRE .runQuery;
                                                          }""")
-                             
+        chunkSize=self.rowsPerPage()*4   if virtualStore else None          
         store = iv.selectionStore(table=table, columns='=.columns',
-                           chunkSize=self.rowsPerPage()*4,childname='store',
-                           where='=.query.where', sortedBy='=.sorted',
-                           pkeys='=.query.pkeys', _fired='^.runQueryDo',_parentPkey='^#FORM.pkey',
-                           selectionName='*', recordResolver=False, condition=condition,
-                           sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
-                           row_start='0', externalChanges=True,
-                           excludeLogicalDeleted='^.excludeLogicalDeleted',
-                           applymethod='onLoadingSelection',
-                           timeout=180000, selectmethod='=.selectmethod',
-                           selectmethod_prefix='customQuery',
-                           _onCalling=self.onQueryCalling(),
-                           _reloader=reloader,**condPars)
+                               chunkSize=self.rowsPerPage()*4,childname='store',
+                               where='=.query.where', sortedBy='=.sorted',
+                               pkeys='=.query.pkeys', _fired='^.runQueryDo',
+                               selectionName='*', recordResolver=False, condition=condition,
+                               sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
+                               row_start='0', externalChanges=True,
+                               excludeLogicalDeleted='^.excludeLogicalDeleted',
+                               applymethod='onLoadingSelection',
+                               timeout=180000, selectmethod='=.selectmethod',
+                               selectmethod_prefix='customQuery',
+                               _onCalling=self.onQueryCalling(),
+                               _reloader=reloader,**condPars)
                            
         store.addCallback('FIRE .queryEnd=true; SET .selectmethod=null; return result;')
+        
         pane.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                      fired='^.updateCurrentQueryCount',
                      table=table, where='=.query.where',
                      excludeLogicalDeleted='=.excludeLogicalDeleted',
                      **condPars)
-        
+    
         pane.dataController("""this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
                                genro.querybuilder(maintable).buildQueryPane(); 
                                SET .view.selectedId = null;
@@ -282,3 +287,10 @@ class TableHandlerListBase(TableHandlerList):
                             _onStart=True, baseQuery='=.baseQuery', maintable=table,
                             fired='^.query.new',
                             runOnStart=querybase.get('runOnStart', False))
+       #else:
+       #    iv.selectionStore(table=table,childname='store',
+       #                       where=condition, order_by=order_by,
+       #                       sqlContextName='standard_list', 
+       #                       externalChanges=True,
+       #                       excludeLogicalDeleted='^.excludeLogicalDeleted',
+       #                       timeout=180000,_reloader=reloader,**condPars)

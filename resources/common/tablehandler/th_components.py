@@ -59,7 +59,7 @@ class TableHandlerBase(BaseComponent):
     
    
     def _commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,datapath=None,formResource=None,viewResource=None,
-                            th_iframe=False,widget_kwargs=None,reloader=None,**kwargs):
+                            th_iframe=False,widget_kwargs=None,reloader=None,virtualStore=False,**kwargs):
         pkg,tablename = table.split('.')
         tableCode = table.replace('.','_')
         th_root = nodeId or tableCode
@@ -83,7 +83,7 @@ class TableHandlerBase(BaseComponent):
         else:
             self.mixinComponent(pkg,'tables',tablename,viewResource,defaultModule=defaultModule,defaultClass='View',mangling_th=thlist_root)
             self.mixinComponent(pkg,'tables',tablename,formResource,defaultModule=defaultModule,defaultClass='Form',mangling_th=thform_root)
-            viewpage = wdg.listPage(frameCode=thlist_root,th_root=thlist_root,th_pkey=th_pkey,table=table,pageName='view',reloader=reloader)
+            viewpage = wdg.listPage(frameCode=thlist_root,th_root=thlist_root,th_pkey=th_pkey,table=table,pageName='view',reloader=reloader,virtualStore=virtualStore)
             
             viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
             viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);' #'genro.getForm(this.attr.linkedForm).deleteItem({});'
@@ -112,7 +112,7 @@ class StackTableHandlerRunner(BaseComponent):
         formResource = th_formResource or self.formResource
         viewResource = th_viewResource or self.viewResource
         root = root.rootContentPane(title=self.tblobj.name_long)
-        root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),formResource=formResource,viewResource=viewResource,**kwargs)
+        root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),formResource=formResource,viewResource=viewResource,virtualStore=True,**kwargs)
         
     
      
