@@ -60,7 +60,7 @@ class TableHandlerBase(BaseComponent):
     
    
     def _commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,datapath=None,formResource=None,viewResource=None,
-                            th_iframe=False,widget_kwargs=None,reloader=None,virtualStore=False,**kwargs):
+                            th_iframe=False,widget_kwargs=None,reloader=None,virtualStore=True,**kwargs):
         pkg,tablename = table.split('.')
         tableCode = table.replace('.','_')
         th_root = nodeId or tableCode

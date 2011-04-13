@@ -214,7 +214,8 @@ class TableHandlerListBase(TableHandlerList):
             querybase = dict(column=self.db.table(table).pkey,op='equal',val=th_pkey,runOnStart=True)
         else:
             querybase = self._th_hook('query',mangler=mangler)()
-        pane.data('.baseQuery', self._prepareQueryBag(querybase,table=table))
+        queryBag = self._prepareQueryBag(querybase,table=table)
+        pane.data('.baseQuery', queryBag)
 
         condPars = {}
         if isinstance(condition,dict):

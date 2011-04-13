@@ -322,6 +322,9 @@ class TableHandlerListLegacy(BaseComponent):
     def th_gridPane(self, pane,table=None):
         lstkwargs = dict()
         stats_main = getattr(self, 'stats_main', None)
+        querybase = self._th_hook('query')()
+        queryBag = self._prepareQueryBag(querybase,table=table)
+        pane.data('list.baseQuery', queryBag)
         if self.hierarchicalViewConf() or self.hierarchicalEdit() or stats_main:
             tc = pane.tabContainer(selected='^list.selectedTab')
             gridpane = tc.contentPane(title='!!Standard view')
@@ -420,7 +423,7 @@ class TableHandlerListLegacy(BaseComponent):
                             """,
                             _onStart=True, baseQuery='=list.baseQuery', maintable=self.maintable,
                             fired='^list.query.new',
-                            runOnStart=self._th_hook('query')().get('runOnStart', False))
+                            runOnStart=querybase.get('runOnStart', False))
 
     def _th_setFilter(self):
         filterpath = 'filter.%s' % self.pagename
