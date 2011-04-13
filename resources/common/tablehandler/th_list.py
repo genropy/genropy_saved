@@ -127,9 +127,11 @@ class TableHandlerList(BaseComponent):
 
 
     def _prepareQueryBag(self,querybase,table=None):
+        result = Bag()
+        if not querybase:
+            return result
         table = table or self.maintable
         tblobj = self.db.table(table)
-        result = Bag()
         op_not = querybase.get('op_not', 'yes')
         column = querybase.get('column')
         column_dtype = None
@@ -290,7 +292,7 @@ class TableHandlerListBase(TableHandlerList):
                             """,
                             _onStart=True, baseQuery='=.baseQuery', maintable=table,
                             fired='^.query.new',
-                            runOnStart=querybase.get('runOnStart', False))
+                            runOnStart=querybase and querybase.get('runOnStart', False))
        #else:
        #    iv.selectionStore(table=table,childname='store',
        #                       where=condition, order_by=order_by,
