@@ -219,8 +219,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.doload_store(kw);
     },
-    newrecord:function(){
-        this.load({destPkey:'*newrecord*'});
+    newrecord:function(default_kw){
+        this.load({destPkey:'*newrecord*', default_kw:default_kw });
     },
     
     deleteItem:function(kw){
@@ -353,7 +353,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
             this.resetInvalidFields(); // reset invalid fields before loading to intercept required fields during loading process
             this.setOpStatus('loading',pkey);
-            this.store.load(pkey);
+            this.store.load(pkey, kw.default_kw);
         }else{
             this.setDisabled(true);
             this.updateStatus();
@@ -1212,14 +1212,15 @@ dojo.declare("gnr.formstores.Base", null, {
         
     },
 
-    load_recordCluster:function(){
+    load_recordCluster:function(pkey,default_kw){
         var form=this.form;
         var that = this;
         var currPkey = this.form.getCurrentPkey();
         var cb = function(result){
             that.loaded(currPkey,result);
         };
-        var kw =form.sourceNode.evaluateOnNode(this.handlers.load.kw);
+        var kw = objectUpdate(objectUpdate({},this.handlers.load.kw),default_kw);
+        kw =form.sourceNode.evaluateOnNode(kw);
         this.handlers.load.rpcmethod = this.handlers.load.rpcmethod || 'loadRecordCluster';
         genro.rpc.remoteCall(this.handlers.load.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':form.getVirtualColumns(),
@@ -1311,8 +1312,8 @@ dojo.declare("gnr.formstores.Base", null, {
     save:function(destPkey){
         return this.handlers.save.method.call(this,destPkey);
     },
-    load:function(){
-        return this.handlers.load.method.call(this);
+    load:function(pkey,default_kw){
+        return this.handlers.load.method.call(this,pkey,default_kw);
     },
     deleteItem:function(pkey){
         return this.handlers.del.method.call(this,pkey)
