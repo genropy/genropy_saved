@@ -1041,7 +1041,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             paletteGrid.gridStruct(struct=struct,columns=columns)
         return paletteGrid
         
-    def includedview_dragAndDrop(self,dropCodes=None,**kwargs):
+    def includedview_draganddrop(self,dropCodes=None,**kwargs):
         ivattr = self.attributes
         if dropCodes:
             for dropCode in dropCodes.split(','):
@@ -1054,8 +1054,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
         
         
-    def includedview_dragAndDrop(self,dropCodes=None,**kwargs):
-        self.includedview_dragAndDrop(dropCodes=dropCodes,**kwargs)
+    def newincludedview_draganddrop(self,dropCodes=None,**kwargs):
+        self.includedview_draganddrop(dropCodes=dropCodes,**kwargs)
     
         
     def includedview(self, *args, **kwargs):
