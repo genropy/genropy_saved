@@ -129,7 +129,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     setDisabled:function(disable){
         var disable = disable || this.isProtected();
+        var node;
         for (var k in this._register){
+            node = this._register[k];
             this._register[k].setDisabled(disable);
         }
     },
@@ -146,13 +148,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.publish('onLockChange',{'locked':this.locked});
     },
     registerChild:function(sourceNode){
-        if(!('disabled' in sourceNode.attr)){
-            if (sourceNode.attr.parentForm || (sourceNode.attr.tag.toLowerCase() in this.autoRegisterTags)){
-                this._register[sourceNode._id] = sourceNode;
-                return;
-            }
+        if (sourceNode.attr.parentForm || (sourceNode.attr.tag.toLowerCase() in this.autoRegisterTags)){
+            this._register[sourceNode._id] = sourceNode;
+            return;
         }
-
     },
     
     unregisterChild:function(sourceNode){
