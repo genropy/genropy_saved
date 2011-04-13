@@ -97,7 +97,7 @@ class Public(BaseComponent):
     @extract_kwargs(top=True,bottom=True)
     def _pbl_frameroot(self, rootbc, title=None, height=None, width=None, flagsLocale=False,
                      top_kwargs=None,bottom_kwargs=None,**kwargs):
-        frame = rootbc.framePane(frameCode='publicRoot',region='center', _class='pbl_root_center',
+        frame = rootbc.framePane(frameCode='publicRoot',region='center', center_class='pbl_root_center',
                                 **kwargs)
         frame.data('_clientCtx.mainBC.left?show', self.pageOptions.get('openMenu', True))
         self.public_frameTopBar(frame.top,title=title,**top_kwargs)

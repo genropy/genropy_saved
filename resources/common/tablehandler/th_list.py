@@ -173,7 +173,7 @@ class TableHandlerListBase(TableHandlerList):
     @struct_method
     def th_listPage(self,pane,table=None,th_pkey=None,frameCode=None,reloader=None,**kwargs):
         #self.query_helper_main(pane)
-        frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',**kwargs)
+        frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',center_overflow='hidden',**kwargs)
         mangling =frameCode
         frame.data('.table',table=table)
         self._th_listController(frame,table=table)
