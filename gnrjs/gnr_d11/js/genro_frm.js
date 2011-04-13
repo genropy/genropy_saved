@@ -146,10 +146,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.publish('onLockChange',{'locked':this.locked});
     },
     registerChild:function(sourceNode){
-        if (sourceNode.attr.parentForm || (sourceNode.attr.tag.toLowerCase() in this.autoRegisterTags)){
-            this._register[sourceNode._id] = sourceNode;
-            return;
+        if(!('disabled' in sourceNode.attr)){
+            if (sourceNode.attr.parentForm || (sourceNode.attr.tag.toLowerCase() in this.autoRegisterTags)){
+                this._register[sourceNode._id] = sourceNode;
+                return;
+            }
         }
+
     },
     
     unregisterChild:function(sourceNode){
