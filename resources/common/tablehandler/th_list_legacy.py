@@ -8,6 +8,7 @@ class TableHandlerListLegacy(BaseComponent):
     
     @struct_method
     def th_listPage(self,pane,frameCode=None):
+        self._queryTool=True
         self.query_helper_main(pane)
         self._th_setFilter()
         thframe = pane.framePane(frameCode=frameCode,th_root=frameCode,datapath='list')

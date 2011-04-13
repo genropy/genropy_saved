@@ -198,7 +198,7 @@ class TableHandlerListBase(TableHandlerList):
     
     @struct_method
     def th_listToolbar(self,pane,table=None):
-        toolbar = pane.slotToolbar('queryfb,iv_runbtn,*,iv_add,iv_del,list_locker',queryfb_table=table)
+        toolbar = pane.slotToolbar('queryfb,iv_runbtn,*,count,10,iv_add,iv_del,list_locker',queryfb_table=table)
     
     
     @struct_method
