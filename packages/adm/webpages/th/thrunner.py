@@ -30,7 +30,7 @@ class GnrCustomWebPage(object):
             root_attributes = root.attributes
             root_attributes['tag'] = 'ContentPane'
             root_attributes['_class'] = ''
-        th = root.stackTableHandler(table=table,datapath=table.replace('.','_'),**kwargs)
+        th = root.stackTableHandler(table=table,datapath=table.replace('.','_'),virtualStore=True,**kwargs)
         dialog_pars = self._th_hook('dialog',mangler=th.form)()
         dialog_pars = dialog_pars or dict(height='600px',width='900px')
         root.dataController("""
