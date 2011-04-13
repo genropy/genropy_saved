@@ -60,7 +60,7 @@ class TableHandlerBase(BaseComponent):
     
    
     def _commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,datapath=None,formResource=None,viewResource=None,
-                            th_iframe=False,widget_kwargs=None,reloader=None,virtualStore=True,**kwargs):
+                            th_iframe=False,widget_kwargs=None,reloader=None,virtualStore=False,**kwargs):
         pkg,tablename = table.split('.')
         tableCode = table.replace('.','_')
         th_root = nodeId or tableCode
@@ -113,7 +113,7 @@ class StackTableHandlerRunner(BaseComponent):
         formResource = th_formResource or self.formResource
         viewResource = th_viewResource or self.viewResource
         root = root.rootContentPane(title=self.tblobj.name_long)
-        root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),formResource=formResource,viewResource=viewResource,virtualStore=False,**kwargs)
+        root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),formResource=formResource,viewResource=viewResource,virtualStore=True,**kwargs)
         
     
      
