@@ -314,10 +314,10 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
         var node = genro.src.getNode(paletteCode).clearValue();
         node.freeze();
-        
         var paletteAttr = {'paletteCode':paletteCode,top:_px(evt.clientY),left:_px(evt.clientX),
                                                       title:'Palette:'+pkey,overflow:'hidden',_lazyBuild:true,
-                                                      dockTo:'*:open',width:'1px',height:'1px',
+                                                      dockTo:false,//'*:open',
+                                                      width:'1px',height:'1px',
                                                       palette_transition:'all .7s'};
         paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
         var palette = node._('palettePane',paletteCode,paletteAttr);
