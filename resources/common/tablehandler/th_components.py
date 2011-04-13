@@ -37,7 +37,8 @@ class TableHandlerBase(BaseComponent):
                             th_iframe=False,widget_kwargs=None,dialog_kwargs=None,reloader=None,**kwargs):
         pane = self._commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,formResource=formResource,viewResource=viewResource,
                                         th_iframe=th_iframe,reloader=reloader,
-                                        widget_kwargs=dict(tag='ContentPane'),**kwargs)
+                                        widget_kwargs=dict(tag='ContentPane'),**kwargs)        
+        dialog_kwargs = dialog_kwargs #or self._th_hook('dialog',mangler=pane.attributes['thform_root'])()
         form = pane.linkedFormPage(pageName='form',table=table,loadEvent='onRowDblClick',
                             form_locked=True,dialog_kwargs=dialog_kwargs)     
         pane.form = form        
