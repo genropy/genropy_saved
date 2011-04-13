@@ -71,24 +71,6 @@ class TableHandlerList(BaseComponent):
         
     def _th_listController(self,pane,table=None):
         table = table or self.maintable
-        pane.dataController("""
-                               genro.querybuilder(table).cleanQueryPane(); 
-                               SET .queryRunning = true;
-                               var parslist = genro.queryanalyzer(table).translateQueryPars();
-                               if (parslist.length>0){
-                                  genro.queryanalyzer(table).buildParsDialog(parslist);
-                               }else{
-                                  FIRE .runQueryDo = true;
-                               }
-                            """,table=table,_fired="^.runQuery")
-        pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
-                            cnt='^.currentQueryCount', _if='cnt', _else='',
-                            msg='!!Current query will return _rec_ items')
-        pane.dataController("""SET .currentQueryCountAsString = waitmsg;
-                               FIRE .updateCurrentQueryCount;
-                                genro.dlg.alert(alertmsg,dlgtitle);
-                                  """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
-                               dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
         pane.data('.table',table)
         pane.data('.excludeLogicalDeleted', True)
         pane.data('.showDeleted', False)
@@ -99,13 +81,32 @@ class TableHandlerList(BaseComponent):
                 """ 
                 , _init=True,table=table,nodeId='%s_queryscripts' %table.replace('.','_'))
         
-        pane.dataController("""
-                    var qb = genro.querybuilder(table);
-                    qb.createMenues();
-                    dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
-                    dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
-                    qb.buildQueryPane();
-        """,_onStart=True,table=table)
+        if self._queryTool:
+            pane.dataController("""
+                                   genro.querybuilder(table).cleanQueryPane(); 
+                                   SET .queryRunning = true;
+                                   var parslist = genro.queryanalyzer(table).translateQueryPars();
+                                   if (parslist.length>0){
+                                      genro.queryanalyzer(table).buildParsDialog(parslist);
+                                   }else{
+                                      FIRE .runQueryDo = true;
+                                   }
+                                """,table=table,_fired="^.runQuery")
+            pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
+                                cnt='^.currentQueryCount', _if='cnt', _else='',
+                                msg='!!Current query will return _rec_ items')
+            pane.dataController("""SET .currentQueryCountAsString = waitmsg;
+                                   FIRE .updateCurrentQueryCount;
+                                    genro.dlg.alert(alertmsg,dlgtitle);
+                                      """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
+                                   dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
+            pane.dataController("""
+                        var qb = genro.querybuilder(table);
+                        qb.createMenues();
+                        dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
+                        dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
+                        qb.buildQueryPane();
+            """,_onStart=True,table=table)
 
     def rpc_fieldExplorer(self, table=None, omit=None):
         result = self.rpc_relationExplorer(table=table, omit=omit)
@@ -176,18 +177,20 @@ class TableHandlerListBase(TableHandlerList):
         frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',center_overflow='hidden',**kwargs)
         mangling =frameCode
         frame.data('.table',table=table)
-        if virtualStore:
-            self._th_listController(frame,table=table)
+        self._queryTool = kwargs['queryTool'] if 'queryTool' in kwargs else virtualStore
+        self._th_listController(frame,table=table)
+        
+        if self._queryTool:
+            frame.top.listToolbar(table)
         else:
             frame.top.slotToolbar('*,searchOn,iv_add,iv_del,10',searchOn_parentForm=False,iv_del_parentForm=True,iv_add_parentForm=True)
-        frame.top.listToolbar(table)
-        footer = frame.bottom.slotToolbar('*,th_dock')
-        tablecode = table.replace('.','_')
-        dock_id = '%s_th_dock' %mangling
-        
-        footer.th_dock.div(width='100px',height='20px').dock(id = dock_id)
-        pane.palettePane('%s_queryTool' %mangling,title='Query tool',nodeId='%s_query_root' %mangling,
-                        dockTo=dock_id,datapath='.list.query.where',height='150px',width='400px')
+        if self._queryTool:
+
+            footer = frame.bottom.slotToolbar('*,th_dock')
+            dock_id = '%s_th_dock' %mangling
+            footer.th_dock.div(width='100px',height='20px').dock(id = dock_id)
+            pane.palettePane('%s_queryTool' %mangling,title='Query tool',nodeId='%s_query_root' %mangling,
+                            dockTo=dock_id,datapath='.list.query.where',height='150px',width='400px')
         frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey,virtualStore=virtualStore)
         return frame
     
@@ -257,7 +260,7 @@ class TableHandlerListBase(TableHandlerList):
                                                          }""")
         chunkSize=self.rowsPerPage()*4   if virtualStore else None          
         store = iv.selectionStore(table=table, columns='=.columns',
-                               chunkSize=self.rowsPerPage()*4,childname='store',
+                               chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.sorted',
                                pkeys='=.query.pkeys', _fired='^.runQueryDo',
                                selectionName='*', recordResolver=False, condition=condition,
