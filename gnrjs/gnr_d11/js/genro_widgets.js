@@ -2125,8 +2125,8 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
         var countBoxCode =(this.sourceNode.attr.frameCode || this.sourceNode.attr.nodeId)+'_countbox';
         var countBoxNode = genro.nodeById(countBoxCode);
         if (countBoxNode){
-            var showed = this.rowCount;
-            var total = this.storebag().len();
+            var showed =this.storeRowCount();
+            var total = this.storeRowCount(true);
             genro.dom.setClass(countBoxNode,'unfilteredCount',showed==total);
             countBoxNode.setRelativeData('.showed', showed);
             countBoxNode.setRelativeData('.total', total);
@@ -3389,8 +3389,8 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
         return this._filtered? this._filtered[inRowIndex] : inRowIndex;
     },
     
-    mixin_storeRowCount: function() {
-        if (this._filtered) {
+    mixin_storeRowCount: function(all) {
+        if (this._filtered && !all) {
             return this._filtered.length;
         } else {
             return this.storebag().len();
@@ -3890,8 +3890,8 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         return this.collectionStore().getGridRowDataByIdx(this,inRowIndex);
     },
     
-     mixin_storeRowCount: function() {
-        return this.collectionStore().len(true);
+     mixin_storeRowCount: function(all) {
+        return this.collectionStore().len(!all);
     },
 
     patch_sort: function() {  
@@ -3969,13 +3969,6 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             
         }
         return this._collectionStore;
-    },
-    
-    
-    
-    mixin_storeRowCount: function() {
-        var rowcount = this.collectionStore().len(true);
-        return rowcount;
     },
 
     mixin_createFiltered:function(currentFilterValue,filterColumn,colType){
