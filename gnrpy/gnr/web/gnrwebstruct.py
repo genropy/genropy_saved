@@ -1041,6 +1041,22 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             paletteGrid.gridStruct(struct=struct,columns=columns)
         return paletteGrid
         
+    def includedview_dragAndDrop(self,dropCodes=None,**kwargs):
+        ivattr = self.attributes
+        if dropCodes:
+            for dropCode in dropCodes.split(','):
+                mode = 'grid'
+                if ':' in dropCode:
+                    dropCode, mode = dropCode.split(':')
+                dropmode = 'dropTarget_%s' % mode
+                ivattr[dropmode] = '%s,%s' % (ivattr[dropmode], dropCode) if dropmode in ivattr else dropCode
+                ivattr['onDrop_%s' % dropCode] = 'FIRE .dropped_%s = data' % dropCode
+                ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
+        
+        
+    newincludedview_dragAndDrop = includedview_dragAndDrop
+    
+        
     def includedview(self, *args, **kwargs):
         """add???
         
