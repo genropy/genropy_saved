@@ -194,7 +194,8 @@ class GnrDomSrc(GnrStructData):
                 if tag == 'br':
                     return self.fbuilder.br()
                 if not 'disabled' in kwargs:
-                    kwargs['disabled'] = self.childrenDisabled
+                    if hasattr(self, 'childrenDisabled'):
+                        kwargs['disabled'] = self.childrenDisabled
                 return self.fbuilder.place(tag=tag, childname=childname, **kwargs)
         if envelope:
             obj = GnrStructData.child(self, 'div', childname='*_#', **envelope)
@@ -583,7 +584,9 @@ class GnrDomSrc(GnrStructData):
                                       fieldclass=fieldclass,
                                       lblvalign=lblvalign, fldvalign=fldvalign, rowdatapath=rowdatapath,
                                       head_rows=head_rows, commonKwargs=commonKwargs)
-        tbl.childrenDisabled = disabled
+        inattr = self.getInheritedAttributes()
+        if not 'frameCode' in inattr:
+            tbl.childrenDisabled = disabled
         return tbl
         
     def place(self, fields):
