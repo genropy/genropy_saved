@@ -792,7 +792,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
     @extract_kwargs(palette=True,dialog=True)
     def linkedForm(self,frameCode=None,loadEvent=None,formRoot=None,store=True,
-                        dialog_kwargs=None,palette_kwargs=None,formId=None,pageName=None,**kwargs):
+                        dialog_kwargs=None,palette_kwargs=None,formId=None,
+                        pageName=None,attachTo=None,**kwargs):
         """add???
         
         :param frameCode: add???. Default value is ``None``
@@ -807,7 +808,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         formId = formId or '%s_form' %frameCode
         loadSubscriber = 'subscribe_form_%s_onLoading' %formId
         closeSubscriber = 'subscribe_form_%s_onDismissed' %formId
-        
+        attachTo = attachTo or self.parent
         if formRoot:
             if isinstance(formRoot,basestring):
                 formRoot = self.pageSource(formRoot)
@@ -824,15 +825,16 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 dialog_kwargs[closeSubscriber] = "this.widget.hide();"
                 dialog_kwargs['selfsubscribe_close'] = """genro.getForm('%s').dismiss($1.modifiers);
                                                             """ %frameCode
-            formRoot = self.parent.dialog(**dialog_kwargs)
+            formRoot = attachTo.dialog(**dialog_kwargs)
         elif palette_kwargs:
             palette_kwargs[loadSubscriber] = "this.widget.show();"
             palette_kwargs[closeSubscriber] = "this.widget.hide();"
-            formRoot = self.parent.palettePane(**palette_kwargs)
-
+            formRoot = attachTo.palettePane(**palette_kwargs)
+            
 
         form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=self.attributes.get('table'),
                                  store=store,pageName=pageName,**kwargs)
+        attachTo.form = form
         parentTag = self.attributes['tag'].lower()
         if parentTag=='includedview' or parentTag=='newincludedview':
             viewattr = self.attributes

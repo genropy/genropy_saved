@@ -219,7 +219,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         if isinstance(where, Bag):
             where, kwargs = self._decodeWhereBag(tblobj, where, kwargs)
         if condition:
-            where = '( %s ) AND ( %s )' % (where, condition)
+            where = '( %s ) AND ( %s )' % (where, condition) if where else condition
         return tblobj.query(columns=columns, distinct=distinct, where=where,
                             relationDict=relationDict, sqlparams=sqlparams, **kwargs).count()
 
