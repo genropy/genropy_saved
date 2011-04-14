@@ -607,12 +607,17 @@ class GnrWsgiSite(object):
         if path_list[0] in self.dbstores:
             storename = path_list.pop(0)
         if path_list[0] == '_ping':
-            self.log_print('kwargs: %s' % str(request_kwargs), code='PING')
-            result = self.serve_ping(response, environ, start_response, **request_kwargs)
-            if not isinstance(result, basestring):
-                return result
-            response = self.setResultInResponse(result, response, totaltime=time() - t)
-            self.cleanup()
+            try:
+                self.log_print('kwargs: %s' % str(request_kwargs), code='PING')
+                result = self.serve_ping(response, environ, start_response, **request_kwargs)
+                if not isinstance(result, basestring):
+                    return result
+                response = self.setResultInResponse(result, response, totaltime=time() - t)
+                self.cleanup()
+            except Exception:
+                raise
+            finally:
+                self.cleanup()
             return response(environ, start_response)
             
         if path_list and path_list[0].startswith('_tools'):
