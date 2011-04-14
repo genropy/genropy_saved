@@ -120,7 +120,8 @@ class StackTableHandlerRunner(BaseComponent):
         sc.list.bottom.slotBar('*,messageBox,*',childname='footer',_class='pbl_root_bottom',messageBox_subscribedTo='%s_message' %sc.attributes['thlist_root'])
         sc.form.attributes['hasBottomMessage'] = False
         sc.form.bottom.slotBar('*,messageBox,*',childname='footer',_class='pbl_root_bottom',
-                            messageBox_subscribedTo='form_%s_form_message' %sc.attributes['thform_root'])
+                            messageBox_subscribeTo='form_%s_form_message' %sc.attributes['thform_root'])
+
         
     
      

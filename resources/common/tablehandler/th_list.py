@@ -265,7 +265,7 @@ class TableHandlerListBase(TableHandlerList):
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.sorted',
                                pkeys='=.query.pkeys', _fired='^.runQueryDo',
-                               selectionName='*', recordResolver=False, condition=condition,
+                               selectionName='*%s' %mangler, recordResolver=False, condition=condition,
                                sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
                                row_start='0', externalChanges=True,
                                excludeLogicalDeleted='^.excludeLogicalDeleted',
@@ -274,9 +274,7 @@ class TableHandlerListBase(TableHandlerList):
                                selectmethod_prefix='customQuery',
                                _onCalling=self.onQueryCalling(),
                                _reloader=reloader,**condPars)
-                           
-        store.addCallback('FIRE .queryEnd=true; SET .selectmethod=null; return result;')
-        
+        store.addCallback('FIRE .queryEnd=true; SET .selectmethod=null; return result;')        
         pane.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                      fired='^.updateCurrentQueryCount',
                      table=table, where='=.query.where',
