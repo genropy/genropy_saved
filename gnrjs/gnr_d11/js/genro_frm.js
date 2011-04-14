@@ -132,7 +132,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var node;
         for (var k in this._register){
             node = this._register[k];
-            this._register[k].setDisabled(disable);
+            if (!('disabled' in node.attr)){
+                this._register[k].setDisabled(disable);
+            }
         }
     },
     isProtected:function(){

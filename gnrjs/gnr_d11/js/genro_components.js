@@ -90,6 +90,11 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
             right = this._last_floating['right'] + 'px';
         }
         var dockTo = objectPop(attributes, 'dockTo');
+        var dockButton = objectPop(attributes,'dockButton') || objectExtract(attributes, 'dockButton_*');
+        if (objectNotEmpty(dockButton)){
+            dockTo = 'dummyDock'
+            attributes.dockButton = dockButton;
+        }
         var floating_kwargs = objectUpdate(attributes, {dockable:true,closable:false,visibility:'hidden'});
         var showOnStart = false;
         if (dockTo === false) {
@@ -124,6 +129,14 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
             var dockId = sourceNode._id + '_dock';
             sourceNode._('dock', {id:dockId});
             kw.dockTo = dockId;
+        }
+        if (kw.dockButton){
+            kw.dockButton['action'] = function(){
+                genro.wdgById(kw.nodeId).show();
+            };
+            kw.dockButton['label'] = kw.dockButton['label'] || kw.title;
+            kw.dockButton['showLabel'] = kw.dockButton['showLabel'] || false;
+            sourceNode._('button', kw.dockButton);
         }
         if (kw.nodeId) {
             var that=this;
@@ -167,6 +180,7 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
             return pane;
         } else {
             var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom,maxable,height,width');
+            palette_kwargs.dockButton = objectExtract(kw,'dockButton_*');
             palette_kwargs['nodeId'] = paletteCode + '_floating';
             palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + paletteCode;
             objectUpdate(palette_kwargs, objectExtract(kw, 'palette_*'));
