@@ -38,7 +38,7 @@ class RecordDialog(BaseComponent):
                      dlgPars=None,
                      # TODO is dlgPars really supported? it seems to prevent the recordDialog from working properly.
                      toolbarCb=None, toolbarPars=None,
-                     record_datapath=None, disabled=None, **kwargs):
+                     record_datapath=None,form_datapath=None, disabled=None, **kwargs):
         """
         Allow to manage a form into a dialog for editing and saving a single RecordHandler.
         * `table`: The table where the record is saved.
@@ -94,7 +94,7 @@ class RecordDialog(BaseComponent):
                                      loadingParameters, validation_failed, record_datapath, **kwargs)
 
         self._recordDialogLayout(dlgBC, dlgId, formId, table, formCb,
-                                 bottomCb, toolbarCb, record_datapath, toolbarPars, disabled)
+                                 bottomCb, toolbarCb, record_datapath,form_datapath, toolbarPars, disabled)
 
     def _recordDialogController(self, pane, dlgId, formId,
                                 table, saveKwargs, loadKwargs, firedPkey, sqlContextName,
@@ -189,15 +189,17 @@ class RecordDialog(BaseComponent):
             pane.dataController("genro.formById('%s').focusFirstInvalidField()" % formId, _fired="^.validation_failed")
 
     def _recordDialogLayout(self, bc, dlgId, formId, table,
-                            formCb, bottomCb, toolbarCb, record_datapath, toolbarPars, disabled):
+                            formCb, bottomCb, toolbarCb, record_datapath, form_datapath,toolbarPars, disabled):
         if callable(toolbarCb):
             toolbarCb(bc, region='top', table=table, **toolbarPars)
         bottom = bc.contentPane(region='bottom', _class='dialog_bottom')
         bottomCb = bottomCb or getattr(self, 'recordDialog_bottom')
         bottomCb(bottom)
-        stack = bc.stackContainer(region='center', _class='pbl_background', formId=formId,
-                                  selected='^#%s.stackPane' % dlgId,formDatapath='.record')
-        formCb(stack.contentPane(datapath=record_datapath or '.record'), disabled=disabled, table=table)
+        form_datapath = form_datapath
+        record_datapath = record_datapath or '.record'
+        stack = bc.stackContainer(region='center', _class='pbl_background', formId=formId,datapath=form_datapath,
+                                  selected='^#%s.stackPane' % dlgId,formDatapath=record_datapath)
+        formCb(stack.contentPane(datapath=record_datapath), disabled=disabled, table=table)
 
     #Jeff suggests that the margins be taken out of the code and put into the css
     def recordDialog_bottom(self, pane):

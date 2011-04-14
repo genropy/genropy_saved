@@ -132,6 +132,7 @@ class TableHandlerLight(BaseComponent):
                                               toolbarPars=dict(lock_action=True, add_action=self.userCanWrite(),
                                                                del_action=self.userCanDelete(),
                                                                save_action=self.userCanWrite()),
+                                              form_datapath='form',
                                               record_datapath='form.record', title='^form.title', formCb=self.formBase,
                                               dlgPars=dict(centerOn="mainBC_center"), **defaults), lock_action=True,
                               checkMainRecord=False, hasToolbar=True, filterOn=filterOn)
