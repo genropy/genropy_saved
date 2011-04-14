@@ -218,7 +218,7 @@ class TableHandlerListBase(TableHandlerList):
         if th_pkey:
             querybase = dict(column=self.db.table(table).pkey,op='equal',val=th_pkey,runOnStart=True)
         else:
-            querybase = self._th_hook('query',mangler=mangler)()
+            querybase = self._th_hook('query',mangler=mangler)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         pane.data('.baseQuery', queryBag)
 
@@ -280,17 +280,21 @@ class TableHandlerListBase(TableHandlerList):
                      table=table, where='=.query.where',
                      excludeLogicalDeleted='=.excludeLogicalDeleted',
                      **condPars)
-    
-        pane.dataController("""this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
-                               genro.querybuilder(maintable).buildQueryPane(); 
+        
+        pane.dataController("""
                                SET .view.selectedId = null;
-                               if(!fired&&runOnStart){
+                               FIRE .query.new;
+                               if(runOnStart){
                                     FIRE .runQuery
                                }
                             """,
-                            _onStart=True, baseQuery='=.baseQuery', maintable=table,
-                            fired='^.query.new',
-                            runOnStart=(querybase and querybase.get('runOnStart', False)) or False)
+                            _onStart=True,
+                            runOnStart=querybase.get('runOnStart', False))
+        pane.dataController("""
+            this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
+            genro.querybuilder(maintable).buildQueryPane(); 
+        """,_fired='^.query.new',baseQuery='=.baseQuery', maintable=self.maintable)
+        
        #else:
        #    iv.selectionStore(table=table,childname='store',
        #                       where=condition, order_by=order_by,

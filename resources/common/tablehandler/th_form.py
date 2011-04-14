@@ -31,7 +31,7 @@ class TableHandlerFormBase(BaseComponent):
     @struct_method
     def th_linkedFormPage(self, th,table=None,**kwargs):
         th_root=th.attributes['thform_root']
-        form = th.list.iv.linkedForm(frameCode=th_root,th_root=th_root,datapath='.form',childname='form',**kwargs)  
+        form = th.list.iv.linkedForm(frameCode=th_root,th_root=th_root,datapath='.form',childname='form',attachTo=th,**kwargs)  
         toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
                                         dismiss_iconClass='tb_button tb_listview',namespace='form')
         if table == self.maintable and hasattr(self,'th_main'):

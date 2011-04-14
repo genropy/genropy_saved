@@ -415,16 +415,19 @@ class TableHandlerListLegacy(BaseComponent):
                      table=self.maintable, where='=list.query.where',
                      excludeLogicalDeleted='=list.excludeLogicalDeleted',
                      **condPars)
-        pane.dataController("""genro.setData("list.query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
-                               genro.querybuilder(maintable).buildQueryPane(); 
-                               SET list.view.selectedId = null;
-                               if(!fired&&runOnStart){
-                                    FIRE list.runQuery
+        pane.dataController("""
+                               SET .view.selectedId = null;
+                               FIRE .query.new;
+                               if(runOnStart){
+                                    FIRE .runQuery
                                }
                             """,
-                            _onStart=True, baseQuery='=list.baseQuery', maintable=self.maintable,
-                            fired='^list.query.new',
-                            runOnStart=querybase.get('runOnStart', False))
+                            _onStart=True, 
+                            runOnStart=querybase.get('runOnStart', False),datapath='list')
+        pane.dataController("""
+            this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
+            genro.querybuilder(maintable).buildQueryPane(); 
+        """,_fired='^.query.new',baseQuery='=.baseQuery', maintable=self.maintable,datapath='list')
 
     def _th_setFilter(self):
         filterpath = 'filter.%s' % self.pagename

@@ -41,7 +41,6 @@ class TableHandlerBase(BaseComponent):
         dialog_kwargs = dialog_kwargs #or self._th_hook('dialog',mangler=pane.attributes['thform_root'])()
         form = pane.linkedFormPage(pageName='form',table=table,loadEvent='onRowDblClick',
                             form_locked=True,dialog_kwargs=dialog_kwargs)     
-        pane.form = form        
         return pane
 
     @extract_kwargs(widget=True)
