@@ -116,7 +116,8 @@ class StackTableHandlerRunner(BaseComponent):
         formResource = th_formResource or self.formResource
         viewResource = th_viewResource or self.viewResource
         root = root.rootContentPane(title=self.tblobj.name_long)
-        root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),formResource=formResource,viewResource=viewResource,virtualStore=True,**kwargs)
+        root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),
+                                formResource=formResource,viewResource=viewResource,virtualStore=True,**kwargs)
         
     
      

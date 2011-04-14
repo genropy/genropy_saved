@@ -181,25 +181,26 @@ class TableHandlerListBase(TableHandlerList):
         frame.data('.table',table=table)
         self._queryTool = kwargs['queryTool'] if 'queryTool' in kwargs else virtualStore
         self._th_listController(frame,table=table)
-        
+        bottom = frame.bottom.slotBar('*,messageBox,*')
         if self._queryTool:
             frame.top.listToolbar(table)
         else:
             frame.top.slotToolbar('*,searchOn,count,10,|,iv_add,iv_del,10',iv_del_parentForm=True,iv_add_parentForm=True)
-        if self._queryTool:
-
-            footer = frame.bottom.slotToolbar('*,th_dock')
-            dock_id = '%s_th_dock' %mangling
-            footer.th_dock.div(width='100px',height='20px').dock(id = dock_id)
-            pane.palettePane('%s_queryTool' %mangling,title='Query tool',nodeId='%s_query_root' %mangling,
-                            dockTo=dock_id,datapath='.list.query.where',height='150px',width='400px')
         frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey,virtualStore=virtualStore)
         return frame
     
     @struct_method
     def th_listToolbar(self,pane,table=None):
-        toolbar = pane.slotToolbar('queryfb,iv_runbtn,*,count,10,iv_add,iv_del,list_locker',queryfb_table=table)
+        toolbar = pane.slotToolbar('queryfb,iv_runbtn,5,|,queryTool,*,count,10,iv_add,iv_del,list_locker',queryfb_table=table)
     
+    
+    @struct_method
+    def th_slotbar_queryTool(self,pane,**kwargs):
+       # pane = pane.div(width='20px',height='16px',_class='icnBaseLens hiddenDock')
+        mangling = pane.getInheritedAttributes()['th_root']
+        pane.palettePane('%s_queryTool' %mangling,title='Query tool',nodeId='%s_query_root' %mangling,
+                        dockButton_iconClass='icnBaseLens',
+                        datapath='.query.where',height='150px',width='400px')
     
     @struct_method
     def th_slotbar_list_locker(self, pane,**kwargs):
