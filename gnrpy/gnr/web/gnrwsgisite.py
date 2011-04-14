@@ -646,9 +646,10 @@ class GnrWsgiSite(object):
             try:
                 result = page()
             except Exception:
+                raise
+            finally:
                 self.onServedPage(page)
                 self.cleanup()
-                raise
             response = self.setResultInResponse(result, response, totaltime=time() - t)
             return response(environ, start_response)
             
