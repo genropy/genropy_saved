@@ -88,7 +88,6 @@ class TableHandlerBase(BaseComponent):
             self.mixinComponent(pkg,'tables',tablename,viewResource,defaultModule=defaultModule,defaultClass='View',mangling_th=thlist_root)
             self.mixinComponent(pkg,'tables',tablename,formResource,defaultModule=defaultModule,defaultClass='Form',mangling_th=thform_root)
             viewpage = wdg.listPage(frameCode=thlist_root,th_root=thlist_root,th_pkey=th_pkey,table=table,pageName='view',reloader=reloader,virtualStore=virtualStore)
-            
             viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
             viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);' #'genro.getForm(this.attr.linkedForm).deleteItem({});'
         return wdg
@@ -115,9 +114,13 @@ class StackTableHandlerRunner(BaseComponent):
     def main(self,root,th_formResource=None,th_viewResource=None,**kwargs):
         formResource = th_formResource or self.formResource
         viewResource = th_viewResource or self.viewResource
-        root = root.rootContentPane(title=self.tblobj.name_long)
-        root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),
+        root = root.rootContentPane(title=self.tblobj.name_long,bottom=False)
+        sc = root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),
                                 formResource=formResource,viewResource=viewResource,virtualStore=True,**kwargs)
+        sc.list.bottom.slotBar('*,messageBox,*',childname='footer',_class='pbl_root_bottom',messageBox_subscribedTo='%s_message' %sc.attributes['thlist_root'])
+        sc.form.attributes['hasBottomMessage'] = False
+        sc.form.bottom.slotBar('*,messageBox,*',childname='footer',_class='pbl_root_bottom',
+                            messageBox_subscribedTo='form_%s_form_message' %sc.attributes['thform_root'])
         
     
      

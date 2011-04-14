@@ -181,7 +181,6 @@ class TableHandlerListBase(TableHandlerList):
         frame.data('.table',table=table)
         self._queryTool = kwargs['queryTool'] if 'queryTool' in kwargs else virtualStore
         self._th_listController(frame,table=table)
-        bottom = frame.bottom.slotBar('*,messageBox,*')
         if self._queryTool:
             frame.top.listToolbar(table)
         else:
