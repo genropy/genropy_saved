@@ -77,7 +77,7 @@ class TableHandlerBase(BaseComponent):
         viewResource = getResourceName(viewResource,defaultModule,'View')
         thlist_root='L_%s' %th_root
         thform_root='F_%s' %th_root
-        wdg = pane.child(datapath=datapath or '.%s'%tableCode,thlist_root=thlist_root,
+        wdg = pane.child(datapath=datapath or '#FORM.%s'%tableCode,thlist_root=thlist_root,
                         thform_root=thform_root,nodeId=nodeId,
                         selfsubscribe_load='genro.getForm(this.attr.thform_root).load({destPkey:$1})',
                         **widget_kwargs)
