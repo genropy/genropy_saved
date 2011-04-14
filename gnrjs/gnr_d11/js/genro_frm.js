@@ -1092,7 +1092,7 @@ dojo.declare("gnr.GnrValidator", null, {
         return funcApply(param, objectUpdate({'value':value}, parameters), sourceNode);
     },
     validate_remote: function(param, value, sourceNode, parameters) {
-        var rpcresult = genro.rpc.remoteCall(param, objectUpdate({'value':value}, parameters), null, 'GET');
+        var rpcresult = genro.rpc.remoteCall(param, objectUpdate({'value':value}, parameters), null, 'POST');
         if (rpcresult instanceof gnr.GnrBag) {
             var result = {};
             result['errorcode'] = rpcresult.getItem('errorcode');
