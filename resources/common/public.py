@@ -120,6 +120,7 @@ class Public(BaseComponent):
         slots = slots or '5,dock,*,messageBox,*,devBtn,locBtn,5'
         if 'messageBox' in slots:
             pane.parent.dataController("genro.publish('pbl_bottomMsg',{message:msg});",msg="^pbl.bottomMsg") #legacy
+            # 
             kwargs['messageBox_subscribeTo']=kwargs.get('messageBox_subscribeTo') or 'pbl_bottomMsg'
         return pane.slotBar(slots=slots,childname='bar',
                             _class='pbl_root_bottom',
