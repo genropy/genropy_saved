@@ -116,26 +116,13 @@ class GnrDomSrc(GnrStructData):
         :returns: the root instance for the given class
         """
         root = GnrStructData.makeRoot(source=source, protocls=cls)
-        #root._page=weakref.ref(page)
         root._page = page
         return root
-        
     makeRoot = classmethod(makeRoot)
-    
-    @property
-    def nodeCounter(self):
-        if not hasattr(self,'_counter'):
-            self._counter=[0]
-        self._counter[0]+=1
-        return self._counter[0]
-    
-    def _onNodeCreated(self,node):
-        node._id= self.root.nodeCounter
+
         
     def _get_page(self):
-        #return self.root._page()
         return self.root._page
-        
     page = property(_get_page)
         
     def _get_parentfb(self):
@@ -143,7 +130,6 @@ class GnrDomSrc(GnrStructData):
             return self.fbuilder
         elif self.parent:
             return self.parent.parentfb
-            
     parentfb = property(_get_parentfb)
             
     def __getattr__(self, fname): 
@@ -213,9 +199,6 @@ class GnrDomSrc(GnrStructData):
             obj = self
         return GnrStructData.child(obj, tag, childname=childname, **kwargs)
     
-    def identifier(self):
-        return self.parentNode._id
-        
     def htmlChild(self, tag, childcontent, value=None, **kwargs):
         """Create an html child and return it
         
