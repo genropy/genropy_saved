@@ -1089,10 +1089,6 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/FloatingPane.css");
         genro.dom.loadCss("/_dojo/11/dojo/dojox/layout/resources/ResizeHandle.css");
     },
-    creating: function(attributes, sourceNode) {
-        console.log('floating attr',attributes);
-        
-    },
     created: function(widget, savedAttrs, sourceNode) {
         widget._startZ = 700;
         var nodeId = sourceNode.attr.nodeId;
