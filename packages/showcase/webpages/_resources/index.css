@@ -6,15 +6,16 @@
 }
 
 .docpane {
-    background-color: #ededed;
+    background-color: #C1974C;
     padding: 1em;
 }
 
 .doclabel {
     margin-left: 20px;
     margin-top: 10px;
-    font-size: small;
+    font-size: 1em;
     font-weight: bold;
+    color: white;
 }
 
 .demodoc {
@@ -42,7 +43,7 @@
 }
 
 .edit_dlg textarea {
-    height: 8ex;
+    height: 10ex;
     width: 35em;
 }
 
