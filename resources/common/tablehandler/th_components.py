@@ -49,7 +49,7 @@ class TableHandlerBase(BaseComponent):
                                     palette_kwargs=palette_kwargs,**kwargs)    
         return form 
             
-    def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,datapath=None,formResource=None,viewResource=None,
+    def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,datapath=None,viewResource=None,
                             th_iframe=False,reloader=None,virtualStore=False,**kwargs):
         tableCode = table.replace('.','_')
         print pane.parentNode.attr
@@ -62,7 +62,7 @@ class TableHandlerBase(BaseComponent):
                         nodeId=nodeId,
                         selfsubscribe_load='genro.getForm(this.attr.thform_root).load({destPkey:$1})',
                         **kwargs)
-        viewpage = wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName='view',
+        viewpage = wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName='view',viewResource=viewResource,
                                 reloader=reloader,virtualStore=virtualStore,tbar_add=True,tbar_del=True,tbar_locker=True)
         viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
         viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);'       
@@ -72,23 +72,27 @@ class TableHandlerBase(BaseComponent):
     @struct_method
     def th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
                             th_iframe=False,dialog_kwargs=None,reloader=None,**kwargs):
-        pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,formResource=formResource,viewResource=viewResource,
-                                        th_iframe=th_iframe,reloader=reloader,
+        pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
+                                        viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,
                                         tag='ContentPane',**kwargs)        
         dialog_kwargs = dialog_kwargs
         form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',
-                               form_locked=True,dialog_kwargs=dialog_kwargs,attachTo=pane)     
+                               form_locked=True,dialog_kwargs=dialog_kwargs,attachTo=pane,formResource=formResource)     
         return pane
     
     @extract_kwargs(palette=True)
     @struct_method
     def th_paletteTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
                             th_iframe=False,palette_kwargs=None,reloader=None,**kwargs):
-        pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,formResource=formResource,viewResource=viewResource,
+        pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
+                                        viewResource=viewResource,
                                         th_iframe=th_iframe,reloader=reloader,
                                         tag='ContentPane',**kwargs)        
         palette_kwargs = palette_kwargs
-        form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',form_locked=True,palette_kwargs=palette_kwargs,attachTo=pane)     
+        form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,
+                                formResource=formResource,
+                                loadEvent='onRowDblClick',form_locked=True,
+                                palette_kwargs=palette_kwargs,attachTo=pane)     
         return pane
 
     @extract_kwargs(widget=True)
@@ -97,9 +101,9 @@ class TableHandlerBase(BaseComponent):
                             th_iframe=False,widget_kwargs=None,reloader=None,**kwargs):
         kwargs['tag'] = 'StackContainer'
         kwargs['selectedPage'] = '^.selectedPage'
-        wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,formResource=formResource,
+        wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,**kwargs)
-        wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',
+        wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',formResource=formResource,
                         store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True)                    
         return wdg
     
