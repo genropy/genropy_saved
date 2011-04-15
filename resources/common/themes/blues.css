@@ -721,6 +721,7 @@
 
 }
 
+
 /* @end */
 /* @end */
 
@@ -817,3 +818,7 @@
 /* @end */
 
 /* @end */
+
+.fh_bottom_message {
+    background-color: #003366;
+}
