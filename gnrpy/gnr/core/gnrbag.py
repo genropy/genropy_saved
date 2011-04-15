@@ -120,6 +120,7 @@ class BagNode(object):
     :param value: can be anything even a BagNode. If you got the xml of the Bag it should be serializable.
     :param attributes: dictionary that contains node's metadata
     """
+
     def __init__(self, parentbag, label, value=None, attr=None, resolver=None,
                  validators=None, _removeNullAttributes=True):
         self.label = label
@@ -127,8 +128,6 @@ class BagNode(object):
         self._value = None
         self.resolver = resolver
         self.parentbag = parentbag
-        if parentbag is not None:
-            parentbag._onNodeCreated(self)
         self._node_subscribers = {}
         self._validators = None
         self.attr = {}
@@ -427,7 +426,7 @@ class Bag(GnrObject):
         source=source or kwargs
         if source:
             self.fillFrom(source)
-        
+                    
     def _get_parent(self):
         if self._parent:
             return self._parent
@@ -511,9 +510,7 @@ class Bag(GnrObject):
 
     def _setModified(self, **kwargs):
         self._modified = True
-        
-    def _onNodeCreated(self,node):
-        pass
+
     #-------------------- __contains__ --------------------------------
     def __contains__(self, what):
         """The "in" operator can be used to test the existence of a key in a
