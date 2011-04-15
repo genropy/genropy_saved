@@ -190,7 +190,7 @@ class TableHandlerListBase(TableHandlerList):
             slotbarKw['queryfb_table'] = table
             self._th_queryToolController(frame)
         else:
-            slots['*','searchOn','count','10']
+            slots = ['*','searchOn','count','10']
         if tbar_add:
             slots.append('iv_add')
             slotbarKw['iv_add_parentForm'] = True
