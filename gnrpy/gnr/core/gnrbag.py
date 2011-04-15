@@ -1472,33 +1472,36 @@ class Bag(GnrObject):
         :param item_path: the path of the given item.
         :param item_value: the value to set.
         :param _attributes:  it specified the value's attributes to set. Default value is ``None``.
-        :param _position:  it is possible to set a new value at a particular position among its brothers. Default value is ``None``.
-        
-        *expression* must be a string of the following types:
-        
-        +----------------------------+----------------------------------------------------------------------+
-        | *Expressions*              |  Description                                                         |
-        +============================+======================================================================+
-        | ``'<'``                    | Set the value as the first value of the Bag                          |
-        +----------------------------+----------------------------------------------------------------------+
-        | ``'>'``                    | Set the value as the last value of the Bag                           |
-        +----------------------------+----------------------------------------------------------------------+
-        | ``'<label'``               | Set the value in the previous position respect to the labelled one   |
-        +----------------------------+----------------------------------------------------------------------+
-        | ``'>label'``               | Set the value in the position next to the labelled one               |
-        +----------------------------+----------------------------------------------------------------------+
-        | ``'<#index'``              | Set the value in the previous position respect to the indexed one    |
-        +----------------------------+----------------------------------------------------------------------+
-        | ``'>#index'``              | Set the value in the position next to the indexed one                |
-        +----------------------------+----------------------------------------------------------------------+
-        | ``'#index'``               | Set the value in a determined position indicated by ``index`` number |
-        +----------------------------+----------------------------------------------------------------------+
-            
+        :param _position: it is possible to set a new value at a particular position among its brothers.
+                          Default value is ``None``.
+                          
+                          *expression* must be a string of the following types:
+                          
+                          +----------------------------+----------------------------------------------------------------------+
+                          | *Expressions*              |  Description                                                         |
+                          +============================+======================================================================+
+                          | ``'<'``                    | Set the value as the first value of the Bag                          |
+                          +----------------------------+----------------------------------------------------------------------+
+                          | ``'>'``                    | Set the value as the last value of the Bag                           |
+                          +----------------------------+----------------------------------------------------------------------+
+                          | ``'<label'``               | Set the value in the previous position respect to the labelled one   |
+                          +----------------------------+----------------------------------------------------------------------+
+                          | ``'>label'``               | Set the value in the position next to the labelled one               |
+                          +----------------------------+----------------------------------------------------------------------+
+                          | ``'<#index'``              | Set the value in the previous position respect to the indexed one    |
+                          +----------------------------+----------------------------------------------------------------------+
+                          | ``'>#index'``              | Set the value in the position next to the indexed one                |
+                          +----------------------------+----------------------------------------------------------------------+
+                          | ``'#index'``               | Set the value in a determined position indicated by ``index`` number |
+                          +----------------------------+----------------------------------------------------------------------+
+                          
         :param _duplicate:  specifies if a node with an existing path overwrite the value or append to it the new one. Default value is ``False``.
         :param _updattr:  add??? Default value is ``False``.
         :param _validators:  it specifies the value's validators to set. Default value is ``None``.
         :param _removeNullAttributes:  add??? Default value is ``True``.
         :param \*\*kwargs: attributes AND/OR validators.
+        
+        Example:
         
         >>> mybag = Bag()
         >>> mybag.setItem('a',1)
@@ -1517,18 +1520,20 @@ class Bag(GnrObject):
         5 - (int) c: 3
         6 - (int) d: 4
         
-        **Square-brackets notations:**
+        **Square-brackets notations**::
         
-        ``Bag[path] = value``:
+            Bag[path] = value
         
-            >>> mybag = Bag()
-            >>> mybag['a'] = 1
-            >>> mybag['b.c.d'] = 2
-            >>> print mybag
-            0 - (int) a: 1
-            1 - (Bag) b:
-                0 - (Bag) c:
-                    0 - (int) d: 2
+        Example:
+        
+        >>> mybag = Bag()
+        >>> mybag['a'] = 1
+        >>> mybag['b.c.d'] = 2
+        >>> print mybag
+        0 - (int) a: 1
+        1 - (Bag) b:
+            0 - (Bag) c:
+                0 - (int) d: 2
                 
         .. note:: if you have to use the ``_position`` attribute you can't use the square-brackets notation.
         """
@@ -1647,11 +1652,11 @@ class Bag(GnrObject):
         return self.setItem(path, None, resolver=resolver)
 
     def setBackRef(self, node=None, parent=None):
-        """Force a Bag to a more strict structure. It makes the Bag similar to a tree-leaf model:
-        a Bag can have only one Parent and it knows this reference.
+        """Force a Bag to a more strict structure. It makes the Bag similar to a
+        tree-leaf model: a Bag can have only one Parent and it knows this reference.
         
-        :param node:  add??? Default value is ``None``.
-        :param parent:  add??? Default value is ``None``.
+        :param node: the parent node. Default value is ``None``.
+        :param parent: add???. Default value is ``None``.
         """
         if self.backref != True:
             self._backref = True
