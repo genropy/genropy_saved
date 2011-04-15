@@ -135,7 +135,7 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
                 genro.wdgById(kw.nodeId).show();
             };
             kw.dockButton['label'] = kw.dockButton['label'] || kw.title;
-            kw.dockButton['showLabel'] = kw.dockButton['showLabel'] || false;
+            kw.dockButton['showLabel'] = kw.dockButton['showLabel'] || !kw.dockButton.iconClass;
             sourceNode._('button', kw.dockButton);
         }
         if (kw.nodeId) {
