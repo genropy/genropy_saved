@@ -35,6 +35,9 @@ function _px(v){
     }
     return v;
 };
+function gnrnode(ref){
+    return genro.src.serverNode(ref)
+};
 function bagAsObj(bag) {
     var result = {};
     var parentNode = bag.getParentNode();
