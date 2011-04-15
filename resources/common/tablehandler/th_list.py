@@ -36,34 +36,34 @@ class TableHandlerList(BaseComponent):
     def th_slotbar_queryfb(self, pane,table=None,**kwargs):
         table = table or self.maintable
         tablecode = table.replace('.','_')
-        mangling = pane.getInheritedAttributes()['th_root']
+        mangler = pane.getInheritedAttributes()['th_root']
         queryfb = pane.formbuilder(cols=5, datapath='.query.where', _class='query_form',
                                    border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});',
                                    float='left')
         queryfb.div('^.c_0?column_caption', min_width='12em', _class='smallFakeTextBox floatingPopup',
-                    nodeId='%s_fastQueryColumn' %mangling,
+                    nodeId='%s_fastQueryColumn' %mangler,
                      dropTarget=True,
-                    lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder('%s').onChangedQueryColumn(this,data);" %table})
+                    lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder('%s').onChangedQueryColumn(this,data);" %mangler})
         optd = queryfb.div(_class='smallFakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
-                 display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %mangling,
+                 display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %mangler,
                  border_right='1px solid silver')
-        optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %mangling, readonly=True,
+        optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %mangler, readonly=True,
                  selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
-                 connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %table,
-                 action="genro.querybuilder('%s').onChangedQueryOp($2,$1);" %table,
+                 connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %mangler,
+                 action="genro.querybuilder('%s').onChangedQueryOp($2,$1);" %mangler,
                  _dtype='^.c_0?column_dtype',
                  _class='floatingPopup', display='inline-block', padding_left='2px')
         value_textbox = queryfb.textbox(lbl='!!Value', value='^.c_0', width='12em', lbl_width='5em',
                                         _autoselect=True,
                                         row_class='^.c_0?css_class', position='relative',
-                                        disabled='==(_op in genro.querybuilder("%s").helper_op_dict)'  %table, _op='^.c_0?op',
-                                        validate_onAccept='genro.queryanalyzer("%s").checkQueryLineValue(this,value);' %table,
+                                        disabled='==(_op in genro.querybuilder("%s").helper_op_dict)'  %mangler, _op='^.c_0?op',
+                                        validate_onAccept='genro.queryanalyzer("%s").checkQueryLineValue(this,value);' %mangler,
                                         _class='st_conditionValue')
 
-        value_textbox.div('^.c_0', hidden='==!(_op in  genro.querybuilder("%s").helper_op_dict)' %table,
-                          connect_onclick="if(GET .c_0?op in genro.querybuilder('%s').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='c_0';}" %table,
+        value_textbox.div('^.c_0', hidden='==!(_op in  genro.querybuilder("%s").helper_op_dict)' %mangler,
+                          connect_onclick="if(GET .c_0?op in genro.querybuilder('%s').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='c_0';}" %mangler,
                           _op='^.c_0?op', _class='helperField')
 
     def onQueryCalling(self):
@@ -71,6 +71,7 @@ class TableHandlerList(BaseComponent):
         
     def _th_listController(self,pane,table=None):
         table = table or self.maintable
+        mangler = pane.attributes['th_root']
         pane.data('.table',table)
         pane.data('.excludeLogicalDeleted', True)
         pane.data('.showDeleted', False)
@@ -79,34 +80,35 @@ class TableHandlerList(BaseComponent):
                    var qb = this._querybuilder;
                    this._queryanalyzer = new gnr.GnrQueryAnalyzer(this,table);
                 """ 
-                , _init=True,table=table,nodeId='%s_queryscripts' %table.replace('.','_'))
-        
-        if self._queryTool:
-            pane.dataController("""
-                                   genro.querybuilder(table).cleanQueryPane(); 
-                                   SET .queryRunning = true;
-                                   var parslist = genro.queryanalyzer(table).translateQueryPars();
-                                   if (parslist.length>0){
-                                      genro.queryanalyzer(table).buildParsDialog(parslist);
-                                   }else{
-                                      FIRE .runQueryDo = true;
-                                   }
-                                """,table=table,_fired="^.runQuery")
-            pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
-                                cnt='^.currentQueryCount', _if='cnt', _else='',
-                                msg='!!Current query will return _rec_ items')
-            pane.dataController("""SET .currentQueryCountAsString = waitmsg;
-                                   FIRE .updateCurrentQueryCount;
-                                    genro.dlg.alert(alertmsg,dlgtitle);
-                                      """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
-                                   dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
-            pane.dataController("""
-                        var qb = genro.querybuilder(table);
-                        qb.createMenues();
-                        dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
-                        dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
-                        qb.buildQueryPane();
-            """,_onStart=True,table=table)
+                , _init=True,table=table,nodeId='%s_queryscripts' %mangler)
+
+    def _th_queryToolController(self,pane,table=None):
+        mangler = pane.attributes['th_root']
+        pane.dataController("""
+                               genro.querybuilder(mangler).cleanQueryPane(); 
+                               SET .queryRunning = true;
+                               var parslist = genro.queryanalyzer(mangler).translateQueryPars();
+                               if (parslist.length>0){
+                                  genro.queryanalyzer(mangler).buildParsDialog(parslist);
+                               }else{
+                                  FIRE .runQueryDo = true;
+                               }
+                            """,mangler=mangler,_fired="^.runQuery")
+        pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
+                            cnt='^.currentQueryCount', _if='cnt', _else='',
+                            msg='!!Current query will return _rec_ items')
+        pane.dataController("""SET .currentQueryCountAsString = waitmsg;
+                               FIRE .updateCurrentQueryCount;
+                                genro.dlg.alert(alertmsg,dlgtitle);
+                                  """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
+                               dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
+        pane.dataController("""
+                    var qb = genro.querybuilder(mangler);
+                    qb.createMenues();
+                    dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
+                    dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
+                    qb.buildQueryPane();
+        """,_onStart=True,mangler=mangler)
 
     def rpc_fieldExplorer(self, table=None, omit=None):
         result = self.rpc_relationExplorer(table=table, omit=omit)
@@ -160,7 +162,6 @@ class TableHandlerList(BaseComponent):
     def conditionBase(self):
         return (None, None)
         
-        
     def queryBase(self):
         return dict()
         
@@ -174,30 +175,39 @@ class TableHandlerList(BaseComponent):
 
 class TableHandlerListBase(TableHandlerList):
     @struct_method
-    def th_listPage(self,pane,table=None,th_pkey=None,frameCode=None,reloader=None,virtualStore=None,**kwargs):
+    def th_listPage(self,pane,table=None,th_pkey=None,frameCode=None,reloader=None,virtualStore=None,
+                        tbar_add=False,tbar_del=False,tbar_locker=False,**kwargs):
         #self.query_helper_main(pane)
         frame = pane.framePane(frameCode=frameCode,childname='list',datapath='.list',center_overflow='hidden',**kwargs)
-        mangling =frameCode
+        mangler =frameCode
         frame.data('.table',table=table)
-        self._queryTool = kwargs['queryTool'] if 'queryTool' in kwargs else virtualStore
+        queryTool = kwargs['queryTool'] if 'queryTool' in kwargs else virtualStore
         self._th_listController(frame,table=table)
-        if self._queryTool:
-            frame.top.listToolbar(table)
+        slots = []
+        slotbarKw = dict()
+        if queryTool:
+            slots = ['queryfb','iv_runbtn','5','|','queryTool','*','count','5']
+            slotbarKw['queryfb_table'] = table
+            self._th_queryToolController(frame,table=table)
         else:
-            frame.top.slotToolbar('*,searchOn,count,10,|,iv_add,iv_del,10',iv_del_parentForm=True,iv_add_parentForm=True)
+            slots['*','searchOn','count','10']
+        if tbar_add:
+            slots.append('iv_add')
+            slotbarKw['iv_add_parentForm'] = True
+        if tbar_del:
+            slots.append('iv_del')
+            slotbarKw['iv_del_parentForm'] = True
+        if tbar_locker:
+            slots.append('list_locker')
+        frame.top.slotToolbar(','.join(slots),**slotbarKw)            
         frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey,virtualStore=virtualStore)
         return frame
-    
-    @struct_method
-    def th_listToolbar(self,pane,table=None):
-        toolbar = pane.slotToolbar('queryfb,iv_runbtn,5,|,queryTool,*,count,10,iv_add,iv_del,list_locker',queryfb_table=table)
-    
-    
+        
     @struct_method
     def th_slotbar_queryTool(self,pane,**kwargs):
        # pane = pane.div(width='20px',height='16px',_class='icnBaseLens hiddenDock')
-        mangling = pane.getInheritedAttributes()['th_root']
-        pane.palettePane('%s_queryTool' %mangling,title='Query tool',nodeId='%s_query_root' %mangling,
+        mangler = pane.getInheritedAttributes()['th_root']
+        pane.palettePane('%s_queryTool' %mangler,title='Query tool',nodeId='%s_query_root' %mangler,
                         dockButton_iconClass='icnBaseLens',
                         datapath='.query.where',height='150px',width='400px')
     
@@ -285,20 +295,12 @@ class TableHandlerListBase(TableHandlerList):
                                SET .view.selectedId = null;
                                FIRE .query.new;
                                if(runOnStart){
-                                    FIRE .runQuery
+                                    FIRE .runQuery;
                                }
                             """,
                             _onStart=True,
                             runOnStart=querybase.get('runOnStart', False))
         pane.dataController("""
             this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
-            genro.querybuilder(maintable).buildQueryPane(); 
-        """,_fired='^.query.new',baseQuery='=.baseQuery', maintable=table)
-        
-       #else:
-       #    iv.selectionStore(table=table,childname='store',
-       #                       where=condition, order_by=order_by,
-       #                       sqlContextName='standard_list', 
-       #                       externalChanges=True,
-       #                       excludeLogicalDeleted='^.excludeLogicalDeleted',
-       #                       timeout=180000,_reloader=reloader,**condPars)
+            genro.querybuilder(mangler).buildQueryPane(); 
+        """,_fired='^.query.new',baseQuery='=.baseQuery', maintable=table,mangler=mangler)

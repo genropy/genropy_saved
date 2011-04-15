@@ -29,16 +29,15 @@ class TableHandlerFormBase(BaseComponent):
     py_requires='gnrcomponents/formhandler:FormHandler,tablehandler/th_core:TableHandlerCommon'
     css_requires='public'
     @struct_method
-    def th_linkedFormPage(self, th,table=None,**kwargs):
-        th_root=th.attributes['thform_root']
-        form = th.list.iv.linkedForm(frameCode=th_root,th_root=th_root,datapath='.form',childname='form',attachTo=th,**kwargs)  
+    def th_linkedFormPage(self,th,frameCode=None,table=None,**kwargs):
+        form = th.list.iv.linkedForm(frameCode=frameCode,th_root=frameCode,datapath='.form',childname='form',**kwargs)  
         toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
                                         dismiss_iconClass='tb_button tb_listview',namespace='form')
         if table == self.maintable and hasattr(self,'th_main'):
             self.th_main(th)
         else:
             center = form.center.contentPane(datapath='.record')
-            self._th_hook('form',mangler=th_root)(center)
+            self._th_hook('form',mangler=frameCode)(center)
         return form
     
     @struct_method

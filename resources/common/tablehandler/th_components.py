@@ -30,66 +30,94 @@ from gnr.core.gnrlang import extract_kwargs
 
 class TableHandlerBase(BaseComponent):
     py_requires='tablehandler/th_list:TableHandlerListBase,tablehandler/th_form:TableHandlerFormBase'
-    
-    @extract_kwargs(widget=True,dialog=True)
+   
+    @struct_method
+    def th_tableViewer(self,pane,frameCode=None,table=None,th_pkey=None,viewResource=None,
+                       reloader=None,virtualStore=None,**kwargs):
+        self.__mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
+        viewer = pane.listPage(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
+                      reloader=reloader,virtualStore=virtualStore,**kwargs)
+        return viewer
+
+    @extract_kwargs(dialog=True,palette=True)
+    @struct_method
+    def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,datapath=None,formResource=None,
+                        dialog_kwargs=None,palette_kwargs=None,**kwargs):
+        self.__mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form')   
+        form = pane.linkedFormPage(frameCode=frameCode,table=table,
+                                    dialog_kwargs=dialog_kwargs,
+                                    palette_kwargs=palette_kwargs,**kwargs)    
+        return form 
+            
+    def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,datapath=None,formResource=None,viewResource=None,
+                            th_iframe=False,reloader=None,virtualStore=False,**kwargs):
+        tableCode = table.replace('.','_')
+        print pane.parentNode.attr
+        th_root = nodeId or '%s_%i' %(tableCode,pane.parentNode._id)
+        listCode='L_%s' %th_root
+        formCode='F_%s' %th_root
+        wdg = pane.child(datapath=datapath or '#FORM.%s'%tableCode,
+                        thlist_root=listCode,
+                        thform_root=formCode,
+                        nodeId=nodeId,
+                        selfsubscribe_load='genro.getForm(this.attr.thform_root).load({destPkey:$1})',
+                        **kwargs)
+        viewpage = wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName='view',
+                                reloader=reloader,virtualStore=virtualStore,tbar_add=True,tbar_del=True,tbar_locker=True)
+        viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
+        viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);'       
+        return wdg
+            
+    @extract_kwargs(dialog=True)
     @struct_method
     def th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            th_iframe=False,widget_kwargs=None,dialog_kwargs=None,reloader=None,**kwargs):
-        pane = self._commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,formResource=formResource,viewResource=viewResource,
+                            th_iframe=False,dialog_kwargs=None,reloader=None,**kwargs):
+        pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,formResource=formResource,viewResource=viewResource,
                                         th_iframe=th_iframe,reloader=reloader,
-                                        widget_kwargs=dict(tag='ContentPane'),**kwargs)        
-        dialog_kwargs = dialog_kwargs #or self._th_hook('dialog',mangler=pane.attributes['thform_root'])()
-        form = pane.linkedFormPage(pageName='form',table=table,loadEvent='onRowDblClick',
-                            form_locked=True,dialog_kwargs=dialog_kwargs)     
+                                        tag='ContentPane',**kwargs)        
+        dialog_kwargs = dialog_kwargs
+        form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',
+                               form_locked=True,dialog_kwargs=dialog_kwargs,attachTo=pane)     
+        return pane
+    
+    @extract_kwargs(palette=True)
+    @struct_method
+    def th_paletteTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
+                            th_iframe=False,palette_kwargs=None,reloader=None,**kwargs):
+        pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,formResource=formResource,viewResource=viewResource,
+                                        th_iframe=th_iframe,reloader=reloader,
+                                        tag='ContentPane',**kwargs)        
+        palette_kwargs = palette_kwargs
+        form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',form_locked=True,palette_kwargs=palette_kwargs,attachTo=pane)     
         return pane
 
     @extract_kwargs(widget=True)
     @struct_method
     def th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
                             th_iframe=False,widget_kwargs=None,reloader=None,**kwargs):
-        widget_kwargs['tag'] = 'StackContainer'
-        widget_kwargs['selectedPage'] = '^.selectedPage'
-        wdg = self._commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,formResource=formResource,
-                                        viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,
-                                        widget_kwargs=widget_kwargs,**kwargs)
-        
-        wdg.linkedFormPage(formRoot=wdg,pageName='form',store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',
-                            form_locked=True,**kwargs)                    
+        kwargs['tag'] = 'StackContainer'
+        kwargs['selectedPage'] = '^.selectedPage'
+        wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,formResource=formResource,
+                                        viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,**kwargs)
+        wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',
+                        store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True)                    
         return wdg
     
-   
-    def _commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,datapath=None,formResource=None,viewResource=None,
-                            th_iframe=False,widget_kwargs=None,reloader=None,virtualStore=False,**kwargs):
-        pkg,tablename = table.split('.')
-        tableCode = table.replace('.','_')
-        th_root = nodeId or tableCode
-        defaultModule = 'th_%s' %tablename
-        def getResourceName(name=None,defaultModule=None,defaultClass=None):
-            if not name:
-                return '%s:%s' %(defaultModule,defaultClass)
-            if not ':' in name:
-                return '%s:%s' %(name,defaultClass)
-            if name.startswith(':'):
-                return '%s%s' %(defaultModule,name)
-            return name
+    def __getResourceName(self,name=None,defaultModule=None,defaultClass=None):
+        if not name:
+            return '%s:%s' %(defaultModule,defaultClass)
+        if not ':' in name:
+            return '%s:%s' %(name,defaultClass)
+        if name.startswith(':'):
+            return '%s%s' %(defaultModule,name)
+        return name
         
-        formResource = getResourceName(formResource,defaultModule,'Form')
-        viewResource = getResourceName(viewResource,defaultModule,'View')
-        thlist_root='L_%s' %th_root
-        thform_root='F_%s' %th_root
-        wdg = pane.child(datapath=datapath or '#FORM.%s'%tableCode,thlist_root=thlist_root,
-                        thform_root=thform_root,nodeId=nodeId,
-                        selfsubscribe_load='genro.getForm(this.attr.thform_root).load({destPkey:$1})',
-                        **widget_kwargs)
-        if th_iframe:
-            self.th_stackIframe(wdg,pkg,tablename)            
-        else:
-            self.mixinComponent(pkg,'tables',tablename,viewResource,defaultModule=defaultModule,defaultClass='View',mangling_th=thlist_root)
-            self.mixinComponent(pkg,'tables',tablename,formResource,defaultModule=defaultModule,defaultClass='Form',mangling_th=thform_root)
-            viewpage = wdg.listPage(frameCode=thlist_root,th_root=thlist_root,th_pkey=th_pkey,table=table,pageName='view',reloader=reloader,virtualStore=virtualStore)
-            viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
-            viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);' #'genro.getForm(this.attr.linkedForm).deleteItem({});'
-        return wdg
+    def __mixinResource(self,rootCode=None,table=None,resourceName=None,defaultClass=None):
+        pkg,tablename = table.split('.')
+        defaultModule = 'th_%s' %tablename
+        resourceName = self.__getResourceName(resourceName,defaultModule,defaultClass)
+        self.mixinComponent(pkg,'tables',tablename,resourceName,mangling_th=rootCode)
+    
                 
     def th_stackIframe(self,sc,pkg,tablename):
         formRunnerUrl='/adm/th/formrunner'
