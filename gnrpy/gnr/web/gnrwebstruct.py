@@ -199,10 +199,9 @@ class GnrDomSrc(GnrStructData):
             obj = self
         for k,v in kwargs.items():
             if isinstance(v,GnrStructData):
-               kwargs[k]="==gnrnode('"+self._registerStructNode(v)+"')"
+                kwargs[k]="==gnrnode('%s')" % v.attributes.setdefault('__id','%s_%i' % (v.parentNode.attr.get('tag',''),id(v.parentNode)))
         return GnrStructData.child(obj, tag, childname=childname, **kwargs)
-    def _registerStructNode(self,structure):
-        return structure.attributes.setdefault('__id',str(id(structure.parentNode)))
+
         
     def htmlChild(self, tag, childcontent, value=None, **kwargs):
         """Create an html child and return it
