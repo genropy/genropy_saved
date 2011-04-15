@@ -293,7 +293,7 @@ class TableHandlerListBase(TableHandlerList):
         pane.dataController("""
             this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
             genro.querybuilder(maintable).buildQueryPane(); 
-        """,_fired='^.query.new',baseQuery='=.baseQuery', maintable=table or self.maintable)
+        """,_fired='^.query.new',baseQuery='=.baseQuery', maintable=table)
         
        #else:
        #    iv.selectionStore(table=table,childname='store',
