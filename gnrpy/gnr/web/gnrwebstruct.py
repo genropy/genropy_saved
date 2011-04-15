@@ -197,8 +197,13 @@ class GnrDomSrc(GnrStructData):
             obj = GnrStructData.child(self, 'div', childname='*_#', **envelope)
         else:
             obj = self
+        for k,v in kwargs.items():
+            if isinstance(v,GnrStructData):
+               kwargs[k]="==gnrnode('"+self._registerStructNode(v)+"')"
         return GnrStructData.child(obj, tag, childname=childname, **kwargs)
-    
+    def _registerStructNode(self,structure):
+        return structure.attributes.setdefault('__id',str(id(structure.parentNode)))
+        
     def htmlChild(self, tag, childcontent, value=None, **kwargs):
         """Create an html child and return it
         

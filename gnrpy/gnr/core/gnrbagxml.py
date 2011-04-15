@@ -236,21 +236,21 @@ class BagToXml(object):
         :param node: add???
         :returns: the XML tag that represent self BagNode.
         """
+        nodeattr = dict(node.attr)
         if self.unresolved and node.resolver != None and not getattr(node.resolver,'_xmlEager',None):
-            newattr = dict(node.attr)
-            newattr['_resolver'] = gnrstring.toJson(node.resolver.resolverSerialize())
+            nodeattr['_resolver'] = gnrstring.toJson(node.resolver.resolverSerialize())
             value = ''
             if isinstance(node._value, Bag):
                 value = self.bagToXmlBlock(node._value)
-            return self.buildTag(node.label, value, newattr, '', xmlMode=True)
+            return self.buildTag(node.label, value, nodeattr, '', xmlMode=True)
 
         nodeValue = node.getValue()
         if isinstance(nodeValue, Bag) and nodeValue: #<---Add the second condition in order to type the empty bag.
             result = self.buildTag(node.label,
-                                   self.bagToXmlBlock(nodeValue), node.attr, '', xmlMode=True)
+                                   self.bagToXmlBlock(nodeValue), nodeattr, '', xmlMode=True)
 
         elif isinstance(nodeValue, BagAsXml):
-            result = self.buildTag(node.label, nodeValue, node.attr, '', xmlMode=True)
+            result = self.buildTag(node.label, nodeValue, nodeattr, '', xmlMode=True)
 
         #elif ((isinstance(nodeValue, list) or isinstance(nodeValue, dict))):
         #    nodeValue = gnrstring.toJson(nodeValue)
