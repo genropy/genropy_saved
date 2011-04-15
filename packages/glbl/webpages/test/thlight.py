@@ -10,15 +10,28 @@ class GnrCustomWebPage(object):
          
     def test_0_localita(self,pane):
         """First test description"""
-        sc = pane.stackTableHandler(widget_height='400px',table='glbl.localita')
+        sc = pane.stackTableHandler(height='400px',table='glbl.localita',virtualStore=True)
         sc.form.store.handler('load',default_provincia='MI')
-
+    
     def test_1_provincia(self,pane):
         """First test description"""
-        sc = pane.stackTableHandler(widget_height='400px',table='glbl.provincia')
+        sc = pane.stackTableHandler(height='400px',table='glbl.provincia',virtualStore=True)
         sc.form.store.handler('load',default_regione='LOM')
+            
+    def test_2_provincia_dialog(self,pane):
+        """First test description"""
+        pane = pane.borderContainer(height='400px')
+        th = pane.dialogTableHandler(region='center',dialog_height='300px',dialog_width='500px',dialog_title='provincia',
+                                    table='glbl.provincia',virtualStore=True)
+        th.form.store.handler('load',default_regione='LOM')
+        
+    def test_3_provincia_palette(self,pane):
+        """First test description"""
+        pane = pane.borderContainer(height='400px')
+        th = pane.paletteTableHandler(region='center',palette_height='300px',palette_width='500px',dialog_title='provincia',
+                                    table='glbl.provincia',virtualStore=True)
+        th.form.store.handler('load',default_regione='LOM')
     
-   #def test_2_provincia2(self,pane):
-   #    """First test description"""
-   #    sc = pane.stackTableHandler(widget_height='400px',nodeId='provinciali',table='glbl.provincia')
-   #    sc.form.store.handler('load',default_regione='LOM')
+    def test_4_provincia_view(self,pane):
+        """First test description"""
+        viewer = pane.tableViewer(frameCode='provinciali',height='400px',table='glbl.provincia',virtualStore=True)
