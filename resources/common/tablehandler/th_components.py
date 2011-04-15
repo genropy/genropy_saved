@@ -53,7 +53,7 @@ class TableHandlerBase(BaseComponent):
                             th_iframe=False,reloader=None,virtualStore=False,**kwargs):
         tableCode = table.replace('.','_')
         print pane.parentNode.attr
-        th_root = nodeId or '%s_%i' %(tableCode,pane.parentNode._id)
+        th_root = nodeId or '%s_%i' %(tableCode,id(pane.parentNode))
         listCode='L_%s' %th_root
         formCode='F_%s' %th_root
         wdg = pane.child(datapath=datapath or '#FORM.%s'%tableCode,
