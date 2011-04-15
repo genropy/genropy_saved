@@ -121,6 +121,16 @@ class GnrDomSrc(GnrStructData):
         return root
         
     makeRoot = classmethod(makeRoot)
+    
+    @property
+    def nodeCounter(self):
+        if not hasattr(self,'_counter'):
+            self._counter=[0]
+        self._counter[0]+=1
+        return self._counter[0]
+    
+    def _onNodeCreated(self,node):
+        node._id= self.root.nodeCounter
         
     def _get_page(self):
         #return self.root._page()
@@ -202,6 +212,9 @@ class GnrDomSrc(GnrStructData):
         else:
             obj = self
         return GnrStructData.child(obj, tag, childname=childname, **kwargs)
+    
+    def identifier(self):
+        return self.parentNode._id
         
     def htmlChild(self, tag, childcontent, value=None, **kwargs):
         """Create an html child and return it
@@ -829,9 +842,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         elif palette_kwargs:
             palette_kwargs[loadSubscriber] = "this.widget.show();"
             palette_kwargs[closeSubscriber] = "this.widget.hide();"
-            formRoot = attachTo.palettePane(**palette_kwargs)
-            
-
+            palette_kwargs['dockTo'] = palette_kwargs.get('dockTo','dummyDock')
+            formRoot = attachTo.palette(**palette_kwargs)
         form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=self.attributes.get('table'),
                                  store=store,pageName=pageName,**kwargs)
         attachTo.form = form
