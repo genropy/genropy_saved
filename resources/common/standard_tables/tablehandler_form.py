@@ -27,8 +27,8 @@ class TableHandlerForm(BaseComponent):
         bc = pane.borderContainer(nodeId='formRoot')
         self.formController(bc)
         self.formToolbar(bc.contentPane(region='top', _class='sttbl_list_top'))
-        center = bc.contentPane(datapath='form',formId='formPane',formDatapath='.record',region='center')
-        self.formBase(center,datapath='.record', disabled='^form.locked')
+        center = bc.borderContainer(datapath='form',formId='formPane',formDatapath='.record',region='center')
+        self.formBase(center,datapath='.record',region='center', disabled='^form.locked')
 
 
     def setLogicalDeletionCheckBox(self, elem):
