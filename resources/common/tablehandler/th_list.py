@@ -82,7 +82,7 @@ class TableHandlerList(BaseComponent):
                 """ 
                 , _init=True,table=table,nodeId='%s_queryscripts' %mangler)
 
-    def _th_queryToolController(self,pane,table=None):
+    def _th_queryToolController(self,pane):
         mangler = pane.attributes['th_root']
         pane.dataController("""
                                genro.querybuilder(mangler).cleanQueryPane(); 
@@ -188,7 +188,7 @@ class TableHandlerListBase(TableHandlerList):
         if queryTool:
             slots = ['queryfb','iv_runbtn','5','|','queryTool','*','count','5']
             slotbarKw['queryfb_table'] = table
-            self._th_queryToolController(frame,table=table)
+            self._th_queryToolController(frame)
         else:
             slots['*','searchOn','count','10']
         if tbar_add:

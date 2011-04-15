@@ -78,6 +78,7 @@ class TableHandlerListLegacy(BaseComponent):
 
     def _th_listController_legacy(self, pane):
         self._th_listController(pane)
+        self._th_queryToolController(pane)
         self._th_listViewStructures(pane)
         pane.data('usr.writePermission', self.userCanWrite())
         pane.data('usr.deletePermission', self.userCanDelete())
@@ -426,8 +427,8 @@ class TableHandlerListLegacy(BaseComponent):
                             runOnStart=querybase.get('runOnStart', False),datapath='list')
         pane.dataController("""
             this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
-            genro.querybuilder(maintable).buildQueryPane(); 
-        """,_fired='^.query.new',baseQuery='=.baseQuery', maintable=self.maintable,datapath='list')
+            genro.querybuilder(mangler).buildQueryPane(); 
+        """,_fired='^.query.new',baseQuery='=.baseQuery',mangler=pane.getInheritedAttributes()['th_root'], maintable=self.maintable,datapath='list')
 
     def _th_setFilter(self):
         filterpath = 'filter.%s' % self.pagename
