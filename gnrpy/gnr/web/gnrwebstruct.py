@@ -199,7 +199,7 @@ class GnrDomSrc(GnrStructData):
             obj = self
         for k,v in kwargs.items():
             if isinstance(v,GnrStructData):
-                kwargs[k]="==gnrnode('%s')" % v.attributes.setdefault('__id','%s_%i' % (v.parentNode.attr.get('tag',''),id(v.parentNode)))
+                kwargs[k]="==__ref('%s')" % v.attributes.setdefault('__ref','%s_%i' % (v.parentNode.attr.get('tag',''),id(v.parentNode)))
         return GnrStructData.child(obj, tag, childname=childname, **kwargs)
 
         
