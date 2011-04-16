@@ -103,7 +103,7 @@ class SelectionHandler(BaseComponent):
                  form_kwargs['palette_kwargs'] = palette_kwargs
                  form_kwargs['loadEvent'] = 'onRowDblClick'
                  form_kwargs['store_onSaved'] = form_kwargs.get('store_onSaved','reload')
-                 form = frameview.iv.linkedForm(**form_kwargs)
+                 form = frameview.grid.linkedForm(**form_kwargs)
                  form.store.handler('load',**default_kwargs)
                  form.top.slotToolbar('navigation,*,|,semaphore,|,formcommands,|,locker')
             return frameview
