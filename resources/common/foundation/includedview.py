@@ -23,50 +23,13 @@ from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
 
-class IncludedViewBase(BaseComponent):
-    css_requires = 'public'
 
-    @struct_method
-    def ivnew_slotbar_iv_runbtn(self,pane,action=None,_class='tb_button db_query',enable=None,**kwargs):
-        return pane.slotButton(label='!!Run query',publish='runbtn',
-                                action=action,baseClass='no_background',
-                                iconClass=_class,visible=enable,**kwargs)
-        
-    @struct_method
-    def ivnew_slotbar_iv_export(self,pane,_class='buttonIcon icnBaseExport',mode='xls',enable=None,**kwargs):
-        return pane.slotButton(label='!!Export',publish='serverAction',command='export',opt_export_mode=mode or 'xls',
-                                baseClass='no_background',iconClass=_class,visible=enable,**kwargs) 
-       
-    @struct_method
-    def ivnew_slotbar_iv_add(self,pane,_class='icnBaseAdd',enable=None,**kwargs):
-        return pane.slotButton(label='!!Add',publish='add',baseClass='no_background',iconClass=_class,visible=enable,**kwargs)
-         
-    @struct_method
-    def ivnew_slotbar_iv_del(self,pane,_class='icnBaseDelete',enable=None,**kwargs):
-        return pane.slotButton(label='!!Delete',publish='del',baseClass='no_background',iconClass=_class,visible=enable,**kwargs)
-    
-    @struct_method
-    def ivnew_slotbar_iv_upd(self,pane,_class='icnBaseEdit',enable=None,**kwargs):
-        return pane.slotButton(label='!!Delete',publish='upd',baseClass='no_background',iconClass=_class,visible=enable,**kwargs)
-            
-    @struct_method
-    def ivnew_bagViewBox(self,pane,frameCode=None,selectionPars=None,reloader=None,table=None,
-                        _onStart=None,caption=None,parentLock='^status.locked',externalChanges=None,
-                        **kwargs):
-        pass
-        
-    @struct_method
-    def ivnew_nestedViewBox(self,pane,frameCode=None,selectionPars=None,reloader=None,table=None,
-                        _onStart=None,caption=None,parentLock='^status.locked',externalChanges=None,
-                        **kwargs):
-        pass
-
-class IncludedView(IncludedViewBase):
+class IncludedView(BaseComponent):
     """
     IncludedView allows you to manage data of the table in relation many to many. includedViewBox is the main method of this class.
     """
     js_requires = 'public'
-    py_requires = 'gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,foundation/macrowidgets:FilterBox'    
+    py_requires = 'gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,gnrcomponents/framegrid:FrameGridSlots,foundation/macrowidgets:FilterBox'    
     
     @struct_method
     def ivnew_adaptSlotbar(self,pane,label=None,slots=None,hasToolbar=False,**kwargs):
@@ -87,7 +50,7 @@ class IncludedView(IncludedViewBase):
             slots.append('*')
         if searchOn:
             slots.append('searchOn')
-        for slot,kw in (('add',add_kw),('del',del_kw),('upd',upd_kw)):
+        for slot,kw in (('addrow',add_kw),('delrow',del_kw),('updrow',upd_kw)):
             if kw:
                 slots.append(slot)
                 slotbarKwargs.update(kw)
