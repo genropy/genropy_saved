@@ -35,8 +35,8 @@ function _px(v){
     }
     return v;
 };
-function gnrnode(ref){
-    return genro.src.serverNode(ref)
+function __ref(ref){
+    return genro.src.serverReference(ref)
 };
 function bagAsObj(bag) {
     var result = {};

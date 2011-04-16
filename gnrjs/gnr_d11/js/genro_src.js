@@ -237,16 +237,18 @@ dojo.declare("gnr.GnrSrcHandler", null, {
 
 
     },
-    serverNode:function(ref){
+    serverReference:function(ref){
         var node=this._serverNodes[ref];
         if (!node){
-            node=this._main.getNodeByAttr('__id',ref)
+            node=this._main.getNodeByAttr('__ref',ref)
             if(node) {
                 this._serverNodes[ref]=node;
             }
         }
-        return node
+        return node.widget || node.domNode
     },
+
+    
     getNode:function(obj,autocreate) {
         var autocreate = autocreate===false?false:true;
         if (!obj) {
