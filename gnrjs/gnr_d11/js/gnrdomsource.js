@@ -875,7 +875,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var that=this;
         var h = handler;
         var handler = function(){
-            funcApply(h, that.currentAttributes(),that);
+            var argNames = [];
+            var argValues = [];
+            for (var i=0; i < arguments.length; i++) {
+                argValues.push(arguments[i]);
+                argNames.push('p_'+i);
+            };
+            var currAttr = that.currentAttributes();
+            funcApply(h, that.currentAttributes(),that,argNames,argValues);
         }
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+command;
         this.registerSubscription(topic,this,handler);
