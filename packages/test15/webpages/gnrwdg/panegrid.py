@@ -14,8 +14,8 @@ class GnrCustomWebPage(object):
    
     def test_7_frame_includedview_target_action(self,pane):
         pane = pane.framePane(frameCode='province',height='200px')
-        tbar = pane.top.slotToolbar('*,iv_add')
-        view = pane.includedView(selfsubscribe_add='console.log("receiving add");')
+        tbar = pane.top.slotToolbar('*,addrow')
+        view = pane.includedView(selfsubscribe_addrow='console.log("receiving add");')
         struct = view.gridStruct('regione')
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore')
 
@@ -23,7 +23,7 @@ class GnrCustomWebPage(object):
     def test_0_frame_includedview_newgrid(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='province',height='200px')
-        tbar = pane.top.slotToolbar('*,iv_export')
+        tbar = pane.top.slotToolbar('*,export')
         view = pane.includedView(_newGrid=True)
         struct = view.gridStruct('regione')
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore')
@@ -51,7 +51,7 @@ class GnrCustomWebPage(object):
         pane = pane.framePane(frameCode='fatture',height='200px')
         tbar = pane.top.slotToolbar('datestart,*,searchOn')
         tbar.datestart.dateTextbox(value='^.date_start')
-        view = pane.includedView(_newGrid=True)
+        view = pane.includedView(_newGrid=True) #'.grid
         struct = view.gridStruct('min')
         view.selectionStore(table='polimed.fattura',where="$data>:date_start",selectionName='*',chunkSize=30,
                             date_start='^.date_start')

@@ -25,12 +25,12 @@ class GnrCustomWebPage(object):
     def test_0_firsttest(self,pane):
         """First test description"""
         frame = pane.framePane('gridtest',height='400px',_class='no_over',datapath='.test')
-        tbar = frame.top.slotToolbar('*,iv_add',iv_add__delay=300)
+        tbar = frame.top.slotToolbar('*,addrow',addrow__delay=300)
         frame.data('.mybag', self.common_data())
         frame.dataController("console.log(data)",data="=#",fired='tt')
         iv = frame.includedView(storepath='.mybag',datapath=False,struct=self.common_struct,datamode='bag',
                                 selectedIndex='.currIndex',
-                                selfsubscribe_add="""
+                                selfsubscribe_addrow="""
                                                      for(var i=0; i<$1._counter;i++){
                                                         this.widget.addBagRow('#id', '*', this.widget.newBagRow());
                                                      }

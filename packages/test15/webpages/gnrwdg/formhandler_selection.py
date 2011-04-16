@@ -74,7 +74,7 @@ class GnrCustomWebPage(object):
     def test_2_linkedForm(self,pane):
         bc = pane.borderContainer(height='250px')
         frame = bc.framePane('province',region='left',width='300px')
-        tb = frame.top.slotToolbar('selector,*,iv_add,10')
+        tb = frame.top.slotToolbar('selector,*,addrow,10')
         tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
         iv = frame.includedView(struct='regione',autoSelect=True)
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',
@@ -129,7 +129,7 @@ class GnrCustomWebPage(object):
         fb.field('ordine')
         fb.field('zona')
         province = bc.framePane('province_regione',region='center',margin='2px',datapath='.#parent.provincia')
-        province.top.slotToolbar('*,iv_add,iv_del',iv_add_parentForm=True,iv_del_parentForm=True)
+        province.top.slotToolbar('*,addrow,delrow',addrow_parentForm=True,delrow_parentForm=True)
         iv = province.includedView(struct='regione',autoSelect=True)
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',r='^.#parent.record.sigla')
         form=iv.linkedForm(frameCode='provincia',loadEvent='onRowDblClick',
