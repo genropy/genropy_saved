@@ -120,7 +120,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'ThumbnailPicker':'dojox.image.ThumbnailPicker',
             'Deck':'dojox.presentation.Deck',
             'Slide':'dojox.presentation.Slide',
-            'Grid':'dojox.grid.Grid:dojox.Grid',
+            'DojoGrid':'dojox.grid.Grid:dojox.Grid',
             'VirtualGrid':'dojox.grid.VirtualGrid:dojox.VirtualGrid',
             'Calendar':'mywidgets.widget.Calendar,mywidgets.widget.Timezones',
             'GoogleMap':'',

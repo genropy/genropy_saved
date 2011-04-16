@@ -35,8 +35,19 @@ function _px(v){
     }
     return v;
 };
-function __ref(ref){
-    return genro.src.serverReference(ref)
+function pyref(ref,mode){    
+    var node = genro.src._main.getNodeByAttr('__ref',ref);
+    if (mode=='w'){
+        return node.widget;
+    }
+    if (mode=='d'){
+        return node.getDomNode();
+    }
+    if (mode=='f'){
+        return node.form;
+    }
+    return node;
+    
 };
 function bagAsObj(bag) {
     var result = {};
@@ -910,9 +921,9 @@ function highlightLinks(text) {
     return text;
 
 }
-function funcApply(fnc, parsobj, scope) {
-    var argNames = [];
-    var argValues = [];
+function funcApply(fnc, parsobj, scope,argNames,argValues) {
+    var argNames = argNames  || [];
+    var argValues = argValues || [];
     for (var attr in parsobj) {
         argNames.push(attr);
         argValues.push(parsobj[attr]);

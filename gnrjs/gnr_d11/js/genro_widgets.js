@@ -1876,10 +1876,10 @@ dojo.declare("gnr.widgets.NumberSpinner", gnr.widgets.NumberTextBox, {
 });
 
 // ********* Grid ************
-dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
+dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     constructor: function(application) {
         this._domtag = 'div';
-        this._dojotag = 'Grid';
+        this._dojotag = 'DojoGrid';
         if (dojo_version == '1.1') {
             if (!dojox.grid) {
                 dojo.require('dojox.grid._grid.builder');
@@ -2756,7 +2756,7 @@ dojo.declare("gnr.widgets.Grid", gnr.widgets.baseDojo, {
     }
 });
 // **************** Virtual Grid ****************
-dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.Grid, {
+dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
     constructor: function(application) {
         this._domtag = 'div';
         this._dojotag = 'VirtualGrid';
@@ -2921,7 +2921,7 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.Grid, {
 });
 
 
-dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.Grid, {
+dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     constructor: function(application) {
         this._domtag = 'div';
         this._dojotag = 'VirtualGrid';

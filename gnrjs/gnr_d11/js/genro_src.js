@@ -35,7 +35,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this._main.setBackRef();
         this._main.subscribe('sourceTriggers', {'any':dojo.hitch(this, "nodeTrigger")});
         this._subscribedNodes = {};
-        this._serverNodes = {};
         this._index = {};
         this.pendingBuild = [];
         this.afterBuildCalls = [];
@@ -237,18 +236,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
 
 
     },
-    serverReference:function(ref){
-        var node=this._serverNodes[ref];
-        if (!node){
-            node=this._main.getNodeByAttr('__ref',ref)
-            if(node) {
-                this._serverNodes[ref]=node;
-            }
-        }
-        return node.widget || node.domNode
-    },
 
-    
     getNode:function(obj,autocreate) {
         var autocreate = autocreate===false?false:true;
         if (!obj) {

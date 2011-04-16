@@ -554,7 +554,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
 
     connect: function(target, eventname, handler, parameters) {
         var eventname = ((!eventname) || eventname == 'action') ? target.gnr._defaultEvent : eventname;
-        var handler = dojo.hitch(this, funcCreate(handler, parameters));
+        var that=this;
+        var h = handler;
+        var handler = function(evt){
+            funcApply(h, objectUpdate({evt:evt},that.currentAttributes()),that,['evt'],[evt]);
+        }
+        
+        //var handler = dojo.hitch(this, funcCreate(handler, parameters));
         if (target.domNode) {/* connect to a widget*/
             if (eventname in target) {
                 dojo.connect(target, eventname, handler);
@@ -866,8 +872,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         subDict[topic] = dojo.subscribe(topic, scope, handler);
     },
     subscribe:function(command,handler){
+        var that=this;
+        var h = handler;
+        var handler = function(){
+            funcApply(h, that.currentAttributes(),that);
+        }
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+command;
-        this.registerSubscription(topic,this,funcCreate(handler))
+        this.registerSubscription(topic,this,handler);
     },
     lazyBuildFinalize:function(){
         if(this.attr._lazyBuild){
@@ -1083,8 +1094,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     }
                     else {
                         var nodeattr = node.attr;
+                        var attrvalue;
                         for (var attr in nodeattr) {
-                            if ((typeof (nodeattr[attr]) == 'string') && node.isPointerPath(nodeattr[attr])) {
+                            attrvalue = nodeattr[attr];
+                            if ((typeof (attrvalue) == 'string') && node.isPointerPath(attrvalue)) {
                                 dflt = (attr == 'value') ? (nodeattr['default'] || nodeattr['default_value'] || '') : nodeattr['default_' + attr];
                                 node.getAttributeFromDatasource(attr, true, dflt);
                             }
