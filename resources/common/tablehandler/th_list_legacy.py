@@ -35,7 +35,7 @@ class TableHandlerListLegacy(BaseComponent):
             toolbarKw['tagsbtn_mode'] = 'list'
         if self.enableFilter():
             tagFilter = 'filtermenu,'
-        pane.slotToolbar('left_top_opener,|,5,queryfb,iv_runbtn,%sviewmenu,%s*,|,list_add,list_locker,5' %(tagSlot,tagFilter),
+        pane.slotToolbar('left_top_opener,|,5,queryfb,%sviewmenu,%s*,|,list_add,list_locker,5' %(tagSlot,tagFilter),
                         **toolbarKw)
 
     
@@ -74,7 +74,18 @@ class TableHandlerListLegacy(BaseComponent):
                 cb(name, handler)
             menuBag.setItem(name, None, caption=handler.__doc__ or name.title() or 'Base')
         return menuBag
-
+        
+    def _th_fieldExplorerCustomQuery(self,result):
+        customQuery = self._th_listCustomCbBag('customQuery_')
+        if customQuery:
+            result.addItem('-', None)
+            for cq in customQuery:
+                result.addItem(cq.label, None, caption=cq.attr['caption'],
+                                   action='SET list.selectmethod= $1.fullpath; FIRE list.runQuery;')
+        result.addItem('-', None)
+        jsresolver = "genro.rpc.remoteResolver('getQuickQuery',null,{cacheTime:'5'})"
+        result.addItem('custquery', jsresolver, _T='JS', caption='!!Custom query',
+                       action='FIRE list.query_id = $1.pkey;')
 
     def _th_listController_legacy(self, pane):
         self._th_listController(pane)

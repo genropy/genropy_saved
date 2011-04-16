@@ -35,7 +35,7 @@ class TableHandlerBase(BaseComponent):
     def th_tableViewer(self,pane,frameCode=None,table=None,th_pkey=None,viewResource=None,
                        reloader=None,virtualStore=None,**kwargs):
         self.__mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
-        viewer = pane.listPage(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
+        viewer = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                       reloader=reloader,virtualStore=virtualStore,**kwargs)
         return viewer
 
@@ -44,7 +44,7 @@ class TableHandlerBase(BaseComponent):
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,datapath=None,formResource=None,
                         dialog_kwargs=None,palette_kwargs=None,**kwargs):
         self.__mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form')   
-        form = pane.linkedFormPage(frameCode=frameCode,table=table,
+        form = pane.thLinkedForm(frameCode=frameCode,table=table,
                                     dialog_kwargs=dialog_kwargs,
                                     palette_kwargs=palette_kwargs,**kwargs)    
         return form 
@@ -60,12 +60,9 @@ class TableHandlerBase(BaseComponent):
                         thlist_root=listCode,
                         thform_root=formCode,
                         nodeId=nodeId,
-                        selfsubscribe_load='genro.getForm(this.attr.thform_root).load({destPkey:$1})',
                         **kwargs)
         viewpage = wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName='view',viewResource=viewResource,
-                                reloader=reloader,virtualStore=virtualStore,tbar_add=True,tbar_del=True,tbar_locker=True)
-        viewpage.iv.attributes['selfsubscribe_add'] = 'genro.getForm(this.attr.linkedForm).load({destPkey:"*newrecord*"});'
-        viewpage.iv.attributes['selfsubscribe_del'] = 'var pkeyToDel = this.widget.getSelectedPkeys(); console.log(pkeyToDel);'       
+                                reloader=reloader,virtualStore=virtualStore,top_slots='#,addrow,delrow,list_locker')    
         return wdg
             
     @extract_kwargs(dialog=True)
@@ -104,7 +101,7 @@ class TableHandlerBase(BaseComponent):
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,**kwargs)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',formResource=formResource,
-                        store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True)                    
+                        store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True)    
         return wdg
     
     def __getResourceName(self,name=None,defaultModule=None,defaultClass=None):
@@ -148,7 +145,7 @@ class StackTableHandlerRunner(BaseComponent):
         root = root.rootContentPane(title=self.tblobj.name_long,bottom=False)
         sc = root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),
                                 formResource=formResource,viewResource=viewResource,virtualStore=True,**kwargs)
-        sc.list.bottom.slotBar('*,messageBox,*',childname='footer',_class='pbl_root_bottom',messageBox_subscribedTo='%s_message' %sc.attributes['thlist_root'])
+        sc.view.bottom.slotBar('*,messageBox,*',childname='footer',_class='pbl_root_bottom',messageBox_subscribedTo='%s_message' %sc.attributes['thlist_root'])
         sc.form.attributes['hasBottomMessage'] = False
         sc.form.bottom.slotBar('*,messageBox,*',childname='footer',_class='pbl_root_bottom',
                             messageBox_subscribeTo='form_%s_form_message' %sc.attributes['thform_root'])
