@@ -89,7 +89,7 @@ def struct_method(func_or_name):
             name = name.split('_', 1)[1]
         register(name, func_or_name)
         return func_or_name
-        
+    
 class GnrDomSrcError(Exception):
     pass
 
@@ -105,6 +105,18 @@ class GnrDomElem(object):
 class GnrDomSrc(GnrStructData):
     """GnrDomSrc class"""
     _external_methods = dict()
+    
+    def nodeRef(self,v,mode=''):
+        return "==pyref('%s','%s')" % (v.attributes.setdefault('__ref','%s_%i' % (v.parentNode.attr.get('tag',''),id(v.parentNode))),mode)
+        
+    def wdgRef(self,v):
+        return self.nodeRef(v,'w')
+    
+    def domRef(self,v):
+        return self.nodeRef(v,'d')
+    
+    def formRef(self,v):
+        return self.nodeRef(v,'f')
     
     def makeRoot(cls, page, source=None):
         """Build the root through the :meth:`gnr.core.gnrstructures.GnrStructData.makeRoot`
@@ -167,7 +179,7 @@ class GnrDomSrc(GnrStructData):
         if childnode:
             return childnode._value
         
-    def child(self, tag, childname=None, envelope=None, **kwargs):
+    def child(self, tag, childname=None,childcontent=None, envelope=None, **kwargs):
         """Set a new item of the ``tag`` type into the current structure through
         the :meth:`gnr.core.gnrstructures.GnrStructData.child` and return it
         
@@ -199,8 +211,8 @@ class GnrDomSrc(GnrStructData):
             obj = self
         for k,v in kwargs.items():
             if isinstance(v,GnrStructData):
-                kwargs[k]="==__ref('%s')" % v.attributes.setdefault('__ref','%s_%i' % (v.parentNode.attr.get('tag',''),id(v.parentNode)))
-        return GnrStructData.child(obj, tag, childname=childname, **kwargs)
+                kwargs[k]=self.nodeRef(v)
+        return GnrStructData.child(obj, tag, childname=childname, childcontent=childcontent,**kwargs)
 
         
     def htmlChild(self, tag, childcontent, value=None, **kwargs):
@@ -680,7 +692,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                'SortList', 'TimeSpinner', 'Iterator', 'ScrollPane',
                'Gallery', 'Lightbox', 'SlideShow', 'ThumbnailPicker', 'Chart',
                'Deck', 'Slide', 'GoogleMap', 'Calendar', 'GoogleChart', 'GoogleVisualization',
-               'Grid', 'VirtualGrid', 'VirtualStaticGrid']
+               'DojoGrid', 'VirtualGrid', 'VirtualStaticGrid']
                
     #gnrNS=['menu','menuBar','menuItem','Tree','Select','DbSelect','Combobox','Data',
     #'Css','Script','Func','BagFilteringTable','DbTableFilter','TreeCheck']
@@ -840,21 +852,23 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeattr = form.store.attributes
             storeattr['storeType'] = 'Collection'
             storeattr['parentStore'] = viewattr['store']
-            self.attributes['connect_%s' %loadEvent] = """
+            gridattr = self.attributes
+            gridattr['currform'] = self.formRef(form)
+            gridattr['connect_%s' %loadEvent] = """
                                                 var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
                                                 if(rowIndex>-1){
-                                                    genro.getForm("%s").load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
+                                                    currform.load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
                                                 }
-                                                """ %frameCode
-            self.attributes['subscribe_form_%s_onLoaded' %formId] ="""
-                                                                    if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
-                                                                        this.widget.selectByRowAttr('_pkey',$1.pkey);
-                                                                    }
+                                                """
+            gridattr['subscribe_form_%s_onLoaded' %formId] ="""
+                                                                if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
+                                                                    this.widget.selectByRowAttr('_pkey',$1.pkey);
+                                                                }
                                                                   """
-            self.attributes['subscribe_form_%s_onSaved' %formId] = "this.widget.reload();"
-            self.attributes['subscribe_form_%s_onDeleted' %formId] = "this.widget.reload(true);"
-            self.attributes['selfsubscribe_add'] = 'genro.getForm("%s").load({destPkey:"*newrecord*"});' %frameCode
-            self.attributes['selfsubscribe_del'] = "alert('should delete')"
+            gridattr['subscribe_form_%s_onSaved' %formId] = "this.widget.reload();"
+            gridattr['subscribe_form_%s_onDeleted' %formId] = "this.widget.reload(true);"
+            gridattr['selfsubscribe_addrow'] = 'currform.newrecord();'
+            gridattr['selfsubscribe_delrow'] = "alert('should delete')"
         return form
         
     def virtualSelectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
@@ -1103,7 +1117,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         self.attributes['target'] = nodeId
         wdg = 'NewIncludedView' if _newGrid else 'includedView'
         relativeWorkspace = kwargs.pop('relativeWorkspace',True)
-        childname=childname or 'iv'
+        childname=childname or 'grid'
         frameattributes = self.attributes
         if not self.attributes.get('frameCode'):
             frameattributes = self.root.getNodeByAttr('frameCode',frameCode).attr
