@@ -324,7 +324,8 @@ dojo.declare("gnr.GnrBagNode", null, {
         }
     },
     
-    getAncestorByAttr:function(attrname){
+    attributeOwnerNode:function(attrname){
+        var curr = this;
         while(curr && !(attrname in curr.attr)){
             curr = curr.getParentNode();
         }

@@ -218,7 +218,12 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         var corners={'left':['top_left','bottom_left'],'right':['top_right','bottom_right'],'top':['top_left','top_right'],'bottom':['bottom_left','bottom_right']}
         dojo.forEach(sides,function(side){
              slot = children.popNode(side);
-             node = slot? slot.getValue().getNode('#0') : children.popNode('#side='+side);
+             if(slot){
+                 node = slot.getValue().getNode('#0');
+                 node.attr = objectUpdate(slot.attr,node.attr);
+             }else{
+                 node = children.popNode('#side='+side);
+             }
              if(node){                 
                  node.attr['frameCode'] = frameCode;
                  objectPop(node.attr,'side');
@@ -622,11 +627,11 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
         var inherithed=sourceNode.getInheritedAttributes()
         kw['showLabel'] = kw.iconClass? (kw['showLabel'] || false):true; 
         var targetNode,prefix;
-        if ('target' in inherithed){
-            target =inherithed.target
-            if(target!=false){
+        var target = objectPop(kw,'target') || inherithed.target;
+        if(target!=false){
+            if(target){
                 targetNode = genro.nodeById(target,sourceNode);
-                prefix = (targetNode.attr.nodeId || targetNode.getStringId())
+                prefix = (targetNode.attr.nodeId || targetNode.getStringId());
             }
         }else{
             prefix=inherithed.slotbarCode

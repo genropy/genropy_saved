@@ -175,7 +175,7 @@ class TableHandlerListBase(BaseComponent):
         queryTool = kwargs['queryTool'] if 'queryTool' in kwargs else virtualStore
         top_kwargs=top_kwargs or dict()
         if queryTool:
-            base_slots = ['queryfb','|','queryTool','*','count','5']
+            base_slots = ['tools','5','queryfb','|','queryTool','*','count','5']
             top_kwargs['queryfb_table'] = table
         else:
             base_slots = ['searchOn','count','*']

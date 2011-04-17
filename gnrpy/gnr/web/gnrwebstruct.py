@@ -1213,11 +1213,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,**kwargs)
         kwargs = tb.attributes
         slots = gnrstring.splitAndStrip(str(slots))
-        frameCode = self.parent.attributes.get('frameCode')
+        frame = self.parent
+        frameCode = frame.attributes.get('frameCode')
         prefix = slotbarCode or frameCode
         for slot in slots:
             if slot!='*' and slot!='|' and not slot.isdigit():
                 s=tb.child('slot',childname=slot)
+                s.frame = frame
                 slothandle = getattr(s,'%s_%s' %(prefix,slot),None)
                 if not slothandle:
                     if namespace:

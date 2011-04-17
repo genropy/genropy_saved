@@ -935,6 +935,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
 
     },
+    
+    inheritedAttribute:function(attr){
+        var node = this.attributeOwnerNode(attr);
+        if(node){
+            return node.getAttributeFromDatasource(attr);
+        }
+    },
+    
     //updateBuiltObj:function(){
     //    for(var attr in this._dynattr){
     //        this.updateAttrBuiltObj(attr);

@@ -14,8 +14,14 @@ class FrameGrid(BaseComponent):
     @extract_kwargs(top=True,grid=True)
     @struct_method
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,**kwargs):
+        kwargs['selfsubscribe_tools'] = """ var bc = this.getWidget();
+                                            genro.dom.toggleClass(bc._left,"visibleBcPane"); 
+                                            bc._layoutChildren("left");"""
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         frame.top.slotToolbar(**top_kwargs)
+        left = frame.left
+        left.slotToolbar('export,updrow')
+        left.attributes['_class'] = 'hiddenBcPane'
         iv = frame.includedView(autoWidth=False,datapath='.grid',selectedId='.selectedId',
                                 struct=struct,sortedBy='^.sorted',
                                  _newGrid=True,**grid_kwargs)
@@ -40,7 +46,9 @@ class FrameGridSlots(BaseComponent):
         return pane.slotButton(label='!!Delete',publish='updrow',baseClass='no_background',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
             
     @struct_method
-    def fgr_slotbar_tools(self,pane,_class='icnBaseAction',enable=None,**kwargs):
-        return pane.slotButton(label='!!Grid options',publish='tools',baseClass='no_background',iconClass=_class,visible=enable,**kwargs)
+    def fgr_slotbar_tools(self,pane,_class='icnBaseArrowDown',enable=None,frameCode=None,**kwargs):
+        return pane.slotButton(label='!!Grid options',publish='tools',target='%s_frame' %frameCode,
+                                baseClass='no_background',iconClass=_class,visible=enable,
+                                **kwargs)
                         
             

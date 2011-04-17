@@ -3990,7 +3990,9 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         kwargs['datamode'] = this.datamode;
         kwargs['struct'] = this.structbag();
         kwargs['data'] = this.collectionStore().getData();
-        var cb = function(result){genro.download(result);};
+        var cb = function(result){
+            genro.download(result);
+        };
         kwargs['meta'] = objectExtract(this.sourceNode.attr, 'meta_*', true);
         genro.rpc.remoteCall(method, kwargs, null, 'POST', null,cb);
     }

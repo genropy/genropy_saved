@@ -829,6 +829,14 @@ div.dojoxDock {
     width:100%;
 }
 
+.hiddenBcPane{
+    display:none;
+}
+
+.visibleBcPane .hiddenBcPane{
+    display:block;
+}
+
 .floatingPopup {
     padding-right: 15px;
 }

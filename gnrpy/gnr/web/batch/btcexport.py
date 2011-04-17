@@ -109,8 +109,7 @@ class BaseResourceExport(BaseResourceBatch):
     def post_process(self):
         self.writer.workbookSave()
         self.fileurl = self.page.site.getStaticUrl('page:output', self.export_mode,
-                                                   '%s.%s' % (self.filename, self.export_mode), nocache=True,
-                                                   download=True)
+                                                   '%s.%s' % (self.filename, self.export_mode))
 
     def prepareFilePath(self, filename=None):
         if not filename:

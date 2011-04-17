@@ -1157,7 +1157,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             respath = 'action/%s' % action
         res_obj = self.page.site.loadTableScript(page=self.page, table=table,
                                                  respath=respath, class_name='Main')
-        return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode, datamode=datamode)
+        result = res_obj.gridcall(data=data, struct=struct, export_mode=export_mode, datamode=datamode)
+        return result
 
 class BatchExecutor(object):
     def __init__(self, page):
