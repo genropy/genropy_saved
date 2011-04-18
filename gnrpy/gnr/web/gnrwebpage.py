@@ -96,7 +96,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._user_login = request_kwargs.pop('_user_login', None)
         self.page_timeout = self.site.config.getItem('page_timeout') or PAGE_TIMEOUT
         self.page_refresh = self.site.config.getItem('page_refresh') or PAGE_REFRESH
-        self.private_kwargs = dict([(k[:2], v)for k, v in request_kwargs.items() if k.startswith('__')])
+        self.private_kwargs = dict([(k[:2], v) for k, v in request_kwargs.items() if k.startswith('__')])
         self.pagetemplate = request_kwargs.pop('pagetemplate', None) or getattr(self, 'pagetemplate', None) or \
                             self.site.config['dojo?pagetemplate'] or 'standard.tpl'
         self.css_theme = request_kwargs.pop('css_theme', None) or getattr(self, 'css_theme', None) or self.site.config[
@@ -343,8 +343,8 @@ class GnrWebPage(GnrBaseWebPage):
     def rpc_doLogin(self, login=None, guestName=None, **kwargs):
         """Service method. Set user's avatar into its connection if:
         
-            * The user exists and his password is correct.
-            * The user is a guest
+        * The user exists and his password is correct.
+        * The user is a guest
             
         :param login: add???. Default value is ``None``
         :param guestName: add???. Default value is ``None``

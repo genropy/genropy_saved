@@ -95,7 +95,9 @@ class ResourceLoader(object):
         
     @property
     def sitemap(self):
-        """add???"""
+        """Return the sitemap Bag (if there is no sitemap, creates it).
+        
+        :returns: the sitemap"""
         if not hasattr(self, '_sitemap'):
             sitemap_path = os.path.join(self.site_path, 'sitemap.xml')
             if not os.path.isfile(sitemap_path):
