@@ -18,22 +18,20 @@ definition
     To make obligations onto user input filling out a :ref:`genro_form_index`,
     Genro provides an helpful developer's tool: the validations.
     
-    The validations are able to decide whether a form (or a single element, like a
-    :ref:`genro_form_widgets_index`) is correct or uncorrect.
+    You can use the validations on every single form elements.
     
-    In Genro you can use a system of javascript validations: they allow to control
-    the user entries, sending a tooltip warning for the uncorrect typing. In a
-    webpage for database table management, if any of the validation is not satisfied,
-    users can't save the actual record on which they are writing until the wrong
-    insertions are corrected.
+    When a validation requirement is not satisfied, user is notified through a tooltip
+    warning. In your :ref:`webpages_webpages`\s for database table management, if any of
+    the validation is not satisfied, users can't save the actual record on which they
+    are writing until the wrong insertions are corrected.
     
     For every validation, you have a list of :ref:`validations_common` through which
     you can modify the standard validation features.
     
 .. _validations_list:
 
-validations list
-================
+Genro validations
+=================
 
     Let's see a complete list of Genro validations:
     
@@ -50,16 +48,13 @@ validations list
     * *validate_gridnodup*: add???
     * *validate_len*: you have many options:
     
-        * *validate_len=NUMBER*: set the precise lenght of the field::
+        * *validate_len='NUMBER:NUMBER'*: set the lenght of the field::
         
+            root.textbox(value='^.name',validate_len='5:30') # from 5 to 30 characters!
+            root.textbox(value='^.fiscal_code',validate_len=':16') # max number: 16
+            root.textbox(value='^.surname',validate_len='2:') # at least 2 characters!
             root.textbox(value='^.fiscal_code',validate_len='16')
             root.textbox(value='^.fiscal_code',validate_len=30)
-        
-        * *validate_len='NUMBER:NUMBER'*: set minimum and maximum values for field's lenght::
-        
-            root.textbox(value='^.name',validate_len='5:30') # from 5 to 30 digits!
-            root.textbox(value='^.fiscal_code',validate_len=':16') # max number: 16
-            root.textbox(value='^.surname',validate_len='2:') # at least 2 digits!
             
     * *validate_nodup*: add???
     * *validate_notnull*: if `True`, set the field as a required field::
@@ -99,36 +94,31 @@ common validations
     Where:
     
     * ``validate_`` is a string, common to every common validation
-    * ``validationName`` is one of the Genro validations
-    * ``validationAttribute`` is one of the validation attributes
+    * ``validationName`` is one of the :ref:`validations_list` showed before
+    * ``validationAttribute`` is one of the following validations:
     
-    Here follows a complete list of the common validations:
-    
-    * *validate_validationName_error*: set a hint tooltip appearing on mouse click
-      for user uncorrect input
-      
-      Example::
-      
-        root.textbox(value='^.email',
-                     validate_email=True,
-                     validate_email_error='Hint tooltip')
-                     
-    * *validate_validationName_onAccept*: perform a javascript action after
-      a correct input
-    
-      Example::
-      
-        root.timetextbox(value='^.orario.inizio',
-                         validate_onAccept="if (value){SET .orario.fine=value;}")
-        root.timetextbox(value='^.orario.fine')
+        * *error*: set a hint tooltip appearing on mouse click for user uncorrect input
+          
+          Example::
+          
+            root.textbox(value='^.email',
+                         validate_email=True,
+                         validate_email_error='Hint tooltip')
+                         
+        * *onAccept*: perform a javascript action after a correct input
         
-    * *validate_validationName_onReject*: perform a javascript action after
-      an uncorrect input
-    
-      Example::
-      
-        root.textBox(value='^.short_string',validate_len=':10',
-                     validate_onReject='alert("The string "+"\'"+value+"\'"+" is too long")')
+          Example::
+          
+            root.timetextbox(value='^.orario.inizio',
+                             validate_onAccept="if (value){SET .orario.fine=value;}")
+            root.timetextbox(value='^.orario.fine')
+            
+        * *onReject*: perform a javascript action after an uncorrect input
+        
+          Example::
+          
+            root.textBox(value='^.short_string',validate_len=':10',
+                         validate_onReject='alert("The string "+"\'"+value+"\'"+" is too long")')
         
 .. _validations_example:
 
