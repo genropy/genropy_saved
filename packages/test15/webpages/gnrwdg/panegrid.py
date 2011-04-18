@@ -115,5 +115,6 @@ class GnrCustomWebPage(object):
         view.selectionStore(table='glbl.localita',where="$nome ILIKE :chunk",chunk='=="%"+_chunk+"%"',
                             _chunk='^.chunk',virtualSelection=True)
     
-
+    def test_9_frame_includedview_framegrid(self,pane):
+        pass
    
