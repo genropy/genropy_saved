@@ -684,7 +684,7 @@ class IncludedView(BaseComponent):
     def includedGrid(self, parentBC, nodeId=None,frameCode=None,datapath=None,struct=None,table=None, 
                         storepath=None, label=None, caption=None,filterOn=None,editorEnabled=None,canSort=True,dropCodes=None,
                         add_kwargs=None,del_kwargs=None,upd_kwargs=None,print_kwargs=None,export_kwargs=None,tools_kwargs=None,
-                        top_kwargs=None,**kwargs):         
+                        top_kwargs=None,datamode=None,**kwargs):         
         assert not 'selectionPars' in kwargs, 'use tableviewer instead of or attach a selectionStore'
         assert not 'formPars' in kwargs, 'no longer supported'
         assert not 'lock_action' in kwargs, 'no longer supported'
@@ -709,7 +709,7 @@ class IncludedView(BaseComponent):
         frameCode = frameCode or 'frame_%s' %nodeId
         datapath = datapath or '#FORM.%s' %frameCode
         frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,
-                                grid_nodeId=nodeId,grid_table=table,**kwargs)
+                                grid_nodeId=nodeId,grid_datamode=datamode,grid_table=table,**kwargs)
         storepath = '#FORM.record%s' %storepath
        # frame.bagStore(storepath=storepath,table=table)
         gridattr = frame.grid.attributes
