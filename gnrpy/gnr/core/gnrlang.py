@@ -67,7 +67,9 @@ def deprecated(func):
     newFunc.__dict__.update(func.__dict__)
     return newFunc
         
-def extract_kwargs(_adapter=None,**extract_kwargs):
+def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
+    if _dictkwargs:
+        extract_kwargs = _dictkwargs
     def decore(func):
         def newFunc(self,*args, **kwargs):
             if _adapter:
