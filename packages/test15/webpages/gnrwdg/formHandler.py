@@ -65,7 +65,7 @@ class GnrCustomWebPage(object):
     
     def test_10_frameform_iv(self,pane):
         "Test FrameForm"
-        form = pane.frameForm(frameCode='regione',border='1px solid silver',datapath='.form',
+        form = pane.frameForm(frameCode='regione_b',border='1px solid silver',datapath='.form',
                             rounded_bottom=10,height='180px',width='600px',pkeyPath='.prov')
         form.testToolbar()
         store = form.formStore(table='glbl.provincia',storeType='Item',handler='recordCluster',startKey='*norecord*',onSaved='reload')
@@ -76,10 +76,10 @@ class GnrCustomWebPage(object):
         self.includedViewBox(bc,label='Comuni',datapath='comuni',
                              nodeId='comuni',table='glbl.localita',
                              struct='min',
-                             reloader='^#regione_form.record.id', 
+                             reloader='^#regione_b_form.record.id', 
                              selectionPars=dict(where='$provincia=:provincia_id',
-                             provincia_id='^#regione_form.record.sigla'))    
-        
+                             provincia_id='^#regione_b_form.record.sigla'))    
+
     def test_2_formPane_dbl_cp(self,pane):
         bc = pane.borderContainer(height='180px')
         bc.formTester(frameCode='form_a',region='left',datapath='.pane1',width='50%',border='1px solid gray',margin_right='5px')
@@ -92,7 +92,7 @@ class GnrCustomWebPage(object):
         bc.contentPane(region='center')
         tc = topbc.tabContainer(region='left',splitter=True,width='600px',nodeId='mytc')
         topbc.contentPane(region='center').div('pippo')
-        t1 = tc.contentPane(title='Dummy',background_color='red',onCreated='console.log("I was hoping")')
+        t1 = tc.contentPane(title='Dummy',background_color='red')
         t2 = tc.borderContainer(title='My Form',_lazyBuild=True)
         t2.formTester('form_tc',region='center')
         tc.contentPane(title='Third one')
@@ -147,7 +147,7 @@ class GnrCustomWebPage(object):
         
 
     def test_111_frame_formdatapath(self,pane):
-        form = pane.frameForm(frameCode='regione',border='1px solid silver',datapath='.form',
+        form = pane.frameForm(frameCode='regione_a',border='1px solid silver',datapath='.form',
                             rounded_bottom=10,height='180px',width='600px',
                             pkeyPath='.prov')
         form.formStore(table='glbl.provincia',storeType='Item',
