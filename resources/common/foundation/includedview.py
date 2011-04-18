@@ -29,7 +29,7 @@ class IncludedView(BaseComponent):
     IncludedView allows you to manage data of the table in relation many to many. includedViewBox is the main method of this class.
     """
     js_requires = 'public'
-    py_requires = 'gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,gnrcomponents/framegrid:FrameGridSlots,foundation/macrowidgets:FilterBox'    
+    py_requires = 'gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,gnrcomponents/framegrid:FrameGrid,foundation/macrowidgets:FilterBox'    
     
     @struct_method
     def ivnew_adaptSlotbar(self,pane,label=None,slots=None,hasToolbar=False,**kwargs):
@@ -678,3 +678,66 @@ class IncludedView(BaseComponent):
                                       gridId=gridId, **toolbarPars)
         self._includedViewFormBody(recordBC, controller, storepath, gridId, formPars)
         
+
+
+    @extract_kwargs(_dictkwargs={'add':True,'del':True,'upd':True,'print':True,'export':True,'tools':True,'top':True})
+    def includedGrid(self, parentBC, nodeId=None,frameCode=None,datapath=None,struct=None,table=None, 
+                        storepath=None, label=None, caption=None,filterOn=None,editorEnabled=None,canSort=True,dropCodes=None,
+                        add_kwargs=None,del_kwargs=None,upd_kwargs=None,print_kwargs=None,export_kwargs=None,tools_kwargs=None,
+                        top_kwargs=None,**kwargs):         
+        assert not 'selectionPars' in kwargs, 'use tableviewer instead of or attach a selectionStore'
+        assert not 'formPars' in kwargs, 'no longer supported'
+        assert not 'lock_action' in kwargs, 'no longer supported'
+        assert not 'footer' in kwargs, 'no longer supported'
+        assert not '_onStart' in kwargs, 'no longer supported'
+        assert not 'pickerPars' in kwargs, 'no longer supported'
+        assert not 'centerPaneCb' in kwargs, 'no longer supported'
+        assert not 'parentLock' in kwargs, 'no longer supported'
+        assert not 'reloader' in kwargs, 'no longer supported'
+        assert not 'externalChanges' in kwargs, 'no longer supported'
+        assert not 'addOnCb' in kwargs, 'no longer supported'
+        assert not 'hasToolbar' in kwargs, 'no longer supported'
+        assert not 'zoom' in kwargs, 'no longer supported'
+        assert not 'configurable' in kwargs, 'no longer supported'
+        assert not print_kwargs, 'provided by default'
+        assert not export_kwargs, 'provided by default'
+        assert (frameCode or nodeId), 'nodeId or frameCode must be provided'
+        assert storepath,'this adapter is for grid with storepath'
+        
+        parentBC.attributes['tag'] = 'ContentPane'
+        pane = parentBC
+        frameCode = frameCode or 'frame_%s' %nodeId
+        datapath = datapath or '#FORM.%s' %frameCode
+        frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,
+                                grid_nodeId=nodeId,grid_table=table,**kwargs)
+        storepath = '#FORM.record%s' %storepath
+       # frame.bagStore(storepath=storepath,table=table)
+        gridattr = frame.grid.attributes
+        gridattr['storepath'] = storepath
+        gridattr['selfsubscribe_addrow'] = """for(var i=0; i<$1._counter;i++){
+                                                this.widget.addBagRow('#id', '*', this.widget.newBagRow(),$1.evt);
+                                              }
+                                              this.widget.editBagRow(null);"""
+        gridattr['selfsubscribe_delrow'] = """this.widget.delBagRow('*', true);FIRE .onDeletedRow;"""
+        gridattr['tag'] = 'includedview'
+        if dropCodes:
+            frame.grid.dragAndDrop(dropCodes)
+        slots = ['tools,2']
+        slotsKw = {}
+        if label:
+            slots.append('label,*')
+            slotsKw['label'] = label
+        else:
+            slots.append('*')
+        if add_kwargs:
+            action = add_kwargs.get('action')
+            slots.append('addrow')
+            assert not isinstance(action,basestring), 'custom action are not supported'
+        if del_kwargs:
+            action = add_kwargs.get('action')
+            slots.append('delrow')
+            assert not isinstance(action,basestring), 'custom action are not supported'
+        frame.top.slotToolbar(','.join(slots),**slotsKw)        
+        return frame.grid
+  
+            
