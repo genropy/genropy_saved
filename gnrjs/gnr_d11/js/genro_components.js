@@ -641,7 +641,7 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
             kw.topic = prefix?prefix+'_'+publish:publish;
             kw.command = kw.command || null;
             kw.opt = objectExtract(kw,'opt_*');
-            kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),opt:opt,_counter:_counter});";
+            kw['action'] = "genro.publish(topic,{'command':command,modifiers:genro.dom.getEventModifiers(event),evt:event,opt:opt,_counter:_counter});";
         }
         return sourceNode._('button',kw);
     }
@@ -897,6 +897,39 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
 });
 
 //STORES
+
+//dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
+//     contentKwargs: function(sourceNode, attributes) {
+//         if ('name' in attributes){
+//             attributes['_name'] = objectPop(attributes,'name');
+//         }
+//         if ('content' in attributes){
+//             attributes['_content'] = objectPop(attributes,'content');
+//         }
+//         attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
+//         return attributes;
+//     },
+//
+//     createContent:function(sourceNode, kw,children) {
+//         var storepath = objectPop(kw,'storepath');
+//         
+//         var storeType = chunkSize? 'VirtualSelection':'Selection';
+//         kw.row_count = chunkSize;
+//         var storeType = kw.row_count? 'VirtualSelection':'Selection';
+//         var identifier = objectPop(kw,'_identifier') || '_pkey';
+//         var selectionStore = sourceNode._('dataRpc',kw);
+//         var cb = "this.store.onLoaded(result,_isFiredNode);"
+//         selectionStore._('callBack',{content:cb});
+//         var rpcNode = selectionStore.getParentNode();
+//         rpcNode.store = new gnr.stores[storeType](rpcNode,{'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType});
+//         return selectionStore;
+//     }
+//});
+
+
+
+
+
 
 dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
      contentKwargs: function(sourceNode, attributes) {
