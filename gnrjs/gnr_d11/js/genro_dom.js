@@ -1241,10 +1241,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     isHidden:function(what){
         var what = this.getDomNode(what);
-        var coords = dojo.coords(what);
-        for(var k in coords){
-            if(coords[k]!=0){
-                return false;
+        if (what){
+            var coords = dojo.coords(what);
+            for(var k in coords){
+                if(coords[k]!=0){
+                    return false;
+                }
             }
         }
         return true;
