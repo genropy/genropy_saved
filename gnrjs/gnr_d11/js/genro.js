@@ -984,7 +984,7 @@ dojo.declare('gnr.GenroClient', null, {
             if(nodeId=='FORM'){
                 nodeId = scope.getInheritedAttributes().formId;
                 if (!nodeId){
-                    node=scope.getParentNode();
+                    node=scope.attributeOwnerNode('_fakeform') || scope.getParentNode();
                 }
             }            
         }
