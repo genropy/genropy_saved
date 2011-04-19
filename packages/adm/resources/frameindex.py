@@ -11,11 +11,14 @@ class Mixin(BaseComponent):
     js_requires='frameindex'
     plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin'
     index_url = None
-    showTabs = False
+    showTabs = True
     
     def rootWidget(self, root, **kwargs):
         tag = 'TabContainer' if self.showTabs else 'StackContainer'
         return root.child(tag=tag,selectedPage='^selectedFrame',nodeId='center_stack',region='center')
+    
+    #def mainBottomContent(self,rootBc,splitter=None,**kwargs):
+    #    pane = rootBc.contentPane(height='20px',**kwargs)
     
     def main(self, root, **kwargs):
         page = self.pageSource()
