@@ -467,6 +467,14 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             params.mode = params.mode ? params.mode : 'text';
             return genro.remoteUrl(attributes['rpcCall'], params, sourceNode, false);
 
+        }else if(attributes['main']){
+            var main_call = objectPop(attributes,'main');
+            var main_kwargs = objectExtract(attributes,'main_*');
+            var url = window.location.href;
+            main_kwargs['main_call'] = main_call;
+            main_kwargs = sourceNode.evaluateOnNode(main_kwargs);
+            url = genro.addParamsToUrl(url,main_kwargs);
+            return url;
         }
     },
     set_print:function(domnode, v, kw) {
