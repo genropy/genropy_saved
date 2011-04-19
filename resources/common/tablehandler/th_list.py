@@ -171,8 +171,11 @@ class TableHandlerListBase(BaseComponent):
     @extract_kwargs (top=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,reloader=None,virtualStore=None,
-                       top_kwargs=None,**kwargs):
+                       top_kwargs=None,condition=None,condition_kwargs=None,**kwargs):
         queryTool = kwargs['queryTool'] if 'queryTool' in kwargs else virtualStore
+        condition_kwargs = condition_kwargs or dict()
+        if condition_kwargs:
+            condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if queryTool:
             base_slots = ['tools','5','queryfb','|','queryTool','*','count','5']
@@ -191,7 +194,8 @@ class TableHandlerListBase(BaseComponent):
         self._th_listController(frame,table=table)
         if queryTool:
             self._th_queryToolController(frame)
-        frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey,virtualStore=virtualStore)
+        frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey,virtualStore=virtualStore,
+                        condition=condition_kwargs)
         return frame
 
     @struct_method
@@ -210,12 +214,15 @@ class TableHandlerListBase(BaseComponent):
                     subscribe_form_formPane_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""")
     @struct_method
-    def th_gridPane(self, frame,table=None,reloader=None,th_pkey=None,virtualStore=None):
+    def th_gridPane(self, frame,table=None,reloader=None,th_pkey=None,
+                        virtualStore=None,condition=None):
         table = table or self.maintable
         mangler = frame.getInheritedAttributes()['th_root']
         order_by=self._th_hook('order',mangler=mangler)()
         frame.data('.grid.sorted',order_by)
-        condition = self._th_hook('condition',mangler=mangler)()
+        if not condition:
+            condition = self._th_hook('condition',mangler=mangler)()
+        
         if th_pkey:
             querybase = dict(column=self.db.table(table).pkey,op='equal',val=th_pkey,runOnStart=True)
         else:

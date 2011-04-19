@@ -30,27 +30,39 @@ from gnr.core.gnrlang import extract_kwargs
 
 class TableHandlerBase(BaseComponent):
     py_requires='tablehandler/th_list:TableHandlerListBase,tablehandler/th_form:TableHandlerFormBase'
-   
+    
+    @extract_kwargs(condition=True)
     @struct_method
-    def th_tableViewer(self,pane,frameCode=None,table=None,th_pkey=None,viewResource=None,
-                       reloader=None,virtualStore=None,**kwargs):
+    def th_tableViewer(self,pane,frameCode=None,table=None,relation=None,th_pkey=None,viewResource=None,
+                       reloader=None,virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
+        if relation:
+            table,condition = self.__relationExpand(pane,relation=relation,condition=condition,condition_kwargs=condition_kwargs,**kwargs)             
         self.__mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
         viewer = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
-                      reloader=reloader,virtualStore=virtualStore,**kwargs)
+                                 reloader=reloader,virtualStore=virtualStore,
+                                 condition=condition,condition_kwargs=condition_kwargs,**kwargs)
         return viewer
 
-    @extract_kwargs(dialog=True,palette=True)
+    @extract_kwargs(dialog=True,palette=True,default=True)
     @struct_method
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,datapath=None,formResource=None,
-                        dialog_kwargs=None,palette_kwargs=None,**kwargs):
+                        dialog_kwargs=None,palette_kwargs=None,default_kwargs=None,**kwargs):
+        table = table or pane.attributes.get('table')
         self.__mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form')   
         form = pane.thLinkedForm(frameCode=frameCode,table=table,
                                     dialog_kwargs=dialog_kwargs,
                                     palette_kwargs=palette_kwargs,**kwargs)    
+        rpc = form.store.handler('load',**default_kwargs)
         return form 
             
-    def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,datapath=None,viewResource=None,
-                            th_iframe=False,reloader=None,virtualStore=False,**kwargs):
+    @extract_kwargs(condition=True)
+    def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
+                            th_iframe=False,reloader=None,virtualStore=False,condition=None,condition_kwargs=None,
+                            default_kwargs=None,**kwargs):
+        if relation:
+            table,condition = self.__relationExpand(pane,relation=relation,condition=condition,
+                                                    condition_kwargs=condition_kwargs,
+                                                    default_kwargs=default_kwargs,**kwargs)
         tableCode = table.replace('.','_')
         th_root = nodeId or '%s_%i' %(tableCode,id(pane.parentNode))
         listCode='L_%s' %th_root
@@ -59,48 +71,64 @@ class TableHandlerBase(BaseComponent):
                         thlist_root=listCode,
                         thform_root=formCode,
                         nodeId=nodeId,
+                        table=table,
                         **kwargs)
         viewpage = wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName='view',viewResource=viewResource,
-                                reloader=reloader,virtualStore=virtualStore,top_slots='#,addrow,delrow,list_locker')    
+                                reloader=reloader,virtualStore=virtualStore,top_slots='#,addrow,delrow,list_locker',
+                                condition=condition,condition_kwargs=condition_kwargs)    
         return wdg
             
-    @extract_kwargs(dialog=True)
+    def __relationExpand(self,pane,relation=None,condition=None,condition_kwargs=None,default_kwargs=None,**kwargs):
+        maintable=kwargs.get('maintable') or pane.getInheritedAttributes().get('table') or self.maintable
+        relation_attr = self.db.table(maintable).model.getRelation(relation)
+        many = relation_attr['many'].split('.')
+        fkey = many.pop()
+        table = str('.'.join(many))
+        fkey = str(fkey)
+        condition_kwargs['fkey'] = '^#FORM.pkey'
+        basecondition = '$%s=:fkey' %fkey       
+        condition = basecondition if not condition else '(%s) AND (%s)' %(basecondition,condition)  
+        default_kwargs['default_%s' %fkey] = '=#FORM/parent/#FORM.pkey'
+        return table,condition 
+    
+    @extract_kwargs(dialog=True,default=True)
     @struct_method
     def th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            th_iframe=False,dialog_kwargs=None,reloader=None,**kwargs):
+                            th_iframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,**kwargs):      
         pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,
-                                        tag='ContentPane',**kwargs)        
-        dialog_kwargs = dialog_kwargs
+                                        tag='ContentPane',default_kwargs=default_kwargs,**kwargs)        
         form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',
-                               form_locked=True,dialog_kwargs=dialog_kwargs,attachTo=pane,formResource=formResource)     
+                               form_locked=True,dialog_kwargs=dialog_kwargs,attachTo=pane,
+                               formResource=formResource,default_kwargs=default_kwargs)     
         return pane
     
-    @extract_kwargs(palette=True)
+    @extract_kwargs(palette=True,default=True)
     @struct_method
     def th_paletteTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            th_iframe=False,palette_kwargs=None,reloader=None,**kwargs):
+                            th_iframe=False,palette_kwargs=None,default_kwargs=None,reloader=None,**kwargs):
         pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,
                                         th_iframe=th_iframe,reloader=reloader,
+                                        default_kwargs=default_kwargs,
                                         tag='ContentPane',**kwargs)        
         palette_kwargs = palette_kwargs
         form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,
                                 formResource=formResource,
                                 loadEvent='onRowDblClick',form_locked=True,
-                                palette_kwargs=palette_kwargs,attachTo=pane)     
+                                palette_kwargs=palette_kwargs,attachTo=pane,default_kwargs=default_kwargs)     
         return pane
 
-    @extract_kwargs(widget=True)
+    @extract_kwargs(widget=True,default=True)
     @struct_method
     def th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            th_iframe=False,widget_kwargs=None,reloader=None,**kwargs):
+                            th_iframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,**kwargs):
         kwargs['tag'] = 'StackContainer'
         kwargs['selectedPage'] = '^.selectedPage'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,**kwargs)
+                                        viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,default_kwargs=default_kwargs,**kwargs)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',formResource=formResource,
-                        store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True)    
+                        store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True,default_kwargs=default_kwargs)    
         return wdg
     
     def __getResourceName(self,name=None,defaultModule=None,defaultClass=None):

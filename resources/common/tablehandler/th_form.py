@@ -29,7 +29,7 @@ class TableHandlerFormBase(BaseComponent):
     py_requires='gnrcomponents/formhandler:FormHandler,tablehandler/th_core:TableHandlerCommon'
     css_requires='public'
     @struct_method
-    def th_thLinkedForm(self,th,frameCode=None,table=None,**kwargs):
+    def th_thLinkedForm(self,th,frameCode=None,table=None,relation=None,**kwargs):
         form = th.view.grid.linkedForm(frameCode=frameCode,th_root=frameCode,datapath='.form',childname='form',**kwargs)  
         toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
                                         dismiss_iconClass='tb_button tb_listview',namespace='form')
