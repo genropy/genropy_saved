@@ -38,7 +38,7 @@ gnrlogger = logging.getLogger(__name__)
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrlist
 
-from gnr.core.gnrlang import getUuid
+from gnr.core.gnrlang import getUuid, extract_kwargs
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
@@ -799,12 +799,12 @@ class GnrWebAppHandler(GnrBaseProxy):
             return
         for f in aux:
             recInfo['locking_%s' % f] = aux[f]
-
+    @extract_kwargs(default=True)
     def rpc_getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,
                       ignoreMissing=True, ignoreDuplicate=True, lock=False, readOnly=False,
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                      loadingParameters=None, eager=None, virtual_columns=None, **kwargs):
+                      loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None, **kwargs):
         t = time.time()
         dbtable = dbtable or table
         if pkg:
@@ -838,8 +838,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if lock:
                 self._getRecord_locked(tblobj, record, recInfo)
         loadingParameters = loadingParameters or {}
-        defaultParameters = dict([(k[8:], v) for k, v in kwargs.items() if k.startswith('default_')])
-        loadingParameters.update(defaultParameters)
+        loadingParameters.update(default_kwargs)
         method = None
         if loadingParameters:
             method = loadingParameters.pop('method', None)
@@ -855,8 +854,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             handler = getattr(self.page, method, None)
 
         if handler:
-            if defaultParameters and newrecord:
-                self.setRecordDefaults(record, defaultParameters)
+            if default_kwargs and newrecord:
+                self.setRecordDefaults(record, default_kwargs)
             handler(record, newrecord, loadingParameters, recInfo)
         elif newrecord and loadingParameters:
             self.setRecordDefaults(record, loadingParameters)

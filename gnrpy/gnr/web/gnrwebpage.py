@@ -96,7 +96,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._user_login = request_kwargs.pop('_user_login', None)
         self.page_timeout = self.site.config.getItem('page_timeout') or PAGE_TIMEOUT
         self.page_refresh = self.site.config.getItem('page_refresh') or PAGE_REFRESH
-        self.private_kwargs = dict([(k[:2], v) for k, v in request_kwargs.items() if k.startswith('__')])
+        self.private_kwargs = dict([(k[:2], v)for k, v in request_kwargs.items() if k.startswith('__')])
         self.pagetemplate = request_kwargs.pop('pagetemplate', None) or getattr(self, 'pagetemplate', None) or \
                             self.site.config['dojo?pagetemplate'] or 'standard.tpl'
         self.css_theme = request_kwargs.pop('css_theme', None) or getattr(self, 'css_theme', None) or self.site.config[
@@ -343,8 +343,8 @@ class GnrWebPage(GnrBaseWebPage):
     def rpc_doLogin(self, login=None, guestName=None, **kwargs):
         """Service method. Set user's avatar into its connection if:
         
-        * The user exists and his password is correct.
-        * The user is a guest
+            * The user exists and his password is correct.
+            * The user is a guest
             
         :param login: add???. Default value is ``None``
         :param guestName: add???. Default value is ``None``
@@ -1138,6 +1138,7 @@ class GnrWebPage(GnrBaseWebPage):
         :returns: add???
         """
         page = self.domSrcFactory.makeRoot(self)
+        
         self._root = page
         pageattr = {}
         #try :
@@ -1210,9 +1211,14 @@ class GnrWebPage(GnrBaseWebPage):
                                     """, subscribe_main_left_set_status=True,
                                     current_status='=_clientCtx.mainBC.left?show', left_width='=_clientCtx.mainBC.left')
 
-                rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
-                self.main(rootwdg, **kwargs)
-                self.onMainCalls()
+               
+                main_call = kwargs.pop('main_call', None)
+                if main_call:
+                    getattr(self,'main_%s' %main_call)(root.contentPane(region='center',nodeId='_pageRoot'),**kwargs)
+                else:
+                    rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
+                    self.main(rootwdg, **kwargs)
+                    self.onMainCalls()
                 if self.avatar:
                     page.data('gnr.avatar', Bag(self.avatar.as_dict()))
                 page.data('gnr.polling.user_polling', self.user_polling)
