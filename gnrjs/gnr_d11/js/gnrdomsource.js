@@ -1453,20 +1453,32 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
     getChild:function(childpath){
         childpath = childpath.split('/');
         var curr = this;
+        var node;
         dojo.forEach(childpath,function(childname){
-            node=curr.walk(function(n){
+            if (childname=='parent'){
+                node=curr.getParentNode().getParentNode()
+                curr=node.getValue();
+            }else if(childname.indexOf('#')==0){
+                node=curr.getParentNode().
+                node=node.nodeById(childname.slice(1))
+                curr=node.getValue();
+            }
+            else{
+                node=curr.walk(function(n){
                 if('_childname' in n.attr){
                     return n.attr._childname==childname?n:true;
                 }
-            },'static');
-            if (node==true){
-                return;
-            }else{
-                curr=node.getValue();
-                if(!(curr instanceof gnr.GnrBag)){
+                },'static');
+                if (node==true){
                     return;
+                }else{
+                    curr=node.getValue();
+                    if(!(curr instanceof gnr.GnrBag)){
+                        return;
+                    }
                 }
             }
+            
         });
         return node;
     }
