@@ -157,7 +157,7 @@ class TableHandlerBase(BaseComponent):
         rootattr['_fakeform'] = True
         rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
         root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
-        getattr(self,methodname)(root,**kwargs)
+        getattr(self,'iframe_%s' %methodname)(root,**kwargs)
     
     def th_stackIframe(self,sc,pkg,tablename):
         formRunnerUrl='/adm/th/formrunner'
