@@ -146,7 +146,19 @@ class TableHandlerBase(BaseComponent):
         resourceName = self.__getResourceName(resourceName,defaultModule,defaultClass)
         self.mixinComponent(pkg,'tables',tablename,resourceName,mangling_th=rootCode)
     
-                
+    @struct_method
+    def th_thIframe(self,pane,method=None):     
+        pane.iframe(main='thIframeDispatcher',main_methodname=method,main_pkey='=#FORM.pkey')
+        pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
+    
+    def rpc_thIframeDispatcher(self,root,methodname=None,pkey=None,**kwargs):
+        rootattr = root.attributes
+        rootattr['datapath'] = 'main'
+        rootattr['_fakeform'] = True
+        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
+        root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
+        getattr(self,methodname)(root,**kwargs)
+    
     def th_stackIframe(self,sc,pkg,tablename):
         formRunnerUrl='/adm/th/formrunner'
         viewRunnerUrl='/adm/th/viewrunner'
