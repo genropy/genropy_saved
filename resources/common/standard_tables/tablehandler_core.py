@@ -207,7 +207,7 @@ class LstUserObjects(BaseComponent):
                            _fired="^#deleteUserObject.deleted", restype=restype,
                            objtype='=#userobject_dlg.pars.objtype',
                            _if='objtype==restype')
-        top.div(content='^.%s?code' % resname, _class='st_editor_title')
+        top.div(innerHTML='^.%s?code' % resname, _class='st_editor_title')
         pane.div(_class='st_editor_body st_editor_%s' % restype, nodeId='%s_root' % restype, datapath=datapath)
 
 
