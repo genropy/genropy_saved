@@ -379,8 +379,10 @@ dojo.declare("gnr.widgets.baseHtml", null, {
             newobj.validate_replaced = newobj.validate;
             newobj.validate = function(isFocused){
                 var isValid = this.validate_replaced(isFocused);
-                if (this.sourceNode.form && !isFocused){
-                    this.sourceNode.form.dojoValidation(this,isValid) 
+                var sourceNode = this.sourceNode;
+                var gridwidget = sourceNode.attr.gridcell;
+                if (sourceNode.form && !isFocused && !gridwidget){
+                    sourceNode.form.dojoValidation(this,isValid) 
                 }
                 return isValid;
             }            
