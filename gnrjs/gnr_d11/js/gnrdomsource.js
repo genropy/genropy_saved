@@ -835,20 +835,25 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             lazyChildren = this.lazyBuildFinalize();
         }else{
             lazyChildren = this.getValue('static').walk(function(n){
-                var visible = null;
-                var widget = n.widget;
-                if (widget && widget._isShown){
-                    visible = widget._isShown();
-                }else{
-                    visible = !genro.dom.isHidden(n);
-                }
-                if(n.attr._lazyBuild && visible){
+                if(n.attr._lazyBuild && n.isVisible()){
                    return n.lazyBuildFinalize();
                 }
             });
         }
         return lazyChildren;
     },
+    
+    isVisible:function(){
+        var visible = null;
+        var widget = this.widget;
+        if (widget && widget._isShown){
+            visible = widget._isShown();
+        }else{
+            visible = !genro.dom.isHidden(this);
+        }
+        return visible;
+    },
+    
     publish:function(msg,kw,recursive){
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+msg;
         dojo.publish(topic,[kw]);

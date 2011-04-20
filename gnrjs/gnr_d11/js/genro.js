@@ -232,6 +232,7 @@ dojo.declare('gnr.GenroClient', null, {
         });
 
         genro.callAfter(function() {
+            genro.src._main.getNode('#0').finalizeLazyBuildChildren();
             genro.fireEvent('gnr.onStart');
             genro.publish('onPageStart');
         }, 100);
