@@ -331,7 +331,17 @@ class GnrDomSrc(GnrStructData):
         """
         self.child('callBack',childcontent=cb,**kwargs)
         return self
-        
+
+    def iframe(self, childcontent=None,main=None, **kwargs):
+        if main:
+            parentattr = self.attributes
+            parentattr['overflow'] = 'hidden'
+            parentattr['_lazyBuild'] = True
+            kwargs['height'] = '100%'
+            kwargs['width'] = '100%'
+            kwargs['border'] = 0
+        return self.htmlChild('iframe',  childcontent=childcontent,main=main ,**kwargs)
+    
     def htmlform(self,childcontent=None,**kwargs):
         return self.htmlChild('form',  childcontent=childcontent, **kwargs)
 

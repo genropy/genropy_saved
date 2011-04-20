@@ -1214,7 +1214,10 @@ class GnrWebPage(GnrBaseWebPage):
                
                 main_call = kwargs.pop('main_call', None)
                 if main_call:
-                    getattr(self,'main_%s' %main_call)(root.contentPane(region='center',nodeId='_pageRoot'),**kwargs)
+                    main_handler = self.getPublicMethod('rpc',main_call) 
+                    if main_handler:
+                        main_handler(root.contentPane(region='center',nodeId='_pageRoot'),**kwargs)
+                    
                 else:
                     rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
                     self.main(rootwdg, **kwargs)
