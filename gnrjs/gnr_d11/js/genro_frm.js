@@ -1245,6 +1245,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var currPkey = this.form.getCurrentPkey();
         var cb = function(result){
             that.loaded(currPkey,result);
+            return result;
         };
         var dkw = {};
         for (var k in default_kw){
