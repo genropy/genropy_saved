@@ -232,7 +232,8 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
                      if(v){
                          node.attr['rounded_'+c] = v;
                      }
-                 })             
+                 }) 
+                 node.attr['_childname'] = node.attr['_childname'] || side;
                  bc._('ContentPane',side,{'region':side}).setItem('#id',node._value,node.attr);
              }
         });
@@ -254,10 +255,12 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         if(centerNode){
             objectPop(centerNode.attr,'side');
             centerNode.attr['region'] = 'center';
+            centerNode.attr['_childname'] = centerNode.attr['_childname'] || 'center';
             bc.setItem('center',centerNode._value,objectUpdate(rounded,centerNode.attr));
             center = centerNode._value;
         }else{
             centerPars['region'] = 'center';
+            centerPars['_childname'] = centerPars['_childname'] || 'center';
             centerPars['widget'] = centerPars['widget'] || 'ContentPane'
             center = bc._(centerPars['widget'],'center',objectUpdate(rounded,centerPars));
         }
