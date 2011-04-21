@@ -35,3 +35,5 @@ class GnrCustomWebPage(object):
     def test_4_provincia_view(self,pane):
         """First test description"""
         viewer = pane.tableViewer(frameCode='provinciali',height='400px',table='glbl.provincia',virtualStore=True)
+        viewer.top.attributes['detachable'] = True
+        viewer.bottom.slotBar('*,label,count',label='Totali:')
