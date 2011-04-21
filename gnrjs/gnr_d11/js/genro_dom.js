@@ -1233,7 +1233,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
 
     },
     makeHiderLayer: function(parentId, kw) {
-        var rootNode = parentId ? genro.nodeById(parentId) : genro.src.getNode();
+        var rootNode;
+        if (typeof(parentId)=='string'){
+            rootNode = parentId ? genro.nodeById(parentId) : genro.src.getNode();
+        }else{
+            rootNode = parentId;
+        }
+        
         var default_kw = {'position':'absolute',top:'0',left:'0',right:'0','bottom':0,
             z_index:1000,background_color:'rgba(255,255,255,0.5)',id:parentId + '_hider'};
         var kw = objectUpdate(default_kw, kw);
