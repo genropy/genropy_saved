@@ -99,6 +99,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 }
             });
             var startKey = kw.startKey || this.store.startKey || this.getCurrentPkey();
+            if(startKey){
+                startKey = this.sourceNode.currentFromDatasource(startKey);
+            }
+            this.sourceNode.getAttributeFromDatasource(startKey);
             this.setLocked(this.locked);
             if(startKey){
                 var that = this;
