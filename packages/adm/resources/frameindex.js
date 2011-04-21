@@ -9,7 +9,7 @@ frameIndex.selectIframePage=function(sourceNode,name,label,file,table,formResour
     else{
          var root = genro.src.newRoot();
          var bc = root._('BorderContainer',name,{pageName:name,title:label});
-         var bottom = bc._('ContentPane',{'height':'12px',region:'bottom',background:'red'});
+        // var bottom = bc._('ContentPane',{'height':'12px',region:'bottom',background:'red'});
          var center = bc._('ContentPane',{'region':'center','overflow':'hidden'});
          var iframe = center._('iframe',{'height':'100%','width':'100%','border':0});
          url = file;
