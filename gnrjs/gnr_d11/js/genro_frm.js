@@ -58,7 +58,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }else{
             this.formParentNode = this.sourceNode.getParentNode();
         }
-        this.subscribe('save,load,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer');
+        this.subscribe('save,load,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer');
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
         //this.store=new.....
@@ -86,10 +86,24 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.msg_confirm_delete ="You are going to delete the current record.";
 
     },
+    getParentForm:function(){
+        var parentForm = this.sourceNode.getParentNode().form;
+        if(!parentForm && window.frameElement){
+            var parentIframe = window.frameElement.sourceNode;
+            if(parentIframe){
+                return parentIframe.form;
+            }
+        }
+        return parentForm;
+    },
     onStartForm:function(kw){
         var kw = kw || {};
         this.formDomNode = this.sourceNode.getDomNode();
         this.formContentDomNode = this.contentSourceNode.getDomNode();
+        var parentForm = this.getParentForm();
+        if(parentForm){
+            dojo.connect(parentForm,'load',this,'abort');
+        }
         if(this.store){
             this.store.init(this);            
             var that = this;
@@ -227,6 +241,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.doload_store(kw);
     },
+    
+    abort:function(){
+        this.doload_store({destPkey:'*dismiss*'});
+    },
+    
     newrecord:function(default_kw){
         this.load({destPkey:'*newrecord*', default_kw:default_kw });
     },
