@@ -334,9 +334,7 @@ class GnrDomSrc(GnrStructData):
 
     def iframe(self, childcontent=None,main=None, **kwargs):
         if main:
-            parentattr = self.attributes
-            parentattr['overflow'] = 'hidden'
-            parentattr['_lazyBuild'] = True
+            self.attributes.update(dict(overflow='hidden'))
             kwargs['height'] = '100%'
             kwargs['width'] = '100%'
             kwargs['border'] = 0
