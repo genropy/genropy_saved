@@ -150,9 +150,10 @@ class TableHandlerBase(BaseComponent):
     def th_thIframe(self,pane,method=None):     
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
         pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
-        pane.div(_class='detacher').iframe(main='thIframeDispatcher',background='white',main_methodname=method,main_pkey='=#FORM.pkey')
+        box = pane.div(_class='detacher',z_index=30)
+        box.iframe(main='thIframeDispatcher',main_methodname=method,main_pkey='=#FORM.pkey')
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
-    
+         
     def rpc_thIframeDispatcher(self,root,methodname=None,pkey=None,**kwargs):
         rootattr = root.attributes
         rootattr['datapath'] = 'main'
