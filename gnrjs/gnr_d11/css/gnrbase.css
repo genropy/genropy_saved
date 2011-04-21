@@ -131,9 +131,28 @@ label.ghostlabel span {
      -webkit-box-shadow: 0 -1px 1px #005555 inset;
     background-color: white;
 }
-.detachable{
+/*.detachable{
+    background:orange;
     -moz-box-shadow: 0px 0px 6px #999 inset;
     -webkit-box-shadow: 0px 0px 6px #999  inset;
+}*/
+
+.detacher{
+    position:absolute;
+    top:1px;
+    bottom:1px;
+    left:1px;
+    right:1px;
+    -moz-transition-property: all;
+    -webkit-transition-duration: 1s;
+    -moz-transition-duration: 1s;
+}
+
+.detachable .detacher{
+    top:20px;
+    bottom:20px;
+    left:20px;
+    right:20px;
 }
 
 #gnr_plugin_dock {
