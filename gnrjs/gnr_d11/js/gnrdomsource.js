@@ -59,7 +59,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return  this.domNode;
         }
         if (this.widget) {
-            return  this.widget.domNode;
+            return  this.widget.containerNode || this.widget.domNode;
         }
 
     },
@@ -835,7 +835,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             lazyChildren = this.lazyBuildFinalize();
         }else{
             lazyChildren = this.getValue('static').walk(function(n){
-                if(n.attr._lazyBuild && n.isVisible()){
+                if(n.attr._lazyBuild && genro.dom.isVisible(n)){
                    return n.lazyBuildFinalize();
                 }
             });
@@ -843,16 +843,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return lazyChildren;
     },
     
-    isVisible:function(){
-        var visible = null;
-        var widget = this.widget;
-        if (widget && widget._isShown){
-            visible = widget._isShown();
-        }else{
-            visible = !genro.dom.isHidden(this);
-        }
-        return visible;
-    },
     
     publish:function(msg,kw,recursive){
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+msg;

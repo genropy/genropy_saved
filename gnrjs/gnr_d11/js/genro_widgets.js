@@ -1911,6 +1911,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
         }
     },
+    patch__textSizeChanged:function(){
+        if(dojo.getComputedStyle(this.domNode)){
+            //if is inside hidden iframe this method must not be called
+            this._textSizeChanged_replaced();
+        }
+    },
+    
     mixin_setStructpath:function(val, kw) {
         this.structBag = genro.getData(this.sourceNode.attrDatapath('structpath'));
         this.cellmap = {};

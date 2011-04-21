@@ -1239,17 +1239,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var kw = objectUpdate(default_kw, kw);
         return rootNode._('div', kw).getParentNode();
     },
-    isHidden:function(what){
+    isVisible:function(what){
         var what = this.getDomNode(what);
         if (what){
-            var coords = dojo.coords(what);
-            for(var k in coords){
-                if(coords[k]!=0){
-                    return false;
-                }
-            }
+            var cs = dojo.getComputedStyle(what);
+            return cs && (cs.display!='none') && (cs.visibility!='hidden');
         }
-        return true;
+        return false;
     }
 
 });
