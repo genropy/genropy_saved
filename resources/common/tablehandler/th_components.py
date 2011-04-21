@@ -148,27 +148,20 @@ class TableHandlerBase(BaseComponent):
     
     @struct_method
     def th_thIframe(self,pane,method=None):     
-        pane.iframe(main='thIframeDispatcher',main_methodname=method,main_pkey='=#FORM.pkey')
+        pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
+        pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
+        pane.div(_class='detacher').iframe(main='thIframeDispatcher',background='white',main_methodname=method,main_pkey='=#FORM.pkey')
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
     
     def rpc_thIframeDispatcher(self,root,methodname=None,pkey=None,**kwargs):
         rootattr = root.attributes
         rootattr['datapath'] = 'main'
+        rootattr['overflow'] = 'hidden'
         rootattr['_fakeform'] = True
         rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
         root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
-    
-    def th_stackIframe(self,sc,pkg,tablename):
-        formRunnerUrl='/adm/th/formrunner'
-        viewRunnerUrl='/adm/th/viewrunner'
-        sc.contentPane(detachable=True,pageName='view').contentPane(margin='5px',overflow='hidden'
-                            ).iframe(src='%s/%s/%s' %(viewRunnerUrl,pkg,tablename),border=0,height='100%',width='100%')
-        sc.contentPane(detachable=True,pageName='form').contentPane(margin='5px',overflow='hidden',_lazyBuild=True,
-                            ).iframe(src='%s/%s/%s' %(formRunnerUrl,pkg,tablename),border=0,height='100%',width='100%')
-    
-
-                            
+                                    
 class StackTableHandlerRunner(BaseComponent):
     py_requires = """public:Public,tablehandler/th_components:TableHandlerBase"""
     plugin_list=''
