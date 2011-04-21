@@ -1249,7 +1249,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var what = this.getDomNode(what);
         if (what){
             var cs = dojo.getComputedStyle(what);
-            return cs && (cs.display!='none') && (cs.visibility!='hidden');
+            return cs && (cs.display!='none');
         }
         return false;
     }
