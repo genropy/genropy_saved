@@ -24,6 +24,10 @@ class Mixin(BaseComponent):
                                                             var bc = this.getWidget();
                                                              genro.dom.toggleClass(bc._left,"hiddenBcPane"); 
                                                              bc._layoutChildren("left");""",
+                                selfsubscribe_showLeft=""" 
+                                                            var bc = this.getWidget();
+                                                             genro.dom.removeClass(bc._left,"hiddenBcPane"); 
+                                                             bc._layoutChildren("left");""",
                                 **kwargs)
 
     def mainLeftContent(self,*args,**kwargs):
@@ -77,7 +81,7 @@ class Mixin(BaseComponent):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack')
         page = self.pageSource()
         if self.index_url:
-            sc.contentPane(pageName='index',title='Index').iframe(height='100%', width='100%', src=self.index_url, border='0px')
+            sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.index_url, border='0px')
         page.dataController("""
             frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource)
         """,subscribe__menutree__selected=True,sc=sc)
@@ -110,19 +114,19 @@ class Mixin(BaseComponent):
     @struct_method
     def plugin_slotbar_iframemenu_plugin(self,pane,**kwargs):
         pane.div(_class='newplugin_block iframemenu_plugin_icon',
-                 connect_onclick="""SET left.selected='iframemenu_plugin';""",
+                 connect_onclick="""SET left.selected='iframemenu_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
                   nodeId='plugin_block_iframemenu_plugin')
                                             
     @struct_method
     def plugin_slotbar_batch_monitor(self,pane,**kwargs):
         pane.div(_class='newplugin_block batch_monitor_icon',
-                 connect_onclick="""SET left.selected='batch_monitor';""",
+                 connect_onclick="""SET left.selected='batch_monitor';genro.getFrameNode('standard_index').publish('showLeft');""",
                   nodeId='plugin_block_batch_monitor')
                   
     @struct_method
     def plugin_slotbar_chat_plugin(self,pane,**kwargs):
         pane.div(_class='newplugin_block chat_plugin_icon',
-                 connect_onclick="""SET left.selected='chat_plugin';""",
+                 connect_onclick="""SET left.selected='chat_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
                   nodeId='plugin_block_chat_plugin')
                   
 
