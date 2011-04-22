@@ -60,10 +60,10 @@ class GnrCustomWebPage(object):
         doc.div('^.abstract', _class='demodoc abstract', connect_onclick='genro.wdgById("doc_edit").show()')
         doc.div('Widget Children', _class='doclabel')
         doc.div('^.children', _class='demodoc', connect_onclick='genro.wdgById("doc_edit").show()')
-        doc.div('Params', _class='doclabel')
+        doc.div('Parameters', _class='doclabel')
         doc.div('^.params', _class='demodoc', connect_onclick='genro.wdgById("doc_edit").show()')
-        doc.div('Link', _class='doclabel')
-        doc.div(_class='demodoc').a("Click here for Dojo's documentation", href='^demo.doc.description.link')
+        #doc.div('Link', _class='doclabel')
+        #doc.div(_class='demodoc').a("Click here for Dojo's documentation", href='^demo.doc.description.link')
         parent.dataRpc('result', 'saveDocumentation', _doSave='^doSave', docbag='=demo.doc',
                        currpath='=demo.current.syspath', _onResult='genro.wdgById("doc_edit").hide();')
         parent.dataRpc('demo.doc', 'getDocFile', currpath='^demo.current.syspath',
