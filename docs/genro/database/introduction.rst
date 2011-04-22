@@ -6,7 +6,7 @@ project
     
     * :ref:`genro_project_introduction`
     * :ref:`genro_project_basic_structure`
-    * :ref:`genro_project_autocreation`
+    * :ref:`genro_project_autocreation`, :ref:`genro_project_help`
     
 .. _genro_project_introduction:
 
@@ -14,11 +14,10 @@ Introduction
 ============
     
     The Genro applications (or projects) are divided into several layers, allowing
-    customization (ensuring an easy upgrade even with customization) and reuse of
-    code and resources among various projects.
+    customization and reuse of code and resources among various projects.
     
     A Genropy Project is structured in a main ``project`` folder with 4 subfolders,
-    called: ``sites``, ``instances``, ``packages`` and ``resources``:
+    called: ``sites``, ``instances``, ``packages`` and ``resources``.
     
     * The ``sites`` folder:
     
@@ -27,8 +26,10 @@ Introduction
           over the Web
         * Typically, it contains the configuration and WSGI script (it is used as the executable
           if you want to use a debugger, like WingIDE_)
-        
-        .. _WingIDE: http://www.wingware.com/
+          
+          .. _WingIDE: http://www.wingware.com/
+          
+        More information in the :ref:`genro_sites_index` documentation section.
         
     * The ``instances`` folder:
     
@@ -41,18 +42,27 @@ Introduction
             #!python
             from gnr.app.gnrapp import GnrApp
             instance = GnrApp('name_of_project')
-            
+          
+        More information in the :ref:`genro_instances_index` documentation section.
+        
     * The ``packages`` folder:
     
-        * It contains the various modules that make up the application code to Genro [#]_
-        
-        .. note:: the Genro packages are not Python packages (not a set of linked modules, containing
-                  a file ``__init__.py``), and Genro packages can't be imported with the statement
-                  ``import`` *module* or with ``from`` *module* ``import``
+        * It contains the various modules that make up the application code to Genro [#]_.
+          
+          .. note:: the Genro packages are not Python packages (not a set of linked modules,
+                    containing a file ``__init__.py``), and Genro packages can't be imported
+                    with the statement ``import`` *module* or with ``from`` *module* ``import``
+                    
+        More information in the :ref:`genro_packages_index` documentation section.
         
     * The ``resources`` folder:
     
-        It contains every useful tool, like components (python modules), CSS, js scripts, and so on.
+        * It is a place for a lot of useful tool, like components (python modules), CSS files,
+          js scripts, and so on.
+          
+        * You will use it for all the common tools of your project.
+        
+        More information in the :ref:`genro_resources_index` documentation section.
         
 .. _genro_project_basic_structure:
 
@@ -95,7 +105,7 @@ Basic structure
 Project autocreation
 ====================
     
-    You can build a project with its four main subfolders with the command line [#]_::
+    You can build a project with its four main subfolders with the command line ::
     
         gnrmkproject projectname -a
         
@@ -105,10 +115,38 @@ Project autocreation
     
     .. image:: ../images/myproject2.png
     
+.. _genro_project_help:
+
+terminal help
+-------------
+
+    You can create a project setting many options. Type::
+    
+        gnrmkproject -h
+        
+    to call an help that explains all the possibilities::
+    
+        Usage: gnrmkproject [options]
+        
+        Options:
+          -h, --help            show this help message and exit
+          -b BASE_PATH, --base-path=BASE_PATH
+                                base path where project will be created
+          -s, --create-site     create site
+          -i, --create-instance
+                                create instance
+          -a, --create-all      create both site and instance
+          -p WSGI_PORT, --wsgi-port=WSGI_PORT
+                                Specify WSGI port
+          -r WSGI_RELOAD, --wsgi-reload=WSGI_RELOAD
+                                Specify WSGI autoreload
+          -d WSGI_DEBUG, --wsgi-debug=WSGI_DEBUG
+                                Specify WSGI debug
+                                
 **Footnotes**:
 
-.. [#] Genro provides additional modules that implement common functions for all the applications
-       (user management, table of Italian municipalities...)
+.. [#] Genro provides additional modules that implement common functions for all the
+       applications (user management, table of Italian municipalities...)
 .. [#] For a complete reference of the project building options, please check the
        :ref:`genro_project_help` section
     

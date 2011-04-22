@@ -4,6 +4,7 @@
 table
 =====
     
+    * :ref:`table_description`
     * :ref:`table_definition`
     * :ref:`table_creation`
     * :ref:`table_columns`:
@@ -15,6 +16,24 @@ table
         
     * :ref:`table_examples`
     
+.. _table_description:
+
+Description
+===========
+
+    A table is one of the most important part of your project. In relational databases and
+    flat file databases, a table is a set of data elements (values) that is organized using
+    a model of vertical columns (which are identified by their name) and horizontal rows.
+    A table has a specified number of columns, but can have any number of rows. Each row is
+    identified by the values appearing in a particular column subset which has been identified
+    as a candidate key. Table is another term for relations; although there is the difference
+    in that a table is usually a multi-set (bag) of rows whereas a relation is a set and does
+    not allow duplicates. Besides the actual data rows, tables generally have associated with
+    them some meta-information, such as constraints on the table or on the values within
+    particular columns. The data in a table does not have to be physically stored in the database.
+    Views are also relational tables, but their data are calculated at query time. Another example
+    are nicknames, which represent a pointer to a table in another database.
+
 .. _table_definition:
 
 Definition

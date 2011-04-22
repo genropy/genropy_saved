@@ -5,8 +5,7 @@ Introduction: the creation of a project
 =======================================
 
     * :ref:`genro_project_creation`
-    * :ref:`genro_project_help`
-
+    
 .. _genro_project_creation:
 
 Create a Genro project
@@ -35,35 +34,7 @@ Create a Genro project
     .. image:: ../../images/myproject2.png
     
     Now type the command line ``gnrmkproject projectname -a`` and check the tree structure you have created (the 4 subfolders and the contents of the ``instances`` and ``sites`` folders). In the next sections we'll begin to explain all the details of the project's subfolders.
-
-.. _genro_project_help:
-
-terminal help
-=============
-
-    You can create a project setting many options. Type::
     
-        gnrmkproject -h
-        
-    to call an help that explains all the possibilities::
-    
-        Usage: gnrmkproject [options]
-        
-        Options:
-          -h, --help            show this help message and exit
-          -b BASE_PATH, --base-path=BASE_PATH
-                                base path where project will be created
-          -s, --create-site     create site
-          -i, --create-instance
-                                create instance
-          -a, --create-all      create both site and instance
-          -p WSGI_PORT, --wsgi-port=WSGI_PORT
-                                Specify WSGI port
-          -r WSGI_RELOAD, --wsgi-reload=WSGI_RELOAD
-                                Specify WSGI autoreload
-          -d WSGI_DEBUG, --wsgi-debug=WSGI_DEBUG
-                                Specify WSGI debug
-                                
 **Footnotes**:
 
 .. [#] ``gnrmkproject`` abbrevation has the meaning of ``GeNRo MaKe PROJECT``.

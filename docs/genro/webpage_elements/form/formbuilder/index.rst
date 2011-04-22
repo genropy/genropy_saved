@@ -100,7 +100,8 @@ Examples
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
                 bc = root.borderContainer(datapath='testForm')
-                fb = bc.formbuilder(cols=2,width='10em',disabled='^.disabled',hidden='^.hidden',visible='^.visible')
+                fb = bc.formbuilder(cols=2,fld_width='10em',disabled='^.disabled',
+                                    hidden='^.hidden',visible='^.visible')
                 fb.textbox(value='^.name', lbl='Name')
                 fb.textbox(value='^.surname', lbl='Surname')
                 fb.numberTextbox(value='^.age', lbl="Age", width='4em')
