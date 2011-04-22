@@ -119,12 +119,11 @@ label.ghostlabel span {
     -moz-border-radius: 0px 0px 5px 5px;
     -webkit-border-bottom-left-radius: 5px;
     -webkit-border-bottom-right-radius: 5px;
-    padding-top: 5px;
-    padding-bottom: 1px;
-    width: 27px !important;
-    display: inline-block;
+    width: 27px;
+    height: 20px;
     cursor: pointer;
 }
+
 
 .selected_plugin.plugin_block {
     -moz-box-shadow: 0 -1px 1px #005555 inset;
@@ -858,6 +857,13 @@ div.dojoxDock {
 
 .floatingPopup {
     padding-right: 15px;
+}
+
+.iframereload{
+    background: url(icons/base10/iframereload.gif) no-repeat center center;
+}
+.iframeclose{
+	background: url(icons/base10/iframeclose.gif) no-repeat center center;
 }
 
 .dijitMenu {
