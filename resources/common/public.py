@@ -109,19 +109,21 @@ class Public(BaseComponent):
         return baseslot
         
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
-        slots = slots or self.public_frameTopBarSlots('menuBtn,workdate,*,caption,*,user,logout,5')
+        pane.attributes.update(dict(_class='pbl_root_top'))
+        baseslots = 'menuBtn,workdate,*,caption,*,user,logout,5'
+        if 'inframe' in self.pageArgs:
+            baseslots = '10,caption,*,workdate,10'
+            kwargs['margin_top'] ='2px'
+        slots = slots or self.public_frameTopBarSlots(baseslots)
         if 'caption' in slots:
             kwargs['caption_title'] = title
-        
         return pane.slotBar(slots=slots,childname='bar',
-                            _class='pbl_root_top',
                             **kwargs)
     
     def public_frameBottomBar(self,pane,slots=None,**kwargs):
         slots = slots or '5,dock,*,messageBox,*,devBtn,locBtn,5'
         if 'messageBox' in slots:
             pane.parent.dataController("genro.publish('pbl_bottomMsg',{message:msg});",msg="^pbl.bottomMsg") #legacy
-            # 
             kwargs['messageBox_subscribeTo']=kwargs.get('messageBox_subscribeTo') or 'pbl_bottomMsg'
         return pane.slotBar(slots=slots,childname='bar',
                             _class='pbl_root_bottom',

@@ -175,14 +175,12 @@ class StackTableHandlerRunner(BaseComponent):
     def main(self,root,th_formResource=None,th_viewResource=None,**kwargs):
         formResource = th_formResource or self.formResource
         viewResource = th_viewResource or self.viewResource
-        root = root.rootContentPane(title=self.tblobj.name_long,bottom=False)
+        root = root.rootContentPane(title=self.tblobj.name_long)
         sc = root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),
                                 formResource=formResource,viewResource=viewResource,virtualStore=True,**kwargs)
-        sc.view.bottom.slotBar('*,messageBox,*',childname='footer',_class='pbl_root_bottom',messageBox_subscribedTo='%s_message' %sc.attributes['thlist_root'])
+        sc.view.attributes.update(dict(border='0',margin='0', rounded=0,border_left='1px solid gray'))
         sc.form.attributes['hasBottomMessage'] = False
-        sc.form.bottom.slotBar('*,messageBox,*',childname='footer',_class='pbl_root_bottom',
-                            messageBox_subscribeTo='form_%s_form_message' %sc.attributes['thform_root'])
-
+        sc.form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
         
     
      

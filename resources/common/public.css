@@ -5,10 +5,18 @@
     height: 24px;
 }
 
+.application_menu {
+    background: url(icons/sidemenu.png) no-repeat center center;
+}
+
+
 .pbl_logout {
     background: url(icons/logout.png) no-repeat center center;
     width: 16px;
     height: 16px;
+}
+.application_logout {
+    background: url(icons/logout.png) no-repeat center center;
 }
 
 .zoomIcon {
@@ -18,14 +26,10 @@
 }
 
 .menu_plugin_icon {
-    height: 16px;
-    width: 16px;
     background: transparent url(icons/menu_plugin.png) no-repeat center;
 }
 
 .iframemenu_plugin_icon {
-    height: 16px;
-    width: 16px;
     background: transparent url(icons/menu_plugin.png) no-repeat center;
 }
 /* @end */
