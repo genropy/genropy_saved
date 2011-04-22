@@ -40,8 +40,8 @@
 
 .chat_plugin_icon {
     background: url(images/buddy.png) no-repeat center center;
-    width: 16px;
-    height: 16px;
+   /* width: 16px;
+    height: 16px;*/
 }
 
 .newMessage .chat_plugin_icon {
