@@ -220,7 +220,6 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
              slot = children.popNode(side);
              if(slot){
                  node = slot.getValue().getNode('#0');
-                 node.attr = objectUpdate(slot.attr,node.attr);
              }else{
                  node = children.popNode('#side='+side);
              }
@@ -234,7 +233,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
                      }
                  }) 
                  node.attr['_childname'] = node.attr['_childname'] || side;
-                 bc._('ContentPane',side,{'region':side}).setItem('#id',node._value,node.attr);
+                 bc._('ContentPane',slot?objectUpdate(slot.attr,{'region':side}):{'region':side}).setItem('#id',node._value,node.attr);
              }
         });
         slot = children.popNode('center');
@@ -658,10 +657,9 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         var side=sourceNode.getParentNode().attr.region;
         var framePars = frameNode.attr;
         var sidePars = objectExtract(framePars,'side_*',true);
-        var orientation = attributes.orientation || 'horizontal';
-        if (side){
-            orientation = ((side=='top')||(side=='bottom'))?'horizontal':'vertical';
-        }
+        var default_orientation = side?((side=='top')||(side=='bottom'))?'horizontal':'vertical':'horizontal';
+        var orientation = attributes.orientation || default_orientation;
+
         attributes.orientation=orientation
         var buildKw={}
         dojo.forEach(['table','row','cell','lbl'],function(k){
