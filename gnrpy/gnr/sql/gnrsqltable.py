@@ -677,8 +677,7 @@ class SqlTable(GnrObject):
         return self.db.adapter.existsRecord(self, record)
         
     def insertOrUpdate(self, record):
-        """Insert or update a single record.
-        If the record doesn't exist it inserts, else it updates.
+        """Insert a single record if it doesn't exist, else update it
         
         :param record: a dictionary that represent the record that must be updated
         """
