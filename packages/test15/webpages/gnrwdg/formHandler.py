@@ -14,6 +14,7 @@ class GnrCustomWebPage(object):
     user_polling=0
     auto_polling=0
     
+    
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
         form = pane.frameForm(frameCode=frameCode,table='glbl.provincia',
@@ -31,7 +32,7 @@ class GnrCustomWebPage(object):
         if not startKey:
             fb = tb.selectrecord.formbuilder(cols=1, border_spacing='1px')
             fb.dbselect(value="^.prov",dbtable="glbl.provincia",parentForm=False,#default_value='MI',
-                                        validate_onAccept="this.form.publish('load',{destPkey:value});",
+                                        validate_onAccept="if(userChange){this.form.publish('load',{destPkey:value})};",
                                         lbl='Provincia')
         return tb
         
@@ -57,10 +58,10 @@ class GnrCustomWebPage(object):
                             rounded_bottom=10,height='180px',width='600px',pkeyPath='.prov')
         form.testToolbar()
         store = form.formStore(table='glbl.provincia',storeType='Item',handler='recordCluster',startKey='*newrecord*',onSaved='reload')
-        store.handler('load',_onCalling='console.log("xxxx")',default_ordine_tot='100')    
-        bc = form.center.borderContainer(datapath='.record')
-        bc.contentPane(region='left',background='red',width='50px')
-        bc.contentPane(region='center').formbuilder(cols=2, border_spacing='3px').formContent()  
+        rpc = store.handler('load',default_ordine_tot='100')  
+        rpc.addCallback('console.log(result)')  
+        pane = form.center.contentPane(datapath='.record')
+        pane.formbuilder(cols=2).formContent()  
     
     
     def test_10_frameform_iv(self,pane):

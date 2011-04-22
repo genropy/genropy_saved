@@ -1243,6 +1243,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var form=this.form;
         var that = this;
         var currPkey = this.form.getCurrentPkey();
+        var loader = this.handlers.load;
         var cb = function(result){
             that.loaded(currPkey,result);
             return result;
@@ -1254,9 +1255,18 @@ dojo.declare("gnr.formstores.Base", null, {
         var kw = objectUpdate(objectUpdate({},this.handlers.load.kw),dkw);
         kw =form.sourceNode.evaluateOnNode(kw); //office_id='=#FORM.pkey'
         this.handlers.load.rpcmethod = this.handlers.load.rpcmethod || 'loadRecordCluster';
-        genro.rpc.remoteCall(this.handlers.load.rpcmethod ,objectUpdate({'pkey':currPkey,
+        var deferred = genro.rpc.remoteCall(this.handlers.load.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':form.getVirtualColumns(),
-                                                  'table':this.table},kw),null,'POST',null,cb);
+                                                  'table':this.table},kw),null,'POST',null,function(){});
+        deferred.addCallback(cb);
+        if(loader.callbacks){
+            var thatnode = form.sourceNode;
+            loader.callbacks.forEach(function(n){
+                var defkw = objectUpdate({},kw);
+                genro.rpc.addDeferredCb(deferred,n.getValue(),objectUpdate(defkw,n.attr),thatnode);
+            });
+        }
+        return deferred;
     },
     save_recordCluster:function(destPkey){
         var form=this.form;
