@@ -1,0 +1,86 @@
+.newplugin_block {
+    width: 30px;
+    height: 20px;
+    cursor: pointer;
+}
+
+
+.menuToggle_icon {
+    background: url(icons/sidemenu.png) no-repeat center center;
+}
+
+.roundedSlotbar{
+    background-color:#999;
+}
+.roundedSlotbar td{
+    border-right:1px solid #444;
+}
+.roundedSlotbar td:last-child{
+	border-right: 0px;
+	-moz-border-radius-topright: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -webkit-border-top-right-radius: 6px;
+    -webkit-border-bottom-right-radius: 6px;
+}
+
+.roundedSlotbar td:first-child{
+    -moz-border-radius-topleft: 6px;
+    -moz-border-radius-bottomleft: 6px;
+    -webkit-border-top-left-radius: 6px;
+    -webkit-border-bottom-left-radius: 6px;
+}
+
+
+.selected_plugin{
+    background:#BBB;
+}
+
+.iframetab{
+    position:relative;
+    display:inline-block;
+    border-right:1px solid;
+    padding-left:12px;
+    padding-right:12px;
+    border-right:1px solid #444;
+    cursor:pointer;
+}
+.iframetab:last-child{
+	border-right: 0px;
+	-moz-border-radius-topright: 6px;
+    -moz-border-radius-bottomright: 6px;
+    -webkit-border-top-right-radius: 6px;
+    -webkit-border-bottom-right-radius: 6px;
+}
+.iframetab:first-child{
+    -moz-border-radius-topleft: 6px;
+    -moz-border-radius-bottomleft: 6px;
+    -webkit-border-top-left-radius: 6px;
+    -webkit-border-bottom-left-radius: 6px;
+}
+
+
+.iframetab_selected.iframetab{
+    background:#BBB;
+}
+
+.iframetab_button{
+    height:9px;
+    width:9px;
+    background-color:transparent;
+    opacity:0;
+    cursor: pointer;
+    position:absolute;
+}
+
+.iframetab_button:hover{
+    background-color:silver;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    opacity:1;
+}
+
+.iframetab_caption{
+    line-height:20px;
+    color:#444;
+    font-variant:small-caps;
+}
