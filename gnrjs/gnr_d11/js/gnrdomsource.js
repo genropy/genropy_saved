@@ -935,7 +935,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (parent) {
             return parent.getFormHandler();
         }
-
     },
     
     inheritedAttribute:function(attr){
@@ -943,6 +942,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(node){
             return node.getAttributeFromDatasource(attr);
         }
+    },
+    
+    setHiderLayer:function(kw,hide){
+        if(hide){
+            this.getValue().popNode('hiderNode');
+        }else if (!this.getValue().getNode('hiderNode')){
+            return genro.dom.makeHiderLayer(this,kw);
+        }        
     },
     
     //updateBuiltObj:function(){

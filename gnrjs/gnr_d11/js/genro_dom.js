@@ -1234,6 +1234,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
     },
     makeHiderLayer: function(parentId, kw) {
         var rootNode;
+        var message=objectPop(kw,'message');
+        var messageArgs = objectExtract(kw,'message_*');
         if (typeof(parentId)=='string'){
             rootNode = parentId ? genro.nodeById(parentId) : genro.src.getNode();
         }else{
@@ -1243,7 +1245,16 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var default_kw = {'position':'absolute',top:'0',left:'0',right:'0','bottom':0,
             z_index:1000,background_color:'rgba(255,255,255,0.5)',id:parentId + '_hider'};
         var kw = objectUpdate(default_kw, kw);
-        return rootNode._('div', kw).getParentNode();
+        var hider = rootNode._('div','hiderNode', kw).getParentNode();
+        if(message){
+            messageArgs = objectNotEmpty(messageArgs)? messageArgs:  {position:'absolute',
+                                          font_size:'24pt',color:'rgba(80, 80, 80, 0.2)',
+                                          text_shadow:'2px 2px 4px'};
+            messageArgs.innerHTML = message;
+            var messagePane = hider._('div',messageArgs);
+            this.centerOn(messagePane,hider);
+        }
+        return hider;
     },
     isVisible:function(what){
         var what = this.getDomNode(what);
