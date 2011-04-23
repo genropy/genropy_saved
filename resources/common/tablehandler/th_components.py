@@ -58,7 +58,7 @@ class TableHandlerBase(BaseComponent):
     @extract_kwargs(condition=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             th_iframe=False,reloader=None,virtualStore=False,condition=None,condition_kwargs=None,
-                            default_kwargs=None,**kwargs):
+                            default_kwargs=None,hiderMessage=None,**kwargs):
         if relation:
             table,condition = self.__relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -73,7 +73,15 @@ class TableHandlerBase(BaseComponent):
                         nodeId=nodeId,
                         table=table,
                         **kwargs)
-        viewpage = wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName='view',viewResource=viewResource,
+        message= hiderMessage or '!!Save the main record to use this pane.'
+        wdg.dataController("""
+                            if(pkey=='*newrecord*'){
+                                hider = sourceNode.setHiderLayer({message:message});
+                            }else{
+                                sourceNode.setHiderLayer(null,true);
+                            }
+                            """,pkey='^#FORM.pkey',sourceNode=wdg,message=message)                
+        wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName='view',viewResource=viewResource,
                                 reloader=reloader,virtualStore=virtualStore,top_slots='#,addrow,delrow,list_locker',
                                 condition=condition,condition_kwargs=condition_kwargs)    
         return wdg
