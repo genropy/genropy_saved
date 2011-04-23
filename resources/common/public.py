@@ -23,8 +23,7 @@ class Public(BaseComponent):
                      foundation/dialogs,
                      foundation/macrowidgets,
                      gnrcomponents/batch_handler/batch_handler:BatchMonitor,
-                     gnrcomponents/chat_component/chat_component:ChatComponent,
-                     gnrcomponents/grid_configurator/grid_configurator:GridConfigurator"""
+                     gnrcomponents/chat_component/chat_component:ChatComponent"""
 
 
     def userRecord(self, path=None):
