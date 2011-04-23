@@ -6,7 +6,7 @@
     float: left;
     height: 13px;
     margin-top: 1px;
-
+font
 }
 
 ._common_d11 .dojoxDockNode {
@@ -693,16 +693,16 @@
 
 /* @group tablehandler */
 .st_editor_bar {
-    background-color: #68858E !important;
+    background-color:#49637c; !important;
 }
 
 .st_editor_body {
-    background-color: rgba(168, 181, 182, 0.8);
+    background-color: rgba(124,151,179,0.8);
 !important;
 }
 
 .qb_group_even {
-    background-color: rgba(168, 181, 182, 0.8);
+    background-color: rgba(124,151,179,0.8);
 !important;
 }
 
