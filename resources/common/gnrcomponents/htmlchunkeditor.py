@@ -1,6 +1,5 @@
 # -*- coding: UTF-8 -*-
 
-# grid_configurator.py
 # Created by Francesco Porcari on 2010-10-02.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
