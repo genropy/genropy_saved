@@ -47,19 +47,18 @@ class Mixin(BaseComponent):
                             connect_onclick='PUBLISH preference_open="app";')
         center = bc.borderContainer(region='center',margin_top='1px')
         leftbar = center.contentPane(region='left',overflow='hidden')        
-        leftbar.slotBar(slots='menuToggle,%s' %self.plugin_list,border='1px solid #666',
-                        rounded=6,_class='roundedSlotbar',orientation='horizontal',margin_left='10px')
+        leftbar.slotBar(slots='menuToggle,%s' %self.plugin_list,_class='pluginSlotbar',orientation='horizontal',margin_left='10px')
+                        
         rightbar = center.contentPane(region='right')        
         #rightbar.slotBar('user,logout',border='1px solid #666',
-        #                              rounded=6,_class='roundedSlotbar',
+        #                              rounded=6,_class='pluginSlotbar',
         #                              orientation='horizontal',margin_left='10px')
         buttons = center.contentPane(region='center')
         tabroot = buttons.div(connect_onclick="""
                                             var targetSource = $1.target.sourceNode;
                                             var pageName = targetSource.inheritedAttribute("pageName");
                                             this.setRelativeData("selectedFrame",pageName);
-                                            """,margin_left='20px',
-                            border='1px solid #666',rounded=6,_class='roundedSlotbar',display='inline-block')
+                                            """,margin_left='20px',display='inline-block')
         tabroot.div()
         buttons.dataController("frameIndex.createTablist(tabroot,data);",data="^iframes",tabroot=tabroot)
         buttons.dataController("""  var iframetab = tabroot.getValue().getNode(page);
