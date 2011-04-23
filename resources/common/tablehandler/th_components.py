@@ -178,7 +178,8 @@ class StackTableHandlerRunner(BaseComponent):
         root = root.rootContentPane(title=self.tblobj.name_long)
         sc = root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),
                                 formResource=formResource,viewResource=viewResource,virtualStore=True,**kwargs)
-        sc.view.attributes.update(dict(border='0',margin='0', rounded=0,border_left='1px solid gray'))
+        sc.attributes.update(dict(border_left='1px solid gray'))
+        sc.view.attributes.update(dict(border='0',margin='0', rounded=0))
         sc.form.attributes['hasBottomMessage'] = False
         sc.form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
         
