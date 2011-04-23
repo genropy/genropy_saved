@@ -58,15 +58,17 @@ var genro_plugin_grid_configurator = {
                 action:function() {
                     genro.grid_configurator.loadCustomView(gridId, this.attr.pkey);
                 },
-                _class:'smallmenu',datapath:menu_datapath,modifiers:'Shift'});
+                _class:'smallmenu',datapath:menu_datapath,modifiers:'*'});
             node.unfreeze();
             menu_wdg = dijit.byId(menuId);
         }
 
         var grid = gridSourceNode.widget;
-        dojo.connect(grid, 'postrender', function() {
-            dijit.byId(menuId).bindDomNode(grid.views.views[0].headerNode);
-        });
+        var frameNode = genro.getFrameNode(gridSourceNode.attr.frameCode);
+        var confnode = frameNode.getValue().getNodeByAttr('_gridConfigurator',true);
+        if (confnode){
+            dijit.byId(menuId).bindDomNode(confnode.getDomNode());
+        }
     },
 
     addGridConfigurator:function(sourceNode){
