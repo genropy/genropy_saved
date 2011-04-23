@@ -9,8 +9,7 @@
 class GnrCustomWebPage(object):
     py_requires = """gnrcomponents/testhandler:TestHandlerFull,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
-                   gnrcomponents/batch_handler/batch_handler:BatchMonitor,
-                   gnrcomponents/grid_configurator/grid_configurator:GridConfigurator"""
+                   gnrcomponents/batch_handler/batch_handler:BatchMonitor"""
 
     maintable = 'glbl.localita'
     defaultscript = 'localita_script'
