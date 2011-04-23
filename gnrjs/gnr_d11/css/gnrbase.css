@@ -851,7 +851,7 @@ div.dojoxDock {
     display:none;
 }
 
-.visibleBcPane .hiddenBcPane{
+.visibleBcPane.hiddenBcPane{
     display:block;
 }
 
@@ -983,6 +983,11 @@ div.dojoxDock {
 
 .icnBaseEdit {
     background: url(icons/base16/edit.gif) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+.gridConfigurator{
+    background: url(icons/base16/gridconfigurator.png) no-repeat center center;
     width: 16px;
     height: 16px;
 }
