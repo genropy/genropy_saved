@@ -937,6 +937,14 @@ div.dojoxDock {
     background-image: url(icons/base16/refresh.png) center center;
 }
 
+.icnFrameRefresh {
+	background: url(icons/base16/refresh.png) no-repeat center center;
+}
+
+.icnFrameDelete {
+	background: url(icons/base16/delete.png) no-repeat center center;
+}
+
 .icnBaseEmail {
     background: url(icons/base16/email.gif) no-repeat center center;
     width: 16px;
