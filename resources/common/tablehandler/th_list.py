@@ -181,7 +181,7 @@ class TableHandlerListBase(BaseComponent):
             base_slots = ['tools','5','queryfb','|','queryTool','*','count','5']
             top_kwargs['queryfb_table'] = table
         else:
-            base_slots = ['searchOn','count','*']
+            base_slots = ['tools','searchOn','count','*']
         base_slots = ','.join(base_slots)
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
