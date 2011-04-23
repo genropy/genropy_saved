@@ -10,7 +10,7 @@ var frameIndex = {
              var bc = root._('BorderContainer',name,{pageName:name,title:label});
              var center = bc._('ContentPane',{'region':'center','overflow':'hidden'});
              sourceNode.setRelativeData('iframes.'+name,null,{'fullname':label,pageName:name});
-             var iframe = center._('iframe',{'height':'100%','width':'100%','border':0});
+             var iframe = center._('iframe',{'height':'100%','width':'100%','border':0,'id':'iframe_'+name});
              url = file;
              var urlPars = {inframe:true};
              if(table){

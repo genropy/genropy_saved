@@ -1,46 +1,15 @@
-.newplugin_block {
+.button_block  div{
     width: 30px;
     height: 20px;
-    cursor: pointer;
 }
-
+.button_block.iframetab{
+    padding-left:0;
+    padding-right:0;
+}
 
 .menuToggle_icon {
     background: url(icons/sidemenu.png) no-repeat center center;
 }
-
-/* @group pluginSlotbar */
-.pluginSlotbar {
-	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EDEDEE), to(#CDCDCD));
-    background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
-    border:1px solid #666;
-}
-.selected_plugin{
-    border: 0px;
-     background:#888;
-	-moz-box-shadow: inset 1px 1px 1px #222;
-    -webkit-box-shadow:inset 1px 1px 1px #222;
-}
-.pluginSlotbar td{
-	border-right: 1px solid #666;
-}
-
-.pluginSlotbar td:last-child{
-	border-right: 0px;
-
-}
-
-.pluginSlotbar td:first-child{
-
-}
-
-
-
-/* @end */
-
-
 
 /* @group iframetab */
 
@@ -63,20 +32,18 @@
     -webkit-border-bottom-left-radius: 6px;
 }
 
-
 .iframetab_selected.iframetab{
-  
-    color: #eee;
-    border: 0px;
-	font-weight: bold;
-	  background:#888;
-	-moz-box-shadow: inset 1px 1px 1px #222;
-    -webkit-box-shadow:inset 1px 1px 1px #222;
+    color: #fff;
+   /* border: 0px;*/
+	/*font-weight: bold;*/
+	 background:#888;
+	-moz-box-shadow: inset 1px 1px 2px #222;
+    -webkit-box-shadow:inset 1px 1px 2px #222;
 	
 }
 .iframetab_selected.iframetab:hover{
 	text-decoration:none;
-	}
+}
 
 .iframetab{
     position:relative;
@@ -90,7 +57,7 @@
     border: 1px solid #666;
     border-right: 0px;
     line-height:20px;
-    font-size: 8pt;
+    font-size: 9pt;
     font-variant:small-caps;
 }
 

@@ -42,35 +42,39 @@ class Mixin(BaseComponent):
     def prepareTop(self,pane):
         pane.attributes.update(dict(height='50px',overflow='hidden'))
         bc = pane.borderContainer(rounded_top=10,gradient_from='gray',gradient_to='silver',gradient_deg=90) 
-        titlebar = bc.contentPane(region='top').slotBar('*,owner,*',height='20px')
-        titlebar.owner.div('^gnr.app_preference.adm.instance_data.owner_name',font_size='13px',
+        top = bc.contentPane(region='top').slotBar('*,owner,*',height='20px')
+        top.owner.div('^gnr.app_preference.adm.instance_data.owner_name',font_size='13px',
                             connect_onclick='PUBLISH preference_open="app";')
+        
         center = bc.borderContainer(region='center',margin_top='1px')
-        leftbar = center.contentPane(region='left',overflow='hidden')        
-        leftbar.slotBar(slots='menuToggle,%s' %self.plugin_list,_class='pluginSlotbar',orientation='horizontal',margin_left='10px')
-                        
-        rightbar = center.contentPane(region='right')        
-        #rightbar.slotBar('user,logout',border='1px solid #666',
-        #                              rounded=6,_class='pluginSlotbar',
-        #                              orientation='horizontal',margin_left='10px')
-        buttons = center.contentPane(region='center')
-        tabroot = buttons.div(connect_onclick="""
+        
+        leftbar = center.contentPane(region='left',overflow='hidden').div(display='inline-block', margin_left='10px')  
+        for btn in ['menuToggle']+self.plugin_list.split(','):
+            getattr(self,'btn_%s' %btn)(leftbar)
+                
+        rightbar = center.contentPane(region='right',overflow='hidden').div(display='inline-block', margin_right='10px')
+        for btn in ['refresh','delete']:
+            getattr(self,'btn_%s' %btn)(rightbar)
+        
+        self.prepareTablist(center.contentPane(region='center'))
+        
+    def prepareTablist(self,pane):     
+        tabroot = pane.div(connect_onclick="""
                                             var targetSource = $1.target.sourceNode;
                                             var pageName = targetSource.inheritedAttribute("pageName");
                                             this.setRelativeData("selectedFrame",pageName);
                                             """,margin_left='20px',display='inline-block')
         tabroot.div()
-        buttons.dataController("frameIndex.createTablist(tabroot,data);",data="^iframes",tabroot=tabroot)
-        buttons.dataController("""  var iframetab = tabroot.getValue().getNode(page);
+        pane.dataController("frameIndex.createTablist(tabroot,data);",data="^iframes",tabroot=tabroot)
+        pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
                                     if(iframetab){
-                                        console.log(iframetab);
                                         genro.dom.setClass(iframetab,'iframetab_selected',selected);
                                     }
                                     """,subscribe_iframe_stack_selected=True,tabroot=tabroot,_if='page')
 
 
     def prepareBottom(self,pane):
-        pane.attributes.update(dict(height='20px'))
+        pane.attributes.update(dict(height='20px',overflow='hidden'))
         bc = pane.borderContainer(gradient_from='gray',gradient_to='silver',gradient_deg=-90)
         left = bc.contentPane(region='left')
         right = bc.contentPane(region='right')
@@ -78,6 +82,21 @@ class Mixin(BaseComponent):
 
     def prepareCenter(self,pane):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack')
+        scattr = sc.attributes
+        scattr['subscribe_reloadFrame'] = """var frame = dojo.byId("iframe_"+$1);
+                                                    var src = frame.src;
+                                                    frame.src = '';
+                                                    setTimeout(function(){
+                                                        frame.src = src;
+                                                    },1)"""
+        scattr['subscribe_closeFrame'] = """
+                                            var sc = this.widget;
+                                            var selected = sc.getSelectedIndex();
+                                            genro._data.popNode('iframes.'+$1);
+                                            this.getValue().popNode($1);
+                                            selected = selected>=sc.getChildren().length? selected-1:selected;
+                                            sc.setSelected(selected);
+                                        """        
         page = self.pageSource()
         if self.index_url:
             sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.index_url, border='0px')
@@ -85,16 +104,13 @@ class Mixin(BaseComponent):
             frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource)
         """,subscribe__menutree__selected=True,sc=sc)
         
-
-
-        
     def prepareLeft(self,pane):
-        pane.attributes.update(dict(splitter=True,width='200px',datapath='left',margin_right='-1px'))
-        sc = pane.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center')
+        pane.attributes.update(dict(splitter=True,width='200px',datapath='left',margin_right='-1px',overflow='hidden'))
+        sc = pane.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',overflow='hidden')
         sc.dataController("""
                             if(!page){return;}
                              genro.publish(page+'_'+(selected?'on':'off'));
-                             genro.dom.setClass(genro.nodeById('plugin_block_'+page).getParentNode(),'selected_plugin',selected);
+                             genro.dom.setClass(genro.nodeById('plugin_block_'+page).getParentNode(),'iframetab_selected',selected);
                             """,
                           subscribe_gnr_main_left_center_selected=True)
         sc.dataController(""" 
@@ -104,37 +120,40 @@ class Mixin(BaseComponent):
         for plugin in self.plugin_list.split(','):
             cb = getattr(self, 'mainLeft_%s' % plugin)
             assert cb, 'Plugin %s not found' % plugin
-            cb(sc.contentPane(pageName=plugin))
+            cb(sc.contentPane(pageName=plugin,overflow='hidden'))
             sc.dataController("""
                             PUBLISH main_left_set_status = true;
                             SET .selected=plugin;
                           """, **{'subscribe_%s_open' % plugin: True, 'plugin': plugin})
     
-    @struct_method
-    def plugin_slotbar_iframemenu_plugin(self,pane,**kwargs):
-        pane.div(_class='newplugin_block iframemenu_plugin_icon',
+    def btn_iframemenu_plugin(self,pane,**kwargs):
+        pane.div(_class='button_block iframetab').div(_class='iframemenu_plugin_icon',
                  connect_onclick="""SET left.selected='iframemenu_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
                   nodeId='plugin_block_iframemenu_plugin')
                                             
-    @struct_method
-    def plugin_slotbar_batch_monitor(self,pane,**kwargs):
-        pane.div(_class='newplugin_block batch_monitor_icon',
+    def btn_batch_monitor(self,pane,**kwargs):
+        pane.div(_class='button_block iframetab').div(_class='batch_monitor_icon',
                  connect_onclick="""SET left.selected='batch_monitor';genro.getFrameNode('standard_index').publish('showLeft');""",
                   nodeId='plugin_block_batch_monitor')
                   
-    @struct_method
-    def plugin_slotbar_chat_plugin(self,pane,**kwargs):
-        pane.div(_class='newplugin_block chat_plugin_icon',
+    def btn_chat_plugin(self,pane,**kwargs):
+        pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',
                  connect_onclick="""SET left.selected='chat_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
                   nodeId='plugin_block_chat_plugin')
                   
 
-    @struct_method
-    def plugin_slotbar_menuToggle(self,pane,**kwargs):
-        pane.div(_class='newplugin_block application_menu',
+    def btn_menuToggle(self,pane,**kwargs):
+        pane.div(_class='button_block iframetab').div(_class='application_menu',
                     connect_onclick="""genro.getFrameNode('standard_index').publish('toggleLeft');""")
-                  
 
+    def btn_refresh(self,pane,**kwargs):
+        pane.div(_class='button_block iframetab').div(_class='icnFrameRefresh',
+                                                      connect_onclick="PUBLISH reloadFrame=selectedFrame;",selectedFrame='=selectedFrame')               
+
+    def btn_delete(self,pane,**kwargs):
+        pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',connect_onclick='PUBLISH closeFrame=selectedFrame;',selectedFrame='=selectedFrame')
+        
+                    
     @struct_method
     def login_slotbar_user(self,pane,**kwargs): 
         if not self.isGuest:
@@ -146,7 +165,7 @@ class Mixin(BaseComponent):
     def login_slotbar_logout(self,pane,**kwargs):
         if not self.isGuest:
             pane.div(connect_onclick="genro.logout()",
-                      _class='newplugin_block application_logout',**kwargs)
+                      _class='iframetab button_block application_logout',**kwargs)
         else:
             pane.div()
             
