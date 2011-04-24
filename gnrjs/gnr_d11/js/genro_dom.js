@@ -918,9 +918,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
     onDrop:function(event) {
         genro.dom.outlineShape(null);
         event.stopPropagation();
+        event.preventDefault();
         var dropInfo = this.getDragDropInfo(event);
         if (!dropInfo) {
-            event.preventDefault();
             return;
         }
         var domnode = dropInfo.domnode;
@@ -928,14 +928,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var dataTransfer = event.dataTransfer;
         var dragSourceInfo = genro.dom.getDragSourceInfo(dataTransfer);
         if (dragSourceInfo.detachable) {
-            event.preventDefault();
             genro.dom.onDetach(genro.src.nodeBySourceNodeId(dragSourceInfo._id), dropInfo);
             return;
         }
         var canBeDropped = this.canBeDropped(dataTransfer, sourceNode); // dovrei già essere bono
         if (canBeDropped) {
             var inherited = sourceNode.getInheritedAttributes();
-            event.preventDefault();
             var dropped = null;
             var dataTransferTypes = genro.dom.dataTransferTypes(dataTransfer);
             var dropTypes = (inherited.dropTypes || 'text/plain').split(',');

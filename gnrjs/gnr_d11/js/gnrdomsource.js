@@ -1112,9 +1112,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             var node,v;
             for (var i = 0; i < bagnodes.length; i++) {
                 node = bagnodes[i];
-                if (node.attr.tag) {
+                if (node.attr.tag && !node._alreadyStripped) {
                     if (node.attr.tag.toLowerCase() in genro.src.datatags) {
-                        node._moveData(node);
+                        node._moveData(shallow);
                     }
                     else {
                         var nodeattr = node.attr;
@@ -1129,12 +1129,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     }
                     if(!shallow){
                         node._stripData();
-                    }
+                    }  
                 }
+                node._alreadyStripped=true;
             }
         }
     },
-    _moveData: function() {
+    _moveData: function(shallow) {
         this._registerNodeId();
         var attributes = this.registerNodeDynAttr(false);
         //var attributes=this.currentAttributes();
@@ -1184,7 +1185,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             var onStart = objectPop(attributes, '_onStart');
             objectPop(attributes, '_onBuilt');
-
             var subscriptions = objectExtract(attributes, 'subscribe_*');
             var selfsubscriptions = objectExtract(attributes, 'selfsubscribe_*');
             var formsubscriptions = objectExtract(attributes, 'formsubscribe_*');
