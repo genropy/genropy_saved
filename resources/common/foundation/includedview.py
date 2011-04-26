@@ -212,8 +212,6 @@ class IncludedView(BaseComponent):
                 #storepath = '%s%s' % (inherited_attributes['sqlContextRoot'], storepath)
                 storepath = '#FORM.record%s' %storepath
         viewPars = dict(kwargs)
-        if nodeId and table and configurable is not False:
-            configurable = True
         gridId = nodeId or self.getUuid()
         viewPars['nodeId'] = gridId
         if dropCodes:
@@ -228,7 +226,6 @@ class IncludedView(BaseComponent):
                 # 
         controllerPath = datapath or 'grids.%s' % gridId
         storepath = storepath or '.selection'
-        viewPars['configurable'] = configurable
         viewPars['storepath'] = storepath
         viewPars['controllerPath'] = controllerPath
         controller = parentBC.dataController(datapath=controllerPath)
