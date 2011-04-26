@@ -18,19 +18,16 @@ definition
     To make obligations onto user input filling out a :ref:`genro_form_index`,
     Genro provides an helpful developer's tool: the validations.
     
-    You can use the validations on every single form elements.
+    Remember that:
     
-    When a validation requirement is not satisfied, user is notified through a tooltip
-    warning. In your :ref:`webpages_webpages`\s for database table management, if any of
-    the validation is not satisfied, users can't save the actual record on which they
-    are writing until the wrong insertions are corrected.
-    
-    For every validation, you have a list of :ref:`validations_common` through which
-    you can modify the standard validation features.
-    
-    Most of the validations have to be implemented through Python. So, if we don't specify
-    anything, a validation is built through Python. Otherwise, we specify that you have to
-    implement it through Javascript.
+    * You can use the validations on every single form's element.
+    * The form can be saved only if all the validation requirements are satisfied.
+    * For every validation, you have a list of suffixes (:ref:`validations_common`)
+      through which you can modify the standard validation features (e.g: write a javascript
+      alert on correct/uncorrect user insertion)
+    * Most of the validations have to be implemented through Python. So, if we don't specify
+      anything, a validation is built through Python. Otherwise, we specify that you have to
+      implement it through Javascript.
     
 .. _validations_list:
 
@@ -84,8 +81,10 @@ other validations
     
     * *validate_case*: you have many options:
     
-        * *validate_case='c'* (or *validate_case='capitalize'*): Set the first letter of every word uppercase
-        * *validate_case='t'* (or *validate_case='title'*): Set the first letter of the first word uppercase
+        * *validate_case='c'* (or *validate_case='capitalize'*): Set the first letter
+          of every word uppercase
+        * *validate_case='t'* (or *validate_case='title'*): Set the first letter of
+          the first word uppercase
         * *validate_case='u'* (or *validate_case='upper'*): Set every letter uppercase
         * *validate_case='l'* (or *validate_case='lower'*): Set every letter lowercase
         
@@ -96,17 +95,18 @@ other validations
           
 .. _validations_common:
     
-common validations
-==================
+suffixes to validations
+=======================
     
     **Syntax**: ``validationName_`` + ``validationAttribute``
     
     Where:
     
-    * ``validationName`` is one of the :ref:`validations_list` showed before (e.g: ``validate_email``)
+    * ``validationName`` is one of the :ref:`validations_list` showed before
+      (e.g: ``validate_email``, ``validate_regex``)
     * ``validationAttribute`` is one of the following validations:
     
-        * *error*: set a hint tooltip appearing on mouse click for user uncorrect input
+        * *error*: Allow to warn user of his uncorrect typing (through a tooltip); user can't save the form::
           
           Example::
           
@@ -133,14 +133,14 @@ common validations
             root.textBox(value='^.short_string',validate_len=':10',
                          validate_onReject='alert("The string "+"\'"+value+"\'"+" is too long")')
         
-        * *warning*: set a hint tip appearing on mouse click for user uncorrect input::
+        * *warning*: Allow to warn user of his uncorrect typing (through a tip); if you use the *warning*,
+          user can save the form even if he was wrong to write.
+          
+          Example::
             
             root.textBox(value='^.email2',lbl="secondary email",
                          validate_email=True,validate_email_warning='Uncorrect email format')
                          
-        .. warning:: the *warning* validation doesn't prevent the possibility to save the form, so the form
-                     is still correct even if the field with *warning* are sbagliati???
-            
 .. _validations_example:
 
 examples
@@ -177,4 +177,4 @@ form example
                            validate_onAccept='alert("Correct email format")',
                            validate_notnull=True)
                 fb.div('required correct e-mail form (correct input notification)')
-            
+                
