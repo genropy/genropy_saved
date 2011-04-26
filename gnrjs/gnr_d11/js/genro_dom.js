@@ -1236,12 +1236,13 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var kw = objectUpdate(default_kw, kw);
         var hider = rootNode._('div','hiderNode', kw).getParentNode();
         if(message){
-            messageArgs = objectNotEmpty(messageArgs)? messageArgs:  {position:'absolute',
-                                          font_size:'24pt',color:'rgba(80, 80, 80, 0.2)',
+            messageArgs = objectNotEmpty(messageArgs)? messageArgs:  {position:'relative',
+                                            text_align:'center',
+                                            font_size:'24pt',top:'50%',
+                                          color:'rgba(80, 80, 80, 0.2)',
                                           text_shadow:'2px 2px 4px'};
             messageArgs.innerHTML = message;
             var messagePane = hider._('div',messageArgs);
-            this.centerOn(messagePane,hider);
         }
         return hider;
     },
