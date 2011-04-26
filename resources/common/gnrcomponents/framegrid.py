@@ -31,8 +31,21 @@ class FrameGridSlots(BaseComponent):
 
 
     @struct_method
-    def fgr_slotbar_gridConfigurator(self,pane,_class='gridConfigurator',frameCode=None,enable=None,parentForm=True,**kwargs):
-        pane.div(tip='!!Config view', _class=_class,visible=enable,width='100%',_gridConfigurator=True,**kwargs)
+    def fgr_slotbar_gridConfigurator(self,pane,_class='icnBaseTableEdit32',frameCode=None,enable=None,parentForm=True,**kwargs):
+        pane.div(tip='!!Configurate view', _class=_class,visible=enable,margin='3px',_gridConfigurator=True,**kwargs)
+        
+    @struct_method
+    def fgr_slotbar_gridTrashColumns(self,pane,_class='icnBaseTrash32',frameCode=None,enable=None,parentForm=True,**kwargs):
+        pane.div(tip='!!Drop here a column to remove it from the view', _class=_class,visible=enable,margin='3px',
+        dropTarget=True, dropTypes='trashable', onDrop_trashable="""var sourceNode=genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
+                                            if(sourceNode&&sourceNode.attr.onTrashed){
+                                                funcCreate(sourceNode.attr.onTrashed,'data,dropInfo',sourceNode)(data,dropInfo);
+                                            }""",**kwargs)
+
+    @struct_method
+    def fgr_slotbar_gridPalette(self,pane,_class='icnBasePalette32',frameCode=None,enable=None,parentForm=True,**kwargs):
+        pane.div(tip='!!Drop here a column to edit styles', _class=_class,visible=enable,margin='3px',
+        dropTarget_column='*', onDrop=""" alert ('edit it')""",**kwargs)
         
     @struct_method
     def fgr_slotbar_tools(self,pane,_class='icnBaseArrowDown',enable=None,frameCode=None,**kwargs):
@@ -62,7 +75,7 @@ class FrameGrid(BaseComponent):
 
     @struct_method
     def fgr_leftBar(self,pane):
-        pane.slotToolbar('5,gridConfigurator,10,export,*')
+        pane.slotToolbar('5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*')
         pane.attributes['_class'] = 'hiddenBcPane'
         
     def fgr_relationHandler(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,**kwargs):
