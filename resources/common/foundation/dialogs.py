@@ -86,7 +86,7 @@ class Dialogs(BaseComponent):
                        changed="^.form.changed", saving='^.form.saving', allowNoChanges=allowNoChanges,
                        formId=formId, _if='formId')
         if cb_center:
-            cb_center(bc, region='center', datapath='.data', _class='pbl_dialog_center',
+            cb_center(bc, region='center', datapath='.data',formDatapath='.data', _class='pbl_dialog_center',
                       controllerPath='#%s.form' % dlgId, pkeyPath=pkeyPath,
                       formId=formId, **kwargs)
             #only in form mode
