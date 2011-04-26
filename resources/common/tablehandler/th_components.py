@@ -55,10 +55,10 @@ class TableHandlerBase(BaseComponent):
         rpc = form.store.handler('load',**default_kwargs)
         return form 
             
-    @extract_kwargs(condition=True)
+    @extract_kwargs(condition=True,grid=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             th_iframe=False,reloader=None,virtualStore=False,condition=None,condition_kwargs=None,
-                            default_kwargs=None,hiderMessage=None,**kwargs):
+                            default_kwargs=None,grid_kwargs=None,hiderMessage=None,**kwargs):
         if relation:
             table,condition = self.__relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -83,7 +83,7 @@ class TableHandlerBase(BaseComponent):
                             """,pkey='^#FORM.pkey',sourceNode=wdg,message=message)                
         wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName='view',viewResource=viewResource,
                                 reloader=reloader,virtualStore=virtualStore,top_slots='#,addrow,delrow,list_locker',
-                                condition=condition,condition_kwargs=condition_kwargs)    
+                                condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs)    
         return wdg
             
     def __relationExpand(self,pane,relation=None,condition=None,condition_kwargs=None,default_kwargs=None,**kwargs):
