@@ -953,7 +953,6 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          var chunkSize = objectPop(kw,'chunkSize',0);
          var storeType = chunkSize? 'VirtualSelection':'Selection';
          kw.row_count = chunkSize;
-         var storeType = kw.row_count? 'VirtualSelection':'Selection';
          var identifier = objectPop(kw,'_identifier') || '_pkey';
          var selectionStore = sourceNode._('dataRpc',kw);
          var cb = "this.store.onLoaded(result,_isFiredNode);"
@@ -982,6 +981,7 @@ dojo.declare("gnr.stores._Collection",null,{
     getData:function(){
         return this.storeNode.getRelativeData(this.storepath) || new gnr.GnrBag();
     },
+    
     getItems:function(){
         return this.getData();
     },
