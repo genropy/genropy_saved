@@ -14,20 +14,20 @@ class FrameGridSlots(BaseComponent):
     @struct_method
     def fgr_slotbar_export(self,pane,_class='buttonIcon icnBaseExport',mode='xls',enable=None,**kwargs):
         return pane.slotButton(label='!!Export',publish='serverAction',command='export',opt_export_mode=mode or 'xls',
-                                baseClass='no_background',iconClass=_class,visible=enable,**kwargs) 
+                                iconClass=_class,visible=enable,**kwargs) 
        
     @struct_method
     def fgr_slotbar_addrow(self,pane,_class='icnBaseAdd',enable=None,parentForm=True,delay=300,**kwargs):
-        return pane.slotButton(label='!!Add',publish='addrow',baseClass='no_background',iconClass=_class,visible=enable,parentForm=parentForm,
+        return pane.slotButton(label='!!Add',publish='addrow',iconClass=_class,visible=enable,parentForm=parentForm,
                                 _delay=delay,**kwargs)
          
     @struct_method
     def fgr_slotbar_delrow(self,pane,_class='icnBaseDelete',enable=None,parentForm=True,**kwargs):
-        return pane.slotButton(label='!!Delete',publish='delrow',baseClass='no_background',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
+        return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
     
     @struct_method
     def fgr_slotbar_updrow(self,pane,_class='icnBaseEdit',enable=None,parentForm=True,**kwargs):
-        return pane.slotButton(label='!!Delete',publish='updrow',baseClass='no_background',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
+        return pane.slotButton(label='!!Delete',publish='updrow',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
 
 
     @struct_method
