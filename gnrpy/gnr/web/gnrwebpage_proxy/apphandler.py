@@ -1144,8 +1144,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         record = self.db.table(table).record(pkey).output('bag')
         return self.page.rmlTemplate(path=template, record=record)
 
-    def rpc_includedViewAction(self, action=None, export_mode=None, respath=None, table=None, data=None, struct=None,
-                               datamode=None, downloadAs=None, **kwargs):
+    def rpc_includedViewAction(self, action=None, export_mode=None, respath=None, table=None, data=None,
+                               selectionName=None, struct=None,datamode=None, downloadAs=None,
+                               selectedRowidx=None, **kwargs):
         page = self.page
         if downloadAs:
             import mimetypes
@@ -1154,9 +1155,10 @@ class GnrWebAppHandler(GnrBaseProxy):
             page.response.add_header("Content-Disposition", str("attachment; filename=%s" % downloadAs))
         if not respath:
             respath = 'action/%s' % action
-        res_obj = self.page.site.loadTableScript(page=self.page, table=table,
-                                                 respath=respath, class_name='Main')
-        return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode, datamode=datamode)
+        res_obj = self.page.site.loadTableScript(page=self.page, table=table,respath=respath, class_name='Main')
+        if selectionName:
+            data = self.page.getUserSelection(selectionName=selectionName,selectedRowidx=selectedRowidx).output('grid')
+        return res_obj.gridcall(data=data, struct=struct, export_mode=export_mode, datamode=datamode,selectedRowidx=selectedRowidx)
 
 class BatchExecutor(object):
     def __init__(self, page):
