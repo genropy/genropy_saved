@@ -82,7 +82,7 @@ class TableHandlerBase(BaseComponent):
                             }
                             """,pkey='^#FORM.pkey',sourceNode=wdg,message=message)                
         wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName='view',viewResource=viewResource,
-                                reloader=reloader,virtualStore=virtualStore,top_slots='#,addrow,delrow,list_locker',
+                                reloader=reloader,virtualStore=virtualStore,top_slots='#,addrow,delrow',
                                 condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs)    
         return wdg
             
@@ -188,6 +188,7 @@ class StackTableHandlerRunner(BaseComponent):
                                 formResource=formResource,viewResource=viewResource,virtualStore=True,**kwargs)
         sc.attributes.update(dict(border_left='1px solid gray'))
         sc.view.attributes.update(dict(border='0',margin='0', rounded=0))
+        sc.view.top.bar.replaceSlots('delrow','delrow,list_locker')
         sc.form.attributes['hasBottomMessage'] = False
         sc.form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
         
