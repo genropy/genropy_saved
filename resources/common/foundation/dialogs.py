@@ -80,15 +80,17 @@ class Dialogs(BaseComponent):
         """a dialog that use a form object"""
         dlgId = '%s_dlg' % formId
         bc = self._innerDialog(parent, title=title, dlgId=dlgId, datapath=datapath,
-                               height=height, width=width, cb_bottom=cb_bottom,
+                                formDatapath='.data',controllerPath='.form', 
+                                formId=formId,pkeyPath=pkeyPath,
+                                height=height, width=width, cb_bottom=cb_bottom,
                                confirm_btn=confirm_btn)
         bc.dataFormula(".disable_button", "!valid||(!changed && !allowNoChanges)||saving", valid="^.form.valid",
                        changed="^.form.changed", saving='^.form.saving', allowNoChanges=allowNoChanges,
                        formId=formId, _if='formId')
         if cb_center:
-            cb_center(bc, region='center', datapath='.data',formDatapath='.data', _class='pbl_dialog_center',
-                      controllerPath='#%s.form' % dlgId, pkeyPath=pkeyPath,
-                      formId=formId, **kwargs)
+            cb_center(bc, region='center', datapath='.data', _class='pbl_dialog_center',
+                      
+                       **kwargs)
             #only in form mode
         bc.dataController("""
                              FIRE ._setOpener = opener;
