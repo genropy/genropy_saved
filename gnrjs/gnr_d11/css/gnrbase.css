@@ -1004,6 +1004,13 @@ div.dojoxDock {
     height: 16px;
 }
 
+.icnOpenPalette {
+    background: url(icons/base16/multirow.gif) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+
+
 .icnBaseEye {
     background: url(icons/base16/eye.gif) no-repeat center center;
     width: 16px;
