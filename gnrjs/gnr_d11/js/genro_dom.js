@@ -878,7 +878,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
             genro.dom._dragLastOutlined = shape;
         } else {
             genro.dom.removeClass(dojo.body(), 'drag_started');
-            genro.dom.removeClass(dojo.body(), 'drag_to_trash');
         }
     },
     onDetach:function(sourceNode, dropInfo) {
@@ -1033,14 +1032,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
             }
         }
 
-        if ('trashable' in dragValues) {
-            if (widget) {
-                if (widget.gnr.setTrashPosition(dragInfo)) {
-                    genro.dom.addClass(dojo.body(), 'drag_to_trash');
-                }
-                ;
-            }
-        }
         var dragTags = inherited['dragTags'];
         var local_dragTags = objectPop(dragValues, 'dragTags');
         dragTags = dragTags ? (local_dragTags ? dragTags + ',' + local_dragTags : dragTags ) : local_dragTags;

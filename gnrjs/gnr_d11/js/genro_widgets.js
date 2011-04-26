@@ -2922,6 +2922,10 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
         if (attr) {
             if (attr._customClasses) {
                 var customClasses = null;
+                if ( typeof(customClasses)=='function'){
+                    customClasses=customClasses(row)
+                }
+                
                 if (attr._customClasses.slice(0, 1) == '!') {
                     customClasses = attr._customClasses.slice(1);
                 } else {
@@ -2930,7 +2934,7 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
                 row.customClasses = customClasses;
             }
             if (attr._customStyles) {
-                row.customStyles = attr._customStyles;
+                row.customStyles =( typeof(_customStyles)=='function')?attr._customStyles(row) : attr._customStyles;
             }
         }
         this.onStyleRow_replaced(row);

@@ -1132,7 +1132,21 @@ div.dojoxDock {
     width: 16px;
     height: 16px;
 }
-
+.icnBasePalette32 {
+    background: url(icons/base32/palette_32.png) no-repeat center center;
+    width: 32px;
+    height: 32px;
+}
+.icnBaseTrash32 {
+    background: url(icons/base32/trash_32.png) no-repeat center center;
+    width: 32px;
+    height: 32px;
+}
+.icnBaseTableEdit32 {
+    background: url(icons/base32/table_edit_32.png) no-repeat center center;
+    width: 32px;
+    height: 32px;
+}
 .icnBaseUnlocked {
     background: url(icons/base16/unlocked.gif) no-repeat center center;
     width: 16px;
