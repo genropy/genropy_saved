@@ -228,7 +228,7 @@ class GnrHTable(TableBase):
     def htableFields(self, tbl):
         """add???
         
-        :param tbl: add???
+        :param tbl: the table
         """
         columns = tbl['columns'] or []
         if not 'code' in columns:
@@ -238,7 +238,7 @@ class GnrHTable(TableBase):
         if not 'child_code' in columns:
             tbl.column('child_code', name_long='!!Child code', validate_notnull=True,
                        validate_notnull_error='!!Required', base_view=True,
-                       validate_regex='!\.', validate_regex_error='!!Invalid code:"." char is not allowed',
+                       validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed',
                        #unmodifiable=True
                        )
         tbl.column('parent_code', name_long='!!Parent code').relation('%s.code' % tbl.parentNode.label)
@@ -256,8 +256,7 @@ class GnrHTable(TableBase):
                           """ % tblname)
         if not 'rec_type' in columns:
             tbl.column('rec_type', name_long='!!Type')
-
-
+            
     def trigger_onInserting(self, record_data):
         """add???
         
@@ -305,7 +304,7 @@ class Table_counter(TableBase):
     def config_db(self, pkg):
         """add???
         
-        :param pkg: package name
+        :param pkg: add???
         :returns: add???
         """
         tbl = pkg.table('counter', pkey='codekey', name_long='!!Counter', transaction=False)

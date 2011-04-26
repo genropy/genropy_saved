@@ -28,6 +28,10 @@ definition
     For every validation, you have a list of :ref:`validations_common` through which
     you can modify the standard validation features.
     
+    Most of the validations have to be implemented through Python. So, if we don't specify
+    anything, a validation is built through Python. Otherwise, we specify that you have to
+    implement it through Javascript.
+    
 .. _validations_list:
 
 Genro validations
@@ -46,23 +50,28 @@ Genro validations
     * *validate_empty*: add???
     * *validate_exist*: add???
     * *validate_gridnodup*: add???
-    * *validate_len*: you have many options:
+    * *validate_len='NUMBER:NUMBER'*: set the lenght of the field::
     
-        * *validate_len='NUMBER:NUMBER'*: set the lenght of the field::
+        root.textbox(value='^.name',validate_len='5:30') # from 5 to 30 characters!
+        root.textbox(value='^.fiscal_code',validate_len=':16') # max number: 16
+        root.textbox(value='^.surname',validate_len='2:') # at least 2 characters!
+        root.textbox(value='^.fiscal_code',validate_len='16')
+        root.textbox(value='^.fiscal_code',validate_len=30)
         
-            root.textbox(value='^.name',validate_len='5:30') # from 5 to 30 characters!
-            root.textbox(value='^.fiscal_code',validate_len=':16') # max number: 16
-            root.textbox(value='^.surname',validate_len='2:') # at least 2 characters!
-            root.textbox(value='^.fiscal_code',validate_len='16')
-            root.textbox(value='^.fiscal_code',validate_len=30)
-            
+    * *validate_max:NUMBER*: Javascript validation. Max characters supported.
+    * *validate_min:NUMBER*: Javascript validation. Min characters supported.
     * *validate_nodup*: add???
     * *validate_notnull*: if `True`, set the field as a required field::
     
         root.textbox(value='^.name', validate_notnull=True)
         root.textbox(value='^.surname', validate_notnull=True)
         
-    * *validate_regex*: add???
+    * *validate_regex*: allow to create a regular expression (of the re_ Python module) that works on the field::
+        
+        validate_regex='!\.' # The field doesn't accept the "." character
+        
+    .. _re: http://docs.python.org/library/re.html
+    
     * *validate_remote*: add???
     
 .. _validations_other_list:
@@ -75,9 +84,10 @@ other validations
     
     * *validate_case*: you have many options:
     
-        * *validate_case='c'*: (Capitalize) Set the first letter of every word uppercase
-        * *validate_case='u'*: (Uppercase) Set every letter of every word uppercase
-        * *validate_case='l'*: (Lowercase) Set every letter of every word lowcase
+        * *validate_case='c'* (or *validate_case='capitalize'*): Set the first letter of every word uppercase
+        * *validate_case='t'* (or *validate_case='title'*): Set the first letter of the first word uppercase
+        * *validate_case='u'* (or *validate_case='upper'*): Set every letter uppercase
+        * *validate_case='l'* (or *validate_case='lower'*): Set every letter lowercase
         
           Example::
           
@@ -89,12 +99,11 @@ other validations
 common validations
 ==================
     
-    **Syntax**: ``validate_`` + ``validationName_`` + ``validationAttribute``
-        
+    **Syntax**: ``validationName_`` + ``validationAttribute``
+    
     Where:
     
-    * ``validate_`` is a string, common to every common validation
-    * ``validationName`` is one of the :ref:`validations_list` showed before
+    * ``validationName`` is one of the :ref:`validations_list` showed before (e.g: ``validate_email``)
     * ``validationAttribute`` is one of the following validations:
     
         * *error*: set a hint tooltip appearing on mouse click for user uncorrect input
@@ -104,6 +113,10 @@ common validations
             root.textbox(value='^.email',
                          validate_email=True,
                          validate_email_error='Hint tooltip')
+                         
+            root.textbox(value='^.no_dot_here',
+                         validate_notnull=True,validate_notnull_error='!!Required',
+                         validate_regex='!\.',validate_regex_error='!!Invalid code: "." char is not allowed')
                          
         * *onAccept*: perform a javascript action after a correct input
         
@@ -120,6 +133,14 @@ common validations
             root.textBox(value='^.short_string',validate_len=':10',
                          validate_onReject='alert("The string "+"\'"+value+"\'"+" is too long")')
         
+        * *warning*: set a hint tip appearing on mouse click for user uncorrect input::
+            
+            root.textBox(value='^.email2',lbl="secondary email",
+                         validate_email=True,validate_email_warning='Uncorrect email format')
+                         
+        .. warning:: the *warning* validation doesn't prevent the possibility to save the form, so the form
+                     is still correct even if the field with *warning* are sbagliati???
+            
 .. _validations_example:
 
 examples

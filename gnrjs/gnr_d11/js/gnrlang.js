@@ -922,7 +922,7 @@ function highlightLinks(text) {
 
 }
 function funcApply(fnc, parsobj, scope,argNames,argValues) {
-    var argNames = argNames  || [];
+    var argNames = argNames || [];
     var argValues = argValues || [];
     for (var attr in parsobj) {
         argNames.push(attr);

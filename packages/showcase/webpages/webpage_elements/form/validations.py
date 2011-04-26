@@ -11,24 +11,30 @@ class GnrCustomWebPage(object):
     
     def test_0_form(self,pane):
         """Validations"""
-        fb = pane.formbuilder(cols=2)
-        fb.textbox(value='^.name',lbl='Name', validate_case='c')
-        fb.div('Capitalized field')
-        fb.textbox(value='^.surname',lbl='Surname', validate_case='c')
-        fb.div('Capitalized field')
-        fb.textbox(value='^.job',lbl='Profession',
-                   validate_case='l',
+        fb = pane.formbuilder(lbl_color='teal')
+        fb.textbox(value='^.no_val', lbl='No validations')
+        fb.textbox(value='^.capitalized',lbl='Capitalized field', validate_case='c')
+        fb.textbox(value='^.lowercased',lbl='Lowercased field - required',validate_case='l',
                    validate_notnull=True,validate_notnull_error='!!Required field')
-        fb.div('Not null field; lowercase field')
-        fb.textbox(value='^.address', lbl='!!Address')
-        fb.div('No validation is required')
-        fb.textbox(value='^.fiscal_code',lbl='!!Fiscal code',
-                   validate_len='16',validate_case='u')
-        fb.div('Uppercased field; Precise length field [16]')
-        fb.textBox(value='^.long',lbl='Long string',validate_len='6:',
+        fb.textbox(value='^.titled',lbl='Titled field',validate_case='t')
+        fb.textbox(value='^.fiscal_code',lbl='Uppercased + precise length field [16]',validate_len='16',validate_case='u')
+        fb.textBox(value='^.short',lbl='Short string [<=5]',validate_len=':5')
+        fb.textBox(value='^.long',lbl='Long string [>=6]',validate_len='6:',
                    validate_onReject='alert("The string "+"\'"+value+"\'"+" is too short")')
-        fb.div('Insert 6 or more characters (wrong input notification)')
-        fb.textBox(value='^.email', lbl="email", validate_email=True,
-                   validate_onAccept='alert("Correct email format")',
+        fb.textBox(value='^.email_error',lbl="Email validation + error",
+                   validate_email=True,validate_onAccept='alert("Correct email format")',validate_notnull=True)
+        fb.textBox(value='^.email_warning',lbl="Email validation + warning",
+                   validate_email=True,validate_email_warning='Uncorrect email format')
+        fb.textbox(value='^.notnull',lbl='Notnull validation',
                    validate_notnull=True)
-        fb.div('required correct e-mail form (correct input notification)')
+        fb.textbox(value='^.empty',lbl='Empty validation',
+                   validate_empty=True)
+    #    fb.textBox(value='^.email2',lbl="secondary email",
+    #               validate_remote=pippo,
+    #               validate_remote_niso='3',
+    #               validate_remote_warning='Uncorrect email format')
+    #    fb.div('warning on wrong insertion')
+    #    
+    #def remote_pippo(self,niso):
+        
+        

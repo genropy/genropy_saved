@@ -1083,17 +1083,17 @@ dojo.declare("gnr.GnrValidator", null, {
                 var sl = param.split(':');
                 if (sl[1]) {
                     if (value.length > parseInt(sl[1])) {
-                        return 'max';
+                        return 'too long';
                     }
                 }
                 if (sl[0]) {
                     if (value.length < parseInt(sl[0])) {
-                        return 'min';
+                        return 'too short';
                     }
                 }
             } else {
                 if (value.length != parseInt(param)) {
-                    return 'fixed';
+                    return 'wrong lenght';
                 }
             }
         }

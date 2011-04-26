@@ -22,18 +22,10 @@ Description
 ===========
 
     A table is one of the most important part of your project. In relational databases and
-    flat file databases, a table is a set of data elements (values) that is organized using
-    a model of vertical columns (which are identified by their name) and horizontal rows.
-    A table has a specified number of columns, but can have any number of rows. Each row is
-    identified by the values appearing in a particular column subset which has been identified
-    as a candidate key. Table is another term for relations; although there is the difference
-    in that a table is usually a multi-set (bag) of rows whereas a relation is a set and does
-    not allow duplicates. Besides the actual data rows, tables generally have associated with
-    them some meta-information, such as constraints on the table or on the values within
-    particular columns. The data in a table does not have to be physically stored in the database.
-    Views are also relational tables, but their data are calculated at query time. Another example
-    are nicknames, which represent a pointer to a table in another database.
-
+    flat file databases, a table is a set of data elements that is organized using a model
+    of vertical columns (which are identified by their name) and horizontal rows. Each row
+    is identified by the table's primary key (pkey).
+    
 .. _table_definition:
 
 Definition
@@ -59,17 +51,19 @@ Creation of a table
         # encoding: utf-8
     
     Now we have to introduce the right class for a table; there are many options (that we will discuss
-    in the :ref:`genro_table_class` documentation page)
+    in the :ref:`genro_table_class` documentation page). For now use the standard one::
     
-    ::
+        class Table(object):
+        
+    To use a table you have to call the following method:
     
-        class Table(object): # add???(a mixin class?)
-        
-        class TableBase ???
-        
     .. automethod:: gnr.app.gnrdbo.Table_counter.config_db
+    
+    So, write inside your ``class Table(object):`` the following method::
         
             def config_db(self, pkg):
+            
+    Inside the ``config_db`` method you can create a table:
             
     * introduce a table::
         
@@ -90,6 +84,8 @@ Creation of a table
         self.sysFields(tbl)
         
     .. automethod:: gnr.app.gnrdbo.TableBase.sysFields
+    
+    add self.htableFields(tbl)?
 
 .. _table_columns:
 
