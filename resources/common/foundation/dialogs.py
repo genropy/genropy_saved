@@ -41,7 +41,8 @@ class Dialogs(BaseComponent):
         return bc
 
     def _innerDialog(self, parent, title='', dlgId=None, datapath='', height='', width='',
-                     cb_center=None, cb_bottom='*', confirm_btn=None, **kwargs):
+                     cb_center=None, cb_bottom='*', confirm_btn=None,
+                     formId=None,formDatapath=None,pkeyPath=None,controllerPath=None, **kwargs):
         """
         internal method used by dialogs micro components
         """
@@ -62,7 +63,7 @@ class Dialogs(BaseComponent):
 
         sc = dialog.stackContainer(height=height, width=width, selectedPage='^.selected_stack_page')
         sc.dataController("SET .selected_stack_page = %s_page[0];" % dlgId, **{'subscribe_%s_page' % dlgId: True})
-        bc = sc.borderContainer(pageName='main')
+        bc = sc.borderContainer(pageName='main',formId=formId,formDatapath=formDatapath,pkeyPath=pkeyPath,controllerPath=controllerPath)
         bc.mainStack = sc
         cb_bottom = cb_bottom or getattr(self, '%s_bottom' % dlgId, None)
         cb_center = cb_center or getattr(self, '%s_center' % dlgId, None)
