@@ -1209,40 +1209,62 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         kwargs['_class'] = 'frame_footer'
         return self.slotBar(*args,**kwargs)
         
-    def slotBar(self,slots=None,slotbarCode=None,namespace=None,**kwargs):
+   
+                    
+    def _addSlot(self,slot,prefix=None,frame=None,frameCode=None,namespace=None,**kwargs):
+        s=self.child('slot',childname=slot)
+        s.frame = frame
+        slothandle = getattr(s,'%s_%s' %(prefix,slot),None)
+        if not slothandle:
+            if namespace:
+                slothandle = getattr(s,'slotbar_%s_%s' %(namespace,slot),None)
+            if not slothandle:
+                slothandle = getattr(s,'slotbar_%s' %slot,None)
+        if slothandle:
+            kw = dict()
+            kw[slot] = kwargs.pop(slot,None)
+            kw.update(dictExtract(kwargs,'%s_' %slot,True))
+            kw['frameCode'] = frameCode
+            slothandle(**kw)                
+
+    def slotBar(self,slots=None,slotbarCode=None,namespace=None,childname='bar',**kwargs):
         """add???
-        
         :param slots: add???. Default value is ``None``
         :param slotbarCode: add???. Default value is ``None``
         :param namespace: add???. Default value is ``None``
         :returns: a slotBar
         """
         namespace = namespace or self.parent.attributes.get('namespace')
-        tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,**kwargs)
-        kwargs = tb.attributes
+        tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,childname=childname,**kwargs)
+        toolbarArgs = tb.attributes
         slots = gnrstring.splitAndStrip(str(slots))
         frame = self.parent
-        frameCode = frame.attributes.get('frameCode')
+        frameCode = self.getInheritedAttributes().get('frameCode')
         prefix = slotbarCode or frameCode
         for slot in slots:
             if slot!='*' and slot!='|' and not slot.isdigit():
-                s=tb.child('slot',childname=slot)
-                s.frame = frame
-                slothandle = getattr(s,'%s_%s' %(prefix,slot),None)
-                if not slothandle:
-                    if namespace:
-                        slothandle = getattr(s,'slotbar_%s_%s' %(namespace,slot),None)
-                    if not slothandle:
-                        slothandle = getattr(s,'slotbar_%s' %slot,None)
-                if slothandle:
-                    kw = dict()
-                    kw[slot] = kwargs.pop(slot,None)
-                    kw.update(dictExtract(kwargs,'%s_' %slot,True))
-                    kw['frameCode'] = frameCode
-                    slothandle(**kw)
+                tb._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,**toolbarArgs)
         return tb
         
         #se ritorni la toolbar hai una toolbar vuota 
+    
+    def slotbar_replaceslots(self,toReplace,replaceStr):
+        toolbarArgs = self.attributes
+        slotstr = toolbarArgs['slots']
+        slotbarCode= toolbarArgs.get('slotbarCode')
+        slotstr = slotstr.replace(toReplace,replaceStr)
+        toolbarArgs['slots'] = slotstr
+        slots = slotstr.split(',')
+        inattr = self.getInheritedAttributes()
+        frameCode = inattr.get('frameCode')
+        namespace = inattr.get('namespace')
+        frame = self.parent.parent
+        prefix = slotbarCode or frameCode
+        for slot in slots:
+            if slot!='*' and slot!='|' and not slot.isdigit():
+                if not self.getNode(slot):
+                    self._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,**toolbarArgs)
+
         
     def button(self, label=None, **kwargs):
         return self.child('button', label=label, **kwargs)
@@ -1853,12 +1875,11 @@ class GnrGridStruct(GnrStructData):
                                                                     var valuepath=rowpath+sep+'%(field)s';
                                                                     var disabledpath = rowpath+'?disabled';
                                                                     var storebag = this.widget.storebag();
-                                                                    if (!this.widget.editorEnabled){
+                                                                    var blocked = this.form? this.form.locked: !this.widget.editorEnabled;
+                                                                    if (blocked){
                                                                         return;
                                                                     }
-                                                                    console.log('kw',kw,'valuepath',valuepath,'storebag',storebag,'sourceNode',this);
                                                                     var checked = !storebag.getItem(valuepath);
-                                                                    
                                                                     storebag.setItem(valuepath, checked);
                                                                     this.publish('checked_%(field)s',{row:this.widget.rowByIndex(idx),
                                                                                                       pkey:this.widget.rowIdByIndex(idx),
