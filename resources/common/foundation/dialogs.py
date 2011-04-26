@@ -87,7 +87,7 @@ class Dialogs(BaseComponent):
                                confirm_btn=confirm_btn)
         bc.dataFormula(".disable_button", "!valid||(!changed && !allowNoChanges)||saving", valid="^.form.valid",
                        changed="^.form.changed", saving='^.form.saving', allowNoChanges=allowNoChanges,
-                       formId=formId, _if='formId')
+                       _formId=formId, _if='_formId')
         if cb_center:
             cb_center(bc, region='center', datapath='.data', _class='pbl_dialog_center',
                       
@@ -99,15 +99,15 @@ class Dialogs(BaseComponent):
                              FIRE .load;
                              """, opener="^.open")
         bc.dataController("FIRE ._closeSimpleDialog;", _fired="^.close")
-        bc.dataController("genro.formById(formId).load({sync:loadsync});",
-                          _fired="^.load", _delay=1, formId=formId, _if='formId',
+        bc.dataController("genro.formById(_formId).load({sync:loadsync});",
+                          _fired="^.load", _delay=1, _formId=formId, _if='_formId',
                           loadsync=loadsync)
-        bc.dataController('genro.formById(formId).save(always=="always"?true:false);',
-                          always="^.save", formId=formId, _if='formId')
-        bc.dataController('genro.formById(formId).saved(); FIRE .close;', formId=formId,
-                          _fired="^.saved", _if='formId')
-        bc.dataController('genro.formById(formId).loaded();', formId=formId,
-                          _if='formId', _fired="^.loaded")
+        bc.dataController('genro.formById(_formId).save(always=="always"?true:false);',
+                          always="^.save", _formId=formId, _if='_formId')
+        bc.dataController('genro.formById(_formId).saved(); FIRE .close;', _formId=formId,
+                          _fired="^.saved", _if='_formId')
+        bc.dataController('genro.formById(_formId).loaded();', _formId=formId,
+                          _if='_formId', _fired="^.loaded")
         return bc
 
     def formDialog_bottom(self, bc, confirm_btn=None, **kwargs):
