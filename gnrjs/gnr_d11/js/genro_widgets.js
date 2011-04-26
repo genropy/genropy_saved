@@ -4006,11 +4006,23 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
         var method = objectPop(options,"method") || "app.includedViewAction";
         var kwargs = objectUpdate({},options);
         kwargs['action'] = objectPop(kw,'command');
-        kwargs['selectedRowIdx'] = this.getSelectedRowidx();
+        if (this.collectionStore().storeType=='VirtualSelection'){
+            kwargs['selectionName'] = this.collectionStore().selectionName;
+            kwargs['selectedRowidx'] = this.getSelectedRowidx();
+        }else{
+            if(this.getSelectedRowidx().length<=1){
+                kwargs['data'] = this.collectionStore().getData();
+            }else{
+                var data = new gnr.GnrBag();
+                var nodes = this.getSelectedNodes();
+                dojo.forEach(nodes,function(n){data.setItem(n.label,n);});
+                kwargs['data'] = data;
+            }
+        }
         kwargs['table'] =this.sourceNode.attr.table;
         kwargs['datamode'] = this.datamode;
         kwargs['struct'] = this.structbag();
-        kwargs['data'] = this.collectionStore().getData();
+        
         var cb = function(result){
             genro.download(result);
         };
