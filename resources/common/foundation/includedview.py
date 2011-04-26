@@ -29,7 +29,7 @@ class IncludedView(BaseComponent):
     IncludedView allows you to manage data of the table in relation many to many. includedViewBox is the main method of this class.
     """
     js_requires = 'public'
-    py_requires = 'gnrcomponents/grid_configurator/grid_configurator:GridConfigurator,gnrcomponents/framegrid:FrameGrid,foundation/macrowidgets:FilterBox'    
+    py_requires = 'gnrcomponents/framegrid:FrameGrid,foundation/macrowidgets:FilterBox'    
     
     @struct_method
     def ivnew_adaptSlotbar(self,pane,label=None,slots=None,hasToolbar=False,**kwargs):
