@@ -102,9 +102,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formContentDomNode = this.contentSourceNode.getDomNode();
         var parentForm = this.getParentForm();
         if(parentForm){
-            if(this.store){
-                dojo.connect(parentForm,'load',this,'abort');
-            }
+            dojo.connect(parentForm,'load',this,'abort');
         }
         if(this.store){
             this.store.init(this);            
