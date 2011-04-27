@@ -994,6 +994,7 @@ class GnrWsgiSite(object):
                         page.setInClientData('gnr.dbchanges.%s' % table.replace('.', '_'), dbevents,
                                             attributes=dict(pkeycol=tblobj.pkey), 
                                             page_id=page_id,public=True)
+        self.db.updateEnv(env_transaction_id= None,dbevents=None)
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         """add???

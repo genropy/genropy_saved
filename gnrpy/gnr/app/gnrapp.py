@@ -960,7 +960,7 @@ class GnrApp(object):
             
             
         currentEnv = self.db.currentEnv
-        if not 'env_transaction_id' in currentEnv:
+        if not currentEnv.get('env_transaction_id'):
             self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
         broadcast = tblobj.attributes.get('broadcast')
         if broadcast is not False and broadcast != '*old*':
