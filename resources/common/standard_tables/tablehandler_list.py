@@ -492,13 +492,13 @@ class TableHandlerForm(BaseComponent):
         pane.dataController("""genro.setData("list.query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
                                genro.querybuilder.buildQueryPane(); 
                                SET list.view.selectedId = null;
-                               if(!fired&&runOnStart){
+                               if(!fired&&runOnStart&&!pkey){
                                     FIRE list.runQuery
                                }
                             """,
                             _onStart=True, baseQuery='=list.baseQuery', maintable=self.maintable,
                             fired='^list.query.new',
-                            runOnStart=self.queryBase().get('runOnStart', False))
+                            runOnStart=self.queryBase().get('runOnStart', False),pkey=self.pageArgs.get('pkey'))
         pane.data('list.baseQuery', self.queryFromQueryBase())
 
 
