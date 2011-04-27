@@ -12,5 +12,4 @@
 .. toctree::
     :maxdepth: 1
     
-    _resources/index
     webpages
