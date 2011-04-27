@@ -23,12 +23,12 @@ definition
     * You can use the validations on every single form's element.
     * The form can be saved only if all the validation requirements are satisfied.
     * For every validation, you have a list of suffixes (:ref:`validations_common`)
-      through which you can modify the standard validation features (e.g: write a javascript
-      alert on correct/uncorrect user insertion)
-    * Most of the validations have to be implemented through Python. So, if we don't specify
-      anything, a validation is built through Python. Otherwise, we specify that you have to
-      implement it through Javascript.
-    
+      through which you can add some features to the standard :ref:`validations_list`
+      (like writing a javascript alert on correct/uncorrect user insertion).
+    * Most of the validations have to be implemented through Python. So, if we don't
+      specify anything, a validation is built through Python. Otherwise, we specify
+      that you have to implement it through Javascript.
+      
 .. _validations_list:
 
 Genro validations

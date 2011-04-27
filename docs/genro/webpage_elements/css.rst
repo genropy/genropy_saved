@@ -16,29 +16,56 @@ Introduction
 
     CSS is a simple mechanism for adding style (e.g., fonts, colors, spacing) to Web documents.
     
-    * When you use CSS on a Genro :ref:`webpages_webpages` keep in mind that the main difference
-      with standard CSS lies in this rule:
-      
-      **you have to use the "_" symbol in place of the "-" symbol**::
+    There are two ways of adding CSS style in Genro:
     
-        <!-- normal CSS style -->
-        font-size='40pt'
-        margin-top='40px'
+    #. The first way is the nearest to the standard way to use CSS.
+       
+       Usually, to indicate the CSS filename in a webpage you have to use the following line::
+       
+       <link href="stile/name_of_CSS_file.css" rel="stylesheet" type="text/css" />
+       
+       In a Genro :ref:`webpages_webpages`, you will have to write the following line::
+       
+        css_requires = 'name_of_CSS_file' # write the CSS filename without its extension! (.css)
+       
+       For more information, check the :ref:`webpages_css_requires` documentation section.
+       
+    #. The second way is to use CSS style directly in your Genro :ref:`webpages_webpages`.
+       When you do this, please keep in mind that the main difference with standard CSS
+       way lies in these three rules:
+       
+       #. use the underscore (``_``) character in place of the dash (``-``) character
+       #. use the equal (``=``) character in place of the colon (``:``) character
+       #. use the comma (``,``) character in place of the semi colon (``;``) character
+       
+       Let's see an example:
+       
+       The normal CSS style looks like this::
         
-        <!-- Genro webpage CSS style  -->
-        font_size='40pt'
-        margin_top='40px'
+        font-size:'20pt';
+        background-color:'teal';
         
+       While the same CSS style in a Genro webpage looks like this::
+        
+        font_size='20pt',
+        background_color='teal',
+        
+       When you write them on a single element the effect will be::
+       
+        root.textbox(font_size='20pt',background_color='teal',value='^hello')
+        
+    .. note:: you can use both the ways we just explained to you in a single file: you can
+              import a CSS file with the :ref:`webpages_css_requires` and at the same time
+              you can write additional style on some webpage elements.
+       
     You should also know that:
-        
-    * You can import css files in your :ref:`genro_project` through the *css_requires*
-      variable: check the :ref:`webpages_css_requires` section for further details.
     
-    * Genro allows to use :ref:`css_dojo_themes` and :ref:`css_genro_themes`.
-    
-    * There are some CSS attributes that have a different name respect to their standard CSS name:
-      check the :ref:`css_genro_names` section for the complete list
-    
+    * Genro allows to use some CSS preset style: the :ref:`css_dojo_themes` and the Genro
+      :ref:`css_genro_themes`
+    * When you use CSS style directly in a Genro webpage there are some CSS attributes that
+      have a different name respect to their standard CSS name: check the
+      :ref:`css_genro_names` section for the complete list
+      
 .. _css_dojo_themes:
 
 Dojo themes
@@ -46,18 +73,20 @@ Dojo themes
 
     The default Dojo theme for all the :ref:`webpages_webpages`\s is 'tundra'.
     
-    You can change a Dojo theme directly in your webpage: check the :ref:`webpages_dojo_theme` section for
-    the correct syntax, the complete reference list of compatible Dojo themes and more.
+    You can change a Dojo theme in your webpage: check the :ref:`webpages_dojo_theme` section
+    for the correct syntax, the complete reference list of compatible Dojo themes and more.
     
 .. _css_genro_themes:
 
 CSS themes
 ==========
 
-    CSS themes are Genro themes that modify the current Dojo theme of your webpage, adding or deleting some of their features.
+    CSS themes are Genro themes that modify the current Dojo theme of your webpage, adding or
+    deleting some of their features.
     
-    You can define your default CSS theme in the :ref:`siteconfig_gui` tag of your :ref:`sites_siteconfig` or in a single
-    :ref:`webpages_webpages` through the :ref:`webpages_css_theme` webpage variable.
+    You can define your default CSS theme for all your pages in the :ref:`siteconfig_gui` tag
+    of your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
+    :ref:`webpages_css_theme` webpage variable.
     
     We list here the main Genro themes currently available:
     
@@ -71,8 +100,9 @@ CSS themes
 Genro CSS names
 ===============
 
-    We list here all the CSS attributes that have a different name respect to the standard CSS name
-    (or all the attributes that should have an owner name, like -moz-, -webkit- and so on).
+    In the first section of this page (:ref:`css_introduction` section) we explain that you can
+    use CSS style directly in your Genro :ref:`webpages_webpages`. In this section we list all
+    the CSS attributes that have a different name respect to the standard CSS name.
     
     Click on the standard CSS name to go to the documentation line on the corresponding Genro CSS attribute:
     
@@ -92,12 +122,6 @@ border-radius
     
     * Genro CSS name: rounded
     * Syntax: rounded=NUMBER
-      
-      Where:
-
-        * ``rounded``: is a keyword
-        * ``NUMBER``: is a number
-        
     * Example::
     
         rounded=10
@@ -117,7 +141,9 @@ box-shadow
     
       Where:
 
-        * ``NUMBER1...NUMBER3``: are the shadow on the x axis, the shadow on the y axis and the blur
+        * ``NUMBER1``: is the shadow on the x axis
+        * ``NUMBER2``: is the shadow on the y axis
+        * ``NUMBER3``: is the blur
         * ``COLOR``: is the shadow color
         * ``inset``: keyword for inset feature
         
@@ -145,9 +171,12 @@ box-shadow
       
       * ``gradient_color``: is a keyword
       * ``NUMBER``: is a keyword number. If you use more than one gradient_color,
-        please pay attention to not repeat NUMBER
+        please pay attention to not repeat NUMBER (it is merely a counter, so it
+        is not the responsible for the order of the colors in your object)
       * ``COLOR``: the color you choose for your object
-      * ``OTHER_NUMBER``: the percentage of your object width to be colored with COLOR
+      * ``OTHER_NUMBER``: the percentage of your object width to be colored with
+        COLOR (this is the responsible for the order of the colors in your object)
+      
       
     * Example::
     
