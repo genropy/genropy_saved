@@ -265,12 +265,18 @@ class TableHandlerListBase(BaseComponent):
                             }else{
                             FIRE .#parent.runQuery;
                         }""")
-        chunkSize=self.rowsPerPage()*4   if virtualStore else None          
+        chunkSize=self.rowsPerPage()*4   if virtualStore else None  
+        if virtualStore:
+            chunkSize=self.rowsPerPage()*4
+            selectionName = '*%s' %mangler
+        else:
+            chunkSize = None
+            selectionName = None
         store = frame.grid.selectionStore(table=table, columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
                                pkeys='=.query.pkeys', _fired='^.runQueryDo',
-                               selectionName='*%s' %mangler, recordResolver=False, condition=condition,
+                               selectionName=selectionName, recordResolver=False, condition=condition,
                                sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
                                row_start='0', externalChanges=True,
                                excludeLogicalDeleted='^.excludeLogicalDeleted',
@@ -279,6 +285,7 @@ class TableHandlerListBase(BaseComponent):
                                selectmethod_prefix='customQuery',
                                _onCalling=self.onQueryCalling(),
                                _reloader=reloader,**condPars)
+
         store.addCallback('FIRE .queryEnd=true; SET .selectmethod=null; return result;')        
         frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                      fired='^.updateCurrentQueryCount',
