@@ -498,7 +498,7 @@ class TableHandlerForm(BaseComponent):
                             """,
                             _onStart=True, baseQuery='=list.baseQuery', maintable=self.maintable,
                             fired='^list.query.new',
-                            runOnStart=self.queryBase().get('runOnStart', False),pkey=self.pageArgs.get('pkey'))
+                            runOnStart=self.queryBase().get('runOnStart', False),pkey=self.pageArgs.get('pkey') or False)
         pane.data('list.baseQuery', self.queryFromQueryBase())
 
 
