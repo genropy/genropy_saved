@@ -1250,7 +1250,14 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var what = this.getDomNode(what);
         if (what){
             var cs = dojo.getComputedStyle(what);
-            return cs && (cs.display!='none');
+            if (cs.display=='none'){
+                return false
+            }
+            var coords = dojo.coords(what);
+            if(coords.h ==0 || coords.w == 0){
+                return false;
+            }
+            return true;
         }
         return false;
     }
