@@ -92,7 +92,7 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         var dockTo = objectPop(attributes, 'dockTo');
         var dockButton = objectPop(attributes,'dockButton') || objectExtract(attributes, 'dockButton_*');
         if (objectNotEmpty(dockButton)){
-            dockTo = 'dummyDock'
+            dockTo = 'dummyDock';
             attributes.dockButton = dockButton;
         }
         var floating_kwargs = objectUpdate(attributes, {dockable:true,closable:false,visibility:'hidden'});
@@ -132,7 +132,9 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         }
         if (kw.dockButton){
             kw.dockButton['action'] = function(){
-                genro.wdgById(kw.nodeId).show();
+                var widget = genro.wdgById(kw.nodeId)
+                widget.show();
+                widget.bringToTop();
             };
             kw.dockButton['label'] = kw.dockButton['label'] || kw.title;
             kw.dockButton['showLabel'] = kw.dockButton['showLabel'] || !kw.dockButton.iconClass;
@@ -1187,11 +1189,12 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             }
         });
         if (insOrUpdKeys.length>0) {
+            var original_condition =  this.storeNode.attr.condition;
+            var newcondition = ' ( $'+pkeycol+' IN :_pkeys ) ';
+            var kw = objectUpdate({'_sourceNode':this.storeNode,_pkeys:insOrUpdKeys},this.storeNode.attr)
+            kw.condition = original_condition?original_condition+' AND '+newcondition:newcondition;
             genro.rpc.remoteCall('app.getSelection', 
-                                objectUpdate({'_sourceNode':this.storeNode,
-                                              'condition':' $'+pkeycol+' IN :_pkeys',_pkeys:insOrUpdKeys},
-                                              this.storeNode.attr),
-                                null,null,null,
+                                kw,null,null,null,
                                 function(result){
                                             willBeInSelection={};
                                             result.getValue().forEach(function(n){
