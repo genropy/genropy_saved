@@ -364,8 +364,9 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
     contentKwargs:function(sourceNode, attributes){
         attributes['frameCode'] = attributes.paletteCode;
+        var draggableFolders = objectPop(attributes,'draggableFolders');
         attributes.tree_onDrag = function(dragValues, dragInfo, treeItem) {
-            if (treeItem.attr.child_count && treeItem.attr.child_count > 0) {
+            if (treeItem.attr.child_count && treeItem.attr.child_count > 0 && !draggableFolders) {
                 return false;
             }
             dragValues['text/plain'] = treeItem.attr.caption;

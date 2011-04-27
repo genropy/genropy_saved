@@ -1248,14 +1248,15 @@ dojo.declare("gnr.GnrBag", null, {
      * todo
      */
 
-    deepCopy: function () {
+    deepCopy: function (deep) {
+        var mode = deep? '' : 'static';
         var result = new gnr.GnrBag();
         var node;
         var bagnodes = this.getNodes();
         for (var i = 0; i < bagnodes.length; i++) {
             node = bagnodes[i];
-            var value = node.getValue('static');
-            value = (value instanceof gnr.GnrBag) ? value.deepCopy() : value;
+            var value = node.getValue(mode);
+            value = (value instanceof gnr.GnrBag) ? value.deepCopy(deep) : value;
             result.setItem(node.label, value, objectUpdate({}, node.attr));
         }
         return result;
