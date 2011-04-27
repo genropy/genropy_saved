@@ -547,6 +547,11 @@ class GnrWebPage(GnrBaseWebPage):
         :returns: add???
         """
         handler = None
+        if ';' in method:
+            mixin_info, method = method.split(';')
+            __mixin_pkg, __mixin_path = mixin_info.split('|')
+            __mixin_path_list = __mixin_path.split('/')
+            self.mixinComponent(__mixin_pkg, *__mixin_path_list)
         if '.' in method:
             proxy_name, submethod = method.split('.', 1)
             proxy_object = getattr(self, proxy_name, None)

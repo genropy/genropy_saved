@@ -836,6 +836,8 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             proxy_class = BaseProxy
             setattr(target_class,'%s_proxyclass'%proxy,proxy_class)
         target_class = proxy_class
+    __mixin_pkg = getattr(source_class, '__mixin_pkg', None)
+    __mixin_path = getattr(source_class, '__mixin_path', None)
     for name in mlist:
         original = target_class.__dict__.get(name)
         base_generator = base_visitor(source_class)
@@ -848,6 +850,8 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
                 found = True
         if callable(new):
             new.proxy_name = proxy
+            new.__mixin_pkg = __mixin_pkg
+            new.__mixin_path = __mixin_path
         setattr(target_class, name, new)
         if original:
             setattr(target_class, '%s_' % name, original)
@@ -906,9 +910,12 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     instmethod = type(obj.__init__)
     if methods:
         mlist = filter(lambda item: item in FilterList(methods), mlist)
-        
+    __mixin_pkg = getattr(source, '__mixin_pkg', None)
+    __mixin_path = getattr(source, '__mixin_path', None)
     for name in mlist:
         method = getattr(source, name).im_func
+        method.__mixin_pkg = __mixin_pkg
+        method.__mixin_path = __mixin_path
         k = instmethod(method, obj, obj.__class__)
         curr_prefix = prefix
         name_as = name

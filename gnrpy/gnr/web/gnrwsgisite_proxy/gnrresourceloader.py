@@ -484,6 +484,8 @@ class ResourceLoader(object):
         :param \* path: add???
         """
         component=self.loadResource(pkg,*path)
+        setattr(component,'__mixin_pkg', pkg)
+        setattr(component, '__mixin_path' ,'/'.join(path))
         css_requires = getattr(component,'css_requires',[])
         js_requires = getattr(component,'js_requires',[])
         for css in css_requires:

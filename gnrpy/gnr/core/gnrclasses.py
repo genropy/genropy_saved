@@ -303,8 +303,13 @@ class GnrClassCatalog(object):
         funcName = func.__name__
         if funcName.startswith('rpc_'):
             funcName = funcName[4:]
-        if hasattr(func, 'proxy_name'):
+        proxy_name=getattr(func, 'proxy_name', None)
+        if proxy_name:
             funcName = '%s.%s'%(getattr(func, 'proxy_name'),funcName)
+        __mixin_pkg = getattr(func, '__mixin_pkg', None)
+        __mixin_path = getattr(func, '__mixin_path', None)
+        if __mixin_pkg and __mixin_path:
+            funcName = '%s|%s;%s'%(__mixin_pkg, __mixin_path, funcName)
         return funcName
         
     def parse_float(self, txt):
