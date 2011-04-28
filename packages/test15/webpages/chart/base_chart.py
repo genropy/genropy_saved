@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 # 
-"""Buttons"""
+"""base_chart"""
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"

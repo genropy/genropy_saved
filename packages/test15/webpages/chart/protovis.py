@@ -4,11 +4,12 @@
 # Created by Francesco Porcari on 2010-12-27.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
+"""Protovis"""
+
 from gnr.core.gnrbag import Bag
 import random
 from gnr.web.gnrwebstruct import struct_method
 
-"Protovis"
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     js_requires = 'protovis'

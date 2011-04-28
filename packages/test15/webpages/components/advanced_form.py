@@ -1,4 +1,7 @@
 #!/usr/bin/python
+
+"""advanced form"""
+
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):

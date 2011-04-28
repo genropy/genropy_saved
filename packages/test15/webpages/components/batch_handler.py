@@ -4,7 +4,6 @@
 # Created by Francesco Porcari on 2010-10-01.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-
 """Test batch handler"""
 class GnrCustomWebPage(object):
     py_requires = """gnrcomponents/testhandler:TestHandlerFull,

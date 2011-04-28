@@ -1,20 +1,18 @@
 # -*- coding: UTF-8 -*-
 
-# testcomponent.py
+# form_dialog.py
 # Created by Francesco Porcari on 2010-09-22.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-"""FormDialog test page"""
-
-from gnr.core.gnrbag import Bag
+"""FormDialog"""
 
 class GnrCustomWebPage(object):
     py_requires = 'gnrcomponents/testhandler:TestHandlerFull,foundation/dialogs'
-
+    
     def test_0_formDialog(self, pane):
         self.askAuthcodeDlg(pane)
         pane.button('test_0', action='FIRE #askAuthcode_dlg.open;')
-
+        
     def askAuthcodeDlg(self, bc, onConfirmed='', request_txt=''):
         def cb_center(parentBC, **kwargs):
             dlg_body = parentBC.contentPane(margin='8px', **kwargs)
@@ -25,9 +23,9 @@ class GnrCustomWebPage(object):
                        validate_notnull=True,
                        validate_notnull_error='Insert code',
                        validate_remote='validateAuthCode',
-                       validate_remote_error='Wrong or alrady used auth code.'
+                       validate_remote_error='Wrong or already used auth code.'
                        )
-
+                       
         dlg = self.formDialog(bc,
                               formId='askAuthcode',
                               title='Authorization required',
@@ -38,10 +36,10 @@ class GnrCustomWebPage(object):
                               FIRE .saved;
                               %s""" % onConfirmed,
                            nodeId='askAuthcode_saver')
-
+                           
         dlg.dataController("""SET .data.authcode = null;""",
                            nodeId='askAuthcode_loader')
-
+                           
     def rpc_validateAuthCode(self, value=None, **kwargs):
         if value != 'pippo':
             return False

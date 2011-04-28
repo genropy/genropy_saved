@@ -1,13 +1,14 @@
 # -*- coding: UTF-8 -*-
 
-# batch_handler.py
+# drop_uploader.py
 # Created by Francesco Porcari on 2010-10-01.
 # Copyright (c) 2010 Softwell. All rights reserved.
+
+"""Test drop uploader"""
 
 from gnr.core.gnrlist import XlsReader
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
-"""Test drop uploader"""
 class GnrCustomWebPage(object):
     py_requires = """gnrcomponents/testhandler:TestHandlerFull,
                    gnrcomponents/drop_uploader:DropUploader"""

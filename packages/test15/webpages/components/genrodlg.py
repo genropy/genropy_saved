@@ -1,10 +1,11 @@
 # -*- coding: UTF-8 -*-
 
-# thermo.py
+# genrodlg.py
 # Created by Francesco Porcari on 2010-09-03.
 # Copyright (c) 2010 Softwell. All rights reserved.
-# 
-# 
+
+"""genrodlg"""
+
 import os
 from gnr.core.gnrbag import Bag
 import random
@@ -27,12 +28,12 @@ class GnrCustomWebPage(object):
         pane.button(action="FIRE .savingCommand='.saveAndClose'", label='Save and close')
         pane.button(action="FIRE .savingCommand='.saveAndAdd'", label='Save and new')
         pane.dataController("""
-                                     var _this = this;
-                                     var cb = function(){_this.fireEvent(savingCommand);}
-                                     genro.dlg.ask("Warning",
-                                                          "This job has zero amount, proceed anyway?",
-                                                           {'cancel':'Cancel', 'continue':'Continue'},
-                                                           {'continue': cb});
-                                     """, savingCommand='^.savingCommand')
+                            var _this = this;
+                            var cb = function(){_this.fireEvent(savingCommand);}
+                            genro.dlg.ask("Warning",
+                                                 "This job has zero amount, proceed anyway?",
+                                                  {'cancel':'Cancel', 'continue':'Continue'},
+                                                  {'continue': cb});
+                            """, savingCommand='^.savingCommand')
         pane.dataController("""alert('saveAndClose')""", fire='^.saveAndClose')
         pane.dataController("""alert('saveAndAdd')""", fire='^.saveAndAdd')

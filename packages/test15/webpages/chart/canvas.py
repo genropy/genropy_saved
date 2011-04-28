@@ -5,7 +5,7 @@
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
     dojo_theme = 'tundra'
-
+    
     def test_1_basic(self, pane):
         """Basic canvas"""
         pane=pane.div(background_color='white',height='400px')

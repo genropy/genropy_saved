@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# testcomponent.py
+# htable_picker.py
 # Created by Francesco Porcari on 2010-09-22.
 # Copyright (c) 2010 Softwell. All rights reserved.
 

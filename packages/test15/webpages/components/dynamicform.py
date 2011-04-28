@@ -4,7 +4,8 @@
 # Created by Francesco Porcari on 2010-12-27.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-"Test page description"
+"""Dynamic form"""
+
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
@@ -33,22 +34,19 @@ class GnrCustomWebPage(object):
         self.dynamicForm(pane, nodeId='myform', storepath='contacts', reloader='^gnr.onStart',
                          row_types={'phone': '!!Phone', 'email': "Email", 'fax': 'Fax', 'post_address': 'Postal'},
                          type_field='contact_type')
-
-
+                         
     def myform_row(self, row, disabled=None, **kwargs):
         #inside remote
         fb = row.formbuilder(cols=2, border_spacing='2px', disabled=disabled, tdl_width='6em')
         fb.combobox(value='^.location', values='Home,Work,Main', lbl='Loc.')
         fb.textbox(value='^.content')
-
+        
     def myform_email_row(self, row, disabled=None, **kwargs):
         fb = row.formbuilder(cols=1, border_spacing='2px', disabled=disabled, tdl_width='6em')
         fb.textbox(value='^.content', lbl='Url')
-
+        
     def myform_post_address_row(self, row, disabled=None, **kwargs):
         fb = row.formbuilder(cols=2, border_spacing='2px', disabled=disabled, tdl_width='6em')
         fb.textbox(value='^.suburb', lbl='Suburb', width='12em')
         fb.textbox(value='^.state', lbl='State', width='3em')
         fb.simpleTextArea(value='^.address', colspan=2, width='100%')
-
-
