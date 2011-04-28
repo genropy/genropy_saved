@@ -577,23 +577,32 @@ class GnrDomSrc(GnrStructData):
          ``T``: set label on top of text field. Default value is ``'L'``.
         :param _class: for CSS style.
         :param fieldclass: CSS class appended to every formbuilder's child. Default value is ``gnrfield``.
-        :param lblalign: It seems broken ??? Set horizontal label alignment. Default value is ``None``.
+        :param lblalign: It seems broken add??? Set horizontal label alignment. Default value is ``None``.
         :param lblvalign: set vertical label alignment. Default value is ``'middle'``.
         :param fldalign: set field horizontal align. Default value is ``None``.
         :param fldvalign: set field vertical align. Default value is ``'middle'``.
-        :param disabled: Add a description ???. Default value is ``False``.
+        :param disabled: Add a description add???. Default value is ``False``.
         :param rowdatapath: Add a description ???. Default value is ``None``.
-        :param head_rows: Add a description ???. Default value is ``None``.
+        :param head_rows: Add a description add???. Default value is ``None``.
         :param \*\*kwargs: *border_spacing*: define the space between form fields. Default value is ``6px``
-                           
+        
                            *datapath*: set the root's path of formbuilder's fields. For more details,
                            check the :ref:`genro_datapath` documentation page.
+                           
+                           *width*: define the formbuilder width. You can use only percent (e.g: ``width='60%'``)
+                           and the formbuilder must be child of a pane or a div with a defined width and height.
                            
                            *fld_ + CSSexpression*: set a CSS expression to every formbuilder's field.
                            (e.g: fld_color='red', fld_width='100%')
                            
                            *lbl_ + CSSexpression*: set a CSS expression to every lbl's field.
                            (e.g: lbl_width='10em')
+                           
+                           *row_*: add???
+                           
+                           *tdf_*: add???
+                           
+                           *tdl_*: add???
         """
         commonPrefix = ('lbl_', 'fld_', 'row_', 'tdf_', 'tdl_')
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
@@ -756,26 +765,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param method: the name of your ``dataRpc``
         :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                        check the :ref:`rpc_attributes` section
-        
-        * in the ``**kwargs`` you have to define a parameter who allows the ``dataRpc`` to be triggered
-        
-        To do this, you can use ``_fired='^anotherFolderPath'``; in this case the dataRpc
-        is triggered whenever the value contained in ``anotherFolderPath`` changes;
-        the "_" is used to hide the trigger parameter in the :ref:`genro_datastore`.
-        
-        For using ``dataRpc`` you have to:
-        
-            1. define the ``dataRpc`` into the main with the main method
-            2. create a class method called the ``rpc server method``.
-            In the ``rpc server method`` there will be executed a server action;
-            you can optionally return a value. The relative syntax is::
-            
-                def rpc_RpcName(self,args):
-                    return something
-                
-        * ``RpcName`` is the name of your ``dataRpc``; clearly, you have to put the same name that
-          you gave to the ``dataRpc`` in the main.
-        * ``args`` contains all the paramaters passed from the main.
         """
         return self.child('dataRpc', path=path, method=method, **kwargs)
         
