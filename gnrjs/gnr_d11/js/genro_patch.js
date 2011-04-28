@@ -1,4 +1,18 @@
 var genropatches = {};
+genropatches.mozillaStarter = function(){
+    var mainWindow = dojo.byId('mainWindow');
+    if (mainWindow.clientHeight==0){
+        genropatches._startDelayer = setInterval(function(){
+            if(dojo.byId('mainWindow').clientHeight>0){
+                clearInterval(genropatches._startDelayer);
+                genro.start();
+            }
+        },200);
+    }else{
+        dojo.addOnLoad(genro, 'start');
+    }
+}
+
 genropatches.comboBox = function() {
     dojo.require('dijit.form.ComboBox');
     dojo.declare("gnr.Gnr_ComboBoxMenu", dijit.form._ComboBoxMenu, {
