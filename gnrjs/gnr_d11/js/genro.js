@@ -120,8 +120,11 @@ dojo.declare('gnr.GenroClient', null, {
         this.prefs = {'recordpath':'tables.$dbtable.record',
             'selectionpath':'tables.$dbtable.selection',
             'limit':'50'};
-
-        dojo.addOnLoad(this, 'start');
+        if(dojo.isMozilla){
+            genropatches.mozillaStarter();
+        }else{
+            dojo.addOnLoad(this, 'start');
+        }
     },
     start:function() {
         setTimeout(dojo.hitch(this, 'dostart'), 1);
