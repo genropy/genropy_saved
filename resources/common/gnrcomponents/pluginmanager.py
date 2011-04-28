@@ -10,7 +10,7 @@ from gnr.web.gnrwebstruct import struct_method
 class PluggedPageManager(BaseComponent):
     
     @struct_method
-    def ppm_pluginTabs(self,parent,plugins=None,startPos=None,datapathTemplate=None,remoteTemplate=None,disabled=None):
+    def ppm_pluginTabs(self,parent,plugins=None,startPos=None,datapathTemplate=None,remoteTemplate=None):
         # print 'plugins'
         # print plugins
         parent.dataController("""
@@ -31,8 +31,7 @@ class PluggedPageManager(BaseComponent):
                                                     datapath:dpath},
                             {'_position':k});
                 p._('BorderContainer',{region:'center',_lazyBuild:'ppm_pluginTab',
-                                    remote_handlerName:remoteTemplate.replace('$',plugin),
-                                    remote_disabled:disabled});
+                                    remote_handlerName:remoteTemplate.replace('$',plugin)});
                 }else{
                     currNode = content.getNode('#'+k);
                     while(currNode &&(currNode.label!=plugin)&&(currNode.attr._plugin==true)){
@@ -51,12 +50,10 @@ class PluggedPageManager(BaseComponent):
             sourceNode.widget.layout();
     }   
     """,plugins=plugins,datapathTemplate=datapathTemplate,startPos=startPos or len(parent),
-        remoteTemplate=remoteTemplate,disabled=(disabled or '').replace('^',''))
+        remoteTemplate=remoteTemplate)
     
     def remote_ppm_pluginTab(self,pane,handlerName=None,**kwargs):
         handler = getattr(self, handlerName)
-        if 'disabled' in kwargs:
-            kwargs['disabled'] = '^%s' %kwargs['disabled']
         handler(pane,**kwargs)
 
         
