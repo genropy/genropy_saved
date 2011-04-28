@@ -17,6 +17,28 @@ Definition
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataRpc
         :noindex:
     
+    * in the ``**kwargs`` you have to define a parameter who allows the ``dataRpc`` to be triggered
+      To do this, you can use ``_fired='^anotherFolderPath'``; in this case the dataRpc
+      is triggered whenever the value contained in ``anotherFolderPath`` changes;
+      the "_" is used to hide the trigger parameter in the :ref:`genro_datastore`.
+    * To use a ``dataRpc`` you have to:
+      
+        #. define the ``dataRpc`` into the main with the main method
+        
+        #. create a class method called the ``rpc server method``.
+        
+        * In the ``rpc server method`` there will be executed a server action;
+          you can optionally return a value. The syntax is::
+          
+            def rpc_RpcName(self,args):
+                return something
+              
+        Where: 
+        
+        * ``RpcName`` is the name of your ``dataRpc``; clearly, you have to put the same name that
+          you gave to the ``dataRpc`` in the main.
+        * ``args`` contains all the paramaters passed from the main.
+            
     * In the rpc you can return something, but as we explained in the ``dataRpc`` :ref:`datarpc_def` paragraph,
       you can skip this parameter if you want to perform only a server action; alternatively, it allows to
       return a value into the ``path`` of the ``dataRpc``.
