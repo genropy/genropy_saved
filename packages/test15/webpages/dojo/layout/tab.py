@@ -22,3 +22,15 @@ class GnrCustomWebPage(object):
         tc.contentPane(background='pink', title='pink', closable=True).div('pink')
         pane = tc.contentPane(background='blue', title='blue')
         fb = pane.formbuilder(cols=1).simpleTextArea(value='^.blue', lbl='blue')
+    
+    def test_3_iframe(self, pane):
+        tc = pane.tabContainer(height='400px')
+        tc.contentPane(title='No iframe').div('hello')
+        tc.contentPane(title='iframe genro',overflow='hidden').iframe(main='iframetest',height='100%',width='100%',border=0)
+        tc.contentPane(title='iframe apple',overflow='hidden').iframe(src='http://www.apple.com',height='100%',width='100%',border=0)
+        tc.contentPane(title='iframe html',overflow='hidden').iframe(src='/_rsrc/test15/test.html',height='100%',width='100%',border=0)
+
+
+        
+    def rpc_iframetest(self,pane,**kwargs):
+        pane.div('hello again')
