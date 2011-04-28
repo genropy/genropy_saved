@@ -1,16 +1,12 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  untitled
-#
+#  tree.py
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
-""" GnrDojo Hello World """
-import os
+"""Tree"""
 
-import datetime
 from gnr.core.gnrbag import Bag, DirectoryResolver
 
 class GnrCustomWebPage(object):
@@ -22,8 +18,7 @@ class GnrCustomWebPage(object):
         #root.tree(storepath='tree.data',inspect='shift')
         root.tree(storepath='pages', hideValues=True, inspect='shift')
         root.data('pages', Bag(dict(root=DirectoryResolver('/'))))
-
-
+        
     def treedata(self):
         b = Bag()
         b.setItem('person.name', 'John', job='superhero')
@@ -33,5 +28,3 @@ class GnrCustomWebPage(object):
         b.setItem('person.sport.golf', 'medium')
         b.setItem('pet.animal', 'Dog', race='Doberman')
         return b
-
-

@@ -47,31 +47,31 @@ class GnrCustomWebPage(object):
         self.btc.batch_create(title='testbatch',
                               thermo_lines=thermo_lines, note='This is a test batch_1 %i' % int(random.random() * 100))
         clients = int(random.random() * cli_max)
-        self.btc.thermo_line_add(line='clients', maximum=clients)
+        self.btc.thermo_line_add(code='clients', maximum=clients)
         try:
             for client in range(1, clients + 1):
-                stopped = self.btc.thermo_line_update(line='clients',
+                stopped = self.btc.thermo_line_update(code='clients',
                                                       maximum=clients, message='client %i/%i' % (client, clients),
                                                       progress=client)
                                                       
                 invoices = int(random.random() * invoice_max)
-                self.btc.thermo_line_add(line='invoices', maximum=invoices)
+                self.btc.thermo_line_add(code='invoices', maximum=invoices)
                 
                 for invoice in range(1, invoices + 1):
-                    stopped = self.btc.thermo_line_update(line='invoices',
+                    stopped = self.btc.thermo_line_update(code='invoices',
                                                           maximum=invoices,
                                                           message='invoice %i/%i' % (invoice, invoices),
                                                           progress=invoice)
                     rows = int(random.random() * row_max)
-                    self.btc.thermo_line_add(line='rows', maximum=rows)
+                    self.btc.thermo_line_add(code='rows', maximum=rows)
                     for row in range(1, rows + 1):
-                        stopped = self.btc.thermo_line_update(line='rows',
+                        stopped = self.btc.thermo_line_update(code='rows',
                                                               maximum=rows, message='row %i/%i' % (row, rows),
                                                               progress=row)
                         time.sleep(sleep_time)
-                    self.btc.thermo_line_del(line='rows')
-                self.btc.thermo_line_del(line='invoices')
-            self.btc.thermo_line_del(line='clients')
+                    self.btc.thermo_line_del(code='rows')
+                self.btc.thermo_line_del(code='invoices')
+            self.btc.thermo_line_del(code='clients')
             
         except self.btc.exception_stopped:
             self.btc.batch_aborted()
@@ -100,29 +100,29 @@ class GnrCustomWebPage(object):
         self.btc.batch_complete(result='Execution completed', result_attr=dict(url='http://www.apple.com'))
         
     def client_provider(self, clients):
-        self.btc.thermo_line_add(line='clients', maximum=clients)
+        self.btc.thermo_line_add(code='clients', maximum=clients)
         for client in range(1, clients + 1):
-            self.btc.thermo_line_update(line='clients',
+            self.btc.thermo_line_update(code='clients',
                                         maximum=clients, message='client %i/%i' % (client, clients), progress=client)
             yield client
-        self.btc.thermo_line_del(line='invoices')
+        self.btc.thermo_line_del(code='invoices')
         
     def invoice_provider(self, invoices):
-        self.btc.thermo_line_add(line='invoices', maximum=invoices)
+        self.btc.thermo_line_add(code='invoices', maximum=invoices)
         for invoice in range(1, invoices + 1):
-            self.btc.thermo_line_update(line='invoices',
+            self.btc.thermo_line_update(code='invoices',
                                         maximum=invoices, message='invoice %i/%i' % (invoice, invoices),
                                         progress=invoice)
             yield invoice
-        self.btc.thermo_line_del(line='invoices')
+        self.btc.thermo_line_del(code='invoices')
         
     def row_provider(self, rows):
-        self.btc.thermo_line_add(line='rows', maximum=rows)
+        self.btc.thermo_line_add(code='rows', maximum=rows)
         for row in range(1, rows + 1):
-            self.btc.thermo_line_update(line='rows',
+            self.btc.thermo_line_update(code='rows',
                                         maximum=rows, message='row %i/%i' % (row, rows), progress=row)
             yield row
-        self.btc.thermo_line_del(line='rows')
+        self.btc.thermo_line_del(code='rows')
         
     def rpc_test_3_batch(self):
         t = time.time()
@@ -148,4 +148,3 @@ class GnrCustomWebPage(object):
         except Exception, e:
             self.btc.batch_error(error=str(e))
         self.btc.batch_complete(result='Execution completed', result_attr=dict(url='http://www.apple.com'))
-        

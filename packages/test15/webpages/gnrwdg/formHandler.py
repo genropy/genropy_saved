@@ -1,10 +1,10 @@
 # -*- coding: UTF-8 -*-
 
-# formEditor.py
+# formHandler.py
 # Created by Francesco Porcari on 2011-01-12.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-"""Form Handler tester """
+"""Form Handler test"""
 
 from gnr.web.gnrwebstruct import struct_method
 
@@ -13,7 +13,6 @@ class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/formhandler:FormHandler,foundation/includedview:IncludedView"
     user_polling=0
     auto_polling=0
-    
     
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
@@ -50,8 +49,7 @@ class GnrCustomWebPage(object):
     def onLoading_glbl_provincia(self,record,newrecord,loadingParameters,recInfo):
         if record['sigla'] == 'AO':
             recInfo['_readonly'] = True
-    
-
+            
     def test_0_frameform(self,pane):
         "Test FrameForm"
         form = pane.frameForm(frameCode='provincia_1',border='1px solid silver',datapath='.form',
@@ -62,8 +60,7 @@ class GnrCustomWebPage(object):
         rpc.addCallback('console.log(result)')  
         pane = form.center.contentPane(datapath='.record')
         pane.formbuilder(cols=2).formContent()  
-    
-    
+        
     def test_10_frameform_iv(self,pane):
         "Test FrameForm"
         form = pane.frameForm(frameCode='regione_b',border='1px solid silver',datapath='.form',
@@ -80,12 +77,12 @@ class GnrCustomWebPage(object):
                              reloader='^#regione_b_form.record.id', 
                              selectionPars=dict(where='$provincia=:provincia_id',
                              provincia_id='^#regione_b_form.record.sigla'))    
-
+                             
     def test_2_formPane_dbl_cp(self,pane):
         bc = pane.borderContainer(height='180px')
         bc.formTester(frameCode='form_a',region='left',datapath='.pane1',width='50%',border='1px solid gray',margin_right='5px')
         bc.formTester(frameCode='form_b',region='center',datapath='.pane2',border='1px solid gray')
-    
+        
     def test_2_formPane_tc(self,pane):
         """First test description"""
         bc = pane.borderContainer(height='300px')
@@ -97,7 +94,7 @@ class GnrCustomWebPage(object):
         t2 = tc.borderContainer(title='My Form',_lazyBuild=True)
         t2.formTester('form_tc',region='center')
         tc.contentPane(title='Third one')
-    
+        
     def test_3_formPane_palette(self,pane):
         pane = pane.div(height='30px')
         pane.dock(id='test_3_dock')
@@ -106,13 +103,12 @@ class GnrCustomWebPage(object):
         pane.palettePane('province_remote',title='Province Remote',dockTo='test_3_dock',
                         _lazyBuild='testPalette')
                         
-    
     def test_8_formPane_tooltipForm(self,pane):
         box = pane.div(height='30px',width='100px',background='red',provincia='MI')
         box.span('Milano')
         dlg = box.tooltipPane(title='Milano',modifiers='shift',xconnect_onOpening='console.log(arguments);genro.formById("form_ttdialog").load({destPkey:e.target.sourceNode.attr.provincia});')
         dlg.formTester('form_ttdialog',height='300px',width='500px',background='white',rounded=6)
-    
+        
     def test_5_formPane_palette_remote(self,pane):
         fb = pane.formbuilder(cols=4, border_spacing='2px')
         fb.dbselect(value="^.provincia",dbtable="glbl.provincia")
@@ -126,7 +122,6 @@ class GnrCustomWebPage(object):
                                     """,
                     pkey='=.provincia')
         
-        
     def remote_testPalette(self,pane,pkey=None,**kwargs):
         form = pane.formTester('formRemote_%s' %pkey,startKey=pkey,height='200px',width='400px')
             
@@ -134,7 +129,7 @@ class GnrCustomWebPage(object):
         pane.button('Show dialog',action='genro.wdgById("province_dlg").show()')
         dialog = pane.dialog(title='Province',nodeId='province_dlg',closable=True).contentPane(_lazyBuild=True)
         dialog.formTester('form_dialog',height='300px',width='500px')
-                   
+        
     @struct_method('mytoolbar_selectrecord')
     def mytoolbar_selectrecord(self,pane,**kwargs):
         fb=pane.formbuilder(cols=1, border_spacing='1px')
@@ -145,8 +140,6 @@ class GnrCustomWebPage(object):
         print "Dati salvati:"
         print dati
         
-        
-
     def test_111_frame_formdatapath(self,pane):
         form = pane.frameForm(frameCode='regione_a',border='1px solid silver',datapath='.form',
                             rounded_bottom=10,height='180px',width='600px',
@@ -164,15 +157,10 @@ class GnrCustomWebPage(object):
         fb.field('ordine')
         fb.field('ordine_tot')
         fb.field('cap_valido')
-        
         slot_viewer = tc.contentPane(title='view',datapath='.viewer')
-        
-        
-        
        #store = form.formStore(storepath='.record',table='glbl.provincia',storeType='Item',
        #                       handler='recordCluster',startKey='MI',onSaved='reload')
        #form.center.div('^.sigla')
-        
         
         #fb = form.formbuilder(cols=1, border_spacing='2px')
         #fb.div('^.pippo')

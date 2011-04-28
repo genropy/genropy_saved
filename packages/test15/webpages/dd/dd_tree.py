@@ -1,9 +1,8 @@
 # -*- coding: UTF-8 -*-
 
-# batch_handler.py
+# dd_tree.py
 # Created by Francesco Porcari on 2010-10-01.
 # Copyright (c) 2010 Softwell. All rights reserved.
-
 
 """Tree with drag & drop"""
 

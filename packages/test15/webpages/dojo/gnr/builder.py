@@ -4,14 +4,15 @@
 # Created by Francesco Porcari on 2011-02-26.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-"Test page description"
+"""builder"""
+
 class GnrCustomWebPage(object):
     user_polling=0
     auto_polling=0
-
+    
     def windowTitle(self):
         return 'Builder'
-         
+        
     def main(self,pane,**kwargs):
         bc = pane.borderContainer(datapath='test')
         bc.dataController("""
@@ -40,5 +41,4 @@ class GnrCustomWebPage(object):
                     selectedLabelClass='selectedTreeNode')
         center = bc.contentPane(region='center',nodeId='test_center')
         center.contentPane(nodeId='build_root',margin='5px')
-
         

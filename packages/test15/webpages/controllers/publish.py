@@ -4,6 +4,8 @@
 # Created by Francesco Porcari on 2010-09-30.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
+"""publish"""
+
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
 

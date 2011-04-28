@@ -1,18 +1,17 @@
 # -*- coding: UTF-8 -*-
 
-# batch_handler.py
+# dd_grid.py
 # Created by Francesco Porcari on 2010-10-01.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-
 """Grid with drag & drop"""
 
-from gnr.core.gnrbag import Bag, DirectoryResolver
+from gnr.core.gnrbag import Bag
 import datetime
 
 class GnrCustomWebPage(object):
     py_requires = """gnrcomponents/testhandler:TestHandlerFull"""
-
+    
     def test_0_drop(self, pane):
         """Drop Boxes"""
         fb = pane.formbuilder(cols=1)
@@ -29,7 +28,7 @@ class GnrCustomWebPage(object):
                                    alert('text plain dropped here:'+data)""",
                            lbl='Drop boxes text/plain',
                            dropTypes='text/plain,gridrow/json,gridcell/json,gridcolumn/json')
-
+                           
         dropboxes.div('no tags', width='100px', height='50px', margin='3px', background_color='lightgray',
                       float='left', dropTarget=True)
         dropboxes.div('only foo', width='100px', height='50px', margin='3px', background_color='#fcfca9',
@@ -38,15 +37,14 @@ class GnrCustomWebPage(object):
                       float='left', dropTags='bar', dropTarget=True)
         dropboxes.div('only foo AND bar', width='100px', height='50px', margin='3px', background_color='#a7cffb',
                       float='left', dropTags='foo AND bar', dropTarget=True)
-
-
-    def test_1_grid(self, pane):
+                      
+    def _test_1_grid(self, pane):
         pane = pane.div(height='150px')
         pane.data('.data', self.aux_test_1_grid_data())
         grid = pane.includedView(nodeId='inputgrid', storepath='.data', selfDragColumns=True, selfDragRows=True,
                                  draggable_row=True, draggable_column=True, # draggabile per righe e colonne
                                  datamode='bag', editorEnabled=True, draggable=True)
-
+                                 
         gridEditor = grid.gridEditor(datapath='dummy') #editOn='onCellClick')
         gridEditor.filteringSelect(gridcell='filter', values='A:Alberto,B:Bonifacio,C:Carlo')
         gridEditor.dbSelect(dbtable='devlang.language', gridcell='language', hasDownArrow=True, autoComplete=True,
@@ -56,23 +54,23 @@ class GnrCustomWebPage(object):
         gridEditor.numbertextbox(gridcell='qt')
         gridEditor.checkbox(gridcell='new')
         gridEditor.datetextbox(gridcell='date', format_date='short')
-
-    def test_2_grid(self, pane):
+        
+    def _test_2_grid(self, pane):
         pane = pane.div(height='250px')
         pane.data('.data', self.aux_test_1_grid_data())
         grid = pane.IncludedView(nodeId='inputgrid', storepath='.data', selfDragColumns='trashable',
                                  selfDragRows=True,
                                  afterSelfDropRows="console.log('dragged')",
                                  datamode='bag', editorEnabled=True)
-
-    def test_3_grid(self, pane):
+                                 
+    def _test_3_grid(self, pane):
         pane = pane.div(height='250px')
         pane.data('.data', self.aux_test_1_grid_data())
         grid = pane.IncludedView(nodeId='inputgrid', storepath='.data', selfDragColumns=True,
                                  selfDragRows="""var odd= info.row%2;if (info.drag){return odd?false: true}else{return odd?true: false;}"""
                                  ,
                                  datamode='bag', editorEnabled=True)
-
+                                 
     def inputgrid_struct(self, struct):
         r = struct.view().rows()
         r.cell('idx', name='N.', width='3em', counter=True)
@@ -83,7 +81,7 @@ class GnrCustomWebPage(object):
         r.cell('new', name='New', width='10em', dtype='B')
         r.cell('size', name='Size', width='10em', dtype='T')
         r.cell('date', name='Date', width='10em', dtype='D')
-
+        
     def aux_test_1_grid_data(self):
         result = Bag()
         date = datetime.date.today()
@@ -93,7 +91,7 @@ class GnrCustomWebPage(object):
                                 'language_id': '6c75RL4uPJiMu5oEcfrx1w', 'name': 'Dsc %i' % i, 'qt': None,
                                 'new': bool(i % 2), 'size': 'big', 'date': date + datetime.timedelta(i)})
         return result
-
+        
     def test_8_tree(self, pane):
         """Simple Drag"""
         root = pane.div(height='200px', overflow='auto')
@@ -102,8 +100,7 @@ class GnrCustomWebPage(object):
                   draggable=True,
                   dragClass='draggedItem',
                   onDrop='alert(data)')
-
-
+                  
     def treedata(self):
         b = Bag()
         b.setItem('person', None)
