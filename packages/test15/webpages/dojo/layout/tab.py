@@ -28,9 +28,8 @@ class GnrCustomWebPage(object):
         tc.contentPane(title='No iframe').div('hello')
         tc.contentPane(title='iframe genro',overflow='hidden').iframe(main='iframetest',height='100%',width='100%',border=0)
         tc.contentPane(title='iframe apple',overflow='hidden').iframe(src='http://www.apple.com',height='100%',width='100%',border=0)
-        tc.contentPane(title='iframe html',overflow='hidden').iframe(src='/_rsrc/test15/test.html',height='100%',width='100%',border=0)
-
-
+        tc.contentPane(title='iframe html',overflow='hidden').iframe(src=self.getResourceUri('test.html'),height='100%',width='100%',border=0)
+        
         
     def rpc_iframetest(self,pane,**kwargs):
         pane.div('hello again')
