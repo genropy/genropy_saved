@@ -316,7 +316,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var node = genro.src.getNode(paletteCode).clearValue();
         node.freeze();
         var paletteAttr = {'paletteCode':paletteCode,top:_px(evt.clientY),left:_px(evt.clientX),
-                                                      title:'Palette:'+pkey,overflow:'hidden',_lazyBuild:true,
+                                                      title:'Palette:'+pkey,overflow:'hidden',
                                                       dockTo:false,//'*:open',
                                                       width:'1px',height:'1px',
                                                       palette_transition:'all .7s'
@@ -325,8 +325,6 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var palette = node._('palettePane',paletteCode,paletteAttr);
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
         node.unfreeze(); 
-        console.log('palette created');
-
     },
 
     listChoice: function(title, msg, buttons, resultPath, valuePath, storePath) {
