@@ -2131,6 +2131,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 this.updateTotalsCount();
                 
             });
+            sourceNode.subscribe('command',function(){
+                widget[arguments[0]](arguments.slice(1));
+            });
         };
         
     },
@@ -3071,7 +3074,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         this.resetFilter();
         if (this.sortedBy) {
             var storebag = this.storebag();
-            storebag.sort(this.sortedBy);
+            storebag.sort(this.datamode=='bag'?this.sortedBy:'#a.'+this.sortedBy);
         }
         this.updateRowCount();
         this.selection.unselectAll();

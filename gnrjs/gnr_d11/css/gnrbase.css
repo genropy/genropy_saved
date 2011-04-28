@@ -678,22 +678,6 @@ table.formbuilder {
     background-color: #feffe2
 }
 
-font-style: italic
-
-;
--moz-border-radius:
-
-4
-px
-
-;
--webkit-border-radius:
-
-4
-px
-
-;
-    }
 
 .formulaColumnTreeNode {
     background-color: #d1ffeb;
@@ -905,6 +889,18 @@ div.dojoxDock {
 
 /* @end */
 
+.box16{
+    height:16px;
+    width:16px;
+}
+.box24{
+     height:24px;
+    width:24px;
+}
+.box32{
+     height:32px;
+    width:32px;
+}
 /* @group Base16 */
 
 .icnBaseAdd {
