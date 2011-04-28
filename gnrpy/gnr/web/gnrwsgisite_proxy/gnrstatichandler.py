@@ -68,9 +68,11 @@ class StaticHandler(object):
 
     def serve(self, path_list, environ, start_response, download=False, **kwargs):
         fullpath = self.path(*path_list[1:])
-        if fullpath and not os.path.isabs(fullpath):
+        if not fullpath:
+            return self.site.not_found_exception(environ, start_response)
+        if not os.path.isabs(fullpath):
             fullpath = os.path.normpath(os.path.join(self.site_path, fullpath))
-        if fullpath and not os.path.exists(fullpath):
+        if not os.path.exists(fullpath):
             return self.site.not_found_exception(environ, start_response)
         if_none_match = environ.get('HTTP_IF_NONE_MATCH')
         if if_none_match:
