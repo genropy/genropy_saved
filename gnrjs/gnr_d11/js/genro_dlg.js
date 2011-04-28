@@ -307,6 +307,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         var wdg = genro.wdgById(paletteCode+'_floating');
         if(wdg){
             wdg.show();
+            wdg.bringToTop();
             return;
         }
         
