@@ -53,6 +53,9 @@ class FrameGridSlots(BaseComponent):
                                 baseClass='no_background',iconClass=_class,visible=enable,
                                 **kwargs)
 
+    @struct_method
+    def fgr_slotbar_gridReload(self,pane,_class='icnFrameRefresh box16',enable=None,frameCode=None,**kwargs):
+        return pane.slotButton(label='!!Reload',publish='reload',iconClass=_class,visible=enable,**kwargs)
 
 
 class FrameGrid(BaseComponent):
@@ -75,7 +78,7 @@ class FrameGrid(BaseComponent):
 
     @struct_method
     def fgr_leftBar(self,pane):
-        pane.slotToolbar('5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*')
+        pane.slotToolbar('5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,gridReload')
         pane.attributes['_class'] = 'hiddenBcPane'
         
     def fgr_relationHandler(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,**kwargs):

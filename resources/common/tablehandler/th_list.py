@@ -229,6 +229,8 @@ class TableHandlerListBase(BaseComponent):
             querybase = self._th_hook('query',mangler=mangler)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
+        frame.data('.query.where', queryBag)
+
 
         condPars = {}
         if isinstance(condition,dict):
@@ -284,25 +286,26 @@ class TableHandlerListBase(BaseComponent):
                                timeout=180000, selectmethod='=.selectmethod',
                                selectmethod_prefix='customQuery',
                                _onCalling=self.onQueryCalling(),
-                               _reloader=reloader,**condPars)
+                               #_reloader=reloader,
+                               **condPars)
 
         store.addCallback('FIRE .queryEnd=true; SET .selectmethod=null; return result;')        
         frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
-                     fired='^.updateCurrentQueryCount',
-                     table=table, where='=.query.where',
-                     excludeLogicalDeleted='=.excludeLogicalDeleted',
+                     _updateCount='^.updateCurrentQueryCount',
+                     table=table, where='=.query.where',_showCount='=.tableRecordCount',
+                     excludeLogicalDeleted='=.excludeLogicalDeleted',_if='_updateCount || _showCount',
                      **condPars)
         
         frame.dataController("""
                                SET .grid.selectedId = null;
-                               FIRE .query.new;
                                if(runOnStart){
                                     FIRE .runQuery;
                                }
                             """,
                             _onStart=True,
                             runOnStart=querybase.get('runOnStart', False))
-        frame.dataController("""
-            this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
-            genro.querybuilder(mangler).buildQueryPane(); 
-        """,_fired='^.query.new',baseQuery='=.baseQuery', maintable=table,mangler=mangler)
+        # operazioni da fare in caso di nuova query
+        #frame.dataController("""
+        #    this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
+        #    genro.querybuilder(mangler).buildQueryPane(); 
+        #""",_fired='^.query.new',baseQuery='=.baseQuery', maintable=table,mangler=mangler)
