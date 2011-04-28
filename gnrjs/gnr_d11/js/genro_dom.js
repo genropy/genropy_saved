@@ -1254,7 +1254,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 return false
             }
             var coords = dojo.coords(what);
-            if(coords.h ==0 || coords.w == 0){
+            if(coords.h ==0 && coords.w == 0){
                 return false;
             }
             return true;
