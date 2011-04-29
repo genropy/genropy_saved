@@ -635,6 +635,8 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         this.onShowing();
         this.show_replaced(cb);
     },
+    mixin_onShowing:function(){},
+    
     creating:function(attributes, sourceNode) {
         objectPop(attributes, 'parentDialog');
         objectPop(attributes, 'centerOn');
