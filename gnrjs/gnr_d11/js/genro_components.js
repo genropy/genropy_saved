@@ -708,7 +708,9 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     
     createContent:function(sourceNode, kw,children) {
         var slots = objectPop(kw,'slots');
-        return this['createContent_'+objectPop(kw,'orientation')](sourceNode,kw,kw.slotbarCode,slots,children);
+        var result = this['createContent_'+objectPop(kw,'orientation')](sourceNode,kw,kw.slotbarCode,slots,children);
+        dojo.forEach(children._nodes,function(n){if(n.attr.tag=='slot'){children.popNode(n.label);}});
+        return result;
     },
     createContent_horizontal:function(sourceNode,kw,slotbarCode,slots,children){
         var buildKw = objectPop(kw,'buildKw');
