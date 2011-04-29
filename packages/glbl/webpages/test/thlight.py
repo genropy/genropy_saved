@@ -32,7 +32,12 @@ class GnrCustomWebPage(object):
                                     table='glbl.provincia',virtualStore=True)
         th.form.store.handler('load',default_regione='LOM')
     
-    def test_4_provincia_view(self,pane):
+    def test_4_provincia_border(self,pane):
+        """First test description"""
+        th = pane.borderTableHandler(height='400px',table='glbl.provincia',virtualStore=True)
+        th.form.store.handler('load',default_regione='LOM')
+    
+    def test_5_provincia_view(self,pane):
         """First test description"""
         viewer = pane.tableViewer(frameCode='provinciali',height='400px',table='glbl.provincia',virtualStore=True)
         viewer.top.attributes['detachable'] = True
