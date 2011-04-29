@@ -66,7 +66,7 @@ class TableScriptRunner(BaseComponent):
                             selectionFilterCb='=.selectionFilterCb',
                             selectedRowidx="=.selectedRowidx", _POST=True, timeout=0)
 
-        plugin_main.div().remote('table_script_parameters',
+        plugin_main.div(width='0').remote('table_script_parameters',
                                  resource='=.resource',
                                  res_type='=.res_type',
                                  title='=.title',
