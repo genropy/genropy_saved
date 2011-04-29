@@ -683,7 +683,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     _buildChildren: function(destination) {
         if (this.attr.remote) {
-            dojo.connect(this.widget, 'onShow', this, 'updateRemoteContent'); 
+            var that = this;
+            this.watch('isVisibile',function(){return genro.dom.isVisible(that);},function(){that.updateRemoteContent();});
         }
         var content = this.getValue('static');
         if (content instanceof gnr.GnrDomSource) {
@@ -1266,11 +1267,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }
         var method = this.attr.remote;
-        var _sourceNode = this;
+        var that = this;
         kwargs.sync = true;
+        var currval;
         genro.rpc.remoteCall(method, kwargs, null, null, null,
                             function(result) {
-                                _sourceNode.setValue(result);
+                                //that.setValue(result);
+                                that.replaceContent(result);
                                 if (_onRemote) {
                                     _onRemote();
                                 }
@@ -1389,6 +1392,17 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         child = content.setItem(path, source.getNodes()[0]);
         return child;
     },
+    replaceContent:function(value){
+        var currval = this._value;
+        if(currval instanceof gnr.GnrDomSource){
+            dojo.forEach(currval._nodes,function(n){currval.popNode(n.label)});
+        }else{
+            currval = gnr.GnrDomSource();
+            this._value = currval;
+        }
+        dojo.forEach(value._nodes,function(n){currval.setItem(n.label,n)});
+    },
+    
     _ : function(tag, name, attributes, extrakw) {
         var content = this.getValue();
         var child;
@@ -1428,19 +1442,12 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
                 }
             }
             var attributes = attributes || {};
-        
-
-            if (attributes && ('remote' in attributes)) {
-                var remattr = objectUpdate({}, objectPop(attributes, 'remote'));
-                remattr['handler'] = objectPop(remattr, 'method');
-                remattr['method'] = 'remoteBuilder';
-                var cacheTime = objectPop(remattr, 'cacheTime');
-                content = new gnr.GnrRemoteResolver(remattr, false, cacheTime);
-                content.updateAttr = true;
+            if (attributes && ('remote' in attributes) && (attributes.remote!='remoteBuilder')) {
+                attributes['remote_handler'] = attributes.remote;
+                attributes.remote = 'remoteBuilder';
             }
             name = name || '*_?';
             name = name.replace('*', tag).replace('?', this.len());
-
             if (attributes.content) {
                 content = attributes.content;
                 delete attributes.content;
@@ -1457,9 +1464,6 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
             return content;
         }
 
-    },
-    replaceContent:function(b){
-        this._nodes = b.getNodes();
     },
 
     component: function() {
