@@ -83,7 +83,7 @@ class GnrCustomWebPage(object):
         bc.formTester(frameCode='form_a',region='left',datapath='.pane1',width='50%',border='1px solid gray',margin_right='5px')
         bc.formTester(frameCode='form_b',region='center',datapath='.pane2',border='1px solid gray')
         
-    def test_2_formPane_tc(self,pane):
+    def test_22_formPane_tc(self,pane):
         """First test description"""
         bc = pane.borderContainer(height='300px')
         topbc = bc.borderContainer(height='250px',region='top',splitter=True)
@@ -91,17 +91,20 @@ class GnrCustomWebPage(object):
         tc = topbc.tabContainer(region='left',splitter=True,width='600px',nodeId='mytc')
         topbc.contentPane(region='center').div('pippo')
         t1 = tc.contentPane(title='Dummy',background_color='red')
-        t2 = tc.borderContainer(title='My Form',_lazyBuild=True)
-        t2.formTester('form_tc',region='center')
+        tc.formTester('form_tc',region='center',title='My Form',_lazyBuild=True)
         tc.contentPane(title='Third one')
         
     def test_3_formPane_palette(self,pane):
         pane = pane.div(height='30px')
         pane.dock(id='test_3_dock')
-        pane.palettePane('province',title='Province',dockTo='test_3_dock',
-                        _lazyBuild=True).formTester('form_palette',width='600px',height='300px')
-        pane.palettePane('province_remote',title='Province Remote',dockTo='test_3_dock',
-                        _lazyBuild='testPalette')
+        pane.palette(title='Province',dockTo='test_3_dock',height='1px',width='1px',
+                    _lazyBuild=True,_onLazyBuilt='console.log("aaa")').formTester('form_palette',width='500px',height='200px')
+
+    def test_33_formPane_palette(self,pane):
+        pane = pane.div(height='30px')
+        pane.dock(id='test_3_dock')
+        pane.palette(title='Province',dockTo='test_3_dock',nodeId='pippo').formTester('form_palette',width='300px',height='300px')
+  
                         
     def test_8_formPane_tooltipForm(self,pane):
         box = pane.div(height='30px',width='100px',background='red',provincia='MI')
@@ -123,7 +126,7 @@ class GnrCustomWebPage(object):
                     pkey='=.provincia')
         
     def remote_testPalette(self,pane,pkey=None,**kwargs):
-        form = pane.formTester('formRemote_%s' %pkey,startKey=pkey,height='200px',width='400px')
+        form = pane.formTester('formRemote_%s' %pkey,startKey=pkey,height='500px',width='400px')
             
     def test_4_formPane_dialog(self,pane):
         pane.button('Show dialog',action='genro.wdgById("province_dlg").show()')
