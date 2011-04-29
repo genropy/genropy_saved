@@ -120,15 +120,23 @@ dojo.declare('gnr.GenroClient', null, {
         this.prefs = {'recordpath':'tables.$dbtable.record',
             'selectionpath':'tables.$dbtable.selection',
             'limit':'50'};
-        if(dojo.isMozilla){
-            genropatches.mozillaStarter();
+        this._starter()
+
+    },
+    _starter:function() {
+        var mainWindow = dojo.byId('mainWindow');
+        if (mainWindow.clientHeight==0){
+            genro._startDelayer = setInterval(function(){
+                if(dojo.byId('mainWindow').clientHeight>0){
+                    clearInterval(genro._startDelayer);
+                    genro.start();
+                }
+            },200);
         }else{
-            dojo.addOnLoad(this, 'start');
+            dojo.addOnLoad(genro, 'start');
         }
     },
-    start:function() {
-        setTimeout(dojo.hitch(this, 'dostart'), 1);
-    },
+
     compare: function(op, a, b) {
         return genro.compareDict[op](a, b);
     },
@@ -187,7 +195,7 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(window, 'onmousemove', cb);
         dojo.connect(window, 'onkeypress', cb);
     },
-    dostart: function() {
+    start: function() {
         /*
          Here starts the application on page loading.
          It calls the remoteCall to receive the page contained in the bag called 'main'.
@@ -235,7 +243,6 @@ dojo.declare('gnr.GenroClient', null, {
         });
 
         genro.callAfter(function() {
-            genro.src._main.getNode('#0').finalizeLazyBuildChildren();
             genro.fireEvent('gnr.onStart');
             genro.publish('onPageStart');
         }, 100);

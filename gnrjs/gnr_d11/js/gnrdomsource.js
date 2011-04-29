@@ -722,6 +722,21 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             genro.src._index[nodeId] = this;
         }
     },
+    _onDeleting:function(){
+        if(this.form){
+            this.form.unregisterChild(this);
+        }
+        if(this.watches){
+            for(var w in this.watches){
+                var interval = this.watches[w];
+                if(interval){
+                    clearInterval(interval);
+                }
+            }
+        }
+    
+    },
+    
     _doBuildNode: function(tag, attributes, destination, ind) {
         var bld_attrs = objectExtract(attributes, 'onCreating,onCreated,gnrId,tooltip,nodeId');
         var connections = objectExtract(attributes, 'connect_*');
@@ -766,11 +781,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             var handler = funcCreate(subscriptions[subscription]);
             this.registerSubscription(subscription, this, handler);
         }
-        if(newobj.onShow){
+        if (this.attr._lazyBuild){
             var that = this;
-            dojo.connect(newobj,'onShow',this,function(){setTimeout(function(){that.finalizeLazyBuildChildren()},1)});
-        }
-        if (!this.attr._lazyBuild){
+            this.watch('isVisible',function(){
+                return genro.dom.isVisible(that);
+            },function(){
+                that.lazyBuildFinalize(newobj);
+            });
+        }else{
             this._buildChildren(newobj);
         }
         if ('startup' in newobj) {
@@ -829,20 +847,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         curr[idLst[idLst.length - 1]] = obj;
     },
-    finalizeLazyBuildChildren:function(){
-        var lazyChildren = null;
-        if(this.attr._lazyBuild){
-            lazyChildren = this.lazyBuildFinalize();
-        }else{
-            lazyChildren = this.getValue('static').walk(function(n){
-                if(n.attr._lazyBuild && genro.dom.isVisible(n)){
-                   return n.lazyBuildFinalize();
-                }
-            });
-        }
-        return lazyChildren;
-    },
-    
     
     publish:function(msg,kw,recursive){
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+msg;
@@ -889,28 +893,23 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+command;
         this.registerSubscription(topic,this,handler);
     },
-    lazyBuildFinalize:function(){
-        if(this.attr._lazyBuild){
-            var lazyBuild = objectPop(this.attr,'_lazyBuild');
-            var parent = this.getParentBag();
-            var content;
-            if(lazyBuild!==true){
-                content = genro.serverCall('remoteBuilder',objectUpdate({handler:lazyBuild},objectExtract(this.attr,'remote_*')));
-            }
-            else{
-                content = this._value;
-            }
-            this.setValue(content);
-            var that = this;
-            setTimeout(function(){
-                that._value.walk(function(n){
-                    if(n.attr._onBuilt){
-                        n.fireNode();
-                    }
-                });
-            },1);
-            return content.getNodes();
-        }        
+    lazyBuildFinalize:function(widget){
+        var lazyBuild = objectPop(this.attr,'_lazyBuild');
+        var content = this.getValue();
+        if (content instanceof gnr.GnrBag){
+            var nodes = content._nodes;
+            content._nodes = [];
+            dojo.forEach(nodes,function(n){
+                content.setItem(n.label,n);
+            })
+        }
+        
+        if ('onLazyContentCreated' in widget) {
+            widget.onLazyContentCreated();
+        }
+        if(this.attr._onLazyBuilt){
+            funcApply(this.attr._onLazyBuilt,this);
+        }
     },
 
     getFrameNode:function(){
@@ -1324,6 +1323,24 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return true;
         }
     },
+    watch: function(watchId,conditionCb,action,delay){
+        var delay=delay || 200;
+        if (conditionCb()){
+            action();
+        }else{
+            this.watches=this.watches || {};
+            var that = this;
+            this.watches[watchId] = setInterval(
+                function(){
+                    if (conditionCb()){
+                        clearInterval(that.watches[watchId]);
+                        that.watches[watchId] =null;
+                        action();
+                    }
+            },delay);
+        }
+    },
+    
     updateValidationStatus: function(kw) {
         if (this.widget) {
             this.updateValidationClasses();

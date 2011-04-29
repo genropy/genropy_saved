@@ -635,9 +635,6 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         this.onShowing();
         this.show_replaced(cb);
     },
-    mixin_onShowing:function(){
-        this.sourceNode.finalizeLazyBuildChildren();
-    },
     creating:function(attributes, sourceNode) {
         objectPop(attributes, 'parentDialog');
         objectPop(attributes, 'centerOn');
@@ -1117,20 +1114,22 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         this.show_replaced(cb);
     },
     
-    mixin_onShowing:function(){
-        this.domNode.style.display="";
-        var lazyChildren = this.sourceNode.finalizeLazyBuildChildren();
-        if(lazyChildren && lazyChildren.length==1){
-            var layoutwdg = lazyChildren[0].getWidget();
-            var newcoords = dojo.coords(this.domNode);
-            var layoutcoords = dojo.coords(layoutwdg.domNode);
-            newcoords['l'] =  newcoords['l']-(layoutcoords['w']-newcoords['w']);
-            newcoords['t'] =  newcoords['t']-(layoutcoords['h']-newcoords['h']+16);
-            newcoords['h'] = layoutcoords['h']+16;
-            newcoords['w'] = layoutcoords['w'];
-            this.resize(newcoords);
-        }
+    mixin_onLazyContentCreated:function(){
+        this.autoSize();
     },
+    mixin_onShowing:function(){},
+    
+    mixin_autoSize:function(){
+        var layoutcoords = dojo.coords(this.containerNode.firstChild);
+        var newcoords =  dojo.coords(this.domNode);
+        var sourceNode = this.sourceNode;
+        var coords = objectExtract(sourceNode.attr,'top,left,bottom,right,height,width',true);
+        newcoords['l'] =  newcoords['l']-(layoutcoords['w']-newcoords['w']);
+        newcoords['h'] = layoutcoords['h']+16;
+        newcoords['w'] = layoutcoords['w'];
+        this.resize(newcoords);
+    },
+    
     mixin_setBoxAttributes:function(kw){
         var dimensionDict = {'height':'h','width':'w','left':'l','right':'r','t':'top'};
         var resizer = {};

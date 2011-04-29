@@ -101,19 +101,18 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.buildNode(node, where, ind);
     },
     
-    _unregisterFromForm:function(oldvalue){
+    _onDeletingContent:function(oldvalue){
         if(oldvalue instanceof gnr.GnrBag){
             oldvalue.walk(function(n){
-                if(n.form){
-                    n.form.unregisterChild(n);
-                }
+               n._onDeleting();
             },'static');
         }
     },
     
     _trigger_del:function(kw) {//da rivedere
         //console.log('trigger_del',kw);
-        this._unregisterFromForm(kw.node._value);
+        kw.node._onDeleting();
+        this._onDeletingContent(kw.node._value);
         var domNode = kw.node.getDomNode();
         if (!domNode) {
             return;
@@ -152,7 +151,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         if (!destination) {
             console.log('missing destination in rebuild');
         }
-        this._unregisterFromForm(kw.oldvalue);
+        this._onDeletingContent(kw.oldvalue);
         var domNode = kw.node.getDomNode();//get the domnode
         var newNode = document.createElement('div');
         var widget = kw.node.widget;

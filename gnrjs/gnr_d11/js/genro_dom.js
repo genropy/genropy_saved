@@ -1250,7 +1250,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var what = this.getDomNode(what);
         if (what){
             var cs = dojo.getComputedStyle(what);
-            if (cs.display=='none'){
+            if (cs.display=='none' || cs.visibility=='hidden'){
                 return false
             }
             var coords = dojo.coords(what);
@@ -1260,6 +1260,20 @@ dojo.declare("gnr.GnrDomHandler", null, {
             return true;
         }
         return false;
+    },
+    autoSize:function(widget){
+        console.log(widget);
+        var box;
+        var maxHeight=0;
+        var maxWidth=0;
+        dojo.forEach(widget.getChildren(),function(child){
+            console.log(child.containerNode);
+            box = child.containerNode.firstChild;
+            maxHeight = Math.max(box.clientHeight,maxHeight);
+            maxWidth = Math.max(box.clientWidth,maxWidth);
+        });
+        console.log(maxHeight,maxWidth); 
+        widget.resize({h:maxHeight+27,w:maxWidth+3});
     }
 
 });
