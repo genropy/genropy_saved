@@ -288,7 +288,7 @@ class GnrWsgiSite(object):
             self.homepage = '%s%s' % (self.default_uri, self.homepage)
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
-        self.debug = options.debug if options else boolean(self.config['wsgi?debug'])
+        self.debug = boolean(options.debug) if options else boolean(self.config['wsgi?debug'])
         self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()

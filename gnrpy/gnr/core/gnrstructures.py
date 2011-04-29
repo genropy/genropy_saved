@@ -119,7 +119,7 @@ class GnrStructData(Bag):
                     where[label] = item
                 where = where[label]
                 
-        childname = childname.replace('*', tag).replace('#', str(len(where)))
+        childname = childname.replace('*', tag or 'notag').replace('#', str(len(where)))
         
         if childcontent is None and _returnStruct:
             childcontent = self.__class__()

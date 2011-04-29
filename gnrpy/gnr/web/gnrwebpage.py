@@ -584,7 +584,7 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['baseUrl'] = self.site.home_uri
         if self.debugopt:
             kwargs['debugopt'] = self.debugopt
-        if self.isDeveloper:
+        if self.isDeveloper():
             kwargs['isDeveloper'] = True
         arg_dict['startArgs'] = toJson(kwargs)
         arg_dict['page_id'] = self.page_id or getUuid()
