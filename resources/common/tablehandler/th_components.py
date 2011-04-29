@@ -58,7 +58,7 @@ class TableHandlerBase(BaseComponent):
     @extract_kwargs(condition=True,grid=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             th_iframe=False,reloader=None,virtualStore=False,condition=None,condition_kwargs=None,
-                            default_kwargs=None,grid_kwargs=None,hiderMessage=None,**kwargs):
+                            default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,**kwargs):
         if relation:
             table,condition = self.__relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -81,7 +81,7 @@ class TableHandlerBase(BaseComponent):
                                 sourceNode.setHiderLayer(null,true);
                             }
                             """,pkey='^#FORM.pkey',sourceNode=wdg,message=message)                
-        wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName='view',viewResource=viewResource,
+        wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 reloader=reloader,virtualStore=virtualStore,top_slots='#,addrow,delrow',
                                 condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs)    
         return wdg
@@ -129,12 +129,27 @@ class TableHandlerBase(BaseComponent):
 
     @extract_kwargs(widget=True,default=True)
     @struct_method
+    def th_borderTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
+                            th_iframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',**kwargs):
+        kwargs['tag'] = 'BorderContainer'
+        wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
+                                        viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,
+                                        default_kwargs=default_kwargs,**kwargs)
+        wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,formResource=formResource,
+                        store_startKey=th_pkey,table=table,loadEvent=loadEvent,form_locked=True,default_kwargs=default_kwargs)    
+        wdg.view.attributes.update(region='top',height='50%',splitter=True)
+        wdg.form.attributes.update(region='center')
+        return wdg
+        
+    @extract_kwargs(widget=True,default=True)
+    @struct_method
     def th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
                             th_iframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,**kwargs):
         kwargs['tag'] = 'StackContainer'
         kwargs['selectedPage'] = '^.selectedPage'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,default_kwargs=default_kwargs,**kwargs)
+                                        viewResource=viewResource,th_iframe=th_iframe,reloader=reloader,default_kwargs=default_kwargs,
+                                        pageName='view',**kwargs)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',formResource=formResource,
                         store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True,default_kwargs=default_kwargs)    
         return wdg
@@ -156,7 +171,7 @@ class TableHandlerBase(BaseComponent):
     
     @struct_method
     def th_thIframe(self,pane,method=None):     
-        pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
+        pane.attributes.update(dict(overflow='hidden'))
         pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
         box = pane.div(_class='detacher',z_index=30)
         box.iframe(main='thIframeDispatcher',main_methodname=method,main_pkey='=#FORM.pkey')
