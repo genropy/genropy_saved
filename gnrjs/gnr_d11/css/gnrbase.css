@@ -146,6 +146,11 @@ label.ghostlabel span {
     -webkit-transition-duration: 1s;
     -moz-transition-duration: 1s;
 }
+.gnrTransition{
+     -moz-transition-property: all;
+    -webkit-transition-duration: .5s;
+    -moz-transition-duration: .5s;
+}
 
 .detachable .detacher{
     top:20px;
@@ -1767,6 +1772,7 @@ textarea:disabled {
 .slotbar_horizontal{
     position:relative;
     white-space:nowrap;
+    overflow:hidden;
 }
 
 /* @group Toolbar Selector */

@@ -97,15 +97,9 @@ class GnrCustomWebPage(object):
     def test_3_formPane_palette(self,pane):
         pane = pane.div(height='30px')
         pane.dock(id='test_3_dock')
-        pane.palette(title='Province',dockTo='test_3_dock',height='1px',width='1px',
-                    _lazyBuild=True,_onLazyBuilt='console.log("aaa")').formTester('form_palette',width='500px',height='200px')
+        pane.palette(paletteCode='province_lazy',title='Province',dockTo='test_3_dock',
+                    _lazyBuild=True,_onLazyBuilt='console.log("aaa")').formTester('form_palette',height='300px',width='400px')
 
-    def test_33_formPane_palette(self,pane):
-        pane = pane.div(height='30px')
-        pane.dock(id='test_3_dock')
-        pane.palette(title='Province',dockTo='test_3_dock',nodeId='pippo').formTester('form_palette',width='300px',height='300px')
-  
-                        
     def test_8_formPane_tooltipForm(self,pane):
         box = pane.div(height='30px',width='100px',background='red',provincia='MI')
         box.span('Milano')
@@ -116,8 +110,8 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=4, border_spacing='2px')
         fb.dbselect(value="^.provincia",dbtable="glbl.provincia")
         fb.button('open',action="""var paletteCode='prov_'+pkey;
-                                   var palette = genro.src.create('palettePane',{'paletteCode':paletteCode,
-                                                                               title:'Palette:'+pkey,
+        
+                                   var palette = genro.src.create('palettePane',{paletteCode:paletteCode,title:'Palette:'+pkey,
                                                                                remote:'testPalette',remote_pkey:pkey,
                                                                                dockTo:false},
                                                                     paletteCode);
@@ -125,7 +119,7 @@ class GnrCustomWebPage(object):
                     pkey='=.provincia')
         
     def remote_testPalette(self,pane,pkey=None,**kwargs):
-        form = pane.formTester('formRemote_%s' %pkey,startKey=pkey,height='500px',width='400px')
+        form = pane.formTester('formRemote_%s' %pkey,startKey=pkey,width='500px',height='300px')
             
     def test_4_formPane_dialog(self,pane):
         pane.button('Show dialog',action='genro.wdgById("province_dlg").show()')

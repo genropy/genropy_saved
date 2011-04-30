@@ -82,6 +82,10 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         var top = objectPop(attributes, 'top');
         var bottom = objectPop(attributes, 'bottom');
         var lazyContent = objectPop(attributes,'lazyContent');
+        var paletteCode = objectPop(attributes,'paletteCode');
+        if(paletteCode){
+            attributes['datapath'] = attributes['datapath'] || 'gnr.palettes.'+paletteCode;
+        }
         if ((left === null) && (right === null) && (top === null) && (bottom === null)) {
             this._last_floating = this._last_floating || {top:0,right:0};
             this._last_floating['top'] += 10;
@@ -121,7 +125,7 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         if (dockTo) {
             floating_kwargs.dockTo = dockTo;
         }
-        return objectUpdate({height:'400px',width:'300px',
+        return objectUpdate({height:'350px',width:'300px',
             top:top,right:right,left:left,bottom:bottom,
             resizable:true}, floating_kwargs);
     },

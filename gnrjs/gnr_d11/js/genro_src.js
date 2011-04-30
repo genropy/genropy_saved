@@ -99,52 +99,15 @@ dojo.declare("gnr.GnrSrcHandler", null, {
 
         var ind = kw.ind;
         this.buildNode(node, where, ind);
-    },
-    
-    _onDeletingContent:function(oldvalue){
-        if(oldvalue instanceof gnr.GnrBag){
-            oldvalue.walk(function(n){
-               n._onDeleting();
-            },'static');
+        if(where.onChangedContent){
+            where.onChangedContent(node);
+        }
+        else if(where._checkIfSingleChild){
+            where._checkIfSingleChild();
+            where.resize();
         }
     },
     
-    _trigger_del:function(kw) {//da rivedere
-        //console.log('trigger_del',kw);
-        kw.node._onDeleting();
-        this._onDeletingContent(kw.node._value);
-        var domNode = kw.node.getDomNode();
-        if (!domNode) {
-            return;
-        }
-        var widget = kw.node.widget;
-        if (widget) {
-            var parentWdg = widget.sourceNode.getParentBuiltObj();
-            if(parentWdg && parentWdg.onDestroyingChild){
-                parentWdg.onDestroyingChild(widget);
-            }
-            widget.destroyRecursive();
-        } else {
-            var widgets = dojo.query('[widgetId]', domNode);
-            widgets = widgets.map(dijit.byNode);     // Array
-            dojo.forEach(widgets, function(widget) {
-                widget.destroyRecursive();
-            });
-            dojo._destroyElement(domNode);
-        }
-        var parentNode = kw.node.getParentNode();
-        var lastComponentLabel;
-        while(parentNode && parentNode._isComponentNode){
-            lastComponentLabel = parentNode.label;
-            parentNode = parentNode.getParentNode();
-         }
-         if (parentNode && lastComponentLabel){
-             parentNode.getValue().popNode(lastComponentLabel);
-         }
-        this.refreshSourceIndexAndSubscribers();
-        var node = kw.node;
-    },
-
     _trigger_upd:function(kw) {//da rivedere
         //console.log('trigger_upd',kw);
         var destination = kw.node.getParentBuiltObj();
@@ -204,14 +167,58 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         if(destination._checkIfSingleChild){
             destination._checkIfSingleChild();
         }
+        
+        
         if (selectedIndex) {
             destination.setSelected(selectedIndex);
         }
-       //if(destination.resize){
-       //   destination.resize(objectExtract(dojo.coords(destination.domNode),'h,w')); //fixed for safari
-       //}
-
     },
+    
+    _onDeletingContent:function(oldvalue){
+        if(oldvalue instanceof gnr.GnrBag){
+            oldvalue.walk(function(n){
+               n._onDeleting();
+            },'static');
+        }
+    },
+    
+    _trigger_del:function(kw) {//da rivedere
+        //console.log('trigger_del',kw);
+        kw.node._onDeleting();
+        this._onDeletingContent(kw.node._value);
+        var domNode = kw.node.getDomNode();
+        if (!domNode) {
+            return;
+        }
+        var widget = kw.node.widget;
+        if (widget) {
+            var parentWdg = widget.sourceNode.getParentBuiltObj();
+            if(parentWdg && parentWdg.onDestroyingChild){
+                parentWdg.onDestroyingChild(widget);
+            }
+            widget.destroyRecursive();
+        } else {
+            var widgets = dojo.query('[widgetId]', domNode);
+            widgets = widgets.map(dijit.byNode);     // Array
+            dojo.forEach(widgets, function(widget) {
+                widget.destroyRecursive();
+            });
+            dojo._destroyElement(domNode);
+        }
+        var parentNode = kw.node.getParentNode();
+        var lastComponentLabel;
+        while(parentNode && parentNode._isComponentNode){
+            lastComponentLabel = parentNode.label;
+            parentNode = parentNode.getParentNode();
+         }
+         if (parentNode && lastComponentLabel){
+             parentNode.getValue().popNode(lastComponentLabel);
+         }
+        this.refreshSourceIndexAndSubscribers();
+        var node = kw.node;
+    },
+    
+    
     buildNode: function(sourceNode, where, ind) {
         this.afterBuildCalls = [];
         //sourceNode._stripData();
@@ -367,7 +374,11 @@ dojo.declare("gnr.GnrSrcHandler", null, {
        //var path = path || '_temp.'+this.getNode()._id;
        //var source = genro.src.getNode(path).getParentBag();
        //source.delItem('#0');
-        return genro.src.getNode()._(widget,path,pars);        
+       
+       //var root = genro.src.newRoot();
+       return genro.src.getNode()._('div', path)._(widget,path,pars);;
+       //var node = genro.src.getNode(path).clearValue();
+       //return node._(widget,path,pars);        
     },
 
 });
