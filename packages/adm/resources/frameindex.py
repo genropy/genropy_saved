@@ -101,7 +101,7 @@ class Mixin(BaseComponent):
         if self.index_url:
             sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.index_url, border='0px')
         page.dataController("""
-            frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource)
+            setTimeout(function(){frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource);},1);
         """,subscribe__menutree__selected=True,sc=sc)
         
     def prepareLeft(self,pane):
