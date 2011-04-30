@@ -1250,7 +1250,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var what = this.getDomNode(what);
         if (what){
             var cs = dojo.getComputedStyle(what);
-            if (cs.display=='none' || cs.visibility=='hidden'){
+            if (!cs || cs.display=='none' || cs.visibility=='hidden'){
                 return false
             }
             var coords = dojo.coords(what);
