@@ -1397,8 +1397,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(currval instanceof gnr.GnrDomSource){
             dojo.forEach(currval._nodes,function(n){currval.popNode(n.label)});
         }else{
-            currval = gnr.GnrDomSource();
+            currval = new gnr.GnrDomSource();
             this._value = currval;
+            currval.setBackRef(this, this._parentbag);
         }
         dojo.forEach(value._nodes,function(n){
             var node = value.popNode(n.label);
