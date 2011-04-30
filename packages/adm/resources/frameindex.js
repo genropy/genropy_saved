@@ -26,7 +26,7 @@ var frameIndex = {
              var node = root.popNode('#0');
              sc.setItem(node.label,node);
              sourceNode.setRelativeData('selectedFrame',name);
-             iframe.getParentNode().domNode.src = url;
+             setTimeout(function(){iframe.getParentNode().domNode.src = url;},1);
         }
     },
 

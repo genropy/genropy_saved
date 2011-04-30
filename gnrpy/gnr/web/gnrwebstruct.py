@@ -854,6 +854,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             gridattr['connect_%s' %loadEvent] = """
                                                 var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
                                                 if(rowIndex>-1){
+                                                    var currform = this.inheritedAttribute('currform');
                                                     currform.load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
                                                 }
                                                 """

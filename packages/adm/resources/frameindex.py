@@ -68,7 +68,12 @@ class Mixin(BaseComponent):
         pane.dataController("frameIndex.createTablist(tabroot,data);",data="^iframes",tabroot=tabroot)
         pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
                                     if(iframetab){
-                                        genro.dom.setClass(iframetab,'iframetab_selected',selected);
+                                        genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
+                                        var node = genro._data.getNode('iframes.'+page);
+                                        var treeItem = genro.getDataNode(node.attr.fullpath);
+                                        var labelClass = treeItem.attr.labelClass;
+                                        labelClass = selected? labelClass+ ' menu_current_page': labelClass.replace('menu_current_page','')
+                                        treeItem.setAttribute('labelClass',labelClass);
                                     }
                                     """,subscribe_iframe_stack_selected=True,tabroot=tabroot,_if='page')
 
@@ -104,7 +109,7 @@ class Mixin(BaseComponent):
         if self.index_url:
             sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.index_url, border='0px')
         page.dataController("""
-            frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource,fullpath);
+            setTimeout(function(){frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource,fullpath)},1);
         """,subscribe__menutree__selected=True,sc=sc)
         
     def prepareLeft(self,pane):
