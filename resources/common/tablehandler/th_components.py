@@ -171,7 +171,7 @@ class TableHandlerBase(BaseComponent):
     
     @struct_method
     def th_thIframe(self,pane,method=None):     
-        pane.attributes.update(dict(overflow='hidden'))
+        pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
         pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
         box = pane.div(_class='detacher',z_index=30)
         box.iframe(main='thIframeDispatcher',main_methodname=method,main_pkey='=#FORM.pkey')
