@@ -678,6 +678,9 @@ font
 .menutree .menu_current_page {
     background-color: #49637c !important;
 }
+.menutree .menu_existing_page {
+    background-color: #49637c !important;
+}
 
 .menutree .menu_shape:hover {
     -moz-box-shadow: 4px 4px 4px #403b3b;

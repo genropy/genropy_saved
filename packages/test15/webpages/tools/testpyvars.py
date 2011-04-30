@@ -19,7 +19,7 @@ class GnrCustomWebPage(object):
         box = pane.div(height='12px',width='12px',background='red',
                         selfsubscribe_test='console.log(btn)',
                         btn=xxx,
-                        connect_onclick='console.log(btn);'
+                        connect_onclick='console.log(this.inheritedAttribute("btn"));'
                         )
         
         pane.button('test 2',action='box.publish("test")',box=box)

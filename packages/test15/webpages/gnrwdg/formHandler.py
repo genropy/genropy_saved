@@ -116,11 +116,10 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=4, border_spacing='2px')
         fb.dbselect(value="^.provincia",dbtable="glbl.provincia")
         fb.button('open',action="""var paletteCode='prov_'+pkey;
-                                 var palette = genro.src.create('palettePane',{'paletteCode':paletteCode,
-                                                                    title:'Palette:'+pkey,
-                                                                    _lazyBuild:'testPalette',
-                                                                    dockTo:false, //'test_3_dock:open',
-                                                                    remote_pkey:pkey},
+                                   var palette = genro.src.create('palettePane',{'paletteCode':paletteCode,
+                                                                               title:'Palette:'+pkey,
+                                                                               remote:'testPalette',remote_pkey:pkey,
+                                                                               dockTo:false},
                                                                     paletteCode);
                                     """,
                     pkey='=.provincia')

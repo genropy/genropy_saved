@@ -78,7 +78,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 return;
             }
         }
-        return curr.widget;
+        return curr?curr.widget:null;
     },
     
     
@@ -554,13 +554,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
 
     connect: function(target, eventname, handler, parameters) {
         var eventname = ((!eventname) || eventname == 'action') ? target.gnr._defaultEvent : eventname;
-        var that=this;
-        var h = handler;
-        var handler = function(evt){
-            funcApply(h, objectUpdate({evt:evt},that.currentAttributes()),that,['evt'],[evt]);
-        }
-        
-        //var handler = dojo.hitch(this, funcCreate(handler, parameters));
+        var handler = dojo.hitch(this, funcCreate(handler, parameters));
         if (target.domNode) {/* connect to a widget*/
             if (eventname in target) {
                 dojo.connect(target, eventname, handler);

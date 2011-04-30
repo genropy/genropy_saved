@@ -1,5 +1,5 @@
 var frameIndex = {
-    selectIframePage:function(sourceNode,name,label,file,table,formResource,viewResource){
+    selectIframePage:function(sourceNode,name,label,file,table,formResource,viewResource,fullpath){
         var sc = sourceNode.getValue();
         var page = sc.getItem(name);
         if (page){
@@ -9,7 +9,7 @@ var frameIndex = {
              var root = genro.src.newRoot();
              var bc = root._('BorderContainer',name,{pageName:name,title:label});
              var center = bc._('ContentPane',{'region':'center','overflow':'hidden'});
-             sourceNode.setRelativeData('iframes.'+name,null,{'fullname':label,pageName:name});
+             sourceNode.setRelativeData('iframes.'+name,null,{'fullname':label,pageName:name,fullpath:fullpath});
              var iframe = center._('iframe',{'height':'100%','width':'100%','border':0,'id':'iframe_'+name});
              url = file;
              var urlPars = {inframe:true};

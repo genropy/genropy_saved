@@ -92,16 +92,19 @@ class Mixin(BaseComponent):
         scattr['subscribe_closeFrame'] = """
                                             var sc = this.widget;
                                             var selected = sc.getSelectedIndex();
-                                            genro._data.popNode('iframes.'+$1);
+                                            var node = genro._data.popNode('iframes.'+$1);
+                                            var treeItem = genro.getDataNode(node.attr.fullpath);
+                                            treeItem.setAttribute('labelClass',treeItem.attr.labelClass.replace('menu_existing_page',''));
                                             this.getValue().popNode($1);
                                             selected = selected>=sc.getChildren().length? selected-1:selected;
+                                            PUT selectedFrame = null;
                                             sc.setSelected(selected);
                                         """        
         page = self.pageSource()
         if self.index_url:
             sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.index_url, border='0px')
         page.dataController("""
-            setTimeout(function(){frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource);},1);
+            frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource,fullpath);
         """,subscribe__menutree__selected=True,sc=sc)
         
     def prepareLeft(self,pane):
@@ -148,10 +151,13 @@ class Mixin(BaseComponent):
 
     def btn_refresh(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='icnFrameRefresh',
-                                                      connect_onclick="PUBLISH reloadFrame=selectedFrame;",selectedFrame='=selectedFrame')               
+                                                      connect_onclick="PUBLISH reloadFrame=this.inheritedAttribute('selectedFrame');",
+                                                      selectedFrame='=selectedFrame')               
 
     def btn_delete(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',connect_onclick='PUBLISH closeFrame=selectedFrame;',selectedFrame='=selectedFrame')
+        pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',
+                                                        connect_onclick='PUBLISH closeFrame=this.inheritedAttribute("selectedFrame");',
+                                                        selectedFrame='=selectedFrame')
         
                     
     @struct_method
