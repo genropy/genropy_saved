@@ -1201,9 +1201,6 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
         if (sourceNode.attr.label == '-') {
             this._dojotag = 'MenuSeparator';
         }
-        if (attributes.checked) {
-            attributes.iconClass = 'tick_icon10';
-        }
         else {
             if (sourceNode.getResolver()) {
                 this._dojotag = 'PopupMenuItem';
@@ -1216,6 +1213,9 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
                     this._dojotag = 'MenuItem';
                 }
             }
+        }
+        if (attributes.checked) {
+            attributes.iconClass = 'tick_icon10';
         }
         return savedAttrs;
     },
