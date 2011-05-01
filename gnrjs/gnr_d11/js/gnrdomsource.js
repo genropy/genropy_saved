@@ -45,7 +45,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     getBuiltObj:function() {
-        return this.getWidget() || this.getDomNode();
+        return this.getWidget(true) || this.getDomNode();
     },
     
     getParentBuiltObj:function() {
@@ -64,13 +64,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
 
     },
     
-    getWidget:function() {
-        if(this.domNode){
+    getWidget:function(shallow) {
+        if(this.domNode && !shallow){
             return dijit.getEnclosingWidget(this.domNode);
         }
         var curr = this;
         var currvalue;
-        while(curr && !curr.widget){
+        while(curr && !curr.widget && !curr.domNode){
             currvalue = curr.getValue();
             if(currvalue instanceof gnr.GnrBag){
                 curr = currvalue.getNode('#0');
@@ -904,9 +904,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             })
         }
         
-        //if ('onLazyContentCreated' in widget) {
-        //    widget.onLazyContentCreated();
-        //}
+        if ('onLazyContentCreated' in widget) {
+            widget.onLazyContentCreated();
+        }
         if(this.attr._onLazyBuilt){
             funcApply(this.attr._onLazyBuilt,this);
         }
@@ -1269,7 +1269,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var that = this;
         kwargs.sync = true;
         var currval;
-        
         genro.rpc.remoteCall(method, kwargs, null, null, null,
                             function(result) {
                                 //that.setValue(result);
@@ -1397,14 +1396,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(currval instanceof gnr.GnrDomSource){
             dojo.forEach(currval._nodes,function(n){currval.popNode(n.label)});
         }else{
-            currval = new gnr.GnrDomSource();
+            currval = gnr.GnrDomSource();
             this._value = currval;
-            currval.setBackRef(this, this._parentbag);
         }
-        dojo.forEach(value._nodes,function(n){
-            var node = value.popNode(n.label);
-            currval.setItem(node.label,node);
-        });
+        dojo.forEach(value._nodes,function(n){currval.setItem(n.label,n)});
     },
     
     _ : function(tag, name, attributes, extrakw) {
