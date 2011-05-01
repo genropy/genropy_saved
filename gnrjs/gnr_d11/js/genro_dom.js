@@ -1253,8 +1253,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             if (!cs || cs.display=='none' || cs.visibility=='hidden'){
                 return false
             }
-            var coords = dojo.coords(what);
-            if(coords.h ==0 && coords.w == 0){
+            if(what.clientHeight ==0 || what.clientWidth == 0){
                 return false;
             }
             return true;
