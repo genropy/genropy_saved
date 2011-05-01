@@ -64,8 +64,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
 
     },
     
-    getWidget:function(shallow) {
-        if(this.domNode && !shallow){
+    getWidget:function(notEnclosed) {
+        if(this.domNode && !notEnclosed){
             return dijit.getEnclosingWidget(this.domNode);
         }
         var curr = this;
@@ -904,9 +904,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             })
         }
         
-        if ('onLazyContentCreated' in widget) {
-            widget.onLazyContentCreated();
-        }
+        //if ('onLazyContentCreated' in widget) {
+        //    widget.onLazyContentCreated();
+        //}
         if(this.attr._onLazyBuilt){
             funcApply(this.attr._onLazyBuilt,this);
         }
@@ -1269,6 +1269,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var that = this;
         kwargs.sync = true;
         var currval;
+        
         genro.rpc.remoteCall(method, kwargs, null, null, null,
                             function(result) {
                                 //that.setValue(result);
@@ -1396,10 +1397,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(currval instanceof gnr.GnrDomSource){
             dojo.forEach(currval._nodes,function(n){currval.popNode(n.label)});
         }else{
-            currval = gnr.GnrDomSource();
+            currval = new gnr.GnrDomSource();
             this._value = currval;
+            currval.setBackRef(this, this._parentbag);
         }
-        dojo.forEach(value._nodes,function(n){currval.setItem(n.label,n)});
+        dojo.forEach(value._nodes,function(n){
+            var node = value.popNode(n.label);
+            currval.setItem(node.label,node);
+        });
     },
     
     _ : function(tag, name, attributes, extrakw) {
