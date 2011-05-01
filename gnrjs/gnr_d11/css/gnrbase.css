@@ -1137,23 +1137,13 @@ div.dojoxDock {
 
 .icnBaseTrash {
     background: url(icons/base16/trash.gif) no-repeat center center;
-    width: 16px;
-    height: 16px;
 }
-.icnBasePalette32 {
-    background: url(icons/base32/palette_32.png) no-repeat center center;
-    width: 32px;
-    height: 32px;
+.icnBasePalette {
+    background: url(icons/base16/palette.png) no-repeat center center;
 }
-.icnBaseTrash32 {
-    background: url(icons/base32/trash_32.png) no-repeat center center;
-    width: 32px;
-    height: 32px;
-}
-.icnBaseTableEdit32 {
-    background: url(icons/base32/table_edit_32.png) no-repeat center center;
-    width: 32px;
-    height: 32px;
+
+.icnBaseTableEdit {
+    background: url(icons/base16/table_edit.png) no-repeat center center;
 }
 .icnBaseUnlocked {
     background: url(icons/base16/unlocked.gif) no-repeat center center;
@@ -1765,6 +1755,11 @@ textarea:disabled {
     overflow:hidden;
     text-align:center;
     vertical-align:middle;
+
+}
+.slotbar .slotbar_cell>*{
+	margin: auto;
+
 }
 .slotbar_vertical{
     height:100%;
@@ -1961,9 +1956,7 @@ textarea:disabled {
     font-size: 0.8em;
 }
 
-#trash_drop.canBeDropped {
-    background-color: rgba(170, 170, 170, 0.9) !important;
-}
+
 
 .draggedItem {
     background-color: rgba(252, 252, 169, 0.63) !important;
@@ -1999,25 +1992,6 @@ table.draggedItem {
     background: url(icons/base16/oneway.gif) no-repeat 50% 50% !important;
 }
 
-.drag_to_trash .trash_drop {
-    display: block;
-    -moz-box-shadow: 6px 4px 4px #403b3b;
-    -webkit-box-shadow: 6px 4px 4px #403b3b;
-}
-
-.trash_drop {
-    display: none;
-    width: 40px;
-    height: 40px;
-    position: absolute;
-    z-index: 900;
-    -moz-border-radius: 8px;
-    -webkit-border-radius: 8px;
-    border-radius: 8px;
-    background: rgba(234, 234, 234, 0.92) url(icons/base48/trash_icon.png) no-repeat center center;
-    -moz-box-shadow: 2px 2px 4px #403b3b;
-    -webkit-box-shadow: 2px 2px 4px #403b3b;
-}
 
 /* @end */
 
