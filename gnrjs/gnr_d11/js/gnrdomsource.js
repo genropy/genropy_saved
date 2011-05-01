@@ -666,18 +666,24 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         this.setValue(this._value);
     },
     build: function(destination, ind) {
-        this._stripData(true);
-        this._isBuilding = true;
-        var attributes = this.registerNodeDynAttr(true);
-        //var attributes = this.currentAttributes();
-        var tag = objectPop(attributes, 'tag');
+        var tag = this.attr.tag;
         if (!tag) {
-            this._buildChildren(destination);
-        } else {
-            this._registerInForm();
-            this._doBuildNode(tag, attributes, destination, ind);
-            this._setDynAttributes();
+            //console.warn('notag in build domsource',arguments.callee);
+            this._buildChildren(destination)
+            return;
         }
+        genro.src.stripData(this);
+        this._registerInForm();
+        this._isBuilding = true;
+        objectPop(attributes, 'tag');
+        var aux = '_bld_' + this.attr.tag.toLowerCase();
+        if (aux in this) {
+            this[aux].call(this);
+        }else{
+            var attributes = this.registerNodeDynAttr(true);
+            this._doBuildNode(tag, attributes, destination, ind);
+        }
+        this._setDynAttributes();
         this._isBuilding = false;
     },
     _buildChildren: function(destination) {
@@ -687,24 +693,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         var content = this.getValue('static');
         if (content instanceof gnr.GnrDomSource) {
-            var sourceNodes = content.getNodes();
-            var node;
-            var newobj;
-            for (var i = 0; i < sourceNodes.length; i++) {
-                node = sourceNodes[i];
-                if (node.attr.tag) { // ignore nodes without tag: eg. grid structure
-                    var aux = '_bld_' + node.attr.tag.toLowerCase();
-                    if (aux in node) {
-                        node._stripData(true);
-                        node._registerInForm();
-                        node[aux].call(node);
-                    } else {
-                        //console.log('building',node.attr.tag);
-                        node.build(destination, -1); // append to parent
-                    }
-                    
-                }
-            }
+            content.forEach(function(node){
+                node.build(destination, -1);
+            });
         }
     },
     _registerInForm:function(){
@@ -1102,124 +1093,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
         }
     },
-
-    _stripData: function(shallow) {
-        var content = this.getValue('static');
-        var dflt;
-        if (content instanceof gnr.GnrBag) {
-            var bagnodes = content.getNodes();
-            var node,v;
-            for (var i = 0; i < bagnodes.length; i++) {
-                node = bagnodes[i];
-                if (node.attr.tag && !node._alreadyStripped) {
-                    if (node.attr.tag.toLowerCase() in genro.src.datatags) {
-                        node._moveData(shallow);
-                    }
-                    else {
-                        var nodeattr = node.attr;
-                        var attrvalue;
-                        for (var attr in nodeattr) {
-                            attrvalue = nodeattr[attr];
-                            if ((typeof (attrvalue) == 'string') && node.isPointerPath(attrvalue)) {
-                                dflt = (attr == 'value') ? (nodeattr['default'] || nodeattr['default_value'] || '') : nodeattr['default_' + attr];
-                                node.getAttributeFromDatasource(attr, true, dflt);
-                            }
-                        }
-                    }
-                    if(!shallow){
-                        node._stripData();
-                    }  
-                }
-                node._alreadyStripped=true;
-            }
-        }
-    },
-    _moveData: function(shallow) {
-        this._registerNodeId();
-        var attributes = this.registerNodeDynAttr(false);
-        //var attributes=this.currentAttributes();
-        var tag = objectPop(attributes, 'tag');
-        var path = objectPop(attributes, 'path');
-        if (tag == 'data' && attributes.remote) {
-            attributes['method'] = objectPop(attributes, 'remote');
-            tag = 'dataRemote';
-        }
-        if (tag == 'data') {
-            path = this.absDatapath(path);
-            var value = this.getValue();
-            this._value = null;
-            if (value instanceof gnr.GnrBag) {
-                value.clearBackRef();
-            }
-            var serverpath = objectPop(attributes, '_serverpath');
-            if (serverpath) {
-                genro._serverstore_paths[this.absDatapath(path)] = serverpath;
-            }
-            if(!genro.getDataNode(path)||(value!==null)){
-                genro.setData(path, value, attributes);
-            }
-            
-
-
-        } else if (tag == 'dataRemote') {
-            this._dataprovider = tag;
-            this.setDataNodeValue();
-        } else {
-            //var functions=objectExtract(attributes,'function_*');
-            //for (func in functions){
-            //    this[func] = funcCreate(functions[func],null,this);
-            //}            
-            var initialize = objectPop(attributes, '_init');
-            this._dataprovider = tag;
-            if (initialize) {
-                this.setDataNodeValue();
-            } else {
-                path = this.absDatapath(path);
-                genro.getDataNode(path, true);
-            }
-            var timing = objectPop(attributes, '_timing');
-
-            if (timing) {
-                this.setTiming(timing);
-            }
-            var onStart = objectPop(attributes, '_onStart');
-            objectPop(attributes, '_onBuilt');
-            var subscriptions = objectExtract(attributes, 'subscribe_*');
-            var selfsubscriptions = objectExtract(attributes, 'selfsubscribe_*');
-            var formsubscriptions = objectExtract(attributes, 'formsubscribe_*');
-            var nid = this.attr.nodeId || this.getStringId();
-            for (var selfsubcription in selfsubscriptions){
-                subscriptions[nid+'_'+selfsubcription] = selfsubscriptions[selfsubcription];
-            }
-            if(objectNotEmpty(formsubscriptions) || this.attr.parentForm){
-                var that = this;
-                var cb = function(){
-                    var form = that.getFormHandler();
-                    if(form){
-                        that.form = form;
-                        var fid = form.formId;
-                        var subscriptions = {};
-                        for (var formsubcription in formsubscriptions){
-                            subscriptions['form_'+fid+'_'+formsubcription] = formsubscriptions[formsubcription];
-                        }
-                        that._dataControllerSubscription(subscriptions);
-                    }
-                }
-                genro.src.afterBuildCalls.push(cb);
-            }
-            
-            this._dataControllerSubscription(subscriptions);
-            
-            if (onStart) {
-                this.attr._fired_onStart = '^gnr.onStart';
-                this.registerDynAttr('_fired_onStart');
-                if (typeof(onStart) == "number" && !this.attr._delay) {
-                    this.attr._delay = onStart;
-                }
-            }
-        }
-        this._setDynAttributes();
-    },
+    
     _dataControllerSubscription:function(subscriptions){
         for (var subscription in subscriptions) {
             var cb = function(node, trigger_reason) {
@@ -1247,29 +1121,34 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (currentValue && currentValue.len() > 0 && !forceUpdate) {
             return;
         }
+        var remoteAttr = this.evaluateOnNode(objectExtract(this.attr,'remote_*',true));
+        if(remoteAttr._if){
+            var condition = funcApply('return (' + remoteAttr._if + ')',remoteAttr,this);
+            if(!condition){
+                return;
+            }
+            
+        }
+        
         var kwargs = {};
-        for (var attrname in this.attr) {
-            if (attrname.indexOf('remote_') == 0) {
-                var value = this.getAttributeFromDatasource(attrname);
-                if (value instanceof Date) {
-                    var abspath = this.absDatapath(this.attr[attrname]);
-                    var node = genro._data.getNode(abspath);
-                    value = asTypedTxt(value, node.attr.dtype);
-                }
-                ;
-                var sendattr = attrname.slice(7);
-                if (sendattr.indexOf('_') != 0) {
-                    kwargs[sendattr] = value;
-                } else if (sendattr == '_onRemote') {
-                    _onRemote = funcCreate(value, '', this);
-                }
+        for (var attrname in remoteAttr) {
+            var value = remoteAttr[attrname];
+            if (value instanceof Date) {
+                var abspath = this.absDatapath(this.attr[attrname]);
+                var node = genro._data.getNode(abspath);
+                value = asTypedTxt(value, node.attr.dtype);
+            }
+            ;
+            if (attrname.indexOf('_') != 0) {
+                kwargs[attrname] = value;
+            } else if (attrname == '_onRemote') {
+                _onRemote = funcCreate(value, '', this);
             }
         }
         var method = this.attr.remote;
         var that = this;
         kwargs.sync = true;
         var currval;
-        
         genro.rpc.remoteCall(method, kwargs, null, null, null,
                             function(result) {
                                 //that.setValue(result);

@@ -177,7 +177,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     _onDeletingContent:function(oldvalue){
         if(oldvalue instanceof gnr.GnrBag){
             oldvalue.walk(function(n){
-               n._onDeleting();
+               if(n._onDeleting){
+                   n._onDeleting();
+               }
             },'static');
         }
     },
@@ -221,7 +223,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     
     buildNode: function(sourceNode, where, ind) {
         this.afterBuildCalls = [];
-        //sourceNode._stripData();
         sourceNode.build(where, ind);
         var cb;
         while (this.afterBuildCalls.length > 0) {
@@ -336,6 +337,110 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             }
         }
     },
+    stripData: function(node) {
+        this.stripDataNode(node);
+        var content = node.getValue('static');
+        if (content instanceof gnr.GnrDomSource) {
+            content.forEach(function(node){genro.src.stripDataNode(node)});
+        }
+    },
+    stripDataNode:function(node){
+        if (node.attr.tag && !node._alreadyStripped) {
+            if (node.attr.tag.toLowerCase() in genro.src.datatags) {
+                this.moveData(node);
+            }
+            else {
+                var nodeattr = node.attr;
+                var attrvalue;
+                for (var attr in nodeattr) {
+                    attrvalue = nodeattr[attr];
+                    if ((typeof (attrvalue) == 'string') && node.isPointerPath(attrvalue)) {
+                        var dflt = (attr == 'value') ? (nodeattr['default'] || nodeattr['default_value'] || '') : nodeattr['default_' + attr];
+                        node.getAttributeFromDatasource(attr, true, dflt);
+                    }
+                }
+            }
+        }
+        node._alreadyStripped=true;
+    },
+    moveData: function(node) {
+        node._registerNodeId();
+        var attributes = node.registerNodeDynAttr(false);
+        var tag = objectPop(attributes, 'tag');
+        var path = objectPop(attributes, 'path');
+        if (tag == 'data' && attributes.remote) {
+            attributes['method'] = objectPop(attributes, 'remote');
+            tag = 'dataRemote';
+        }
+        if (tag == 'data') {
+            path = node.absDatapath(path);
+            var value = node.getValue();
+            node._value = null;
+            if (value instanceof gnr.GnrBag) {
+                value.clearBackRef();
+            }
+            var serverpath = objectPop(attributes, '_serverpath');
+            if (serverpath) {
+                genro._serverstore_paths[node.absDatapath(path)] = serverpath;
+            }
+            if(!genro.getDataNode(path)||(value!==null)){
+                genro.setData(path, value, attributes);
+            }
+        } else if (tag == 'dataRemote') {
+            node._dataprovider = tag;
+            node.setDataNodeValue();
+        } else {         
+            var initialize = objectPop(attributes, '_init');
+            node._dataprovider = tag;
+            if (initialize) {
+                node.setDataNodeValue();
+            } else {
+                path = node.absDatapath(path);
+                genro.getDataNode(path, true);
+            }
+            var timing = objectPop(attributes, '_timing');
+
+            if (timing) {
+                node.setTiming(timing);
+            }
+            var onStart = objectPop(attributes, '_onStart');
+            objectPop(attributes, '_onBuilt');
+            var subscriptions = objectExtract(attributes, 'subscribe_*');
+            var selfsubscriptions = objectExtract(attributes, 'selfsubscribe_*');
+            var formsubscriptions = objectExtract(attributes, 'formsubscribe_*');
+            var nid = node.attr.nodeId || node.getStringId();
+            for (var selfsubcription in selfsubscriptions){
+                subscriptions[nid+'_'+selfsubcription] = selfsubscriptions[selfsubcription];
+            }
+            if(objectNotEmpty(formsubscriptions) || node.attr.parentForm){
+                var cb = function(){
+                    var form = node.getFormHandler();
+                    if(form){
+                        node.form = form;
+                        var fid = form.formId;
+                        var subscriptions = {};
+                        for (var formsubcription in formsubscriptions){
+                            subscriptions['form_'+fid+'_'+formsubcription] = formsubscriptions[formsubcription];
+                        }
+                        node._dataControllerSubscription(subscriptions);
+                    }
+                }
+                genro.src.afterBuildCalls.push(cb);
+            }
+            
+            node._dataControllerSubscription(subscriptions);
+            
+            if (onStart) {
+                node.attr._fired_onStart = '^gnr.onStart';
+                node.registerDynAttr('_fired_onStart');
+                if (typeof(onStart) == "number" && !node.attr._delay) {
+                    node.attr._delay = onStart;
+                }
+            }
+        }
+        //node._setDynAttributes();
+    },
+    
     dynamicParameters: function(source, sourceNode) {
         var obj = {};
         var path;

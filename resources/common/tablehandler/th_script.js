@@ -209,7 +209,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             var valtd = tr._('td')._('div', {_class:'qb_div qb_value'});
 
             var input_attrs = {value:'^' + relpath, width:'10em',
-                _autoselect:true,_class:'st_conditionValue',validate_onAccept:'genro.queryanalyzer.checkQueryLineValue(this,value);'};
+                _autoselect:true,_class:'st_conditionValue',validate_onAccept:'genro.queryanalyzer("'+this.mangler+'").checkQueryLineValue(this,value);'};
             if (attr.value_caption) {
                 var fld_id = node.getStringId() + '_value';
                 input_attrs['id'] = fld_id;
