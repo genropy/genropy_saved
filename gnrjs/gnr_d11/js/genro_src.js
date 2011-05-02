@@ -140,12 +140,14 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             else {
                 if (domNode.parentNode) {
                     domNode.parentNode.replaceChild(newNode, domNode);
+                    ind = newNode;
                 }
                 widget.destroyRecursive();
             }
         } else {
             if (domNode.parentNode) {
                 domNode.parentNode.replaceChild(newNode, domNode);
+                ind = newNode;
             }
 
             var widgets = dojo.query('[widgetId]', domNode);
