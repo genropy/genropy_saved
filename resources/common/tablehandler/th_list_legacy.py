@@ -405,18 +405,18 @@ class TableHandlerListLegacy(BaseComponent):
                                  **lstkwargs)
                              
         store = iv.selectionStore(table=self.maintable, columns='=.columns',
-                           chunkSize=self.rowsPerPage()*4,
-                           where='=list.query.where', sortedBy='=list.grid.sorted',
-                           pkeys='=list.query.pkeys', _fired='^list.runQueryDo',
-                           selectionName='*', recordResolver=False, condition=condition,
-                           sqlContextName='standard_list', totalRowCount='=list.tableRecordCount',
-                           row_start='0', 
-                           excludeLogicalDeleted='^list.excludeLogicalDeleted',
-                           applymethod='onLoadingSelection',
-                           timeout=180000, selectmethod='=list.selectmethod',
-                           selectmethod_prefix='customQuery',
-                           _onCalling=self.onQueryCalling(),
-                           **condPars)
+                                  chunkSize=self.rowsPerPage()*4,
+                                  where='=list.query.where', sortedBy='=list.grid.sorted',
+                                  pkeys='=list.query.pkeys', _fired='^list.runQueryDo',
+                                  selectionName='*', recordResolver=False, condition=condition,
+                                  sqlContextName='standard_list', totalRowCount='=list.tableRecordCount',
+                                  row_start='0', 
+                                  excludeLogicalDeleted='^list.excludeLogicalDeleted',
+                                  applymethod='onLoadingSelection',
+                                  timeout=180000, selectmethod='=list.selectmethod',
+                                  selectmethod_prefix='customQuery',
+                                  _onCalling=self.onQueryCalling(),
+                                  **condPars)
         store.addCallback('FIRE list.queryEnd=true; SET list.selectmethod=null; return result;')
 
         pane.dataController("SET list.selectedIndex = idx; SET selectedPage = 1;",

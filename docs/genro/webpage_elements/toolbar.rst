@@ -1,8 +1,8 @@
 .. _genro_toolbar:
 
-=======================
-slotToolbar and slotBar
-=======================
+=========================
+slotBar (and slotToolbar)
+=========================
     
     * :ref:`toolbar_def`
     * :ref:`toolbar_attributes`
@@ -13,13 +13,13 @@ slotToolbar and slotBar
 Definition
 ==========
 
-    The slotToolbar and the slotBar are used to create easily a toolbar. With toolbar
-    we mean a set of icons, buttons, widgets and more over objects.
+    They are the Genro way to easily create a toolbar. With toolbar we mean
+    a set of icons, buttons, widgets and more over objects.
     
-    The only difference between the slotToolbar and slotBar is their transparency.
-    The slotBar is transparent while the slotToolbar is not.
-    
-    Since the others features are common, we talk only about the slotToolbar.
+    The only differences between the slotToolbar and slotBar are some CSS
+    features (like transparency), so since their main features are common,
+    we'll describe them speaking only of the slotToolbar. We'll describe
+    their differences when we meet within the explanation.
     
     The slotToolbar can be attached to any div::
     
@@ -77,79 +77,79 @@ Attributes
         didn't take.
         
       * *orientation* add??? V (vertical), H (horizontal) default???
-      * You can add color nuances with the following three attributes:
-      
-        * *gradient_from*: the starting color
-        * *gradient_to*: the ending color
-        * *gradient_deg*: the inclination angle of the color nuances. It can be any of the
-          value between 0 and 360. To understand the numerical convention, think to a
-          cartesian plane. So:
-            
-            * 0   --> the color nuance follows the x axis towards the positive numbers
-            * 90  --> the color nuance follows the y axis towards the positive numbers
-            * 180 --> the color nuance follows the x axis towards the negative numbers
-            * 270 --> the color nuance follows the y axis towards the negative numbers
-            * 360 --> same meaning of the 0 value
-            
-        * *gradient_color_NUMBER*: you can specify more than two colors in place of the
-          colors defined through the *gradient_from* and the *gradient_to* attributes::
-            
-            gradient_color_0='pink,15',gradient_color_1='yellow,50',gradient_color_2='red,100'
-            
-          For more information, check the CSS :ref:`css_gradient_color` section.
-            
-        Pay attention: if you use the slotToolbar you CAN'T modify the *gradient_deg* attribute.
-        You can only modify the *gradient_from* and the *gradient_to* attributes::
-        
-            class GnrCustomWebPage(object):
-                def main(self,root,**kwargs):
-                    root.div().slotToolbar(slotbarCode='top',slots='hello,foo,dummy',
-                                           gradient_from='red',gradient_to='white')
-        
-        If you use the slotBar, remember that by default it is transparent, but you
-        can use all gradient color features (*gradient_from*, *gradient_to* and *gradient_deg*)::
-            
-            class GnrCustomWebPage(object):
-                def main(self,root,**kwargs):
-                    root.div().slotBar(slotbarCode='yeah',slots='hello,*,hello2',
-                                       gradient_from='red',gradient_to='white',
-                                       gradient_degree='36')
-                  
-        Here is another example::
-        
-          class GnrCustomWebPage:
-              def main(self,root,**kwargs):
-                  sl = root.slotBar('deg,fld,*,test,*,test1,*',lbl_position='B',lbl_font_size='8px')
-                  
-                  sl.deg.verticalSlider(value='^.deg',minimum=0,maximum=360,
-                                        intermediateChanges=True,height='100px',lbl='Deg')
-                  fb = sl.fld.formbuilder(cols=6, border_spacing='2px')
-                  fb.numbertextbox(value='^.deg',lbl='deg',width='4em')
-                  sl.test.div(margin='5px', display='inline-block',
-                              border='1px solid gray', width='100px', height='80px',
-                              gradient_from='white',gradient_to='navy',gradient_deg='^.deg')
-                              
-                  sl.test1.div(margin='5px', display='inline-block',
-                               border='1px solid gray', width='100px', height='80px',
-                               gradient_color_0='pink,15',gradient_color_1='yellow,50',
-                               gradient_color_2='red,100',gradient_deg='^.deg')
-                                 
-      * You can specify the position of slots label. Pay attention that, as the toolbars are built
-        on the :ref:`genro_formbuilder`, to modify the labels you have to use the *lbl* attribute,
-        not the *label* attribute::
-        
-            lbl_position='T' # possible values: 'T' (top), 'B' (bottom), 'L' (left), 'R' (right)
-            lbl_font_size='7px' # possible values: px, em, ex
-            lbl_color='red' # possible values: any of the RGB color
-            lbl_width='12px' # possible values: px, em, ex
-            lbl_transform_rotate='-90' # a value from 0 to 360 (or from -360 to 0)
-            
-      * You can also add :ref:`iv_searchbox`, :ref:`iv_searchon` or :ref:`iv_messageBox`, attributes of
-        the includedView component::
-        
-            slots='20,messageBox,*,searchOn'
-            
-        For more information, check the :ref:`genro_includedview` documentation page
+      * You can add color nuances with the following attributes:
+
+          * *gradient_from*: the starting color
+          * *gradient_to*: the ending color
+          * *gradient_deg*: the inclination angle of the color nuances. It can be any of the
+            value between 0 and 360. To understand the numerical convention, think to a
+            cartesian plane. So:
+
+              * 0   --> the color nuance follows the x axis towards the positive numbers
+              * 90  --> the color nuance follows the y axis towards the positive numbers
+              * 180 --> the color nuance follows the x axis towards the negative numbers
+              * 270 --> the color nuance follows the y axis towards the negative numbers
+              * 360 --> same meaning of the 0 value
+
+          * *gradient_color_NUMBER*: you can specify more than two colors in place of the
+            colors defined through the *gradient_from* and the *gradient_to* attributes::
+
+              gradient_color_0='pink,15',gradient_color_1='yellow,50',gradient_color_2='red,100'
+
+            For more information, check the CSS :ref:`css_gradient_color` section.
+
+            Pay attention: if you use the slotToolbar you CAN'T modify the *gradient_deg* attribute.
+            You can only modify the *gradient_from* and the *gradient_to* attributes::
+
+                class GnrCustomWebPage(object):
+                    def main(self,root,**kwargs):
+                        root.div().slotToolbar(slotbarCode='top',slots='hello,foo,dummy',
+                                               gradient_from='red',gradient_to='white')
+
+            If you use the slotBar, remember that by default it is transparent, but you
+            can use all gradient color features (*gradient_from*, *gradient_to* and *gradient_deg*)::
+
+                class GnrCustomWebPage(object):
+                    def main(self,root,**kwargs):
+                        root.div().slotBar(slotbarCode='yeah',slots='hello,*,hello2',
+                                           gradient_from='red',gradient_to='white',
+                                           gradient_degree='36')
+
+            Here is another example::
+
+              class GnrCustomWebPage:
+                  def main(self,root,**kwargs):
+                      sl = root.slotBar('deg,fld,*,test,*,test1,*',lbl_position='B',lbl_font_size='8px')
+
+                      sl.deg.verticalSlider(value='^.deg',minimum=0,maximum=360,
+                                            intermediateChanges=True,height='100px',lbl='Deg')
+                      fb = sl.fld.formbuilder(cols=6, border_spacing='2px')
+                      fb.numbertextbox(value='^.deg',lbl='deg',width='4em')
+                      sl.test.div(margin='5px', display='inline-block',
+                                  border='1px solid gray', width='100px', height='80px',
+                                  gradient_from='white',gradient_to='navy',gradient_deg='^.deg')
+
+                      sl.test1.div(margin='5px', display='inline-block',
+                                   border='1px solid gray', width='100px', height='80px',
+                                   gradient_color_0='pink,15',gradient_color_1='yellow,50',
+                                   gradient_color_2='red,100',gradient_deg='^.deg')
+
+        * You can specify the position of slots label. Pay attention that, as the toolbars are built
+          on the :ref:`genro_formbuilder`, to modify the labels you have to use the *lbl* attribute,
+          not the *label* attribute::
+
+              lbl_position='T' # possible values: 'T' (top), 'B' (bottom), 'L' (left), 'R' (right)
+              lbl_font_size='7px' # possible values: px, em, ex
+              lbl_color='red' # possible values: any of the RGB color
+              lbl_width='12px' # possible values: px, em, ex
+              lbl_transform_rotate='-90' # a value from 0 to 360 (or from -360 to 0)
+
+        * You can also add :ref:`iv_searchbox`, :ref:`iv_searchon` or :ref:`iv_messageBox`
+          (add??? Other features!! addrow...), attributes of the includedView component::
+
+              slots='20,messageBox,*,searchOn'
+
+          For more information, check the :ref:`genro_includedview` documentation page
         
 .. _toolbar_examples:
 

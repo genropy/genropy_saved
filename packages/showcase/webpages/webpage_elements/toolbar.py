@@ -9,12 +9,12 @@
 import datetime
 
 class GnrCustomWebPage(object):
-    py_requires = 'gnrcomponents/testhandler:TestHandlerFull'
-    #dojo_theme = 'soria'
-    
+    py_requires = """gnrcomponents/testhandler:TestHandlerFull,
+                     foundation/includedview"""
+                     
     def windowTitle(self):
-         return 'slotBar and slotToolbar'
-         
+        return 'slotBar and slotToolbar'
+        
     def _test_1_simple(self,pane):
         """simple example"""
         workdate = str(datetime.datetime.now().date())
@@ -35,13 +35,16 @@ class GnrCustomWebPage(object):
         pane.data('.color','white')
         pane.data('.from','#4BA21A')
         pane.data('.to','#7ED932')
-        
-        frame = pane.framePane(frameCode='framecode',height='400px',
-                               shadow='3px 3px 5px gray',rounded=10,
-                               border='1px solid #bbb',margin='10px',
-                               center_background='#E1E9E9')
-        top = frame.top.slotToolbar(slotbarCode='top',slots='10,hello,*,foo,*,dummy',
+        pane = pane.framePane(frameCode='test2',height='400px',
+                              shadow='3px 3px 5px gray',rounded=10,
+                              border='1px solid #bbb',margin='10px',
+                              center_background='#E1E9E9')
+        top = pane.top.slotToolbar(slots='10,hello,*,foo,*,dummy,export,searchOn',
                                     height='25px',gradient_from='^.from',gradient_to='^.to')
+        view = pane.includedView(_newGrid=True)
+        struct = view.gridStruct('name')
+        view.selectionStore(table='showcase.person',order_by='$name',_onStart=True,storeCode='mystore_2')
+        
         top.hello.div(workdate,color='^.color')
         top.foo.div('Schedule',font_size='14pt',color='^.color')
         top.dummy.button(label='add',iconClass='icnBaseAdd',showLabel=False,
@@ -52,20 +55,18 @@ class GnrCustomWebPage(object):
                          action="alert('Sended your schedule by email')")
         top.dummy.button(label='pdf',iconClass='icnBasePdf',showLabel=False,
                          action="alert('PDF created')")
-        top.dummy.button(label='',iconClass='icnBaseExport',showLabel=False,
-                         action="alert('Exported in an Excel file')")
         top.dummy.button(label='print',iconClass='icnBasePrinter',showLabel=False,
                          action="alert('Printed')")
-                         
-        left = frame.left.slotBar(slotbarCode='left',slots='10,foo,*',width='40px',
-                                  gradient_from='^.from',gradient_to='^.to',gradient_deg='0')
-        left.foo.button('new grid',action="alert('New schedule!')")
-        left.foo.button('save grid',action="alert('Saved!')")
-        left.foo.button('load grid',action="alert('Loaded!')")
-        left.foo.button('exit', action="alert('Exited!')")
         
-        right = frame.right.slotBar(slotbarCode='left',slots='20,dummy,*',width='130px',
-                                    gradient_from='^.from',gradient_to='^.to',gradient_deg='^.deg')
+        left = pane.left.slotBar(slotbarCode='left',slots='10,foo,*',width='40px',
+                                 gradient_from='^.from',gradient_to='^.to',gradient_deg='0')
+        left.foo.button('new grid',action="alert('New schedule')")
+        left.foo.button('save grid',action="alert('Saved')")
+        left.foo.button('load grid',action="alert('Loaded')")
+        left.foo.button('exit', action="alert('Exited')")
+        
+        right = pane.right.slotBar(slotbarCode='left',slots='20,dummy,*',width='130px',
+                                   gradient_from='^.from',gradient_to='^.to',gradient_deg='^.deg')
         fb = right.dummy.formbuilder(lbl_color='^.color',cols=2)
         fb.div('Settings',font_size='12pt',color='^.color',colspan=2)
         fb.comboBox(lbl='color',value='^.color',width='90px',colspan=2,
@@ -84,20 +85,24 @@ class GnrCustomWebPage(object):
                           intermediateChanges=True,height='100px',lbl='Deg')
         fb.numbertextbox(value='^.deg',lbl='deg',width='3em')
         
-        bottom = frame.bottom.slotToolbar(slots='300,bar,*,searchOn',height='20px',
+        bottom = pane.bottom.slotToolbar(slots='300,bar,*',height='20px',
                                           gradient_from='^.from',gradient_to='^.to')
         bottom.bar.div('Here goes the messages for user',color='^.color')
         
-        sb = frame.div('Remember: a slotToolbar (or a slotBar) can be attached to any div!',
-                        margin='20px',color='black').slotToolbar(slotbarCode='top',slots='10,hello,*,dummy',
-                                                                 height='25px',gradient_from='^.from',gradient_to='^.to')
-        sb.hello.button('Click me!',action='alert("Hello!!!")')
-        sb.dummy.button(label='',iconClass='icnBasePref',showLabel=False,
-                        action="alert('A wonderful action!')")
-        frame.div('Here goes the \"center\" content.',margin='20px')
+        #sb = frame.div('Remember: a slotToolbar (or a slotBar) can be attached to any div!',
+        #                margin='20px',color='black').slotToolbar(slotbarCode='top',slots='10,hello,*,dummy',
+        #                                                         height='25px',gradient_from='^.from',gradient_to='^.to')
+        #sb.hello.button('Click me!',action='alert("Hello!!!")')
+        #sb.dummy.button(label='',iconClass='icnBasePref',showLabel=False,
+        #                action="alert('A wonderful action!')")
+        #frame.div('Here goes the \"center\" content.',margin='20px')
+        view = pane.includedView(_newGrid=True)
+        struct = view.gridStruct('name')
+        view.selectionStore(table='showcase.person',_onStart=True,storeCode='mystore_2')
         
     def test_3_div(self,pane):
         """slotToolbar and toolBar attached on a div"""
+        pane.div('You can attach a toolbar to any div:')
         top = pane.div().slotToolbar(slotbarCode='top',slots='hello,foo,dummy',
                                      gradient_from='red',gradient_to='white')
         top.hello.div('Hello!')

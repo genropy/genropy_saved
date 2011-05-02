@@ -4,16 +4,17 @@
 # Created by Francesco Porcari on 2011-01-27.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-"Test page description"
+"gnrlayout"
+
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
-
+    
     def windowTitle(self):
-        return ''
+        return 'gnrlayout'
          
     def test_0_framePane(self,pane):
-        """First test description"""
-        frame = pane.framePane(height='300px')
+        """test 0"""
+        frame = pane.framePane(frameCode='frame0',height='300px')
         top = frame.top.slotToolbar(slots='*,|,piero,|,*',_class='frame_footer')
         top.piero.div('piero')
         frame.div('HEI I AM CENTER')

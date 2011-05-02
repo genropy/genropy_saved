@@ -568,9 +568,11 @@ class GnrWebPage(GnrBaseWebPage):
                 handler = getattr(self, '%s_%s' % (prefix, method))
         return handler
         
-    def build_arg_dict(self, _nodebug=False,_clocomp=False,**kwargs):
+    def build_arg_dict(self,_nodebug=False,_clocomp=False,**kwargs):
         """add???
         
+        :param _nodebug: no debug mode. add???. Default value is ``False``
+        :param _clocomp: enable closure compile. add???. Default value is ``False``
         :returns: add???
         """
         gnr_static_handler = self.site.getStatic('gnr')

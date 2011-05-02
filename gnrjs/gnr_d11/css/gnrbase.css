@@ -1846,47 +1846,44 @@ textarea:disabled {
 	width:100%;
 }
 .slotbar_vertical .slotbar_table{
-	height:100% ;
-	width:100%;
+    height:100% ;
+    width:100%;
 }
 
 .slotbar_horizontal .slotbar_spacer{
-	position:absolute;
-	top: 2px;
-	bottom: 2px;
-    background:#CECECE;
-	width: 1px;
-	border-right:1px solid #E3E3E3;
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    background: #CECECE;
+    width: 1px;
+    border-right: 1px solid #E3E3E3;
 }
 .slotbar_vertical .slotbar_spacer{
-    height:100%;
-    background:gray;
+    height: 100%;
+    background: gray;
 }
 .slotbar_vertical .slotbar_row{
-    height:1px;
+    height: 1px;
     padding-top: 2px;
-	padding-bottom:2px ;
+    padding-bottom: 2px;
 }
-
-
-
 
 /* @end */
 
 /* @group Formhandler */
 
 .fh_bottom_message{
-	height: 16px;
-	line-height: 16px;
-	border-top: 1px solid silver;
-	background-color: lightblue;
-	color: navy;
-	text-align: center;
-	font-weight: bold;
+    height: 16px;
+    line-height: 16px;
+    border-top: 1px solid silver;
+    background-color: lightblue;
+    color: navy;
+    text-align: center;
+    font-weight: bold;
 }
 .fh_semaphore{
-	height: 16px;
-	width: 16px;
+    height: 16px;
+    width: 16px;
 }
 .form_activeForm{
     -moz-box-shadow: 2px 2px 4px #403b3b;
@@ -1898,15 +1895,15 @@ textarea:disabled {
 }
 
 .form_ok .fh_semaphore{
-	background: url(icons/base14/greenLight.gif) no-repeat center center;
+    background: url(icons/base14/greenLight.gif) no-repeat center center;
 }
 
 .form_error .fh_semaphore{
-	background: url(icons/base14/redLight.gif) no-repeat center center;
+    background: url(icons/base14/redLight.gif) no-repeat center center;
 }
 
 .form_changed .fh_semaphore{
-	background: url(icons/base14/yellowLight.gif) no-repeat center center;
+    background: url(icons/base14/yellowLight.gif) no-repeat center center;
 }
 
 .form_readOnly .fh_semaphore{
@@ -1914,14 +1911,14 @@ textarea:disabled {
 }
 
 .form_noItem .fh_semaphore{
-	background: url(icons/base14/grayLight.gif) no-repeat center center;
+    background: url(icons/base14/grayLight.gif) no-repeat center center;
 }
 
 .fh_content{
-	overflow: auto;
+    overflow: auto;
 }
 .form_noItem .fh_content > *{
-	opacity: .5;
+    opacity: .5;
 }
 
 /* @end */
@@ -1947,8 +1944,6 @@ textarea:disabled {
     background:yellow;
     color:black;
 }
-
-
 
 .rowsetdragging {
     position: absolute;
@@ -2062,7 +2057,6 @@ table.draggedItem {
 .gnrValidError {
     background-color: orange;
 }
-
 
 /* @end */
 

@@ -1,62 +1,47 @@
 # -*- coding: UTF-8 -*-
 
-# framegrid.py
+# panegrid.py
 # Created by Francesco Porcari on 2011-01-21.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
-from gnr.web.gnrwebstruct import struct_method
-"Test page description"
+"panegrid"
+
 class GnrCustomWebPage(object):
-    testOnly='_target_action'
+    #testOnly='_target_action'
     user_polling = 0
     auto_polling = 0
     py_requires="gnrcomponents/testhandler:TestHandlerFull,foundation/includedview"
-   
-    def test_7_frame_includedview_target_action(self,pane):
-        pane = pane.framePane(frameCode='province',height='200px')
-        tbar = pane.top.slotToolbar('*,addrow')
-        view = pane.includedView(selfsubscribe_addrow='console.log("receiving add");')
-        struct = view.gridStruct('regione')
-        view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore')
-
     
-    def test_0_frame_includedview_newgrid(self,pane):
-        """Pane grid """
+    def _test_0_frame_includedview_newgrid(self,pane):
+        """Pane grid with export to excel/numbers file"""
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('*,export')
         view = pane.includedView(_newGrid=True)
         struct = view.gridStruct('regione')
-        view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore')
-        
-        
-    def test_frame_includedview_export(self,pane):
-        """Pane grid """
+        view.selectionStore(table='glbl.provincia',where="$regione='LOM'",
+                            _onStart=True,storeCode='mystore0')
+                            
+    def _test_1_frame_includedview_export(self,pane):
+        """Pane grid"""
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('searchOn,*,iv_export')
         view = pane.includedView(nodeId='grid_province',_newGrid=True)
         struct = view.gridStruct('regione')
         pane.dataController("alert('export')",subscribe_province_export=True)
-        view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore')
-        
-    #def test_10_frame_includedview_relationStore(self,pane):
-    #    """Pane grid """
-    #    pane = pane.framePane(frameCode='province',height='200px')
-    #    tbar = pane.top.slotToolbar('*,searchOn')
-    #    view = pane.includedView(_newGrid=True)
-    #    struct = view.gridStruct('regione')
-    #    view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore')
-        
-    def test_frame_includedview_virtualIncludedview(self,pane):
+        view.selectionStore(table='glbl.provincia',where="$regione='LOM'",
+                            _onStart=True,storeCode='mystore1')
+                            
+    def _test_2_frame_includedview_virtualIncludedview(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='fatture',height='200px')
         tbar = pane.top.slotToolbar('datestart,*,searchOn')
         tbar.datestart.dateTextbox(value='^.date_start')
         view = pane.includedView(_newGrid=True) #'.grid
         struct = view.gridStruct('min')
-        view.selectionStore(table='polimed.fattura',where="$data>:date_start",selectionName='*',chunkSize=30,
-                            date_start='^.date_start')
-    
-    def test_frame_includedview_virtualPaletteGrid(self,pane):
+        view.selectionStore(table='polimed.fattura',where="$data>:date_start",
+                            selectionName='*',chunkSize=30,date_start='^.date_start')
+                            
+    def _test_3_frame_includedview_virtualPaletteGrid(self,pane):
         """Pane grid """
         box = pane.div(height='30px')
         palette = box.paletteGrid('fatture_p',struct='min',_newGrid=True,dockTo='*')
@@ -64,30 +49,29 @@ class GnrCustomWebPage(object):
         tbar.datestart.dateTextbox(value='^.date_start')
         tbar.xxx.textbox(value='^.pp',default_value='ppp')
         palette.selectionStore(table='polimed.fattura',where="$data>:date_start",selectionName='*',chunkSize=30,
-                            date_start='^.date_start',_if='date_start')
-        
+                               date_start='^.date_start',_if='date_start')
+                               
     def regione_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('nome',width='40%')
         r.fieldcell('regione',width='20%')
         r.fieldcell('@regione.nome',width='40%')
-
         
-    def _test_1_frame_includedview_struct(self,pane):
-        """Pane grid """
+    def test_4_frame_includedview_struct(self,pane):
+        """searchOn"""
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('*,searchOn')
         view = pane.includedView(struct=self.regione_struct)
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
         
-    def test_1_frame_includedview_zz(self,pane):
+    def test_5_frame_includedview_zz(self,pane):
         """Pane XX """
         pane = pane.framePane(frameCode='province',height='200px',datapath='piero')
         tbar = pane.top.slotToolbar('*,searchOn')
         view = pane.includedView()
         view.selectionStore(storepath='guido',table='glbl.provincia',where="$regione='LOM'",_onStart=True)
-    
-    def test_2_frame_includedview(self,pane):
+        
+    def _test_6_frame_includedview(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='province',height='200px')
         pane.selectionStore(storeCode='provinceMie',table='glbl.provincia',where="$regione='LOM'",_onStart=True)
@@ -95,8 +79,14 @@ class GnrCustomWebPage(object):
         view = pane.includedView(store='provinceMie')
         struct = view.gridStruct('regione')
         
-
-    def test_3_palettegrid(self,pane):
+    def _test_7_frame_includedview_target_action(self,pane):
+        pane = pane.framePane(frameCode='province',height='200px')
+        tbar = pane.top.slotToolbar('*,addrow')
+        view = pane.includedView(selfsubscribe_addrow='console.log("receiving add");')
+        struct = view.gridStruct('regione')
+        view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore7')
+        
+    def _test_8_palettegrid(self,pane):
         paletteGrid = pane.paletteGrid(paletteCode='province_2',title='Province',
                                     struct='regione',dockTo='*')
         paletteGrid.selectionStore(table='glbl.provincia',where="$regione=:reg",reg='^.regione') 
@@ -104,8 +94,7 @@ class GnrCustomWebPage(object):
         paletteGrid.top.slotToolbar('searchOn')
         footer.prova.dbSelect(dbtable='glbl.regione',value='^.regione')
         
-    
-    def test_5_frame_includedview_virtual(self,pane):
+    def _test_9_frame_includedview_virtual(self,pane):
         """virtual grid """
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('*,inputsearch')
@@ -114,7 +103,15 @@ class GnrCustomWebPage(object):
         struct = view.gridStruct('min')
         view.selectionStore(table='glbl.localita',where="$nome ILIKE :chunk",chunk='=="%"+_chunk+"%"',
                             _chunk='^.chunk',virtualSelection=True)
-    
-    def test_9_frame_includedview_framegrid(self,pane):
+                            
+    def _test_10_frame_includedview_framegrid(self,pane):
         pass
-   
+        
+    #def test_11_frame_includedview_relationStore(self,pane):
+    #    """Pane grid """
+    #    pane = pane.framePane(frameCode='province',height='200px')
+    #    tbar = pane.top.slotToolbar('*,searchOn')
+    #    view = pane.includedView(_newGrid=True)
+    #    struct = view.gridStruct('regione')
+    #    view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore')
+    

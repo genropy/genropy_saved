@@ -4,9 +4,11 @@
 # Created by Francesco Porcari on 2011-01-18.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+"Test formhandler selection store"
+
 from gnr.web.gnrwebstruct import struct_method
 from gnr.web.gnrwebpage import public_method
-"Test formhandler selection store"
+
 class GnrCustomWebPage(object):
     testOnly='_2_'
     user_polling=0
@@ -41,7 +43,7 @@ class GnrCustomWebPage(object):
         fb.field('ordine_tot')
         fb.field('cap_valido')
         return fb
-         
+        
     def test_0_base(self,pane):
         bc = pane.borderContainer(height='250px')
         frame = bc.framePane('province',region='left',width='300px')
@@ -69,27 +71,26 @@ class GnrCustomWebPage(object):
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',r='^.regione',_fired='^.reload')
         form = bc.contentPane(region='center').formTester(frameCode='provincia')
         form.store.attributes['parentStore'] = 'province_1_grid'
-
-    
+        
     def test_2_linkedForm(self,pane):
         bc = pane.borderContainer(height='250px')
-        frame = bc.framePane('province',region='left',width='300px')
+        frame = bc.framePane(region='left',frameCode='province',width='300px')
         tb = frame.top.slotToolbar('selector,*,addrow,10')
         tb.selector.dbselect(value='^.regione',dbtable='glbl.regione',lbl='Regione')
         iv = frame.includedView(struct='regione',autoSelect=True)
         iv.selectionStore(table='glbl.provincia',where='$regione=:r',
                           r='^.regione',_fired='^.reload')
-        center = bc.contentPane(region='center',border='1px solid blue')
         form = iv.linkedForm(frameCode='provincia',loadEvent='onRowDblClick',
-                            dialog_title='Prova',
-                            dialog_height='300px',
-                            dialog_width='400px')
+                             dialog_title='Prova',
+                             dialog_height='300px',
+                             dialog_width='500px')
         form.store.handler('load',default_regione='=#province_frame.regione')
         form.testToolbar()
-        saver = form.store.handler('save')        
+        center = bc.contentPane(region='center',border='1px solid blue')
+        saver = form.store.handler('save')
         pane = form.center.contentPane(datapath='.record')
-        fb = pane.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
-    
+        fb = pane.formbuilder(cols=2,border_spacing='4px',width='400px',fld_width='100%').formContent()
+        
     def test_3_linkedForm_pane(self,pane):
         bc = pane.borderContainer(height='250px')
         frame = bc.framePane('province',region='left',width='300px')
@@ -107,12 +108,10 @@ class GnrCustomWebPage(object):
         #saver.addCallback('this.form.publish("load",{destPkey:result.getItem("pkey")});')
         pane = form.center.contentPane(datapath='.record')
         fb = pane.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
-    
+        
     def formCb(self,pane):
         pane.formbuilder(cols=2, border_spacing='4px', width="400px",fld_width="100%").formContent()
         
-    
-
     def test_4_linkedForm_pane_nested(self,pane):
         mainform = pane.frameForm(frameCode='regione',height='500px',table='glbl.regione',
                                 store='recordCluster',store_startKey='*norecord*')
@@ -140,7 +139,7 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^.auxdata.prova',lbl='Prova')
         fb.textbox(value='^.auxdata.mia',lbl='Mia')
         fb.textbox(value='^.auxdata.foo.bar',lbl='Bar')
-    
+        
     def xxx(self,pane):
         tb.reloader.button('reload',fire='.reload')
         iv = frame.includedView(struct='regione',autoSelect=True)
@@ -151,5 +150,4 @@ class GnrCustomWebPage(object):
                             formRoot=center,store_startKey='*norecord*',
                             store_onSaved='reload')
         form.testToolbar()
-    
         

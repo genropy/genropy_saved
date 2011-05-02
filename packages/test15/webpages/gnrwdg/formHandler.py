@@ -15,9 +15,9 @@ class GnrCustomWebPage(object):
     auto_polling=0
     
     @struct_method
-    def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
+    def formTester(self,pane,frameCode=None,startKey=None,**kwargs):
         form = pane.frameForm(frameCode=frameCode,table='glbl.provincia',
-                            store='recordCluster',store_startKey=startKey or '*norecord*',**kwargs)
+                              store='recordCluster',store_startKey=startKey or '*norecord*',**kwargs)
         form.testToolbar(startKey=startKey) 
         pane = form.center.contentPane(datapath='.record')
         fb = pane.formbuilder(cols=2, border_spacing='4px',fld_width="100%")
@@ -37,7 +37,15 @@ class GnrCustomWebPage(object):
         
     @struct_method
     def formContent(self,fb):
-        fb.field('sigla', validate_len='2:2',validate_len_min_error='Too Short')
+        fb.field('sigla',validate_len='2:2',validate_len_error="""Wrong lenght! (the field accept
+                                                                  only a string of 2 characters)""")
+                  #NISO: attenzione! la "validate_len" accetta solo:
+                  #          validate_len_error='stringa'
+                  #          validate_len_warning='stringa'
+                  #
+                  #      quindi non accetta i validate che c'erano prima, cioè:
+                  #          validate_len_min_error='Too short',
+                  #          validate_len_max_error='Too long')
         fb.field('regione')
         fb.field('nome')
         fb.field('codice_istat')
@@ -53,7 +61,7 @@ class GnrCustomWebPage(object):
     def test_0_frameform(self,pane):
         "Test FrameForm"
         form = pane.frameForm(frameCode='provincia_1',border='1px solid silver',datapath='.form',
-                            rounded_bottom=10,height='180px',width='600px',pkeyPath='.prov')
+                              rounded_bottom=10,height='180px',width='600px',pkeyPath='.prov')
         form.testToolbar()
         store = form.formStore(table='glbl.provincia',storeType='Item',handler='recordCluster',startKey='*newrecord*',onSaved='reload')
         rpc = store.handler('load',default_ordine_tot='100')  

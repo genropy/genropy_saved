@@ -23,7 +23,6 @@ from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
 
-
 class IncludedView(BaseComponent):
     """
     IncludedView allows you to manage data of the table in relation many to many. includedViewBox is the main method of this class.
@@ -40,7 +39,6 @@ class IncludedView(BaseComponent):
         del_kw = dictExtract(kwargs,'del_',True,slice_prefix=False)
         upd_kw = dictExtract(kwargs,'upd_',True,slice_prefix=False)
         tools_kw = dictExtract(kwargs,'tools_',True,slice_prefix=False)
-
         print_kw = dictExtract(kwargs,'print_',True,slice_prefix=False)
         export_kw = dictExtract(kwargs,'export_',True,slice_prefix=False)
         slotbarKwargs = dict()
@@ -60,7 +58,6 @@ class IncludedView(BaseComponent):
                                     childname='slotbar',namespace='iv',**slotbarKwargs)
         return kwargs
         
-    
     @extract_kwargs(frame=True)
     @struct_method
     def ivnew_selectionViewBox(self,pane,frameCode=None,datapath=None,selectionPars=None,reloader=None,table=None,
@@ -87,7 +84,7 @@ class IncludedView(BaseComponent):
         if selectionPars:
             view.selectionStore(table=table,_reload='^.reload',childname='store',**selectionPars)
         return frame
-
+        
     def includedViewBox(self, parentBC, nodeId=None, table=None, datapath=None,
                         storepath=None, selectionPars=None, formPars=None, label=None, caption=None, footer=None,
                         add_action=None, add_class='buttonIcon icnBaseAdd', add_enable='^form.canWrite',
@@ -105,7 +102,7 @@ class IncludedView(BaseComponent):
                         addOnCb=None, zoom=True, hasToolbar=False,
                         canSort=True, configurable=None, dropCodes=None,
                         **kwargs):
-        """
+        """\
         This method returns a grid (includedView) for viewing and selecting rows from a many
         to many table related to the main table, and the widget that allow to edit data.
         You can edit data of a single row (record) using a form (formPars), or pick some rows
@@ -113,93 +110,97 @@ class IncludedView(BaseComponent):
         The form can be contained inside a dialog or a contentPane and is useful to edit a single record.
         If the data is stored inside another table you should use the picker to select the rows from that table.
         
-        * `parentBC`: MANDATORY - parentBC is a :ref:`genro_bordercontainer` that you must pass
-          to the includedViewBox.
-          .. note:: The includedViewBox and its sons (for example, the :ref:`genro_selectionhandler`)
-                    can only accept borderContainer and doesn't accept contentPane.
-        * `nodeId`: the includedViewbox's Id. For more information, check :ref:`genro_nodeid` page.
-          Default value is ``None``.
-        * `table`: the includedViewbox's reference :ref:`genro_table`.
-          Default value is ``None``.
-        * `datapath`: allow to create a hierarchy of your data’s addresses into the datastore.
-          Default value is ``None``.
-            For more information, check the :ref:`genro_datapath` and the :ref:`genro_datastore` pages.
-        * `storepath`: <#NISO ??? Add description! /> Default value is ``None``.
-        * `selectionPars`: <#NISO ??? Add description! /> Default value is ``None``.
-        * `formPars`: (dict) it contains all the params of the widget who hosts the form.
-          Default value is ``None``.
+        :param parentBC: MANDATORY - parentBC is a :ref:`genro_bordercontainer`
+                         
+                         .. note:: The includedViewBox and its sons (for example, the :ref:`genro_selectionhandler`)
+                                   can only accept borderContainer and doesn't accept contentPane.
+        :param nodeId: the includedViewbox's Id. For more information, check :ref:`genro_nodeid` page.
+                       Default value is ``None``.
+        :param table: the includedViewbox's reference :ref:`genro_table`.
+                      Default value is ``None``.
+        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                         Default value is ``None``. For more information, check the :ref:`genro_datapath` and the
+                         :ref:`genro_datastore` pages.
+        :param storepath: add???. Default value is ``None``.
+        :param selectionPars: add???. Default value is ``None``.
+        :param formPars: (dict) it contains all the params of the widget who hosts the form.
+                         Default value is ``None``.
+                         
+                         **formPars parameters:**
+                         
+                         * mode: `dialog` / `pane`. Default value is `dialog`.
+                         * height: the dialog's height.
+                         * width: the dialog's width.
+                         * formCb: MANDATORY - callback method used to create the form.
+                         
+                             **formCb parameters:**
+                             
+                             * formBorderCont: a :ref:`genro_bordercontainer` used as root for the formCb's construction.
+                             * datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                                 For more information, check the :ref:`genro_datapath` and the :ref:`genro_datastore` pages.
+                             * region: 'center' of the pane/borderContainer where you place it into.
+                             * toolbarHandler: OPTIONAL - a callback for the form toolbar.
+                             * title: MANDATORY - for dialog mode.
+                             * pane: OPTIONAL - pane of the form input.
             
-            formPars parameters:
-            
-            * mode: `dialog` / `pane`. Default value is `dialog`.
-            * height: the dialog's height.
-            * width: the dialog's width.
-            * formCb: MANDATORY - callback method used to create the form.
-            
-                formCb parameters:
-                
-                * formBorderCont: a :ref:`genro_bordercontainer` used as root for the formCb's construction.
-                * datapath: allow to create a hierarchy of your data’s addresses into the datastore.
-                    For more information, check the :ref:`genro_datapath` and the :ref:`genro_datastore` pages.
-                * region: 'center' of the pane/borderContainer where you place it into.
-                * toolbarHandler: OPTIONAL - a callback for the form toolbar.
-                * title: MANDATORY - for dialog mode.
-                * pane: OPTIONAL - pane of the form input.
-            
-        * `label`: (string) allow to create a label for the includedView. Default value is ``None``.
-        * `caption`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `footer`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `add_action`: (boolean) allow the insertion of a row in the includedView. Default value is ``None``.
-        * `add_class`: the css class of the add button. Default value is ``buttonIcon icnBaseAdd``.
-        * `add_enable`: a path to enable/disable add action. Default value is ``^form.canWrite``.
-        * `del_action`: (boolean) allow the deleting of a row in the includedView. Default value is ``None``.
-        * `del_class`: the css class of the delete button. Default value is ``buttonIcon icnBaseDelete``.
-        * `del_enable`: a path to enable/disable del action. Default value is ``^form.canWrite``.
-        * `upd_action`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `upd_class`: <#NISO ??? Add description! />. Default value is ``buttonIcon icnBaseEdit``.
-        * `upd_enable`: <#NISO ??? Add description! />. Default value is ``^form.canWrite``.
-        * `close_action`: (boolean) adding closing button in tooltipDialog. Default value is ``None``.
-        * `close_class`: css class of close button. Default value is ``None``.
-        * `print_action`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `print_class`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `pdf_action`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `pdf_class`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `pdf_name`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `export_action`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `export_class`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `tools_action`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `tools_class`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `tools_enable`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `tools_lbl`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `lock_action`: an optional parameter; <#NISO ??? Add description! />. Default value is ``False``.
-        * `tools_menu`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `_onStart`: an optional parameter; (Boolean) if True, the controller is executed only after that all the line
-            codes are read. Default value is ``False``.
-        * `filterOn`: (boolean, only for picker) allow the filter into the picker grid. Default value is ``None``.
-        * `pickerPars`: (dict) it contains all the params of the tooltip dialog which host the picker grid. Default value is ``None``.
-        
-            Parameters:
-            - height: height of the tooltipdialog.
-            - width: width of the tooltipdialog.
-            - label: label of the tooltipdialog.
-            - table: MANDATORY - the table of the picker grid. From this table you can pick a row for the many to many table you handle.
-            - columns: MANDATORY - columns of the picker grid.
-            - nodeId: MANDATORY - id for the picker.
-            - autowidth, storepath, etc grid params.
-            - filterOn: the columns on which to apply filter.
-        
-        * `centerPaneCb`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `editorEnabled`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `parentLock`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `reloader`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `externalChanges`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `addOnCb`: <#NISO ??? Add description! />. Default value is ``None``.
-        * `zoom`: It allows to open the linked record in its :ref:`genro_table`. For further details, check :ref:`genro_zoom`. Default value is ``True``.
-        * `hasToolbar`: <#NISO ??? Add description! />. Default value is ``False``.
-        * `canSort`: <#NISO ??? Add description! />. Default value is ``True``.
-        * `fromPicker_target_fields`: allow to bind the picker's table. columns to the includedView columns of the many to many table.
-        * `fromPicker_nodup_field`: if this column value is present in the includedView it allows to replace that row instead of adding a duplicate row.
-        * `**kwargs`: you have to put the includedView params: autowidth, storepath, etc.
+        :param label: (string) allow to create a label for the includedView. Default value is ``None``.
+        :param caption: add???. Default value is ``None``.
+        :param footer: add???. Default value is ``None``.
+        :param add_action: (boolean) allow the insertion of a row in the includedView. Default value is ``None``.
+        :param add_class: the css class of the add button. Default value is ``buttonIcon icnBaseAdd``.
+        :param add_enable: a path to enable/disable add action. Default value is ``^form.canWrite``.
+        :param del_action: (boolean) allow the deleting of a row in the includedView. Default value is ``None``.
+        :param del_class: the css class of the delete button. Default value is ``buttonIcon icnBaseDelete``.
+        :param del_enable: a path to enable/disable del action. Default value is ``^form.canWrite``.
+        :param upd_action: add???. Default value is ``None``.
+        :param upd_class: add???. Default value is ``buttonIcon icnBaseEdit``.
+        :param upd_enable: add???. Default value is ``^form.canWrite``.
+        :param close_action: (boolean) adding closing button in tooltipDialog. Default value is ``None``.
+        :param close_class: css class of close button. Default value is ``None``.
+        :param print_action: add???. Default value is ``None``.
+        :param print_class: add???. Default value is ``None``.
+        :param pdf_action: add???. Default value is ``None``.
+        :param pdf_class: add???. Default value is ``None``.
+        :param pdf_name: add???. Default value is ``None``.
+        :param export_action: add???. Default value is ``None``.
+        :param export_class: add???. Default value is ``None``.
+        :param tools_action: add???. Default value is ``None``.
+        :param tools_class: add???. Default value is ``None``.
+        :param tools_enable: add???. Default value is ``None``.
+        :param tools_lbl: add???. Default value is ``None``.
+        :param lock_action: an optional parameter; add???. Default value is ``False``.
+        :param tools_menu: add???. Default value is ``None``.
+        :param _onStart: an optional parameter; (Boolean) if True, the controller is executed only
+                         after that all the line codes are read. Default value is ``False``.
+        :param filterOn: (boolean, only for picker) allow the filter into the picker grid.
+                         Default value is ``None``.
+        :param pickerPars: (dict) it contains all the params of the tooltip dialog which host the
+                           picker grid. Default value is ``None``.
+                           
+                           **Parameters:**
+                           
+                           * height: height of the tooltipdialog.
+                           * width: width of the tooltipdialog.
+                           * label: label of the tooltipdialog.
+                           * table: MANDATORY - the table of the picker grid. From this table you can pick a row for the many to many table you handle.
+                           * columns: MANDATORY - columns of the picker grid.
+                           * nodeId: MANDATORY - id for the picker.
+                           * autowidth, storepath, etc grid params.
+                           * filterOn: the columns on which to apply filter.
+                           
+        :param centerPaneCb: add???. Default value is ``None``.
+        :param editorEnabled: add???. Default value is ``None``.
+        :param parentLock: add???. Default value is ``None``.
+        :param reloader: add???. Default value is ``None``.
+        :param externalChanges: add???. Default value is ``None``.
+        :param addOnCb: add???. Default value is ``None``.
+        :param zoom: It allows to open the linked record in its :ref:`genro_table`.
+                     For further details, check :ref:`genro_zoom`. Default value is ``True``.
+        :param hasToolbar: add???. Default value is ``False``.
+        :param canSort: add???. Default value is ``True``.
+        :param fromPicker_target_fields: allow to bind the picker's table. columns to the includedView columns of the many to many table.
+        :param fromPicker_nodup_field: if this column value is present in the includedView it allows to replace that row instead of adding a duplicate row.
+        :param \*\*kwargs: autowidth, storepath, etc.
         """
         if storepath:
             assert not storepath.startswith('^') and not storepath.startswith('='),\
@@ -272,7 +273,7 @@ class IncludedView(BaseComponent):
             if lock_action:
                 gridtop_lock = gridtop_right.div(float='left', margin_right='5px')
                 self._iv_gridLock(gridtop_lock, lock_action=lock_action)
-
+                
         if footer:
             assert callable(footer), 'footer param must be a callable'
             footerPars = dict([(k[7:], v) for k, v in kwargs.items() if k.startswith('footer_')])
@@ -283,7 +284,7 @@ class IncludedView(BaseComponent):
             gridbottom = parentBC.contentPane(region='bottom',
                                               datapath=controllerPath, **footerPars)
             footer(gridbottom)
-
+            
         self._iv_IncludedViewController(controller, gridId, controllerPath, table=table)
         if centerPaneCb:
             gridcenter = getattr(self, centerPaneCb)(parentBC, region='center', datapath=controllerPath, **box_pars)
@@ -339,22 +340,22 @@ class IncludedView(BaseComponent):
                                       _fired='^%s' % event_path, **pars)
         if selectionPars:
             self._iv_includedViewSelection(gridcenter, gridId, table, storepath, selectionPars, controllerPath)
-
+            
         if formPars:
             formPars.setdefault('pane', gridcenter)
             self._includedViewForm(controller, controllerPath, view, formPars)
-
+            
         if pickerPars:
             pickerPars.setdefault('pane', gridcenter)
             self._iv_Picker(controller, controllerPath, view, pickerPars)
         return view
-
+        
     def _iv_gridLock(self, pane, lock_action=None):
         if lock_action is True:
             spacer = pane.div(float='right', width='30px', height='20px', position='relative')
             spacer.button(label='^.status.lockLabel', fire='.status.changelock', iconClass="^.status.statusClass",
                           showLabel=False)
-
+                          
     def _iv_gridAddDel(self, pane, add_action=None, del_action=None, upd_action=None, upd_class=None, upd_enable=None,
                        add_class=None, add_enable=None, del_class=None, del_enable=None, pickerPars=None, formPars=None,
                        gridId=None):
@@ -380,7 +381,7 @@ class IncludedView(BaseComponent):
                 upd_action = 'FIRE .showRecord'
             pane.div(float='right', _class=upd_class, connect_onclick=upd_action,
                      margin_right='2px', visible=upd_enable)
-
+                     
     def _iv_gridAction(self, pane, print_action=None, export_action=None, tools_menu=None, tools_class=None,
                        tools_action=None, export_class=None, print_class=None, pdf_action=None, pdf_class=None,
                        pdf_name=None, table=None, gridId=None, tools_enable=None, tools_lbl=None, **kwargs):
@@ -388,14 +389,14 @@ class IncludedView(BaseComponent):
             if print_action is True:
                 print_action = 'FIRE .print;'
             pane.div(float='left', margin_right='7px', _class=print_class, connect_onclick=print_action)
-
+            
         if export_action:
             if export_action is True:
                 export_action = 'export'
                 export_mode = 'xls'
             export_action = 'FIRE .iv_action={action:"%s",export_mode:"%s"};' % (export_action, export_mode)
             pane.div(float='left', margin_right='7px', _class=export_class, connect_onclick=export_action)
-
+            
         if tools_menu:
             storepath = '.toolsmenu'
             if isinstance(tools_menu, basestring):
@@ -413,7 +414,7 @@ class IncludedView(BaseComponent):
             tool_block.div(float='left', _class=tools_class, connect_onclick=tools_action)
             if tools_lbl:
                 tool_block.div(tools_lbl, margin_left='5px', width='70px', font_size='0.9em')
-
+                
         if pdf_action:
             pane.dataController("""
                              var record = genro.wdgById(gridId).storebag();
@@ -435,7 +436,7 @@ class IncludedView(BaseComponent):
                                 table=table, gridId=gridId, respath=pdf_action,
                                 rebuild=True)
             pane.div(float='left', _class=pdf_class, connect_onclick='FIRE .downloadPdf')
-
+            
     def _iv_includedViewSelection(self, pane, gridId, table, storepath, selectionPars, controllerPath):
         #assert table
         assert not 'columnsFromView' in selectionPars
@@ -445,13 +446,13 @@ class IncludedView(BaseComponent):
         if table:
             selectionPars['table'] = table
             selectionPars['columns'] = selectionPars.get('columns') or '=.columns'
-
+            
         method = selectionPars.pop('method', 'app.getSelection')
         destpath = None
         if 'destpath' not in selectionPars:
             destpath = storepath
         pane.dataRpc(destpath, method, **selectionPars)
-
+        
     def _iv_IncludedViewController(self, controller, gridId, controllerPath, table=None):
         loadingParameters = None
         if table:
@@ -466,7 +467,7 @@ class IncludedView(BaseComponent):
                        var grid = genro.wdgById(gridId);
                        var nodesToDel = grid.delBagRow('*', delSelection);
                        FIRE .onDeletedRow;"""
-
+                       
         controller.dataController(delScript, _fired='^.delRecord', delSelection='^.delSelection',
                                   idx='=.selectedIndex', gridId=gridId)
         controller.dataController("""genro.wdgById(gridId).editBagRow(null,fired);""", fired='^.editRow', gridId=gridId)
@@ -487,13 +488,12 @@ class IncludedView(BaseComponent):
                                 genro.rpc.remoteCall(method, kwargs, null, 'POST', null,cb);
                             """,
                                   gridId=gridId, action='^.iv_action')
-
+                                  
         controller.dataController("genro.wdgById(gridId).reload(true);", _fired='^.reload', gridId=gridId)
         #controller.dataController("""SET .selectedIndex = null;
         #                             PUT .selectedLabel= null;""",
         #                          _fired="^gnr.forms.formPane.saving")
-
-
+        
     def _includedViewForm(self, controller, controllerPath, view, formPars):
         viewPars = view.attributes
         gridId = viewPars['nodeId']
@@ -505,17 +505,17 @@ class IncludedView(BaseComponent):
                                                     FIRE .showRecord = true;
                                                 }
                                                 """
-
+                                                
         formHandler = getattr(self, '_iv_Form_%s' % formPars.get('mode', 'dialog'))
-
+        
         toolbarPars = dict([(k, formPars.pop(k, None)) for k in
                             ('add_action', 'add_class', 'add_enable', 'del_action', 'del_class', 'del_enable',)])
         toolbarPars['controllerHandler'] = formPars.pop('controllerHandler', '_iv_FormStaticController')
         formHandler(formPars, storepath, controller, controllerPath, gridId, toolbarPars)
-
+        
     def _iv_Form_inline(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
         getattr(self, toolbarPars['controllerHandler'])(controller, gridId)
-
+        
     def _iv_FormToolbar(self, parentBC, controller, controllerPath, controllerHandler, gridId,
                         add_action=None, add_class=None, add_enable=None,
                         del_action=None, del_class=None, del_enable=None, ):
@@ -536,7 +536,7 @@ class IncludedView(BaseComponent):
             add_enable = add_enable or '^form.canWrite'
             tb.button('!!Add', float='right', action=add_action, visible=add_enable,
                       iconClass=add_class, showLabel=False)
-
+                      
         tb.button('!!First', fire_first='.navbutton', iconClass="tb_button icnNavFirst", disabled='^.atBegin',
                   showLabel=False)
         tb.button('!!Previous', fire_prev='.navbutton', iconClass="tb_button icnNavPrev", disabled='^.atBegin',
@@ -545,11 +545,11 @@ class IncludedView(BaseComponent):
                   showLabel=False)
         tb.button('!!Last', fire_last='.navbutton', iconClass="tb_button icnNavLast", disabled='^.atEnd',
                   showLabel=False)
-
+                  
         controller.dataFormula('.atBegin', '(idx==0)', idx='^.selectedIndex')
         controller.dataFormula('.atEnd', '(idx==genro.wdgById(gridId).rowCount-1)', idx='^.selectedIndex',
                                gridId=gridId)
-
+                               
     def _iv_FormStaticController(self, controller, gridId):
         controller.dataController("""var newidx;
                                  var rowcount = genro.wdgById(gridId).rowCount;
@@ -559,7 +559,7 @@ class IncludedView(BaseComponent):
                                  else if ((btn == 'next') && (idx < rowcount-1)){newidx = idx+1;}
                                  SET .selectedIndex = newidx;
                                  """, btn='^.navbutton', idx='=.selectedIndex', gridId=gridId)
-
+                                 
     def _includedViewFormBody(self, recordBC, controller, storepath, gridId, formPars):
         #controller not used
         #recordBC datapath = controllerPath
@@ -596,7 +596,7 @@ class IncludedView(BaseComponent):
         emptypane = st.contentPane()
         emptypane.div("No record selected", _class='dlg_msgbox')
         formPars['formCb'](formBorderCont, region='center', disabled=disabled)
-
+        
     def _iv_Picker(self, controller, controllerPath, view, pickerPars):
         pickerId = pickerPars.setdefault('nodeId', self.getUuid())
         gridId = view.attributes['nodeId']
@@ -618,7 +618,7 @@ class IncludedView(BaseComponent):
                                          bottom_right_action='FIRE .close;FIRE_AFTER .pickerAdd;',
                                          onOpen=onOpen, onEnter='FIRE .close;FIRE_AFTER .pickerAdd;')
         gridBC = dlgBC.borderContainer(region='center')
-
+        
         selector_cb = pickerPars.pop('selector_cb', None)
         selector_storepath = pickerPars.pop('selector_storepath', None)
         selector_result = pickerPars.pop('selector_result', None)
@@ -628,7 +628,7 @@ class IncludedView(BaseComponent):
                 top.filteringSelect(value=selector_result, storepath=selector_storepath)
             else:
                 selector_cb(dlgBC)
-
+                
         if nodup_field:
             pickerPars[
             'excludeListCb'] = 'return genro.wdgById("' + gridId + '").getColumnValues("' + nodup_field + '")'
@@ -638,7 +638,7 @@ class IncludedView(BaseComponent):
                 if tfld.strip() == nodup_field:
                     pickerPars['excludeCol'] = pfld.strip()
                     break
-
+                    
         self.includedViewBox(gridBC, **pickerPars)
         controller.dataController("genro.wdgById(dialogId).onCancel();", dialogId=dialogId, _fired='^.close')
         controller.dataController("""var nodelist = genro.wdgById(pickerId).getSelectedNodes();
@@ -646,7 +646,7 @@ class IncludedView(BaseComponent):
                                     """,
                                   pickerId=pickerId,
                                   gridId=gridId, _fired='^.pickerAdd')
-
+                                  
     def _iv_Form_dialog(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
         dialogId = '%s_dialog' % gridId
         height = formPars.pop('height', '40ex')
@@ -656,7 +656,7 @@ class IncludedView(BaseComponent):
             formPars['connect_show'] = '%s' % formPars.pop('onOpen')
         controller.dataController("genro.wdgById('%s').show();" % dialogId, _fired='^.showRecord')
         controller.dataController("genro.wdgById('%s').onCancel()" % dialogId, _fired='^.close')
-
+        
         toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
         #recordBC = mainPane.dialog(nodeId=dialogId,**formPars).borderContainer(nodeId='%s_bc' %gridId,
         #                                                                       datapath=storepath, #[check]
@@ -666,7 +666,7 @@ class IncludedView(BaseComponent):
                                                                                 height=height, width=width)
         getattr(self, toolbarHandler)(recordBC, controller, controllerPath=controllerPath, gridId=gridId, **toolbarPars)
         self._includedViewFormBody(recordBC, controller, storepath, gridId, formPars)
-
+        
     def _iv_Form_pane(self, formPars, storepath, controller, controllerPath, gridId, toolbarPars):
         mainPane = formPars.pop('pane')
         toolbarHandler = formPars.pop('toolbarHandler', '_iv_FormToolbar')
@@ -675,13 +675,11 @@ class IncludedView(BaseComponent):
                                       gridId=gridId, **toolbarPars)
         self._includedViewFormBody(recordBC, controller, storepath, gridId, formPars)
         
-
-
     @extract_kwargs(_dictkwargs={'add':True,'del':True,'upd':True,'print':True,'export':True,'tools':True,'top':True})
     def includedGrid(self, parentBC, nodeId=None,frameCode=None,datapath=None,struct=None,table=None, 
                         storepath=None, label=None, caption=None,filterOn=None,editorEnabled=None,canSort=True,dropCodes=None,
                         add_kwargs=None,del_kwargs=None,upd_kwargs=None,print_kwargs=None,export_kwargs=None,tools_kwargs=None,
-                        top_kwargs=None,datamode=None,**kwargs):         
+                        top_kwargs=None,datamode=None,**kwargs):
         assert not 'selectionPars' in kwargs, 'use tableviewer instead of or attach a selectionStore'
         assert not 'formPars' in kwargs, 'no longer supported'
         assert not 'lock_action' in kwargs, 'no longer supported'
@@ -734,7 +732,6 @@ class IncludedView(BaseComponent):
             action = add_kwargs.get('action')
             slots.append('delrow')
             assert not isinstance(action,basestring), 'custom action are not supported'
-        frame.top.slotToolbar(','.join(slots),**slotsKw)        
+        frame.top.slotToolbar(','.join(slots),**slotsKw)
         return frame.grid
-  
-            
+        

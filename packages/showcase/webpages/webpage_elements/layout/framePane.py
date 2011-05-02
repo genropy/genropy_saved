@@ -14,9 +14,10 @@ class GnrCustomWebPage(object):
         
     def test_1_frame(self,pane):
         """frame"""
-        frame = pane.framePane(frameCode='frame1',height='200px',shadow='3px 3px 5px gray',
-                               border='1px solid #bbb',margin='10px',
-                               center_background='gray',rounded=20,design='sidebar')
+        frame = pane.framePane(frameCode='frame1',height='200px',
+                               shadow='3px 3px 5px gray',border='1px solid #bbb',margin='10px',
+                               rounded=20,design='sidebar')
         top = frame.top.slotToolbar(slots='*,test_xx,*,jeff,*,searchOn')#,width='20px')
         top.test_xx.div('just a test',width='100px',background='red')
         top.jeff.button('I am a button', action="alert('hi')")
+        frame.div('Here goes the \"center\" content.',margin='20px')

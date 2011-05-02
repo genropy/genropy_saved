@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# untitled.py
+# testhandler.py
 # Created by Giovanni Porcari on 2010-08-09.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
@@ -64,7 +64,7 @@ class TestHandler(BaseComponent):
             
             element = element.div(padding='5px')
             test_handler(element)
-
+            
 class TestHandlerBase(TestHandler):
     def main_root(self, root, **kwargs):
         if self._call_args:
@@ -73,7 +73,7 @@ class TestHandlerBase(TestHandler):
             else:
                 self.testOnly = ['_%s_' % str(a) for a in self._call_args]
         self.testHandler(root)
-
+        
 class TestHandlerFull(TestHandler):
     def main(self, root, **kwargs):
         if self._call_args:
@@ -82,3 +82,4 @@ class TestHandlerFull(TestHandler):
             else:
                 self.testOnly = ['_%s_' % str(a) for a in self._call_args]
         self.testHandler(root)
+        
