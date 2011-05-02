@@ -2075,14 +2075,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var nodeId = sourceNode.attr.nodeId;
         var gridContent = sourceNode.getValue();
         if (genro.grid_configurator) {
-            dojo.connect(widget,'newDataStore',function(){
-                if(sourceNode.attr.configurable && !sourceNode._gridConfiguratorBuilt){
-                    genro.grid_configurator.addGridConfigurator(sourceNode);
-                }
-            });
-            //genro.grid_configurator.onGridCreated(sourceNode);
+            genro.src.afterBuildCalls.push(function(){genro.grid_configurator.addGridConfigurator(sourceNode);});
         }
-        
         if (gridContent instanceof gnr.GnrBag) {
             var gridEditorNode = gridContent.getNodeByAttr('tag', 'grideditor',true);
             if (gridEditorNode) {
