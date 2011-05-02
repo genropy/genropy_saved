@@ -41,7 +41,7 @@ class Public(BaseComponent):
         userTable = self.pbl_userTable()
         if not self.isGuest and userTable:
             pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
-        pane.data('gnr.workdate', self.workdate)
+        #pane.data('gnr.workdate', self.workdate)
         if 'inframe' in self.pageArgs:
             return
             
@@ -143,7 +143,8 @@ class Public(BaseComponent):
         connect_onclick = None
         if self.application.checkResourcePermission(self.pbl_canChangeWorkdate(), self.userTags):
             connect_onclick = 'FIRE #changeWorkdate_dlg.open;'
-        pane.div('^gnr.workdate', format='short',
+        #pane.data('gnr.workdate', self.workdate)
+        pane.div('^gnr.workdate', format='short',default_innerHTML=self.workdate,
                  _class='pbl_slotbar_label buttonIcon',
                  connect_onclick=connect_onclick)
         if connect_onclick:
