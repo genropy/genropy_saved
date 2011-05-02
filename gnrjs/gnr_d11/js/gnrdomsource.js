@@ -1144,7 +1144,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             if (attrname.indexOf('_') != 0) {
                 kwargs[attrname] = value;
             } else if (attrname == '_onRemote') {
-                _onRemote = funcCreate(value, '', this);
+                _onRemote = funcCreate(value, attrname._onRemote, this);
             }
         }
         var method = this.attr.remote;
