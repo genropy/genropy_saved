@@ -568,7 +568,7 @@ class GnrWebPage(GnrBaseWebPage):
                 handler = getattr(self, '%s_%s' % (prefix, method))
         return handler
         
-    def build_arg_dict(self, **kwargs):
+    def build_arg_dict(self, _nodebug=False,_clocomp=False,**kwargs):
         """add???
         
         :returns: add???
@@ -591,9 +591,9 @@ class GnrWebPage(GnrBaseWebPage):
         arg_dict['bodyclasses'] = self.get_bodyclasses()
         arg_dict['gnrModulePath'] = gnrModulePath
         gnrimports = self.frontend.gnrjs_frontend()
-        if self.site.debug or self.isDeveloper():
+        if _nodebug is False and _clocomp is False and (self.site.debug or self.isDeveloper()):
             arg_dict['genroJsImport'] = [self.mtimeurl(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
-        elif self.site.config['closure_compiler']:
+        elif _clocomp or self.site.config['closure_compiler']:
             jsfiles = [gnr_static_handler.path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
             arg_dict['genroJsImport'] = [self.jstools.closurecompile(jsfiles)]
         else:
