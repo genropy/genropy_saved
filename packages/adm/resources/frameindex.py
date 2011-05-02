@@ -17,8 +17,8 @@ class Mixin(BaseComponent):
     
     def rootWidget(self,root,**kwargs):
         return root.framePane('standard_index',_class='hideSplitter',
-                                border='1px solid gray',rounded_top=8,
-                                margin='2px',
+                                #border='1px solid gray',#rounded_top=8,
+                                margin='0px',
                                 gradient_from='#d0d0d0',gradient_to='#ffffff',gradient_deg=-90,
                                 selfsubscribe_toggleLeft=""" 
                                                             var bc = this.getWidget();
@@ -40,13 +40,13 @@ class Mixin(BaseComponent):
         self.prepareCenter(frame.center)
 
     def prepareTop(self,pane):
-        pane.attributes.update(dict(height='50px',overflow='hidden'))
-        bc = pane.borderContainer(rounded_top=10,gradient_from='gray',gradient_to='silver',gradient_deg=90) 
-        top = bc.contentPane(region='top').slotBar('*,owner,*',height='20px')
-        top.owner.div('^gnr.app_preference.adm.instance_data.owner_name',font_size='13px',
-                            connect_onclick='PUBLISH preference_open="app";')
+        pane.attributes.update(dict(height='30px',overflow='hidden',gradient_from='gray',gradient_to='silver',gradient_deg=90))
+        center = pane.borderContainer(margin_top='4px') 
+       # top = bc.contentPane(region='top').slotBar('*,owner,*',height='20px')
+       # top.owner.div('^gnr.app_preference.adm.instance_data.owner_name',font_size='13px',
+         #                   connect_onclick='PUBLISH preference_open="app";')
         
-        center = bc.borderContainer(region='center',margin_top='1px')
+        #center = pane.borderContainer(region='center',margin_top='3px',gradient_from='gray',gradient_to='silver',gradient_deg=90)
         
         leftbar = center.contentPane(region='left',overflow='hidden').div(display='inline-block', margin_left='10px')  
         for btn in ['menuToggle']+self.plugin_list.split(','):
