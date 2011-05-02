@@ -667,12 +667,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     build: function(destination, ind) {
         var tag = this.attr.tag;
+        genro.src.stripData(this);
+
         if (!tag) {
             //console.warn('notag in build domsource',arguments.callee);
             this._buildChildren(destination)
             return;
         }
-        genro.src.stripData(this);
         this._registerInForm();
         this._isBuilding = true;
         objectPop(attributes, 'tag');
