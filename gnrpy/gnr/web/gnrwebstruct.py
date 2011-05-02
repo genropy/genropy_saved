@@ -858,13 +858,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                                                     currform.load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
                                                 }
                                                 """
-            gridattr['subscribe_form_%s_onLoaded' %formId] ="""
-                                                                if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
-                                                                    this.widget.selectByRowAttr('_pkey',$1.pkey);
-                                                                }
-                                                                  """
-            gridattr['subscribe_form_%s_onSaved' %formId] = "this.widget.reload();"
-            gridattr['subscribe_form_%s_onDeleted' %formId] = "this.widget.reload(true);"
             gridattr['selfsubscribe_addrow'] = 'currform.newrecord();'
             gridattr['selfsubscribe_delrow'] = "alert('should delete')"
         return form
