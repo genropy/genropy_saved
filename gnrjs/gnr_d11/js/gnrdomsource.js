@@ -682,8 +682,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }else{
             var attributes = this.registerNodeDynAttr(true);
             this._doBuildNode(tag, attributes, destination, ind);
+            this._setDynAttributes();
         }
-        this._setDynAttributes();
         this._isBuilding = false;
     },
     _buildChildren: function(destination) {

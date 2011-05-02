@@ -459,7 +459,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 }
             }
         }
-        //node._setDynAttributes();
+        node._setDynAttributes();
     },
     
     dynamicParameters: function(source, sourceNode) {
