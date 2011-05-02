@@ -672,7 +672,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this._buildChildren(destination)
             return;
         }
-        genro.src.analyzeDataTags(this);
+        genro.src.stripData(this);
         this._registerInForm();
         this._isBuilding = true;
         objectPop(attributes, 'tag');
@@ -684,6 +684,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this._doBuildNode(tag, attributes, destination, ind);
             this._setDynAttributes();
         }
+        
         this._isBuilding = false;
     },
     _buildChildren: function(destination) {
