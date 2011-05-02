@@ -76,19 +76,21 @@ class TableHandlerList(BaseComponent):
         
     def _th_listController(self,pane,table=None):
         table = table or self.maintable
-        mangler = pane.attributes['th_root']
         pane.data('.table',table)
         pane.data('.excludeLogicalDeleted', True)
         pane.data('.showDeleted', False)
+  
+
+    def _th_queryToolController(self,pane,table=None):
+        mangler = pane.attributes['th_root']
+        table = table or self.maintable
         pane.dataController(
                 """this._querybuilder = new gnr.GnrQueryBuilder(this,table,"query_root");
                    var qb = this._querybuilder;
                    this._queryanalyzer = new gnr.GnrQueryAnalyzer(this,table);
                 """ 
                 , _init=True,table=table,nodeId='%s_queryscripts' %mangler)
-
-    def _th_queryToolController(self,pane):
-        mangler = pane.attributes['th_root']
+        
         pane.dataController("""
                                genro.querybuilder(mangler).cleanQueryPane(); 
                                SET .queryRunning = true;
@@ -193,7 +195,7 @@ class TableHandlerListBase(BaseComponent):
                                datapath='.view',top_kwargs=top_kwargs,**kwargs)        
         self._th_listController(frame,table=table)
         if queryTool:
-            self._th_queryToolController(frame)
+            self._th_queryToolController(frame,table=table)
         frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs)
         return frame

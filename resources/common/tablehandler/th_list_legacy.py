@@ -88,7 +88,19 @@ class TableHandlerListLegacy(BaseComponent):
                        action='FIRE list.query_id = $1.pkey;')
 
     def _th_listController_legacy(self, pane):
-        self._th_listController(pane)
+        table = self.maintable
+        mangler = pane.attributes['th_root']
+        pane.data('.table',table)
+        pane.data('.excludeLogicalDeleted', True)
+        pane.data('.showDeleted', False)
+        pane.dataController(
+                """this._querybuilder = new gnr.GnrQueryBuilder(this,table,"query_root");
+                   var qb = this._querybuilder;
+                   this._queryanalyzer = new gnr.GnrQueryAnalyzer(this,table);
+                """ 
+                , _init=True,table=table,nodeId='%s_queryscripts' %mangler)
+        
+        
         self._th_queryToolController(pane)
         self._th_listViewStructures(pane)
         pane.data('usr.writePermission', self.userCanWrite())
