@@ -140,7 +140,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             else {
                 if (domNode.parentNode) {
                     domNode.parentNode.replaceChild(newNode, domNode);
-                    ind = newNode;
                 }
                 widget.destroyRecursive();
             }
