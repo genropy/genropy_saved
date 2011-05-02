@@ -50,7 +50,7 @@ class TableHandlerList(BaseComponent):
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
                  display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %mangler,
                  border_right='1px solid silver')
-        optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %mangler, readonly=True,
+        optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %mangler, 
                  selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
                  connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %mangler,
                  action="genro.querybuilder('%s').onChangedQueryOp($2,$1);" %mangler,
@@ -229,7 +229,7 @@ class TableHandlerListBase(BaseComponent):
             querybase = self._th_hook('query',mangler=mangler)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
-        frame.data('.query.where', queryBag)
+        frame.dataFormula('.query.where', 'q',q='=.baseQuery',_onStart=True)
 
 
         condPars = {}

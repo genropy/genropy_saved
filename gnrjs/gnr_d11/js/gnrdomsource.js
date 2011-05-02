@@ -695,7 +695,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (content instanceof gnr.GnrDomSource) {
             content.forEach(function(node){
                 node.build(destination, -1);
-            });
+            },'static');
         }
     },
     _registerInForm:function(){

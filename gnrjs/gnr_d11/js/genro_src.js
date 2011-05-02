@@ -354,7 +354,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.analyzeDataTagsNode(node);
         var content = node.getValue('static');
         if (content instanceof gnr.GnrDomSource) {
-            content.forEach(function(node){genro.src.analyzeDataTagsNode(node)});
+            content.forEach(function(node){genro.src.analyzeDataTagsNode(node)},'static');
         }
     },
     analyzeDataTagsNode:function(node){
