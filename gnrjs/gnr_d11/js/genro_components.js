@@ -1244,7 +1244,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                     if(wasInSelectionNode){
                         if (willBeInSelectionNode) {
                             that.externalChangedKeys[pkey] = true;
-                            data.getNode(willBeInSelectionNode.label).updAttributes(willBeInSelectionNode.attr,true);
+                            data.getNodeByAttr('_pkey',willBeInSelectionNode.attr._pkey).updAttributes(willBeInSelectionNode.attr,true);
                             changed = true;
                         }else{
                             data.popNode(wasInSelectionNode.label);
