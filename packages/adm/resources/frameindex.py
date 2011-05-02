@@ -33,6 +33,9 @@ class Mixin(BaseComponent):
     def mainLeftContent(self,*args,**kwargs):
         pass
     
+    def indexUrl(self):
+        return
+    
     def main(self,frame,**kwargs):
         self.prepareLeft(frame.left)
         self.prepareTop(frame.top)
@@ -107,7 +110,7 @@ class Mixin(BaseComponent):
                                         """        
         page = self.pageSource()
         if self.index_url:
-            sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.index_url, border='0px')
+            sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.index_url or self.indexUrl(), border='0px')
         page.dataController("""
             setTimeout(function(){frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource,fullpath)},1);
         """,subscribe__menutree__selected=True,sc=sc)
