@@ -902,11 +902,11 @@ dojo.declare('gnr.GenroClient', null, {
         var sessionType = sessionType || 'session';
         var storage = (sessionType == 'local') ? localStorage : sessionStorage;
         var value = storage.getItem(key);
-        if (value) {
+        /*if (value) {
             //console.log('Loaded from '+sessionType+'Storage at key:'+key+'  value:'+value);
         } else {
             //console.log('Not existing in '+sessionType+'Storage key:'+key);
-        }
+        }*/
         return value;
     },
 
@@ -1027,11 +1027,11 @@ dojo.declare('gnr.GenroClient', null, {
         }
         return obj;
     },
-    remoteUrl: function(method, arguments, sourceNode, avoidCache) {
-        return genro.rpc.rpcUrl(method, arguments, sourceNode, avoidCache);
+    remoteUrl: function(method, args, sourceNode, avoidCache) {
+        return genro.rpc.rpcUrl(method, args, sourceNode, avoidCache);
     },
-    setUrlRemote: function(widget, method, arguments) {
-        var url = genro.rpc.rpcUrl(method, arguments);
+    setUrlRemote: function(widget, method, args) {
+        var url = genro.rpc.rpcUrl(method, args);
         widget.setHref(url);
     },
     setLocStatus:function(status) {

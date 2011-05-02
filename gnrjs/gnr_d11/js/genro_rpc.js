@@ -284,10 +284,10 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         alert("errorCallback");
 
         var status = errObj.xhr.status;
-        if (status = 200) {// it was a server error that created a traceback
+        if (status == 200) {// it was a server error that created a traceback
             alert('there was a server error');
         }
-        else if (status = 401) {
+        else if (status == 401) {
             genro.pageReload();
         }
         else {
@@ -646,9 +646,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
                 } else {
                     //var defaultArgs = defaultArgs || {};
                     var resolver = genro.getRelationResolver(objectUpdate(childResolverParams, {'sync':true}));
-                    if (!defaultArgs) {
+                    /*if (!defaultArgs) {
 
-                    }
+                    }*/
                     resolver.kwargs.rowLoadingParameters = new gnr.GnrBag(defaultArgs);
 
                     var attr = objectUpdate({}, childResolverParams);

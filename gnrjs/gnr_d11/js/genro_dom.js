@@ -640,9 +640,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
             st.setProperty(kw.node.label, kw.value, null);
         } else if (kw.evt == 'ins') {
             st.setProperty(kw.node.label, kw.node.getValue(), null);
-        } else if (kw.evt == 'del') {
+        } /*else if (kw.evt == 'del') {
             // console.log(kw);
-        }
+        }*/
         var stylebag = genro.dom.styleToBag(st);
         parentNode.setValue(stylebag);
         this.css_selectors[parentNode.attr.selectorText] = stylebag;
@@ -1096,11 +1096,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
             }
             for (var i = 0; i < dataTransfer.types.length; i++) {
                 dt.push(dataTransfer.types[i]);
-            }
-            ;
+            };
             return dt;
-        } else {
-            return dataTransfer.types;
         }
         return dataTransfer.types;
     },
@@ -1163,8 +1160,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             item = nodes[i].attr;
             for (var k = 0; k < columns.length; k++) {
                 value = item[columns[k]] || '&nbsp';
-                r = r + "<td>" + genro.format(value, {date:'short'});
-                +"</td>";
+                r = r + "<td>" + genro.format(value, {date:'short'})+"</td>";
             }
             tbl.push("<tr id='" + nodes[i].label + "'>" + r + "</tr>");
         }

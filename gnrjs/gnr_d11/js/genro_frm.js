@@ -544,7 +544,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     openForm:function(idx, pkey) {
         if(this.store && false){
-            console.log('idx',idx,'pkey',pkey);
+            //console.log('idx',idx,'pkey',pkey);
             this.load({destPkey:pkey});
         }else{
             this.fireControllerData('openFormPkey',pkey);
@@ -818,16 +818,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             node = invalidnodes[i];
             sourceNode = node.getValue();
             changekey = node.label;
-
             result = genro.vld.validate(sourceNode, sourceNode);
-
-            //console.log("value: " +value+" result: "+ result.toSource());
             if (result['modified']) {
                 sourceNode.widget.setValue(result['value']);
             }
             sourceNode.setValidationError(result);
             return result['value'];
-
         }
     },
     dojoValidation:function(wdg,isValid){

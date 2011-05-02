@@ -601,8 +601,8 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         this._doChangeInData(widget.domNode, widget.sourceNode, value);
 
     },
-    setUrlRemote: function(widget, method, arguments) {
-        var url = genro.rpc.rpcUrl(method, arguments);
+    setUrlRemote: function(widget, method, args) {
+        var url = genro.rpc.rpcUrl(method, args);
         widget.setHref(url);
     },
     mixin_setVisible: function(visible) {

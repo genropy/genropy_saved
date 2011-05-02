@@ -168,7 +168,6 @@ dojo.declare("gnr.GnrBagNode", null, {
             } else {
                 return finalize(result);
             }
-            return;
         }
         else if (this._status == 'resolving') {
             return this._resolver.meToo(dojo.hitch(this, "getValue2", mode, optkwargs));
@@ -1330,9 +1329,9 @@ dojo.declare("gnr.GnrBag", null, {
          return this._nodes[path];
          }*/
         var mynode = this.htraverse(path, autocreate);
-        if (mynode instanceof dojo.Deferred) {
+        /*if (mynode instanceof dojo.Deferred) {
             // console.error('deferred');
-        }
+        }*/
         var obj = mynode.value;
         var label = mynode.label;
         var node = null;

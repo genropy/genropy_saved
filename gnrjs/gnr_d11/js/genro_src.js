@@ -505,6 +505,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
        return genro.src.getNode()._('div', path)._(widget,path,pars);;
        //var node = genro.src.getNode(path).clearValue();
        //return node._(widget,path,pars);        
-    },
+    }
 
 });
