@@ -151,6 +151,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
         }
         else {
             if (typeof(ind) == 'object') {
+                console.log(ind);
                 destination.replaceChild(domnode, ind);
             } else if (ind <= 0 || ind >= destination.childNodes.length) {
                 destination.appendChild(domnode);

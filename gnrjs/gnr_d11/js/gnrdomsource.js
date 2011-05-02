@@ -672,7 +672,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this._buildChildren(destination)
             return;
         }
-        genro.src.stripData(this);
+        genro.src.analyzeDataTags(this);
         this._registerInForm();
         this._isBuilding = true;
         objectPop(attributes, 'tag');

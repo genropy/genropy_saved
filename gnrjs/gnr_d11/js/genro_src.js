@@ -39,8 +39,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.pendingBuild = [];
         this.afterBuildCalls = [];
         this.building = false;
-        this.datatags = {'data':null,'dataformula':null,'datascript':null,
-            'datarpc':null,'dataremote':null,'datacontroller':null};
+        this.controllerTags = {'dataformula':null,'datascript':null,'datarpc':null,'datacontroller':null};
         this.highlightedNode = null;
 
     },
@@ -160,9 +159,12 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             while (domNode.childNodes.length > 0) {
                 dojo._destroyElement(domNode.childNodes[0]);
             }
-            ind = newNode;
+            //ind = newNode;
         }
         this.refreshSourceIndexAndSubscribers();
+        if(!kw.node._value){
+            return;
+        }
         this.buildNode(kw.node, destination, ind);
         if(destination._checkIfSingleChild){
             destination._checkIfSingleChild();
@@ -223,6 +225,15 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     
     buildNode: function(sourceNode, where, ind) {
         this.afterBuildCalls = [];
+        var source=sourceNode.getValue('static');
+        var tag;
+        source.walk(function(n){
+            tag = n.attr.tag;
+            if (tag=='data' || tag=='dataRemote'){
+                genro.src.stripData(n);
+            }
+        },'static')
+         
         sourceNode.build(where, ind);
         var cb;
         while (this.afterBuildCalls.length > 0) {
@@ -337,17 +348,17 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             }
         }
     },
-    stripData: function(node) {
-        this.stripDataNode(node);
+    analyzeDataTags: function(node) {
+        this.analyzeDataTagsNode(node);
         var content = node.getValue('static');
         if (content instanceof gnr.GnrDomSource) {
-            content.forEach(function(node){genro.src.stripDataNode(node)});
+            content.forEach(function(node){genro.src.analyzeDataTagsNode(node)});
         }
     },
-    stripDataNode:function(node){
+    analyzeDataTagsNode:function(node){
         if (node.attr.tag && !node._alreadyStripped) {
-            if (node.attr.tag.toLowerCase() in genro.src.datatags) {
-                this.moveData(node);
+            if (node.attr.tag.toLowerCase() in genro.src.controllerTags) {
+                this.prepareDataTagsNode(node);
             }
             else {
                 var nodeattr = node.attr;
@@ -363,18 +374,20 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
         node._alreadyStripped=true;
     },
-    moveData: function(node) {
-        node._registerNodeId();
-        var attributes = node.registerNodeDynAttr(false);
-        var tag = objectPop(attributes, 'tag');
-        var path = objectPop(attributes, 'path');
-        if (tag == 'data' && attributes.remote) {
-            attributes['method'] = objectPop(attributes, 'remote');
-            tag = 'dataRemote';
+    stripData: function(node) {
+         var attributes=node.attr;
+         var tag = attributes.tag;
+         if( (tag=='data') && attributes.remote){
+             attributes['method'] = objectPop(attributes, 'remote');
+             tag = 'dataRemote';
+         }
+         if (tag=='dataRemote'){
+             node._dataprovider = tag;
+             node.setDataNodeValue();
+             return
         }
-        if (tag == 'data') {
-            path = node.absDatapath(path);
-            var value = node.getValue();
+        var path = node.absDatapath(attributes.path);
+        var value = node.getValue();
             node._value = null;
             if (value instanceof gnr.GnrBag) {
                 value.clearBackRef();
@@ -386,10 +399,16 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             if(!genro.getDataNode(path)||(value!==null)){
                 genro.setData(path, value, attributes);
             }
-        } else if (tag == 'dataRemote') {
+    },
+    prepareDataTagsNode: function(node) {
+        node._registerNodeId();
+        var attributes = node.registerNodeDynAttr(false);
+        var tag = objectPop(attributes, 'tag');
+        var path = objectPop(attributes, 'path');
+       if (tag == 'dataRemote') {
             node._dataprovider = tag;
             node.setDataNodeValue();
-        } else {         
+       } else {         
             var initialize = objectPop(attributes, '_init');
             node._dataprovider = tag;
             if (initialize) {

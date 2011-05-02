@@ -21,7 +21,7 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         genro.assert(content,'create content must return');
         content.concat(children);
         sourceNode._isComponentNode=true;
-        genro.src.stripData(sourceNode);
+        genro.src.analyzeDataTags(sourceNode);
         sourceNode.unfreeze(true);
         return false;
     },
