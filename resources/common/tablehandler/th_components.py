@@ -67,7 +67,7 @@ class TableHandlerBase(BaseComponent):
         th_root = nodeId or '%s_%i' %(tableCode,id(pane.parentNode))
         listCode='L_%s' %th_root
         formCode='F_%s' %th_root
-        wdg = pane.child(datapath=datapath or '#FORM.%s'%tableCode,
+        wdg = pane.child(datapath=datapath or '.%s'%tableCode,
                         thlist_root=listCode,
                         thform_root=formCode,
                         nodeId=nodeId,
