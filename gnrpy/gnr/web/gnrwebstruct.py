@@ -106,17 +106,21 @@ class GnrDomSrc(GnrStructData):
     """GnrDomSrc class"""
     _external_methods = dict()
     
-    def nodeRef(self,v,mode=''):
-        return "==pyref('%s','%s')" % (v.attributes.setdefault('__ref','%s_%i' % (v.parentNode.attr.get('tag',''),id(v.parentNode))),mode)
+    @property
+    def js_sourceNode(self,mode=''):
+        return "==pyref('%s','%s')" % (self.attributes.setdefault('__ref','%s_%i' % (self.parentNode.attr.get('tag',''),id(self.parentNode))),mode)
+
+    @property
+    def js_widget(self):
+        return self.js_sourceNode('w')
+    
+    @property
+    def js_domNode(self):
+        return self.js_sourceNode('d')
         
-    def wdgRef(self,v):
-        return self.nodeRef(v,'w')
-    
-    def domRef(self,v):
-        return self.nodeRef(v,'d')
-    
-    def formRef(self,v):
-        return self.nodeRef(v,'f')
+    @property
+    def js_form(self):
+        return self.js_sourceNode('f')
     
     def makeRoot(cls, page, source=None):
         """Build the root through the :meth:`gnr.core.gnrstructures.GnrStructData.makeRoot`
@@ -131,14 +135,6 @@ class GnrDomSrc(GnrStructData):
         root._page = page
         return root
     makeRoot = classmethod(makeRoot)
-
-    @property
-    def currentForm(self):
-        curr = self.parentNode
-        while curr and curr.attr['tag']!='FrameForm':
-            parent = curr.parentbag
-            curr = parent.parentNode if parent else None
-        return curr._value
 
     def _get_page(self):
         return self.root._page
@@ -862,7 +858,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             storeattr['storeType'] = 'Collection'
             storeattr['parentStore'] = viewattr['store']
             gridattr = self.attributes
-            gridattr['currform'] = self.formRef(form)
+            gridattr['currform'] = form.js_form
             gridattr['connect_%s' %loadEvent] = """
                                                 var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
                                                 if(rowIndex>-1){
