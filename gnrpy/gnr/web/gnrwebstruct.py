@@ -106,7 +106,6 @@ class GnrDomSrc(GnrStructData):
     """GnrDomSrc class"""
     _external_methods = dict()
     
-    @property
     def js_sourceNode(self,mode=''):
         return "==pyref('%s','%s')" % (self.attributes.setdefault('__ref','%s_%i' % (self.parentNode.attr.get('tag',''),id(self.parentNode))),mode)
 
@@ -214,7 +213,7 @@ class GnrDomSrc(GnrStructData):
             obj = self
         for k,v in kwargs.items():
             if isinstance(v,GnrStructData):
-                kwargs[k]=self.nodeRef(v)
+                kwargs[k]=v.js_sourceNode()
         return GnrStructData.child(obj, tag, childname=childname, childcontent=childcontent,**kwargs)
 
         
@@ -806,69 +805,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
     def slotButton(self,label=None,**kwargs):
         return self.child(tag='SlotButton',label=label,**kwargs)
-        
-    @extract_kwargs(palette=True,dialog=True)
-    def linkedForm(self,frameCode=None,loadEvent=None,formRoot=None,store=True,
-                        dialog_kwargs=None,palette_kwargs=None,formId=None,
-                        pageName=None,attachTo=None,**kwargs):
-        """add???
-        
-        :param frameCode: add???. Default value is ``None``
-        :param loadEvent: add???. Default value is ``None``
-        :param formRoot: add???. Default value is ``None``
-        :param store: boolean. add???. Default value is ``True``
-        :param dialog_kwargs: add???. Default value is ``None``
-        :param palette_kwargs: add???. Default value is ``None``
-        :param formId: add???. Default value is ``None``
-        :returns: the linkedForm
-        """
-        formId = formId or '%s_form' %frameCode
-        loadSubscriber = 'subscribe_form_%s_onLoading' %formId
-        closeSubscriber = 'subscribe_form_%s_onDismissed' %formId
-        attachTo = attachTo or self.parent
-        if formRoot:
-            if isinstance(formRoot,basestring):
-                formRoot = self.pageSource(formRoot)
-            if pageName:
-                formRoot.attributes[loadSubscriber] = 'this.widget.switchPage(1);'
-                formRoot.attributes[closeSubscriber] = 'this.widget.switchPage(0);'
-        elif dialog_kwargs:
-            if 'height' in dialog_kwargs:
-                kwargs['height'] = dialog_kwargs.pop('height')
-            if 'width' in dialog_kwargs:
-                kwargs['width'] = dialog_kwargs.pop('width')
-                dialog_kwargs['closable'] = dialog_kwargs.get('closable','publish')
-                dialog_kwargs[loadSubscriber] = "this.widget.show();"
-                dialog_kwargs[closeSubscriber] = "this.widget.hide();"
-                dialog_kwargs['selfsubscribe_close'] = """genro.getForm('%s').dismiss($1.modifiers);
-                                                            """ %frameCode
-            formRoot = attachTo.dialog(**dialog_kwargs)
-        elif palette_kwargs:
-            palette_kwargs[loadSubscriber] = "this.widget.show();"
-            palette_kwargs[closeSubscriber] = "this.widget.hide();"
-            palette_kwargs['dockTo'] = palette_kwargs.get('dockTo','dummyDock')
-            formRoot = attachTo.palette(**palette_kwargs)
-        form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=self.attributes.get('table'),
-                                 store=store,pageName=pageName,**kwargs)
-        attachTo.form = form
-        parentTag = self.attributes['tag'].lower()
-        if parentTag=='includedview' or parentTag=='newincludedview':
-            viewattr = self.attributes
-            storeattr = form.store.attributes
-            storeattr['storeType'] = 'Collection'
-            storeattr['parentStore'] = viewattr['store']
-            gridattr = self.attributes
-            gridattr['currform'] = form.js_form
-            gridattr['connect_%s' %loadEvent] = """
-                                                var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
-                                                if(rowIndex>-1){
-                                                    var currform = this.inheritedAttribute('currform');
-                                                    currform.load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
-                                                }
-                                                """
-            gridattr['selfsubscribe_addrow'] = 'currform.newrecord();'
-            gridattr['selfsubscribe_delrow'] = "alert('should delete')"
-        return form
         
     def virtualSelectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
         """add???
