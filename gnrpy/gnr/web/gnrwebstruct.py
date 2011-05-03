@@ -132,7 +132,14 @@ class GnrDomSrc(GnrStructData):
         return root
     makeRoot = classmethod(makeRoot)
 
-        
+    @property
+    def currentForm(self):
+        curr = self.parentNode
+        while curr and curr.attr['tag']!='FrameForm':
+            parent = curr.parentbag
+            curr = parent.parentNode if parent else None
+        return curr._value
+
     def _get_page(self):
         return self.root._page
     page = property(_get_page)
@@ -1465,7 +1472,7 @@ class GnrFormBuilder(object):
         return self.tbl.page
         
     page = property(_get_page)
-        
+            
     def _get_tbl(self):
         #return self._tbl()
         return self._tbl
