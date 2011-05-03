@@ -37,7 +37,7 @@ class BaseView(BaseClasses):
 
 
 class BaseForm(BaseClasses):
-    def th_form(self, pane):
+    def th_form(self, form):
         pass
     
     def th_dialog(self):
