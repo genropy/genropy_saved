@@ -260,6 +260,11 @@ class GnrDomSrc(GnrStructData):
             centerCb(frame)
         return frame
         
+    @property
+    def record(self):
+        assert self.attributes['tag'] == 'FrameForm','only on FrameForm'
+        return self.center.contentPane(datapath='.record')
+    
     @extract_kwargs(store=True)
     def frameform(self,formId=None,frameCode=None,store=None,storeCode=None,slots=None,table=None,store_kwargs=None,**kwargs):
         """add???
