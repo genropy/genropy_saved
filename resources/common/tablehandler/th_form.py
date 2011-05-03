@@ -23,22 +23,9 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 
-
-
-class TableHandlerFormBase(BaseComponent):
+class TableHandlerFormBase__OLD(BaseComponent):
     py_requires='gnrcomponents/formhandler:FormHandler,tablehandler/th_core:TableHandlerCommon'
     css_requires='public'
-    @struct_method
-    def th_thLinkedForm(self,th,frameCode=None,table=None,relation=None,**kwargs):
-        form = th.view.grid.linkedForm(frameCode=frameCode,th_root=frameCode,datapath='.form',childname='form',**kwargs)  
-        toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
-                                        dismiss_iconClass='tb_button tb_listview',namespace='form')
-        if table == self.maintable and hasattr(self,'th_form'):
-            self.th_form(form)
-        else:
-            self._th_hook('form',mangler=frameCode)(form)
-        return form
-
     @struct_method
     def th_formPage(self, th,frameCode=None,table=None,parentStore=None,startKey=None,**kwargs):
         th_root=th.attributes['thform_root']
@@ -54,7 +41,7 @@ class TableHandlerFormBase(BaseComponent):
             center = form.center.contentPane(datapath='.record')
             self._th_hook('form',mangler=frameCode)(center)
         return form
-        
+
     def th_formPageCollection(self,form,parentStore=None):
         store = form.formStore(storepath='.record',hander='recordCluster',storeType='Collection',onSaved='reload',parentStore=parentStore)                 
         toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
@@ -63,9 +50,7 @@ class TableHandlerFormBase(BaseComponent):
     def th_formPageItem(self,form,startKey=None):
         store = form.formStore(storepath='.record',hander='recordCluster',onSaved='reload',startKey=startKey)                 
         toolbar = form.top.slotToolbar('*,|,semaphore,|,formcommands,|,5,locker,5',
-                                        dismiss_iconClass='tb_button tb_listview',namespace='form')
-    
-    
+                                        dismiss_iconClass='tb_button tb_listview',namespace='form')    
 
 class TableHandlerFormLegacy(BaseComponent):
     py_requires='gnrcomponents/formhandler:FormHandler'
