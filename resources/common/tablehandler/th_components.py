@@ -170,11 +170,12 @@ class TableHandlerBase(BaseComponent):
         self.mixinComponent(pkg,'tables',tablename,resourceName,mangling_th=rootCode)
     
     @struct_method
-    def th_thIframe(self,pane,method=None):     
+    def th_thIframe(self,pane,method=None,**kwargs):     
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
         pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
         box = pane.div(_class='detacher',z_index=30)
-        box.iframe(main='thIframeDispatcher',main_methodname=method,main_pkey='=#FORM.pkey')
+        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        box.iframe(main='thIframeDispatcher',main_methodname=method,main_pkey='=#FORM.pkey',**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
          
     def rpc_thIframeDispatcher(self,root,methodname=None,pkey=None,**kwargs):

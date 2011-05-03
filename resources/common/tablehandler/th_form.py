@@ -33,13 +33,14 @@ class TableHandlerFormBase(BaseComponent):
         form = th.view.grid.linkedForm(frameCode=frameCode,th_root=frameCode,datapath='.form',childname='form',**kwargs)  
         toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
                                         dismiss_iconClass='tb_button tb_listview',namespace='form')
-        if table == self.maintable and hasattr(self,'th_main'):
-            self.th_main(th)
+        center = form.center.contentPane(datapath='.record')
+        center.form = form
+        if table == self.maintable and hasattr(self,'th_form'):
+            self.th_form(center)
         else:
-            center = form.center.contentPane(datapath='.record')
             self._th_hook('form',mangler=frameCode)(center)
         return form
-    
+
     @struct_method
     def th_formPage(self, th,frameCode=None,table=None,parentStore=None,startKey=None,**kwargs):
         th_root=th.attributes['thform_root']
