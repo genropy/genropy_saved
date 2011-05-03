@@ -1715,7 +1715,9 @@ class Bag(GnrObject):
     backref = property(_get_backref)
 
     def _insertNode(self, node, position):
-        if not (position) or position == '>':
+        if isinstance(position,int):
+            n = position
+        elif not (position) or position == '>':
             n = -1
         elif position == '<':
             n = 0

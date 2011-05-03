@@ -88,7 +88,15 @@ class GnrStructData(Bag):
             
     root = property(_get_root)
         
-    def child(self, tag, childname='*_#', childcontent=None, content=None,_parentTag=None, _attributes=None,_returnStruct=True,**kwargs):
+    def changeTo(self,tag,**kwargs):
+        parent = self.parent
+        labelToDel = self.parentNode.label
+        handler = getattr(parent,tag)
+        position = parent._index(labelToDel)
+        parent.pop(labelToDel)
+        return handler(_position=position,**kwargs)
+        
+    def child(self, tag, childname='*_#', childcontent=None, content=None,_parentTag=None, _attributes=None,_returnStruct=True,_position=None,**kwargs):
         """Set a new item of the ``tag`` type into the current structure
         
         :param tag: structure type
@@ -143,7 +151,7 @@ class GnrStructData(Bag):
                 result = where[childname]
                 result.attributes.update(**kwargs)
         else:
-            where.setItem(childname, childcontent, tag=tag, _attributes=kwargs)
+            where.setItem(childname, childcontent, tag=tag, _position=_position,_attributes=kwargs)
         return result
         
     def save(self, path):
