@@ -1,20 +1,23 @@
 # -*- coding: UTF-8 -*-
 
-# palette_manager.py
+# test.py
 # Created by Francesco Porcari on 2010-12-27.
 # Copyright (c) 2010 Softwell. All rights reserved.
-    
-from gnr.core.gnrbag import Bag
 
 "Palettes"
+
+from gnr.core.gnrbag import Bag
+
 class GnrCustomWebPage(object):
+    testOnly='_2_'
     py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/palette_manager"
     css_requires='public'
-
+    
     def windowTitle(self):
-        return 'Palette manager'
+        return 'test'
         
     def test_0_default_dock(self,pane):
+        """test 0"""
         pane.div(height='30px').dock(id='default_dock')
         
     def test_1_palette(self,pane):
@@ -27,20 +30,19 @@ class GnrCustomWebPage(object):
        #pg.pPane('ee',title='eeee',background_color='cream').div('eeeee')
        #pane.pPane('xx',title='xx',background_color='orange').div('xx')
        #pane.pPane('zz',title='zz',background_color='lime',dockTo='mydock_1').div('zz')
-    
-    def _test_2_treepalette(self,pane):
+        
+    def test_2_treepalette(self,pane):
         pane.div(height='30px').dock(id='mydock_2')
         pg = pane.paletteGroup('second',dockTo='mydock_2')
         pg.paletteTree('mytree',title='State',data=self.treedata())
         pg.palettePane('blue',title='aa',background_color='blue').div('blu')
-
-    def _test_3_gridpalette(self,pane):
+        
+    def test_3_gridpalette(self,pane):
         pane.div(height='30px').dock(id='mydock_3')
         pg = pane.paletteGroup('third',dockTo='mydock_3')
         pg.paletteGrid('mygrid',title='States',data=self.treedata(),struct=self.gridstruct,filterOn='Caption:caption')
         #pg.palettePane('blue',title='aa',background_color='blue').div('blu')
-
-
+        
     def treedata(self):
         result=Bag()
         result.setItem('r1',None,code='CA',caption='California')
@@ -52,7 +54,7 @@ class GnrCustomWebPage(object):
         result.setItem('r4.a1',None,code='HU',caption='Huston')
         result.setItem('r5',None,code='AL',caption='Alabama')
         return result
-    
+        
     def griddata(self):
         result=Bag()
         result.setItem('r1',None,code='CA',caption='California')
@@ -61,10 +63,9 @@ class GnrCustomWebPage(object):
         result.setItem('r4',None,code='TX',caption='Texas',disabled='^.disabled')
         result.setItem('r5',None,code='AL',caption='Alabama')
         return result
-    
+        
     def gridstruct(self,struct):
         r = struct.view().rows()
         r.cell('code', name='Code', width='2em')
         r.cell('caption', name='Caption', width='15em')
-
         
