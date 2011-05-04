@@ -9,7 +9,7 @@
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-    testOnly='_2_'
+    testOnly='_3_'
     py_requires="gnrcomponents/testhandler:TestHandlerFull"#,gnrcomponents/palette_manager"
     css_requires='public'
     
@@ -21,6 +21,7 @@ class GnrCustomWebPage(object):
         pane.div(height='30px').dock(id='default_dock')
         
     def test_1_palette(self,pane):
+        """palette"""
         pane.div(height='30px').dock(id='mydock_1')
         pg = pane.pGroup(groupCode='first',dockTo='mydock_1')
         pg.pPane(paletteCode='aa',title='aa',background_color='pink').div('aaa')

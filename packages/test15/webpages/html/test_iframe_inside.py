@@ -1,19 +1,19 @@
 # -*- coding: UTF-8 -*-
 
-# test_iframe.py
+# test_iframe_inside.py
 # Created by Francesco Porcari on 2011-02-14.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrwebstruct import struct_method
 
-"Test page description"
+"iframe_inside"
+
 class GnrCustomWebPage(object):
     py_requires='gnrcomponents/formhandler:FormHandler'
     dojo_source=True
-
+    
     def windowTitle(self):
         return 'Inside frame'
-         
          
     @struct_method
     def testToolbar(self,form,startKey=None):
@@ -40,5 +40,5 @@ class GnrCustomWebPage(object):
         store = form.formStore(table='glbl.provincia',storeType='Item',
                                handler='recordCluster',startKey='*norecord*',onSaved='dismiss')
             
-        form.center.contentPane(datapath='.record').formbuilder(cols=2, border_spacing='3px').formContent()    
+        form.center.contentPane(datapath='.record').formbuilder(cols=2, border_spacing='3px').formContent()
         

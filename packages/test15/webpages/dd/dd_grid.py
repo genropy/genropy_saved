@@ -39,6 +39,7 @@ class GnrCustomWebPage(object):
                       float='left', dropTags='foo AND bar', dropTarget=True)
                       
     def _test_1_grid(self, pane):
+        """test"""
         pane = pane.div(height='150px')
         pane.data('.data', self.aux_test_1_grid_data())
         grid = pane.includedView(nodeId='inputgrid', storepath='.data', selfDragColumns=True, selfDragRows=True,

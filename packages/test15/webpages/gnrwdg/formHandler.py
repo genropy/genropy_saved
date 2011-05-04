@@ -107,7 +107,7 @@ class GnrCustomWebPage(object):
         pane.dock(id='test_3_dock')
         pane.palette(paletteCode='province_lazy',title='Province',dockTo='test_3_dock',
                     _lazyBuild=True,_onLazyBuilt='console.log("aaa")').formTester('form_palette',height='300px',width='400px')
-
+                    
     def test_8_formPane_tooltipForm(self,pane):
         box = pane.div(height='30px',width='100px',background='red',provincia='MI')
         box.span('Milano')

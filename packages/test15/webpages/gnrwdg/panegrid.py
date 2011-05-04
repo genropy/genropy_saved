@@ -7,12 +7,12 @@
 "panegrid"
 
 class GnrCustomWebPage(object):
-    #testOnly='_target_action'
+    testOnly='_target_action'
     user_polling = 0
     auto_polling = 0
     py_requires="gnrcomponents/testhandler:TestHandlerFull,foundation/includedview"
     
-    def _test_0_frame_includedview_newgrid(self,pane):
+    def test_0_frame_includedview_newgrid(self,pane):
         """Pane grid with export to excel/numbers file"""
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('*,export')
@@ -21,7 +21,7 @@ class GnrCustomWebPage(object):
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",
                             _onStart=True,storeCode='mystore0')
                             
-    def _test_1_frame_includedview_export(self,pane):
+    def test_1_frame_includedview_export(self,pane):
         """Pane grid"""
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('searchOn,*,iv_export')
@@ -31,7 +31,7 @@ class GnrCustomWebPage(object):
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",
                             _onStart=True,storeCode='mystore1')
                             
-    def _test_2_frame_includedview_virtualIncludedview(self,pane):
+    def test_2_frame_includedview_virtualIncludedview(self,pane):
         """Pane grid """
         pane = pane.framePane(frameCode='fatture',height='200px')
         tbar = pane.top.slotToolbar('datestart,*,searchOn')
@@ -65,36 +65,38 @@ class GnrCustomWebPage(object):
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True)
         
     def test_5_frame_includedview_zz(self,pane):
-        """Pane XX """
+        """searchOn"""
         pane = pane.framePane(frameCode='province',height='200px',datapath='piero')
         tbar = pane.top.slotToolbar('*,searchOn')
         view = pane.includedView()
         view.selectionStore(storepath='guido',table='glbl.provincia',where="$regione='LOM'",_onStart=True)
         
-    def _test_6_frame_includedview(self,pane):
-        """Pane grid """
+    def test_6_frame_includedview(self,pane):
+        """Pane grid"""
         pane = pane.framePane(frameCode='province',height='200px')
         pane.selectionStore(storeCode='provinceMie',table='glbl.provincia',where="$regione='LOM'",_onStart=True)
         tbar = pane.top.slotToolbar('*,searchOn')
         view = pane.includedView(store='provinceMie')
         struct = view.gridStruct('regione')
         
-    def _test_7_frame_includedview_target_action(self,pane):
+    def test_7_frame_includedview_target_action(self,pane):
+        """addrow"""
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('*,addrow')
         view = pane.includedView(selfsubscribe_addrow='console.log("receiving add");')
         struct = view.gridStruct('regione')
         view.selectionStore(table='glbl.provincia',where="$regione='LOM'",_onStart=True,storeCode='mystore7')
         
-    def _test_8_palettegrid(self,pane):
-        paletteGrid = pane.paletteGrid(paletteCode='province_2',title='Province',
-                                    struct='regione',dockTo='*')
-        paletteGrid.selectionStore(table='glbl.provincia',where="$regione=:reg",reg='^.regione') 
-        footer = paletteGrid.bottom.slotToolbar('prova,*')
+    def test_8_palettegrid(self,pane):
+        pane = pane.contentPane(height='50px')
+        paletteGrid = pane.paletteGrid(paletteCode='province_2',title='Province d\'Italia',
+                                       struct='regione',dockTo='*')
         paletteGrid.top.slotToolbar('searchOn')
-        footer.prova.dbSelect(dbtable='glbl.regione',value='^.regione')
+        paletteGrid.selectionStore(table='glbl.provincia',where="$regione=:reg",reg='^.nome_regione')
+        footer = paletteGrid.bottom.slotToolbar('prova,*')
+        footer.prova.dbSelect(dbtable='glbl.regione',value='^.nome_regione')
         
-    def _test_9_frame_includedview_virtual(self,pane):
+    def test_9_frame_includedview_virtual(self,pane):
         """virtual grid """
         pane = pane.framePane(frameCode='province',height='200px')
         tbar = pane.top.slotToolbar('*,inputsearch')

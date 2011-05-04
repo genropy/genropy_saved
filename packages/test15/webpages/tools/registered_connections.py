@@ -1,13 +1,14 @@
 # -*- coding: UTF-8 -*-
-# 
+
 """Registered connections tester"""
+
 import datetime
 from gnr.core.gnrbag import Bag, BagResolver
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull,storetester:StoreTester"
     dojo_theme = 'claro'
-
+    
     def test_1_registered_connections(self, pane):
         """Connections tree"""
         bc = pane.borderContainer(height='500px', datapath='test1')
@@ -23,30 +24,27 @@ class GnrCustomWebPage(object):
         center.dataRpc('dummy', 'send_data_to_connection',
                        v='=.value', p='=.path', _fired='^.send',
                        connection_id='=.connection_id')
-
-
+                       
     def rpc_send_data_to_connection(self, v=None, p=None, connection_id=None):
         connection_id = connection_id or self.connection_id
         with self.connectionStore(connection_id=connection_id) as store:
             store.setItem(p, v)
-
-
+            
     def rpc_curr_connections(self):
         return ConnectionListResolver()
-
-
+        
 class ConnectionListResolver(BagResolver):
     classKwargs = {'cacheTime': 1,
                    'readOnly': False,
                    'connectionId': None}
     classArgs = ['connectionId']
-
+    
     def load(self):
         if not self.connectionId:
             return self.list_connections()
         else:
             return self.one_connection()
-
+            
     def one_connection(self):
         register = self._page.site.register_connection
         page = register.get_register_item(self.connectionId)
@@ -56,7 +54,7 @@ class ConnectionListResolver(BagResolver):
         item['data'] = data
         item.setItem('pages', PageListResolver(), cacheTime=2)
         return item
-
+        
     def list_connections(self):
         connectionsDict = self._page.site.register_connection.connections()
         result = Bag()
@@ -70,19 +68,19 @@ class ConnectionListResolver(BagResolver):
             resolver = ConnectionListResolver(connection_id)
             result.setItem(itemlabel, resolver, cacheTime=1, connection_id=connection_id)
         return result
-
+        
 class PageListResolver(BagResolver):
     classKwargs = {'cacheTime': 1,
                    'readOnly': False,
                    'pageId': None}
     classArgs = ['pageId']
-
+    
     def load(self):
         if not self.pageId:
             return self.list_pages()
         else:
             return self.one_page()
-
+            
     def one_page(self):
         register = self._page.site.register_page
         page = register.get_register_item(self.pageId)
@@ -91,7 +89,7 @@ class PageListResolver(BagResolver):
         item['info'] = Bag([('%s:%s' % (k, str(v).replace('.', '_')), v) for k, v in page.items()])
         item['data'] = data
         return item
-
+        
     def list_pages(self):
         pagesDict = self._page.site.register_page.pages()
         result = Bag()
@@ -103,4 +101,5 @@ class PageListResolver(BagResolver):
             itemlabel = '%s (%s).%s (%i)' % (user, ip, pagename, delta)
             resolver = PageListResolver(page_id)
             result.setItem(itemlabel, resolver, cacheTime=1)
-        return result 
+        return result
+        

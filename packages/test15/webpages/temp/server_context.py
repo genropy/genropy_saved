@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-# 
+
 """Context tester"""
 
 from gnr.core.gnrbag import Bag
@@ -8,7 +8,7 @@ class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull,storetester:StoreTester"
     dojo_version = '11'
     dojo_theme = 'tundra'
-
+    
     def test_1_context_creation(self, pane):
         """Context creation """
         center = self.common_pages_container(pane, height='350px', background='whitesmoke',
