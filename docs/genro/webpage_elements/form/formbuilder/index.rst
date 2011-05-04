@@ -31,17 +31,16 @@ Description
     To let you see how Genro code is simpler and more compact, we report here a comparison between an HTML table and a Genro formbuilder::
     
         <!-- HTML code: -->
-        <table>
-            <tr>
-                <td>
-                    <input type='text' value='name'/>
-                </td>
-            </tr>
-        </table>
+        <form>
+            First name: <input type="text" name="firstname" />
+            <br />
+            Last name: <input type="text" name="lastname" />
+        </form>
         
         # Genro code:
         fb = root.formbuilder()
-        fb.textbox(value='^name',lbl='Name')
+        fb.textbox(value='^.name',lbl='Name')
+        fb.textbox(value='^.surname',lbl='Surname')
     
 .. _formbuilder_attributes:
 
