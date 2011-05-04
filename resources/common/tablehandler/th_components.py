@@ -56,10 +56,12 @@ class TableHandlerBase(BaseComponent):
             return form 
     
     @struct_method
-    def th_thLinkedForm(self,th,frameCode=None,table=None,relation=None,**kwargs):
-        form = th.view.grid.linkedForm(frameCode=frameCode,th_root=frameCode,datapath='.form',childname='form',**kwargs)  
-        toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
-                                        dismiss_iconClass='tb_button tb_listview',namespace='form')
+    def th_thLinkedForm(self,th,frameCode=None,table=None,relation=None,readOnly=False,**kwargs):
+        form = th.view.grid.linkedForm(frameCode=frameCode,th_root=frameCode,datapath='.form',childname='form',**kwargs) 
+        slots = 'navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
+        if readOnly:
+            slots = 'navigation,|,5,*,|,dismiss,5'             
+        toolbar = form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview',namespace='form')
         if table == self.maintable and hasattr(self,'th_form'):
             self.th_form(form)
         else:
@@ -70,7 +72,7 @@ class TableHandlerBase(BaseComponent):
     @extract_kwargs(condition=True,grid=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,reloader=None,virtualStore=False,condition=None,condition_kwargs=None,
-                            default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,**kwargs):
+                            default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,**kwargs):
         if relation:
             table,condition = self.__relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -92,9 +94,12 @@ class TableHandlerBase(BaseComponent):
                             }else{
                                 sourceNode.setHiderLayer(null,true);
                             }
-                            """,pkey='^#FORM.pkey',sourceNode=wdg,message=message)                
+                            """,pkey='^#FORM.pkey',sourceNode=wdg,message=message)
+        top_slots = '#,addrow,delrow'
+        if readOnly:
+            top_slots = '#'
         wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
-                                reloader=reloader,virtualStore=virtualStore,top_slots='#,addrow,delrow',
+                                reloader=reloader,virtualStore=virtualStore,top_slots=top_slots,
                                 condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs)    
         return wdg
             
@@ -114,56 +119,57 @@ class TableHandlerBase(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method
     def th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,**kwargs):      
+                            formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,readOnly=None,**kwargs):      
         pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,reloader=reloader,
-                                        tag='ContentPane',default_kwargs=default_kwargs,**kwargs)        
+                                        tag='ContentPane',default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)        
         form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',
                                form_locked=True,dialog_kwargs=dialog_kwargs,attachTo=pane,formInIframe=formInIframe,
-                               formResource=formResource,default_kwargs=default_kwargs)     
+                               formResource=formResource,default_kwargs=default_kwargs,readOnly=readOnly)     
         return pane
     
     @extract_kwargs(palette=True,default=True)
     @struct_method
     def th_paletteTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,palette_kwargs=None,default_kwargs=None,reloader=None,**kwargs):
+                            formInIframe=False,palette_kwargs=None,default_kwargs=None,reloader=None,readOnly=None,**kwargs):
         pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,
                                         formInIframe=formInIframe,reloader=reloader,
                                         default_kwargs=default_kwargs,
-                                        tag='ContentPane',**kwargs)        
+                                        tag='ContentPane',readOnly=readOnly,**kwargs)        
         palette_kwargs = palette_kwargs
         form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,
                                 formResource=formResource,
                                 loadEvent='onRowDblClick',form_locked=True,
-                                palette_kwargs=palette_kwargs,attachTo=pane,default_kwargs=default_kwargs)     
+                                palette_kwargs=palette_kwargs,attachTo=pane,default_kwargs=default_kwargs,readOnly=readOnly)     
         return pane
 
     @extract_kwargs(widget=True,default=True)
     @struct_method
     def th_borderTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',**kwargs):
+                            formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',readOnly=None,**kwargs):
         kwargs['tag'] = 'BorderContainer'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
-                                        default_kwargs=default_kwargs,**kwargs)
+                                        default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
         wdg.view.attributes.update(region='top',height='50%',splitter=True)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,formResource=formResource,
-                        store_startKey=th_pkey,table=table,loadEvent=loadEvent,form_locked=True,default_kwargs=default_kwargs)    
+                        store_startKey=th_pkey,table=table,loadEvent=loadEvent,form_locked=True,default_kwargs=default_kwargs,readOnly=readOnly)    
         wdg.form.attributes.update(region='center')
+        wdg.form.top.bar.replaceSlots('|,dismiss','')
         return wdg
         
     @extract_kwargs(widget=True,default=True)
     @struct_method
     def th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,**kwargs):
+                            formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=None,**kwargs):
         kwargs['tag'] = 'StackContainer'
         kwargs['selectedPage'] = '^.selectedPage'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,default_kwargs=default_kwargs,
-                                        pageName='view',**kwargs)
+                                        pageName='view',readOnly=readOnly,**kwargs)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',formResource=formResource,
-                        store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True,default_kwargs=default_kwargs,formInIframe=formInIframe)    
+                        store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True,default_kwargs=default_kwargs,formInIframe=formInIframe,readOnly=readOnly)    
         return wdg
     
     def __getResourceName(self,name=None,defaultModule=None,defaultClass=None):
@@ -225,6 +231,7 @@ class StackTableHandlerRunner(BaseComponent):
     viewResource = None
     formInIframe = False
     th_widget = 'stack'
+    th_readOnly = False
     
     def onMain_pbl(self):
         pass
@@ -235,12 +242,11 @@ class StackTableHandlerRunner(BaseComponent):
         root = root.rootContentPane(title=self.tblobj.name_long)
         th_attr = dict(table=self.maintable,datapath=self.maintable.replace('.','_'),
                                 formResource=formResource,viewResource=viewResource,virtualStore=True,
-                                formInIframe=self.formInIframe,**kwargs)
+                                formInIframe=self.formInIframe,readOnly=self.th_readOnly,**kwargs)
                 
         sc = getattr(root,'%sTableHandler' %self.th_widget)(**th_attr)
         sc.attributes.update(dict(border_left='1px solid gray'))
         sc.view.attributes.update(dict(border='0',margin='0', rounded=0))
-        sc.view.top.bar.replaceSlots('delrow','delrow,list_locker')
         if not self.formInIframe:
             sc.form.attributes['hasBottomMessage'] = False
             sc.form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)

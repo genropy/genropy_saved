@@ -188,7 +188,7 @@ class TableHandlerListBase(BaseComponent):
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
         else:
-            top_kwargs['slots']= base_slots    
+            top_kwargs['slots']= base_slots                
         frame = pane.frameGrid(frameCode=frameCode,childname='view',
                                struct=self._th_hook('struct',mangler=frameCode),
                                border='1px solid gray',margin='2px', rounded=10,
