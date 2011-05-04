@@ -26,7 +26,7 @@ class View(BaseComponent):
         return '@anagrafica_id.cognome'
         
     def th_query(self):
-        return dict(column='@anagrafica_id.cognome', op='', val='', runOnStart=True)
+        return dict(column='@anagrafica_id.cognome', op='contains', val='', runOnStart=True)
         
 class Form(BaseComponent):
     def th_form(self, form):
@@ -34,7 +34,7 @@ class Form(BaseComponent):
         pane.dataFormula("form.title", '"Scheda contatto: " + nome + " " + cognome',
                         nome='^.@anagrafica_id.nome', cognome='^.@anagrafica_id.cognome',
                         _if='nome && cognome',_else='"Scheda contatto: nuovo contatto"')
-        fb = form.record.formbuilder(cols=2,border_spacing='6px',fld_width='15em',lbl_color='teal')
+        fb = pane.formbuilder(cols=2,border_spacing='6px',fld_width='15em',lbl_color='teal')
         fb.field('@anagrafica_id.nome',validate_case='c')
         fb.field('@anagrafica_id.cognome',validate_case='c')
         fb.field('@anagrafica_id.email',validate_email=True,
@@ -51,12 +51,12 @@ class Form(BaseComponent):
                   values='dipendente,libero professionista,manager,titolare')
         fb.field('@anagrafica_id.note', tag='textarea', colspan=2, width='100%')
         
-        form.dataFormula("aux.mostra_azienda",'true',
+        pane.dataFormula("aux.mostra_azienda",'true',
                          _if='azienda_id',_else='false',azienda_id='^.azienda_id')
-        self.showDialog(form)
+        self.showDialog(pane)
         
-    def showDialog(self, form):
-        dlg = form.dialog(nodeId='info_azienda',title='DATI AZIENDA',datapath='form.record')
+    def showDialog(self,pane):
+        dlg = pane.dialog(nodeId='info_azienda',title='DATI AZIENDA')
         fb = dlg.formbuilder(cols=2,lbl_color='teal',margin='6px',fld_width='12em')
         fb.div('^.@azienda_id.@anagrafica_id.telefono', lbl='Telefono')
         fb.div('^.@azienda_id.@anagrafica_id.email', lbl='Mail')

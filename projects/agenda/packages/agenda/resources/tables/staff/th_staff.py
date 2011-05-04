@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# th_contatto.py
+# th_staff.py
 # Created by Filippo Astolfi on 2011-04-07.
 # Copyright (c) 2011 Softwell. All rights reserved.
 

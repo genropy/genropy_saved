@@ -16,14 +16,14 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return '!!Staff'
         
+    def barTitle(self):
+        return '!!Staff'
+        
     def tableWriteTags(self):
         return 'user'
         
     def tableDeleteTags(self):
         return 'user'
-        
-    def barTitle(self):
-        return '!!Staff'
         
     def th_form(self,form,**kwargs):
         bc = form.record.borderContainer(margin='3px')
