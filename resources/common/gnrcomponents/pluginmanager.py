@@ -14,7 +14,7 @@ class PluggedPageManager(BaseComponent):
         # print 'plugins'
         # print plugins
         parent.dataController("""
-            //console.log('plugins');
+            console.log('plugins');
             //console.log(+plugins);
             var sourceNode = this.getParentNode();
             plugins = plugins? plugins.toLowerCase():'';
@@ -30,7 +30,7 @@ class PluggedPageManager(BaseComponent):
                                                     _plugin:true,pageName:'plugin_'+plugin,
                                                     datapath:dpath},
                             {'_position':k});
-                p._('BorderContainer',{region:'center',_lazyBuild:'ppm_pluginTab',
+                p._('BorderContainer',{region:'center',remote:'ppm_pluginTab',
                                     remote_handlerName:remoteTemplate.replace('$',plugin)});
                 }else{
                     currNode = content.getNode('#'+k);
