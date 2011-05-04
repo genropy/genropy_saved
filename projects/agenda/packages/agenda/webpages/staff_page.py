@@ -58,4 +58,5 @@ class GnrCustomWebPage(object):
         fb.field('username')
         fb.field('md5pwd')
         fb.field('auth_tags')
+        fb.field('avatar_rootpage')
         

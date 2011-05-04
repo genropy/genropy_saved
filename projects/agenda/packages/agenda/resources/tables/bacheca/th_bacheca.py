@@ -26,7 +26,8 @@ class Form(BaseComponent):
     py_requires = """public:Public,tablehandler/th_main:TableHandler,
                      foundation/macrowidgets:RichTextEditor"""
 
-    def th_form(self, pane):
+    def th_form(self, form):
+        pane = form.record
         bc = pane.borderContainer()
         pane = bc.contentPane(region='top')
         center = bc.borderContainer(region='center')

@@ -29,7 +29,8 @@ class View(BaseComponent):
         return dict(column='@anagrafica_id.ragione_sociale', op='', val='', runOnStart=True)
         
 class Form(BaseComponent):
-    def th_form(self, pane):
+    def th_form(self, form):
+        pane = form.record
         pane.dataFormula("form.title", '"Scheda azienda: " + titolo',titolo='^.@anagrafica_id.ragione_sociale',
                         _if='titolo',_else='"Scheda azienda: nuova azienda"')
         fb = pane.formbuilder(cols=2,border_spacing='6px',lbl_width='6em',

@@ -29,7 +29,8 @@ class View(BaseComponent):
         return dict(column='@anagrafica_id.cognome', op='', val='', runOnStart=True)
         
 class Form(BaseComponent):
-    def th_form(self, pane):
+    def th_form(self, form):
+        pane = form.record
         pane.dataFormula("form.title", '"Scheda contatto: " + nome + " " + cognome',
                         nome='^.@anagrafica_id.nome', cognome='^.@anagrafica_id.cognome',
                         _if='nome && cognome',_else='"Scheda contatto: nuovo contatto"')
