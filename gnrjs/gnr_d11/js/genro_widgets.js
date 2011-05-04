@@ -2152,7 +2152,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 widget[arguments[0]](arguments.slice(1));
             });
         };
-        
     },
     mixin_updateTotalsCount: function(countBoxNode){
         var countBoxCode =(this.sourceNode.attr.frameCode || this.sourceNode.attr.nodeId)+'_countbox';
@@ -2161,6 +2160,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var showed =this.storeRowCount();
             var total = this.storeRowCount(true);
             genro.dom.setClass(countBoxNode,'unfilteredCount',showed==total);
+            genro.dom.setClass(countBoxNode,'countBoxVisible',total>=0);
             countBoxNode.setRelativeData('.showed', showed);
             countBoxNode.setRelativeData('.total', total);
         }
