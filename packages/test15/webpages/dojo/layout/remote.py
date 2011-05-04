@@ -18,7 +18,7 @@ class GnrCustomWebPage(object):
         
     def test_1_bordercontainer_cb_splitter(self, pane):
         bc = pane.borderContainer(height='200px')
-        bc.contentPane(region='left',width='500px',splitter=True,background='lime').contentPane().remote('xxx',_fired='^aaa')
+        bc.contentPane(region='left',width='500px',splitter=True,background='lime').contentPane().remote('xxx',pippo='aaa',_fired='^aaa')
         bc.contentPane(region='center')
         
     def remote_xxx(self,pane,**kwargs):
