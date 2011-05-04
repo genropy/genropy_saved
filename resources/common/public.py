@@ -415,33 +415,28 @@ class Public(BaseComponent):
             if images:
                 return images[0]
 
-class ThermoDialog(BaseComponent):
-    py_requires = 'foundation/thermo'
-
-class UserObject(BaseComponent):
-    py_requires = 'foundation/userobject'
-
-class IncludedView(BaseComponent):
-    py_requires = 'foundation/includedview'
-
-class RecordHandler(BaseComponent):
-    py_requires = 'foundation/recorddialog'
-
-class Tools(BaseComponent):
-    py_requires = 'foundation/tools'
-
-class SelectionHandler(BaseComponent):
-    py_requires = 'gnrcomponents/selectionhandler'
-
-class RecordLinker(BaseComponent):
-    py_requires = 'gnrcomponents/recordlinker'
-
-class MultiSelect(BaseComponent):
-    py_requires = 'gnrcomponents/multiselect'
-
-class DynamicEditor(BaseComponent):
-    py_requires = 'foundation/macrowidgets:DynamicEditor'
-
-class RecordToHtmlFrame(BaseComponent):
-    py_requires = 'foundation/htmltoframe'
+class TableHandlerMain(BaseComponent):
+    py_requires = """public:Public,th/th:TableHandler"""
+    plugin_list=''
+    formResource = None
+    viewResource = None
+    formInIframe = False
     
+    def onMain_pbl(self):
+        pass
+
+    def main(self,root,th_formResource=None,th_viewResource=None,**kwargs):
+        formResource = th_formResource or self.formResource
+        viewResource = th_viewResource or self.viewResource
+        root = root.rootContentPane(title=self.tblobj.name_long)
+        sc = root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),
+                                formResource=formResource,viewResource=viewResource,virtualStore=True,
+                                formInIframe=self.formInIframe,**kwargs)
+        sc.attributes.update(dict(border_left='1px solid gray'))
+        sc.view.attributes.update(dict(border='0',margin='0', rounded=0))
+        sc.view.top.bar.replaceSlots('delrow','delrow,list_locker')
+        if not self.formInIframe:
+            sc.form.attributes['hasBottomMessage'] = False
+            sc.form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
+        
+                                    
