@@ -95,7 +95,7 @@ class TableHandlerBase(BaseComponent):
                                 sourceNode.setHiderLayer(null,true);
                             }
                             """,pkey='^#FORM.pkey',sourceNode=wdg,message=message)
-        top_slots = '#,addrow,delrow'
+        top_slots = '#,delrow,addrow'
         if readOnly:
             top_slots = '#'
         wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
@@ -247,6 +247,7 @@ class StackTableHandlerRunner(BaseComponent):
         sc = getattr(root,'%sTableHandler' %self.th_widget)(**th_attr)
         sc.attributes.update(dict(border_left='1px solid gray'))
         sc.view.attributes.update(dict(border='0',margin='0', rounded=0))
+        sc.view.top.bar.replaceSlots('addrow','addrow,list_locker')
         if not self.formInIframe:
             sc.form.attributes['hasBottomMessage'] = False
             sc.form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
