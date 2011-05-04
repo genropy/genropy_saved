@@ -101,6 +101,8 @@
     height: 16px;
     width: 16px;
     cursor: pointer;
+    margin-left: 2px;
+    margin-right: 2px;
 }
 
 .tb_listview {
