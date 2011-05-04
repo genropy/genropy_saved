@@ -15,32 +15,31 @@ class TableHandlerForm(BaseComponent):
 
     @extract_kwargs(dialog=True,palette=True,default=True)
     @struct_method
-    def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,datapath=None,formResource=None,
+    def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,formResource=None,
                         dialog_kwargs=None,palette_kwargs=None,default_kwargs=None,formInIframe=False,**kwargs):
-        table = table or pane.attributes.get('table')
-        self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form')   
+        form = pane.view.grid.linkedForm(
+                                frameCode=frameCode,
+                                childname='form',
+                                datapath='.form',
+                                formResource=formResource,
+                                table=table,
+                                dialog_kwargs=dialog_kwargs,
+                                palette_kwargs=palette_kwargs,
+                                iframe=formInIframe,default_kwargs=default_kwargs,**kwargs)
+        if not formInIframe:
+            return form
         
-        if formInIframe:
-            iframe = pane.view.grid.linkedForm(frameCode=frameCode,
-                                                dialog_kwargs=dialog_kwargs,
-                                                palette_kwargs=palette_kwargs,
-                                               iframe=True,**kwargs)  
-        else:
-            form = pane.thLinkedForm(frameCode=frameCode,table=table,
-                                    dialog_kwargs=dialog_kwargs,
-                                    palette_kwargs=palette_kwargs,**kwargs)    
-            rpc = form.store.handler('load',**default_kwargs)
-            return form 
     
-    @struct_method
-    def th_thLinkedForm(self,th,frameCode=None,table=None,relation=None,**kwargs):
-        form = th.view.grid.linkedForm(frameCode=frameCode,th_root=frameCode,datapath='.form',childname='form',**kwargs)  
-        toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
+    def linkedFormBody(self,form,table=None,frameCode=None,formResource=None,**kwargs):
+        form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
                                         dismiss_iconClass='tb_button tb_listview',namespace='form')
+        formattr = form.attributes
+        table = formattr.get('table')
+        frameCode = formattr.get('frameCode')
+        self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form')   
+
         if table == self.maintable and hasattr(self,'th_form'):
             self.th_form(form)
         else:
             self._th_hook('form',mangler=frameCode)(form)
         return form
-            
-    

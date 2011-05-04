@@ -47,6 +47,7 @@ class TableHandler(BaseComponent):
                         **kwargs)
         message= hiderMessage or '!!Save the main record to use this pane.'
         wdg.dataController("""
+                            genro.bp(pkey);
                             if(pkey=='*newrecord*'){
                                 hider = sourceNode.setHiderLayer({message:message});
                             }else{
@@ -92,10 +93,11 @@ class TableHandler(BaseComponent):
                             formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',**kwargs):
         kwargs['tag'] = 'BorderContainer'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
+                                        viewResource=viewResource,reloader=reloader,
                                         default_kwargs=default_kwargs,**kwargs)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,formResource=formResource,
-                        store_startKey=th_pkey,table=table,loadEvent=loadEvent,form_locked=True,default_kwargs=default_kwargs)    
+                        store_startKey=th_pkey,table=table,loadEvent=loadEvent,form_locked=True,
+                        default_kwargs=default_kwargs,formInIframe=formInIframe)    
         wdg.view.attributes.update(region='top',height='50%',splitter=True)
         wdg.form.attributes.update(region='center')
         return wdg
@@ -110,7 +112,8 @@ class TableHandler(BaseComponent):
                                         viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,default_kwargs=default_kwargs,
                                         pageName='view',**kwargs)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,pageName='form',formResource=formResource,
-                        store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True,default_kwargs=default_kwargs,formInIframe=formInIframe)    
+                        store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True,default_kwargs=default_kwargs,
+                        formInIframe=formInIframe)    
         return wdg
     
     @struct_method
