@@ -14,8 +14,7 @@ class GnrCustomWebPage(object):
     user_polling=0
     auto_polling=0
     py_requires="""gnrcomponents/testhandler:TestHandlerFull,
-                    gnrcomponents/formhandler:FormHandler,
-                    tablehandler/th_components:LinkedForm"""
+                    gnrcomponents/formhandler:FormHandler"""
     
     @struct_method
     def formTester(self,pane,frameCode=None,startKey=None,**kwargs):                
