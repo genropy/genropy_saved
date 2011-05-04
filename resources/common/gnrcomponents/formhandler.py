@@ -21,12 +21,104 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdict import dictExtract
+from gnr.core.gnrlang import extract_kwargs
 
 
 class FormHandler(BaseComponent):
     css_requires='public'
     py_requires='foundation/macrowidgets:SlotBar'
+
+    @extract_kwargs(palette=True,dialog=True)
+    @struct_method
+    def lf_linkedForm(self,pane,frameCode=None,loadEvent=None,formRoot=None,store=True,
+                        formId=None,dialog_kwargs=None,palette_kwargs=None,attachTo=None,
+                        iframe=False,**kwargs):
+        formId = formId or '%s_form' %frameCode
+        attachTo = attachTo or pane.parent
+        formRoot = self.__formRoot(pane,formId,formRoot=formRoot,dialog_kwargs=dialog_kwargs,
+                                    palette_kwargs=palette_kwargs,attachTo=attachTo,form_kwargs=kwargs)
+        if iframe:
+            iframe = self.__formInIframe(formRoot,frameCode=frameCode,formId=formId,table=pane.attributes.get('table'),
+                                        store=store,**kwargs)
+            return iframe
+        else:
+            form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=pane.attributes.get('table'),
+                                     store=store,**kwargs)
+            attachTo.form = form
+        parentTag = pane.attributes['tag'].lower()
+        if parentTag=='includedview' or parentTag=='newincludedview':
+            viewattr = pane.attributes
+            storeattr = form.store.attributes
+            storeattr['storeType'] = 'Collection'
+            storeattr['parentStore'] = viewattr['store']
+            gridattr = pane.attributes
+            gridattr['currform'] = form.js_form
+            gridattr['connect_%s' %loadEvent] = """
+                                                var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
+                                                if(rowIndex>-1){
+                                                    var currform = this.inheritedAttribute('currform');
+                                                    currform.load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
+                                                }
+                                                """
+            gridattr['selfsubscribe_addrow'] = 'currform.newrecord();'
+            gridattr['selfsubscribe_delrow'] = "alert('should delete')"
+            gridattr['subscribe_form_%s_onLoaded' %formId] ="""
+                                                                if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
+                                                                    this.widget.selectByRowAttr('_pkey',$1.pkey);
+                                                                }
+                                                                  """
+        return form
+    
+    def __formRoot(self,pane,formId,formRoot=None,dialog_kwargs=None,palette_kwargs=None,
+                    attachTo=None,form_kwargs=None):
+        loadSubscriber = 'subscribe_form_%s_onLoading' %formId
+        closeSubscriber = 'subscribe_form_%s_onDismissed' %formId
+        if formRoot:
+            if form_kwargs.get('pageName'):
+                formRoot.attributes[loadSubscriber] = 'this.widget.switchPage(1);'
+                formRoot.attributes[closeSubscriber] = 'this.widget.switchPage(0);'
+        elif dialog_kwargs:
+            if 'height' in dialog_kwargs:
+                form_kwargs['height'] = dialog_kwargs.pop('height')
+            if 'width' in dialog_kwargs:
+                form_kwargs['width'] = dialog_kwargs.pop('width')
+                dialog_kwargs['closable'] = dialog_kwargs.get('closable','publish')
+                dialog_kwargs[loadSubscriber] = "this.widget.show();"
+                dialog_kwargs[closeSubscriber] = "this.widget.hide();"
+                dialog_kwargs['selfsubscribe_close'] = """genro.formById('%s').dismiss($1.modifiers);
+                                                            """ %formId
+            formRoot = attachTo.dialog(**dialog_kwargs)
+        elif palette_kwargs:
+            palette_kwargs[loadSubscriber] = "this.widget.show();"
+            palette_kwargs[closeSubscriber] = "this.widget.hide();"
+            palette_kwargs['dockTo'] = palette_kwargs.get('dockTo','dummyDock')
+            formRoot = attachTo.palette(**palette_kwargs)
+        return formRoot
+        
+    def __formInIframe(self,pane,**kwargs):     
+        pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
+        pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
+        box = pane.div(_class='detacher',z_index=30)
+        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        dispatcher = 'lf_iframeFormDispatcher'
+        iframe = box.iframe(main=dispatcher,**kwargs)
+        pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
+        return iframe
+         
+    def rpc_lf_iframeFormDispatcher(self,root,pkey=None,frameCode=None,formId=None,formResource=None,table=None,**kwargs):
+        self.__mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form')   
+        rootattr = root.attributes
+        rootattr['datapath'] = 'main'
+        rootattr['overflow'] = 'hidden'
+        rootattr['_fakeform'] = True
+        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
+        root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
+        form = root.frameForm(frameCode=frameCode,formId=formId,table=table,startKey=pkey)
+        if table == self.maintable and hasattr(self,'th_form'):
+            self.th_form(form)
+        else:
+            self._th_hook('form',mangler=frameCode)(form)     
+
 
     @struct_method
     def fh_slotbar_form_navigation(self,pane,**kwargs):
@@ -108,12 +200,3 @@ class FormHandler(BaseComponent):
                     formsubscribe_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""",
                     **kwargs)
-        
-    @struct_method
-    def recordClusterStore(self,pane,table=None,storeType=None,**kwargs):
-        form_table = table or self.maintable
-        pane.attributes['form_table'] = form_table
-        pane.formStore('recordCluster',storeType=storeType,loadMethod='loader_recordCluster',
-                        saveMethod='saver_recordCluster',deleteMethod='deleter_recordCluster',
-                        **kwargs)
-               
