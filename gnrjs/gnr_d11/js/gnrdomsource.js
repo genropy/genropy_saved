@@ -1328,7 +1328,15 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
             }
             var attributes = attributes || {};
             if (attributes && ('remote' in attributes) && (attributes.remote!='remoteBuilder')) {
+                if (typeof(attributes.remote)=="string"){
                 attributes['remote_handler'] = attributes.remote;
+                }
+                else if (attributes.remote instanceof Object){
+                    attributes['remote_handler'] = objectPop(attributes.remote, 'method');
+                    for (var prop in attributes.remote){
+                        attributes['remote_'+prop]=attributes.remote[prop];
+                    };
+                }
                 attributes.remote = 'remoteBuilder';
             }
             name = name || '*_?';
