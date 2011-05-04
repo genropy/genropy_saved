@@ -149,10 +149,11 @@ class FormHandler(BaseComponent):
     @struct_method          
     def fh_slotbar_form_formcommands(self,pane,**kwargs):
         pane = pane.div(lbl='!!Form Commands',_class='slotbar_group')
-        pane.slotbar_form_save()
-        pane.slotbar_form_revert()
         pane.slotbar_form_delete()
         pane.slotbar_form_add()
+        pane.slotbar_form_revert()
+        pane.slotbar_form_save()
+        
         
     @struct_method          
     def fh_slotbar_form_dismiss(self,pane,caption=None,iconClass=None,**kwargs):
