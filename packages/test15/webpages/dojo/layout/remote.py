@@ -32,6 +32,7 @@ class GnrCustomWebPage(object):
         cp.dataController("""
         console.log('call remote_xxx');
         var pane = genro.nodeById('test');
-        pane._('div',{remote:{'method':'xxx'}});
+        pane._('div',{remote:{'method':'xxx'},min_height:'1px'}); 
+        
         
         """,_fired='^.remotetest')
