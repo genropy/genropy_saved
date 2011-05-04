@@ -28,30 +28,43 @@ class FormHandler(BaseComponent):
     css_requires='public'
     py_requires='foundation/macrowidgets:SlotBar'
 
-    @extract_kwargs(palette=True,dialog=True)
+    @extract_kwargs(palette=True,dialog=True,default=True)
     @struct_method
-    def lf_linkedForm(self,pane,frameCode=None,loadEvent=None,formRoot=None,store=True,
+    def lf_linkedForm(self,pane,frameCode=None,loadEvent=None,formRoot=None,store=True,table=None,
                         formId=None,dialog_kwargs=None,palette_kwargs=None,attachTo=None,
-                        iframe=False,**kwargs):
+                        iframe=False,default_kwargs=None,**kwargs):
         formId = formId or '%s_form' %frameCode
         attachTo = attachTo or pane.parent
+        table = table or pane.attributes.get('table')
         formRoot = self.__formRoot(pane,formId,formRoot=formRoot,dialog_kwargs=dialog_kwargs,
                                     palette_kwargs=palette_kwargs,attachTo=attachTo,form_kwargs=kwargs)
+        parentTag = pane.attributes['tag'].lower()
         if iframe:
-            iframe = self.__formInIframe(formRoot,frameCode=frameCode,formId=formId,table=pane.attributes.get('table'),
-                                        store=store,**kwargs)
-            return iframe
+            iframe = self.__formInIframe(formRoot.contentPane(**kwargs),frameCode=frameCode,
+                                          table=table,formId=formId,
+                                         default_kwargs=default_kwargs)
+            if parentTag=='includedview' or parentTag=='newincludedview':
+                gridattr = pane.attributes
+                gridattr['iframeform'] = iframe.js_domNode
+                gridattr['formrootwidget'] = formRoot.js_widget
+                gridattr['connect_%s' %loadEvent] = """
+                                                var iframeform = this.inheritedAttribute('iframeform');
+                                                var formrootwidget = this.inheritedAttribute('formrootwidget');
+                                                formrootwidget.switchPage(1);
+                                                console.log(iframeform);
+                                                """                
+                return iframe
         else:
-            form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=pane.attributes.get('table'),
+            form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=table,
                                      store=store,**kwargs)
             attachTo.form = form
-        parentTag = pane.attributes['tag'].lower()
+            form.store.handler('load',**default_kwargs)
+            
         if parentTag=='includedview' or parentTag=='newincludedview':
-            viewattr = pane.attributes
+            gridattr = pane.attributes
             storeattr = form.store.attributes
             storeattr['storeType'] = 'Collection'
-            storeattr['parentStore'] = viewattr['store']
-            gridattr = pane.attributes
+            storeattr['parentStore'] = gridattr['store']
             gridattr['currform'] = form.js_form
             gridattr['connect_%s' %loadEvent] = """
                                                 var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
@@ -67,8 +80,12 @@ class FormHandler(BaseComponent):
                                                                     this.widget.selectByRowAttr('_pkey',$1.pkey);
                                                                 }
                                                                   """
+            form = self.linkedFormBody(form,**kwargs)
         return form
     
+    def linkedFormBody(self,form,**kwargs):
+        return form
+        
     def __formRoot(self,pane,formId,formRoot=None,dialog_kwargs=None,palette_kwargs=None,
                     attachTo=None,form_kwargs=None):
         loadSubscriber = 'subscribe_form_%s_onLoading' %formId
@@ -95,30 +112,27 @@ class FormHandler(BaseComponent):
             formRoot = attachTo.palette(**palette_kwargs)
         return formRoot
         
-    def __formInIframe(self,pane,**kwargs):     
+    def __formInIframe(self,pane,default_kwargs=None,**kwargs):     
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
         pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
         box = pane.div(_class='detacher',z_index=30)
         kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        kwargs.update(dict([('main_default_%s' %k,v) for k,v in default_kwargs.items()]))
         dispatcher = 'lf_iframeFormDispatcher'
         iframe = box.iframe(main=dispatcher,**kwargs)
-        pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
+        #pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
         return iframe
-         
-    def rpc_lf_iframeFormDispatcher(self,root,pkey=None,frameCode=None,formId=None,formResource=None,table=None,**kwargs):
-        self.__mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form')   
+
+    @extract_kwargs(default=True)
+    def rpc_lf_iframeFormDispatcher(self,root,pkey=None,default_kwargs=None,**kwargs):        
         rootattr = root.attributes
         rootattr['datapath'] = 'main'
         rootattr['overflow'] = 'hidden'
-        rootattr['_fakeform'] = True
-        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
         root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
-        form = root.frameForm(frameCode=frameCode,formId=formId,table=table,startKey=pkey)
-        if table == self.maintable and hasattr(self,'th_form'):
-            self.th_form(form)
-        else:
-            self._th_hook('form',mangler=frameCode)(form)     
-
+        form = root.frameForm(store=True,store_startKey=pkey,**kwargs)
+        #form.formStore(storeType='recordCluster',startKey=pkey)
+        form.store.handler('load',default_kwargs=default_kwargs)
+        self.linkedFormBody(form,**kwargs)
 
     @struct_method
     def fh_slotbar_form_navigation(self,pane,**kwargs):
