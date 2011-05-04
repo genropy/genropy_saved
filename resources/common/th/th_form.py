@@ -1,0 +1,46 @@
+# -*- coding: UTF-8 -*-
+
+# th_form.py
+# Created by Francesco Porcari on 2011-05-04.
+# Copyright (c) 2011 Softwell. All rights reserved.
+
+
+from gnr.web.gnrwebstruct import struct_method
+from gnr.core.gnrlang import extract_kwargs
+from gnr.web.gnrbaseclasses import BaseComponent
+
+
+class TableHandlerForm(BaseComponent):
+    py_requires="gnrcomponents/formhandler:FormHandler"
+
+    @extract_kwargs(dialog=True,palette=True,default=True)
+    @struct_method
+    def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,datapath=None,formResource=None,
+                        dialog_kwargs=None,palette_kwargs=None,default_kwargs=None,formInIframe=False,**kwargs):
+        table = table or pane.attributes.get('table')
+        self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form')   
+        
+        if formInIframe:
+            iframe = pane.view.grid.linkedForm(frameCode=frameCode,
+                                                dialog_kwargs=dialog_kwargs,
+                                                palette_kwargs=palette_kwargs,
+                                               iframe=True,**kwargs)  
+        else:
+            form = pane.thLinkedForm(frameCode=frameCode,table=table,
+                                    dialog_kwargs=dialog_kwargs,
+                                    palette_kwargs=palette_kwargs,**kwargs)    
+            rpc = form.store.handler('load',**default_kwargs)
+            return form 
+    
+    @struct_method
+    def th_thLinkedForm(self,th,frameCode=None,table=None,relation=None,**kwargs):
+        form = th.view.grid.linkedForm(frameCode=frameCode,th_root=frameCode,datapath='.form',childname='form',**kwargs)  
+        toolbar = form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
+                                        dismiss_iconClass='tb_button tb_listview',namespace='form')
+        if table == self.maintable and hasattr(self,'th_form'):
+            self.th_form(form)
+        else:
+            self._th_hook('form',mangler=frameCode)(form)
+        return form
+            
+    
