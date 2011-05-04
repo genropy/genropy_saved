@@ -6,7 +6,7 @@
 
 "Test page description"
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull,tablehandler/th_components:TableHandlerBase"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,th/th:TableHandler"
          
     def test_0_localita(self,pane):
         """First test description"""
@@ -15,8 +15,15 @@ class GnrCustomWebPage(object):
     
     def test_1_provincia(self,pane):
         """First test description"""
-        sc = pane.stackTableHandler(height='400px',table='glbl.provincia',virtualStore=True)
+        sc = pane.stackTableHandler(height='400px',table='glbl.provincia',formInIframe=False)
+        sc.view.store.attributes.update(_onStart=True)
         sc.form.store.handler('load',default_regione='LOM')
+    
+    def test_11_provincia(self,pane):
+        """First test description"""
+        sc = pane.stackTableHandler(height='400px',table='glbl.provincia',formInIframe=True)
+        sc.view.store.attributes.update(_onStart=True)
+       # sc.form.store.handler('load',default_regione='LOM')
             
     def test_2_provincia_dialog(self,pane):
         """First test description"""
