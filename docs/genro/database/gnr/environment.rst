@@ -25,19 +25,18 @@
             </environment>
             <projects>
                 <genro path="$GNRHOME/projects" />
-                <softwell path='~/development/softwell/projects' /> <!--here lies a repository of Genro Team project-->
-                <my_project path="~/development/my_project"/> <!--here you put your projects' folders-->
+                <softwell path='~/development/softwell/projects' /> <!--Here lies a repository of Genro Team project-->
+                <my_project path="~/development/my_project"/> <!--Add here the path of your projects-->
             </projects>
             <packages>
                 <genro path="$GNRHOME/packages"/>
-                <my paths='~/yourFolderPathOfYourProject' />
+                <my path='~/my_packages' />  <!--Add here the path of your packages folder -->
             </packages>
             <static>'
                 <js>
-                    <dojo_11 path="$GNRHOME/dojo_libs/dojo_11" cdn=""/>
-                    <dojo_13 path="$GNRHOME/dojo_libs/dojo_13" cdn=""/>
+                    <dojo_11 path="$GNRHOME/dojo_libs/dojo_11" cdn=""/> <!--Put here the version of Dojo and
+                                                                         Genro js libs you use-->
                     <gnr_11 path="$GNRHOME/gnrjs/gnr_d11"/>
-                    <gnr_13 path="$GNRHOME/gnrjs/gnr_d13"/>
                 </js>
             </static>
             <resources >
