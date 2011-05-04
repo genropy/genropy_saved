@@ -147,9 +147,9 @@ class TableHandlerBase(BaseComponent):
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
                                         default_kwargs=default_kwargs,**kwargs)
+        wdg.view.attributes.update(region='top',height='50%',splitter=True)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,formResource=formResource,
                         store_startKey=th_pkey,table=table,loadEvent=loadEvent,form_locked=True,default_kwargs=default_kwargs)    
-        wdg.view.attributes.update(region='top',height='50%',splitter=True)
         wdg.form.attributes.update(region='center')
         return wdg
         
@@ -224,6 +224,7 @@ class StackTableHandlerRunner(BaseComponent):
     formResource = None
     viewResource = None
     formInIframe = False
+    th_widget = 'stack'
     
     def onMain_pbl(self):
         pass
@@ -232,9 +233,11 @@ class StackTableHandlerRunner(BaseComponent):
         formResource = th_formResource or self.formResource
         viewResource = th_viewResource or self.viewResource
         root = root.rootContentPane(title=self.tblobj.name_long)
-        sc = root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),
+        th_attr = dict(table=self.maintable,datapath=self.maintable.replace('.','_'),
                                 formResource=formResource,viewResource=viewResource,virtualStore=True,
                                 formInIframe=self.formInIframe,**kwargs)
+                
+        sc = getattr(root,'%sTableHandler' %self.th_widget)(**th_attr)
         sc.attributes.update(dict(border_left='1px solid gray'))
         sc.view.attributes.update(dict(border='0',margin='0', rounded=0))
         sc.view.top.bar.replaceSlots('delrow','delrow,list_locker')
