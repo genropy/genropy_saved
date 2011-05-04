@@ -28,14 +28,11 @@ data_files.append(['/usr/local/genro/data/instances', ['README.txt']])
 
 setup(name='gnrFramework',
       version='0.1',
-      author='Giovanni Porcari, Francesco Cavazzana, Saverio Porcari, Francesco Porcari',
+      author='Giovanni Porcari, Francesco Cavazzana, Saverio Porcari, Francesco Porcari, Michele Bertoldi',
       url='http://www.genropy.org/',
       author_email='info@genropy.org',
       license='LGPL',
-      packages=['gnr', 'gnr.core', 'gnr.app', 'gnr.web', 'gnr.sql'],
+      packages=['gnr', 'gnr.app', 'gnr.core', 'gnr.devel', 'gnr.pdf', 'gnr.sql', 'gnr.utils', 'gnr.web', 'gnr.xtnd'],
       package_dir={'gnr': 'gnrpy/gnr'},
       data_files=data_files
-
       )
-    
-
