@@ -1090,15 +1090,10 @@ dojo.declare('gnr.GenroClient', null, {
     },
     logout:function() {
         this.serverCall('connection.logout', null, 'genro.gotoHome();');
-        //this.gotoHome();
     },
     remoteJson:function(method, params) {
-        //UTILE?
-        /* remoteCall mode json*/
         return genro.rpc.remoteCall(method, params, 'json');
     },
-    //UTILE?
-    //rimappa la rpc.remoteCall
     serverCall:function(method, params, async_cb, mode) {
         var cb = funcCreate(async_cb);
         return genro.rpc.remoteCall(method, params, mode, null, null, cb);
