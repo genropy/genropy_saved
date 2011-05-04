@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+    <packages>
+        <adm />
+        <glbl />
+        <sw_base />
+        <agenda />
+        <test15 />
+    </packages>
+    <db dbname="agenda" /db>
+    <authentication pkg="agenda">
+        <py_auth defaultTags="user" pkg="adm" method="authenticate"></py_auth>
+        <xml_auth defaultTags="users,xml">
+            <fastolfi pwd="sh0t0st0" tags="_DEV_,admin,user,staff"/>
+        </xml_auth>
+    </authentication>
+</GenRoBag>

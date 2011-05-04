@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <aziende label="!!Aziende" table="agenda.azienda"/>
+    <staff label="!!Staff" file="agenda/staff_page"/>
+    <contatti label="!!Contatti" table="agenda.contatto"/>
+    <telefonate label="!!Telefonate" file="agenda/telefonata_page"/>
+    <!--<bacheca label="!!Bacheca" table="agenda.bacheca"/>-->
+</GenRoBag>
