@@ -2166,6 +2166,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         }
     },
     _getFilterAutoValues: function(widget,dtypes){
+        //console.log(widget);
         var structbag = widget.structbag();
         var values = [];
         var auto = [];
