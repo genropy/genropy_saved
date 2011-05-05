@@ -10,7 +10,7 @@ from gnr.web.gnrwebstruct import struct_method
 class PluggedPageManager(BaseComponent):
     
     @struct_method
-    def ppm_pluginTabs(self,parent,plugins=None,startPos=None,datapathTemplate=None,remoteTemplate=None):
+    def ppm_pluginTabs(self,parent,plugins=None,startPos=None,datapathTemplate=None,remoteTemplate=None, **kwargs):
         # print 'plugins'
         # print plugins
         parent.dataController("""
