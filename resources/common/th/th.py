@@ -121,14 +121,24 @@ class TableHandler(BaseComponent):
                         formInIframe=formInIframe,readOnly=readOnly)    
         return wdg
     
+    
+    @extract_kwargs(widget=True,default=True)
+    @struct_method
+    def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
+                            formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs):
+        kwargs['tag'] = 'ContentPane'
+        wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
+                                        viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
+                                        default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
+        return wdg
+    
     @struct_method
     def th_thIframe(self,pane,method=None,**kwargs):     
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
         pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
         box = pane.div(_class='detacher',z_index=30)
         kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
-        dispatcher = 'th_iframedispatcher'
-        iframe = box.iframe(main=dispatcher,main_methodname=method,main_pkey='=#FORM.pkey',**kwargs)
+        iframe = box.iframe(main='th_iframedispatcher',main_methodname=method,main_pkey='=#FORM.pkey',**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
         return iframe
          
@@ -140,19 +150,3 @@ class TableHandler(BaseComponent):
         rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
         root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
-        
-            
-    def rpc_th_iframedispatcher_form(self,root,frameCode=None,formResource=None,table=None,pkey=None,**kwargs):
-        self.__mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form')   
-
-        rootattr = root.attributes
-        rootattr['datapath'] = 'main'
-        rootattr['overflow'] = 'hidden'
-        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
-        #root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
-        form = root.frameForm(frameCode=frameCode,th_root=frameCode,datapath='.form',childname='form',
-                            table=table,form_locked=True,startKey=pkey)
-        if table == self.maintable and hasattr(self,'th_form'):
-            self.th_form(form)
-        else:
-            self._th_hook('form',mangler=frameCode)(form)
