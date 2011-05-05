@@ -4,4 +4,4 @@
 
 .. automodule:: gnr.utils.gnrmail
     :members:
-    :noindex:
+    

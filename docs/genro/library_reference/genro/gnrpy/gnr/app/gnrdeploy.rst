@@ -80,4 +80,4 @@
 
 .. automodule:: gnr.app.gnrdeploy
     :members:
-    :noindex:
+    

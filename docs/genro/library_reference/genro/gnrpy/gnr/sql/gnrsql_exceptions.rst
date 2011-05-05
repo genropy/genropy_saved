@@ -54,4 +54,4 @@
 
 .. automodule:: gnr.sql.gnrsql_exceptions
     :members:
-    :noindex:
+    

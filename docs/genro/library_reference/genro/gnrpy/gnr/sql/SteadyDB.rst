@@ -76,4 +76,4 @@
 
 .. automodule:: gnr.sql.SteadyDB
     :members:
-    :noindex:
+    

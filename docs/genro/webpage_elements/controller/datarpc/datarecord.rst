@@ -17,7 +17,7 @@ Definition
 ==========
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataRecord
-        :noindex:
+        
     
 .. _datarecord_examples:
 

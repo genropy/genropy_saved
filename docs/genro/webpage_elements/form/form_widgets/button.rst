@@ -15,7 +15,7 @@ Definition
 ==========
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.button
-        :noindex:
+        
     
 .. _button_description:
 

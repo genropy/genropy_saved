@@ -112,4 +112,4 @@
 
 .. automodule:: gnr.web.gnrwebpage
     :members:
-    :noindex:
+    

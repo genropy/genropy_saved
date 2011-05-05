@@ -26,4 +26,4 @@
 
 .. automodule:: gnr.pdf.gnrplatypus
     :members:
-    :noindex:
+    

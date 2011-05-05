@@ -120,4 +120,4 @@
 
 .. automodule:: gnr.sql.gnrsqlmodel
     :members:
-    :noindex:
+    

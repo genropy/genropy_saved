@@ -30,4 +30,4 @@ Index of :class:`GnrBaseWebPage` methods
 
 .. automodule:: gnr.web._gnrbasewebpage
     :members:
-    :noindex:
+    

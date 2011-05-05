@@ -38,4 +38,4 @@ other methods
 
 .. automodule:: gnr.core.gnrlog
     :members:
-    :noindex:
+    

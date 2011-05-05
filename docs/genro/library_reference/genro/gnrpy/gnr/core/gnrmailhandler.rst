@@ -44,4 +44,4 @@ other methods
 
 .. automodule:: gnr.core.gnrmailhandler
     :members:
-    :noindex:
+    

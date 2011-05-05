@@ -15,7 +15,7 @@ Definition
 ==========
     
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataRpc
-        :noindex:
+        
     
     * in the ``**kwargs`` you have to define a parameter who allows the ``dataRpc`` to be triggered
       To do this, you can use ``_fired='^anotherFolderPath'``; in this case the dataRpc

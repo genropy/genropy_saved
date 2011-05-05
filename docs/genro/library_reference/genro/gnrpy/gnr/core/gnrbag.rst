@@ -151,5 +151,5 @@
 
 .. automodule:: gnr.core.gnrbag
     :members:
-    :noindex:
+    
     :synopsis: the foundamental data structure in GenroPy.

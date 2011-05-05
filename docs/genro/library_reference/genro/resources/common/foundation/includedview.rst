@@ -6,4 +6,4 @@
 
 .. automodule:: resources.common.foundation.includedview
     :members:
-    :noindex:
+    

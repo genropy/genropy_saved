@@ -43,4 +43,4 @@
 
 .. automodule:: gnr.core.gnrprinthandler
     :members:
-    :noindex:
+    

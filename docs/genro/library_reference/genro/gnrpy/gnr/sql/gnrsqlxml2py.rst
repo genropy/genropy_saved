@@ -4,4 +4,4 @@
 
 .. automodule:: gnr.sql.gnrsqlxml2py
     :members:
-    :noindex:
+    

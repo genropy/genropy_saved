@@ -40,4 +40,4 @@
 
 .. automodule:: gnr.core.gnrxls
     :members:
-    :noindex:
+    

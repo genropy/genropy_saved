@@ -101,4 +101,4 @@ other methods
 
 .. automodule:: gnr.web.gnrwebstruct
     :members:
-    :noindex:
+    

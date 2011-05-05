@@ -54,4 +54,4 @@ Other methods
 
 .. automodule:: gnr.core.gnrdict
     :members:
-    :noindex:
+    

@@ -32,4 +32,4 @@
 
 .. automodule:: gnr.core.gnrclasses
     :members:
-    :noindex:
+    

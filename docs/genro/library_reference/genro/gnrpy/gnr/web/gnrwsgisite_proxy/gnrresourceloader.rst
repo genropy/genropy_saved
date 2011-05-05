@@ -24,4 +24,4 @@
 
 .. automodule:: gnr.web.gnrwsgisite_proxy.gnrresourceloader
     :members:
-    :noindex:
+    

@@ -23,6 +23,7 @@ from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
 
 class TableHandler(BaseComponent):
+    """Main class of th"""
     js_requires = 'th/th'
     css_requires= 'th/th'
     py_requires='th/th_view:TableHandlerView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon'
@@ -65,7 +66,8 @@ class TableHandler(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method
     def th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs):      
+                            formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs):  
+        """add???"""
         pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,reloader=reloader,
                                         tag='ContentPane',default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)        

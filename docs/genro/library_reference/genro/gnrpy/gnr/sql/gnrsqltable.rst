@@ -98,4 +98,4 @@
 
 .. automodule:: gnr.sql.gnrsqltable
     :members:
-    :noindex:
+    

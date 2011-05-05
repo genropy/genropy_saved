@@ -60,4 +60,4 @@ Other methods
 
 .. automodule:: gnr.core.gnrdate
     :members:
-    :noindex:
+    

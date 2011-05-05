@@ -35,4 +35,4 @@
 
 .. automodule:: gnr.core.gnrbaghtml
     :members:
-    :noindex:
+    

@@ -15,7 +15,7 @@ Definition
 ==========
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataFormula
-        :noindex:
+        
     
     **commons attributes**:
     

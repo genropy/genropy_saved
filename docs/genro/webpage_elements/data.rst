@@ -13,7 +13,7 @@ Definition
 ==========
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.data
-        :noindex:
+        
     
     **commons attributes**:
     
