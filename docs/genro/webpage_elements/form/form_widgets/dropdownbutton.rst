@@ -20,7 +20,6 @@ Definition
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dropdownbutton
         
-    
 .. _ddb_description:
 
 Description

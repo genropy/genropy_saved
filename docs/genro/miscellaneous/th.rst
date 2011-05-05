@@ -68,21 +68,51 @@ tablehandlers
 th_borderTableHandler
 ---------------------
 
-    add???
+    .. method:: pane.simpleTextarea([**kwargs])
     
 .. _th_dialog:
 
 th_dialogTableHandler
 ---------------------
 
-    add???
+    .. method:: th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,[**kwargs])
+    
+    Where:
+    
+    * *pane*: add???
+    * *nodeId*: add???. Default value is ``None``
+    * *table*: add???. Default value is ``None``
+    * *th_pkey*: add???. Default value is ``None``
+    * *datapath*: add???. Default value is ``None``
+    * *formResource*: add???. Default value is ``None``
+    * *viewResource*: add???. Default value is ``None``
+    * *formInIframe*: add???. Default value is ``None``
+    * *dialog_kwargs*: add???. Default value is ``None``
+    * *reloader*: add???. Default value is ``None``
+    * *default_kwargs*: add???. Default value is ``None``
+    * *readOnly*: add???. Default value is ``False``
     
 .. _th_palette:
 
 th_paletteTableHandler
 ----------------------
 
-    add???
+    .. method:: th_paletteTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,palette_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
+    
+    Where:
+    
+    * *pane*: add???
+    * *nodeId*: add???. Default value is ``None``
+    * *table*: add???. Default value is ``None``
+    * *th_pkey*: add???. Default value is ``None``
+    * *datapath*: add???. Default value is ``None``
+    * *formResource*: add???. Default value is ``None``
+    * *viewResource*: add???. Default value is ``None``
+    * *formInIframe*: add???. Default value is ``False``
+    * *palette_kwargs*: add???. Default value is ``None``
+    * *reloader*: add???. Default value is ``None``
+    * *default_kwargs*: add???. Default value is ``None``
+    * *readOnly*: add???. Default value is ``False``
     
 .. _th_stack:
 

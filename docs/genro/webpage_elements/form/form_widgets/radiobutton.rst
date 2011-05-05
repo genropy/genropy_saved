@@ -18,7 +18,6 @@ Definition
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.radiobutton
         
-
 .. _radiobutton_description:
 
 Description

@@ -78,7 +78,7 @@ class TableHandler(BaseComponent):
     @extract_kwargs(palette=True,default=True)
     @struct_method
     def th_paletteTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,palette_kwargs=None,default_kwargs=None,reloader=None,readOnly=False,**kwargs):
+                            formInIframe=False,palette_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs):
         pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,
                                         formInIframe=formInIframe,reloader=reloader,

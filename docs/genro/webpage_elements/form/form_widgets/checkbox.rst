@@ -18,7 +18,6 @@ Definition
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.checkbox
         
-
 .. _checkbox_description:
 
 Description
