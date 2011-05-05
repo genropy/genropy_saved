@@ -447,11 +447,8 @@ class TableHandlerMain(BaseComponent):
             root = root.rootContentPane(title=self.tblobj.name_long)
         else:
             root.attributes.update(tag='ContentPane',_class=None)
-        th_attr = dict(table=self.maintable,datapath=self.maintable.replace('.','_'),
-                       formResource=th_options.get('formResource'),viewResource=th_options.get('viewResource'),
-                        virtualStore=th_options.get('virtualStore') ,
-                        formInIframe=formInIframe,readOnly=th_options['readOnly'],**kwargs)
-        th = getattr(root,'%sTableHandler' %self.th_widget)(**th_attr)
+        kwargs.update(th_options)
+        th = getattr(root,'%sTableHandler' %th_options.get('widget','stack'))(table=self.maintable,datapath=self.maintable.replace('.','_'),**kwargs)
         th.attributes.update(dict(border_left='1px solid gray'))
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
         if insidePublic and not formInIframe:
