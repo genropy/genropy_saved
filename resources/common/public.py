@@ -458,7 +458,38 @@ class TableHandlerMain(BaseComponent):
             th.form.attributes['hasBottomMessage'] = False
             th.form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
         self.onTableHandlerBuilt(th,th_options=th_options,mainKwargs=kwargs)
-        
+
+
+#OLD STUFF TO REMOVE
+class ThermoDialog(BaseComponent):
+    py_requires = 'foundation/thermo'
+
+class UserObject(BaseComponent):
+    py_requires = 'foundation/userobject'
+
+class IncludedView(BaseComponent):
+    py_requires = 'foundation/includedview'
+
+class RecordHandler(BaseComponent):
+    py_requires = 'foundation/recorddialog'
+
+class Tools(BaseComponent):
+    py_requires = 'foundation/tools'
+
+class SelectionHandler(BaseComponent):
+    py_requires = 'gnrcomponents/selectionhandler'
+
+class RecordLinker(BaseComponent):
+    py_requires = 'gnrcomponents/recordlinker'
+
+class MultiSelect(BaseComponent):
+    py_requires = 'gnrcomponents/multiselect'
+
+class DynamicEditor(BaseComponent):
+    py_requires = 'foundation/macrowidgets:DynamicEditor'
+
+class RecordToHtmlFrame(BaseComponent):
+    py_requires = 'foundation/htmltoframe'
         
         
                                     
