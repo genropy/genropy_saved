@@ -87,6 +87,7 @@ def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
                 curr.update(dictExtract(kwargs,'%s_' %extract_key,**dfltExtract))
                 kwargs[grp_key] = curr
             return func(self,*args,**kwargs)
+        newFunc.__doc__=func.__doc__
         return newFunc
     return decore
     
