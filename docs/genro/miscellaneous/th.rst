@@ -119,7 +119,7 @@ th methods
 th_borderTableHandler
 ---------------------
 
-    .. method:: th_borderTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',readOnly=False,**kwargs)
+    .. method:: th_borderTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',readOnly=False,viewRegion=None,formRegion=None,vpane_kwargs=None,fpane_kwargs=None,**kwargs)
     
     Where:
     
@@ -202,6 +202,8 @@ th_plainTableHandler
     * *reloader*: add???. Default value is ``None``
     * *default_kwargs*: add???. Default value is ``None``
     * *readOnly*: add???. Default value is ``True``
+    
+    This method has only the View, not the Form.
     
 .. _th_stack:
 
