@@ -321,7 +321,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
                                                       width:'1px',height:'1px',
                                                       palette_transition:'all .7s'
                                                       };
-        paletteAttr.palette_selfsubscribe_resize = "console.log('aaa');$1.top='100px';this.widget.setBoxAttributes($1);";
+        paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
         var palette = node._('palettePane',paletteCode,paletteAttr);
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
         node.unfreeze(); 
