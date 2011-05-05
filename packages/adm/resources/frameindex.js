@@ -14,7 +14,7 @@ var frameIndex = {
              url = file;
              var urlPars = {inframe:true};
              if(table){
-                url = '/adm/th/thrunner/'+table.replace('.','/');
+                url = '/sys/thpage/'+table.replace('.','/');
                 if(formResource){
                     urlPars['th_formResource'] = formResource;
                 }
