@@ -5,6 +5,8 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.core.gnrdict import dictExtract
+from gnr.core.gnrstring import boolean
+
 class GnrCustomWebPage(object):
     py_requires='public:TableHandlerMain'
     def onTableHandlerBuilding(self,root,th_options=None,mainKwargs=None):
@@ -16,6 +18,7 @@ class GnrCustomWebPage(object):
         self.maintable = '%s.%s' %(pkg,table)
         self.th_parentId = mainKwargs.pop('th_parentId',None)        
         th_options.update(dictExtract(mainKwargs,'th_'))
+        th_options['public'] = boolean(th_options.get('public',True))
         mainKwargs['th_pkey'] = pkey
 
     def onTableHandlerBuilt(self,th,th_options=None,mainKwargs=None):
