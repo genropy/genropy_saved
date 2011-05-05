@@ -66,8 +66,7 @@ class TableHandler(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method
     def th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs):  
-        """add???"""
+                            formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs):
         pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,reloader=reloader,
                                         tag='ContentPane',default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)        
@@ -122,8 +121,7 @@ class TableHandler(BaseComponent):
                         store_startKey=th_pkey,table=table,loadEvent='onRowDblClick',form_locked=True,default_kwargs=default_kwargs,
                         formInIframe=formInIframe,readOnly=readOnly)    
         return wdg
-    
-    
+        
     @extract_kwargs(widget=True,default=True)
     @struct_method
     def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
@@ -133,9 +131,9 @@ class TableHandler(BaseComponent):
                                         viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
                                         default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
         return wdg
-    
+        
     @struct_method
-    def th_thIframe(self,pane,method=None,**kwargs):     
+    def th_thIframe(self,pane,method=None,**kwargs):
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
         pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
         box = pane.div(_class='detacher',z_index=30)
