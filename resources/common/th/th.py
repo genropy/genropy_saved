@@ -30,7 +30,7 @@ class TableHandler(BaseComponent):
     @extract_kwargs(condition=True,grid=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,reloader=None,virtualStore=False,condition=None,condition_kwargs=None,
-                            default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,**kwargs):
+                            default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -38,8 +38,8 @@ class TableHandler(BaseComponent):
         tableCode = table.replace('.','_')
         th_root = nodeId or '%s_%i' %(tableCode,id(pane.parentNode))
         listCode='L_%s' %th_root
-        formCode='F_%s' %th_root
-        wdg = pane.child(datapath=datapath or '.%s'%tableCode,
+        formCode='F_%s' %th_root   
+        wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
                         thlist_root=listCode,
                         thform_root=formCode,
                         nodeId=nodeId,
@@ -125,7 +125,7 @@ class TableHandler(BaseComponent):
     @extract_kwargs(widget=True,default=True)
     @struct_method
     def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs):
+                            formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=True,**kwargs):
         kwargs['tag'] = 'ContentPane'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
