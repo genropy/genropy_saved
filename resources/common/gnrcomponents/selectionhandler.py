@@ -21,10 +21,6 @@
 """""" # don't delete this line! MANDATORY for Sphinx autodoc
 
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrlang import extract_kwargs
-from gnr.core.gnrdict import dictExtract
-
 import warnings
 
 class SelectionHandler(BaseComponent):
@@ -53,60 +49,7 @@ class SelectionHandler(BaseComponent):
         dialogPars=dict(
     
     """
-    py_requires = 'foundation/includedview:IncludedView,foundation/recorddialog,gnrcomponents/formhandler:FormHandler'
-    
-
-    @struct_method
-    def sh_framedialog(self,pane):
-        pass
-    
-    @struct_method
-    def sh_controllers(self,pane):
-        pass
-        
-    def sh_adaptKwargs(self,kwargs):
-        if 'frameCode' in kwargs:
-            return
-        kwargs['frameCode'] = kwargs.get('nodeId')
-        dialogPars = kwargs.pop('dialogPars',None)
-        if dialogPars:
-            kwargs['dialog_kwargs'] = dialogPars
-            kwargs['default_kwargs'] = dictExtract(dialogPars,'default_',slice_prefix=False,pop=True)
-            if 'formCb' in dialogPars:
-                kwargs['form_centerCb'] = dialogPars.pop('formCb')
-            if 'dlgPars' in dialogPars:
-                dialogPars.update(dialogPars.pop('dlgPars'))
-            
-    
-    @extract_kwargs(_adapter='sh_adaptKwargs',dialog=True,palette=True,form=True,default=dict(slice_prefix=False,pop=True))
-    @struct_method
-    def sh_selectionHandler(self, pane,frameCode=None,
-                            table=None, datapath=None,
-                            custom_addCondition=None, custom_delCondition=None,
-                            askBeforeDelete=True, checkMainRecord=True, onDeleting=None, dialogAddRecord=True,
-                            onDeleted=None, loadingEvent=None,
-                            parentSave=False, parentId=None, parentLock='^status.locked', reload_onSaved=True,
-                            footer=None,palette_kwargs=None,dialog_kwargs=None,
-                            form_kwargs=None,default_kwargs=None,
-                            **kwargs):            
-            frameview = pane.selectionViewBox(frameCode=frameCode,datapath=datapath,frame_childname='viewframe',
-                                            table=table,add_enable=True,del_enable=True, **kwargs)
-            if footer:
-                print 'advise: use the attach point instead of footer cb'
-                footer(frameview.bottom)
-            form_kwargs['formRoot'] = form_kwargs.pop('pane',None)
-            form_kwargs['frameCode'] = form_kwargs.get('frameCode') or '%s_form' %frameCode
-            form_kwargs['formId'] = form_kwargs.get('formId') or form_kwargs['frameCode']
-            form_kwargs['childname'] = 'formframe'
-            if form_kwargs:
-                 form_kwargs['dialog_kwargs'] = dialog_kwargs
-                 form_kwargs['palette_kwargs'] = palette_kwargs
-                 form_kwargs['loadEvent'] = 'onRowDblClick'
-                 form_kwargs['store_onSaved'] = form_kwargs.get('store_onSaved','reload')
-                 form = frameview.grid.linkedForm(**form_kwargs)
-                 form.store.handler('load',**default_kwargs)
-                 form.top.slotToolbar('navigation,*,|,semaphore,|,formcommands,|,locker')
-            return frameview
+    py_requires = 'foundation/includedview:IncludedView,foundation/recorddialog'
 
     def selectionHandler(self, bc, nodeId=None, table=None, datapath=None, struct=None, label=None,
                          selectionPars=None, dialogPars=None, reloader=None, externalChanges=None,
