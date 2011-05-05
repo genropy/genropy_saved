@@ -17,6 +17,7 @@ class TableHandlerForm(BaseComponent):
     @struct_method
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,formResource=None,
                         dialog_kwargs=None,palette_kwargs=None,default_kwargs=None,formInIframe=False,**kwargs):
+        #print x
         form = pane.view.grid.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',
@@ -40,7 +41,6 @@ class TableHandlerForm(BaseComponent):
         table = formattr.get('table')
         frameCode = formattr.get('frameCode')
         self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form')   
-
         if table == self.maintable and hasattr(self,'th_form'):
             self.th_form(form)
         else:

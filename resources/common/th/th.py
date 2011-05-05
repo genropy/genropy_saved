@@ -92,10 +92,11 @@ class TableHandler(BaseComponent):
                                 readOnly=readOnly)     
         return pane
 
-    @extract_kwargs(widget=True,default=True)
+    @extract_kwargs(widget=True,vpane=True,fpane=True,default=True)
     @struct_method
     def th_borderTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',readOnly=False,**kwargs):
+                            formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',
+                            readOnly=False,viewRegion=None,formRegion=None,vpane_kwargs=None,fpane_kwargs=None,**kwargs):
         kwargs['tag'] = 'BorderContainer'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,reloader=reloader,
@@ -104,8 +105,15 @@ class TableHandler(BaseComponent):
                         store_startKey=th_pkey,table=table,loadEvent=loadEvent,form_locked=True,
                         default_kwargs=default_kwargs,formInIframe=formInIframe,readOnly=readOnly)   
         wdg.form.top.bar.replaceSlots('|,dismiss','') 
-        wdg.view.attributes.update(region='top',height='50%',splitter=True)
-        wdg.form.attributes.update(region='center')
+        def regionAdapter(kw,**defaults):
+            defaults.update(kw)
+            if (defaults['region'] in ('bottom' ,'top')) and not defaults.get('height'):
+                defaults['height'] = '50%'
+            if (defaults['region'] in ('left' ,'right')) and not defaults.get('width'):
+                defaults['width'] = '50%'
+            return defaults
+        wdg.view.attributes.update(**regionAdapter(vpane_kwargs,region='top',splitter=True))
+        wdg.form.attributes.update(**regionAdapter(fpane_kwargs,region='center'))
         return wdg
         
     @extract_kwargs(widget=True,default=True)
