@@ -8,8 +8,7 @@ import datetime
 
 class GnrCustomWebPage(object):
     maintable = 'agenda.telefonata'
-    py_requires = """public:TableHandlerMain,
-                     gnrcomponents/htablehandler:HTableHandlerBase
+    py_requires = """public:TableHandlerMain
                      """
     
     def pageAuthTags(self, method=None, **kwargs):
@@ -29,14 +28,13 @@ class GnrCustomWebPage(object):
         
     def th_form(self,form,**kwargs):
         pane = form.record
-        bc = pane.borderContainer(margin='3px')
-        fb = bc.formbuilder(cols=3,fld_width='15em',lbl_color='teal')
+        fb = pane.formbuilder(cols=3,fld_width='15em',lbl_color='teal')
         fb.field('giorno',readOnly=True,width='6em',tooltip='Campo non modificabile')
         fb.field('ora',readOnly=True,width='6em',tooltip='Campo non modificabile')
         fb.field('username',readOnly=True,lbl='Utente',tooltip='Campo non modificabile')
         fb.field('contatto_id',zoom=True,lbl='Chiamante',colspan=2,
-                 selected_azienda_id='.azienda_id',
-                 validate_notnull=True,validate_notnull_error='!!Campo obbligatorio')
+                  selected_azienda_id='.azienda_id',
+                  validate_notnull=True,validate_notnull_error='!!Campo obbligatorio')
         pane.dataFormula("aux.mostra_contatto",'true',_if='contatto_id',_else='false',
                           contatto_id='^.contatto_id')
         fb.button('Mostra dati chiamante',action='genro.wdgById("info_chiamante").show()',
