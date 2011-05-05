@@ -432,7 +432,10 @@ class TableHandlerMain(BaseComponent):
     def onMain_pbl(self):
         pass
     
-    def beforeTableHandlerCall(self,root,**kwargs):
+    def onTableHandlerBuilding(self,root,**kwargs):
+        pass
+    
+    def onTableHandlerBuilt(self,th,**kwargs):
         pass
 
     def main(self,root,**kwargs):
