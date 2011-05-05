@@ -64,3 +64,4 @@ Other methods
 
 .. automodule:: gnr.web.gnrcookie
     :members:
+    :noindex:

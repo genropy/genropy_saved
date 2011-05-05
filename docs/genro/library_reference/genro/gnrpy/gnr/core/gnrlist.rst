@@ -58,3 +58,4 @@ other methods
 
 .. automodule:: gnr.core.gnrlist
     :members:
+    :noindex:

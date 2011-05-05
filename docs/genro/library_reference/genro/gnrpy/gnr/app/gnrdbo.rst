@@ -130,3 +130,4 @@
 
 .. automodule:: gnr.app.gnrdbo
     :members:
+    :noindex:

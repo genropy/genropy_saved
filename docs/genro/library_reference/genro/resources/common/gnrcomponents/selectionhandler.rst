@@ -6,3 +6,4 @@
 
 .. automodule:: resources.common.gnrcomponents.selectionhandler
     :members:
+    :noindex:

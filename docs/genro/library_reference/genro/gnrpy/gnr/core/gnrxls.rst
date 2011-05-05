@@ -39,4 +39,5 @@
 ====================================================
 
 .. automodule:: gnr.core.gnrxls
-    :members:   
+    :members:
+    :noindex:

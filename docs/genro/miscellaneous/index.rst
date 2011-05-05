@@ -1,8 +1,8 @@
 .. _genro_miscellaneous_index:
 
-=====================================================
-Documents to revise, adjust or to choose where to put
-=====================================================
+===================
+Documents to revise
+===================
 
 .. toctree::
     :maxdepth: 1
@@ -18,6 +18,7 @@ Documents to revise, adjust or to choose where to put
     sql
     struct
     textmate
+    th
     trigger
     tutorial/index
     user_interface

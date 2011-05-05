@@ -55,4 +55,5 @@ The :mod:`gnr.core.gnrstructures` structures
 
 .. automodule:: gnr.core.gnrstructures
     :members:
+    :noindex:
     :synopsis: Structs -- an alternative attribute-oriented way to build Bags.

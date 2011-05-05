@@ -42,3 +42,4 @@
 
 .. automodule:: gnr.utils.ssmtplib
     :members:
+    :noindex:

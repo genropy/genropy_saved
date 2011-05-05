@@ -74,3 +74,4 @@ Other methods
 
 .. automodule:: gnr.web.gnrbaseclasses
     :members:
+    :noindex:

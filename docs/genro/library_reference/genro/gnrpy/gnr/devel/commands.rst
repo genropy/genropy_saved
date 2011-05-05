@@ -55,3 +55,4 @@ other methods
 
 .. automodule:: gnr.devel.commands
     :members:
+    :noindex:

@@ -4,3 +4,4 @@
 
 .. automodule:: gnr.sql.gnrsqlutils
     :members:
+    :noindex:

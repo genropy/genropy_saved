@@ -6,3 +6,4 @@
 
 .. automodule:: resources.common.foundation.macrowidgets
     :members:
+    :noindex:

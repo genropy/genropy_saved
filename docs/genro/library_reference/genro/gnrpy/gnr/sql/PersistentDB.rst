@@ -51,3 +51,4 @@
 
 .. automodule:: gnr.sql.PersistentDB
     :members:
+    :noindex:

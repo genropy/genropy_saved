@@ -1,5 +1,6 @@
 .. _genro_adm_login_component:
 
+===============
 login_component
 ===============
 

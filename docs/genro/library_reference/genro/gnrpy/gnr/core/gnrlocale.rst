@@ -35,3 +35,4 @@ Other methods
 
 .. automodule:: gnr.core.gnrlocale
     :members:
+    :noindex:

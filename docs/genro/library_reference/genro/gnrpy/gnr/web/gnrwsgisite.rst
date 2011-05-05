@@ -83,3 +83,4 @@
 
 .. automodule:: gnr.web.gnrwsgisite
     :members:
+    :noindex:

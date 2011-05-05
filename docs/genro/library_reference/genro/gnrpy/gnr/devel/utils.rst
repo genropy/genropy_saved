@@ -23,3 +23,4 @@ Utilities
 
 .. autoclass:: ProgressBar
     :members:
+    :noindex:

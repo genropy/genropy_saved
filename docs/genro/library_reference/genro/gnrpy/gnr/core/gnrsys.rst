@@ -31,3 +31,4 @@ Other methods
 
 .. automodule:: gnr.core.gnrsys
     :members:
+    :noindex:

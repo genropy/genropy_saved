@@ -4,9 +4,6 @@
 :mod:`gnr.web.gnrwebpage` - Webpages
 ====================================
 
-.. autosummary::
-    gnr.web.gnrwebpage.GnrWebPage
-
 * Index of ``gnr.web.gnrwebpage`` classes:
     
     Main class:
@@ -115,3 +112,4 @@
 
 .. automodule:: gnr.web.gnrwebpage
     :members:
+    :noindex:

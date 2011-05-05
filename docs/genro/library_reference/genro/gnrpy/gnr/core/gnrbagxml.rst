@@ -38,3 +38,4 @@
 
 .. automodule:: gnr.core.gnrbagxml
     :members:
+    :noindex:

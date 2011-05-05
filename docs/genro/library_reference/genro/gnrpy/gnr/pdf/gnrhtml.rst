@@ -43,3 +43,4 @@
 
 .. automodule:: gnr.pdf.gnrhtml
     :members:
+    :noindex:

@@ -102,3 +102,4 @@
 
 .. automodule:: gnr.app.gnrapp
     :members:
+    :noindex:

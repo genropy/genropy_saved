@@ -144,3 +144,4 @@
 
 .. automodule:: gnr.sql.gnrsqldata
     :members:
+    :noindex:

@@ -57,3 +57,4 @@ Introduction
 
 .. automodule:: gnr.core.gnrhtml
     :members:
+    :noindex:

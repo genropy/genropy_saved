@@ -39,3 +39,4 @@ other methods
 
 .. automodule:: gnr.web.gnrwebutils
     :members:
+    :noindex:

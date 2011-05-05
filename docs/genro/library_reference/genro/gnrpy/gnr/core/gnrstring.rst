@@ -22,3 +22,4 @@ List index of :mod:`gnr.core.gnrstring` methods
 
 .. automodule:: gnr.core.gnrstring
     :members:
+    :noindex:

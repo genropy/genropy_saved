@@ -144,3 +144,4 @@ Other methods
 
 .. automodule:: gnr.core.gnrlang
     :members:
+    :noindex:
