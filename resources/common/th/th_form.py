@@ -17,22 +17,25 @@ class TableHandlerForm(BaseComponent):
     @struct_method
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,formResource=None,
                         dialog_kwargs=None,palette_kwargs=None,default_kwargs=None,formInIframe=False,**kwargs):
-        form = pane.view.grid.linkedForm(
-                                frameCode=frameCode,
-                                childname='form',
-                                datapath='.form',
-                                formResource=formResource,
-                                table=table,
-                                dialog_kwargs=dialog_kwargs,
-                                palette_kwargs=palette_kwargs,
-                                iframe=formInIframe,default_kwargs=default_kwargs,**kwargs)
+        form = pane.view.grid.linkedForm(frameCode=frameCode,
+                                 th_root=frameCode,
+                                 datapath='.form',
+                                 childname='form',
+                                 table=table,
+                                 formResource=formResource,
+                                 dialog_kwargs=dialog_kwargs,
+                                 palette_kwargs=palette_kwargs,
+                                 default_kwargs=default_kwargs,
+                                 iframe=formInIframe,
+                                 **kwargs) 
         if not formInIframe:
             return form
         
-    
-    def linkedFormBody(self,form,table=None,frameCode=None,formResource=None,**kwargs):
-        form.top.slotToolbar('navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5',
-                                        dismiss_iconClass='tb_button tb_listview',namespace='form')
+    def linkedFormBody(self,form,table=None,frameCode=None,formResource=None,readOnly=False,**kwargs):
+        slots = 'navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
+        if readOnly:
+            slots = 'navigation,|,5,*,|,dismiss,5'
+        form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview',namespace='form')
         formattr = form.attributes
         table = formattr.get('table')
         frameCode = formattr.get('frameCode')
@@ -43,3 +46,4 @@ class TableHandlerForm(BaseComponent):
         else:
             self._th_hook('form',mangler=frameCode)(form)
         return form
+

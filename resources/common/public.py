@@ -421,6 +421,8 @@ class TableHandlerMain(BaseComponent):
     formResource = None
     viewResource = None
     formInIframe = False
+    th_widget = 'stack'
+    th_readOnly = False
     
     def onMain_pbl(self):
         pass
@@ -429,12 +431,12 @@ class TableHandlerMain(BaseComponent):
         formResource = th_formResource or self.formResource
         viewResource = th_viewResource or self.viewResource
         root = root.rootContentPane(title=self.tblobj.name_long)
-        sc = root.stackTableHandler(table=self.maintable,datapath=self.maintable.replace('.','_'),
+        th_attr = dict(table=self.maintable,datapath=self.maintable.replace('.','_'),
                                 formResource=formResource,viewResource=viewResource,virtualStore=True,
-                                formInIframe=self.formInIframe,**kwargs)
+                                formInIframe=self.formInIframe,readOnly=self.th_readOnly,**kwargs)
+        sc = getattr(root,'%sTableHandler' %self.th_widget)(**th_attr)
         sc.attributes.update(dict(border_left='1px solid gray'))
         sc.view.attributes.update(dict(border='0',margin='0', rounded=0))
-        sc.view.top.bar.replaceSlots('delrow','delrow,list_locker')
         if not self.formInIframe:
             sc.form.attributes['hasBottomMessage'] = False
             sc.form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
