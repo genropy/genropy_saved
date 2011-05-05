@@ -423,22 +423,38 @@ class TableHandlerMain(BaseComponent):
     formInIframe = False
     th_widget = 'stack'
     th_readOnly = False
+    maintable = None
+    
+    def th_options(self):
+        return dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
     
     def onMain_pbl(self):
         pass
+    
+    def beforeTableHandlerCall(self,root,**kwargs):
+        pass
 
-    def main(self,root,th_formResource=None,th_viewResource=None,**kwargs):
-        formResource = th_formResource or self.formResource
-        viewResource = th_viewResource or self.viewResource
-        root = root.rootContentPane(title=self.tblobj.name_long)
+    def main(self,root,**kwargs):
+        th_options = self.th_options()
+        self.onTableHandlerBuilding(root,th_options=th_options,mainKwargs=kwargs)
+        formInIframe = th_options.get('formInIframe')
+        insidePublic = th_options.get('public')
+        if insidePublic:
+            root = root.rootContentPane(title=self.tblobj.name_long)
+        else:
+            root.attributes.update(tag='ContentPane',_class=None)
         th_attr = dict(table=self.maintable,datapath=self.maintable.replace('.','_'),
-                                formResource=formResource,viewResource=viewResource,virtualStore=True,
-                                formInIframe=self.formInIframe,readOnly=self.th_readOnly,**kwargs)
-        sc = getattr(root,'%sTableHandler' %self.th_widget)(**th_attr)
-        sc.attributes.update(dict(border_left='1px solid gray'))
-        sc.view.attributes.update(dict(border='0',margin='0', rounded=0))
-        if not self.formInIframe:
-            sc.form.attributes['hasBottomMessage'] = False
-            sc.form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
+                       formResource=th_options.get('formResource'),viewResource=th_options.get('viewResource'),
+                        virtualStore=th_options.get('virtualStore') ,
+                        formInIframe=formInIframe,readOnly=th_options['readOnly'],**kwargs)
+        th = getattr(root,'%sTableHandler' %self.th_widget)(**th_attr)
+        th.attributes.update(dict(border_left='1px solid gray'))
+        th.view.attributes.update(dict(border='0',margin='0', rounded=0))
+        if insidePublic and not formInIframe:
+            th.form.attributes['hasBottomMessage'] = False
+            th.form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
+        self.onTableHandlerBuilt(th,th_options=th_options,mainKwargs=kwargs)
+        
+        
         
                                     
