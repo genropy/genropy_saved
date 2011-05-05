@@ -1313,7 +1313,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     if hasattr(lnktblobj.dbtable, 'zoomUrl'):
                         pass
                     else:
-                        zoomUrl = 'adm/th/thrunner/%s' %lnktblobj.fullname.replace('.', '/')
+                        zoomUrl = 'sys/thpage/%s' %lnktblobj.fullname.replace('.', '/')
                         result['lbl_zoomUrl'] = zoomUrl
                         result['lbl_pkey'] = '.%s' % fieldobj.name
                         result['lbl_connect_onclick'] = "genro.dlg.zoomPalette(this,$1);"                    
