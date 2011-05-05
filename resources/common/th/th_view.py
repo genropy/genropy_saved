@@ -88,7 +88,7 @@ class TableHandlerView(BaseComponent):
             querybase = self._th_hook('query',mangler=mangler)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
-        frame.dataFormula('.query.where', 'q',q='=.baseQuery',_onStart=True)
+        frame.dataFormula('.query.where', 'q.deepCopy();',q='=.baseQuery',_onStart=True)
 
 
         condPars = {}
@@ -193,7 +193,7 @@ class TableHandlerView(BaseComponent):
         optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %mangler, 
                  selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
                  connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %mangler,
-                 action="genro.querybuilder('%s').onChangedQueryOp($2,$1);" %mangler,
+                 action="console.log(this,arguments);genro.querybuilder('%s').onChangedQueryOp($2,$1);" %mangler,
                  _dtype='^.c_0?column_dtype',
                  _class='floatingPopup', display='inline-block', padding_left='2px')
         value_textbox = fb.textbox(lbl='!!Value', value='^.c_0', width='12em', lbl_width='5em',
