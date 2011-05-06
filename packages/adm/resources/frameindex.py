@@ -5,7 +5,6 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrwebpage import BaseComponent
-from gnr.web.gnrwebstruct import struct_method
 class Mixin(BaseComponent):
     py_requires="""foundation/menu:MenuIframes,gnrcomponents/batch_handler/batch_handler,
                    gnrcomponents/chat_component/chat_component"""
@@ -77,9 +76,21 @@ class Mixin(BaseComponent):
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver',height='18px'))
         sb = pane.slotBar('5,appName,*,user,logout,5',_class='framefooter',margin_top='1px')
-        sb.appName.div('^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',connect_onclick='PUBLISH app_preference')
-        sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',connect_onclick='PUBLISH user_preference')
+        appPref = sb.appName.div('^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
+                                connect_onclick='PUBLISH app_preference',zoomUrl='adm/app_preference',pkey='Application preference')
+        userPref = sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',
+                            connect_onclick='PUBLISH user_preference',zoomUrl='adm/user_preference',pkey='User preference')
         sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px')
+        
+        appPref.dataController("""genro.dlg.zoomPalette(pane,null,{top:'10px',left:'10px',
+                                                        title:preftitle,height:'450px', width:'800px',
+                                                        palette_transition:null,palette_nodeId:'mainpreference'})""",
+                            subscribe_app_preference=True,
+                            _tags=self.preferenceTags,pane=appPref,preftitle='!!Application preference')
+        userPref.dataController("""genro.dlg.zoomPalette(pane,null,{top:'10px',right:'10px',title:preftitle,
+                                                        height:'300px', width:'400px',palette_transition:null,
+                                                        palette_nodeId:'userpreference'})""",
+                            subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
         
     def prepareBottom_xx(self,pane):
         pane.attributes.update(dict(overflow='hidden',gradient_from='gray',gradient_to='silver',gradient_deg=-90,height='30px'))
