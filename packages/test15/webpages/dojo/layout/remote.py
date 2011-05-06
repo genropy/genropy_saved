@@ -28,11 +28,17 @@ class GnrCustomWebPage(object):
     
     def test_2_jsremote(self,pane,**kwargs):
         pane.button('Remote',action='FIRE .remotetest')
+        pane.button('Clear',action='FIRE .cleartest')
+        
         cp = pane.contentPane(nodeId='test')
         cp.dataController("""
         console.log('call remote_xxx');
         var pane = genro.nodeById('test');
         pane._('div',{remote:{'method':'xxx'},min_height:'1px'}); 
         
-        
         """,_fired='^.remotetest')
+        cp.dataController("""
+        var pane = genro.nodeById('test');
+        pane.clearValue();
+        
+        """,_fired='^.cleartest')
