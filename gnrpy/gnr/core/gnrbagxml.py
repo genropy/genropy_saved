@@ -236,8 +236,11 @@ class BagToXml(object):
         :param node: add???
         :returns: the XML tag that represent self BagNode.
         """
+
         nodeattr = dict(node.attr)
-        if self.unresolved and node.resolver != None and not getattr(node.resolver,'_xmlEager',None):
+        if '__forbidden__' in nodeattr:
+            return ''
+        if self.unresolved and node.resolver is not None and not getattr(node.resolver,'_xmlEager',None):
             nodeattr['_resolver'] = gnrstring.toJson(node.resolver.resolverSerialize())
             value = ''
             if isinstance(node._value, Bag):

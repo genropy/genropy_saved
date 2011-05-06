@@ -190,6 +190,8 @@ class GnrDomSrc(GnrStructData):
         :param envelope: add???. Default value is ``None``
         :returns: a child
         """
+        if '_tags' in kwargs and not self.page.application.checkResourcePermission(kwargs['_tags'], self.page.userTags):
+            kwargs['__forbidden__'] = True
         if 'fld' in kwargs:
             fld_dict = self.getField(kwargs.pop('fld'))
             fld_dict.update(kwargs)
