@@ -7,12 +7,14 @@ table
     * :ref:`table_description`
     * :ref:`table_definition`
     * :ref:`table_creation`
-    * :ref:`table_columns`:
+    * :ref:`table_columns`
     
         * the simple :ref:`table_column` (and :ref:`table_relation`\s)
         * the :ref:`table_aliascolumn`
         * the :ref:`table_formulacolumn`
         * the :ref:`table_virtualcolumn`
+        
+        * :ref:`table_validations`
         
     * :ref:`table_examples`
     
@@ -154,6 +156,13 @@ virtualColumn
 -------------
     
     add???
+
+.. _table_validations:
+
+validations in a column
+-----------------------
+
+    add??? --> link to :ref:`genro_validations` + speak about :ref:`validate_notnull`
     
 .. _table_examples:
 

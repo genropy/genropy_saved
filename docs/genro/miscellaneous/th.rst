@@ -110,17 +110,17 @@ creation of a ``th_page``
     
         from gnr.web.gnrbaseclasses import BaseComponent
         
-    because the View and the Form classes are derived classes from ``BaseComponent``.
+    because the View and the Form classes are derived classes of the ``BaseComponent`` class.
         
-    We introduce now the class View. The class View it is used to let the user visualize
+    We introduce now the ``View`` class. The ``View`` class is used to let the user visualize
     some fields of its saved records. You don't have to insert ALL the fields of your table,
-    but only the fields that you want that user see in the View.
+    but only the fields that you want that user could see in the View.
     
     The first three lines define:
     
     * the class name
     * the method name (th_struct)
-    * the cretion of the struct with its rows::
+    * the creation of the :ref:`genro_struct` with its rows::
     
         class View(BaseComponent):
             def th_struct(self,struct):
@@ -128,11 +128,11 @@ creation of a ``th_page``
                 
     The next lines define the struct rows. Usually you have to use some
     :ref:`genro_fieldcell`\s, like in this example::
-                
-                r.fieldcell('name', width='12em')
-                r.fieldcell('surname', width='12em')
-                r.fieldcell('email', width='15em')
-                
+        
+        r.fieldcell('name', width='12em')
+        r.fieldcell('surname', width='12em')
+        r.fieldcell('email', width='15em')
+        
     where ``name``, ``surname`` and ``email`` are three rows of your :ref:`packages_model`.
                 
     The main methods you have to insert now are the ``th_order`` and the ``th_query``::
