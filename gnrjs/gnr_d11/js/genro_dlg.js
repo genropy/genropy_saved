@@ -301,7 +301,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         return dlg;
     },
     
-    zoomPalette:function(sourceNode,evt){
+    zoomPalette:function(sourceNode,evt,paletteKw){
+        var paletteKw = paletteKw || {};
         var pkey = sourceNode.getRelativeData(sourceNode.attr.pkey);
         var paletteCode='external_'+sourceNode.getStringId();
         var wdg = genro.wdgById(paletteCode+'_floating');
@@ -310,18 +311,21 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             wdg.bringToTop();
             return;
         }
-        
         var zoomUrl = '/'+sourceNode.attr.zoomUrl+'/'+pkey+'?th_public=false&&th_parentId='+paletteCode+'_floating';
         genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
         var node = genro.src.getNode(paletteCode).clearValue();
         node.freeze();
-        var paletteAttr = {'paletteCode':paletteCode,top:_px(evt.clientY),left:_px(evt.clientX),
-                                                      title:'Palette:'+pkey,overflow:'hidden',
+        var paletteAttr = {'paletteCode':paletteCode,title:'Palette:'+pkey,overflow:'hidden',
                                                       dockTo:false,//'*:open',
                                                       width:'1px',height:'1px',
                                                       palette_transition:'all .7s'
                                                       };
+        if(evt){
+            paletteAttr.top=_px(evt.clientY);
+            paletteAttr.left=_px(evt.clientX);
+        }
         paletteAttr.palette_selfsubscribe_resize = "$1.top='100px';this.widget.setBoxAttributes($1);";
+        objectUpdate(paletteAttr,paletteKw);
         var palette = node._('palettePane',paletteCode,paletteAttr);
         palette._('iframe',{'src':zoomUrl,height:'100%',width:'100%',border:0}); 
         node.unfreeze(); 
