@@ -6,7 +6,6 @@ import unittest
 import datetime
 import os
 from gnr.core.gnrbag import Bag
-#########
 class TestBasicBag(unittest.TestCase):
     def setUp(self):
         self.bag = Bag()
