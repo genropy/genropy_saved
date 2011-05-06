@@ -2,6 +2,7 @@
     width: 30px;
     height: 20px;
 }
+
 .button_block.iframetab{
     padding-left:0;
     padding-right:0;
@@ -32,6 +33,7 @@
     -webkit-border-bottom-left-radius: 6px;
 }
 
+
 .iframetab_selected.iframetab{
     color: #fff;
    /* border: 0px;*/
@@ -61,4 +63,13 @@
     font-variant:small-caps;
 }
 
+.footer_block {
+	font-weight: 1.1;
+	color: #4c4c4c;
+	cursor: pointer;
+}
+
+.footer_block:hover{
+	text-decoration: underline;
+}
 /* @end */

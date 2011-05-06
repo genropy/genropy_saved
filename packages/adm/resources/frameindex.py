@@ -14,6 +14,7 @@ class Mixin(BaseComponent):
     plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin'
     index_url = None
     showTabs = True
+    preferenceTags = 'admin'
     
     def rootWidget(self,root,**kwargs):
         return root.framePane('standard_index',_class='hideSplitter',
@@ -42,22 +43,16 @@ class Mixin(BaseComponent):
 
     def prepareTop(self,pane):
         pane.attributes.update(dict(height='30px',overflow='hidden',gradient_from='gray',gradient_to='silver',gradient_deg=90))
-        center = pane.borderContainer(margin_top='4px') 
-       # top = bc.contentPane(region='top').slotBar('*,owner,*',height='20px')
-       # top.owner.div('^gnr.app_preference.adm.instance_data.owner_name',font_size='13px',
-         #                   connect_onclick='PUBLISH preference_open="app";')
-        
-        #center = pane.borderContainer(region='center',margin_top='3px',gradient_from='gray',gradient_to='silver',gradient_deg=90)
-        
-        leftbar = center.contentPane(region='left',overflow='hidden').div(display='inline-block', margin_left='10px')  
+        bc = pane.borderContainer(margin_top='4px') 
+        leftbar = bc.contentPane(region='left',overflow='hidden').div(display='inline-block', margin_left='10px')  
         for btn in ['menuToggle']+self.plugin_list.split(','):
             getattr(self,'btn_%s' %btn)(leftbar)
                 
-        rightbar = center.contentPane(region='right',overflow='hidden').div(display='inline-block', margin_right='10px')
+        rightbar = bc.contentPane(region='right',overflow='hidden').div(display='inline-block', margin_right='10px')
         for btn in ['refresh','delete']:
             getattr(self,'btn_%s' %btn)(rightbar)
         
-        self.prepareTablist(center.contentPane(region='center'))
+        self.prepareTablist(bc.contentPane(region='center'))
         
     def prepareTablist(self,pane):     
         tabroot = pane.div(connect_onclick="""
@@ -80,12 +75,24 @@ class Mixin(BaseComponent):
 
 
     def prepareBottom(self,pane):
-        pane.attributes.update(dict(height='20px',overflow='hidden'))
-        bc = pane.borderContainer(gradient_from='gray',gradient_to='silver',gradient_deg=-90)
-        left = bc.contentPane(region='left')
-        right = bc.contentPane(region='right')
-        center= bc.contentPane(region='center')
+        pane.attributes.update(dict(overflow='hidden',background='silver',height='18px'))
+        sb = pane.slotBar('5,appName,*,user,logout,5',_class='framefooter',margin_top='1px')
+        sb.appName.div('^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',connect_onclick='PUBLISH app_preference')
+        sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',connect_onclick='PUBLISH user_preference')
+        sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px')
+        
+    def prepareBottom_xx(self,pane):
+        pane.attributes.update(dict(overflow='hidden',gradient_from='gray',gradient_to='silver',gradient_deg=-90,height='30px'))
+        bc = pane.borderContainer(margin_top='4px',_class='footer') 
+        leftbar = bc.contentPane(region='left',overflow='hidden').div(display='inline-block', margin_left='10px')  
+        for btn in ['appPref','appName']:
+            getattr(self,'btn_%s' %btn)(leftbar)
+                
+        rightbar = bc.contentPane(region='right',overflow='hidden').div(display='inline-block', margin_right='10px')
+        for btn in ['userPref','user','logout']:
+            getattr(self,'btn_%s' %btn)(rightbar)
 
+        bc.contentPane(region='center')
     def prepareCenter(self,pane):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack')
         scattr = sc.attributes
@@ -165,19 +172,6 @@ class Mixin(BaseComponent):
                                                         connect_onclick='PUBLISH closeFrame=this.inheritedAttribute("selectedFrame");',
                                                         selectedFrame='=selectedFrame')
         
-                    
-    @struct_method
-    def login_slotbar_user(self,pane,**kwargs): 
-        if not self.isGuest:
-            pane.div(self.user,connect_onclick='PUBLISH preference_open="user";')
-        else:
-            pane.div('guest')
-            
-    @struct_method
-    def login_slotbar_logout(self,pane,**kwargs):
-        if not self.isGuest:
-            pane.div(connect_onclick="genro.logout()",
-                      _class='iframetab button_block application_logout',**kwargs)
-        else:
-            pane.div()
+
+  
             
