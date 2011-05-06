@@ -1006,10 +1006,11 @@ div.dojoxDock {
 }
 
 .icnOpenPalette {
-    background: url(icons/base16/multirow.gif) no-repeat center center;
+    background: url(icons/base16/list.png) no-repeat center center;
     width: 16px;
     height: 16px;
 }
+/* multirow.gif was the original, now replaced with list.png */
 
 
 .icnBaseEye {
