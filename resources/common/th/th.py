@@ -105,6 +105,8 @@ class TableHandler(BaseComponent):
                         store_startKey=th_pkey,table=table,loadEvent=loadEvent,form_locked=True,
                         default_kwargs=default_kwargs,formInIframe=formInIframe,readOnly=readOnly)   
         wdg.form.top.bar.replaceSlots('|,dismiss','') 
+        wdg.form.top.bar.replaceSlots('navigation,|','') 
+
         def regionAdapter(kw,**defaults):
             defaults.update(kw)
             if (defaults['region'] in ('bottom' ,'top')) and not defaults.get('height'):
