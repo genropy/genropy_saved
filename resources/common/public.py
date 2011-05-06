@@ -426,9 +426,12 @@ class TableHandlerMain(BaseComponent):
     th_readOnly = False
     maintable = None
     
-    def th_options(self):
+    def th_default_options(self):
         return dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
     
+    def th_options(self):
+        return dict()
+        
     def onMain_pbl(self):
         pass
     
@@ -439,7 +442,8 @@ class TableHandlerMain(BaseComponent):
         pass
 
     def main(self,root,**kwargs):
-        th_options = self.th_options()
+        th_options = self.th_default_options()
+        th_options.update(self.th_options())
         self.onTableHandlerBuilding(root,th_options=th_options,mainKwargs=kwargs)
         formInIframe = th_options.get('formInIframe')
         insidePublic = th_options.get('public')
