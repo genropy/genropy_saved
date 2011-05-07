@@ -141,6 +141,42 @@ class TableHandler(BaseComponent):
                                         viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
                                         default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
         return wdg
+
+
+    @extract_kwargs(default=True,condition=True)
+    @struct_method   
+    def th_linker(self,pane,field=None,label=None,resource=None,formResource=None,
+                        frameCode=None,condition=None,default_kwargs=None,condition_kwargs=None,**kwargs):
+        maintable = pane.getInheritedAttributes().get('table') or self.maintable
+        maintableobj = self.db.table(maintable)
+        column = maintableobj.column(field)
+        label = label or column.name_long
+        table = column.relatedColumn().table.fullname
+        tableCode = table.replace('.','_')
+        frameCode = frameCode or '%s_%i' %(tableCode,id(pane.parentNode))
+        self._th_mixinResource(frameCode,table=table,resourceName=resource,defaultClass='Linker')  
+        formResource = formResource or self._th_hook('formResource',mangler=frameCode)()
+        frame = pane.framePane(frameCode=frameCode,_class='pbl_roundedGroup', **kwargs)
+        top = frame.top
+        top.attributes.update(_class='pbl_roundedGroupLabel')
+        linkerpath = '#FORM.linkers.%s' %frameCode
+        top = top.stackContainer(datapath=linkerpath)
+        readBar = top.contentPane(childname='read').slotBar('label,*,write',label=label)
+        readBar.write.slotButton('!!Write',iconClass='icnBaseWrite',showLabel=False,baseClass='no_background',
+                                    action='sc.widget.switchPage(1)',sc=top)
+        writeBar = top.contentPane(childname='write').slotBar('label,selector,add,edit,*,back',label=label)
+        writeBar.selector.field(column.fullname,datapath='#FORM.record',lbl=None,**self._th_hook('fieldOptions',mangler=frameCode)())
+
+        writeBar.add.slotButton('!!Add',action='FIRE .pkey="*newrecord*";',iconClass='icnBaseAdd',
+                                showLabel=False,baseClass='no_background')
+        writeBar.edit.slotButton('!!Edit',action='if(currPkey){FIRE .pkey=currPkey;}',iconClass='icnBaseEdit',
+                                showLabel=False,baseClass='no_background',currPkey='=#FORM.record.%s' %field)
+                                
+        writeBar.back.slotButton('!!Cancel',iconClass='icnTabClose',showLabel=False,baseClass='no_background',
+                                action='sc.widget.switchPage(0)',sc=top)        
+        frame.div(innerHTML='==dataTemplate(_tpl,_data)',_data='^#FORM.record.@%s' %field,
+                  _tpl=self._th_hook('template',mangler=frameCode)())
+
         
     @struct_method
     def th_thIframe(self,pane,method=None,**kwargs):

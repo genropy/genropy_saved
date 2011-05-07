@@ -17,7 +17,6 @@ class TableHandlerForm(BaseComponent):
     @struct_method
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,formResource=None,
                         dialog_kwargs=None,palette_kwargs=None,default_kwargs=None,formInIframe=False,**kwargs):
-        #print x
         form = pane.view.grid.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',

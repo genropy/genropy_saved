@@ -119,7 +119,7 @@ class GnrCustomWebPage(object):
         fb.dbselect(value="^.provincia",dbtable="glbl.provincia")
         fb.button('open',action="""var paletteCode='prov_'+pkey;
         
-                                   var palette = genro.src.create('palettePane',{paletteCode:paletteCode,title:'Palette:'+pkey,
+                                   var palette = genro.src.create('palette',{paletteCode:paletteCode,title:'Palette:'+pkey,
                                                                                remote:'testPalette',remote_pkey:pkey,
                                                                                dockTo:false},
                                                                     paletteCode);

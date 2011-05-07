@@ -109,6 +109,8 @@ class FormHandler(BaseComponent):
             palette_kwargs[loadSubscriber] = "this.widget.show();"
             palette_kwargs[closeSubscriber] = "this.widget.hide();"
             palette_kwargs['dockTo'] = palette_kwargs.get('dockTo','dummyDock')
+            dialog_kwargs['selfsubscribe_close'] = """genro.formById('%s').dismiss($1.modifiers);
+                                                            """ %formId
             formRoot = attachTo.palette(**palette_kwargs)
         return formRoot
         
