@@ -3,8 +3,9 @@
     <db dbname="gnrcore"/>
     <packages>
         <sys />
-        <gnrcore:adm />
+        <adm />
         <hosting />
         <multidb />
+        <test15 />
     </packages>
 </GenRoBag>
