@@ -443,8 +443,12 @@ class GnrApp(object):
         if pkgMenus:
             pkgMenus = pkgMenus.split(',')
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
+            if ':' in pkgid:
+                project,pkgid=pkgid.split(':')
+            else:
+                project=None
             if not attrs.get('path'):
-                attrs['path'] = self.pkg_name_to_path(pkgid,attrs.get('project'))
+                attrs['path'] = self.pkg_name_to_path(pkgid,project)
             if not os.path.isabs(attrs['path']):
                 attrs['path'] = self.realPath(attrs['path'])
             apppkg = GnrPackage(pkgid, self, **attrs)
