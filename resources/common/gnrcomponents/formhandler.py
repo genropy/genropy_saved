@@ -174,6 +174,15 @@ class FormHandler(BaseComponent):
     def fh_slotbar_form_delete(self,pane,parentForm=True,**kwargs):
         pane.formButton('!!Delete',topic='deleteItem',
                         iconClass="tb_button db_del",parentForm=parentForm,**kwargs)
+    @struct_method          
+    def fh_slotbar_form_selectrecord(self,pane,table=None,**kwargs):
+        fb = pane.formbuilder(cols=1, border_spacing='1px')
+        table = table or pane.getInheritedAttributes()['table']
+        tblobj = self.db.table(table)
+        fb.dbselect(value="^.pkey",dbtable=table,
+                    parentForm=False,
+                    validate_onAccept="if(userChange){this.form.publish('load',{destPkey:value})};",
+                    lbl=tblobj.name_long)
     
     @struct_method          
     def fh_slotbar_form_add(self,pane,parentForm=True,**kwargs):

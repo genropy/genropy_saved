@@ -311,7 +311,7 @@ dojo.declare("gnr.GnrDlgHandler", null, {
             wdg.bringToTop();
             return;
         }
-        var zoomUrl = '/'+sourceNode.attr.zoomUrl+'/'+pkey+'?th_public=false&&th_parentId='+paletteCode+'_floating';
+        var zoomUrl = '/'+sourceNode.attr.zoomUrl+'/'+pkey+'?th_public=false&&th_iframeContainerId='+paletteCode+'_floating';
         genro.src.getNode()._('div',paletteCode,{_class:'hiddenDock'});
         var node = genro.src.getNode(paletteCode).clearValue();
         node.freeze();
