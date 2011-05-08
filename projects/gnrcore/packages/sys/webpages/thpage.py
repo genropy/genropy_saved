@@ -17,8 +17,6 @@ class GnrCustomWebPage(object):
         self.maintable = '%s.%s' %(pkg,table)
         self.th_iframeContainerId = mainKwargs.pop('th_iframeContainerId',None)
         return pkey
-        
-
 
     def resizeIframeContainer(self,th,th_options=None,mainKwargs=None):
         dialog_pars = self._th_hook('dialog',mangler=th.form)()
@@ -29,7 +27,6 @@ class GnrCustomWebPage(object):
             genro.publish({"topic":"resize","parent":true,nodeId:parentId},dialog_pars);
         }
         """,_init=True,dialog_pars=dialog_pars,parentId=self.th_iframeContainerId or 'null')
-        
 
     def main(self,root,**kwargs):
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
@@ -45,18 +42,7 @@ class GnrCustomWebPage(object):
         if self.th_iframeContainerId:
             self.resizeIframeContainer(th,th_options=th_options,mainKwargs=kwargs)
         
-
-    def rpc_form(self, root,th_formResource=None,th_linker=False,th_selector=False, **kwargs):
-        pkey = pkey = self.__prepareKwargs(kwargs)    
-        tableCode = self.maintable.replace('.','_')
-        self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')        
-        form = root.frameForm(frameCode='F_%s' %tableCode,table=self.maintable,
-                             store_startKey=pkey or '*norecord*',
-                             datapath='form',store='recordCluster')
-        slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
-        if th_linker:
-            slots = '*,|,semaphore,|,form_revert,form_save'
-        if th_selector:
-            slots = slots.replace('*','5,form_selectrecord,*')
-        form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')
-        self._th_hook('form',mangler=tableCode)(form)
+    def rpc_form(self, root,th_formResource=None,**kwargs):
+        pkey = pkey = self.__prepareKwargs(kwargs)
+        form = self._th_prepareForm(root,pkey=pkey,**kwargs)
+        self._th_hook('form',mangler=self.maintable)(form)

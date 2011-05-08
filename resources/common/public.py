@@ -441,6 +441,7 @@ class TableHandlerMain(BaseComponent):
         self._th_main(root,th_options=th_options,**kwargs)
     
     def _th_main(self,root,th_options=None,**kwargs):
+        kwargs.update(self.getCallArgs('th_pkey'))
         formInIframe = th_options.get('formInIframe')
         insidePublic = th_options.get('public')
         kwargs.update(th_options)
@@ -454,6 +455,25 @@ class TableHandlerMain(BaseComponent):
         if insidePublic and not formInIframe:
             self._usePublicBottomMessage(th.form)
         return th
+        
+    def rpc_form(self, root, **kwargs):
+        kwargs.update(self.getCallArgs('pkey'))  
+        form = self._th_prepareForm(root,**kwargs)
+        self.th_form(form)
+    
+    def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,th_selector=None,**kwargs):
+        tableCode = self.maintable.replace('.','_')
+        self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
+        form = root.frameForm(frameCode='F_%s' %tableCode,table=self.maintable,
+                             store_startKey=pkey or '*norecord*',
+                             datapath='form',store='recordCluster')
+        slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
+        if th_linker:
+            slots = '*,|,semaphore,|,form_revert,form_save'
+        if th_selector:
+            slots = slots.replace('*','5,form_selectrecord,*')
+        form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')
+        return form
     
     def _usePublicBottomMessage(self,form):
          form.attributes['hasBottomMessage'] = False
