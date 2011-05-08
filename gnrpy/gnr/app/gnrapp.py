@@ -443,8 +443,12 @@ class GnrApp(object):
         if pkgMenus:
             pkgMenus = pkgMenus.split(',')
         for pkgid, attrs in self.config['packages'].digest('#k,#a'):
+            if ':' in pkgid:
+                project,pkgid=pkgid.split(':')
+            else:
+                project=None
             if not attrs.get('path'):
-                attrs['path'] = self.pkg_name_to_path(pkgid)
+                attrs['path'] = self.pkg_name_to_path(pkgid,project)
             if not os.path.isabs(attrs['path']):
                 attrs['path'] = self.realPath(attrs['path'])
             apppkg = GnrPackage(pkgid, self, **attrs)
@@ -529,18 +533,31 @@ class GnrApp(object):
                 if package not in self.package_path and os.path.isdir(os.path.join(path, package)):
                     self.package_path[package] = path
 
-    def pkg_name_to_path(self, pkgid):
+    def pkg_name_to_path(self, pkgid, project=None):
         """add???
 
         :param pkgid: add???
         :returns: add???
         """
-        path = self.package_path.get(pkgid)
+        path = None
+        if project:
+            project_path = self.project_path(project)
+            if project_path:
+                path = os.path.join(project_path,'packages')
+        else:
+            path = self.package_path.get(pkgid)
+            
         if path:
             return path
         else:
             raise Exception(
                     'Error: package %s not found' % pkgid)
+        
+    def project_path(self, project):
+        for project_path in self.gnr_config['gnr.environment_xml.projects'].digest('#a.path'):
+            path = expandpath(project_path) 
+            if os.path.isdir(path) and project in os.listdir(path):
+                return os.path.join(path,project)
 
     def onIniting(self):
         """Event called before the instance initialization.
