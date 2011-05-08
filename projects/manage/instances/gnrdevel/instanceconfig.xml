@@ -2,7 +2,7 @@
 <GenRoBag>
     <packages>
         <gnrdevel/>
-        <adm/>
+        <gnrcore:adm/>
     </packages>
     <db dbname="gnrdevel"/>
     <authentication pkg="adm">

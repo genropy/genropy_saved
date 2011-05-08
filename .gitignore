@@ -3,3 +3,4 @@ genro.wpr
 .idea
 
 *.pyc
+/projects/agenda/sites/agenda/data/
