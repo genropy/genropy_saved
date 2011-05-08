@@ -1,0 +1,23 @@
+.tplfieldpath {
+    display: none;
+}
+
+.preview .tplfieldpath {
+    display: inline;
+}
+
+.preview .tplfieldcaption {
+    display: none;
+}
+
+.tplfieldcaption {
+    border: 1px dotted gray;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    color: gray;
+    cursor: pointer;
+}
+
+.tplblock {
+    display: inline-block;
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+	<hosting tags="owner" label="!!Hosting" basepath="/hosting">
+		<clients file='client' label='!!Clients'/>
+		<instances file='instance' label='!!Instances'/>
+		<slot_type file='slot_type' label='!!Slot Types'/>
+	</hosting>
+</GenRoBag>

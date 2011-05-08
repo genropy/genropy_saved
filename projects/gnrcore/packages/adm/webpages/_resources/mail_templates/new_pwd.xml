@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+    <from_address>info@softwell.it</from_address>
+    <subject>New Password</subject>
+    <body>$firstname $lastname, enter the site using these data:
+    
+    utente: $username
+    password: $newpassword
+		
+    </body>
+</GenRoBag>
