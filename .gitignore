@@ -1,3 +1,5 @@
 genro.wpr
 .ropeproject
 .idea
+
+*.pyc
