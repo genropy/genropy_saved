@@ -456,12 +456,13 @@ class TableHandlerMain(BaseComponent):
             self._usePublicBottomMessage(th.form)
         return th
         
-    def rpc_form(self, root, **kwargs):
+    def rpc_form(self, root, th_pkey=None,**kwargs):
         kwargs.update(self.getCallArgs('pkey'))  
         form = self._th_prepareForm(root,**kwargs)
         form = self.th_form(form)
     
     def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,th_selector=None,**kwargs):
+        pkey = pkey or kwargs.pop('th_pkey',None)
         tableCode = self.maintable.replace('.','_')
         self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
         form = root.frameForm(frameCode='F_%s' %tableCode,table=self.maintable,
