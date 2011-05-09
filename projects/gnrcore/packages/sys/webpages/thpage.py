@@ -43,6 +43,6 @@ class GnrCustomWebPage(object):
             self.resizeIframeContainer(th,th_options=th_options,mainKwargs=kwargs)
         
     def rpc_form(self, root,th_formResource=None,**kwargs):
-        pkey = pkey = self.__prepareKwargs(kwargs)
+        pkey = self.__prepareKwargs(kwargs) or '*newrecord*'
         form = self._th_prepareForm(root,pkey=pkey,**kwargs)
         self._th_hook('form',mangler=self.maintable)(form)

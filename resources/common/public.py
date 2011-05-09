@@ -459,7 +459,7 @@ class TableHandlerMain(BaseComponent):
     def rpc_form(self, root, **kwargs):
         kwargs.update(self.getCallArgs('pkey'))  
         form = self._th_prepareForm(root,**kwargs)
-        self.th_form(form)
+        form = self.th_form(form)
     
     def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,th_selector=None,**kwargs):
         tableCode = self.maintable.replace('.','_')
@@ -473,6 +473,7 @@ class TableHandlerMain(BaseComponent):
         if th_selector:
             slots = slots.replace('*','5,form_selectrecord,*')
         form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')
+        form.attributes.update(subscribe_external_load='this.form.publish("load",$1);')
         return form
     
     def _usePublicBottomMessage(self,form):
