@@ -3,7 +3,7 @@
     <db dbname="genropynet"/>
     <packages _T="NN">
         <portal/>
-        <adm/>
+        <gnrcore:adm/>
         <prj/>
         <showcase/>
     </packages>

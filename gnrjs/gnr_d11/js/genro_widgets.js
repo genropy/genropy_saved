@@ -468,16 +468,8 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             params = objectExtract(attributes, 'rpc_*', true);
             params.mode = params.mode ? params.mode : 'text';
             return genro.remoteUrl(attributes['rpcCall'], params, sourceNode, false);
-
-        }else if(attributes['main']){
-            var main_call = objectPop(attributes,'main');
-            var main_kwargs = objectExtract(attributes,'main_*');
-            var url = window.location.pathname;
-            main_kwargs['main_call'] = main_call;
-            main_kwargs = sourceNode.evaluateOnNode(main_kwargs);
-            url = genro.addParamsToUrl(url,main_kwargs);
-            return url;
         }
+ 
     },
     set_print:function(domnode, v, kw) {
         genro.dom.iFramePrint(domnode);
@@ -494,7 +486,8 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     },
     setSrc:function(domnode, v, kw) {
         var sourceNode = domnode.sourceNode;
-        if (sourceNode.attr._if && !sourceNode.getAttributeFromDatasource('_if')) {
+        var attributes = sourceNode.attr;
+        if (attributes._if && !sourceNode.getAttributeFromDatasource('_if')) {
             var v = '';
         } else if (sourceNode.condition_function && !sourceNode.condition_function(sourceNode.condition_value)) {
             var v = '';
@@ -505,7 +498,15 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         if (sourceNode.currentSetTimeout) {
             clearTimeout(sourceNode.currentSetTimeout);
         }
-        if (v) {
+        if(attributes['main']){
+            var main_call = objectPop(attributes,'main');
+            var main_kwargs = objectExtract(attributes,'main_*');
+            v = v || window.location.pathname;
+            main_kwargs['main_call'] = main_call;
+            main_kwargs = sourceNode.evaluateOnNode(main_kwargs);
+            v = genro.addParamsToUrl(v,main_kwargs);
+        }
+        if (v) {         
             sourceNode.currentSetTimeout = setTimeout(function(d, url) {
                 var absUrl = document.location.protocol + '//' + document.location.host + url;
                 if (absUrl != d.src) {
@@ -1133,7 +1134,6 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
     },
     
     mixin_autoSize:function(){
-        console.log('autosize');
         var domNode = this.domNode;
         var layoutcoords = dojo.coords(this.containerNode.firstChild);
         var newcoords =  dojo.coords(domNode);

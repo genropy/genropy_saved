@@ -426,39 +426,64 @@ class TableHandlerMain(BaseComponent):
     th_readOnly = False
     maintable = None
     
-    def th_default_options(self):
-        return dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
-    
+
     def th_options(self):
         return dict()
         
     def onMain_pbl(self):
         pass
     
-    def onTableHandlerBuilding(self,root,**kwargs):
-        pass
-    
-    def onTableHandlerBuilt(self,th,**kwargs):
-        pass
+
 
     def main(self,root,**kwargs):
-        th_options = self.th_default_options()
+        kwargs.update(self.getCallArgs('th_pkey'))
+        th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         th_options.update(self.th_options())
-        self.onTableHandlerBuilding(root,th_options=th_options,mainKwargs=kwargs)
+        self._th_main(root,th_options=th_options,**kwargs)
+    
+    def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = th_options.get('formInIframe')
         insidePublic = th_options.get('public')
+        kwargs.update(th_options)
         if insidePublic:
             root = root.rootContentPane(title=self.tblobj.name_long)
         else:
             root.attributes.update(tag='ContentPane',_class=None)
-        kwargs.update(th_options)
         th = getattr(root,'%sTableHandler' %th_options.get('widget','stack'))(table=self.maintable,datapath=self.maintable.replace('.','_'),**kwargs)
         th.attributes.update(dict(border_left='1px solid gray'))
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
         if insidePublic and not formInIframe:
-            th.form.attributes['hasBottomMessage'] = False
-            th.form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
-        self.onTableHandlerBuilt(th,th_options=th_options,mainKwargs=kwargs)
+            self._usePublicBottomMessage(th.form)
+        return th
+        
+    def rpc_form(self, root, th_pkey=None,**kwargs):
+        kwargs.update(self.getCallArgs('pkey'))  
+        form = self._th_prepareForm(root,**kwargs)
+        form = self.th_form(form)
+    
+    def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,th_selector=None,**kwargs):
+        pkey = pkey or kwargs.pop('th_pkey',None)
+        tableCode = self.maintable.replace('.','_')
+        self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
+        form = root.frameForm(frameCode='F_%s' %tableCode,table=self.maintable,
+                             store_startKey=pkey or '*norecord*',
+                             datapath='form',store='recordCluster')
+        slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
+        if th_linker:
+            slots = '*,|,semaphore,|,form_revert,form_save'
+        if th_selector:
+            slots = slots.replace('*','5,form_selectrecord,*')
+        form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')
+        form.attributes.update(subscribe_external_load='this.form.publish("load",$1);')
+        return form
+    
+    def _usePublicBottomMessage(self,form):
+         form.attributes['hasBottomMessage'] = False
+         form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
+    
+    def rpc_view(self,root,**kwargs):
+        pass
+
 
 
 #OLD STUFF TO REMOVE
