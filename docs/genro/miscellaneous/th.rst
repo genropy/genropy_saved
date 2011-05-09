@@ -14,13 +14,13 @@ tableHandler
     * :ref:`th_tables`:
     
         * :ref:`th_firststeps`
-        * :ref:`th_page`
+        * :ref:`th_table`
         * :ref:`th_map`
         
-    * :ref:`th_webpage`:
+    * :ref:`th_page`:
     
-        * :ref:`page_py_requires`
-        
+        * :ref:`th_form_uses`
+    
     * :ref:`th_methods`:
     
         * :ref:`th_border`
@@ -97,14 +97,14 @@ first steps
     
     .. image:: ../images/th/th2.png
     
-    In the next section we check the code inside a ``th_page``
+    In the next section we check the code inside a ``th_table``
     
-.. _th_page:
+.. _th_table:
 
-creation of a ``th_page``
--------------------------
+th_table
+--------
 
-    Let's check now the code inside a ``th_page``.
+    Let's check now the code inside a page with the ``View`` and the ``Form`` classes.
     
     The first line will be::
     
@@ -134,9 +134,9 @@ creation of a ``th_page``
         r.fieldcell('email', width='15em')
         
     where ``name``, ``surname`` and ``email`` are three rows of your :ref:`packages_model`.
-                
+    
     The main methods you have to insert now are the ``th_order`` and the ``th_query``::
-                
+    
         def th_order(self):
             return 'surname'
             
@@ -182,8 +182,6 @@ creation of a ``th_page``
         fb.field('surname')
         fb.field('email',colspan=2)
         
-    This concludes this simple tutorial for the ``th_page``.
-        
     .. _th_map:
 
 map
@@ -209,6 +207,20 @@ map
         
     In our example the path will be ``.base_registry.form``.
     
+    Inside form, you find five regions:
+    
+    * ``top``
+    * ``bottom``
+    * ``left``
+    * ``right``
+    * ``center``
+    
+    The ``top`` and ``bottom`` level have an additional ``bar`` level that handle
+    the top bar and the bottom bar.
+    
+    The ``center`` level is very important, and we come back later to it, in the
+    :ref:`th_form_uses` section.
+    
     **record**: at the ``th/form/record`` level, the path of the data is::
     
         .packageName_tableName.form.record
@@ -217,7 +229,7 @@ map
     
     In our example the path will be ``.base_registry.form.record``.
     
-    Now you can understand the line we wrote in the previous section (:ref:`th_page`)
+    Now you can understand the line we wrote in the previous section (:ref:`th_table`)
     inside the Form method::
     
         pane = form.record
@@ -226,37 +238,138 @@ map
     
     .. note:: when you have to interact with data you have to go to the ``form.record`` path
         
-    In the next section we explain to you when you have to use the ``form`` path (without
-    arriving to the ``record`` path).
+    In the :ref:`th_form_uses` section we explain to you when you have to use the ``form`` path
+    (without arriving to the ``record`` path).
     
-.. _th_form_uses:
+.. _th_page:
 
-The ``form`` path
-=================
+th_page
+=======
 
-    add???
+    When you build some complex tables, you may need to use both a th_table (section
+    :ref:`th_table`) and a th_page. The th_page is a :ref:`webpages_GnrCustomWebPage`
+    that allows you to create a much complex ``Form`` class.
     
-.. _th_webpage:
-
-webpages
-========
-
-    add???
-
-.. _page_py_requires:
-
-``py_requires``
----------------
+    .. note:: please call your webpages with the suffix ``_page``. This is a convention
+              to keep order in your project (e.g: ``staff_page.py``)
+              
+    So, if you build a th_page, you have to build anyway a :ref:`th_table` with the
+    ``View`` class defined in all its structures, while the ``Form`` class can be
+    simply::
     
-    In order to use the ``th`` component in your :ref:`webpages_webpages`, please add
-    the following ``py_requires``::
+        class Form(BaseComponent):
+            def th_form(self, form):
+                pass
+                
+    because you handle it in the th_page.
     
-        py_requires = "public:TableHandlerMain"
+    To create your th_page, you have to instantiate a :ref:`webpages_GnrCustomWebPage`::
+    
+        class GnrCustomWebPage(object):
+        
+    Then you ahve to specify the :ref:`genro_table` to which this page refers to::
+    
+        maintable = 'packageName.tableName'
+        
+    In our example, the package name is ``base`` and the table name is ``registry``, so
+    the maintable looks like::
+    
+        maintable = 'base.registry'
+        
+    Then you have to define the correct :ref:`webpages_py_requires`::
+    
+        py_requires = 'public:TableHandlerMain'
         
     For more informations on ``py_requires``, please check the :ref:`webpages_py_requires`
     documentation section.
     
-.. _th_methods:
+    Then you may define the following methods::
+        
+        def pageAuthTags(self, method=None, **kwargs):
+            return 'user'
+            
+        def windowTitle(self):
+            return 'Registry'
+            
+        def barTitle(self):
+            return 'Registry'
+            
+        def tableWriteTags(self):
+            return 'user'
+            
+        def tableDeleteTags(self):
+            return 'user'
+            
+    where:
+    
+    .. module:: gnr.web._gnrbasewebpage.GnrBaseWebPage
+    
+    * The pageAuthTags, the tableWriteTags and the tableDeleteTags methods handle
+      the permits of the page to see it, write on it and delete records.
+      The return string (in the example returns ``user`) allow to define who has
+      the permits to act. You can find more information on page permits into the
+      :ref:`instanceconfig_authentication` section of the
+      :ref:`genro_gnr_instanceconfig` documentation page)
+    * The windowTitle and the barTitle define the title and the bar of the page on
+      the browser.
+      
+    After that, we have to define the ``th_form`` method; it replaces the ``th_form``
+    method we wrote in the th_table.
+    
+    The definition line is::
+    
+        def th_form(self,form,**kwargs):
+        
+    As we taught to you in the :ref:`th_table` section, the next line is (most of the time!)::
+    
+        pane = form.record
+        
+    If you need more information on this line, please check the :ref:`th_map` section.
+    
+    After that, you have to create your :ref:`genro_form_index`. The first line is the
+    :ref:`genro_formbuilder` definition::
+    
+        fb = pane.formbuilder(cols=2,border_spacing='2px')
+        
+    In this example we define a formbuilder with two columns (cols=2, default value: 1 column)
+    and a margin space between the fields (border_spacing='2px', default value: 6px).
+    
+    Then you have to add ALL the rows of your table that the user have to compile.
+    For example::
+    
+        fb.field('name')
+        fb.field('surname')
+        fb.field('email',colspan=2)
+        
+    After that, you can add all your supporting methods you need: for example, you may need
+    a onLoading method::
+    
+        def onLoading(self, record, newrecord, loadingParameters, recInfo):
+            if newrecord:
+                record['username'] = self.user
+                record['day'] = self.workdate
+                record['hour'] = datetime.datetime.now().time()
+                
+    .. _th_form_uses:
+
+``center`` path
+---------------
+
+    If you need to use some complex :ref:`genro_layout_index` in your page, like a
+    :ref:`genro_tabcontainer`, you have to pass from the ``form.center`` path. Example::
+    
+        tc = form.center.tabContainer()
+        
+        bc = tc.borderContainer(datapath='.record', title='Profilo')
+        other = tc.contentPane(title='Other things')
+        altro.numbertextbox(value='^.numerobusatto',default=36)
+        
+        top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='1px',height='40%')
+        top.div('!!Record di anagrafica',_class='pbl_roundedGroupLabel')
+        fb = top.formbuilder(dbtable='sw_base.anagrafica',margin_left='10px',margin_top='1em',
+                             width='370px',datapath='.@anagrafica_id',cols=2)
+                
+    .. _th_methods:
 
 th methods
 ==========
@@ -407,4 +520,3 @@ resources
 **Footnotes**:
 
 .. [#] The :ref:`genro_standardtable_index` is the the most known name of the component that handled tableHandler until now.
-    
