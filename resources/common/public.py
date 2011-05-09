@@ -436,12 +436,12 @@ class TableHandlerMain(BaseComponent):
 
 
     def main(self,root,**kwargs):
+        kwargs.update(self.getCallArgs('th_pkey'))
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         th_options.update(self.th_options())
         self._th_main(root,th_options=th_options,**kwargs)
     
     def _th_main(self,root,th_options=None,**kwargs):
-        kwargs.update(self.getCallArgs('th_pkey'))
         formInIframe = th_options.get('formInIframe')
         insidePublic = th_options.get('public')
         kwargs.update(th_options)
