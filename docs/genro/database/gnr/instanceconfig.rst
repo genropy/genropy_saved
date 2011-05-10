@@ -143,8 +143,8 @@ Tags
     
         <authentication pkg="adm"></authentication>
         
-    The ``<adm>`` package allow to manage the authenitcations. For more information, check the
-    :ref:`genro_library_adm` paragraph.
+    The ``adm`` package allow to manage the authenitcations. For more information on it, check
+    the :ref:`genro_library_adm` documentation page.
     
     Inside the ``<authentication>`` tag we have to define two different tags: the ``<py_auth>``
     and the ``<xml_auth>``.

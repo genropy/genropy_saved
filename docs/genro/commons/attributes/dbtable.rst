@@ -1,8 +1,8 @@
 .. _genro_dbtable:
 
-=========
- dbtable
-=========
+=======
+dbtable
+=======
 
     * :ref:`dbtable_def`
     * :ref:`dbtable_examples`
@@ -14,22 +14,39 @@ Definition and description
 
     ::
     
-        dbtable = None
+        dbtable = 'STRING'
         
-    The *dbtable* attribute is used to specify a path for a database :ref:`genro_table` during a user query.
+    The *dbtable* attribute belongs to many :ref:`genro_webpage_elements_intro` and
+    it is used to specify the :ref:`genro_table` to which the webpage elements is
+    linked.
     
-    The syntax is ``packageName.tableName.attributeName``, where:
+    If you have defined in your :ref:`webpages_webpages` a :ref:`webpages_maintable`,
+    then you have a default ``dbtable`` value for all the elements of your page.
+    Obviously, if you have a maintable AND a dbtable value, the dbtable value will
+    prevail on the maintable value.
     
-        * ``packageName`` is the name of the package on which you're working [#]_ ;
-        * ``tableName`` is the name of the :ref:`genro_table` on which is executed the user query.
+    **syntax**::
+    
+        packageName.tableName.attributeName``
         
-    **Validity:** the *dbtable* attribute works on the following form widgets:
+    where:
     
+    * ``packageName`` is the name of the package on which you're working [#]_ ;
+    * ``tableName`` is the name of the :ref:`genro_table` on which is executed the user query.
+        
+    **validity:**
+    
+    the *dbtable* attribute works on:
+    
+    * :ref:`genro_form_widgets_index`:
+        
         * :ref:`genro_formbuilder`
         * :ref:`genro_field`
         * :ref:`genro_dbselect`
         * :ref:`genro_dbcombobox`
-
+        
+    * add??? components...
+        
 .. _dbtable_examples:
 
 Examples
@@ -37,8 +54,10 @@ Examples
 
     Based on the form widget you're working on, there is a different use of *dbtable*:
     
-        * For the :ref:`genro_formbuilder` and the :ref:`genro_field` form widgets, please check the :ref:`genro_field` page.
-        * For the :ref:`genro_dbselect` and the :ref:`genro_dbcombobox` form widgets, please check the dbSelect and dbCombobox :ref:`db_examples` page.
+        * For the :ref:`genro_formbuilder` and the :ref:`genro_field` form widgets,
+          please check the :ref:`genro_field` page.
+        * For the :ref:`genro_dbselect` and the :ref:`genro_dbcombobox` form widgets,
+          please check the dbSelect and dbCombobox :ref:`db_examples` page.
 
 **Footnotes:**
 

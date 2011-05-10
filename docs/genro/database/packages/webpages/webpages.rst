@@ -73,8 +73,8 @@ GnrCustomWebPage
                 
     .. _webpages_variables:
 
-webpages variables
-==================
+webpage variables
+=================
     
     With the term ``webpages variables`` we mean that Genro provides some defined variables that you
     can use to customize your webpages.
@@ -309,8 +309,9 @@ gnrjsversion
 maintable
 ---------
     
-    * Description: a string that allows to create shortcuts for user queries through some Genro
-      :ref:`genro_form_widgets_index` (like :ref:`genro_field` or :ref:`genro_fieldcell`)
+    * Description: a string that allows to link your webpage to a :ref:`genro_table`.
+      It becomes the :ref:`genro_dbtable` default value of all the elements of your
+      webpage that support the ``dbtable`` attribute.
     * Syntax: ``maintable = 'packageName.tableName'``, where:
     
         * ``packageName`` is the name of your package (for more information, check the
@@ -322,6 +323,8 @@ maintable
     
         maintable = 'agenda.call'
         
+    For more information, check the :ref:`genro_dbtable` documentation page.
+    
     .. _webpages_recordlock:
 
 recordLock

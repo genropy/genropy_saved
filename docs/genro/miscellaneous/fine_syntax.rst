@@ -6,7 +6,7 @@ Fine syntax
 
     :ref:`syntax_attributes`:
     
-    * :ref:`attributes_attachname`
+    * :ref:`attributes_childname`
     
     :ref:`syntax_decorators`:
     

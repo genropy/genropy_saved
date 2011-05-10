@@ -6,8 +6,7 @@
 
 class GnrCustomWebPage(object):
     maintable = 'agenda.staff'
-    py_requires = """public:TableHandlerMain,
-                     """
+    py_requires = """public:TableHandlerMain"""
                      
     def pageAuthTags(self, method=None, **kwargs):
         return 'user'
