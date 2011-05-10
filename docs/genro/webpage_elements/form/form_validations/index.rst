@@ -30,7 +30,7 @@ validations
 introduction
 ============
 
-    To make obligations onto user input filling out a :ref:`genro_form_index`,
+    To make obligations onto user input filling out a :ref:`genro_form`,
     Genro provides an helpful developer's tool: the validations.
     
     Remember that:

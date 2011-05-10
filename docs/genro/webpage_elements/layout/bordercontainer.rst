@@ -22,14 +22,17 @@ Definition
     
     .. method:: pane.borderContainer([**kwargs])
     
-    The borderContainer is a container partitioned into up to five regions: left (or leading), right (or trailing), top, and bottom with a mandatory center to fill in any remaining space. Each edge region may have an optional splitter user interface for manual resizing.
+    The borderContainer is a container partitioned into up to five regions: left (or leading),
+    right (or trailing), top, and bottom with a mandatory center to fill in any remaining space.
+    Each edge region may have an optional splitter user interface for manual resizing.
     
-    In order to define a borderContainer you have to define at least one :ref:`genro_contentpane` as a borderContainer child. This contentPane must include the ``region='center'`` attribute::
+    In order to define a borderContainer you have to define at least one :ref:`genro_contentpane`
+    as a borderContainer child. This contentPane must include the ``region='center'`` attribute::
     
         bc = root.borderContainer(height='200px')
         bc.contentPane(region='center')
         
-    Optionally, you can add other contentPanes with the other regions: left, right, top, bottom. For more information, check the :ref:`border-simple` below.
+    Optionally, you can add other contentPanes with the other regions: left, right, top, bottom.
     
 .. _border_attributes:
 

@@ -68,6 +68,7 @@ def deprecated(func):
     return newFunc
         
 def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
+    """Decorator. add???"""
     if _dictkwargs:
         extract_kwargs = _dictkwargs
     def decore(func):
