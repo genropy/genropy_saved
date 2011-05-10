@@ -242,6 +242,7 @@ class FormHandler(BaseComponent):
                                 rounded=8,tooltip='!!Link form to an existing %s' %tblobj.name_long.replace('!!',''),
                                 visible='^#FORM.record?_newrecord')
         fieldbox.field('%s.%s' %(table,field),datapath='#FORM.record',validate_onAccept='this.getParentNode().publish("disable");',
+                connect_onBlur='console.log("xxx");this.getParentNode().publish("disable");',
                 _class='fh_linkerBoxField',background='white',**kwargs)
 
     

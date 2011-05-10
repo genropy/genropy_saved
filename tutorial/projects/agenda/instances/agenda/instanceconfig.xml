@@ -3,10 +3,10 @@
     <packages>
         <gnrcore:adm />
         <devlang:devlang />
-        <glbl />
-        <sw_base />
+        <gnr_it:glbl />
+        <gnrsw:sw_base />
         <agenda />
-        <test15 />
+        <gnrcore:test15 />
     </packages>
     <db dbname="agenda" /db>
     <authentication pkg="agenda">
