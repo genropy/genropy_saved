@@ -114,8 +114,9 @@ column
         
     * column attributes:
     
-        * required
-        * unique
+        * required (???)
+        * unique (boolean)
+        *  _sendback (boolean)
         
 .. _table_relation:
 
