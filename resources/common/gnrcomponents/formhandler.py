@@ -239,7 +239,7 @@ class FormHandler(BaseComponent):
                                                         genro.dom.addClass(this,"fh_enableLinkerBox");
                                                         var that = this;
                                                         setTimeout(function(){
-                                                            linkernode = that.nodeById('/linker')widget.focus();
+                                                            linkernode = that.nodeById('/linker').widget.focus();
                                                         })""",
                                                         _class='fh_linkerBox',
                                 selfsubscribe_disable='genro.dom.removeClass(this,"fh_enableLinkerBox")',
