@@ -1,5 +1,6 @@
 var frameIndex = {
-    selectIframePage:function(sourceNode,name,label,file,table,formResource,viewResource,fullpath,workInProgress){
+    selectIframePage:function(sourceNode,name,label,file,table,formResource,viewResource,fullpath,attributes){
+        console.log(attributes);
         var sc = sourceNode.getValue();
         var page = sc.getItem(name);
         if (page){
@@ -21,7 +22,7 @@ var frameIndex = {
                     urlPars['th_viewResource'] = viewResource;
                 }
              }
-             if(workInProgress){
+             if(attributes.workInProgress){
                  urlPars.workInProgress = true;
              }
              url = genro.addParamsToUrl(url,urlPars);
