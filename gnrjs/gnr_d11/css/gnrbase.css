@@ -1903,6 +1903,7 @@ textarea:disabled {
 }
 
 .fh_enableLinkerBox.fh_linkerBox{
+    opacity:1;
     border:1px solid gray;
 	background: white url(icons/base12/linker.png) no-repeat 3px center;
 }
