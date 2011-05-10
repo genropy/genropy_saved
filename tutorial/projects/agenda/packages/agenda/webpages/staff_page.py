@@ -25,12 +25,12 @@ class GnrCustomWebPage(object):
         return 'user'
         
     def th_form(self,form,**kwargs):
-        #bc = form.record.borderContainer(margin='3px')
-        tc = form.center.tabContainer()
-        
-        bc = tc.borderContainer(datapath='.record', title='Profilo')
-        altro = tc.contentPane(title='Altro')
-        altro.numbertextbox(value='^.numerobusatto',default=36)
+        bc = form.record.borderContainer(margin='3px')
+        #tc = form.center.tabContainer()
+        #
+        #bc = tc.borderContainer(datapath='.record', title='Profilo')
+        #altro = tc.contentPane(title='Altro')
+        #altro.numbertextbox(value='^.numerobusatto',default=36)
         
         top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='1px',height='40%')
         top.div('!!Record di anagrafica',_class='pbl_roundedGroupLabel')
@@ -63,4 +63,3 @@ class GnrCustomWebPage(object):
         fb.field('md5pwd')
         fb.field('auth_tags')
         fb.field('avatar_rootpage')
-        

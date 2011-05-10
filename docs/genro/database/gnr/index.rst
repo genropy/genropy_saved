@@ -7,7 +7,6 @@
 .. toctree::
     :maxdepth: 2
     
-    introduction
     environment
     instanceconfig
     siteconfig

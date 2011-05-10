@@ -9,5 +9,4 @@ components
     
     introduction
     writing
-    list-maturity-matrix
     components/index

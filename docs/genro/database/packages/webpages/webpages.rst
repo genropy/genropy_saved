@@ -14,13 +14,16 @@ webpage
     The standard usage of Genro GnrCustomWebPages is to use them in a combo with some
     :ref:`genro_table`\s to create a DBMS :ref:`genro_project`.
     
+    .. note:: please call your webpages with the suffix ``_page``. This is a convention
+              to keep order in your project (e.g: ``staff_page.py``)
+    
     You can act on a Genro webpage through many webpage elements: please check the
     :ref:`genro_webpage_elements_intro` to Genro webpage elements if you need to learn
     more about them.
     
     We are going now to introduce the :ref:`webpages_GnrCustomWebPage`, the standard class
     used to build the webpages.
-
+    
 .. _webpages_GnrCustomWebPage:
 
 GnrCustomWebPage

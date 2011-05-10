@@ -4,24 +4,20 @@
 tableHandler
 ============
 
-    .. note:: Welcome!
-              
-              This is a temporary page to explain the new ``th`` (tableHandler) class.
-              This page will change progressively with method changements, until the
-              class will become stable.
-              
     * :ref:`th_introduction`
     * :ref:`th_tables`:
     
         * :ref:`th_firststeps`
-        * :ref:`th_table`
-        * :ref:`th_map`
+        * :ref:`th_table`:
         
-    * :ref:`th_page`:
-    
+            * the :ref:`th_view_class` (methods: :ref:`th_order`, :ref:`th_query`)
+            * the :ref:`th_form_class`
+            
+        * :ref:`th_map`
+        * :ref:`th_page`:
         * :ref:`th_form_uses`
     
-    * :ref:`th_methods`:
+    * :ref:`th_iv_methods`:
     
         * :ref:`th_border`
         * :ref:`th_dialog`
@@ -29,11 +25,6 @@ tableHandler
         * :ref:`th_plain`
         * :ref:`th_stack`
         
-    * :ref:`th_old_new`:
-    
-        * :ref:`old_new_index`
-        * :ref:`old_new_resources`
-    
 .. _th_introduction:
 
 Introduction
@@ -50,7 +41,7 @@ Introduction
     of your :ref:`genro_project`\s. This fact allows to reuse the tableHandlers you created
     in more than a webpage.
     
-    Example: if you have to create a table with the registry (in italian , the "anagrafica")
+    Example: if you have to create a table with the registry (in italian , the *anagrafica*)
     of a society, a registry of the staff, a registry of society clients (and so on) you can
     create a single resource that you can reuse every time you need it. Cool, isn't it?
     
@@ -67,7 +58,7 @@ Creation of a tableHandler resource
 first steps
 -----------
 
-    Let's continue with the example of the previous section (the "registry" one).
+    Now we'll guide you in a "step by step" creation of a tableHandler.
     
     Let's suppose that your project is called ``my_project``. Inside the :ref:`packages_model`
     folder we create a table called ``registry.py`` with all the records you need (name,
@@ -79,8 +70,8 @@ first steps
     #. create a folder called ``resources`` inside the package we are using (in this example
        the package is called ``base``).
     #. Inside the ``resources`` folder just created, we have to create a folder called ``tables``.
-    #. Inside the ``tables`` folder, you have to create a folder with the SAME name of the
-       table file name (we're almost done!): in this example the folder is called ``registry``
+    #. Inside the ``tables`` folder, you have to create another folder with the SAME name of the
+       table file name: in this example the folder is called ``registry``
     #. Inside the ``registry`` folder you have to create a Python file called ``th_`` +
        ``tableFileName``: in this example the file is called ``th_registry``
        
@@ -89,15 +80,12 @@ first steps
     .. image:: ../images/th/th.png
     
     Pay attention that for every tableHandler you want to create, you have to repeat
-    the point 3 and 4 of the previous list.
-    
-    Example: if you have three tables called ``registry.py``, ``staff.py`` and ``auth.py``,
-    you have to create three folders into the ``tables`` folder with a ``th_`` file in each
-    folder:
+    the point 3 and 4 of the previous list; for example, if you have three tables called
+    ``registry.py``, ``staff.py`` and ``auth.py``, you have to create three folders into the
+    ``tables`` folder with a ``th_`` file in each folder, as you can see in the following
+    image:
     
     .. image:: ../images/th/th2.png
-    
-    In the next section we check the code inside a ``th_table``
     
 .. _th_table:
 
@@ -109,12 +97,20 @@ th_table
     The first line will be::
     
         from gnr.web.gnrbaseclasses import BaseComponent
-        
-    because the View and the Form classes are derived classes of the ``BaseComponent`` class.
-        
-    We introduce now the ``View`` class. The ``View`` class is used to let the user visualize
-    some fields of its saved records. You don't have to insert ALL the fields of your table,
-    but only the fields that you want that user could see in the View.
+    
+    .. module:: gnr.web.gnrbaseclasses
+    
+    because the View and the Form classes are derived classes of the :class:`BaseComponent`
+    class.
+    
+.. _th_view_class:
+
+View class
+----------
+    
+    The ``View`` class is used to let the user visualize some fields of its saved records.
+    You don't have to insert ALL the fields of your table, but only the fields that you want
+    that user could see in the View.
     
     The first three lines define:
     
@@ -133,19 +129,37 @@ th_table
         r.fieldcell('surname', width='12em')
         r.fieldcell('email', width='15em')
         
-    where ``name``, ``surname`` and ``email`` are three rows of your :ref:`packages_model`.
+    where ``name``, ``surname`` and ``email`` are three rows of your :ref:`genro_table`.
     
-    The main methods you have to insert now are the ``th_order`` and the ``th_query``::
+    The main methods you have to insert now are the :ref:`th_order` and the :ref:`th_query`.
+    
+.. _th_order:
+
+th_order
+--------
+    
+    A method of the :ref:`th_view_class`.
+    
+    ::
     
         def th_order(self):
             return 'surname'
             
-        def th_query(self):
-            return dict(column='surname', op='contains', val='', runOnStart=True)
-            
     The ``th_order`` returns a field of your table, and orders the View class
     alphabetically in relation to the field you wrote.
     
+.. _th_query:
+
+th_query
+--------
+
+    A method of the :ref:`th_view_class`.
+    
+    ::
+    
+        def th_query(self):
+            return dict(column='surname', op='contains', val='', runOnStart=True)
+            
     The ``th_query`` defines the standard query of your page. In particular:
     
     * the ``column`` attribute includes the field of your table through which will be done
@@ -154,21 +168,25 @@ th_table
     * the ``val`` attribute is the string to be queried
     * the ``runOnStart=True`` (by default is ``False``) allow to start a query on page loading
       (if you don't write it user have to click the query button to make the query start)
-      
-    Now we will introduce the Form class. The first two lines define the class and the method::
+    
+.. _th_form_class:
+
+Form class
+----------
+    
+    The first two lines define the class and the method::
     
         class Form(BaseComponent):
             def th_form(self, form):
             
-    At this point usually you will write a short but very dense row::
+    Now write the following line::
     
         pane = form.record
         
-    We'll come back later on this one (in the :ref:`th_map` section). For now just know that
-    you are focusing the path of your data in the "right" place.
+    (We'll come back later on this one - in the :ref:`th_map` section. For now just know that
+    you are focusing the path of your data in the *correct* place)
     
-    After that, you have to create your :ref:`genro_form_index`. The first line is the
-    :ref:`genro_formbuilder` definition::
+    The next line can be the :ref:`genro_formbuilder` definition [#]_::
     
         fb = pane.formbuilder(cols=2,border_spacing='2px')
         
@@ -184,71 +202,95 @@ th_table
         
     .. _th_map:
 
-map
-===
+tableHandler paths
+==================
 
-    In this image we map the structure of the th inner paths:
+    In this section you will learn about the path structure of the tableHandler:
     
     .. image:: ../images/th/th_map.png
     
-    **th**: at the ``th`` level, the path of the data is::
+    Let's see the features of this hierarchy:
     
-        .packageName_tableName
+    * **th**: the main level of the tableHandler. Nested to it there are the *form* level
+      and the *view* level, that handle respectively the path of the data of the
+      :ref:`th_form_class` and :ref:`th_view_class`.
+      
+      .. warning:: This is very important. At the ``th`` level, the path of the data is::
+      
+                      .packageName_tableName
+                      
+                   where ``packageName`` is the name of your package and ``tableName`` is
+                   the name of your :ref:`genro_table`. (The dot (``.``) before the
+                   ``packageName`` specifies that the path is relative [#]_).
+                   You are HERE, so if you need to interact with other levels, remember
+                   that your root is ``.packageName_tableName``
+      
+      In our example, the package name is called ``base`` and the table is ``registry.py``,
+      so the path will be ``.base_registry``.
+      
+    * **form**: this level handles all the data of the :ref:`th_form_class`.
+      
+      At the ``th/form`` level, the path of the data is::
+      
+          .packageName_tableName.form
+          
+      The inner paths of the ``form`` level are built in complete analogy with
+      the structure of a Dojo :ref:`genro_bordercontainer`, so the level is
+      divided into five regions:
+      
+      * ``top``
+      * ``bottom``
+      * ``left``
+      * ``right``
+      * ``center``
+      
+      where:
+      
+      * The ``top`` level includes the title of the view page [#]_ and the :ref:`genro_workdate`.
         
-    The dot (``.``) specify that the path is relative (you can find more information on
-    absolute and relative path in the :ref:`genro_datapath` documentation page).
-    
-    In our example, the package name is ``base`` and the table is (for example) ``registry``,
-    so the path will be ``.base_registry``.
-    
-    **form**: at the ``th/form`` level, the path of the data is::
-    
-        .packageName_tableName.form
+        The ``top`` level has a ``bar`` sublevel: this sublevel contains some query tools
+        and some buttons to add or delete records.
         
-    In our example the path will be ``.base_registry.form``.
-    
-    Inside form, you find five regions:
-    
-    * ``top``
-    * ``bottom``
-    * ``left``
-    * ``right``
-    * ``center``
-    
-    The ``top`` and ``bottom`` level have an additional ``bar`` level that handle
-    the top bar and the bottom bar.
-    
-    The ``center`` level is very important, and we come back later to it, in the
-    :ref:`th_form_uses` section.
-    
-    **record**: at the ``th/form/record`` level, the path of the data is::
+      * The ``bottom`` level is used to give to user messages (e.g: for right save).
+        
+        and ``bottom`` level have an additional ``bar``
+        level that handle the top bar and the bottom bar.
+        
+      * The ``left`` level allows the user to perform some useful action (e.g: to configurate
+        user view; e.g: to export query results in a ``.xls`` file).
+        
+      * The ``right`` level is (currently) empty.
+        
+      * The ``center`` level is used to create more complex structure inside your page.
+        We'll come back later to it, in the :ref:`th_form_uses` section.
+      
+    * **record**: at the ``th/form/record`` level, the path of the data is::
     
         .packageName_tableName.form.record
         
-    At this path level lie the data of records.
-    
-    In our example the path will be ``.base_registry.form.record``.
-    
-    Now you can understand the line we wrote in the previous section (:ref:`th_table`)
-    inside the Form method::
-    
-        pane = form.record
-        
-    The rule is:
-    
-    .. note:: when you have to interact with data you have to go to the ``form.record`` path
-        
-    In the :ref:`th_form_uses` section we explain to you when you have to use the ``form`` path
-    (without arriving to the ``record`` path).
+      At this path level lie the data of records.
+      
+      In our example the path will be ``.base_registry.form.record``.
+      
+      .. warning:: now you can understand the line we wrote in the previous
+                   section (:ref:`th_table`) inside the Form method::
+                   
+                    pane = form.record
+                    
+                   Remember that when you have to interact with data you have to go
+                   to the ``form.record`` path.
+      
+    * **view**: add???
+    * **grid**: add???
     
 .. _th_page:
 
 th_page
 =======
 
-    When you build some complex tables, you may need to use both a th_table (section
-    :ref:`th_table`) and a th_page. The th_page is a :ref:`webpages_GnrCustomWebPage`
-    that allows you to create a much complex ``Form`` class.
+    When you build some complex tables, you may need to use both a :ref:`th_table` and a
+    th_page. The th_page is a :ref:`webpages_GnrCustomWebPage` that allows you to create
+    a much complex ``Form`` class.
     
     .. note:: please call your webpages with the suffix ``_page``. This is a convention
               to keep order in your project (e.g: ``staff_page.py``)
@@ -261,21 +303,19 @@ th_page
             def th_form(self, form):
                 pass
                 
-    because you handle it in the th_page.
+    because you will handle the View class in the th_page.
     
-    To create your th_page, you have to instantiate a :ref:`webpages_GnrCustomWebPage`::
+    To create your th_page, you have to write::
     
         class GnrCustomWebPage(object):
         
-    Then you ahve to specify the :ref:`genro_table` to which this page refers to::
+    Then you have to specify the :ref:`genro_table` to which this page refers to::
     
         maintable = 'packageName.tableName'
         
     In our example, the package name is ``base`` and the table name is ``registry``, so
-    the maintable looks like::
+    the maintable looks like ``maintable = 'base.registry'``
     
-        maintable = 'base.registry'
-        
     Then you have to define the correct :ref:`webpages_py_requires`::
     
         py_requires = 'public:TableHandlerMain'
@@ -326,7 +366,7 @@ th_page
         
     If you need more information on this line, please check the :ref:`th_map` section.
     
-    After that, you have to create your :ref:`genro_form_index`. The first line is the
+    After that, you have to create your :ref:`genro_form`. The first line is the
     :ref:`genro_formbuilder` definition::
     
         fb = pane.formbuilder(cols=2,border_spacing='2px')
@@ -368,11 +408,11 @@ th_page
         top.div('!!Record di anagrafica',_class='pbl_roundedGroupLabel')
         fb = top.formbuilder(dbtable='sw_base.anagrafica',margin_left='10px',margin_top='1em',
                              width='370px',datapath='.@anagrafica_id',cols=2)
-                
-    .. _th_methods:
+                             
+    .. _th_iv_methods:
 
-th methods
-==========
+includedView methods
+====================
 
     In this section we explain all the methods of the ``th`` class.
     
@@ -493,30 +533,9 @@ th_stackTableHandler
     * *default_kwargs*: add???. Default value is ``None``
     * *readOnly*: add???. Default value is ``False``
     
-.. _th_old_new:
-
-convert your project into the new mode
-======================================
-
-    .. warning:: completely to do!! (add???)
-    
-    This section wants to explain what modifies you have to do to pass from the old mode
-    to the new one.
-    
-.. _old_new_index:
-
-index
------
-
-    add???
-
-.. _old_new_resources:
-    
-resources
----------
-
-    if you have some ``_resources`` folders in your webpages, please move them into add???
-    
 **Footnotes**:
 
 .. [#] The :ref:`genro_standardtable_index` is the the most known name of the component that handled tableHandler until now.
+.. [#] The :ref:`genro_formbuilder` allows to create in a simple way a :ref:`genro_form`. Follow the links for more informations.
+.. [#] For more information on absolute and relative paths, check the :ref:`genro_datapath` documentation page.
+.. [#] The title of the view page is taken from the :ref:`genro_name_long` of the :ref:`genro_table` to which the current webpage refers to.

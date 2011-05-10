@@ -4,3 +4,5 @@ genro.wpr
 
 *.pyc
 /projects/agenda/sites/agenda/data/
+_connections
+automap.xml

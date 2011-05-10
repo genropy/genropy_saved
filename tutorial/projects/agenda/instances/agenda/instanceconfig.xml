@@ -1,12 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <GenRoBag>
     <packages>
-        <gnrcore:adm />
-        <devlang:devlang />
-        <glbl />
-        <sw_base />
         <agenda />
-        <test15 />
+        <gnrcore:adm />
+        <gnrcore:sys />
+        <gnrcore:test15 />
+        <devlang:devlang />
+        <gnr_it:glbl />
+        <sw_base /> <!-- add??? sw_base ancora da importare con GIT... intanto sto usando il vecchio sw_base di SVN -->
     </packages>
     <db dbname="agenda" /db>
     <authentication pkg="agenda">
