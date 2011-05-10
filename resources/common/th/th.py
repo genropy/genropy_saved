@@ -161,8 +161,7 @@ class TableHandler(BaseComponent):
         top.attributes.update(_class='pbl_roundedGroupLabel')
         linkerpath = '#FORM.linkers.%s' %frameCode
         top = top.stackContainer(datapath=linkerpath)
-        top.dataController('console.log(pkey);sc.widget.switchPage(pkey?0:1);',
-                        pkey='^#FORM.record.%s' %field,sc=top)
+        top.dataController('sc.widget.switchPage(pkey?0:1);',pkey='^#FORM.record.%s' %field,sc=top)
         readBar = top.contentPane(childname='read').slotBar('label,*,write',label=label)
         readBar.write.slotButton('!!Write',iconClass='icnBaseWrite',showLabel=False,baseClass='no_background',
                                     action='sc.widget.switchPage(1)',sc=top)
