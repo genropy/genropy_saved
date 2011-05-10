@@ -14,7 +14,7 @@ introduction
     * :ref:`genro_html` - standard HTML elements
     * :ref:`genro_css` - standard CSS elements
     * :ref:`genro_form_widgets_index` - The primary UI
-    * :ref:`genro_form_index`\s - the standard way to let the user enter data
+    * :ref:`genro_form`\s - the standard way to let the user enter data
     * :ref:`genro_data` *elements* - used to define variables from server to client
     * :ref:`genro_dataremote` *elements* - synchronous rpc
     * :ref:`genro_datacontroller_index` - receive input and initiate a response by making calls on model objects

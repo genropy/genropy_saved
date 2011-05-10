@@ -31,7 +31,7 @@ sides
     
     Every *side* can be highly customized with regard to the look and with regard to its tools.
     
-    You can add a framePane to a :ref:`genro_paletteadd???`
+    You can add a framePane to a ``:ref:`genro_palette` add???``
     
 .. _frame_attributes:
 

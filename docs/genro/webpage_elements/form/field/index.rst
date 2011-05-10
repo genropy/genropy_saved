@@ -15,8 +15,7 @@ Definition
 ==========
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.field
-        
-
+    
 .. _field_description:
 
 Description

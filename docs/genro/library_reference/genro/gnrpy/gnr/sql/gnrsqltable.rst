@@ -18,14 +18,14 @@
     
 * :ref:`gnrsqltable_classes`
 
-.. _genro_sqltable:
+.. _gnrsqltable_sqltable:
 
 :class:`SqlTable`
 =================
 
     .. module:: gnr.sql.gnrsqltable.SqlTable
     
-    The Genro :ref:`genro_sqltable` has a consistent number of methods. They are listed here in alphabetical order.
+    This class has a consistent number of methods. They are listed here in alphabetical order.
     
     ========================= ============================== ============================= ===========================
     :meth:`attributes`        :meth:`delete`                 :meth:`insertOrUpdate`        :meth:`relationExplorer`   

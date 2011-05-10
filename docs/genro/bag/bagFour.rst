@@ -60,7 +60,7 @@ Resolver Example 1: the TimeResolver
                 
     If you define a BagResolver subclass it requires the reimplementation of the ``__call__()`` function.
     
-    We can now set a TimeResolver instance:
+    We can set now a TimeResolver instance:
     
     >>> mybag = Bag()
     >>> mybag['now'] = TimeResolver()

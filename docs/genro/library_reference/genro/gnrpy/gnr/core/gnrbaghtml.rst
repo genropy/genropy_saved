@@ -4,7 +4,7 @@
 
 * Index of ``gnr.core.gnrbaghtml`` classes:
 
-    * :ref:`gnrcore_gnrbaghtml`
+    * :ref:`gnrcore_bagtohtml`
 
 * :ref:`gnrbaghtml_classes`
 
