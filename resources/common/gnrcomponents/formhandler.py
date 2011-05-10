@@ -236,13 +236,17 @@ class FormHandler(BaseComponent):
         fieldbox = bar.fieldbox.div(connect_onclick="""if(this.form.locked){
                                                             return;
                                                         } 
-                                                        genro.dom.addClass(this,"fh_enableLinkerBox");""",
+                                                        genro.dom.addClass(this,"fh_enableLinkerBox");
+                                                        var that = this;
+                                                        setTimeout(function(){
+                                                            linkernode = that.nodeById('/linker')widget.focus();
+                                                        })""",
                                                         _class='fh_linkerBox',
                                 selfsubscribe_disable='genro.dom.removeClass(this,"fh_enableLinkerBox")',
                                 rounded=8,tooltip='!!Link form to an existing %s' %tblobj.name_long.replace('!!',''),
                                 visible='^#FORM.record?_newrecord')
-        fieldbox.field('%s.%s' %(table,field),datapath='#FORM.record',validate_onAccept='this.getParentNode().publish("disable");',
-                connect_onBlur='console.log("xxx");this.getParentNode().publish("disable");',
+        fieldbox.field('%s.%s' %(table,field),childname='linker',datapath='#FORM.record',
+                connect_onBlur='this.getParentNode().publish("disable");',
                 _class='fh_linkerBoxField',background='white',**kwargs)
 
     

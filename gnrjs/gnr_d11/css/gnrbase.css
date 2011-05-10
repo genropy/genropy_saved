@@ -1911,7 +1911,7 @@ textarea:disabled {
     padding-left:15px;
     padding-right:10px;
     height:14px;
-	background: whitesmoke url(icons/base12/linker.png) no-repeat 3px center;
+	background: transparent url(icons/base12/linker.png) no-repeat 3px center;
 	cursor:pointer;
     opacity:.7;
 
