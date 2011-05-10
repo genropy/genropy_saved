@@ -233,7 +233,11 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dragDropConnect();
         genro.standardEventConnection();
         if(genro.isDeveloper){
+            genro.dom.addClass(dojo.body(),'isDeveloper');
             genro.dev.inspectConnect();
+        }
+        if(this.startArgs.workInProgress){
+            genro.dom.addClass(dojo.body(),'workInProgress');
         }
         
         var _this = this;

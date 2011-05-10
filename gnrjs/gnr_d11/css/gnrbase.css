@@ -1,3 +1,12 @@
+body.workInProgress{
+    border-left:2px solid red;
+}
+
+.workInProgress #mainWindow{
+	background: red;
+}
+
+
 .detatched_placeholder {
     background: gray url(icons/base128/no_entry.png) center center no-repeat;
     height: 100%;

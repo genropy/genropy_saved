@@ -76,12 +76,14 @@ class Mixin(BaseComponent):
 
     def prepareBottom(self,pane):
         pane.attributes.update(dict(overflow='hidden',background='silver',height='18px'))
-        sb = pane.slotBar('5,appName,*,user,logout,5',_class='framefooter',margin_top='1px')
+        sb = pane.slotBar('5,appName,*,frameurl,*,user,logout,5',_class='framefooter',margin_top='1px')
         appPref = sb.appName.div('^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
                                 connect_onclick='PUBLISH app_preference',zoomUrl='adm/app_preference',pkey='Application preference')
         userPref = sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',
                             connect_onclick='PUBLISH user_preference',zoomUrl='adm/user_preference',pkey='User preference')
         sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px')
+        sb.frameurl.div().a(innerHTML='==_iframes?_iframes.getNode(_selectedFrame).attr.url:"";',_tags='_DEV_',href='==_iframes?_iframes.getNode(_selectedFrame).attr.url:"";'
+                                ,_iframes='=iframes',_selectedFrame='^selectedFrame')
         
         appPref.dataController("""genro.dlg.zoomPalette(pane,null,{top:'10px',left:'10px',
                                                         title:preftitle,height:'450px', width:'800px',
@@ -129,7 +131,7 @@ class Mixin(BaseComponent):
         if self.index_url:
             sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')
         page.dataController("""
-            setTimeout(function(){frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource,fullpath)},1);
+            setTimeout(function(){frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource,fullpath,workInProgress)},1);
         """,subscribe__menutree__selected=True,sc=sc)
         
     def prepareLeft(self,pane):

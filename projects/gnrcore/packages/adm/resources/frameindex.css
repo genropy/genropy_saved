@@ -1,3 +1,12 @@
+.isDeveloper .thpage{
+    border:1px solid yellow;
+}
+
+.isDeveloper .workInProgress{
+    border-left:3px solid red;
+}
+
+
 .button_block  div{
     width: 30px;
     height: 20px;

@@ -1,5 +1,5 @@
 var frameIndex = {
-    selectIframePage:function(sourceNode,name,label,file,table,formResource,viewResource,fullpath){
+    selectIframePage:function(sourceNode,name,label,file,table,formResource,viewResource,fullpath,workInProgress){
         var sc = sourceNode.getValue();
         var page = sc.getItem(name);
         if (page){
@@ -9,7 +9,6 @@ var frameIndex = {
              var root = genro.src.newRoot();
              var bc = root._('BorderContainer',name,{pageName:name,title:label});
              var center = bc._('ContentPane',{'region':'center','overflow':'hidden'});
-             sourceNode.setRelativeData('iframes.'+name,null,{'fullname':label,pageName:name,fullpath:fullpath});
              var iframe = center._('iframe',{'height':'100%','width':'100%','border':0,'id':'iframe_'+name});
              url = file;
              var urlPars = {inframe:true};
@@ -22,10 +21,15 @@ var frameIndex = {
                     urlPars['th_viewResource'] = viewResource;
                 }
              }
+             if(workInProgress){
+                 urlPars.workInProgress = true;
+             }
              url = genro.addParamsToUrl(url,urlPars);
              var node = root.popNode('#0');
              sc.setItem(node.label,node);
+             sourceNode.setRelativeData('iframes.'+name,null,{'fullname':label,pageName:name,fullpath:fullpath,url:url});
              sourceNode.setRelativeData('selectedFrame',name);
+             
              setTimeout(function(){iframe.getParentNode().domNode.src = url;},1);
         }
     },
