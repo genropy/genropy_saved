@@ -1913,9 +1913,11 @@ textarea:disabled {
     height:14px;
 	background: whitesmoke url(icons/base12/linker.png) no-repeat 3px center;
 	cursor:pointer;
+    opacity:.7;
+
 }
 .fh_linkerBox:hover{
-    opacity:.8;
+    opacity:1;
 }
 .fh_bottom_message{
     height: 16px;
