@@ -200,12 +200,12 @@ class TableHandler(BaseComponent):
 
         
     @struct_method
-    def th_thIframe(self,pane,method=None,**kwargs):
+    def th_thIframe(self,pane,method=None,src=None,**kwargs):
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
         pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
         box = pane.div(_class='detacher',z_index=30)
         kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
-        iframe = box.iframe(main='th_iframedispatcher',main_methodname=method,main_pkey='=#FORM.pkey',**kwargs)
+        iframe = box.iframe(main='th_iframedispatcher',main_methodname=method,main_pkey='=#FORM.pkey',src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
         return iframe
          
