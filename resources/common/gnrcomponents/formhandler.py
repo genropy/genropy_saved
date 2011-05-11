@@ -228,7 +228,7 @@ class FormHandler(BaseComponent):
                     **kwargs)
 
     @struct_method          
-    def fh_linkerLabel(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',**kwargs):
+    def fh_linkerLabel(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs):
         table = table or pane.getInheritedAttributes()['table'] or self.maintable
         tblobj = self.db.table(table).column(field).relatedColumn().table
         label = label or tblobj.column.name_long
@@ -236,29 +236,19 @@ class FormHandler(BaseComponent):
         fieldbox = bar.fieldbox.div(connect_onclick="""if(this.form.locked){
                                                             return;
                                                         } 
-                                                        genro.dom.addClass(this,"fh_enableLinkerBox");""",
+                                                        genro.dom.addClass(this,"fh_enableLinkerBox");
+                                                        var that = this;
+                                                        setTimeout(function(){
+                                                            linkernode = that.nodeById('/linker').widget.focus();
+                                                        })""",
                                                         _class='fh_linkerBox',
                                 selfsubscribe_disable='genro.dom.removeClass(this,"fh_enableLinkerBox")',
                                 rounded=8,tooltip='!!Link form to an existing %s' %tblobj.name_long.replace('!!',''),
-                                visible='^#FORM.record?_newrecord')
-        fieldbox.field('%s.%s' %(table,field),datapath='#FORM.record',validate_onAccept='this.getParentNode().publish("disable");',
+                                )
+        if newRecordOnly:
+            fieldbox.attributes.update(visible='^#FORM.record?_newrecord')
+        fieldbox.field('%s.%s' %(table,field),childname='linker',datapath='#FORM.record',
+                connect_onBlur='this.getParentNode().publish("disable");',
                 _class='fh_linkerBoxField',background='white',**kwargs)
-
-    
-    @struct_method          
-    def fh_linkerLabel_old(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',**kwargs):
-        table = table or pane.getInheritedAttributes()['table'] or self.maintable
-        tblobj = self.db.table(table)
-        label = label or tblobj.column.name_long
-        pane.attributes.update(_class=_class,overflow='hidden')
-        sc = pane.stackContainer()
-        b0 = sc.contentPane().slotBar('label,*,btn',label=label)
-        b0.btn.slotButton(label='!!Show linker',iconClass='icnBaseLens',
-                                baseClass='no_background',action='sc.widget.switchPage(1);',sc=sc)
-        b1 = sc.contentPane(datapath='#FORM.record').slotBar('label,*,fieldbox,3,cancelbtn',label=label)
-        fb = b1.fieldbox.field('%s.%s' %(table,field),**kwargs)
-        sc.dataController('sc.widget.switchPage(0);',v='^.%s' %field,sc=sc)
-        b1.cancelbtn.slotButton('!!Cancel',iconClass='icnTabClose',showLabel=False,baseClass='no_background',
-                                action='sc.widget.switchPage(0);',sc=sc)  
 
         
