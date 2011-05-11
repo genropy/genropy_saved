@@ -963,15 +963,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             value = this.getAttributeFromDatasource(attr, true);
         }
         value = (value != null) ? value : '';
-        if(this._formulaAttributes){
-            for(var formulaAttribute in this._formulaAttributes){
-                if(this._formulaAttributes[formulaAttribute].indexOf(attr)>=0){
-                    console.log('formulaAttribute',formulaAttribute,this._formulaAttributes[formulaAttribute],'attr',attr);
-                    attr = formulaAttribute;
-                    break;
-                }
-            }
-        }
+       //if(this._formulaAttributes){
+       //    for(var formulaAttribute in this._formulaAttributes){
+       //        if(this._formulaAttributes[formulaAttribute].indexOf(attr)>=0){
+       //            console.log('formulaAttribute',formulaAttribute,this._formulaAttributes[formulaAttribute],'attr',attr);
+       //            attr = formulaAttribute;
+       //            break;
+       //        }
+       //    }
+       //}
         if(attr_lower=='disabled'){
             return this.setDisabled(value)
         }
