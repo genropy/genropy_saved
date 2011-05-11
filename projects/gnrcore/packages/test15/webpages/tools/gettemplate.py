@@ -31,7 +31,13 @@ class GnrCustomWebPage(object):
                              </div><div>$nome</div> $pippo""",datasource='^.record',pippo='^.pippo')
     
     def test_3_firsttest(self,pane):
-        pane.numberTextbox(value='^.width')
-        pane.textbox(value='^.pippo',width='==_width+_uu+"px";',_width='^.width',_uu=66,
+        fb = pane.formbuilder(cols=1)
+        fb.numberTextbox(value='^.width')
+        fb.textbox(value='^.pippo',width='==_width+_uu+"px";',_width='^.width',_uu=66,
                      onCreated='console.log("bazinga");')
+        fb.checkbox(value='^.prova',lbl='disabled')
+        fb.textbox(disabled='^.prova')
+        fb.textbox(value='^.dis')
+        fb.textbox(value='^.xxx',disabled='==_prova=="disabled";',_prova='^.dis',onCreated='console.log("bazinga");')
+        
 

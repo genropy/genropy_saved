@@ -956,22 +956,23 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     //},
     updateAttrBuiltObj:function(attr, kw, trigger_reason) {
         var attr = attr || 'value';
-        var attr_lower = attr.toLowerCase();
         var path;
         var value = null;
-        if (!(kw.evt == 'ins' || kw.evt == 'del')) {
-            value = this.getAttributeFromDatasource(attr, true);
-        }
-        value = (value != null) ? value : '';
         if(this._formulaAttributes){
             for(var formulaAttribute in this._formulaAttributes){
                 if(this._formulaAttributes[formulaAttribute].indexOf(attr)>=0){
                     console.log('formulaAttribute',formulaAttribute,this._formulaAttributes[formulaAttribute],'attr',attr);
                     attr = formulaAttribute;
+                    
                     break;
                 }
             }
         }
+        var attr_lower = attr.toLowerCase();
+        if (!(kw.evt == 'ins' || kw.evt == 'del')) {
+            value = this.getAttributeFromDatasource(attr, true);
+        }
+        value = (value != null) ? value : '';
         if(attr_lower=='disabled'){
             return this.setDisabled(value)
         }
