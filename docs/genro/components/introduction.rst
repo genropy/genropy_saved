@@ -46,7 +46,7 @@ Components location
     
     BUT, if you place your component in a ``_resources`` folder, it can be used only in the specific
     package that contains the ``_resources`` folder. For more information, check the
-    :ref:`genro_webpage_resources` documentation page.
+    :ref:`genro_resources_index` documentation page.
     
 .. _components_requirements:
 

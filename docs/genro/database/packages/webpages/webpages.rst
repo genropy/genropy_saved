@@ -121,7 +121,7 @@ py_requires
               * For more information about components check the :ref:`genro_components_index`
                 documentation page
               * For more information about their location in a Genro :ref:`genro_project`,
-                please check the :ref:`genro_webpage_resources` documentation page.
+                please check the :ref:`genro_resources_index` documentation page.
             
     .. _webpages_css_requires:
 
@@ -136,13 +136,12 @@ css_requires
         
     This line implies that you have created a CSS file called ``my_style.css``
         
-    .. note:: The CSS files you want to use must be placed into a folder named "``resources``"
-              (or "``_resources``")
+    .. note:: The CSS files you want to use must be placed into your "``resources``" folder
               
               * For more information about Genro CSS, please check the :ref:`genro_css`
                 documentation page.
               * For more information about their location in a Genro :ref:`genro_project`,
-                please check the :ref:`genro_webpage_resources` documentation page.
+                please check the :ref:`genro_resources_index` documentation page.
                 
     .. _webpages_css_theme:
 
@@ -214,11 +213,10 @@ js_requires
         
     This line implies that you have created a js file called ``wizard.js``
         
-    .. note:: The js files you want to use must be placed into a folder named "``resources``"
-              (or "``_resources``")
+    .. note:: The js files you want to use must be placed into your "``resources``" folder
               
               * For more information about Genro js and their location in Genro, please check
-                the :ref:`genro_webpage_resources` documentation page.
+                the :ref:`genro_resources_index` documentation page.
                 
     .. _webpages_pageOptions:
 

@@ -11,7 +11,7 @@ Documents to revise
     ../commons/index
     ../datastore/index
     fine_syntax
-    grid/index
+    grid
     languages
     logging
     print

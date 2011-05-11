@@ -89,7 +89,7 @@ Basic structure
           * a :ref:`packages_menu` file
           * a :ref:`packages_model` folder
           * a :ref:`packages_webpages` folder
-              * :ref:`genro_webpage_resources` folder
+              * :ref:`genro_resources_index` folder
               * one or more :ref:`webpages_webpages`\s
                     
         * :ref:`genro_resources_index` folder (for all your project resources)

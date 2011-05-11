@@ -34,7 +34,7 @@ public and private resources
     * the :ref:`genro_resources_index` folder
     * the :ref:`genro_sites_index` folder
     
-    If you define your resources into the ``resources`` folder, your resources will be
+    addd???CHANGE!!! If you define your resources into the ``resources`` folder, your resources will be
     *public*, but if you define them into the ``_resources`` folder (you have to create
     it into your ``packages/webpages`` folder) your resources will be *private*:
     
@@ -59,7 +59,7 @@ public and private resources
                please check the following section: :ref:`webpages_css_requires`,
                :ref:`webpages_js_requires`, :ref:`webpages_py_requires`.
                
-.. _genro_webpage_resources:
+.. _genro_resources_index:
 
 ``_resources``
 ==============

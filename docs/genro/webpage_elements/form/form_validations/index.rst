@@ -62,6 +62,44 @@ validate_call
     ::
     
         validate_call = """Javascript code..."""
+        
+    Allow to write some javascript code. The only obligation is that your code has
+    to return a boolean value (`true` or `false`). If `true`, then the validation
+    is satisfied; if `false`, then the validation is not satisfied and the form
+    can't be saved.
+    
+    You can write js directly inside the validation, or you can put a name of a js
+    function defined in a ``.js`` file kept into your :ref:`genro_resources_index`
+    folder.
+    
+    Example:
+    
+    In your webpage you will write::
+    
+        fb.field('fiscal_code',
+                  validate_call="""return anag_methods.checkFiscalCode(value,nation);""")
+                  
+    where:
+    
+    * ``anag_methods`` is the name of a javascript variable defined in a js file called
+      (for example!) ``my_functions.js``
+      
+    * ``checkFiscalCode`` is the name of a js function defined in the same file.
+    
+    In your ``my_functions.js`` you will have::
+    
+        var anag_methods={
+            
+            checkFiscalCode:function(value, nation){
+                if(value=='') return true;
+                # ...
+                # other lines of the function
+            },
+        
+        # ... The .js file continue...
+        
+    Remember to use the :ref:`webpages_js_requires` to specify your js file that you use
+    in your :ref:`webpages_webpages`.
     
 .. _validate_dbselect:
     
@@ -95,11 +133,9 @@ validate_email
 validate_empty
 --------------
     
-    ::
+    .. deprecated:: 0.7
     
-        validate_empty = True
-        
-    add???
+    .. warning:: This validation has been substituted by :ref:`validate_notnull`.
     
 .. _validate_exist:
     
@@ -110,7 +146,8 @@ validate_exist
     
         validate_exist = True
         
-    add???
+    If ``True``, user can't save the form if the value inserted by him is not
+    already in the database.
     
 .. _validate_gridnodup:
     
@@ -121,7 +158,10 @@ validate_gridnodup
     
         validate_gridnodup = True
         
-    add???
+    .. note:: it can be used only inside a :ref:`genro_grid`.
+    
+    Check if users insert a field that is already saved in the database, and validate
+    the form if and only if the string is NOT being already saved.
     
 .. _validate_len:
     
@@ -171,7 +211,8 @@ validate_nodup
     
         validate_nodup = True
         
-    add???
+    Check if users insert a field that is already saved in the database, and validate
+    the form if and only if the string is NOT being already saved.
     
 .. _validate_notnull:
     
@@ -244,7 +285,7 @@ suffixes to validations
       section (like :ref:`validate_email`, :ref:`validate_regex`)
     * ``validationAttribute`` is one of the following validations:
     
-        * *error*: Allow to warn user of his uncorrect typing (through a tooltip); user can't save the form::
+        * *error*: Allow to warn user of his uncorrect typing (through a tooltip); user can't save the form.
           
           Example::
           
