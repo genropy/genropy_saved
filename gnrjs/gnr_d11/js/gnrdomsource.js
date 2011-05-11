@@ -437,6 +437,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (typeof(value) == 'string') {
             if (this.isPointerPath(value)) {
                 if (value.indexOf('==') == 0) {
+                    
                     var argNames = [];
                     var argValues = [];
                     for (var attr in this.attr) {
@@ -640,6 +641,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
                 if (returnCurrentValues) {
                     attributes[attr] = this.getAttributeFromDatasource(attr);
+                }
+                if(attrvalue.indexOf('==')==0){
+                    this._formulaAttributes = this._formulaAttributes || {};
+                    this._formulaAttributes[attr] = attrvalue.slice(2);
                 }
             }
         }
@@ -958,6 +963,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             value = this.getAttributeFromDatasource(attr, true);
         }
         value = (value != null) ? value : '';
+        if(this._formulaAttributes){
+            for(var formulaAttribute in this._formulaAttributes){
+                if(this._formulaAttributes[formulaAttribute].indexOf(attr)>=0){
+                    console.log('formulaAttribute',formulaAttribute,this._formulaAttributes[formulaAttribute],'attr',attr);
+                    attr = formulaAttribute;
+                    break;
+                }
+            }
+        }
         if(attr_lower=='disabled'){
             return this.setDisabled(value)
         }
@@ -1050,7 +1064,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                             formHandler.validateFromDatasource(this, value, trigger_reason);
                         }
                     }
-                } else {
+                } 
+                else if (genro.dom.isStyleAttr(attr)) {
+                    this.widget.domNode.setAttribute('style',objectAsStyle(genro.dom.getStyleDict(this.currentAttributes())));
+                }
+                
+                
+                else {
                     this.rebuild();
                 }
             }
@@ -1074,7 +1094,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     //genro.debug('unable to use datasource for node:'+this.getFullpath());
                 }
             }
-            else if (attr == 'datasource') {
+            else if (('template' in this.attr)&&((attr == 'datasource')||(this.attr.template.indexOf('$'+attr)>=0))) {
                 domnode.innerHTML = dataTemplate(this.attr.template, this, this.attr.datasource);
             }
             else if (attr == 'innerHTML') {
@@ -1300,7 +1320,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     _destroy: function() {
         this.getParentBag().delItem(this.label);
+    },
+    getChild:function(childpath){
+        return this._value.getChild(childpath);
     }
+
 });
 
 dojo.declare("gnr.GnrStructData", gnr.GnrBag, {

@@ -485,7 +485,11 @@ class TableHandlerMain(BaseComponent):
     def rpc_view(self,root,**kwargs):
         pass
 
-
+    @struct_method          
+    def th_linkerLabel(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs):
+        bar = pane.slotBar('label,*,linkerslot,5',label=label,_class=_class)
+        bar.linkerslot.linker(field=field,newRecordOnly=newRecordOnly,**kwargs)
+    
 
 #OLD STUFF TO REMOVE
 class ThermoDialog(BaseComponent):

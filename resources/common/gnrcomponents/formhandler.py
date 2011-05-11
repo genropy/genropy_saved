@@ -226,29 +226,4 @@ class FormHandler(BaseComponent):
                     formsubscribe_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""",
                     **kwargs)
-
-    @struct_method          
-    def fh_linkerLabel(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs):
-        table = table or pane.getInheritedAttributes()['table'] or self.maintable
-        tblobj = self.db.table(table).column(field).relatedColumn().table
-        label = label or tblobj.column.name_long
-        bar = pane.slotBar('label,*,fieldbox,5',label=label,_class=_class)
-        fieldbox = bar.fieldbox.div(connect_onclick="""if(this.form.locked){
-                                                            return;
-                                                        } 
-                                                        genro.dom.addClass(this,"fh_enableLinkerBox");
-                                                        var that = this;
-                                                        setTimeout(function(){
-                                                            linkernode = that.nodeById('/linker').widget.focus();
-                                                        })""",
-                                                        _class='fh_linkerBox',
-                                selfsubscribe_disable='genro.dom.removeClass(this,"fh_enableLinkerBox")',
-                                rounded=8,tooltip='!!Link form to an existing %s' %tblobj.name_long.replace('!!',''),
-                                )
-        if newRecordOnly:
-            fieldbox.attributes.update(visible='^#FORM.record?_newrecord')
-        fieldbox.field('%s.%s' %(table,field),childname='linker',datapath='#FORM.record',
-                connect_onBlur='this.getParentNode().publish("disable");',
-                _class='fh_linkerBoxField',background='white',**kwargs)
-
         
