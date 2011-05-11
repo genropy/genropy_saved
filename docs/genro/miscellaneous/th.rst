@@ -481,6 +481,8 @@ th_dialogTableHandler
     * *default_kwargs*: add???. Default value is ``None``
     * *readOnly*: add???. Default value is ``False``
     
+    MANDATORY: dialog_height='100px' e dialog_width='300px'
+    
 .. _th_palette:
 
 th_paletteTableHandler
@@ -502,6 +504,8 @@ th_paletteTableHandler
     * *reloader*: add???. Default value is ``None``
     * *default_kwargs*: add???. Default value is ``None``
     * *readOnly*: add???. Default value is ``False``
+    
+    MANDATORY: palette_width='300px',palette_height='200px'
     
 .. _th_plain:
 

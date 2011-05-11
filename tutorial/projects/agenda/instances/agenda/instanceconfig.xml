@@ -4,10 +4,11 @@
         <agenda />
         <gnrcore:adm />
         <gnrcore:sys />
+        <showcase:showcase />
         <gnrcore:test15 />
         <devlang:devlang />
         <gnr_it:glbl />
-        <sw_base /> <!-- add??? sw_base ancora da importare con GIT... intanto sto usando il vecchio sw_base di SVN -->
+        <gnrsw:sw_base />
     </packages>
     <db dbname="agenda" /db>
     <authentication pkg="agenda">

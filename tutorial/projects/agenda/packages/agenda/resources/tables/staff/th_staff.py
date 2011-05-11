@@ -27,10 +27,22 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='@anagrafica_id.cognome', op='contains', val='', runOnStart=True)
         
+class NisoView(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('@anagrafica_id.nome', width='8%')
+        r.fieldcell('@anagrafica_id.cognome', width='8%')
+        
+    def th_order(self):
+        return '@anagrafica_id.cognome'
+        
+    def th_query(self):
+        return dict(column='@anagrafica_id.nome', op='contains', val='')
+        
 class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
-        pane.dataFormula("form.title", '"Scheda contatto: " + nome + " " + cognome',
+        pane.dataFormula("#FORM.title", '"Scheda contatto: " + nome + " " + cognome',
                         nome='^.@anagrafica_id.nome', cognome='^.@anagrafica_id.cognome',
                         _if='nome && cognome',_else='"Scheda contatto: nuovo contatto"')
         fb = pane.formbuilder(cols=2,border_spacing='6px',fld_width='15em',lbl_color='teal')

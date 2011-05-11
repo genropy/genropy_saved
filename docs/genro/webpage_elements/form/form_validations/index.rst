@@ -59,7 +59,9 @@ Genro validations
 validate_call
 -------------
     
-    add???
+    ::
+    
+        validate_call = """Javascript code..."""
     
 .. _validate_dbselect:
     

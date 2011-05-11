@@ -116,7 +116,7 @@ column
     
         * required (???)
         * unique (boolean)
-        *  _sendback (boolean)
+        *  _sendback (boolean) add???
         
 .. _table_relation:
 
