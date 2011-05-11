@@ -1886,6 +1886,40 @@ textarea:disabled {
 
 /* @group Formhandler */
 
+.fh_enableLinkerBox .fh_linkerBoxField{
+    display:block;
+    width:12em;
+}
+
+.fh_linkerBoxField{
+    right:13px;
+    top:1px;
+    bottom:1px;
+    border:0 !important;
+    font-size:8pt;
+    width:0;
+    display:none;
+    background:white !important;
+}
+
+.fh_enableLinkerBox.fh_linkerBox{
+    opacity:1;
+    border:1px solid gray;
+	background: white url(icons/base12/linker.png) no-repeat 3px center;
+}
+
+.fh_linkerBox{
+    padding-left:15px;
+    padding-right:10px;
+    height:14px;
+	background: transparent url(icons/base12/linker.png) no-repeat 3px center;
+	cursor:pointer;
+    opacity:.7;
+
+}
+.fh_linkerBox:hover{
+    opacity:1;
+}
 .fh_bottom_message{
     height: 16px;
     line-height: 16px;

@@ -47,8 +47,10 @@ Requirements
 How to obtain GenroPy
 =====================
 
-    Genropy is in a subversion repository.  If you use git then you can
-    track local changes. To obtain genropy, type::
+    add??? update!
+    
+    Genropy is in a svn repository. If you use git then you can track local changes.
+    To obtain genropy, type::
     
         svn co http://svn.genropy.org/genro/trunk genro
     

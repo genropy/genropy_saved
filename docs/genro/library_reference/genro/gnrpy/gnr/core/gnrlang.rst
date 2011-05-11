@@ -129,14 +129,14 @@ Other methods
     :meth:`addBoundCallable` :meth:`debug_call`       :meth:`importModule`  :meth:`safeStr`          
     :meth:`addCallable`      :meth:`deprecated`       :meth:`instanceMixin` :meth:`safe_dict`        
     :meth:`args`             :meth:`errorLog`         :meth:`instanceMixin` :meth:`setCallable`      
-    :meth:`base_visitor`     :meth:`errorTxt`         :meth:`metadata`      :meth:`setMethodFromText`
-    :meth:`boolean`          :meth:`getObjAttributes` :meth:`moduleClasses` :meth:`testbound`        
-    :meth:`callables`        :meth:`getObjCallables`  :meth:`moduleDict`    :meth:`thlocal`          
-    :meth:`classMixin`       :meth:`getUuid`          :meth:`objectExtract` :meth:`timer_call`       
-    :meth:`cloneClass`       :meth:`gnrImport`        :meth:`optArgs`       :meth:`uniquify`         
-    :meth:`compareInstances`                                                                         
+    :meth:`base_visitor`     :meth:`extract_kwargs`   :meth:`metadata`      :meth:`setMethodFromText`
+    :meth:`boolean`          :meth:`errorTxt`         :meth:`moduleClasses` :meth:`testbound`        
+    :meth:`callables`        :meth:`getObjAttributes` :meth:`moduleDict`    :meth:`thlocal`          
+    :meth:`classMixin`       :meth:`getObjCallables`  :meth:`objectExtract` :meth:`timer_call`       
+    :meth:`cloneClass`       :meth:`getUuid`          :meth:`optArgs`       :meth:`uniquify`         
+    :meth:`compareInstances` :meth:`gnrImport`                                                       
     ======================== ======================== ===================== =========================
-
+    
 .. _gnrlang_classes:
 
 :mod:`gnr.core.gnrlang` - The complete reference list

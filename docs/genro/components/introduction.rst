@@ -86,7 +86,28 @@ Active or passive component
 List of all the components
 ==========================
 
-    For a complete components reference list, please check the :ref:`genro_components_list` documentation page.
+    **Dialogs**:
+    
+    * iframedialog
+    * simpledialog
+    * :ref:`genro_recorddialog`
+    
+    **Login components**:
+    
+    * :ref:`genro_login_component`
+    
+    **Tables**:
+    
+    * :ref:`genro_standardtable`
+    * :ref:`genro_standardtable_light`
+    * :ref:`genro_th`
+    
+    **add???**
+    
+    * :ref:`genro_includedview`
+    * :ref:`genro_selectionhandler`
+    * multiselect
+    * timetable_dh
 
 **Footnotes**:
 

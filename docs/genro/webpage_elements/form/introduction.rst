@@ -19,7 +19,7 @@ Introduction
     * :ref:`genro_field`: a widget creator used to view, select or modify data included in
       a database :ref:`genro_table`.
     
-    The form will be saved into a :ref:`genro_bag_index`. Every row is composed by a single
+    The form will be saved into a :ref:`genro_bag`. Every row is composed by a single
     form field, with the following sintax::
     
         <field_name _loadedValue="::NN">record_value</field_name>

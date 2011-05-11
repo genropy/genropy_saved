@@ -1215,9 +1215,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
     def field(self, field=None, **kwargs):
         """add???"""
-        kwargs = self._fieldDecode(field, **kwargs)
-        tag = kwargs.pop('tag')
-        return self.child(tag, **kwargs)
+        newkwargs = self._fieldDecode(field, **kwargs)
+        newkwargs.update(kwargs)
+        tag = newkwargs.pop('tag')
+        return self.child(tag, **newkwargs)
         
     def placeFields(self, fieldlist=None, **kwargs):
         for field in fieldlist.split(','):
