@@ -950,9 +950,10 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     },
     
     updateAttrBuiltObj:function(attr, kw, trigger_reason) {
+        var re= new RegExp('\\b'+attr+'\\b');
         if(this._formulaAttributes){
             for(var formulaAttribute in this._formulaAttributes){
-                if(this._formulaAttributes[formulaAttribute].indexOf(attr)>=0){
+                if(this._formulaAttributes[formulaAttribute].match(re)){
                     this.doUpdateAttrBuiltObj(formulaAttribute,kw,trigger_reason);
                 }
             }
