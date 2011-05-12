@@ -457,13 +457,14 @@ th_webpage: th_form
 tableHandler types
 ==================
 
-    In this section we explain all the tableHandler (``th``) types. They are:
+    In this section we explain all the tableHandler types. They are:
     
-    * :ref:`th_border`
-    * :ref:`th_dialog`
-    * :ref:`th_palette`
-    * :ref:`th_plain`
-    * :ref:`th_stack`
+    * :ref:`th_border`: the borderTableHandler shows the :ref:`genro_view_data`
+      and the :ref:`genro_data_entry` in a single page.
+    * :ref:`th_dialog`: 
+    * :ref:`th_palette`: 
+    * :ref:`th_plain`: 
+    * :ref:`th_stack`: 
     
     They represent a different way to visualize the :ref:`genro_data_entry`,
     where users can add/delete/modify their records. For example, the
@@ -489,7 +490,8 @@ common attributes
     attributes here:
     
     * *pane*: add???
-    * *nodeId*: the :ref:`genro_nodeid` of the ``th`` type. Default value is ``None``
+    * *nodeId*: the id the tableHandler type. For more information, check the
+      :ref:`genro_nodeid` documentation page. Default value is ``None``
     * *table*: the path of the :ref:`genro_table` linked to your tableHandler.
       The syntax is ``table = 'packageName.tableName'``. Default value is ``None``
     
@@ -498,25 +500,44 @@ common attributes
         table='base.staff'
         
     * *th_pkey*: add???. Default value is ``None``
-    * *datapath*: the :ref:`genro_datapath` of the ``th`` type. Default value is ``None``
+    * *datapath*: the path of your data. For more information, check the
+      :ref:`genro_datapath` documentation page. Default value is ``None``
     * *formResource*: add???. Default value is ``None``
     * *viewResource*: add???. Default value is ``None``
     * *formInIframe*: add???. Default value is ``False``
     * *reloader*: add???. Default value is ``None``
-    * *default_kwargs*: add???. Default value is ``None``
-    
+    * *readOnly*: boolean. If ``True``, the TableHandler is in read-only mode.
+      For more information, please check the :ref:`genro_readonly` documentation
+      page. Default value is ``True`` or ``False`` depending on the widget
+      (check it in their method definition).
+    * *default_kwargs*: default value is ``None``
+        
+        * *virtualStore*: boolean. add??? Default value is ``False``
+      
 .. _th_border:
 
 th_borderTableHandler
 ---------------------
 
+    **Definition:**
+    
     .. method:: th_borderTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',readOnly=False,viewRegion=None,formRegion=None,vpane_kwargs=None,fpane_kwargs=None,**kwargs)
     
-    Where:
+    **Description:**
+    
+    Based on the Dojo :ref:`genro_bordercontainer`, the borderTableHandler shows the
+    :ref:`genro_view_data` and the :ref:`genro_data_entry` in a single page.
+    
+    .. image:: ../images/th/border_th.png
+    
+    **Attributes:**
+    
+    The attributes that belong to every TableHandler are described in the
+    :ref:`types_common_attributes` section. The attributes that belongs only
+    to the borderTableHandler are listed here:
     
     * *widget_kwargs*: add???. Default value is ``None``
     * *loadEvent*: add???. Default value is ``'onSelected'``
-    * *readOnly*: add???. Default value is ``False``
     * *viewRegion*: add?. Default value is ``None``
     * *formRegion*: add?. Default value is ``None``
     * *vpane_kwargs*: add?. Default value is ``None``
@@ -527,9 +548,22 @@ th_borderTableHandler
 th_dialogTableHandler
 ---------------------
 
+    **Definition:**
+    
     .. method:: th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,[**kwargs])
     
-    Where:
+    **Description:**
+    
+    The dialogTableHandler shows the :ref:`genro_data_entry` in a dialog over
+    the :ref:`genro_view_data`.
+    
+    .. image:: ../images/th/dialog_th.png
+    
+    **attributes:**
+    
+    The attributes that belong to every TableHandler are described in the
+    :ref:`types_common_attributes` section. The attributes that belongs only
+    to the dialogTableHandler are listed here:
     
     * *dialog_kwargs*: MANDATORY - define the height and the width of the dialog.
       Default value is ``None``
@@ -538,49 +572,85 @@ th_dialogTableHandler
       
         dialog_height='100px'; dialog_width='300px'
         
-    * *readOnly*: add???. Default value is ``False``
-    
-    MANDATORY: 
-    
 .. _th_palette:
 
 th_paletteTableHandler
 ----------------------
 
+    **Definition:**
+    
     .. method:: th_paletteTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,palette_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
     
-    Where:
+    **Description:**
     
-    * *palette_kwargs*: add???. Default value is ``None``
-    * *readOnly*: add???. Default value is ``False``
+    The paletteTableHandler shows the :ref:`genro_data_entry` in a palette
+    over the :ref:`genro_view_data`.
     
-    MANDATORY: palette_width='300px',palette_height='200px'
+    .. image:: ../images/th/palette_th.png
     
+    **attributes**:
+    
+    The attributes that belong to every TableHandler are described in the
+    :ref:`types_common_attributes` section. The attributes that belongs only
+    to the paletteTableHandler are listed here:
+    
+    * *palette_kwargs*: MANDATORY - define the height and the width of the palette.
+      Default value is ``None``
+      
+      Example::
+      
+        palette_height='100px'; palette_width='300px'
+        
 .. _th_plain:
 
 th_plainTableHandler
 --------------------
 
+    **Definition:**
+    
     .. method:: th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=True,**kwargs)
     
-    Where:
+    **Description:**
+    
+    With the plainTableHandler you have only the :ref:`genro_view_data`, so user
+    can't modify, add and delete records.
+    
+    .. image:: ../images/th/plain_th.png
+    
+    **attributes**:
+    
+    The attributes that belong to every TableHandler are described in the
+    :ref:`types_common_attributes` section. The attributes that belongs only
+    to the plainTableHandler are listed here:
     
     * *widget_kwargs*: add???. Default value is ``None``
-    * *readOnly*: add???. Default value is ``True``
-    
-    This method has only the View, not the Form.
     
 .. _th_stack:
 
 th_stackTableHandler
 --------------------
 
+    **Definition:**
+    
     .. method:: th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
     
-    Where:
+    **Description:**
+    
+    Based on the Dojo :ref:`genro_stackcontainer`, the stackTableHandler shows the
+    :ref:`genro_view_data` and the :ref:`genro_data_entry` in two different pages.
+    
+    Remembering the Dojo StackContainer definition: *<<A container that has multiple children,*
+    *but shows only one child at a time (like looking at the pages in a book one by one).>>*
+    
+    .. image:: ../images/th/stack_th.png
+    
+    **attributes**:
+    
+    The attributes that belong to every TableHandler are described in the
+    :ref:`types_common_attributes` section. The attributes that belongs only
+    to the stackTableHandler are listed here:
     
     * *widget_kwargs*: add???. Default value is ``None``
-    * *readOnly*: add???. Default value is ``False``
     
 .. _th_iframe_types:
 
