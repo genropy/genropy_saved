@@ -940,6 +940,7 @@ class GnrWebPage(GnrBaseWebPage):
         """
         return self.site.resource_loader.getResourceList(self.resourceDirs, path, ext=ext)
         
+        
     def getResourceUriList(self, path, ext=None, add_mtime=False):
         """add???
         
@@ -1028,7 +1029,14 @@ class GnrWebPage(GnrBaseWebPage):
         result = self.site.resource_loader.getResourceList(resourceDirs, path, ext=ext)
         if result:
             return result[0]
-            
+    
+    def rpc_getResourceContent(self, resource=None, ext=None, pkg=None):
+        path =self.getResource(path=resource,ext=ext,pkg=pkg)
+        if path:
+            with open(path) as f:
+                result = f.read()
+            return result
+
     def setPreference(self, path, data, pkg=''):
         """add???
         
