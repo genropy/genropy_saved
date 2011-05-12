@@ -1,8 +1,8 @@
 .. _genro_disabled:
 
-==========
- disabled
-==========
+========
+disabled
+========
 
     * :ref:`disabled_def`
     * :ref:`disabled_examples`: :ref:`disabled_examples_formbuilder`, :ref:`disabled_examples_standardTable`

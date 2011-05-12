@@ -35,9 +35,12 @@ introduction
     
     Remember that:
     
-    * You can use the validations on every single form's element or in a :ref:`table_column`
-      of a :ref:`genro_table` of your :ref:`packages_model` folder.
     * The form can be saved only if all the validation requirements are satisfied.
+    * You can use the validations on every single form's element of your
+      :ref:`webpages_webpages` or in a :ref:`table_column` of a :ref:`genro_table`
+      of your :ref:`packages_model` folder, because the validations have been
+      thought to use them in :ref:`webpages_webpages` but work great also in your
+      :ref:`genro_table`\s.
     * For every validation, you have a list of suffixes (explained in the
       :ref:`validations_common` section) through which you can add some features
       to the standard :ref:`validations_list` (like writing a javascript alert on
@@ -128,14 +131,14 @@ validate_email
     
         root.textbox(value='^.email',validate_email=True)
         
+    .. note:: the ``validate_email`` use regex, so it is merely a formal control.
+        
 .. _validate_empty:
     
 validate_empty
 --------------
     
     .. deprecated:: 0.7
-    
-    .. warning:: This validation has been substituted by :ref:`validate_notnull`.
     
 .. _validate_exist:
     
@@ -160,8 +163,9 @@ validate_gridnodup
         
     .. note:: it can be used only inside a :ref:`genro_grid`.
     
-    Check if users insert a field that is already saved in the database, and validate
-    the form if and only if the string is NOT being already saved.
+    A validation that avoid having duplicates in a grid: it checks if the user
+    insertion is already saved in the database, and validates the form if and
+    only if the user input is NOT being already saved.
     
 .. _validate_len:
     
@@ -211,8 +215,9 @@ validate_nodup
     
         validate_nodup = True
         
-    Check if users insert a field that is already saved in the database, and validate
-    the form if and only if the string is NOT being already saved.
+    A validation that avoid having duplicates: it checks if the user insertion
+    is already saved in the database, and validates the form if and only if the
+    user input is NOT being already saved.
     
 .. _validate_notnull:
     
@@ -223,8 +228,9 @@ validate_notnull
     
         validate_notnull = True
     
-    If `True`, set the field as a required field. It works correctly only if you add
-    it to a :ref:`table_column` of your :ref:`packages_model`::
+    If `True`, set the field as a required field.
+    
+    ::
     
         tbl.column('name',validate_notnull=True)
         
@@ -237,7 +243,9 @@ validate_regex
     
         validate_regex = 'WriteHereARegexExpression'
         
-    Allow to create a regular expression (of the re_ Python module) that works on the field::
+    Allow to create a regular expression (of the re_ Python module) that works on the field.
+    
+    ::
         
         validate_regex='!\.' # The field doesn't accept the "." character
         
@@ -248,8 +256,16 @@ validate_regex
 validate_remote
 ---------------
 
-    add???
+    ::
     
+        validate_remote = 'rpcName'     # 'rpcName' is the name of your dataRpc.
+        
+    Allow to validate a field through a :ref:`genro_datarpc`.
+    
+    ::
+    
+        add??? (example...)
+        
 .. _validations_other_list:
 
 other validations

@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # telefonata_page.py
-# Created by Niso on 2011-05-04.
+# Created by Filippo Astolfi on 2011-05-04.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 import datetime

@@ -10,6 +10,7 @@ Documents to revise
     clipboard
     ../commons/index
     ../datastore/index
+    data_entry
     fine_syntax
     grid
     languages
@@ -22,6 +23,7 @@ Documents to revise
     trigger
     tutorial/index
     user_interface
+    view_data
     webpage_creation
     workdate
     wsgi

@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # staff_page.py
-# Created by Niso on 2011-05-04.
+# Created by Filippo Astolfi on 2011-05-04.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 class GnrCustomWebPage(object):
@@ -39,7 +39,7 @@ class GnrCustomWebPage(object):
         fb.field('cognome')
         fb.field('email',
                   validate_email=True,validate_email_error='!!Formato email non corretto')
-        fb.field('telefono', ghost='esempio: 347/1212123')
+        fb.field('telefono',ghost='esempio: 347/1212123')#,validate_remote='checkTel')
         fb.field('codice_fiscale',
                   validate_case='u')
         fb.field('partita_iva')
@@ -62,3 +62,9 @@ class GnrCustomWebPage(object):
         fb.field('md5pwd')
         fb.field('auth_tags')
         fb.field('avatar_rootpage')
+        
+    #def rpc_checkTel(self,value):
+    #    if value == '025511016':
+    #        return 'Casa Astolfi'
+    #    else:
+    #        return 'Casa sconosciuta!'

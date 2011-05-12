@@ -13,7 +13,7 @@ class View(BaseComponent):
         r.fieldcell('@anagrafica_id.telefono', width='6%')
         r.fieldcell('@anagrafica_id.email', width='12%')
         r.fieldcell('tipologia', width='6%')
-        r.fieldcell('@anagrafica_id.indirizzo', width='12%')
+        r.fieldcell('@anagrafica_id.indirizzo',width='12%')
         r.fieldcell('@anagrafica_id.cap', width='4%')
         r.fieldcell('@anagrafica_id.localita', width='7%')
         r.fieldcell('@anagrafica_id.partita_iva', width='7%')
@@ -50,7 +50,7 @@ class Form(BaseComponent):
         fb.field('tipologia',tag='combobox',values='cliente, fornitore')
         fb.field('@anagrafica_id.www',lbl='Sito web',colspan=2)
         fb.field('@anagrafica_id.note',tag='textarea',lbl_vertical_align='top',width='100%',colspan='2')
-
+        
 class FormFull(BaseComponent):
     def th_form(self, form):
         tc = form.center.tabContainer()
@@ -60,11 +60,10 @@ class FormFull(BaseComponent):
        #                       formResource=':FormFromAzienda',viewResource=':ViewFromAzienda',dialog_height='200px',dialog_width='400px')
        #th.form.store.handler('load',default_azienda_id='^#aziendaRecord.id')
         pane.dialogTableHandler(relation='@contatti',
-                                 formResource=':FormFromAzienda',
-                                 viewResource=':ViewFromAzienda',
-                                 dialog_height='200px',dialog_width='400px')
-        
-        
+                                formResource=':FormFromAzienda',
+                                viewResource=':ViewFromAzienda',
+                                dialog_height='200px',dialog_width='400px')
+                                 
     def mainInfoAzienda(self,pane):
         pane.dataFormula("#FORM.title", '"Scheda azienda: " + titolo',titolo='^.@anagrafica_id.ragione_sociale',
                         _if='titolo',_else='"Scheda azienda: nuova azienda"')
@@ -85,3 +84,4 @@ class FormFull(BaseComponent):
         fb.field('tipologia',tag='combobox',values='cliente, fornitore')
         fb.field('@anagrafica_id.www',lbl='Sito web',colspan=2)
         fb.field('@anagrafica_id.note',tag='textarea',lbl_vertical_align='top',width='100%',colspan='2')
+            

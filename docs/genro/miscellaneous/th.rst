@@ -18,13 +18,22 @@ tableHandler
         * :ref:`th_webpage_th_form`
         * :ref:`th_form_center_path`
     
-    * :ref:`th_iv_methods`:
+    * :ref:`th_types`:
     
+        * :ref:`types_py_requires`
+        * :ref:`types_common_attributes`
+        
         * :ref:`th_border`
         * :ref:`th_dialog`
         * :ref:`th_palette`
         * :ref:`th_plain`
         * :ref:`th_stack`
+        
+    * :ref:`th_iframe_types`
+    
+        * :ref:`th_linker`
+        * :ref:`th_thiframe`
+        * :ref:`th_iframedispatcher`
         
 .. _th_introduction:
 
@@ -38,14 +47,32 @@ Introduction
     * the View class, that allows to manage data visualization
     * the Form class, that allows to manage data entry
     
-    The novelty now is that you can create your tableHandlers into the ``resources`` folder
-    of your :ref:`genro_project`\s. This fact allows to reuse the tableHandlers you created
-    in more than a webpage.
+    These two classes will be visualized respectively into a *view-data webpage*:
     
-    Example: if you have to create a table with the registry (in italian , the *anagrafica*)
-    of a society, a registry of the staff, a registry of society clients (and so on) you can
-    create a single resource that you can reuse every time you need it.
+    .. image:: ../images/th/view.png
     
+    and into a *data-entry webpage*:
+    
+    .. image:: ../images/th/form.png
+    
+    For more information of the GUI of these two pages, please check the
+    :ref:`genro_view_data` and the :ref:`genro_data_entry` documentation pages.
+    
+    The tableHandler carries many features:
+    
+    * You can create your tableHandlers into the ``resources`` folder of your
+      :ref:`genro_project`\s. This fact allows to reuse the tableHandlers you created
+      in more than a webpage.
+      
+      Example: if you have to create a table with the registry (in italian , the
+      *anagrafica*) of a society, a registry of the staff, a registry of society
+      clients (and so on) you can create a single resource that you can reuse every
+      time you need it.
+      
+    * You can choose the GUI of your *data-entry webpage* from a set of options
+      (e.g: dialog, palette, stackcontainer...). Please check the :ref:`th_types`
+      section for more information.
+      
     In the following sections we try to explain all the info you need to make the new
     tableHandlers works.
     
@@ -425,12 +452,58 @@ th_webpage: th_form
         fb = top.formbuilder(dbtable='sw_base.anagrafica',margin_left='10px',margin_top='1em',
                              width='370px',datapath='.@anagrafica_id',cols=2)
                              
-    .. _th_iv_methods:
+    .. _th_types:
 
-includedView methods
-====================
+tableHandler types
+==================
 
-    In this section we explain all the methods of the ``th`` class.
+    In this section we explain all the tableHandler (``th``) types. They are:
+    
+    * :ref:`th_border`
+    * :ref:`th_dialog`
+    * :ref:`th_palette`
+    * :ref:`th_plain`
+    * :ref:`th_stack`
+    
+    They represent a different way to visualize the :ref:`genro_data_entry`,
+    where users can add/delete/modify their records. For example, the
+    ``dialogTablehandler`` show the *data-entry webpage* in a dialog that
+    will appear over the :ref:`genro_view_data`.
+    
+.. _types_py_requires:
+
+py_requires
+-----------
+    
+    If you use one of the TableHandler types, it is mandatory to add the following
+    :ref:`webpages_py_requires` in your :ref:`webpages_webpages`::
+    
+        py_requires = 'th/th:TableHandler'
+        
+    .. _types_common_attributes:
+    
+common attributes
+-----------------
+
+    Some attributes are common to every of these types and we describe those
+    attributes here:
+    
+    * *pane*: add???
+    * *nodeId*: the :ref:`genro_nodeid` of the ``th`` type. Default value is ``None``
+    * *table*: the path of the :ref:`genro_table` linked to your tableHandler.
+      The syntax is ``table = 'packageName.tableName'``. Default value is ``None``
+    
+      Example::
+      
+        table='base.staff'
+        
+    * *th_pkey*: add???. Default value is ``None``
+    * *datapath*: the :ref:`genro_datapath` of the ``th`` type. Default value is ``None``
+    * *formResource*: add???. Default value is ``None``
+    * *viewResource*: add???. Default value is ``None``
+    * *formInIframe*: add???. Default value is ``False``
+    * *reloader*: add???. Default value is ``None``
+    * *default_kwargs*: add???. Default value is ``None``
     
 .. _th_border:
 
@@ -441,17 +514,7 @@ th_borderTableHandler
     
     Where:
     
-    * *pane*: add???
-    * *nodeId*: add???. Default value is ``None``
-    * *table*: add???. Default value is ``None``
-    * *th_pkey*: add???. Default value is ``None``
-    * *datapath*: add???. Default value is ``None``
-    * *formResource*: add???. Default value is ``None``
-    * *viewResource*: add???. Default value is ``None``
-    * *formInIframe*: add???. Default value is ``False``
     * *widget_kwargs*: add???. Default value is ``None``
-    * *reloader*: add???. Default value is ``None``
-    * *default_kwargs*: add???. Default value is ``None``
     * *loadEvent*: add???. Default value is ``'onSelected'``
     * *readOnly*: add???. Default value is ``False``
     * *viewRegion*: add?. Default value is ``None``
@@ -468,20 +531,16 @@ th_dialogTableHandler
     
     Where:
     
-    * *pane*: add???
-    * *nodeId*: add???. Default value is ``None``
-    * *table*: add???. Default value is ``None``
-    * *th_pkey*: add???. Default value is ``None``
-    * *datapath*: add???. Default value is ``None``
-    * *formResource*: add???. Default value is ``None``
-    * *viewResource*: add???. Default value is ``None``
-    * *formInIframe*: add???. Default value is ``None``
-    * *dialog_kwargs*: add???. Default value is ``None``
-    * *reloader*: add???. Default value is ``None``
-    * *default_kwargs*: add???. Default value is ``None``
+    * *dialog_kwargs*: MANDATORY - define the height and the width of the dialog.
+      Default value is ``None``
+      
+      Example::
+      
+        dialog_height='100px'; dialog_width='300px'
+        
     * *readOnly*: add???. Default value is ``False``
     
-    MANDATORY: dialog_height='100px' e dialog_width='300px'
+    MANDATORY: 
     
 .. _th_palette:
 
@@ -492,17 +551,7 @@ th_paletteTableHandler
     
     Where:
     
-    * *pane*: add???
-    * *nodeId*: add???. Default value is ``None``
-    * *table*: add???. Default value is ``None``
-    * *th_pkey*: add???. Default value is ``None``
-    * *datapath*: add???. Default value is ``None``
-    * *formResource*: add???. Default value is ``None``
-    * *viewResource*: add???. Default value is ``None``
-    * *formInIframe*: add???. Default value is ``False``
     * *palette_kwargs*: add???. Default value is ``None``
-    * *reloader*: add???. Default value is ``None``
-    * *default_kwargs*: add???. Default value is ``None``
     * *readOnly*: add???. Default value is ``False``
     
     MANDATORY: palette_width='300px',palette_height='200px'
@@ -516,17 +565,7 @@ th_plainTableHandler
     
     Where:
     
-    * *pane*: add???
-    * *nodeId*: add???. Default value is ``None``
-    * *table*: add???. Default value is ``None``
-    * *th_pkey*: add???. Default value is ``None``
-    * *datapath*: add???. Default value is ``None``
-    * *formResource*: add???. Default value is ``None``
-    * *viewResource*: add???. Default value is ``None``
-    * *formInIframe*: add???. Default value is ``False``
     * *widget_kwargs*: add???. Default value is ``None``
-    * *reloader*: add???. Default value is ``None``
-    * *default_kwargs*: add???. Default value is ``None``
     * *readOnly*: add???. Default value is ``True``
     
     This method has only the View, not the Form.
@@ -540,18 +579,42 @@ th_stackTableHandler
     
     Where:
     
-    * *pane*: add???
-    * *nodeId*: add???. Default value is ``None``
-    * *table*: add???. Default value is ``None``
-    * *th_pkey*: add???. Default value is ``None``
-    * *datapath*: add???. Default value is ``None``
-    * *formResource*: add???. Default value is ``None``
-    * *viewResource*: add???. Default value is ``None``
-    * *formInIframe*: add???. Default value is ``False``
     * *widget_kwargs*: add???. Default value is ``None``
-    * *reloader*: add???. Default value is ``None``
-    * *default_kwargs*: add???. Default value is ``None``
     * *readOnly*: add???. Default value is ``False``
+    
+.. _th_iframe_types:
+
+iframe types
+============
+    
+    add???
+    
+    They are:
+    
+    * :ref:`th_linker`
+    * :ref:`th_thIframe`
+    * :ref:`th_iframedispatcher`
+    
+.. _th_linker:
+
+th_linker
+---------
+    
+    .. method:: th_linker(self,pane,field=None,label=None,resource=None,formResource=None,pageUrl=None,frameCode=None,condition=None,default_kwargs=None,condition_kwargs=None,**kwargs)
+    
+.. _th_thiframe:
+
+th_thIframe
+-----------
+
+    .. method:: th_thIframe(self,pane,method=None,src=None,**kwargs)
+    
+.. _th_iframedispatcher:
+
+th_iframedispatcher
+-------------------
+    
+    .. method:: rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,**kwargs)
     
 **Footnotes**:
 
