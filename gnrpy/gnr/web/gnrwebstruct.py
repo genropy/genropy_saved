@@ -895,6 +895,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """
         store = DirectoryResolver(rootpath or '/', **kwargs)()
         self.data(storepath, store)
+    
         
     def tableAnalyzeStore(self, pane, table=None, where=None, group_by=None, storepath='.store', **kwargs):
         """add???
@@ -943,7 +944,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :returns: a dataRemote
         """
         return self.child('dataRemote', path=path, method=method, **kwargs)
-        
+    
+    def dataResource(self,path,resource=None, ext=None, pkg=None):
+        self.dataRemote(path,'getResourceContent',resource=resource,ext=ext, pkg=pkg)
+
     def paletteGroup(self, groupCode, **kwargs):
         """add???
         

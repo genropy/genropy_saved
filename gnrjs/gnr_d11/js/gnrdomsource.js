@@ -1097,7 +1097,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
             }
             else if (('template' in this.attr)&&((attr == 'datasource')||(this.attr.template.indexOf('$'+attr)>=0))) {
-                domnode.innerHTML = dataTemplate(this.attr.template, this, this.attr.datasource);
+                domnode.innerHTML = dataTemplate(this.getAttributeFromDatasource('template'), this, this.attr.datasource);
             }
             else if (attr == 'innerHTML') {
                 domnode.innerHTML = value;
