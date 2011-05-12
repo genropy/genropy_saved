@@ -249,6 +249,10 @@ dojo.declare('gnr.GenroClient', null, {
         genro.callAfter(function() {
             genro.fireEvent('gnr.onStart');
             genro.publish('onPageStart');
+            var parentIframe = window.frameElement;
+            if(parentIframe){
+                parentIframe.sourceNode.publish('pageStarted');
+            }
         }, 100);
         genro.dev.shortcut('f1', function(e) {
             genro.publish('SAVERECORD', e)

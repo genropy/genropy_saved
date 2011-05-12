@@ -35,7 +35,11 @@ class GnrCustomWebPage(object):
         pane.dataResource('.remote_tpl',resource='^.template_name')
         pane.div(template='^.remote_tpl',datasource='^.record',pippo='^.pippo')
     
-
+    def test_4_tableTemplate(self,pane):
+        pane.dbSelect(dbtable='glbl.provincia',value='^.pkey',_class='gnrfield')
+        pane.dataRecord('.record','glbl.provincia',pkey='^.pkey',_onStart=True)
+        pane.div(template=self.tableTemplate('glbl.provincia','short'),datasource='^.record')
+        
 
     def test_z_formulasyntax(self,pane):
         fb = pane.formbuilder(cols=1)

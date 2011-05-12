@@ -216,15 +216,17 @@ class TableHandler(BaseComponent):
                   _tpl=self._th_hook('template',mangler=frameCode)())        
     
     @struct_method 
-    def th_linker(self,pane,field=None,formResource=None,newRecordOnly=None,openIfNew=None,**kwargs):
+    def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,openIfNew=None,**kwargs):
         if '.' in field:
             table,field = field.split('.')
         else:
             table = pane.getInheritedAttributes().get('table') or self.maintable
         related_tblobj = self.db.table(table).column(field).relatedColumn().table    
-        related_tablename = related_tblobj.name_long.replace('!!','')    
+        related_table = related_tblobj.fullname
+        related_tablename = related_tblobj.name_long.replace('!!','')  
+        tableCode = related_table.replace('.','_')  
         connect_onBlur='this.getParentNode().publish("disable");'
-        fieldbox = pane.div(connect_onclick="""if(this.form.locked){
+        linker = pane.div(connect_onclick="""if(this.form.locked){
                                                     return;
                                                 } 
                                                 genro.dom.addClass(this,"th_enableLinker");
@@ -233,19 +235,71 @@ class TableHandler(BaseComponent):
                                                     var selector = that.getChild('/selector');
                                                     selector.widget.focus();
                                                 },1)""",
-                                _class='th_linker',
+                                _class='th_linker',childname='linker',
                                 selfsubscribe_disable='genro.dom.removeClass(this,"th_enableLinker")',
                                 rounded=8,tip='!!Link to an existing %s' %related_tablename,
                                 )
-        if formResource:
-            addbutton = fieldbox.div(_class='th_linkerAdd',tip='Add a new %s' %related_tablename)
+        if formResource or formUrl:
             openIfNew = True if openIfNew is None else openIfNew
             connect_onBlur = None
+            formUrl = formUrl or '/sys/thpage/%s' %related_table.replace('.','/')
+            self._th_mixinResource(id(pane),table=table,resourceName=formResource,defaultClass='Form')            
+            dialog_kw = self._th_hook(id(pane),'dialog',dflt=dict(height='400px',width='500px'))()
+            
+            
+            palette = pane.palette(dockTo='dummyDock',maxable=True,autoSize=False,
+                            _lazyBuild=True,overflow='hidden',**kwargs)
+                            
+            formResource = formResource or ':Form'
+            iframe = palette.iframe(src=formUrl,main='form',childname='iframeform',main_th_linker=True,maxable=True,
+                                    main_th_pkey='=#FORM.record.%s' %field,main_th_formResource=formResource,
+                                    selfsubscribe_pageStarted="""
+                                                var insideForm = this.domNode.contentWindow.genro.getForm('mainform');
+                                                this._insideForm = insideForm;
+                                                var that = this;
+                                                var palette = this.getParentNode();
+                                                insideForm.subscribe('onSaved',function(kw){
+                                                    that.setRelativeData("#FORM.record.%s",kw.pkey);
+                                                    palette.widget.hide();
+                                                })
+                                    """ %field)
+            addbutton = linker.div(_class='th_linkerAdd',tip='Add a new %s' %related_tablename,
+                                    connect_onclick="genro.publish('%s_load',{pkey:'*newrecord*'})" %tableCode)
+            addbutton.dataController("""
+                var p = palette.widget;
+                p.show(); 
+                p.bringToTop();
+                var iframeNode = palette.getChild('/iframeform');
+                this.watch('formReady',function(){return iframeNode._insideForm;},
+                function(){iframeNode._insideForm.load({destPkey:pkey});});
+            """,palette=palette,nodeId=tableCode,selfsubscribe_load=True)
+
+            
         if openIfNew:
-            fieldbox.attributes.update(_class='==newrecord?"th_enableLinker th_linker": "th_linker"',
+            linker.attributes.update(_class='==newrecord?"th_enableLinker th_linker": "th_linker"',
                                       newrecord='^#FORM.record?_newrecord')
         if newRecordOnly:
-            fieldbox.attributes.update(visible='^#FORM.record?_newrecord')
-        fieldbox.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
+            linker.attributes.update(visible='^#FORM.record?_newrecord')
+        linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
                 connect_onBlur=connect_onBlur,
                 _class='th_linkerField',background='white',**kwargs)
+        linker._table = related_table
+        return linker
+    
+    @struct_method 
+    def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfNew=None,_class='pbl_roundedGroup',label=None,**kwargs):
+        frameCode= frameCode or 'linker_%s' %field.replace('.','_')
+        frame = pane.framePane(frameCode=frameCode,_class=_class)
+        linkerBar = frame.top.linkerBar(field=field,formResource=formResource,newRecordOnly=newRecordOnly,openIfNew=openIfNew,label=label,**kwargs)
+        linkertable = linkerBar._table
+        frame.div(template=self.tableTemplate(linkertable,template),datasource='^.@%s' %field)
+
+    @struct_method          
+    def th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs):
+        bar = pane.slotBar('lbl,*,linkerslot,5',_class=_class)
+        linker = bar.linkerslot.linker(field=field,newRecordOnly=newRecordOnly,**kwargs)
+        bar._table = linker._table
+        label = label or self.db.table(linker._table).name_long
+        bar.lbl.div(label)
+        return bar
+        

@@ -466,7 +466,7 @@ class TableHandlerMain(BaseComponent):
         pkey = pkey or kwargs.pop('th_pkey',None)
         tableCode = self.maintable.replace('.','_')
         self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
-        form = root.frameForm(frameCode='F_%s' %tableCode,table=self.maintable,
+        form = root.frameForm(frameCode='mainform',table=self.maintable,
                              store_startKey=pkey or '*norecord*',
                              datapath='form',store='recordCluster')
         slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
@@ -475,7 +475,6 @@ class TableHandlerMain(BaseComponent):
         if th_selector:
             slots = slots.replace('*','5,form_selectrecord,*')
         form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')
-        form.attributes.update(subscribe_external_load='this.form.publish("load",$1);')
         return form
     
     def _usePublicBottomMessage(self,form):
@@ -484,12 +483,6 @@ class TableHandlerMain(BaseComponent):
     
     def rpc_view(self,root,**kwargs):
         pass
-
-    @struct_method          
-    def th_linkerLabel(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs):
-        bar = pane.slotBar('label,*,linkerslot,5',label=label,_class=_class)
-        bar.linkerslot.linker(field=field,newRecordOnly=newRecordOnly,**kwargs)
-    
 
 #OLD STUFF TO REMOVE
 class ThermoDialog(BaseComponent):

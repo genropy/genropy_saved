@@ -1119,11 +1119,13 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
     },
     
 
-    mixin_onChangedContent:function(){        
-        this.autoSize();
+    mixin_onChangedContent:function(){   
+        if(this.sourceNode.attr.autoSize!=false){
+            this.autoSize();
+        }     
     },
     mixin_onShowing:function(){
-        if(this.sourceNode.attr._lazyBuild || this.sourceNode._value._nodes.length==0){
+        if(this.sourceNode.attr.autoSize!=false &&(this.sourceNode.attr._lazyBuild || this.sourceNode._value._nodes.length==0)){
             var domNode = this.domNode;
             var oldwidth = domNode.style.width;
             var oldleft = domNode.style.left;
