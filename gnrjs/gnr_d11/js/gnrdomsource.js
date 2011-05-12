@@ -949,25 +949,22 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }        
     },
     
-    //updateBuiltObj:function(){
-    //    for(var attr in this._dynattr){
-    //        this.updateAttrBuiltObj(attr);
-    //    }
-    //},
     updateAttrBuiltObj:function(attr, kw, trigger_reason) {
-        var attr = attr || 'value';
-        var path;
-        var value = null;
         if(this._formulaAttributes){
             for(var formulaAttribute in this._formulaAttributes){
                 if(this._formulaAttributes[formulaAttribute].indexOf(attr)>=0){
-                    console.log('formulaAttribute',formulaAttribute,this._formulaAttributes[formulaAttribute],'attr',attr);
-                    attr = formulaAttribute;
-                    
-                    break;
+                    this.doUpdateAttrBuiltObj(formulaAttribute,kw,trigger_reason);
                 }
             }
+        }else{
+            this.doUpdateAttrBuiltObj(attr,kw,trigger_reason);
         }
+
+    },
+    doUpdateAttrBuiltObj:function(attr, kw, trigger_reason) {
+        var attr = attr || 'value';
+        var path;
+        var value = null;
         var attr_lower = attr.toLowerCase();
         if (!(kw.evt == 'ins' || kw.evt == 'del')) {
             value = this.getAttributeFromDatasource(attr, true);
