@@ -145,6 +145,7 @@ function dataTemplate(str, data, path, showAlways) {
     if (!str) {
         return '';
     }
+    var auxattr = {};
     var regexpr = /\$([a-zA-Z0-9.@?_]+)/g;
     var result;
     var is_empty = true;
@@ -155,18 +156,17 @@ function dataTemplate(str, data, path, showAlways) {
         data = genro._data.getItem(data);
     }
     else if (data instanceof gnr.GnrDomSourceNode) {
-        data = genro._data.getItem(data.absDatapath());
+        auxattr = data.currentAttributes();
+        data = genro._data.getItem(data.absDatapath(path));
     }
     if (data instanceof gnr.GnrBag) {
-        if (path) {
-            data = data.getItem(path);
-        }
         if (!data && !showAlways) {
             return '';
         }
         result = str.replace(regexpr,
                             function(path) {
-                                var value = data.getItem(path.slice(1));
+                                var path=path.slice(1)
+                                var value = data.getItem(path) || auxattr[path];
                                 if (value != null) {
                                     is_empty = false;
                                     if (value instanceof Date) {

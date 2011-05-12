@@ -1884,14 +1884,14 @@ textarea:disabled {
 
 /* @end */
 
-/* @group Formhandler */
 
-.fh_enableLinkerBox .fh_linkerBoxField{
+
+.th_enableLinker .th_linkerField{
     display:block;
     width:12em;
 }
 
-.fh_linkerBoxField{
+.th_linkerField{
     right:13px;
     top:1px;
     bottom:1px;
@@ -1902,24 +1902,44 @@ textarea:disabled {
     background:white !important;
 }
 
-.fh_enableLinkerBox.fh_linkerBox{
+.th_enableLinker.th_linker{
     opacity:1;
     border:1px solid gray;
 	background: white url(icons/base12/linker.png) no-repeat 3px center;
 }
 
-.fh_linkerBox{
+.th_linker{
     padding-left:15px;
-    padding-right:10px;
+    padding-right:18px;
     height:14px;
 	background: transparent url(icons/base12/linker.png) no-repeat 3px center;
 	cursor:pointer;
     opacity:.7;
-
+    position:relative;
 }
-.fh_linkerBox:hover{
+
+.th_linker:hover{
     opacity:1;
 }
+.th_linkerAdd{
+	display: none;
+}
+.th_enableLinker .th_linkerAdd{
+	background: url(icons/base14/linkeradd.png) center center;
+	height:14px;
+	width: 14px;
+	position: absolute;
+	right: 1px;
+	top: 0px;
+	display: block;
+}
+
+
+
+
+/* @group Formhandler */
+
+
 .fh_bottom_message{
     height: 16px;
     line-height: 16px;

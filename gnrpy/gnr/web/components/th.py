@@ -45,3 +45,10 @@ class BaseForm(BaseClasses):
     def th_dialog(self):
         """return dict()"""
         return
+
+class BaseLinker(BaseClasses):
+ 
+    def th_options(self):
+        return dict(columns=None,#columns for the query
+                    auxColumns=None
+                        )

@@ -141,11 +141,29 @@ class TableHandler(BaseComponent):
                                         viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
                                         default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
         return wdg
-
-
+        
+    @struct_method
+    def th_thIframe(self,pane,method=None,src=None,**kwargs):
+        pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
+        pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
+        box = pane.div(_class='detacher',z_index=30)
+        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        iframe = box.iframe(main='th_iframedispatcher',main_methodname=method,main_pkey='=#FORM.pkey',src=src,**kwargs)
+        pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
+        return iframe
+         
+    def rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,**kwargs):
+        rootattr = root.attributes
+        rootattr['datapath'] = 'main'
+        rootattr['overflow'] = 'hidden'
+        rootattr['_fakeform'] = True
+        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
+        root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
+        getattr(self,'iframe_%s' %methodname)(root,**kwargs)
+        
     @extract_kwargs(default=True,condition=True)
     @struct_method   
-    def th_linker(self,pane,field=None,label=None,resource=None,formResource=None,pageUrl=None,
+    def th_linker__old(self,pane,field=None,label=None,resource=None,formResource=None,pageUrl=None,
                         frameCode=None,condition=None,default_kwargs=None,condition_kwargs=None,**kwargs):
         maintable = pane.getInheritedAttributes().get('table') or self.maintable
         maintableobj = self.db.table(maintable)
@@ -195,24 +213,39 @@ class TableHandler(BaseComponent):
                                 
                                 
         frame.div(innerHTML='==dataTemplate(_tpl,_data)',_data='^#FORM.record.@%s' %field,
-                  _tpl=self._th_hook('template',mangler=frameCode)())
-
-        
-    @struct_method
-    def th_thIframe(self,pane,method=None,src=None,**kwargs):
-        pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
-        pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
-        box = pane.div(_class='detacher',z_index=30)
-        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
-        iframe = box.iframe(main='th_iframedispatcher',main_methodname=method,main_pkey='=#FORM.pkey',src=src,**kwargs)
-        pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
-        return iframe
-         
-    def rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,**kwargs):
-        rootattr = root.attributes
-        rootattr['datapath'] = 'main'
-        rootattr['overflow'] = 'hidden'
-        rootattr['_fakeform'] = True
-        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
-        root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
-        getattr(self,'iframe_%s' %methodname)(root,**kwargs)
+                  _tpl=self._th_hook('template',mangler=frameCode)())        
+    
+    @struct_method 
+    def th_linker(self,pane,field=None,formResource=None,newRecordOnly=None,openIfNew=None,**kwargs):
+        if '.' in field:
+            table,field = field.split('.')
+        else:
+            table = pane.getInheritedAttributes().get('table') or self.maintable
+        related_tblobj = self.db.table(table).column(field).relatedColumn().table    
+        related_tablename = related_tblobj.name_long.replace('!!','')    
+        connect_onBlur='this.getParentNode().publish("disable");'
+        fieldbox = pane.div(connect_onclick="""if(this.form.locked){
+                                                    return;
+                                                } 
+                                                genro.dom.addClass(this,"th_enableLinker");
+                                                var that = this;
+                                                setTimeout(function(){
+                                                    var selector = that.getChild('/selector');
+                                                    selector.widget.focus();
+                                                },1)""",
+                                _class='th_linker',
+                                selfsubscribe_disable='genro.dom.removeClass(this,"th_enableLinker")',
+                                rounded=8,tip='!!Link to an existing %s' %related_tablename,
+                                )
+        if formResource:
+            addbutton = fieldbox.div(_class='th_linkerAdd',tip='Add a new %s' %related_tablename)
+            openIfNew = True if openIfNew is None else openIfNew
+            connect_onBlur = None
+        if openIfNew:
+            fieldbox.attributes.update(_class='==newrecord?"th_enableLinker th_linker": "th_linker"',
+                                      newrecord='^#FORM.record?_newrecord')
+        if newRecordOnly:
+            fieldbox.attributes.update(visible='^#FORM.record?_newrecord')
+        fieldbox.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
+                connect_onBlur=connect_onBlur,
+                _class='th_linkerField',background='white',**kwargs)
