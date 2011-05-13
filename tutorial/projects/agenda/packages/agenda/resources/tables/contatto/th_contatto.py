@@ -20,7 +20,6 @@ class ViewFromAzienda(BaseComponent):
         r.fieldcell('interno', width='4%')
         r.fieldcell('ruolo', width='10%')
         r.fieldcell('@anagrafica_id.note', name='!!Note personali', width='9%')
-        return struct
         
     def th_order(self):
         return '@anagrafica_id.cognome'
@@ -40,7 +39,6 @@ class View(BaseComponent):
         r.fieldcell('@azienda_id.@anagrafica_id.ragione_sociale', zoom=True, width='18%')
         r.fieldcell('ruolo', width='10%')
         r.fieldcell('@anagrafica_id.note', name='!!Note personali', width='9%')
-        return struct
         
     def th_order(self):
         return '@anagrafica_id.cognome'
@@ -65,9 +63,9 @@ class FormFromAzienda(BaseComponent):
 class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
-        pane.dataFormula("#FORM.title", '"Scheda contatto: " + nome + " " + cognome',
-                        nome='^.@anagrafica_id.nome', cognome='^.@anagrafica_id.cognome',
-                        _if='nome && cognome',_else='"Scheda contatto: nuovo contatto"')
+        #pane.dataFormula("#FORM.title", '"Scheda contatto: " + nome + " " + cognome',
+        #                nome='^.@anagrafica_id.nome', cognome='^.@anagrafica_id.cognome',
+        #                _if='nome && cognome',_else='"Scheda contatto: nuovo contatto"')
         fb = pane.formbuilder(cols=2,border_spacing='6px',fld_width='15em',lbl_color='teal')
         fb.field('@anagrafica_id.nome',validate_case='c')
         fb.field('@anagrafica_id.cognome',validate_case='c')

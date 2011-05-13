@@ -22,9 +22,9 @@ class View(BaseComponent):
 class Paperino(BaseComponent):
     def th_form(self, form):
         pane = form.record
-        pane.dataFormula("#FORM.title", '"Scheda contatto: " + nome + " " + cognome',
-                        nome='^.@anagrafica_id.nome', cognome='^.@anagrafica_id.cognome',
-                        _if='nome && cognome',_else='"Scheda contatto: nuovo contatto"')
+        #pane.dataFormula("#FORM.title", '"Scheda contatto: " + nome + " " + cognome',
+        #                nome='^.@anagrafica_id.nome', cognome='^.@anagrafica_id.cognome',
+        #                _if='nome && cognome',_else='"Scheda contatto: nuovo contatto"')
         fb = pane.formbuilder(cols=2,border_spacing='6px',fld_width='15em',lbl_color='teal')
         fb.field('@anagrafica_id.nome')
         fb.field('@anagrafica_id.cognome')

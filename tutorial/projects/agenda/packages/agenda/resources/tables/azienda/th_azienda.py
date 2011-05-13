@@ -20,7 +20,6 @@ class View(BaseComponent):
         r.fieldcell('@anagrafica_id.fax', width='6%')
         r.fieldcell('@anagrafica_id.www', name='!!Sito web', width='13%')
         r.fieldcell('@anagrafica_id.note', width='9%')
-        return struct
         
     def th_order(self):
         return '@anagrafica_id.ragione_sociale'
@@ -31,8 +30,8 @@ class View(BaseComponent):
 class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
-        pane.dataFormula("#FORM.title", '"Scheda azienda: " + titolo',titolo='^.@anagrafica_id.ragione_sociale',
-                        _if='titolo',_else='"Scheda azienda: nuova azienda"')
+        #pane.dataFormula("#FORM.title", '"Scheda azienda: " + titolo',titolo='^.@anagrafica_id.ragione_sociale',
+        #                _if='titolo',_else='"Scheda azienda: nuova azienda"')
         fb = pane.formbuilder(cols=2,border_spacing='6px',lbl_width='6em',
                               fld_width='15em',width='40em',lbl_color='teal')
         fb.field('@anagrafica_id.ragione_sociale',colspan=2,width='100%',
@@ -65,8 +64,8 @@ class FormFull(BaseComponent):
                                 dialog_height='200px',dialog_width='400px')
                                  
     def mainInfoAzienda(self,pane):
-        pane.dataFormula("#FORM.title", '"Scheda azienda: " + titolo',titolo='^.@anagrafica_id.ragione_sociale',
-                        _if='titolo',_else='"Scheda azienda: nuova azienda"')
+        #pane.dataFormula("#FORM.title", '"Scheda azienda: " + titolo',titolo='^.@anagrafica_id.ragione_sociale',
+        #                _if='titolo',_else='"Scheda azienda: nuova azienda"')
         fb = pane.formbuilder(cols=2,border_spacing='6px',lbl_width='6em',
                               fld_width='15em',width='40em',lbl_color='teal')
         fb.field('@anagrafica_id.ragione_sociale',colspan=2,width='100%',
