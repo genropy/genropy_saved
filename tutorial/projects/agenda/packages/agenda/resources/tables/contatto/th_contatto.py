@@ -23,8 +23,7 @@ class ViewFromAzienda(BaseComponent):
         
     def th_order(self):
         return '@anagrafica_id.cognome'
-
-
+        
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
