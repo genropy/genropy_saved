@@ -1,3 +1,122 @@
+dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
+    thiframe: function(parent,kw){
+        var table = objectPop(kw,'table');
+        var url = objectPop(kw,'url') || '/sys/thpage/'+table.replace('.','/');
+        var urlPars = {'th_public':false};
+        url = genro.addParamsToUrl(url,urlPars);
+        var pkey = objectPop(kw,'pkey');
+        if (pkey){
+            url+='/'+pkey;
+        }
+        var main = objectPop(kw,'main');
+        var iframeAttrs = {'src':url,main:main,_childname:'iframe',height:'100%',width:'100%',border:0};
+        iframeAttrs = objectUpdate(kw,iframeAttrs);
+        parent._('iframe',iframeAttrs);
+    }
+});
+
+
+dojo.declare("gnr.widgets.ThIframeDialog", gnr.widgets.ThIframe, {
+    createContent:function(sourceNode, kw) {
+        var dialogAttrs = objectExtract(kw,'title,height,width');
+        dialogAttrs.closable=true;
+        dialogAttrs = objectUpdate({overflow:'hidden',_lazyBuild:true},dialogAttrs);
+        var dialog = sourceNode._('dialog',objectExtract(dialogAttrs,'title,closable'))._('div',dialogAttrs);
+        this.thiframe(dialog,kw)
+        return dialog;
+    }
+});
+
+dojo.declare("gnr.widgets.ThIframePalette",gnr.widgets.ThIframe, {
+    createContent:function(sourceNode, kw) {
+        var paletteAttrs = objectExtract(kw,'title,top,bottom,left,right,height,width,_lazyBuild,autoSize,dockTo');
+        objectUpdate(paletteAttrs,objectExtract(kw,'dockButton_*',null,true));
+        objectUpdate(paletteAttrs,objectExtract(kw,'palette_*'));
+        paletteAttrs = objectUpdate({overflow:'hidden',_lazyBuild:true},paletteAttrs);
+        var palette = sourceNode._('palette',paletteAttrs);
+        this.thiframe(palette,kw)
+        return palette;
+    }
+});
+
+
+
+dojo.declare("gnr.LinkerManager", null, {
+    constructor:function(sourceNode){
+        this.sourceNode = sourceNode;
+        this.field = sourceNode.attr._field;
+        this.fieldpath = '#FORM.record.'+this.field;
+        this.related_table = sourceNode.attr._related_table;
+        this.table = sourceNode.attr._table;
+        this.embedded = sourceNode.attr._embedded;
+        this.dialog_kwargs = sourceNode.attr._dialog_kwargs;
+        this.default_kwargs = sourceNode.attr._default_kwargs;
+    },
+    
+    openLinker:function(){
+        var sourceNode = this.sourceNode;
+        var that =this;
+        if(sourceNode.form.locked){
+            return;
+        } 
+        genro.dom.addClass(sourceNode,"th_enableLinker");
+        if(this.embedded){
+            setTimeout(function(){
+                sourceNode.getChild('/selector').widget.focus();
+            },1);
+        }
+    },
+
+    closeLinker:function(){
+        if(this.embedded || this.getCurrentPkey()){
+            genro.dom.removeClass(this.sourceNode,"th_enableLinker");
+        }
+    },
+    getCurrentPkey:function(){
+        return this.sourceNode.getRelativeData(this.fieldpath);
+    },
+    setCurrentPkey:function(pkey){
+        this.sourceNode.setRelativeData(this.fieldpath,null,null,null,false);
+        this.sourceNode.setRelativeData(this.fieldpath,pkey);
+    },    
+    openrecord:function(pkey){
+        if(this.linkerform){
+            this.linkerform.load({destPkey:pkey,default_kw:this.default_kwargs});
+            this.thdialog.show();
+        }else{
+            var that = this;
+            var destPkey = pkey;
+            var iframeDialogKw = {title:'Palette:',table:this.related_table,main:'form',
+                                 main_th_linker:true, height:'300px',width:'400px',
+                                 onStarted:function(){that.onIframeStarted(this,destPkey)}};
+            objectUpdate(iframeDialogKw,this.dialog_kwargs);
+            var thdialog = genro.src.create('thIframeDialog',iframeDialogKw,this.sourceNode.getStringId());
+            this.thdialog = thdialog.getParentNode().getWidget();
+            this.thdialog.show();
+        }
+    },
+    
+    onIframeStarted:function(iframe,pkey){
+        this.linkerform = iframe._genro.getForm('mainform');
+        this.linkerform.load({destPkey:pkey,default_kw:this.default_kw});
+        var that = this;
+        this.linkerform.subscribe('onSaved',function(kw){
+            that.setCurrentPkey(kw.pkey);
+            that.closeLinker();
+            that.thdialog.hide();
+        });
+    },
+    
+    loadrecord:function(pkey){
+        this.openrecord(this.getCurrentPkey());
+    },
+    
+    newrecord:function(){
+        this.openrecord('*newrecord*');
+    }
+});
+
+
 dojo.declare("gnr.GnrQueryBuilder", null, {
     constructor: function(sourceNode, maintable,rootId) {
         if (!genro.querybuilder){

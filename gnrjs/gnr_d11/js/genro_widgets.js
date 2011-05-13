@@ -424,7 +424,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
 
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
-        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad');
+        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted');
         var condFunc = objectPop(attributes, 'condition_function');
         var condValue = objectPop(attributes, 'condition_value');
         var onUpdating = objectPop(attributes, 'onUpdating');
@@ -438,7 +438,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         return sourceNode.savedAttrs;
     },
 
-    
+    autoSize:function(iframe){
+        console.log('autosize',iframe);
+    },
     created:function(newobj, savedAttrs, sourceNode) {
         if (savedAttrs.rowcount && savedAttrs.tableid) {
             var rowcount = savedAttrs.rowcount;
@@ -457,6 +459,10 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         if (savedAttrs.onLoad) {
             dojo.connect(newobj, 'onload', funcCreate(savedAttrs.onLoad));
         }
+        if (savedAttrs.onStarted){
+            sourceNode.onStartedFrame = funcCreate(savedAttrs.onStarted);
+        }
+        
         this.setSrc(newobj, savedAttrs.src);
     },
     prepareSrc:function(domnode) {
@@ -2416,7 +2422,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var opt = objectUpdate({}, formatOptions);
             var cellClassFunc;
             if (cellClassCB) {
-                cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex');
+                cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex',this);
             }
             return function(v, inRowIndex) {
 

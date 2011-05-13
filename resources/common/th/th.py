@@ -26,7 +26,7 @@ class TableHandler(BaseComponent):
     """Main class of th"""
     js_requires = 'th/th'
     css_requires= 'th/th'
-    py_requires='th/th_view:TableHandlerView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon'
+    py_requires='th/th_view:TableHandlerView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
 
     @extract_kwargs(condition=True,grid=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
@@ -38,7 +38,7 @@ class TableHandler(BaseComponent):
                                                     default_kwargs=default_kwargs,**kwargs)
         tableCode = table.replace('.','_')
         th_root = nodeId or '%s_%i' %(tableCode,id(pane.parentNode))
-        listCode='L_%s' %th_root
+        listCode='V_%s' %th_root
         formCode='F_%s' %th_root   
         wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
                         thlist_root=listCode,
@@ -160,130 +160,47 @@ class TableHandler(BaseComponent):
         rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
         root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
-        
-    @extract_kwargs(default=True,condition=True)
-    @struct_method   
-    def th_linker__old(self,pane,field=None,label=None,resource=None,formResource=None,pageUrl=None,
-                        frameCode=None,condition=None,default_kwargs=None,condition_kwargs=None,**kwargs):
-        maintable = pane.getInheritedAttributes().get('table') or self.maintable
-        maintableobj = self.db.table(maintable)
-        column = maintableobj.column(field)
-        label = label or column.name_long
-        table = column.relatedColumn().table.fullname
-        tableCode = table.replace('.','_')
-        frameCode = frameCode or '%s_%i' %(tableCode,id(pane.parentNode))
-        self._th_mixinResource(frameCode,table=table,resourceName=resource,defaultClass='Linker')  
-        formResource = formResource or self._th_hook('formResource',mangler=frameCode)()
-        frame = pane.framePane(frameCode=frameCode,_class='pbl_roundedGroup', **kwargs)
-        top = frame.top
-        top.attributes.update(_class='pbl_roundedGroupLabel')
-        linkerpath = '#FORM.linkers.%s' %frameCode
-        top = top.stackContainer(datapath=linkerpath)
-        top.dataController('sc.widget.switchPage(pkey?0:1);',pkey='^#FORM.record.%s' %field,sc=top)
-        readBar = top.contentPane(childname='read').slotBar('label,*,write',label=label)
-        readBar.write.slotButton('!!Write',iconClass='icnBaseWrite',showLabel=False,baseClass='no_background',
-                                    action='sc.widget.switchPage(1)',sc=top)
-    
-        writeBar = top.contentPane(childname='write').slotBar('label,selector,add,edit,*,back',label=label)
-        writeBar.selector.field(column.fullname,datapath='#FORM.record',lbl=None,**self._th_hook('fieldOptions',mangler=frameCode,dflt=dict())())
-        
-        palette = pane.palette(dockTo='dummyDock',title='^.title',
-                               datapath=linkerpath,**self._th_hook('dialog',mangler=frameCode)())
-                               
-        pageUrl = pageUrl or self._th_hook('pageUrl',mangler=frameCode,dflt='/sys/thpage/%s' %table.replace('.','/'))() 
-        iframe = palette.div(height='100%',width='100%',_lazyBuild=True,overflow='hidden').iframe(src=pageUrl,main='form',main_th_linker=True,main_th_pkey='=#FORM.record.%s' %field)
-        writeBar.add.slotButton('!!Add',action="FIRE .pkey='*newrecord*';",iconClass='icnBaseAdd',
-                                showLabel=False,baseClass='no_background')
-        writeBar.edit.slotButton('!!Edit',action='if(currPkey){FIRE .pkey=currPkey;}',
-                                iconClass='icnBaseEdit',showLabel=False,baseClass='no_background',
-                                currPkey='=#FORM.record.%s' %field,visible='^#FORM.record.%s' %field)
-        writeBar.dataController(""" palette = palette.widget; 
-                                    palette.show(); palette.bringToTop();
-                                    if(!iframeNode.domNode){
-                                        return;
-                                    }
-                                    iframeNode = iframeNode.domNode;
-                                    var loadKw= {default_kw:default_kwargs,destPkey:pkey};
-                                    iframeNode.contentWindow.genro.publish('external_load',loadKw);
-                                   """,
-                                    pkey="^.pkey",palette=palette,iframeNode=iframe,default_kwargs=default_kwargs)
-                                    
-        writeBar.back.slotButton('!!Cancel',iconClass='icnTabClose',showLabel=False,baseClass='no_background',
-                                action='sc.widget.switchPage(0)',sc=top)        
-                                
-                                
-        frame.div(innerHTML='==dataTemplate(_tpl,_data)',_data='^#FORM.record.@%s' %field,
-                  _tpl=self._th_hook('template',mangler=frameCode)())        
-    
+
+class ThLinker(BaseComponent):
+    @extract_kwargs(dialog=True,default=True)
     @struct_method 
-    def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,openIfNew=None,**kwargs):
+    def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,
+                    openIfNew=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs):
         if '.' in field:
             table,field = field.split('.')
         else:
             table = pane.getInheritedAttributes().get('table') or self.maintable
-        related_tblobj = self.db.table(table).column(field).relatedColumn().table    
+        tblobj = self.db.table(table)
+        related_tblobj = tblobj.column(field).relatedColumn().table    
         related_table = related_tblobj.fullname
-        related_tablename = related_tblobj.name_long.replace('!!','')  
-        tableCode = related_table.replace('.','_')  
-        connect_onBlur='this.getParentNode().publish("disable");'
-        linker = pane.div(connect_onclick="""if(this.form.locked){
-                                                    return;
-                                                } 
-                                                genro.dom.addClass(this,"th_enableLinker");
-                                                var that = this;
-                                                setTimeout(function(){
-                                                    var selector = that.getChild('/selector');
-                                                    selector.widget.focus();
-                                                },1)""",
-                                _class='th_linker',childname='linker',
-                                selfsubscribe_disable='genro.dom.removeClass(this,"th_enableLinker")',
-                                rounded=8,tip='!!Link to an existing %s' %related_tablename,
-                                )
+        linkerpath = '#FORM.linker_%s' %field
+        linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,
+                         rounded=8,tip='^.tip_link',onCreated='this.linkerManager = new gnr.LinkerManager(this);',
+                         connect_onclick='this.linkerManager.openLinker();',
+                         selfsubscribe_disable='this.linkerManager.closeLinker();',
+                         selfsubscribe_newrecord='this.linkerManager.newrecord();',
+                         selfsubscribe_loadrecord='this.linkerManager.loadrecord();',
+                         _table = table,_related_table = related_table,_field=field,_embedded=embedded,
+                         _dialog_kwargs=dialog_kwargs,_default_kwargs=default_kwargs)
+        linker.dataController("""SET .tip_link =linktpl.replace('$table1',t1).replace('$table2',t2);
+                                 SET .tip_add = addtpl.replace('$table2',t2);""",
+                            _init=True,linktpl='!!Link current $table1 record to an existing record of $table2',
+                            addtpl='!!Add a new $table2',
+                            t1=tblobj.name_long, t2=related_tblobj.name_long)        
         if formResource or formUrl:
+            linker.div(_class='th_linkerAdd',tip='^.tip_add' ,childname='addbutton',
+                        connect_onclick="this.getParentNode().publish('newrecord')")
+            linker.attributes.update(_embedded=False)
+            embedded = False
             openIfNew = True if openIfNew is None else openIfNew
-            connect_onBlur = None
-            formUrl = formUrl or '/sys/thpage/%s' %related_table.replace('.','/')
-            self._th_mixinResource(id(pane),table=table,resourceName=formResource,defaultClass='Form')            
-            dialog_kw = self._th_hook(id(pane),'dialog',dflt=dict(height='400px',width='500px'))()
-            
-            
-            palette = pane.palette(dockTo='dummyDock',maxable=True,autoSize=False,
-                            _lazyBuild=True,overflow='hidden',**kwargs)
-                            
-            formResource = formResource or ':Form'
-            iframe = palette.iframe(src=formUrl,main='form',childname='iframeform',main_th_linker=True,maxable=True,
-                                    main_th_pkey='=#FORM.record.%s' %field,main_th_formResource=formResource,
-                                    selfsubscribe_pageStarted="""
-                                                var insideForm = this.domNode.contentWindow.genro.getForm('mainform');
-                                                this._insideForm = insideForm;
-                                                var that = this;
-                                                var palette = this.getParentNode();
-                                                insideForm.subscribe('onSaved',function(kw){
-                                                    that.setRelativeData("#FORM.record.%s",kw.pkey);
-                                                    palette.widget.hide();
-                                                })
-                                    """ %field)
-            addbutton = linker.div(_class='th_linkerAdd',tip='Add a new %s' %related_tablename,
-                                    connect_onclick="genro.publish('%s_load',{pkey:'*newrecord*'})" %tableCode)
-            addbutton.dataController("""
-                var p = palette.widget;
-                p.show(); 
-                p.bringToTop();
-                var iframeNode = palette.getChild('/iframeform');
-                this.watch('formReady',function(){return iframeNode._insideForm;},
-                function(){iframeNode._insideForm.load({destPkey:pkey});});
-            """,palette=palette,nodeId=tableCode,selfsubscribe_load=True)
-
-            
         if openIfNew:
             linker.attributes.update(_class='==newrecord?"th_enableLinker th_linker": "th_linker"',
                                       newrecord='^#FORM.record?_newrecord')
         if newRecordOnly:
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
-                connect_onBlur=connect_onBlur,
+                connect_onBlur='this.getParentNode().publish("disable");',
                 _class='th_linkerField',background='white',**kwargs)
-        linker._table = related_table
         return linker
     
     @struct_method 
@@ -291,15 +208,31 @@ class TableHandler(BaseComponent):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         frame = pane.framePane(frameCode=frameCode,_class=_class)
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,newRecordOnly=newRecordOnly,openIfNew=openIfNew,label=label,**kwargs)
-        linkertable = linkerBar._table
-        frame.div(template=self.tableTemplate(linkertable,template),datasource='^.@%s' %field)
+        linker = linkerBar.linker
+        currpkey = '^#FORM.record.%s' %field
+        frame.div(template=self.tableTemplate(linker.attributes['_related_table'],template),
+                    datasource='^.@%s' %field,visible=currpkey,margin='4px')
+        footer = frame.bottom.slotBar('*,linker_edit')
+        footer.linker_edit.slotButton('Edit current record',baseClass='no_background',iconClass='icnBaseWrite',
+                                       action='linker.publish("loadrecord");',linker=linker,showLabel=False,
+                                       visible=currpkey,margin='2px',parentForm=True)
 
     @struct_method          
     def th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs):
         bar = pane.slotBar('lbl,*,linkerslot,5',_class=_class)
         linker = bar.linkerslot.linker(field=field,newRecordOnly=newRecordOnly,**kwargs)
-        bar._table = linker._table
-        label = label or self.db.table(linker._table).name_long
+        bar.linker = linker
+        label = label or self.db.table(linker.attributes['_related_table']).name_long
         bar.lbl.div(label)
         return bar
+
+    @struct_method          
+    def th_thIframeDialog(self,pane,**kwargs):
+        return pane.child('ThIframeDialog',**kwargs)
+
+    @struct_method          
+    def th_thIframePalette(self,pane,**kwargs):
+        return pane.child('ThIframePalette',**kwargs)
         
+        
+

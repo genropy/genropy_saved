@@ -74,7 +74,6 @@ class FormHandler(BaseComponent):
                                                 }
                                                 """
             gridattr['selfsubscribe_addrow'] = 'currform.newrecord();'
-            gridattr['selfsubscribe_delrow'] = "alert('should delete')"
             gridattr['subscribe_form_%s_onLoaded' %formId] ="""
                                                                 if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
                                                                     this.widget.selectByRowAttr('_pkey',$1.pkey);
