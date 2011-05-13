@@ -514,7 +514,7 @@ common attributes
       For more information, please check the :ref:`genro_readonly` documentation
       page. Default value is ``True`` or ``False`` depending on the widget
       (check it in their method definition).
-    * *default_kwargs*: default value is ``None``
+    * *default_kwargs*: add???. Default value is ``None``
         
         * *virtualStore*: boolean. add??? Default value is ``False``
       
