@@ -185,8 +185,8 @@ first steps
     
 .. _th_resource_page:
 
-th_resource_webpage
-===================
+resource webpage
+================
 
     Let's check now the code inside a page with the ``View`` and the ``Form`` classes.
     
@@ -396,8 +396,8 @@ th_webpage methods
     
 .. _th_webpage_th_form:
     
-th_webpage: th_form
--------------------
+th_form
+-------
     
     The definition line is::
     
@@ -502,8 +502,12 @@ common attributes
     * *th_pkey*: add???. Default value is ``None``
     * *datapath*: the path of your data. For more information, check the
       :ref:`genro_datapath` documentation page. Default value is ``None``
-    * *formResource*: add???. Default value is ``None``
-    * *viewResource*: add???. Default value is ``None``
+    * *formResource*: allow to change the default :ref:`th_form_class`.
+                      Check the :ref:`th_formresource` section for more
+                      information. Default value is ``None``
+    * *viewResource*: allow to change the default :ref:`th_view_class`.
+                      Check the :ref:`th_viewresource` section for more
+                      information. Default value is ``None``
     * *formInIframe*: add???. Default value is ``False``
     * *reloader*: add???. Default value is ``None``
     * *readOnly*: boolean. If ``True``, the TableHandler is in read-only mode.
@@ -670,22 +674,234 @@ iframe types
 th_linker
 ---------
     
-    .. method:: th_linker(self,pane,field=None,label=None,resource=None,formResource=None,pageUrl=None,frameCode=None,condition=None,default_kwargs=None,condition_kwargs=None,**kwargs)
+    **Definition:**
+    
+    .. method:: th_linker(self,pane,field=None,formResource=None,newRecordOnly=None,openIfNew=None,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    * *pane*: add???.
+    * *field*: add???. Default value is ``None``
+    * *formResource*: add???. Default value is ``None``
+    * *newRecordOnly*: add???. Default value is ``None``
+    * *openIfNew*: add???. Default value is ``None``
     
 .. _th_thiframe:
 
 th_thIframe
 -----------
-
+    
+    **Definition:**
+    
     .. method:: th_thIframe(self,pane,method=None,src=None,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    * *pane*: add???.
+    * *method*: add???. Default value is ``None``
+    * *src*: add???. Default value is ``None``
     
 .. _th_iframedispatcher:
 
 th_iframedispatcher
 -------------------
     
+    **Definition:**
+    
     .. method:: rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,**kwargs)
     
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    * *root*: add???.
+    * *methodname*: add???. Default value is ``None``
+    * *pkey*: add???. Default value is ``None``
+    
+Attributes explanation
+======================
+
+.. _th_formresource:
+
+formResource attribute
+----------------------
+
+    The formResource attribute allow to choose a modified :ref:`th_form_class` respect
+    to the default one. These modified Form classes are structured like the default Form
+    class: the difference is that you can call them with the name you want and that
+    inside them you can write a different Form class.
+    
+        **Example:**
+        
+        This is an example of a Form class inside a :ref:`th_resource_page`::
+        
+            class Form(BaseComponent):
+                def th_form(self, form):
+                    pane = form.record
+                    fb = pane.formbuilder(cols=2)
+                    fb.field('@staff_id.name')
+                    fb.field('@staff_id.surname')
+                    fb.field('@staff_id.email')
+                    fb.field('@staff_id.telephone')
+                    fb.field('@staff_id.fiscal_code')
+                    
+        while this one is the example of a modified Form class::
+        
+            class MyClass(BaseComponent):
+                def th_form(self, form):
+                    pane = form.record
+                    fb = pane.formbuilder(cols=2)
+                    fb.field('@staff_id.name')
+                    fb.field('@staff_id.surname')
+                    
+        In this example the MyClass class allow to write only on two features (name
+        and surname) respect to the Form class, in which user can write on more
+        fields.
+                
+    By default your Form class will be taken from the :ref:`th_webpage_th_form` of your
+    :ref:`th_webpage` (if it is defined) or from a :ref:`th_resource_page` of your
+    resources.
+    
+    To change the default Form class you have to:
+    
+    #. create a new Form class (choose the name you want) in a :ref:`th_resource_page`.
+    #. use the following syntax in the ``formResource`` attribute::
+    
+        formResource='fileNameOfYourResource:FormClassName'
+        
+      where:
+      
+      * ``fileNameOfYourResource``: the name of your :ref:`th_resource_page`.
+        If your file is called ``th_`` followed by the name of the :ref:`genro_table`
+        to which your page is related, you can omit to write the
+        ``fileNameOfYourResource``, because the standard name is taken automatically.
+        Otherwise, write it without its ``.py`` extension.
+      * ``FormClassName``: the name you gave to your Form class. You may not write this
+        part if the name of your class is the standard one (that is, ``Form``).
+        
+    **Examples:**
+    
+    #. If you have a table called ``staff.py``, a resource page called ``th_staff.py``
+       with a Form-modified class called ``MyFormClass``, the formResource will be::
+       
+        formResource=':MyFormClass'
+        
+       (remember the two dots ``:`` before the class name).
+       
+       Equally you can write::
+       
+        formResource='th_staff:MyFormClass'
+        
+       so you can insert the filename ``th_staff`` or not, because it is the standard
+       name.
+        
+    #. If you have a table called ``staff.py``, a resource page called ``my_great_resource.py``
+       with a Form-modified class called ``ThisIsGreat``, the formResource will be::
+       
+        formResource='my_great_resource:ThisIsGreat'
+        
+    #. You may call the formResource attibute even if it is not necessary: if you have
+       a table called ``staff.py``, a resource page called ``th_staff.py`` and inside it
+       the Form class called ``Form``, the formResource will be::
+       
+        formResource='th_staff:Form'
+    
+    .. _th_viewresource:
+
+viewResource attribute
+----------------------
+    
+    The viewResource attribute allow to choose a modified :ref:`th_view_class` respect
+    to the default one. These modified View classes are structured like the default View
+    class: the difference is that you can call them with the name you want and that
+    inside them you can write a different View class.
+    
+        **Example:**
+        
+        This is an example of a View class inside a :ref:`th_resource_page`::
+        
+            class View(BaseComponent):
+                def th_struct(self,struct):
+                    r = struct.view().rows()
+                    r.fieldcell('@staff_id.company_name', width='18%')
+                    r.fieldcell('@staff_id.telephone', width='6%')
+                    r.fieldcell('@staff_id.email', width='12%')
+                    r.fieldcell('@staff_id.address',width='12%')
+                    r.fieldcell('@staff_id.fax', width='6%')
+                    r.fieldcell('@staff_id.www', name='Web site', width='13%')
+                    r.fieldcell('@staff_id.notes', width='9%')
+                    
+        while this one is the example of a modified Form class::
+        
+            class HelloWorld(BaseComponent):
+                def th_struct(self,struct):
+                    r = struct.view().rows()
+                    r.fieldcell('@staff_id.company_name', width='18%')
+                    r.fieldcell('@staff_id.address',width='12%')
+                    r.fieldcell('@staff_id.www', name='Web site', width='13%')
+                    r.fieldcell('@staff_id.notes', width='9%')
+                    
+        In this example the HelloWorld class allow to write on a reduced number
+        of fields.
+        
+    By default your View class will be taken from the :ref:`th_webpage_th_view` of your
+    :ref:`th_webpage` (if it is defined) or from a :ref:`th_resource_page` of your
+    resources.
+    
+    To change the default View class you have to:
+    
+    #. create a new View class (choose the name you want) in a :ref:`th_resource_page`.
+    #. use the following syntax in the ``viewResource`` attribute::
+    
+        viewResource='fileNameOfYourResource:ViewClassName'
+        
+      where:
+      
+      * ``fileNameOfYourResource``: the name of your :ref:`th_resource_page`.
+        If your file is called ``th_`` followed by the name of the :ref:`genro_table`
+        to which your page is related, you can omit to write the
+        ``fileNameOfYourResource``, because the standard name is taken automatically.
+        Otherwise, write it without its ``.py`` extension.
+      * ``ViewClassName``: the name you gave to your modified-View class. You may not
+        write this part if the name of your class is the standard one (that is, ``View``).
+        
+    **Examples:**
+    
+    #. If you have a table called ``staff.py``, a resource page called ``th_staff.py``
+       with a View-modified class called ``MyViewClass``, the viewResource will be::
+       
+        viewResource=':MyViewClass'
+        
+       (remember the two dots ``:`` before the class name).
+       
+       Equally you can write::
+       
+        viewResource='th_staff:MyViewClass'
+        
+       so you can insert the filename ``th_staff`` or not, because it is the standard
+       name.
+        
+    #. If you have a table called ``staff.py``, a resource page called ``my_great_resource.py``
+       with a View-modified class called ``ThisIsGreat``, the viewResource will be::
+       
+        viewResource='my_great_resource:ThisIsGreat'
+        
+    #. You may call the viewResource attibute even if it is not necessary: if you have
+       a table called ``staff.py``, a resource page called ``th_staff.py`` and inside it
+       the View class called ``Form``, the viewResource will be::
+       
+        viewResource='th_staff:Form'
+        
 **Footnotes**:
 
 .. [#] For more information on absolute and relative paths, check the :ref:`genro_datapath` documentation page.
