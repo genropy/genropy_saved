@@ -47,13 +47,13 @@ Introduction
     * the View class, that allows to manage data visualization
     * the Form class, that allows to manage data entry
     
-    These two classes will be visualized respectively into a *view-data webpage*:
+    These two classes will be visualized respectively into a *view-data window*:
     
-    .. image:: ../images/th/view.png
+    .. image:: ../../images/th/view.png
     
-    and into a *data-entry webpage*:
+    and into a *data-entry window*:
     
-    .. image:: ../images/th/form.png
+    .. image:: ../../images/th/form.png
     
     For more information of the GUI of these two pages, please check the
     :ref:`genro_view_data` and the :ref:`genro_data_entry` documentation pages.
@@ -69,7 +69,7 @@ Introduction
       clients (and so on) you can create a single resource that you can reuse every
       time you need it.
       
-    * You can choose the GUI of your *data-entry webpage* from a set of options
+    * You can choose the GUI of your *data-entry window* from a set of options
       (e.g: dialog, palette, stackcontainer...). Please check the :ref:`th_types`
       section for more information.
       
@@ -83,7 +83,7 @@ tableHandler paths
 
     In this section you will learn about the path structure of the tableHandler:
     
-    .. image:: ../images/th/th_map.png
+    .. image:: ../../images/th/th_map.png
     
     Let's see the features of this hierarchy:
     
@@ -173,7 +173,7 @@ first steps
        
     Let's check out this figure that sum up all the creation of new folders and files:
     
-    .. image:: ../images/th/th.png
+    .. image:: ../../images/th/th.png
     
     Pay attention that for every tableHandler you want to create, you have to repeat
     the point 3 and 4 of the previous list; for example, if you have three tables called
@@ -181,7 +181,7 @@ first steps
     ``tables`` folder with a ``th_`` file in each folder, as you can see in the following
     image:
     
-    .. image:: ../images/th/th2.png
+    .. image:: ../../images/th/th2.png
     
 .. _th_resource_page:
 
@@ -326,7 +326,7 @@ th_webpage
         ``staff.py``), a :ref:`th_resource_page` (``th_staff.py``) and some
         ``th_webpages`` (``auth_page.py``, ``invoice_page.py`` and ``staff_page.py``):
         
-        .. image:: ../images/th/th_webpages.png
+        .. image:: ../../images/th/th_webpages.png
         
         * "staff" is "ok", because we created the table (``staff.py``) in the correct place
           (``base/model``), the :ref:`th_resource_page` in the correct place
@@ -457,18 +457,22 @@ th_form
 tableHandler types
 ==================
 
-    In this section we explain all the tableHandler types. They are:
+    In this section we explain all the tableHandler types. They are a different way to
+    show the :ref:`genro_view_data` and the :ref:`genro_data_entry`:
     
-    * :ref:`th_border`: the borderTableHandler shows the :ref:`genro_view_data`
-      and the :ref:`genro_data_entry` in a single page.
-    * :ref:`th_dialog`: 
-    * :ref:`th_palette`: 
-    * :ref:`th_plain`: 
-    * :ref:`th_stack`: 
-    
+    * :ref:`th_border`: show the ``view-data window`` and the ``data-entry window``
+      in a single page.
+    * :ref:`th_dialog`: show the ``data-entry window`` in a dialog that appears
+      over the ``view-data window``.
+    * :ref:`th_palette`: show the ``data-entry window`` in a palette that appears
+      over the ``view-data window``.
+    * :ref:`th_plain`: show only the ``view-data window``. User can't modify records.
+    * :ref:`th_stack`: show the ``data-entry window`` and the ``view-data window``
+      in two different stack.
+      
     They represent a different way to visualize the :ref:`genro_data_entry`,
     where users can add/delete/modify their records. For example, the
-    ``dialogTablehandler`` show the *data-entry webpage* in a dialog that
+    ``dialogTablehandler`` show the *data-entry window* in a dialog that
     will appear over the :ref:`genro_view_data`.
     
 .. _types_py_requires:
@@ -503,21 +507,28 @@ common attributes
     * *datapath*: the path of your data. For more information, check the
       :ref:`genro_datapath` documentation page. Default value is ``None``
     * *formResource*: allow to change the default :ref:`th_form_class`.
-                      Check the :ref:`th_formresource` section for more
-                      information. Default value is ``None``
+        Check the :ref:`th_formresource` section for more information.
+        Default value is ``None``
     * *viewResource*: allow to change the default :ref:`th_view_class`.
-                      Check the :ref:`th_viewresource` section for more
-                      information. Default value is ``None``
+        Check the :ref:`th_viewresource` section for more information.
+        Default value is ``None``
     * *formInIframe*: add???. Default value is ``False``
     * *reloader*: add???. Default value is ``None``
-    * *readOnly*: boolean. If ``True``, the TableHandler is in read-only mode.
-      For more information, please check the :ref:`genro_readonly` documentation
-      page. Default value is ``True`` or ``False`` depending on the widget
+    * *readOnly*: boolean. If ``True``, the TableHandler is in read-only mode,
+      so user can visualize records and open the :ref:`th_form_class`, but
+      he can't add/delete/modify records.
+      Default value is ``True`` or ``False`` depending on the widget
       (check it in their method definition).
-    * *default_kwargs*: add???. Default value is ``None``
+    * *default_kwargs*: you can add different kwargs:
         
         * *virtualStore*: boolean. add??? Default value is ``False``
-      
+        * *relation*: add???. Default value is ``None``.
+        * *condition*: add???. Default value is ``None``.
+        * *condition_kwargs*: add???. Default value is ``None``.
+        * *grid_kwargs*: add???. Default value is ``None``.
+        * *hiderMessage*: add???. Default value is ``None``.
+        * *pageName*: add???. Default value is ``None``.
+        
 .. _th_border:
 
 th_borderTableHandler
@@ -532,7 +543,7 @@ th_borderTableHandler
     Based on the Dojo :ref:`genro_bordercontainer`, the borderTableHandler shows the
     :ref:`genro_view_data` and the :ref:`genro_data_entry` in a single page.
     
-    .. image:: ../images/th/border_th.png
+    .. image:: ../../images/th/border_th.png
     
     **Attributes:**
     
@@ -561,7 +572,7 @@ th_dialogTableHandler
     The dialogTableHandler shows the :ref:`genro_data_entry` in a dialog over
     the :ref:`genro_view_data`.
     
-    .. image:: ../images/th/dialog_th.png
+    .. image:: ../../images/th/dialog_th.png
     
     **attributes:**
     
@@ -590,7 +601,7 @@ th_paletteTableHandler
     The paletteTableHandler shows the :ref:`genro_data_entry` in a palette
     over the :ref:`genro_view_data`.
     
-    .. image:: ../images/th/palette_th.png
+    .. image:: ../../images/th/palette_th.png
     
     **attributes**:
     
@@ -620,7 +631,7 @@ th_plainTableHandler
     can't modify, add and delete records (infact, the *readOnly* attribute is set
     to ``True``).
     
-    .. image:: ../images/th/plain_th.png
+    .. image:: ../../images/th/plain_th.png
     
     **attributes**:
     
@@ -647,7 +658,7 @@ th_stackTableHandler
     Remembering the Dojo StackContainer definition: *<<A container that has multiple children,*
     *but shows only one child at a time (like looking at the pages in a book one by one).>>*
     
-    .. image:: ../images/th/stack_th.png
+    .. image:: ../../images/th/stack_th.png
     
     **attributes**:
     
@@ -855,9 +866,7 @@ viewResource attribute
         In this example the HelloWorld class allow to write on a reduced number
         of fields.
         
-    By default your View class will be taken from the :ref:`th_webpage_th_view` of your
-    :ref:`th_webpage` (if it is defined) or from a :ref:`th_resource_page` of your
-    resources.
+    By default your :ref:`th_view_class` is defined in the :ref:`th_resource_page`.
     
     To change the default View class you have to:
     

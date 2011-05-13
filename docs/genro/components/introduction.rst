@@ -98,8 +98,6 @@ List of all the components
     
     **Tables**:
     
-    * :ref:`genro_standardtable`
-    * :ref:`genro_standardtable_light`
     * :ref:`genro_th`
     
     **add???**

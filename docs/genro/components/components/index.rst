@@ -11,5 +11,5 @@ list of components
     linkerField
     login_component
     SelectionHandler <selectionhandler>
-    standardtable/index
     recorddialog
+    th

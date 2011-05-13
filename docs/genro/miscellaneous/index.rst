@@ -10,20 +10,18 @@ Documents to revise
     clipboard
     ../commons/index
     ../datastore/index
-    data_entry
     fine_syntax
     grid
     languages
     logging
     print
+    query
     sql
     struct
     textmate
-    th
     trigger
     tutorial/index
     user_interface
-    view_data
     webpage_creation
     workdate
     wsgi

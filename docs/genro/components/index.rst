@@ -1,8 +1,8 @@
 .. _genro_components_index:
 
-==========
-components
-==========
+=========
+component
+=========
 
 .. toctree::
     :maxdepth: 1

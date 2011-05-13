@@ -86,4 +86,4 @@ public and private resources
 **Footnotes**:
 
 .. [#] For more information on how to use CSS in Genro, check the :ref:`genro_css` documentation page
-.. [#] For more information on Genro components, check the :ref:`genro_components_index` documentation page
+.. [#] For more information on Genro components, check the :ref:`genro_components_index`\s documentation page

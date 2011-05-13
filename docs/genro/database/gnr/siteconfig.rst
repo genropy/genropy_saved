@@ -161,7 +161,7 @@ Tags
     
     * The ``<common/>`` tag: write it to be able to use a lot of Genro tools:
         
-        * Genro :ref:`genro_components_index`
+        * Genro :ref:`genro_components_index`\s
         * Genro :ref:`css_genro_themes`
         * add???
         

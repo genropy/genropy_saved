@@ -48,12 +48,16 @@ GnrCustomWebPage
     
         class GnrCustomWebPage(object):
         
-    #. You may insert some optional :ref:`webpages_variables`. Here we introduce the most commonly used:
-    
+    #. You may insert some optional :ref:`webpages_variables`. Here we introduce
+       the most commonly used:
+       
         * :ref:`webpages_maintable`: allow to create shortcuts for users query
-        * :ref:`webpages_py_requires`: allow to include some Genro :ref:`genro_components_index` to your webpage
-        * :ref:`webpages_js_requires`: allow to include some javascipt functionality to your webpage
-        * :ref:`webpages_css_requires`: allow to include some :ref:`genro_css` to your webpage
+        * :ref:`webpages_py_requires`: allow to include some Genro
+          :ref:`genro_components_index`\s to your webpage
+        * :ref:`webpages_js_requires`: allow to include some javascript functionality
+          to your webpage
+        * :ref:`webpages_css_requires`: allow to include some :ref:`genro_css`
+          to your webpage
     
     #. You have to define the main method (unless you're using an active component [#]_)
         
@@ -97,8 +101,8 @@ webpage variables
 py_requires
 -----------
 
-    * Description: a string that allows to include some :ref:`genro_components_index` to
-      your project.
+    * Description: a string that allows to include some :ref:`genro_components_index`\s
+      to your project.
     * Syntax: ``py_requires = 'fileName:componentClassName'``
     
         Where:
@@ -118,8 +122,8 @@ py_requires
     .. note:: The components you want to use must be placed into a folder named
               "``resources``" (or "``_resources``")
               
-              * For more information about components check the :ref:`genro_components_index`
-                documentation page
+              * For more information about components check the
+                :ref:`genro_components_index`\s documentation page
               * For more information about their location in a Genro :ref:`genro_project`,
                 please check the :ref:`genro_resources_index` documentation page.
             
