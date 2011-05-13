@@ -617,7 +617,8 @@ th_plainTableHandler
     **Description:**
     
     With the plainTableHandler you have only the :ref:`genro_view_data`, so user
-    can't modify, add and delete records.
+    can't modify, add and delete records (infact, the *readOnly* attribute is set
+    to ``True``).
     
     .. image:: ../images/th/plain_th.png
     
