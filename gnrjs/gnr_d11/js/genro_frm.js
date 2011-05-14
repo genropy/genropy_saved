@@ -465,7 +465,14 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
         }
     },
-    save: function(always) {
+    save: function(kw,modifiers) {
+        var always;
+        if (typeof(kw)=='object'){
+            always=kw.command;
+            var modifiers = kw.modifiers;
+        }else{
+            always = kw;
+        }
         if (!this.opStatus) {
             var always = always || this.getControllerData('is_newrecord');
             if (this.changed || always) {

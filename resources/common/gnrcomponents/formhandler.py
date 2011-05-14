@@ -162,8 +162,8 @@ class FormHandler(BaseComponent):
                     topic='navigationEvent',command='dismiss')
     
     @struct_method          
-    def fh_slotbar_form_save(self,pane,**kwargs):
-        pane.formButton('!!Save',topic='save',iconClass="tb_button db_save", parentForm=True)
+    def fh_slotbar_form_save(self,pane,always=False,**kwargs):
+        pane.formButton('!!Save',topic='save',iconClass="tb_button db_save",parentForm=True,command=always)
 
     @struct_method          
     def fh_slotbar_form_revert(self,pane,**kwargs):
