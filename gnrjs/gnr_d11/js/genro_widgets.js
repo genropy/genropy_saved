@@ -4020,6 +4020,11 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_createFiltered:function(currentFilterValue,filterColumn,colType){
         return this.collectionStore().createFiltered(this,currentFilterValue,filterColumn,colType);
     },
+    mixin_deleteRows:function(pkeys){
+        pkeys = pkeys || this.getSelectedPkeys();
+        this.collectionStore().deleteAsk(pkeys);
+    },
+    
     mixin_filterToRebuild: function(value) {
         return this.collectionStore().filterToRebuild(value);
     },

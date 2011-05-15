@@ -560,6 +560,28 @@ class GnrBaseWebPage(GnrObject):
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
             
+
+    def rpc_deleteDbRows(self, table, pkeys=None, **kwargs):
+        """Method for deleting a single record from a given tablename 
+        and from a record or its pkey
+        
+        :param table: the table from which you want to delete a single record
+        :param pkeys: 
+        :returns: if it works, returns the primary key and the deleted attribute.
+                  Else, return an exception
+        """
+        try:
+            tblobj = self.db.table(table)
+            rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
+                                for_update=True,addPkeyColumn=False).fetch()
+            for r in rows:
+                tblobj.delete(r)
+            self.db.commit()
+            
+        except GnrSqlDeleteException, e:
+            return ('delete_error', {'msg': e.message})
+            
+            
     def setLoadingParameters(self, table, **kwargs):
         """add???
         

@@ -48,13 +48,12 @@ class TableHandler(BaseComponent):
                         **kwargs)
         message= hiderMessage or '!!Save the main record to use this pane.'
         wdg.dataController("""
-                            genro.bp(pkey);
                             if(pkey=='*newrecord*'){
                                 hider = sourceNode.setHiderLayer({message:message});
                             }else{
                                 sourceNode.setHiderLayer(null,true);
                             }
-                            """,pkey='^#FORM.pkey',sourceNode=wdg,message=message)                
+                            """,pkey='^#FORM.pkey',sourceNode=wdg,message=message,_delay=1)                
         top_slots = '#,delrow,addrow'
         if readOnly:
             top_slots = '#'
