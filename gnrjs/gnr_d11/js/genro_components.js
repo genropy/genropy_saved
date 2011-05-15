@@ -1169,7 +1169,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var filtered=[]
         var excludeList = null;
         if (grid.excludeListCb) {
-            excludeList = grid.excludeListCb();
+            excludeList = grid.excludeListCb.call(this.sourceNode);
         }
         dojo.forEach(this.getItems(), 
                     function(n,index,array){

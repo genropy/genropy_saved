@@ -10,6 +10,8 @@ class Table(object):
         tbl.column('tag_id',size='22',group='_',name_long='Tag').relation('htag.id', mode='foreignkey', onDelete='raise',
                                                                           relation_name='users')
         tbl.aliasColumn('user',relation_path='@user_id.username')
+        tbl.aliasColumn('fullname',relation_path='@user_id.fullname')
+        tbl.aliasColumn('email',relation_path='@user_id.email')
         tbl.aliasColumn('tag_code',relation_path='@tag_id.code')
         tbl.aliasColumn('tag_description',relation_path='@tag_id.description')
         tbl.aliasColumn('tag_note',relation_path='@tag_id.note')

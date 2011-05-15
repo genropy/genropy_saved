@@ -5,7 +5,9 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 class GnrCustomWebPage(object):
-    py_requires='public:Public,gnrcomponents/htablehandler:HTableHandler'
+    py_requires="""public:Public,
+                   gnrcomponents/htablehandler:HTableHandler,
+                   public:TableHandlerMain"""
     maintable = 'adm.htag'
     def main(self, rootBC, **kwargs):
         frame = rootBC.rootBorderContainer(title='!!Tags manager')
@@ -22,3 +24,34 @@ class GnrCustomWebPage(object):
         fb.field('description')
         fb.field('isreserved', lbl='',label='Is reserved')
         fb.field('note')
+        self.usersPane(bc.contentPane(region='center',margin='2px',datapath='#FORM'))
+
+    def usersPane(self,pane):
+        def user_struct(struct):
+            r = struct.view().rows()
+            r.cell('username', name='username', width='8em')
+            r.cell('fullname', name='fullname', width='100%')
+            
+        th = pane.plainTableHandler(relation='@users',viewResource=':ViewFromTag')
+        bar = th.view.top.bar    
+        th.view.grid.attributes.update(connect_updateRowCount="genro.publish('users_updateRowCount')")
+        bar.replaceSlots('#','#,delrow,addusers')
+        bar.addusers.paletteGrid('users', title='!!Users',searchOn=True, struct=user_struct,
+                                  grid_excludeListCb="""return this.getAttributeFromDatasource('currentUsersGrid').widget.getColumnValues('user')""",
+                                  grid_currentUsersGrid=th.view.grid,
+                                  grid_subscribe_users_updateRowCount="""console.log(this.widget);this.widget.filterToRebuild(true);this.widget.updateRowCount('*')""",
+                                  grid_excludeCol='username',dockButton_iconClass='icnOpenPalette').selectionStore(table='adm.user')
+        
+        grid = th.view.grid
+        grid.dragAndDrop(dropCodes='users')
+        grid.dataRpc('dummy','addUsers',data='^.dropped_users',tag_id='=#FORM.pkey')
+        
+    def rpc_addUsers(self,data=None,tag_id=None,**kwargs):
+        usertagtbl = self.db.table('adm.user_tag')
+        users=usertagtbl.query(where="$tag_id=:tag_id",tag_id=tag_id).fetchAsDict(key='user_id')
+        for row in data:
+            user_id = row.get('_pkey')
+            if not user_id in users:
+                usertagtbl.insert(dict(user_id=user_id,tag_id=tag_id))
+        self.db.commit()
+        

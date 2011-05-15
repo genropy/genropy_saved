@@ -16,5 +16,18 @@ class ViewFromUser(BaseComponent):
     def th_order(self):
         return 'tag_code'
         
-    def th_query(self):
-        return dict(column='tag_code',op='contains', val='%')
+   # def th_query(self):
+   #     return dict(column='tag_code',op='contains', val='%')
+   #     
+class ViewFromTag(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell('user',width='10em')
+        r.fieldcell('fullname',width='10em')
+        r.fieldcell('email',width='10em')
+        
+    def th_order(self):
+        return 'user'
+        
+   #def th_query(self):
+   #    return dict(column='user',op='contains', val='%')

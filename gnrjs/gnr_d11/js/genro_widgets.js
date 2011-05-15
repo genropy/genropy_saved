@@ -3078,7 +3078,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var filtered=[]
         var excludeList = null;
         if (this.excludeListCb) {
-            excludeList = this.excludeListCb();
+            excludeList = this.excludeListCb.call(this.sourceNode);
         }
         dojo.forEach(this.storebag().getNodes(), 
                     function(n,index,array){
