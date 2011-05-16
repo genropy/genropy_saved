@@ -1329,7 +1329,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         })
     },
     onDeletedRows:function(result){
-        if(result.error){
+        if(result && result.error){
             genro.dlg.alert(result.error,'Alert');
         }
     }

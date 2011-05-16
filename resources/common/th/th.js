@@ -10,8 +10,11 @@ dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
         }
         var main = objectPop(kw,'main');
         var iframeAttrs = {'src':url,main:main,_childname:'iframe',height:'100%',width:'100%',border:0};
+        if(objectPop(kw,'isModal')){
+            iframeAttrs['main_th_modal'] = true;
+        }
         iframeAttrs = objectUpdate(kw,iframeAttrs);
-        parent._('iframe',iframeAttrs);
+        return parent._('iframe',iframeAttrs);
     }
 });
 
@@ -21,8 +24,8 @@ dojo.declare("gnr.widgets.ThIframeDialog", gnr.widgets.ThIframe, {
         var dialogAttrs = objectExtract(kw,'title,height,width');
         dialogAttrs.closable=true;
         dialogAttrs = objectUpdate({overflow:'hidden',_lazyBuild:true},dialogAttrs);
-        var dialog = sourceNode._('dialog',objectExtract(dialogAttrs,'title,closable'))._('div',dialogAttrs);
-        this.thiframe(dialog,kw)
+        var dialog = sourceNode._('dialog',objectExtract(dialogAttrs,'title,closable'));
+        this.thiframe(dialog._('div',dialogAttrs),kw);
         return dialog;
     }
 });
@@ -44,6 +47,7 @@ dojo.declare("gnr.widgets.ThIframePalette",gnr.widgets.ThIframe, {
 dojo.declare("gnr.LinkerManager", null, {
     constructor:function(sourceNode){
         this.sourceNode = sourceNode;
+        this.form = this.sourceNode.form;
         this.field = sourceNode.attr._field;
         this.fieldpath = '#FORM.record.'+this.field;
         this.related_table = sourceNode.attr._related_table;
@@ -80,6 +84,9 @@ dojo.declare("gnr.LinkerManager", null, {
         this.sourceNode.setRelativeData(this.fieldpath,pkey);
     },    
     openrecord:function(pkey){
+        if(this.form.locked){
+            return;
+        }
         if(this.linkerform){
             this.linkerform.load({destPkey:pkey,default_kw:this.default_kwargs});
             this.thdialog.show();
@@ -105,6 +112,10 @@ dojo.declare("gnr.LinkerManager", null, {
             that.closeLinker();
             that.thdialog.hide();
         });
+        this.linkerform.subscribe('onDismissed',function(kw){
+            that.thdialog.hide();
+        });
+        
     },
     
     loadrecord:function(pkey){

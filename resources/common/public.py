@@ -462,19 +462,29 @@ class TableHandlerMain(BaseComponent):
         form = self._th_prepareForm(root,**kwargs)
         form = self.th_form(form)
     
-    def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,th_selector=None,**kwargs):
+    def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,th_selector=None,th_modal=None,**kwargs):
         pkey = pkey or kwargs.pop('th_pkey',None)
         tableCode = self.maintable.replace('.','_')
         self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
         form = root.frameForm(frameCode='mainform',table=self.maintable,
                              store_startKey=pkey or '*norecord*',
                              datapath='form',store='recordCluster')
-        slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
-        if th_linker:
-            slots = '*,|,semaphore,|,form_revert,form_save'
-        if th_selector:
-            slots = slots.replace('*','5,form_selectrecord,*')
-        form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')
+        if th_modal:
+            print x
+            slots='revertbtn,*,cancel,savebtn'
+            form.attributes['hasBottomMessage'] = False
+            bar = form.bottom.slotBar(slots,margin_bottom='2px')
+            bar.revertbtn.button('!!Revert',action='this.form.publish("revert")',disabled='^.controller.changed?=!#v')
+            bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
+            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save")')
+            
+        else:
+            slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
+            if th_linker:
+                slots = '*,|,semaphore,|,form_revert,form_save'
+            if th_selector:
+                slots = slots.replace('*','5,form_selectrecord,*')
+            form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')            
         return form
     
     def _usePublicBottomMessage(self,form):
