@@ -12,4 +12,5 @@
     main
     menu
     model/index
+    resources/index
     webpages/index
