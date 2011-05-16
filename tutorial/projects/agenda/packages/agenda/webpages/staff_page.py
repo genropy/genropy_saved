@@ -63,8 +63,17 @@ class GnrCustomWebPage(object):
         fb.field('auth_tags',lbl='!!Auth tags')
         fb.field('avatar_rootpage',lbl='!!Avatar rootpage')
         
-    #def rpc_checkTel(self,value):
-    #    if value == '025511016':
-    #        return 'Casa Astolfi'
-    #    else:
-    #        return 'Casa sconosciuta!'
+    # Prova con "thIframe" ... (non funziona!)
+    #def th_form(self,form,**kwargs):
+    #    tc = form.center.tabContainer(margin='3px', selected='^.selected_tab')
+    #    tc.contentPane(title='Companies', margin='3px').thIframe('companies')
+    #    tc.contentPane(title='Staff', margin='3px').thIframe('staff')
+    #    
+    #def iframe_companies(self, pane, **kwargs):
+    #    th = pane.dialogTableHandler(table='agenda.azienda',virtualStore=True,
+    #                                 dialog_height='500px',dialog_width='700px',dialog_title='COMPANY')
+    #    
+    #def iframe_staff(self, pane, **kwargs):
+    #    th = pane.paletteTableHandler(table='agenda.staff',virtualStore=True,
+    #                                  palette_height='500px',palette_width='700px',dialog_title='STAFF')
+                                      

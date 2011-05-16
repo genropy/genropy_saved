@@ -99,8 +99,6 @@ List of all the components
     **add???**
     
     * :ref:`genro_includedview`
-    * :ref:`genro_selectionhandler`
-    * multiselect
     * timetable_dh
 
 **Footnotes**:

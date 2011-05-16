@@ -18,8 +18,21 @@ class GnrCustomWebPage(object):
         #                              #viewResource='pierino',
         #                              palette_width='600px',palette_height='400px')
         #pc = root.plainTableHandler(table='agenda.contatto',virtualStore=True)
-        th = root.stackTableHandler(table='agenda.contatto',virtualStore=True)
+        #th = root.stackTableHandler(table='agenda.contatto',virtualStore=True)
         
     #def main_(self,root,**kwargs):
     #    root.attributes.update(datapath='test')
     #    th = root.stackTableHandler(table='agenda.azienda',formResource=':FormFull',virtualStore=True)
+    
+        tc = root.tabContainer(margin='3px', selected='^.selected_tab')
+        tc.contentPane(title='Companies', margin='3px').thIframe('companies')
+        tc.contentPane(title='Staff', margin='3px').thIframe('staff')
+        
+    def iframe_companies(self, pane, **kwargs):
+        th = pane.dialogTableHandler(table='agenda.azienda',virtualStore=True,
+                                     dialog_height='500px',dialog_width='700px',dialog_title='COMPANY')
+        
+    def iframe_staff(self, pane, **kwargs):
+        th = pane.paletteTableHandler(table='agenda.staff',virtualStore=True,
+                                      palette_height='500px',palette_width='700px',dialog_title='STAFF')
+                                     

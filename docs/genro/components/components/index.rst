@@ -9,6 +9,5 @@ list of components
     
     IncludedView <includedview>
     linkerField
-    SelectionHandler <selectionhandler>
     recorddialog
     th
