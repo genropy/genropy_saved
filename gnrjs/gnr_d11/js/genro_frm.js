@@ -427,9 +427,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.currentFocused = null;
         if(this.store){
             //modalita nuova
-            this.setDisabled(false)
+            this.setDisabled(false);
+            this.focus();
         }
-        this.focus();
+        
         
     },
     
