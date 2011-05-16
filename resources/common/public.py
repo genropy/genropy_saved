@@ -470,7 +470,6 @@ class TableHandlerMain(BaseComponent):
                              store_startKey=pkey or '*norecord*',
                              datapath='form',store='recordCluster')
         if th_modal:
-            print x
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
             bar = form.bottom.slotBar(slots,margin_bottom='2px')

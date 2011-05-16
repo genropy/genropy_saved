@@ -10,9 +10,7 @@ dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
         }
         var main = objectPop(kw,'main');
         var iframeAttrs = {'src':url,main:main,_childname:'iframe',height:'100%',width:'100%',border:0};
-        if(objectPop(kw,'isModal')){
-            iframeAttrs['main_th_modal'] = true;
-        }
+        iframeAttrs['main_th_modal'] = true;
         iframeAttrs = objectUpdate(kw,iframeAttrs);
         return parent._('iframe',iframeAttrs);
     }
