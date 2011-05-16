@@ -10,10 +10,12 @@ Documents to revise
     clipboard
     ../commons/index
     ../datastore/index
+    dialog
     fine_syntax
     grid
     languages
     logging
+    palette
     print
     query
     sql

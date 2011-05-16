@@ -156,10 +156,12 @@ Tags
 
     .. note:: the ``<xml_auth>`` tag uses the :meth:`auth_xml` method of the ``GnrApp`` class.
     
+    .. warning:: DEPRECATED!!! The adm/manage_users is not used anymore! add???
+    
     The ``<xml_auth>`` tag is a support tag that comes in handy to the :ref:`instanceconfig_py_auth`
     tag; it allows to you (i.e. the programmer) to enter the first time into the webpage called
-    :ref:`genro_packages_adm_webpages_manage_users` (of the :ref:`genro_library_adm` package), so that
-    you can give to your customers (and to you!) a user and a password to access to your project.
+    *adm/manage_users* you can give to your customers (and to you!) a user and a password
+    to access to your project.
     
     The ``<xml_auth>`` attributes are:
     

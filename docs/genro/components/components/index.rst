@@ -9,7 +9,6 @@ list of components
     
     IncludedView <includedview>
     linkerField
-    login_component
     SelectionHandler <selectionhandler>
     recorddialog
     th

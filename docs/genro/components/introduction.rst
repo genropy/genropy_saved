@@ -92,10 +92,6 @@ List of all the components
     * simpledialog
     * :ref:`genro_recorddialog`
     
-    **Login components**:
-    
-    * :ref:`genro_login_component`
-    
     **Tables**:
     
     * :ref:`genro_th`
