@@ -2051,7 +2051,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             sourceNode.dropTarget = true;
         }
         var attributesToKeep = 'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,';
-        attributesToKeep = attributesToKeep + 'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled';
+        attributesToKeep = attributesToKeep + 'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,filteringGrid';
         var gridAttributes = objectExtract(attributes, attributesToKeep);
         objectPopAll(attributes);
         objectUpdate(attributes, gridAttributes);
@@ -2160,6 +2160,23 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 widget[arguments[0]](arguments.slice(1));
             });
         };
+        if (widget.filteringGrid){
+            var connectFilteringGrid=function(){
+                var filteringGrid = widget.filteringGrid.widget || widget.filteringGrid 
+                dojo.connect(filteringGrid,'updateRowCount',function(){widget.filterToRebuild(true);widget.updateRowCount('*')})
+                for (var col in widget.cellmap){
+                    var filteringColumn=widget.cellmap[col].filteringColumn
+                    if (filteringColumn){
+                        widget.excludeListCb=function(){
+                            return filteringGrid.getColumnValues(filteringColumn)
+                        }
+                        widget.excludeCol=col;
+                        break;
+                    }
+                }
+            }
+            genro.src.afterBuildCalls.push(connectFilteringGrid)
+        }
     },
     mixin_updateTotalsCount: function(countBoxNode){
         var countBoxCode =(this.sourceNode.attr.frameCode || this.sourceNode.attr.nodeId)+'_countbox';

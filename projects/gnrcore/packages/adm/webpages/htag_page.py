@@ -29,18 +29,15 @@ class GnrCustomWebPage(object):
     def usersPane(self,pane):
         def user_struct(struct):
             r = struct.view().rows()
-            r.cell('username', name='username', width='8em')
+            r.cell('username', name='username', width='8em',filteringColumn='user')
             r.cell('fullname', name='fullname', width='100%')
             
         th = pane.plainTableHandler(relation='@users',viewResource=':ViewFromTag')
         bar = th.view.top.bar    
-        th.view.grid.attributes.update(connect_updateRowCount="genro.publish('users_updateRowCount')")
         bar.replaceSlots('#','#,delrow,addusers')
         bar.addusers.paletteGrid('users', title='!!Users',searchOn=True, struct=user_struct,
-                                  grid_excludeListCb="""return this.getAttributeFromDatasource('currentUsersGrid').widget.getColumnValues('user')""",
-                                  grid_currentUsersGrid=th.view.grid,
-                                  grid_subscribe_users_updateRowCount="""console.log(this.widget);this.widget.filterToRebuild(true);this.widget.updateRowCount('*')""",
-                                  grid_excludeCol='username',dockButton_iconClass='icnOpenPalette').selectionStore(table='adm.user')
+                                  grid_filteringGrid=th.view.grid,
+                                  dockButton_iconClass='icnOpenPalette').selectionStore(table='adm.user')
         
         grid = th.view.grid
         grid.dragAndDrop(dropCodes='users')
