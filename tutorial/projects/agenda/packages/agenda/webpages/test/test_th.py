@@ -9,17 +9,17 @@ class GnrCustomWebPage(object):
     
     def main(self,root,**kwargs):
         root.attributes.update(datapath='test')
-        #th = root.stackTableHandler(table='agenda.staff',virtualStore=True)
-        #th = root.dialogTableHandler(table='agenda.staff',virtualStore=True,
+        #bc = root.borderTableHandler(table='agenda.contatto',virtualStore=True)
+        #th = root.dialogTableHandler(table='agenda.contatto',virtualStore=True,
         #                             dialog_width='600px',dialog_height='400px')
-        #th = root.paletteTableHandler(table='agenda.staff',virtualStore=True,
-        #                              formResource='pierino:Paperino',readOnly=True,
+        #th = root.paletteTableHandler(table='agenda.contatto',virtualStore=True,
+        #                              #formResource='pierino:Paperino',readOnly=True,
         #                              #viewResource=':NisoView', # = viewResource='th_staff:NisoView'
         #                              #viewResource='pierino',
         #                              palette_width='600px',palette_height='400px')
-        #bc = root.borderTableHandler(table='agenda.staff',virtualStore=True)
-        pc = root.plainTableHandler(table='agenda.staff',virtualStore=True)
+        #pc = root.plainTableHandler(table='agenda.contatto',virtualStore=True)
+        th = root.stackTableHandler(table='agenda.contatto',virtualStore=True)
         
-    def main_(self,root,**kwargs):
-        root.attributes.update(datapath='test')
-        th = root.stackTableHandler(table='agenda.azienda',formResource=':FormFull',virtualStore=True)
+    #def main_(self,root,**kwargs):
+    #    root.attributes.update(datapath='test')
+    #    th = root.stackTableHandler(table='agenda.azienda',formResource=':FormFull',virtualStore=True)

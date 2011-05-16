@@ -32,36 +32,36 @@ class GnrCustomWebPage(object):
         #altro.numbertextbox(value='^.numerobusatto',default=36)
         
         top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='1px',height='40%')
-        top.div('!!Record di anagrafica',_class='pbl_roundedGroupLabel')
+        top.div('!!Registry records',_class='pbl_roundedGroupLabel')
         fb = top.formbuilder(dbtable='sw_base.anagrafica',margin_left='10px',margin_top='1em',
                              width='370px',datapath='.@anagrafica_id',cols=2)
-        fb.field('nome')
-        fb.field('cognome')
-        fb.field('email',
-                  validate_email=True,validate_email_error='!!Formato email non corretto')
-        fb.field('telefono',ghost='esempio: 347/1212123')#,validate_remote='checkTel')
-        fb.field('codice_fiscale',
+        fb.field('nome',lbl='!!Name')
+        fb.field('cognome',lbl='!!Surname')
+        fb.field('email',lbl='!!Email',
+                  validate_email=True,validate_email_error='!!Uncorrected email format')
+        fb.field('telefono',ghost='example: 347/1212123')#,validate_remote='checkTel')
+        fb.field('codice_fiscale',lbl='!!Tax code',
                   validate_case='u')
-        fb.field('partita_iva')
-        fb.field('fax',colspan=2)
-        fb.field('note',tag='textarea',colspan=2,width='100%')
+        fb.field('partita_iva',lbl='!!VAT')
+        fb.field('fax',lbl='!!Fax',colspan=2)
+        fb.field('note',lbl='!!Notes',tag='textarea',colspan=2,width='100%')
         
         left = bc.contentPane(region='left',_class='pbl_roundedGroup',margin='1px',width='50%')
-        left.div('!!Record di staff',_class='pbl_roundedGroupLabel')
+        left.div('!!Staff records',_class='pbl_roundedGroupLabel')
         fb = left.formbuilder(margin_left='10px',margin_top='1em',
                              width='370px',cols=1) # è implicito grazie al maintable: dbtable='agenda.staff'
-        fb.field('interno',ghost='esempio: 202')
-        fb.field('ruolo',tag='combobox',lbl='Ruolo nell\'azienda',
-                  values='dipendente, libero professionista, manager')
+        fb.field('interno',ghost='example: 202')
+        fb.field('ruolo',tag='combobox',lbl='Company role',
+                  values='emplyee, freelance, manager, owner')
                   
         right = bc.contentPane(region='center',_class='pbl_roundedGroup',margin='1px',width='50%')
-        right.div('!!Record di user',_class='pbl_roundedGroupLabel')
+        right.div('!User records',_class='pbl_roundedGroupLabel')
         fb = right.formbuilder(dbtable='adm.user',cols=1,margin_left='10px',margin_top='1em',
                                width='370px',datapath='.@user_id')
-        fb.field('username')
-        fb.field('md5pwd')
-        fb.field('auth_tags')
-        fb.field('avatar_rootpage')
+        fb.field('username',lbl='!!Username')
+        fb.field('md5pwd',lbl='!!md5pwd')
+        fb.field('auth_tags',lbl='!!Auth tags')
+        fb.field('avatar_rootpage',lbl='!!Avatar rootpage')
         
     #def rpc_checkTel(self,value):
     #    if value == '025511016':

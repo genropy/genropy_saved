@@ -9,16 +9,16 @@ from gnr.web.gnrbaseclasses import BaseComponent
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell(field='giorno',width='5%')
-        r.fieldcell('ora',width='3%')
-        r.fieldcell('username', name='!!Utente', width='8%')
-        r.fieldcell('destinatario', name='!!Chi ha cercato', width='9%')
-        r.fieldcell('cognome', name='!!Chi ha chiamato', width='8%')
-        r.fieldcell('@contatto_id.@anagrafica_id.telefono', name='!!Telefono personale', width='7%')
-        r.fieldcell('@contatto_id.@anagrafica_id.email', name='Mail personale', width='12%')
-        r.fieldcell('@azienda_id.@anagrafica_id.ragione_sociale', name='!!Azienda', width='18%')
-        r.fieldcell('@azienda_id.@anagrafica_id.telefono', name='!!Telefono azienda', width='8%')
-        r.fieldcell('descrizione', width='22%')
+        r.fieldcell(field='giorno',name='!!Day',width='5%')
+        r.fieldcell('ora',name='!!Hour',width='3%')
+        r.fieldcell('username', name='!!User', width='8%')
+        r.fieldcell('destinatario', name='!!Call recipient', width='9%')
+        r.fieldcell('cognome', name='!!Caller', width='8%')
+        r.fieldcell('@contatto_id.@anagrafica_id.telefono', name='!!Personal phone', width='7%')
+        r.fieldcell('@contatto_id.@anagrafica_id.email', name='Personal email', width='12%')
+        r.fieldcell('@azienda_id.@anagrafica_id.ragione_sociale', name='!!Company name', width='18%')
+        r.fieldcell('@azienda_id.@anagrafica_id.telefono', name='!!Company phone', width='8%')
+        r.fieldcell('descrizione', name='!!Description', width='22%')
         
     def th_order(self):
         return 'giorno'
