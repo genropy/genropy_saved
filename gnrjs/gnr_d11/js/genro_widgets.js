@@ -424,7 +424,7 @@ dojo.declare("gnr.widgets.baseHtml", null, {
 
 dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     creating:function(attributes, sourceNode) {
-        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad');
+        sourceNode.savedAttrs = objectExtract(attributes, 'rowcount,tableid,src,rpcCall,onLoad,autoSize,onStarted');
         var condFunc = objectPop(attributes, 'condition_function');
         var condValue = objectPop(attributes, 'condition_value');
         var onUpdating = objectPop(attributes, 'onUpdating');
@@ -438,7 +438,9 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         return sourceNode.savedAttrs;
     },
 
-    
+    autoSize:function(iframe){
+        console.log('autosize',iframe);
+    },
     created:function(newobj, savedAttrs, sourceNode) {
         if (savedAttrs.rowcount && savedAttrs.tableid) {
             var rowcount = savedAttrs.rowcount;
@@ -457,6 +459,10 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         if (savedAttrs.onLoad) {
             dojo.connect(newobj, 'onload', funcCreate(savedAttrs.onLoad));
         }
+        if (savedAttrs.onStarted){
+            sourceNode.onStartedFrame = funcCreate(savedAttrs.onStarted);
+        }
+        
         this.setSrc(newobj, savedAttrs.src);
     },
     prepareSrc:function(domnode) {
@@ -1119,11 +1125,13 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
     },
     
 
-    mixin_onChangedContent:function(){        
-        this.autoSize();
+    mixin_onChangedContent:function(){   
+        if(this.sourceNode.attr.autoSize!=false){
+            this.autoSize();
+        }     
     },
     mixin_onShowing:function(){
-        if(this.sourceNode.attr._lazyBuild || this.sourceNode._value._nodes.length==0){
+        if(this.sourceNode.attr.autoSize!=false &&(this.sourceNode.attr._lazyBuild || this.sourceNode._value._nodes.length==0)){
             var domNode = this.domNode;
             var oldwidth = domNode.style.width;
             var oldleft = domNode.style.left;
@@ -2043,7 +2051,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             sourceNode.dropTarget = true;
         }
         var attributesToKeep = 'autoHeight,autoRender,autoWidth,defaultHeight,elasticView,fastScroll,keepRows,model,rowCount,rowsPerPage,singleClickEdit,structure,';
-        attributesToKeep = attributesToKeep + 'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled';
+        attributesToKeep = attributesToKeep + 'datamode,sortedBy,filterColumn,excludeCol,excludeListCb,editorEnabled,filteringGrid';
         var gridAttributes = objectExtract(attributes, attributesToKeep);
         objectPopAll(attributes);
         objectUpdate(attributes, gridAttributes);
@@ -2152,6 +2160,23 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 widget[arguments[0]](arguments.slice(1));
             });
         };
+        if (widget.filteringGrid){
+            var connectFilteringGrid=function(){
+                var filteringGrid = widget.filteringGrid.widget || widget.filteringGrid 
+                dojo.connect(filteringGrid,'updateRowCount',function(){widget.filterToRebuild(true);widget.updateRowCount('*')})
+                for (var col in widget.cellmap){
+                    var filteringColumn=widget.cellmap[col].filteringColumn
+                    if (filteringColumn){
+                        widget.excludeListCb=function(){
+                            return filteringGrid.getColumnValues(filteringColumn)
+                        }
+                        widget.excludeCol=col;
+                        break;
+                    }
+                }
+            }
+            genro.src.afterBuildCalls.push(connectFilteringGrid)
+        }
     },
     mixin_updateTotalsCount: function(countBoxNode){
         var countBoxCode =(this.sourceNode.attr.frameCode || this.sourceNode.attr.nodeId)+'_countbox';
@@ -2414,7 +2439,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var opt = objectUpdate({}, formatOptions);
             var cellClassFunc;
             if (cellClassCB) {
-                cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex');
+                cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex',this);
             }
             return function(v, inRowIndex) {
 
@@ -3070,7 +3095,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var filtered=[]
         var excludeList = null;
         if (this.excludeListCb) {
-            excludeList = this.excludeListCb();
+            excludeList = this.excludeListCb.call(this.sourceNode);
         }
         dojo.forEach(this.storebag().getNodes(), 
                     function(n,index,array){
@@ -4012,6 +4037,11 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_createFiltered:function(currentFilterValue,filterColumn,colType){
         return this.collectionStore().createFiltered(this,currentFilterValue,filterColumn,colType);
     },
+    mixin_deleteRows:function(pkeys){
+        pkeys = pkeys || this.getSelectedPkeys();
+        this.collectionStore().deleteAsk(pkeys);
+    },
+    
     mixin_filterToRebuild: function(value) {
         return this.collectionStore().filterToRebuild(value);
     },

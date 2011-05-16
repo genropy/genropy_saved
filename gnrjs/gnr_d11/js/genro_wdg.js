@@ -276,7 +276,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             var template = objectPop(attributes, 'template');
             if (template) {
                 objectPop(attributes, 'datasource');
-                innerHTML = dataTemplate(template, sourceNode, sourceNode.attr.datasource);
+                innerHTML = dataTemplate(sourceNode.getAttributeFromDatasource('template'), sourceNode, sourceNode.attr.datasource);
             } else {
                 innerHTML = sourceNode.getValue();
                 innerHTML = (innerHTML instanceof gnr.GnrBag) ? null : innerHTML;

@@ -34,8 +34,8 @@ CKEDITOR.lang['bn'] =
 	editorTitle : 'Rich text editor, %1, press ALT 0 for help.', // MISSING
 
 	// ARIA descriptions.
-	toolbar	: 'Toolbar', // MISSING
-	editor	: 'Rich Text Editor', // MISSING
+	toolbars	: 'Editor toolbars', // MISSING
+	editor		: 'Rich Text Editor', // MISSING
 
 	// Toolbar buttons without dialogs.
 	source			: 'সোর্স',
@@ -175,18 +175,19 @@ CKEDITOR.lang['bn'] =
 		langDirRTL		: 'ডান থেকে বাম (RTL)',
 		acccessKey		: 'এক্সেস কী',
 		name			: 'নাম',
-		langCode		: 'ভাষা লেখার দিক',
-		tabIndex		: 'ট্যাব ইন্ডেক্স',
-		advisoryTitle	: 'পরামর্শ শীর্ষক',
+		langCode			: 'ভাষা লেখার দিক',
+		tabIndex			: 'ট্যাব ইন্ডেক্স',
+		advisoryTitle		: 'পরামর্শ শীর্ষক',
 		advisoryContentType	: 'পরামর্শ কন্টেন্টের প্রকার',
 		cssClasses		: 'স্টাইল-শীট ক্লাস',
 		charset			: 'লিংক রিসোর্স ক্যারেক্টর সেট',
 		styles			: 'স্টাইল',
-		selectAnchor	: 'নোঙর বাছাই',
+		rel			: 'Relationship', // MISSING
+		selectAnchor		: 'নোঙর বাছাই',
 		anchorName		: 'নোঙরের নাম দিয়ে',
-		anchorId		: 'নোঙরের আইডি দিয়ে',
-		emailAddress	: 'ইমেইল ঠিকানা',
-		emailSubject	: 'মেসেজের বিষয়',
+		anchorId			: 'নোঙরের আইডি দিয়ে',
+		emailAddress		: 'ইমেইল ঠিকানা',
+		emailSubject		: 'মেসেজের বিষয়',
 		emailBody		: 'মেসেজের দেহ',
 		noAnchors		: '(No anchors available in the document)', // MISSING
 		noUrl			: 'অনুগ্রহ করে URL লিংক টাইপ করুন',
@@ -714,6 +715,8 @@ CKEDITOR.lang['bn'] =
 	{
 		title		: 'About CKEditor', // MISSING
 		dlgTitle	: 'About CKEditor', // MISSING
+		help	: 'Check $1 for help.', // MISSING
+		userGuide : 'CKEditor User\'s Guide', // MISSING
 		moreInfo	: 'For licensing information please visit our web site:', // MISSING
 		copy		: 'Copyright &copy; $1. All rights reserved.' // MISSING
 	},
@@ -744,9 +747,64 @@ CKEDITOR.lang['bn'] =
 	toolbarCollapse	: 'Collapse Toolbar', // MISSING
 	toolbarExpand	: 'Expand Toolbar', // MISSING
 
+	toolbarGroups :
+	{
+		document : 'Document', // MISSING
+		clipboard : 'Clipboard/Undo', // MISSING
+		editing : 'Editing', // MISSING
+		forms : 'Forms', // MISSING
+		basicstyles : 'Basic Styles', // MISSING
+		paragraph : 'Paragraph', // MISSING
+		links : 'Links', // MISSING
+		insert : 'Insert', // MISSING
+		styles : 'Styles', // MISSING
+		colors : 'Colors', // MISSING
+		tools : 'Tools' // MISSING
+	},
+
 	bidi :
 	{
 		ltr : 'Text direction from left to right', // MISSING
 		rtl : 'Text direction from right to left' // MISSING
+	},
+
+	docprops :
+	{
+		label : 'Document Properties', // MISSING
+		title : 'Document Properties', // MISSING
+		design : 'Design', // MISSING
+		meta : 'Meta Tags', // MISSING
+		chooseColor : 'Choose', // MISSING
+		other : 'Other...', // MISSING
+		docTitle :	'Page Title', // MISSING
+		charset : 	'Character Set Encoding', // MISSING
+		charsetOther : 'Other Character Set Encoding', // MISSING
+		charsetASCII : 'ASCII', // MISSING
+		charsetCE : 'Central European', // MISSING
+		charsetCT : 'Chinese Traditional (Big5)', // MISSING
+		charsetCR : 'Cyrillic', // MISSING
+		charsetGR : 'Greek', // MISSING
+		charsetJP : 'Japanese', // MISSING
+		charsetKR : 'Korean', // MISSING
+		charsetTR : 'Turkish', // MISSING
+		charsetUN : 'Unicode (UTF-8)', // MISSING
+		charsetWE : 'Western European', // MISSING
+		docType : 'Document Type Heading', // MISSING
+		docTypeOther : 'Other Document Type Heading', // MISSING
+		xhtmlDec : 'Include XHTML Declarations', // MISSING
+		bgColor : 'Background Color', // MISSING
+		bgImage : 'Background Image URL', // MISSING
+		bgFixed : 'Non-scrolling (Fixed) Background', // MISSING
+		txtColor : 'Text Color', // MISSING
+		margin : 'Page Margins', // MISSING
+		marginTop : 'Top', // MISSING
+		marginLeft : 'Left', // MISSING
+		marginRight : 'Right', // MISSING
+		marginBottom : 'Bottom', // MISSING
+		metaKeywords : 'Document Indexing Keywords (comma separated)', // MISSING
+		metaDescription : 'Document Description', // MISSING
+		metaAuthor : 'Author', // MISSING
+		metaCopyright : 'Copyright', // MISSING
+		previewHtml : '<p>This is some <strong>sample text</strong>. You are using <a href="javascript:void(0)">CKEditor</a>.</p>' // MISSING
 	}
 };

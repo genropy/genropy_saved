@@ -987,6 +987,44 @@ dojo.declare("gnr.stores._Collection",null,{
         return result;
     },
     
+    deleteRows:function(pkeys){
+        return;
+    },
+    delete_onerow_msg : "You are going to delete the selected record. You can't undo this operation",
+    delete_manyrows_msg : "You are going to delete $count records. You can't undo this operation. Digit how many record you want delete",
+    
+    deleteAsk:function(pkeys){        
+        var count = pkeys.length;
+        if(count==0){
+            return;
+        }
+        var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'250px'});
+        var delete_manyrows_msg = this.delete_manyrows_msg.replace('$count',count);
+        var msg = count==1?this.delete_onerow_msg:delete_manyrows_msg;
+        dlg.center._('div',{innerHTML:msg, text_align:'center',height:'50px'})
+        var that = this;
+        var slotbar = dlg.bottom._('slotBar',{slots:'*,cancel,delete',
+                                                action:function(){
+                                                    dlg.close_action();
+                                                    if(this.attr.command=='deleteRows'){
+                                                        that.deleteRows(pkeys);
+                                                    }
+                                                }});
+        slotbar._('button','cancel',{label:'Cancel',command:'cancel'});
+        var btnattr = {label:'Delete',command:'deleteRows'};
+        if(count>1){
+            var fb = genro.dev.formbuilder(dlg.center,1);
+            fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl:'Count'});
+            btnattr['disabled']='==_count!=_tot;'
+            btnattr['_tot'] = count;
+            genro.setData('gnr._dev.deleteask.count',null);
+            btnattr['_count'] = '^gnr._dev.deleteask.count';
+        }
+        
+        slotbar._('button','delete',btnattr);
+        dlg.show_action();
+    },
+    
     getData:function(){
         return this.storeNode.getRelativeData(this.storepath) || new gnr.GnrBag();
     },
@@ -1131,7 +1169,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var filtered=[]
         var excludeList = null;
         if (grid.excludeListCb) {
-            excludeList = grid.excludeListCb();
+            excludeList = grid.excludeListCb.call(this.sourceNode);
         }
         dojo.forEach(this.getItems(), 
                     function(n,index,array){
@@ -1282,6 +1320,18 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             }
         }
         return item
+    },
+
+    deleteRows:function(pkeys){
+        var that = this;
+        genro.serverCall('deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table},function(result){
+            that.onDeletedRows(result);
+        })
+    },
+    onDeletedRows:function(result){
+        if(result && result.error){
+            genro.dlg.alert(result.error,'Alert');
+        }
     }
 
 });

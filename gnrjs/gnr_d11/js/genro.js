@@ -214,7 +214,7 @@ dojo.declare('gnr.GenroClient', null, {
         //this.dev.srcInspector(document.body);
         this.contextIndex = {};
 
-
+        
         //genro.timeIt('** getting main **');
         var mainBagPage = this.rpc.remoteCall('main', this.startArgs, 'bag');
         //genro.timeIt('**  main received  **');
@@ -249,6 +249,14 @@ dojo.declare('gnr.GenroClient', null, {
         genro.callAfter(function() {
             genro.fireEvent('gnr.onStart');
             genro.publish('onPageStart');
+            var parentIframe = window.frameElement;
+            if(parentIframe){
+                parentIframe.sourceNode.publish('pageStarted');
+                parentIframe.sourceNode._genro = this;
+                if(parentIframe.sourceNode.onStartedFrame){
+                    parentIframe.sourceNode.onStartedFrame();
+                }
+            }
         }, 100);
         genro.dev.shortcut('f1', function(e) {
             genro.publish('SAVERECORD', e)

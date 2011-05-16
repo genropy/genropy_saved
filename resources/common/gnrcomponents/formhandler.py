@@ -74,7 +74,6 @@ class FormHandler(BaseComponent):
                                                 }
                                                 """
             gridattr['selfsubscribe_addrow'] = 'currform.newrecord();'
-            gridattr['selfsubscribe_delrow'] = "alert('should delete')"
             gridattr['subscribe_form_%s_onLoaded' %formId] ="""
                                                                 if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
                                                                     this.widget.selectByRowAttr('_pkey',$1.pkey);
@@ -163,12 +162,13 @@ class FormHandler(BaseComponent):
                     topic='navigationEvent',command='dismiss')
     
     @struct_method          
-    def fh_slotbar_form_save(self,pane,**kwargs):
-        pane.formButton('!!Save',topic='save',iconClass="tb_button db_save", parentForm=True)
+    def fh_slotbar_form_save(self,pane,always=False,**kwargs):
+        pane.formButton('!!Save',topic='save',iconClass="tb_button db_save",parentForm=True,command=always)
 
     @struct_method          
     def fh_slotbar_form_revert(self,pane,**kwargs):
-        pane.formButton('!!Revert',topic='load',iconClass="tb_button db_revert", parentForm=True)
+        pane.formButton('!!Revert',topic='revert',iconClass="tb_button db_revert", parentForm=True,
+                       disabled='^.controller.changed?=!#v')
     
     @struct_method          
     def fh_slotbar_form_delete(self,pane,parentForm=True,**kwargs):

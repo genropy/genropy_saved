@@ -171,6 +171,7 @@ class RichTextEditor(BaseComponent):
     js_requires = 'ckeditor/ckeditor'
 
     def RichTextEditor(self, pane, value, disabled=None, nodeId=None, toolbar=None, **kwargs):
+        pane.attributes.update(overflow='hidden')
         editorId = "%s_editor" % nodeId
         if isinstance(toolbar, basestring):
             tb = getattr(self, 'rte_toolbar_%s' % toolbar, None)

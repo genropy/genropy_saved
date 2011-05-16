@@ -10,6 +10,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 CKEDITOR.themes.add( 'default', (function()
 {
+	var hiddenSkins = {};
+
 	function checkSharedSpace( editor, spaceName )
 	{
 		var container,
@@ -121,6 +123,12 @@ CKEDITOR.themes.add( 'default', (function()
 			sharedTop		&& ( sharedTop.setHtml( topHtml )		, topHtml = '' );
 			sharedBottoms	&& ( sharedBottoms.setHtml( bottomHtml ), bottomHtml = '' );
 
+			var hideSkin = '<style>.' + editor.skinClass + '{visibility:hidden;}</style>';
+			if ( hiddenSkins[ editor.skinClass ] )
+				hideSkin = '';
+			else
+				hiddenSkins[ editor.skinClass ] = 1;
+
 			var container = CKEDITOR.dom.element.createFromHtml( [
 				'<span' +
 					' id="cke_', name, '"' +
@@ -142,7 +150,7 @@ CKEDITOR.themes.add( 'default', (function()
 								'<tr', bottomHtml	? '' : ' style="display:none"', ' role="presentation"><td id="cke_bottom_'	, name, '" class="cke_bottom" role="presentation">'	, bottomHtml	, '</td></tr>' +
 							'</tbody></table>' +
 							//Hide the container when loading skins, later restored by skin css.
-							'<style>.', editor.skinClass, '{visibility:hidden;}</style>' +
+							hideSkin +
 						'</span>' +
 					'</span>' +
 				'</span>' ].join( '' ) );
@@ -167,6 +175,18 @@ CKEDITOR.themes.add( 'default', (function()
 
 			// Disable browser context menu for editor's chrome.
 			container.disableContextMenu();
+
+			// Use a class to indicate that the current selection is in different direction than the UI.
+			editor.on( 'contentDirChanged', function( evt )
+			{
+				var func = ( editor.lang.dir != evt.data ? 'add' : 'remove' ) + 'Class';
+
+				container.getChild( 1 )[ func ]( 'cke_mixed_dir_content' );
+
+				// Put the mixed direction class on the respective element also for shared spaces.
+				var toolbarSpace = this.sharedSpaces && this.sharedSpaces[ this.config.toolbarLocation ];
+				toolbarSpace && toolbarSpace.getParent().getParent()[ func ]( 'cke_mixed_dir_content' );
+			});
 
 			editor.fireOnce( 'themeLoaded' );
 			editor.fireOnce( 'uiReady' );

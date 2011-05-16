@@ -8,6 +8,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 class Form(BaseComponent):
 
     def th_form(self,form,**kwargs):
+        
         pane = form.record
         fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',margin_top='1em')
         fb.field('nome', width='20em')
@@ -19,6 +20,8 @@ class Form(BaseComponent):
         return dict(height='300px',width='500px')
 
 class View(BaseComponent):
+    
+    
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('nome', width='20em')

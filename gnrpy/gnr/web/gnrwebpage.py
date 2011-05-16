@@ -331,6 +331,10 @@ class GnrWebPage(GnrBaseWebPage):
         :param \*path: add???
         """
         self.site.resource_loader.mixinPageComponent(self, pkg, *path,**kwargs)
+    
+    def tableTemplate(self,table=None,tplname=None):
+        pkg,table = table.split('.')
+        return self.getResourceContent(resource='tables/%s/tpl/%s' %(table,tplname),pkg=pkg,ext='html')
         
     @property
     def isGuest(self):
@@ -940,6 +944,7 @@ class GnrWebPage(GnrBaseWebPage):
         """
         return self.site.resource_loader.getResourceList(self.resourceDirs, path, ext=ext)
         
+        
     def getResourceUriList(self, path, ext=None, add_mtime=False):
         """add???
         
@@ -1029,6 +1034,14 @@ class GnrWebPage(GnrBaseWebPage):
         if result:
             return result[0]
             
+    @public_method
+    def getResourceContent(self, resource=None, ext=None, pkg=None):
+        path =self.getResource(path=resource,ext=ext,pkg=pkg)
+        if path:
+            with open(path) as f:
+                result = f.read()
+            return result
+
     def setPreference(self, path, data, pkg=''):
         """add???
         
