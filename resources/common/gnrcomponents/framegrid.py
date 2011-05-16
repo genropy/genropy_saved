@@ -72,6 +72,7 @@ class FrameGrid(BaseComponent):
         frame.left.leftBar()
         iv = frame.includedView(autoWidth=False,datapath='.grid',selectedId='.selectedId',
                                 struct=struct,sortedBy='^.sorted',
+                                selfsubscribe_delrow='this.widget.deleteRows();',
                                  _newGrid=True,**grid_kwargs)
         return frame
 

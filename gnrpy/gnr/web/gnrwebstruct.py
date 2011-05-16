@@ -1185,6 +1185,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         toolbarArgs = self.attributes
         slotstr = toolbarArgs['slots']
         slotbarCode= toolbarArgs.get('slotbarCode')
+        if toReplace=='#':
+            toReplace = slotstr
+        replaceStr = replaceStr.replace('#',slotstr)
         slotstr = slotstr.replace(toReplace,replaceStr)
         toolbarArgs['slots'] = slotstr
         slots = slotstr.split(',')

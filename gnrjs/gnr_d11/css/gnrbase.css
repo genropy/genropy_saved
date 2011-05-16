@@ -1906,16 +1906,18 @@ textarea:disabled {
     opacity:1;
     border:1px solid gray;
 	background: white url(icons/base12/linker.png) no-repeat 3px center;
+    padding-left:15px;
+    padding-right:18px;
+    width:auto;
 }
 
 .th_linker{
-    padding-left:15px;
-    padding-right:18px;
     height:14px;
 	background: transparent url(icons/base12/linker.png) no-repeat 3px center;
 	cursor:pointer;
     opacity:.7;
     position:relative;
+    width:12px;
 }
 
 .th_linker:hover{

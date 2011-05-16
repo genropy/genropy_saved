@@ -58,7 +58,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }else{
             this.formParentNode = this.sourceNode.getParentNode();
         }
-        this.subscribe('save,load,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer');
+        this.subscribe('save,revert,load,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer');
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
         //this.store=new.....
@@ -207,7 +207,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         sourceNode.updateValidationStatus();
         this.updateInvalidField(sourceNode, sourceNode.attrDatapath('value'));
     },
-    
+    revert: function(kw) {
+        this.load({destPkey:this.getCurrentPkey()});
+    },
     load: function(kw) {
         var kw = kw || {};
         if(kw['destPkey']=='*norecord*'){
@@ -425,9 +427,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.currentFocused = null;
         if(this.store){
             //modalita nuova
-            this.setDisabled(false)
+            this.setDisabled(false);
+            this.focus();
         }
-        this.focus();
+        
         
     },
     
@@ -465,7 +468,14 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             }
         }
     },
-    save: function(always) {
+    save: function(kw,modifiers) {
+        var always;
+        if (typeof(kw)=='object'){
+            always=kw.command;
+            var modifiers = kw.modifiers;
+        }else{
+            always = kw;
+        }
         if (!this.opStatus) {
             var always = always || this.getControllerData('is_newrecord');
             if (this.changed || always) {

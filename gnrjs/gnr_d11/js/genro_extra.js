@@ -169,16 +169,18 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         ckeditor.gnr_getFromDatastore();
         var parentWidget = dijit.getEnclosingWidget(widget);
         ckeditor.gnr_readOnly('auto');
-        /*dojo.connect(parentWidget,'resize',function(){
-         var ckeditor=CKEDITOR.instances[ckeditor_id];
-         console.log(ckeditor_id);
-         console.log('resize');
-         console.log(arguments);
-         if (ckeditor){
-         console.log(ckeditor);
-         ckeditor.resize();}
-         else{console.log('undefined');}
-         });*/
+        var parentDomNode=sourceNode.getParentNode().getDomNode();
+        var cbResize=function(){
+                sourceNode._rsz=null
+                ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
+        }
+        dojo.connect(parentWidget,'resize',function(){
+            if(sourceNode._rsz){
+                clearTimeout(sourceNode._rsz)
+            }
+            sourceNode._rsz=setTimeout(cbResize,100)
+        });
+         
         // dojo.connect(parentWidget,'onShow',function(){console.log("onshow");console.log(arguments);ckeditor.gnr_readOnly('auto');})
         // setTimeout(function(){;},1000);
 

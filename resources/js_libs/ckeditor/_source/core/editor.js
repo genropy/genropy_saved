@@ -160,6 +160,15 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 		 */
 		editor.tabIndex = editor.config.tabIndex || editor.element.getAttribute( 'tabindex' ) || 0;
 
+		/**
+		 * Indicates the read-only state of this editor. This is a read-only property.
+		 * @name CKEDITOR.editor.prototype.readOnly
+		 * @type Boolean
+		 * @since 3.6
+		 * @see CKEDITOR.editor#setReadOnly
+		 */
+		editor.readOnly = !!( editor.config.readOnly || editor.element.getAttribute( 'disabled' ) );
+
 		// Fire the "configLoaded" event.
 		editor.fireOnce( 'configLoaded' );
 
@@ -272,7 +281,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 						// is not available, get the first one (default one).
 						lang = ( CKEDITOR.tools.indexOf( pluginLangs, editor.langCode ) >= 0 ? editor.langCode : pluginLangs[ 0 ] );
 
-						if ( !plugin.lang[ lang ] )
+						if ( !plugin.langEntries || !plugin.langEntries[ lang ] )
 						{
 							// Put the language file URL into the list of files to
 							// get downloaded.
@@ -280,7 +289,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 						}
 						else
 						{
-							CKEDITOR.tools.extend( editor.lang, plugin.lang[ lang ] );
+							CKEDITOR.tools.extend( editor.lang, plugin.langEntries[ lang ] );
 							lang = null;
 						}
 					}
@@ -305,7 +314,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 								// Uses the first loop to update the language entries also.
 								if ( m === 0 && languageCodes[ i ] && plugin.lang )
-									CKEDITOR.tools.extend( editor.lang, plugin.lang[ languageCodes[ i ] ] );
+									CKEDITOR.tools.extend( editor.lang, plugin.langEntries[ languageCodes[ i ] ] );
 
 								// Call the plugin method (beforeInit and init).
 								if ( plugin[ methods[ m ] ] )
@@ -394,16 +403,20 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 		}
 	};
 
-	function updateCommandsMode()
+	function updateCommands()
 	{
 		var command,
 			commands = this._.commands,
 			mode = this.mode;
 
+		if ( !mode )
+			return;
+
 		for ( var name in commands )
 		{
 			command = commands[ name ];
-			command[ command.startDisabled ? 'disable' : command.modes[ mode ] ? 'enable' : 'disable' ]();
+			command[ command.startDisabled ? 'disable' :
+					 this.readOnly && !command.readOnly ? 'disable' : command.modes[ mode ] ? 'enable' : 'disable' ]();
 		}
 	}
 
@@ -491,7 +504,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 
 			CKEDITOR.fire( 'instanceCreated', null, this );
 
-			this.on( 'mode', updateCommandsMode, null, null, 1 );
+			this.on( 'mode', updateCommands, null, null, 1 );
+			this.on( 'readOnly', updateCommands, null, null, 1 );
 
 			initConfig( this, instanceConfig );
 		};
@@ -547,9 +561,9 @@ CKEDITOR.tools.extend( CKEDITOR.editor.prototype,
 			if ( !noUpdate )
 				this.updateElement();
 
+			this.fire( 'destroy' );
 			this.theme && this.theme.destroy( this );
 
-			this.fire( 'destroy' );
 			CKEDITOR.remove( this );
 			CKEDITOR.fire( 'instanceDestroyed', null, this );
 		},
@@ -561,7 +575,7 @@ CKEDITOR.tools.extend( CKEDITOR.editor.prototype,
 		 * @returns {Boolean} "true" if the command has been successfuly
 		 *		executed, otherwise "false".
 		 * @example
-		 * editorInstance.execCommand( 'Bold' );
+		 * editorInstance.execCommand( 'bold' );
 		 */
 		execCommand : function( commandName, data )
 		{
@@ -684,6 +698,7 @@ CKEDITOR.tools.extend( CKEDITOR.editor.prototype,
 		 *		editor.
 		 * @param {Function} callback Function to be called after the setData
 		 *		is completed.
+		 *@param {Boolean} internal Whether suppress  any event firing when copying data internally inside editor.
 		 * @example
 		 * CKEDITOR.instances.editor1.<b>setData</b>( '&lt;p&gt;This is the editor data.&lt;/p&gt;' );
 		 * @example
@@ -692,7 +707,7 @@ CKEDITOR.tools.extend( CKEDITOR.editor.prototype,
 		 *         this.checkDirty();    // true
 		 *     });
 		 */
-		setData : function( data , callback )
+		setData : function( data , callback, internal )
 		{
 			if( callback )
 			{
@@ -705,11 +720,33 @@ CKEDITOR.tools.extend( CKEDITOR.editor.prototype,
 
 			// Fire "setData" so data manipulation may happen.
 			var eventData = { dataValue : data };
-			this.fire( 'setData', eventData );
+			!internal && this.fire( 'setData', eventData );
 
 			this._.data = eventData.dataValue;
 
-			this.fire( 'afterSetData', eventData );
+			!internal && this.fire( 'afterSetData', eventData );
+		},
+
+		/**
+		 * Puts or restores the editor into read-only state. When in read-only,
+		 * the user is not able to change the editor contents, but still use
+		 * some editor features. This function sets the readOnly property of
+		 * the editor, firing the "readOnly" event.<br><br>
+		 * <strong>Note:</strong> the current editing area will be reloaded.
+		 * @param {Boolean} [makeEditable] Indicates that the editor must be
+		 *		restored from read-only mode, making it editable.
+		 * @since 3.6
+		 */
+		setReadOnly : function( makeEditable )
+		{
+			if ( this.readOnly != !makeEditable )
+			{
+				this.readOnly = !makeEditable;
+
+				// Fire the readOnly event so the editor features can update
+				// their state accordingly.
+				this.fire( 'readOnly' );
+			}
 		},
 
 		/**
@@ -837,6 +874,18 @@ CKEDITOR.on( 'loaded', function()
  * @default false
  * @example
  * config.htmlEncodeOutput = true;
+ */
+
+/**
+ * If "true", makes the editor start in read-only state. Otherwise, it'll check
+ * if the linked &lt;textarea&gt; has the "disabled" attribute.
+ * @name CKEDITOR.config.readOnly
+ * @see CKEDITOR.editor#setReadOnly
+ * @type Boolean
+ * @default false
+ * @since 3.6
+ * @example
+ * config.readOnly = true;
  */
 
 /**
@@ -981,4 +1030,12 @@ CKEDITOR.on( 'loaded', function()
  * @event
  * @param {CKEDITOR.editor} editor This editor instance.
  * @param {Object} element The element to insert.
+ */
+
+/**
+ * Event fired after {@link CKEDITOR.editor#readOnly} property changes.
+ * @name CKEDITOR.editor#readOnly
+ * @event
+ * @since 3.6
+ * @param {CKEDITOR.editor} editor This editor instance.
  */
