@@ -62,13 +62,13 @@ Introduction
           
         * You will use it for all the common tools of your project.
         
-        For an introduction to the resources, please check the :ref:`genro_database_resources`.
+        For an introduction to the resources, please check the :ref:`genro_resources_index`.
         
         If you want an introduction to the folder used for the public resources, please check
-        the :ref:``
+        the :ref:`genro_public_resources`.
         
         If you want an introduction to the folder used for the private resources, please check
-        the :ref:``
+        the :ref:`genro_private_resources`.
         
 .. _genro_project_basic_structure:
 
@@ -96,7 +96,7 @@ Basic structure
           * a :ref:`packages_main` file
           * a :ref:`packages_menu` file
           * a :ref:`packages_model` folder
-          * a :ref:`packages_resources` folder
+          * a :ref:`genro_public_resources` folder
           * a :ref:`packages_webpages` folder
               * one or more :ref:`webpages_webpages`\s
                     

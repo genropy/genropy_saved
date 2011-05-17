@@ -1,4 +1,4 @@
-.. _packages_resources:
+.. _public_resources:
 
 ========================
 ``resources`` - (public)

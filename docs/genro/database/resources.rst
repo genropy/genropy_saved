@@ -1,8 +1,8 @@
-.. _genro_database_resources:
+.. _genro_resources_index:
 
-=============
-``resources``
-=============
+=============================
+Introduction to the resources
+=============================
 
     add??? Tenere introduzione generale, dividere le cose specifiche delle
     cartelle delle risorse private e pubbliche...
