@@ -8,7 +8,7 @@ Genro Projects
     :maxdepth: 2
     
     introduction
-    intro_resources
+    introduction to the resources <intro_resources>
     the ``.gnr`` folder <gnr/index>
     the ``instances`` folder <instances/index>
     the ``packages`` folder <packages/index>

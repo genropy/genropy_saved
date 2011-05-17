@@ -119,14 +119,13 @@ py_requires
     In this example you are calling the ``Public`` and the ``IncludedView`` classes of the
     ``public.py`` file and the ``TableHandler`` class of the ``standard_tables.py`` file.
     
-    .. note:: The components you want to use must be placed into a folder named
-              "``resources``" (or "``_resources``")
+    .. note:: The components you want to use must be placed into a folder named ``resources``
               
-              * For more information about components check the
-                :ref:`genro_components`\s documentation page
+              * For more information about components, check the :ref:`genro_components`\s
+                documentation page
               * For more information about their location in a Genro :ref:`genro_project`,
-                please check the :ref:`genro_resources_index` documentation page.
-            
+                please check the :ref:`genro_intro_resources` documentation page
+                
     .. _webpages_css_requires:
 
 css_requires

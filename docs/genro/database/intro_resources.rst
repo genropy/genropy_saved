@@ -1,64 +1,67 @@
-.. _genro_resources_index:
+.. _genro_intro_resources:
 
-=============================
-Introduction to the resources
-=============================
+=========
+resources
+=========
 
     A ``resources`` folder is thought to speed up your work, because it is
     used to keep all the stuff that you need to use over and over in a Genro
     :ref:`genro_project`. If you put your files in this folder, you can use
-    them many times, calling them in your :ref:`webpages_webpages`.
+    them many times in your :ref:`webpages_webpages`\s.
     
-    The great feature is that you can define your resources as
-    :ref:`genro_public_resource`\s or :ref:`genro_private_resource`\s. Let's give
-    now a definition of *private* and *public* resources; in the next sections
-    we'll detail the features:
+    In particular, you can keep into your ``resources`` folder:
     
-    * A *public* resource is a file that you can reuse in ANY project.
-    * A *private* resource is a file that you can reuse only in the project in
-      which you define them.
+    * some javascript files
+    * some :ref:`genro_css` files
+    * some :ref:`genro_components`\s, or, more generally, some other Python modules
+    
+    You can define your resources as *public resources* or *private resources*:
+    
+    * A :ref:`genro_public_resource` is a file that can be used in ANY project.
+    * A :ref:`genro_private_resource` is a file that can be used only in the
+      project in which the resource has been defined.
       
 .. _genro_public_resource:
     
 public resource
 ---------------
     
-    **Definition**: a *public* resource is a file that you can reuse in ANY project.
+    **Definition**: a *public* resource is a file that can be used in ANY project.
     
     **Description**: to make *public* a resource, you have to create your resources
     files into a ``resources`` folder that is set into this path::
     
         projectName/packages/packageName/resources
         
-    where:
+    where ``projectName`` is the name of your project, ``packages`` is the standard
+    :ref:`genro_packages_index` folder, ``packageName`` is the name of your package,
+    ``resources`` is the folder where you have to put your resources files.
     
-    * ``projectName`` is the name of your project
-    * ``packages`` is the standard :ref:`genro_packages_index` folder
-    * ``packageName`` is the name of your package
-    * ``resources`` is the folder where you have to put your resources files.
-    
-    In this image we'll show you the path for your *public* resources:
-    
-    .. image:: ../images/structure/public_resources1.png
-    
-    Example: if you would want to keep in your *public* resources some images, a
-    CSS file and some other stuff, your project tree might be the following one:
-    
-    .. image:: ../images/structure/public_resources2.png
-    
-    Where:
-    
-    * ``my_project`` is the name of your project.
-    * ``base`` is the name of your package.
-    
-    Some notes:
-    
-    * The ``images`` folder it is not mandatory, but we have created it to keep order
-      in the project (we'll put all the images there).
-    * The ``tables`` folder is required to use some additional features, like adding
-      a batch and adding a print and for the usage of some Genro :ref:`genro_components`\s.
-      For more information, check the :ref:`resources_tables` documentation section.
-      
+        **Example:** If you have a project called ``my_project`` and a package
+        called ``base``, then you will have this tree for your *public* resources:
+        
+        .. image:: ../images/structure/public_resources1.png
+        
+        Now, if you would want to keep in your *public* resources some images, a CSS
+        file and some other stuff, your project tree might be the following one:
+        
+        .. image:: ../images/structure/public_resources2.png
+        
+        Some notes:
+        
+        * The ``images`` folder it is not mandatory, but we have created it to keep order
+          in the project (we'll put all the images there). With the same reason you could
+          create a folder for your javascript files, one folder for your python modules
+          and one folder for your CSS files.
+        * The ``tables`` folder is required to use some additional features, like:
+        
+            * adding some batches
+            * adding some print features
+            * usage of the :ref:`genro_th` component
+            
+          For more information on this folder, check the :ref:`resources_tables`
+          documentation section.
+          
     **Usage**: in order to use the *public* resources, you have to:
     
     #. import the name of the package (that includes the resources you want to use)
@@ -100,48 +103,51 @@ public resource
     #. call the resource you need in the :ref:`webpages_webpages` in which you will use
        it through a ``webpages variable``:
        
-        * :ref:`webpages_py_requires` for the Python files
+        * :ref:`webpages_py_requires` for Genro :ref:`genro_components`\s and other Python modules
         * :ref:`webpages_js_requires` for the Javascript files
         * :ref:`webpages_css_requires` for the CSS files
         
-        For more information, check the :ref:`webpages_variables` documentation section.
+        For more information (and examples) on ``webpages variables``, check the
+        :ref:`webpages_variables` documentation section.
         
 .. _genro_private_resource:
     
 private resource
 ----------------
     
-    **Definition**: a *private* resource is a file that you can use only in the
-    project in which you define them.
+    **Definition**: a *private* resource is a file that can be used only in the
+    project in which the resource has been defined.
     
     **Description**: to make *private* a resource, you have to create your resources
     files into a ``resources`` folder that is set into the following path::
     
         projectName/resources
         
-    where:
+    where ``projectName`` is the name of your project and ``resources`` is the folder
+    where you have to put your resources files (as well as one of the four main
+    sub-folders of your project)
     
-    * ``projectName`` is the name of your project
-    * ``resources`` is the folder where you have to put your resources files.
-    
-    In this image we'll show you the path for your *private* resources:
-    
-    .. image:: ../images/structure/private_resources1.png
-    
-    Example: if you would want to keep in your *private* resources some images, a
-    CSS file and a Javascript file your project tree might be the following one:
-    
-    .. image:: ../images/structure/private_resources2.png
-    
-    Where ``my_project`` is the name of your project - the ``images`` folder it is
-    not mandatory, but we have created it to keep order in the project (we'll put
-    all our images there).
-      
-    .. note:: if you read the example of the :ref:`genro_public_resource` section
-              you will notice that we added a ``tables`` folder.
-              
-              That folder MUST be created into your *public* resources.
-              
+        **Example:** If you have a project called ``my_project`` then you will have
+        this tree for your *private* resources:
+        
+        .. image:: ../images/structure/private_resources1.png
+        
+        Now, if you would want to keep in your *private* resources some images, a CSS
+        file and a Javascript file, your project tree might be the following one:
+        
+        .. image:: ../images/structure/private_resources2.png
+        
+        Where ``my_project`` is the name of your project - the ``images`` folder it is
+        not mandatory, but we have created it to keep order in the project (we'll put
+        all the images there). With the same reason you could create a folder for your
+        javascript files, one folder for your python modules and one folder for your
+        CSS files.
+        
+        .. note:: if you read the example of the :ref:`genro_public_resource` section
+                  you will notice that we added a ``tables`` folder.
+                  
+                  That folder MUST be created into your *public* resources.
+                  
     **Usage**: in order to use the *private* resources, you have to:
     
     #. call the resource you need in the :ref:`webpages_webpages` in which you will use

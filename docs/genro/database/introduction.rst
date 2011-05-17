@@ -74,8 +74,6 @@ Basic structure
     relative links for more information on every single file/folder, including the 4 subfolders
     we were talking about:
     
-    add??? CORRECT IT! cut ``_resources``, add ``tables``...
-    
     * ``project`` folder
         * :ref:`genro_instances_index` folder - here lies all your instance folder.
           Every instance folder has got:
@@ -91,11 +89,11 @@ Basic structure
           * a :ref:`packages_main` file
           * a :ref:`packages_menu` file
           * a :ref:`packages_model` folder
-          * a :ref:`genro_public_resources` folder
+          * a :ref:`public_resources` folder
           * a :ref:`packages_webpages` folder
               * one or more :ref:`webpages_webpages`\s
                     
-        * :ref:`genro_resources_index` folder (for all your project resources)
+        * :ref:`private_resources` folder (for all your project :ref:`genro_private_resource`\s)
         * :ref:`genro_sites_index` folder - here lies all your sites folder.
           Every site folder has got:
           

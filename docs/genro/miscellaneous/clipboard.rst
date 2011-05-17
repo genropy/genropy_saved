@@ -128,25 +128,13 @@ Opensource policies of Softwell
 
     * The shell (packages in `` gnr .*``) will always remain open source.
     * In the future, Softwell could decide to continue the development of resources
-      (``_resources`` ) as closed source software.
+      as closed source software.
 
 Security in PDF files
 =====================
 
     To read local data or parameters of the URL may need a certificate to avoid the security
     alert (but maybe used by browsers and upload the PDF from the server, this is not needed).
-    
-Resource ``public``
-===================
-
-    The resource ``public`` implements the basic elements of the interface Genro.
-    
-    It also provides CSS classes:
-    
-    * pbl_RoundedGroup: used to divide the page into two logically separated areas.
-    * pbl_RoundedGroupLabel: to give a title to a group (a pbl_RoundedGroup).
-    
-    These elements are often used within borderContainers.
     
 Events and activities
 =====================

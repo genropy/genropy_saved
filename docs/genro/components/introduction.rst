@@ -15,38 +15,43 @@ Introduction
 Definition
 ==========
     
-    A component is a file that gathers some useful features (classes) that can be used in more
+    A component is a python file that gathers some useful features (classes) that can be used in more
     than one project. Every component can be rewritten in most of its parts (methods) overriding some
     of its portions. This ensures the ability to customize a component for your specific purpose.
+    
+    Components belong to the family of Genro :ref:`genro_intro_resources`.
     
 .. _components_location:
 
 Components location
 ===================
     
-    The components MUST be situated in folders named ``resources``: it doesn't matter where these
-    folders are, because Genro searchs components in every folder of the code using mixin. However,
-    for keeping a reasonable level of order, every ``resources`` folder is kept into a project
-    folder as one of its primary subfolder.
+    The components MUST be situated in a folder named ``resources``: when you are creating a
+    :ref:`genro_project`, you have two possible places to put your components:
     
-    If you have a project called ``myproject`` and a component called ``my_component.py``, you have
-    to put your component in the :ref:`genro_resources_index` folder of your Genro :ref:`genro_project` [#]_:
+    #. If you place a component at the following path::
+        
+        packageName/resources
+        
+       (where ``packageName`` is the name of the package and ``resources`` is a mandatory name for
+       the folder), then the component is **private**: this means that anyone can use this component only in the
+       project in which it has been created.
+       
+       These components belong to the family of the :ref:`genro_private_resource`\s.
+       
+    #. If you place your component at the following path::
     
-    .. image:: ../images/components/mycomponent.png
-    
-    Genro provides another possible place for components::
-    
-        projectName/packages/packageName/webpages/_resouces
-    
-    where ``projectName`` is the name of your project and ``packageName`` is the name of your package.
-    
-    .. image:: ../images/components/mycomponent2.png
-    
-    In this example, the ``projectName`` and the ``packageName`` are both called ``myproject``.
-    
-    BUT, if you place your component in a ``_resources`` folder, it can be used only in the specific
-    package that contains the ``_resources`` folder. For more information, check the
-    :ref:`genro_resources_index` documentation page.
+        projectName/resources
+        
+       (where ``projectName`` is the name of your project and ``resources`` is a mandatory name for
+       the folder), then the component is **public**: this means that anyone can use this component
+       in any project (for doing this, you must import the package that includes the component you
+       want to use in your :ref:`instances_instanceconfig` file)
+       
+       These components belong to the family of the :ref:`genro_public_resource`\s.
+       
+    For more information on *private* and *public* components (that is, *private* and *public*
+    resources) please check the :ref:`genro_intro_resources` documentation page.
     
 .. _components_requirements:
 
