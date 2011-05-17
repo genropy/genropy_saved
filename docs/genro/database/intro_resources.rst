@@ -4,9 +4,6 @@
 Introduction to the resources
 =============================
 
-    add??? Tenere introduzione generale, dividere le cose specifiche delle
-    cartelle delle risorse private e pubbliche...
-
     A ``resources`` folder is thought to speed up your work, because it is
     used to keep all the stuff that you need to use over and over in a Genro
     :ref:`genro_project`. If you put your files in this folder, you can use
@@ -42,12 +39,12 @@ public resource
     
     In this image we'll show you the path for your *public* resources:
     
-    .. image:: ../../images/structure/public_resources1.png
+    .. image:: ../images/structure/public_resources1.png
     
     Example: if you would want to keep in your *public* resources some images, a
     CSS file and some other stuff, your project tree might be the following one:
     
-    .. image:: ../../images/structure/public_resources2.png
+    .. image:: ../images/structure/public_resources2.png
     
     Where:
     
@@ -129,12 +126,12 @@ private resource
     
     In this image we'll show you the path for your *private* resources:
     
-    .. image:: ../../images/structure/private_resources1.png
+    .. image:: ../images/structure/private_resources1.png
     
     Example: if you would want to keep in your *private* resources some images, a
     CSS file and a Javascript file your project tree might be the following one:
     
-    .. image:: ../../images/structure/private_resources2.png
+    .. image:: ../images/structure/private_resources2.png
     
     Where ``my_project`` is the name of your project - the ``images`` folder it is
     not mandatory, but we have created it to keep order in the project (we'll put

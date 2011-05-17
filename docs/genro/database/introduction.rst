@@ -62,13 +62,8 @@ Introduction
           
         * You will use it for all the common tools of your project.
         
-        For an introduction to the resources, please check the :ref:`genro_resources_index`.
-        
-        If you want an introduction to the folder used for the public resources, please check
-        the :ref:`genro_public_resources`.
-        
-        If you want an introduction to the folder used for the private resources, please check
-        the :ref:`genro_private_resources`.
+        For an introduction to the resources, please check the :ref:`genro_resources_index`
+        documentation page.
         
 .. _genro_project_basic_structure:
 
