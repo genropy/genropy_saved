@@ -56,4 +56,10 @@ class PluggedPageManager(BaseComponent):
         handler = getattr(self, handlerName)
         handler(pane,**kwargs)
 
+
+    def ppm_callPluginRecordHooks(self,hook,*args,**kwargs):
+        methods = [k for k in dir(self) if k.endswith('_%s' %hook)]
+        for m in methods:
+            if hasattr(self,m):
+                getattr(self,m)(*args,**kwargs)
         
