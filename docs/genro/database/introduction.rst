@@ -62,7 +62,13 @@ Introduction
           
         * You will use it for all the common tools of your project.
         
-        More information in the :ref:`genro_resources_index` documentation section.
+        For an introduction to the resources, please check the :ref:`genro_database_resources`.
+        
+        If you want an introduction to the folder used for the public resources, please check
+        the :ref:``
+        
+        If you want an introduction to the folder used for the private resources, please check
+        the :ref:``
         
 .. _genro_project_basic_structure:
 
@@ -72,6 +78,8 @@ Basic structure
     In this section you can find the basic structure of a Genro project. Click on the
     relative links for more information on every single file/folder, including the 4 subfolders
     we were talking about:
+    
+    add??? CORRECT IT! cut ``_resources``, add ``tables``...
     
     * ``project`` folder
         * :ref:`genro_instances_index` folder - here lies all your instance folder.
@@ -88,8 +96,8 @@ Basic structure
           * a :ref:`packages_main` file
           * a :ref:`packages_menu` file
           * a :ref:`packages_model` folder
+          * a :ref:`packages_resources` folder
           * a :ref:`packages_webpages` folder
-              * :ref:`genro_resources_index` folder
               * one or more :ref:`webpages_webpages`\s
                     
         * :ref:`genro_resources_index` folder (for all your project resources)

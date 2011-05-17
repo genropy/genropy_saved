@@ -27,7 +27,7 @@ Validity
         * :ref:`genro_field`
         * :ref:`genro_fieldcell`
     
-    * :ref:`genro_components_index`:
+    * :ref:`genro_components`\s:
     
         * :ref:`genro_linkerField`
         

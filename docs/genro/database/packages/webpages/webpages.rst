@@ -53,7 +53,7 @@ GnrCustomWebPage
        
         * :ref:`webpages_maintable`: allow to create shortcuts for users query
         * :ref:`webpages_py_requires`: allow to include some Genro
-          :ref:`genro_components_index`\s to your webpage
+          :ref:`genro_components`\s to your webpage (or, more generally, Python modules)
         * :ref:`webpages_js_requires`: allow to include some javascript functionality
           to your webpage
         * :ref:`webpages_css_requires`: allow to include some :ref:`genro_css`
@@ -101,8 +101,8 @@ webpage variables
 py_requires
 -----------
 
-    * Description: a string that allows to include some :ref:`genro_components_index`\s
-      to your project.
+    * Description: a string that allows to include some :ref:`genro_components`\s
+      to your project (or, more generally, Python modules).
     * Syntax: ``py_requires = 'fileName:componentClassName'``
     
         Where:
@@ -123,7 +123,7 @@ py_requires
               "``resources``" (or "``_resources``")
               
               * For more information about components check the
-                :ref:`genro_components_index`\s documentation page
+                :ref:`genro_components`\s documentation page
               * For more information about their location in a Genro :ref:`genro_project`,
                 please check the :ref:`genro_resources_index` documentation page.
             

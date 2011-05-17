@@ -1,8 +1,11 @@
-.. _genro_resources_index:
+.. _genro_database_resources:
 
-=========================
-``resources`` - (private)
-=========================
+=============
+``resources``
+=============
+
+    add??? Tenere introduzione generale, dividere le cose specifiche delle
+    cartelle delle risorse private e pubbliche...
 
     A ``resources`` folder is thought to speed up your work, because it is
     used to keep all the stuff that you need to use over and over in a Genro

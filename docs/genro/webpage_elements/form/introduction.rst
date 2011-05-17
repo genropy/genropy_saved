@@ -31,7 +31,7 @@ Introduction
     
     These two windows can live in a single :ref:`webpages_webpages`, or in two
     stacks, or one in a page and one in a dialog, and so on. The
-    :ref:`genro_components_index` that handles the creation and the disposition
+    :ref:`genro_components` that handles the creation and the disposition
     of these two windows is the :ref:`genro_th`.
 
 .. _genro_view_data:

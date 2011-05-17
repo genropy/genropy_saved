@@ -50,7 +50,6 @@ autocreation of the ``packages`` folder
     
     .. image:: ../../images/structure/structure-packages.png
     
-    In this example we call the package ``myproject``, like the project name. It is a convention
-    to call the first package (the main one) with the name of the project.
+    where ``base`` is the name of your first package.
     
     .. note:: The autocreation of this folder is handled by the :class:`InstanceMaker` class.
