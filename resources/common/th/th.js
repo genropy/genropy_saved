@@ -40,12 +40,11 @@ dojo.declare("gnr.widgets.ThIframePalette",gnr.widgets.ThIframe, {
     }
 });
 
-
-
 dojo.declare("gnr.LinkerManager", null, {
     constructor:function(sourceNode){
         this.sourceNode = sourceNode;
         this.form = this.sourceNode.form;
+        this.formUrl = sourceNode.attr._formUrl;
         this.field = sourceNode.attr._field;
         this.fieldpath = '#FORM.record.'+this.field;
         this.related_table = sourceNode.attr._related_table;
@@ -91,8 +90,9 @@ dojo.declare("gnr.LinkerManager", null, {
         }else{
             var that = this;
             var destPkey = pkey;
-            var iframeDialogKw = {title:'Palette:',table:this.related_table,main:'form',
+            var iframeDialogKw = {title:'',table:this.related_table,main:'form',
                                  main_th_linker:true, height:'300px',width:'400px',
+                                 url:this.formUrl,
                                  onStarted:function(){that.onIframeStarted(this,destPkey)}};
             objectUpdate(iframeDialogKw,this.dialog_kwargs);
             var thdialog = genro.src.create('thIframeDialog',iframeDialogKw,this.sourceNode.getStringId());

@@ -19,15 +19,20 @@ class GnrCustomWebPage(object):
     
     def th_form(self,form,**kwargs):
         bc = form.center.borderContainer()
-        top = bc.borderContainer(region='top',height='30%')
-        self.recordInfo(top.contentPane(region='left',width='40%',datapath='.record',margin='2px',_class='pbl_roundedGroup'))
-        self.userAuth(top.contentPane(region='center',margin='2px'))
-        tc = bc.tabContainer(region='center')
-        tc.contentPane(title='Test')
+        if 'th_linker' in self._call_kwargs:
+            self.loginData(bc.borderContainer(region='top',datapath='.record',margin='2px'))
+            self.userAuth(bc.contentPane(region='center',margin='2px'))
+
+        else:
+            top = bc.borderContainer(region='top',height='30%')
+            self.loginData(top.contentPane(region='left',width='40%',datapath='.record',margin='2px',_class='pbl_roundedGroup'))
+            self.userAuth(top.contentPane(region='center',margin='2px'))
+            tc = bc.tabContainer(region='center')
+            tc.contentPane(title='Test')
         
     
-    def recordInfo(self,pane):
-        pane.div('!!Manage user', _class='pbl_roundedGroupLabel')
+    def loginData(self,pane):
+        pane.div('!!Login Data', _class='pbl_roundedGroupLabel')
         fb = pane.div(margin='5px').formbuilder(cols=2, border_spacing='6px',width='100%',fld_width='100%')
         fb.field('username',lbl='!!Username')
         fb.field('firstname',lbl='!!Firstname')
@@ -43,7 +48,7 @@ class GnrCustomWebPage(object):
         bar = th.view.top.bar        
         bar.replaceSlots('#','#,delrow,addtags')
         bar.addtags.paletteTree('htags', title='Tags',tree_persist=True,
-                                dockButton_iconClass='icnOpenPalette',
+                                dockButton_iconClass='icnOpenPalette',height='250px',width='180px',
                                 ).htableStore('adm.htag')
         grid = th.view.grid
         grid.dragAndDrop(dropCodes='htags')

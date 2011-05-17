@@ -180,6 +180,7 @@ class ThLinker(BaseComponent):
                          selfsubscribe_newrecord='this.linkerManager.newrecord();',
                          selfsubscribe_loadrecord='this.linkerManager.loadrecord();',
                          _table = table,_related_table = related_table,_field=field,_embedded=embedded,
+                         _formUrl=formUrl,
                          _dialog_kwargs=dialog_kwargs,_default_kwargs=default_kwargs)
         linker.dataController("""SET .tip_link =linktpl.replace('$table1',t1).replace('$table2',t2);
                                  SET .tip_add = addtpl.replace('$table2',t2);""",
@@ -218,7 +219,7 @@ class ThLinker(BaseComponent):
 
     @struct_method          
     def th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs):
-        bar = pane.slotBar('lbl,*,linkerslot,5',_class=_class)
+        bar = pane.slotBar('lbl,*,linkerslot,5',height='20px',_class=_class)
         linker = bar.linkerslot.linker(field=field,newRecordOnly=newRecordOnly,**kwargs)
         bar.linker = linker
         label = label or self.db.table(linker.attributes['_related_table']).name_long
