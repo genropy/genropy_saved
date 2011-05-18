@@ -16,8 +16,8 @@ Definition
 ==========
     
     A component is a python file that gathers some useful features (classes) that can be used in more
-    than one project. Every component can be rewritten in most of its parts (methods) overriding some
-    of its portions. This ensures the ability to customize a component for your specific purpose.
+    than one project. Every component can be rewritten in most of its parts (methods) overriding them.
+    This ensures the ability to customize a component for your specific purpose.
     
     Components belong to the family of Genro :ref:`genro_intro_resources`.
     
@@ -26,29 +26,31 @@ Definition
 Components location
 ===================
     
-    The components MUST be situated in a folder named ``resources``: when you are creating a
-    :ref:`genro_project`, you have two possible places to put your components:
+    The components MUST be situated in a folder named ``resources``. There are two possibles places
+    to put a component:
     
     #. If you place a component at the following path::
         
         packageName/resources
         
        (where ``packageName`` is the name of the package and ``resources`` is a mandatory name for
-       the folder), then the component is **private**: this means that anyone can use this component only in the
-       project in which it has been created.
+       the folder), then the component is **private**: this means that anyone can use this component
+       only in the project in which it has been created.
        
-       These components belong to the family of the :ref:`genro_private_resource`\s.
+       The **private** components belong to the family of the :ref:`genro_private_resource`\s.
        
     #. If you place your component at the following path::
-    
+        
         projectName/resources
         
        (where ``projectName`` is the name of your project and ``resources`` is a mandatory name for
        the folder), then the component is **public**: this means that anyone can use this component
-       in any project (for doing this, you must import the package that includes the component you
-       want to use in your :ref:`instances_instanceconfig` file)
+       in any project.
        
-       These components belong to the family of the :ref:`genro_public_resource`\s.
+       If you need to import a component follow the instruction of the :ref:`components_requirements`
+       section.
+       
+       The **public** components belong to the family of the :ref:`genro_public_resource`\s.
        
     For more information on *private* and *public* components (that is, *private* and *public*
     resources) please check the :ref:`genro_intro_resources` documentation page.
@@ -58,20 +60,30 @@ Components location
 Components requirements
 =======================
 
-    To use a component you have to set in your :ref:`webpages_webpages`\s a requirement: every component
-    has to be called through the correct :ref:`webpages_py_requires` webpage variable.
+    To use a component you have to follow these two instructions:
     
-    * Syntax::
+    #. import the package (that includes the component you want to use) in your
+       :ref:`instances_instanceconfig` file
+       
+    #. set in your :ref:`webpages_webpages`\s a requirement: every component
+       has to be called through the correct :ref:`webpages_py_requires` webpage variable.
+       
+       * Syntax::
+       
+           py_requires = 'fileName:componentClassName'
+           
+       Where:
+       
+           * ``fileName`` is the name of the file including the component (it is not important
+             to specify its folder, because thorugh the mixin technique Genro searchs within
+             all the folder called ``resources`` [#]_)
+           * ``componentClassName`` is the name of the component class.
+       
+       .. note:: In every component's documentation page you fill find the correct syntax for
+                 its ``py_requires``
+              
+    **Example:** if you should need to import a component of the package ``tools`` called... add???
     
-        py_requires = 'fileName:componentClassName'
-        
-    Where:
-    
-        * ``fileName`` is the name of the file including the component (it is not important to specify its
-          folder, because thorugh the mixin technique Genro searchs within all the folder called ``resources`` [#]_)
-        * ``componentClassName`` is the name of the component class.
-    
-    .. note:: In every component's documentation page you fill find the correct syntax for its ``py_requires``
     
 .. _components_active_passive:
 
