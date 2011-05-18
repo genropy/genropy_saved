@@ -30,7 +30,7 @@ class PluggedPageManager(BaseComponent):
                                                     _plugin:true,pageName:'plugin_'+plugin,
                                                     datapath:dpath},
                             {'_position':k});
-                p._('BorderContainer',{region:'center',remote:'ppm_pluginTab',
+                p._('ContentPane',{region:'center',remote:'ppm_pluginTab',
                                     remote_handlerName:remoteTemplate.replace('$',plugin)});
                 }else{
                     currNode = content.getNode('#'+k);
@@ -54,7 +54,7 @@ class PluggedPageManager(BaseComponent):
     
     def remote_ppm_pluginTab(self,pane,handlerName=None,**kwargs):
         handler = getattr(self, handlerName)
-        handler(pane,**kwargs)
+        handler(pane.borderContainer(),**kwargs)
 
 
     def ppm_callPluginRecordHooks(self,hook,*args,**kwargs):
