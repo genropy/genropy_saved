@@ -4,6 +4,8 @@
 tableHandler
 ============
 
+    .. note:: it is a :ref:`components_standard`.
+              
     * :ref:`th_introduction`
     * :ref:`th_map`
     * :ref:`th_firststeps`
@@ -14,6 +16,7 @@ tableHandler
         
     * :ref:`th_webpage`:
     
+        * :ref:`th_py_requires`
         * :ref:`th_webpage_methods`
         * :ref:`th_webpage_th_form`
         * :ref:`th_form_center_path`
@@ -202,8 +205,8 @@ View class
 ----------
     
     The ``View`` class is used to let the user visualize some fields of its saved records.
-    You don't have to insert ALL the fields of your table, but only the fields that you want
-    that user could see in the View.
+    You don't have to insert ALL the fields of your table, but only the fields that you
+    want that user could see in the View.
     
     The first three lines define:
     
@@ -297,8 +300,15 @@ Form class
 th_webpage
 ==========
 
-    .. note:: please call your webpages with the suffix ``_page``. This is a
-              convention to keep order in your project (e.g: ``staff_page.py``)
+    .. note:: when you create a webpage of a :ref:`genro_project` that is related to
+              a :ref:`genro_table`, please name it following this convention::
+              
+                tableName + ``_page.py``
+                
+              example: if you have a table called ``staff.py``, call the webpage
+              ``staff_page.py``.
+              
+              This convention allows to keep order in your project
               
     When you build some complex tables, you need to use a :ref:`th_resource_page`
     and a ``th_webpage``.
@@ -342,30 +352,44 @@ th_webpage
     
         class GnrCustomWebPage(object):
         
-    Then you may specify the :ref:`genro_table` to which this page refers to::
+    Then you MAY specify the :ref:`genro_table` to which this page refers to::
     
         maintable = 'packageName.tableName'
         
-    A :ref:`webpages_webpages` (or a ``th_webpage``) is related to a table through
-    its :ref:`webpages_maintable` (a :ref:`webpages_variables`) or through the
-    :ref:`genro_dbtable` attribute. If you define the ``maintable``, then you have
+    This line it is not mandatory, because a :ref:`webpages_webpages` (or a ``th_webpage``)
+    is related to a table through its :ref:`webpages_maintable` (a :ref:`webpages_variables`)
+    or through the :ref:`genro_dbtable` attribute (defined inside one of the
+    :ref:`genro_webpage_elements_index`). If you define the ``maintable``, then you have
     defined the standard value for all the :ref:`genro_dbtable` attributes of your
-    :ref:`genro_webpage_elements_index` that support it. Check for more information
-    the :ref:`webpages_maintable` and the :ref:`genro_dbtable` documentation pages.
+    :ref:`genro_webpage_elements_index` that support it. Check for more information the
+    :ref:`webpages_maintable` and the :ref:`genro_dbtable` documentation pages.
     
-    Then you have to define the correct ``py_requires``::
+.. _th_py_requires:
+    
+TableHandler py_requires
+------------------------
+
+    You have to define the correct :ref:`webpages_py_requires` for your component.
+    
+    You have two possibilities: because you can use the ``tableHandler`` component as an
+    :ref:`components_active` or as a :ref:`components_passive` (We remember that the
+    difference is only in the management of the :ref:`webpages_main` method).
+    
+    **active tableHandler**::
     
         py_requires = 'public:TableHandlerMain'
         
-    For more informations on ``py_requires``, please check the :ref:`webpages_py_requires`
-    documentation section.
+    **passive tableHandler**::
     
+        py_requires = 'th/th:TableHandler'
+        
 .. _th_webpage_methods:
     
 th_webpage methods
 ------------------
     
-    Then you may define the following methods::
+    Then you may define the following methods (remember to define the :ref:`webpages_main`
+    method if you are using the tableHandler as a :ref:`components_passive`)::
         
         def pageAuthTags(self, method=None, **kwargs):
             return 'user'

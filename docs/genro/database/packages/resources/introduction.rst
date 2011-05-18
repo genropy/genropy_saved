@@ -7,9 +7,9 @@ Introduction
     In this section we'll talk about the *public* resources of your project.
     
     .. note:: before reading the following sections, read the introduction to *public*
-              and *private* resources that you can find in the :ref:`genro_resources_index`
+              and *private* resources that you can find in the :ref:`genro_intro_resources`
               section.
-    
+              
 ``resources`` contents
 ======================
 
@@ -20,4 +20,3 @@ Introduction
     * :ref:`genro_components`
     
     add???
-    

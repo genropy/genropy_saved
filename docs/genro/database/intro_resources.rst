@@ -4,12 +4,11 @@
 resources
 =========
 
-    A ``resources`` folder is thought to speed up your work, because it is
-    used to keep all the stuff that you need to use over and over in a Genro
-    :ref:`genro_project`. If you put your files in this folder, you can use
-    them many times in your :ref:`webpages_webpages`\s.
+    A ``resources`` folder is thought to speed up your work, because it is used to
+    keep all the stuff that you need to use over and over in a Genro :ref:`genro_project`.
     
-    In particular, you can keep into your ``resources`` folder:
+    We'll call *resources* all the files that you keep in a ``resources`` folder.
+    In particular, your *resources* can be:
     
     * some javascript files
     * some :ref:`genro_css` files

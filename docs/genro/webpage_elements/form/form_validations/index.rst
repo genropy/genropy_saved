@@ -23,7 +23,9 @@ validations
         
     * :ref:`validations_other_list`
     * :ref:`validations_common`
-    * :ref:`validations_example`: :ref:`validations_form_example`
+    * :ref:`validations_example`:
+    
+        * :ref:`validations_form_example`
 
 .. _validations_intro:
 
@@ -72,34 +74,33 @@ validate_call
     can't be saved.
     
     You can write js directly inside the validation, or you can put a name of a js
-    function defined in a ``.js`` file kept into your :ref:`genro_resources_index`
-    folder.
+    function defined in a ``.js`` file kept into your :ref:`genro_intro_resources`.
     
-    Example:
+    **Example:**
     
-    In your webpage you will write::
-    
-        fb.field('fiscal_code',
-                  validate_call="""return anag_methods.checkFiscalCode(value,nation);""")
-                  
-    where:
-    
-    * ``anag_methods`` is the name of a javascript variable defined in a js file called
-      (for example!) ``my_functions.js``
-      
-    * ``checkFiscalCode`` is the name of a js function defined in the same file.
-    
-    In your ``my_functions.js`` you will have::
-    
-        var anag_methods={
-            
-            checkFiscalCode:function(value, nation){
-                if(value=='') return true;
-                # ...
-                # other lines of the function
-            },
+        In your webpage you will write::
         
-        # ... The .js file continue...
+            fb.field('fiscal_code',
+                      validate_call="""return anag_methods.checkFiscalCode(value,nation);""")
+                      
+        where:
+        
+        * ``anag_methods`` is the name of a javascript variable defined in a js file called
+          (for example!) ``my_functions.js``
+          
+        * ``checkFiscalCode`` is the name of a js function defined in the same file.
+        
+        In your ``my_functions.js`` you will have::
+        
+            var anag_methods={
+                
+                checkFiscalCode:function(value, nation){
+                    if(value=='') return true;
+                    # ...
+                    # other lines of the function
+                },
+            
+            # ... The .js file continue...
         
     Remember to use the :ref:`webpages_js_requires` to specify your js file that you use
     in your :ref:`webpages_webpages`.
@@ -268,8 +269,8 @@ validate_remote
         
 .. _validations_other_list:
 
-other validations
-=================
+other Genro validations
+=======================
     
     The following validations have a small difference with a normal validation: they control
     the correct user input, and if they find it wrong, they automatically change it.

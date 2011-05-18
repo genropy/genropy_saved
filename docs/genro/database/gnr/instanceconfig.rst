@@ -79,7 +79,7 @@ Tags
 .. _instanceconfig_packages:
 
 ``<packages>``
-==============
+--------------
     
     The ``<packages>`` tag allow to include any other package from other projects: this allow you
     to use every file (like the :ref:`packages_model` and the :ref:`webpages_webpages`) of the
@@ -99,13 +99,17 @@ Tags
         
     where ``mypackage`` is the name of your main package.
     
-    Remember that in the ``<packages>`` tag you have at least put your main package, that is the one where
-    you put your :ref:`packages_model` and :ref:`webpages_webpages` folders.
+    Remember that in the ``<packages>`` tag you have at least put your main package, that is
+    the one where you put your :ref:`packages_model` and :ref:`webpages_webpages` folders.
+    
+    Remeber also to import the ``sys`` package::
+    
+        <gnrcore:sys />
     
 .. _instanceconfig_db:
 
 ``<db>``
-========
+--------
 
     In the ``<db>`` tag you have to specify at least the database name::
     
@@ -135,7 +139,7 @@ Tags
 .. _instanceconfig_authentication:
 
 ``<authentication>``
-====================
+--------------------
 
     The ``<authentication>`` tag allow to manage the authentications to your project's webpages.
     
@@ -154,9 +158,9 @@ Tags
 ``<xml_auth>``
 --------------
 
-    .. note:: the ``<xml_auth>`` tag uses the :meth:`auth_xml` method of the ``GnrApp`` class.
-    
     .. warning:: DEPRECATED!!! The adm/manage_users is not used anymore! add???
+    
+    .. note:: the ``<xml_auth>`` tag uses the :meth:`auth_xml` method of the ``GnrApp`` class.
     
     The ``<xml_auth>`` tag is a support tag that comes in handy to the :ref:`instanceconfig_py_auth`
     tag; it allows to you (i.e. the programmer) to enter the first time into the webpage called
@@ -188,6 +192,8 @@ Tags
 ``<py_auth>``
 -------------
 
+    .. warning:: DEPRECATED!!! The adm/manage_users is not used anymore! add???
+    
     .. note:: the ``<py_auth>`` tag uses the :meth:`auth_py` method of the ``GnrApp`` class.
     
     Once you have your temporary user [#]_, you can create the users for your customers.
@@ -201,9 +207,8 @@ Tags
     
         http://127.0.0.1:8090/adm/manage_users
     
-    Once you're there you will find a :ref:`genro_standardtable`; open :ref:`genro_st_padlock` (you can
-    do it because you entered with xml authorization) and set all the users you need (your one, the
-    customers one...).
+    Once you're there you will find a standardTable; open the padlock (you can do it because you
+    entered with xml authorization) and set all the users you need (your one, the customers one...).
     
     So, your ``<authentication>`` tag will look like this one::
     

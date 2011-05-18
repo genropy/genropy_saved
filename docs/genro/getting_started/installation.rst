@@ -47,7 +47,7 @@ Requirements
 How to obtain GenroPy
 =====================
 
-    add??? update!
+    .. warning:: add??? update!
     
     Genropy is in a svn repository. If you use git then you can track local changes.
     To obtain genropy, type::

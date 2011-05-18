@@ -19,8 +19,7 @@ Introduction
     There are two ways of adding CSS style in Genro:
     
     #. The first way is the nearest to the standard way to use CSS. You have to create a CSS
-       file, put it into your :ref:`genro_resources_index` folder and call it into your
-       page.
+       file, put it into your :ref:`genro_intro_resources` and call it into your page.
        
        The standard call for CSS files in a webpage is::
        

@@ -5,7 +5,7 @@ list of components
 ==================
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     
     IncludedView <includedview>
     linkerField

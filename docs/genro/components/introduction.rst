@@ -12,7 +12,7 @@ Introduction
     
 .. _components_def:
 
-Definition
+definition
 ==========
     
     A component is a python file that gathers some useful features (classes) that can be used in more
@@ -23,7 +23,7 @@ Definition
     
 .. _components_location:
 
-Components location
+components location
 ===================
     
     The components MUST be situated in a folder named ``resources``. There are two possibles places
@@ -43,61 +43,95 @@ Components location
         
         projectName/resources
         
-       (where ``projectName`` is the name of your project and ``resources`` is a mandatory name for
-       the folder), then the component is **public**: this means that anyone can use this component
-       in any project.
-       
-       If you need to import a component follow the instruction of the :ref:`components_requirements`
-       section.
+       (where ``projectName`` is the name of the project in which you put the component and
+       ``resources`` is a mandatory name for the folder), then the component is **public**:
+       this means that anyone can use this component in any project.
        
        The **public** components belong to the family of the :ref:`genro_public_resource`\s.
        
+       .. warning:: to use a *public* component, you have to specify some requirements.
+                    Please read the :ref:`components_requirements` for more information.
+                    
     For more information on *private* and *public* components (that is, *private* and *public*
     resources) please check the :ref:`genro_intro_resources` documentation page.
     
 .. _components_requirements:
 
-Components requirements
+components requirements
 =======================
 
     To use a component you have to follow these two instructions:
     
-    #. import the package (that includes the component you want to use) in your
-       :ref:`instances_instanceconfig` file
+    #. import the package (that includes the component you want to use) in the
+       :ref:`instanceconfig_packages` tag of your :ref:`instances_instanceconfig` file
+       (this is not always necessary: read the :ref:`components_standard` section for
+       more information).
        
     #. set in your :ref:`webpages_webpages`\s a requirement: every component
        has to be called through the correct :ref:`webpages_py_requires` webpage variable.
        
-       * Syntax::
+       * **Syntax**::
        
            py_requires = 'fileName:componentClassName'
            
-       Where:
-       
-           * ``fileName`` is the name of the file including the component (it is not important
-             to specify its folder, because thorugh the mixin technique Genro searchs within
-             all the folder called ``resources`` [#]_)
-           * ``componentClassName`` is the name of the component class.
-       
+         Where:
+         
+         * ``fileName`` is the name of the file including the component (it is not important
+           to specify its folder, because thorugh the mixin technique Genro searchs within
+           all the folder called :ref:`genro_intro_resources`).
+         * ``componentClassName`` is the name of the class of the component.
+         
        .. note:: In every component's documentation page you fill find the correct syntax for
-                 its ``py_requires``
-              
-    **Example:** if you should need to import a component of the package ``tools`` called... add???
-    
-    
-.. _components_active_passive:
+                 its ``py_requires`` and the name of the package you have to import.
+                 
+.. _components_standard:
 
-Active or passive component
-===========================
+standard component
+------------------
 
-    We can distighuish between active and passive component:
+    **Definition**: We define a standard component as a component that live in the following
+    path::
     
-    * **active component**: a component that overrides the main method.
-    * **passive component**: a component that doesn't have its own main method.
-    
-    .. note:: Usually, a component is *active* OR *passive*, but this is merely a convention.
-              You can create a component that is both *active* and *passive*.
+        GNRHOME/resources
+        
+    .. warning:: for the standard components you don't need to import a package:
+                 the package importation is automatically handled in your
+                 :ref:`gnr_environment` file (if you have correctly configured the file!)
+                 
+                 To learn how to configure the ``environment.xml`` file, check the
+                 :ref:`environment_resources` documentation section.
+                 
+    .. note:: in every component's documentation page you will find if the component is
+              standard.
+                 
+    .. _components_active_passive:
 
+active or passive components
+============================
+
+    We can distighuish between *active* and *passive* components.
+    
+    Usually, a component is *active* OR *passive*, but this is merely a convention.
+    You can create a component that is both *active* and *passive*.
+    
+    .. note:: in every component's documentation page you will find if the component
+              is *active* or *passive*.
+    
+.. _components_active:
+    
+active component
+----------------
+    
+    The active component is a component that overrides the main method.
+    
+.. _components_passive:
+    
+passive component
+-----------------
+    
+    The passive component is a component that doesn't have its own main method, so you
+    have to define your own *main* method in your :ref:`webpages_webpages`.
+    
 .. _components_list:
 
 List of all the components
@@ -117,9 +151,4 @@ List of all the components
     
     * :ref:`genro_includedview`
     * timetable_dh
-
-**Footnotes**:
-
-.. [#] As you can see in the image, a Genro :ref:`genro_project` is composed by four main folders, that are: :ref:`genro_instances_index`, :ref:`genro_packages_index`, :ref:`genro_resources_index`, :ref:`genro_sites_index` - click on these links for more informations about a project and its subfolders.
-.. [#] Obviously, if you create a component please remember to put in a ``resources`` folder! (Check the :ref:`components_location` paragraph for more information on the component positioning)
-    
+        

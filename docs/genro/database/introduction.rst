@@ -62,7 +62,7 @@ Introduction
           
         * You will use it for all the common tools of your project.
         
-        For an introduction to the resources, please check the :ref:`genro_resources_index`
+        For an introduction to the resources, please check the :ref:`genro_intro_resources`
         documentation page.
         
 .. _genro_project_basic_structure:

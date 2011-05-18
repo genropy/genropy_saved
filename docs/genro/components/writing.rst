@@ -4,8 +4,8 @@
 Writing a component
 ===================
 
-    Writing a component with GenroPy is easy: the framework allow to create a component in a simple way
-    and allow to extract it from a page for an external usage.
+    Writing a component with GenroPy is easy: the framework allow to create a component
+    in a simple way and allow to extract it from a page for an external usage.
 
 How to create a good component
 ==============================
@@ -15,6 +15,7 @@ How to create a good component
     * **Document your public API:** please document your public API and keep updated the documentation.
       Remember also to keep updated:
       
+        * the :ref:`components_requirements`.
         * the documentation of all the callback functions (with their signatures and parameters).
         * The Bags or other complex objects used in your component.
         * The :ref:`genro_datastore` elements and their functionality.

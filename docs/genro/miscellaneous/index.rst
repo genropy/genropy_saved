@@ -27,3 +27,4 @@ Documents to revise
     webpage_creation
     workdate
     wsgi
+    xmlhttprequest

@@ -6,16 +6,27 @@ webpage
 
     * :ref:`webpages_GnrCustomWebPage`
     * :ref:`webpages_variables`
+    * The :ref:`webpages_main` method
     
-    Genro provides the application GUI using webpages.
+.. _webpages_GnrCustomWebPage:
+
+GnrCustomWebPage
+================
     
-    add???(Introduce the GnrCustomWebPage)
+    .. module:: gnr.web.gnrwebpage
     
-    The standard usage of Genro GnrCustomWebPages is to use them in a combo with some
-    :ref:`genro_table`\s to create a DBMS :ref:`genro_project`.
+    Genro provides the application GUI using webpages. A webpage is built through
+    an istance of a GnrCustomWebPage, that is a custom class of the :class:`GnrWebPage`.
     
-    .. note:: please call your webpages with the suffix ``_page``. This is a convention
-              to keep order in your project (e.g: ``staff_page.py``)
+    .. note:: when you create a webpage of a :ref:`genro_project` that is related to
+              a :ref:`genro_table`, please name it following this convention::
+              
+                tableName + ``_page.py``
+                
+              example: if you have a table called ``staff.py``, call the webpage
+              ``staff_page.py``.
+              
+              This convention allows to keep order in your project
     
     You can act on a Genro webpage through many webpage elements: please check the
     :ref:`genro_webpage_elements_intro` to Genro webpage elements if you need to learn
@@ -23,11 +34,6 @@ webpage
     
     We are going now to introduce the :ref:`webpages_GnrCustomWebPage`, the standard class
     used to build the webpages.
-    
-.. _webpages_GnrCustomWebPage:
-
-GnrCustomWebPage
-================
     
     add??? (this isn't a real GnrCustomWebPage class, it is created through a GnrWebPage
     istance...)
@@ -59,7 +65,8 @@ GnrCustomWebPage
         * :ref:`webpages_css_requires`: allow to include some :ref:`genro_css`
           to your webpage
     
-    #. You have to define the main method (unless you're using an active component [#]_)
+    #. You have to define the :ref:`webpages_main` method (unless you're using an active
+       component [#]_)
         
     Let's see now an example of a complete heading of a webpage::
     
@@ -144,7 +151,7 @@ css_requires
               * For more information about Genro CSS, please check the :ref:`genro_css`
                 documentation page.
               * For more information about their location in a Genro :ref:`genro_project`,
-                please check the :ref:`genro_resources_index` documentation page.
+                please check the :ref:`genro_intro_resources` documentation page.
                 
     .. _webpages_css_theme:
 
@@ -219,7 +226,7 @@ js_requires
     .. note:: The js files you want to use must be placed into your "``resources``" folder
               
               * For more information about Genro js and their location in Genro, please check
-                the :ref:`genro_resources_index` documentation page.
+                the :ref:`genro_intro_resources` documentation page.
                 
     .. _webpages_pageOptions:
 
@@ -334,6 +341,31 @@ recordLock
     * Description: add???
     * Default value: add???
     * Example: add???
+    
+.. _webpages_main:
+    
+main
+====
+    
+    The main method of a webpage.
+    
+    ::
+    
+        def main(self, root, **kwargs):
+    
+    where:
+    
+    * the ``root`` ... add???
+    * in the ``**kwargs`` you will find all the values passed to the client through
+      the :ref:`genro_xmlhttprequest`.
+      
+    .. note:: Usually the ``main`` method is MANDATORY. But, if you use one the
+              :ref:`components_active`\s, you may avoid to define it because the ``main``
+              method is defined within the component itself. For more information
+              check the :ref:`introduction to components <genro_components_introduction>`
+              documentation page.
+              
+    Example: add???
     
 **Footnotes**:
 
