@@ -3116,6 +3116,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     mixin_newDataStore:function(val, kw) {
         this.updateRowCount(0);
         this.resetFilter();
+        if(this.excludeCol){
+            this._filterToRebuild = true;
+        }
         if (this.sortedBy) {
             var storebag = this.storebag();
             storebag.sort(this.datamode=='bag'?this.sortedBy:'#a.'+this.sortedBy);
