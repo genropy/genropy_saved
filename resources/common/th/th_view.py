@@ -48,8 +48,7 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots']= base_slots    
         frame = pane.frameGrid(frameCode=frameCode,childname='view',
                                struct=self._th_hook('struct',mangler=frameCode),
-                               border='1px solid gray',margin='2px', rounded=10,
-                               datapath='.view',top_kwargs=top_kwargs,**kwargs)        
+                               datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',**kwargs)        
         self._th_listController(frame,table=table)
         if queryTool:
             self._th_queryToolController(frame,table=table)

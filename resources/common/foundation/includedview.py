@@ -703,10 +703,10 @@ class IncludedView(BaseComponent):
         pane = parentBC
         frameCode = frameCode or 'frame_%s' %nodeId
         datapath = datapath or '#FORM.%s' %frameCode
-        frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,
+        frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,_class='pbl_roundedGroup',
                                 grid_nodeId=nodeId,grid_datamode=datamode,grid_table=table,**kwargs)
-        storepath = '#FORM.record%s' %storepath
-       # frame.bagStore(storepath=storepath,table=table)
+        if storepath.startswith('.'):
+            storepath = '/parent/parent%s' %storepath
         gridattr = frame.grid.attributes
         gridattr['storepath'] = storepath
         gridattr['selfsubscribe_addrow'] = """for(var i=0; i<$1._counter;i++){
@@ -717,21 +717,23 @@ class IncludedView(BaseComponent):
         gridattr['tag'] = 'includedview'
         if dropCodes:
             frame.grid.dragAndDrop(dropCodes)
-        slots = ['tools,2']
+        slots = []
         slotsKw = {}
         if label:
             slots.append('label,*')
             slotsKw['label'] = label
         else:
             slots.append('*')
-        if add_kwargs:
-            action = add_kwargs.get('action')
-            slots.append('addrow')
-            assert not isinstance(action,basestring), 'custom action are not supported'
         if del_kwargs:
             action = add_kwargs.get('action')
             slots.append('delrow')
             assert not isinstance(action,basestring), 'custom action are not supported'
-        frame.top.slotToolbar(','.join(slots),**slotsKw)
+        if add_kwargs:
+            action = add_kwargs.get('action')
+            slots.append('addrow')
+            assert not isinstance(action,basestring), 'custom action are not supported'
+        frame.top.slotBar(','.join(slots),_class='slotbar_toolbar pbl_roundedGroupLabel',**slotsKw)
+        
+        
         return frame.grid
         
