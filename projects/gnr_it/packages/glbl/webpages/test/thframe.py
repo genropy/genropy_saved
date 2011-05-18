@@ -6,7 +6,7 @@
 
 "Tablehandler"
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull,tablehandler/th_iframepage:TableHandler"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,public:TableHandlerMain"
          
     def test_0_firsttest(self,pane):
         """First test description"""
