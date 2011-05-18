@@ -705,8 +705,8 @@ class IncludedView(BaseComponent):
         datapath = datapath or '#FORM.%s' %frameCode
         frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,_class='pbl_roundedGroup',
                                 grid_nodeId=nodeId,grid_datamode=datamode,grid_table=table,**kwargs)
-        storepath = '#FORM.record%s' %storepath
-       # frame.bagStore(storepath=storepath,table=table)
+        if storepath.startswith('.'):
+            storepath = '/parent/parent%s' %storepath
         gridattr = frame.grid.attributes
         gridattr['storepath'] = storepath
         gridattr['selfsubscribe_addrow'] = """for(var i=0; i<$1._counter;i++){

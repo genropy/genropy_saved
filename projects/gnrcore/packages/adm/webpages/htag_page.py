@@ -29,7 +29,7 @@ class GnrCustomWebPage(object):
     def usersPane(self,pane):
         def user_struct(struct):
             r = struct.view().rows()
-            r.cell('username', name='username', width='8em',filteringColumn='user')
+            r.cell('username', name='username', width='8em')
             r.cell('fullname', name='fullname', width='100%')
             
         th = pane.plainTableHandler(relation='@users',viewResource=':ViewFromTag')
@@ -37,6 +37,7 @@ class GnrCustomWebPage(object):
         bar.replaceSlots('#','#,delrow,addusers')
         bar.addusers.paletteGrid('users', title='!!Users',searchOn=True, struct=user_struct,
                                   grid_filteringGrid=th.view.grid,
+                                  grid_filteringColumn='username:user',
                                   dockButton_iconClass='icnOpenPalette').selectionStore(table='adm.user')
         
         grid = th.view.grid
