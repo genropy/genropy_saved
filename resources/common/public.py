@@ -462,7 +462,7 @@ class TableHandlerMain(BaseComponent):
         form = self._th_prepareForm(root,**kwargs)
         form = self.th_form(form)
     
-    def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,th_selector=None,th_modal=None,**kwargs):
+    def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,th_selector=None,th_modal=None,th_navigation=None,**kwargs):
         pkey = pkey or kwargs.pop('th_pkey',None)
         tableCode = self.maintable.replace('.','_')
         self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
@@ -483,6 +483,9 @@ class TableHandlerMain(BaseComponent):
                 slots = '*,|,semaphore,|,form_revert,form_save'
             if th_selector:
                 slots = slots.replace('*','5,form_selectrecord,*')
+            elif th_navigation:
+                slots = 'form_navigation,%s' %slots
+                form.store.attributes.update(storeType='Collection')
             form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')            
         return form
     

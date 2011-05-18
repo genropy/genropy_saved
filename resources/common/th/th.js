@@ -16,7 +16,6 @@ dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
     }
 });
 
-
 dojo.declare("gnr.widgets.ThIframeDialog", gnr.widgets.ThIframe, {
     createContent:function(sourceNode, kw) {
         var dialogAttrs = objectExtract(kw,'title,height,width');
@@ -85,7 +84,7 @@ dojo.declare("gnr.LinkerManager", null, {
             return;
         }
         if(this.linkerform){
-            this.linkerform.load({destPkey:pkey,default_kw:this.default_kwargs});
+            this.linkerform.load({destPkey:pkey,default_kw:this.sourceNode.evaluateOnNode(this.default_kwargs)});
             this.thdialog.show();
         }else{
             var that = this;
@@ -122,6 +121,49 @@ dojo.declare("gnr.LinkerManager", null, {
     
     newrecord:function(){
         this.openrecord('*newrecord*');
+    }
+});
+
+
+dojo.declare("gnr.IframeFormManager", null, {
+    constructor:function(sourceNode){
+        this.sourceNode = sourceNode;
+        //this.form = this.sourceNode.form;
+        this.formUrl = sourceNode.attr._formUrl;
+        this.table = sourceNode.attr._table;
+        this.default_kwargs = sourceNode.attr._default_kwargs;
+        this.iframeAttr = sourceNode.attr._iframeAttr;
+        this.fakeFormId = sourceNode.attr._fakeFormId;
+        this.formStoreKwargs = sourceNode.attr._formStoreKwargs
+    },
+    openrecord:function(pkey){
+        genro.publish('form_'+this.fakeFormId+'_onLoading');
+        if(this.iframeForm){
+            this.iframeForm.load({destPkey:pkey,default_kw:this.sourceNode.evaluateOnNode(this.attr.default_kwargs)});
+        }else{
+            var iframeAttr = this.iframeAttr;
+            var that = this;
+            iframeAttr['onStarted'] = function(){that.onIframeStarted(this,pkey)};
+            iframeAttr['main_th_navigation'] = true;
+            objectUpdate(iframeAttr,{height:'100%',width:'100%',border:0});
+            iframeAttr.src = iframeAttr.src || '/sys/thpage/'+this.table.replace('.','/');
+            this.iframeNode = this.sourceNode._('iframe',iframeAttr);
+        }
+    },
+    closerecord:function(modifiers){
+        this.iframeForm.dismiss(modifiers);
+    },
+    onIframeStarted:function(iframe,pkey){
+        this.iframeForm = iframe._genro.getForm('mainform');
+        this.iframeForm.load({destPkey:pkey,default_kw:this.default_kw});
+        this.iframeForm.store.parentStore = genro.getStore(this.formStoreKwargs.parentStore);
+        var that = this;
+        this.iframeForm.subscribe('onDismissed',function(kw){
+            genro.publish('form_'+that.fakeFormId+'_onDismissed',kw);
+        });
+        this.iframeForm.subscribe('onLoaded',function(kw){
+            genro.publish('form_'+that.fakeFormId+'_onLoaded',kw);
+        });
     }
 });
 
