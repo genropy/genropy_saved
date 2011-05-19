@@ -9,6 +9,3 @@ class Table(object):
         tbl.column('user_id',size=':22',name_long='!!User').relation('adm.user.id',mode='foreignkey')
         tbl.column('interno',size=':15',name_long ='!!Intern')
         tbl.column('ruolo',size=':30',name_long ='!!Role')
-        #tbl.aliasColumn()
-        #tbl.aliasColumn()
-        #tbl.formulaColumn('cognome_nome', "(@anagrafica_id.cognome OR @anagrafica_id.nome IS NOT NULL)", name_long='!!Cognome nome')

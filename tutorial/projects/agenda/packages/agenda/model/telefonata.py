@@ -9,7 +9,8 @@ class Table(object):
         self.sysFields(tbl)
         tbl.column('giorno',dtype='D',name_long='!!Day')
         tbl.column('ora',dtype='H',name_long='!!Hour')
-        tbl.column('destinatario_id',size=':22',name_long='!!Receiver').relation('agenda.staff.id',mode='foreignkey')
+        tbl.column('destinatario_id',size=':22',name_long='!!Receiver').relation('agenda.staff.id',mode='foreignkey',
+                                                                                  relation_name='phone_calls')
         tbl.aliasColumn('destinatario',relation_path='@destinatario_id.@anagrafica_id.cognome',name_long='!!Receiver')
         tbl.column('username',name_long='!!User')
         tbl.column('contatto_id',size=':22',name_long='!!Contact').relation('agenda.contatto.id',mode='foreignkey')
@@ -17,6 +18,7 @@ class Table(object):
         tbl.aliasColumn('cognome',relation_path='@contatto_id.@anagrafica_id.cognome',name_long='!!Surname')
         tbl.aliasColumn('nome',relation_path='@contatto_id.@anagrafica_id.nome',name_long='!!Name')
         tbl.column('descrizione',size=':100',name_long='!!Reason of the call')
+        tbl.column('vista_il',dtype='DH',name_long='!!Seen')
         
     #def trigger_onInserting(self, record_data):
     #    dh = datetime.datetime.now()

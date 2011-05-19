@@ -4,6 +4,8 @@
 # Created by Filippo Astolfi on 2011-05-04.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
+import datetime
+
 class GnrCustomWebPage(object):
     maintable = 'agenda.staff'
     py_requires = """public:TableHandlerMain"""
@@ -23,14 +25,13 @@ class GnrCustomWebPage(object):
     def tableDeleteTags(self):
         return 'user'
         
-    def th_form(self,form,**kwargs):
-        bc = form.record.borderContainer(margin='3px')
-        #tc = form.center.tabContainer()
-        #
-        #bc = tc.borderContainer(datapath='.record', title='Profilo')
-        #altro = tc.contentPane(title='Altro')
-        #altro.numbertextbox(value='^.numerobusatto',default=36)
+    def th_form(self, form, **kwargs):
+        #bc = form.record.borderContainer(margin='3px')
+        tc = form.center.tabContainer(margin='3px',selected='^.selected_tab')
+        self.staffInfo(tc.borderContainer(title='Profilo', design='sidebar', margin='3px', datapath='.record', nodeId='staffId'))
+        self.phoneInfo(tc.contentPane(title='Phone call', margin='3px'))
         
+    def staffInfo(self, bc):
         top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='1px',height='40%')
         top.div('!!Registry records',_class='pbl_roundedGroupLabel')
         fb = top.formbuilder(dbtable='sw_base.anagrafica',margin_left='10px',margin_top='1em',
@@ -63,6 +64,20 @@ class GnrCustomWebPage(object):
         fb.field('auth_tags',lbl='!!Auth tags')
         fb.field('avatar_rootpage',lbl='!!Avatar rootpage')
         
+    def phoneInfo(self, pane, **kwargs):
+        pane.dialogTableHandler(relation='@phone_calls',
+                                formResource=':FormFromReceiver',
+                                viewResource=':ViewFromReceiver',
+                                #condition='...',
+                                dialog_height='400px',
+                                dialog_width='700px',
+                                dialog_title='Phone calls')
+                                
+    def onSaving_agenda_telefonata(self, recordCluster, recordClusterAttr, resultAttr=None):
+        call_checked = recordCluster.pop('call_checked')
+        if call_checked:
+            recordCluster['vista_il'] = datetime.datetime.now()
+            
     # Prova con "thIframe" ... (non funziona!)
     #def th_form(self,form,**kwargs):
     #    tc = form.center.tabContainer(margin='3px', selected='^.selected_tab')
