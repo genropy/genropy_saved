@@ -250,6 +250,7 @@ class GnrDomSrc(GnrStructData):
         :param centerCb: add???. Default value is ``None``
         :returns: the framepane
         """
+        frameCode = frameCode or 'frame_#'
         if '#' in frameCode:
             frameCode = frameCode.replace('#',self.page.getUuid())
         frame = self.child('FramePane',frameCode=frameCode,autoslots='top,bottom,left,right,center',**kwargs)

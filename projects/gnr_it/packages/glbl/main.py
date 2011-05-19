@@ -14,4 +14,7 @@ class Package(GnrDboPackage):
         pass
         
 class Table(GnrDboTable):
-    pass
+    def fillTable(self,records):
+        for record in records:
+            self.insert(record)
+            

@@ -14,6 +14,23 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
         
+
+    def test_4_tab_hidden(self, pane):
+        bc = pane.borderContainer(height='400px')
+        top = bc.contentPane(region='top')
+        tc = bc.tabContainer(region='center')
+        tc.contentPane(title='tab1')
+        tab2 = tc.contentPane(title='tab2',display='none')
+        tab2.div('aaa')
+        top.button('toggle tab 2',action="""
+                                        if(!this._pendingTab){
+                                            this._pendingTab = tc._value.popNode(tab2.label);
+                                        }else{
+                                            tc._value.setItem(this._pendingTab.label,this._pendingTab);
+                                            this._pendingTab = null;
+                                        }
+                                        """,tc=tc,tab2=tab2)
+
     def test_2_tabcontainer(self, pane):
         """tab number"""
         bc = pane.borderContainer(height='200px')
