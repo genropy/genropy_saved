@@ -448,21 +448,12 @@ th_form
         fb.field('surname')
         fb.field('email',colspan=2)
         
-    After that, you can add all your supporting methods you need: for example, you may need
-    an ``onLoading`` method::
-    
-        def onLoading(self, record, newrecord, loadingParameters, recInfo):
-            if newrecord:
-                record['username'] = self.user
-                record['day'] = self.workdate
-                record['hour'] = datetime.datetime.now().time()
-                
     .. _th_form_center_path:
 
 ``center`` path
 ---------------
 
-    If you need to use some complex :ref:`genro_layout_index` in your page, like a
+    If you need to use some complex :ref:`genro_layout_index` elements in your page, like a
     :ref:`genro_tabcontainer`, you have to pass from the ``form.center`` path. Example::
     
         tc = form.center.tabContainer()

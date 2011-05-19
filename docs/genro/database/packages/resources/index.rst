@@ -1,8 +1,8 @@
 .. _public_resources:
 
-========================
-``resources`` - (public)
-========================
+=============
+``resources``
+=============
 
     In this folder you can keep the :ref:`genro_public_resource`\s of your :ref:`genro_project`.
     

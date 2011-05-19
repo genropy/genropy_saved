@@ -29,8 +29,8 @@ GnrCustomWebPage
               This convention allows to keep order in your project
     
     You can act on a Genro webpage through many webpage elements: please check the
-    :ref:`genro_webpage_elements_intro` to Genro webpage elements if you need to learn
-    more about them.
+    :ref:`introduction to webpage elements <genro_webpage_elements_intro>` if you need
+    to learn more about them.
     
     We are going now to introduce the :ref:`webpages_GnrCustomWebPage`, the standard class
     used to build the webpages.
@@ -82,6 +82,36 @@ GnrCustomWebPage
                 root.div('Hello world!')
                 # Here goes the rest of your code...
                 
+.. _webpages_main:
+    
+main
+====
+    
+    The main method of a webpage.
+    
+    ::
+    
+        def main(self, root, **kwargs):
+    
+    where:
+    
+    * the ``root`` passes a :ref:`genro_contentpane`.
+      
+      If you import the :ref:`webpages_py_requires` called ``public``::
+      
+        py_requires = 'public:public' (MINUSCOLO O MAIUSCOLO???)
+      
+      the ``root`` passes a :ref:`genro_bordercontainer`.
+      
+    * in the ``**kwargs`` you will find all the values passed to the client through
+      the :ref:`genro_xmlhttprequest`.
+      
+    .. note:: Usually the ``main`` method is MANDATORY. But, if you use one the
+              :ref:`components_active`\s, you may avoid to define it because the ``main``
+              method is defined within the component itself. For more information
+              check the :ref:`introduction to components <genro_components_introduction>`
+              documentation page.
+              
     .. _webpages_variables:
 
 webpage variables
@@ -341,31 +371,6 @@ recordLock
     * Description: add???
     * Default value: add???
     * Example: add???
-    
-.. _webpages_main:
-    
-main
-====
-    
-    The main method of a webpage.
-    
-    ::
-    
-        def main(self, root, **kwargs):
-    
-    where:
-    
-    * the ``root`` ... add???
-    * in the ``**kwargs`` you will find all the values passed to the client through
-      the :ref:`genro_xmlhttprequest`.
-      
-    .. note:: Usually the ``main`` method is MANDATORY. But, if you use one the
-              :ref:`components_active`\s, you may avoid to define it because the ``main``
-              method is defined within the component itself. For more information
-              check the :ref:`introduction to components <genro_components_introduction>`
-              documentation page.
-              
-    Example: add???
     
 **Footnotes**:
 

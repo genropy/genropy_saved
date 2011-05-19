@@ -6,7 +6,9 @@ project
     
     * :ref:`genro_project_introduction`
     * :ref:`genro_project_basic_structure`
-    * :ref:`genro_project_autocreation`, :ref:`genro_project_help`
+    * :ref:`genro_project_autocreation`:
+        
+        * :ref:`genro_project_help`
     
 .. _genro_project_introduction:
 
