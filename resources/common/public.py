@@ -460,7 +460,10 @@ class TableHandlerMain(BaseComponent):
     def rpc_form(self, root, th_pkey=None,**kwargs):
         kwargs.update(self.getCallArgs('pkey'))  
         form = self._th_prepareForm(root,**kwargs)
-        form = self.th_form(form)
+        if hasattr(self,'th_form'):
+            self.th_form(form)
+        else:
+            self._th_hook('form',mangler= self.maintable.replace('.','_'))(form)
     
     def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,th_selector=None,th_modal=None,th_navigation=None,**kwargs):
         pkey = pkey or kwargs.pop('th_pkey',None)
