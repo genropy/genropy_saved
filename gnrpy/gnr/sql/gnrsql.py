@@ -701,11 +701,9 @@ class DbStoresHandler(object):
         :param changes: add???. Default value is ``None``
         """
         with self.db.tempEnv(storename=storename):
-            self.db.use_store(storename)
             changes = changes or self.db.model.check()
             if changes:
                 self.db.model.applyModelChanges()
-            self.db.use_store('_main_db')
             
 if __name__ == '__main__':
     pass

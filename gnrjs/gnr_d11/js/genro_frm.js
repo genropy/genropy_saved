@@ -1383,7 +1383,10 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         return this.getNavigationPkey(0);
     },    
     setNavigationStatus:function(pkey){
-        var currIdx = this.parentStore.getIdxFromPkey(pkey);
+        var currIdx=-1;
+        if(pkey!='*norecord*' && pkey!='*newrecord*'){
+            var currIdx = this.parentStore.getIdxFromPkey(pkey);
+        }
         var kw = {}
         if(currIdx<0){
             kw.first = true;

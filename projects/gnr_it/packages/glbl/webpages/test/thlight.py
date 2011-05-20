@@ -50,3 +50,10 @@ class GnrCustomWebPage(object):
         th = bc.plainTableHandler(region='center',table='glbl.provincia',virtualStore=True)
         th.view.top.attributes['detachable'] = True
         th.view.bottom.slotBar('*,label,count',label='Totali:')
+
+    def test_6_provincia_iframeDialog(self,pane):
+        """First test description"""
+        pane = pane.borderContainer(height='400px')
+        pane.dialogTableHandler(region='center',dialog_height='300px',dialog_width='500px',dialog_title='provincia',
+                                table='glbl.provincia',virtualStore=True,formInIframe=True)
+        

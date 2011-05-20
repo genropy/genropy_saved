@@ -39,47 +39,19 @@ class FormHandler(BaseComponent):
         formRoot = self.__formRoot(pane,formId,formRoot=formRoot,dialog_kwargs=dialog_kwargs,
                                     palette_kwargs=palette_kwargs,attachTo=attachTo,form_kwargs=kwargs)
         parentTag = pane.attributes['tag'].lower()
-        if iframe:
-            iframe = self.__formInIframe(formRoot.contentPane(**kwargs),frameCode=frameCode,
-                                          table=table,formId=formId,
-                                         default_kwargs=default_kwargs)
-            if parentTag=='includedview' or parentTag=='newincludedview':
-                gridattr = pane.attributes
-                gridattr['iframeform'] = iframe.js_domNode
-                gridattr['formrootwidget'] = formRoot.js_widget
-                gridattr['connect_%s' %loadEvent] = """
-                                                var iframeform = this.inheritedAttribute('iframeform');
-                                                var formrootwidget = this.inheritedAttribute('formrootwidget');
-                                                formrootwidget.switchPage(1);
-                                                console.log(iframeform);
-                                                """                
-                return iframe
-        else:
-            form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=table,
-                                     store=store,**kwargs)
-            attachTo.form = form
-            form.store.handler('load',**default_kwargs)
-            
         if parentTag=='includedview' or parentTag=='newincludedview':
-            gridattr = pane.attributes
-            storeattr = form.store.attributes
-            storeattr['storeType'] = 'Collection'
-            storeattr['parentStore'] = gridattr['store']
-            gridattr['currform'] = form.js_form
-            gridattr['connect_%s' %loadEvent] = """
-                                                var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
-                                                if(rowIndex>-1){
-                                                    var currform = this.inheritedAttribute('currform');
-                                                    currform.load({destPkey:this.widget.rowIdByIndex(rowIndex),destIdx:rowIndex});
-                                                }
-                                                """
-            gridattr['selfsubscribe_addrow'] = 'currform.newrecord();'
-            gridattr['subscribe_form_%s_onLoaded' %formId] ="""
-                                                                if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
-                                                                    this.widget.selectByRowAttr('_pkey',$1.pkey);
-                                                                }
-                                                                  """
-            form = self.linkedFormBody(form,**kwargs)
+            self.__linkToParentGrid(pane,formId=formId,iframe=iframe,loadEvent=loadEvent)
+            kwargs['store_storeType'] = 'Collection'
+            kwargs['store_parentStore'] = pane.attributes['store']
+            
+        if iframe:
+            iframeNode =self.__formInIframe(formRoot,frameCode=frameCode,table=table,
+                                            formId=formId,default_kwargs=default_kwargs,iframe=iframe,**kwargs)
+            return iframeNode
+        form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=table,store=store,**kwargs)
+        attachTo.form = form
+        form.store.handler('load',**default_kwargs)
+        form = self.linkedFormBody(form,**kwargs)
         return form
     
     def linkedFormBody(self,form,**kwargs):
@@ -101,8 +73,7 @@ class FormHandler(BaseComponent):
                 dialog_kwargs['closable'] = dialog_kwargs.get('closable','publish')
                 dialog_kwargs[loadSubscriber] = "this.widget.show();"
                 dialog_kwargs[closeSubscriber] = "this.widget.hide();"
-                dialog_kwargs['selfsubscribe_close'] = """genro.formById('%s').dismiss($1.modifiers);
-                                                            """ %formId
+                dialog_kwargs['selfsubscribe_close'] = """genro.publish('form_%s_dismiss',$1.modifiers);""" %formId
             formRoot = attachTo.dialog(**dialog_kwargs)
         elif palette_kwargs:
             palette_kwargs[loadSubscriber] = "this.widget.show();"
@@ -112,28 +83,46 @@ class FormHandler(BaseComponent):
                                                             """ %formId
             formRoot = attachTo.palette(**palette_kwargs)
         return formRoot
-        
-    def __formInIframe(self,pane,default_kwargs=None,**kwargs):     
-        pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
-        pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
-        box = pane.div(_class='detacher',z_index=30)
-        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
-        kwargs.update(dict([('main_default_%s' %k,v) for k,v in default_kwargs.items()]))
-        dispatcher = 'lf_iframeFormDispatcher'
-        iframe = box.iframe(main=dispatcher,**kwargs)
-        #pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
-        return iframe
+    
+    def __linkToParentGrid(self,grid,formId=None,iframe=None,loadEvent=None):
+        gridattr = grid.attributes
+        gridattr['_linkedFormId']=formId
+        gridattr['connect_%s' %loadEvent] = """
+                                            var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
+                                            if(rowIndex>-1){
+                                                this.publish('editrow',{pkey:this.widget.rowIdByIndex(rowIndex)});
+                                            }
+                                            """
+        gridattr['selfsubscribe_addrow'] = """this.publish('editrow',{pkey:"*newrecord*"});"""
+        gridattr['selfsubscribe_editrow'] = """
+                                    var topic = 'form_'+this.attr._linkedFormId+'_load';
+                                    genro.publish(topic,{destPkey:$1.pkey});
+                                    """
+        gridattr['subscribe_form_%s_onLoaded' %formId] ="""if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
+                                                                this.widget.selectByRowAttr('_pkey',$1.pkey);
+                                                            }
+                                                              """
+    @extract_kwargs(store=True)
+    def __formInIframe(self,formRoot,frameCode=None,table=None,
+                       formId=None,default_kwargs=None,iframe=None,
+                       formResource=None,height=None,width=None,pageName=None,
+                       childname=None,store_kwargs=True,**kwargs):
+        attr = dict()
+        src = None
+        if iframe is not True:
+            src = iframe
+        attr['subscribe_form_%s_load' %formId] = 'this.iframeFormManager.openrecord($1.destPkey);'
+        attr['subscribe_form_%s_dismiss' %formId] = 'this.iframeFormManager.closerecord($1);'
+        attr['_iframeAttr'] = dict(formResource=formResource,src=src,main='form')
+        attr['_fakeFormId'] = formId
+        attr['_default_kwargs'] = default_kwargs
+        attr['_table'] = table
+        attr['_formStoreKwargs'] = store_kwargs
+        pane = formRoot.contentPane(overflow='hidden',height=height,width=width,
+                                    pageName=pageName,childname=childname,
+                                    onCreated='this.iframeFormManager = new gnr.IframeFormManager(this);',
+                                    **attr)
 
-    @extract_kwargs(default=True)
-    def rpc_lf_iframeFormDispatcher(self,root,pkey=None,default_kwargs=None,**kwargs):        
-        rootattr = root.attributes
-        rootattr['datapath'] = 'main'
-        rootattr['overflow'] = 'hidden'
-        root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
-        form = root.frameForm(store=True,store_startKey=pkey,**kwargs)
-        #form.formStore(storeType='recordCluster',startKey=pkey)
-        form.store.handler('load',default_kwargs=default_kwargs)
-        self.linkedFormBody(form,**kwargs)
 
     @struct_method
     def fh_slotbar_form_navigation(self,pane,**kwargs):
