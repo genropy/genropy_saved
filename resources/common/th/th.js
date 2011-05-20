@@ -141,7 +141,7 @@ dojo.declare("gnr.IframeFormManager", null, {
     openrecord:function(pkey){
         genro.publish('form_'+this.fakeFormId+'_onLoading');
         if(this.iframeForm){
-            this.iframeForm.load({destPkey:pkey,default_kw:this.sourceNode.evaluateOnNode(this.attr.default_kwargs)});
+            this.iframeForm.load({destPkey:pkey,default_kw:this.sourceNode.evaluateOnNode(this.default_kwargs)});
         }else{
             var iframeAttr = this.iframeAttr;
             var that = this;
