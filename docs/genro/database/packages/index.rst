@@ -4,6 +4,8 @@
 ``packages``
 ============
 
+    .. image:: ../../images/projects/project_packages.png
+    
 .. toctree::
     :maxdepth: 2
     

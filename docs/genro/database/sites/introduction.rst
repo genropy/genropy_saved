@@ -4,6 +4,8 @@
 Introduction
 ============
     
+    .. image:: ../../images/projects/project_sites.png
+    
     * :ref:`sites_map`
     * :ref:`sites_autofill`
     
@@ -48,6 +50,6 @@ autocreation of the ``sites`` folder
     
     Your ``sites`` folder will look like this one:
     
-    .. image:: ../../images/structure/structure-sites.png
+    .. image:: ../../images/projects/sites.png
     
     .. note:: The autocreation of this folder is handled by the :class:`SiteMaker` class.

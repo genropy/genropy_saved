@@ -4,6 +4,8 @@
 ``root.py``
 ===========
 
+    .. image:: ../../images/projects/sites_root.png
+    
     In this file you have to put the WSGI declaration.
     
     If you follow the steps of the :ref:`sites_autofill` section, you will find the following WSGI declaration, that contains all the necessary to handle the WSGI::

@@ -4,19 +4,22 @@
 ``instanceconfig``
 ==================
 
-    * :ref:`genro_gnr_instanceconfig_default`
-    * :ref:`instanceconfig_description`
-    * :ref:`instanceconfig_auto`
-    * :ref:`instanceconfig_tags`:
+    .. image:: ../../images/projects/instanceconfig.png
     
-        * :ref:`instanceconfig_packages`
-        * :ref:`instanceconfig_db`
-        * :ref:`instanceconfig_authentication`: :ref:`instanceconfig_xml_auth`,
-          :ref:`instanceconfig_py_auth`
-          
+    * :ref:`gnr_instanceconfig_default`:
+    
+        * :ref:`instanceconfig_description`
+        * :ref:`instanceconfig_auto`
+        * :ref:`instanceconfig_tags`:
+        
+            * :ref:`instanceconfig_packages`
+            * :ref:`instanceconfig_db`
+            * :ref:`instanceconfig_authentication`: :ref:`instanceconfig_xml_auth`,
+              :ref:`instanceconfig_py_auth`
+              
     The ``instanceconfig`` folder includes a single file: ``default.xml``
     
-.. _genro_gnr_instanceconfig_default:
+.. _gnr_instanceconfig_default:
     
 ``default.xml``
 ===============
@@ -31,7 +34,7 @@
 .. _instanceconfig_description:
     
 description of the file
-=======================
+-----------------------
 
     The ``instanceconfig`` is an XML file that allows to:
     
@@ -42,7 +45,7 @@ description of the file
 .. _instanceconfig_auto:
 
 autocreation
-============
+------------
     
     With the :ref:`instances_autofill` the ``instanceconfig`` will look like this one::
     
@@ -60,7 +63,7 @@ autocreation
 .. _instanceconfig_tags:
 
 Tags
-====
+----
 
     Let's see its content:
 
@@ -79,7 +82,7 @@ Tags
 .. _instanceconfig_packages:
 
 ``<packages>``
---------------
+^^^^^^^^^^^^^^
     
     The ``<packages>`` tag allow to include any other package from other projects: this allow you
     to use every file (like the :ref:`packages_model` and the :ref:`webpages_webpages`) of the
@@ -109,7 +112,7 @@ Tags
 .. _instanceconfig_db:
 
 ``<db>``
---------
+^^^^^^^^
 
     In the ``<db>`` tag you have to specify at least the database name::
     
@@ -139,7 +142,7 @@ Tags
 .. _instanceconfig_authentication:
 
 ``<authentication>``
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
     The ``<authentication>`` tag allow to manage the authentications to your project's webpages.
     
@@ -156,7 +159,7 @@ Tags
 .. _instanceconfig_xml_auth:
 
 ``<xml_auth>``
---------------
+^^^^^^^^^^^^^^
 
     .. warning:: DEPRECATED!!! The adm/manage_users is not used anymore! add???
     
@@ -190,7 +193,7 @@ Tags
 .. _instanceconfig_py_auth:
 
 ``<py_auth>``
--------------
+^^^^^^^^^^^^^
 
     .. warning:: DEPRECATED!!! The adm/manage_users is not used anymore! add???
     

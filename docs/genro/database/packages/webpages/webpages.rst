@@ -4,6 +4,8 @@
 webpage
 =======
 
+    .. image:: ../../../images/projects/webpage.png
+    
     * :ref:`webpages_GnrCustomWebPage`
     * :ref:`webpages_variables`
     * The :ref:`webpages_main` method
@@ -95,22 +97,20 @@ main
     
     where:
     
-    * the ``root`` passes a :ref:`genro_contentpane`.
+    * the ``root`` passes a :ref:`genro_contentpane`, unless you import the ``public.py``
+      :ref:`webpages_py_requires`::
       
-      If you import the :ref:`webpages_py_requires` called ``public``::
-      
-        py_requires = 'public:public' (MINUSCOLO O MAIUSCOLO???)
-      
+        py_requires = 'public:Public'
+        
       the ``root`` passes a :ref:`genro_bordercontainer`.
       
     * in the ``**kwargs`` you will find all the values passed to the client through
       the :ref:`genro_xmlhttprequest`.
       
-    .. note:: Usually the ``main`` method is MANDATORY. But, if you use one the
-              :ref:`components_active`\s, you may avoid to define it because the ``main``
-              method is defined within the component itself. For more information
-              check the :ref:`introduction to components <genro_components_introduction>`
-              documentation page.
+    .. note:: Usually the ``main`` method is MANDATORY. But, if you an :ref:`components_active`,
+              you may avoid to define it because the ``main`` method is defined within the
+              component itself. For more information check the :ref:`introduction to components
+              <genro_components_introduction>` documentation page.
               
     .. _webpages_variables:
 

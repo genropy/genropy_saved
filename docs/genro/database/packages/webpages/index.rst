@@ -4,6 +4,8 @@
 ``webpages``
 ============
 
+    .. image:: ../../../images/projects/webpages.png
+    
     In the ``webpages`` folder you can:
     
     * put your webpages: check the :ref:`webpages_webpages` documentation page

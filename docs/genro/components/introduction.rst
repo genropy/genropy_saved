@@ -101,6 +101,8 @@ standard component
                  To learn how to configure the ``environment.xml`` file, check the
                  :ref:`environment_resources` documentation section.
                  
+                 Remeber to import the component's :ref:`webpages_py_requires`.
+                 
     .. note:: in every component's documentation page you will find if the component is
               standard.
                  

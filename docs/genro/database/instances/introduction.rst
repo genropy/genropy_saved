@@ -4,6 +4,8 @@
 Introduction
 ============
 
+    .. image:: ../../images/projects/project_instances.png
+    
     * :ref:`instances_map`
     * :ref:`instances_autofill`
     
@@ -23,6 +25,11 @@ Introduction
     If you follow the steps of the :ref:`genro_project_autocreation` section, inside your
     ``instances`` folder you will find an ``instance`` folder including a ``custom`` folder,
     a ``data`` folder and the ``instanceconfig`` file.
+    
+    .. image:: ../../images/projects/instances.png
+    
+    where ``instancename`` is the name of your instance (we suggest you to call your instance
+    with the name you gave to your :ref:`genro_project`).
     
     Click on the following links for more information on them:
     
@@ -44,7 +51,7 @@ autocreation of the ``instances`` folder
     
     Your ``instances`` folder will look like this one:
     
-    .. image:: ../../images/structure/structure-instances.png
+    .. image:: ../../images/projects/instances.png
     
     where ``myproject`` is the name of your instance.
     

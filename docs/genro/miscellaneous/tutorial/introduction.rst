@@ -21,7 +21,7 @@ Create a Genro project
     
     In the following image you can see the project folder with its relative subfolders (we choose ``myproject`` as project name):
     
-    .. image:: ../../images/myproject.png
+    .. image:: ../../images/projects/myproject.png
     
     .. note:: the Genro Team prefers to call their projects using only lowercase letters.
     
@@ -31,7 +31,7 @@ Create a Genro project
         
     You can see the result in this image:
     
-    .. image:: ../../images/myproject2.png
+    .. image:: ../../images/projects/myproject2.png
     
     Now type the command line ``gnrmkproject projectname -a`` and check the tree structure you have created (the 4 subfolders and the contents of the ``instances`` and ``sites`` folders). In the next sections we'll begin to explain all the details of the project's subfolders.
     

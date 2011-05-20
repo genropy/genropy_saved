@@ -4,6 +4,8 @@
 Introduction
 ============
 
+    .. image:: ../../images/projects/project_packages.png
+    
     * :ref:`packages_map`
     * :ref:`packages_autofill`
     
@@ -24,10 +26,12 @@ Introduction
     ``packages`` folder you will find  a ``package`` folder including a ``lib`` folder, a
     ``model`` folder, a ``webpages`` folder, a ``main.py`` file and a ``menu.xml`` file.
     
-    You can use the package automatically created as your main package. You can create
-    more than one package in your project.
+    .. image:: ../../images/projects/packages.png
     
-    Click on the following links for more information on the content of a single package:
+    where ``base`` is the name of your first package.
+    
+    You can create more than one package in your project: click on the following links for
+    more information on the content of a single package:
     
     * the :ref:`packages_lib` folder
     * :ref:`packages_main`
@@ -48,8 +52,8 @@ autocreation of the ``packages`` folder
     
     Your ``packages`` folder will look like this one:
     
-    .. image:: ../../images/structure/structure-packages.png
+    .. image:: ../../images/projects/packages.png
     
     where ``base`` is the name of your first package.
     
-    .. note:: The autocreation of this folder is handled by the :class:`InstanceMaker` class.
+    .. note:: The autocreation of this folder is handled by the :class:`PackageMaker` class.

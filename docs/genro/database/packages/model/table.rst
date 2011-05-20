@@ -4,6 +4,8 @@
 table
 =====
     
+    .. image:: ../../../images/projects/model_table.png
+    
     * :ref:`table_description`
     * :ref:`table_definition`
     * :ref:`table_creation`
@@ -52,8 +54,8 @@ Creation of a table
     
         # encoding: utf-8
     
-    Now we have to introduce the right class for a table; there are many options (that we will discuss
-    in the :ref:`genro_table_class` documentation page). For now use the standard one::
+    Now we have to introduce the right class for a table; there are many options (that we
+    discuss in the :ref:`genro_table_classes` documentation page). We use now the standard one::
     
         class Table(object):
         

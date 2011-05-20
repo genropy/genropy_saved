@@ -4,7 +4,9 @@
 ``siteconfig``
 ==============
 
-    * :ref:`genro_gnr_siteconfig_default`
+    .. image:: ../../images/projects/siteconfig.png
+    
+    * :ref:`gnr_siteconfig_default`
     * :ref:`sitesconfig_description`
     * :ref:`sitesconfig_auto`
     * :ref:`sitesconfig_tags`:
@@ -17,7 +19,7 @@
       
     The ``siteconfig`` folder includes a single file: ``default.xml``
     
-.. _genro_gnr_siteconfig_default:
+.. _gnr_siteconfig_default:
     
 ``default.xml``
 ===============

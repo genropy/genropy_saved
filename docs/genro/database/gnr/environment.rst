@@ -5,7 +5,9 @@
 ===================
 
     .. warning:: to be completed!
-
+    
+    .. image:: ../../images/projects/environment.png
+    
     * :ref:`environment_introduction`
     * The :ref:`environment_instances` tag
     * The :ref:`environment_packages` tag

@@ -21,6 +21,12 @@ Introduction
     A Genropy Project is structured in a main ``project`` folder with 4 subfolders,
     called: ``sites``, ``instances``, ``packages`` and ``resources``.
     
+    .. image:: ../images/projects/myproject.png
+    
+    (in the image, ``my_project`` is the name of the project)
+    
+    Let's introduce the 4 subfolders:
+    
     * The ``sites`` folder:
     
         * It deals with everything related to the configuration of a particular installation
@@ -116,7 +122,7 @@ Project autocreation
     
     If you create a project called "myproject", you will obtain this structure:
     
-    .. image:: ../images/myproject2.png
+    .. image:: ../images/projects/myproject2.png
     
 .. _genro_project_help:
 
