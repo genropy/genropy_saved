@@ -4,11 +4,10 @@
 ``instanceconfig``
 ==================
 
-    .. image:: ../../images/projects/instanceconfig.png
+    .. image:: ../../images/projects/gnr_instanceconfig.png
     
     * :ref:`gnr_instanceconfig_default`:
     
-        * :ref:`instanceconfig_description`
         * :ref:`instanceconfig_auto`
         * :ref:`instanceconfig_tags`:
         
@@ -24,23 +23,21 @@
 ``default.xml``
 ===============
 
-    The ``default.xml`` of the ``.gnr/instanceconfig`` folder set the default values of your
-    :ref:`instances_instanceconfig` files.
+    .. image:: ../../images/projects/gnr_instance_default.png
     
-    You can obviously redefine the values of the ``instanceconfig`` file for every project you
-    make, setting the features directly in the :ref:`instances_instanceconfig` of the specific
-    project.
-    
-.. _instanceconfig_description:
-    
-description of the file
------------------------
-
-    The ``instanceconfig`` is an XML file that allows to:
+    The ``default.xml`` file is an XML file that allows to:
     
     * define the packages you want to use in your :ref:`genro_project`
     * define the name of your database
     * handle the permits of your :ref:`genro_project`
+    
+    .. note:: the ``default.xml`` file of the ``.gnr/instanceconfig`` folder set the
+              default values for the :ref:`instances_instanceconfig` file of all your
+              :ref:`genro_project`.
+              
+              You can obviously redefine the values of the ``instanceconfig.xml`` file
+              for every project you make, setting the features directly in the
+              :ref:`instances_instanceconfig` file of the project.
     
 .. _instanceconfig_auto:
 
@@ -66,9 +63,7 @@ Tags
 ----
 
     Let's see its content:
-
-    * The file begins and ends with a ``<GenRoBag>`` tag: that's because during the execution
-      of the project, this file is being converted in a :ref:`genro_bag_intro`.
+    
     * The ``<packages>`` tag allows to include any other package from other projects; Genro will
       search it through its mixin tecnique. For more information, check the
       :ref:`instanceconfig_packages` paragraph.
@@ -84,9 +79,10 @@ Tags
 ``<packages>``
 ^^^^^^^^^^^^^^
     
-    The ``<packages>`` tag allow to include any other package from other projects: this allow you
-    to use every file (like the :ref:`packages_model` and the :ref:`webpages_webpages`) of the
-    packages you've imported. If you want to import one package, you have to:
+    The ``<packages>`` tag allow to include any other package from other projects: this allow
+    you to use every file (:ref:`genro_table`\s, :ref:`webpages_webpages`\s,
+    :ref:`genro_intro_resources`) of the packages you've imported. If you want to import one
+    package, you have to:
     
     * include its path into the ``<packages>`` of your :ref:`gnr_environment` file::
     
@@ -100,7 +96,7 @@ Tags
             <mypackage />
         </packages>
         
-    where ``mypackage`` is the name of your main package.
+      where ``mypackage`` is the name of your main package.
     
     Remember that in the ``<packages>`` tag you have at least put your main package, that is
     the one where you put your :ref:`packages_model` and :ref:`webpages_webpages` folders.

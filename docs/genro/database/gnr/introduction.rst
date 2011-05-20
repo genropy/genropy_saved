@@ -8,7 +8,7 @@ Introduction
     
     The ``.gnr`` folder is a hidden folder that includes all the general customization
     of your Genropy application. All the modifies made on this file will influence
-    all your :ref:`genro_project`.
+    all your :ref:`genro_project`\s.
     
     On Mac/Linux you can find your ``.gnr`` folder in your user home's folder::
     

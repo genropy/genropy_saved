@@ -4,7 +4,7 @@
 ``siteconfig``
 ==============
 
-    .. image:: ../../images/projects/siteconfig.png
+    .. image:: ../../images/projects/gnr_siteconfig.png
     
     * :ref:`gnr_siteconfig_default`
     * :ref:`sitesconfig_description`
@@ -24,6 +24,8 @@
 ``default.xml``
 ===============
 
+    .. image:: ../../images/projects/gnr_site_default.png
+    
     The ``default.xml`` of the ``.gnr/siteconfig`` folder set the default values of
     every :ref:`sites_siteconfig` file of all your projects.
     
@@ -88,14 +90,16 @@ Tags
     
     * *port*: specify the port number
     * *reload*: boolean. If ``True``, ... ???
-    * *debug*: boolean. If ``True``, ... ???
+    * *debug*: boolean. If ``True``, allot to use the WebError_ package.
+    
+    .. _WebError: http://www.google.it/#sclient=psy&hl=it&source=hp&q=WebError+python&aq=f&aqi=&aql=&oq=&pbx=1&bav=on.2,or.r_gc.r_pw.&fp=32ec6e2cf01d73f9
     
     This is an example of the ``<wsgi>`` tag::
     
-        <wsgi port="8083" reload="true" debug="false"/>
+        <wsgi port="8083" reload="true" debug="true"/>
         
     There is also the *mainpackage* property, but you have to define it into the local
-    siteconfig of your project:
+    :ref:`sites_siteconfig` of your project:
     
     * *mainpackage*: a string including the name of your main package::
     
@@ -165,17 +169,15 @@ Tags
         
         * Genro :ref:`genro_components`\s
         * Genro :ref:`css_genro_themes`
-        * add???
         
       .. note:: It is strongly recommended to insert this tag.
       
     * The ``<js_libs/>`` tag: write it to be able to use the javascript_resources
       (add??? a link and a relative page!):
       
-        * The CKEDITOR
-        * add???
+        * The CKEDITOR add???
       
-    If you insert the two tags you will have the ``<resources>`` folder made in this way::
+    If you insert the two tags, your ``<resources>`` tag will be::
         
         <resources >
             <common/>
