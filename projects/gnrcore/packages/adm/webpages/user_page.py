@@ -37,7 +37,7 @@ class GnrCustomWebPage(object):
         fb.field('username',lbl='!!Username')
         fb.field('firstname',lbl='!!Firstname')
         fb.field('lastname',lbl='!!Lastname')
-        fb.textBox(value='^.md5pwd', lbl='Password', type='password')
+        fb.textBox(value='^.md5pwd', lbl='Password', type='password',validate_notnull=True, validate_notnull_error='!!Required')
         fb.field('status', tag='filteringSelect', values='!!conf:Confirmed,wait:Waiting', 
                  validate_notnull=True, validate_notnull_error='!!Required')
         fb.field('adm.user.email', lbl='!!Email')
