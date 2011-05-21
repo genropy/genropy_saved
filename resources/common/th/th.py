@@ -180,7 +180,7 @@ class ThLinker(BaseComponent):
                          selfsubscribe_newrecord='this.linkerManager.newrecord();',
                          selfsubscribe_loadrecord='this.linkerManager.loadrecord();',
                          _table = table,_related_table = related_table,_field=field,_embedded=embedded,
-                         _formUrl=formUrl,
+                         _formUrl=formUrl,_formResource=formResource,
                          _dialog_kwargs=dialog_kwargs,_default_kwargs=default_kwargs)
         linker.dataController("""SET .tip_link =linktpl.replace('$table1',t1).replace('$table2',t2);
                                  SET .tip_add = addtpl.replace('$table2',t2);""",

@@ -44,6 +44,7 @@ dojo.declare("gnr.LinkerManager", null, {
         this.sourceNode = sourceNode;
         this.form = this.sourceNode.form;
         this.formUrl = sourceNode.attr._formUrl;
+        this.formResource = sourceNode.attr._formResource;
         this.field = sourceNode.attr._field;
         this.fieldpath = '#FORM.record.'+this.field;
         this.related_table = sourceNode.attr._related_table;
@@ -90,7 +91,8 @@ dojo.declare("gnr.LinkerManager", null, {
             var that = this;
             var destPkey = pkey;
             var iframeDialogKw = {title:'',table:this.related_table,main:'form',
-                                 main_th_linker:true, height:'300px',width:'400px',
+                                 main_th_linker:true,main_th_formResource:this.formResource,
+                                 height:'300px',width:'400px',
                                  url:this.formUrl,
                                  onStarted:function(){that.onIframeStarted(this,destPkey)}};
             objectUpdate(iframeDialogKw,this.dialog_kwargs);
