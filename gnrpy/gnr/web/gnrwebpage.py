@@ -93,6 +93,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.pagepath = self.filepath.replace(self.folders['pages'], '')
         self.debug_mode = False
         self._dbconnection = None
+        self.application.db.clearCurrentEnv()
         self._user_login = request_kwargs.pop('_user_login', None)
         self.page_timeout = self.site.config.getItem('page_timeout') or PAGE_TIMEOUT
         self.page_refresh = self.site.config.getItem('page_refresh') or PAGE_REFRESH

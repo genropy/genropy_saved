@@ -1082,8 +1082,8 @@ class SqlTable(GnrObject):
     def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=True, source_records=None, **querykwargs):
         """add???
         
-        :param dbsource: add???
-        :param dbdest: add???
+        :param dbsource: sourcedb
+        :param dbdest: destdb
         :param empty_before: boolean. add???. Default value is ``False``
         :param excludeLogicalDeleted: boolean. add???. Default value is ``True``
         :param source_records: add???. Default value is ``None``

@@ -210,6 +210,9 @@ class GnrSqlDb(GnrObject):
         :returns: add???
         """
         return TempEnv(self, **kwargs)
+    
+    def clearCurrentEnv(self):
+        self._currentEnv[thread.get_ident()] = {}
         
     def _get_currentEnv(self):
         """property currentEnv - Return the env currently used in this thread"""
