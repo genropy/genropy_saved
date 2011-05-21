@@ -20,10 +20,9 @@
 
 class GnrCustomWebPage(object):
     maintable = 'adm.datacatalog'
-    py_requires = """public:Public,gnrcomponents/htablehandler:HTableHandler,
+    py_requires = """public:Public,gnrcomponents/htablehandler:HTableHandler,th/th:TableHandler,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
-                   gnrcomponents/explorer_manager:ExplorerManager
                 """
     #explorers='adm.datacatalog'
     def windowTitle(self):
@@ -59,7 +58,37 @@ class GnrCustomWebPage(object):
                            datapath='datacatalog')
 
     def datacatalog_form(self, parentBC, table=None, disabled=None, **kwargs):
-        bc = parentBC.borderContainer(**kwargs)
+        tc = parentBC.tabContainer(**kwargs)
+        self.element_info(tc.borderContainer(title='Info'),table=table,disabled=disabled)
+        self.element_permissions(tc.contentPane(title='Permissions',datapath='#FORM'))
+
+    def element_permissions(self,pane):
+        th = pane.plainTableHandler(relation='@permissions',viewResource=':ViewFromCatalog')
+        viewbar = th.view.top.bar
+        viewbar.replaceSlots('#','#,picker')
+        viewbar.picker.paletteTree('tag',tree_persist=True,
+                                dockButton_iconClass='icnOpenPalette',
+                                ).htableStore('adm.htag')        
+        grid = th.view.grid
+        grid.dragAndDrop(dropCodes='tag')
+        
+        grid.dataRpc("dummy","addPermission",data='^.dropped_tag', 
+                     datacatalog_id='=#FORM.pkey')
+        
+
+    def rpc_updPermission(self,permission_id=None,fld=None,v=None):
+        pass
+    def rpc_addPermission(self,data=None,datacatalog_id=None):
+        tag_id = data['pkey']
+        tblpermission = self.db.table('adm.permission')
+        if tblpermission.query(where='$tag_id=:t AND $datacatalog_id=:dc',dc=datacatalog_id,t=tag_id).count()==0:
+            tblpermission.insert(dict(tag_id=tag_id,datacatalog_id=datacatalog_id))
+            self.db.commit()
+        
+        
+        
+        
+    def element_info(self,bc,table=None,disabled=None):
         top = bc.contentPane(region='top', _class='pbl_roundedGroup', margin='2px')
         top.div().div(innerHTML='=="Base info:"+_rec_type', _rec_type='^.rec_type', _class='pbl_roundedGroupLabel')
         top.data('rec_type_fullmenu', self.db.table(table).datacatalog_rec_types())

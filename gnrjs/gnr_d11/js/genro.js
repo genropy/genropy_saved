@@ -453,8 +453,21 @@ dojo.declare('gnr.GenroClient', null, {
             v = stringStrip(dojo.currency.format(v, f));
         }
         else if (typeof(v) == 'boolean' || f.dtype == 'B') {
-            var divcontent = v ? (f['true'] || (f['trueclass'] ? '' : 'true')) : (f['false'] || (f['falseclass'] ? '' : 'false'));
-            var divclass = v ? (f['trueclass'] ? f['trueclass'] : '') : (f['falseclass'] ? f['falseclass'] : '');
+            var divcontent,divclass;
+            var falsecontent = f['false'] || (f['falseclass'] ? '' : 'false');
+            var truecontent =(f['true'] || (f['trueclass'] ? '' : 'true'));
+            var trueclass = (f['trueclass'] ? f['trueclass'] : '');
+            var falseclass = (f['falseclass'] ? f['falseclass'] : '');
+            if (f['nullclass'] || f['null']){
+                var nullclass = (f['nullclass'] ? f['nullclass'] : '');
+                var nullcontent =(f['null'] || (f['nullclass'] ? '' : 'null'));
+                divcontent = (v===true)?truecontent:(v===false)?falsecontent:nullcontent;
+                divclass = (v===true)?trueclass:(v===false)?falseclass:nullclass;
+            }else{
+                divcontent = v ? truecontent : falsecontent;
+                divclass = v ? trueclass:falseclass;
+            }
+            
             divclass = divclass ? 'class="' + divclass + '"' : '';
             var event_attrs = '';
             var events = objectExtract(f, 'on*', true);
