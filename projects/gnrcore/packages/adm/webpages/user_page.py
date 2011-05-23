@@ -22,7 +22,7 @@ class GnrCustomWebPage(object):
         if 'th_linker' in self._call_kwargs:
             self.loginData(bc.borderContainer(region='top',datapath='.record',margin='2px'))
             self.userAuth(bc.contentPane(region='center',margin='2px'))
-
+        
         else:
             top = bc.borderContainer(region='top',height='30%')
             self.loginData(top.contentPane(region='left',width='40%',datapath='.record',margin='2px',_class='pbl_roundedGroup'))

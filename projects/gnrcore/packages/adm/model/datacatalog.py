@@ -28,6 +28,7 @@ class Table(GnrHTable):
         tbl.column('comment', name_long='!!Comment')
         tbl.column('name_full', name_long='!!Name full')
         tbl.column('datacatalog_path', name_long='!!Datacatalog path')
+        tbl.column('dbkey',name_long='!!Db Key')
 
     def datacatalog_rec_types(self):
         result = Bag()

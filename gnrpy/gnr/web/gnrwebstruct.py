@@ -1787,8 +1787,8 @@ class GnrGridStruct(GnrStructData):
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                           
     def checkboxcell(self, field=None, falseclass=None,
-                     trueclass=None, classes='row_checker', action=None, name=' ',
-                     calculated=False, radioButton=False, **kwargs):
+                     trueclass=None,nullclass=None, classes='row_checker', action=None, name=' ',
+                     calculated=False, radioButton=False,threestate=False, **kwargs):
         """add???
         
         :param field: add???. Default value is ``None``
@@ -1805,9 +1805,13 @@ class GnrGridStruct(GnrStructData):
             calculated = True
         falseclass = falseclass or ('checkboxOff' if not radioButton else falseclass or 'radioOff')
         trueclass = trueclass or ('checkboxOn' if not radioButton else trueclass or 'radioOn')
-        
-        self.cell(field, name=name, format_trueclass=trueclass, format_falseclass=falseclass,
-                  classes=classes, calculated=calculated, format_onclick="""var idx = kw.rowIndex;
+        if threestate:
+            nullclass = nullclass or ('checkboxOnOff' if not radioButton else nullclass or 'radioOnOff')
+
+        self.cell(field, name=name, format_trueclass=trueclass, format_falseclass=falseclass,format_nullclass=nullclass,
+                  classes=classes, calculated=calculated, format_onclick="""
+                                                                    var idx = kw.rowIndex;
+                                                                    var threestate =('%(threestate)s' == 'True');
                                                                     var rowpath = '#'+idx;
                                                                     var sep = this.widget.gridEditor? '.':'?';
                                                                     var valuepath=rowpath+sep+'%(field)s';
@@ -1817,13 +1821,18 @@ class GnrGridStruct(GnrStructData):
                                                                     if (blocked){
                                                                         return;
                                                                     }
-                                                                    var checked = !storebag.getItem(valuepath);
+                                                                    var checked = storebag.getItem(valuepath);
+                                                                    if(threestate){
+                                                                        checked = checked===false?true:checked===true?null:false;
+                                                                    }else{
+                                                                        checked = !checked;
+                                                                    }
                                                                     storebag.setItem(valuepath, checked);
                                                                     this.publish('checked_%(field)s',{row:this.widget.rowByIndex(idx),
                                                                                                       pkey:this.widget.rowIdByIndex(idx),
                                                                                                       checked:checked});
                                                                     %(action)s
-                                                                    """ % dict(field=field, action=action or '')
+                                                                    """ % dict(field=field, action=action or '',threestate=threestate)
                   , dtype='B', **kwargs)
                   
     def defaultArgsForDType(self, dtype):

@@ -1217,6 +1217,22 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
 
     },
+    
+    sizedOn:function(what, where){
+        var whatDomNode = this.getDomNode(what);
+        var whereDomNode = where ? this.getDomNode(where) : whatDomNode.parentNode;
+        wherecoords = dojo.coords(whereDomNode);
+        if(what.sourceNode){
+            if(what.sourceNode.widget && what.sourceNode.widget.resize()){
+                what.sourceNode.widget.resize(wherecoords);
+            }else{
+                for (var s in {'height':null,'width':null,'top':null,'left':null,'right':null,'bottom':null}){
+                    whatDomNode.style[s]= whereDomNode.style[s];
+                }                
+            }
+        }
+    },
+    
     makeHiderLayer: function(parentId, kw) {
         var rootNode;
         var message=objectPop(kw,'message');

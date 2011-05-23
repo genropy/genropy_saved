@@ -9,6 +9,9 @@ class Package(GnrDboPackage):
 
     def config_db(self, pkg):
         pass
+    
+    def copyTableToStore(self,):
+        pass
 
 
 class Table(GnrDboTable):
