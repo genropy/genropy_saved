@@ -34,12 +34,6 @@ GnrCustomWebPage
     :ref:`introduction to webpage elements <genro_webpage_elements_intro>` if you need
     to learn more about them.
     
-    We are going now to introduce the :ref:`webpages_GnrCustomWebPage`, the standard class
-    used to build the webpages.
-    
-    add??? (this isn't a real GnrCustomWebPage class, it is created through a GnrWebPage
-    istance...)
-    
     The GnrCustomWebPage (Genro Custom Webpage) is add???(a mixin class?) through which you can
     build your webpages.
     

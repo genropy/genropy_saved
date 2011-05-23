@@ -68,9 +68,13 @@ autocreation of the ``main.py``
 description
 ===========
     
-    The first two lines define the encoding::
+    The ``main.py`` has to begin with a line code that specify the location to the python
+    executable in your machine::
     
         #!/usr/bin/env python
+    
+    Then follows the encoding definition line::
+    
         # -*- coding: utf-8 -*-
         
     (here we set the encoding to 'utf-8').
@@ -82,11 +86,12 @@ description
     .. warning:: the importation of these four packages is MANDATORY for a correct use of
                  the ``main.py`` file.
                  
-    In the ``main.py`` file you have many classes to customize your project:
+    In the ``main.py`` file you have many classes through which you can customize it:
     
     * the :ref:`main_package_class`
     * the :ref:`main_table_class`
-    * the add???
+    
+.. * the add??? other classes?
     
 .. _main_package_class:
 
@@ -193,10 +198,26 @@ loginUrl
     
     * ``packageName`` is the name of the :ref:`package <genro_packages_index>` that contains
       the login authorization page.
-    * ``loginName`` is the name of the :ref:`webpages_webpages` in which you define the login
-      authorization. For more information on how to build a login page, please check the
-      :ref:`genro_login` documentation page.
+    * ``loginName`` is the name of the :ref:`webpages_webpages` (without its ``.py`` extensions)
+      in which you define the login authorization.
       
+    **Example:** if you have a package called ``staff`` and your login webpage is called
+    ``my_great_login.py``, then your ``loginUrl`` method should be::
+    
+        def loginUrl(self):
+            return 'staff/my_great_login'
+            
+    .. note:: We suggest you to use ``login.py`` as default name for the login page; if you do so,
+              your ``loginUrl`` should be::
+              
+                def loginUrl(self):
+                    return 'packageName/login'
+                    
+              where ``packageName`` is the name of your package.
+    
+    For more information on how to build a login page, please check the :ref:`webpages_login`
+    documentation page.
+    
 .. add??? Understand if the following methods are old or new...
 .. 
 .. def newUserUrl(self):

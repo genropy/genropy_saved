@@ -14,7 +14,6 @@ Documents to revise
     fine_syntax
     grid
     languages
-    login
     palette
     print
     query
