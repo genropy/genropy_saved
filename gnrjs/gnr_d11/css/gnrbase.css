@@ -1894,6 +1894,9 @@ border='1px solid gray',margin='2px', rounded=10,
     display:block;
     width:12em;
 }
+.dijitError.th_linkerField{    
+	background: transparent url(icons/base12/invalid.png) no-repeat right bottom !important;
+}
 
 .th_linkerField{
     right:13px;
