@@ -91,10 +91,14 @@ dojo.declare("gnr.LinkerManager", null, {
             var that = this;
             var destPkey = pkey;
             var iframeDialogKw = {title:'',table:this.related_table,main:'form',
-                                 main_th_linker:true,main_th_formResource:this.formResource,
-                                 height:'300px',width:'400px',
-                                 url:this.formUrl,
+                                 main_th_linker:true,height:'300px',width:'400px',
                                  onStarted:function(){that.onIframeStarted(this,destPkey)}};
+            if(this.formResource){
+                iframeDialogKw.main_th_formResource=this.formResource;
+            }
+            if(this.formUrl){
+                iframeDialogKw.url = this.formUrl;
+            }
             objectUpdate(iframeDialogKw,this.dialog_kwargs);
             var thdialog = genro.src.create('thIframeDialog',iframeDialogKw,this.sourceNode.getStringId());
             this.thdialog = thdialog.getParentNode().getWidget();
