@@ -469,6 +469,7 @@ class TableHandlerMain(BaseComponent):
         pkey = pkey or kwargs.pop('th_pkey',None)
         tableCode = self.maintable.replace('.','_')
         self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
+        root.attributes.update(overflow='hidden')
         form = root.frameForm(frameCode='mainform',table=self.maintable,
                              store_startKey=pkey or '*norecord*',
                              datapath='form',store='recordCluster')
