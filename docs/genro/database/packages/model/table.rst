@@ -9,6 +9,7 @@ table
     * :ref:`table_description`
     * :ref:`table_definition`
     * :ref:`table_creation`
+    * :ref:`table_config_db`
     * :ref:`table_columns`
     
         * the simple :ref:`table_column` (and :ref:`table_relation`\s)
@@ -58,6 +59,13 @@ Creation of a table
     discuss in the :ref:`genro_table_classes` documentation page). We use now the standard one::
     
         class Table(object):
+        
+    add???
+    
+.. _table_config_db:
+        
+config_db
+=========
         
     To use a table you have to call the following method:
     

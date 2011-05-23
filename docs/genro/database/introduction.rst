@@ -12,7 +12,7 @@ project
     
 .. _genro_project_introduction:
 
-Introduction
+introduction
 ============
     
     The Genro applications (or projects) are divided into several layers, allowing

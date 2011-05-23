@@ -9,3 +9,4 @@ Names
     
     name_long
     name_plural
+    name_short

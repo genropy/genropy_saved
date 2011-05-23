@@ -155,4 +155,4 @@ Trasform a Bag into a dict
 
 **Footnotes**:
 
-.. [#] For more information on this type, please check the :ref:`types_dt` paragraph.
+.. [#] For more information on this type, please check the :ref:`datatype_dt` paragraph.
