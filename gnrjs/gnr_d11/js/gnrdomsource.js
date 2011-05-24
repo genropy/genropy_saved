@@ -744,6 +744,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var subscriptions = objectExtract(attributes, 'subscribe_*');
         var selfsubscription = objectExtract(attributes, 'selfsubscribe_*');
         var formsubscription = objectExtract(attributes, 'formsubscribe_*');
+        var validations = objectExtract(attributes, 'validate_*');
 
         var attrname;
         var ind = ind || 0;
@@ -760,6 +761,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 subscriptions[topic_pref+formsubscribe] = formsubscription[formsubscribe];
             }
         }
+
         if (newobj === false) {
             this._buildChildren(destination);
             return;
@@ -798,6 +800,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
 
         if (bld_attrs.tooltip) {
             genro.wdg.create('tooltip', null, {label:bld_attrs.tooltip}).connectOneNode(newobj.domNode || newobj);
+        }
+        if (this.validationsOnChange && objectNotEmpty(validations)){
+            this.resetValidationError();
+            var newval = this.validationsOnChange(this, attributes.value)['value'];
+            this.updateValidationStatus();
         }
         this._built=true;
         return newobj;
