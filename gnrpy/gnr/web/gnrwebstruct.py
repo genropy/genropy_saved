@@ -624,7 +624,7 @@ class GnrDomSrc(GnrStructData):
                                       lblvalign=lblvalign, fldvalign=fldvalign, rowdatapath=rowdatapath,
                                       head_rows=head_rows, commonKwargs=commonKwargs)
         inattr = self.getInheritedAttributes()
-        if not 'frameCode' in inattr:
+        if hasattr(self.page,'_legacy'):
             tbl.childrenDisabled = disabled
         return tbl
         

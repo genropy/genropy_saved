@@ -223,6 +223,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     
     
     buildNode: function(sourceNode, where, ind) {
+        this.formsToUpdate={}
         this.afterBuildCalls = [];
         sourceNode.build(where, ind);
         var cb;
@@ -230,6 +231,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             cb = this.afterBuildCalls.pop();
             cb.call();
         }
+        for (var formId in this.formsToUpdate){
+            var form = this.formsToUpdate[formId]
+            form.setDisabled(form.locked)
+        } 
     },
 
 

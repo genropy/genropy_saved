@@ -43,7 +43,6 @@ class FormHandler(BaseComponent):
             self.__linkToParentGrid(pane,formId=formId,iframe=iframe,loadEvent=loadEvent)
             kwargs['store_storeType'] = 'Collection'
             kwargs['store_parentStore'] = pane.attributes['store']
-            
         if iframe:
             iframeNode =self.__formInIframe(formRoot,frameCode=frameCode,table=table,
                                             formId=formId,default_kwargs=default_kwargs,iframe=iframe,**kwargs)
@@ -51,11 +50,8 @@ class FormHandler(BaseComponent):
         form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=table,store=store,**kwargs)
         attachTo.form = form
         form.store.handler('load',**default_kwargs)
-        form = self.linkedFormBody(form,**kwargs)
         return form
-    
-    def linkedFormBody(self,form,**kwargs):
-        return form
+
         
     def __formRoot(self,pane,formId,formRoot=None,dialog_kwargs=None,palette_kwargs=None,
                     attachTo=None,form_kwargs=None):
@@ -109,15 +105,16 @@ class FormHandler(BaseComponent):
                        childname=None,store_kwargs=True,**kwargs):
         attr = dict()
         src = None
+        default_kwargs = default_kwargs or dict()
         if iframe is not True:
             src = iframe
         attr['subscribe_form_%s_load' %formId] = 'this.iframeFormManager.openrecord($1.destPkey);'
         attr['subscribe_form_%s_dismiss' %formId] = 'this.iframeFormManager.closerecord($1);'
         attr['_iframeAttr'] = dict(formResource=formResource,src=src,main='form')
         attr['_fakeFormId'] = formId
-        attr['_default_kwargs'] = default_kwargs
         attr['_table'] = table
         attr['_formStoreKwargs'] = store_kwargs
+        attr.update(default_kwargs)
         pane = formRoot.contentPane(overflow='hidden',height=height,width=width,
                                     pageName=pageName,childname=childname,
                                     onCreated='this.iframeFormManager = new gnr.IframeFormManager(this);',

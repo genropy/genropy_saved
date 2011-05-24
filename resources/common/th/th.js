@@ -134,10 +134,11 @@ dojo.declare("gnr.LinkerManager", null, {
 dojo.declare("gnr.IframeFormManager", null, {
     constructor:function(sourceNode){
         this.sourceNode = sourceNode;
+        this.sourceNode.attr._fakeForm=true;
         //this.form = this.sourceNode.form;
         this.formUrl = sourceNode.attr._formUrl;
         this.table = sourceNode.attr._table;
-        this.default_kwargs = sourceNode.attr._default_kwargs;
+        this.default_kwargs = objectExtract(sourceNode.attr,'default_*');
         this.iframeAttr = sourceNode.attr._iframeAttr;
         this.fakeFormId = sourceNode.attr._fakeFormId;
         this.formStoreKwargs = sourceNode.attr._formStoreKwargs
@@ -161,7 +162,7 @@ dojo.declare("gnr.IframeFormManager", null, {
     },
     onIframeStarted:function(iframe,pkey){
         this.iframeForm = iframe._genro.getForm('mainform');
-        this.iframeForm.load({destPkey:pkey,default_kw:this.default_kw});
+        this.iframeForm.load({destPkey:pkey,default_kw:this.sourceNode.evaluateOnNode(this.default_kwargs)});
         this.iframeForm.store.parentStore = genro.getStore(this.formStoreKwargs.parentStore);
         var that = this;
         this.iframeForm.subscribe('onDismissed',function(kw){

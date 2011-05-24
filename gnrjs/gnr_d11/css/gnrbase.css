@@ -863,6 +863,26 @@ div.dojoxDock {
 .iframeclose{
 	background: url(icons/base10/iframeclose.gif) no-repeat center center;
 }
+/*._common_d11.tundra .dijitDialogCloseIcon{
+    background: transparent url(icons/base16/closeicn.png) no-repeat scroll center center;
+    cursor: pointer;
+    float: right;
+    height: 16px;
+    position: absolute;
+    right: 6px;
+    top: 4px;
+    vertical-align: middle;
+    width: 16px;
+
+}*/
+
+._common_d11.tundra .dojoxFloatingMinimizeIcon {
+    background: transparent url(icons/base16/floatingclose.png) no-repeat scroll center center;
+    float: right;
+    height: 16px;
+    overflow: hidden;
+    width: 16px;
+}
 
 .dijitMenu {
     -moz-box-shadow: 2px 2px 4px #403b3b;
@@ -1893,6 +1913,9 @@ border='1px solid gray',margin='2px', rounded=10,
 .th_enableLinker .th_linkerField{
     display:block;
     width:12em;
+}
+.dijitError.th_linkerField{    
+	background: transparent url(icons/base12/invalid.png) no-repeat right bottom !important;
 }
 
 .th_linkerField{

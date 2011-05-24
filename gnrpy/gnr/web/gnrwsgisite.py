@@ -604,9 +604,11 @@ class GnrWsgiSite(object):
         storename = None
         #print 'site dispatcher: ',path_list
         
-        if path_list[0] in self.dbstores:
+        if path_list and path_list[0] in self.dbstores:
             storename = path_list.pop(0)
-        if path_list[0] == '_ping':
+            if not path_list:
+                path_list= self.get_path_list('')
+        if path_list and path_list[0] == '_ping':
             try:
                 self.log_print('kwargs: %s' % str(request_kwargs), code='PING')
                 result = self.serve_ping(response, environ, start_response, **request_kwargs)
