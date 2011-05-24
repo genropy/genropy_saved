@@ -544,6 +544,8 @@ class GnrApp(object):
             project_path = self.project_path(project)
             if project_path:
                 path = os.path.join(project_path,'packages')
+                if not os.path.isdir(os.path.join(path, pkgid)):
+                    path=None
         else:
             path = self.package_path.get(pkgid)
             

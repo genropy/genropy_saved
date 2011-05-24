@@ -32,7 +32,7 @@ from psycopg2.extensions import connection as _connection
 
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT, ISOLATION_LEVEL_READ_COMMITTED
 
-from gnr.sql.adapters._gnrbaseadapter import GnrDictRow, GnrWhereTranslator
+from gnr.sql.adapters._gnrbaseadapter import GnrDictRow, GnrWhereTranslator, DbAdapterException
 from gnr.sql.adapters._gnrbaseadapter import SqlDbAdapter as SqlDbBaseAdapter
 from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException
@@ -42,6 +42,7 @@ RE_SQL_PARAMS = re.compile(":(\w*)(\W|$)")
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 import threading
 import thread
+
 
 
 class SqlDbAdapter(SqlDbBaseAdapter):
@@ -113,7 +114,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             curs.execute("""CREATE DATABASE "%s" ENCODING '%s';""" % (dbname, encoding))
             conn.commit()
         except:
-            pass
+            raise DbAdapterException("Could not create database %s" % dbname)
         finally:
             curs.close()
             conn.close()

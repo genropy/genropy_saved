@@ -135,7 +135,8 @@ class ResourceLoader(object):
                         return page_node, page_node_attributes
         if self.default_path and not default:
             page_node, page_node_attributes = self.get_page_node(self.default_path, default=True)
-            page_node._tail_list =  unescape_path_list(path_list)
+            if page_node:
+                page_node._tail_list =  unescape_path_list(path_list)
             return page_node, page_node_attributes
         return None, None
         
