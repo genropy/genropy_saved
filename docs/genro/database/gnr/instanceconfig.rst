@@ -4,7 +4,7 @@
 ``instanceconfig``
 ==================
 
-    .. image:: ../../images/projects/gnr_instanceconfig.png
+    .. image:: ../../images/projects/gnr/instanceconfig.png
     
     * :ref:`gnr_instanceconfig_default`:
     
@@ -23,7 +23,7 @@
 ``default.xml``
 ===============
 
-    .. image:: ../../images/projects/gnr_instance_default.png
+    .. image:: ../../images/projects/gnr/instance_default.png
     
     The ``default.xml`` file is an XML file that allows to:
     

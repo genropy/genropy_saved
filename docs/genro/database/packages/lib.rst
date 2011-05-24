@@ -4,6 +4,6 @@
 ``lib``
 =======
 
-    .. image:: ../../images/projects/packages_lib.png
+    .. image:: ../../images/projects/packages/lib.png
     
     add???

@@ -4,15 +4,15 @@
 introduction
 ============
 
-    .. image:: ../../images/projects/project_packages.png
+    .. image:: ../../images/projects/packages/project_packages.png
     
     * :ref:`packages_autofill`
     
     .. module:: gnr.app.gnrdeploy
     
-    The ``packages`` folder includes the packages for your application. A package is
-    composed principally by some database :ref:`genro_table`\s and by some
-    related :ref:`webpages_webpages`\s.
+    The ``packages`` folder includes the packages for your application. A package
+    is composed principally by some database :ref:`genro_table`\s and by some
+    :ref:`webpages_webpages`\s.
     
     .. note:: The Genro packages are not Python packages (so they are not a set of
               linked modules, containing a file ``__init__.py``), and Genro packages
@@ -50,10 +50,11 @@ autocreation of a package
     * a :ref:`public_resources` folder (for :ref:`genro_public_resource`\s)
     * a :ref:`packages_webpages` folder
     
-    In the following image you see the structure of a package called ``base``:
+    In the following image you see the structure of a project called ``my_project`` with
+    a package called ``base``:
     
-    .. image:: ../../images/projects/packages.png
+    .. image:: ../../images/projects/packages/autocreation_packages.png
     
-    You can create more than one package in your project, repeating the instruction of
-    this section.
+    You can create more than one package in your project, repeating the instructions
+    of this section.
     

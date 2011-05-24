@@ -4,7 +4,7 @@
 webpage
 =======
 
-    .. image:: ../../../images/projects/webpage.png
+    .. image:: ../../../images/projects/packages/webpage.png
     
     * :ref:`webpages_GnrCustomWebPage`
     * :ref:`webpages_variables`
@@ -19,16 +19,6 @@ GnrCustomWebPage
     
     Genro provides the application GUI using webpages. A webpage is built through
     an istance of a GnrCustomWebPage, that is a custom class of the :class:`GnrWebPage`.
-    
-    .. note:: when you create a webpage of a :ref:`genro_project` that is related to
-              a :ref:`genro_table`, please name it following this convention::
-              
-                tableName + ``_page.py``
-                
-              example: if you have a table called ``staff.py``, call the webpage
-              ``staff_page.py``.
-              
-              This convention allows to keep order in your project
     
     You can act on a Genro webpage through many webpage elements: please check the
     :ref:`introduction to webpage elements <genro_webpage_elements_intro>` if you need
@@ -55,7 +45,7 @@ GnrCustomWebPage
        
         * :ref:`webpages_maintable`: allow to create shortcuts for users query
         * :ref:`webpages_py_requires`: allow to include some Genro
-          :ref:`genro_components`\s to your webpage (or, more generally, Python modules)
+          :ref:`genro_component`\s to your webpage (or, more generally, Python modules)
         * :ref:`webpages_js_requires`: allow to include some javascript functionality
           to your webpage
         * :ref:`webpages_css_requires`: allow to include some :ref:`genro_css`
@@ -132,7 +122,7 @@ webpage variables
 py_requires
 -----------
 
-    * Description: a string that allows to include some :ref:`genro_components`\s
+    * Description: a string that allows to include some :ref:`genro_component`\s
       to your project (or, more generally, Python modules).
     * Syntax: ``py_requires = 'fileName:componentClassName'``
     
@@ -152,7 +142,7 @@ py_requires
     
     .. note:: The components you want to use must be placed into a folder named ``resources``
               
-              * For more information about components, check the :ref:`genro_components`\s
+              * For more information about components, check the :ref:`genro_component`\s
                 documentation page
               * For more information about their location in a Genro :ref:`genro_project`,
                 please check the :ref:`genro_intro_resources` documentation page

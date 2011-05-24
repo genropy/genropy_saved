@@ -4,7 +4,7 @@
 ``menu.xml``
 ============
 
-    .. image:: ../../images/projects/packages_menu.png
+    .. image:: ../../images/projects/packages/menu.png
     
     * :ref:`menu_intro`
     * :ref:`menu_features`:

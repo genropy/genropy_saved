@@ -4,12 +4,10 @@
 ``webpages``
 ============
 
-    .. image:: ../../../images/projects/webpages.png
+    .. image:: ../../../images/projects/packages/webpages.png
     
 .. toctree::
     :maxdepth: 1
     
     introduction
     webpages
-    webpage_index
-    webpage_login

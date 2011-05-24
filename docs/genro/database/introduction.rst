@@ -23,7 +23,7 @@ introduction
     
     .. image:: ../images/projects/myproject.png
     
-    (in the image, ``my_project`` is the name of the project)
+    (in the image, ``projectName`` is the name of the project)
     
     Let's introduce the 4 subfolders:
     
@@ -116,14 +116,19 @@ Project autocreation
     
     You can build a project with its four main subfolders with the command line ::
     
-        gnrmkproject projectname -a
+        gnrmkproject projectName -a
         
-    where ``projectname`` is the name you want for your project.
+    where ``projectName`` is the name you want for your project.
     
-    If you create a project called "myproject", you will obtain this structure:
+    If you write the command line, you will create a project with the following
+    structure:
     
     .. image:: ../images/projects/myproject2.png
     
+    .. note:: the name of the istance folder (inside the ``instances`` folder) and the name
+              of the site folder (inside the ``sites`` folder) are equal to the name of the
+              ``project`` folder. This is a convention to keep order in your project.
+              
 .. _genro_project_help:
 
 terminal help
@@ -156,6 +161,4 @@ terminal help
 
 .. [#] Genro provides additional modules that implement common functions for all the
        applications (user management, table of Italian municipalities...)
-.. [#] For a complete reference of the project building options, please check the
-       :ref:`genro_project_help` section
-    
+       

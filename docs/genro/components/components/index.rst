@@ -8,6 +8,7 @@ list of components
     :maxdepth: 1
     
     IncludedView <includedview>
+    frameindex
     linkerField
     recorddialog
     th

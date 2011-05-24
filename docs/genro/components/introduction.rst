@@ -153,4 +153,5 @@ List of all the components
     
     * :ref:`genro_includedview`
     * timetable_dh
+    * :ref:`genro_frameindex`
         

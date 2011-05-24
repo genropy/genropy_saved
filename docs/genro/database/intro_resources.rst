@@ -10,9 +10,9 @@ resources
     We'll call *resources* all the files that you keep in a ``resources`` folder.
     In particular, your *resources* can be:
     
-    * some javascript files
-    * some :ref:`genro_css` files
-    * some :ref:`genro_components`\s, or, more generally, some other Python modules
+    * javascript files
+    * :ref:`genro_css` files
+    * :ref:`genro_component`\s, or, more generally, other Python modules
     
     You can define your resources as *public resources* or *private resources*:
     
@@ -32,19 +32,19 @@ public resource
     
         projectName/packages/packageName/resources
         
-    where ``projectName`` is the name of your project, ``packages`` is the standard
-    :ref:`genro_packages_index` folder, ``packageName`` is the name of your package,
+    where ``projectName`` is the name of your project, :ref:`genro_packages_index` is
+    the folder that contains the packages, ``packageName`` is the name of your package,
     ``resources`` is the folder where you have to put your resources files.
     
         **Example:** If you have a project called ``my_project`` and a package
         called ``base``, then you will have this tree for your *public* resources:
         
-        .. image:: ../images/projects/public_resources1.png
+        .. image:: ../images/projects/resources/public_resources1.png
         
         Now, if you would want to keep in your *public* resources some images, a CSS
         file and some other stuff, your project tree might be the following one:
         
-        .. image:: ../images/projects/public_resources2.png
+        .. image:: ../images/projects/resources/public_resources2.png
         
         Some notes:
         
@@ -102,7 +102,7 @@ public resource
     #. call the resource you need in the :ref:`webpages_webpages` in which you will use
        it through a ``webpages variable``:
        
-        * :ref:`webpages_py_requires` for Genro :ref:`genro_components`\s and other Python modules
+        * :ref:`webpages_py_requires` for Genro :ref:`genro_component`\s and other Python modules
         * :ref:`webpages_js_requires` for the Javascript files
         * :ref:`webpages_css_requires` for the CSS files
         
@@ -129,12 +129,12 @@ private resource
         **Example:** If you have a project called ``my_project`` then you will have
         this tree for your *private* resources:
         
-        .. image:: ../images/projects/project_resources.png
+        .. image:: ../images/projects/resources/private_resources1.png
         
         Now, if you would want to keep in your *private* resources some images, a CSS
         file and a Javascript file, your project tree might be the following one:
         
-        .. image:: ../images/projects/private_resources2.png
+        .. image:: ../images/projects/resources/private_resources2.png
         
         Where ``my_project`` is the name of your project - the ``images`` folder it is
         not mandatory, but we have created it to keep order in the project (we'll put
@@ -161,4 +161,4 @@ private resource
 **Footnotes**:
 
 .. [#] For more information on how to use CSS in Genro, check the :ref:`genro_css` documentation page
-.. [#] For more information on Genro components, check the :ref:`genro_components`\s documentation page
+.. [#] For more information on Genro components, check the :ref:`genro_component`\s documentation page

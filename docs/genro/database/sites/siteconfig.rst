@@ -4,7 +4,7 @@
 ``sitesconfig.xml``
 ===================
     
-    .. image:: ../../images/projects/sites_siteconfig.png
+    .. image:: ../../images/projects/sites/siteconfig.png
     
     In this file you can modify the ``sitesconfig.xml`` of the specified :ref:`genro_project`
     you're workin' on.

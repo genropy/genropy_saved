@@ -4,7 +4,7 @@
 Introduction
 ============
 
-    .. image:: ../../images/projects/project_instances.png
+    .. image:: ../../images/projects/instances/project_instances.png
     
     * :ref:`instances_map`
     * :ref:`instances_autofill`
@@ -26,10 +26,10 @@ Introduction
     ``instances`` folder you will find an ``instance`` folder including a ``custom`` folder,
     a ``data`` folder and the ``instanceconfig`` file.
     
-    .. image:: ../../images/projects/instances.png
+    .. image:: ../../images/projects/instances/instances1.png
     
-    where ``instancename`` is the name of your instance (we suggest you to call your instance
-    with the name you gave to your :ref:`genro_project`).
+    where ``projectName`` is the name of your instance (we suggest you to call your instance
+    with the name you gave to your project).
     
     Click on the following links for more information on them:
     
@@ -44,15 +44,12 @@ autocreation of the ``instances`` folder
 
     To create a new istance folder you can type in your terminal::
     
-        gnrmkinstance instancename
+        gnrmkinstance instanceName
         
-    where ``instancename`` is the name of your instance (we suggest you to call your instance
+    where ``instanceName`` is the name of your instance (we suggest you to call your instance
     with the name you gave to your :ref:`genro_project`).
     
     Your ``instances`` folder will look like this one:
     
-    .. image:: ../../images/projects/instances.png
+    .. image:: ../../images/projects/instances/instances2.png
     
-    where ``myproject`` is the name of your instance.
-    
-    .. note:: The autocreation of this folder is handled by the :class:`InstanceMaker` class.

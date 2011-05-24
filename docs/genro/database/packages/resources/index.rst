@@ -4,7 +4,7 @@
 ``resources``
 =============
 
-    .. image:: ../../../images/projects/public_resources1.png
+    .. image:: ../../../images/projects/packages/resources.png
     
     This folder includes all your :ref:`genro_public_resource`\s (check the
     :ref:`genro_intro_resources` documentation page for more information) and

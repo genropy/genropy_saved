@@ -5,7 +5,7 @@ disabled
 ========
 
     * :ref:`disabled_def`
-    * :ref:`disabled_examples`: :ref:`disabled_examples_formbuilder`, :ref:`disabled_examples_standardTable`
+    * :ref:`disabled_examples`: :ref:`disabled_examples_formbuilder`
 
 .. _disabled_def:
 
@@ -43,11 +43,4 @@ Disabled on a formbuilder
                 fb.filteringSelect(value='^.sex',values='M:Male,F:Female',lbl='Sex')
                 fb.textbox(value='^.job.profession',lbl='Job')
                 fb.textbox(value='^.job.company_name',lbl='Company name')
-
-.. _disabled_examples_standardTable:
-
-Disabled on a standard table
-============================
-
-    In a :ref:`genro_standardtable` the *disabled* ??? continue!! (explain the lock properties...)
-    
+                

@@ -4,7 +4,7 @@
 ``main.py``
 ===========
 
-    .. image:: ../../images/projects/packages_main.png
+    .. image:: ../../images/projects/packages/main.png
     
     * :ref:`main_intro`
     * :ref:`main_autocreation`
@@ -215,7 +215,7 @@ loginUrl
                     
               where ``packageName`` is the name of your package.
     
-    For more information on how to build a login page, please check the :ref:`webpages_login`
+    For more information on how to build a login page, please check the :ref:`genro_login_auth`
     documentation page.
     
 .. add??? Understand if the following methods are old or new...

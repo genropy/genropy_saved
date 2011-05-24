@@ -4,6 +4,6 @@
 ``pages``
 =========
 
-    .. image:: ../../images/projects/sites_pages.png
+    .. image:: ../../images/projects/sites/pages.png
     
     add???

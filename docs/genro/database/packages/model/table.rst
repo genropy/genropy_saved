@@ -4,7 +4,7 @@
 table
 =====
     
-    .. image:: ../../../images/projects/model_table.png
+    .. image:: ../../../images/projects/packages/model_table.png
     
     * :ref:`table_description`
     * :ref:`table_definition`

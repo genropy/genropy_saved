@@ -6,7 +6,7 @@
 
     .. warning:: to be completed!
     
-    .. image:: ../../images/projects/environment.png
+    .. image:: ../../images/projects/gnr/environment.png
     
     * :ref:`environment_introduction`
     * The :ref:`environment_instances` tag
@@ -52,7 +52,7 @@ Introduction
 <resources>
 ===========
 
-    To configure correctly the ``environment.xml`` file for the usage of :ref:`genro_components`\s,
+    To configure correctly the ``environment.xml`` file for the usage of :ref:`genro_component`\s,
     you have to add the following tag::
     
        <genro path="$GNRHOME/resources/"/>

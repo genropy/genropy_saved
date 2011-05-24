@@ -4,6 +4,6 @@
 ``action``
 ==========
 
-    .. image:: ../../../../images/projects/tables_action.png
+    .. image:: ../../../../images/projects/packages/tables_action.png
     
     add???

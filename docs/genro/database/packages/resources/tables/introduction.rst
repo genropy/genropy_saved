@@ -4,6 +4,6 @@
 Introduction
 ============
 
-    .. image:: ../../../../images/projects/tables.png
+    .. image:: ../../../../images/projects/packages/tables.png
     
     add???

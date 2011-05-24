@@ -4,7 +4,7 @@
 ``tables``
 ==========
 
-    .. image:: ../../../../images/projects/tables.png
+    .. image:: ../../../../images/projects/packages/tables.png
 
 .. toctree::
     :maxdepth: 2

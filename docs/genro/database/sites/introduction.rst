@@ -4,7 +4,7 @@
 Introduction
 ============
     
-    .. image:: ../../images/projects/project_sites.png
+    .. image:: ../../images/projects/sites/project_sites.png
     
     * :ref:`sites_map`
     * :ref:`sites_autofill`
@@ -43,13 +43,12 @@ autocreation of the ``sites`` folder
 
     You can create a ``sites`` folder typing::
     
-        gnrmksite sitesname
+        gnrmksite sitesName
         
-    where ``sitesname`` is the name of your ``sites`` folder (that we suggest you to call as your
+    where ``sitesName`` is the name of your ``sites`` folder (that we suggest you to call as your
     :ref:`genro_project` folder).
     
     Your ``sites`` folder will look like this one:
     
-    .. image:: ../../images/projects/sites.png
+    .. image:: ../../images/projects/sites/sites.png
     
-    .. note:: The autocreation of this folder is handled by the :class:`SiteMaker` class.

@@ -4,7 +4,7 @@
 ``siteconfig``
 ==============
 
-    .. image:: ../../images/projects/gnr_siteconfig.png
+    .. image:: ../../images/projects/gnr/siteconfig.png
     
     * :ref:`gnr_siteconfig_default`
     * :ref:`sitesconfig_description`
@@ -24,7 +24,7 @@
 ``default.xml``
 ===============
 
-    .. image:: ../../images/projects/gnr_site_default.png
+    .. image:: ../../images/projects/gnr/site_default.png
     
     The ``default.xml`` of the ``.gnr/siteconfig`` folder set the default values of
     every :ref:`sites_siteconfig` file of all your projects.
@@ -167,7 +167,7 @@ Tags
     
     * The ``<common/>`` tag: write it to be able to use a lot of Genro tools:
         
-        * Genro :ref:`genro_components`\s
+        * Genro :ref:`genro_component`\s
         * Genro :ref:`css_genro_themes`
         
       .. note:: It is strongly recommended to insert this tag.

@@ -4,7 +4,7 @@
 Introduction
 ============
 
-    .. image:: ../../images/projects/gnr.png
+    .. image:: ../../images/projects/gnr/gnr.png
     
     The ``.gnr`` folder is a hidden folder that includes all the general customization
     of your Genropy application. All the modifies made on this file will influence

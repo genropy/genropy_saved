@@ -56,4 +56,3 @@ list of HTML elements
     * *tip='STRING'*: the HTML tip, where STRING is the tip that will be showned.
       You can use it on every object.
     * *type*='password': allow to hide the written characters.
-   
