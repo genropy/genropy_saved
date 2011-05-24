@@ -1185,7 +1185,7 @@ dojo.declare("gnr.formstores.Base", null, {
         ;
         var base_handler_type = objectPop(kw,'handler');
         var handlerKw = objectExtract(kw,'handler_*');
-        var handler,handler_type,method,actionKw,callbacks;
+        var handler,handler_type,method,actionKw,callbacks,defaultCb;
         var that = this;
         var rpcmethod;
         dojo.forEach(['save','load','del'],function(action){
@@ -1201,7 +1201,8 @@ dojo.declare("gnr.formstores.Base", null, {
             }
             callbacks = objectPop(handler,'callbacks');
             rpcmethod = objectPop(handler,'rpcmethod');
-            that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks,rpcmethod:rpcmethod};
+            defaultCb = objectPop(handler,'defaultCb');
+            that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks,'rpcmethod':rpcmethod,defaultCb:defaultCb};
         });
         for (k in kw){
             this[k] = kw[k];
@@ -1255,12 +1256,18 @@ dojo.declare("gnr.formstores.Base", null, {
             that.loaded(currPkey,result);
             return result;
         };
-        var dkw = {};
-        for (var k in default_kw){
-            dkw['default_'+k] = default_kw[k];
+        var kw = this.handlers.load.kw;
+        if(pkey=='*newrecord*'){
+            var dkw = {};        
+            if(this.handlers.load.defaultCb){
+                var default_kw = objectUpdate((default_kw || {}),(this.handlers.load.defaultCb()||{}));
+            }
+            for (var k in default_kw){
+                dkw['default_'+k] = default_kw[k];
+            }
+            kw = objectUpdate(objectUpdate({},kw),dkw);
         }
-        var kw = objectUpdate(objectUpdate({},this.handlers.load.kw),dkw);
-        kw =form.sourceNode.evaluateOnNode(kw); //office_id='=#FORM.pkey'
+        kw =form.sourceNode.evaluateOnNode(kw); 
         this.handlers.load.rpcmethod = this.handlers.load.rpcmethod || 'loadRecordCluster';
         var deferred = genro.rpc.remoteCall(this.handlers.load.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':form.getVirtualColumns(),
