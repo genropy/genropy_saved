@@ -690,7 +690,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this._doBuildNode(tag, attributes, destination, ind);
             this._setDynAttributes();
         }
-        
         this._isBuilding = false;
     },
     _buildChildren: function(destination) {
@@ -711,6 +710,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             this.form = formHandler;
             if(this.attr.parentForm!==false){
                 formHandler.registerChild(this)
+                genro.src.formsToUpdate[this.form.formId]=this.form
             }
         }
     },
