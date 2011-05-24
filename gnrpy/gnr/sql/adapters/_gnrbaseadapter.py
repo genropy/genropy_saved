@@ -748,6 +748,8 @@ class GnrDictRow(GnrNamedList):
         else:
             self[:] = values
 
+class DbAdapterException(Exception):
+    pass
 
 class NotImplementedException(Exception):
     pass

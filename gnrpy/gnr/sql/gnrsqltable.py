@@ -1079,7 +1079,7 @@ class SqlTable(GnrObject):
                 record.pop('_isdeleted')
                 self.insert(record)
                 
-    def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=True, source_records=None, **querykwargs):
+    def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=True, source_records=None,bagFields=True, **querykwargs):
         """add???
         
         :param dbsource: sourcedb
@@ -1093,7 +1093,7 @@ class SqlTable(GnrObject):
         dest_tbl = dbdest.table(tbl_name)
         querykwargs['addPkeyColumn'] = False
         querykwargs['excludeLogicalDeleted'] = excludeLogicalDeleted
-        source_records = source_records or source_tbl.query(**querykwargs).fetch()
+        source_records = source_records or source_tbl.query(bagFields=bagFields,**querykwargs).fetch()
         if empty_before:
             dest_tbl.empty()
         for record in source_records:
@@ -1101,6 +1101,16 @@ class SqlTable(GnrObject):
                 dest_tbl.insert(record)
             else:
                 dest_tbl.insertOrUpdate(record)
+                
+    
+    def copyToDbstore(self,pkey=None,dbstore=None,bagFields=True,**kwargs):
+        queryargs = kwargs
+        if pkey:
+            queryargs = dict(where='$pkey=:pkey',pkey=pkey)
+        records = self.query(addPkeyColumn=False,bagFields=bagFields,**queryargs).fetch()
+        with self.db.tempEnv(storename=dbstore):
+            for rec in records:
+                self.insertOrUpdate(rec)
                 
     def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True, source_records=None, **querykwargs):
         """add???
