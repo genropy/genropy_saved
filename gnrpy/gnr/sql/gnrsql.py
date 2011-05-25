@@ -617,11 +617,10 @@ class DbStoresHandler(object):
         self.config = Bag()
         if os.path.isdir(self.config_folder):
             self.config = Bag(self.config_folder)['#0'] or Bag()
-            self.config.walk(lambda *a,**kw:None)
-            self.config.digest('#a.file_name,#v.#0?#')
             
     def save_config(self):
         """add???"""
+        config = self.config.digest('#a.file_name,#v.#0?#')
         try:
             if os.path.isdir(self.config_folder):
                 config_files = os.listdir(self.config_folder)
@@ -631,7 +630,7 @@ class DbStoresHandler(object):
                         os.remove(filepath)
         except OSError:
             pass
-        for name, params in self.config.digest('#a.file_name,#v.#0?#'):
+        for name, params in config:
             dbstore_config = Bag()
             dbstore_config.setItem('db', None, **params)
             dbstore_config.toXml(os.path.join(self.config_folder, '%s.xml' % name), autocreate=True)

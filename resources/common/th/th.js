@@ -146,7 +146,7 @@ dojo.declare("gnr.IframeFormManager", null, {
     openrecord:function(pkey){
         genro.publish('form_'+this.fakeFormId+'_onLoading');
         if(this.iframeForm){
-            this.iframeForm.load({destPkey:pkey,default_kw:this.sourceNode.evaluateOnNode(this.default_kwargs)});
+            this.iframeForm.load({destPkey:pkey});
         }else{
             var iframeAttr = this.iframeAttr;
             var that = this;
@@ -161,10 +161,13 @@ dojo.declare("gnr.IframeFormManager", null, {
         this.iframeForm.dismiss(modifiers);
     },
     onIframeStarted:function(iframe,pkey){
-        this.iframeForm = iframe._genro.getForm('mainform');
-        this.iframeForm.load({destPkey:pkey,default_kw:this.sourceNode.evaluateOnNode(this.default_kwargs)});
-        this.iframeForm.store.parentStore = genro.getStore(this.formStoreKwargs.parentStore);
         var that = this;
+        this.iframeForm = iframe._genro.getForm('mainform');
+        this.iframeForm.store.handlers.load.defaultCb = function(){
+            return that.sourceNode.evaluateOnNode(that.default_kwargs);
+        }
+        this.iframeForm.load({destPkey:pkey});
+        this.iframeForm.store.parentStore = genro.getStore(this.formStoreKwargs.parentStore);
         this.iframeForm.subscribe('onDismissed',function(kw){
             genro.publish('form_'+that.fakeFormId+'_onDismissed',kw);
         });

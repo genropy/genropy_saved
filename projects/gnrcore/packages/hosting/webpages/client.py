@@ -9,7 +9,7 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     maintable = 'hosting.client'
-    py_requires = """public:Public,standard_tables:TableHandler,
+    py_requires = """public:Public,standard_tables/tablehandler,
                    gnrcomponents/selectionhandler,
                    hosted:HostedClient,hosted:HostedInstance"""
 

@@ -11,7 +11,7 @@ class GnrWsgiWebApp(GnrApp):
             kwargs.pop('site')
         else:
             self.site = None
-        self._siteMenu = None
+        self._siteMenuDict = dict()
         super(GnrWsgiWebApp, self).__init__(*args, **kwargs)
 
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
@@ -53,9 +53,12 @@ class GnrWsgiWebApp(GnrApp):
         self.site.debugger(debugtype, **kwargs)
 
     def _get_siteMenu(self):
-        if not self._siteMenu:
-            self._siteMenu = self._buildSiteMenu()
-        return self._siteMenu
+        storename = self.site.currentPage.storename
+        siteMenu = self._siteMenuDict.get(storename)
+        if not siteMenu:
+            siteMenu = self._buildSiteMenu()
+            self._siteMenuDict[storename] = siteMenu
+        return siteMenu
 
     siteMenu = property(_get_siteMenu)
 

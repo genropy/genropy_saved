@@ -7,7 +7,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 # --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
     maintable = 'sys.external_token'
-    py_requires = 'public:Public,standard_tables:TableHandler,public:IncludedView'
+    py_requires = 'public:Public,standard_tables/tablehandler,public:IncludedView'
 
     ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
     def windowTitle(self):

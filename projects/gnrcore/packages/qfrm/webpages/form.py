@@ -11,8 +11,8 @@ import os
 
 class GnrCustomWebPage(object):
     maintable = 'qfrm.form'
-    py_requires = 'public:Public,standard_tables:TableHandler'
-    py_requires = """public:Public,standard_tables:TableHandler,
+    py_requires = 'public:Public,standard_tables/tablehandler'
+    py_requires = """public:Public,standard_tables/tablehandler,
                    public:IncludedView,public:RecordHandler
                    """
 
