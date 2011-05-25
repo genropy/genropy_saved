@@ -14,7 +14,7 @@ import hashlib
 
 class GnrCustomWebPage(object):
     maintable = 'adm.user'
-    py_requires = 'public:Public,public:IncludedView,standard_tables:TableHandler,utils:SendMail'
+    py_requires = 'public:Public,public:IncludedView,standard_tables/tablehandler,utils:SendMail'
 
     def pageAuthTags(self, method=None, **kwargs):
         return 'admin'
