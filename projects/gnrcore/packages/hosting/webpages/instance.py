@@ -7,7 +7,7 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     maintable = 'hosting.instance'
-    py_requires = 'public:Public,public:IncludedView,standard_tables:TableHandler'
+    py_requires = 'public:Public,public:IncludedView,standard_tables/tablehandler'
 
     def pageAuthTags(self, method=None, **kwargs):
         return 'admin'
