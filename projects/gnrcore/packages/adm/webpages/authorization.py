@@ -8,7 +8,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 # --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
     maintable = 'adm.authorization'
-    py_requires = 'public:Public,standard_tables/tablehandlerLight'
+    py_requires = 'public:Public,standard_tables:TableHandlerLight'
 
     ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
     def windowTitle(self):

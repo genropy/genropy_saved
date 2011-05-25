@@ -7,7 +7,7 @@
 
 class GnrCustomWebPage(object):
     maintable = 'flib.item'
-    py_requires = 'public:Public,standard_tables:TableHandler,public:IncludedView'
+    py_requires = 'public:Public,standard_tables/tablehandler,public:IncludedView'
 
     ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
     def windowTitle(self):
