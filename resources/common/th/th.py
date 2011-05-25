@@ -49,7 +49,7 @@ class TableHandler(BaseComponent):
         message= hiderMessage or '!!Save the main record to use this pane.'
         wdg.dataController("""
                             if(pkey=='*newrecord*'){
-                                hider = sourceNode.setHiderLayer({message:message});
+                                sourceNode.setHiderLayer({message:message});
                             }else{
                                 sourceNode.setHiderLayer(null,true);
                             }
