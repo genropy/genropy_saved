@@ -70,6 +70,8 @@ class BaseResourceExport(BaseResourceBatch):
         for view in struct.values():
             for row in view.values():
                 for cell in row:
+                    if cell.getAttr('hidden'):
+                        continue
                     col = self.db.colToAs(cell.getAttr('field'))
                     self.columns.append(col)
                     self.headers.append(cell.getAttr('name'))
