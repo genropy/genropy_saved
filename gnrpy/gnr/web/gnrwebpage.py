@@ -729,7 +729,7 @@ class GnrWebPage(GnrBaseWebPage):
     def subscribeTable(self,table,subscribe=True):
         """add???
         
-        :param table: add???
+        :param table: table name
         :param subscribe: add???. Default value is ``True``
         :returns: add???
         """
@@ -1352,7 +1352,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         This is typically used to customize prints and batch jobs for a particular installation.
         
-        :param table: add???. Default value is ``None``
+        :param table: table name. Default value is ``None``
         :param respath: add???. Default value is ``None``
         :param class_name: add???. Default value is ``'Main'``
         :param downloadAs: add???. Default value is ``None``
@@ -1420,7 +1420,7 @@ class GnrWebPage(GnrBaseWebPage):
                              omit='', **kwargs):
         """add???
         
-        :param table: add???. Default value is ``None``
+        :param table: table name. Default value is ``None``
         :param prevRelation: add???. Default value is ``''``
         :param prevCaption: add???. Default value is ``''``
         :param omit: add???. Default value is ``''``
@@ -1609,7 +1609,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param struct: add???
-        :param table: add???
+        :param table: table name
         :returns: add???
         """
         return self._prepareGridStruct(struct,table)

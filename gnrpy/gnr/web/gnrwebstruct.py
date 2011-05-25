@@ -272,7 +272,7 @@ class GnrDomSrc(GnrStructData):
         :param store: add???. Default value is ``None``
         :param storeCode: add???. Default value is ``None``
         :param slots: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param table: table name. Default value is ``None``
         :param store_kwargs: add???. Default value is ``None``
         :returns: the framepane
         """
@@ -302,7 +302,7 @@ class GnrDomSrc(GnrStructData):
         :param storepath: add???. Default value is ``None``
         :param handler: add???. Default value is ``recordCluster``
         :param nodeId: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param table: table name. Default value is ``None``
         :param storeType: add???. Default value is ``None``
         :param parentStore: add???. Default value is ``None``
         :returns: the formstore
@@ -813,7 +813,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param storeCode: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param table: table name. Default value is ``None``
         :param storepath: add???. Default value is ``None``
         :param columns: add???. Default value is ``None``
         """
@@ -823,7 +823,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param storeCode: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param table: table name. Default value is ``None``
         :param storepath: add???. Default value is ``None``
         :param columns: add???. Default value is ``None``
         :returns: the selectionStore
@@ -861,7 +861,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param path: add???
-        :param table: add???. Default value is ``None``
+        :param table: table name. Default value is ``None``
         :param method: add???. Default value is ``app.getSelection``
         :param columns: add???. Default value is ``None``
         :param distinct: add???. Default value is ``None``
@@ -902,7 +902,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param pane: add???
-        :param table: add???. Default value is ``None``
+        :param table: table name. Default value is ``None``
         :param where: add???. Default value is ``None``
         :param group_by: add???. Default value is ``None``
         :param storepath: add???. Default value is ``.store``
@@ -924,8 +924,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param path: add???
-        :param table: add???
-        :param pkey: add???. Default value is ``None``
+        :param table: table name
+        :param pkey: the record primary key. Default value is ``None``
         :param method: add???. Default value is ``app.getRecord``
         :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                        check the :ref:`rpc_attributes` section
@@ -1079,7 +1079,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param structpath: add???. Default value is ``None``
         :param struct: add???. Default value is ``None``
         :param columns: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param table: table name. Default value is ``None``
         :param nodeId: add???. Default value is ``None``
         :param relativeWorkspace: add???. Default value is ``None``
         :returns: add???

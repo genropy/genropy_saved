@@ -120,9 +120,10 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def prepareSqlText(self, sql, kwargs):
         """Change the format of named arguments in the query from ':argname' to '%(argname)s'.
         Replace the 'REGEXP' operator with '~*'.
-        @param sql: the sql string to execute.
-        @param kwargs: the params dict
-        @return: tuple (sql, kwargs)
+        
+        :param sql: the sql string to execute.
+        :param kwargs: the params dict
+        :returns: tuple (sql, kwargs)
         """
         return RE_SQL_PARAMS.sub(r'%(\1)s\2', sql).replace('REGEXP', '~*'), kwargs
 

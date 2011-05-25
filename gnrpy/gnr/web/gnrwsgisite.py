@@ -696,7 +696,9 @@ class GnrWsgiSite(object):
         pass
         
     def cleanup(self):
-        """add???"""
+        """Set currentPage to ``None``, run the :meth:`closeConnection() <gnr.sql.gnrsql.GnrSqlDb.closeConnection()>`
+           method and run the :meth:`disconnect_all() <gnr.web.gnrwsgisite_proxy.gnrshareddata.GnrSharedData_memcache.disconnect_all()>`
+           method"""
         self.currentPage = None
         self.db.closeConnection()
         self.shared_data.disconnect_all()
@@ -935,8 +937,8 @@ class GnrWsgiSite(object):
         """add???
         
         :param page: add???
-        :param table: add???
-        :param pkey: add???
+        :param table: the :ref:`genro_table` to which the record belongs to
+        :param pkey: the record primary key.
         :returns: add???
         """
         if 'sys' in self.gnrapp.db.packages:
@@ -946,8 +948,8 @@ class GnrWsgiSite(object):
         """add???
         
         :param page: add???
-        :param table: add???
-        :param pkey: add???
+        :param table: the :ref:`genro_table` to which the record belongs to
+        :param pkey: the record primary key.
         :returns: add???
         """
         if 'sys' in self.gnrapp.db.packages:
@@ -1045,7 +1047,7 @@ class GnrWsgiSite(object):
         This is typically used to customize prints and batch jobs for a particular installation
         
         :param page: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param table: table name. Default value is ``None``
         :param respath: add???. Default value is ``None``
         :param class_name: add???. Default value is ``None``
         :param runKwargs: add???. Default value is ``None``
@@ -1062,7 +1064,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param page: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param table: table name. Default value is ``None``
         :param respath: add???. Default value is ``None``
         :param class_name: add???. Default value is ``None``
         :returns: add???

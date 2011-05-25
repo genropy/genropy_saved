@@ -413,17 +413,19 @@ class SqlTable(GnrObject):
         
         * its primary key
         * one or more conditions passed as kwargs (e.g. username='foo')
-        * a where condition
+        * a "where" condition
          
-        :param pkey: record primary key. Default value is ``None``
+        :param pkey: the record primary key. Default value is ``None``
         :param where: (optional) This is the sql WHERE clause. We suggest not to use hardcoded values into the
                       WHERE clause, but refer to variables passed to the selection method as kwargs. Default value
                       is ``None``. E.g: ``where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas``
         :param lazy: add???. Default value is ``None``
         :param eager: add???. Default value is ``None``
         :param mode: bag, dict, json. Default value is ``None``
-        :param relationDict: (optional) this is a dictionary that contains couples composed by fieldName and relationPath
-                              e.g: ``{'$member_name':'@member_id.name'}``. Default value is ``None``
+        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_field`. ``dict(myname='@relname.colname')``
+                             ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
+                             ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
+                             Default value is ``None``
         :param ignoreMissing: add???. Default value is ``False``
         :param virtual_columns: add???. Default value is ``None``
         :param ignoreDuplicate: add???. Default value is ``False``
@@ -478,7 +480,7 @@ class SqlTable(GnrObject):
         :returns: a dictionary - fill it with defaults
         """
         return dict([(x.name, x.attributes['default'])for x in self.columns.values() if 'default' in x.attributes])
-            
+        
     def query(self, columns='*', where=None, order_by=None,
               distinct=None, limit=None, offset=None,
               group_by=None, having=None, for_update=False,
@@ -488,13 +490,8 @@ class SqlTable(GnrObject):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
         
-        :param columns: Represent the SELECT clause in the traditional SQL query.
-                        It is a string of column names and related fields separated by comma.
-                        Each column's name is prefixed with '$'. Related fields uses a syntax based on the char '@'
-                        and 'dot notation'. (e.g. "@member_id.name"). For selecting all columns use the char '*'.
-                        The ``columns`` parameter also accepts special statements such as COUNT, DISTINCT and SUM.
-                        
-                        Default value is ``*``
+        :param columns: Represent the SELECT clause in the traditional sql query.
+                        For more information, check the :ref:`sql_columns` section. Default value is ``*``
                         
         :param where: (optional) This is the sql WHERE clause.
                       We suggest not to use hardcoded values into the where clause, but
@@ -515,8 +512,9 @@ class SqlTable(GnrObject):
         :param having: (optional) corresponding to the sql HAVING operator.
                        Default value is ``None``
         :param for_update: boolean. add???. Default value is ``False``
-        :param relationDict: (optional) a dictionary which associates relationPath names
-                             with an alias name. e.g: ``{'$member_name':'@member_id.name'}``.
+        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_field`. ``dict(myname='@relname.colname')``
+                             ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
+                             ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
                              Default value is ``None``
         :param sqlparams: (optional) an optional dictionary for sql query parameters.
                           Default value is ``None``
@@ -557,7 +555,7 @@ class SqlTable(GnrObject):
     def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
         """add???
         
-        :param pkey: add???. Default value is ``None``
+        :param pkey: the record primary key. Default value is ``None``
         :param columns: add???. Default value is ``None``
         :param where: add???. Default value is ``None``
         :returns: add???
@@ -737,7 +735,7 @@ class SqlTable(GnrObject):
         
         :param record: add???. Default value is ``None``
         :param old_record: add???. Default value is ``None``
-        :param pkey: add???. Default value is ``None``
+        :param pkey: the record primary key. Default value is ``None``
         """
         self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
         

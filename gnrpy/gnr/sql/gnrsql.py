@@ -86,11 +86,11 @@ class GnrSqlDb(GnrObject):
         :param user: a database user's name (for sqlite is None)
         :param password: the user's password (for sqlite is None)
         :param port: the connection port (for sqlite is None)
-        :param main_schema: the database main_schema. Default value is ``None``
-        :param debugger: the database main_schema. Default value is ``None``
-        :param application: the database main_schema. Default value is ``None``
-        :param allow_eager_many: the database main_schema. Default value is ``False``
-        :param allow_eager_one: the database main_schema. Default value is ``False``"""
+        :param main_schema: the database main schema. Default value is ``None``
+        :param debugger: add???. Default value is ``None``
+        :param application: add???. Default value is ``None``
+        :param allow_eager_many: add???. Default value is ``False``
+        :param allow_eager_one: add???. Default value is ``False``"""
         self.implementation = implementation
         self.dbname = dbname
         self.host = host
@@ -117,22 +117,20 @@ class GnrSqlDb(GnrObject):
     
     @property
     def debug(self):
-        """add???"""
+        """Property. add???"""
         return self.application.debug
         
     @property
     def dbstores(self):
-        """add???
+        """Property. add???
         
-        :returns: add???
-        """
+        :returns: add???"""
         return self.stores_handler.dbstores
         
     def createModel(self):
         """add???
         
-        :returns: add???
-        """
+        :returns: add???"""
         from gnr.sql.gnrsqlmodel import DbModel
         
         return DbModel(self)
@@ -146,22 +144,20 @@ class GnrSqlDb(GnrObject):
         """Return a DbModelSrc corresponding to the required package
         
         :param name: the package name
-        :returns: add???
-        """
+        :returns: add???"""
         return self.model.src.package(name)
         
     def packageMixin(self, name, obj):
         """Register a mixin for a package.
         
         :param name: the target package's name
-        :param obj: a class or an object to mixin
-        """
+        :param obj: a class or an object to mixin"""
         self.model.packageMixin(name, obj)
         
     def tableMixin(self, tblpath, obj):
         """Register an object or a class to mixin to a table.
         
-        :param tblpath: add???
+        :param tblpath: the path of the table
         :param obj: a class or an object to mixin
         """
         self.model.tableMixin(tblpath, obj)
@@ -188,8 +184,7 @@ class GnrSqlDb(GnrObject):
     def checkDb(self, applyChanges=False):
         """Check if the database structure is compatible with the current model
         
-        :param applyChanges: boolean. If ``True``, all the changes are executed and committed. Default value is ``False``
-        """
+        :param applyChanges: boolean. If ``True``, all the changes are executed and committed. Default value is ``False``"""
         return self.model.check(applyChanges=applyChanges)
         
     def closeConnection(self):
@@ -205,13 +200,11 @@ class GnrSqlDb(GnrObject):
                     conn = None
                     
     def tempEnv(self, **kwargs):
-        """add???
-        
-        :returns: add???
-        """
+        """Return a TempEnv class"""
         return TempEnv(self, **kwargs)
     
     def clearCurrentEnv(self):
+        """Clear the current env"""
         self._currentEnv[thread.get_ident()] = {}
         
     def _get_currentEnv(self):
@@ -219,16 +212,17 @@ class GnrSqlDb(GnrObject):
         return self._currentEnv.setdefault(thread.get_ident(), {})
         
     def _set_currentEnv(self, env):
-        """set currentEnv for this thread"""
+        """set currentEnv for the current thread"""
         self._currentEnv[thread.get_ident()] = env
         
     currentEnv = property(_get_currentEnv, _set_currentEnv)
         
     def _get_workdate(self):
-        """property currentEnv it returns the workdate currently used in this thread"""
+        """currentEnv TempEnv. Return the workdate used in the current thread"""
         return self.currentEnv.get('workdate') or datetime.today()
         
     def _set_workdate(self, workdate):
+        """Allow to set the workdate"""
         self.currentEnv['workdate'] = workdate
         
     workdate = property(_get_workdate, _set_workdate)
@@ -243,14 +237,13 @@ class GnrSqlDb(GnrObject):
     locale = property(_get_locale, _set_locale)
         
     def updateEnv(self, **kwargs):
-        """add???"""
+        """Update the currentEnv"""
         self.currentEnv.update(kwargs)
         
     def use_store(self, storename=None):
         """add???
         
-        :param storename: add???. Default value is ``None``
-        """
+        :param storename: add???. Default value is ``None``"""
         self.updateEnv(storename=storename)
         
     def get_dbname(self):
@@ -269,6 +262,7 @@ class GnrSqlDb(GnrObject):
         
     def _get_connection(self):
         """property .connection
+        
         If there's not connection open and return connection to database"""
         thread_ident = thread.get_ident()
         storename = self.currentEnv.get('storename') or '_main_db'
@@ -293,14 +287,14 @@ class GnrSqlDb(GnrObject):
     def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False, dbtable=None):
         """Execute the sql statement using given kwargs
         
-        :param sql: add???
-        :param sqlargs: add???. Default value is ``None``
-        :param cursor: add???. Default value is ``None``
-        :param cursorname: add???. Default value is ``None``
-        :param autocommit: add???. Default value is ``None``
-        :param dbtable: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param sql: the sql statement.
+        :param sqlargs: optional sql arguments. Default value is ``None``
+        :param cursor: an sql cursor. Default value is ``None``
+        :param cursorname: the name of the cursor. Default value is ``None``
+        :param autocommit: if ``True``, at the end of the execution runs the :meth:`commit()` method.
+                           Default value is ``False``
+        :param dbtable: the :ref:`genro_table`...add??? . Default value is ``None``
+        :returns: the sql cursor"""
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
         envargs = dict([('env_%s' % k, v) for k, v in self.currentEnv.items()])
@@ -348,11 +342,10 @@ class GnrSqlDb(GnrObject):
         return cursor
         
     def insert(self, tblobj, record, **kwargs):
-        """Insert a record in the table.
+        """Insert a record in a table.
         
         :param tblobj: the table object
-        :param record: an object implementing dict interface as colname, colvalue
-        """
+        :param record: an object implementing dict interface as colname, colvalue."""
         tblobj.checkPkey(record)
         tblobj.protect_validate(record)
         tblobj._doFieldTriggers('onInserting', record)
@@ -361,13 +354,12 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_onInserted(record)
         
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
-        """Update a table's record
+        """Update a table's record.
         
         :param tblobj: the table object
         :param record: an object implementing dict interface as colname, colvalue
         :param old_record: the record to be overwritten. Default value is ``None``
-        :param pkey: add???. Default value is ``None``
-        """
+        :param pkey: the record primary key. Default value is ``None``"""
         tblobj.protect_update(record, old_record=old_record)
         tblobj.protect_validate(record, old_record=old_record)
         tblobj._doFieldTriggers('onUpdating', record)
@@ -379,8 +371,7 @@ class GnrSqlDb(GnrObject):
         """Delete a record from the table
         
         :param tblobj: the table object
-        :param record: an object implementing dict interface as colname, colvalue
-        """
+        :param record: an object implementing dict interface as colname, colvalue"""
         tblobj.protect_delete(record)
         tblobj._doFieldTriggers('onDeleting', record)
         tblobj.trigger_onDeleting(record)
@@ -394,6 +385,7 @@ class GnrSqlDb(GnrObject):
         self.onDbCommitted()
     
     def onDbCommitted(self):
+        """add???"""
         pass
         
     def setConstraintsDeferred(self):
@@ -403,7 +395,7 @@ class GnrSqlDb(GnrObject):
             cursor.setConstraintsDeferred()
         
     def rollback(self):
-        """Rollback a transaction """
+        """Rollback a transaction"""
         self.connection.rollback()
         
     def listen(self, *args, **kwargs):
@@ -413,9 +405,8 @@ class GnrSqlDb(GnrObject):
     def notify(self, *args, **kwargs):
         """Database Notify
         
-        :param args: add???
-        :param kwargs: add???
-        """
+        :param \*args: add???
+        :param \*\*kwargs: add???"""
         self.adapter.notify(*args, **kwargs)
         
     def analyze(self):
@@ -431,9 +422,7 @@ class GnrSqlDb(GnrObject):
     def package(self, pkg):
         """Return a package object
         
-        :param pkw: the package name
-        :returns: the package object
-        """
+        :param pkg: the package name"""
         return self.model.package(pkg)
             
     def _get_packages(self):
@@ -447,8 +436,7 @@ class GnrSqlDb(GnrObject):
         :param packages: add???. Default value is ``None``
         :param omit: add???. Default value is ``None``
         :param tabletype: add???. Default value is ``None``
-        :returns: add???
-        """
+        :returns: add???"""
         result = Bag()
         for pkg, pkgobj in self.packages.items():
             if (pkg in packages and omit) or (not pkg in packages and not omit):
@@ -471,24 +459,21 @@ class GnrSqlDb(GnrObject):
         
         :param tblname: table name
         :param pkg: package name. Default value is ``None``
-        :returns: a table object
-        """
+        :returns: a table object"""
         return self.model.table(tblname, pkg=pkg).dbtable
             
     def query(self, table, **kwargs):
-        """For more information, check gnrsqltable.SqlTable.query
+        """An sql query. For more information, check the :meth:`query() <gnr.sql.gnrsqltable.SqlTable.query()>`
+        method of the gnrsqltable.SqlTable.
         
-        :param table: add???
-        :returns: add???
-        """
+        :param table: the table on which the query will be executed"""
         return self.table(table).query(**kwargs)
-            
+        
     def colToAs(self, col):
         """add???
         
-        :param col: add???
-        :returns: add???
-        """
+        :param col: a table column
+        :returns: add???"""
         as_ = re.sub('\W', '_', col)
         if as_[0].isdigit(): as_ = '_' + as_
         return as_
@@ -497,12 +482,11 @@ class GnrSqlDb(GnrObject):
                          translator=None, **kwargs):
         """add???
         
-        :param table: add???
+        :param table: table name
         :param prevCaption: add???. Default value is ``''``
         :param prevRelation: add???. Default value is ``''``
         :param translator: add???. Default value is ``None``
-        :returns: add???
-        """
+        :returns: add???"""
         return self.table(table).relationExplorer(prevCaption=prevCaption,
                                                   prevRelation=prevRelation,
                                                   translator=translator, **kwargs)
@@ -511,29 +495,25 @@ class GnrSqlDb(GnrObject):
         """Create a db with a given name and an encoding
         
         :param name: the database's name
-        :param encoding: The multibyte character encoding you choose. Default value is ``unicode`
-        """
+        :param encoding: The multibyte character encoding you choose. Default value is ``unicode``"""
         self.adapter.createDb(name, encoding=encoding)
             
     def dropDb(self, name):
         """Drop a database with a given name
         
-        :param name: the database's name
-        """
+        :param name: the database's name"""
         self.adapter.dropDb(name)
             
     def dump(self, filename):
         """Dump a database to a given path
         
-        :param filename: the path on which the database will be dumped
-        """
+        :param filename: the path on which the database will be dumped"""
         self.adapter.dump(filename)
-
+        
     def restore(self, filename):
         """Restore db to a given path
         
-        :param name: the path on which the database will be restored
-        """
+        :param name: the path on which the database will be restored"""
         #self.dropDb(self.dbname)
         #self.createDb(self.dbname)
         self.adapter.restore(filename)
@@ -541,33 +521,28 @@ class GnrSqlDb(GnrObject):
     def createSchema(self, name):
         """Create a database schema
         
-        :param name: the schema's name
-        """
+        :param name: the schema's name"""
         self.adapter.createSchema(name)
         
     def dropSchema(self, name):
         """Drop a db schema
         
-        :param name: add???
-        """
+        :param name: add???"""
         self.adapter.dropSchema(name)
-
+        
     def importXmlData(self, path):
         """Populates a database from an XML file
         
-        :param path: the file path
-        """
+        :param path: the file path"""
         data = Bag(path)
         for table, pkg in data.digest('#k,#a.pkg'):
             for n in data[table]:
                 self.table(table, pkg=pkg).insertOrUpdate(n.attr)
-
+                
     def unfreezeSelection(self, fpath):
-        """Get a pickled selection
+        """Get a pickled selection and return it
         
-        :param fpath: add???
-        :returns: add???
-        """
+        :param fpath: the file path"""
         filename = '%s.pik' % fpath
         if not os.path.exists(filename):
             return
@@ -576,7 +551,7 @@ class GnrSqlDb(GnrObject):
         f.close()
         selection.dbtable = self.table(selection.tablename)
         return selection
-
+        
 class TempEnv(object):
     """add???
     
@@ -584,24 +559,23 @@ class TempEnv(object):
     
         with db.tempEnv(foo=7) as db:
             # do something
-            pass
-    """
-        
+            pass"""
+    
     def __init__(self, db, **kwargs):
         self.db = db
         self.kwargs = kwargs
-
+        
     def __enter__(self):
         if self.db.adapter.support_multiple_connections:
             currentEnv = self.db.currentEnv
             self.savedEnv = dict(currentEnv)
             currentEnv.update(self.kwargs)
         return self.db
-
+        
     def __exit__(self, type, value, traceback):
         if self.db.adapter.support_multiple_connections:
             self.db.currentEnv = self.savedEnv
-
+            
 class DbStoresHandler(object):
     """Handler for using multi-database"""
         
@@ -644,8 +618,7 @@ class DbStoresHandler(object):
         """add???
         
         :param storename: add???
-        :param check: add???. Default value is ``False``
-        """
+        :param check: add???. Default value is ``False``"""
         attr = self.config.getAttr('%s_xml.db' % storename)
         self.dbstores[storename] = dict(database=attr.get('dbname', storename),
                                         host=attr.get('host', self.db.host), user=attr.get('user', self.db.user),
@@ -657,8 +630,7 @@ class DbStoresHandler(object):
     def drop_dbstore_config(self, storename):
         """add???
         
-        :param storename: add???
-        """
+        :param storename: add???"""
         self.config.pop('%s_xml' % storename)
         
     def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None, save=True):
@@ -670,8 +642,7 @@ class DbStoresHandler(object):
         :param user: add???. Default value is ``None``
         :param password: add???. Default value is ``None``
         :param port: add???. Default value is ``None``
-        :param save: add???. Default value is ``True``
-        """
+        :param save: add???. Default value is ``True``"""
         self.config.setItem('%s_xml' % storename, None, file_name=storename)
         self.config.setItem('%s_xml.db' % storename, None, dbname=dbname, host=host, user=user, password=password,
                             port=port)
@@ -684,8 +655,7 @@ class DbStoresHandler(object):
         """checks if dbstore exists and if it needs to be aligned
         
         :param storename: add???
-        :param verbose: add???. Default value is ``False``
-        """
+        :param verbose: add???. Default value is ``False``"""
         with self.db.tempEnv(storename=storename):
             self.db.use_store(storename)
             changes = self.db.model.check()
@@ -700,8 +670,7 @@ class DbStoresHandler(object):
         """add???
         
         :param storename: add???
-        :param changes: add???. Default value is ``None``
-        """
+        :param changes: add???. Default value is ``None``"""
         with self.db.tempEnv(storename=storename):
             changes = changes or self.db.model.check()
             if changes:

@@ -55,10 +55,8 @@ def locked_storage(func):
         with self.storage_lock:
             result = func(self, *args, **kwargs)
             return result
-
     return decore
-
-
+    
 class SharedLocker(object):
     def __init__(self, sd, key, max_retry=MAX_RETRY,
                  lock_time=LOCK_TIME,
@@ -77,14 +75,15 @@ class SharedLocker(object):
 
     def __exit__(self, type, value, traceback):
         return self.sd.unlock(self.key)
-
-
+        
 class GnrSharedData(object):
+    """add???"""
     def __init__(self, site):
         self.site = site
         self._locks = {}
 
     def locked(self, key, max_retry=MAX_RETRY, lock_time=LOCK_TIME, retry_time=RETRY_TIME):
+        """add???"""
         return SharedLocker(self, key, lock_time=lock_time,
                             max_retry=max_retry,
                             retry_time=retry_time)
@@ -125,7 +124,7 @@ class GnrSharedData(object):
 
 class GnrSharedData_dict(GnrSharedData):
     STORAGE_PATH = 'shared_data.pik'
-
+    
     def __init__(self, site):
         super(GnrSharedData_dict, self).__init__(site)
         self.storage = {}
@@ -134,9 +133,9 @@ class GnrSharedData_dict(GnrSharedData):
         self.storage_path = os.path.join(self.site.site_path, self.STORAGE_PATH)
         if os.path.exists(self.storage_path):
             self.load()
-
-
+            
     def dump(self):
+        """add???"""
         print 'DUMP SHARED DATA'
         with open(self.storage_path, 'w') as shared_data_file:
             pickle.dump(self.storage, shared_data_file)
@@ -250,11 +249,9 @@ class GnrSharedData_dict(GnrSharedData):
         pass
 
 class GnrSharedData_memcache(GnrSharedData):
+    """add???"""
     def __init__(self, site, memcache_config=None, debug=None):
-        """
-        initialize the shared data store from memcache_config.
-        
-        """
+        """initialize the shared data store from memcache_config."""
         super(GnrSharedData_memcache, self).__init__(site)
         self._namespace = site.site_name
         server_list = ['%(host)s:%(port)s' % attr for attr in memcache_config.digest('#a')]
@@ -263,6 +260,7 @@ class GnrSharedData_memcache(GnrSharedData):
         self._test(False)
 
     def disconnect_all(self):
+        """add???"""
         self.storage.disconnect_all()
 
     def _test(self, doraise=True):
@@ -273,6 +271,7 @@ class GnrSharedData_memcache(GnrSharedData):
                 print '****** memcached not started ********'
 
     def key(self, key):
+        """add???"""
         prefixed_key = ('%s_%s' % (self._namespace, key)).encode('utf8')
         self.visited_keys[prefixed_key] = key
         return prefixed_key  #MIKI: why don't we strip the result?
