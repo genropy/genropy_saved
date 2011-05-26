@@ -417,9 +417,14 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
         var controllerData = this.getControllerData();
         this.protect_write = this.isProtectWrite();
+        genro.dom.setClass(this.sourceNode,'form_protect_write',this.protect_write);
+
         this.protect_delete = this.isProtectDelete();
+        genro.dom.setClass(this.sourceNode,'form_protect_delete',this.protect_delete);
 
         this.newRecord = this.isNewRecord();
+        genro.dom.setClass(this.sourceNode,'form_new_record',this.newRecord);
+
         controllerData.setItem('protect_write',this.protect_write,null,{lazySet:true});
         controllerData.setItem('protect_delete',this.protect_delete,null,{lazySet:true});
         controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});

@@ -939,7 +939,7 @@ dojo.declare('gnr.GenroClient', null, {
     addParamsToUrl: function(url, params) {
         var parameters = [];
         for (var key in params) {
-            if(params[key]){
+            if(params[key]!==null){
                 parameters.push(key + '=' + encodeURIComponent(params[key]));
             }
         }
