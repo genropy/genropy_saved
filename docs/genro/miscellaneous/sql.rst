@@ -41,11 +41,13 @@ columns
     It is a string of column names and :ref:`sql_relation_field`\s separated by comma
     (you can use a list or a tuple, too). Each column's name has to be prefixed with '$'.
     To select all the columns use the char '*'. The ``columns`` parameter also accepts
-    special statements such as COUNT, DISTINCT and SUM.
+    special statements such as "COUNT", "DISTINCT" and "SUM".
     
     Example::
     
         columns='*'
+        
+        add??? (other examples...)
         
 .. _sql_where:
 
