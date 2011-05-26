@@ -114,7 +114,11 @@ class Mixin(BaseComponent):
                                             var selected = sc.getSelectedIndex();
                                             var node = genro._data.popNode('iframes.'+$1);
                                             var treeItem = genro.getDataNode(node.attr.fullpath);
-                                            treeItem.setAttribute('labelClass',treeItem.attr.labelClass.replace('menu_existing_page',''));
+                                            if(treeItem){
+                                                var itemclass = treeItem.attr.labelClass.replace('menu_existing_page','');
+                                                itemclass = itemclass.replace('menu_current_page','');
+                                                treeItem.setAttribute('labelClass',itemclass);
+                                            }
                                             this.getValue().popNode($1);
                                             selected = selected>=sc.getChildren().length? selected-1:selected;
                                             PUT selectedFrame = null;
