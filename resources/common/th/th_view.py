@@ -76,8 +76,11 @@ class TableHandlerView(BaseComponent):
                         virtualStore=None,condition=None):
         table = table or self.maintable
         mangler = frame.getInheritedAttributes()['th_root']
-        order_by=self._th_hook('order',mangler=mangler)()
-        frame.data('.grid.sorted',order_by)
+        sortedBy=self._th_hook('order',mangler=mangler)()
+        if sortedBy :
+            if not filter(lambda e: e.startswith('pkey'),sortedBy.split(',')):
+                sortedBy = sortedBy +',pkey' 
+        frame.data('.grid.sorted',sortedBy or 'pkey')
         if not condition:
             condition = self._th_hook('condition',mangler=mangler)()
         
