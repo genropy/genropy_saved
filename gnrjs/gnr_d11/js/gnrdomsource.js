@@ -950,9 +950,13 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     
     setHiderLayer:function(kw,hide){
         if(hide){
+            this.unwatch('isVisibile')
             this.getValue().popNode('hiderNode');
         }else if (!this.getValue().getNode('hiderNode')){
-            return genro.dom.makeHiderLayer(this,kw);
+            var that = this;
+            this.watch('isVisibile',
+                        function(){return genro.dom.isVisible(that);},
+                        function(){genro.dom.makeHiderLayer(that,kw);});
         }        
     },
     
@@ -1236,6 +1240,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             return true;
         }
     },
+    unwatch:function(watchId){
+        var wasWatched = this.watches && this.watches[watchId];
+        if (wasWatched){
+            clearInterval(wasWatched);
+            delete this.watches.watchId;
+        }
+    },
+    
     watch: function(watchId,conditionCb,action,delay){
         var delay=delay || 200;
         if (conditionCb()){
