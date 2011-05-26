@@ -939,7 +939,9 @@ dojo.declare('gnr.GenroClient', null, {
     addParamsToUrl: function(url, params) {
         var parameters = [];
         for (var key in params) {
-            parameters.push(key + '=' + encodeURIComponent(params[key]));
+            if(params[key]){
+                parameters.push(key + '=' + encodeURIComponent(params[key]));
+            }
         }
         var sep = (url.indexOf('?') != -1) ? '&' : '?';
         return url + sep + parameters.join('&');
