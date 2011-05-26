@@ -54,6 +54,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         if(kw.workInProgress){
             urlPars.workInProgress = true;
         }
+        objectUpdate(urlPars,objectExtract(kw,'url_*'));
         return genro.addParamsToUrl(url,urlPars);
     },
     
