@@ -173,7 +173,7 @@ class DbModel(object):
         """add???
         
         :param pkg: package name
-        :param table: table name
+        :param table: the :ref:`genro_table` name
         :param column: add???
         """
         tblobj = self.table(table, pkg=pkg)

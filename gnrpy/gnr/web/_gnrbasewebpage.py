@@ -248,9 +248,11 @@ class GnrBaseWebPage(GnrObject):
         :param selectionName: add???. Default value is ``None``
         :param selectedRowidx: add???. Default value is ``None``
         :param filterCb: add???. Default value is ``None``
-        :param columns: add???. Default value is ``None``
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``
         :param condition: add???. Default value is ``None``
-        :param table: table name. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param condition_args: add???. Default value is ``None``
         :returns: add???
         """
@@ -456,7 +458,7 @@ class GnrBaseWebPage(GnrObject):
     def rpc_loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
         """add???
         
-        :param table: table name. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param pkey: the record primary key. Default value is ``None``
         :param recordGetter: add???. Default value is ``app.getRecord``
         :returns: add???
@@ -470,7 +472,7 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param data: add???
-        :param table: table name. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param _nocommit: boolean. add???. Default value is ``False``
         :param rowcaption: add???. Default value is ``None``
         :param _autoreload: boolean. add???. Default value is ``False``
@@ -520,7 +522,7 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param data: add???
-        :param table: table name. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :returns: add???
         """
         maintable = getattr(self, 'maintable')
@@ -543,7 +545,7 @@ class GnrBaseWebPage(GnrObject):
         """Method for deleting a single record from a given tablename 
         and from a record or its pkey
         
-        :param table: the table from which you want to delete a single record
+        :param table: the :ref:`genro_table` from which you want to delete a single record
         :param pkey: the record primary key. Default value is ``None``
         :returns: if it works, returns the primary key and the deleted attribute.
                   Else, return an exception
@@ -565,7 +567,7 @@ class GnrBaseWebPage(GnrObject):
         """Method for deleting a single record from a given tablename 
         and from a record or its pkey
         
-        :param table: the table from which you want to delete a single record
+        :param table: the :ref:`genro_table` from which you want to delete a single record
         :param pkeys: 
         :returns: if it works, returns the primary key and the deleted attribute.
                   Else, return an exception
@@ -585,7 +587,7 @@ class GnrBaseWebPage(GnrObject):
     def setLoadingParameters(self, table, **kwargs):
         """add???
         
-        :param table: table name
+        :param table: the :ref:`genro_table` name
         """
         self.pageSource().dataFormula('gnr.tables.%s.loadingParameters' % table.replace('.', '_'),
                                       '', _onStart=True, **kwargs)

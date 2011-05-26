@@ -706,7 +706,7 @@ class Table_recordtag_link(TableBase):
     def getTagLinks(self, table, record_id):
         """add???
         
-        :param table: table name
+        :param table: the :ref:`genro_table` name
         :param record_id: add???
         :returns: add???
         """
@@ -724,7 +724,7 @@ class Table_recordtag_link(TableBase):
     def getTagDict(self, table):
         """add???
         
-        :param table: table name
+        :param table: the :ref:`genro_table` name
         :returns: add???
         """
         currentEnv = self.db.currentEnv
@@ -738,7 +738,7 @@ class Table_recordtag_link(TableBase):
     def assignTagLink(self, table, record_id, tag, value):
         """add???
         
-        :param table: table name
+        :param table: the :ref:`genro_table` name
         :param record_id: add???
         :param tag: add???
         :param value: add???
@@ -772,7 +772,7 @@ class Table_recordtag_link(TableBase):
     def getTagLinksBag(self, table, record_id):
         """add???
         
-        :param table: table name
+        :param table: the :ref:`genro_table` name
         :param record_id: add???
         :returns: add???
         """
@@ -790,7 +790,7 @@ class Table_recordtag_link(TableBase):
     def getCountLinkDict(self, table, pkeys):
         """add???
         
-        :param table: table name
+        :param table: the :ref:`genro_table` name
         :param pkeys: add???
         :returns: add???
         """
@@ -800,7 +800,7 @@ class Table_recordtag_link(TableBase):
     def tagForeignKey(self, table):
         """add???
         
-        :param table: table name
+        :param table: the :ref:`genro_table` name
         :returns: add???
         """
         tblobj = self.db.table(table)

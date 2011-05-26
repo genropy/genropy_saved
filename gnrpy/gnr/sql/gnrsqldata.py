@@ -53,7 +53,7 @@ class SqlCompiledQuery(object):
        
     def __init__(self, maintable, relationDict=None):
         """:param maintable: the name of the main table to query.
-        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_field`. ``dict(myname='@relname.colname')``
+        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
                              ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
                              ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
                              Default value is ``None``"""
@@ -370,26 +370,15 @@ class SqlQueryCompiler(object):
                       addPkeyColumn=True):
         """Prepare the SqlCompiledQuery to get the sql query for a selection.
         
-        :param columns: the :ref:`genro_columns` to be returned by the sql select. It is a string of comma-separated columns.
-                        It is a standard sql column clause and may contain sql functions and AS operators.
-                        In addition to sql expressions, a column can be:
-                        
-                        * ``$colname``: a column of the main table or a key of the relationDict
-                        * ``@relname.colname``: a related column
-                        * ``sqlfunction($colname, @relname.colname)``: $ and @ syntax can be used inside sql functions too 
-                        * ``*``: all the columns of the main table (with or without the bagFields)
-                        * ``*filter``: all columns of the main table filtered (see expandMultipleColumns)
-                        * ``*@relname.filter``: all columns of a related table filtered (see expandMultipleColumns)
-                        
-                        Default value is ``''``
-        
-        :param where: the sql "WHERE" clause. Database columns can be use the syntax ``$colname`` and ``@relname.colname``.
-                      Parameters for the query starts with ``:``, like ``@relname.colname=:param1``.
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``''``
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
                       Default value is ``''``
-        :param order_by: the sql "ORDER BY" clause. Database columns can be use the syntax ``$colname``
-                         and ``@relname.colname``. Default value is ``''``
-        :param distinct: boolean, ``True`` for getting a SELECT DISTINCT. Default value is ``''``
-        :param limit: number, the sql "LIMIT" clause. Default value is ``''``
+        :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                         :ref:`sql_order_by` section. Default value is ``''``
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". Default value is ``''``
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. Default value is ``''``
         :param offset: the same of the sql "OFFSET". Default value is ``''``
         :param group_by: the sql GROUP BY clause. Database columns can use the syntax ``$colname`` and ``@relname.colname``.
                          Use group_by='*' when all columns are aggregate functions in order to avoid the automatic insertion 
@@ -399,7 +388,7 @@ class SqlQueryCompiler(object):
                        and ``@relname.colname``. Default value is ``''``
         :param for_update: boolean. If ``True``, lock the selected records of the main table (SELECT ... FOR UPDATE OF ...).
                            Default value is ``False``
-        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_field`. ``dict(myname='@relname.colname')``
+        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
                              ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
                              ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
                              Default value is ``None``
@@ -559,11 +548,12 @@ class SqlQueryCompiler(object):
         
         :param lazy: add???. Default value is ``None``
         :param eager: add???. Default value is ``None``
-        :param where: add???. Default value is ``None``
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
+                      Default value is ``None``
         :param bagFields: boolean, True to include fields of type Bag ('X') when columns is * or contains *@relname.filter
                           Default value is ``True``
         :param for_update: add???. Default value is ``False``
-        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_field`. ``dict(myname='@relname.colname')``
+        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
                              ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
                              ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
                              Default value is ``None``
@@ -817,16 +807,20 @@ class SqlQuery(object):
     The ``__init__`` method passes:
     
     :param dbtable: the :ref:`genro_table` on which the query will be focused on
-    :param columns: comma separated list of :ref:`genro_columns`. Default value is ``None``
-    :param where: the same of the sql "WHERE". Default value is ``None``
-    :param order_by: the same of the sql "ORDER BY". Default value is ``None``
-    :param distinct: the same of the sql "DISTINCT". Default value is ``None``
-    :param limit: the same of the sql "LIMIT". Default value is ``None``
+    :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                    clause in the traditional sql query. For more information, check the
+                    :ref:`sql_columns` section. Default value is ``None``
+    :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
+                  Default value is ``None``
+    :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                     :ref:`sql_order_by` section. Default value is ``None``
+    :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". Default value is ``None``
+    :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. Default value is ``None``
     :param offset: the same of the sql "OFFSET". Default value is ``None``
     :param group_by: the same of the sql "GROUP BY". Default value is ``None``
     :param having: the same of the sql "HAVING". Default value is ``None``
     :param for_update: boolean. add???. Default value is ``False``
-    :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_field`. ``dict(myname='@relname.colname')``
+    :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
                          ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
                          ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
                          Default value in ``__init__`` is ``None``
@@ -1185,9 +1179,11 @@ class SqlSelection(object):
             * `mode='data'`: add???
             * `mode='tabtext'`: add???
             
-        :param columns: comma separated list of :ref:`genro_columns`. Default value is ``None``
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``
         :param offset: the same of the sql "OFFSET". Default value is ``0``
-        :param limit: the same of the sql "LIMIT". Default value is ``None``
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. Default value is ``None``
         :param filterCb: add???. Default value is ``None``
         :param subtotal_rows: add???. Default value is ``None``
         :param formats: add???. Default value is ``None``
@@ -1436,7 +1432,7 @@ class SqlSelection(object):
         :param group_by: add???. Default value is ``None``
         :param sum: add???. Default value is ``None``
         :param collect: add???. Default value is ``None``
-        :param distinct: add???. Default value is ``None``
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". Default value is ``None``
         :param keep: add???. Default value is ``None``
         :param key: add???. Default value is ``None``
         :param captionCb: add???. Default value is ``None``
@@ -1467,7 +1463,7 @@ class SqlSelection(object):
         :param group_by: add???. Default value is ``None``
         :param sum: add???. Default value is ``None``
         :param collect: add???. Default value is ``None``
-        :param distinct: add???. Default value is ``None``
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". Default value is ``None``
         :param keep: add???. Default value is ``None``
         :param key: add???. Default value is ``None``
         """
@@ -1502,9 +1498,11 @@ class SqlSelection(object):
         """add???
         
         :param mode: add???
-        :param columns: comma separated list of :ref:`genro_columns`. Default value is ``None``
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``
         :param offset: the same of the sql "OFFSET". Default value is ``0``
-        :param limit: the same of the sql "LIMIT". Default value is ``None``
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. Default value is ``None``
         :param filterCb: add???. Default value is ``None``
         :param subtotal_rows: add???. Default value is ``None``
         :param formats: add???. Default value is ``None``
@@ -1519,8 +1517,9 @@ class SqlSelection(object):
         """add???
            
         :param path: add???
-        :param columns: comma separated list of :ref:`genro_columns`. Default value is ``None``
-        """
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``"""
         if isinstance(columns, basestring):
             columns = gnrstring.splitAndStrip(columns, ',')
             

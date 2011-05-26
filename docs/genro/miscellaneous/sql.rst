@@ -17,12 +17,12 @@ sql relation
     
     DEF: a path with @ is called 
     
-.. _sql_relation_field:
+.. _sql_relation_path:
 
-relation field
-==============
+relation path
+=============
 
-    add??? A relation field is path ... e.g: ``@agenda_id.staff``
+    add??? A relation field is ... e.g: ``@agenda_id.staff``
     
     Relation fields uses a syntax based on the char '@' and 'dot notation'. (e.g. "@member_id.name").
     
@@ -36,12 +36,27 @@ sql attributes
 columns
 -------
 
-    Represent the "SELECT" clause in the traditional sql query.
+    The ``columns`` attribute represents the :ref:`table_columns` to be returned by the
+    "SELECT" clause in the traditional sql query.
     
-    It is a string of column names and :ref:`sql_relation_field`\s separated by comma
-    (you can use a list or a tuple, too). Each column's name has to be prefixed with '$'.
-    To select all the columns use the char '*'. The ``columns`` parameter also accepts
-    special statements such as "COUNT", "DISTINCT" and "SUM".
+    It is a string of column names and :ref:`sql_relation_path`\s separated by comma
+    (you can use a list or a tuple, too).
+    
+    It is a standard sql column clause and may contain sql functions and the "AS" operator.
+    In addition to sql expressions, a column can be:
+    
+    * ``$colname``: a column of the main table or a key of the relationDict
+    * ``@relname.colname``: a related column
+    * ``sqlfunction($colname, @relname.colname)``: ``$`` and ``@`` syntax can be used inside
+      sql functions too 
+    * ``*``: all the columns of the main table (with or without the bagFields)
+    * ``*filter``: all columns of the main table filtered (check the :meth:`expandMultipleColumns`)
+    * ``*@relname.filter``: all columns of a related table filtered (see expandMultipleColumns)
+    
+    To select all the columns use the char '*'.
+    
+    The ``columns`` parameter also accepts special statements such as "COUNT", "DISTINCT"
+    and "SUM".
     
     Example::
     
@@ -49,10 +64,73 @@ columns
         
         add??? (other examples...)
         
+.. _sql_distinct:
+
+distinct
+--------
+
+    The sql "DISTINCT" clause.
+    
+    Boolean, ``True`` for getting a "SELECT DISTINCT".
+    
+    Example::
+    
+        add???
+        
+.. _group_by:
+
+group_by
+--------
+
+    The sql "GROUP BY" clause. Database columns can use the syntax ``$colname`` and ``@relname.colname``.
+    Use ``group_by='*'`` when all columns are aggregate (add???) functions in order to avoid
+    the automatic insertion of the pkey field in the columns.
+    
+    Example::
+    
+        add???
+    
+.. _sql_order_by:
+
+order_by
+--------
+
+    The sql "ORDER BY" clause. A clause that returns the result set in a sorted order
+    based on specified columns.
+    
+    Database columns can be use the syntax ``$colname`` and ``@relname.colname``.
+    
+    Example::
+    
+        add???
+    
 .. _sql_where:
 
 where
 -----
 
-    add???
+    The ``where`` attribute represents the table :ref:`table_columns` to be returned by the
+    "SELECT" clause in the traditional sql query.
+    
+    Database columns can use one of the following syntaxes:
+    
+    * ``$colname``
+      
+      where ``colname`` is the name a table column
+    * ``@relname.colname``
+      
+      where ``relname`` is a :ref:`sql_relation_path`, ``colname`` is the name of the column
+    
+    Query parameters have to start with colon (``:``), like::
+    
+        ``@relname.colname=:param1``.
+        
+    where ``param1`` is the query parameter.
+    
+    .. note:: we suggest not to use hardcoded values into the where clause, but refer to
+              variables passed to the selection method as kwargs.
+              
+              Examples::
+              
+                where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas
     

@@ -466,7 +466,7 @@ class GnrSqlDb(GnrObject):
         """An sql query. For more information, check the :meth:`query() <gnr.sql.gnrsqltable.SqlTable.query()>`
         method of the gnrsqltable.SqlTable.
         
-        :param table: the table on which the query will be executed"""
+        :param table: the :ref:`genro_table` on which the query will be executed"""
         return self.table(table).query(**kwargs)
         
     def colToAs(self, col):
@@ -482,7 +482,7 @@ class GnrSqlDb(GnrObject):
                          translator=None, **kwargs):
         """add???
         
-        :param table: table name
+        :param table: the :ref:`genro_table` name
         :param prevCaption: add???. Default value is ``''``
         :param prevRelation: add???. Default value is ``''``
         :param translator: add???. Default value is ``None``

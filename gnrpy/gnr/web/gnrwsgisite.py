@@ -1047,7 +1047,7 @@ class GnrWsgiSite(object):
         This is typically used to customize prints and batch jobs for a particular installation
         
         :param page: add???. Default value is ``None``
-        :param table: table name. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param respath: add???. Default value is ``None``
         :param class_name: add???. Default value is ``None``
         :param runKwargs: add???. Default value is ``None``
@@ -1064,7 +1064,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param page: add???. Default value is ``None``
-        :param table: table name. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param respath: add???. Default value is ``None``
         :param class_name: add???. Default value is ``None``
         :returns: add???
