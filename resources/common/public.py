@@ -477,7 +477,7 @@ class TableHandlerMain(BaseComponent):
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
             bar = form.bottom.slotBar(slots,margin_bottom='2px')
-            bar.revertbtn.button('!!Revert',action='this.form.publish("revert")',disabled='^.controller.changed?=!#v')
+            bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
             bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save")')
             
