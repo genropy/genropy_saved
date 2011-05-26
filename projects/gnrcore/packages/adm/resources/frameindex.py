@@ -85,9 +85,8 @@ class Mixin(BaseComponent):
         userPref = sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',
                             connect_onclick='PUBLISH user_preference',zoomUrl='adm/user_preference',pkey='User preference')
         sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px')
-        sb.frameurl.div().a(innerHTML='==_iframes?_iframes.getNode(_selectedFrame).attr.url:"";',_tags='_DEV_',href='==_iframes?_iframes.getNode(_selectedFrame).attr.url:"";'
-                                ,_iframes='=iframes',_selectedFrame='^selectedFrame')
-        
+        formula = '==(_iframes && _iframes.len()>0)?_iframes.getNode(_selectedFrame).attr.url:"";'
+        sb.frameurl.div().a(innerHTML=formula,_tags='_DEV_',href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame')
         appPref.dataController("""genro.dlg.zoomPalette(pane,null,{top:'10px',left:'10px',
                                                         title:preftitle,height:'450px', width:'800px',
                                                         palette_transition:null,palette_nodeId:'mainpreference'})""",
