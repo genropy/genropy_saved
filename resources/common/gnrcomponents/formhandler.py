@@ -153,7 +153,7 @@ class FormHandler(BaseComponent):
 
     @struct_method          
     def fh_slotbar_form_revert(self,pane,**kwargs):
-        pane.formButton('!!Revert',topic='revert',iconClass="tb_button db_revert", parentForm=True,
+        pane.formButton('!!Revert',topic='reload',iconClass="tb_button db_revert", parentForm=True,
                        disabled='^.controller.changed?=!#v')
     
     @struct_method          
