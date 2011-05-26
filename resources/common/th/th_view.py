@@ -202,11 +202,11 @@ class TableHandlerView(BaseComponent):
                                         _autoselect=True,
                                         row_class='^.c_0?css_class', position='relative',
                                         disabled='==(_op in genro.querybuilder("%s").helper_op_dict)'  %mangler, _op='^.c_0?op',
+                                        connect_onclick="genro.querybuilder('%s').getHelper(this);" %mangler,
                                         validate_onAccept='genro.queryanalyzer("%s").checkQueryLineValue(this,value);' %mangler,
                                         _class='st_conditionValue')
 
         value_textbox.div('^.c_0', hidden='==!(_op in  genro.querybuilder("%s").helper_op_dict)' %mangler,
-                          connect_onclick="if(GET .c_0?op in genro.querybuilder('%s').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='c_0';}" %mangler,
                           _op='^.c_0?op', _class='helperField')
                           
         fb.slotButton(label='!!Run query',publish='runbtn',

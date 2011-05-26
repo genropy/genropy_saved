@@ -13,28 +13,17 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var that = this;
         if (page){
             sourceNode.setRelativeData('selectedFrame',name);
-            if(kw.onFrameSelected){
-                kw.onFrameSelected(page.connectedIframe);
-            }
         }
         else{
              var root = genro.src.newRoot();
              var bc = root._('BorderContainer',name,{pageName:name,title:label});
              var center = bc._('ContentPane',{'region':'center','overflow':'hidden'});
-             var iframe = center._('iframe',{'height':'100%','width':'100%','border':0,'id':'iframe_'+name,
-                                            onStarted:function(){that.onIframeStarted(this,name,kw)}});
+             var iframe = center._('iframe',{'height':'100%','width':'100%','border':0,'id':'iframe_'+name});
              var node = root.popNode('#0');
              sc.setItem(node.label,node);
              sourceNode.setRelativeData('iframes.'+name,null,{'fullname':label,pageName:name,fullpath:kw.fullpath,url:url});
              sourceNode.setRelativeData('selectedFrame',name);
              setTimeout(function(){iframe.getParentNode().domNode.src = url;},1);
-        }
-    },
-    
-    onIframeStarted:function(iframe,name,kw){
-        this.stack.getItem(name).connectedIframe = iframe;
-        if (kw.onFrameSelected){
-            kw.onFrameSelected(iframe);
         }
     },
     

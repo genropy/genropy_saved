@@ -457,9 +457,8 @@ class TableHandlerMain(BaseComponent):
             self._usePublicBottomMessage(th.form)
         return th
         
-    def rpc_form(self, root, th_pkey='*norecord*',**kwargs):
+    def rpc_form(self, root,**kwargs):
         kwargs.update(self.getCallArgs('pkey'))
-        kwargs['pkey'] = kwargs['pkey']
         form = self._th_prepareForm(root,**kwargs)
         if hasattr(self,'th_form'):
             self.th_form(form)

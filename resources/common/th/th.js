@@ -351,6 +351,15 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         }
         this.buildQueryPane();
     },
+    
+    getHelper:function(sourceNode){
+        var op = sourceNode.getRelativeData(sourceNode.attr.value+'?op');
+        if(op in this.helper_op_dict){
+            console.log('get helper for',op);
+        }
+        
+        //if(GET .c_0?op in genro.querybuilder('%s').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='c_0';}
+    },
 
     _buildQueryRow: function(tr, node, i, level) {
         var relpath = '.' + node.label;
@@ -398,7 +407,12 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             }
             input_attrs.position = 'relative';
             input_attrs.padding_right = '10px';
-            input_attrs.connect_onclick = "var op = GET " + relpath + "?op;if(op in genro.querybuilder('"+this.mangler+"').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='" + relpath.slice(1) + "';}";
+            that = this;
+            input_attrs.connect_onclick = function(){
+                that.getHelper(this);
+            }
+            
+            //"var op = GET " + relpath + "?op;if(op in genro.querybuilder('"+this.mangler+"').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='" + relpath.slice(1) + "';}";
             input_attrs.disabled = "==(_op in _helperOp);";
             input_attrs._helperOp = this.helper_op_dict;
             input_attrs._op = '^' + relpath + '?op';
