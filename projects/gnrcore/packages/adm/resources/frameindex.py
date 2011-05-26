@@ -61,7 +61,7 @@ class Mixin(BaseComponent):
                                             this.setRelativeData("selectedFrame",pageName);
                                             """,margin_left='20px',display='inline-block')
         tabroot.div()
-        pane.dataController("frameIndex.createTablist(tabroot,data);",data="^iframes",tabroot=tabroot)
+        pane.dataController("genro.framedIndexManager.createTablist(tabroot,data);",data="^iframes",tabroot=tabroot)
         pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
                                     if(iframetab){
                                         genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
@@ -94,21 +94,11 @@ class Mixin(BaseComponent):
                                                         height:'300px', width:'400px',palette_transition:null,
                                                         palette_nodeId:'userpreference'})""",
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
-        
-    def prepareBottom_xx(self,pane):
-        pane.attributes.update(dict(overflow='hidden',gradient_from='gray',gradient_to='silver',gradient_deg=-90,height='30px'))
-        bc = pane.borderContainer(margin_top='4px',_class='footer') 
-        leftbar = bc.contentPane(region='left',overflow='hidden').div(display='inline-block', margin_left='10px')  
-        for btn in ['appPref','appName']:
-            getattr(self,'btn_%s' %btn)(leftbar)
-                
-        rightbar = bc.contentPane(region='right',overflow='hidden').div(display='inline-block', margin_right='10px')
-        for btn in ['userPref','user','logout']:
-            getattr(self,'btn_%s' %btn)(rightbar)
-
-        bc.contentPane(region='center')
+                            
     def prepareCenter(self,pane):
-        sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack')
+        sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
+                                onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);')
+        sc.dataController("setTimeout(function(){genro.framedIndexManager.selectIframePage(selectIframePage[0])},1);",subscribe_selectIframePage=True)
         scattr = sc.attributes
         scattr['subscribe_reloadFrame'] = """var frame = dojo.byId("iframe_"+$1);
                                                     var src = frame.src;
@@ -130,9 +120,7 @@ class Mixin(BaseComponent):
         page = self.pageSource()
         if self.index_url:
             sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')
-        page.dataController("""
-            setTimeout(function(){frameIndex.selectIframePage(sc,name,label,file,table,formResource,viewResource,fullpath,_menutree__selected[0])},1);
-        """,subscribe__menutree__selected=True,sc=sc)
+        page.dataController("genro.publish('selectIframePage',_menutree__selected[0]);",subscribe__menutree__selected=True)
         
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='200px',datapath='left',margin_right='-1px',overflow='hidden'))
