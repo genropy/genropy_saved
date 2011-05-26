@@ -67,6 +67,9 @@ class Mixin(BaseComponent):
                                         genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
                                         var node = genro._data.getNode('iframes.'+page);
                                         var treeItem = genro.getDataNode(node.attr.fullpath);
+                                        if(!treeItem){
+                                            return;
+                                        }
                                         var labelClass = treeItem.attr.labelClass;
                                         labelClass = selected? labelClass+ ' menu_current_page': labelClass.replace('menu_current_page','')
                                         treeItem.setAttribute('labelClass',labelClass);
