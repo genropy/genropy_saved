@@ -154,7 +154,7 @@ class Public(BaseComponent):
     @struct_method
     def public_publicRoot_caption(self,pane,title='',**kwargs):   
         pane.div(title, _class='pbl_title_caption',
-                    subscribe_public_caption='this.domNode.innerHTML=$1;',
+                    subscribe_setWindowTitle='this.domNode.innerHTML=$1;',
                     draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',**kwargs)
         
     @struct_method
@@ -441,7 +441,8 @@ class TableHandlerMain(BaseComponent):
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         th_options.update(self.th_options())
         th_options.update(th_kwargs)
-        return self._th_main(root,th_options=th_options,**kwargs)
+        th = self._th_main(root,th_options=th_options,**kwargs)
+        return th
     
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = th_options.get('formInIframe')
@@ -451,13 +452,22 @@ class TableHandlerMain(BaseComponent):
             root = root.rootContentPane(title=self.tblobj.name_long)
         else:
             root.attributes.update(tag='ContentPane',_class=None)
-        th = getattr(root,'%sTableHandler' %th_options.get('widget','stack'))(table=self.maintable,datapath=self.maintable.replace('.','_'),**kwargs)
+        thwidget = th_options.get('widget','stack')
+        th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=self.maintable.replace('.','_'),**kwargs)
         th.attributes.update(dict(border_left='1px solid gray'))
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
+        self.__th_title(th,thwidget)
         if insidePublic and not formInIframe:
             self._usePublicBottomMessage(th.form)
         return th
         
+    
+    def __th_title(self,th,widget):
+        if widget=='stack':
+            th.dataFormula('gnr.windowTitle',"(selectedPage=='view'?viewtitle:formtitle)||currTitle",
+                            formtitle='^.form.controller.title',viewtitle='^.view.title',
+                            selectedPage='^.selectedPage',currTitle='=gnr.windowTitle')    
+    
     def rpc_form(self, root,**kwargs):
         kwargs.update(self.getCallArgs('pkey'))
         form = self._th_prepareForm(root,**kwargs)

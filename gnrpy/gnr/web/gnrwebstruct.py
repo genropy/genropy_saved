@@ -315,11 +315,14 @@ class GnrDomSrc(GnrStructData):
                 storeType='Collection'
             else:
                 storeType='Item'
-                
         if table:
             self.attributes['table'] = table
         elif 'table' in self.attributes:
-            table = self.attributes['table']        
+            table = self.attributes['table']
+        if table:
+            tblattr = dict(self.page.db.table(table).attributes)
+            tblattr.pop('tag',None)
+            self.data('.controller.table',table,**tblattr)
         return self.child('formStore',childname='store',storeCode=storeCode,table=table,
                             nodeId = nodeId or '%s_store' %storeCode,storeType=storeType,
                             parentStore=parentStore,handler=handler,**kwargs)

@@ -131,7 +131,7 @@ class TableHandlerForm(BaseComponent):
 
         pane.dataController("""var listtitle=rowtotal?plural+' : '+rowcount+'/'+rowtotal:plural+' : '+rowcount                               
                                var titlebar=(selectedPage == 0)?listtitle:formtitle;
-                               genro.publish('public_caption',titlebar);
+                               SET gnr.windowTitle = titlebar;
                                SET list.title_bar=titlebar;
                                """,
                          selectedPage='^selectedPage', plural='^list.plural', rowcount='^list.rowcount',

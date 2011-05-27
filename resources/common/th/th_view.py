@@ -90,6 +90,9 @@ class TableHandlerView(BaseComponent):
             querybase = self._th_hook('query',mangler=mangler)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
+        frame.dataFormula('.title','name_plural+": "+showed+"/"+total',
+                            name_plural='=.table?name_plural',
+                            showed='^.count.showed',total='^.count.total')
         frame.dataFormula('.query.where', 'q.deepCopy();',q='=.baseQuery',_onStart=True)
 
 
@@ -215,7 +218,9 @@ class TableHandlerView(BaseComponent):
         
     def _th_listController(self,pane,table=None):
         table = table or self.maintable
-        pane.data('.table',table)
+        tblattr = dict(self.db.table(table).attributes)
+        tblattr.pop('tag',None)
+        pane.data('.table',table,**tblattr)
         pane.data('.excludeLogicalDeleted', True)
         pane.data('.showDeleted', False)
 

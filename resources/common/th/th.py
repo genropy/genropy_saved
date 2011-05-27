@@ -160,6 +160,7 @@ class TableHandler(BaseComponent):
         root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
+
 class ThLinker(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method 
@@ -234,6 +235,5 @@ class ThLinker(BaseComponent):
     @struct_method          
     def th_thIframePalette(self,pane,**kwargs):
         return pane.child('ThIframePalette',**kwargs)
-        
-        
+
 

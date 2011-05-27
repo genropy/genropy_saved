@@ -1,6 +1,6 @@
 class GnrCustomWebPage(object):
     css_theme = 'textmate'
-
+    
     def main_root(self, root, bpath='', **kwargs):
         self.createCss(root)
         root.data('gnr.windowTite', 'Dtatabase Structure')
