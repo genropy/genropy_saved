@@ -35,6 +35,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this._main.setBackRef();
         this._main.subscribe('sourceTriggers', {'any':dojo.hitch(this, "nodeTrigger")});
         this._subscribedNodes = {};
+        this._started=false;
         this._index = {};
         this.pendingBuild = [];
         this.afterBuildCalls = [];
@@ -289,8 +290,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     },
 
     startUp:function(source) {//nome troppo generico?
+      
         this._main.setItem('main', source);
         this.sourceRoot = source;
+        this._started=true;
 
     },
     setInRootContainer:function(label, item) {

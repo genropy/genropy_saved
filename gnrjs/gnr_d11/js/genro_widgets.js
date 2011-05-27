@@ -578,8 +578,8 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
     mixin_setDropTarget:function(value) {
         this.sourceNode.dropTarget = value;
     },
-    validatemixin_validationsOnChange: function(sourceNode, value) {
-        var result = genro.vld.validate(sourceNode, value, true);
+    validatemixin_validationsOnChange: function(sourceNode, value, validateOnly) {
+        var result = genro.vld.validate(sourceNode, value, true, validateOnly);
         if (result['modified']) {
             sourceNode._modifying = true;
             sourceNode.widget.setValue(result['value']);

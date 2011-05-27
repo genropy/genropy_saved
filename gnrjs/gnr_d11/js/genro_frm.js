@@ -929,10 +929,12 @@ dojo.declare("gnr.GnrValidator", null, {
         var validations = this.getCurrentValidations(sourceNode);
         return this._validate(sourceNode, value, validations, ['notnull']);
     },
-    validate: function(sourceNode, value, userChange) {
+    validate: function(sourceNode, value, userChange,validateOnly) {
         var validations = this.getCurrentValidations(sourceNode);
         var result = this._validate(sourceNode, value, validations, this.validationTags, userChange); //userChange added by sporcari
-        this.exitValidation(result, sourceNode, validations, userChange);
+        if(!validateOnly){
+            this.exitValidation(result, sourceNode, validations, userChange);
+        }
         return result;
     },
     _validate: function(sourceNode, value, validations, validationTags, userChange) {
