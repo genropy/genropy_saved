@@ -585,22 +585,21 @@ class Bag(GnrObject):
         
     def setdefault(self, path, default=None):
         """If *path* is in the Bag, return its value. If not, insert in the *path* the default value and return it.
-        default defaults to ``None``.
-        """
+        default defaults to ``None``."""
         node = self.getNode(path)
         if not node:
             self[path] = default
         else:
             return node.value
-
+            
     def toTree(self, group_by, caption=None, attributes="*"):
         """It transforms a flat Bag into a hierarchical Bag and returns it.
         
         :param group_by: list of keys.
-        :param caption: the attribute to use for the leaf key. If not specified, it uses the original key. Default value is ``None``.
-        :param attributes: keys to copy as attributes of the leaves. Default value is ``*`` (= select all the attributes)
-        """
-        
+        :param caption: the attribute to use for the leaf key. If not specified, it uses the original key.
+                        Default value is ``None``.
+        :param attributes: keys to copy as attributes of the leaves. Default value
+                           is ``*`` (= select all the attributes)"""
         if isinstance(group_by, str) or isinstance(group_by, unicode):
             group_by = group_by.split(',')
             

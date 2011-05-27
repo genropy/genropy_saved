@@ -77,12 +77,20 @@ distinct
     
         add???
         
-.. _group_by:
+.. _sql_group_by:
 
 group_by
 --------
 
-    The sql "GROUP BY" clause. Database columns can use the syntax ``$colname`` and ``@relname.colname``.
+    The sql "GROUP BY" clause. Database columns can use one of the following syntaxes:
+    
+    * ``$colname``
+      
+      where ``colname`` is the name a table column
+    * ``@relname.colname``
+      
+      where ``relname`` is a :ref:`sql_relation_path`, ``colname`` is the name of the column.
+      
     Use ``group_by='*'`` when all columns are aggregate (add???) functions in order to avoid
     the automatic insertion of the pkey field in the columns.
     
@@ -90,6 +98,20 @@ group_by
     
         add???
     
+.. _sql_having:
+
+having
+------
+
+    The sql "HAVING" clause. Database columns can use one of the following syntaxes:
+    
+    * ``$colname``
+      
+      where ``colname`` is the name a table column
+    * ``@relname.colname``
+      
+      where ``relname`` is a :ref:`sql_relation_path`, ``colname`` is the name of the column.
+      
 .. _sql_order_by:
 
 order_by
@@ -98,7 +120,14 @@ order_by
     The sql "ORDER BY" clause. A clause that returns the result set in a sorted order
     based on specified columns.
     
-    Database columns can be use the syntax ``$colname`` and ``@relname.colname``.
+    Database columns can use one of the following syntaxes:
+    
+    * ``$colname``
+      
+      where ``colname`` is the name a table column
+    * ``@relname.colname``
+      
+      where ``relname`` is a :ref:`sql_relation_path`, ``colname`` is the name of the column.
     
     Example::
     
@@ -119,7 +148,7 @@ where
       where ``colname`` is the name a table column
     * ``@relname.colname``
       
-      where ``relname`` is a :ref:`sql_relation_path`, ``colname`` is the name of the column
+      where ``relname`` is a :ref:`sql_relation_path`, ``colname`` is the name of the column.
     
     Query parameters have to start with colon (``:``), like::
     

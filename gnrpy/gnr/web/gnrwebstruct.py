@@ -876,8 +876,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                       Default value is ``None``
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
                          :ref:`sql_order_by` section. Default value is ``None``
-        :param group_by: add???. Default value is ``None``
-        :param having: add???. Default value is ``None``
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
+                         Default value is ``None``
+        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
+                       Default value is ``None``
         :param columnsFromView: add???. Default value is ``None``
         :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                        check the :ref:`rpc_attributes` section
@@ -914,7 +916,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param table: the :ref:`genro_table` name. Default value is ``None``
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
                       Default value is ``None``
-        :param group_by: add???. Default value is ``None``
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
+                         Default value is ``None``
         :param storepath: add???. Default value is ``.store``
         """
         t0 = time()

@@ -428,8 +428,11 @@ class SqlTable(GnrObject):
         :param ignoreMissing: add???. Default value is ``False``
         :param virtual_columns: add???. Default value is ``None``
         :param ignoreDuplicate: add???. Default value is ``False``
-        :param bagFields: add???. Default value is ``True``
-        :param joinConditions: add???. Default value is ``None``
+        :param bagFields: boolean. If ``True``, include fields of type Bag (``X``) when columns is ``*`` or contains
+                          ``*@relname.filter``. Default value is ``True``
+        :param joinConditions: special conditions for joining related tables. See the
+                               :meth:`setJoinCondition() <gnr.sql.gnrsqldata.SqlQuery.setJoinCondition()>` method.
+                               Default value is ``None``
         :param sqlContextName: add???. Default value is ``None``
         :param for_update: add???. Default value is ``False``
         :returns: the record
@@ -500,19 +503,22 @@ class SqlTable(GnrObject):
         :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator.
                       Default value is ``None``
         :param offset: corresponding to the sql "OFFSET" operator. Default value is ``None``
-        :param group_by: corresponding to the sql "GROUP BY" operator. Default value is ``None``
-        :param having: corresponding to the sql "HAVING" operator. Default value is ``None``
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
+                         Default value is ``None``
+        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
+                       Default value is ``None``
         :param for_update: boolean. add???. Default value is ``False``
         :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
                              ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
                              ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
                              Default value is ``None``
         :param sqlparams: an optional dictionary for sql query parameters. Default value is ``None``
-        :param excludeLogicalDeleted: boolean. add???. Default value is ``True``
-        :param addPkeyColumn: boolean. add???. Default value is ``True``
+        :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                      "logical deleted". Default value is ``True``.
+        :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute. Default value is ``True``
         :param locale: add???. Default value is ``None``
         :param mode: add???. Default value is ``None``
-        :param kwargs: another way to pass sql query parameters
+        :param \*\*kwargs: another way to pass sql query parameters
         :returns: a query
         """
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
@@ -629,7 +635,8 @@ class SqlTable(GnrObject):
         
         :param condition_field: add???. Default value is ``None``
         :param condition_value: add???. Default value is ``None``
-        :param excludeLogicalDeleted: boolean. add???. Default value is ``False``
+        :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                      "logical deleted". Default value is ``False``
         :param condition_op: add???. Default value is ``=``
         """
         # if self.trigger_onDeleting:
@@ -1080,7 +1087,8 @@ class SqlTable(GnrObject):
         :param dbsource: sourcedb
         :param dbdest: destdb
         :param empty_before: boolean. add???. Default value is ``False``
-        :param excludeLogicalDeleted: boolean. add???. Default value is ``True``
+        :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                      "logical deleted". Default value is ``True``
         :param source_records: add???. Default value is ``None``
         """
         tbl_name = self.fullname
@@ -1112,7 +1120,8 @@ class SqlTable(GnrObject):
         
         :param instance: add???
         :param empty_before: boolean. add???. Default value is ``False``
-        :param excludeLogicalDeleted: boolean. add???. Default value is ``True``
+        :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                      "logical deleted". Default value is ``True``
         :param source_records: add???. Default value is ``None``
         """
         if isinstance(instance,basestring):
@@ -1128,7 +1137,8 @@ class SqlTable(GnrObject):
         :param instance: add???
         :param tbl_name: add???. Default value is ``None``
         :param empty_before: boolean. add???. Default value is ``False``
-        :param excludeLogicalDeleted: boolean. add???. Default value is ``True``
+        :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                      "logical deleted". Default value is ``True``
         :param source_records: add???. Default value is ``None``
         """
         if isinstance(instance,basestring):
