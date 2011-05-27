@@ -2155,10 +2155,8 @@ border='1px solid gray',margin='2px', rounded=10,
 .dojoxGrid-header .cannotBeDropped {
     background: #ffa997 !important;
 }
-.selectionLocalChange .cellContent{
-    font-style:italic;
-    background:yellow;
-    color:black;
+.selectionLocalChange {
+    color:gray;
 }
 
 .rowsetdragging {
