@@ -833,8 +833,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                        _newrecord=newrecord, sqlContextName=sqlContextName)
         #if lock and not newrecord:
         if not newrecord and not readOnly:
-            recInfo['updatable'] = tblobj.check_updatable(record)
-            recInfo['deletable'] = tblobj.check_deletable(record)
+            recInfo['_protect_write'] = not tblobj.check_updatable(record)
+            recInfo['_protect_delete'] = not tblobj.check_deletable(record)
             if lock:
                 self._getRecord_locked(tblobj, record, recInfo)
         loadingParameters = loadingParameters or {}

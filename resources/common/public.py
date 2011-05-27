@@ -11,6 +11,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
+from gnr.core.gnrstring import boolean
 
 
 import os
@@ -457,31 +458,32 @@ class TableHandlerMain(BaseComponent):
             self._usePublicBottomMessage(th.form)
         return th
         
-    def rpc_form(self, root, th_pkey=None,**kwargs):
-        kwargs.update(self.getCallArgs('pkey'))  
+    def rpc_form(self, root,**kwargs):
+        kwargs.update(self.getCallArgs('pkey'))
         form = self._th_prepareForm(root,**kwargs)
         if hasattr(self,'th_form'):
             self.th_form(form)
         else:
             self._th_hook('form',mangler= self.maintable.replace('.','_'))(form)
     
-    def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,th_selector=None,th_modal=None,th_navigation=None,**kwargs):
-        pkey = pkey or kwargs.pop('th_pkey',None)
+    def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,
+                        th_selector=None,th_modal=None,th_navigation=None,th_showtoolbar=True,**kwargs):
+        pkey = pkey or kwargs.pop('th_pkey','*norecord*')
+        th_showtoolbar = boolean(th_showtoolbar)
         tableCode = self.maintable.replace('.','_')
         self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
         root.attributes.update(overflow='hidden')
         form = root.frameForm(frameCode='mainform',table=self.maintable,
-                             store_startKey=pkey or '*norecord*',
+                             store_startKey=pkey,
                              datapath='form',store='recordCluster')
         if th_modal:
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
             bar = form.bottom.slotBar(slots,margin_bottom='2px')
-            bar.revertbtn.button('!!Revert',action='this.form.publish("revert")',disabled='^.controller.changed?=!#v')
+            bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
             bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
-            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save")')
-            
-        else:
+            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save")')    
+        elif th_showtoolbar:
             slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
             if th_linker:
                 slots = '*,|,semaphore,|,form_revert,form_save'

@@ -233,7 +233,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
         for (var formId in this.formsToUpdate){
             var form = this.formsToUpdate[formId]
-            form.setDisabled(form.locked)
+            form.applyDisabledStatus();
         } 
     },
 

@@ -934,7 +934,7 @@ class SqlTable(GnrObject):
         :param record: add???
         """
         try:
-            self.protect_update(record)
+            self.protect_update(record,record)
             return True
         except EXCEPTIONS['protect_update'], e:
             return False
