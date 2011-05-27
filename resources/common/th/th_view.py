@@ -115,7 +115,6 @@ class TableHandlerView(BaseComponent):
         """, hiddencolumns=self._th_hook('hiddencolumns',mangler=mangler)(),
                             struct='^.grid.struct', _init=True)
 
-        frame.data('.tableRecordCount', self._th_hook('options',mangler=mangler,dflt=dict())().get('recordCount'))
         gridattr = frame.grid.attributes
         
         gridattr.update(rowsPerPage=self.rowsPerPage(),
@@ -216,13 +215,16 @@ class TableHandlerView(BaseComponent):
                                 baseClass='no_background',
                                 iconClass='tb_button db_query')
         
-    def _th_listController(self,pane,table=None):
+    def _th_listController(self,pane,table=None,mangler=None):
         table = table or self.maintable
         tblattr = dict(self.db.table(table).attributes)
         tblattr.pop('tag',None)
         pane.data('.table',table,**tblattr)
-        pane.data('.excludeLogicalDeleted', True)
-        pane.data('.showDeleted', False)
+        options = self._th_hook('options',mangler=pane)() or dict()
+        pane.data('.excludeLogicalDeleted', options.get('excludeLogicalDeleted',True))
+        pane.data('.showDeleted', options.get('excludeLogicalDeleted',False))
+        pane.data('.tableRecordCount',options.get('tableRecordCount',True))
+
 
     def _th_queryToolController(self,pane,table=None):
         mangler = pane.attributes['th_root']
