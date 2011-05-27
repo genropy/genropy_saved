@@ -315,11 +315,11 @@ class BagNode(object):
         """It receives one or more key-value couple, passed as a dict or as named parameters,
         and sets them as attributes of the node.
             
-        :param attr: the attributes' dict that should be set into the node. Default value is ``None``.
-        :param trigger:  add??? Default value is ``True``.
-        :param _updattr:  add??? Default value is ``True``.
-        :param _removeNullAttributes:  add??? Default value is ``True``.
-        """
+        :param attr: the attribute that should be set into the node. Default value is ``None``.
+        :param trigger: add??? Default value is ``True``.
+        :param _updattr: add??? Default value is ``True``.
+        :param _removeNullAttributes: if ``True``, remove the null attributes. Default value is ``True``.
+        :param \*\*kwargs: the kw attributes to set"""
         if not _updattr:
             self.attr.clear()
             #if self.locked:

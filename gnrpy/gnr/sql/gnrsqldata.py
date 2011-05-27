@@ -1163,13 +1163,12 @@ class SqlSelection(object):
                asIterator=False, asText=False, **kwargs):
         """Return the selection into differents format
         
-        :param mode: (optional) There are different options you can set.
-        
-            * `mode='pkeylist'`: add???
-            * `mode='records'`: add???
-            * `mode='data'`: add???
-            * `mode='tabtext'`: add???
-            
+        :param mode: There are different options you can set:
+                     
+                     * `mode='pkeylist'`: add???
+                     * `mode='records'`: add???
+                     * `mode='data'`: add???
+                     * `mode='tabtext'`: add???
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section. Default value is ``None``
@@ -1281,9 +1280,8 @@ class SqlSelection(object):
     def freeze(self, fpath, autocreate=False):
         """add???
         
-        :param fpath: add???
-        :param autocreate: boolean. add???. Default value is ``False``
-        """
+        :param fpath: the freeze path.
+        :param autocreate: boolean. if ``True``, add???. Default value is ``False``"""
         self.freezepath = fpath
         self.isChangedSelection = False
         self.isChangedData = False
@@ -1450,24 +1448,13 @@ class SqlSelection(object):
         
     @deprecated
     def analyze(self, group_by=None, sum=None, collect=None, distinct=None, keep=None, key=None, **kwargs):
-        """.. deprecated:: 0.7
-        
-        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
-                         Default value is ``None``
-        :param sum: add???. Default value is ``None``
-        :param collect: add???. Default value is ``None``
-        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". Default value is ``None``
-        :param keep: add???. Default value is ``None``
-        :param key: add???. Default value is ``None``
-        """
+        """.. deprecated:: 0.7"""
         self.totalize(group_by=group_by, sum=sum, collect=collect, distinct=distinct, keep=keep, key=key, **kwargs)
         
     def totalizer(self, path=None):
         """add???
         
-        :param path: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param path: add???. Default value is ``None``"""
         if path and self.analyzeBag:
             return self.analyzeBag[path]
         else:
