@@ -37,10 +37,10 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if queryTool:
-            base_slots = ['tools','5','queryfb','|','queryTool','*','count','5']
+            base_slots = ['tools','5','vtitle','5','queryfb','|','queryTool','*','count','5']
             top_kwargs['queryfb_table'] = table
         else:
-            base_slots = ['tools','searchOn','count','*']
+            base_slots = ['tools','5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
@@ -64,6 +64,9 @@ class TableHandlerView(BaseComponent):
                         dockButton_iconClass='icnBaseLens',
                         datapath='.query.where',
                         height='150px',width='400px')
+    @struct_method
+    def th_slotbar_vtitle(self,pane,**kwargs):
+        pane.div('^.title',color='gray',font_size='.9')
     
     @struct_method
     def th_slotbar_list_locker(self, pane,**kwargs):
@@ -90,9 +93,7 @@ class TableHandlerView(BaseComponent):
             querybase = self._th_hook('query',mangler=mangler)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
-        frame.dataFormula('.title','name_plural+": "+showed+"/"+total',
-                            name_plural='=.table?name_plural',
-                            showed='^.count.showed',total='^.count.total')
+        frame.dataFormula('.title','name_plural',name_plural='=.table?name_plural',_init=True)
         frame.dataFormula('.query.where', 'q.deepCopy();',q='=.baseQuery',_onStart=True)
 
 

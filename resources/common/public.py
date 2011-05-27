@@ -464,6 +464,7 @@ class TableHandlerMain(BaseComponent):
     
     def __th_title(self,th,widget):
         if widget=='stack':
+            th.view.top.bar.replaceSlots('vtitle','')
             th.dataFormula('gnr.windowTitle',"(selectedPage=='view'?viewtitle:formtitle)||currTitle",
                             formtitle='^.form.controller.title',viewtitle='^.view.title',
                             selectedPage='^.selectedPage',currTitle='=gnr.windowTitle')    

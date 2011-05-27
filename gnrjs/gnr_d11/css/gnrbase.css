@@ -1520,8 +1520,6 @@ textarea:disabled {
 }
 
 .countBox {
-    padding-left: 5px;
-    padding-right: 20px;
     cursor: default;
     font-variant: small-caps;
     visibility: hidden;
@@ -1537,10 +1535,9 @@ textarea:disabled {
     -moz-border-radius-bottomleft: 12px;
     -webkit-border-top-left-radius: 12px;
     -webkit-border-bottom-left-radius: 12px;
-    display: inline-block;
     text-align: right;
     padding-right: 2px;
-    width: 100%;
+    padding-left: 5px;
     background: #D5E5F6;
     color: #7791AB;
 }
@@ -1556,9 +1553,8 @@ textarea:disabled {
     -webkit-border-bottom-right-radius: 12px;
     text-align: left;
     padding-left: 2px;
-    display: inline-block;
+    padding-right: 5px;
     background: #F2ECD4;
-    width: 100%;
     color: #9C9474;
 }
 .unfilteredCount .countBoxTotal {
@@ -1706,7 +1702,7 @@ border='1px solid gray',margin='2px', rounded=10,
 
 /* @group DojoxGrid*/
 .tundra .filteredGrid .dojoxGrid-cell{
-    border-color:red;
+    font-style:italic;
 }
 
 .tundra .dojoxGrid-cell {
