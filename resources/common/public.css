@@ -447,29 +447,6 @@ element.style {
     background:transparent;
     padding: 0px 0px;
 }
-._common_d11 .dijitButtonNode,
-.bottom_btn .dijitButtonNode {
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -opera-border-radius: 4px;
-    -khtml-border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    font-weight: bold;
-    border-color: #494949;
-    border-width: 1px;
-    border-style: solid;
-    padding: 0px 2px;
-    opacity: 1;
-    font-size: 1em;
-    color: #494949;
-    font-weight: normal;
-    background:;
-    background-image: -webkit-gradient(center, top, from(rgba(182, 182, 182, 0.75)), to(rgba(239, 239, 239, 0.9)));
-    background-image: -moz-linear-gradient(center, top, from(rgba(182, 182, 182, 0.75)), to(rgba(239, 239, 239, 0.9)));
-
-}
-
 .bottom_btnDisabled .dijitButtonNode {
     opacity: .6;
     cursor: not-allowed !important;
