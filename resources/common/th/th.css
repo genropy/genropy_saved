@@ -36,6 +36,9 @@
 .query_form {
     margin-top: 2px;
 }
+.query_form .dijitTextBox,.query_form .fakeTextBox{
+	padding-top: 0!important;
+}
 
 .center_pane .smallFakeTextBox, .center_pane .dijitInputField {
     height: 15px;
