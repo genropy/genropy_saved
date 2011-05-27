@@ -184,23 +184,24 @@ class TableHandlerView(BaseComponent):
         tablecode = table.replace('.','_')
         mangler = pane.getInheritedAttributes()['th_root']
         fb = pane.formbuilder(cols=6, datapath='.query.where', _class='query_form',
-                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});',
-                                   float='left')
-        fb.div('^.c_0?column_caption', min_width='12em', _class='smallFakeTextBox floatingPopup',
+                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
+        fb.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
                     nodeId='%s_fastQueryColumn' %mangler,
                      dropTarget=True,
                     lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder('%s').onChangedQueryColumn(this,data);" %mangler})
-        optd = fb.div(_class='smallFakeTextBox', lbl='!!Op.', lbl_width='4em')
+        optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
                  display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %mangler,
                  border_right='1px solid silver')
+                 
         optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %mangler, 
                  selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
                  connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %mangler,
                  action="console.log(this,arguments);genro.querybuilder('%s').onChangedQueryOp($2,$1);" %mangler,
                  _dtype='^.c_0?column_dtype',
                  _class='floatingPopup', display='inline-block', padding_left='2px')
+                 
         value_textbox = fb.textbox(lbl='!!Value', value='^.c_0', width='12em', lbl_width='5em',
                                         _autoselect=True,
                                         row_class='^.c_0?css_class', position='relative',

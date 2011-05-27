@@ -161,14 +161,40 @@ body.workInProgress{
     z-index: 0;
 }
 
-.tundra .dijitTextBox, .tundra .dijitComboBox, .tundra .dijitSpinner, .tundra .dijitInlineEditor input, .fakeTextBox {
+.tundra .dijitTextBox, .tundra .dijitComboBox, .tundra .dijitSpinner, .tundra .dijitInlineEditor input {
     background-color: white;
     border: 1px solid #B3B3B3;
     box-shadow: 0 2px 2px #DDDDDD inset;
     line-height: normal;
     border-radius:3px;
-    line-height:1.1;
     position: relative;
+    padding-left: 2px;
+    padding-top: 1px;
+}
+
+.fakeTextBox {
+	background-color: white;
+    border: 1px solid #B3B3B3;
+    box-shadow: 0 2px 2px #DDDDDD inset;
+    line-height: normal;
+    border-radius:3px;
+    position: relative;
+    padding-left: 2px;
+    padding-top: 1px;
+    min-height: 14px;
+}
+
+.fakeNumberTextBox {
+	background-color: white;
+    border: 1px solid #B3B3B3;
+    box-shadow: 0 2px 2px #DDDDDD inset;
+    line-height: normal;
+    border-radius:3px;
+    position: relative;
+    padding-left: 2px;
+    padding-top: 1px;
+    min-height: 14px;
+    text-align: right;
 }
 
 .tundra .dijitError {
@@ -403,28 +429,6 @@ label.ghostlabel span {
 }
 
 /* @end */
-
-.fakeTextBox {
-    height: 17px;
-}
-
-.fakeNumberTextBox {
-    border: 1px solid silver;
-    background: white;
-    height: 17px;
-    margin-left: 1px;
-    text-align: right;
-    padding-right: 2px;
-}
-
-.smallFakeTextBox {
-    border: 1px solid silver;
-    background: white;
-    min-height: 2ex;
-    margin-left: 1px;
-    padding-left: 2px;
-
-}
 
 /* @end */
 
@@ -1915,6 +1919,8 @@ border='1px solid gray',margin='2px', rounded=10,
 
 /* @group Toolbar Selector */
 .slotbar_toolbar {
+	padding-top: 1px;
+	padding-bottom: 1px;
 }
 .slotbar_toolbar .dijitButtonNode {
 	background: none;
