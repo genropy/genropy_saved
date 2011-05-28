@@ -176,7 +176,7 @@ class ThLinker(BaseComponent):
         joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')[0]
         if 'one_one' in joiner:
             one_one = joiner['one_one']
-            manyrelfld = table.split('.')[1] if one_one=='*' else joiner['many_relation'].replace('.','_')
+            manyrelfld = joiner['relation_name']
             noduplinkcondition = '@%s.%s IS NULL' %(manyrelfld,tblobj.pkey)
             condition =  kwargs.get('condition')
             kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition                  
