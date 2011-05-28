@@ -432,6 +432,8 @@ element.style {
     -webkit-border-radius: 0px;
     -opera-border-radius: 0px;
     -khtml-border-radius: 0px;
+    border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
 }
 
 ._common_d11 .dijitSpinnerButtonContainer .dijitArrowButton {
@@ -439,6 +441,8 @@ element.style {
     -webkit-border-radius: 0px;
     -opera-border-radius: 0px;
     -khtml-border-radius: 0px;
+    border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
 }
 
 ._common_d11 .slotbar_toolbar .dijitButtonNode,
