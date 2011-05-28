@@ -173,7 +173,13 @@ class ThLinker(BaseComponent):
         tblobj = self.db.table(table)
         related_tblobj = tblobj.column(field).relatedColumn().table    
         related_table = related_tblobj.fullname
-        ###joiner = tblobj.model.relations.getAttr(relpath, 'joiner')[0]
+        joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')[0]
+        if 'one_one' in joiner:
+            one_one = joiner['one_one']
+            manyrelfld = table.split('.')[1] if one_one=='*' else joiner['many_relation'].replace('.','_')
+            noduplinkcondition = '@%s.%s IS NULL' %(manyrelfld,tblobj.pkey)
+            condition =  kwargs.get('condition')
+            kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition                  
         linkerpath = '#FORM.linker_%s' %field
         linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,
                          rounded=8,tip='^.tip_link',onCreated='this.linkerManager = new gnr.LinkerManager(this);',
