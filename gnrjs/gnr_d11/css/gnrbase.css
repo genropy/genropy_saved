@@ -252,16 +252,19 @@ body.workInProgress{
 }
 
 .tundra .dijitTextBoxErrorDisabled {
-    background: white;
+	box-shadow:none;
+    background: transparent;
     border-color: silver;
 }
 
+.dijitComboBox.dijitError, .dijitSpinner.dijitError{
+	border-color: silver;
+    background: white url(icons/base12/invalidcombo.png) no-repeat right 2px;
+}
+
 .tundra .dijitComboBoxErrorDisabled {
-    border-color: #d5d5d5 #bdbdbd #bdbdbd #d5d5d5;
-    opacity: 0.60;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(182, 182, 182, 0.75)),  to(rgba(239, 239, 239, 0.9)));
-    background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75), rgba(239, 239, 239, 0.9));
-    
+	border-color: silver;
+	background: transparent;
 }
 
 label.ghostlabel span {
