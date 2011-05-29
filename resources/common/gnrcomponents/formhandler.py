@@ -66,15 +66,17 @@ class FormHandler(BaseComponent):
                 form_kwargs['height'] = dialog_kwargs.pop('height')
             if 'width' in dialog_kwargs:
                 form_kwargs['width'] = dialog_kwargs.pop('width')
-                dialog_kwargs['closable'] = dialog_kwargs.get('closable','publish')
-                dialog_kwargs[loadSubscriber] = "this.widget.show();"
-                dialog_kwargs[closeSubscriber] = "this.widget.hide();"
-                dialog_kwargs['selfsubscribe_close'] = """genro.publish('form_%s_dismiss',$1.modifiers);""" %formId
+            dialog_kwargs['closable'] = dialog_kwargs.get('closable','publish')
+            dialog_kwargs['title'] = dialog_kwargs.get('title','^.form.controller.title')
+            dialog_kwargs[loadSubscriber] = "this.widget.show();"
+            dialog_kwargs[closeSubscriber] = "this.widget.hide();"
+            dialog_kwargs['selfsubscribe_close'] = """genro.publish('form_%s_dismiss',$1.modifiers);""" %formId
             formRoot = attachTo.dialog(**dialog_kwargs)
         elif palette_kwargs:
             palette_kwargs[loadSubscriber] = "this.widget.show();"
             palette_kwargs[closeSubscriber] = "this.widget.hide();"
             palette_kwargs['dockTo'] = palette_kwargs.get('dockTo','dummyDock')
+            palette_kwargs['title'] = palette_kwargs.get('title','^.form.controller.title')
             dialog_kwargs['selfsubscribe_close'] = """genro.formById('%s').dismiss($1.modifiers);
                                                             """ %formId
             formRoot = attachTo.palette(**palette_kwargs)
@@ -153,13 +155,16 @@ class FormHandler(BaseComponent):
 
     @struct_method          
     def fh_slotbar_form_revert(self,pane,**kwargs):
-        pane.formButton('!!Revert',topic='revert',iconClass="tb_button db_revert", parentForm=True,
+        pane.formButton('!!Revert',topic='reload',iconClass="tb_button db_revert", parentForm=True,
                        disabled='^.controller.changed?=!#v')
     
     @struct_method          
     def fh_slotbar_form_delete(self,pane,parentForm=True,**kwargs):
-        pane.formButton('!!Delete',topic='deleteItem',
-                        iconClass="tb_button db_del",parentForm=parentForm,**kwargs)
+        pane.formButton(topic='deleteItem',
+                        iconClass="tb_button db_del",parentForm=parentForm,
+                        disabled='^.controller.protect_delete',tip='==disabled?_msg_protect_delete:_msg_delete',
+                        _msg_protect_delete='!!This record cannot be deleted',_msg_delete='!!Delete current record',
+                        **kwargs)
     @struct_method          
     def fh_slotbar_form_selectrecord(self,pane,table=None,**kwargs):
         fb = pane.formbuilder(cols=1, border_spacing='1px')

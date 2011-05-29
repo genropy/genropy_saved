@@ -30,10 +30,9 @@ class GnrCustomWebPage(object):
 
     def main(self,root,**kwargs):
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
-        pkey = self.__prepareKwargs(kwargs)     
-        mangler = str(id(root))
-        self._th_mixinResource(mangler,table=self.maintable,resourceName=th_options.get('resourceName'),defaultClass='View')
-        resource_options = self._th_hook('options',mangler=mangler,dflt=dict())()
+        pkey = self.__prepareKwargs(kwargs)        
+        resource = self._th_getResClass(table=self.maintable,resourceName=th_options.get('resourceName'),defaultClass='View')()
+        resource_options = resource.th_options() if hasattr(resource,'th_options') else dict()
         th_options.update(resource_options)
         th_options.update(dictExtract(kwargs,'th_'))
         th_options['public'] = boolean(th_options.get('public',True))

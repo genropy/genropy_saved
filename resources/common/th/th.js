@@ -146,7 +146,7 @@ dojo.declare("gnr.IframeFormManager", null, {
     openrecord:function(pkey){
         genro.publish('form_'+this.fakeFormId+'_onLoading');
         if(this.iframeForm){
-            this.iframeForm.load({destPkey:pkey,default_kw:this.sourceNode.evaluateOnNode(this.default_kwargs)});
+            this.iframeForm.load({destPkey:pkey});
         }else{
             var iframeAttr = this.iframeAttr;
             var that = this;
@@ -161,10 +161,13 @@ dojo.declare("gnr.IframeFormManager", null, {
         this.iframeForm.dismiss(modifiers);
     },
     onIframeStarted:function(iframe,pkey){
-        this.iframeForm = iframe._genro.getForm('mainform');
-        this.iframeForm.load({destPkey:pkey,default_kw:this.sourceNode.evaluateOnNode(this.default_kwargs)});
-        this.iframeForm.store.parentStore = genro.getStore(this.formStoreKwargs.parentStore);
         var that = this;
+        this.iframeForm = iframe._genro.getForm('mainform');
+        this.iframeForm.store.handlers.load.defaultCb = function(){
+            return that.sourceNode.evaluateOnNode(that.default_kwargs);
+        }
+        this.iframeForm.load({destPkey:pkey});
+        this.iframeForm.store.parentStore = genro.getStore(this.formStoreKwargs.parentStore);
         this.iframeForm.subscribe('onDismissed',function(kw){
             genro.publish('form_'+that.fakeFormId+'_onDismissed',kw);
         });
@@ -348,6 +351,15 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         }
         this.buildQueryPane();
     },
+    
+    getHelper:function(sourceNode){
+        var op = sourceNode.getRelativeData(sourceNode.attr.value+'?op');
+        if(op in this.helper_op_dict){
+            console.log('get helper for',op);
+        }
+        
+        //if(GET .c_0?op in genro.querybuilder('%s').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='c_0';}
+    },
 
     _buildQueryRow: function(tr, node, i, level) {
         var relpath = '.' + node.label;
@@ -395,7 +407,12 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             }
             input_attrs.position = 'relative';
             input_attrs.padding_right = '10px';
-            input_attrs.connect_onclick = "var op = GET " + relpath + "?op;if(op in genro.querybuilder('"+this.mangler+"').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='" + relpath.slice(1) + "';}";
+            that = this;
+            input_attrs.connect_onclick = function(){
+                that.getHelper(this);
+            }
+            
+            //"var op = GET " + relpath + "?op;if(op in genro.querybuilder('"+this.mangler+"').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='" + relpath.slice(1) + "';}";
             input_attrs.disabled = "==(_op in _helperOp);";
             input_attrs._helperOp = this.helper_op_dict;
             input_attrs._op = '^' + relpath + '?op';

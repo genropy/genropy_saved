@@ -6,7 +6,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 """
 class GnrCustomWebPage(object):
     maintable = 'sys.message'
-    py_requires = 'public:Public,standard_tables:TableHandler,public:IncludedView'
+    py_requires = 'public:Public,standard_tables/tablehandler,public:IncludedView'
 
     ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
     def windowTitle(self):

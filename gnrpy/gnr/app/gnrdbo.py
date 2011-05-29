@@ -135,7 +135,7 @@ class TableBase(object):
         :param group_name: add???. Default value is ``!!System``
         """
         if id:
-            tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id')
+            tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id',_sendback=True)
             pkey = tbl.attributes.get('pkey')
             if not pkey:
                 tbl.attributes['pkey'] = 'id'

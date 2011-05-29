@@ -1330,6 +1330,7 @@ class SqlSelection(object):
     def sort(self, *args):
         """add???"""
         args = list(args)
+        args = [x.replace('.','_').replace('@','_') for x in args]
         if len(args) == 1 and (',' in args[0]):
             args = gnrstring.splitAndStrip(args[0], ',')
         if args != self.sortedBy:

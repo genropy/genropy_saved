@@ -58,7 +58,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }else{
             this.formParentNode = this.sourceNode.getParentNode();
         }
-        this.subscribe('save,revert,load,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer');
+        this.subscribe('save,reload,load,abort,loaded,setLocked,navigationEvent,newrecord,pendingChangesAnswer,dismiss,deleteItem,deleteConfirmAnswer');
         this._register = {};
         this._status_list = ['ok','error','changed','readOnly','noItem'];
         //this.store=new.....
@@ -145,17 +145,16 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var cb = cb || this[command];
         this.sourceNode.registerSubscription(topic,scope,cb);
     },
-    setDisabled:function(disable){
-        var disable = disable || this.isProtected();
-        var node;
+    applyDisabledStatus:function(){
+        var disable = this.isDisabled();
+        var node,localdisabled;
         for (var k in this._register){
             node = this._register[k];
-            if (!('disabled' in node.attr)){
-                this._register[k].setDisabled(disable);
-            }
+            localdisabled = 'disabled' in node.attr?node.getAttributeFromDatasource('disabled'):false;
+            this._register[k].setDisabled(disable || localdisabled);
         }
     },
-    isProtected:function(){
+    isDisabled:function(){
         return this.locked || this.status=='readOnly' || this.status=='noItem'
     },
     
@@ -164,7 +163,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             value = !this.locked;
         }
         this.locked = value;
-        this.setDisabled(this.locked);
+        this.applyDisabledStatus();
         this.publish('onLockChange',{'locked':this.locked});
     },
     registerChild:function(sourceNode){
@@ -207,7 +206,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         sourceNode.updateValidationStatus();
         this.updateInvalidField(sourceNode, sourceNode.attrDatapath('value'));
     },
-    revert: function(kw) {
+    reload: function(kw) {
         this.load({destPkey:this.getCurrentPkey()});
     },
     load: function(kw) {
@@ -384,8 +383,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.setOpStatus('loading',pkey);
             this.store.load(pkey, kw.default_kw);
         }else{
-            this.setDisabled(true);
             this.updateStatus();
+            this.applyDisabledStatus();
         }
         
     },
@@ -417,8 +416,22 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this._hideHider()
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
         var controllerData = this.getControllerData();
-        this.readOnly = this.isReadOnly();
+        this.protect_write = this.isProtectWrite();
+        genro.dom.setClass(this.sourceNode,'form_protect_write',this.protect_write);
+
+        this.protect_delete = this.isProtectDelete();
+        genro.dom.setClass(this.sourceNode,'form_protect_delete',this.protect_delete);
+
         this.newRecord = this.isNewRecord();
+        genro.dom.setClass(this.sourceNode,'form_new_record',this.newRecord);
+        if(data){
+            this.publish('record_caption',{'caption':data.attr.caption});
+            var tablename = controllerData.getItem('table?name_long');
+            var record_title = tablename? tablename+': '+data.attr.caption:data.attr.caption;
+            controllerData.setItem('title',record_title,null,{lazySet:true});
+        }
+        controllerData.setItem('protect_write',this.protect_write,null,{lazySet:true});
+        controllerData.setItem('protect_delete',this.protect_delete,null,{lazySet:true});
         controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});
         controllerData.setItem('loading',false,null,{lazySet:true});
         controllerData.fireItem('loaded');
@@ -427,7 +440,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.currentFocused = null;
         if(this.store){
             //modalita nuova
-            this.setDisabled(false);
+            this.applyDisabledStatus();
             this.focus();
         }
         
@@ -435,7 +448,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     
     focus:function(node){
-        if(!this.isProtected()){
+        if(!this.isDisabled()){
             var formContentDomNode = this.formContentDomNode || this.sourceNode.widget.domNode;
             if(this.sourceNode.widget.getSelected){
                 formContentDomNode = this.sourceNode.widget.getSelected().domNode;
@@ -462,7 +475,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     focusCurrentField:function(e){
-        if(!this.isProtected()){
+        if(!this.isDisabled()){
             if(this.currentFocused){
                 this.currentFocused.focus();
             }
@@ -588,8 +601,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     isNewRecord:function(){
         return this.getDataNodeAttributes()._newrecord;
     },
-    isReadOnly:function(){
-        return this.getDataNodeAttributes()._readonly;
+    isProtectWrite:function(){
+        return this.getDataNodeAttributes()._protect_write;
+    },
+
+    isProtectDelete:function(){
+        return this.getDataNodeAttributes()._protect_delete;
     },
     
     hasChanges: function() {
@@ -798,7 +815,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.pkeyPath && !this.getCurrentPkey()){
             status = 'noItem';
         }
-        else if(this.isReadOnly()){
+        else if(this.isProtectWrite()){
             status = 'readOnly';
         }
         else if(!isValid){
@@ -912,10 +929,12 @@ dojo.declare("gnr.GnrValidator", null, {
         var validations = this.getCurrentValidations(sourceNode);
         return this._validate(sourceNode, value, validations, ['notnull']);
     },
-    validate: function(sourceNode, value, userChange) {
+    validate: function(sourceNode, value, userChange,validateOnly) {
         var validations = this.getCurrentValidations(sourceNode);
         var result = this._validate(sourceNode, value, validations, this.validationTags, userChange); //userChange added by sporcari
-        this.exitValidation(result, sourceNode, validations, userChange);
+        if(!validateOnly){
+            this.exitValidation(result, sourceNode, validations, userChange);
+        }
         return result;
     },
     _validate: function(sourceNode, value, validations, validationTags, userChange) {
@@ -1185,7 +1204,7 @@ dojo.declare("gnr.formstores.Base", null, {
         ;
         var base_handler_type = objectPop(kw,'handler');
         var handlerKw = objectExtract(kw,'handler_*');
-        var handler,handler_type,method,actionKw,callbacks;
+        var handler,handler_type,method,actionKw,callbacks,defaultCb;
         var that = this;
         var rpcmethod;
         dojo.forEach(['save','load','del'],function(action){
@@ -1201,7 +1220,8 @@ dojo.declare("gnr.formstores.Base", null, {
             }
             callbacks = objectPop(handler,'callbacks');
             rpcmethod = objectPop(handler,'rpcmethod');
-            that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks,rpcmethod:rpcmethod};
+            defaultCb = objectPop(handler,'defaultCb');
+            that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks,'rpcmethod':rpcmethod,defaultCb:defaultCb};
         });
         for (k in kw){
             this[k] = kw[k];
@@ -1255,12 +1275,18 @@ dojo.declare("gnr.formstores.Base", null, {
             that.loaded(currPkey,result);
             return result;
         };
-        var dkw = {};
-        for (var k in default_kw){
-            dkw['default_'+k] = default_kw[k];
+        var kw = this.handlers.load.kw;
+        if(pkey=='*newrecord*'){
+            var dkw = {};        
+            if(this.handlers.load.defaultCb){
+                var default_kw = objectUpdate((default_kw || {}),(this.handlers.load.defaultCb()||{}));
+            }
+            for (var k in default_kw){
+                dkw['default_'+k] = default_kw[k];
+            }
+            kw = objectUpdate(objectUpdate({},kw),dkw);
         }
-        var kw = objectUpdate(objectUpdate({},this.handlers.load.kw),dkw);
-        kw =form.sourceNode.evaluateOnNode(kw); //office_id='=#FORM.pkey'
+        kw =form.sourceNode.evaluateOnNode(kw); 
         this.handlers.load.rpcmethod = this.handlers.load.rpcmethod || 'loadRecordCluster';
         var deferred = genro.rpc.remoteCall(this.handlers.load.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':form.getVirtualColumns(),

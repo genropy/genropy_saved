@@ -28,6 +28,12 @@ class TableHandler(BaseComponent):
     css_requires= 'th/th'
     py_requires='th/th_view:TableHandlerView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
 
+    
+    def _th_mangler(self,pane,table,nodeId=None):
+        tableCode = table.replace('.','_')
+        th_root = nodeId or '%s_%i' %(tableCode,id(pane.parentNode))
+        return th_root
+    
     @extract_kwargs(condition=True,grid=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,reloader=None,virtualStore=False,condition=None,condition_kwargs=None,
@@ -37,11 +43,11 @@ class TableHandler(BaseComponent):
                                                     condition_kwargs=condition_kwargs,
                                                     default_kwargs=default_kwargs,**kwargs)
         tableCode = table.replace('.','_')
-        th_root = nodeId or '%s_%i' %(tableCode,id(pane.parentNode))
-        listCode='V_%s' %th_root
+        th_root = self._th_mangler(pane,table,nodeId=nodeId)
+        viewCode='V_%s' %th_root
         formCode='F_%s' %th_root   
         wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
-                        thlist_root=listCode,
+                        thlist_root=viewCode,
                         thform_root=formCode,
                         nodeId=nodeId,
                         table=table,
@@ -49,7 +55,7 @@ class TableHandler(BaseComponent):
         message= hiderMessage or '!!Save the main record to use this pane.'
         wdg.dataController("""
                             if(pkey=='*newrecord*'){
-                                hider = sourceNode.setHiderLayer({message:message});
+                                sourceNode.setHiderLayer({message:message});
                             }else{
                                 sourceNode.setHiderLayer(null,true);
                             }
@@ -57,7 +63,7 @@ class TableHandler(BaseComponent):
         top_slots = '#,delrow,addrow'
         if readOnly:
             top_slots = '#'
-        wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
+        wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 reloader=reloader,virtualStore=virtualStore,top_slots=top_slots,
                                 condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs)    
         return wdg
@@ -160,6 +166,7 @@ class TableHandler(BaseComponent):
         root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
+
 class ThLinker(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method 
@@ -172,6 +179,13 @@ class ThLinker(BaseComponent):
         tblobj = self.db.table(table)
         related_tblobj = tblobj.column(field).relatedColumn().table    
         related_table = related_tblobj.fullname
+        joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')[0]
+        if 'one_one' in joiner:
+            one_one = joiner['one_one']
+            manyrelfld = joiner['relation_name']
+            noduplinkcondition = '@%s.%s IS NULL' %(manyrelfld,tblobj.pkey)
+            condition =  kwargs.get('condition')
+            kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition                  
         linkerpath = '#FORM.linker_%s' %field
         linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,
                          rounded=8,tip='^.tip_link',onCreated='this.linkerManager = new gnr.LinkerManager(this);',
@@ -233,6 +247,5 @@ class ThLinker(BaseComponent):
     @struct_method          
     def th_thIframePalette(self,pane,**kwargs):
         return pane.child('ThIframePalette',**kwargs)
-        
-        
+
 

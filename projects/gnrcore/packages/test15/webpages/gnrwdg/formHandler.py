@@ -26,10 +26,10 @@ class GnrCustomWebPage(object):
         
     @struct_method
     def testToolbar(self,form,startKey=None):
-        left = 'selectrecord,|,' if not startKey else ''
+        left = 'selector,|,' if not startKey else ''
         tb = form.top.slotToolbar('%s *,|,semaphore,|,formcommands,|,locker' %left,border_bottom='1px solid silver')
         if not startKey:
-            fb = tb.selectrecord.formbuilder(cols=1, border_spacing='1px')
+            fb = tb.selector.formbuilder(cols=1, border_spacing='1px')
             fb.dbselect(value="^.prov",dbtable="glbl.provincia",parentForm=False,#default_value='MI',
                                         validate_onAccept="if(userChange){this.form.publish('load',{destPkey:value})};",
                                         lbl='Provincia')
@@ -63,7 +63,7 @@ class GnrCustomWebPage(object):
         form = pane.frameForm(frameCode='provincia_1',border='1px solid silver',datapath='.form',
                               rounded_bottom=10,height='180px',width='600px',pkeyPath='.prov')
         form.testToolbar()
-        store = form.formStore(table='glbl.provincia',storeType='Item',handler='recordCluster',startKey='*newrecord*',onSaved='reload')
+        store = form.formStore(table='glbl.provincia',storeType='Item',handler='recordCluster',startKey='*norecord*',onSaved='reload')
         rpc = store.handler('load',default_ordine_tot='100')  
         rpc.addCallback('console.log(result)')  
         pane = form.center.contentPane(datapath='.record')

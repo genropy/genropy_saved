@@ -11,6 +11,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
+from gnr.core.gnrstring import boolean
 
 
 import os
@@ -153,7 +154,7 @@ class Public(BaseComponent):
     @struct_method
     def public_publicRoot_caption(self,pane,title='',**kwargs):   
         pane.div(title, _class='pbl_title_caption',
-                    subscribe_public_caption='this.domNode.innerHTML=$1;',
+                    subscribe_setWindowTitle='this.domNode.innerHTML=$1;',
                     draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',**kwargs)
         
     @struct_method
@@ -440,7 +441,8 @@ class TableHandlerMain(BaseComponent):
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         th_options.update(self.th_options())
         th_options.update(th_kwargs)
-        return self._th_main(root,th_options=th_options,**kwargs)
+        th = self._th_main(root,th_options=th_options,**kwargs)
+        return th
     
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = th_options.get('formInIframe')
@@ -450,38 +452,49 @@ class TableHandlerMain(BaseComponent):
             root = root.rootContentPane(title=self.tblobj.name_long)
         else:
             root.attributes.update(tag='ContentPane',_class=None)
-        th = getattr(root,'%sTableHandler' %th_options.get('widget','stack'))(table=self.maintable,datapath=self.maintable.replace('.','_'),**kwargs)
+        thwidget = th_options.get('widget','stack')
+        th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=self.maintable.replace('.','_'),**kwargs)
         th.attributes.update(dict(border_left='1px solid gray'))
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
+        self.__th_title(th,thwidget)
         if insidePublic and not formInIframe:
             self._usePublicBottomMessage(th.form)
         return th
         
-    def rpc_form(self, root, th_pkey=None,**kwargs):
-        kwargs.update(self.getCallArgs('pkey'))  
+    
+    def __th_title(self,th,widget):
+        if widget=='stack':
+            th.view.top.bar.replaceSlots('vtitle','')
+            th.dataFormula('gnr.windowTitle',"(selectedPage=='view'?viewtitle:formtitle)||currTitle",
+                            formtitle='^.form.controller.title',viewtitle='^.view.title',
+                            selectedPage='^.selectedPage',currTitle='=gnr.windowTitle')    
+    
+    def rpc_form(self, root,**kwargs):
+        kwargs.update(self.getCallArgs('pkey'))
         form = self._th_prepareForm(root,**kwargs)
         if hasattr(self,'th_form'):
             self.th_form(form)
         else:
             self._th_hook('form',mangler= self.maintable.replace('.','_'))(form)
     
-    def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,th_selector=None,th_modal=None,th_navigation=None,**kwargs):
-        pkey = pkey or kwargs.pop('th_pkey',None)
+    def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,
+                        th_selector=None,th_modal=None,th_navigation=None,th_showtoolbar=True,**kwargs):
+        pkey = pkey or kwargs.pop('th_pkey','*norecord*')
+        th_showtoolbar = boolean(th_showtoolbar)
         tableCode = self.maintable.replace('.','_')
         self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
         root.attributes.update(overflow='hidden')
         form = root.frameForm(frameCode='mainform',table=self.maintable,
-                             store_startKey=pkey or '*norecord*',
+                             store_startKey=pkey,
                              datapath='form',store='recordCluster')
         if th_modal:
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
             bar = form.bottom.slotBar(slots,margin_bottom='2px')
-            bar.revertbtn.button('!!Revert',action='this.form.publish("revert")',disabled='^.controller.changed?=!#v')
+            bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
             bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
-            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save")')
-            
-        else:
+            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save")')    
+        elif th_showtoolbar:
             slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
             if th_linker:
                 slots = '*,|,semaphore,|,form_revert,form_save'

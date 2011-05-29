@@ -30,7 +30,6 @@ import shutil
 
 from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip
 from mako.lookup import TemplateLookup
-from gnr.core.gnrlang import getUuid
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
@@ -42,7 +41,7 @@ from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
 from gnr.web.gnrwebstruct import GnrGridStruct, struct_method
-from gnr.core.gnrlang import gnrImport, GnrException
+from gnr.core.gnrlang import getUuid,gnrImport, GnrException
 from gnr.core.gnrbag import Bag, BagResolver,BagCbResolver
 from gnr.core.gnrlang import deprecated
 from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relies on BaseComponent being defined in this file
@@ -1034,7 +1033,20 @@ class GnrWebPage(GnrBaseWebPage):
         result = self.site.resource_loader.getResourceList(resourceDirs, path, ext=ext)
         if result:
             return result[0]
-            
+
+    def importResource(self,path,classname=None,pkg=None):
+        res = self.getResource(path,pkg=pkg,ext='py')
+        if res:
+            m = gnrImport(res)
+            if classname:
+                return getattr(m,classname)
+            return m
+    
+    def importTableResource(self,table,path,pkg=None):            
+        pkg,table = table.split('.')
+        path,classname= path.split(':')
+        return self.importResource('tables/%s/%s' %(table,path),classname=classname,pkg=pkg)        
+    
     @public_method
     def getResourceContent(self, resource=None, ext=None, pkg=None):
         path =self.getResource(path=resource,ext=ext,pkg=pkg)
@@ -1178,6 +1190,7 @@ class GnrWebPage(GnrBaseWebPage):
                 if dbselect_cache:
                     page.script('genro.cache_dbselect = true')
                 page.data('gnr.windowTitle', self.windowTitle())
+                page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
                 page.dataRemote('gnr._pageStore','getPageStoreData',cacheTime=1)
                 page.dataController("genro.publish('dbevent_'+_node.label,{'changelist':change.getItem('#0'),pkeycol:_node.attr.pkeycol});",change="^gnr.dbchanges")
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))

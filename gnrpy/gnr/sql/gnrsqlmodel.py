@@ -147,7 +147,7 @@ class DbModel(object):
             foreignkey = (mode == 'foreignkey')
             self.relations.setItem('%s.%s.@%s' % (many_pkg, many_table, link_many_name), None, mode='O',
                                    many_relation=many_relation, many_rel_name=many_name, foreignkey=foreignkey,
-                                   many_order_by=many_order_by,
+                                   many_order_by=many_order_by,relation_name=relation_name,
                                    one_relation=one_relation, one_rel_name=one_name, one_one=one_one, onDelete=onDelete,
                                    onDelete_sql=onDelete_sql,
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
