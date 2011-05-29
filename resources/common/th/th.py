@@ -160,6 +160,7 @@ class TableHandler(BaseComponent):
         root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
+
 class ThLinker(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method 
@@ -172,7 +173,13 @@ class ThLinker(BaseComponent):
         tblobj = self.db.table(table)
         related_tblobj = tblobj.column(field).relatedColumn().table    
         related_table = related_tblobj.fullname
-        ###joiner = tblobj.model.relations.getAttr(relpath, 'joiner')[0]
+        joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')[0]
+        if 'one_one' in joiner:
+            one_one = joiner['one_one']
+            manyrelfld = joiner['relation_name']
+            noduplinkcondition = '@%s.%s IS NULL' %(manyrelfld,tblobj.pkey)
+            condition =  kwargs.get('condition')
+            kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition                  
         linkerpath = '#FORM.linker_%s' %field
         linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,
                          rounded=8,tip='^.tip_link',onCreated='this.linkerManager = new gnr.LinkerManager(this);',
@@ -234,6 +241,5 @@ class ThLinker(BaseComponent):
     @struct_method          
     def th_thIframePalette(self,pane,**kwargs):
         return pane.child('ThIframePalette',**kwargs)
-        
-        
+
 

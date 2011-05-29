@@ -38,6 +38,164 @@ body.workInProgress{
     z-index: 1000 !important;
 }
 
+/* @group BUTTONS */
+
+.tundra .dijitButtonNode {
+	/* enabled state - inner */
+	border: 1px solid silver;
+	border-bottom: 1px solid silver;
+    padding: 0px 2px;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(rgba(239, 239, 239, 0.9)), to(rgba(182, 182, 182, 0.75)));    
+    background-image: -moz-linear-gradient(-90deg, rgba(239, 239, 239, 0.9), rgba(182, 182, 182, 0.75));
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -opera-border-radius: 4px;
+    -khtml-border-radius: 4px;
+    cursor: pointer;
+    opacity: 1;
+    color: #494949;
+    font-weight: normal;
+}
+.tundra .dijitButtonText {
+	text-align: center;
+	padding: 0 0.3em;
+}
+
+.tundra .dijitDisabled .dijitButtonText {
+	color: #7F7F7F;
+}
+
+.tundra .dijitArrowButton {
+	color: #111;
+}
+
+.tundra .dijitComboButton .dijitDownArrowButton {
+	padding-right:4px;
+}
+
+.tundra .dijitTextBoxReadOnly,
+.tundra .dijitTextBoxReadOnly .dijitButtonNode,
+.tundra .dijitButtonDisabled .dijitButtonNode,
+.tundra .dijitToggleButtonDisabled .dijitButtonNode,
+.tundra .dijitDropDownButtonDisabled .dijitButtonNode,
+.tundra .dijitComboButtonDisabled .dijitButtonNode,
+.tundra .dijitTextBoxDisabled,
+.tundra .dijitTextBoxDisabled .dijitButtonNode {
+	/* disabled state - inner */
+	border-color: #d5d5d5 #d5d5d5 #bdbdbd #d5d5d5;
+	background-color: white;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
+    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);
+	
+}
+
+.tundra .dijitButtonHover .dijitButtonNode,
+.tundra .dijitButtonNodeHover,
+.tundra .dijitToggleButtonHover .dijitButtonNode,
+.tundra .dijitDropDownButtonHover .dijitButtonNode,
+.tundra .dijitComboButton .dijitButtonContentsHover,
+.tundra .dijitComboButton .dijitDownArrowButtonHover {
+	/* hover state - inner */
+	/* TODO: change from Hover to Selected so that button is still highlighted while drop down is being used */
+	border-color: silver;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
+    background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
+}
+.tundra .dijitDownArrowButtonHover,
+.tundra .dijitUpArrowButtonHover {
+	/* same as above except don't adjust border color (it's controlled by the containing Spinner/ComboBox) */
+	color:#243C5F;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
+    background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
+}
+
+.tundra .dijitComboBox .dijitButtonNode, .tundra .dijitSpinner .dijitButtonNode {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+}
+.tundra .dijitComboBox .dijitArrowButton .dijitArrowButtonInner {
+	height: 100%;
+}
+
+.tundra .dijitUpArrowButtonActive,
+.tundra .dijitDownArrowButtonActive,
+.tundra .dijitButtonActive .dijitButtonNode,
+.tundra .dijitToggleButtonActive .dijitButtonNode,
+.tundra .dijitDropDownButtonActive .dijitButtonNode,
+.tundra .dijitButtonContentsActive,
+.tundra .dijitStackController .dijitToggleButtonChecked .dijitButtonNode {
+	/* active state - inner (for when you are pressing a normal button, or
+	 * when a radio-type button is in a depressed state
+	 */
+	border-color:#366dba;
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
+    background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
+}
+
+
+.no_background .dijitButtonNode {
+    padding: 0;
+    background: none;
+    border-width: 0 !important;
+    border-color: transparent;
+}
+
+.dijitReset {
+    color: black;
+}
+
+
+
+/* @group buttons */
+
+/* @group ddb */
+.dropDownNoArrow .dijitArrowButtonInner {
+    display: none;
+}
+
+/* @end */
+._common_d11 .dijitComboBox .dijitArrowButton {
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -opera-border-radius: 0px;
+    -khtml-border-radius: 0px;
+    border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+._common_d11 .dijitSpinnerButtonContainer .dijitArrowButton {
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -opera-border-radius: 0px;
+    -khtml-border-radius: 0px;
+    border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+._common_d11 .slotbar_toolbar .dijitButtonNode,
+.bottom_btn .slotbar_toolbar .dijitButtonNode {
+    border:0;
+    background:transparent;
+    padding: 0px 0px;
+}
+.bottom_btnDisabled .dijitButtonNode {
+    opacity: .6;
+    cursor: not-allowed !important;
+}
+
+.bottom_btnHover .dijitButtonNode {
+
+    opacity: 1;
+}
+
+/* @end */
+
+
+
+/* @end */
+
 /* @group validation */
 
 .ghostpartial {
@@ -49,11 +207,64 @@ body.workInProgress{
     z-index: 0;
 }
 
-.no_background .dijitButtonNode {
-    padding: 0;
-    background: none;
-    border-width: 0 !important;
-    border-color: transparent;
+.tundra .dijitTextBox, .tundra .dijitComboBox, .tundra .dijitSpinner, .tundra .dijitInlineEditor input ,.tundra .dijitTextArea{
+    background-color: white;
+    border: 1px solid #B3B3B3;
+    box-shadow: 0 2px 2px #DDDDDD inset;
+    line-height: normal;
+    border-radius:3px;
+    position: relative;
+    padding-left: 2px;
+    padding-top: 1px;
+}
+
+.fakeTextBox,.smallFakeTextBox {
+	background-color: white;
+    border: 1px solid #B3B3B3;
+    box-shadow: 0 2px 2px #DDDDDD inset;
+    line-height: normal;
+    border-radius:3px;
+    position: relative;
+    padding-left: 2px;
+    padding-top: 1px;
+    min-height: 14px;
+}
+
+.fakeNumberTextBox {
+	background-color: white;
+    border: 1px solid #B3B3B3;
+    box-shadow: 0 2px 2px #DDDDDD inset;
+    line-height: normal;
+    border-radius:3px;
+    position: relative;
+    padding-left: 2px;
+    padding-top: 1px;
+    min-height: 14px;
+    text-align: right;
+}
+
+.tundra .dijitError {
+   /* background-color: #fff2f5;
+    background-image: none;*/
+    border-color: silver;
+    background: white url(icons/base12/invalid.png) no-repeat right 2px;
+
+}
+
+.tundra .dijitTextBoxErrorDisabled {
+	box-shadow:none;
+    background: transparent;
+    border-color: silver;
+}
+
+.dijitComboBox.dijitError, .dijitSpinner.dijitError{
+	border-color: silver;
+    background: white url(icons/base12/invalidcombo.png) no-repeat right 2px;
+}
+
+.tundra .dijitComboBoxErrorDisabled {
+	border-color: silver;
+	background: transparent;
 }
 
 label.ghostlabel span {
@@ -67,28 +278,6 @@ label.ghostlabel span {
 
 .dijitReset .dijitValidationIcon {
     display: none;
-}
-
-.dijitReset {
-    color: black;
-}
-
-.tundra .dijitError {
-    background-color: #fff2f5;
-    background-image: none;
-    border-color: #ff0041;
-}
-
-.tundra .dijitTextBoxErrorDisabled {
-    background-color: white;
-    background-image: none;
-    border-color: silver;
-}
-
-.tundra .dijitComboBoxErrorDisabled {
-    border-color: #d5d5d5 #bdbdbd #bdbdbd #d5d5d5;
-    background: #e4e4e4 url(images/buttonDisabled.png) top repeat-x;
-    opacity: 0.60;
 }
 
 /* @end */
@@ -289,33 +478,6 @@ label.ghostlabel span {
 }
 
 /* @end */
-
-.fakeTextBox {
-    border: 1px solid silver;
-    background: white;
-    height: 15px;
-    margin-left: 1px;
-    padding-left: 2px;
-    margin-bottom: 1px;
-}
-
-.fakeNumberTextBox {
-    border: 1px solid silver;
-    background: white;
-    height: 17px;
-    margin-left: 1px;
-    text-align: right;
-    padding-right: 2px;
-}
-
-.smallFakeTextBox {
-    border: 1px solid silver;
-    background: white;
-    min-height: 2ex;
-    margin-left: 1px;
-    padding-left: 2px;
-
-}
 
 /* @end */
 
@@ -1520,8 +1682,6 @@ textarea:disabled {
 }
 
 .countBox {
-    padding-left: 5px;
-    padding-right: 20px;
     cursor: default;
     font-variant: small-caps;
     visibility: hidden;
@@ -1537,10 +1697,9 @@ textarea:disabled {
     -moz-border-radius-bottomleft: 12px;
     -webkit-border-top-left-radius: 12px;
     -webkit-border-bottom-left-radius: 12px;
-    display: inline-block;
     text-align: right;
     padding-right: 2px;
-    width: 100%;
+    padding-left: 5px;
     background: #D5E5F6;
     color: #7791AB;
 }
@@ -1556,9 +1715,8 @@ textarea:disabled {
     -webkit-border-bottom-right-radius: 12px;
     text-align: left;
     padding-left: 2px;
-    display: inline-block;
+    padding-right: 5px;
     background: #F2ECD4;
-    width: 100%;
     color: #9C9474;
 }
 .unfilteredCount .countBoxTotal {
@@ -1706,7 +1864,7 @@ border='1px solid gray',margin='2px', rounded=10,
 
 /* @group DojoxGrid*/
 .tundra .filteredGrid .dojoxGrid-cell{
-    border-color:red;
+    font-style:italic;
 }
 
 .tundra .dojoxGrid-cell {
@@ -1810,6 +1968,8 @@ border='1px solid gray',margin='2px', rounded=10,
 
 /* @group Toolbar Selector */
 .slotbar_toolbar {
+	padding-top: 1px;
+	padding-bottom: 1px;
 }
 .slotbar_toolbar .dijitButtonNode {
 	background: none;
@@ -1913,15 +2073,15 @@ border='1px solid gray',margin='2px', rounded=10,
 .th_enableLinker .th_linkerField{
     display:block;
     width:12em;
+    box-shadow:none;
 }
 .dijitError.th_linkerField{    
-	background: transparent url(icons/base12/invalid.png) no-repeat right bottom !important;
+	background: transparent url(icons/base12/invalid.png) no-repeat right center !important;
 }
 
 .th_linkerField{
-    right:13px;
-    top:1px;
-    bottom:1px;
+    top:0px;
+    bottom:0px;
     border:0 !important;
     font-size:8pt;
     width:0;
@@ -1954,12 +2114,12 @@ border='1px solid gray',margin='2px', rounded=10,
 	display: none;
 }
 .th_enableLinker .th_linkerAdd{
-	background: url(icons/base14/linkeradd.png) center center;
-	height:14px;
+	background: url(icons/base14/linkeradd.png) no-repeat center center;
 	width: 14px;
 	position: absolute;
 	right: 1px;
 	top: 0px;
+	bottom: 0;
 	display: block;
 }
 
@@ -2044,9 +2204,8 @@ border='1px solid gray',margin='2px', rounded=10,
 .dojoxGrid-header .cannotBeDropped {
     background: #ffa997 !important;
 }
-.selectionLocalChange .cellContent{
-    font-style:italic;
-    background:yellow;
+.selectionLocalChange .dojoxGrid-cell{
+    background:#F9FFBC !important;
     color:black;
 }
 

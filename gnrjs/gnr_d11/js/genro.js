@@ -268,10 +268,11 @@ dojo.declare('gnr.GenroClient', null, {
          setTimeout(genro.forceResize,1);
          }*/
         //dojo.publish('onPageStart', []);
-        var windowTitle = this.getData('gnr.windowTitle');
-        if (windowTitle) {
-            genro.dom.windowTitle(windowTitle);
-        }
+        dojo.subscribe("setWindowTitle",function(title){genro.dom.windowTitle(title);});
+        //var windowTitle = this.getData('gnr.windowTitle');
+        //if (windowTitle) {
+        //    genro.dom.windowTitle(windowTitle);
+        //}
         if (this.debugopt) {
             genro.setData('gnr.debugger.sqldebug', this.debugopt.indexOf('sql') >= 0);
         }

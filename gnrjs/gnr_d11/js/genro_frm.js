@@ -424,7 +424,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
         this.newRecord = this.isNewRecord();
         genro.dom.setClass(this.sourceNode,'form_new_record',this.newRecord);
-
+        if(data){
+            this.publish('record_caption',{'caption':data.attr.caption});
+            var tablename = controllerData.getItem('table?name_long');
+            var record_title = tablename? tablename+': '+data.attr.caption:data.attr.caption;
+            controllerData.setItem('title',record_title,null,{lazySet:true});
+        }
         controllerData.setItem('protect_write',this.protect_write,null,{lazySet:true});
         controllerData.setItem('protect_delete',this.protect_delete,null,{lazySet:true});
         controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});
@@ -924,10 +929,12 @@ dojo.declare("gnr.GnrValidator", null, {
         var validations = this.getCurrentValidations(sourceNode);
         return this._validate(sourceNode, value, validations, ['notnull']);
     },
-    validate: function(sourceNode, value, userChange) {
+    validate: function(sourceNode, value, userChange,validateOnly) {
         var validations = this.getCurrentValidations(sourceNode);
         var result = this._validate(sourceNode, value, validations, this.validationTags, userChange); //userChange added by sporcari
-        this.exitValidation(result, sourceNode, validations, userChange);
+        if(!validateOnly){
+            this.exitValidation(result, sourceNode, validations, userChange);
+        }
         return result;
     },
     _validate: function(sourceNode, value, validations, validationTags, userChange) {

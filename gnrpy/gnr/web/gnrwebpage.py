@@ -1178,6 +1178,7 @@ class GnrWebPage(GnrBaseWebPage):
                 if dbselect_cache:
                     page.script('genro.cache_dbselect = true')
                 page.data('gnr.windowTitle', self.windowTitle())
+                page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
                 page.dataRemote('gnr._pageStore','getPageStoreData',cacheTime=1)
                 page.dataController("genro.publish('dbevent_'+_node.label,{'changelist':change.getItem('#0'),pkeycol:_node.attr.pkeycol});",change="^gnr.dbchanges")
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))

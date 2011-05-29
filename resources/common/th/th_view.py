@@ -37,10 +37,10 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if queryTool:
-            base_slots = ['tools','5','queryfb','|','queryTool','*','count','5']
+            base_slots = ['tools','5','vtitle','5','queryfb','|','queryTool','*','count','5']
             top_kwargs['queryfb_table'] = table
         else:
-            base_slots = ['tools','searchOn','count','*']
+            base_slots = ['tools','5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
@@ -64,6 +64,9 @@ class TableHandlerView(BaseComponent):
                         dockButton_iconClass='icnBaseLens',
                         datapath='.query.where',
                         height='150px',width='400px')
+    @struct_method
+    def th_slotbar_vtitle(self,pane,**kwargs):
+        pane.div('^.title',color='gray',font_size='.9')
     
     @struct_method
     def th_slotbar_list_locker(self, pane,**kwargs):
@@ -90,6 +93,7 @@ class TableHandlerView(BaseComponent):
             querybase = self._th_hook('query',mangler=mangler)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
+        frame.dataFormula('.title','name_plural',name_plural='=.table?name_plural',_init=True)
         frame.dataFormula('.query.where', 'q.deepCopy();',q='=.baseQuery',_onStart=True)
 
 
@@ -112,7 +116,6 @@ class TableHandlerView(BaseComponent):
         """, hiddencolumns=self._th_hook('hiddencolumns',mangler=mangler)(),
                             struct='^.grid.struct', _init=True)
 
-        frame.data('.tableRecordCount', self._th_hook('options',mangler=mangler,dflt=dict())().get('recordCount'))
         gridattr = frame.grid.attributes
         
         gridattr.update(rowsPerPage=self.rowsPerPage(),
@@ -181,23 +184,24 @@ class TableHandlerView(BaseComponent):
         tablecode = table.replace('.','_')
         mangler = pane.getInheritedAttributes()['th_root']
         fb = pane.formbuilder(cols=6, datapath='.query.where', _class='query_form',
-                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});',
-                                   float='left')
-        fb.div('^.c_0?column_caption', min_width='12em', _class='smallFakeTextBox floatingPopup',
+                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
+        fb.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
                     nodeId='%s_fastQueryColumn' %mangler,
                      dropTarget=True,
                     lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder('%s').onChangedQueryColumn(this,data);" %mangler})
-        optd = fb.div(_class='smallFakeTextBox', lbl='!!Op.', lbl_width='4em')
+        optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
                  display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %mangler,
                  border_right='1px solid silver')
+                 
         optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %mangler, 
                  selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
                  connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %mangler,
                  action="console.log(this,arguments);genro.querybuilder('%s').onChangedQueryOp($2,$1);" %mangler,
                  _dtype='^.c_0?column_dtype',
                  _class='floatingPopup', display='inline-block', padding_left='2px')
+                 
         value_textbox = fb.textbox(lbl='!!Value', value='^.c_0', width='12em', lbl_width='5em',
                                         _autoselect=True,
                                         row_class='^.c_0?css_class', position='relative',
@@ -213,11 +217,16 @@ class TableHandlerView(BaseComponent):
                                 baseClass='no_background',
                                 iconClass='tb_button db_query')
         
-    def _th_listController(self,pane,table=None):
+    def _th_listController(self,pane,table=None,mangler=None):
         table = table or self.maintable
-        pane.data('.table',table)
-        pane.data('.excludeLogicalDeleted', True)
-        pane.data('.showDeleted', False)
+        tblattr = dict(self.db.table(table).attributes)
+        tblattr.pop('tag',None)
+        pane.data('.table',table,**tblattr)
+        options = self._th_hook('options',mangler=pane)() or dict()
+        pane.data('.excludeLogicalDeleted', options.get('excludeLogicalDeleted',True))
+        pane.data('.showDeleted', options.get('excludeLogicalDeleted',False))
+        pane.data('.tableRecordCount',options.get('tableRecordCount',True))
+
 
     def _th_queryToolController(self,pane,table=None):
         mangler = pane.attributes['th_root']

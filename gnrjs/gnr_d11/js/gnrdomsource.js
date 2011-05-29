@@ -744,8 +744,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var subscriptions = objectExtract(attributes, 'subscribe_*');
         var selfsubscription = objectExtract(attributes, 'selfsubscribe_*');
         var formsubscription = objectExtract(attributes, 'formsubscribe_*');
-        var validations = objectExtract(attributes, 'validate_*');
-
+        
         var attrname;
         var ind = ind || 0;
         if (bld_attrs.onCreating) {
@@ -801,11 +800,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (bld_attrs.tooltip) {
             genro.wdg.create('tooltip', null, {label:bld_attrs.tooltip}).connectOneNode(newobj.domNode || newobj);
         }
-        if (this.validationsOnChange && objectNotEmpty(validations)){
-            this.resetValidationError();
-            var newval = this.validationsOnChange(this, attributes.value)['value'];
-            this.updateValidationStatus();
+        if (genro.src._started && this.widget && (this.widget instanceof dijit.form.ValidationTextBox)){
+            var validations = objectExtract(this.attr, 'validate_*',true);
+            if (this.validationsOnChange && objectNotEmpty(validations)){
+                this.resetValidationError();
+                var newval = this.validationsOnChange(this, attributes.value,true)['value'];
+                this.updateValidationStatus();
+            }
         }
+        
         this._built=true;
         return newobj;
     },
@@ -1048,7 +1051,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 if (trigger_reason == 'node') {
                     this.resetValidationError();
                     var currval = this.getAttributeFromDatasource('value');
-                    var newval = this.validationsOnChange(this, currval)['value'];
+                    var newval = this.validationsOnChange(this, currval,true)['value'];
                     this.updateValidationStatus();
                     this.setAttributeInDatasource('value', newval);
                 }
