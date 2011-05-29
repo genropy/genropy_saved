@@ -21,10 +21,14 @@ class TableHandlerView(BaseComponent):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,condition_kwargs=condition_kwargs,**kwargs)             
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
-        viewer = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
+        view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  reloader=reloader,virtualStore=virtualStore,
                                  condition=condition,condition_kwargs=condition_kwargs,**kwargs)
-        return viewer
+        for side in ('top','bottom','left','right'):
+            hooks = self._th_hook(side,mangler=frameCode,asDict=True)
+            for hook in hooks.values():
+                hook(getattr(view,side))
+        return view
     
     
     @extract_kwargs (top=True)

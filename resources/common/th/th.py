@@ -28,6 +28,12 @@ class TableHandler(BaseComponent):
     css_requires= 'th/th'
     py_requires='th/th_view:TableHandlerView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
 
+    
+    def _th_mangler(self,pane,table,nodeId=None):
+        tableCode = table.replace('.','_')
+        th_root = nodeId or '%s_%i' %(tableCode,id(pane.parentNode))
+        return th_root
+    
     @extract_kwargs(condition=True,grid=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,reloader=None,virtualStore=False,condition=None,condition_kwargs=None,
@@ -37,11 +43,11 @@ class TableHandler(BaseComponent):
                                                     condition_kwargs=condition_kwargs,
                                                     default_kwargs=default_kwargs,**kwargs)
         tableCode = table.replace('.','_')
-        th_root = nodeId or '%s_%i' %(tableCode,id(pane.parentNode))
-        listCode='V_%s' %th_root
+        th_root = self._th_mangler(pane,table,nodeId=nodeId)
+        viewCode='V_%s' %th_root
         formCode='F_%s' %th_root   
         wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
-                        thlist_root=listCode,
+                        thlist_root=viewCode,
                         thform_root=formCode,
                         nodeId=nodeId,
                         table=table,
@@ -57,7 +63,7 @@ class TableHandler(BaseComponent):
         top_slots = '#,delrow,addrow'
         if readOnly:
             top_slots = '#'
-        wdg.tableViewer(frameCode=listCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
+        wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 reloader=reloader,virtualStore=virtualStore,top_slots=top_slots,
                                 condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs)    
         return wdg

@@ -36,15 +36,22 @@ class TableHandlerCommon(BaseComponent):
         resourceName = self._th_getResourceName(resourceName,defaultModule,defaultClass)
         self.mixinComponent(pkg,'tables',tablename,resourceName,mangling_th=rootCode)
     
+    def _th_getResClass(self,table=None,resourceName=None,defaultClass=None):
+        pkg,tablename = table.split('.')
+        defaultModule = 'th_%s' %tablename
+        resourceName = self._th_getResourceName(resourceName,defaultModule,defaultClass)
+        return self.importTableResource(table,resourceName,pkg=pkg)
+        
+            
     def _th_hook(self,method,mangler=None,asDict=False,dflt=None):
         if isinstance(mangler,Bag):
             mangler = mangler.getInheritedAttributes().get('th_root')
         if hasattr(self,'legacy_dict'):
             method=self.legacy_dict.get(method,method)
         if asDict:
-            prefix='%s_'% method
-            return dict([(fname,self._th_hook(fname,mangler)) for fname in dir(self) 
-                                     if fname.startswith(prefix) and fname != prefix]) 
+            prefix='%s_%s_'% (mangler,method)
+            return dict([(fname,getattr(self,fname)) for fname in dir(self) 
+                                     if fname.startswith(prefix) and fname != prefix])
         if hasattr(self,'legacy_dict'):
             return getattr(self,method)          
         def emptyCb(*args,**kwargs):
