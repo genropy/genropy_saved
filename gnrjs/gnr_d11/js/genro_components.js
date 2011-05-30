@@ -189,7 +189,7 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
             return pane;
         } else {
             var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom,maxable,height,width');
-            palette_kwargs.dockButton = objectExtract(kw,'dockButton_*');
+            palette_kwargs.dockButton = objectPop(kw,'dockButton') || objectExtract(kw,'dockButton_*');
             palette_kwargs['nodeId'] = paletteCode + '_floating';
             palette_kwargs['title'] = palette_kwargs['title'] || 'Palette ' + paletteCode;
             objectUpdate(palette_kwargs, objectExtract(kw, 'palette_*'));

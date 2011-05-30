@@ -101,13 +101,6 @@ body.workInProgress{
     background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
     background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
 }
-.tundra .dijitDownArrowButtonHover,
-.tundra .dijitUpArrowButtonHover {
-	/* same as above except don't adjust border color (it's controlled by the containing Spinner/ComboBox) */
-	color:#243C5F;
-    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%,  from(rgba(182, 182, 182, 0.75)),to(rgba(239, 239, 239, 0.9)));
-    background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
-}
 
 .tundra .dijitComboBox .dijitButtonNode, .tundra .dijitSpinner .dijitButtonNode {
 	position: absolute;
