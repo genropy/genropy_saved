@@ -1,8 +1,8 @@
 .. _genro_css:
 
-============
-CSS elements
-============
+===
+CSS
+===
 
     * :ref:`css_introduction`
     * :ref:`css_dojo_themes`
@@ -18,21 +18,22 @@ Introduction
     
     There are two ways of adding CSS style in Genro:
     
-    #. The first way is the nearest to the standard way to use CSS.
+    #. The first way is the nearest to the standard way to use CSS. You have to create a CSS
+       file, put it into your :ref:`genro_intro_resources` and call it into your page.
        
-       Usually, to indicate the CSS filename in a webpage you have to use the following line::
+       The standard call for CSS files in a webpage is::
        
        <link href="stile/name_of_CSS_file.css" rel="stylesheet" type="text/css" />
        
-       In a Genro :ref:`webpages_webpages`, you will have to write the following line::
+       In Genro you have to write in your :ref:`webpages_webpages` the following line::
        
         css_requires = 'name_of_CSS_file' # write the CSS filename without its extension! (.css)
        
        For more information, check the :ref:`webpages_css_requires` documentation section.
        
     #. The second way is to use CSS style directly in your Genro :ref:`webpages_webpages`.
-       When you do this, please keep in mind that the main difference with standard CSS
-       way lies in these three rules:
+       When you do this, please pay attention that the CSS syntax is a little different
+       from the standard CSS syntax; infact, you have to:
        
        #. use the underscore (``_``) character in place of the dash (``-``) character
        #. use the equal (``=``) character in place of the colon (``:``) character

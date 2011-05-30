@@ -4,45 +4,45 @@
 ``instanceconfig``
 ==================
 
-    * :ref:`genro_gnr_instanceconfig_default`
-    * :ref:`instanceconfig_description`
-    * :ref:`instanceconfig_auto`
-    * :ref:`instanceconfig_tags`:
+    .. image:: ../../images/projects/gnr/instanceconfig.png
     
-        * :ref:`instanceconfig_packages`
-        * :ref:`instanceconfig_db`
-        * :ref:`instanceconfig_authentication`: :ref:`instanceconfig_xml_auth`,
-          :ref:`instanceconfig_py_auth`
-          
+    * :ref:`gnr_instanceconfig_default`:
+    
+        * :ref:`instanceconfig_auto`
+        * :ref:`instanceconfig_tags`:
+        
+            * :ref:`instanceconfig_packages`
+            * :ref:`instanceconfig_db`
+            * :ref:`instanceconfig_authentication`: :ref:`instanceconfig_xml_auth`,
+              :ref:`instanceconfig_py_auth`
+              
     The ``instanceconfig`` folder includes a single file: ``default.xml``
     
-.. _genro_gnr_instanceconfig_default:
+.. _gnr_instanceconfig_default:
     
 ``default.xml``
 ===============
 
-    The ``default.xml`` of the ``.gnr/instanceconfig`` folder set the default values of your
-    :ref:`instances_instanceconfig` files.
+    .. image:: ../../images/projects/gnr/instance_default.png
     
-    You can obviously redefine the values of the ``instanceconfig`` file for every project you
-    make, setting the features directly in the :ref:`instances_instanceconfig` of the specific
-    project.
-    
-.. _instanceconfig_description:
-    
-description of the file
-=======================
-
-    The ``instanceconfig`` is an XML file that allows to:
+    The ``default.xml`` file is an XML file that allows to:
     
     * define the packages you want to use in your :ref:`genro_project`
     * define the name of your database
     * handle the permits of your :ref:`genro_project`
     
+    .. note:: the ``default.xml`` file of the ``.gnr/instanceconfig`` folder set the
+              default values for the :ref:`instances_instanceconfig` file of all your
+              :ref:`genro_project`.
+              
+              You can obviously redefine the values of the ``instanceconfig.xml`` file
+              for every project you make, setting the features directly in the
+              :ref:`instances_instanceconfig` file of the project.
+    
 .. _instanceconfig_auto:
 
 autocreation
-============
+------------
     
     With the :ref:`instances_autofill` the ``instanceconfig`` will look like this one::
     
@@ -60,12 +60,10 @@ autocreation
 .. _instanceconfig_tags:
 
 Tags
-====
+----
 
     Let's see its content:
-
-    * The file begins and ends with a ``<GenRoBag>`` tag: that's because during the execution
-      of the project, this file is being converted in a :ref:`genro_bag_intro`.
+    
     * The ``<packages>`` tag allows to include any other package from other projects; Genro will
       search it through its mixin tecnique. For more information, check the
       :ref:`instanceconfig_packages` paragraph.
@@ -79,11 +77,12 @@ Tags
 .. _instanceconfig_packages:
 
 ``<packages>``
-==============
+^^^^^^^^^^^^^^
     
-    The ``<packages>`` tag allow to include any other package from other projects: this allow you
-    to use every file (like the :ref:`packages_model` and the :ref:`webpages_webpages`) of the
-    packages you've imported. If you want to import one package, you have to:
+    The ``<packages>`` tag allow to include any other package from other projects: this allow
+    you to use every file (:ref:`genro_table`\s, :ref:`webpages_webpages`\s,
+    :ref:`genro_intro_resources`) of the packages you've imported. If you want to import one
+    package, you have to:
     
     * include its path into the ``<packages>`` of your :ref:`gnr_environment` file::
     
@@ -97,15 +96,19 @@ Tags
             <mypackage />
         </packages>
         
-    where ``mypackage`` is the name of your main package.
+      where ``mypackage`` is the name of your main package.
     
-    Remember that in the ``<packages>`` tag you have at least put your main package, that is the one where
-    you put your :ref:`packages_model` and :ref:`webpages_webpages` folders.
+    Remember that in the ``<packages>`` tag you have at least put your main package, that is
+    the one where you put your :ref:`packages_model` and :ref:`webpages_webpages` folders.
+    
+    Remeber also to import the ``sys`` package::
+    
+        <gnrcore:sys />
     
 .. _instanceconfig_db:
 
 ``<db>``
-========
+^^^^^^^^
 
     In the ``<db>`` tag you have to specify at least the database name::
     
@@ -135,7 +138,7 @@ Tags
 .. _instanceconfig_authentication:
 
 ``<authentication>``
-====================
+^^^^^^^^^^^^^^^^^^^^
 
     The ``<authentication>`` tag allow to manage the authentications to your project's webpages.
     
@@ -152,14 +155,16 @@ Tags
 .. _instanceconfig_xml_auth:
 
 ``<xml_auth>``
---------------
+^^^^^^^^^^^^^^
 
+    .. warning:: DEPRECATED!!! The adm/manage_users is not used anymore! add???
+    
     .. note:: the ``<xml_auth>`` tag uses the :meth:`auth_xml` method of the ``GnrApp`` class.
     
     The ``<xml_auth>`` tag is a support tag that comes in handy to the :ref:`instanceconfig_py_auth`
     tag; it allows to you (i.e. the programmer) to enter the first time into the webpage called
-    :ref:`genro_packages_adm_webpages_manage_users` (of the :ref:`genro_library_adm` package), so that
-    you can give to your customers (and to you!) a user and a password to access to your project.
+    *adm/manage_users* you can give to your customers (and to you!) a user and a password
+    to access to your project.
     
     The ``<xml_auth>`` attributes are:
     
@@ -184,8 +189,10 @@ Tags
 .. _instanceconfig_py_auth:
 
 ``<py_auth>``
--------------
+^^^^^^^^^^^^^
 
+    .. warning:: DEPRECATED!!! The adm/manage_users is not used anymore! add???
+    
     .. note:: the ``<py_auth>`` tag uses the :meth:`auth_py` method of the ``GnrApp`` class.
     
     Once you have your temporary user [#]_, you can create the users for your customers.
@@ -199,9 +206,8 @@ Tags
     
         http://127.0.0.1:8090/adm/manage_users
     
-    Once you're there you will find a :ref:`genro_standardtable`; open :ref:`genro_st_padlock` (you can
-    do it because you entered with xml authorization) and set all the users you need (your one, the
-    customers one...).
+    Once you're there you will find a standardTable; open the padlock (you can do it because you
+    entered with xml authorization) and set all the users you need (your one, the customers one...).
     
     So, your ``<authentication>`` tag will look like this one::
     

@@ -47,7 +47,7 @@ Requirements
 How to obtain GenroPy
 =====================
 
-    add??? update!
+    .. warning:: add??? update!
     
     Genropy is in a svn repository. If you use git then you can track local changes.
     To obtain genropy, type::
@@ -79,8 +79,8 @@ Configuring GenroPy
         cd ../example_configuration/
         cp -a moveto.gnr $HOME/.gnr
     
-    Edit the :ref:`gnr_environment`, the "siteconfig\/:ref:`genro_gnr_siteconfig_default`\"
-    and the "instanceconfig\/:ref:`genro_gnr_instanceconfig_default`\" as needed.
+    Edit the :ref:`gnr_environment`, the "siteconfig\/:ref:`gnr_siteconfig_default`\"
+    and the "instanceconfig\/:ref:`gnr_instanceconfig_default`\" as needed.
     More information on relative links.
 
 .. _projectsExamples:

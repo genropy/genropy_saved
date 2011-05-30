@@ -4,6 +4,8 @@
 ``menu.xml``
 ============
 
+    .. image:: ../../images/projects/packages/menu.png
+    
     * :ref:`menu_intro`
     * :ref:`menu_features`:
     
@@ -47,7 +49,7 @@ Introduction
         
     This is the graphical result:
     
-    .. image:: ../../images/structure/menu.png
+    .. image:: ../../images/projects/menu.png
     
     In this example you have only one folder, and ``Agenda`` is the name of your package.
     

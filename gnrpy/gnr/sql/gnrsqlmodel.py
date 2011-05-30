@@ -173,7 +173,7 @@ class DbModel(object):
         """add???
         
         :param pkg: package name
-        :param table: add???
+        :param table: the :ref:`genro_table` name
         :param column: add???
         """
         tblobj = self.table(table, pkg=pkg)
@@ -320,7 +320,7 @@ class DbModelSrc(GnrStructData):
         """Add a table to the structure.
         
         :param name: the table name
-        :param pkey: the table's primary key. Default value is ``None``
+        :param pkey: the record primary key. Default value is ``None``
         :param lastTS: add???. Default value is ``None``
         :param sqlschema: add???. Default value is ``None``
         :param comment: the table's comment. Default value is ``None``

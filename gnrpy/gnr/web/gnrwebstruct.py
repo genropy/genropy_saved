@@ -272,7 +272,7 @@ class GnrDomSrc(GnrStructData):
         :param store: add???. Default value is ``None``
         :param storeCode: add???. Default value is ``None``
         :param slots: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param store_kwargs: add???. Default value is ``None``
         :returns: the framepane
         """
@@ -302,7 +302,7 @@ class GnrDomSrc(GnrStructData):
         :param storepath: add???. Default value is ``None``
         :param handler: add???. Default value is ``recordCluster``
         :param nodeId: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param storeType: add???. Default value is ``None``
         :param parentStore: add???. Default value is ``None``
         :returns: the formstore
@@ -583,8 +583,10 @@ class GnrDomSrc(GnrStructData):
         and that's because formbuilder can manage automatically fields and their positioning.
         
         :param cols: set columns number. Default value is ``1``.
-        :param table: set the database table. For more details, see :ref:`genro_dbtable`. Default value is ``None``.
-        :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'`` (actually it is the unique defined class).
+        :param table: set the database :ref:`genro_table`. For more details, see :ref:`genro_dbtable`.
+                      Default value is ``None``.
+        :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'``
+                         (actually it is the unique defined class).
         :param lblclass: set label style. Default value is ``'gnrfieldlabel'``.
         :param lblpos: set label position. ``L``: set label on the left side of text field.
          ``T``: set label on top of text field. Default value is ``'L'``.
@@ -816,19 +818,22 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param storeCode: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param storepath: add???. Default value is ``None``
-        :param columns: add???. Default value is ``None``
-        """
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``"""
         self.selectionStore(storeCode=storeCode,table=table, storepath=storepath,columns=columns,**kwargs)
         
     def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
         """add???
         
         :param storeCode: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param storepath: add???. Default value is ``None``
-        :param columns: add???. Default value is ``None``
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``
         :returns: the selectionStore
         """
         attr = self.attributes
@@ -864,14 +869,20 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param path: add???
-        :param table: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param method: add???. Default value is ``app.getSelection``
-        :param columns: add???. Default value is ``None``
-        :param distinct: add???. Default value is ``None``
-        :param where: add???. Default value is ``None``
-        :param order_by: add???. Default value is ``None``
-        :param group_by: add???. Default value is ``None``
-        :param having: add???. Default value is ``None``
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". Default value is ``None``
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
+                      Default value is ``None``
+        :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                         :ref:`sql_order_by` section. Default value is ``None``
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
+                         Default value is ``None``
+        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
+                       Default value is ``None``
         :param columnsFromView: add???. Default value is ``None``
         :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                        check the :ref:`rpc_attributes` section
@@ -905,9 +916,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param pane: add???
-        :param table: add???. Default value is ``None``
-        :param where: add???. Default value is ``None``
-        :param group_by: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
+                      Default value is ``None``
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
+                         Default value is ``None``
         :param storepath: add???. Default value is ``.store``
         """
         t0 = time()
@@ -927,8 +940,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param path: add???
-        :param table: add???
-        :param pkey: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name
+        :param pkey: the record primary key. Default value is ``None``
         :param method: add???. Default value is ``app.getRecord``
         :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                        check the :ref:`rpc_attributes` section
@@ -989,7 +1002,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
         :param struct: add???. Default value is ``None``
-        :param columns: add???. Default value is ``None``
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``
         :param structpath: add???. Default value is ``None``
         :param datapath: the path of data. Default value is ``None``.
                          For more information, check the :ref:`genro_datapath` section
@@ -1041,7 +1056,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param frameCode: add???. Default value is ``None``
         :param struct: add???. Default value is ``None``
-        :param columns: add???. Default value is ``None``
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``
         :param storepath: add???. Default value is ``None``
         :param structpath: add???. Default value is ``None``
         :param datapath: the path of data. Default value is ``None``.
@@ -1081,12 +1098,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param storepath: add???. Default value is ``None``
         :param structpath: add???. Default value is ``None``
         :param struct: add???. Default value is ``None``
-        :param columns: add???. Default value is ``None``
-        :param table: add???. Default value is ``None``
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param nodeId: add???. Default value is ``None``
         :param relativeWorkspace: add???. Default value is ``None``
-        :returns: add???
-        """
+        :returns: add???"""
         nodeId = nodeId or self.page.getUuid()
         prefix = 'grids.%s' %nodeId if not relativeWorkspace else ''
         structpath = structpath or '%s.struct' % prefix
@@ -1101,8 +1119,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param struct: add???. Default value is ``None``
-        :param columns: add???. Default value is ``None``
-        """
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``"""
         gridattr=self.attributes
         structpath = gridattr.get('structpath')
         table = gridattr.get('table')
@@ -1906,12 +1925,13 @@ class GnrGridStruct(GnrStructData):
     def fields(self, columns, unit='em', totalWidth=None):
         """add???
         
-        :param columns: add???
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section.
         :param unit: the field unit. Default value is ``em``
         :param totalWidth: add???. Default value is ``None``
         
-        r.fields('name/Name:20,address/My Addr:130px....')
-        """
+        r.fields('name/Name:20,address/My Addr:130px....')"""
         tableobj = self.tblobj
         if isinstance(columns, basestring):
             columns = columns.replace('\n', '').replace('\t', '')
@@ -1962,8 +1982,9 @@ class GnrGridStruct(GnrStructData):
     def getFieldNames(self, columns=None):
         """add???
         
-        :param columns: add???. Default value is ``None``
-        """
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``"""
         if columns is None:
             columns = []
         for v, fld in self.digest('#v,#a.field'):

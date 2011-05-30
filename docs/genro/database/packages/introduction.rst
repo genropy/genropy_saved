@@ -1,56 +1,60 @@
 .. _genro_packages_introduction:
 
 ============
-Introduction
+introduction
 ============
 
-    * :ref:`packages_map`
+    .. image:: ../../images/projects/packages/project_packages.png
+    
     * :ref:`packages_autofill`
     
     .. module:: gnr.app.gnrdeploy
     
-    The ``packages`` folder includes the packages for your application.
+    The ``packages`` folder includes the packages for your application. A package
+    is composed principally by some database :ref:`genro_table`\s and by some
+    :ref:`webpages_webpages`\s.
     
-    .. note:: the Genro packages are not Python packages (so they are not a set of linked modules,
-              containing a file ``__init__.py``), and Genro packages can't be imported with the
-              statement ``import`` *module* or with ``from`` *module* ``import``
+    .. note:: The Genro packages are not Python packages (so they are not a set of
+              linked modules, containing a file ``__init__.py``), and Genro packages
+              can't be imported with the statement ``import`` *module* or with ``from``
+              *module* ``import``.
     
-.. _packages_map:
-
-``packages`` folder content list
-================================
-
-    If you follow the steps of the :ref:`genro_project_autocreation` section, inside your
-    ``packages`` folder you will find  a ``package`` folder including a ``lib`` folder, a
-    ``model`` folder, a ``webpages`` folder, a ``main.py`` file and a ``menu.xml`` file.
-    
-    You can use the package automatically created as your main package. You can create
-    more than one package in your project.
-    
-    Click on the following links for more information on the content of a single package:
-    
-    * the :ref:`packages_lib` folder
-    * :ref:`packages_main`
-    * :ref:`packages_menu`
-    * the :ref:`packages_model` folder
-    * the :ref:`packages_webpages` folder
+    Every Genro package has got a corresponding sql schema. We suggest you to call both the
+    package and the schema with the **same name** - this simplifies your work. Otherwise,
+    if you keep different names for the package and for the schema, remember that when you
+    make an sql query - on any other sql operation - you have to refer the query to the schema
+    name, while when you operate on the package, you have to call it with the package name).
     
 .. _packages_autofill:
 
-autocreation of the ``packages`` folder
-=======================================
+autocreation of a package
+=========================
 
-    To create a new package folder you can type in your terminal::
+    If you follow the steps of the :ref:`genro_project_autocreation` section, inside your
+    project you have the 4 subfolders we spoke in the
+    :ref:`project introduction <genro_project_introduction>` in which a project is commonly
+    structured.
     
-        gnrmkpackage packagename
+    To create a project inside the ``packages`` subfolder, you can type in your terminal::
+    
+        gnrmkpackage packageName
         
-    where ``packagename`` is the name of your package.
+    where ``packageName`` is the name you want to give to your package.
     
-    Your ``packages`` folder will look like this one:
+    When you do this, inside your ``packages`` folder you will find:
     
-    .. image:: ../../images/structure/structure-packages.png
+    * a :ref:`packages_lib` folder
+    * a :ref:`packages_main` file
+    * a :ref:`packages_menu` file
+    * a :ref:`packages_model` folder
+    * a :ref:`public_resources` folder (for :ref:`genro_public_resource`\s)
+    * a :ref:`packages_webpages` folder
     
-    In this example we call the package ``myproject``, like the project name. It is a convention
-    to call the first package (the main one) with the name of the project.
+    In the following image you see the structure of a project called ``my_project`` with
+    a package called ``base``:
     
-    .. note:: The autocreation of this folder is handled by the :class:`InstanceMaker` class.
+    .. image:: ../../images/projects/packages/autocreation_packages.png
+    
+    You can create more than one package in your project, repeating the instructions
+    of this section.
+    

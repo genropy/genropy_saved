@@ -6,11 +6,13 @@ project
     
     * :ref:`genro_project_introduction`
     * :ref:`genro_project_basic_structure`
-    * :ref:`genro_project_autocreation`, :ref:`genro_project_help`
+    * :ref:`genro_project_autocreation`:
+        
+        * :ref:`genro_project_help`
     
 .. _genro_project_introduction:
 
-Introduction
+introduction
 ============
     
     The Genro applications (or projects) are divided into several layers, allowing
@@ -18,6 +20,12 @@ Introduction
     
     A Genropy Project is structured in a main ``project`` folder with 4 subfolders,
     called: ``sites``, ``instances``, ``packages`` and ``resources``.
+    
+    .. image:: ../images/projects/myproject.png
+    
+    (in the image, ``projectName`` is the name of the project)
+    
+    Let's introduce the 4 subfolders:
     
     * The ``sites`` folder:
     
@@ -62,7 +70,8 @@ Introduction
           
         * You will use it for all the common tools of your project.
         
-        More information in the :ref:`genro_resources_index` documentation section.
+        For an introduction to the resources, please check the :ref:`genro_intro_resources`
+        documentation page.
         
 .. _genro_project_basic_structure:
 
@@ -88,11 +97,11 @@ Basic structure
           * a :ref:`packages_main` file
           * a :ref:`packages_menu` file
           * a :ref:`packages_model` folder
+          * a :ref:`public_resources` folder
           * a :ref:`packages_webpages` folder
-              * :ref:`genro_webpage_resources` folder
               * one or more :ref:`webpages_webpages`\s
                     
-        * :ref:`genro_resources_index` folder (for all your project resources)
+        * :ref:`private_resources` folder (for all your project :ref:`genro_private_resource`\s)
         * :ref:`genro_sites_index` folder - here lies all your sites folder.
           Every site folder has got:
           
@@ -107,14 +116,19 @@ Project autocreation
     
     You can build a project with its four main subfolders with the command line ::
     
-        gnrmkproject projectname -a
+        gnrmkproject projectName -a
         
-    where ``projectname`` is the name you want for your project.
+    where ``projectName`` is the name you want for your project.
     
-    If you create a project called "myproject", you will obtain this structure:
+    If you write the command line, you will create a project with the following
+    structure:
     
-    .. image:: ../images/myproject2.png
+    .. image:: ../images/projects/myproject2.png
     
+    .. note:: the name of the istance folder (inside the ``instances`` folder) and the name
+              of the site folder (inside the ``sites`` folder) are equal to the name of the
+              ``project`` folder. This is a convention to keep order in your project.
+              
 .. _genro_project_help:
 
 terminal help
@@ -147,6 +161,4 @@ terminal help
 
 .. [#] Genro provides additional modules that implement common functions for all the
        applications (user management, table of Italian municipalities...)
-.. [#] For a complete reference of the project building options, please check the
-       :ref:`genro_project_help` section
-    
+       

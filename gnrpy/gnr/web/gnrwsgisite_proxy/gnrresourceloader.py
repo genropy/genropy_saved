@@ -501,7 +501,7 @@ class ResourceLoader(object):
         """add???
         
         :param page: add???
-        :param table: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param respath: add???. Default value is ``None``
         :param class_name: add???. Default value is ``None``
         :param _onDefault: add???. Default value is ``None``

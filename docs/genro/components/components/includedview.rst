@@ -4,7 +4,7 @@
 includedView
 ============
 
-    .. warning:: completely to rewrite!! add???
+    .. warning:: deprecated!! add???
     
     * :ref:`iv_description`
     * :ref:`iv_example`

@@ -4,33 +4,25 @@
 webpage
 =======
 
+    .. image:: ../../../images/projects/packages/webpage.png
+    
     * :ref:`webpages_GnrCustomWebPage`
     * :ref:`webpages_variables`
-    
-    Genro provides the application GUI using webpages.
-    
-    add???(Introduce the GnrCustomWebPage)
-    
-    The standard usage of Genro GnrCustomWebPages is to use them in a combo with some
-    :ref:`genro_table`\s to create a DBMS :ref:`genro_project`.
-    
-    .. note:: please call your webpages with the suffix ``_page``. This is a convention
-              to keep order in your project (e.g: ``staff_page.py``)
-    
-    You can act on a Genro webpage through many webpage elements: please check the
-    :ref:`genro_webpage_elements_intro` to Genro webpage elements if you need to learn
-    more about them.
-    
-    We are going now to introduce the :ref:`webpages_GnrCustomWebPage`, the standard class
-    used to build the webpages.
+    * The :ref:`webpages_main` method
     
 .. _webpages_GnrCustomWebPage:
 
 GnrCustomWebPage
 ================
     
-    add??? (this isn't a real GnrCustomWebPage class, it is created through a GnrWebPage
-    istance...)
+    .. module:: gnr.web.gnrwebpage
+    
+    Genro provides the application GUI using webpages. A webpage is built through
+    an istance of a GnrCustomWebPage, that is a custom class of the :class:`GnrWebPage`.
+    
+    You can act on a Genro webpage through many webpage elements: please check the
+    :ref:`introduction to webpage elements <genro_webpage_elements_intro>` if you need
+    to learn more about them.
     
     The GnrCustomWebPage (Genro Custom Webpage) is add???(a mixin class?) through which you can
     build your webpages.
@@ -48,14 +40,19 @@ GnrCustomWebPage
     
         class GnrCustomWebPage(object):
         
-    #. You may insert some optional :ref:`webpages_variables`. Here we introduce the most commonly used:
-    
+    #. You may insert some optional :ref:`webpages_variables`. Here we introduce
+       the most commonly used:
+       
         * :ref:`webpages_maintable`: allow to create shortcuts for users query
-        * :ref:`webpages_py_requires`: allow to include some Genro :ref:`genro_components_index` to your webpage
-        * :ref:`webpages_js_requires`: allow to include some javascipt functionality to your webpage
-        * :ref:`webpages_css_requires`: allow to include some :ref:`genro_css` to your webpage
+        * :ref:`webpages_py_requires`: allow to include some Genro
+          :ref:`genro_component`\s to your webpage (or, more generally, Python modules)
+        * :ref:`webpages_js_requires`: allow to include some javascript functionality
+          to your webpage
+        * :ref:`webpages_css_requires`: allow to include some :ref:`genro_css`
+          to your webpage
     
-    #. You have to define the main method (unless you're using an active component [#]_)
+    #. You have to define the :ref:`webpages_main` method (unless you're using an active
+       component [#]_)
         
     Let's see now an example of a complete heading of a webpage::
     
@@ -71,6 +68,34 @@ GnrCustomWebPage
                 root.div('Hello world!')
                 # Here goes the rest of your code...
                 
+.. _webpages_main:
+    
+main
+====
+    
+    The main method of a webpage.
+    
+    ::
+    
+        def main(self, root, **kwargs):
+    
+    where:
+    
+    * the ``root`` passes a :ref:`genro_contentpane`, unless you import the ``public.py``
+      :ref:`webpages_py_requires`::
+      
+        py_requires = 'public:Public'
+        
+      the ``root`` passes a :ref:`genro_bordercontainer`.
+      
+    * in the ``**kwargs`` you will find all the values passed to the client through
+      the :ref:`genro_xmlhttprequest`.
+      
+    .. note:: Usually the ``main`` method is MANDATORY. But, if you an :ref:`components_active`,
+              you may avoid to define it because the ``main`` method is defined within the
+              component itself. For more information check the :ref:`introduction to components
+              <genro_components_introduction>` documentation page.
+              
     .. _webpages_variables:
 
 webpage variables
@@ -97,8 +122,8 @@ webpage variables
 py_requires
 -----------
 
-    * Description: a string that allows to include some :ref:`genro_components_index` to
-      your project.
+    * Description: a string that allows to include some :ref:`genro_component`\s
+      to your project (or, more generally, Python modules).
     * Syntax: ``py_requires = 'fileName:componentClassName'``
     
         Where:
@@ -115,14 +140,13 @@ py_requires
     In this example you are calling the ``Public`` and the ``IncludedView`` classes of the
     ``public.py`` file and the ``TableHandler`` class of the ``standard_tables.py`` file.
     
-    .. note:: The components you want to use must be placed into a folder named
-              "``resources``" (or "``_resources``")
+    .. note:: The components you want to use must be placed into a folder named ``resources``
               
-              * For more information about components check the :ref:`genro_components_index`
+              * For more information about components, check the :ref:`genro_component`\s
                 documentation page
               * For more information about their location in a Genro :ref:`genro_project`,
-                please check the :ref:`genro_webpage_resources` documentation page.
-            
+                please check the :ref:`genro_intro_resources` documentation page
+                
     .. _webpages_css_requires:
 
 css_requires
@@ -136,13 +160,12 @@ css_requires
         
     This line implies that you have created a CSS file called ``my_style.css``
         
-    .. note:: The CSS files you want to use must be placed into a folder named "``resources``"
-              (or "``_resources``")
+    .. note:: The CSS files you want to use must be placed into your "``resources``" folder
               
               * For more information about Genro CSS, please check the :ref:`genro_css`
                 documentation page.
               * For more information about their location in a Genro :ref:`genro_project`,
-                please check the :ref:`genro_webpage_resources` documentation page.
+                please check the :ref:`genro_intro_resources` documentation page.
                 
     .. _webpages_css_theme:
 
@@ -214,11 +237,10 @@ js_requires
         
     This line implies that you have created a js file called ``wizard.js``
         
-    .. note:: The js files you want to use must be placed into a folder named "``resources``"
-              (or "``_resources``")
+    .. note:: The js files you want to use must be placed into your "``resources``" folder
               
               * For more information about Genro js and their location in Genro, please check
-                the :ref:`genro_webpage_resources` documentation page.
+                the :ref:`genro_intro_resources` documentation page.
                 
     .. _webpages_pageOptions:
 

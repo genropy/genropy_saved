@@ -27,7 +27,7 @@ Per costruire una stampa o un report, si crea una classe derivata da :class:`gnr
 Questi parametri possono essere specificati come attributi della classe (scritti usando *underline_come_separatore*) o come metodi della classe (scritti in *camelCase*), nel caso fossero calcolati dinamicamente.
 
 Layout, righe e celle
-*********************
+=====================
 
 Per posizionare le cose, abbiamo a disposizione tre oggetti:
 
@@ -38,7 +38,7 @@ Per posizionare le cose, abbiamo a disposizione tre oggetti:
 Le lunghezze sono sempre specificate in millimetri (mm). Vedi :mod:`gnr.core.gnrhtml` per ulteriori dettagli.
 
 Attributi e callbacks
-*********************
+=====================
 
 Il foglio è diviso in varie parti che hanno corrispondenti callbacks:
 
@@ -57,7 +57,7 @@ Il ``pageHeader``/``pageFooter`` è solitamente riservato alla carta intestata o
 Il componente prende i dati da una tabella, ma se invece si vogliono passare dati con altro sistema si può ridefinire il metodo ``loadRecord``. 
 
 Invocazione della stampa
-************************
+========================
 
 La stampa può essere invocata in vari modi: si può mettere un bottone in una standardtable (c'è un callback apposta), stampa tutte le righe selezionate. Il componente ``serverPrint()`` mostra una finestra di dialogo per la stampa (in cui è possibile aggiungere ulteriori parametri, con un callback) e poi prepara il batch di stampa.
 

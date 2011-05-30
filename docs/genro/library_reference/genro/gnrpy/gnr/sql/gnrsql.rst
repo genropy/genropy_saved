@@ -27,20 +27,20 @@
 
     .. module:: gnr.sql.gnrsql.GnrSqlDb
     
-    ======================== ========================= ============================== =========================
-    :meth:`analyze`          :meth:`delete`            :meth:`notify`                 :meth:`startup`          
-    :meth:`checkDb`          :meth:`dropDb`            :meth:`package`                :meth:`table`            
-    :meth:`closeConnection`  :meth:`dropSchema`        :meth:`packageMixin`           :meth:`tableMixin`       
-    :meth:`colToAs`          :meth:`dump`              :meth:`packageSrc`             :meth:`tableTreeBag`     
-    :meth:`commit`           :meth:`execute`           :meth:`packages`               :meth:`tempEnv`          
-    :meth:`connection`       :meth:`get_dbname`        :meth:`query`                  :meth:`unfreezeSelection`
-    :meth:`createDb`         :meth:`importModelFromDb` :meth:`relationExplorer`       :meth:`update`           
-    :meth:`createModel`      :meth:`importXmlData`     :meth:`restore`                :meth:`updateEnv`        
-    :meth:`createSchema`     :meth:`insert`            :meth:`rollback`               :meth:`use_store`        
-    :meth:`currentEnv`       :meth:`listen`            :meth:`saveModel`              :meth:`vacuum`           
-    :meth:`dbstores`         :meth:`loadModel`         :meth:`setConstraintsDeferred` :meth:`workdate`         
-    :meth:`debug`            :meth:`locale`                                                                    
-    ======================== ========================= ============================== =========================
+    ======================== ========================= ============================== ==============================
+    :meth:`analyze`          :meth:`debug`             :meth:`locale`                 :meth:`setConstraintsDeferred`
+    :meth:`checkDb`          :meth:`delete`            :meth:`notify`                 :meth:`startup`               
+    :meth:`clearCurrentEnv`  :meth:`dropDb`            :meth:`onDbCommitted`          :meth:`table`                 
+    :meth:`closeConnection`  :meth:`dropSchema`        :meth:`package`                :meth:`tableMixin`            
+    :meth:`colToAs`          :meth:`dump`              :meth:`packageMixin`           :meth:`tableTreeBag`          
+    :meth:`commit`           :meth:`execute`           :meth:`packageSrc`             :meth:`tempEnv`               
+    :meth:`connection`       :meth:`get_dbname`        :meth:`packages`               :meth:`unfreezeSelection`     
+    :meth:`createDb`         :meth:`importModelFromDb` :meth:`query`                  :meth:`update`                
+    :meth:`createModel`      :meth:`importXmlData`     :meth:`relationExplorer`       :meth:`updateEnv`             
+    :meth:`createSchema`     :meth:`insert`            :meth:`restore`                :meth:`use_store`             
+    :meth:`currentEnv`       :meth:`listen`            :meth:`rollback`               :meth:`vacuum`                
+    :meth:`dbstores`         :meth:`loadModel`         :meth:`saveModel`              :meth:`workdate`              
+    ======================== ========================= ============================== ==============================
     
 .. _gnrsql_dbstoreshandler:
 

@@ -44,5 +44,15 @@ HTML elements
         pane.div(width='100%',height='300px').IncludedView(struct=self._gridStruct2(),
                                                            storepath='lista_regioni',nodeId='regioni_grid')
                                                            
-   .. note:: check the :ref:`genro_html_elements` documentation page for tips on some HTML elements.
-   
+    .. _genro_html_elements:
+    
+list of HTML elements
+---------------------
+
+    Here we list the HTML elements:
+    
+    * *ghost='STRING'*: a modified version of the add??? html. Suggest to user
+      how he has to compile. The hint disappear on user writing.
+    * *tip='STRING'*: the HTML tip, where STRING is the tip that will be showned.
+      You can use it on every object.
+    * *type*='password': allow to hide the written characters.

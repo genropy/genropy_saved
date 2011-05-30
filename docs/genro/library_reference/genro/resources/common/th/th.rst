@@ -4,6 +4,8 @@
 :class:`TableHandler`
 =====================
     
+    .. warning:: add??? The decorators prevent to make autodoc...
+    
     .. module:: resources.common.th.th.TableHandler
     
     * :meth:`rpc_th_iframedispatcher`

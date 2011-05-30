@@ -5,11 +5,10 @@ list of components
 ==================
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     
     IncludedView <includedview>
+    frameindex
     linkerField
-    login_component
-    SelectionHandler <selectionhandler>
-    standardtable/index
     recorddialog
+    th

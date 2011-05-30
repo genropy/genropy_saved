@@ -9,18 +9,17 @@ from gnr.web.gnrbaseclasses import BaseComponent
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('@anagrafica_id.ragione_sociale', width='18%')
-        r.fieldcell('@anagrafica_id.telefono', width='6%')
-        r.fieldcell('@anagrafica_id.email', width='12%')
+        r.fieldcell('@anagrafica_id.ragione_sociale', name='!!Name', width='18%')
+        r.fieldcell('@anagrafica_id.telefono', name='!!Phone', width='6%')
+        r.fieldcell('@anagrafica_id.email', name='!!E-mail', width='12%')
         r.fieldcell('tipologia', width='6%')
-        r.fieldcell('@anagrafica_id.indirizzo', width='12%')
-        r.fieldcell('@anagrafica_id.cap', width='4%')
-        r.fieldcell('@anagrafica_id.localita', width='7%')
-        r.fieldcell('@anagrafica_id.partita_iva', width='7%')
-        r.fieldcell('@anagrafica_id.fax', width='6%')
-        r.fieldcell('@anagrafica_id.www', name='!!Sito web', width='13%')
-        r.fieldcell('@anagrafica_id.note', width='9%')
-        return struct
+        r.fieldcell('@anagrafica_id.indirizzo', name='!!Address', width='12%')
+        r.fieldcell('@anagrafica_id.cap', name='!!Postcode', width='4%')
+        r.fieldcell('@anagrafica_id.localita', name='!!Location', width='7%')
+        r.fieldcell('@anagrafica_id.partita_iva', name='!!VAT', width='7%')
+        r.fieldcell('@anagrafica_id.fax', name='!!Fax', width='6%')
+        r.fieldcell('@anagrafica_id.www', name='!!Web Site', width='13%')
+        r.fieldcell('@anagrafica_id.note', name='!!Notes', width='9%')
         
     def th_order(self):
         return '@anagrafica_id.ragione_sociale'
@@ -31,57 +30,61 @@ class View(BaseComponent):
 class Form(BaseComponent):
     def th_form(self, form):
         pane = form.record
-        pane.dataFormula("#FORM.title", '"Scheda azienda: " + titolo',titolo='^.@anagrafica_id.ragione_sociale',
-                        _if='titolo',_else='"Scheda azienda: nuova azienda"')
+        #pane.dataFormula("#FORM.title", '"Scheda azienda: " + titolo',titolo='^.@anagrafica_id.ragione_sociale',
+        #                _if='titolo',_else='"Scheda azienda: nuova azienda"')
         fb = pane.formbuilder(cols=2,border_spacing='6px',lbl_width='6em',
                               fld_width='15em',width='40em',lbl_color='teal')
-        fb.field('@anagrafica_id.ragione_sociale',colspan=2,width='100%',
+        fb.field('@anagrafica_id.ragione_sociale',colspan=2,
+                  lbl='!!Name',width='100%',
                   validate_notnull=True,
-                  validate_notnull_error='!!Campo obbligatorio')
-        fb.field('@anagrafica_id.email',validate_email=True,
-                  validate_email_error='!!Formato email non corretto',colspan=2)
-        fb.field('@anagrafica_id.telefono')
-        fb.field('@anagrafica_id.fax')
-        fb.field('@anagrafica_id.indirizzo',validate_case='capitalize',
-                  tag='textarea',lbl_vertical_align='top',width='100%',colspan=2)
-        fb.field('@anagrafica_id.cap')
-        fb.field('@anagrafica_id.localita')
-        fb.field('@anagrafica_id.partita_iva')
-        fb.field('tipologia',tag='combobox',values='cliente, fornitore')
-        fb.field('@anagrafica_id.www',lbl='Sito web',colspan=2)
-        fb.field('@anagrafica_id.note',tag='textarea',lbl_vertical_align='top',width='100%',colspan='2')
-
-class FormFull(BaseComponent):
-    def th_form(self, form):
-        tc = form.center.tabContainer()
-        self.mainInfoAzienda(tc.contentPane(title='Info base',datapath='.record',nodeId='aziendaRecord'))
-        pane = tc.contentPane(title='Contatti')
-       #th = pane.dialogTableHandler(table='agenda.contatto',condition='$azienda_id=:azienda_id',condition_azienda_id='^#FORM.pkey',
-       #                       formResource=':FormFromAzienda',viewResource=':ViewFromAzienda',dialog_height='200px',dialog_width='400px')
-       #th.form.store.handler('load',default_azienda_id='^#aziendaRecord.id')
-        pane.dialogTableHandler(relation='@contatti',
-                                 formResource=':FormFromAzienda',
-                                 viewResource=':ViewFromAzienda',
-                                 dialog_height='200px',dialog_width='400px')
+                  validate_notnull_error='!!Required field')
+        fb.field('@anagrafica_id.email',
+                  lbl='!!Email',
+                  validate_email=True,
+                  validate_email_error='!!Uncorrect email format',colspan=2)
+        fb.field('@anagrafica_id.telefono',lbl='!!Phone')
+        fb.field('@anagrafica_id.fax',lbl='!!Fax')
+        fb.field('@anagrafica_id.indirizzo',lbl='!!Address',
+                  validate_case='capitalize',tag='textarea',lbl_vertical_align='top',width='100%',colspan=2)
+        fb.field('@anagrafica_id.cap',lbl='!!Postcode')
+        fb.field('@anagrafica_id.localita',lbl='!!Location')
+        fb.field('@anagrafica_id.partita_iva',lbl='!!VAT')
+        fb.field('tipologia',lbl='!!Type',tag='combobox',values='customer, supplier')
+        fb.field('@anagrafica_id.www',lbl='!!Web site',colspan=2)
+        fb.field('@anagrafica_id.note',lbl='!!Notes',
+                  tag='textarea',lbl_vertical_align='top',width='100%',colspan='2')
         
-        
-    def mainInfoAzienda(self,pane):
-        pane.dataFormula("#FORM.title", '"Scheda azienda: " + titolo',titolo='^.@anagrafica_id.ragione_sociale',
-                        _if='titolo',_else='"Scheda azienda: nuova azienda"')
-        fb = pane.formbuilder(cols=2,border_spacing='6px',lbl_width='6em',
-                              fld_width='15em',width='40em',lbl_color='teal')
-        fb.field('@anagrafica_id.ragione_sociale',colspan=2,width='100%',
-                  validate_notnull=True,
-                  validate_notnull_error='!!Campo obbligatorio')
-        fb.field('@anagrafica_id.email',validate_email=True,
-                  validate_email_error='!!Formato email non corretto',colspan=2)
-        fb.field('@anagrafica_id.telefono')
-        fb.field('@anagrafica_id.fax')
-        fb.field('@anagrafica_id.indirizzo',validate_case='capitalize',
-                  tag='textarea',lbl_vertical_align='top',width='100%',colspan=2)
-        fb.field('@anagrafica_id.cap')
-        fb.field('@anagrafica_id.localita')
-        fb.field('@anagrafica_id.partita_iva')
-        fb.field('tipologia',tag='combobox',values='cliente, fornitore')
-        fb.field('@anagrafica_id.www',lbl='Sito web',colspan=2)
-        fb.field('@anagrafica_id.note',tag='textarea',lbl_vertical_align='top',width='100%',colspan='2')
+#class FormFull(BaseComponent):
+#    def th_form(self, form):
+#        tc = form.center.tabContainer()
+#        self.mainInfoAzienda(tc.contentPane(title='Base info',datapath='.record',nodeId='aziendaRecord'))
+#        pane = tc.contentPane(title='Contacts')
+#       #th = pane.dialogTableHandler(table='agenda.contatto',condition='$azienda_id=:azienda_id',condition_azienda_id='^#FORM.pkey',
+#       #                       formResource=':FormFromAzienda',viewResource=':ViewFromAzienda',dialog_height='200px',dialog_width='400px')
+#       #th.form.store.handler('load',default_azienda_id='^#aziendaRecord.id')
+#        pane.dialogTableHandler(relation='@contatti',
+#                                formResource=':FormFromAzienda',
+#                                viewResource=':ViewFromAzienda',
+#                                dialog_height='200px',dialog_width='400px')
+#                                 
+#    def mainInfoAzienda(self,pane):
+#        #pane.dataFormula("#FORM.title", '"Scheda azienda: " + titolo',titolo='^.@anagrafica_id.ragione_sociale',
+#        #                _if='titolo',_else='"Scheda azienda: nuova azienda"')
+#        fb = pane.formbuilder(cols=2,border_spacing='6px',lbl_width='6em',
+#                              fld_width='15em',width='40em',lbl_color='teal')
+#        fb.field('@anagrafica_id.ragione_sociale',colspan=2,width='100%',
+#                  validate_notnull=True,
+#                  validate_notnull_error='!!Required field')
+#        fb.field('@anagrafica_id.email',validate_email=True,
+#                  validate_email_error='!!Uncorrect email format',colspan=2)
+#        fb.field('@anagrafica_id.telefono')
+#        fb.field('@anagrafica_id.fax')
+#        fb.field('@anagrafica_id.indirizzo',validate_case='capitalize',
+#                  tag='textarea',lbl_vertical_align='top',width='100%',colspan=2)
+#        fb.field('@anagrafica_id.cap')
+#        fb.field('@anagrafica_id.localita')
+#        fb.field('@anagrafica_id.partita_iva')
+#        fb.field('tipologia',tag='combobox',values='cliente, fornitore')
+#        fb.field('@anagrafica_id.www',lbl='!!Web site',colspan=2)
+#        fb.field('@anagrafica_id.note',tag='textarea',lbl_vertical_align='top',width='100%',colspan='2')
+            

@@ -4,9 +4,12 @@
 table
 =====
     
+    .. image:: ../../../images/projects/packages/model_table.png
+    
     * :ref:`table_description`
     * :ref:`table_definition`
     * :ref:`table_creation`
+    * :ref:`table_config_db`
     * :ref:`table_columns`
     
         * the simple :ref:`table_column` (and :ref:`table_relation`\s)
@@ -25,8 +28,8 @@ Description
 
     A table is one of the most important part of your project. In relational databases and
     flat file databases, a table is a set of data elements that is organized using a model
-    of vertical columns (which are identified by their name) and horizontal rows. Each row
-    is identified by the table's primary key (pkey).
+    of vertical :ref:`table_columns` (which are identified by their name) and horizontal
+    rows. Each row is identified by the table's primary key (pkey).
     
 .. _table_definition:
 
@@ -52,10 +55,18 @@ Creation of a table
     
         # encoding: utf-8
     
-    Now we have to introduce the right class for a table; there are many options (that we will discuss
-    in the :ref:`genro_table_class` documentation page). For now use the standard one::
+    Now we have to introduce the right class for a table; there are many options (that we
+    discuss in the :ref:`genro_table_classes` documentation page). We use now the standard
+    method::
     
         class Table(object):
+        
+    add???
+    
+.. _table_config_db:
+        
+config_db
+=========
         
     To use a table you have to call the following method:
     
@@ -73,7 +84,7 @@ Creation of a table
                          name_long='Company', name_plural='Companies')
                          
     * table attributes:
-        
+    
         * pkey
         * rowcaption
         * name_long
@@ -87,12 +98,12 @@ Creation of a table
         
     .. automethod:: gnr.app.gnrdbo.TableBase.sysFields
     
-    add self.htableFields(tbl)?
+    add??? self.htableFields(tbl)
 
 .. _table_columns:
 
-Table columns
-=============
+columns
+=======
 
     There are a lot of columns type you can use:
     
@@ -114,6 +125,8 @@ column
         
     * column attributes:
     
+        * size
+        * name_long
         * required (???)
         * unique (boolean)
         *  _sendback (boolean) add???
@@ -132,10 +145,10 @@ relation
       di integrità referenziale quando si vuole interagire con il database, mettere mode='foreignkey' -->
       diventa una relazione SQL. Nel 99% dei casi bisogna metterlo!
     * onDelete='cascade' add??? (altri attributi?)
-    * one_one='*' add??? permette di rendere la relazione "simmetrica"
+    * one_one='*' / True / ... add??? permette di rendere la relazione "simmetrica"
     * one_group add???
     * relation_name='nome' + storepath='nome' --> mi permette di non riscrivere tutta la relazione
-      (@blabla.@bleble.nome) che è contenuta nella column con il relation...
+      (@blabla.@bleble.nome) che è contenuta nella column con il relation... relation field! (:ref:`genro_relation_field`)
       
 .. _table_aliascolumn:
 

@@ -186,10 +186,7 @@ def metadata(**kwargs):
     return decore
     
 def getUuid():
-    """add???
-    
-    :returns: add???
-    """
+    """Return a Python Universally Unique IDentifier 3 (UUID3) through the Python \'base64.urlsafe_b64encode\' method"""
     return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(), str(thread.get_ident())).bytes)[0:22]
     
 def safe_dict(d):

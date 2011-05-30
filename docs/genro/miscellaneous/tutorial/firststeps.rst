@@ -4,6 +4,8 @@
 First steps
 ===========
 
+    .. warning:: chapter to be rewritten completely!
+    
     * :ref:`simple_build_package`
 
 .. _simple_build_package:

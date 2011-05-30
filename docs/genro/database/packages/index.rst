@@ -4,6 +4,8 @@
 ``packages``
 ============
 
+    .. image:: ../../images/projects/packages/project_packages.png
+    
 .. toctree::
     :maxdepth: 2
     
@@ -12,4 +14,5 @@
     main
     menu
     model/index
+    resources/index
     webpages/index

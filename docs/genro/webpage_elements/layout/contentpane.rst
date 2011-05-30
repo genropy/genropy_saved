@@ -4,11 +4,16 @@
 contentPane
 ===========
 
-    .. note:: The Genro contentPane has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's contentPane documentation.
+    .. note:: The Genro contentPane has been taken from Dojo without adding any modifies. In this page
+              you will find some interesting features that we want to point up. For more information,
+              check the Dojo's contentPane documentation.
     
     * :ref:`cp_definition`
     * :ref:`cp_attributes`
-    * :ref:`cp_examples`: :ref:`cp_examples_simple`
+    * :ref:`cp_examples`:
+    
+        * :ref:`cp_example_simple`
+        * :ref:`cp_example_form`
     
 .. _cp_definition:
 
@@ -17,7 +22,8 @@ Definition
 
     .. method:: pane.contentPane([**kwargs])
 
-    A contentPane_ is a Dojo widget that can be used as a standalone widget or as a baseclass for other widgets. Don’t confuse it with an iframe, it only needs/wants document fragments.
+    A contentPane_ is a Dojo widget that can be used as a standalone widget or as a baseclass for
+    other widgets. Don’t confuse it with an iframe, it only needs/wants document fragments.
 
 .. _cp_attributes:
 
@@ -37,7 +43,7 @@ Attributes
 Examples
 ========
 
-.. _cp_examples_simple:
+.. _cp_example_simple:
 
 simple example
 --------------
@@ -46,24 +52,45 @@ simple example
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
-                bc = root.borderContainer(height='400px')
-                top = bc.contentPane(region='top',height='5em',background_color='#f2c922')
-                top.div('Specify my height!',font_size='.9em',text_align='justify',margin='10px')
-                center = bc.contentPane(region='center',background_color='silver',padding='10px')
-                center.div("""Like in Dojo, this widget is a container partitioned into up to five regions:
-                              left (or leading), right (or trailing), top, and bottom with a mandatory center
-                              to fill in any remaining space. Each edge region may have an optional splitter
-                              user interface for manual resizing.""",
-                              font_size='.9em',text_align='justify',margin='10px')
-                center.div("""Sizes are specified for the edge regions in pixels or percentage using CSS – height
-                              to top and bottom, width for the sides. You have to specify the "height" attribute
-                              for the "top" and the "bottom" regions, and the "width" attribute for the "left" and
-                              "right" regions. You shouldn’t set the size of the center pane, since it’s size is determined
-                              from whatever is left over after placing the left/right/top/bottom panes.)""",
-                              font_size='.9em',text_align='justify',margin='10px')
-                left = bc.contentPane(region='left',width='130px',background_color='red',splitter=True)
-                left.div('Specify my width!',font_size='.9em',text_align='justify',margin='10px')
-                right = bc.contentPane(region='right',width='130px',background_color='yellow')
-                right.div('Specify my width!',font_size='.9em',text_align='justify',margin='10px')
-                bottom = bc.contentPane(region='bottom',height='80px',background_color='grey')
-                bottom.div('Specify my height!',font_size='.9em',text_align='justify',margin='10px')
+                root.div('hello!')
+                
+    You're wondering about where is the contentPane? It is passed through the root.
+    
+.. _cp_example_form:
+    
+form example
+------------
+
+    We show you now a :ref:`genro_form`, built through a :ref:`genro_bordercontainer`
+    and three contentPanes::
+    
+        class GnrCustomWebPage(object):
+            def main(self,root,**kwargs):
+                bc = root.borderContainer(margin='3px')
+                top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='1px',height='40%')
+                top.div('!!Registry records',_class='pbl_roundedGroupLabel')
+                fb = top.formbuilder(margin_left='10px',margin_top='1em',width='370px',cols=2)
+                fb.textbox(lbl='Name')
+                fb.textbox(lbl='Surname')
+                fb.textbox(lbl='Email')
+                fb.textbox(lbl='Telephone')
+                fb.textbox(lbl='Tax code')
+                fb.textbox(lbl='VAT')
+                fb.textbox(lbl='Fax',colspan=2,width='100%')
+                fb.textArea(lbl='Notes',colspan=2,width='100%')
+                fb.combobox(lbl='Company role',values='emplyee, freelance, manager, owner')
+                
+                left = bc.contentPane(region='left',_class='pbl_roundedGroup',margin='1px',width='50%')
+                left.div('!!Staff records',_class='pbl_roundedGroupLabel')
+                fb = left.formbuilder(margin_left='10px',margin_top='1em',width='370px')
+                fb.textbox(lbl='Internal number',ghost='example: 202')
+                fb.textbox(lbl='Notes',ghost='example: 202')
+                
+                right = bc.contentPane(region='center',_class='pbl_roundedGroup',margin='1px',width='50%')
+                right.div('!User records',_class='pbl_roundedGroupLabel')
+                fb = right.formbuilder(margin_left='10px',margin_top='1em',width='370px')
+                fb.textbox(lbl='Username')
+                fb.textbox(lbl='md5pwd')
+                fb.textbox(lbl='Auth tags')
+                fb.textbox(lbl='Avatar rootpage')
+                
