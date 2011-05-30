@@ -50,7 +50,7 @@ class TableScriptRunner(BaseComponent):
                                        FIRE #table_script_dlg_parameters.open;
                                     """, subscribe_table_script_run=True)
 
-        rpc = plugin_main.dataRpc('dummy', 'table_script_run',
+        rpc = plugin_main.dataRpc('dummy', self.table_script_run,
                             _fired='^.run',
                             _onCalling='=.onCalling',
                             _onResult='if(kwargs._publishOnResult){genro.publish(kwargs._publishOnResult);}',
@@ -147,8 +147,8 @@ class TableScriptRunner(BaseComponent):
                             }
                             """,
                            _fired="^.save", pars='=.data',immediate=batch_dict.get('immediate',False))
-
-    def rpc_table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectionFilterCb=None,
+    @public_method
+    def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectionFilterCb=None,
                              selectedRowidx=None,
                              parameters=None, printerOptions=None, **kwargs):
         tblobj = self.tblobj or self.db.table(table)

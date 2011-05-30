@@ -252,8 +252,7 @@ element.style {
 }
 
 /* @group MenuStack */
-.menuStackNavigator .dijitButtonNode,
-.bottom_btn .dijitButtonNode {
+.menuStackNavigator .dijitButtonNode{
     background-color: transparent;
     border-width: 0;
 }
