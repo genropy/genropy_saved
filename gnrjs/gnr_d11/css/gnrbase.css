@@ -274,7 +274,6 @@ body.workInProgress{
 }
 
 .tundra .dijitTextBoxErrorDisabled {
-	box-shadow:none;
     background: transparent;
     border-color: silver;
 }
