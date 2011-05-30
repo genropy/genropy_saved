@@ -155,10 +155,10 @@ class GnrBaseWebPage(GnrObject):
         return result
         
     def mixins(self):
-        """Implement this method in your page for mixin the page with methods from the local
-        :ref:`genro_webpage_resources` folder.
+        """Implement this method in your page for mixin the page with methods from the
+        public :ref:`public_resources` folder.
         
-        :returns: a list of mixin names, moduleName:className
+        :returns: a list of mixin names, ``moduleName:className``
         """
         return []
         
