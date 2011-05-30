@@ -47,7 +47,7 @@ class Form(BaseComponent):
         fb.button('Show receiver info',action='genro.wdgById("info_destinatario").show()',
                   visible='^aux.mostra_destinatario')
         
-        fb.field('descrizione',tag='textarea',colspan=3,width='100%',height='60px')
+        fb.field('descrizione',tag='simpletextarea',colspan=3,width='100%',height='60px')
         
 class ViewFromReceiver(BaseComponent):
     def th_struct(self,struct):
@@ -73,5 +73,5 @@ class FormFromReceiver(BaseComponent):
                  selected_azienda_id='.azienda_id',
                  validate_notnull=True,validate_notnull_error='!!Mandatory field')
         fb.field('destinatario_id',lbl='!!Destinatario',colspan=2)
-        fb.field('descrizione',tag='textarea',colspan=3,width='100%',height='60px')
+        fb.field('descrizione',tag='simpletextarea',colspan=3,width='100%',height='60px')
         

@@ -45,7 +45,7 @@ class GnrCustomWebPage(object):
                   validate_case='u')
         fb.field('partita_iva',lbl='!!VAT')
         fb.field('fax',lbl='!!Fax',colspan=2)
-        fb.field('note',lbl='!!Notes',tag='textarea',colspan=2,width='100%')
+        fb.field('note',lbl='!!Notes',tag='simpletextarea',colspan=2,width='100%')
         
         left = bc.contentPane(region='left',_class='pbl_roundedGroup',margin='1px',width='50%')
         left.div('!!Staff records',_class='pbl_roundedGroupLabel')
