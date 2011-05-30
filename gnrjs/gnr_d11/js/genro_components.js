@@ -94,6 +94,9 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         }
         var dockTo = objectPop(attributes, 'dockTo');
         var dockButton = objectPop(attributes,'dockButton') || objectExtract(attributes, 'dockButton_*');
+        if(dockButton===true){
+            dockButton = {iconClass:'icnOpenPalette',baseClass:'no_background'};
+        }
         if (objectNotEmpty(dockButton)){
             dockTo = 'dummyDock';
             attributes.dockButton = dockButton;
@@ -635,6 +638,9 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var inherithed=sourceNode.getInheritedAttributes()
         kw['showLabel'] = kw.iconClass? (kw['showLabel'] || false):true; 
+        if (!kw['showLabel']){
+            kw['baseClass']= kw['baseClass'] ? kw['baseClass']+' slotButtonIconOnly':'slotButtonIconOnly';
+        }
         var targetNode,prefix;
         var target = objectPop(kw,'target') || inherithed.target;
         if(target!=false){
