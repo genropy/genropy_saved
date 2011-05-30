@@ -1256,6 +1256,8 @@ class GnrWebPage(GnrBaseWebPage):
                     page.data('gnr.avatar', Bag(self.avatar.as_dict()))
                 page.data('gnr.polling.user_polling', self.user_polling)
                 page.data('gnr.polling.auto_polling', self.auto_polling)
+                page.data('gnr.polling.enabled', self.enable_polling)
+                page.dataController("genro.polling(enabled)",enabled="^gnr.polling.enabled")
 
                 page.dataController("""genro.user_polling = user_polling;
                                        genro.auto_polling = auto_polling;

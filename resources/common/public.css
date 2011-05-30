@@ -427,30 +427,8 @@ element.style {
 }
 
 /* @end */
-._common_d11 .dijitComboBox .dijitArrowButton {
-    -moz-border-radius: 0px;
-    -webkit-border-radius: 0px;
-    -opera-border-radius: 0px;
-    -khtml-border-radius: 0px;
-    border-top-right-radius: 2px;
-	border-bottom-right-radius: 2px;
-}
 
-._common_d11 .dijitSpinnerButtonContainer .dijitArrowButton {
-    -moz-border-radius: 0px;
-    -webkit-border-radius: 0px;
-    -opera-border-radius: 0px;
-    -khtml-border-radius: 0px;
-    border-top-right-radius: 2px;
-	border-bottom-right-radius: 2px;
-}
 
-._common_d11 .slotbar_toolbar .dijitButtonNode,
-.bottom_btn .slotbar_toolbar .dijitButtonNode {
-    border:0;
-    background:transparent;
-    padding: 0px 0px;
-}
 .bottom_btnDisabled .dijitButtonNode {
     opacity: .6;
     cursor: not-allowed !important;

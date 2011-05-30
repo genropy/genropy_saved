@@ -190,6 +190,7 @@ class ResourceLoader(object):
                 getattr(custom_class, 'user_polling', None) or self.site.config['polling?user'] or 3)
         page_class.auto_polling = int(
                 getattr(custom_class, 'auto_polling', None) or self.site.config['polling?auto'] or 30)
+        page_class.enable_polling = getattr(custom_class, 'enable_polling', True)
         page_class.eagers = getattr(custom_class, 'eagers', {})
         page_class.css_requires = []
         page_class.js_requires = splitAndStrip(getattr(custom_class, 'js_requires', ''), ',')

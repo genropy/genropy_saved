@@ -66,6 +66,7 @@ class TableHandlerView(BaseComponent):
         mangler = pane.getInheritedAttributes()['th_root']
         pane.palettePane('%s_queryTool' %mangler,title='Query tool',nodeId='%s_query_root' %mangler,
                         dockButton_iconClass='icnBaseLens',
+                        dockButton_baseClass='no_background',
                         datapath='.query.where',
                         height='150px',width='400px')
     @struct_method

@@ -4,9 +4,8 @@
 # Created by Francesco Porcari on 2010-09-08.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrwebpage import public_method,BaseComponent
 from gnr.core.gnrlang import gnrImport, objectExtract
-
 from gnr.core.gnrbag import Bag
 
 
@@ -66,7 +65,7 @@ class TableScriptRunner(BaseComponent):
                             selectionFilterCb='=.selectionFilterCb',
                             selectedRowidx="=.selectedRowidx", _POST=True, timeout=0)
 
-        plugin_main.div(width='0').remote('table_script_parameters',
+        plugin_main.div(width='0').remote(self.table_script_parameters,
                                  resource='=.resource',
                                  res_type='=.res_type',
                                  title='=.title',
@@ -107,8 +106,8 @@ class TableScriptRunner(BaseComponent):
             parameters_pane.mainStack = parentBc.mainStack
             self.table_script_parameters_pane(parameters_pane)
 
-
-    def remote_table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, **kwargs):
+    @public_method
+    def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, **kwargs):
         pkgname, tblname = table.split('.')
         if not resource:
             return

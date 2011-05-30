@@ -472,7 +472,10 @@ class GnrDomSrc(GnrStructData):
         :param method: add???
         :param lazy: boolean. add???. Default value is ``True``
         """
-        handler = self.page.getPublicMethod('remote', method)
+        if callable(method):
+            handler = method
+        else:
+            handler = self.page.getPublicMethod('remote', method)
         if handler:
             kwargs_copy = copy(kwargs)
             parentAttr = self.parentNode.getAttr()
