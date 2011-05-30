@@ -173,7 +173,7 @@ custom_type
             return dict(dtype='N', size='12,2', default=0)
             
     (the ``dtype='N'`` means that the type is numerical, the ``size='12,2'`` means a field
-    of 12 characters with two decimals, the ``default=0`` means that if user don't specify
+    of 12 characters with two decimals [#]_, the ``default=0`` means that if user don't specify
     the custom_type value, then it is ``0``).
             
     This allows to create in a :ref:`genro_table` a :ref:`table_column` like this one::
@@ -253,4 +253,5 @@ Table class
 **Footnotes**:
 
 .. [#] Check the complete list of dtypes format in the :ref:`datatype_format` section.
+.. [#] If you have ``size='12,2'`` and write two decimals, you can use only 10 integers. If you have one decimal you can write 11 integers.
     

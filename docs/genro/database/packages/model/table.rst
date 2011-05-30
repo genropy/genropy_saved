@@ -164,7 +164,27 @@ formulaColumn
 
     add???
     
-.. _table_virtualcolumn:
+    ``#THIS``: you can use ``#THIS`` (only in a formulaColumn) to refer to the table itself.
+    
+    Example: if you some fields called ``change_date``, ``vat_rate`` and ``vat_rate_new``, and you are in the
+    same table in which they are defined, you can make a formulColumn::
+    
+        tbl.formulaColumn('current_vat_rate', """CASE WHEN
+                                                 #THIS.change_date IS NULL
+                                                 OR
+                                                 #THIS.vat_rate_new IS NULL
+                                                 OR
+                                                 #THIS.change_date <:env_workdate
+                                                 THEN
+                                                 #THIS.vat_rate
+                                                 ELSE #THIS.vat_rate_new
+                                                 END""")
+    
+    .. note:: if you need to refer to another table, use the following syntax::
+    
+        tableName.tableName_columnName.tableField
+    
+    .. _table_virtualcolumn:
 
 virtualColumn
 -------------
