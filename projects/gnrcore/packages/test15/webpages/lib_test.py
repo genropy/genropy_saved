@@ -6,6 +6,7 @@
 
 "panetree"
 from gnrpkg.test15.test_test import pippo
+
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     css_requires='csstest'
