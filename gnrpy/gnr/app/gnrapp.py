@@ -138,19 +138,16 @@ class GnrModuleLoader(object):
         return mod
 
 class GnrImportException(GnrException):
-    """add???
-    """
+    """add???"""
     pass
 
 class GnrMixinObj(object):
-    """add???
-    """
+    """add???"""
     def __init__(self):
         pass
 
 class GnrSqlAppDb(GnrSqlDb):
-    """add???
-    """
+    """add???"""
     def checkTransactionWritable(self, tblobj):
         """add???
 
@@ -180,7 +177,7 @@ class GnrSqlAppDb(GnrSqlDb):
         :param tblobj: the table object
         :param record: add???
         :param old_record: add???. Default value is ``None``
-        :param pkey: add???. Default value is ``None``
+        :param pkey: the record primary key. Default value is ``None``
         :returns: add???
         """
         self.checkTransactionWritable(tblobj)

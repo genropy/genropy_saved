@@ -4,6 +4,8 @@
 creation of a project
 =====================
 
+    .. warning:: chapter to be rewritten completely!
+    
 .. toctree::
     :maxdepth: 2
     

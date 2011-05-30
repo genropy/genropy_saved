@@ -174,8 +174,7 @@ body.workInProgress{
 	border-bottom-right-radius: 2px;
 }
 
-._common_d11 .slotbar_toolbar .dijitButtonNode,
-.bottom_btn .slotbar_toolbar .dijitButtonNode {
+.slotbar_toolbar .slotButtonIconOnly .dijitButtonNode{
     border:0;
     background:transparent;
     padding: 0px 0px;
@@ -189,6 +188,29 @@ body.workInProgress{
 
     opacity: 1;
 }
+
+
+._common_d11 .dijitComboBox .dijitArrowButton {
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -opera-border-radius: 0px;
+    -khtml-border-radius: 0px;
+    border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+._common_d11 .dijitSpinnerButtonContainer .dijitArrowButton {
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    -opera-border-radius: 0px;
+    -khtml-border-radius: 0px;
+    border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+
+
+
 
 /* @end */
 
@@ -252,7 +274,6 @@ body.workInProgress{
 }
 
 .tundra .dijitTextBoxErrorDisabled {
-	box-shadow:none;
     background: transparent;
     border-color: silver;
 }
@@ -1971,14 +1992,15 @@ border='1px solid gray',margin='2px', rounded=10,
 	padding-top: 1px;
 	padding-bottom: 1px;
 }
-.slotbar_toolbar .dijitButtonNode {
+/*.slotbar_toolbar .dijitButtonNode {
 	background: none;
 	margin: 0px !important;
 	padding: 0px !important;	
 	border: none;
 	font-size: 12px;
-}
-.slotbar_toolbar .dijitButton,
+}*/
+
+/*.slotbar_toolbar .dijitButton,
 .slotbar_toolbar .dijitToggleButton,
 .slotbar_toolbar .dijitDropDownButton {
 	background: none;
@@ -1992,8 +2014,10 @@ border='1px solid gray',margin='2px', rounded=10,
 	border:1px solid #316ac5;
 	margin: 1px !important;
 	padding: 0px !important;
-}
-.slotbar_toolbar .dijitButtonCheckedHover,
+}*/
+
+
+/*.slotbar_toolbar .dijitButtonCheckedHover,
 .slotbar_toolbar .dijitToggleButtonCheckedHover
  {
 	background-color:#abc1e5;
@@ -2007,7 +2031,7 @@ border='1px solid gray',margin='2px', rounded=10,
 	
 	border: 1px solid #316ac5;
 	background-color:#abc1e5;
-}
+}*/
 .slotbar_toolbar label {	
 	padding: 3px 3px 0 6px;
 }

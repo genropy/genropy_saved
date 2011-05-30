@@ -112,8 +112,8 @@ class IncludedView(BaseComponent):
         
         :param parentBC: MANDATORY - parentBC is a :ref:`genro_bordercontainer`
                          
-                         .. note:: The includedViewBox and its sons (for example, the :ref:`genro_selectionhandler`)
-                                   can only accept borderContainer and doesn't accept contentPane.
+                         .. note:: The includedViewBox and its sons can only accept borderContainer
+                                   and doesn't accept contentPane.
         :param nodeId: the includedViewbox's Id. For more information, check :ref:`genro_nodeid` page.
                        Default value is ``None``.
         :param table: the includedViewbox's reference :ref:`genro_table`.

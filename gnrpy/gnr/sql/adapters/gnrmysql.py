@@ -236,7 +236,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         #return ref_dict.values()
 
     def getPkey(self, table, schema):
-        """:param table: table name
+        """:param table: the :ref:`genro_table` name
         :param schema: schema name
         :returns: list of columns wich are the primary key for the table"""
         sql = """SELECT k.column_name        AS col

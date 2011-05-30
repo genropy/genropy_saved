@@ -12,75 +12,128 @@ Introduction
     
 .. _components_def:
 
-Definition
+definition
 ==========
     
-    A component is a file that gathers some useful features (classes) that can be used in more
-    than one project. Every component can be rewritten in most of its parts (methods) overriding some
-    of its portions. This ensures the ability to customize a component for your specific purpose.
+    A component is a python file that gathers some useful features (classes) that can be used in more
+    than one project. Every component can be rewritten in most of its parts (methods) overriding them.
+    This ensures the ability to customize a component for your specific purpose.
+    
+    Components belong to the family of Genro :ref:`genro_intro_resources`.
     
 .. _components_location:
 
-Components location
+components location
 ===================
     
-    The components MUST be situated in folders named ``resources``: it doesn't matter where these
-    folders are, because Genro searchs components in every folder of the code using mixin. However,
-    for keeping a reasonable level of order, every ``resources`` folder is kept into a project
-    folder as one of its primary subfolder.
+    The components MUST be situated in a folder named ``resources``. There are two possibles places
+    to put a component:
     
-    If you have a project called ``myproject`` and a component called ``my_component.py``, you have
-    to put your component in the :ref:`genro_resources_index` folder of your Genro :ref:`genro_project` [#]_:
-    
-    .. image:: ../images/components/mycomponent.png
-    
-    Genro provides another possible place for components::
-    
-        projectName/packages/packageName/webpages/_resouces
-    
-    where ``projectName`` is the name of your project and ``packageName`` is the name of your package.
-    
-    .. image:: ../images/components/mycomponent2.png
-    
-    In this example, the ``projectName`` and the ``packageName`` are both called ``myproject``.
-    
-    BUT, if you place your component in a ``_resources`` folder, it can be used only in the specific
-    package that contains the ``_resources`` folder. For more information, check the
-    :ref:`genro_webpage_resources` documentation page.
+    #. If you place a component at the following path::
+        
+        packageName/resources
+        
+       (where ``packageName`` is the name of the package and ``resources`` is a mandatory name for
+       the folder), then the component is **private**: this means that anyone can use this component
+       only in the project in which it has been created.
+       
+       The **private** components belong to the family of the :ref:`genro_private_resource`\s.
+       
+    #. If you place your component at the following path::
+        
+        projectName/resources
+        
+       (where ``projectName`` is the name of the project in which you put the component and
+       ``resources`` is a mandatory name for the folder), then the component is **public**:
+       this means that anyone can use this component in any project.
+       
+       The **public** components belong to the family of the :ref:`genro_public_resource`\s.
+       
+       .. warning:: to use a *public* component, you have to specify some requirements.
+                    Please read the :ref:`components_requirements` for more information.
+                    
+    For more information on *private* and *public* components (that is, *private* and *public*
+    resources) please check the :ref:`genro_intro_resources` documentation page.
     
 .. _components_requirements:
 
-Components requirements
+components requirements
 =======================
 
-    To use a component you have to set in your :ref:`webpages_webpages`\s a requirement: every component
-    has to be called through the correct :ref:`webpages_py_requires` webpage variable.
+    To use a component you have to follow these two instructions:
     
-    * Syntax::
+    #. import the package (that includes the component you want to use) in the
+       :ref:`instanceconfig_packages` tag of your :ref:`instances_instanceconfig` file
+       (this is not always necessary: read the :ref:`components_standard` section for
+       more information).
+       
+    #. set in your :ref:`webpages_webpages`\s a requirement: every component
+       has to be called through the correct :ref:`webpages_py_requires` webpage variable.
+       
+       * **Syntax**::
+       
+           py_requires = 'fileName:componentClassName'
+           
+         Where:
+         
+         * ``fileName`` is the name of the file including the component (it is not important
+           to specify its folder, because thorugh the mixin technique Genro searchs within
+           all the folder called :ref:`genro_intro_resources`).
+         * ``componentClassName`` is the name of the class of the component.
+         
+       .. note:: In every component's documentation page you fill find the correct syntax for
+                 its ``py_requires`` and the name of the package you have to import.
+                 
+.. _components_standard:
+
+standard component
+------------------
+
+    **Definition**: We define a standard component as a component that live in the following
+    path::
     
-        py_requires = 'fileName:componentClassName'
+        GNRHOME/resources
         
-    Where:
-    
-        * ``fileName`` is the name of the file including the component (it is not important to specify its
-          folder, because thorugh the mixin technique Genro searchs within all the folder called ``resources`` [#]_)
-        * ``componentClassName`` is the name of the component class.
-    
-    .. note:: In every component's documentation page you fill find the correct syntax for its ``py_requires``
-    
-.. _components_active_passive:
+    .. warning:: for the standard components you don't need to import a package:
+                 the package importation is automatically handled in your
+                 :ref:`gnr_environment` file (if you have correctly configured the file!)
+                 
+                 To learn how to configure the ``environment.xml`` file, check the
+                 :ref:`environment_resources` documentation section.
+                 
+                 Remeber to import the component's :ref:`webpages_py_requires`.
+                 
+    .. note:: in every component's documentation page you will find if the component is
+              standard.
+                 
+    .. _components_active_passive:
 
-Active or passive component
-===========================
+active or passive components
+============================
 
-    We can distighuish between active and passive component:
+    We can distighuish between *active* and *passive* components.
     
-    * **active component**: a component that overrides the main method.
-    * **passive component**: a component that doesn't have its own main method.
+    Usually, a component is *active* OR *passive*, but this is merely a convention.
+    You can create a component that is both *active* and *passive*.
     
-    .. note:: Usually, a component is *active* OR *passive*, but this is merely a convention.
-              You can create a component that is both *active* and *passive*.
-
+    .. note:: in every component's documentation page you will find if the component
+              is *active* or *passive*.
+    
+.. _components_active:
+    
+active component
+----------------
+    
+    The active component is a component that overrides the main method.
+    
+.. _components_passive:
+    
+passive component
+-----------------
+    
+    The passive component is a component that doesn't have its own main method, so you
+    have to define your own *main* method in your :ref:`webpages_webpages`.
+    
 .. _components_list:
 
 List of all the components
@@ -92,25 +145,13 @@ List of all the components
     * simpledialog
     * :ref:`genro_recorddialog`
     
-    **Login components**:
-    
-    * :ref:`genro_login_component`
-    
     **Tables**:
     
-    * :ref:`genro_standardtable`
-    * :ref:`genro_standardtable_light`
     * :ref:`genro_th`
     
     **add???**
     
     * :ref:`genro_includedview`
-    * :ref:`genro_selectionhandler`
-    * multiselect
     * timetable_dh
-
-**Footnotes**:
-
-.. [#] As you can see in the image, a Genro :ref:`genro_project` is composed by four main folders, that are: :ref:`genro_instances_index`, :ref:`genro_packages_index`, :ref:`genro_resources_index`, :ref:`genro_sites_index` - click on these links for more informations about a project and its subfolders.
-.. [#] Obviously, if you create a component please remember to put in a ``resources`` folder! (Check the :ref:`components_location` paragraph for more information on the component positioning)
-    
+    * :ref:`genro_frameindex`
+        

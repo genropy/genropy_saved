@@ -12,9 +12,9 @@ Common attributes
     dbtable
     disabled
     hidden
-    html_elements
     label
     nodeId
+    readonly
     rowcaption
     tooltip
     visible

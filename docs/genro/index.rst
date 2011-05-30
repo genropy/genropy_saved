@@ -19,7 +19,7 @@ Genropy
     bag/index
     webpage_elements/index
     database/index
-    components/index
+    components <components/index>
     miscellaneous/index
     library_reference/index
     

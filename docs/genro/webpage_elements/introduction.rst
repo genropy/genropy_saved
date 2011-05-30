@@ -10,9 +10,9 @@ introduction
     
     You can act on a Genro :ref:`webpages_webpages` mainly through:
     
-    * :ref:`genro_layout_index` - allow to create the webpage's layout
-    * :ref:`genro_html` - standard HTML elements
-    * :ref:`genro_css` - standard CSS elements
+    * :ref:`genro_layout_index` elements - allow to create the webpage's layout
+    * :ref:`genro_html`
+    * :ref:`genro_css` elements
     * :ref:`genro_form_widgets_index` - The primary UI
     * :ref:`genro_form`\s - the standard way to let the user enter data
     * :ref:`genro_data` *elements* - used to define variables from server to client

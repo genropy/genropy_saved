@@ -249,7 +249,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
 
     },
     devUtilsPalette:function(parent){
-        var pane = parent._('palettePane',{'paletteCode':'devUtils',title:'Utils'});
+        var pane = parent._('palettePane',{'paletteCode':'devUtils',title:'Utils',contentWidget:'FramePane',
+                                            frameCode:'devUtils',center_overflow:'hidden'});
         var dbchangelog = function(result,kwargs){
                                var txt = '';
                                result.walk(function(n){
@@ -261,19 +262,17 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                });
                                genro.log(txt,'Check db');
                            };
+         sb=pane._('SlotBar',{'side':'top',slots:'pollingSwitch,checkDb,DbSetup,ClearLog',toolbar:true});
          pane._('dataRpc',{'path':'.checkDb',method:'checkDb',subscribe_devUtils_checkDb:true,
                            _onResult:dbchangelog});
          pane._('dataRpc',{'path':'.applyChangesToDb',method:'applyChangesToDb',
                             subscribe_devUtils_dbsetup:true,
                             _onResult:'genro.log("DB Change applied","applyChangesToDb")'});
-
-        var bc = pane._('borderContainer');
-        var top = bc._('contentPane',{'region':'top',font_size:'.9em'})._('toolbar',{'height':'18px'});
-        top._('button',{'label':'CheckDb',publish:'devUtils_checkDb'});
-        top._('button',{'label':'DbSetup',publish:'devUtils_dbsetup'});
-        top._('button',{'label':'Clear log',action:'genro.clearlog()'});
-        var center = bc._('contentPane',{'region':'center',font_size:'.9em',overflow:'hidden'});
-        center._('simpleTextArea',{'value':'^gnr._dev.logger',readOnly:true,height:'100%',
+        sb._('checkbox','pollingSwitch',{'label':'Polling switch',value:'^gnr.polling.enabled'});
+        sb._('button','checkDb',{'label':'CheckDb',publish:'devUtils_checkDb'});
+        sb._('button','DbSetup',{'label':'DbSetup',publish:'devUtils_dbsetup'});
+        sb._('button','ClearLog',{'label':'Clear log',action:'genro.clearlog()'});
+        pane._('simpleTextArea',{'value':'^gnr._dev.logger',readOnly:true,height:'100%',
                                     style:'white-space: pre;'});
     },
 

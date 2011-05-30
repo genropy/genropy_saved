@@ -3,11 +3,11 @@
 
 class GnrCustomWebPage(object):
     py_requires = 'frameindex'
-    index_url = '/myindex.py'
-    showTabs = True
+    index_url = 'indexcontent.html'
+    #showTabs = True (by default, showTabs is True)
     
-    def pageAuthTags(self, method=None, **kwargs):
-        return 'user'
-        
     def windowTitle(self):
         return 'Agenda'
+        
+    def pageAuthTags(self, method=None, **kwargs):
+        return 'user'

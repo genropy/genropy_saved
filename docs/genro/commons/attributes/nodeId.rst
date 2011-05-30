@@ -30,7 +30,7 @@ Validity
 
     **Validity:** you can give ``nodeId`` attribute to the following objects:
     
-        :ref:`genro_components_index`:
+        :ref:`genro_component`\s:
         
         * add???
         

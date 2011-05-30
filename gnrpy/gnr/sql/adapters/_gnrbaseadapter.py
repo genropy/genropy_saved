@@ -29,7 +29,8 @@ from gnr.core.gnrdate import decodeDatePeriod
 
 class SqlDbAdapter(object):
     """Base class for sql adapters.
-    All the methods of this class can be overwritten for specific db adapters, 
+    
+    All the methods of this class can be overwritten for specific db adapters,
     but only a few must be implemented in a specific adapter."""
     typesDict = {'character varying': 'A', 'character': 'A', 'text': 'T',
                  'boolean': 'B', 'date': 'D', 'time without time zone': 'H', 'timestamp without time zone': 'DH',
@@ -443,7 +444,7 @@ class SqlDbAdapter(object):
         """Create a new index
         
         :param index_name: name of the index (unique in schema)
-        :param columns: comma separated list of columns to include in the index
+        :param columns: comma separated string (or list or tuple) of :ref:`genro_columns` to include in the index
         :param table_sql: actual sql name of the table
         :param sqlschema: actual sql name of the schema. Default value is ``None``
         :unique: boolean for unique indexing. Default value is ``None``

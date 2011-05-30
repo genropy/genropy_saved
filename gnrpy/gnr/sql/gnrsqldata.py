@@ -48,20 +48,20 @@ ENVFINDER = re.compile(r"#ENV\(([^,)]+)(,[^),]+)?\)")
 PREFFINDER = re.compile(r"#PREF\(([^,)]+)(,[^),]+)?\)")
 
 class SqlCompiledQuery(object):
-    """SqlCompiledQuery is a private class used by SqlQueryCompiler. 
+    """SqlCompiledQuery is a private class used by the :class:`SqlQueryCompiler` class.
        It is used to store all parameters needed to compile a query string."""
        
     def __init__(self, maintable, relationDict=None):
         """:param maintable: the name of the main table to query.
-        :param relationDict: a dict of custom names for db columns: {'asname':'@relation_name.colname'}.
-                             Default value is ``None``
-        """
+        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
+                             ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
+                             ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
+                             Default value is ``None``"""
         self.maintable = maintable
         self.relationDict = relationDict or {}
         self.aliasDict = {}
         self.template = Bag()
         self.dicttemplate = {}
-        
         self.distinct = ''
         self.columns = ''
         self.joins = []
@@ -75,31 +75,32 @@ class SqlCompiledQuery(object):
         self.explodingColumns = []
         
     def get_sqltext(self, db):
-        """Compile the SQL query string based on current query parameters and the specific db adapter for the current db in use.
+        """Compile the sql query string based on current query parameters and the specific db
+        adapter for the current db in use.
         
-        :param db: a GnrSqlDb instance
-        :returns: an SQL string
-        """
+        :param db: am instance of the :class:`GnrSqlDb <gnr.sql.gnrsql.GnrSqlDb>` class"""
         kwargs = {}
         for k in (
         'maintable', 'distinct', 'columns', 'joins', 'where', 'group_by', 'having', 'order_by', 'limit', 'offset',
         'for_update'):
             kwargs[k] = getattr(self, k)
         return db.adapter.compileSql(**kwargs)
-            
+        
 class SqlQueryCompiler(object):
-    """SqlQueryCompiler is a private class used by SqlQuery and SqlRecord to build an SqlCompiledQuery instance."""
-            
+    """SqlQueryCompiler is a private class used by SqlQuery and SqlRecord to build an SqlCompiledQuery instance.
+    
+    The ``__init__`` method passes:
+    
+    :param tblobj: the main table to query: an instance of SqlTable, you can get it using db.table('pkgname.tablename')
+    :param joinConditions: special conditions for joining related tables. See the
+                           :meth:`setJoinCondition() <gnr.sql.gnrsqldata.SqlQuery.setJoinCondition()>`
+                           method. Default value is ``None``
+    :param sqlContextName: the name of the sqlContext to be reported for subsequent related selection.
+                           Default value is ``None`` (see the
+                           :meth:`setJoinCondition() <gnr.web.gnrwebpage.GnrWebPage.setJoinCondition>` method)
+    :param sqlparams: a dict of parameters used in "WHERE" clause. Default value is ``None``
+    :param locale: add???. Default value is ``None``"""
     def __init__(self, tblobj, joinConditions=None, sqlContextName=None, sqlparams=None, locale=None):
-        """:param tblobj: the main table to query: an instance of SqlTable, you can get it using db.table('pkgname.tablename')
-        :param joinConditions: special conditions for joining related tables. See SqlQuery.setJoinCondition.
-                               Default value is ``None``
-        :param sqlContextName: the name of the sqlContext to be reported for subsequent related selection. 
-                               Default value is ``None`` (see GnrBaseWebPage.setJoinCondition)
-        :param sqlparams: a dict of parameters used in where clause.
-                          Default value is ``None``
-        :param locale: add???. Default value is ``None``
-        """
         self.tblobj = tblobj
         self.db = tblobj.db
         self.dbmodel = tblobj.db.model
@@ -126,20 +127,18 @@ class SqlQueryCompiler(object):
         
     def getFieldAlias(self, fieldpath, curr=None, basealias=None):
         """Internal method. Translate fields path and related fields path in a valid sql string for the column.
-           
+        
         It translates ``@relname.@rel2name.colname`` to ``t4.colname``.
-           
+        
         It has nothing to do with the AS operator, nor the name of the output columns.
-           
+        
         It automatically adds the join tables as needed.
-           
-        It can be recursive to resolve virtualcolumns
-           
-        :param fieldpath: a path to a field, like '$colname' or '@relname.@rel2name.colname'
+        
+        It can be recursive to resolve :ref:`table_virtualcolumn`\s.
+        
+        :param fieldpath: a field path. (e.g: '$colname'; e.g: '@relname.@rel2name.colname')
         :param curr: add???. Default value is ``None``
-        :param basealias: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param basealias: add???. Default value is ``None``"""
         def expandPref(m):
             """#PREF(myprefpath,default)"""
             prefpath = m.group(1)
@@ -202,10 +201,10 @@ class SqlQueryCompiler(object):
                 raise GnrSqlMissingColumn('Invalid column %s in table %s.%s (requested field %s)' % (
                 fld, curr.pkg_name, curr.tbl_name, '.'.join(newpath)))
         return '%s.%s' % (alias, fld)
-            
+        
     def _findRelationAlias(self, pathlist, curr, basealias, newpath):
         """Internal method: called by getFieldAlias to get the alias (t1, t2...) for the join table.
-        It is recursive to resolve paths like @rel.@rel2.@rel3.column.
+        It is recursive to resolve paths like ``@rel.@rel2.@rel3.column``.
         """
         p = pathlist.pop(0)
         steps = curr['%s?joiner' % p]
@@ -237,8 +236,7 @@ class SqlQueryCompiler(object):
         :param attrs: add???
         :param path: add???
         :param basealias: add???
-        :returns: add???
-        """
+        :returns: add???"""
         #ref = attrs['many_relation'].split('.')[-1]
         ref = attrs['many_relation'].split('.', 1)[-1] #fix 25-11-09
         newpath = path + [ref]
@@ -298,15 +296,14 @@ class SqlQueryCompiler(object):
         
         A joinCondition is a dict containing:
         
-        * `condition`: the condition as a WHERE clause, the columns of the target table are referenced as $tbl.colname
-        * `params`: a dict of params used in the condition clause
-        * `one_one`: True if a many relation becomes a one relation because of the condition
+        * *condition*: the condition as a WHERE clause, the columns of the target table are referenced as $tbl.colname
+        * *params*: a dict of params used in the condition clause
+        * *one_one*: ``True`` if a many relation becomes a one relation due to the condition
         
         :param target_fld: add???
         :param from_fld: add???
         :param alias: add???
-        :returns: add???
-        """
+        :returns: add???"""
         extracnd = None
         one_one = None
         joinExtra = self.joinConditions.get('%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_')))
@@ -319,16 +316,16 @@ class SqlQueryCompiler(object):
         return extracnd, one_one
         
     def updateFieldDict(self, teststring, reldict=None):
-        """Internal method: search for columns or related columns in a string, add found columns to the relationDict
-        and replace related columns (@rel.colname) with a symbolic name like $_rel_colname.
-        Return a string containing only columns expressed in the form $colname, so the relations found
-        can be converted in sql strings (see getFieldAlias) and replaced into the returned string with templateReplace
-        (see compiledQuery)
+        """Internal method: search for columns or related columns in a string, add found columns to
+        the relationDict (reldict) and replace related columns (``@rel.colname``) with a symbolic name
+        like ``$_rel_colname``. Return a string containing only columns expressed in the form ``$colname``,
+        so the found relations can be converted in sql strings (see :meth:`getFieldAlias` method) and
+        replaced into the returned string with templateReplace (see :meth:`compiledQuery`).
         
         :param teststring: add???
-        :param reldict: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param reldict: a dict of custom names for db columns: {'asname':'@relation_name.colname'}.
+                        Default value is ``None``
+        :returns: the teststring"""
         if reldict is None: reldict = self.cpl.relationDict
         for col in COLFINDER.finditer(teststring):
             colname = col.group(2)
@@ -342,19 +339,17 @@ class SqlQueryCompiler(object):
         return teststring
         
     def expandMultipleColumns(self, flt, bagFields):
-        """Internal method: returns a list of columns from a fake column starting with *
+        """Internal method: return a list of columns from a fake column starting with ``*``
         
-        :param flt: can be::
+        :param flt: it can be:
         
-            *                    --> returns all columns of the current table
-            *prefix_             --> returns all columns of the current table starting with prefix_
-            *@rel1.@rel2         --> returns all columns of rel2 target table
-            *@rel1.@rel2.prefix_ --> returns all columns of rel2 target table starting with prefix_
-        
-        :param bagFields: boolean, True to include fields of type Bag ('X') when columns is * or contains
-                          ``*@relname.filter``. Default value is ``False``
-        :returns: a list of columns
-        """
+                    * ``*``: returns all columns of the current table
+                    * ``*prefix_``: returns all columns of the current table starting with ``prefix_``
+                    * ``*@rel1.@rel2``: returns all columns of rel2 target table
+                    * ``*@rel1.@rel2.prefix_``: returns all columns of rel2 target table starting with ``prefix_``
+            
+        :param bagFields: boolean. If ``True``, include fields of type Bag (``X``) when columns is ``*`` or contains
+                          ``*@relname.filter``."""
         if flt.startswith('@'):
             path = flt.split('.')
             if path[-1].startswith('@'):
@@ -378,47 +373,33 @@ class SqlQueryCompiler(object):
                       addPkeyColumn=True):
         """Prepare the SqlCompiledQuery to get the sql query for a selection.
         
-        :param columns: the columns to be returned by the sql select. It is a string of comma-separated columns.
-                        It is a standard sql column clause and may contain sql functions and AS operators.
-                        In addition to sql expressions, a column can be:
-                        
-                        * `$colname`: a column of the main table or a key of the relationDict
-                        * `@relname.colname`: a related column
-                        * `sqlfunction($colname, @relname.colname)`: $ and @ syntax can be used inside sql functions too 
-                        * `*` : all the columns of the main table (with or without the bagFields)
-                        * `*filter`: all columns of the main table filtered (see expandMultipleColumns)
-                        * `*@relname.filter`: all columns of a related table filtered (see expandMultipleColumns)
-                        Default value is ``''``
-        
-        :param where: the sql WHERE clause. Database columns can be use the syntax ``$colname`` and ``@relname.colname``.
-                      Parameters for the query starts with ``:``, like ``@relname.colname = :param1``
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``''``
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
                       Default value is ``''``
-        :param order_by: the sql ORDER BY clause. Database columns can be use the syntax ``$colname``
-                         and ``@relname.colname``. Default value is ``''``
-        :param distinct: boolean, True for getting a SELECT DISTINCT. Default value is ``''``
-        :param limit: number, the sql LIMIT clause. Default value is ``''``
-        :param offset: number, the sql LIMIT clause. Default value is ``''``
-        :param group_by: the sql GROUP BY clause. Database columns can be use the syntax ``$colname`` and ``@relname.colname``.
-                         Use group_by='*' when all columns are aggregate functions in order to avoid the automatic insertion 
-                         of the pkey field in the columns.
+        :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                         :ref:`sql_order_by` section. Default value is ``''``
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". Default value is ``''``
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. Default value is ``''``
+        :param offset: the same of the sql "OFFSET". Default value is ``''``
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
                          Default value is ``''``
-        :param having: the sql HAVING clause. Database columns can be use the syntax ``$colname``
-                       and ``@relname.colname``. Default value is ``''``
-        :param for_update: boolean, True to lock the selected records of the main table (SELECT ... FOR UPDATE OF ...).
+        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
+                       Default value is ``''``
+        :param for_update: boolean. If ``True``, lock the selected records of the main table (SELECT ... FOR UPDATE OF ...).
                            Default value is ``False``
-        :param relationDict: a dict to assign a symbolic name to related fields. ``dict(myname='@relname.colname')``
+        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
                              ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
                              ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
                              Default value is ``None``
-        :param bagFields: boolean, True to include fields of type Bag ('X') when columns is ``*`` or contains ``*@relname.filter``.
-                          Default value is ``False``
-        :param count: boolean, True to optimyze the sql query to get just the number of resulting rows (like count(*)).
-                      Default value is ``False``
-        :param excludeLogicalDeleted: boolean, True to exclude from the query all the records that are "logical deleted".
-                                      Default value is ``True``
-        :param addPkeyColumn: boolean, True to add a column pkey. Default value is ``True``
-        :returns: add???
-        """
+        :param bagFields: boolean. If ``True``, include fields of Bag type (``X``) when the ``columns``
+                          parameter is ``*`` or contains ``*@relname.filter``. Default value is ``False``
+        :param count: boolean. If ``True``, optimize the sql query to get the number of resulting rows
+                      (like count(*)). Default value is ``False``
+        :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                      "logical deleted". Default value is ``True``
+        :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute. Default value is ``True``"""
         # get the SqlCompiledQuery: an object that mantains all the informations to build the sql text
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
         distinct = distinct or '' # distinct is a text to be inserted in the sql query string
@@ -562,18 +543,20 @@ class SqlQueryCompiler(object):
         
     def compiledRecordQuery(self, lazy=None, eager=None, where=None,
                             bagFields=True, for_update=False, relationDict=None, virtual_columns=None):
-        """Prepare the SqlCompiledQuery to get the sql query for a selection.
+        """Prepare the :class:`SqlCompiledQuery` class to get the sql query for a selection.
         
         :param lazy: add???. Default value is ``None``
         :param eager: add???. Default value is ``None``
-        :param where: add???. Default value is ``None``
-        :param bagFields: boolean, True to include fields of type Bag ('X') when columns is * or contains *@relname.filter
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
+                      Default value is ``None``
+        :param bagFields: boolean, True to include fields of type Bag (``X``) when columns is * or contains *@relname.filter
                           Default value is ``True``
         :param for_update: add???. Default value is ``False``
-        :param relationDict: add???. Default value is ``None``
-        :param virtual_columns: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
+                             ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
+                             ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
+                             Default value is ``None``
+        :param virtual_columns: add???. Default value is ``None``"""
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
         if not 'pkey' in self.cpl.relationDict:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
@@ -616,8 +599,7 @@ class SqlQueryCompiler(object):
         """add???
         
         :param m: add???
-        :returns: add???
-        """
+        :returns: add???"""
         fld = m.group(1)
         period_param = m.group(2)
         date_from, date_to = decodeDatePeriod(self.sqlparams[period_param],
@@ -666,15 +648,15 @@ class SqlQueryCompiler(object):
             from_fld = attrs['one_relation']
         return from_fld, target_fld
         
-    def recordFields(self, fields, path, bagpath, basealias, bagFields): # usato da recordBuilder
+    def recordFields(self, fields, path, bagpath, basealias, bagFields): # used by recordBuilder #NISO: but there is not recordBuilder!! deprecated?
         """add???
         
         :param fields: add???
         :param path: add???
         :param bagpath: add???
         :param basealias: add???
-        :param bagFields: boolean, True to include fields of type Bag ('X') when columns is * or contains *@relname.filter
-        """
+        :param bagFields: boolean. If ``True`` include fields of type Bag (``X``) when the columns
+                          attribute is ``*`` or contains ``*@relname.filter``"""
         for field, value, attrs in fields.digest('#k,#v,#a'):
             #alias = None
             joinlist = attrs.get('joiner', None)
@@ -746,8 +728,7 @@ class SqlDataResolver(BagResolver):
     def resolverSerialize(self):
         """add???
         
-        :returns: add???
-        """
+        :returns: add???"""
         attr = {}
         attr['resolvermodule'] = self.__class__.__module__
         attr['resolverclass'] = self.__class__.__name__
@@ -774,10 +755,18 @@ class SqlDataResolver(BagResolver):
         
 class SqlRelatedRecordResolver(BagResolver):
     """add???"""
-    classKwargs = {'cacheTime': 0, 'readOnly': True, 'db': None,
-                   'mode': None, 'joinConditions': None, 'sqlContextName': None, 'virtual_columns': None,
-                   'ignoreMissing': False, 'ignoreDuplicate': False, 'bagFields': True,
-                   'target_fld': None, 'relation_value': None}
+    classKwargs = {'cacheTime': 0,
+                   'readOnly': True,
+                   'db': None,
+                   'mode': None,
+                   'joinConditions': None,
+                   'sqlContextName': None,
+                   'virtual_columns': None,
+                   'ignoreMissing': False,
+                   'ignoreDuplicate': False,
+                   'bagFields': True,
+                   'target_fld': None,
+                   'relation_value': None}
                    
     def resolverSerialize(self):
         """add???"""
@@ -804,37 +793,50 @@ class SqlRelatedRecordResolver(BagResolver):
         return record.output(self.mode)
         
 class SqlQuery(object):
-    """The SqlQuery represents the way in which data can be extracted from a db.
+    """The SqlQuery class represents the way in which data can be extracted from a db.
     You can get data with these SqlQuery methods:
     
     * the :meth:`count` method
     * the :meth:`cursor` method
     * the :meth:`fetch` method
-    * the :meth:`selection` method: return a SqlSelection
+    * the :meth:`selection` method (return a :class:`SqlSelection` class)
     * the :meth:`servercursor` method
     
-    :param dbtable: the table on which the query is focused on
-    :param columns: add???. Default value in ``__init__`` is ``None``
-    :param where: the same of the sql WHERE. Default value in ``__init__`` is ``None``
-    :param order_by: the same of the sql ORDER BY. Default value in ``__init__`` is ``None``
-    :param distinct: the same of the sql DISTINCT. Default value in ``__init__`` is ``None``
-    :param limit: the same of the sql LIMIT. Default value in ``__init__`` is ``None``
-    :param offset: add???. Default value in ``__init__`` is ``None``
-    :param group_by: the same of the sql GROUP BY. Default value in ``__init__`` is ``None``
-    :param having: the same of the sql HAVING. Default value in ``__init__`` is ``None``
-    :param for_update: boolean. add???. Default value in ``__init__`` is ``False``
-    :param relationDict: a dictionary which associates relationPath names 
-                         with an alias name. e.g: ``{'$member_name':'@member_id.name'}``.
+    The ``__init__`` method passes:
+    
+    :param dbtable: the :ref:`genro_table` on which the query will be focused on
+    :param columns: it represents the :ref:`table columns <table_columns>` to be returned by the "SELECT"
+                    clause in the traditional sql query. For more information, check the
+                    :ref:`sql_columns` section. Default value is ``None``
+    :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
+                  Default value is ``None``
+    :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                     :ref:`sql_order_by` section. Default value is ``None``
+    :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". Default value is ``None``
+    :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. Default value is ``None``
+    :param offset: the same of the sql "OFFSET". Default value is ``None``
+    :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
+                     Default value is ``None``
+    :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
+                   Default value is ``None``
+    :param for_update: boolean. add???. Default value is ``False``
+    :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
+                         ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
+                         ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
                          Default value in ``__init__`` is ``None``
-    :param sqlparams: a dictionary which associates sqlparams to their value.
-                      Default value in ``__init__`` is ``None``
-    :param bagFields: boolean, True to include fields of type Bag ('X') when columns is * or
-                      contains *@relname.filter. Default value in ``__init__`` is ``False``
-    :param joinConditions: add???. Default value in ``__init__`` is ``None``
-    :param sqlContextName: add???. Default value in ``__init__`` is ``None``
-    :param excludeLogicalDeleted: boolean. add???. Default value in ``__init__`` is ``True``
-    :param addPkeyColumn: boolean. add???. Default value in ``__init__`` is ``True``
-    :param locale: add???. Default value in ``__init__`` is ``None``
+    :param sqlparams: a dictionary which associates sqlparams to their values. Default value is ``None``
+    :param bagFields: boolean. If ``True`` include fields of type Bag (``X``) when columns is ``*`` or
+                      contains ``*@relname.filter``. Default value is ``False``
+    :param joinConditions: special conditions for joining related tables. See the
+                           :meth:`setJoinCondition() <gnr.sql.gnrsqldata.SqlQuery.setJoinCondition()>`
+                           method.
+    :param sqlContextName: the name of the sqlContext to be reported for subsequent related selection.
+                           Default value is ``None`` (see the
+                           :meth:`setJoinCondition() <gnr.web.gnrwebpage.GnrWebPage.setJoinCondition>` method).
+    :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                  "logical deleted". Default value is ``True``
+    :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute. Default value is ``True``
+    :param locale: add???. Default value is ``None``
     """
     
     def __init__(self, dbtable, columns=None, where=None, order_by=None,
@@ -901,10 +903,10 @@ class SqlQuery(object):
     compiled = property(_get_compiled)
         
     def compileQuery(self, count=False):
-        """add???
+        """Return the :meth:`compiledQuery() <SqlQueryCompiler.compiledQuery()>` method.
         
-        :param count: boolean. add???. Default value is ``False``
-        """
+        :param count: boolean. If ``True``, optimize the sql query to get the number of resulting rows
+                      (like count(*)). Default value is ``False`` Default value is ``False``"""
         return SqlQueryCompiler(self.dbtable.model,
                                 joinConditions=self.joinConditions,
                                 sqlContextName=self.sqlContextName,
@@ -917,10 +919,7 @@ class SqlQuery(object):
                                                                   **self.querypars)
                                                                   
     def cursor(self):
-        """get a cursor of current selection
-        
-        :returns: add???
-        """
+        """Get a cursor of the current selection."""
         return self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname)
         
     def fetch(self):
@@ -931,12 +930,10 @@ class SqlQuery(object):
         return result
         
     def fetchAsDict(self, key=None, ordered=False):
-        """Return the fetch as a dict of the given key
+        """Return the :meth:`fetch` as a dict of the given key
         
-        :param key: the key you give (if None, it takes the pkey). Default value is ``None``
-        :param ordered: boolean. add???. Default value is ``False``
-        :returns: the fetch as a dict of the given key
-        """
+        :param key: the key you give (if ``None``, it takes the pkey). Default value is ``None``
+        :param ordered: boolean. add???. Default value is ``False``"""
         fetch = self.fetch()
         key = key or self.dbtable.pkey
         if ordered:
@@ -946,23 +943,19 @@ class SqlQuery(object):
         return factory([(r[key], r) for r in fetch])
         
     def fetchAsBag(self, key=None):
-        """Return the fetch as a bag of the given key
+        """Return the :meth:`fetch` as a Bag of the given key
         
-        :param key: the key you give (if None, it takes the pkey). Default value is ``None``
-        :returns: the fetch as a bag of the given key
-        """
+        :param key: the key you give (if ``None``, it takes the pkey). Default value is ``None``"""
         fetch = self.fetch()
         key = key or self.dbtable.pkey
         return Bag(sorted([(r[key], None, dict(r)) for r in fetch]))
         
     def fetchGrouped(self, key=None, asBag=False):
-        """Return the fetch as a dict of the given key
+        """Return the :meth:`fetch` as a dict of the given key
         
-        :param key: the key you give (if None, it takes the pkey). Default value is ``None``
+        :param key: the key you give (if ``None``, it takes the pkey). Default value is ``None``
         :param asBag: boolean. If ``True``, return the result as a Bag. If False, return the
-                      result as a dict. Default value is ``False``
-        :returns:
-        """
+                      result as a dict. Default value is ``False``"""
         fetch = self.fetch()
         key = key or self.dbtable.pkey
         if asBag:
@@ -977,8 +970,7 @@ class SqlQuery(object):
                 result[k].append(r)
         return result
         
-    def test(self):
-        """add???"""
+    def test(self): #NISO: useless?
         return (self.sqltext, self.sqlparams)
         
     def _dofetch(self, pyWhere=None):
@@ -1006,8 +998,7 @@ class SqlQuery(object):
                     Default value is ``None``
         :param _aggregateRows: boolean. add???.
                     Default value is ``False``
-        :returns: a SqlSelection
-        """
+        :returns: a SqlSelection"""
         index, data = self._dofetch(pyWhere=pyWhere)
         return SqlSelection(self.dbtable, data,
                             index=index,
@@ -1045,10 +1036,9 @@ class SqlQuery(object):
         return self.db.execute(self.sqltext, self.sqlparams, cursorname='*')
         
     def serverfetch(self, arraysize=30):
-        """Get fetch of servercursor
+        """Get fetch of the :meth:`servercursor` method.
         
-        :param arraysize: add???. Default value is ``30``
-        """
+        :param arraysize: add???. Default value is ``30``"""
         cursor = self.servercursor()
         cursor.arraysize = arraysize
         rows = cursor.fetchmany()
@@ -1083,11 +1073,10 @@ class SqlQuery(object):
         return n
         
 class SqlSelection(object):
-    """It is the resulting data from the execution of a SqlQuery. Through SqlSelection you can get
-    data into differents modes, using output method or freeze it into a file. You can sort and
-    filter a SqlSelection.
-    """
-        
+    """It is the resulting data from the execution of an istance of the :class:`SqlQuery`. Through the
+    SqlSelection you can get data into differents modes: you can use the :meth:`output` method or you
+    can :meth:`freeze` it into a file. You can also use the :meth:`sort` and the :meth:`filter` methods
+    on a SqlSelection."""
     def __init__(self, dbtable, data, index=None, colAttrs=None, key=None, sortedBy=None,
                  joinConditions=None, sqlContextName=None, explodingColumns=None, _aggregateRows=False):
         self._frz_data = None
@@ -1140,9 +1129,9 @@ class SqlSelection(object):
         return data
         
     def setKey(self, key):
-        """add???
+        """Internal method. Set the data of a SqlQuery in a dict 
         
-        :param key: add???
+        :param key: the key.
         """
         self.key = key
         for i, r in enumerate(self._data):
@@ -1174,16 +1163,17 @@ class SqlSelection(object):
                asIterator=False, asText=False, **kwargs):
         """Return the selection into differents format
         
-        :param mode: (optional) There are different options you can set.
-        
-            * `mode='pkeylist'`: add???
-            * `mode='records'`: add???
-            * `mode='data'`: add???
-            * `mode='tabtext'`: add???
-            
-        :param columns: add???. Default value is ``None``
-        :param offset: add???. Default value is ``0``
-        :param limit: add???. Default value is ``None``
+        :param mode: There are different options you can set:
+                     
+                     * `mode='pkeylist'`: add???
+                     * `mode='records'`: add???
+                     * `mode='data'`: add???
+                     * `mode='tabtext'`: add???
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``
+        :param offset: the same of the sql "OFFSET". Default value is ``0``
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. Default value is ``None``
         :param filterCb: add???. Default value is ``None``
         :param subtotal_rows: add???. Default value is ``None``
         :param formats: add???. Default value is ``None``
@@ -1290,9 +1280,8 @@ class SqlSelection(object):
     def freeze(self, fpath, autocreate=False):
         """add???
         
-        :param fpath: add???
-        :param autocreate: boolean. add???. Default value is ``False``
-        """
+        :param fpath: the freeze path.
+        :param autocreate: boolean. if ``True``, add???. Default value is ``False``"""
         self.freezepath = fpath
         self.isChangedSelection = False
         self.isChangedData = False
@@ -1429,10 +1418,11 @@ class SqlSelection(object):
                  keep=None, key=None, captionCb=None, **kwargs):
         """add???
         
-        :param group_by: add???. Default value is ``None``
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
+                         Default value is ``None``
         :param sum: add???. Default value is ``None``
         :param collect: add???. Default value is ``None``
-        :param distinct: add???. Default value is ``None``
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". Default value is ``None``
         :param keep: add???. Default value is ``None``
         :param key: add???. Default value is ``None``
         :param captionCb: add???. Default value is ``None``
@@ -1458,23 +1448,13 @@ class SqlSelection(object):
         
     @deprecated
     def analyze(self, group_by=None, sum=None, collect=None, distinct=None, keep=None, key=None, **kwargs):
-        """add???
-        
-        :param group_by: add???. Default value is ``None``
-        :param sum: add???. Default value is ``None``
-        :param collect: add???. Default value is ``None``
-        :param distinct: add???. Default value is ``None``
-        :param keep: add???. Default value is ``None``
-        :param key: add???. Default value is ``None``
-        """
+        """.. deprecated:: 0.7"""
         self.totalize(group_by=group_by, sum=sum, collect=collect, distinct=distinct, keep=keep, key=key, **kwargs)
         
     def totalizer(self, path=None):
         """add???
         
-        :param path: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param path: add???. Default value is ``None``"""
         if path and self.analyzeBag:
             return self.analyzeBag[path]
         else:
@@ -1495,28 +1475,15 @@ class SqlSelection(object):
     def outputTEST(self, mode, columns=None, offset=0, limit=None,
                    filterCb=None, subtotal_rows=None, formats=None, locale=None, dfltFormats=None, recordResolver=None,
                    asIterator=False):
-        """add???
-        
-        :param mode: add???
-        :param columns: add???. Default value is ``None``
-        :param offset: add???. Default value is ``0``
-        :param limit: add???. Default value is ``None``
-        :param filterCb: add???. Default value is ``None``
-        :param subtotal_rows: add???. Default value is ``None``
-        :param formats: add???. Default value is ``None``
-        :param locale: add???. Default value is ``None``
-        :param dfltFormats: add???. Default value is ``None``
-        :param recordResolver: add???. Default value is ``None``
-        :param asIterator: boolean. add???. Default value is ``False``
-        """
         pass
         
     def totals(self, path=None, columns=None):
         """add???
            
         :param path: add???
-        :param columns: add???. Default value is ``None``
-        """
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``"""
         if isinstance(columns, basestring):
             columns = gnrstring.splitAndStrip(columns, ',')
             

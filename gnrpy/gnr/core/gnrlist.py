@@ -409,22 +409,20 @@ class GnrNamedList(list):
         return tuple(self[:] + [None] * (len(self._index) - len(self)))
         
     def extractItems(self, columns):
-        """add???
+        """It is a utility method of the sql :meth:`fetch() <gnr.sql.gnrsqldata.SqlQuery.fetch()>`
+        method. It returns a list of namedlist (that is, a list of dictionaries).
         
-        :param columns: add???
-        :returns: add???
-        """
+        :param columns: the items of the namedlist dict"""
         if columns:
             return [(k, self[k]) for k in columns]
         else:
             return self.items()
             
     def extractValues(self, columns):
-        """add???
+        """It is a utility method of the sql :meth:`fetch() <gnr.sql.gnrsqldata.SqlQuery.fetch()>`
+        method. It returns a list of namedlist (that is, a list of dictionaries).
         
-        :param columns: add???
-        :returns: add???
-        """
+        :param columns: the values of the namedlist dict"""
         if columns:
             return [self[k] for k in columns]
         else:

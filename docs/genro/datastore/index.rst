@@ -7,6 +7,5 @@ datastore
 .. toctree::
     :maxdepth: 2
     
-    datastore
+    introduction
     macro
-    examples

@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # login.py
-# Created by Niso on 2011-03-03.
+# Created by Filippo Astolfi on 2011-03-03.
 # Copyright (c) 2011 Softwell. All rights reserved.
 
 class GnrCustomWebPage(object):

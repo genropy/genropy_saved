@@ -94,16 +94,6 @@ components
             def (self,parentContainer,disabled,table):
                 pass
                 
-    * *sh*: write a :ref:`genro_selectionhandler`
-    
-        ::
-        
-            self.selectionHandler(bc,label=,datapath="",
-                                  nodeId='',table='',
-                                  struct=,reloader=,
-                                  selectionPars=dict(),
-                                  dialogPars=dict())
-                                  
 .. _web_controllers:
 
 controllers

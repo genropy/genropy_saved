@@ -413,22 +413,26 @@ class SqlTable(GnrObject):
         
         * its primary key
         * one or more conditions passed as kwargs (e.g. username='foo')
-        * a where condition
+        * a "where" condition
          
-        :param pkey: record primary key. Default value is ``None``
-        :param where: (optional) This is the sql WHERE clause. We suggest not to use hardcoded values into the
-                      WHERE clause, but refer to variables passed to the selection method as kwargs. Default value
-                      is ``None``. E.g: ``where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas``
+        :param pkey: the record primary key. Default value is ``None``
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
+                      Default value is ``None``.
         :param lazy: add???. Default value is ``None``
         :param eager: add???. Default value is ``None``
         :param mode: bag, dict, json. Default value is ``None``
-        :param relationDict: (optional) this is a dictionary that contains couples composed by fieldName and relationPath
-                              e.g: ``{'$member_name':'@member_id.name'}``. Default value is ``None``
+        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
+                             ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
+                             ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
+                             Default value is ``None``
         :param ignoreMissing: add???. Default value is ``False``
         :param virtual_columns: add???. Default value is ``None``
         :param ignoreDuplicate: add???. Default value is ``False``
-        :param bagFields: add???. Default value is ``True``
-        :param joinConditions: add???. Default value is ``None``
+        :param bagFields: boolean. If ``True``, include fields of type Bag (``X``) when columns is ``*`` or contains
+                          ``*@relname.filter``. Default value is ``True``
+        :param joinConditions: special conditions for joining related tables. See the
+                               :meth:`setJoinCondition() <gnr.sql.gnrsqldata.SqlQuery.setJoinCondition()>` method.
+                               Default value is ``None``
         :param sqlContextName: add???. Default value is ``None``
         :param for_update: add???. Default value is ``False``
         :returns: the record
@@ -478,7 +482,7 @@ class SqlTable(GnrObject):
         :returns: a dictionary - fill it with defaults
         """
         return dict([(x.name, x.attributes['default'])for x in self.columns.values() if 'default' in x.attributes])
-            
+        
     def query(self, columns='*', where=None, order_by=None,
               distinct=None, limit=None, offset=None,
               group_by=None, having=None, for_update=False,
@@ -488,43 +492,33 @@ class SqlTable(GnrObject):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
         
-        :param columns: Represent the SELECT clause in the traditional SQL query.
-                        It is a string of column names and related fields separated by comma.
-                        Each column's name is prefixed with '$'. Related fields uses a syntax based on the char '@'
-                        and 'dot notation'. (e.g. "@member_id.name"). For selecting all columns use the char '*'.
-                        The ``columns`` parameter also accepts special statements such as COUNT, DISTINCT and SUM.
-                        
-                        Default value is ``*``
-                        
-        :param where: (optional) This is the sql WHERE clause.
-                      We suggest not to use hardcoded values into the where clause, but
-                      refer to variables passed to the query method as kwargs because using this
-                      way will look after all data conversion and string quoting automatically
-                      e.g: ``where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas``.
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``*``
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
                       Default value is ``None``
-                      
-        :param order_by: (optional) corresponding to the sql ORDER BY operator.
+        :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                         :ref:`sql_order_by` section. Default value is ``None``
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". Default value is ``None``
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator.
+                      Default value is ``None``
+        :param offset: corresponding to the sql "OFFSET" operator. Default value is ``None``
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
                          Default value is ``None``
-        :param distinct: (optional) corresponding to the sql DISTINCT operator.
-                         Default value is ``None``
-        :param limit: (optional) number of result's rows. Default value is ``None``
-        :param offset: (optional) corresponding to the sql OFFSET operator.
-                       Default value is ``None``
-        :param group_by: (optional) corresponding to the sql GROUP BY operator.
-                         Default value is ``None``
-        :param having: (optional) corresponding to the sql HAVING operator.
+        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
                        Default value is ``None``
         :param for_update: boolean. add???. Default value is ``False``
-        :param relationDict: (optional) a dictionary which associates relationPath names
-                             with an alias name. e.g: ``{'$member_name':'@member_id.name'}``.
+        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
+                             ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
+                             ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
                              Default value is ``None``
-        :param sqlparams: (optional) an optional dictionary for sql query parameters.
-                          Default value is ``None``
-        :param excludeLogicalDeleted: boolean. add???. Default value is ``True``
-        :param addPkeyColumn: boolean. add???. Default value is ``True``
+        :param sqlparams: an optional dictionary for sql query parameters. Default value is ``None``
+        :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                      "logical deleted". Default value is ``True``.
+        :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute. Default value is ``True``
         :param locale: add???. Default value is ``None``
         :param mode: add???. Default value is ``None``
-        :param kwargs: another way to pass sql query parameters
+        :param \*\*kwargs: another way to pass sql query parameters
         :returns: a query
         """
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
@@ -557,9 +551,12 @@ class SqlTable(GnrObject):
     def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
         """add???
         
-        :param pkey: add???. Default value is ``None``
-        :param columns: add???. Default value is ``None``
-        :param where: add???. Default value is ``None``
+        :param pkey: the record primary key. Default value is ``None``
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
+                      Default value is ``None``
         :returns: add???
         """
         where = where or '$%s=:pkey' % self.pkey
@@ -624,8 +621,8 @@ class SqlTable(GnrObject):
     def sql_deleteSelection(self, where, **kwargs):
         """Delete a selection from the table. It works only in SQL so no python trigger is executed.
         
-        :param where: the WHERE sql condition
-        :param kwargs : arguments for where
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
+        :param \*\*kwargs: optional arguments for the "where" attribute
         """
         todelete = self.query('$%s' % self.pkey, where=where, addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if todelete:
@@ -638,7 +635,8 @@ class SqlTable(GnrObject):
         
         :param condition_field: add???. Default value is ``None``
         :param condition_value: add???. Default value is ``None``
-        :param excludeLogicalDeleted: boolean. add???. Default value is ``False``
+        :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                      "logical deleted". Default value is ``False``
         :param condition_op: add???. Default value is ``=``
         """
         # if self.trigger_onDeleting:
@@ -659,7 +657,8 @@ class SqlTable(GnrObject):
     def touchRecords(self, where=None, **kwargs):
         """add???
         
-        :param where: the WHERE sql condition. Default value is ``None``
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
+                      Default value is ``None``
         """
         sel = self.query(where=where, addPkeyColumn=False, for_update=True, **kwargs).fetch()
         for row in sel:
@@ -737,7 +736,7 @@ class SqlTable(GnrObject):
         
         :param record: add???. Default value is ``None``
         :param old_record: add???. Default value is ``None``
-        :param pkey: add???. Default value is ``None``
+        :param pkey: the record primary key. Default value is ``None``
         """
         self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
         
@@ -954,8 +953,9 @@ class SqlTable(GnrObject):
     def columnsFromString(self, columns=None):
         """add???
         
-        :param columns: add???. Default value is ``None``
-        """
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``"""
         result = []
         if not columns:
             return result
@@ -971,7 +971,9 @@ class SqlTable(GnrObject):
     def getQueryFields(self, columns=None, captioncolumns=None):
         """add???
         
-        :param columns: add???. Default value is ``None``
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section. Default value is ``None``
         :param captioncolumns: add???. Default value is ``None``
         :returns: add???
         """
@@ -1085,7 +1087,8 @@ class SqlTable(GnrObject):
         :param dbsource: sourcedb
         :param dbdest: destdb
         :param empty_before: boolean. add???. Default value is ``False``
-        :param excludeLogicalDeleted: boolean. add???. Default value is ``True``
+        :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                      "logical deleted". Default value is ``True``
         :param source_records: add???. Default value is ``None``
         """
         tbl_name = self.fullname
@@ -1117,7 +1120,8 @@ class SqlTable(GnrObject):
         
         :param instance: add???
         :param empty_before: boolean. add???. Default value is ``False``
-        :param excludeLogicalDeleted: boolean. add???. Default value is ``True``
+        :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                      "logical deleted". Default value is ``True``
         :param source_records: add???. Default value is ``None``
         """
         if isinstance(instance,basestring):
@@ -1133,7 +1137,8 @@ class SqlTable(GnrObject):
         :param instance: add???
         :param tbl_name: add???. Default value is ``None``
         :param empty_before: boolean. add???. Default value is ``False``
-        :param excludeLogicalDeleted: boolean. add???. Default value is ``True``
+        :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
+                                      "logical deleted". Default value is ``True``
         :param source_records: add???. Default value is ``None``
         """
         if isinstance(instance,basestring):

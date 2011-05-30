@@ -6,8 +6,8 @@
 
     Main classes:
     
-    * :ref:`gnrsqldata_sqlselection`
     * :ref:`gnrsqldata_sqlquery`
+    * :ref:`gnrsqldata_sqlselection`
     
     Other classes:
     
@@ -29,18 +29,18 @@
     .. module:: gnr.sql.gnrsqldata.SqlSelection
     
     ==================== =========================== ======================== ======================
-    :meth:`analyze`      :meth:`iter_dictlist`       :meth:`out_generator`    :meth:`out_xmlgrid`   
-    :meth:`apply`        :meth:`iter_pkeylist`       :meth:`out_grid`         :meth:`output`        
-    :meth:`buildAsBag`   :meth:`iter_records`        :meth:`out_json`         :meth:`outputTEST`    
-    :meth:`buildAsGrid`  :meth:`newRow`              :meth:`out_list`         :meth:`remove`        
-    :meth:`colHeaders`   :meth:`out_bag`             :meth:`out_listItems`    :meth:`setKey`        
-    :meth:`extend`       :meth:`out_baglist`         :meth:`out_pkeylist`     :meth:`sort`          
-    :meth:`filter`       :meth:`out_count`           :meth:`out_recordlist`   :meth:`toTextGen`     
-    :meth:`freeze`       :meth:`out_data`            :meth:`out_records`      :meth:`totalize`      
-    :meth:`freezeUpdate` :meth:`out_dictlist`        :meth:`out_selection`    :meth:`totalizer`     
-    :meth:`getByKey`     :meth:`out_distinct`        :meth:`out_tabtext`      :meth:`totalizerSort` 
-    :meth:`insert`       :meth:`out_distinctColumns` :meth:`out_xls`          :meth:`totals`        
-    :meth:`iter_data`    :meth:`out_fullgrid`                                                       
+    :meth:`analyze`      :meth:`iter_dictlist`       :meth:`out_generator`    :meth:`output`        
+    :meth:`apply`        :meth:`iter_pkeylist`       :meth:`out_grid`         :meth:`remove`        
+    :meth:`buildAsBag`   :meth:`iter_records`        :meth:`out_json`         :meth:`setKey`        
+    :meth:`buildAsGrid`  :meth:`newRow`              :meth:`out_list`         :meth:`sort`          
+    :meth:`colHeaders`   :meth:`out_bag`             :meth:`out_listItems`    :meth:`toTextGen`     
+    :meth:`extend`       :meth:`out_baglist`         :meth:`out_pkeylist`     :meth:`totalize`      
+    :meth:`filter`       :meth:`out_count`           :meth:`out_recordlist`   :meth:`totalizer`     
+    :meth:`freeze`       :meth:`out_data`            :meth:`out_records`      :meth:`totalizerSort` 
+    :meth:`freezeUpdate` :meth:`out_dictlist`        :meth:`out_selection`    :meth:`totals`        
+    :meth:`getByKey`     :meth:`out_distinct`        :meth:`out_tabtext`                            
+    :meth:`insert`       :meth:`out_distinctColumns` :meth:`out_xls`                                
+    :meth:`iter_data`    :meth:`out_fullgrid`        :meth:`out_xmlgrid`                            
     ==================== =========================== ======================== ======================
     
 .. _gnrsqldata_sqlquery:
@@ -56,7 +56,7 @@
     :meth:`cursor`           :meth:`servercursor`     
     :meth:`fetch`            :meth:`serverfetch`      
     :meth:`fetchAsBag`       :meth:`setJoinCondition` 
-    :meth:`fetchAsDict`      :meth:`test`             
+    :meth:`fetchAsDict`                               
     :meth:`fetchGrouped`                              
     ======================== =========================
 .. _gnrsqldata_sqlcompiledquery:

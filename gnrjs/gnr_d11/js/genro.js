@@ -58,6 +58,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.baseUrl = kwargs.baseUrl;
         this.lockingElements = {};
         this.debugRpc = false;
+        this._polling = true;
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
         this.theme = {};
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
@@ -179,6 +180,9 @@ dojo.declare('gnr.GenroClient', null, {
     warning: function(msg) {
         console.warn(msg);
         genro.dlg.message(msg);
+    },
+    polling:function(v){
+        genro._polling =v;
     },
     _registerUserEvents:function() {
         this.auto_polling = -1;

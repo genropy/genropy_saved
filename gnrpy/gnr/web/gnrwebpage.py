@@ -728,7 +728,7 @@ class GnrWebPage(GnrBaseWebPage):
     def subscribeTable(self,table,subscribe=True):
         """add???
         
-        :param table: add???
+        :param table: the :ref:`genro_table` name
         :param subscribe: add???. Default value is ``True``
         :returns: add???
         """
@@ -1256,6 +1256,8 @@ class GnrWebPage(GnrBaseWebPage):
                     page.data('gnr.avatar', Bag(self.avatar.as_dict()))
                 page.data('gnr.polling.user_polling', self.user_polling)
                 page.data('gnr.polling.auto_polling', self.auto_polling)
+                page.data('gnr.polling.enabled', self.enable_polling)
+                page.dataController("genro.polling(enabled)",enabled="^gnr.polling.enabled")
 
                 page.dataController("""genro.user_polling = user_polling;
                                        genro.auto_polling = auto_polling;
@@ -1365,7 +1367,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         This is typically used to customize prints and batch jobs for a particular installation.
         
-        :param table: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param respath: add???. Default value is ``None``
         :param class_name: add???. Default value is ``'Main'``
         :param downloadAs: add???. Default value is ``None``
@@ -1423,8 +1425,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param printer_name: add???
-        :returns: add???
-        """
+        :returns: add???"""
         if printer_name and printer_name != 'PDF':
             attributes = self.getService('print').getPrinterAttributes(printer_name)
             return attributes
@@ -1433,12 +1434,11 @@ class GnrWebPage(GnrBaseWebPage):
                              omit='', **kwargs):
         """add???
         
-        :param table: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name. Default value is ``None``
         :param prevRelation: add???. Default value is ``''``
         :param prevCaption: add???. Default value is ``''``
         :param omit: add???. Default value is ``''``
-        :returns: add???
-        """
+        :returns: add???"""
         if not table:
             return Bag()
             
@@ -1622,19 +1622,17 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param struct: add???
-        :param table: add???
-        :returns: add???
-        """
+        :param table: the :ref:`genro_table` name
+        :returns: add???"""
         return self._prepareGridStruct(struct,table)
         
     def lazyBag(self, bag, name=None, location='page:resolvers'):
         """add???
         
-        :param bag: add???
+        :param bag: a :ref:`genro_bag`
         :param name: add???. Default value is ``None``
         :param location: add???. Default value is ``page:resolvers``
-        :returns: add???
-        """
+        :returns: add???"""
         freeze_path = self.site.getStaticPath(location, name, autocreate=-1)
         bag.makePicklable()
         bag.pickle('%s.pik' % freeze_path)

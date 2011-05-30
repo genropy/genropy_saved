@@ -23,7 +23,9 @@ validations
         
     * :ref:`validations_other_list`
     * :ref:`validations_common`
-    * :ref:`validations_example`: :ref:`validations_form_example`
+    * :ref:`validations_example`:
+    
+        * :ref:`validations_form_example`
 
 .. _validations_intro:
 
@@ -35,9 +37,12 @@ introduction
     
     Remember that:
     
-    * You can use the validations on every single form's element or in a :ref:`table_column`
-      of a :ref:`genro_table` of your :ref:`packages_model` folder.
     * The form can be saved only if all the validation requirements are satisfied.
+    * You can use the validations on every single form's element of your
+      :ref:`webpages_webpages` or in a :ref:`table_column` of a :ref:`genro_table`
+      of your :ref:`packages_model` folder, because the validations have been
+      thought to use them in :ref:`webpages_webpages` but work great also in your
+      :ref:`genro_table`\s.
     * For every validation, you have a list of suffixes (explained in the
       :ref:`validations_common` section) through which you can add some features
       to the standard :ref:`validations_list` (like writing a javascript alert on
@@ -62,6 +67,43 @@ validate_call
     ::
     
         validate_call = """Javascript code..."""
+        
+    Allow to write some javascript code. The only obligation is that your code has
+    to return a boolean value (`true` or `false`). If `true`, then the validation
+    is satisfied; if `false`, then the validation is not satisfied and the form
+    can't be saved.
+    
+    You can write js directly inside the validation, or you can put a name of a js
+    function defined in a ``.js`` file kept into your :ref:`genro_intro_resources`.
+    
+    **Example:**
+    
+        In your webpage you will write::
+        
+            fb.field('fiscal_code',
+                      validate_call="""return anag_methods.checkFiscalCode(value,nation);""")
+                      
+        where:
+        
+        * ``anag_methods`` is the name of a javascript variable defined in a js file called
+          (for example!) ``my_functions.js``
+          
+        * ``checkFiscalCode`` is the name of a js function defined in the same file.
+        
+        In your ``my_functions.js`` you will have::
+        
+            var anag_methods={
+                
+                checkFiscalCode:function(value, nation){
+                    if(value=='') return true;
+                    # ...
+                    # other lines of the function
+                },
+            
+            # ... The .js file continue...
+        
+    Remember to use the :ref:`webpages_js_requires` to specify your js file that you use
+    in your :ref:`webpages_webpages`.
     
 .. _validate_dbselect:
     
@@ -90,16 +132,14 @@ validate_email
     
         root.textbox(value='^.email',validate_email=True)
         
+    .. note:: the ``validate_email`` use regex, so it is merely a formal control.
+        
 .. _validate_empty:
     
 validate_empty
 --------------
     
-    ::
-    
-        validate_empty = True
-        
-    add???
+    .. deprecated:: 0.7
     
 .. _validate_exist:
     
@@ -110,7 +150,8 @@ validate_exist
     
         validate_exist = True
         
-    add???
+    If ``True``, user can't save the form if the value inserted by him is not
+    already in the database.
     
 .. _validate_gridnodup:
     
@@ -121,7 +162,11 @@ validate_gridnodup
     
         validate_gridnodup = True
         
-    add???
+    .. note:: it can be used only inside a :ref:`genro_grid`.
+    
+    A validation that avoid having duplicates in a grid: it checks if the user
+    insertion is already saved in the database, and validates the form if and
+    only if the user input is NOT being already saved.
     
 .. _validate_len:
     
@@ -171,7 +216,9 @@ validate_nodup
     
         validate_nodup = True
         
-    add???
+    A validation that avoid having duplicates: it checks if the user insertion
+    is already saved in the database, and validates the form if and only if the
+    user input is NOT being already saved.
     
 .. _validate_notnull:
     
@@ -182,8 +229,9 @@ validate_notnull
     
         validate_notnull = True
     
-    If `True`, set the field as a required field. It works correctly only if you add
-    it to a :ref:`table_column` of your :ref:`packages_model`::
+    If `True`, set the field as a required field.
+    
+    ::
     
         tbl.column('name',validate_notnull=True)
         
@@ -196,7 +244,9 @@ validate_regex
     
         validate_regex = 'WriteHereARegexExpression'
         
-    Allow to create a regular expression (of the re_ Python module) that works on the field::
+    Allow to create a regular expression (of the re_ Python module) that works on the field.
+    
+    ::
         
         validate_regex='!\.' # The field doesn't accept the "." character
         
@@ -207,12 +257,20 @@ validate_regex
 validate_remote
 ---------------
 
-    add???
+    ::
     
+        validate_remote = 'rpcName'     # 'rpcName' is the name of your dataRpc.
+        
+    Allow to validate a field through a :ref:`genro_datarpc`.
+    
+    ::
+    
+        add??? (example...)
+        
 .. _validations_other_list:
 
-other validations
-=================
+other Genro validations
+=======================
     
     The following validations have a small difference with a normal validation: they control
     the correct user input, and if they find it wrong, they automatically change it.
@@ -244,7 +302,7 @@ suffixes to validations
       section (like :ref:`validate_email`, :ref:`validate_regex`)
     * ``validationAttribute`` is one of the following validations:
     
-        * *error*: Allow to warn user of his uncorrect typing (through a tooltip); user can't save the form::
+        * *error*: Allow to warn user of his uncorrect typing (through a tooltip); user can't save the form.
           
           Example::
           

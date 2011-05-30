@@ -4,9 +4,8 @@
 # Created by Francesco Porcari on 2010-09-08.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-from gnr.web.gnrwebpage import BaseComponent
+from gnr.web.gnrwebpage import public_method,BaseComponent
 from gnr.core.gnrlang import gnrImport, objectExtract
-
 from gnr.core.gnrbag import Bag
 
 
@@ -51,7 +50,7 @@ class TableScriptRunner(BaseComponent):
                                        FIRE #table_script_dlg_parameters.open;
                                     """, subscribe_table_script_run=True)
 
-        rpc = plugin_main.dataRpc('dummy', 'table_script_run',
+        rpc = plugin_main.dataRpc('dummy', self.table_script_run,
                             _fired='^.run',
                             _onCalling='=.onCalling',
                             _onResult='if(kwargs._publishOnResult){genro.publish(kwargs._publishOnResult);}',
@@ -66,7 +65,7 @@ class TableScriptRunner(BaseComponent):
                             selectionFilterCb='=.selectionFilterCb',
                             selectedRowidx="=.selectedRowidx", _POST=True, timeout=0)
 
-        plugin_main.div(width='0').remote('table_script_parameters',
+        plugin_main.div(width='0').remote(self.table_script_parameters,
                                  resource='=.resource',
                                  res_type='=.res_type',
                                  title='=.title',
@@ -107,8 +106,8 @@ class TableScriptRunner(BaseComponent):
             parameters_pane.mainStack = parentBc.mainStack
             self.table_script_parameters_pane(parameters_pane)
 
-
-    def remote_table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, **kwargs):
+    @public_method
+    def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, **kwargs):
         pkgname, tblname = table.split('.')
         if not resource:
             return
@@ -148,8 +147,8 @@ class TableScriptRunner(BaseComponent):
                             }
                             """,
                            _fired="^.save", pars='=.data',immediate=batch_dict.get('immediate',False))
-
-    def rpc_table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectionFilterCb=None,
+    @public_method
+    def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectionFilterCb=None,
                              selectedRowidx=None,
                              parameters=None, printerOptions=None, **kwargs):
         tblobj = self.tblobj or self.db.table(table)
