@@ -198,7 +198,11 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         this.setData(this.sourceNode.getAttributeFromDatasource('value'));
     },
     mixin_gnr_setInDatastore : function() {
-        this.sourceNode.setAttributeInDatasource('value', this.getData());
+        var value=this.getData()
+        if(this.sourceNode.getAttributeFromDatasource('value')!=value){
+            this.sourceNode.setAttributeInDatasource('value',value );
+        }
+
     },
 
     mixin_gnr_cancelEvent : function(evt) {

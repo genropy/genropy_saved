@@ -545,7 +545,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     
     
     ping:function(kw) {
-        if (genro.pollingRunning) {
+        if (genro.pollingRunning || genro._polling==false) {
             return;
         }
         var kw = kw || {reason:null};
