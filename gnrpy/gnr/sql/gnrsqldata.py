@@ -1514,12 +1514,11 @@ class SqlSelection(object):
                 
     def toTextGen(self, outgen, formats, locale, dfltFormats):
         """add???
-           
+        
         :param outgen: add???
         :param formats: add???
         :param locale: add???
-        :param dfltFormats: add???
-        """
+        :param dfltFormats: add???"""
         def _toText(cell):
             k, v = cell
             v = gnrstring.toText(v, format=formats.get(k) or dfltFormats.get(type(v)), locale=locale)
@@ -1532,139 +1531,107 @@ class SqlSelection(object):
         return self.data.__iter__()
             
     def out_listItems(self, outsource):
-        """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        """Return the outsource.
+        
+        :param outsource: add???"""
         return outsource
-            
+        
     def out_count(self, outsource):
-        """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        """Return the number of rows in the outsource.
+        
+        :param outsource: add???"""
         #dubbio secondo me non dovrebbe esserci
         n = 0
         for r in outsource:
             n += 1
         return n
-            
+        
     def out_distinctColumns(self, outsource):
         """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        
+        :param outsource: add???"""
         return [uniquify(x) for x in zip(*[[v for k, v in r] for r in outsource])]
-            
+        
     def out_distinct(self, outsource):
         """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        
+        :param outsource: add???"""
         return set([tuple([col[1] for col in r]) for r in outsource])
-            
+        
     def out_generator(self, outsource):
-        """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        """Return the outsource
+        
+        :param outsource: add???"""
         return outsource
-            
+        
     def iter_data(self, outsource):
-        """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        """Return the outsource
+        
+        :param outsource: add???"""
         return outsource
-            
+        
     def out_data(self, outsource):
-        """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        """Return a list of the outsource's rows.
+        
+        :param outsource: add???"""
         return [r for r in outsource]
-            
+        
     def iter_dictlist(self, outsource):
-        """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        """A generator function that returns a dict of the outsource's rows.
+        
+        :param outsource: add???"""
         for r in outsource:
             yield dict(r)
             
     def out_dictlist(self, outsource):
         """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        
+        :param outsource: add???"""
         return [dict(r) for r in outsource]
-            
+        
     def out_json(self, outsource):
         """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        
+        :param outsource: add???"""
         return gnrstring.toJson(self.out_dictlist(outsource))
-            
+        
     def out_list(self, outsource):
         """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        
+        :param outsource: add???"""
         return [[v for k, v in r] for r in outsource]
-            
+        
     def out_pkeylist(self, outsource):
         """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        
+        :param outsource: add???"""
         return [r[0][1] for r in outsource]
-            
+        
     def iter_pkeylist(self, outsource):
         """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        
+        :param outsource: add???"""
         for r in outsource:
             yield r[0][1]
             
     def out_records(self, outsource):
         """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        
+        :param outsource: add???"""
         return [self.dbtable.record(r[0][1], mode='bag') for r in outsource]
-            
+        
     def iter_records(self, outsource):
         """add???
-           
-        :param outsource: add???
-        :returns: add???
-        """
+        
+        :param outsource: add???"""
         for r in outsource:
             yield self.dbtable.record(r[0][1], mode='bag')
             
     def out_bag(self, outsource, recordResolver=False):
         """add???
-           
+        
         :param outsource: add???
-        :param recordResolver: boolean. add???. Default value is ``False``
-        :returns: add???
-        """
+        :param recordResolver: boolean. add???. Default value is ``False``"""
         b = Bag()
         headers = Bag()
         for k in self.columns:
@@ -1675,11 +1642,9 @@ class SqlSelection(object):
             
     def buildAsBag(self, outsource, recordResolver):
         """add???
-           
+        
         :param outsource: add???
-        :param recordResolver: boolean. add???
-        :returns: add???
-        """
+        :param recordResolver: boolean. add???"""
         result = Bag()
         defaultTable = self.dbtable.fullname
         for j, row in enumerate(outsource):
@@ -1710,11 +1675,9 @@ class SqlSelection(object):
             
     def out_recordlist(self, outsource, recordResolver=True):
         """add???
-           
+        
         :param outsource: add???
-        :param recordResolver: boolean. add???. Default value is ``True``
-        :returns: add???
-        """
+        :param recordResolver: boolean. add???. Default value is ``True``"""
         result = Bag()
         content = None
         for j, row in enumerate(outsource):
@@ -1722,15 +1685,13 @@ class SqlSelection(object):
             content = self.dbtable.buildrecord(row)
             result.setItem('r_%i' % j, content, _pkey=row.get('pkey'))
         return result
-            
+        
     def out_baglist(self, outsource, recordResolver=False, caption=False):
         """add???
-           
+        
         :param outsource: add???
         :param recordResolver: boolean. add???. Default value is ``False``
-        :param caption: boolean. add???. Default value is ``False``
-        :returns: add???
-        """
+        :param caption: boolean. add???. Default value is ``False``"""
         result = Bag()
         for j, row in enumerate(outsource):
             row = dict(row)
@@ -1738,15 +1699,13 @@ class SqlSelection(object):
             spkey = 'r_%i' % j
             result.setItem(spkey, Bag(row), _pkey=pkey)
         return result
-            
+        
     def out_selection(self, outsource, recordResolver=False, caption=False):
         """add???
-           
+        
         :param outsource: add???
         :param recordResolver: boolean. add???. Default value is ``False``
-        :param caption: boolean. add???. Default value is ``False``
-        :returns: add???
-        """
+        :param caption: boolean. add???. Default value is ``False``"""
         result = Bag()
         content = ''
         for j, row in enumerate(outsource):
@@ -1776,18 +1735,14 @@ class SqlSelection(object):
         """add???
            
         :param outsource: add???
-        :param recordResolver: boolean. add???. Default value is ``True``
-        :returns: add???
-        """
+        :param recordResolver: boolean. add???. Default value is ``True``"""
         return self.buildAsGrid(outsource, recordResolver)
         
     def buildAsGrid(self, outsource, recordResolver):
         """add???
            
         :param outsource: add???
-        :param recordResolver: boolean. add???
-        :returns: add???
-        """
+        :param recordResolver: boolean. add???"""
         result = Bag()
         content = None
         for j, row in enumerate(outsource):
@@ -1805,19 +1760,17 @@ class SqlSelection(object):
 
             result.addItem('%s' % spkey, content, _pkey=spkey, _attributes=dict(row), _removeNullAttributes=False)
         return result
-
+        
     def out_fullgrid(self, outsource, recordResolver=True):
         """add???
            
         :param outsource: add???
-        :param recordResolver: boolean. add???. Default value is ``True``
-        :returns: add???
-        """
+        :param recordResolver: boolean. add???. Default value is ``True``"""
         result = Bag()
         result['structure'] = self._buildGridStruct()
         result['data'] = self.buildAsGrid(outsource, recordResolver)
         return result
-
+        
     def _buildGridStruct(self, examplerow=None):
         structure = Bag()
         r = structure.child('view').child('row')
@@ -1825,7 +1778,7 @@ class SqlSelection(object):
             if colname not in ('pkey', 'rowidx'):
                 r.child('cell', childname=colname, **self._cellStructFromCol(colname, examplerow=examplerow))
         return structure
-
+        
     def _cellStructFromCol(self, colname, examplerow=None):
         kwargs = dict(self.colAttrs.get(colname, {}))
         kwargs.pop('tag', None)
@@ -1845,11 +1798,9 @@ class SqlSelection(object):
         return kwargs
         
     def out_xmlgrid(self, outsource):
-        """add???
+        """Return a Bag
            
-        :param outsource: add???
-        :returns: add???
-        """
+        :param outsource: add???"""
         result = Bag()
         
         dataXml = []
@@ -1871,7 +1822,7 @@ class SqlSelection(object):
         # result = '%s\n<GenRoBag><result>%s\n%s</result></GenRoBag>' % (xmlheader,structure,dataXml)
         #result = BagAsXml('%s\n%s' % (structure,dataXml))
         return result
-
+        
     @property
     def colHeaders(self):
         """add???"""
@@ -1893,10 +1844,9 @@ class SqlSelection(object):
             
     def out_tabtext(self, outsource):
         """add???
-           
+        
         :param outsource: add???
-        :returns: add???
-        """
+        :returns: add???"""
         def translate(txt):
             if txt.startswith('!!'):
                 txt = txt[2:]
@@ -1920,19 +1870,18 @@ class SqlSelection(object):
         
     def out_xls(self, outsource, filepath=None):
         """add???
-           
+        
         :param outsource: add???
-        :param filePath: boolean. add???. Default value is ``None``
-        """
+        :param filePath: boolean. add???. Default value is ``None``"""
         from gnr.core.gnrxls import XlsWriter
-
+        
         columns = [c for c in self.columns if not c in ('pkey', 'rowidx')]
         coltypes = dict([(k, v['dataType']) for k, v in self.colAttrs.items()])
         writer = XlsWriter(columns=columns, coltypes=coltypes, headers=self.colHeaders, filepath=filepath,
                            font='Times New Roman',
                            format_float='#,##0.00', format_int='#,##0')
         writer(data=outsource)
-
+        
 class SqlRelatedSelectionResolver(BagResolver):
     """add???"""
     classKwargs = {'cacheTime': 0, 'readOnly': True, 'db': None,
@@ -1949,24 +1898,24 @@ class SqlRelatedSelectionResolver(BagResolver):
         attr['kwargs'].pop('db')
         attr['kwargs']['_serialized_app_db'] = 'maindb'
         return attr
-
+        
     def load(self):
         """add???"""
         pkg, tbl, related_field = self.target_fld.split('.')
         dbtable = '%s.%s' % (pkg, tbl)
-
+        
         where = "$%s = :val_%s" % (related_field, related_field)
-
+        
         self.sqlparams = self.sqlparams or {}
         self.sqlparams[str('val_%s' % related_field)] = self.relation_value
         if self.condition:
             where = '(%s) AND (%s)' % (where, self.condition)
-
+            
         query = SqlQuery(self.db.table(dbtable), columns=self.columns, where=where,
                          joinConditions=self.joinConditions, sqlContextName=self.sqlContextName,
                          bagFields=self.bagFields, **self.sqlparams)
         return query.selection().output(self.mode, recordResolver=(self.mode == 'grid'))
-
+        
 class SqlRecord(object):
     """add???"""
     def __init__(self, dbtable, pkey=None, where=None,
@@ -1994,35 +1943,33 @@ class SqlRecord(object):
         self.bagFields = bagFields
         self.for_update = for_update
         self.virtual_columns = virtual_columns
-
+        
     def setJoinCondition(self, target_fld, from_fld, condition, one_one=False, **kwargs):
         """add???
         
         :param target_fld: add???
         :param from_fld: add???
         :param condition: add???
-        :param one_one: boolean. add???. Default value is ``False``
-        """
+        :param one_one: boolean. add???. Default value is ``False``"""
         cond = dict(condition=condition, one_one=one_one, params=kwargs)
         self.joinConditions['%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_'))] = cond
-
+        
     def output(self, mode, **kwargs):
         """add???
         
-        :param mode: add???
-        """
+        :param mode: add???"""
         if hasattr(self, 'out_%s' % mode):
             return getattr(self, 'out_%s' % mode)(**kwargs) #calls the output method
         else:
             raise SelectionExecutionError('Not existing mode: %s' % mode)
-
+            
     def _get_compiled(self):
         if self._compiled is None:
             self._compiled = self.compileQuery()
         return self._compiled
-
+        
     compiled = property(_get_compiled)
-
+    
     def compileQuery(self):
         """add???"""
         if self.where:
@@ -2031,7 +1978,7 @@ class SqlRecord(object):
             where = '$pkey = :pkey'
         else:
             where = ' AND '.join(['t0.%s=:%s' % (k, k) for k in self.sqlparams.keys()])
-
+            
         result = SqlQueryCompiler(self.dbtable.model, sqlparams=self.sqlparams,
                                   joinConditions=self.joinConditions,
                                   sqlContextName=self.sqlContextName).compiledRecordQuery(where=where,
@@ -2043,7 +1990,7 @@ class SqlRecord(object):
                                                                                           ,
                                                                                           **self.relmodes)
         return result
-
+        
     def _get_result(self):
         if self._result is None:
             if not self.compiled.where:
@@ -2074,15 +2021,14 @@ class SqlRecord(object):
                                                                                             self.compiled.get_sqltext(
                                                                                                     self.db), params))
         return self._result
-
+        
     result = property(_get_result)
-
+    
     def out_newrecord(self, resolver_one=True, resolver_many=True):
         """add???
         
         :param resolver_one: boolean. add???. Default value is ``True``
-        :param resolver_many: boolean. add???. Default value is ``True``
-        """
+        :param resolver_many: boolean. add???. Default value is ``True``"""
         result = SqlRecordBag(self.db, self.dbtable.fullname)
         record = Bag()
         self._loadRecord(result, record, self.compiled.template, resolver_many=resolver_many, resolver_one=resolver_one)
@@ -2097,8 +2043,7 @@ class SqlRecord(object):
         """add???
         
         :param resolver_one: boolean. add???. Default value is ``True``
-        :param resolver_many: boolean. add???. Default value is ``True``
-        """
+        :param resolver_many: boolean. add???. Default value is ``True``"""
         result = SqlRecordBag(self.db, self.dbtable.fullname)
         record = self.result
         if record != None:

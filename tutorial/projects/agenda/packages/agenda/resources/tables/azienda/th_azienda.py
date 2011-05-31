@@ -45,14 +45,14 @@ class Form(BaseComponent):
         fb.field('@anagrafica_id.telefono',lbl='!!Phone')
         fb.field('@anagrafica_id.fax',lbl='!!Fax')
         fb.field('@anagrafica_id.indirizzo',lbl='!!Address',
-                  validate_case='capitalize',tag='textarea',lbl_vertical_align='top',width='100%',colspan=2)
+                  validate_case='capitalize',tag='simpletextarea',lbl_vertical_align='top',width='100%',colspan=2)
         fb.field('@anagrafica_id.cap',lbl='!!Postcode')
         fb.field('@anagrafica_id.localita',lbl='!!Location')
         fb.field('@anagrafica_id.partita_iva',lbl='!!VAT')
         fb.field('tipologia',lbl='!!Type',tag='combobox',values='customer, supplier')
         fb.field('@anagrafica_id.www',lbl='!!Web site',colspan=2)
         fb.field('@anagrafica_id.note',lbl='!!Notes',
-                  tag='textarea',lbl_vertical_align='top',width='100%',colspan='2')
+                  tag='simpletextarea',lbl_vertical_align='top',width='100%',colspan='2')
         
 #class FormFull(BaseComponent):
 #    def th_form(self, form):
@@ -80,11 +80,11 @@ class Form(BaseComponent):
 #        fb.field('@anagrafica_id.telefono')
 #        fb.field('@anagrafica_id.fax')
 #        fb.field('@anagrafica_id.indirizzo',validate_case='capitalize',
-#                  tag='textarea',lbl_vertical_align='top',width='100%',colspan=2)
+#                  tag='simpletextarea',lbl_vertical_align='top',width='100%',colspan=2)
 #        fb.field('@anagrafica_id.cap')
 #        fb.field('@anagrafica_id.localita')
 #        fb.field('@anagrafica_id.partita_iva')
 #        fb.field('tipologia',tag='combobox',values='cliente, fornitore')
 #        fb.field('@anagrafica_id.www',lbl='!!Web site',colspan=2)
-#        fb.field('@anagrafica_id.note',tag='textarea',lbl_vertical_align='top',width='100%',colspan='2')
+#        fb.field('@anagrafica_id.note',tag='simpletextarea',lbl_vertical_align='top',width='100%',colspan='2')
             

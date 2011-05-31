@@ -76,7 +76,7 @@ class Form(BaseComponent):
                   visible='^aux.mostra_azienda')
         fb.field('ruolo',tag='combobox',lbl='Personal company role',colspan=2,
                   values='employee, freelancer, manager, owner')
-        fb.field('@anagrafica_id.note',lbl='!!Notes', tag='textarea', colspan=2, width='100%')
+        fb.field('@anagrafica_id.note',lbl='!!Notes', tag='simpletextarea', colspan=2, width='100%')
         
         pane.dataFormula("aux.mostra_azienda",'true',
                          _if='azienda_id',_else='false',azienda_id='^.azienda_id')

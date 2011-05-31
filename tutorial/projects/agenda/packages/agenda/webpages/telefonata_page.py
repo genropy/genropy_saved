@@ -46,8 +46,8 @@ class GnrCustomWebPage(object):
                           destinatario_id='^.destinatario_id')
         fb.button('Show receiver data',action='genro.wdgById("info_destinatario").show()',
                   visible='^aux.mostra_destinatario')
-        fb.field('descrizione',name='!!Description',
-                  tag='textarea',colspan=3,width='100%',height='60px')
+        fb.field('descrizione',lbl='!!Description',lbl_vertical_align='top',
+                  tag='simpletextarea',colspan=3,width='100%',height='60px')
         
         dlg = pane.dialog(nodeId='info_chiamante',title='CALLER INFO')
         fb = dlg.formbuilder(lbl_color='teal',margin='6px')

@@ -3,6 +3,8 @@
 =====
 table
 =====
+
+    .. warning:: this page is a draft.
     
     .. image:: ../../../images/projects/packages/model_table.png
     
@@ -77,7 +79,7 @@ config_db
             def config_db(self, pkg):
             
     Inside the ``config_db`` method you can create a table:
-            
+    
     * introduce a table::
         
         tbl = pkg.table('company', pkey='id', rowcaption='@registry_id.name',
@@ -148,7 +150,7 @@ relation
     * one_one='*' / True / ... add??? permette di rendere la relazione "simmetrica"
     * one_group add???
     * relation_name='nome' + storepath='nome' --> mi permette di non riscrivere tutta la relazione
-      (@blabla.@bleble.nome) che è contenuta nella column con il relation... relation field! (:ref:`genro_relation_field`)
+      (@blabla.@bleble.nome) che è contenuta nella column con il relation path (:ref:`sql_relation_path`)
       
 .. _table_aliascolumn:
 
@@ -164,7 +166,27 @@ formulaColumn
 
     add???
     
-.. _table_virtualcolumn:
+    ``#THIS``: you can use ``#THIS`` (only in a formulaColumn) to refer to the table itself.
+    
+    Example: if you some fields called ``change_date``, ``vat_rate`` and ``vat_rate_new``, and you are in the
+    same table in which they are defined, you can make a formulColumn::
+    
+        tbl.formulaColumn('current_vat_rate', """CASE WHEN
+                                                 #THIS.change_date IS NULL
+                                                 OR
+                                                 #THIS.vat_rate_new IS NULL
+                                                 OR
+                                                 #THIS.change_date <:env_workdate
+                                                 THEN
+                                                 #THIS.vat_rate
+                                                 ELSE #THIS.vat_rate_new
+                                                 END""")
+    
+    .. note:: if you need to refer to another table, use the following syntax::
+    
+        tableName.tableName_columnName.tableField
+    
+    .. _table_virtualcolumn:
 
 virtualColumn
 -------------

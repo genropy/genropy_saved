@@ -359,9 +359,9 @@ th_webpage
     This line it is not mandatory, because a :ref:`webpages_webpages` (or a ``th_webpage``)
     is related to a table through its :ref:`webpages_maintable` (a :ref:`webpages_variables`)
     or through the :ref:`genro_dbtable` attribute (defined inside one of the
-    :ref:`genro_webpage_elements_index`). If you define the ``maintable``, then you have
+    :ref:`genro_webpage_elements_index`\s). If you define the ``maintable``, then you have
     defined the standard value for all the :ref:`genro_dbtable` attributes of your
-    :ref:`genro_webpage_elements_index` that support it. Check for more information the
+    :ref:`genro_webpage_elements_index`\s that support it. Check for more information the
     :ref:`webpages_maintable` and the :ref:`genro_dbtable` documentation pages.
     
 .. _th_py_requires:

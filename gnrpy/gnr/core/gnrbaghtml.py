@@ -227,7 +227,8 @@ class BagToHtml(object):
         :param locale: add???. Default value is ``None``
         :param format: add???. Default value is ``None``
         :param mask: add???. Default value is ``None``
-        :param root: add???. Default value is ``None``
+        :param root: the root of the page. For more information, check the
+                     :ref:`webpages_main` documentation section. Default value is ``None``
         :returns: add???
         """
         if root is None:
