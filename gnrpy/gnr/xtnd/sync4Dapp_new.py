@@ -32,11 +32,12 @@ class Struct4D(object):
         
     @property
     def folder4d(self):
+        """Decorator - :ref:`property`. add???"""
         return self.app.folder4d
-
-
+        
     @property
     def folder4dstruct(self):
+        """Decorator - :ref:`property`. add???"""
         path = os.path.join(self.folder4d, 'structure')
         if not os.path.isdir(path):
             os.mkdir(path)
@@ -229,6 +230,7 @@ class GnrAppSync4D(GnrApp):
 
     @property
     def folder4d(self):
+        """Decorator - :ref:`property`. add???"""
         path = os.path.join(self.instanceFolder, self.sync4d_name)
         if not os.path.isdir(path):
             os.mkdir(path)

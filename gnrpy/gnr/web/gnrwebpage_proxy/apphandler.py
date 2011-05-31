@@ -59,6 +59,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     @property
     def db(self):
+        """Decorator - :ref:`property`. add???"""
         return self.page.db
 
     def getDb(self, dbId=None):
@@ -805,6 +806,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                       loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None, **kwargs):
+        """A decorator - :ref:`extract_kwargs`"""
         t = time.time()
         dbtable = dbtable or table
         if pkg:

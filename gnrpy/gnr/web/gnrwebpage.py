@@ -131,7 +131,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def call_args(self):
-        """add???"""
+        """Decorator - :ref:`property`. add???"""
         return self._call_args
         
     def getCallArgs(self,*args):
@@ -339,10 +339,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def isGuest(self):
-        """add???
-        
-        :returns: add???
-        """
+        """Decorator - :ref:`property`. add???"""
         return self.user == self.connection.guestname
         
     def rpc_doLogin(self, login=None, guestName=None, **kwargs):
@@ -824,7 +821,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def subscribedTablesDict(self):
-        """Return a dict of subscribed tables. Every element is a list
+        """Decorator - :ref:`property`. Return a dict of subscribed tables. Every element is a list
            of *page_id*\'s that subscribe that page"""
         if not hasattr(self, '_subscribedTablesDict'):
             self._subscribedTablesDict = self.db.table('adm.served_page').subscribedTablesDict()
@@ -832,41 +829,41 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def application(self):
-        """add???"""
+        """Decorator - :ref:`property`. add???"""
         return self.site.gnrapp
         
     @property
     def app(self):
-        """add???"""
+        """Decorator - :ref:`property`. add???"""
         if not hasattr(self, '_app'):
             self._app = GnrWebAppHandler(self)
         return self._app
         
     @property
     def btc(self):
-        """add???"""
+        """Decorator - :ref:`property`. add???"""
         if not hasattr(self, '_btc'):
             self._btc = GnrWebBatch(self)
         return self._btc
         
     @property
     def catalog(self):
-        """add???"""
+        """Decorator - :ref:`property`. add???"""
         return self.application.catalog
         
     @property
     def userTags(self):
-        """add???"""
+        """Decorator - :ref:`property`. add???"""
         return self.connection.user_tags
         
     @property
     def user(self):
-        """add???"""
+        """Decorator - :ref:`property`. add???"""
         return self.connection.user
         
     @property
     def connection_id(self):
-        """add???"""
+        """Decorator - :ref:`property`. add???"""
         return self.connection.connection_id
         
     def _set_avatar(self, avatar):
@@ -1059,7 +1056,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @public_method
     def getResourceContent(self, resource=None, ext=None, pkg=None):
-        """A decorator (:ref:`public_method`). add???
+        """A decorator - :ref:`public_method`. add???
         
         :param resource: add???`. Default value is ``None``
         :param ext: add???`. Default value is ``None``
@@ -1653,6 +1650,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @deprecated
     def log(self, msg):
+        """.. deprecated:: 0.7"""
         self.debugger.log(msg)
         
     ##### END: DEPRECATED METHODS #####

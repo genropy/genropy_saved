@@ -44,10 +44,12 @@ class GnrWebBatch(GnrBaseProxy):
 
     @property
     def batch_path(self):
+        """Decorator - :ref:`property`. add???"""
         return 'gnr.batch.%s' % self.batch_id
 
     @property
     def result_doc_path(self):
+        """Decorator - :ref:`property`. add???"""
         return self.page.userDocument('_batch_result', 'b_%s.xml' % self.batch_id)
 
 

@@ -213,10 +213,7 @@ class GnrWsgiSite(object):
         
     @property
     def shared_data(self):
-        """add???
-        
-        :returns: add???
-        """
+        """Decorator - :ref:`property`. add???"""
         if not hasattr(self, '_shared_data'):
             memcache_config = self.config['memcache']
             if memcache_config:
@@ -228,10 +225,7 @@ class GnrWsgiSite(object):
         
     @property
     def guest_counter(self):
-        """add???
-        
-        :returns: add???
-        """
+        """Decorator - :ref:`property`. add???"""
         self._guest_counter += 1
         return self._guest_counter
         
@@ -239,8 +233,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param msg: add??
-        :param code: add???. Default value is ``None``
-        """
+        :param code: add???. Default value is ``None``"""
         if getattr(self, 'debug', True):
             if code and code in OP_TO_LOG:
                 print '***** %s : %s' % (code, msg)
@@ -1214,10 +1207,12 @@ class GnrWsgiSite(object):
         
     @deprecated
     def site_static_path(self, *args):
+        """.. deprecated:: 0.7"""
         return self.getStatic('site').path(*args)
         
     @deprecated
     def site_static_url(self, *args):
+        """.. deprecated:: 0.7"""
         return self.getStatic('site').url(*args)
         
 ##################### begin static file handling ###############################

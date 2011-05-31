@@ -117,12 +117,12 @@ class GnrSqlDb(GnrObject):
     
     @property
     def debug(self):
-        """Property. add???"""
+        """Decorator - :ref:`property`. add???"""
         return self.application.debug
         
     @property
     def dbstores(self):
-        """Property. add???
+        """Decorator - :ref:`property`. add???
         
         :returns: add???"""
         return self.stores_handler.dbstores

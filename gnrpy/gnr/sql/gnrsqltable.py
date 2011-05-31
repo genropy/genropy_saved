@@ -144,23 +144,17 @@ class SqlTable(GnrObject):
         
     @property
     def model(self):
-        """property model.
-        
-        Return the corresponding DbTableObj object"""
+        """Decorator - :ref:`property`. Return the corresponding DbTableObj object"""
         return self._model
         
     @property
     def pkg(self):
-        """property pkg.
-        
-        Return the DbPackageObj object that contains the current table"""
+        """Decorator - :ref:`property`. Return the DbPackageObj object that contains the current table"""
         return self.model.pkg
         
     @property
     def db(self):
-        """property db
-        
-        Return the GnrSqlDb object"""
+        """Decorator - :ref:`property`. Return the GnrSqlDb object"""
         return self.model.db
         
     dbroot = db
@@ -223,77 +217,57 @@ class SqlTable(GnrObject):
         
     @property
     def attributes(self):
-        """add???"""
+        """Decorator - :ref:`property`. add???"""
         return self.model.attributes
         
     @property
     def pkey(self):
-        """property db
-        
-        Return the DbColumnObj object"""
+        """Decorator - :ref:`property`. Return the DbColumnObj object"""
         return self.model.pkey
         
     @property
     def lastTS(self):
-        """property db
-        
-        Return the DbColumnObj object"""
+        """Decorator - :ref:`property`. Return the DbColumnObj object"""
         return self.model.lastTS
         
     @property
     def logicalDeletionField(self):
-        """property db
-        
-        Return the DbColumnObj object"""
+        """Decorator - :ref:`property`. Return the DbColumnObj object"""
         return self.model.logicalDeletionField
         
     @property
     def noChangeMerge(self):
-        """property db
-        
-        Return the DbColumnObj object"""
+        """Decorator - :ref:`property`. Return the DbColumnObj object"""
         return self.model.noChangeMerge
         
     @property
     def rowcaption(self):
-        """property rowcaption.
-        
-        Returns the table's rowcaption"""
+        """Decorator - :ref:`property`. Return the table's :ref:`genro_database_rowcaption`"""
         return self.model.rowcaption
         
     @property
     def columns(self):
-        """property columns
-        
-        Returns the DbColumnListObj object"""
+        """Decorator - :ref:`property`. Returns the DbColumnListObj object"""
         return self.model.columns
         
     @property
     def relations(self):
-        """property columns
-        
-        Returns the DbColumnListObj object"""
+        """Decorator - :ref:`property`. Returns the DbColumnListObj object"""
         return self.model.relations
         
     @property
     def indexes(self):
-        """property indexes
-        
-        Returns the DbIndexListObj object"""
+        """Decorator - :ref:`property`. Returns the DbIndexListObj object"""
         return self.model.indexes
         
     @property
     def relations_one(self):
-        """property relations_one
-        
-        Return a bag of relations that start from the current table"""
+        """Decorator - :ref:`property`. Return a Bag of relations that start from the current table"""
         return self.model.relations_one
         
     @property
     def relations_many(self):
-        """property relations_many
-        
-        Return a bag of relations that point to the current table"""
+        """Decorator - :ref:`property`. Return a bag of relations that point to the current table"""
         return self.model.relations_many
         
     def recordCoerceTypes(self, record, null='NULL'):
