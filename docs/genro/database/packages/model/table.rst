@@ -3,6 +3,8 @@
 =====
 table
 =====
+
+    .. warning:: this page is a draft.
     
     .. image:: ../../../images/projects/packages/model_table.png
     
@@ -77,7 +79,7 @@ config_db
             def config_db(self, pkg):
             
     Inside the ``config_db`` method you can create a table:
-            
+    
     * introduce a table::
         
         tbl = pkg.table('company', pkey='id', rowcaption='@registry_id.name',

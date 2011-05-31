@@ -359,15 +359,15 @@ class HTableHandler(HTableHandlerBase):
                    _if='_delStatus=="confirm"', _else='genro.dlg.ask(title,msg,null,"#%s.edit.delete")' % nodeId,
                    title='!!Deleting record', msg='!!You cannot undo this operation. Do you want to proceed?',
                    _onResult="""var path = $2.currpath.split('.');
-                                 path.pop();
-                                 var path = path.join('.');
-                                 $2.treestore.getNode(path).refresh(true)
-                                 SET .tree.path = path;""", currpath='=.tree.path', treestore='=.tree.store')
+                                path.pop();
+                                var path = path.join('.');
+                                $2.treestore.getNode(path).refresh(true)
+                                SET .tree.path = path;""", currpath='=.tree.path', treestore='=.tree.store')
         
-        center = bc.contentPane(region='center',formId=formId,datapath='.edit', 
-                               controllerPath='#%s.edit.form' % nodeId,formDatapath='.record',
-                               pkeyPath='#%s.edit.pkey' % nodeId)       
-        getattr(self, formId)(center , table=table,
+        center = bc.contentPane(region='center',formId=formId,datapath='.edit',
+                                controllerPath='#%s.edit.form' % nodeId,formDatapath='.record',
+                                pkeyPath='#%s.edit.pkey' % nodeId)
+        getattr(self, formId)(center,table=table,
                               datapath='.record',
                               disabled=disabled)
         tblobj = self.db.table(table)

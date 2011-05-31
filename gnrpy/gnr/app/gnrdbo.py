@@ -68,7 +68,8 @@ class GnrDboPackage(object):
     def loadUserObject(self, pkg=None, **kwargs):
         """add???
         
-        :param pkg: package name. Default value is ``None``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``None``
         :returns: add???
         """
         return self.dbtable('userobject').loadUserObject(pkg=pkg or self.name, **kwargs)
@@ -77,7 +78,8 @@ class GnrDboPackage(object):
         """add???
         
         :param data: add???
-        :param pkg: package name. Default value is ``None``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``None``
         :returns: add???
         """
         return self.dbtable('userobject').saveUserObject(data, pkg=pkg or self.name, **kwargs)
@@ -86,7 +88,8 @@ class GnrDboPackage(object):
         """add???
         
         :param id: add???
-        :param pkg: package name. Default value is ``None``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``None``
         :returns: add???
         """
         return self.dbtable('userobject').deleteUserObject(pkg=pkg or self.name, id=id)
@@ -94,7 +97,8 @@ class GnrDboPackage(object):
     def listUserObject(self, pkg=None, **kwargs):
         """add???
         
-        :param pkg: package name. Default value is ``None``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``None``
         :returns: add???
         """
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
@@ -305,18 +309,14 @@ class GnrDboTable(TableBase):
 class Table_counter(TableBase):
     """This table is automatically created for every package that inherit from GnrDboPackage."""
     def use_dbstores(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return True
         
     def config_db(self, pkg):
         """add???
         
-        :param pkg: add???
-        :returns: add???
-        """
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page."""
         tbl = pkg.table('counter', pkey='codekey', name_long='!!Counter', transaction=False)
         self.sysFields(tbl, id=False, ins=True, upd=True)
         tbl.column('codekey', size=':32', readOnly='y', name_long='!!Codekey', indexed='y')
@@ -333,7 +333,8 @@ class Table_counter(TableBase):
         """add???
         
         :param name: add???
-        :param pkg: package name
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page.
         :param code: add???
         :param codekey: add???. Default value is ``$YYYY_$MM_$K``
         :param output: add???. Default value is ``$K/$YY$MM.$NNNN``
@@ -351,7 +352,8 @@ class Table_counter(TableBase):
         (you can also use the :meth:`GnrDboPackage.getCounter` convenience method)
         
         :param name: counter name
-        :param pkg: package: the package involved.
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page.
         :param code: counter code.
         :param codekey: formatting string for the key.
         :param output: formatting output for the key.
@@ -381,7 +383,8 @@ class Table_counter(TableBase):
         """add???
         
         :param name: add???
-        :param pkg: package name
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page.
         :param code: add???
         :param codekey: add???. Default value is ``$YYYY_$MM_$K``
         :param output: add???. Default value is ``$K/$YY$MM.$NNNN``
@@ -401,7 +404,8 @@ class Table_counter(TableBase):
         
         :param codekey: add???
         :param code: add???
-        :param pkg: package name
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page.
         :param name: add???
         :param lastAssigned: add???
         :returns: add???
@@ -477,8 +481,8 @@ class Table_userobject(TableBase):
     def config_db(self, pkg):
         """add???
         
-        :param pkg: package name
-        """
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page."""
         tbl = pkg.table('userobject', pkey='id', name_long='!!User Object', transaction=False)
         self.sysFields(tbl, id=True, ins=True, upd=True)
         tbl.column('code', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
@@ -500,7 +504,8 @@ class Table_userobject(TableBase):
         :param id: add???. Default value is ``None``
         :param code: add???. Default value is ``None``
         :param objtype: add???. Default value is ``None``
-        :param pkg: package name. Default value is ``None``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``None``
         :param tbl: the table. Default value is ``None``
         :param userid: add???. Default value is ``None``
         :param description: add???. Default value is ``None``
@@ -552,7 +557,8 @@ class Table_userobject(TableBase):
         """add???
         
         :param id: add???
-        :param pkg: package name. Default value is ``None``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``None``
         :returns: add???
         """
         self.delete({'id': id})
@@ -561,7 +567,8 @@ class Table_userobject(TableBase):
         """add???
         
         :param objtype: add???. Default value is ``None``
-        :param pkg: package name. Default value is ``None``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``None``
         :param tbl: add???. Default value is ``None``
         :param userid: add???. Default value is ``None``
         :param authtags: add???. Default value is ``None``
@@ -595,18 +602,14 @@ class Table_userobject(TableBase):
 class Table_recordtag(TableBase):
     """add???"""
     def use_dbstores(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return True
         
     def config_db(self, pkg):
         """add???
         
-        :param pkg: package name
-        :returns: add???
-        """
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page."""
         tbl = pkg.table('recordtag', pkey='id', name_long='!!Record tags', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tablename', name_long='!!Table name')
@@ -619,9 +622,7 @@ class Table_recordtag(TableBase):
     def trigger_onInserting(self, record_data):
         """add???
         
-        :param record_data: add???
-        :returns: add???
-        """
+        :param record_data: add???"""
         if record_data['values']:
             self.setTagChildren(record_data)
             
@@ -629,9 +630,7 @@ class Table_recordtag(TableBase):
         """add???
         
         :param record_data: add???
-        :param old_record_data: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param old_record_data: add???. Default value is ``None``"""
         tablename = record_data['tablename']
         parentTag = record_data['tag']
         parentDescription = record_data['description']
@@ -675,9 +674,7 @@ class Table_recordtag(TableBase):
     def trigger_onDeleting(self, record):
         """add???
         
-        :param record: add???
-        :returns: add???
-        """
+        :param record: add???"""
         if record['values']:
             self.deleteSelection('tag', '%s_%%' % record['tag'], condition_op='LIKE')
             
@@ -685,27 +682,21 @@ class Table_recordtag(TableBase):
         """add???
         
         :param record_data: add???
-        :param old_record_data: add???
-        :returns: add???
-        """
+        :param old_record_data: add???"""
         if not record_data['maintag']:
             self.setTagChildren(record_data, old_record)
             
 class Table_recordtag_link(TableBase):
     """add???"""
     def use_dbstores(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return True
         
     def config_db(self, pkg):
         """add???
         
-        :param pkg: package name
-        :returns: add???
-        """
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page."""
         tbl = pkg.table('recordtag_link', pkey='id', name_long='!!Record tag link', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tag_id', name_long='!!Tag id', size='22').relation('recordtag.id', onDelete='cascade',
@@ -717,26 +708,19 @@ class Table_recordtag_link(TableBase):
         """add???
         
         :param table: the :ref:`genro_table` name
-        :param record_id: add???
-        :returns: add???
-        """
+        :param record_id: add???"""
         where = '$%s=:record_id' % self.tagForeignKey(table)
         return self.query(columns='@tag_id.tag,@tag_id.description',
                           where=where, record_id=record_id).fetchAsDict(key='@tag_id.tag')
                             
     def getTagTable(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return self.db.table('%s.recordtag' % self.pkg.name)
         
     def getTagDict(self, table):
         """add???
         
-        :param table: the :ref:`genro_table` name
-        :returns: add???
-        """
+        :param table: the :ref:`genro_table` name"""
         currentEnv = self.db.currentEnv
         cachename = '_tagDict_%s' % table.replace('.', '_')
         tagDict = currentEnv.get(cachename)
@@ -751,9 +735,7 @@ class Table_recordtag_link(TableBase):
         :param table: the :ref:`genro_table` name
         :param record_id: add???
         :param tag: add???
-        :param value: add???
-        :returns: add???
-        """
+        :param value: add???"""
         fkey = self.tagForeignKey(table)
         tagDict = self.getTagDict(table)
         tagRecord = tagDict[tag]
@@ -783,9 +765,7 @@ class Table_recordtag_link(TableBase):
         """add???
         
         :param table: the :ref:`genro_table` name
-        :param record_id: add???
-        :returns: add???
-        """
+        :param record_id: add???"""
         result = Bag()
         taglinks = self.query(columns='@tag_id.maintag AS maintag, @tag_id.subtag AS subtag, @tag_id.tag AS tag',
                               where='$%s=:record_id' % self.tagForeignKey(table), record_id=record_id).fetch()
@@ -801,17 +781,13 @@ class Table_recordtag_link(TableBase):
         """add???
         
         :param table: the :ref:`genro_table` name
-        :param pkeys: add???
-        :returns: add???
-        """
+        :param pkeys: add???"""
         return self.query(columns='@tag_id.tag as tag,count(*) as howmany', group_by='@tag_id.tag',
                           where='$%s IN :pkeys' % self.tagForeignKey(table), pkeys=pkeys).fetchAsDict(key='tag')
                           
     def tagForeignKey(self, table):
         """add???
         
-        :param table: the :ref:`genro_table` name
-        :returns: add???
-        """
+        :param table: the :ref:`genro_table` name"""
         tblobj = self.db.table(table)
         return '%s_%s' % (tblobj.name, tblobj.pkey)

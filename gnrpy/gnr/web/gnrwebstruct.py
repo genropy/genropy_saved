@@ -301,7 +301,8 @@ class GnrDomSrc(GnrStructData):
         
         :param storepath: add???. Default value is ``None``
         :param handler: add???. Default value is ``recordCluster``
-        :param nodeId: add???. Default value is ``None``
+        :param nodeId: the page nodeId. For more information, check the :ref:`genro_nodeid`
+                       documentation page. Default value is ``None``
         :param table: the :ref:`genro_table` name. Default value is ``None``
         :param storeType: add???. Default value is ``None``
         :param parentStore: add???. Default value is ``None``
@@ -780,7 +781,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param path: MANDATORY - it contains the folder path of the result of the ``dataRpc`` action;
                      you have to write it even if you don't return any value in the ``dataRpc``
                      (in this situation it will become a "mandatory but dummy" parameter)
-        :param method: the name of your ``dataRpc``
+        :param method: the name of your ``dataRpc`` method
         :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                        check the :ref:`rpc_attributes` section
         """
@@ -1066,7 +1067,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param structpath: add???. Default value is ``None``
         :param datapath: the path of data. Default value is ``None``.
                          For more information, check the :ref:`genro_datapath` section
-        :param nodeId: add???. Default value is ``None``
+        :param nodeId: the page nodeId. For more information, check the :ref:`genro_nodeid`
+                       documentation page. Default value is ``None``
         :param configurable: boolean. add???. Default value is ``True``
         :param _newGrid: boolean. add???. Default value is ``False``
         :returns: add???
@@ -1105,7 +1107,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section. Default value is ``None``
         :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param nodeId: add???. Default value is ``None``
+        :param nodeId: the page nodeId. For more information, check the :ref:`genro_nodeid`
+                       documentation page. Default value is ``None``
         :param relativeWorkspace: add???. Default value is ``None``
         :returns: add???"""
         nodeId = nodeId or self.page.getUuid()
@@ -1153,8 +1156,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def slotToolbar(self,*args,**kwargs):
         """add???
         
-        :param args: add???
-        :param kwargs: add???
+        :param \*args: add???
+        :param \*\*kwargs: add???
         """
         kwargs['toolbar'] = True
         return self.slotBar(*args,**kwargs)
@@ -1162,14 +1165,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def slotFooter(self,*args,**kwargs):
         """add???
         
-        :param args: add???
-        :param kwargs: add???
+        :param \*args: add???
+        :param \*\*kwargs: add???
         """
         kwargs['_class'] = 'frame_footer'
         return self.slotBar(*args,**kwargs)
         
-   
-                    
     def _addSlot(self,slot,prefix=None,frame=None,frameCode=None,namespace=None,**kwargs):
         s=self.child('slot',childname=slot)
         s.frame = frame
@@ -1184,15 +1185,14 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             kw[slot] = kwargs.pop(slot,None)
             kw.update(dictExtract(kwargs,'%s_' %slot,True))
             kw['frameCode'] = frameCode
-            slothandle(**kw)                
-
+            slothandle(**kw)
+            
     def slotBar(self,slots=None,slotbarCode=None,namespace=None,childname='bar',**kwargs):
-        """add???
+        """Return a :ref:``
+        
         :param slots: add???. Default value is ``None``
         :param slotbarCode: add???. Default value is ``None``
-        :param namespace: add???. Default value is ``None``
-        :returns: a slotBar
-        """
+        :param namespace: add???. Default value is ``None``"""
         namespace = namespace or self.parent.attributes.get('namespace')
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,childname=childname,**kwargs)
         toolbarArgs = tb.attributes

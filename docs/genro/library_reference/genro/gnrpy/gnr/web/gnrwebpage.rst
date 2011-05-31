@@ -27,33 +27,33 @@
 
     .. module:: gnr.web.gnrwebpage.GnrWebPage
     
-    ================================== ========================== ================================ ================================
-    :meth:`addHtmlHeader`              :meth:`getResourceUri`     :meth:`onDeleting`               :meth:`rpc_onClosePage`         
-    :meth:`addToContext`               :meth:`getResourceUriList` :meth:`onEnd`                    :meth:`rpc_ping`                
-    :meth:`app`                        :meth:`getService`         :meth:`onInit`                   :meth:`rpc_relationExplorer`    
-    :meth:`application`                :meth:`getUserPreference`  :meth:`onIniting`                :meth:`rpc_remoteBuilder`       
-    :meth:`btc`                        :meth:`getUuid`            :meth:`onMain`                   :meth:`rpc_sendMessageToClient` 
-    :meth:`build_arg_dict`             :meth:`get_bodyclasses`    :meth:`onMainCalls`              :meth:`rpc_setInClientPage`     
-    :meth:`call_args`                  :meth:`get_call_handler`   :meth:`onPreIniting`             :meth:`rpc_setInServer`         
-    :meth:`catalog`                    :meth:`get_css_genro`      :meth:`onSaved`                  :meth:`rpc_setStoreSubscription`
-    :meth:`checkPermission`            :meth:`get_css_path`       :meth:`onSaving`                 :meth:`setInClientData`         
-    :meth:`clientPage`                 :meth:`get_css_theme`      :meth:`onServingCss`             :meth:`setJoinCondition`        
-    :meth:`collectClientDatachanges`   :meth:`homeUrl`            :meth:`packageUrl`               :meth:`setPreference`           
-    :meth:`connectionDocument`         :meth:`htmlHeaders`        :meth:`pageFolderRemove`         :meth:`setUserPreference`       
-    :meth:`connectionDocumentUrl`      :meth:`instantiateProxies` :meth:`pageStore`                :meth:`subscribeTable`          
-    :meth:`connectionStore`            :meth:`isDeveloper`        :meth:`resolveResourceUri`       :meth:`subscribedTablesDict`    
-    :meth:`connection_id`              :meth:`isGuest`            :meth:`rootPage`                 :meth:`temporaryDocument`       
-    :meth:`externalUrl`                :meth:`isLocalizer`        :meth:`rpc_callTableScript`      :meth:`temporaryDocumentUrl`    
-    :meth:`externalUrlToken`           :meth:`lazyBag`            :meth:`rpc_changeLocale`         :meth:`toText`                  
-    :meth:`getAuxInstance`             :meth:`mainLeftContent`    :meth:`rpc_doLogin`              :meth:`user`                    
-    :meth:`getCallArgs`                :meth:`mainLeftTop`        :meth:`rpc_getAppPreference`     :meth:`userDocument`            
-    :meth:`getDomainUrl`               :meth:`mixinComponent`     :meth:`rpc_getGridStruct`        :meth:`userDocumentUrl`         
-    :meth:`getPreference`              :meth:`mtimeurl`           :meth:`rpc_getPageStoreData`     :meth:`userStore`               
-    :meth:`getPublicMethod`            :meth:`newGridStruct`      :meth:`rpc_getPrinterAttributes` :meth:`userTags`                
-    :meth:`getResource`                :meth:`newSourceRoot`      :meth:`rpc_getPrinters`                                          
-    :meth:`getResourceExternalUriList` :meth:`onBegin`            :meth:`rpc_getUserPreference`                                    
-    :meth:`getResourceList`            :meth:`onDeleted`          :meth:`rpc_main`                                                 
-    ================================== ========================== ================================ ================================
+    ================================== =========================== ================================ ================================
+    :meth:`addHtmlHeader`              :meth:`getResourceList`     :meth:`newSourceRoot`            :meth:`rpc_getPrinters`         
+    :meth:`addToContext`               :meth:`getResourceUri`      :meth:`onBegin`                  :meth:`rpc_onClosePage`         
+    :meth:`app`                        :meth:`getResourceUriList`  :meth:`onDeleted`                :meth:`rpc_ping`                
+    :meth:`application`                :meth:`getService`          :meth:`onDeleting`               :meth:`rpc_relationExplorer`    
+    :meth:`btc`                        :meth:`getUserPreference`   :meth:`onEnd`                    :meth:`rpc_remoteBuilder`       
+    :meth:`build_arg_dict`             :meth:`getUuid`             :meth:`onInit`                   :meth:`rpc_sendMessageToClient` 
+    :meth:`call_args`                  :meth:`get_bodyclasses`     :meth:`onIniting`                :meth:`rpc_setInClientPage`     
+    :meth:`catalog`                    :meth:`get_call_handler`    :meth:`onMain`                   :meth:`rpc_setInServer`         
+    :meth:`checkPermission`            :meth:`get_css_genro`       :meth:`onMainCalls`              :meth:`rpc_setStoreSubscription`
+    :meth:`clientPage`                 :meth:`get_css_path`        :meth:`onPreIniting`             :meth:`setInClientData`         
+    :meth:`collectClientDatachanges`   :meth:`get_css_theme`       :meth:`onSaved`                  :meth:`setJoinCondition`        
+    :meth:`connectionDocument`         :meth:`homeUrl`             :meth:`onSaving`                 :meth:`setPreference`           
+    :meth:`connectionDocumentUrl`      :meth:`htmlHeaders`         :meth:`onServingCss`             :meth:`setUserPreference`       
+    :meth:`connectionStore`            :meth:`importResource`      :meth:`packageUrl`               :meth:`subscribeTable`          
+    :meth:`connection_id`              :meth:`importTableResource` :meth:`pageFolderRemove`         :meth:`subscribedTablesDict`    
+    :meth:`externalUrl`                :meth:`instantiateProxies`  :meth:`pageStore`                :meth:`temporaryDocument`       
+    :meth:`externalUrlToken`           :meth:`isDeveloper`         :meth:`resolveResourceUri`       :meth:`temporaryDocumentUrl`    
+    :meth:`getAuxInstance`             :meth:`isGuest`             :meth:`rootPage`                 :meth:`toText`                  
+    :meth:`getCallArgs`                :meth:`isLocalizer`         :meth:`rpc_callTableScript`      :meth:`user`                    
+    :meth:`getDomainUrl`               :meth:`lazyBag`             :meth:`rpc_changeLocale`         :meth:`userDocument`            
+    :meth:`getPreference`              :meth:`mainLeftContent`     :meth:`rpc_doLogin`              :meth:`userDocumentUrl`         
+    :meth:`getPublicMethod`            :meth:`mainLeftTop`         :meth:`rpc_getAppPreference`     :meth:`userStore`               
+    :meth:`getResource`                :meth:`mixinComponent`      :meth:`rpc_getGridStruct`        :meth:`userTags`                
+    :meth:`getResourceContent`         :meth:`mtimeurl`            :meth:`rpc_getPageStoreData`     :meth:`rpc_getUserPreference`   
+    :meth:`getResourceExternalUriList` :meth:`newGridStruct`       :meth:`rpc_getPrinterAttributes` :meth:`rpc_main`                
+    ================================== =========================== ================================ ================================
     
 .. _gnrwebpage_clientdatachange:
 

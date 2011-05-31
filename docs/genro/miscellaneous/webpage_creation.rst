@@ -41,8 +41,8 @@ The build phase
         page js <- dataRpc() or remote() -> page python
         
     Genro creates a :ref:`genro_bag_intro` using genropy syntax and this ``Bag`` is sent as XML to the client.
-    In the client the :ref:`genro_webpage_elements_index` will be stored in the struct bag (??? find a name for the
-    struct Bag!), while data elements will be placed in the :ref:`genro_datastore`.
+    In the client the :ref:`genro_webpage_elements_index`\s will be stored in the struct bag (??? find a name
+    for the struct Bag!), while data elements will be placed in the :ref:`genro_datastore`.
     
     When the XML arrives and the two bags are created a builder is started that will use the struct bag to
     create html and dojo elements. The builder will also 'link' data bag with the related widgets using the

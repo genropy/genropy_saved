@@ -24,7 +24,7 @@ _childname
 
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc
     
-    The *_childname* attribute allow to give an alternative name for a :ref:`genro_webpage_elements_index`.
+    The *_childname* attribute allow to give an alternative name to a :ref:`genro_webpage_elements_index`.
     
     You have to define the *_childname* as an attribute of one of your elements, then
     you have to use the :meth:`getAttach`(add???) method to append it to its layout father.

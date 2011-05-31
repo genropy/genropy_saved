@@ -604,7 +604,8 @@ class GnrApp(object):
     def updateLocalization(self, pkg, data, locale):
         """add???
 
-        :param pkg: package name
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page
         :param data: add???
         :param locale: add???
         :returns: add???
@@ -623,7 +624,8 @@ class GnrApp(object):
         """add???
 
         :param path: add???
-        :param pkg: package name. Default value is ``None``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``None``
         :param locale: add???. Default value is ``None``
         :returns: add???
         """

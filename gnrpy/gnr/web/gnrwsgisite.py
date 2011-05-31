@@ -533,7 +533,8 @@ class GnrWsgiSite(object):
     def loadResource(self, pkg, *path):
         """add???
         
-        :param pkg: add???
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page
         :param \*path: add???
         :returns: add???
         """
@@ -870,7 +871,8 @@ class GnrWsgiSite(object):
         
         :param path: add???
         :param data: add???
-        :param pkg: add???. Default value is ``''``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``''``
         """
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
@@ -880,7 +882,8 @@ class GnrWsgiSite(object):
         """add???
         
         :param path: add???
-        :param pkg: add???. Default value is ``''``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``''``
         :param dflt: add???. Default value is ``''``
         :returns: add???
         """
@@ -892,7 +895,8 @@ class GnrWsgiSite(object):
         """add???
         
         :param path: add???
-        :param pkg: add???. Default value is ``''``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``''``
         :param dflt: add???. Default value is ``''``
         :param username: add???. Default value is ``''``
         :returns: add???
@@ -907,7 +911,8 @@ class GnrWsgiSite(object):
         
         :param path: add???
         :param data: add???
-        :param pkg: add???. Default value is ``''``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``''``
         :param username: add???. Default value is ``''``
         :returns: add???
         """
@@ -1089,17 +1094,14 @@ class GnrWsgiSite(object):
     def pkg_page_url(self, pkg, *args):
         """add???
         
-        :param pkg: add???
-        :returns: add???
-        """
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page"""
         return ('%s%s/%s' % (self.home_uri, pkg, '/'.join(args))).replace('//', '/')
         
     def webtools_url(self, tool, **kwargs):
         """add???
         
-        :param tool: add???
-        :returns: add???
-        """
+        :param tool: add???"""
         kwargs_string = '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()])
         return '%s%s_tools/%s?%s' % (self.external_host, self.home_uri, tool, kwargs_string)
         
