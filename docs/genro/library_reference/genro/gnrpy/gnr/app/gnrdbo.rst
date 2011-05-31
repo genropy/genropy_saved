@@ -49,7 +49,7 @@
     * :meth:`assignCode`
     * :meth:`htableFields`
     * :meth:`trigger_onInserting`
-    * :meth:`trigger_onInserting`
+    * :meth:`trigger_onUpdating`
     
 .. _gnrapp_tblbase:
 

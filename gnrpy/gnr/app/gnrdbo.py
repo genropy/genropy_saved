@@ -162,22 +162,20 @@ class TableBase(object):
             tbl.column('__version','L',name_long='Audit version',onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
             
     def trigger_setTSNow(self, record, fldname):
-        """add???
+        """This method is triggered during the insertion (or a change) of a record. It returns
+        the insertion date as a value of the dict with the key equal to ``record[fldname]``,
+        where ``fldname`` is the name of the field inserted in the record.
         
-        :param record: add???
-        :param fldname: add???
-        :returns: add???
-        """
+        :param record: the record
+        :param fldname: the field name"""
         if not getattr(record, '_notUserChange', None):
             record[fldname] = datetime.datetime.today()
             
     def trigger_setAuditVersionIns(self,record,fldname):
         """add???
         
-        :param record: add???
-        :param fldname: add???
-        :returns: add???
-        """
+        :param record: the record
+        :param fldname: the field name"""
         record[fldname] = 0
         
     def trigger_setAuditVersionUpd(self,record,fldname):
@@ -202,7 +200,7 @@ class TableBase(object):
     def setTagColumn(self, tbl, name_long=None, group=None):
         """add???
         
-        :param tbl: add???
+        :param tbl: the table
         :param name_long: add???. Default value is ``None``
         :param group: add???. Default value is ``None``
         :returns: add???
@@ -224,12 +222,26 @@ class TableBase(object):
         tbl.aliasColumn('_recordtag_tag', relation_path='%s.tag' % relation_path, name_long='!!Tagcode', group='_')
         
 class GnrHTable(TableBase):
-    """add???"""
+    """A hierarchical table"""
     def htableFields(self, tbl):
-        """add???
+        """Add the following columns in your table:
         
-        :param tbl: the table
-        """
+        * the "code" column
+        * the "description" column
+        * the "child_code" column
+        * the "parent_code" column
+        * the "level" column
+        
+        You can redefine the first three columns in your table; if you don't redefine them, they
+        are created with the following features::
+        
+            tbl.column('code', name_long='!!Code', base_view=True)
+            tbl.column('description', name_long='!!Description', base_view=True)
+            tbl.column('child_code', name_long='!!Child code', validate_notnull=True,
+                        validate_notnull_error='!!Required', base_view=True,
+                        validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed')
+        
+        :param tbl: the table"""
         columns = tbl['columns'] or []
         if not 'code' in columns:
             tbl.column('code', name_long='!!Code', base_view=True)
@@ -237,24 +249,24 @@ class GnrHTable(TableBase):
             tbl.column('description', name_long='!!Description', base_view=True)
         if not 'child_code' in columns:
             tbl.column('child_code', name_long='!!Child code', validate_notnull=True,
-                       validate_notnull_error='!!Required', base_view=True,
-                       validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed',
-                       #unmodifiable=True
-                       )
+                        validate_notnull_error='!!Required', base_view=True,
+                        validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed'
+                        #,unmodifiable=True
+                        )
         tbl.column('parent_code', name_long='!!Parent code').relation('%s.code' % tbl.parentNode.label)
         tbl.column('level', name_long='!!Level')
         pkgname = tbl.getAttr()['pkg']
         tblname = '%s.%s_%s' % (pkgname, pkgname, tbl.parentNode.label)
         tbl.formulaColumn('child_count',
                           '(SELECT count(*) FROM %s AS children WHERE children.parent_code=#THIS.code)' % tblname,
-                          dtype='L', base_view=True)
+                           dtype='L', base_view=True)
         tbl.formulaColumn('hdescription',
-                          """
-                          CASE WHEN #THIS.parent_code IS NULL THEN #THIS.description
-                          ELSE ((SELECT description FROM  %s AS ptable WHERE ptable.code = #THIS.parent_code) || '-' || #THIS.description)
-                          END
-                          """ % tblname)
-        if not 'rec_type' in columns:
+                           """
+                           CASE WHEN #THIS.parent_code IS NULL THEN #THIS.description
+                           ELSE ((SELECT description FROM %s AS ptable WHERE ptable.code = #THIS.parent_code) || '-' || #THIS.description)
+                           END
+                           """ % tblname)
+        if not 'rec_type'  in columns:
             tbl.column('rec_type', name_long='!!Type')
             
     def trigger_onInserting(self, record_data):
@@ -265,12 +277,10 @@ class GnrHTable(TableBase):
         """
         self.assignCode(record_data)
         
-    def assignCode(self,record_data):
+    def assignCode(self, record_data):
         """add???
         
-        :param record_data: add???
-        :returns: add???
-        """
+        :param record_data: add???"""
         code_list = [k for k in (record_data.get('parent_code') or '').split('.') + [record_data['child_code']] if k]
         record_data['level'] = len(code_list) - 1
         record_data['code'] = '.'.join(code_list)
@@ -491,7 +501,7 @@ class Table_userobject(TableBase):
         :param code: add???. Default value is ``None``
         :param objtype: add???. Default value is ``None``
         :param pkg: package name. Default value is ``None``
-        :param tbl: add???. Default value is ``None``
+        :param tbl: the table. Default value is ``None``
         :param userid: add???. Default value is ``None``
         :param description: add???. Default value is ``None``
         :param authtags: add???. Default value is ``None``
