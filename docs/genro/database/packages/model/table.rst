@@ -148,7 +148,7 @@ relation
     * one_one='*' / True / ... add??? permette di rendere la relazione "simmetrica"
     * one_group add???
     * relation_name='nome' + storepath='nome' --> mi permette di non riscrivere tutta la relazione
-      (@blabla.@bleble.nome) che è contenuta nella column con il relation... relation field! (:ref:`genro_relation_field`)
+      (@blabla.@bleble.nome) che è contenuta nella column con il relation path (:ref:`sql_relation_path`)
       
 .. _table_aliascolumn:
 
