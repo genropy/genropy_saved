@@ -157,8 +157,9 @@ class Mixin(BaseComponent):
                                             
     def btn_batch_monitor(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='batch_monitor_icon',
-                 connect_onclick="""SET left.selected='batch_monitor';genro.getFrameNode('standard_index').publish('showLeft');""",
+                 connect_onclick="""genro.publish('open_batch');""",
                   nodeId='plugin_block_batch_monitor')
+        pane.dataController("SET left.selected='batch_monitor';genro.getFrameNode('standard_index').publish('showLeft')",subscribe_open_batch=True)
                   
     def btn_chat_plugin(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',
