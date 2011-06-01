@@ -37,7 +37,11 @@ class TableHandlerForm(BaseComponent):
         formattr = form.attributes
         table = formattr.get('table')
         frameCode = formattr.get('frameCode')
-        self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form')   
+        self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
+        for side in ('top','bottom','left','right'):
+            hooks = self._th_hook(side,mangler=frameCode,asDict=True)
+            for hook in hooks.values():
+                hook(getattr(form,side))    
         if table == self.maintable and hasattr(self,'th_form'):
             self.th_form(form)
         else:

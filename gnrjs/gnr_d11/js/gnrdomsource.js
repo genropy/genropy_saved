@@ -1172,7 +1172,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         for (var attrname in remoteAttr) {
             var value = remoteAttr[attrname];
             if (value instanceof Date) {
-                var abspath = this.absDatapath(this.attr[attrname]);
+                var abspath = this.absDatapath(this.attr['remote_'+attrname]);
                 var node = genro._data.getNode(abspath);
                 value = asTypedTxt(value, node.attr.dtype);
             }

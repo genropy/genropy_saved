@@ -98,7 +98,7 @@ class TableHandlerView(BaseComponent):
             querybase = self._th_hook('query',mangler=mangler)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
-        frame.dataFormula('.title','name_plural',name_plural='=.table?name_plural',_init=True)
+        frame.dataFormula('.title','view_title || name_plural',name_plural='=.table?name_plural',view_title='=.title',_init=True)
         frame.dataFormula('.query.where', 'q.deepCopy();',q='=.baseQuery',_onStart=True)
 
 
