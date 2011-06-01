@@ -34,6 +34,7 @@ Attributes
     **button attributes**:
     
     * *action*: allow to execute a javascript callback. For more information, check the :ref:`button_action` section below
+    * *showLabel*: (boolean). If ``True``, show the button label. Default value is ``True``
     
     **commons attributes**:
     

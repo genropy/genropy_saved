@@ -23,31 +23,50 @@ from gnr.web.gnrbaseclasses import BaseComponent
 import warnings
 
 class RecordLinker(BaseComponent):
+    """add???"""
     py_requires = "foundation/recorddialog"
     
     def recordLinker(self, *args, **kwargs):
+        """.. deprecated:: 0.7
+        
+        the recordLinker is deprecated, use the :meth:`linkerField` instead."""
         warnings.warn("recordLinker is deprecated, use linkerField instead.", DeprecationWarning, stacklevel=2)
         self.linkerField(*args, **kwargs)
         
     def linkerField(self, fb, table=None, field=None, dialogPars=None, record_template=None, record_path=None, lbl=None,
                     value=None, width=None, height=None, colspan=1, rowspan=1, disabled=False, default_path=None,
-                    zoom=False,
-                    record_reloader=None, **kwargs):
-        """Creates a linker inside a formbuilder.
+                    zoom=False, record_reloader=None, **kwargs):
+        """Creates a :ref:`genro_linker` inside a :ref:`genro_formbuilder`.
         
-        A linker is a compound component that has a dbselect for selecting a record and
-        a div to show a preview/summary of that record. It has two buttons to add and edit the current record.
-        
-        :param fb: formbuilder (mandatory)
-        :param table: string. Table (mandatory)
-        :param field: string. Field name
-        :param dialogPars: dict. Dialog parameters (mandatory)
-        :param record_template: string. Template for the record summary
-        :param record_path: datapath
-        :param lbl: label
-        :param value: string -- where to store the selected ID
-        :param default_path: ???
-        :param record_reloader: datapath
+        :param fb: (mandatory) the formbuilder
+        :param table: (mandatory) string. The :ref:`genro_table`. Default value is ``None``
+        :param field: string. Field name. Default value is ``None``
+        :param dialogPars: (mandatory) dict. Dialog parameters. Default value is ``None``.
+                           
+                           dialogPars accepts:
+                           
+                           * dlgId
+                           * onSaved
+                           
+        :param record_template: string. Template for the record summary. Default value is ``None``
+        :param record_path: datapath. Default value is ``None``
+        :param lbl: the linkerField's label
+                    (a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`).
+                    Default value is ``None``
+        :param value: string. Where to store the selected ID. Default value is ``None``
+        :param width: the linkerField's width. Default value is ``None``
+        :param height: the linkerField's height. Default value is ``None``
+        :param colspan: a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`.
+                        Default value is ``1``
+        :param rowspan: add???. Default value is ``1``
+        :param disabled: If ``True``, user can't act on the object (write, drag...).
+                         For more information, check the :ref:`genro_disabled` documentation page.
+                         Default value is ``False``
+        :param default_path: add???. Default value is ``None``
+        :param zoom: It allows to open the linked record in a :ref:`genro_dialog`.
+                     For further details, check the :ref:`genro_zoom` documentation page.
+                     Default value is ``False``
+        :param record_reloader: add???. Default value is ``None``
         """
         
         # --------------------------------------------------------------------------------------------- Mandatory parameters
@@ -83,8 +102,8 @@ class RecordLinker(BaseComponent):
                                          top='17px', bottom='0px',
                                          left='1px', width='100%', border='1px solid silver',
                                          border_top='0px', style="""-moz-border-radius-bottomleft:6px;
-                                                      -moz-border-radius-bottomright:6px;
-                                                      """)
+                                                                    -moz-border-radius-bottomright:6px;
+                                                                    """)
         selectorViewer.div(innerHTML='==dataTemplate(_tpl,_data)', _data='^%s' % record_path, _tpl=record_template)
         selectorViewer.button('!!Edit', baseClass='no_background', showLabel=False,
                               right='2px', z_index='100', bottom='2px', position='absolute',

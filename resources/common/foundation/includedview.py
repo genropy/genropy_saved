@@ -194,8 +194,9 @@ class IncludedView(BaseComponent):
         :param reloader: add???. Default value is ``None``.
         :param externalChanges: add???. Default value is ``None``.
         :param addOnCb: add???. Default value is ``None``.
-        :param zoom: It allows to open the linked record in its :ref:`genro_table`.
-                     For further details, check :ref:`genro_zoom`. Default value is ``True``.
+        :param zoom: It allows to open the linked record in a :ref:`genro_dialog`.
+                     For further details, check the :ref:`genro_zoom` documentation page.
+                     Default value is ``True``.
         :param hasToolbar: add???. Default value is ``False``.
         :param canSort: add???. Default value is ``True``.
         :param fromPicker_target_fields: allow to bind the picker's table. columns to the includedView columns of the many to many table.

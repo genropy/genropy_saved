@@ -24,31 +24,32 @@ from gnr.web.gnrbaseclasses import BaseComponent
 import warnings
 
 class SelectionHandler(BaseComponent):
-    """
-    To use it you should include  py_requires="selectionhandler"
+    """To use it you should include py_requires="selectionhandler"
     
     selectionHandler is a new component that is used as a replacement for includedView and recordDialog. 
     It adds a navigation toolbar for first, previous, next and last.
     It adds a + button to add new records from within the dialog
     It manages automatically:
-    - all the dataControllers for add and delete .
-    - the the add_action and del_action.
-    - the connect_onRowDblClick parameter.
+    
+    * all the dataControllers for add and delete .
+    * the the add_action and del_action.
+    * the connect_onRowDblClick parameter.
     
     To replace an includedView and recordDialog do the following:
-    comment out:
-        replace the call to includedView with a call to recordHandler
-        #add_action
-        #del_action
-        #addOnCb
-        #connect_onRowDblClick="FIRE .firedPkey = this.widget.rowIdByIndex($1.rowIndex);"
-        #controllers that manage delete or add
-        
-    add a new parameter to replace the recordDialog function, having all parameters of the recordDialog
-        passed into a dictionary, except for: onSaved='FIRE #contact_logGrid.reload;',
-        dialogPars=dict(
     
-    """
+    #. Replace the call to includedView with a call to recordHandler
+    
+    #. Comment out:
+       
+       * add_action
+       * del_action
+       * addOnCb
+       * connect_onRowDblClick="FIRE .firedPkey = this.widget.rowIdByIndex($1.rowIndex);"
+       * all the controllers that manage delete or add
+       
+    #. Add a new parameter to replace the recordDialog function, having all parameters of the
+       recordDialog passed into a dictionary, except for: onSaved='FIRE #contact_logGrid.reload;',
+       dialogPars=dict(...)"""
     py_requires = 'foundation/includedview:IncludedView,foundation/recorddialog'
 
     def selectionHandler(self, bc, nodeId=None, table=None, datapath=None, struct=None, label=None,

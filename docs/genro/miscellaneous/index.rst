@@ -11,7 +11,6 @@ Documents to revise
     ../commons/index
     ../datastore/index
     decorators
-    dialog
     fine_syntax
     grid
     languages

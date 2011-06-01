@@ -582,13 +582,13 @@ class GnrDomSrc(GnrStructData):
         """In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers,
         and that's because formbuilder can manage automatically fields and their positioning.
         
-        :param cols: set columns number. Default value is ``1``.
+        :param cols: set the number of columns. Default value is ``1``.
         :param table: set the database :ref:`genro_table`. For more details, see :ref:`genro_dbtable`.
                       Default value is ``None``.
         :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'``
                          (actually it is the unique defined class).
         :param lblclass: set label style. Default value is ``'gnrfieldlabel'``.
-        :param lblpos: set label position. ``L``: set label on the left side of text field.
+        :param lblpos: set label position: ``L``: set label on the left side of text field.
          ``T``: set label on top of text field. Default value is ``'L'``.
         :param _class: for CSS style.
         :param fieldclass: CSS class appended to every formbuilder's child. Default value is ``gnrfield``.
@@ -596,7 +596,9 @@ class GnrDomSrc(GnrStructData):
         :param lblvalign: set vertical label alignment. Default value is ``'middle'``.
         :param fldalign: set field horizontal align. Default value is ``None``.
         :param fldvalign: set field vertical align. Default value is ``'middle'``.
-        :param disabled: Add a description add???. Default value is ``False``.
+        :param disabled: If ``True``, user can't act on the object (write, drag...).
+                         For more information, check the :ref:`genro_disabled` documentation page.
+                         Default value is ``False``.
         :param rowdatapath: Add a description ???. Default value is ``None``.
         :param head_rows: Add a description add???. Default value is ``None``.
         :param \*\*kwargs: *border_spacing*: define the space between form fields. Default value is ``6px``
