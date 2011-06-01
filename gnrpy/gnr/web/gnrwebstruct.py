@@ -111,14 +111,17 @@ class GnrDomSrc(GnrStructData):
 
     @property
     def js_widget(self):
+        """Decorator - :ref:`property`. add???"""
         return self.js_sourceNode('w')
     
     @property
     def js_domNode(self):
+        """Decorator - :ref:`property`. add???"""
         return self.js_sourceNode('d')
         
     @property
     def js_form(self):
+        """Decorator - :ref:`property`. add???"""
         return self.js_sourceNode('f')
     
     def makeRoot(cls, page, source=None):
@@ -127,9 +130,7 @@ class GnrDomSrc(GnrStructData):
         
         :param cls: the structure class
         :param page: the webpage instance
-        :param source: the filepath of the xml file
-        :returns: the root instance for the given class
-        """
+        :param source: the filepath of the xml file"""
         root = GnrStructData.makeRoot(source=source, protocls=cls)
         root._page = page
         return root
@@ -172,11 +173,7 @@ class GnrDomSrc(GnrStructData):
     
     @deprecated
     def getAttach(self, childname):
-        """add???
-        
-        :param childname: add???
-        :returns: ``None``
-        """
+        """.. deprecated:: 0.7"""
         childnode = self.getNode(childname)
         if childnode:
             return childnode._value
@@ -260,12 +257,13 @@ class GnrDomSrc(GnrStructData):
         
     @property
     def record(self):
+        """Decorator - :ref:`property`. add???"""
         assert self.attributes['tag'] == 'FrameForm','only on FrameForm'
         return self.center.contentPane(datapath='.record')
-    
+        
     @extract_kwargs(store=True)
     def frameform(self,formId=None,frameCode=None,store=None,storeCode=None,slots=None,table=None,store_kwargs=None,**kwargs):
-        """add???
+        """A decorator - :ref:`extract_kwargs`. add???
         
         :param formId: add???. Default value is ``None``
         :param frameCode: add???. Default value is ``None``
@@ -273,9 +271,7 @@ class GnrDomSrc(GnrStructData):
         :param storeCode: add???. Default value is ``None``
         :param slots: add???. Default value is ``None``
         :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param store_kwargs: add???. Default value is ``None``
-        :returns: the framepane
-        """
+        :param store_kwargs: add???. Default value is ``None``"""
         formId = formId or '%s_form' %frameCode
         if not storeCode:
             storeCode = formId
@@ -586,13 +582,13 @@ class GnrDomSrc(GnrStructData):
         """In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers,
         and that's because formbuilder can manage automatically fields and their positioning.
         
-        :param cols: set columns number. Default value is ``1``.
+        :param cols: set the number of columns. Default value is ``1``.
         :param table: set the database :ref:`genro_table`. For more details, see :ref:`genro_dbtable`.
                       Default value is ``None``.
         :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'``
                          (actually it is the unique defined class).
         :param lblclass: set label style. Default value is ``'gnrfieldlabel'``.
-        :param lblpos: set label position. ``L``: set label on the left side of text field.
+        :param lblpos: set label position: ``L``: set label on the left side of text field.
          ``T``: set label on top of text field. Default value is ``'L'``.
         :param _class: for CSS style.
         :param fieldclass: CSS class appended to every formbuilder's child. Default value is ``gnrfield``.
@@ -600,7 +596,9 @@ class GnrDomSrc(GnrStructData):
         :param lblvalign: set vertical label alignment. Default value is ``'middle'``.
         :param fldalign: set field horizontal align. Default value is ``None``.
         :param fldvalign: set field vertical align. Default value is ``'middle'``.
-        :param disabled: Add a description add???. Default value is ``False``.
+        :param disabled: If ``True``, user can't act on the object (write, drag...).
+                         For more information, check the :ref:`genro_disabled` documentation page.
+                         Default value is ``False``.
         :param rowdatapath: Add a description ???. Default value is ``None``.
         :param head_rows: Add a description add???. Default value is ``None``.
         :param \*\*kwargs: *border_spacing*: define the space between form fields. Default value is ``6px``

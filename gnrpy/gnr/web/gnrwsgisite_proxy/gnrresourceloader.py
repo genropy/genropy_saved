@@ -95,9 +95,7 @@ class ResourceLoader(object):
         
     @property
     def sitemap(self):
-        """Return the sitemap Bag (if there is no sitemap, creates it).
-        
-        :returns: the sitemap"""
+        """Decorator - :ref:`property`. Return the sitemap Bag (if there is no sitemap, creates it)."""
         if not hasattr(self, '_sitemap'):
             sitemap_path = os.path.join(self.site_path, 'sitemap.xml')
             if not os.path.isfile(sitemap_path):
@@ -111,8 +109,7 @@ class ResourceLoader(object):
         """Get the deepest node in the sitemap bag associated with the given url
         
         :param path_list: add???
-        :param default: add???. Default value is ``False``
-        """
+        :param default: add???. Default value is ``False``"""
         def escape_path_list(path_list):
             return [p.replace('.','\\.') for p in path_list]
         def unescape_path_list(path_list):

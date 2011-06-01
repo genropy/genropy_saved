@@ -1825,7 +1825,7 @@ class SqlSelection(object):
         
     @property
     def colHeaders(self):
-        """add???"""
+        """Decorator - :ref:`property`. add???"""
         def translate(txt):
             if txt.startswith('!!'):
                 txt = txt[2:]

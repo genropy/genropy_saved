@@ -139,11 +139,19 @@ passive component
 List of all the components
 ==========================
 
-    **Dialogs**:
+    We list here all the components you can find in Genro. You can find them divided in
+    types. You can discover more of a component type or more of a component by clicking
+    on the relative links.
+
+    :ref:`dialogs <genro_dialog>`:
     
     * iframedialog
     * simpledialog
     * :ref:`genro_recorddialog`
+    
+    :ref:`linker <genro_linker>`:
+    
+    * :ref:`genro_recordlinker`
     
     **Tables**:
     

@@ -8,5 +8,6 @@ Commons
     :maxdepth: 2
     
     attributes/index
-    names/index
-    types/index
+    datatypes
+    names
+    

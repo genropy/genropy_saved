@@ -29,7 +29,7 @@ Validity
     
     * :ref:`genro_component`\s:
     
-        * :ref:`genro_linkerField`
+        * :ref:`genro_linkerfield`
         
 .. _zoom_examples:
 

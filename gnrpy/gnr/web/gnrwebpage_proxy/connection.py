@@ -68,6 +68,7 @@ class GnrWebConnection(GnrBaseProxy):
 
     @property
     def guestname(self):
+        """Decorator - :ref:`property`. add???"""
         return 'guest_%s' % self.connection_id
 
     def register(self):
@@ -92,10 +93,12 @@ class GnrWebConnection(GnrBaseProxy):
 
     @property
     def loggedUser(self):
+        """Decorator - :ref:`property`. add???"""
         return (self.user != self.guestname) and self.user
 
     @property
     def cookie_data(self):
+        """Decorator - :ref:`property`. add???"""
         if self._cookie_data is None:
             if self.cookie:
                 self._cookie_data = self.cookie.value.get('data') or {}

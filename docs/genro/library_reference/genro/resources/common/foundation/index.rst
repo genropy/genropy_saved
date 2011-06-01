@@ -7,5 +7,6 @@
 .. toctree::
     :maxdepth: 1
     
+    introduction
     includedview
     macrowidgets

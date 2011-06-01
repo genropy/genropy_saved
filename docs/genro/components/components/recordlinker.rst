@@ -1,8 +1,8 @@
-.. _genro_linkerfield:
+.. _genro_recordlinker:
 
-===========
-linkerField
-===========
+============
+RecordLinker
+============
 
     .. note:: it is a :ref:`components_standard`.
     
