@@ -107,7 +107,7 @@ class DropUploader(BaseComponent):
                                datapath=datapath)
         sc.dataController("""
                             if(dojo.isSafari){
-                                console.log("no filereader")
+                                console.log("no filereader, use Firefox")
                                 return;
                             }
                             var selectedType = filebag.getItem(selectedLabel+'._type');
