@@ -10,7 +10,7 @@ Documents to revise
     clipboard
     ../commons/index
     ../datastore/index
-    dialog
+    decorators
     fine_syntax
     grid
     languages

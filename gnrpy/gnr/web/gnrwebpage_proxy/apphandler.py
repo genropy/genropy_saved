@@ -38,7 +38,7 @@ gnrlogger = logging.getLogger(__name__)
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrlist
 
-from gnr.core.gnrlang import getUuid, extract_kwargs
+from gnr.core.gnrlang import getUuid, extract_kwargs,uniquify
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
@@ -59,6 +59,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     @property
     def db(self):
+        """Decorator - :ref:`property`. add???"""
         return self.page.db
 
     def getDb(self, dbId=None):
@@ -805,6 +806,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                       loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None, **kwargs):
+        """A decorator - :ref:`extract_kwargs`"""
         t = time.time()
         dbtable = dbtable or table
         if pkg:
@@ -816,6 +818,12 @@ class GnrWebAppHandler(GnrBaseProxy):
             lock = False
         if lock:
             kwargs['for_update'] = True
+        tbl_virtual_columns = tblobj.attributes.get('virtual_columns')
+        if tbl_virtual_columns:
+            virtual_columns = (virtual_columns or '').split(',')
+            virtual_columns.extend(tbl_virtual_columns.split(','))
+            virtual_columns = ','.join(uniquify(virtual_columns))        
+        
         rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
                             sqlContextName=sqlContextName, virtual_columns=virtual_columns, **kwargs)

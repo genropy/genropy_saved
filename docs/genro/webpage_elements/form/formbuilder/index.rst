@@ -55,7 +55,7 @@ Formbuilder attributes
     
 .. _formbuilder_children_attributes:
 
-Formbuilder's fields attributes
+formbuilder's fields attributes
 -------------------------------
 
     The formbuilder supports many attributes for its fields, that are:
@@ -77,7 +77,7 @@ Formbuilder's fields attributes
       
 .. _formbuilder_commons_attributes:
 
-Formbuilder commons attributes
+formbuilder commons attributes
 ------------------------------
 
     The following attributes can be given both to formbuilder than to its children:

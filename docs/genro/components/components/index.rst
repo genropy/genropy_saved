@@ -11,4 +11,5 @@ list of components
     frameindex
     linkerField
     recorddialog
+    recordlinker
     th

@@ -155,10 +155,10 @@ class GnrBaseWebPage(GnrObject):
         return result
         
     def mixins(self):
-        """Implement this method in your page for mixin the page with methods from the local
-        :ref:`genro_webpage_resources` folder.
+        """Implement this method in your page for mixin the page with methods from the
+        public :ref:`public_resources` folder.
         
-        :returns: a list of mixin names, moduleName:className
+        :returns: a list of mixin names, ``moduleName:className``
         """
         return []
         
@@ -542,14 +542,12 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def rpc_deleteDbRow(self, table, pkey=None, **kwargs):
-        """Method for deleting a single record from a given tablename 
-        and from a record or its pkey
+        """Method for deleting a single record from a given table.
         
         :param table: the :ref:`genro_table` from which you want to delete a single record
         :param pkey: the record primary key. Default value is ``None``
         :returns: if it works, returns the primary key and the deleted attribute.
-                  Else, return an exception
-        """
+                  Else, return an exception"""
         try:
             tblobj = self.db.table(table)
             record = tblobj.record(pkey, for_update=True, mode='bag')
@@ -562,16 +560,13 @@ class GnrBaseWebPage(GnrObject):
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
             
-
     def rpc_deleteDbRows(self, table, pkeys=None, **kwargs):
-        """Method for deleting a single record from a given tablename 
-        and from a record or its pkey
+        """Method for deleting many records from a given table.
         
         :param table: the :ref:`genro_table` from which you want to delete a single record
         :param pkeys: 
         :returns: if it works, returns the primary key and the deleted attribute.
-                  Else, return an exception
-        """
+                  Else, return an exception"""
         try:
             tblobj = self.db.table(table)
             rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
@@ -587,26 +582,23 @@ class GnrBaseWebPage(GnrObject):
     def setLoadingParameters(self, table, **kwargs):
         """add???
         
-        :param table: the :ref:`genro_table` name
-        """
+        :param table: the :ref:`genro_table` name"""
         self.pageSource().dataFormula('gnr.tables.%s.loadingParameters' % table.replace('.', '_'),
                                       '', _onStart=True, **kwargs)
                                       
     def toJson(self, obj):
-        """add???
+        """Return the object into Json form.
         
-        :param obj: add???
-        :returns: add???
-        """
+        :param obj: the object"""
         return toJson(obj)
         
     def setOnBeforeUnload(self, root, cb, msg):
         """add???
         
-        :param root: add???
+        :param root: the root of the page. For more information, check the
+                     :ref:`webpages_main` documentation section.
         :param cb: add???
-        :param msg: add???
-        """
+        :param msg: add???"""
         root.script("""genro.checkBeforeUnload = function(e){
                        if (%s){
                            return "%s";
@@ -619,41 +611,42 @@ class GnrBaseWebPage(GnrObject):
     def pageController(self, **kwargs):
         """add???
         
-        :returns: add???
-        """
+        :returns: add???"""
         return self.pageSource().dataController(**kwargs)
         
     def pageSource(self, nodeId=None):
         """add???
         
-        :param nodeId: add???
-        :returns: add???
-        """
+        :param nodeId: the page nodeId. For more information, check the :ref:`genro_nodeid`
+                       documentation page."""
         if nodeId:
             return self._root.nodeById(nodeId)
         else:
             return self._root
             
     def rootWidget(self, root, **kwargs):
-        """add???
+        """Return a :ref:`genro_contentpane`. You can attach to it any :ref:`genro_webpage_elements_index`.
+        You can override this method to receive a different :ref:`genro_layout_index` widget respect to
+        the ``contentPane``.
         
-        :param root: add???
-        :returns: add???
-        """
+        :param root: the root of the page. For more information, check the
+                     :ref:`webpages_main` documentation section."""
         return root.contentPane(**kwargs)
         
-    def main(self, root, **kwargs): #You MUST override this !
-        """add???
+    def main(self, root, **kwargs):
+        """The main method of a webpage. You must override this method unless you're using an
+        :ref:`components_active`. For more information, check the :ref:`webpages_main`
+        documentation section.
         
-        :param root: add???
-        """
+        :param root: the root of the page. For more information, check the
+                     :ref:`webpages_main` documentation section"""
         root.h1('You MUST override this main method !!!')
         
     def forbiddenPage(self, root, **kwargs):
         """add???
         
-        :param root: add???
-        """
+        :param root: the root of the page. For more information, check the
+                     :ref:`webpages_main` documentation section."""
         dlg = root.dialog(toggle="fade", toggleDuration=250, onCreated='widget.show();')
         f = dlg.form()
         f.div(content='Forbidden Page', text_align="center", font_size='24pt')

@@ -1,4 +1,4 @@
-.. _genro_library_selectionhandler:
+.. _gnrcomponents_selectionhandler:
 
 =======================
 :mod:`SelectionHandler`

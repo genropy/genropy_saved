@@ -18,9 +18,8 @@ class ModelExtractor(object):
     def extractModelSrc(self, root):
         """Call the :meth:`buildSchemata` and :meth:`buildRelations` methods. Return the root
         
-        :param root: the root
-        :returns: the root
-        """
+        :param root: the root of the page. For more information, check the
+                     :ref:`webpages_main` documentation section."""
         self.buildSchemata(root)
         self.buildRelations(root)
         return root
@@ -28,8 +27,8 @@ class ModelExtractor(object):
     def buildSchemata(self, root):
         """add???. Call the :meth:`buildTables` method
         
-        :param root: the root
-        """
+        :param root: the root of the page. For more information, check the
+                     :ref:`webpages_main` documentation section."""
         elements = self.dbroot.adapter.listElements('schemata')
         for pkg_name in elements:
             pkg = root.package(pkg_name, sqlschema=pkg_name, sqlprefix='')
@@ -38,7 +37,8 @@ class ModelExtractor(object):
     def buildTables(self, pkg, pkg_name):
         """add???
         
-        :param pkg: add???
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page
         :param pkg_name: add???
         """
         elements = self.dbroot.adapter.listElements('tables', schema=pkg_name)
@@ -51,7 +51,8 @@ class ModelExtractor(object):
         """add???
         
         :param tbl: add???
-        :param pkg_name: add???
+        :param pkg_name: the name of your package. For more information, check the
+                         :ref:`genro_packages_index` documentation page
         :param tbl_name: add???
         """
         columns = list(self.dbroot.adapter.getColInfo(schema=pkg_name, table=tbl_name))
@@ -83,8 +84,7 @@ class ModelExtractor(object):
         
         :param tbl: add???
         :param pkg_name: add???
-        :param tbl_name: add???
-        """
+        :param tbl_name: add???"""
         for ind in self.dbroot.adapter.getIndexesForTable(schema=pkg_name, table=tbl_name):
             if not ind['primary']:
                 tbl.index(ind['columns'], name=ind['name'], unique=ind['unique'])
@@ -92,8 +92,8 @@ class ModelExtractor(object):
     def buildRelations(self, root):
         """add???
         
-        :param root: add???
-        """
+        :param root: the root of the page. For more information, check the
+                     :ref:`webpages_main` documentation section."""
         relations = self.dbroot.adapter.relations()
         for (
         many_rel_name, many_schema, many_table, many_cols, one_rel_name, one_schema, one_table, one_cols) in relations:
@@ -107,8 +107,7 @@ class ModelExtractor(object):
     def buildViews(self):
         """add???
         
-        :returns: add???
-        """
+        :returns: add???"""
         elements = self.dbroot.adapter.listElements('views', schema=self.schema)
         children = Bag(self.children)
         for element in elements:
@@ -118,8 +117,7 @@ class ModelExtractor(object):
             
 class SqlModelChecker(object):
     """Keep a database aligned with its logical structure in the GnrSqlDb.
-    If there is any change in the modelobj, database is automatically updated.
-    """
+    If there is any change in the modelobj, database is automatically updated."""
     
     def __init__(self, db):
         self.db = db
@@ -128,8 +126,7 @@ class SqlModelChecker(object):
         """Prepare self.actual_tables, self.actual_schemata, self.actual_views and call the
         :meth:`_checkPackage` method for each package. Return a list of instructions for the database building
         
-        :returns: a list of instructions for the database building
-        """
+        :returns: a list of instructions for the database building"""
         create_db = False
         self.changes = []
         self.bagChanges = Bag()
@@ -163,9 +160,9 @@ class SqlModelChecker(object):
         """Check if the current package is contained by a not defined schema and then call the
         :meth:`_checkTable` method for each table. Return a list containing sql statements
         
-        :param pkg: the package name
-        :returns: a list containing sql statements
-        """
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page
+        :returns: a list containing sql statements"""
         self._checkSqlSchema(pkg)
         if pkg.tables:
             for tbl in pkg.tables.values():

@@ -488,6 +488,9 @@ zip = function(list) {
     var curr = null;
     var tuple;
     var tc = list.length;
+    if(tc==0){
+        return [];
+    }
     var tn = list[0].length;
 
     for (var i = 0; i < tn; i++) {

@@ -1,7 +1,7 @@
 <?python
 from genshi import HTML
 
-folders=mainpage.db.table('website.folder').query().fetch()
+folders=mainpage.getFolders()
 
 mesi=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre']
 

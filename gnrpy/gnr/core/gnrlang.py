@@ -51,12 +51,10 @@ def thlocal():
         
 def deprecated(func):
     """This is a decorator which can be used to mark functions
-    as deprecated. It will result in a warning being emmitted
+    as deprecated. It will result in a warning being emitted
     when the function is used.
     
-    :param func: the function to deprecate
-    :returns: add???
-    """
+    :param func: the function to deprecate"""
     def newFunc(*args, **kwargs):
         warnings.warn("Call to deprecated function %s." % func.__name__,
                       category=DeprecationWarning, stacklevel=2)
@@ -148,9 +146,7 @@ def timer_call(time_list=None, print_time=True):
     """add???
     
     :param time_list: add???. Default value is ``None``
-    :param print_time: add???. Default value is ``True``
-    :returns: add???
-    """
+    :param print_time: add???. Default value is ``True``"""
     time_list = time_list or []
 
     def decore(func):
@@ -809,6 +805,7 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             classes = [clsname]
         for clsname in classes:
             source_class = getattr(m, clsname, None)
+            
             classMixin(target_class, source_class, methods=methods,
                        only_callables=only_callables, exclude=exclude, **kwargs)
         return
@@ -871,7 +868,7 @@ def base_visitor(cls):
 def instanceMixin(obj, source, methods=None, attributes=None, only_callables=True,
                   exclude='js_requires,css_requires,py_requires',
                   prefix=None,mangling_kwargs=None,**kwargs):
-    """Add to the instance obj methods from 'source'.
+    """Decorator - :ref:`extract_kwargs`. Add to the instance obj methods from 'source'.
     
     :param obj: add???
     :param source: it can be an instance or a class

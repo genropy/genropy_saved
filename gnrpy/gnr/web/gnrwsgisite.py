@@ -213,10 +213,7 @@ class GnrWsgiSite(object):
         
     @property
     def shared_data(self):
-        """add???
-        
-        :returns: add???
-        """
+        """Decorator - :ref:`property`. add???"""
         if not hasattr(self, '_shared_data'):
             memcache_config = self.config['memcache']
             if memcache_config:
@@ -228,10 +225,7 @@ class GnrWsgiSite(object):
         
     @property
     def guest_counter(self):
-        """add???
-        
-        :returns: add???
-        """
+        """Decorator - :ref:`property`. add???"""
         self._guest_counter += 1
         return self._guest_counter
         
@@ -239,8 +233,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param msg: add??
-        :param code: add???. Default value is ``None``
-        """
+        :param code: add???. Default value is ``None``"""
         if getattr(self, 'debug', True):
             if code and code in OP_TO_LOG:
                 print '***** %s : %s' % (code, msg)
@@ -533,7 +526,8 @@ class GnrWsgiSite(object):
     def loadResource(self, pkg, *path):
         """add???
         
-        :param pkg: add???
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page
         :param \*path: add???
         :returns: add???
         """
@@ -870,7 +864,8 @@ class GnrWsgiSite(object):
         
         :param path: add???
         :param data: add???
-        :param pkg: add???. Default value is ``''``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``''``
         """
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
@@ -880,7 +875,8 @@ class GnrWsgiSite(object):
         """add???
         
         :param path: add???
-        :param pkg: add???. Default value is ``''``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``''``
         :param dflt: add???. Default value is ``''``
         :returns: add???
         """
@@ -892,7 +888,8 @@ class GnrWsgiSite(object):
         """add???
         
         :param path: add???
-        :param pkg: add???. Default value is ``''``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``''``
         :param dflt: add???. Default value is ``''``
         :param username: add???. Default value is ``''``
         :returns: add???
@@ -907,7 +904,8 @@ class GnrWsgiSite(object):
         
         :param path: add???
         :param data: add???
-        :param pkg: add???. Default value is ``''``
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``''``
         :param username: add???. Default value is ``''``
         :returns: add???
         """
@@ -1089,17 +1087,14 @@ class GnrWsgiSite(object):
     def pkg_page_url(self, pkg, *args):
         """add???
         
-        :param pkg: add???
-        :returns: add???
-        """
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page"""
         return ('%s%s/%s' % (self.home_uri, pkg, '/'.join(args))).replace('//', '/')
         
     def webtools_url(self, tool, **kwargs):
         """add???
         
-        :param tool: add???
-        :returns: add???
-        """
+        :param tool: add???"""
         kwargs_string = '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()])
         return '%s%s_tools/%s?%s' % (self.external_host, self.home_uri, tool, kwargs_string)
         
@@ -1212,10 +1207,12 @@ class GnrWsgiSite(object):
         
     @deprecated
     def site_static_path(self, *args):
+        """.. deprecated:: 0.7"""
         return self.getStatic('site').path(*args)
         
     @deprecated
     def site_static_url(self, *args):
+        """.. deprecated:: 0.7"""
         return self.getStatic('site').url(*args)
         
 ##################### begin static file handling ###############################

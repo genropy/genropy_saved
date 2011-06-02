@@ -138,6 +138,8 @@ class TableScriptRunner(BaseComponent):
                                 FIRE .close;
                                 SET #table_script_runner.parameters=pars;
                                 FIRE #table_script_runner.run;
+                                genro.publish({parent:true,topic:'open_batch'});
+                                
                             }else{
                                 FIRE .close;
                                 batch_monitor.create_local_root();

@@ -106,7 +106,7 @@ class Form(BaseComponent):
         #fb.field('@anagrafica_id.partita_iva')
         #fb.field('@anagrafica_id.fax')
         #fb.field('interno', ghost='esempio: 202')
-        #fb.field('@anagrafica_id.note', tag='textarea', colspan=2, width='100%')
+        #fb.field('@anagrafica_id.note', tag='simpletextarea', colspan=2, width='100%')
         #fb.field('ruolo',tag='combobox', lbl='Ruolo nell\'azienda',
         #          values='dipendente, libero professionista, manager')
         

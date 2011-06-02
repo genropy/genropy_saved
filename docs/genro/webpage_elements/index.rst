@@ -1,8 +1,8 @@
 .. _genro_webpage_elements_index:
 
-================
-webpage elements
-================
+===============
+webpage element
+===============
 
 .. toctree::
     :maxdepth: 1

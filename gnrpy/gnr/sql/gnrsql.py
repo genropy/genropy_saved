@@ -117,12 +117,12 @@ class GnrSqlDb(GnrObject):
     
     @property
     def debug(self):
-        """Property. add???"""
+        """Decorator - :ref:`property`. add???"""
         return self.application.debug
         
     @property
     def dbstores(self):
-        """Property. add???
+        """Decorator - :ref:`property`. add???
         
         :returns: add???"""
         return self.stores_handler.dbstores
@@ -422,7 +422,8 @@ class GnrSqlDb(GnrObject):
     def package(self, pkg):
         """Return a package object
         
-        :param pkg: the package name"""
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page."""
         return self.model.package(pkg)
             
     def _get_packages(self):
@@ -458,8 +459,8 @@ class GnrSqlDb(GnrObject):
         """Return a table object
         
         :param tblname: table name
-        :param pkg: package name. Default value is ``None``
-        :returns: a table object"""
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
         return self.model.table(tblname, pkg=pkg).dbtable
             
     def query(self, table, **kwargs):
@@ -472,8 +473,7 @@ class GnrSqlDb(GnrObject):
     def colToAs(self, col):
         """add???
         
-        :param col: a table column
-        :returns: add???"""
+        :param col: a table column"""
         as_ = re.sub('\W', '_', col)
         if as_[0].isdigit(): as_ = '_' + as_
         return as_
@@ -485,8 +485,7 @@ class GnrSqlDb(GnrObject):
         :param table: the :ref:`genro_table` name
         :param prevCaption: add???. Default value is ``''``
         :param prevRelation: add???. Default value is ``''``
-        :param translator: add???. Default value is ``None``
-        :returns: add???"""
+        :param translator: add???. Default value is ``None``"""
         return self.table(table).relationExplorer(prevCaption=prevCaption,
                                                   prevRelation=prevRelation,
                                                   translator=translator, **kwargs)

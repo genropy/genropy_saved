@@ -52,7 +52,7 @@ class DbModel(object):
         
     @property
     def debug(self):
-        """add???"""
+        """Decorator - :ref:`property`. add???"""
         return self.db.debug
         
     def build(self):
@@ -172,10 +172,10 @@ class DbModel(object):
     def checkRelationIndex(self, pkg, table, column):
         """add???
         
-        :param pkg: package name
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page.
         :param table: the :ref:`genro_table` name
-        :param column: add???
-        """
+        :param column: add???"""
         tblobj = self.table(table, pkg=pkg)
         indexname = '%s_%s_key' % (table, column)
         if column != tblobj.pkey and not indexname in tblobj.indexes:
@@ -232,9 +232,9 @@ class DbModel(object):
     def packageMixin(self, pkg, obj):
         """add???
         
-        :param pkg: the package name
-        :param obj: add???
-        """
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page.
+        :param obj: add???"""
         self._doMixin('pkg.%s' % pkg, obj)
         
     def tableMixin(self, tblpath, obj):
@@ -243,18 +243,16 @@ class DbModel(object):
     def package(self, pkg):
         """Return a package object
         
-        :param pkg: the package name
-        :returns: the package object
-        """
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page."""
         return self.obj[pkg]
         
     def table(self, tblname, pkg=None):
         """Return a table object
         
         :param tblname: the table name
-        :param pkg: the package name. Default value is ``None``
-        :returns: a table object
-        """
+        :param pkg: the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
         if '.' in tblname:
             pkg, tblname = tblname.split('.')[:2]
         if pkg is None:
@@ -267,9 +265,7 @@ class DbModel(object):
     def column(self, colname):
         """Return a column object
         
-        :param colname: the column name
-        :returns: a column object
-        """
+        :param colname: the column name"""
         colpath = colname.split('.')
         if len(colpath) == 2:
             pkg = None
@@ -280,8 +276,7 @@ class DbModel(object):
         
 class DbModelSrc(GnrStructData):
     """A GnrStructData subclass. It is used for the elements of a GenroDb
-    TESTED in a_structure_load_test.py
-    """
+    TESTED in a_structure_load_test.py"""
     
     def package(self, name, sqlschema=None,
                 comment=None,
@@ -294,8 +289,7 @@ class DbModelSrc(GnrStructData):
         :param comment: the package's comment. Default value is ``None``
         :param name_short: the package's short name. Default value is ``None``
         :param name_long: the package's long name. Default value is ``None``
-        :param name_full: the package's full name. Default value is ``None``
-        """
+        :param name_full: the package's full name. Default value is ``None``"""
         if not 'packages' in self: #if it is the first package it prepares the package_list packages
             self.child('package_list', 'packages')
         
@@ -307,9 +301,7 @@ class DbModelSrc(GnrStructData):
     def externalPackage(self, name):
         """add???
         
-        :param name: the package name
-        :returns: add???
-        """
+        :param name: the package name"""
         return self.root('packages.%s' % name)
         
     def table(self, name, pkey=None, lastTS=None, rowcaption=None,
@@ -327,8 +319,7 @@ class DbModelSrc(GnrStructData):
         :param name_short: the table's short name. Default value is ``None``
         :param name_long: the table's long name. Default value is ``None``
         :param name_full: the table's full name. Default value is ``None``
-        :returns: a table
-        """
+        :returns: a table"""
         if not 'tables' in self:
             #if it is the first table it prepares the table_list tables
             self.child('table_list', 'tables')
@@ -363,9 +354,7 @@ class DbModelSrc(GnrStructData):
                       Default value is ``None``
         :param onInserting: add???. Default value is ``None``
         :param onUpdating: add???. Default value is ``None``
-        :param onDeleting: add???. Default value is ``None``
-        :returns: a column
-        """
+        :param onDeleting: add???. Default value is ``None``"""
         if '::' in name:
             name, dtype = name.split('::')
         if not 'columns' in self:
@@ -384,9 +373,7 @@ class DbModelSrc(GnrStructData):
         :param name: the column name
         :param relation_path: the column's related path. Default value is ``None``
         :param sql_formula: add???. Default value is ``None``
-        :param py_method: add???. Default value is ``None``
-        :returns: a related column alias
-        """
+        :param py_method: add???. Default value is ``None``"""
         if '::' in name: name, dtype = name.split('::')
         if not 'virtual_columns' in self:
             self.child('virtual_columns_list', 'virtual_columns')
@@ -432,8 +419,7 @@ class DbModelSrc(GnrStructData):
         created with the :meth:`table` method
         
         :param name: the aliasTable name
-        :param relation_path: path of the related table
-        """
+        :param relation_path: path of the related table"""
         if '::' in name: name, dtype = name.split('::')
         if not 'table_aliases' in self:
             self.child('tblalias_list', 'table_aliases')
@@ -446,8 +432,7 @@ class DbModelSrc(GnrStructData):
         
         :param columns: list, or tuple, or string separated by commas. Default value is ``None``
         :param name: the index name. Default value is ``None``
-        :param unique: boolean. Same of the sql UNIQUE. Default value is ``None``
-        """
+        :param unique: boolean. Same of the sql UNIQUE. Default value is ``None``"""
         if isinstance(columns, list) or isinstance(columns, tuple):
             columns = ','.join(columns)
         if not name:
@@ -484,8 +469,7 @@ class DbModelSrc(GnrStructData):
         :param onDelete_sql: add???. Default value is ``None``
         :param deferred: add???. Default value is ``None``
         :param relation_name: add???. Default value is ``None``
-        :returns: add???. Default value is ``None``
-        """
+        :returns: add???. Default value is ``None``"""
         
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode,
                             one_name=one_name, many_name=many_name, one_one=one_one, child=child,

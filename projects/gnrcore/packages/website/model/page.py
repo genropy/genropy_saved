@@ -8,8 +8,8 @@ class Table(object):
         tbl =  pkg.table('page', name_plural = u'!!Pages', pkey='id',name_long=u'!!Page', rowcaption='$title')
         self.sysFields(tbl)
         tbl.column('title', size=':20',name_long = '!!Title',base_view=True)
-        tbl.column('extended_title', size=':50',name_long = '!!Extended Title')
-        tbl.column('permalink', size=':50',name_long = '!!Permalink')
+        tbl.column('extended_title', name_long = '!!Extended Title')
+        tbl.column('permalink', size=':254',name_long = '!!Permalink')
         tbl.column('content',name_long = '!!Content')
         tbl.column('position', dtype='I',name_long = '!!Position')
         tbl.column('publish',dtype='DH', name_long = '!!Published on')
@@ -18,9 +18,11 @@ class Table(object):
                                                                         mode='foreignkey',
                                                                         onDelete='CASCADE')
 
-    #def trigger_onInserting(self, record):
-    #    record['title'] = record['title'].strip()
-    #    record['permalink'] = record['title'].replace(' ','_')
+    def trigger_onInserting(self, record):
+        record['content'] = record['content'].replace('../_site','/_site')
+
+    def trigger_onUpdating(self, record,old_record):
+        record['content'] = record['content'].replace('../_site','/_site')
         
     def folder_view(self,struct):
         r = struct.view().rows()
