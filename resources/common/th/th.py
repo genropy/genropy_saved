@@ -59,7 +59,7 @@ class TableHandler(BaseComponent):
                             }else{
                                 sourceNode.setHiderLayer(null,true);
                             }
-                            """,pkey='^#FORM.pkey',sourceNode=wdg,message=message,_delay=1)                
+                            """,pkey='=#FORM.pkey',sourceNode=wdg,message=message,_fired='^#FORM.controller.loaded')                
         top_slots = '#,delrow,addrow'
         if readOnly:
             top_slots = '#'
