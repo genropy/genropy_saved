@@ -9,6 +9,9 @@
 
 
 def codeToPath(self, folder):
-    if folder:
-        return '/'+folder['code'].replace('.','/')+'/'
+    try:
+        if folder:
+            return '/'+folder['code'].replace('.','/')+'/'
+    except:
+        return '/'+folder.replace('.','/')+'/'
     return ''

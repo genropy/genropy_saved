@@ -58,6 +58,9 @@ class GnrCustomWebPage(object):
 
     def getFolderByCode(self,code):
         return self.db.table('website.folder').query(where='$code=:code',code=code).fetch()
+    def getFolders(self,exclude=None):
+        #exclude da implementare esclusione folder dinamici
+        return mainpage.db.table('website.folder').query().fetch()
         
     def getIndex(self,folder):
         pages=self.db.table('website.page').query(where='$folder=:folder_pkey AND $permalink=:permalink',
