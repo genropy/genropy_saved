@@ -980,10 +980,27 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
 
     },
     doUpdateAttrBuiltObj:function(attr, kw, trigger_reason) {
+        if(this._original_attributes){
+            this.setAttr(this._original_attributes,true);
+            this._original_attributes=null;
+        }
         var attr = attr || 'value';
         var path;
         var value = null;
         var attr_lower = attr.toLowerCase();
+        if(trigger_reason=='container' && attr=='value' && kw.evt=='upd'){
+            var vpath = this.attr['value'];
+            if (this.isPointerPath(vpath) && (vpath.indexOf('?')<0)){
+                var vnode = genro._data.getNode(this.absDatapath(vpath));
+                if (vnode){
+                    var wdg_modifiers = objectExtract(vnode.attr,'wdg_*');
+                    if(objectNotEmpty(wdg_modifiers)){
+                        this._original_attributes = objectUpdate({},this.attr);
+                        this.updAttributes(wdg_modifiers,true);
+                    }
+                }
+            }
+        }
         if (!(kw.evt == 'ins' || kw.evt == 'del')) {
             value = this.getAttributeFromDatasource(attr, true);
         }

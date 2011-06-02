@@ -22,3 +22,8 @@ class Table(object):
         
     def baseView_full(self):
         return "sigla:10%,@regione.nome/Regione:40%,nome:20%,@regione.zona:30%"
+
+    def protect_update(self, record, old_record=None):
+        if record['sigla'] == 'AO':
+            record.setAttr('regione',wdg_disabled=True)
+        

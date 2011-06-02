@@ -805,6 +805,7 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
             classes = [clsname]
         for clsname in classes:
             source_class = getattr(m, clsname, None)
+            
             classMixin(target_class, source_class, methods=methods,
                        only_callables=only_callables, exclude=exclude, **kwargs)
         return
