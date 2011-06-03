@@ -3121,7 +3121,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         if (this.sortedBy) {
             var storebag = this.storebag();
-            storebag.sort(this.datamode=='bag'?this.sortedBy:'#a.'+this.sortedBy);
+            var sortedBy = this.sortedBy;
+            if(this.datamode!='bag'){
+                sortedBy = sortedBy.split(',');
+                var l = [];
+                dojo.forEach(sortedBy,function(n){l.push('#a.'+n)});
+                sortedBy = l.join(',');
+            }
+            storebag.sort(sortedBy);
         }
         this.updateRowCount();
         this.selection.unselectAll();

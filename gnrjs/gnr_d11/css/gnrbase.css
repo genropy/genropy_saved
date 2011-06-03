@@ -1118,7 +1118,11 @@ div.dojoxDock {
     width: 16px;
     height: 16px;
 }
-
+.icnBaseCalendar {
+    background: url(icons/base16/calendar.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
 .icnBuddy {
     background: url(icons/base16/buddy.png) no-repeat center center;
     width: 16px;
