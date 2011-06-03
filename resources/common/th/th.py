@@ -162,8 +162,8 @@ class TableHandler(BaseComponent):
         rootattr['datapath'] = 'main'
         rootattr['overflow'] = 'hidden'
         rootattr['_fakeform'] = True
-        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
-        root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
+        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey; FIRE .controller.loaded;'
+        root.dataController('SET .pkey = pkey; FIRE .controller.loaded;',pkey=pkey,_onStart=True)
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
 
