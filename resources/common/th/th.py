@@ -230,6 +230,7 @@ class ThLinker(BaseComponent):
         footer.linker_edit.slotButton('Edit current record',baseClass='no_background',iconClass='icnBaseWrite',
                                        action='linker.publish("loadrecord");',linker=linker,showLabel=False,
                                        visible=currpkey,margin='2px',parentForm=True)
+        return frame
 
     @struct_method          
     def th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs):
