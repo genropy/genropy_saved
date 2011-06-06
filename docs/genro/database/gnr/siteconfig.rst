@@ -90,10 +90,10 @@ Tags
     
     * *port*: specify the port number
     * *reload*: boolean. If ``True``, ... ???
-    * *debug*: boolean. If ``True``, allot to use the WebError_ package.
-    
-    .. _WebError: http://www.google.it/#sclient=psy&hl=it&source=hp&q=WebError+python&aq=f&aqi=&aql=&oq=&pbx=1&bav=on.2,or.r_gc.r_pw.&fp=32ec6e2cf01d73f9
-    
+    * *debug*: boolean. If ``True`` and if a programming error is revealed during the execution
+               of a :ref:`webpages_webpages`, it allows to send a traceback of the error through
+               a WebError Traceback [#]_
+               
     This is an example of the ``<wsgi>`` tag::
     
         <wsgi port="8083" reload="true" debug="true"/>
@@ -184,3 +184,7 @@ Tags
             <js_libs/>
         </resources>
         
+**Footnotes**:
+
+.. [#] The WebError Traceback is a utility of the WebError Python package.
+                

@@ -1170,9 +1170,10 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param \_auth: add???. Default value is ``AUTH_OK``
-        :param debugger: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param debugger: boolean. If ``True`` and if a programming error is revealed during the execution
+                         of a :ref:`webpages_webpages`, it allows to send a traceback of the error through
+                         a WebError Traceback (a utility of the Python WebError package).
+                         Default value is ``None``"""
         page = self.domSrcFactory.makeRoot(self)
         
         self._root = page

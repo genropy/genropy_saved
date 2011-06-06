@@ -98,7 +98,7 @@ description
 Package class
 =============
     
-    .. class:: Package(GnrDboPackage)
+    *class* **Package** (*GnrDboPackage*)
     
     The ``Package`` class is used for ... add???
     
@@ -109,7 +109,7 @@ Package class
 config_attributes
 -----------------
 
-    .. method:: config_attributes(self)
+    **config_attributes** (*self*)
     
     Return a ``dict``, where:
     
@@ -119,8 +119,6 @@ config_attributes
                 package. For more information, check the
                 :ref:`introduction to a package <genro_packages_introduction>`.
                 
-.. * ``reserved`` (boolean); if ``True``... add??? Found it as reserved='y' in the 
-    
     * ``comment`` includes a comment string.
     * ``name_short`` includes a string of the :ref:`genro_name_short` of the schema.
     * ``name_long`` includes a string of the :ref:`genro_name_long` of the schema.
@@ -142,8 +140,6 @@ config_attributes
 config_db
 ---------
     
-    .. deprecated:: 0.7
-    
     .. warning:: this method is not used anymore in the ``main.py``, but it is used only as the
                  main method of a database :ref:`genro_table`.
                  
@@ -152,14 +148,14 @@ config_db
 custom_type
 -----------
 
-    .. method:: custom_type_CUSTOM-DTYPE(self)
+    **custom_type_CUSTOMNAME** (*self*)
     
     With this method you can create your own :ref:`genro_datatype`.
     
-    In the method definition, ``CUSTOM-DTYPE`` is the name you choose for your custom type.
+    ``CUSTOMNAME`` is the name you choose for your custom type.
     
-    This method returns a ``dict`` through which you can modify the features of your custom
-    type. In particular:
+    This method returns a ``dict`` through which you can modify the features of
+    your custom type. In particular:
     
     * ``dtype`` specify the datatype format (``C`` for char, ``DH`` for datetime... [#]_)
     * ``size`` specify the lenght of the custom datatype.
@@ -187,6 +183,8 @@ custom_type
 loginUrl
 --------
 
+    **loginUrl** (*self*)
+    
     Define the location of your login authorization page.
     
     ::
@@ -242,7 +240,7 @@ loginUrl
 Table class
 ===========
     
-    .. class:: Table(GnrDboTable)
+    *class* **Table** (*GnrDboTable*)
     
     The ``Table`` class is used for ... add???
     

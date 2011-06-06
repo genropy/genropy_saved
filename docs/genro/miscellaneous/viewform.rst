@@ -10,10 +10,12 @@ view and data windows
     * the :ref:`genro_view_data`
     
     These two windows can live in a single :ref:`webpages_webpages`, or in two
-    stacks, or one in a page and one in a dialog, and so on. The
-    :ref:`genro_component` that handles the creation and the disposition
-    of these two windows is the :ref:`genro_th`.
-
+    :ref:`genro_stackcontainer`\s, or one in a page and one in a :ref:`genro_dialog`,
+    and so on.
+    
+    There is a :ref:`genro_component` that allows to handle the creation and the
+    disposition of these two windows: the :ref:`genro_th`.
+    
 .. _genro_view_data:
 
 view-data window
@@ -22,7 +24,7 @@ view-data window
     The ``view-data window`` allow to:
     
     * visualize the records saved by the user.
-    * make a :ref:`genro_query` to search into records
+    * make a query to search into records
     
     .. image:: ../images/th/view.png
     

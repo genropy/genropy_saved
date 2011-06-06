@@ -17,8 +17,7 @@ Documents to revise
     login
     palette
     print
-    query
-    sql
+    sql/index
     struct
     textmate
     trigger

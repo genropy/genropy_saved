@@ -358,8 +358,8 @@ from gnr.app.gnrdbo import GnrDboTable, GnrDboPackage, Table_counter, Table_user
 class Package(GnrDboPackage):
     def config_attributes(self):
         return dict(comment='%(comment)s',sqlschema='%(sqlschema)s',
-                name_short='%(name_short)s', name_long='%(name_long)s', name_full='%(name_full)s')
-                
+                    name_short='%(name_short)s', name_long='%(name_long)s', name_full='%(name_full)s')
+                    
     def config_db(self, pkg):
         pass
         
