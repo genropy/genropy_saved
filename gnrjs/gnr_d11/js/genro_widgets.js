@@ -493,7 +493,8 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     setSrc:function(domnode, v, kw) {
         var sourceNode = domnode.sourceNode;
         var attributes = sourceNode.attr;
-        var main_call=null;
+        var main_call = objectPop(attributes,'main');
+        var main_kwargs = objectExtract(attributes,'main_*');
         if (attributes._if && !sourceNode.getAttributeFromDatasource('_if')) {
             var v = '';
         } else if (sourceNode.condition_function && !sourceNode.condition_function(sourceNode.condition_value)) {
@@ -505,16 +506,13 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         if (sourceNode.currentSetTimeout) {
             clearTimeout(sourceNode.currentSetTimeout);
         }
-        if (v) {      
-            main_call = objectPop(attributes,'main');
-            v = v || window.location.pathname;  
-            var main_kwargs = objectExtract(attributes,'main_*');
-            if (main_call){
-                main_kwargs['main_call'] = main_call;
-            }
+        if(main_call){
+            v = v || window.location.pathname;
+            main_kwargs['main_call'] = main_call;
+        }
+        if (v) {     
             main_kwargs = sourceNode.evaluateOnNode(main_kwargs);
-            v = genro.addParamsToUrl(v,main_kwargs); 
-            
+            v = genro.addParamsToUrl(v,main_kwargs);    
             sourceNode.currentSetTimeout = setTimeout(function(d, url) {
                 var absUrl = document.location.protocol + '//' + document.location.host + url;
                 if (absUrl != d.src) {
@@ -901,9 +899,7 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
                     sourceNode.setRelativeData(path, newpage);
                 }
             }
-            if (nodeId) {
-                genro.publish(nodeId + '_selected', {'change':newpage + '_' + (st ? 'show' : 'hide'),'page':newpage,'selected':st});
-            }
+            sourceNode.publish('selected', {'change':newpage + '_' + (st ? 'show' : 'hide'),'page':newpage,'selected':st});
         };
         if (selpath) {
             cbUpd(selpath, widget.getChildIndex(child), st);
