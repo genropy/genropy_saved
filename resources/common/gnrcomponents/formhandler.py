@@ -44,9 +44,8 @@ class FormHandler(BaseComponent):
             kwargs['store_storeType'] = 'Collection'
             kwargs['store_parentStore'] = pane.attributes['store']
         if iframe:
-            iframeNode =self.__formInIframe(formRoot,frameCode=frameCode,table=table,
-                                            formId=formId,default_kwargs=default_kwargs,iframe=iframe,**kwargs)
-            return iframeNode
+            src=None if iframe is True else iframe
+            return formRoot.formInIframe(table=table,formId=formId,default_kwargs=default_kwargs,src=src,**kwargs)
         form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=table,store=store,**kwargs)
         attachTo.form = form
         form.store.handler('load',**default_kwargs)
@@ -100,27 +99,25 @@ class FormHandler(BaseComponent):
                                                                 this.widget.selectByRowAttr('_pkey',$1.pkey);
                                                             }
                                                               """
-    @extract_kwargs(store=True)
-    def __formInIframe(self,formRoot,frameCode=None,table=None,
-                       formId=None,default_kwargs=None,iframe=None,
-                       formResource=None,height=None,width=None,pageName=None,
-                       childname=None,store_kwargs=True,**kwargs):
-        attr = dict()
-        src = None
+    @extract_kwargs(store=True,dialog=True,palette=True,main=dict(slice_prefix=False))
+    @struct_method
+    def fh_formInIframe(self,pane,table=None,
+                       formId=None,default_kwargs=None,src=None,
+                       formResource=None,store_kwargs=True,
+                       dialog_kwargs=None,palette_kwargs=None,main_kwargs=True,main='form',**kwargs):
+        if dialog_kwargs or palette_kwargs:
+            formRoot = self.__formRoot(pane,formId,attachTo=pane,dialog_kwargs=dialog_kwargs,palette_kwargs=palette_kwargs,form_kwargs=kwargs)
+        else:
+            formRoot = pane
         default_kwargs = default_kwargs or dict()
-        if iframe is not True:
-            src = iframe
-        attr['subscribe_form_%s_load' %formId] = 'this.iframeFormManager.openrecord($1.destPkey);'
-        attr['subscribe_form_%s_dismiss' %formId] = 'this.iframeFormManager.closerecord($1);'
-        attr['_iframeAttr'] = dict(formResource=formResource,src=src,main='form')
-        attr['_fakeFormId'] = formId
-        attr['_table'] = table
-        attr['_formStoreKwargs'] = store_kwargs
-        attr.update(default_kwargs)
-        pane = formRoot.contentPane(overflow='hidden',height=height,width=width,
-                                    pageName=pageName,childname=childname,
-                                    onCreated='this.iframeFormManager = new gnr.IframeFormManager(this);',
-                                    **attr)
+        kwargs['subscribe_form_%s_load' %formId] = 'this.iframeFormManager.openrecord($1.destPkey);'
+        kwargs['subscribe_form_%s_dismiss' %formId] = 'this.iframeFormManager.closerecord($1);'
+        kwargs['_iframeAttr'] = dict(formResource=formResource,src=src,main=main,**main_kwargs)
+        kwargs['_fakeFormId'] = formId
+        kwargs['_table'] = table
+        kwargs['_formStoreKwargs'] = store_kwargs
+        kwargs.update(default_kwargs)
+        return formRoot.contentPane(overflow='hidden',onCreated='this.iframeFormManager = new gnr.IframeFormManager(this);',**kwargs)
 
 
     @struct_method

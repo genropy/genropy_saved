@@ -166,16 +166,18 @@ class TableHandler(BaseComponent):
         root.dataController('SET .pkey = pkey; FIRE .controller.loaded;',pkey=pkey,_onStart=True)
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
-
 class ThLinker(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method 
-    def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,
+    def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
                     openIfNew=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs):
-        if '.' in field:
-            table,field = field.split('.')
-        else:
-            table = pane.getInheritedAttributes().get('table') or self.maintable
+        if not table:
+            if '.' in field:
+                fldlst = field.split('.')
+                table = '.'.join(fldlst[0:2])
+                field = fldlst[2]
+            else:
+                table = pane.getInheritedAttributes().get('table') or self.maintable
         tblobj = self.db.table(table)
         related_tblobj = tblobj.column(field).relatedColumn().table    
         related_table = related_tblobj.fullname
@@ -188,12 +190,13 @@ class ThLinker(BaseComponent):
             kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition                  
         linkerpath = '#FORM.linker_%s' %field
         linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,
-                         rounded=8,tip='^.tip_link',onCreated='this.linkerManager = new gnr.LinkerManager(this);',
+                         rounded=8,tip='^.tip_link',
+                         onCreated='this.linkerManager = new gnr.LinkerManager(this);',
                          connect_onclick='this.linkerManager.openLinker();',
                          selfsubscribe_disable='this.linkerManager.closeLinker();',
                          selfsubscribe_newrecord='this.linkerManager.newrecord();',
                          selfsubscribe_loadrecord='this.linkerManager.loadrecord();',
-                         _table = table,_related_table = related_table,_field=field,_embedded=embedded,
+                         table=related_table,_field=field,_embedded=embedded,
                          _formUrl=formUrl,_formResource=formResource,
                          _dialog_kwargs=dialog_kwargs,_default_kwargs=default_kwargs)
         linker.dataController("""SET .tip_link =linktpl.replace('$table1',t1).replace('$table2',t2);
@@ -213,8 +216,8 @@ class ThLinker(BaseComponent):
         if newRecordOnly:
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
-                connect_onBlur='this.getParentNode().publish("disable");',
-                _class='th_linkerField',background='white',**kwargs)
+                    connect_onBlur='this.getParentNode().publish("disable");',
+                    _class='th_linkerField',background='white',**kwargs)
         return linker
     
     @struct_method 
@@ -224,7 +227,7 @@ class ThLinker(BaseComponent):
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,newRecordOnly=newRecordOnly,openIfNew=openIfNew,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
-        frame.div(template=self.tableTemplate(linker.attributes['_related_table'],template),
+        frame.div(template=self.tableTemplate(linker.attributes['table'],template),
                     datasource='^.@%s' %field,visible=currpkey,margin='4px')
         footer = frame.bottom.slotBar('*,linker_edit')
         footer.linker_edit.slotButton('Edit current record',baseClass='no_background',iconClass='icnBaseWrite',
@@ -237,7 +240,7 @@ class ThLinker(BaseComponent):
         bar = pane.slotBar('lbl,*,linkerslot,5',height='20px',_class=_class)
         linker = bar.linkerslot.linker(field=field,newRecordOnly=newRecordOnly,**kwargs)
         bar.linker = linker
-        label = label or self.db.table(linker.attributes['_related_table']).name_long
+        label = label or self.db.table(linker.attributes['table']).name_long
         bar.lbl.div(label)
         return bar
 
