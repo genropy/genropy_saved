@@ -21,7 +21,7 @@ dojo.declare("gnr.widgets.ThIframeDialog", gnr.widgets.ThIframe, {
         var dialogAttrs = objectExtract(kw,'title,height,width');
         dialogAttrs.closable=true;
         dialogAttrs = objectUpdate({overflow:'hidden',_lazyBuild:true},dialogAttrs);
-        var dialog = sourceNode._('dialog',objectExtract(dialogAttrs,'title,closable'));
+        var dialog = sourceNode._('dialog',objectUpdate(objectExtract(dialogAttrs,'title,closable'),objectExtract(kw,'dialog_*')));
         this.thiframe(dialog._('div',dialogAttrs),kw);
         return dialog;
     }
