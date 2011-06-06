@@ -523,6 +523,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             that = this;
             if(onSaved=='reload' ||(destPkey&&(destPkey!=this.getCurrentPkey()))|| this.isNewRecord()){
                 cb=function(resultDict){
+                    if (resultDict.error){
+                        genro.dlg.alert(resultDict.error,'Error');
+                        that.setOpStatus();
+                        return;
+                    }
                     destPkey = destPkey || resultDict.savedPkey;
                     if(resultDict.loadedRecord){
                         that.setCurrentPkey(destPkey);
@@ -646,7 +651,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var bagnodes = record.getNodes();
             for (var i = 0; i < bagnodes.length; i++) {
                 node = bagnodes[i];
-                sendback = changesOnly ? node.attr._sendback : true;
+                sendback = changesOnly ? node.attr._sendback: true;
                 if (sendback == false || node.label.slice(0, 1) == '$' || node.attr.virtual_column) {
                     continue;
                 }
@@ -671,8 +676,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                                 n.attr.__old = asTypedTxt(loadedValue, n.attr.dtype);
                             }
                         },'static')
-                        data.setItem(node.label, value, objectUpdate({'_gnrbag':true}, node.attr));
-                        data.__isRealChange = true;
+                        if(value.len()>0 || !isNewRecord){
+                            data.setItem(node.label, value, objectUpdate({'_gnrbag':true}, node.attr));
+                            data.__isRealChange = true;
+                        }
                     }
                 }
                 else if ((sendback == true) || (isNewRecord && value != null) || ('_loadedValue' in node.attr)) {
@@ -1317,7 +1324,10 @@ dojo.declare("gnr.formstores.Base", null, {
         var cb = function(result){
             if (result){
                 var resultDict={}
-                if(autoreload){
+                if (result.error){
+                    resultDict['error'] = result.error;
+                }
+                else if(autoreload){
                     var loadedRecordNode = result.getNode('loadedRecord');
                     var pkeyNode = result.getNode('pkey'); 
                     resultDict.savedPkey=pkeyNode.getValue();

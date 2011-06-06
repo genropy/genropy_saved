@@ -67,7 +67,7 @@ class GnrCustomWebPage(object):
         rpc = store.handler('load',default_ordine_tot='100')  
         rpc.addCallback('console.log(result)')  
         pane = form.center.contentPane(datapath='.record')
-        pane.formbuilder(cols=2).formContent()  
+        fb = pane.formbuilder(cols=2).formContent()  
         
     def test_10_frameform_iv(self,pane):
         "Test FrameForm"

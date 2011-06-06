@@ -1118,7 +1118,11 @@ div.dojoxDock {
     width: 16px;
     height: 16px;
 }
-
+.icnBaseCalendar {
+    background: url(icons/base16/calendar.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
 .icnBuddy {
     background: url(icons/base16/buddy.png) no-repeat center center;
     width: 16px;
@@ -2091,6 +2095,7 @@ border='1px solid gray',margin='2px', rounded=10,
     display:block;
     width:12em;
     box-shadow:none;
+    padding-top:0;
 }
 .dijitError.th_linkerField{    
 	background: transparent url(icons/base12/invalid.png) no-repeat right center !important;

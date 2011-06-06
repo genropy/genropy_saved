@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
+	<struttura label=u"!!Struttura" file="struttura"/>
+	<homepage label=u"!!Homepage" file="home_page"/>
+	<index_article label=u"!!Articles Table" table="website.index_article"/>
+
 </GenRoBag>

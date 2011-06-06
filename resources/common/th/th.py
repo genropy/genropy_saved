@@ -59,7 +59,7 @@ class TableHandler(BaseComponent):
                             }else{
                                 sourceNode.setHiderLayer(null,true);
                             }
-                            """,pkey='^#FORM.pkey',sourceNode=wdg,message=message,_delay=1)                
+                            """,pkey='=#FORM.pkey',sourceNode=wdg,message=message,_fired='^#FORM.controller.loaded')                
         top_slots = '#,delrow,addrow'
         if readOnly:
             top_slots = '#'
@@ -162,8 +162,8 @@ class TableHandler(BaseComponent):
         rootattr['datapath'] = 'main'
         rootattr['overflow'] = 'hidden'
         rootattr['_fakeform'] = True
-        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
-        root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
+        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey; FIRE .controller.loaded;'
+        root.dataController('SET .pkey = pkey; FIRE .controller.loaded;',pkey=pkey,_onStart=True)
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
 
@@ -230,6 +230,7 @@ class ThLinker(BaseComponent):
         footer.linker_edit.slotButton('Edit current record',baseClass='no_background',iconClass='icnBaseWrite',
                                        action='linker.publish("loadrecord");',linker=linker,showLabel=False,
                                        visible=currpkey,margin='2px',parentForm=True)
+        return frame
 
     @struct_method          
     def th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs):
