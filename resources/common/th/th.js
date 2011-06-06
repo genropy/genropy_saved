@@ -47,7 +47,6 @@ dojo.declare("gnr.LinkerManager", null, {
         this.formResource = sourceNode.attr._formResource;
         this.field = sourceNode.attr._field;
         this.fieldpath = '#FORM.record.'+this.field;
-        this.related_table = sourceNode.attr._related_table;
         this.table = sourceNode.attr._table;
         this.embedded = sourceNode.attr._embedded;
         this.dialog_kwargs = sourceNode.attr._dialog_kwargs;
@@ -90,7 +89,7 @@ dojo.declare("gnr.LinkerManager", null, {
         }else{
             var that = this;
             var destPkey = pkey;
-            var iframeDialogKw = {title:'',table:this.related_table,main:'form',
+            var iframeDialogKw = {title:'',table:this.table,main:'form',
                                  main_th_linker:true,height:'300px',width:'400px',
                                  onStarted:function(){that.onIframeStarted(this,destPkey)}};
             if(this.formResource){
@@ -130,7 +129,6 @@ dojo.declare("gnr.LinkerManager", null, {
     }
 });
 
-
 dojo.declare("gnr.IframeFormManager", null, {
     constructor:function(sourceNode){
         this.sourceNode = sourceNode;
@@ -141,7 +139,7 @@ dojo.declare("gnr.IframeFormManager", null, {
         this.default_kwargs = objectExtract(sourceNode.attr,'default_*');
         this.iframeAttr = sourceNode.attr._iframeAttr;
         this.fakeFormId = sourceNode.attr._fakeFormId;
-        this.formStoreKwargs = sourceNode.attr._formStoreKwargs
+        this.formStoreKwargs = sourceNode.attr._formStoreKwargs;
     },
     openrecord:function(pkey){
         genro.publish('form_'+this.fakeFormId+'_onLoading');
@@ -167,7 +165,9 @@ dojo.declare("gnr.IframeFormManager", null, {
             return that.sourceNode.evaluateOnNode(that.default_kwargs);
         }
         this.iframeForm.load({destPkey:pkey});
-        this.iframeForm.store.parentStore = genro.getStore(this.formStoreKwargs.parentStore);
+        if(this.formStoreKwargs.parentStore){
+            this.iframeForm.store.parentStore = genro.getStore();
+        }
         this.iframeForm.subscribe('onDismissed',function(kw){
             genro.publish('form_'+that.fakeFormId+'_onDismissed',kw);
         });
