@@ -493,6 +493,7 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     setSrc:function(domnode, v, kw) {
         var sourceNode = domnode.sourceNode;
         var attributes = sourceNode.attr;
+        var main_call=null;
         if (attributes._if && !sourceNode.getAttributeFromDatasource('_if')) {
             var v = '';
         } else if (sourceNode.condition_function && !sourceNode.condition_function(sourceNode.condition_value)) {
@@ -504,15 +505,16 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         if (sourceNode.currentSetTimeout) {
             clearTimeout(sourceNode.currentSetTimeout);
         }
-        if(attributes['main']){
-            var main_call = objectPop(attributes,'main');
+        if (v) {      
+            main_call = objectPop(attributes,'main');
+            v = v || window.location.pathname;  
             var main_kwargs = objectExtract(attributes,'main_*');
-            v = v || window.location.pathname;
-            main_kwargs['main_call'] = main_call;
+            if (main_call){
+                main_kwargs['main_call'] = main_call;
+            }
             main_kwargs = sourceNode.evaluateOnNode(main_kwargs);
-            v = genro.addParamsToUrl(v,main_kwargs);
-        }
-        if (v) {         
+            v = genro.addParamsToUrl(v,main_kwargs); 
+            
             sourceNode.currentSetTimeout = setTimeout(function(d, url) {
                 var absUrl = document.location.protocol + '//' + document.location.host + url;
                 if (absUrl != d.src) {
