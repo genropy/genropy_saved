@@ -58,7 +58,7 @@ class FormHandler(BaseComponent):
         closeSubscriber = 'subscribe_form_%s_onDismissed' %formId
         if formRoot:
             if form_kwargs.get('pageName'):
-                formRoot.attributes[loadSubscriber] = 'this.widget.switchPage(1);'
+                formRoot.attributes[loadSubscriber] = 'console.log("mmm");this.widget.switchPage(1);'
                 formRoot.attributes[closeSubscriber] = 'this.widget.switchPage(0);'
         elif dialog_kwargs:
             if 'height' in dialog_kwargs:
@@ -108,7 +108,7 @@ class FormHandler(BaseComponent):
         if dialog_kwargs or palette_kwargs:
             formRoot = self.__formRoot(pane,formId,attachTo=pane,dialog_kwargs=dialog_kwargs,palette_kwargs=palette_kwargs,form_kwargs=kwargs)
         else:
-            formRoot = pane
+            formRoot = self.__formRoot(pane,formId,formRoot=pane,form_kwargs=kwargs)
         default_kwargs = default_kwargs or dict()
         kwargs['subscribe_form_%s_load' %formId] = 'this.iframeFormManager.openrecord($1.destPkey);'
         kwargs['subscribe_form_%s_dismiss' %formId] = 'this.iframeFormManager.closerecord($1);'

@@ -47,7 +47,8 @@ dojo.declare("gnr.LinkerManager", null, {
         this.formResource = sourceNode.attr._formResource;
         this.field = sourceNode.attr._field;
         this.fieldpath = '#FORM.record.'+this.field;
-        this.table = sourceNode.attr._table;
+        this.table = sourceNode.attr.table;
+        this.fakeFormId = sourceNode.attr._formId || 'LK_'+this.table.replace('.','_');
         this.embedded = sourceNode.attr._embedded;
         this.dialog_kwargs = sourceNode.attr._dialog_kwargs;
         this.default_kwargs = sourceNode.attr._default_kwargs;
@@ -90,7 +91,7 @@ dojo.declare("gnr.LinkerManager", null, {
             var that = this;
             var destPkey = pkey;
             var iframeDialogKw = {title:'',table:this.table,main:'form',
-                                 main_th_linker:true,height:'300px',width:'400px',
+                                 main_th_linker:true,height:'300px',width:'400px',main_th_formId:this.fakeFormId,
                                  onStarted:function(){that.onIframeStarted(this,destPkey)}};
             if(this.formResource){
                 iframeDialogKw.main_th_formResource=this.formResource;
@@ -106,7 +107,7 @@ dojo.declare("gnr.LinkerManager", null, {
     },
     
     onIframeStarted:function(iframe,pkey){
-        this.linkerform = iframe._genro.getForm('mainform');
+        this.linkerform = iframe._genro.formById(this.fakeFormId);
         this.linkerform.load({destPkey:pkey,default_kw:this.default_kw});
         var that = this;
         this.linkerform.subscribe('onSaved',function(kw){
@@ -138,8 +139,8 @@ dojo.declare("gnr.IframeFormManager", null, {
         this.table = sourceNode.attr._table;
         this.default_kwargs = objectExtract(sourceNode.attr,'default_*');
         this.iframeAttr = sourceNode.attr._iframeAttr;
-        this.fakeFormId = sourceNode.attr._fakeFormId;
-        this.formStoreKwargs = sourceNode.attr._formStoreKwargs;
+        this.fakeFormId = sourceNode.attr._fakeFormId || 'LK_'+this.table.replace('.','_');
+        this.formStoreKwargs = sourceNode.attr._formStoreKwargs || {};
     },
     openrecord:function(pkey){
         genro.publish('form_'+this.fakeFormId+'_onLoading');
@@ -149,9 +150,13 @@ dojo.declare("gnr.IframeFormManager", null, {
             var iframeAttr = this.iframeAttr;
             var that = this;
             iframeAttr['onStarted'] = function(){that.onIframeStarted(this,pkey)};
-            iframeAttr['main_th_navigation'] = true;
+            iframeAttr['main_th_formId'] = this.fakeFormId;
             objectUpdate(iframeAttr,{height:'100%',width:'100%',border:0});
             iframeAttr.src = iframeAttr.src || '/sys/thpage/'+this.table.replace('.','/');
+            if(this.formStoreKwargs.parentStore){
+                iframeAttr['main_th_navigation'] = true;
+                iframeAttr['main_store_storeType'] = 'Collection';
+            }
             this.iframeNode = this.sourceNode._('iframe',iframeAttr);
         }
     },
@@ -160,20 +165,14 @@ dojo.declare("gnr.IframeFormManager", null, {
     },
     onIframeStarted:function(iframe,pkey){
         var that = this;
-        this.iframeForm = iframe._genro.getForm('mainform');
+        this.iframeForm = iframe._genro.formById(this.fakeFormId);
         this.iframeForm.store.handlers.load.defaultCb = function(){
             return that.sourceNode.evaluateOnNode(that.default_kwargs);
         }
         this.iframeForm.load({destPkey:pkey});
         if(this.formStoreKwargs.parentStore){
-            this.iframeForm.store.parentStore = genro.getStore();
+            this.iframeForm.store.parentStore = genro.getStore(this.formStoreKwargs.parentStore);
         }
-        this.iframeForm.subscribe('onDismissed',function(kw){
-            genro.publish('form_'+that.fakeFormId+'_onDismissed',kw);
-        });
-        this.iframeForm.subscribe('onLoaded',function(kw){
-            genro.publish('form_'+that.fakeFormId+'_onLoaded',kw);
-        });
     }
 });
 

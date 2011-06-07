@@ -16,7 +16,8 @@ class TableHandlerForm(BaseComponent):
     @extract_kwargs(dialog=True,palette=True,default=True)
     @struct_method
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,formResource=None,
-                        dialog_kwargs=None,palette_kwargs=None,default_kwargs=None,formInIframe=False,readOnly=False,**kwargs):
+                        dialog_kwargs=None,palette_kwargs=None,default_kwargs=None,formInIframe=False,
+                        readOnly=False,**kwargs):
         form = pane.view.grid.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',
