@@ -257,6 +257,7 @@ dojo.declare('gnr.GenroClient', null, {
             if(parentIframe){
                 parentIframe.sourceNode.publish('pageStarted');
                 parentIframe.sourceNode._genro = this;
+                parentIframe.sourceNode._dojo = dojo;
                 if(parentIframe.sourceNode.onStartedFrame){
                     parentIframe.sourceNode.onStartedFrame();
                 }
@@ -552,6 +553,7 @@ dojo.declare('gnr.GenroClient', null, {
         this._counter = this._counter + 1;
         return this._counter;
     },
+    
     bagToTable:function(kwargs/*path,columns,key*/) {
         /*
          Transforms a bag in a table bag with headers, columns and rows.

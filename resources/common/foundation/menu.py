@@ -181,8 +181,6 @@ class MenuResolver(BagResolver):
                     labelClass = 'menu_page'
                     if 'file' in attributes and  attributes['file'].endswith(self.pagepath.replace('.py', '')):
                         labelClass = 'menu_page menu_current_page'
-                    if 'table' in attributes:
-                        labelClass+=' thpage'
                     if 'workInProgress' in attributes:
                         labelClass+=' workInProgress'
                 customLabelClass = attributes.get('customLabelClass', '')
