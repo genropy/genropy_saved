@@ -101,6 +101,7 @@ class Mixin(BaseComponent):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
                                 onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);')
         sc.dataController("setTimeout(function(){genro.framedIndexManager.selectIframePage(selectIframePage[0])},1);",subscribe_selectIframePage=True)
+
         scattr = sc.attributes
         scattr['subscribe_reloadFrame'] = """var frame = dojo.byId("iframe_"+$1);
                                                     var src = frame.src;
@@ -127,7 +128,8 @@ class Mixin(BaseComponent):
         if self.index_url:
             sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')
         page.dataController("genro.publish('selectIframePage',_menutree__selected[0]);",subscribe__menutree__selected=True)
-        
+        #page.dataController("genro.framedIndexManager.updateIframeTab(oldkey,newkey,newlabel,iframesbag)",
+        #                    subscribe_updateIframeTab=True,iframesbag='=iframes')
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='200px',datapath='left',margin_right='-1px',overflow='hidden'))
         sc = pane.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',overflow='hidden')

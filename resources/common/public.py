@@ -476,17 +476,25 @@ class TableHandlerMain(BaseComponent):
             self.th_form(form)
         else:
             self._th_hook('form',mangler= self.maintable.replace('.','_'))(form)
-    
+            
+    @extract_kwargs(store=True)
     def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,
-                        th_selector=None,th_modal=None,th_navigation=None,th_showtoolbar=True,**kwargs):
+                        th_selector=None,th_modal=None,th_showtoolbar=True,th_navigation=None,
+                        store_kwargs=None,th_formId=None,**kwargs):
         pkey = pkey or kwargs.pop('th_pkey','*norecord*')
         th_showtoolbar = boolean(th_showtoolbar)
         tableCode = self.maintable.replace('.','_')
         self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
         root.attributes.update(overflow='hidden')
-        form = root.frameForm(frameCode='mainform',table=self.maintable,
+        formId = th_formId or 'mainform'
+            
+        form = root.frameForm(frameCode=formId,formId=formId,table=self.maintable,
                              store_startKey=pkey,
                              datapath='form',store='recordCluster')
+        form.store.attributes.update(store_kwargs)
+        if form.store.attributes.get('storeType') == 'Collection':
+            if th_navigation is not False:
+                th_navigation = True
         if th_modal:
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
@@ -502,7 +510,7 @@ class TableHandlerMain(BaseComponent):
                 slots = slots.replace('*','5,form_selectrecord,*')
             elif th_navigation:
                 slots = 'form_navigation,%s' %slots
-                form.store.attributes.update(storeType='Collection')
+                
             form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')            
         return form
     

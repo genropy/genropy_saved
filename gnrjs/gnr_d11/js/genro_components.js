@@ -209,7 +209,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var node;
         var frameCode = kw.frameCode;
-        if(frameCode.indexOf('#')){
+        if(frameCode.indexOf('#')>=0){
             frameCode = frameCode.replace('#',sourceNode.getStringId());
         }
         genro.assert(frameCode,'Missing frameCode');

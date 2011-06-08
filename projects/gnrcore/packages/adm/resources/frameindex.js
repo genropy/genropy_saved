@@ -54,5 +54,13 @@ dojo.declare("gnr.FramedIndexManager", null, {
             button._('div',{'innerHTML':n.attr.fullname,'_class':'iframetab_caption'});
         },'static');
         sourceNode.setValue(root, true);
-    }    
+    },
+    updateIframeTab:function(sourceNode,oldkey,newkey,newlabel,iframebag){
+        var stack = this.sourceNode.widget;
+        stack.gnrPageDict[newkey] = objectPop(stack.gnrPageDict,oldkey);
+        var n = iframesbag.getNode(oldkey);
+        n.label = newkey;
+        n.updAttributes({fullname:newlabel});
+    }
+    
 });

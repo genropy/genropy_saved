@@ -130,7 +130,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
-        dojo.publish('form_'+this.formId+'_'+command,[kw]);
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:true}
+        genro.publish(topic,kw);
     },
     subscribe: function(command,cb,scope){
         if(command.indexOf(',')>=0){
@@ -564,7 +565,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.store){
             savedPkey = result.savedPkey;
         }
-        this.publish('onSaved',{pkey:savedPkey});
+        this.publish('onSaved',{pkey:savedPkey,saveResult:result});
         this.publish('message',{message:this.msg_saved,sound:'$onsaved'});
         return result;
 
