@@ -36,8 +36,11 @@ class Public(BaseComponent):
             self._userRecord = self.db.table('adm.user').record(username=user).output('bag')
         return self._userRecord[path]
 
-        
+    
     def onMain_pbl(self):
+        self._init_pbl()
+        
+    def _init_pbl(self):
         pane = self.pageSource()
         userTable = self.pbl_userTable()
         if not self.isGuest and userTable:
@@ -480,14 +483,20 @@ class TableHandlerMain(BaseComponent):
     @extract_kwargs(store=True,default=dict(slice_prefix=False))
     def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,
                         th_selector=None,th_modal=None,th_showtoolbar=True,th_navigation=None,
-                        store_kwargs=None,th_formId=None,default_kwargs=None,**kwargs):
+                        th_public=None,store_kwargs=None,th_formId=None,default_kwargs=None,**kwargs):
         pkey = pkey or kwargs.pop('th_pkey','*norecord*')
         th_showtoolbar = boolean(th_showtoolbar)
         tableCode = self.maintable.replace('.','_')
         self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
         root.attributes.update(overflow='hidden')
         formId = th_formId or 'mainform'
-            
+        if  th_public:
+            self._init_pbl()
+            root.attributes.update(_class='pbl_root')
+            root = root.rootContentPane(title=self.tblobj.name_long)
+        else:
+            root.attributes.update(tag='ContentPane',_class=None)
+        
         form = root.frameForm(frameCode=formId,formId=formId,table=self.maintable,
                              store_startKey=pkey,
                              datapath='form',store='recordCluster')
@@ -517,9 +526,12 @@ class TableHandlerMain(BaseComponent):
                             if(pkey && pkey!='*newrecord*' && pkey!='*norecord*'){
                                 label = pkey;
                             }
-                            genro.publish('updateIframeIndexTab',title,label);""",title="=.record?caption",pkey='=.pkey',
+                            SET gnr.windowTitle = title;
+                            genro.publish('updateIframeIndexTab',caption,label);""",
+                            caption="=.record?caption",pkey='=.pkey',title='=.controller.title',
                             _fired='^.controller.loaded')       
         form.store.handler('load',**default_kwargs)  
+        self._usePublicBottomMessage(form)
         return form
     
     def _usePublicBottomMessage(self,form):

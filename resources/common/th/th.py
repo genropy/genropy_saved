@@ -154,7 +154,7 @@ class TableHandler(BaseComponent):
         th.view.attributes.update(_fakeform=True)
         grid.dataController("""
             var pkey = row['_pkey'];
-            var kw = {file:formUrl,url_main_call:'form',url_th_pkey:pkey,url_th_linker:true,key:pkey};
+            var kw = {file:formUrl,url_main_call:'form',url_th_pkey:pkey,url_th_linker:true,key:pkey,url_th_public:true};
             if(pkey=='*newrecord*'){
                 default_kwargs = this.evaluateOnNode(default_kwargs);
                 for (var k in default_kwargs){
