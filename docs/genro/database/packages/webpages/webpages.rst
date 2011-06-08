@@ -4,7 +4,7 @@
 webpage
 =======
 
-    .. image:: ../../../images/projects/packages/webpage.png
+    .. image:: ../../../_images/projects/packages/webpage.png
     
     * :ref:`webpages_GnrCustomWebPage`
     * :ref:`webpages_variables`

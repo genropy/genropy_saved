@@ -4,7 +4,7 @@
 ``webpages``
 ============
 
-    .. image:: ../../../images/projects/packages/webpages.png
+    .. image:: ../../../_images/projects/packages/webpages.png
     
     In the ``webpages`` folder you can keep all your :ref:`webpages_webpages`\s.
     
@@ -14,9 +14,10 @@
     
     When you create a :ref:`genro_project`, you (probably) will have the following webpages:
     
-    #. An ``index.py`` webpage (the first page loaded in your site). You can build
-       your own index, or you can use a :ref:`genro_component` that handles it: the
-       :ref:`genro_frameindex`.
+    #. A login page. For more information, check the :ref:`methods_loginUrl` documentation
+       section
+    #. An index page (``index.py``). You can build your own index, or you can use a
+       :ref:`genro_component` that handles it: the :ref:`genro_frameindex`.
     #. A set of webpages related to some database :ref:`genro_table`\s.
        
        .. note:: when you create a webpage that is related to a :ref:`genro_table`,
@@ -29,4 +30,4 @@
                  
                  This convention allows to keep order in your project.
     
-    #. A set of webpages not related to database tables used for other services (login...)
+    #. A set of webpages not related to database tables used for other services

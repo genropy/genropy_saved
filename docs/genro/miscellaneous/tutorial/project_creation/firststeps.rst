@@ -32,4 +32,4 @@ Creation of a package
                                 
     Now your ``packages`` folder should be like this one:
     
-    .. image:: ../../images/simpleproject/simpleproject-package.png
+    .. image:: ../../../_images/simpleproject/simpleproject-package.png

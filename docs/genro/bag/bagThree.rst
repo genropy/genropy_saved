@@ -28,7 +28,7 @@ Backward path
     
     This means that a Bag knows its children but not its father (infact a Bag may have more than one father). We could set some stricter hypotesis about a Bag's structure, making it more similar to a tree-leaf model: this would happen if a Bag had a back reference to its Bag father.
     
-    .. image:: ../images/bag/bag-backward-path.png
+    .. image:: ../_images/bag/bag-backward-path.png
     
     This feature is implemented by the :meth:`Bag.setBackRef()` method. If we call it on a Bag instance, that Bag becomes the root of a tree structure in which each leaf (BagNode) knows its father. This means that we can traverse a Bag backward using the ``parent`` property of Bag's nodes:
 
@@ -133,7 +133,7 @@ Trigger on a Bag: the subscribe method
     My node height at path: walt.children.Mickey 
     has been deleted from position 2.
     
-    .. image:: ../images/bag/bag-trigger.png
+    .. image:: ../_images/bag/bag-trigger.png
     
     We can add on a Bag many subscriptions for the same event; for example we'll add a generic trigger that handles any event::
     
@@ -149,7 +149,7 @@ Trigger on a Bag: the subscribe method
     has been updated. Value changed from 32 to 37
     update on node height at path Walt.children.Mickey.weight
     
-    .. image:: ../images/bag/bag-trigger2.png
+    .. image:: ../_images/bag/bag-trigger2.png
 
     Since an event is propagated along the Bag's hierarchy, it can be triggered by any Bag on the path. In this case there's an insert trigger subscribed by the Bag children ::
 
@@ -164,7 +164,7 @@ Trigger on a Bag: the subscribe method
     
     All the trigger functions are executed at different levels, as the event is catched.
 
-    .. image:: ../images/bag/bag-trigger3.png
+    .. image:: ../_images/bag/bag-trigger3.png
 
 .. _bag_unsubscribe:
 
@@ -217,7 +217,7 @@ Trigger on a BagNode
     
     There are a BagNode trigger and a Bag trigger [#]_ both launched by the update event. The BagNode trigger is launched because the value of the subscribed node is updated, while the Bag trigger is launched because the Bag is subscribed to another update trigger.
 
-    .. image:: ../images/bag/bag-trigger4.png
+    .. image:: ../_images/bag/bag-trigger4.png
 
 .. _bag_validators:
 

@@ -39,12 +39,12 @@ public resource
         **Example:** If you have a project called ``my_project`` and a package
         called ``base``, then you will have this tree for your *public* resources:
         
-        .. image:: ../images/projects/resources/public_resources1.png
+        .. image:: ../_images/projects/resources/public_resources1.png
         
         Now, if you would want to keep in your *public* resources some images, a CSS
         file and some other stuff, your project tree might be the following one:
         
-        .. image:: ../images/projects/resources/public_resources2.png
+        .. image:: ../_images/projects/resources/public_resources2.png
         
         Some notes:
         
@@ -129,12 +129,12 @@ private resource
         **Example:** If you have a project called ``my_project`` then you will have
         this tree for your *private* resources:
         
-        .. image:: ../images/projects/resources/private_resources1.png
+        .. image:: ../_images/projects/resources/private_resources1.png
         
         Now, if you would want to keep in your *private* resources some images, a CSS
         file and a Javascript file, your project tree might be the following one:
         
-        .. image:: ../images/projects/resources/private_resources2.png
+        .. image:: ../_images/projects/resources/private_resources2.png
         
         Where ``my_project`` is the name of your project - the ``images`` folder it is
         not mandatory, but we have created it to keep order in the project (we'll put

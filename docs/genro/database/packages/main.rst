@@ -4,7 +4,7 @@
 ``main.py``
 ===========
 
-    .. image:: ../../images/projects/packages/main.png
+    .. image:: ../../_images/projects/packages/main.png
     
     * :ref:`main_intro`
     * :ref:`main_autocreation`

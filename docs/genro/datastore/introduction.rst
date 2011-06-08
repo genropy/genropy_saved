@@ -64,7 +64,7 @@ The datastore graphical interface
 
     You can access to its graphic interface from any Genro webpage by clicking ``ctrl+shift+D`` [#]_:
     
-    .. image:: ../images/datastore.png
+    .. image:: ../_images/datastore.png
 
 **Footnotes**
 

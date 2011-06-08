@@ -4,6 +4,6 @@
 ``mail``
 ========
 
-    .. image:: ../../../../images/projects/packages/tables_mail.png
+    .. image:: ../../../../_images/projects/packages/tables_mail.png
     
     add???

@@ -27,7 +27,7 @@ Bag from/to source
     >>> stringxml = '<?xml version="1.02" encoding="UTF-8"?><a><b name="fuffy"><d>dog</d></b><c/></a>'
     >>> fromstringxml = Bag(stringxml)
     
-    .. image:: ../images/bag/bag-trigger5.png
+    .. image:: ../_images/bag/bag-trigger5.png
     
     A bag can also be serialized into different formats:
     
@@ -36,7 +36,7 @@ Bag from/to source
     * JSON
     * etc.
     
-    .. image:: ../images/bag/bag-serialized.png
+    .. image:: ../_images/bag/bag-serialized.png
     
 .. _bag_from_to_XML:
 

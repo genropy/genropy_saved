@@ -29,7 +29,7 @@ Attributes
     
     * *tabPosition*: define the place of the paneContainer's labels. Default value is ``top-h``. For all supported possibilities, check the :ref:`tab_tabposition` example
 
-    * *selected*: Allow to visualize in the :ref:`genro_datastore` the current selected tab as a type-number into a specific folder. Default value is ``None``. Check the :ref:`tab_selected` example for more informations.
+    * *selected*: Allow to visualize in the :ref:`genro_datastore` the current selected tab as a type-number into a specific folder. Default value is ``None``. Check the :ref:`tab_selected` example for more information.
 
     **attributes of the tabContainer's children (paneContainers)**:
     

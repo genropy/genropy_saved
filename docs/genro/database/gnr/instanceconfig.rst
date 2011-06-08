@@ -4,7 +4,7 @@
 ``instanceconfig``
 ==================
 
-    .. image:: ../../images/projects/gnr/instanceconfig.png
+    .. image:: ../../_images/projects/gnr/instanceconfig.png
     
     * :ref:`gnr_instanceconfig_default`:
     
@@ -23,7 +23,7 @@
 ``default.xml``
 ===============
 
-    .. image:: ../../images/projects/gnr/instance_default.png
+    .. image:: ../../_images/projects/gnr/instance_default.png
     
     The ``default.xml`` file is an XML file that allows to:
     
@@ -84,14 +84,8 @@ Tags
     :ref:`genro_intro_resources`) of the packages you've imported. If you want to import one
     package, you have to:
     
-    #. include its path into the ``<packages>`` of your :ref:`gnr_environment` file::
+    #. include its path into the :ref:`environment_packages` tag of your ``environment.xml`` file
        
-         <packages>
-             <my paths='~/yourRootPathForGenro/.../yourFolderPathOfYourProject' />
-         </packages>
-         
-       add??? explanations of the syntax of the example above.
-        
     #. include the package name into the ``<packages>`` tag of the ``instanceconfig.xml`` file.
        The syntax is::
        
@@ -145,23 +139,19 @@ Tags
     There are many options you can add:
     
     * ``dbname``: specify the name of the database
-    * ``implementation``: you can choose the SQL database engine. By default Genro will be use
-      postgreSQL_ (implementation="postgres")
-    * ``host``: specify the host. Default value is ???
+    * ``implementation``: you can choose the SQL database engine. For the best performance,
+      use postgreSQL (implementation="postgres")
+    * ``host``: specify the host.
     * ``password``: the password of the SQL database engine.
     * ``user``: the user of the SQL database engine.
     
-    .. note:: We suggest you to keep the usage of postgreSQL_, but, if you prefer, you can use
-              MySQL_ or SQLite_.
-    
-    .. _postgreSQL: http://www.postgresql.org/
-    .. _MySQL: http://www.mysql.it/
-    .. _SQLite: http://www.sqlite.org/
-    
+    .. note:: We suggest you to keep the usage of postgreSQL, but, if you prefer, you can use
+              MySQL or SQLite.
+              
     This is an example of ``<db>``::
     
-        <db implementation="postgres" host="localhost" password="superSecurePwd"
-            user="postgres" dbname="mypersonaldatabase" />
+        <db dbname="mypersonaldatabase" implementation="postgres"
+            host="localhost" password="superSecurePwd" user="postgres"  />
         
 .. _instanceconfig_authentication:
 
@@ -174,7 +164,10 @@ Tags
     
         <authentication pkg="adm"></authentication>
         
-    The ``adm`` package allow to manage the authenitcations. For more information on it, check
+    .. note:: remember to import the ``adm`` package following the istructions of the
+              :ref:`instanceconfig_packages` section.
+        
+    The ``adm`` package allow to manage the authentications. For more information on it, check
     the :ref:`genro_library_adm` documentation page.
     
     Inside the ``<authentication>`` tag we have to define two different tags: the ``<py_auth>``

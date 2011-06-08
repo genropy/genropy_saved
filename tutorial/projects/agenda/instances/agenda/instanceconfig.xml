@@ -1,14 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <GenRoBag>
     <packages>
-        <agenda />
-        <gnrcore:adm />
-        <gnrcore:sys />
-        <showcase:showcase />
-        <gnrcore:test15 />
-        <devlang:devlang />
-        <gnr_it:glbl />
-        <gnrsw:sw_base />
+        <agenda/>
+        <devlang:devlang/>
+        <gnr_it:glbl/>
+        <gnrcore:adm/>
+        <gnrcore:sys/>
+        <gnrcore:test15/>
+        <gnrsw:sw_base/>
+        <showcase:showcase/>
     </packages>
     <db dbname="agenda" /db>
     <authentication pkg="agenda">

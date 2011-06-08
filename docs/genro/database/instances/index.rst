@@ -4,7 +4,7 @@
 ``instances``
 =============
 
-    .. image:: ../../images/projects/instances/project_instances.png
+    .. image:: ../../_images/projects/instances/project_instances.png
 
 .. toctree::
     :maxdepth: 2

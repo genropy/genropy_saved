@@ -6,7 +6,7 @@ table
 
     .. warning:: this page is a draft.
     
-    .. image:: ../../../images/projects/packages/model_table.png
+    .. image:: ../../../_images/projects/packages/model_table.png
     
     * :ref:`table_description`
     * :ref:`table_definition`
@@ -128,7 +128,9 @@ column
     * column attributes:
     
         * size
-        * name_long
+        * :ref:`genro_name_long`
+        * :ref:`genro_name_plural`
+        * :ref:`genro_name_short`
         * required (???)
         * unique (boolean)
         *  _sendback (boolean) add???
@@ -182,10 +184,12 @@ formulaColumn
                                                  ELSE #THIS.vat_rate_new
                                                  END""")
     
-    .. note:: if you need to refer to another table, use the following syntax::
+    .. note:: if you need to refer to another table, use the following syntax:
     
-        tableName.tableName_columnName.tableField
-    
+              ::
+              
+                tableName.tableName_columnName.tableField
+                
     .. _table_virtualcolumn:
 
 virtualColumn
@@ -198,7 +202,7 @@ virtualColumn
 validations in a column
 -----------------------
 
-    add??? --> link to :ref:`genro_validations` + speak about :ref:`validate_notnull`
+    add??? --> link to :ref:`genro_validations`...
     
 .. _table_examples:
 

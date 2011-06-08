@@ -4,6 +4,6 @@
 ``custom``
 ==========
 
-    .. image:: ../../images/projects/instances/custom.png
+    .. image:: ../../_images/projects/instances/custom.png
     
     The ``custom`` folder includes ... ???

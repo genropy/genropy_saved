@@ -4,7 +4,7 @@
 Introduction
 ============
     
-    .. image:: ../../images/projects/sites/project_sites.png
+    .. image:: ../../_images/projects/sites/project_sites.png
     
     * :ref:`sites_map`
     * :ref:`sites_autofill`
@@ -30,7 +30,7 @@ Introduction
     ``sites`` folder you will find a ``site`` folder including ``pages`` folder, a ``root``
     file and a ``siteconfig`` file.
     
-    Click on the following links for informations about them:
+    Click on the following links for information about them:
     
     * :ref:`sites_pages`
     * :ref:`sites_root`
@@ -50,5 +50,5 @@ autocreation of the ``sites`` folder
     
     Your ``sites`` folder will look like this one:
     
-    .. image:: ../../images/projects/sites/sites.png
+    .. image:: ../../_images/projects/sites/sites.png
     

@@ -21,24 +21,12 @@ introduction
     A Genropy Project is structured in a main ``project`` folder with 4 subfolders,
     called: ``sites``, ``instances``, ``packages`` and ``resources``.
     
-    .. image:: ../images/projects/myproject.png
+    .. image:: ../_images/projects/myproject.png
     
     (in the image, ``projectName`` is the name of the project)
     
     Let's introduce the 4 subfolders:
     
-    * The ``sites`` folder:
-    
-        * It deals with everything related to the configuration of a particular installation
-        * It includes Web components and configurations that are necessary for the execution
-          over the Web
-        * Typically, it contains the configuration and WSGI script (it is used as the executable
-          if you want to use a debugger, like WingIDE_)
-          
-          .. _WingIDE: http://www.wingware.com/
-          
-        More information in the :ref:`genro_sites_index` documentation section.
-        
     * The ``instances`` folder:
     
         * It contains customizations for the particular customer
@@ -72,6 +60,18 @@ introduction
         
         For an introduction to the resources, please check the :ref:`genro_intro_resources`
         documentation page.
+        
+    * The ``sites`` folder:
+    
+        * It deals with everything related to the configuration of a particular installation
+        * It includes Web components and configurations that are necessary for the execution
+          over the Web
+        * Typically, it contains the configuration and WSGI script (it is used as the executable
+          if you want to use a debugger, like WingIDE_)
+          
+          .. _WingIDE: http://www.wingware.com/
+          
+        More information in the :ref:`genro_sites_index` documentation section.
         
 .. _genro_project_basic_structure:
 
@@ -123,7 +123,7 @@ Project autocreation
     If you write the command line, you will create a project with the following
     structure:
     
-    .. image:: ../images/projects/myproject2.png
+    .. image:: ../_images/projects/myproject2.png
     
     .. note:: the name of the istance folder (inside the ``instances`` folder) and the name
               of the site folder (inside the ``sites`` folder) are equal to the name of the

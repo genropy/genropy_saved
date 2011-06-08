@@ -4,7 +4,7 @@
 ``siteconfig``
 ==============
 
-    .. image:: ../../images/projects/gnr/siteconfig.png
+    .. image:: ../../_images/projects/gnr/siteconfig.png
     
     * :ref:`gnr_siteconfig_default`
     * :ref:`sitesconfig_description`
@@ -24,7 +24,7 @@
 ``default.xml``
 ===============
 
-    .. image:: ../../images/projects/gnr/site_default.png
+    .. image:: ../../_images/projects/gnr/site_default.png
     
     The ``default.xml`` of the ``.gnr/siteconfig`` folder set the default values of
     every :ref:`sites_siteconfig` file of all your projects.

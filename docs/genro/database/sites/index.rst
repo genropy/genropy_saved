@@ -4,7 +4,7 @@
 ``sites``
 =========
     
-    .. image:: ../../images/projects/sites/project_sites.png
+    .. image:: ../../_images/projects/sites/project_sites.png
     
 .. toctree::
     :maxdepth: 2
