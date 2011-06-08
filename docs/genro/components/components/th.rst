@@ -11,7 +11,7 @@ tableHandler
     * :ref:`th_firststeps`
     * :ref:`th_resource_page`:
     
-        * the :ref:`th_view_class` (methods: :ref:`th_order`, :ref:`th_query`)
+        * the :ref:`th_view_class` (methods: :ref:`th_struct`, :ref:`th_order` and :ref:`th_query`)
         * the :ref:`th_form_class`
         
     * :ref:`th_webpage`:
@@ -81,8 +81,8 @@ Introduction
     
 .. _th_map:
 
-tableHandler paths
-==================
+tableHandler: paths
+===================
 
     In this section you will learn about the path structure of the tableHandler:
     
@@ -154,8 +154,8 @@ tableHandler paths
         
 .. _th_firststeps:
 
-first steps: creation of a resource page
-========================================
+tableHandler: first steps
+=========================
 
     Now we'll guide you in a "step by step" creation of a tableHandler.
     
@@ -164,7 +164,14 @@ first steps: creation of a resource page
     surname, email, and so on).
     
     Now, if we have to reuse a lot of time this table - that is, there are a lot of webpages
-    that will use this table - we have to:
+    that will use this table - we have to create a resource webpage
+    
+.. _th_resource_page:
+
+resource webpage
+================
+
+    To create a resource webpage you have to:
     
     #. create a folder called ``resources`` inside the package we are using (in this example
        the package is called ``base``).
@@ -186,19 +193,15 @@ first steps: creation of a resource page
     
     .. image:: ../../_images/th/th2.png
     
-.. _th_resource_page:
-
-resource webpage
-================
-
     Let's check now the code inside a resource page.
     
-    The first line will be::
+    We have to create a :ref:`th_view_class` and a :ref:`th_form_class`. For doing this
+    you have to import the ``BaseComponent`` class::
     
         from gnr.web.gnrbaseclasses import BaseComponent
         
-    Then you have to introduce the :ref:`th_view_class` and the :ref:`th_form_class`.
-        
+    We introduce now the View class and the Form class.
+    
 .. _th_view_class:
 
 View class
@@ -208,26 +211,34 @@ View class
     You don't have to insert ALL the fields of your table, but only the fields that you
     want that user could see in the View.
     
-    The first three lines define:
-    
-    * the class name
-    * the method name (th_struct)
-    * the creation of the :ref:`genro_struct` with its rows::
+    The first line define the class::
     
         class View(BaseComponent):
-            def th_struct(self,struct):
-                r = struct.view().rows()
-                
-    The next lines define the struct rows. Usually you have to use some
-    :ref:`genro_fieldcell`\s, like in this example::
-        
-        r.fieldcell('name', width='12em')
-        r.fieldcell('surname', width='12em')
-        r.fieldcell('email', width='15em')
-        
-    where ``name``, ``surname`` and ``email`` are three rows of your :ref:`genro_table`.
     
-    The main methods you have to insert now are the :ref:`th_order` and the :ref:`th_query`.
+    The methods you may insert are:
+    
+    * the :ref:`th_struct`
+    * the :ref:`th_order`
+    * the :ref:`th_query`.
+    
+.. _th_struct:
+
+th_struct
+---------
+
+    A method of the :ref:`th_view_class`.
+    
+    ::
+    
+        def th_struct(self,struct):
+            r = struct.view().rows()
+            r.fieldcell('name', width='12em')
+            r.fieldcell('surname', width='12em')
+            r.fieldcell('email', width='15em')
+            
+    This method allow to create the :ref:`genro_struct` with its rows (usually you
+    will use some :ref:`genro_fieldcell`); in the example above, ``name``, ``surname``
+    and ``email`` are three rows of a :ref:`genro_table`.
     
 .. _th_order:
 
