@@ -137,15 +137,46 @@ class TableHandler(BaseComponent):
                         formInIframe=formInIframe,readOnly=readOnly)    
         return wdg
         
-    @extract_kwargs(widget=True,default=True)
+    @extract_kwargs(default=True)
+    @struct_method
+    def th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,
+                            formInIframe=False,reloader=None,default_kwargs=None,**kwargs):
+        kwargs['tag'] = 'ContentPane'
+        th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
+                                        viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
+                                        default_kwargs=default_kwargs,
+                                        **kwargs)
+        grid = th.view.grid
+        table = table or th.attributes['table']
+        formUrl = formUrl or '/sys/thpage/%s' %table.replace('.','/')
+        grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowByIndex($1.rowIndex);""",
+                                selfsubscribe_addrow="FIRE .editrow = {_pkey:'*newrecord*'};")
+        th.view.attributes.update(_fakeform=True)
+        grid.dataController("""
+            var pkey = row['_pkey'];
+            var kw = {file:formUrl,url_main_call:'form',url_th_pkey:pkey,url_th_linker:true,key:pkey};
+            if(pkey=='*newrecord*'){
+                default_kwargs = this.evaluateOnNode(default_kwargs);
+                for (var k in default_kwargs){
+                    kw['url_'+k] = default_kwargs[k];
+                }
+                kw['key'] = genro.page_id+'_'+genro.getCounter();
+            }
+            if(formResource){
+                kw['url_th_formResource'] = formResource;
+            }
+            window.parent.genro.publish('selectIframePage',kw);
+        """,formUrl=formUrl,formResource=formResource,row='^.editrow',default_kwargs=default_kwargs)
+        return th    
+        
     @struct_method
     def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=True,**kwargs):
+                            formInIframe=False,reloader=None,readOnly=True,**kwargs):
         kwargs['tag'] = 'ContentPane'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
-                                        default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
-        return wdg
+                                        readOnly=readOnly,**kwargs)
+        return wdg    
         
     @struct_method
     def th_thIframe(self,pane,method=None,src=None,**kwargs):

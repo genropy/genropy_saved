@@ -477,10 +477,10 @@ class TableHandlerMain(BaseComponent):
         else:
             self._th_hook('form',mangler= self.maintable.replace('.','_'))(form)
             
-    @extract_kwargs(store=True)
+    @extract_kwargs(store=True,default=dict(slice_prefix=False))
     def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,
                         th_selector=None,th_modal=None,th_showtoolbar=True,th_navigation=None,
-                        store_kwargs=None,th_formId=None,**kwargs):
+                        store_kwargs=None,th_formId=None,default_kwargs=None,**kwargs):
         pkey = pkey or kwargs.pop('th_pkey','*norecord*')
         th_showtoolbar = boolean(th_showtoolbar)
         tableCode = self.maintable.replace('.','_')
@@ -511,7 +511,15 @@ class TableHandlerMain(BaseComponent):
             elif th_navigation:
                 slots = 'form_navigation,%s' %slots
                 
-            form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')            
+            form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')   
+        form.dataController("""
+                            var label;
+                            if(pkey && pkey!='*newrecord*' && pkey!='*norecord*'){
+                                label = pkey;
+                            }
+                            genro.publish('updateIframeIndexTab',title,label);""",title="=.record?caption",pkey='=.pkey',
+                            _fired='^.controller.loaded')       
+        form.store.handler('load',**default_kwargs)  
         return form
     
     def _usePublicBottomMessage(self,form):
