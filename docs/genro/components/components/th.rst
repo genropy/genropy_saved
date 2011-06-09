@@ -53,11 +53,11 @@ Introduction
     
     These two classes will be visualized respectively into a *view-data window*:
     
-    .. image:: ../../_images/th/view.png
+    .. image:: ../../_images/components/th/view.png
     
     and into a *data-entry window*:
     
-    .. image:: ../../_images/th/form.png
+    .. image:: ../../_images/components/th/form.png
     
     For more information of the GUI of these two pages, please check the
     :ref:`genro_view_data` and the :ref:`genro_data_entry` documentation pages.
@@ -85,74 +85,154 @@ Introduction
 tableHandler: paths
 ===================
 
-    In this section you will learn about the path structure of the tableHandler:
+    In this section you will learn about the path structure of the tableHandler.
     
-    .. image:: ../../_images/th/th_map.png
-    
-    Let's see the features of this hierarchy:
-    
-    * **th**: the main level of the tableHandler. Nested to it there are the *form* level
-      and the *view* level, that handle respectively the path of the data of the
-      :ref:`th_form_class` and :ref:`th_view_class`.
-      
-      .. warning:: This is very important. At the ``th`` level, the path of the data is::
-      
-                      .packageName_tableName
-                      
-                   where ``packageName`` is the name of your package and ``tableName`` is
-                   the name of your :ref:`genro_table`. (The dot (``.``) before the
-                   ``packageName`` specifies that the path is relative [#]_).
-                   You are HERE, so if you need to interact with other levels, remember
-                   that your root is ``.packageName_tableName``
-      
-      In our example, the package name is called ``base`` and the table is ``registry.py``,
-      so the path will be ``.base_registry``.
-      
-    * **form**: this level handles all the data of the :ref:`th_form_class`.
-      
-      At the ``th/form`` level, the path of the data is::
-      
-          .packageName_tableName.form
-          
-      The inner paths of the ``form`` level are built in complete analogy with
-      the structure of a Dojo :ref:`genro_bordercontainer`, so the level is
-      divided into five regions:
-      
-      * ``top``
-      * ``bottom``
-      * ``left``
-      * ``right``
-      * ``center``
-      
-      where:
-      
-      * The ``top`` level includes the title of the view page [#]_ and the :ref:`genro_workdate`.
+    .. note:: you can inspect the path of your data in a webpage directly on your
+              browser opening the :ref:`datastore_debugger`.
+              
+    .. image:: ../../_images/components/th/th_map.png
         
-        The ``top`` level has a ``bar`` sublevel: this sublevel contains some query tools
-        and some buttons to add or delete records.
-      * The ``bottom`` level is used to give to user messages (e.g: for right save).
+    As any other object in Genro, the tableHandler gathers all the informations through
+    a :ref:`genro_bag` structure, that looks like a hierarchiacal and nested structure.
+    
+    You can access to every level of the structure.
+    
+    .. warning:: This is important. The root path for the tableHandler data is::
+                 
+                    packageName_tableName
+                    
+                 where ``packageName`` is the name of your package and ``tableName`` is
+                 the name of your :ref:`genro_table`.
+                 
+    For example, if the package name is called ``base`` and the table is ``registry.py``,
+    the path will be ``.base_registry``.
+    
+    Nested to it there are the :ref:`th_map_form` level and the :ref:`th_map_view` level
+    that handle respectively the path of the data of the :ref:`th_form_class` and
+    :ref:`th_view_class`.
+    Depending on which :ref:`tableHandler type <th_types>` you will use, there can be also
+    the :ref:`th_map_selectedpage` level, that specifies if the selected page is the
+    view-data window or the data-entry window.
+    
+.. _th_map_selectedpage:
+
+selectedPage
+------------
+
+    The selectedPage path exists only if you use the :ref:`th_stack`.
+    
+    The selectedPage contains:
+    
+    * *form*, if the selected page is the :ref:`genro_view_data`.
+    * *view*, if the selected page is the :ref:`genro_data_entry`.
+    
+.. _th_map_form:
+
+form
+----
+
+    This level handles all the data of the :ref:`th_form_class`.
+    
+    .. image:: ../../_images/components/th/th_map_form.png
+    
+    It has got two level categories:
+    
+    * the :ref:`layout levels <th_map_form_layout>`
+    * the :ref:`data levels <th_map_form_data>`
+    
+.. _th_map_form_layout:
+
+form - layout levels
+^^^^^^^^^^^^^^^^^^^^
+    
+    .. image:: ../../_images/components/th/th_map_form_layout.png
+    
+    At the ``th/form`` level, the path of the data is::
+    
+        .packageName_tableName.form
         
-        The ``bottom`` level have an additional ``bar`` level.
-      * The ``left`` level allows the user to perform some useful action (e.g: to configurate
+    The inner gears of the ``form`` level are built in complete analogy with
+    the structure of a Dojo :ref:`genro_bordercontainer`, so this level includes
+    five region-paths:
+    
+    * ``top``: it includes the title of the view page [#]_ and the :ref:`genro_workdate`.
+    
+      (The ``top`` level has a ``bar`` sublevel: this sublevel contains
+        some query tools and some buttons to add or delete records.)
+    * ``bottom``: it is thought to give to user messages (e.g: 'Save OK').
+    
+      (The ``bottom`` level have an additional ``bar`` level.)
+    * ``left``: it allows the user to perform some useful action (e.g: to configurate
         user view; e.g: to export query results in a ``.xls`` file).
-      * The ``right`` level is (currently) empty.
-      * The ``center`` level is used to create more complex structure inside your page.
-        We'll come back later to it, in the :ref:`th_form_center_path` section.
+    * ``right``: it is empty.
+    * ``center``: it is the space in which you build a GUI to let the user create and
+      modify records. We'll come back later to it, in the :ref:`th_form_center_path`
+      section.
       
-    * **record**: at the ``th/form/record`` level, the path of the data is::
+.. _th_map_form_data:
+
+form - data levels
+^^^^^^^^^^^^^^^^^^
     
+    .. image:: ../../_images/components/th/th_map_form_data.png
+    
+    In the form level you can find three data levels:
+    
+    * **controller**: it contains many levels that allow to control the save/load management,
+      the incorrect fields and so on (you can check all of them by activating the
+      :ref:`datastore_debugger`)
+      
+      We point up the following levels:
+      
+      * **invalidFields**: string. If some field is uncorrect (that is, it doesn't satisfy a
+          :ref:`validation <genro_validations>`) it contains the path of that field::
+          
+              packageName_tableName_form_record_columnName
+              
+          where ``packageName`` is the name of the package, ``tableName`` is the name of the table
+          and ``columnName`` is the name of the uncorrect column.
+          
+      * **table**: string. It includes the name of the package and the name of the table following
+        this syntax::
+        
+            packageName.tableName
+            
+      * **title**: string. It includes the name of the record title in the :ref:`genro_data_entry`.
+      * **valid**: boolean, string. True if every :ref:`validation <genro_validations>` is satisfied.
+      
+    * **record**: this level contains all the :ref:`table_column`\s of your :ref:`genro_table`.
+      
+      At the ``th/form/record`` level, the path of the data is::
+        
         .packageName_tableName.form.record
         
-      At this path level lie the data of records.
-      
-      In our example the path will be ``.base_registry.form.record``.
-      
-      .. warning:: Remember that when you have to interact with data you have to go
-                   to the ``form.record`` path.
-      
-    * **view**: add???
-    * **grid**: add???
+      .. warning:: at this path level you find the records data, so remember that when you
+                   have to interact with data you have to go to the ``form.record`` path.
+                   
+    * **pkey**: this level contains:
+    
+        * the ``*newrecord*`` string - if no record is selected;
+        * the string with the primary key of the selected record - if a record is selected.
         
+.. _th_map_view:
+
+view
+----
+
+    .. image:: ../../_images/components/th/th_map_view.png
+    
+    The view level contains many levels. We point up the following ones:
+    
+    * **grid**: add???
+    * **query**: it contains the parameters of the user queries.
+    * **store**: it contains all the records that satisfy the current query.
+    * **table**: string. It includes the name of the package and the name of the table
+      following this syntax::
+        
+            packageName.tableName
+            
+    * **title**: string. It contains the name of the record title in the :ref:`genro_view_data`
+    
 .. _th_firststeps:
 
 tableHandler: first steps
@@ -184,7 +264,7 @@ resource webpage
        
     Let's check out this figure that sum up all the creation of new folders and files:
     
-    .. image:: ../../_images/th/th.png
+    .. image:: ../../_images/components/th/th.png
     
     Pay attention that for every tableHandler you want to create, you have to repeat
     the point 3 and 4 of the previous list; for example, if you have three tables called
@@ -192,7 +272,7 @@ resource webpage
     ``tables`` folder with a ``th_`` file in each folder, as you can see in the following
     image:
     
-    .. image:: ../../_images/th/th2.png
+    .. image:: ../../_images/components/th/th2.png
     
     Let's check now the code inside a resource page.
     
@@ -364,7 +444,7 @@ th_webpage
         ``staff.py``), a :ref:`th_resource_page` (``th_staff.py``) and some
         ``th_webpages`` (``auth_page.py``, ``invoice_page.py`` and ``staff_page.py``):
         
-        .. image:: ../../_images/th/th_webpages.png
+        .. image:: ../../_images/components/th/th_webpages.png
         
         * "staff" is "ok", because we created the table (``staff.py``) in the correct place
           (``base/model``), the :ref:`th_resource_page` in the correct place
@@ -589,7 +669,7 @@ th_borderTableHandler
     Based on the Dojo :ref:`genro_bordercontainer`, the borderTableHandler shows the
     :ref:`genro_view_data` and the :ref:`genro_data_entry` in a single page.
     
-    .. image:: ../../_images/th/border_th.png
+    .. image:: ../../_images/components/th/border_th.png
     
     **Attributes:**
     
@@ -618,7 +698,7 @@ th_dialogTableHandler
     The dialogTableHandler shows the :ref:`genro_data_entry` in a dialog over
     the :ref:`genro_view_data`.
     
-    .. image:: ../../_images/th/dialog_th.png
+    .. image:: ../../_images/components/th/dialog_th.png
     
     **attributes:**
     
@@ -646,7 +726,7 @@ th_pageTableHandler
     
     The pageTableHandler add???
     
-    .. image:: add???
+    add??? add image!
     
     **attributes**:
     
@@ -674,7 +754,7 @@ th_paletteTableHandler
     The paletteTableHandler shows the :ref:`genro_data_entry` in a palette
     over the :ref:`genro_view_data`.
     
-    .. image:: ../../_images/th/palette_th.png
+    .. image:: ../../_images/components/th/palette_th.png
     
     **attributes**:
     
@@ -704,7 +784,7 @@ th_plainTableHandler
     can't modify, add and delete records (infact, the *readOnly* attribute is set
     to ``True``).
     
-    .. image:: ../../_images/th/plain_th.png
+    .. image:: ../../_images/components/th/plain_th.png
     
     **attributes**:
     
@@ -731,7 +811,7 @@ th_stackTableHandler
     Remembering the Dojo StackContainer definition: *<<A container that has multiple children,*
     *but shows only one child at a time (like looking at the pages in a book one by one).>>*
     
-    .. image:: ../../_images/th/stack_th.png
+    .. image:: ../../_images/components/th/stack_th.png
     
     **attributes**:
     
@@ -987,7 +1067,6 @@ viewResource attribute
         
 **Footnotes**:
 
-.. [#] For more information on absolute and relative paths, check the :ref:`genro_datapath` documentation page.
 .. [#] The title of the view page is taken from the :ref:`genro_name_long` of the :ref:`genro_table` to which the current webpage refers to.
 .. [#] The :ref:`genro_formbuilder` allows to create in a simple way a :ref:`genro_form`. Follow the links for more information.
 .. [#] We remember you that the name of the ``th_webpage`` can be the one you prefer, but as a convention we suggest you to call it with ``name of table`` + ``_page`` suffix.

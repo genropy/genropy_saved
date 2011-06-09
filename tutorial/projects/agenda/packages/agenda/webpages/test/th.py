@@ -9,17 +9,17 @@ class GnrCustomWebPage(object):
     
     def main(self,root,**kwargs):
         root.attributes.update(datapath='test')
-        bc = root.borderTableHandler(table='agenda.contatto',virtualStore=True)
+        #bc = root.borderTableHandler(table='agenda.contatto',virtualStore=True)
         #th = root.pageTableHandler(table='agenda.staff',virtualStore=True,
         #                           formResource='???',
         #                           formUrl='???') /sys/thpage/agenda/staff ?
         #th = root.dialogTableHandler(table='agenda.contatto',virtualStore=True,
         #                             dialog_width='600px',dialog_height='400px')
-        #th = root.paletteTableHandler(table='agenda.contatto',virtualStore=True,
+        th = root.paletteTableHandler(datapath='test',table='agenda.contatto',virtualStore=True,
         #                              #formResource='pierino:Paperino',readOnly=True,
         #                              #viewResource=':NisoView', # = viewResource='th_staff:NisoView'
         #                              #viewResource='pierino',
-        #                              palette_width='600px',palette_height='400px')
+                                      palette_width='600px',palette_height='400px')
         #pc = root.plainTableHandler(table='agenda.contatto',virtualStore=True)
         #th = root.stackTableHandler(table='agenda.contatto',virtualStore=True)
         
