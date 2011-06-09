@@ -750,7 +750,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param path: the dataFormula's path
         :param formula: the dataFormula's formula
-        :param kwargs: formula parameters and other ones
+        :param \*\*kwargs: formula parameters and other ones
         :returns: the dataFormula
         """
         return self.child('dataFormula', path=path, formula=formula, **kwargs)
@@ -767,29 +767,28 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """Allow to execute a Javascript code
         
         :param script: the Javascript code that ``datacontroller`` has to execute. Default value is ``None``
-        :param kwargs: *_init*, *_onStart*, *_timing*. For more information,
+        :param \*\*kwargs: *_init*, *_onStart*, *_timing*. For more information,
                        check the controllers' :ref:`controllers_attributes` section
         :returns: the dataController
         """
         return self.child('dataController', script=script, **kwargs)
         
     def dataRpc(self, path, method, **kwargs):
-        """Allow the client to make a call to the server and allows the server to perform an action.
+        """Allow the client to make a call to the server to perform an action.
         
         :param path: MANDATORY - it contains the folder path of the result of the ``dataRpc`` action;
                      you have to write it even if you don't return any value in the ``dataRpc``
                      (in this situation it will become a "mandatory but dummy" parameter)
         :param method: the name of your ``dataRpc`` method
-        :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
-                       check the :ref:`rpc_attributes` section
-        """
+        :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
+                       check the :ref:`rpc_attributes` section"""
         return self.child('dataRpc', path=path, method=method, **kwargs)
         
     def selectionstore_addcallback(self,*args,**kwargs):
         """add???
         
         :param args: add???
-        :param kwargs: add???
+        :param \*\*kwargs: add???
         """
         self.datarpc_addcallback(*args,**kwargs)
         
@@ -797,7 +796,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param cb: add???
-        :param kwargs: add???
+        :param \*\*kwargs: add???
         :returns: add???
         """
         self.child('callBack',childcontent=cb,**kwargs)
@@ -807,7 +806,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param cb: add???
-        :param kwargs: add???
+        :param \*\*kwargs: add???
         :returns: add???
         """
         self.child('callBack',childcontent=cb,_isErrBack=True,**kwargs)
@@ -886,7 +885,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
                        Default value is ``None``
         :param columnsFromView: add???. Default value is ``None``
-        :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
+        :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                        check the :ref:`rpc_attributes` section
         :returns: add???
         """
@@ -945,7 +944,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param table: the :ref:`genro_table` name
         :param pkey: the record primary key. Default value is ``None``
         :param method: add???. Default value is ``app.getRecord``
-        :param kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
+        :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                        check the :ref:`rpc_attributes` section
         :returns: a dataRecord
         """
@@ -958,15 +957,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param path: the path where the dataRemote will save the result of the rpc
         :param method: the rpc name that has to be executed
-        :param kwargs: *cacheTime=NUMBER*: The cache stores the retrieved value and keeps
+        :param \*\*kwargs: *cacheTime=NUMBER*: The cache stores the retrieved value and keeps
                        it for a number of seconds equal to ``NUMBER``
         :returns: a dataRemote
         """
         return self.child('dataRemote', path=path, method=method, **kwargs)
-    
+        
     def dataResource(self,path,resource=None, ext=None, pkg=None):
         self.dataRemote(path,'getResourceContent',resource=resource,ext=ext, pkg=pkg)
-
+        
     def paletteGroup(self, groupCode, **kwargs):
         """add???
         
@@ -1009,8 +1008,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         :ref:`sql_columns` section. Default value is ``None``
         :param structpath: add???. Default value is ``None``
         :param datapath: the path of data. Default value is ``None``.
-                         For more information, check the :ref:`genro_datapath` section
-        """
+                         For more information, check the :ref:`genro_datapath` section"""
         datapath= datapath or 'gnr.palettes.%s' %paletteCode
         structpath = structpath or '.grid.struct'
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
@@ -1032,17 +1030,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 ivattr[dropmode] = '%s,%s' % (ivattr[dropmode], dropCode) if dropmode in ivattr else dropCode
                 ivattr['onDrop_%s' % dropCode] = 'FIRE .dropped_%s = data' % dropCode
                 ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
-        
-        
+                
     def newincludedview_draganddrop(self,dropCodes=None,**kwargs):
         self.includedview_draganddrop(dropCodes=dropCodes,**kwargs)
-    
         
     def includedview(self, *args, **kwargs):
         """add???
         
         :param args: add???
-        :param kwargs: add???
+        :param \*\*kwargs: add???
         :returns: add???
         """
         frameCode = kwargs.get('parentFrame') or self.attributes.get('frameCode')

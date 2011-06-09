@@ -81,17 +81,18 @@ main
     
     where:
     
-    * the ``root`` passes a :ref:`genro_contentpane`, unless you import the ``public.py``
-      :ref:`webpages_py_requires`::
+    * the ``root`` is a :ref:`genro_bag` that passes a :ref:`genro_contentpane`.
+      
+      But, if you import the ``public.py`` :ref:`webpages_py_requires` in your GnrCustomWebPage::
       
         py_requires = 'public:Public'
         
-      the ``root`` passes a :ref:`genro_bordercontainer`.
+      then the ``root`` passes a :ref:`genro_bordercontainer`.
       
     * in the ``**kwargs`` you will find all the values passed to the client through
       the :ref:`genro_xmlhttprequest`.
       
-    .. note:: Usually the ``main`` method is MANDATORY. But, if you an :ref:`components_active`,
+    .. note:: Usually the ``main`` method is MANDATORY. But, if you use an :ref:`components_active`,
               you may avoid to define it because the ``main`` method is defined within the
               component itself. For more information check the :ref:`introduction to components
               <genro_components_introduction>` documentation page.
@@ -101,10 +102,12 @@ main
 webpage variables
 =================
     
-    With the term ``webpages variables`` we mean that Genro provides some defined variables that you
-    can use to customize your webpages.
+    With the term ``webpages variables`` we mean that Genro provides some defined variables
+    that you can use to customize your webpages.
     
-    .. note:: The webpages variables act only on the single webpage you insert it.
+    .. note:: The webpages variables act only on the single webpage in which you insert them.
+    
+    Let's see a list of webpages variables divided by their features:
     
     * Components variables: :ref:`webpages_py_requires`
     * CSS variables: :ref:`webpages_css_requires`, :ref:`webpages_css_theme`

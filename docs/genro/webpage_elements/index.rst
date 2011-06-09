@@ -11,8 +11,6 @@ webpage element
     html
     css
     layout/index
-    data
-    dataremote
     controller/index
     form/index
     fieldcell

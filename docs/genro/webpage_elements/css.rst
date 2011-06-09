@@ -21,15 +21,20 @@ Introduction
     #. The first way is the nearest to the standard way to use CSS. You have to create a CSS
        file, put it into your :ref:`genro_intro_resources` and call it into your page.
        
-       The standard call for CSS files in a webpage is::
-       
-       <link href="stile/name_of_CSS_file.css" rel="stylesheet" type="text/css" />
-       
+       .. warning:: you probably know the following syntax::
+                    
+                        <link href="stile/name_of_CSS_file.css" rel="stylesheet" type="text/css" />
+                        
+                    This syntax WON'T work.
+                    
        In Genro you have to write in your :ref:`webpages_webpages` the following line::
        
-        css_requires = 'name_of_CSS_file' # write the CSS filename without its extension! (.css)
+        css_requires = 'name_of_CSS_file'
+        
+       (write the CSS filename without its ``.css`` extension).
        
-       For more information, check the :ref:`webpages_css_requires` documentation section.
+       The ``css_requires`` is a :ref:`webpage variable <webpages_variables>`. For more information
+       on it, check the :ref:`webpages_css_requires` documentation section.
        
     #. The second way is to use CSS style directly in your Genro :ref:`webpages_webpages`.
        When you do this, please pay attention that the CSS syntax is a little different

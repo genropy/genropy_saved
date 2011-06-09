@@ -4,7 +4,8 @@
 dataRpc
 =======
 
-    The ``dataRpc`` belongs to :ref:`genro_datarpc` family, so it is a :ref:`controllers_server`.
+    The ``dataRpc`` belongs to :ref:`genro_datarpc` family, so it is a
+    :ref:`server-side controller <controllers_server>`.
     
     * :ref:`datarpc_def`
     * :ref:`datarpc_examples`
