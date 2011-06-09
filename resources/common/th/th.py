@@ -42,6 +42,7 @@ class TableHandler(BaseComponent):
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
                                                     default_kwargs=default_kwargs,**kwargs)
+            
         tableCode = table.replace('.','_')
         th_root = self._th_mangler(pane,table,nodeId=nodeId)
         viewCode='V_%s' %th_root
@@ -149,24 +150,15 @@ class TableHandler(BaseComponent):
         grid = th.view.grid
         table = table or th.attributes['table']
         formUrl = formUrl or '/sys/thpage/%s' %table.replace('.','/')
-        grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowByIndex($1.rowIndex);""",
-                                selfsubscribe_addrow="FIRE .editrow = {_pkey:'*newrecord*'};")
+        grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
+                                selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         th.view.attributes.update(_fakeform=True)
         grid.dataController("""
-            var pkey = row['_pkey'];
-            var kw = {file:formUrl,url_main_call:'form',url_th_pkey:pkey,url_th_linker:true,key:pkey,url_th_public:true};
-            if(pkey=='*newrecord*'){
-                default_kwargs = this.evaluateOnNode(default_kwargs);
-                for (var k in default_kwargs){
-                    kw['url_'+k] = default_kwargs[k];
-                }
-                kw['key'] = genro.page_id+'_'+genro.getCounter();
+            if(!this._pageHandler){
+                this._pageHandler = new gnr.pageTableHandlerJS(this,formUrl,formResource,default_kwargs);
             }
-            if(formResource){
-                kw['url_th_formResource'] = formResource;
-            }
-            window.parent.genro.publish('selectIframePage',kw);
-        """,formUrl=formUrl,formResource=formResource,row='^.editrow',default_kwargs=default_kwargs)
+            this._pageHandler.openPage(pkey);
+        """,formUrl=formUrl,formResource=formResource,pkey='^.editrow',default_kwargs=default_kwargs)
         return th    
         
     @struct_method

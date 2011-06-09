@@ -460,9 +460,8 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             dojo.connect(newobj, 'onload', funcCreate(savedAttrs.onLoad));
         }
         if (savedAttrs.onStarted){
-            sourceNode.onStartedFrame = funcCreate(savedAttrs.onStarted);
+            sourceNode.subscribe('pageStarted',funcCreate(savedAttrs.onStarted));
         }
-        
         this.setSrc(newobj, savedAttrs.src);
     },
     prepareSrc:function(domnode) {

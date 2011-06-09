@@ -129,7 +129,45 @@ dojo.declare("gnr.LinkerManager", null, {
         this.openrecord('*newrecord*');
     }
 });
+dojo.declare("gnr.pageTableHandlerJS",null,{
+    constructor:function(sourceNode,formUrl,formResource,default_kwargs){
+        this.sourceNode = sourceNode;
+        this.default_kwargs = default_kwargs;
+        this.pages_dict = {};
+        this.page_kw = {file:formUrl,url_main_call:'form',url_th_linker:true,url_th_public:true};
+        if(formResource){
+            this.page_kw['url_th_formResource'] = formResource;
+        }
+    },
+    openpage:function(pkey){
+        var pageName;
+        for (var k in this.pages_dict){
+            if(this.pages_dict[k]==pkey){
+                pageName = k;
+            }
+        }
+        if(!pageName){
+            pageName = genro.page_id+'_'+genro.getCounter();
+            this.pages_dict[pageName] = pkey;
+        }
+        var kw = objectUpdate({url_th_pkey:pkey,pageName:pageName},this.page_kw);
 
+        if(pkey=='*newrecord*'){
+            default_kwargs = this.sourceNode.evaluateOnNode(this.default_kwargs);
+            for (var k in default_kwargs){
+                kw['url_'+k] = default_kwargs[k];
+            }
+            kw['onStarted'] = function(){
+                this._dojo.subscribe('mainPkeySaved',function(pkey){
+                    that.pages_dict[pageName] = pkey;
+                });
+            };
+        }
+        var that = this;
+        window.parent.genro.publish('selectIframePage',kw);
+    }
+    
+});
 dojo.declare("gnr.IframeFormManager", null, {
     constructor:function(sourceNode){
         this.sourceNode = sourceNode;
