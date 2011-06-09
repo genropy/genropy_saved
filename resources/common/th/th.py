@@ -42,7 +42,6 @@ class TableHandler(BaseComponent):
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
                                                     default_kwargs=default_kwargs,**kwargs)
-            
         tableCode = table.replace('.','_')
         th_root = self._th_mangler(pane,table,nodeId=nodeId)
         viewCode='V_%s' %th_root
@@ -150,15 +149,19 @@ class TableHandler(BaseComponent):
         grid = th.view.grid
         table = table or th.attributes['table']
         formUrl = formUrl or '/sys/thpage/%s' %table.replace('.','/')
+        fakeFormId ='%s_form' %th.attributes['thform_root']
         grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
-        th.view.attributes.update(_fakeform=True)
         grid.dataController("""
             if(!this._pageHandler){
-                this._pageHandler = new gnr.pageTableHandlerJS(this,formUrl,formResource,default_kwargs);
+                this._pageHandler = new gnr.pageTableHandlerJS(this,_formId,mainpkey,formUrl,default_kwargs,formResource);
             }
-            this._pageHandler.openPage(pkey);
-        """,formUrl=formUrl,formResource=formResource,pkey='^.editrow',default_kwargs=default_kwargs)
+            this._pageHandler.checkMainPkey(mainpkey);
+            if(pkey){
+                this._pageHandler.openPage(pkey);
+            }
+        """,formUrl=formUrl,formResource=formResource,pkey='^.editrow',_formId=fakeFormId,
+           default_kwargs=default_kwargs,_fakeform=True,mainpkey='^#FORM.pkey')
         return th    
         
     @struct_method
@@ -186,7 +189,8 @@ class TableHandler(BaseComponent):
         rootattr['overflow'] = 'hidden'
         rootattr['_fakeform'] = True
         rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey; FIRE .controller.loaded;'
-        root.dataController('SET .pkey = pkey; FIRE .controller.loaded;',pkey=pkey,_onStart=True)
+        if pkey:
+            root.dataController('SET .pkey = pkey; FIRE .controller.loaded;',pkey=pkey,_onStart=True)
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
 class ThLinker(BaseComponent):

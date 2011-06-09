@@ -72,6 +72,10 @@
     font-variant:small-caps;
 }
 
+.iframesubtab.iframetab{
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#A6CAEE), to(#467399));
+    background-image: -moz-linear-gradient(-90deg, #A6CAEE, #467399);
+}
 .footer_block {
 	font-weight: 1.1;
 	color: #4c4c4c;

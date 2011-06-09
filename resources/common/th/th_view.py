@@ -37,7 +37,7 @@ class TableHandlerView(BaseComponent):
                        top_kwargs=None,condition=None,condition_kwargs=None,**kwargs):
         queryTool = kwargs['queryTool'] if 'queryTool' in kwargs else virtualStore
         condition_kwargs = condition_kwargs or dict()
-        if condition_kwargs:
+        if condition:
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if queryTool:
@@ -103,6 +103,7 @@ class TableHandlerView(BaseComponent):
 
 
         condPars = {}
+
         if isinstance(condition,dict):
             condPars = condition
             condition = condPars.pop('condition')
@@ -143,6 +144,7 @@ class TableHandlerView(BaseComponent):
         else:
             chunkSize = None
             selectionName = None
+
         store = frame.grid.selectionStore(table=table, columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',

@@ -25,19 +25,16 @@ dojo.declare("gnr.FramedIndexManager", null, {
          genro._data.setItem('iframes',iframesbag);
         }
         var that = this;
-        var onStarted = objectPop(kw,'onStarted');
+        var frameSubscriptions = objectPop(kw,'frameSubscriptions');
         iframeattr['onStarted'] = function(){
-            this._dojo.subscribe("updateIframeTitle",function(title){
-                that.updateIframeTitle(pageName,title);
-            });
-            if(onStarted){
-                onStarted.call(this);
+            for (var sub in frameSubscriptions){
+                this._dojo.subscribe(sub,frameSubscriptions[sub]);
             }
         }
         var iframe = center._('iframe',iframeattr);
         var node = root.popNode('#0');
         sc.setItem(node.label,node);
-        iframesbag.setItem(pageName,null,{'fullname':label,pageName:pageName,fullpath:kw.fullpath,url:url});
+        iframesbag.setItem(pageName,null,{'fullname':label,pageName:pageName,fullpath:kw.fullpath,url:url,subtab:kw.subtab});
         sourceNode.setRelativeData('selectedFrame',pageName);
         setTimeout(function(){iframe.getParentNode().domNode.src = url;},1);
     },
@@ -73,6 +70,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
         data.forEach(function(n){
             pageName = n.attr.pageName;
             kw = {'_class':'iframetab',pageName:pageName};
+            if (n.attr.subtab){
+                kw['_class']+=' iframesubtab'
+            }
             if(pageName==selectedFrame){
                 kw._class+=' iframetab_selected';
             }
@@ -83,14 +83,12 @@ dojo.declare("gnr.FramedIndexManager", null, {
         sourceNode.setValue(root, true);
     },
     
-    updateIframeTitle:function(pageName,title){
-        if(title){
-            this.iframesbag.getNode(pageName).updAttributes({fullname:title});
-        }
-    },
-    
+
     selectedFrame:function(){
         return genro.getData('selectedFrame');
+    },
+    changeFrameLabel:function(kw){
+        this.iframesbag.getNode(kw.pageName).updAttributes({fullname:kw.title});
     }
     
 });

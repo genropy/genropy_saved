@@ -62,15 +62,16 @@ class Table(object):
         return htmlbuilder
     
     def sendMail(self,record_id=None,doctemplate=None,templates=None,**kwargs):
+        site = self.db.application.site
+        from_address= kwargs.pop('from_address', site.getPreference('mail.from_address', pkg='adm'))
         htmlBuilder = self.getTemplateBuilder(doctemplate=doctemplate,templates=templates)
         body = self.renderTemplate(htmlBuilder, record_id=record_id)
         datasource = htmlBuilder.record
         metadata = htmlBuilder.doctemplate_info.getItem('metadata')
         datasource['_meta_'] = metadata
-        site = self.db.application.site
         site.mail_handler.sendmail_template(datasource=datasource,
                                             body= body,
-                                            from_address= site.getPreference('mail.from_address', pkg='adm'),
+                                            from_address= from_address,
                                             smtp_host= site.getPreference('mail.smtp_host',pkg='adm'),
                                             port=int(site.getPreference('mail.port', pkg='adm')),
                                             password=site.getPreference('mail.password', pkg='adm'),
