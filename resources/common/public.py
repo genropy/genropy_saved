@@ -522,14 +522,17 @@ class TableHandlerMain(BaseComponent):
                 
             form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')   
         form.dataController("""
-                            var label;
-                            if(pkey && pkey!='*newrecord*' && pkey!='*norecord*'){
-                                label = pkey;
-                            }
-                            SET gnr.windowTitle = title;
-                            genro.publish('updateIframeIndexTab',caption,label);""",
-                            caption="=.record?caption",pkey='=.pkey',title='=.controller.title',
+                                var pk;
+                                if(pkey && pkey!='*newrecord*' && pkey!='*norecord*'){
+                                    pk = pkey;
+                                }
+                                SET gnr.windowTitle = title;
+                                genro.publish('updateIframeTitle',recordcaption);
+                                genro.publish('mainPkeySaved',pkey);
+                            """,
+                            recordcaption="=.record?caption",pkey='=.pkey',title='=.controller.title',
                             _fired='^.controller.loaded')       
+                            
         form.store.handler('load',**default_kwargs)  
         self._usePublicBottomMessage(form)
         return form

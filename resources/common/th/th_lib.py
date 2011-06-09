@@ -10,7 +10,8 @@ class TableHandlerCommon(BaseComponent):
     
     def _th_relationExpand(self,pane,relation=None,condition=None,condition_kwargs=None,default_kwargs=None,**kwargs):
         maintable=kwargs.get('maintable') or pane.getInheritedAttributes().get('table') or self.maintable
-        default_kwargs = default_kwargs or dict()
+        if default_kwargs is None:
+            default_kwargs = dict()
         relation_attr = self.db.table(maintable).model.getRelation(relation)
         many = relation_attr['many'].split('.')
         fkey = many.pop()

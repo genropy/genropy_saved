@@ -255,12 +255,13 @@ dojo.declare('gnr.GenroClient', null, {
             genro.publish('onPageStart');
             var parentIframe = window.frameElement;
             if(parentIframe){
-                parentIframe.sourceNode.publish('pageStarted');
                 parentIframe.sourceNode._genro = this;
                 parentIframe.sourceNode._dojo = dojo;
-                if(parentIframe.sourceNode.onStartedFrame){
-                    parentIframe.sourceNode.onStartedFrame();
-                }
+                parentIframe.sourceNode.publish('pageStarted');
+
+                //if(parentIframe.sourceNode.onStartedFrame){
+                //    parentIframe.sourceNode.onStartedFrame();
+                //}
             }
         }, 100);
         genro.dev.shortcut('f1', function(e) {
