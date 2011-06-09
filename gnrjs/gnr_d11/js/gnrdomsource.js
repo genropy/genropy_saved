@@ -717,6 +717,11 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     _registerNodeId: function(nodeId) {
         var nodeId = this.attr.nodeId || nodeId;
         if (nodeId) {
+            var reg_node = genro.src._index[nodeId];
+            if(reg_node){
+                genro.assert(reg_node===this,'duplicate nodeId:'+nodeId)
+
+            }
             genro.src._index[nodeId] = this;
         }
     },
