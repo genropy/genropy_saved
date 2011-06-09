@@ -5,9 +5,14 @@ tableHandler
 ============
 
     .. note:: it is a :ref:`components_standard`.
-              
+    
     * :ref:`th_introduction`
-    * :ref:`th_map`
+    * :ref:`th_map`:
+    
+        * :ref:`th_map_selectedpage`
+        * :ref:`th_map_form` (:ref:`th_map_form_layout`, :ref:`th_map_form_data`)
+        * :ref:`th_map_view`
+        
     * :ref:`th_firststeps`
     * :ref:`th_resource_page`:
     
