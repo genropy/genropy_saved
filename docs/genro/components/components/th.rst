@@ -28,6 +28,7 @@ tableHandler
         
         * :ref:`th_border`
         * :ref:`th_dialog`
+        * :ref:`th_page`
         * :ref:`th_palette`
         * :ref:`th_plain`
         * :ref:`th_stack`
@@ -632,6 +633,33 @@ th_dialogTableHandler
       
         dialog_height='100px'; dialog_width='300px'
         
+.. _th_page:
+
+th_pageTableHandler
+-------------------
+
+    **Definition:**
+    
+    .. method:: th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,formInIframe=False,reloader=None,default_kwargs=None,**kwargs)
+    
+    **Description:**
+    
+    The pageTableHandler add???
+    
+    .. image:: add???
+    
+    **attributes**:
+    
+    The attributes that belong to every TableHandler are described in the
+    :ref:`types_common_attributes` section. The attributes that belongs only
+    to the pageTableHandler are listed here:
+    
+    * *formUrl=None*: add???
+    
+    Example::
+    
+        add???
+    
 .. _th_palette:
 
 th_paletteTableHandler

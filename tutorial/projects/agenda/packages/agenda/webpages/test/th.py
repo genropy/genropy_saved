@@ -10,6 +10,9 @@ class GnrCustomWebPage(object):
     def main(self,root,**kwargs):
         root.attributes.update(datapath='test')
         bc = root.borderTableHandler(table='agenda.contatto',virtualStore=True)
+        #th = root.pageTableHandler(table='agenda.staff',virtualStore=True,
+        #                           formResource='???',
+        #                           formUrl='???') /sys/thpage/agenda/staff ?
         #th = root.dialogTableHandler(table='agenda.contatto',virtualStore=True,
         #                             dialog_width='600px',dialog_height='400px')
         #th = root.paletteTableHandler(table='agenda.contatto',virtualStore=True,
