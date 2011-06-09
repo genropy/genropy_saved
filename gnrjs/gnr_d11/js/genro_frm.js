@@ -413,7 +413,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(data){
             this.setFormData(data);
         }
-        this.publish('onLoaded',{pkey:this.getCurrentPkey()});
+        this.publish('onLoaded',{pkey:this.getCurrentPkey(),data:data});
         this._hideHider()
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
         var controllerData = this.getControllerData();

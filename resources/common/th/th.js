@@ -130,16 +130,19 @@ dojo.declare("gnr.LinkerManager", null, {
     }
 });
 dojo.declare("gnr.pageTableHandlerJS",null,{
-    constructor:function(sourceNode,mainpkey,formUrl,default_kwargs,formResource){
+    constructor:function(sourceNode,formId,mainpkey,formUrl,default_kwargs,formResource){
         this.sourceNode = sourceNode;
         this.mainpkey = mainpkey;
         this.default_kwargs = default_kwargs;
         this.pages_dict = {};
-        this.page_kw = {file:formUrl,url_main_call:'form',url_th_linker:true,url_th_public:true,subtab:true};
+        this.page_kw = {file:formUrl,url_main_call:'form',url_th_linker:true,url_th_public:true,subtab:true,url_th_formId:formId};
+        this.fakeFormId = formId;
+        this.indexgenro = window.parent.genro;
         if(formResource){
             this.page_kw['url_th_formResource'] = formResource;
         }
     },
+
     openPage:function(pkey){
         var pageName;
         for (var k in this.pages_dict){
@@ -158,14 +161,16 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
             for (var k in default_kwargs){
                 kw['url_'+k] = default_kwargs[k];
             }
-            kw['onStarted'] = function(){
-                this._dojo.subscribe('mainPkeySaved',function(pkey){
-                    that.pages_dict[pageName] = pkey;
-                });
-            };
         }
+        var subs = {};
+        var indexgenro = this.indexgenro;
+        subs['form_'+this.fakeFormId+'_onLoaded'] =  function(kw){
+            that.pages_dict[pageName] = kw.pkey;
+            indexgenro.publish('changeFrameLabel',{pageName:pageName,title:kw.data.attr.caption});
+        };
+        kw['frameSubscriptions'] = subs;
         var that = this;
-        window.parent.genro.publish('selectIframePage',kw);
+        indexgenro.publish('selectIframePage',kw);
     },
     checkMainPkey:function(mainpkey){
         if(mainpkey==this.mainpkey){
@@ -210,6 +215,7 @@ dojo.declare("gnr.IframeFormManager", null, {
     },
     onIframeStarted:function(iframe,pkey){
         var that = this;
+        this.iframe = iframe;
         this.iframeForm = iframe._genro.formById(this.fakeFormId);
         this.iframeForm.store.handlers.load.defaultCb = function(){
             return that.sourceNode.evaluateOnNode(that.default_kwargs);

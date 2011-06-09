@@ -25,13 +25,10 @@ dojo.declare("gnr.FramedIndexManager", null, {
          genro._data.setItem('iframes',iframesbag);
         }
         var that = this;
-        var onStarted = objectPop(kw,'onStarted');
+        var frameSubscriptions = objectPop(kw,'frameSubscriptions');
         iframeattr['onStarted'] = function(){
-            this._dojo.subscribe("updateIframeTitle",function(title){
-                that.updateIframeTitle(pageName,title);
-            });
-            if(onStarted){
-                onStarted.call(this);
+            for (var sub in frameSubscriptions){
+                this._dojo.subscribe(sub,frameSubscriptions[sub]);
             }
         }
         var iframe = center._('iframe',iframeattr);
@@ -86,14 +83,12 @@ dojo.declare("gnr.FramedIndexManager", null, {
         sourceNode.setValue(root, true);
     },
     
-    updateIframeTitle:function(pageName,title){
-        if(title){
-            this.iframesbag.getNode(pageName).updAttributes({fullname:title});
-        }
-    },
-    
+
     selectedFrame:function(){
         return genro.getData('selectedFrame');
+    },
+    changeFrameLabel:function(kw){
+        this.iframesbag.getNode(kw.pageName).updAttributes({fullname:kw.title});
     }
     
 });

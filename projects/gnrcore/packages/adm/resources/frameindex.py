@@ -131,12 +131,14 @@ class Mixin(BaseComponent):
                             this.getValue().popNode(k);
                         }
                         """
+        scattr['subscribe_changeFrameLabel']='genro.framedIndexManager.changeFrameLabel($1);'
         page = self.pageSource()
         if self.index_url:
             sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')
         page.dataController("""
                             genro.publish('selectIframePage',_menutree__selected[0]);""",
                             subscribe__menutree__selected=True)
+                        
 
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='200px',datapath='left',margin_right='-1px',overflow='hidden'))
