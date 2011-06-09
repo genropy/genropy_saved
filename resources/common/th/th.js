@@ -130,16 +130,17 @@ dojo.declare("gnr.LinkerManager", null, {
     }
 });
 dojo.declare("gnr.pageTableHandlerJS",null,{
-    constructor:function(sourceNode,formUrl,formResource,default_kwargs){
+    constructor:function(sourceNode,mainpkey,formUrl,default_kwargs,formResource){
         this.sourceNode = sourceNode;
+        this.mainpkey = mainpkey;
         this.default_kwargs = default_kwargs;
         this.pages_dict = {};
-        this.page_kw = {file:formUrl,url_main_call:'form',url_th_linker:true,url_th_public:true};
+        this.page_kw = {file:formUrl,url_main_call:'form',url_th_linker:true,url_th_public:true,subtab:true};
         if(formResource){
             this.page_kw['url_th_formResource'] = formResource;
         }
     },
-    openpage:function(pkey){
+    openPage:function(pkey){
         var pageName;
         for (var k in this.pages_dict){
             if(this.pages_dict[k]==pkey){
@@ -165,8 +166,14 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         }
         var that = this;
         window.parent.genro.publish('selectIframePage',kw);
+    },
+    checkMainPkey:function(mainpkey){
+        if(mainpkey==this.mainpkey){
+            return;
+        }
+        window.parent.genro.publish('destroyFrames',this.pages_dict);
+        this.pages_dict = {};
     }
-    
 });
 dojo.declare("gnr.IframeFormManager", null, {
     constructor:function(sourceNode){

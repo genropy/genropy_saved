@@ -152,13 +152,16 @@ class TableHandler(BaseComponent):
         formUrl = formUrl or '/sys/thpage/%s' %table.replace('.','/')
         grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
-        th.view.attributes.update(_fakeform=True)
         grid.dataController("""
             if(!this._pageHandler){
-                this._pageHandler = new gnr.pageTableHandlerJS(this,formUrl,formResource,default_kwargs);
+                this._pageHandler = new gnr.pageTableHandlerJS(this,mainpkey,formUrl,default_kwargs,formResource);
             }
-            this._pageHandler.openPage(pkey);
-        """,formUrl=formUrl,formResource=formResource,pkey='^.editrow',default_kwargs=default_kwargs)
+            this._pageHandler.checkMainPkey(mainpkey);
+            if(pkey){
+                this._pageHandler.openPage(pkey);
+            }
+        """,formUrl=formUrl,formResource=formResource,pkey='^.editrow',
+           default_kwargs=default_kwargs,_fakeform=True,mainpkey='^#FORM.pkey')
         return th    
         
     @struct_method

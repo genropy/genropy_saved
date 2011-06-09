@@ -37,7 +37,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var iframe = center._('iframe',iframeattr);
         var node = root.popNode('#0');
         sc.setItem(node.label,node);
-        iframesbag.setItem(pageName,null,{'fullname':label,pageName:pageName,fullpath:kw.fullpath,url:url});
+        iframesbag.setItem(pageName,null,{'fullname':label,pageName:pageName,fullpath:kw.fullpath,url:url,subtab:kw.subtab});
         sourceNode.setRelativeData('selectedFrame',pageName);
         setTimeout(function(){iframe.getParentNode().domNode.src = url;},1);
     },
@@ -73,6 +73,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
         data.forEach(function(n){
             pageName = n.attr.pageName;
             kw = {'_class':'iframetab',pageName:pageName};
+            if (n.attr.subtab){
+                kw['_class']+=' iframesubtab'
+            }
             if(pageName==selectedFrame){
                 kw._class+=' iframetab_selected';
             }

@@ -124,6 +124,13 @@ class Mixin(BaseComponent):
                                             PUT selectedFrame = null;
                                             sc.setSelected(selected);
                                         """        
+        scattr['subscribe_destroyFrames'] = """
+                        var sc = this.widget;
+                        for (var k in $1){
+                            var node = genro._data.popNode('iframes.'+k);
+                            this.getValue().popNode(k);
+                        }
+                        """
         page = self.pageSource()
         if self.index_url:
             sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')
