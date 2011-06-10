@@ -105,15 +105,15 @@ class IncludedView(BaseComponent):
         """\
         This method returns a grid (includedView) for viewing and selecting rows from a many
         to many table related to the main table, and the widget that allow to edit data.
-        You can edit data of a single row (record) using a form (formPars), or pick some rows
+        You can edit data of a single row (record) using a form (formPars), or picking some rows
         from another table with the picker widget (pickerPars).
         The form can be contained inside a dialog or a contentPane and is useful to edit a single record.
         If the data is stored inside another table you should use the picker to select the rows from that table.
         
         :param parentBC: MANDATORY - parentBC is a :ref:`genro_bordercontainer`
                          
-                         .. note:: The includedViewBox and its sons can only accept borderContainer
-                                   and doesn't accept contentPane.
+                         .. note:: The includedViewBox and its sons can only accept the borderContainer
+                                   layout container.
         :param nodeId: the includedViewbox's Id. For more information, check :ref:`genro_nodeid` page.
                        Default value is ``None``.
         :param table: the includedViewbox's reference :ref:`genro_table`.
