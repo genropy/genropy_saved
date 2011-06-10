@@ -101,6 +101,7 @@ class Mixin(BaseComponent):
         sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
                                 onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);')
         sc.dataController("setTimeout(function(){genro.framedIndexManager.selectIframePage(selectIframePage[0])},1);",subscribe_selectIframePage=True)
+
         scattr = sc.attributes
         scattr['subscribe_reloadFrame'] = """var frame = dojo.byId("iframe_"+$1);
                                                     var src = frame.src;
@@ -123,11 +124,22 @@ class Mixin(BaseComponent):
                                             PUT selectedFrame = null;
                                             sc.setSelected(selected);
                                         """        
+        scattr['subscribe_destroyFrames'] = """
+                        var sc = this.widget;
+                        for (var k in $1){
+                            var node = genro._data.popNode('iframes.'+k);
+                            this.getValue().popNode(k);
+                        }
+                        """
+        scattr['subscribe_changeFrameLabel']='genro.framedIndexManager.changeFrameLabel($1);'
         page = self.pageSource()
         if self.index_url:
             sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')
-        page.dataController("genro.publish('selectIframePage',_menutree__selected[0]);",subscribe__menutree__selected=True)
-        
+        page.dataController("""
+                            genro.publish('selectIframePage',_menutree__selected[0]);""",
+                            subscribe__menutree__selected=True)
+                        
+
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='200px',datapath='left',margin_right='-1px',overflow='hidden'))
         sc = pane.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',overflow='hidden')
@@ -173,13 +185,11 @@ class Mixin(BaseComponent):
 
     def btn_refresh(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='icnFrameRefresh',
-                                                      connect_onclick="PUBLISH reloadFrame=this.inheritedAttribute('selectedFrame');",
-                                                      selectedFrame='=selectedFrame')               
+                                                      connect_onclick="PUBLISH reloadFrame=GET selectedFrame;")               
 
     def btn_delete(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',
-                                                        connect_onclick='PUBLISH closeFrame=this.inheritedAttribute("selectedFrame");',
-                                                        selectedFrame='=selectedFrame')
+                                                        connect_onclick='PUBLISH closeFrame= GET selectedFrame;')
         
 
   

@@ -137,15 +137,41 @@ class TableHandler(BaseComponent):
                         formInIframe=formInIframe,readOnly=readOnly)    
         return wdg
         
-    @extract_kwargs(widget=True,default=True)
+    @extract_kwargs(default=True)
+    @struct_method
+    def th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,
+                            formInIframe=False,reloader=None,default_kwargs=None,**kwargs):
+        kwargs['tag'] = 'ContentPane'
+        th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
+                                        viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
+                                        default_kwargs=default_kwargs,
+                                        **kwargs)
+        grid = th.view.grid
+        table = table or th.attributes['table']
+        formUrl = formUrl or '/sys/thpage/%s' %table.replace('.','/')
+        fakeFormId ='%s_form' %th.attributes['thform_root']
+        grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
+                                selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
+        grid.dataController("""
+            if(!this._pageHandler){
+                this._pageHandler = new gnr.pageTableHandlerJS(this,_formId,mainpkey,formUrl,default_kwargs,formResource);
+            }
+            this._pageHandler.checkMainPkey(mainpkey);
+            if(pkey){
+                this._pageHandler.openPage(pkey);
+            }
+        """,formUrl=formUrl,formResource=formResource,pkey='^.editrow',_formId=fakeFormId,
+           default_kwargs=default_kwargs,_fakeform=True,mainpkey='^#FORM.pkey')
+        return th    
+        
     @struct_method
     def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=True,**kwargs):
+                            formInIframe=False,reloader=None,readOnly=True,**kwargs):
         kwargs['tag'] = 'ContentPane'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
-                                        default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
-        return wdg
+                                        readOnly=readOnly,**kwargs)
+        return wdg    
         
     @struct_method
     def th_thIframe(self,pane,method=None,src=None,**kwargs):
@@ -153,29 +179,35 @@ class TableHandler(BaseComponent):
         pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
         box = pane.div(_class='detacher',z_index=30)
         kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
-        iframe = box.iframe(main='th_iframedispatcher',main_methodname=method,main_pkey='=#FORM.pkey',src=src,**kwargs)
+        iframe = box.iframe(main='th_iframedispatcher',main_methodname=method,
+                            main_table=pane.getInheritedAttributes().get('table'),
+                            main_pkey='=#FORM.pkey',src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
         return iframe
          
-    def rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,**kwargs):
+    def rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,table=None,**kwargs):
         rootattr = root.attributes
         rootattr['datapath'] = 'main'
         rootattr['overflow'] = 'hidden'
         rootattr['_fakeform'] = True
-        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey;'
-        root.dataFormula('.pkey','pkey',pkey=pkey,_onStart=True)
+        rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey; FIRE .controller.loaded;'
+        if pkey:
+            root.dataController('SET .pkey = pkey; FIRE .controller.loaded;',pkey=pkey,_onStart=True)
+            root.dataRecord('.record',table,pkey='^#FORM.pkey')
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
-
 
 class ThLinker(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method 
-    def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,
+    def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
                     openIfNew=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs):
-        if '.' in field:
-            table,field = field.split('.')
-        else:
-            table = pane.getInheritedAttributes().get('table') or self.maintable
+        if not table:
+            if '.' in field:
+                fldlst = field.split('.')
+                table = '.'.join(fldlst[0:2])
+                field = fldlst[2]
+            else:
+                table = pane.getInheritedAttributes().get('table') or self.maintable
         tblobj = self.db.table(table)
         related_tblobj = tblobj.column(field).relatedColumn().table    
         related_table = related_tblobj.fullname
@@ -188,12 +220,13 @@ class ThLinker(BaseComponent):
             kwargs['condition'] = '%s AND (%s)' %(condition,noduplinkcondition) if condition else noduplinkcondition                  
         linkerpath = '#FORM.linker_%s' %field
         linker = pane.div(_class='th_linker',childname='linker',datapath=linkerpath,
-                         rounded=8,tip='^.tip_link',onCreated='this.linkerManager = new gnr.LinkerManager(this);',
+                         rounded=8,tip='^.tip_link',
+                         onCreated='this.linkerManager = new gnr.LinkerManager(this);',
                          connect_onclick='this.linkerManager.openLinker();',
                          selfsubscribe_disable='this.linkerManager.closeLinker();',
                          selfsubscribe_newrecord='this.linkerManager.newrecord();',
                          selfsubscribe_loadrecord='this.linkerManager.loadrecord();',
-                         _table = table,_related_table = related_table,_field=field,_embedded=embedded,
+                         table=related_table,_field=field,_embedded=embedded,
                          _formUrl=formUrl,_formResource=formResource,
                          _dialog_kwargs=dialog_kwargs,_default_kwargs=default_kwargs)
         linker.dataController("""SET .tip_link =linktpl.replace('$table1',t1).replace('$table2',t2);
@@ -213,8 +246,8 @@ class ThLinker(BaseComponent):
         if newRecordOnly:
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
-                connect_onBlur='this.getParentNode().publish("disable");',
-                _class='th_linkerField',background='white',**kwargs)
+                    connect_onBlur='this.getParentNode().publish("disable");',
+                    _class='th_linkerField',background='white',**kwargs)
         return linker
     
     @struct_method 
@@ -224,19 +257,20 @@ class ThLinker(BaseComponent):
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,newRecordOnly=newRecordOnly,openIfNew=openIfNew,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
-        frame.div(template=self.tableTemplate(linker.attributes['_related_table'],template),
+        frame.div(template=self.tableTemplate(linker.attributes['table'],template),
                     datasource='^.@%s' %field,visible=currpkey,margin='4px')
         footer = frame.bottom.slotBar('*,linker_edit')
         footer.linker_edit.slotButton('Edit current record',baseClass='no_background',iconClass='icnBaseWrite',
                                        action='linker.publish("loadrecord");',linker=linker,showLabel=False,
                                        visible=currpkey,margin='2px',parentForm=True)
+        return frame
 
     @struct_method          
     def th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs):
         bar = pane.slotBar('lbl,*,linkerslot,5',height='20px',_class=_class)
         linker = bar.linkerslot.linker(field=field,newRecordOnly=newRecordOnly,**kwargs)
         bar.linker = linker
-        label = label or self.db.table(linker.attributes['_related_table']).name_long
+        label = label or self.db.table(linker.attributes['table']).name_long
         bar.lbl.div(label)
         return bar
 

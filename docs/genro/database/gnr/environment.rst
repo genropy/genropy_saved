@@ -4,8 +4,6 @@
 ``environment.xml``
 ===================
 
-    .. warning:: to be completed!
-    
     .. image:: ../../images/projects/gnr/environment.png
     
     * :ref:`environment_introduction`

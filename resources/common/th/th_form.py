@@ -16,7 +16,8 @@ class TableHandlerForm(BaseComponent):
     @extract_kwargs(dialog=True,palette=True,default=True)
     @struct_method
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,formResource=None,
-                        dialog_kwargs=None,palette_kwargs=None,default_kwargs=None,formInIframe=False,readOnly=False,**kwargs):
+                        dialog_kwargs=None,palette_kwargs=None,default_kwargs=None,formInIframe=False,
+                        readOnly=False,**kwargs):
         form = pane.view.grid.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',
@@ -30,9 +31,9 @@ class TableHandlerForm(BaseComponent):
                                  **kwargs) 
         if formInIframe:
             return form
-        slots = 'navigation,|,5,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
+        slots = 'navigation,|,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
         if readOnly:
-            slots = 'navigation,|,5,*,|,dismiss,5'
+            slots = 'navigation,|,*,|,dismiss,5'
         form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview',namespace='form')
         formattr = form.attributes
         table = formattr.get('table')

@@ -127,17 +127,20 @@ class SqlTable(GnrObject):
         :param record: add???. Default value is ``None``
         :param msg: add???. Default value is ``None``
         """
-        if exception in EXCEPTIONS:
-            rowcaption = ''
-            if record:
+        if isinstance(exception,basestring):
+            exception = EXCEPTIONS.get(exception)
+            if not exception:
+                raise exception
+        if record:
+            try:
                 rowcaption = self.recordCaption(record)
-            e = EXCEPTIONS[exception](tablename=self.fullname,
-                                      rowcaption=rowcaption,
-                                      msg=msg, **kwargs)
-            if self.db.application and self.db.application.site and self.db.application.site.currentPage:
-                e.setLocalizer(self.db.application.site.currentPage.localizer)
-            return e
-        raise
+            except:
+                rowcaption = 'Current Record'
+        e = exception(tablename=self.fullname,rowcaption=rowcaption,msg=msg, **kwargs)
+        
+        if self.db.application and self.db.application.site and self.db.application.site.currentPage:
+            e.setLocalizer(self.db.application.site.currentPage.localizer)
+        return e
         
     def __repr__(self):
         return "<SqlTable %s>" % repr(self.fullname)

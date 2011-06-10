@@ -255,11 +255,13 @@ dojo.declare('gnr.GenroClient', null, {
             genro.publish('onPageStart');
             var parentIframe = window.frameElement;
             if(parentIframe){
-                parentIframe.sourceNode.publish('pageStarted');
                 parentIframe.sourceNode._genro = this;
-                if(parentIframe.sourceNode.onStartedFrame){
-                    parentIframe.sourceNode.onStartedFrame();
-                }
+                parentIframe.sourceNode._dojo = dojo;
+                parentIframe.sourceNode.publish('pageStarted');
+
+                //if(parentIframe.sourceNode.onStartedFrame){
+                //    parentIframe.sourceNode.onStartedFrame();
+                //}
             }
         }, 100);
         genro.dev.shortcut('f1', function(e) {
@@ -552,6 +554,7 @@ dojo.declare('gnr.GenroClient', null, {
         this._counter = this._counter + 1;
         return this._counter;
     },
+    
     bagToTable:function(kwargs/*path,columns,key*/) {
         /*
          Transforms a bag in a table bag with headers, columns and rows.

@@ -209,7 +209,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var node;
         var frameCode = kw.frameCode;
-        if(frameCode.indexOf('#')){
+        if(frameCode.indexOf('#')>=0){
             frameCode = frameCode.replace('#',sourceNode.getStringId());
         }
         genro.assert(frameCode,'Missing frameCode');
@@ -568,7 +568,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
             selected_col:'.field',selected_caption:'.caption'});
         
-        searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,disabled:false});
+        searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,parentForm:false});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
             menubag = this._prepareSearchBoxMenu(searchOn, databag);
         });

@@ -460,9 +460,8 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
             dojo.connect(newobj, 'onload', funcCreate(savedAttrs.onLoad));
         }
         if (savedAttrs.onStarted){
-            sourceNode.onStartedFrame = funcCreate(savedAttrs.onStarted);
+            sourceNode.subscribe('pageStarted',funcCreate(savedAttrs.onStarted));
         }
-        
         this.setSrc(newobj, savedAttrs.src);
     },
     prepareSrc:function(domnode) {
@@ -493,6 +492,8 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
     setSrc:function(domnode, v, kw) {
         var sourceNode = domnode.sourceNode;
         var attributes = sourceNode.attr;
+        var main_call = objectPop(attributes,'main');
+        var main_kwargs = objectExtract(attributes,'main_*');
         if (attributes._if && !sourceNode.getAttributeFromDatasource('_if')) {
             var v = '';
         } else if (sourceNode.condition_function && !sourceNode.condition_function(sourceNode.condition_value)) {
@@ -504,15 +505,13 @@ dojo.declare("gnr.widgets.iframe", gnr.widgets.baseHtml, {
         if (sourceNode.currentSetTimeout) {
             clearTimeout(sourceNode.currentSetTimeout);
         }
-        if(attributes['main']){
-            var main_call = objectPop(attributes,'main');
-            var main_kwargs = objectExtract(attributes,'main_*');
+        if(main_call){
             v = v || window.location.pathname;
             main_kwargs['main_call'] = main_call;
-            main_kwargs = sourceNode.evaluateOnNode(main_kwargs);
-            v = genro.addParamsToUrl(v,main_kwargs);
         }
-        if (v) {         
+        if (v) {     
+            main_kwargs = sourceNode.evaluateOnNode(main_kwargs);
+            v = genro.addParamsToUrl(v,main_kwargs);    
             sourceNode.currentSetTimeout = setTimeout(function(d, url) {
                 var absUrl = document.location.protocol + '//' + document.location.host + url;
                 if (absUrl != d.src) {
@@ -899,9 +898,7 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
                     sourceNode.setRelativeData(path, newpage);
                 }
             }
-            if (nodeId) {
-                genro.publish(nodeId + '_selected', {'change':newpage + '_' + (st ? 'show' : 'hide'),'page':newpage,'selected':st});
-            }
+            sourceNode.publish('selected', {'change':newpage + '_' + (st ? 'show' : 'hide'),'page':newpage,'selected':st});
         };
         if (selpath) {
             cbUpd(selpath, widget.getChildIndex(child), st);
@@ -3121,7 +3118,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         if (this.sortedBy) {
             var storebag = this.storebag();
-            storebag.sort(this.datamode=='bag'?this.sortedBy:'#a.'+this.sortedBy);
+            var sortedBy = this.sortedBy;
+            if(this.datamode!='bag'){
+                sortedBy = sortedBy.split(',');
+                var l = [];
+                dojo.forEach(sortedBy,function(n){l.push('#a.'+n)});
+                sortedBy = l.join(',');
+            }
+            storebag.sort(sortedBy);
         }
         this.updateRowCount();
         this.selection.unselectAll();

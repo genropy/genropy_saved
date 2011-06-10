@@ -172,7 +172,9 @@ class RichTextEditor(BaseComponent):
 
     def RichTextEditor(self, pane, value, disabled=None, nodeId=None, toolbar=None, **kwargs):
         pane.attributes.update(overflow='hidden')
-        editorId = "%s_editor" % nodeId
+        editorId = None
+        if nodeId:
+            editorId = "%s_editor" % nodeId
         if isinstance(toolbar, basestring):
             tb = getattr(self, 'rte_toolbar_%s' % toolbar, None)
             toolbar = tb() if callable(tb) else tb

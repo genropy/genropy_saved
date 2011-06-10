@@ -167,8 +167,7 @@ def readTab(doc):
 def readCSV_new(doc):
     """This reads a CSV file - done by Jeff
     
-    :param doc: the file to read
-    """
+    :param doc: the file to read"""
     if isinstance(doc, basestring):
         f = open(doc)
     else:
@@ -197,10 +196,9 @@ def readCSV_new(doc):
         f.close()
         
 def readCSV(doc):
-    """add???
+    """read a CSV file
     
-    :param doc: the file to read
-    """
+    :param doc: the file to read"""
     if isinstance(doc, basestring):
         f = open(doc)
     else:
@@ -226,8 +224,7 @@ def readCSV(doc):
 def readXLS(doc):
     """Read an XLS file
     
-    :param doc: the file to read
-    """
+    :param doc: the file to read"""
     import xlrd
     
     if isinstance(doc, basestring):

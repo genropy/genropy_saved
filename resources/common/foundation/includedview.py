@@ -677,7 +677,7 @@ class IncludedView(BaseComponent):
         self._includedViewFormBody(recordBC, controller, storepath, gridId, formPars)
         
     @extract_kwargs(_dictkwargs={'add':True,'del':True,'upd':True,'print':True,'export':True,'tools':True,'top':True})
-    def includedGrid(self, parentBC, nodeId=None,frameCode=None,datapath=None,struct=None,table=None, 
+    def includedGrid(self, parentBC, nodeId=None,frameCode=None,datapath=None,struct=None,table=None,pbl_classes=True,
                         storepath=None, label=None, caption=None,filterOn=None,editorEnabled=None,canSort=True,dropCodes=None,
                         add_kwargs=None,del_kwargs=None,upd_kwargs=None,print_kwargs=None,export_kwargs=None,tools_kwargs=None,
                         top_kwargs=None,datamode=None,**kwargs):
@@ -704,7 +704,9 @@ class IncludedView(BaseComponent):
         pane = parentBC
         frameCode = frameCode or 'frame_%s' %nodeId
         datapath = datapath or '#FORM.%s' %frameCode
-        frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,_class='pbl_roundedGroup',
+        if pbl_classes:
+            kwargs['_class'] = kwargs.get('_class','') + ' pbl_roundedGroup'
+        frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,
                                 grid_nodeId=nodeId,grid_datamode=datamode,grid_table=table,**kwargs)
         if storepath.startswith('.'):
             storepath = '#FORM.record%s' %storepath
@@ -733,8 +735,11 @@ class IncludedView(BaseComponent):
             action = add_kwargs.get('action')
             slots.append('addrow')
             assert not isinstance(action,basestring), 'custom action are not supported'
-        frame.top.slotBar(','.join(slots),_class='slotbar_toolbar pbl_roundedGroupLabel',**slotsKw)
-        
+        if pbl_classes:
+            frame.top.slotBar(','.join(slots),_class='slotbar_toolbar pbl_roundedGroupLabel',**slotsKw)
+        else:
+            frame.top.slotToolbar(','.join(slots),**slotsKw)
+
         
         return frame.grid
         

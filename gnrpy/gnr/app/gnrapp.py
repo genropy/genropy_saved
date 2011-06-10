@@ -313,12 +313,10 @@ class GnrPackage(object):
     
     def loadTableMixinDict(self, module, folder, model_prefix=''):
         """add???
-
+        
         :param module: add???
         :param folder: add???
-        :param model_prefix: add???. Default value is `` ``
-        :returns: add???
-        """
+        :param model_prefix: add???. Default value is `` ``"""
         tbldict = {}
         if module:
             tbldict = dict([(x[6:], getattr(module, x)) for x in dir(module) if x.startswith('Table_')])
@@ -326,7 +324,7 @@ class GnrPackage(object):
         
         if os.path.isdir(modelfolder):
             tbldict.update(dict([(x[:-3], None) for x in os.listdir(modelfolder) if x.endswith('.py')]))
-
+            
         for tbl, cls in tbldict.items():
             if not tbl in self.tableMixinDict:
                 self.tableMixinDict[tbl] = GnrMixinObj()
@@ -344,10 +342,29 @@ class GnrPackage(object):
                 instanceMixin(self.tableMixinDict[tbl], cls)
                 
     def config_attributes(self):
-        """add???
+        """Return an empty dict. You can fill it with the following keys:
         
-        :returns: an empty dictionary
-        """
+        * ``sqlschema`` includes a string with the name of the database schema.
+        
+          .. note:: we suggest you to call with the same name both the schema and the
+                    package. For more information, check the
+                    :ref:`introduction to a package <genro_packages_introduction>`.
+                    
+        * ``comment`` includes a comment string.
+        * ``name_short`` includes a string of the :ref:`genro_name_short` of the schema.
+        * ``name_long`` includes a string of the :ref:`genro_name_long` of the schema.
+        * ``name_plural`` includes a string of the :ref:`genro_name_plural` of the schema.
+        
+        If you follow the instructions of the :ref:`genro_project_autocreation` documentation section,
+        you will find your :ref:`packages_main` file with the ``config_attributes`` method filled
+        as the following one::
+        
+            def config_attributes(self):
+                return dict(comment='packageName',sqlschema='packageName',
+                            name_short='packageName', name_long='packageName', name_full='packageName')
+                            
+        where ``packageName`` is the name of your package (as you can see, by default your schema will
+        be called with the same name of your package)."""
         return {}
         
     def onAuthentication(self, avatar):

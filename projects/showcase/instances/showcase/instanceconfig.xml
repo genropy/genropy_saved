@@ -1,17 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <GenRoBag>
     <packages>
-        <agenda />
+        <showcase />
         <gnrcore:adm />
         <gnrcore:sys />
-        <showcase:showcase />
-        <gnrcore:test15 />
-        <devlang:devlang />
-        <gnr_it:glbl />
         <gnrsw:sw_base />
+        <gnr_it:glbl />
     </packages>
-    <db dbname="agenda" /db>
-    <authentication pkg="agenda">
+    <db dbname="showcase"></db>
+    <authentication pkg="showcase">
         <py_auth defaultTags="user" pkg="adm" method="authenticate"></py_auth>
         <xml_auth defaultTags="users,xml">
             <genro pwd="developer" tags="_DEV_,admin,user,staff"/>

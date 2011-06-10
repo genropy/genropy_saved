@@ -36,8 +36,11 @@ class Public(BaseComponent):
             self._userRecord = self.db.table('adm.user').record(username=user).output('bag')
         return self._userRecord[path]
 
-        
+    
     def onMain_pbl(self):
+        self._init_pbl()
+        
+    def _init_pbl(self):
         pane = self.pageSource()
         userTable = self.pbl_userTable()
         if not self.isGuest and userTable:
@@ -476,34 +479,62 @@ class TableHandlerMain(BaseComponent):
             self.th_form(form)
         else:
             self._th_hook('form',mangler= self.maintable.replace('.','_'))(form)
-    
-    def _th_prepareForm(self,root,pkey=None,th_formResource=None,th_linker=None,
-                        th_selector=None,th_modal=None,th_navigation=None,th_showtoolbar=True,**kwargs):
-        pkey = pkey or kwargs.pop('th_pkey','*norecord*')
-        th_showtoolbar = boolean(th_showtoolbar)
+            
+    @extract_kwargs(store=True,th=True,default=dict(slice_prefix=False))
+    def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,th_formId=None,default_kwargs=None,**kwargs):
+        pkey = pkey or th_kwargs.pop('pkey','*norecord*')
         tableCode = self.maintable.replace('.','_')
-        self._th_mixinResource(tableCode,table=self.maintable,resourceName=th_formResource,defaultClass='Form')
+        formResource = th_kwargs.pop('formResource',None)
+       #th_formResource=None,th_linker=None,
+       #th_selector=None,th_modal=None,th_showtoolbar=True,th_navigation=None,
+       #th_public=None,
+        
+        self._th_mixinResource(tableCode,table=self.maintable,resourceName=formResource,defaultClass='Form')
+        resource_options = self._th_hook('options',mangler=tableCode,dflt=dict())()
+        
+        th_kwargs.update(resource_options)
         root.attributes.update(overflow='hidden')
-        form = root.frameForm(frameCode='mainform',table=self.maintable,
+        formId = th_kwargs.pop('formId','mainform')
+        public = boolean(th_kwargs.pop('public',False))
+        showtoolbar = boolean(th_kwargs.pop('showtoolbar',True))
+
+        if  public:
+            self._init_pbl()
+            root.attributes.update(_class='pbl_root')
+            root = root.rootContentPane(title=self.tblobj.name_long)
+        else:
+            root.attributes.update(tag='ContentPane',_class=None)
+        
+        form = root.frameForm(frameCode=formId,formId=formId,table=self.maintable,
                              store_startKey=pkey,
                              datapath='form',store='recordCluster')
-        if th_modal:
+        form.store.attributes.update(store_kwargs)
+        navigation = th_kwargs.pop('navigation',None)
+        if form.store.attributes.get('storeType') == 'Collection':
+            if navigation is not False:
+                navigation = True
+        if th_kwargs.get('modal'):
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
             bar = form.bottom.slotBar(slots,margin_bottom='2px')
             bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
             bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save")')    
-        elif th_showtoolbar:
+        elif showtoolbar:
             slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
-            if th_linker:
+            if th_kwargs.get('linker'):
                 slots = '*,|,semaphore,|,form_revert,form_save'
-            if th_selector:
+            if th_kwargs.get('selector'):
                 slots = slots.replace('*','5,form_selectrecord,*')
-            elif th_navigation:
+            elif navigation:
                 slots = 'form_navigation,%s' %slots
-                form.store.attributes.update(storeType='Collection')
-            form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')            
+            form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')   
+        form.dataController("""
+                                SET gnr.windowTitle = title;
+                            """,title='=.controller.title')       
+                            
+        form.store.handler('load',**default_kwargs)  
+        self._usePublicBottomMessage(form)
         return form
     
     def _usePublicBottomMessage(self,form):

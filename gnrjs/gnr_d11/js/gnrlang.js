@@ -231,7 +231,7 @@ function bagPathJoin(path1, path2) {
 }
 function objectPop(obj, key, dflt) {
     var result;
-    if ((obj instanceof Object) && (key in obj)) {
+    if (obj && (key in obj)) {
         result = obj[key];
         delete obj[key];
     } else {

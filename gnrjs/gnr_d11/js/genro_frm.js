@@ -130,7 +130,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
-        dojo.publish('form_'+this.formId+'_'+command,[kw]);
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:true}
+        genro.publish(topic,kw);
     },
     subscribe: function(command,cb,scope){
         if(command.indexOf(',')>=0){
@@ -412,7 +413,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(data){
             this.setFormData(data);
         }
-        this.publish('onLoaded',{pkey:this.getCurrentPkey()});
+        this.publish('onLoaded',{pkey:this.getCurrentPkey(),data:data});
         this._hideHider()
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
         var controllerData = this.getControllerData();
@@ -523,6 +524,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             that = this;
             if(onSaved=='reload' ||(destPkey&&(destPkey!=this.getCurrentPkey()))|| this.isNewRecord()){
                 cb=function(resultDict){
+                    if (resultDict.error){
+                        genro.dlg.alert(resultDict.error,'Error');
+                        that.setOpStatus();
+                        return;
+                    }
                     destPkey = destPkey || resultDict.savedPkey;
                     if(resultDict.loadedRecord){
                         that.setCurrentPkey(destPkey);
@@ -559,7 +565,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.store){
             savedPkey = result.savedPkey;
         }
-        this.publish('onSaved',{pkey:savedPkey});
+        this.publish('onSaved',{pkey:savedPkey,saveResult:result});
         this.publish('message',{message:this.msg_saved,sound:'$onsaved'});
         return result;
 
@@ -1319,7 +1325,10 @@ dojo.declare("gnr.formstores.Base", null, {
         var cb = function(result){
             if (result){
                 var resultDict={}
-                if(autoreload){
+                if (result.error){
+                    resultDict['error'] = result.error;
+                }
+                else if(autoreload){
                     var loadedRecordNode = result.getNode('loadedRecord');
                     var pkeyNode = result.getNode('pkey'); 
                     resultDict.savedPkey=pkeyNode.getValue();

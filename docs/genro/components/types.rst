@@ -21,6 +21,6 @@ dialog
 linker
 ======
 
-    A linker is a compound component that has got a :ref:`genro_dbselect` to select a record and
-    a div to show a preview or a summary of that record. It has two :ref:`genro_button`\s to add
-    and edit the current record.
+    A linker is a compound component that has (usually) got a :ref:`genro_dbselect` to select a
+    record and a div to show a preview or a summary of that record. It has two :ref:`genro_button`\s
+    to add and edit the current record.

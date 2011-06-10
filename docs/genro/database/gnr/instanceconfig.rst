@@ -84,27 +84,55 @@ Tags
     :ref:`genro_intro_resources`) of the packages you've imported. If you want to import one
     package, you have to:
     
-    * include its path into the ``<packages>`` of your :ref:`gnr_environment` file::
-    
-        <packages>
-            <my paths='~/yourRootPathForGenro/yourFolderPathOfYourProject' />
-        </packages>
+    #. include its path into the ``<packages>`` of your :ref:`gnr_environment` file::
+       
+         <packages>
+             <my paths='~/yourRootPathForGenro/.../yourFolderPathOfYourProject' />
+         </packages>
+         
+       add??? explanations of the syntax of the example above.
         
-    * include the package name into the ``<packages>`` tag of the ``instanceconfig.xml`` file::
-    
-        <packages>
-            <mypackage />
-        </packages>
-        
-      where ``mypackage`` is the name of your main package.
-    
-    Remember that in the ``<packages>`` tag you have at least put your main package, that is
-    the one where you put your :ref:`packages_model` and :ref:`webpages_webpages` folders.
-    
-    Remeber also to import the ``sys`` package::
-    
-        <gnrcore:sys />
-    
+    #. include the package name into the ``<packages>`` tag of the ``instanceconfig.xml`` file.
+       The syntax is::
+       
+         <projectName:packageName />
+         
+       where ``projectName`` is the name of the folder of the project, while ``packageName``
+       is the name of the package you need to import. You can obviously import many packages
+       from a single project.
+       
+       **Example:** if you need the ``invoice`` package and the ``taxes`` package from the
+       ``money`` project, you will write in your ``instanceconfig.xml`` file::
+       
+         <packages>
+             <money:invoice />
+             <money:taxes />
+         </packages>
+         
+       while in the :ref:`gnr_environment` file::
+       
+         <packages>
+             <my paths='~/yourRootPathForGenro/.../theFolderPathOfTheMoneyProject' />
+         </packages>
+         
+    .. note:: Remember that in the ``<packages>`` tag you have at least put your main package::
+              
+                <mypackage />
+              
+              With main package we mean the package where you put your :ref:`packages_model`
+              and :ref:`packages_webpages` folders.
+              
+    .. note:: Remeber also to import the ``sys`` package::
+              
+                <gnrcore:sys />
+                
+              So you will have [#]_::
+              
+                <packages>
+                    <mypackage />
+                    <gnrcore:sys />
+                </packages>
+                
 .. _instanceconfig_db:
 
 ``<db>``
@@ -220,4 +248,5 @@ Tags
         
 **Footnotes**:
 
+.. [#] Notice that for the package included in your project you may omit the name of the project in the syntax.
 .. [#] If you don't have a temporary user, please create it following the instructions of the :ref:`instanceconfig_xml_auth` paragraph

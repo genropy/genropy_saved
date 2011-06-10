@@ -1,11 +1,9 @@
-.. _genro_sql:
+.. _sql_introduction:
 
-===
-SQL
-===
+============
+introduction
+============
 
-    .. warning:: completely to do !!
-    
     add???
     
 .. _sql_relation:
@@ -36,6 +34,8 @@ sql attributes
 columns
 -------
 
+    .. module:: gnr.sql.gnrsqldata.SqlQueryCompiler
+    
     The ``columns`` attribute represents the :ref:`table_columns` to be returned by the
     "SELECT" clause in the traditional sql query.
     
@@ -50,7 +50,8 @@ columns
     * ``sqlfunction($colname, @relname.colname)``: ``$`` and ``@`` syntax can be used inside
       sql functions too 
     * ``*``: all the columns of the main table (with or without the bagFields)
-    * ``*filter``: all columns of the main table filtered (check the :meth:`expandMultipleColumns`)
+    * ``*filter``: all columns of the main table filtered (check the :meth:`expandMultipleColumns`
+      method)
     * ``*@relname.filter``: all columns of a related table filtered (see expandMultipleColumns)
     
     To select all the columns use the char '*'.
@@ -162,4 +163,3 @@ where
               Examples::
               
                 where="$date BETWEEN :mybirthday AND :christmas", mybirthday=mbd, christmas=xmas
-    
