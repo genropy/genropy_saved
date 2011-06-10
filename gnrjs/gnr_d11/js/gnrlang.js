@@ -35,6 +35,10 @@ function _px(v){
     }
     return v;
 };
+function isBag(value){
+    return value &&(value.htraverse!=null);
+};
+
 function pyref(ref,mode){    
     var node = genro.src._main.getNodeByAttr('__ref',ref);
     if (mode=='w'){

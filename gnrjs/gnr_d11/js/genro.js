@@ -255,13 +255,21 @@ dojo.declare('gnr.GenroClient', null, {
             genro.publish('onPageStart');
             var parentIframe = window.frameElement;
             if(parentIframe){
+                var parentGenroData = window.parent.genro._data;
+                genro._data.setCallBackItem('_frames._parent',
+                    function(){
+                        return parentGenroData;
+                    },null,{isGetter:true});
+                var frameName = parentIframe.sourceNode.attr.frameName;
+                if(frameName){
+                    var currentData = genro._data;
+                    parentGenroData.setCallBackItem('_frames.'+frameName,function(){
+                        return currentData;
+                    });
+                }                
                 parentIframe.sourceNode._genro = this;
                 parentIframe.sourceNode._dojo = dojo;
                 parentIframe.sourceNode.publish('pageStarted');
-
-                //if(parentIframe.sourceNode.onStartedFrame){
-                //    parentIframe.sourceNode.onStartedFrame();
-                //}
             }
         }, 100);
         genro.dev.shortcut('f1', function(e) {

@@ -18,7 +18,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var root = genro.src.newRoot();
         var bc = root._('BorderContainer',pageName,{pageName:pageName,title:label});
         var center = bc._('ContentPane',{'region':'center','overflow':'hidden'});
-        var iframeattr = {'height':'100%','width':'100%','border':0,'id':'iframe_'+pageName};
+        var iframeattr = {'height':'100%','width':'100%','border':0,'id':'iframe_'+pageName,frameName:pageName};
         var iframesbag = this.iframesbag;
         if(!iframesbag){
          iframesbag = this.iframesbag = new gnr.GnrBag();
