@@ -102,7 +102,7 @@ dojo.declare("gnr.GnrBagNode", null, {
     },
     orphaned:function(){
         this._parentbag = null;
-        if(this._value instanceof gnr.GnrBag){
+        if(isBag(this._value)){
             this._value.clearBackRef();
         }
         return this;
@@ -116,7 +116,7 @@ dojo.declare("gnr.GnrBagNode", null, {
         if (parentbag != null) {
             this._parentbag = parentbag;
             if (parentbag.hasBackRef()) {
-                if (this._value instanceof gnr.GnrBag) {
+                if (isBag(this._value)) {
                     this._value.setBackRef(/*node*/this, /*parent*/ parentbag);
                 }
             }
@@ -253,7 +253,7 @@ dojo.declare("gnr.GnrBagNode", null, {
             this._onChangedValue(this, value, oldvalue);
         }
         if (this._parentbag && this._parentbag._backref) {
-            if (value instanceof gnr.GnrBag) {
+            if (isBag(value)) {
                 value.setBackRef(this, this._parentbag);
             }
             if (doTrigger) {
@@ -431,7 +431,7 @@ dojo.declare("gnr.GnrBagNode", null, {
 
         var result = '';
 
-        if (nodeValue instanceof gnr.GnrBag) {
+        if (isBag(nodeValue)) {
             result = xml_buildTag(this.label,
                     nodeValue.toXmlBlock(kwargs),
                     this.getAttr(),
@@ -500,7 +500,7 @@ dojo.declare("gnr.GnrBag", null, {
             for (var i = 0; i < source.length; i++) {
                 this.setItem(source[i][0], source[i][1]);
             }
-        } else if (source instanceof gnr.GnrBag) {
+        } else if (isBag(source)) {
             var dest = this;
             source.forEach(function(node) {
                 dest.setItem(node.label, node.getValue(), objectUpdate({}, node.getAttr()));
@@ -564,7 +564,7 @@ dojo.declare("gnr.GnrBag", null, {
             var m = mode;
             var obj = res.value;
             var label = res.label;
-            if (obj instanceof gnr.GnrBag) {
+            if (isBag(obj)) {
                 return obj.get(label, dft, m);
             }
             else {
@@ -794,7 +794,7 @@ dojo.declare("gnr.GnrBag", null, {
             else return {"value": null, "label":null};
         }
         var finalize = dojo.hitch(this, function(newcurr) {
-            var isbag = (newcurr instanceof gnr.GnrBag);
+            var isbag = isBag(newcurr);
             if (autocreate && !isbag) {
                 var newcurr = new curr.constructor();
                 this._nodes[i].setValue(newcurr, false);
@@ -847,7 +847,7 @@ dojo.declare("gnr.GnrBag", null, {
                 attrString = '||' + attrString + '||';
             }
             value = el.getValue(mode); //verificare getValue
-            if (value instanceof gnr.GnrBag) {
+            if (isBag(value)) {
                 outlist.push(i + '-(' + value.declaredClass + ') ' + el.label + ': ' + attrString);
 
                 if (el.visited) {
@@ -896,7 +896,7 @@ dojo.declare("gnr.GnrBag", null, {
                 attrString = '<' + attrString + '>';
             }
             value = el.getValue(mode); //verificare getValue
-            if (value instanceof gnr.GnrBag) {
+            if (isBag(value)) {
                 outlist.push(i + '-(' + value.declaredClass + ') ' + el.label + ': ');
 
                 if (el.visited) {
@@ -1013,7 +1013,7 @@ dojo.declare("gnr.GnrBag", null, {
                 for (var j = 0; j < nodes.length; j++) {
                     x = nodes[j];
                     value = x.getValue();
-                    if (value instanceof gnr.GnrBag) {
+                    if (isBag(value)) {
                         aux.push(value.getItem(path));
                     }
                     else {
@@ -1047,7 +1047,7 @@ dojo.declare("gnr.GnrBag", null, {
                 for (var j = 0; j < nodes.length; j++) {
                     x = nodes[j];
                     value = x.getValue();
-                    if (value instanceof gnr.GnrBag) {
+                    if (isBag(value)) {
                         aux.push(value.getItem(w));
                     } else {
                         aux.push(null);
@@ -1255,7 +1255,7 @@ dojo.declare("gnr.GnrBag", null, {
         for (var i = 0; i < bagnodes.length; i++) {
             node = bagnodes[i];
             var value = node.getValue(mode);
-            value = (value instanceof gnr.GnrBag) ? value.deepCopy(deep) : value;
+            value = isBag(value) ? value.deepCopy(deep) : value;
             result.setItem(node.label, value, objectUpdate({}, node.attr));
         }
         return result;
@@ -1271,41 +1271,6 @@ dojo.declare("gnr.GnrBag", null, {
         };
         return this.walk(f, 'static');
     },
-    /*
-    getNodeByAttr: function(attr, value, path,caseInsensitive) {
-        var bags = [];
-
-        var nlen = this._nodes.length;
-        for (var i = 0; i < nlen; i++) {
-            var node = this._nodes[i];
-            if (node.hasAttr(attr, value)) {
-                if (path) {
-                    path.push(node.label);
-                }
-                return node;
-            }
-            if (node.getValue('static') instanceof gnr.GnrBag) {
-                bags.push(node);
-            }
-        }
-
-        var blen = bags.length;
-        for (var i = 0; i < blen; i++) {
-            var node = bags[i];
-            var nl;
-            if (path) {
-                nl = [node.label];
-            }
-            n = node.getValue('static').getNodeByAttr(attr, value, nl);
-            if (n) {
-                if (path) {
-                    path.concat(nl);
-                }
-                return n;
-            }
-        }
-    },
-    */
 
     /**
      * @id getNode
@@ -1441,7 +1406,7 @@ dojo.declare("gnr.GnrBag", null, {
             var kwargs = {};
         }
         if (path == '') {
-            if (value instanceof gnr.GnrBag) {
+            if (isBag(value)) {
                 for (var i = 0; i < value.getNodes().length; i++) {
                     var node = value.getNodes()[i];
                     var v = node.getResolver() || node.getValue();
@@ -1644,7 +1609,7 @@ dojo.declare("gnr.GnrBag", null, {
             result = callback(bagnodes[i], kw, i);
             if (result == null) {
                 var value = bagnodes[i].getValue(mode);
-                if ((!notRecursive) && (value instanceof gnr.GnrBag)) {
+                if ((!notRecursive) && (isBag(value))) {
                     result = value.walk(callback, mode, kw);
                 }
             }
@@ -1679,7 +1644,7 @@ dojo.declare("gnr.GnrBag", null, {
             for (var i = 0; i < this._nodes.length; i++) {
                 node = this._nodes[i];
                 value = node.getStaticValue();
-                if (value instanceof gnr.GnrBag) {
+                if (isBag(value)) {
                     value.clearBackRef();
                 }
             }
@@ -2219,7 +2184,7 @@ dojo.declare("gnr.GnrBagGetter", gnr.GnrBagResolver, {
 //*******************BagCbResolver****************************
 
 dojo.declare("gnr.GnrBagCbResolver", gnr.GnrBagResolver, {
-    init: function(kwargs) {
+    constructor: function(kwargs) {
         this.method = kwargs.method;
         this.parameters = kwargs.parameters;
     },
