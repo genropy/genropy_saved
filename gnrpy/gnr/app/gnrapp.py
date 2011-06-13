@@ -1095,10 +1095,11 @@ class GnrApp(object):
             if broadcast and broadcast is not True:
                 for field in broadcast.split(','):
                     newvalue = record.get(field)
-                    oldvalue = old_record.get(field)
                     r[field] = self.catalog.asTypedText(newvalue) #2011/01/01::D
-                    if newvalue!=oldvalue:
-                        r['old_%s' %field] = self.catalog.asTypedText(old_record.get(field))
+                    if old_record:
+                        oldvalue = old_record.get(field)
+                        if newvalue!=oldvalue:
+                            r['old_%s' %field] = self.catalog.asTypedText(old_record.get(field))
             dbevents.setdefault(tblobj.fullname,[]).append(r)
         audit_mode = tblobj.attributes.get('audit')
         if audit_mode:
