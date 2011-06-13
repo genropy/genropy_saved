@@ -483,6 +483,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     save: function(kw,modifiers) {
+        var kw = kw || {};
         var always;
         if (typeof(kw)=='object'){
             always=kw.command;
@@ -498,7 +499,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     this.fireControllerData('save_failed','invalid');
                     return 'invalid:' + invalid;
                 }
-                return this.do_save();
+                return this.do_save(kw.destPkey);
             } else {
                 this.fireControllerData('save_failed','nochange');
             }

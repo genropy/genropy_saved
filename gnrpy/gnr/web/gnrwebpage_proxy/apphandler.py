@@ -511,8 +511,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                          sortedBy=None, excludeLogicalDeleted=True,savedQuery=None,savedView=None, externalChanges=None,**kwargs):
         t = time.time()
         tblobj = self.db.table(table)
-        if externalChanges is not None:
-            self.page.subscribeTable(table,externalChanges)
         row_start = int(row_start)
         row_count = int(row_count)
         newSelection = True

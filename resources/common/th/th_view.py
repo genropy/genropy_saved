@@ -144,7 +144,8 @@ class TableHandlerView(BaseComponent):
         else:
             chunkSize = None
             selectionName = None
-
+        
+        self.subscribeTable(table,True)
         store = frame.grid.selectionStore(table=table, columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',

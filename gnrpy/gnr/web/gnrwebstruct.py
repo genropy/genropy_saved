@@ -865,7 +865,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return parent.child('SelectionStore',storepath=storepath, table=table, nodeId=nodeId,columns=columns,**kwargs)
         #ds = parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
-        
+    
+    def onDbChanges(self,action=None,table=None,**kwargs):
+        self.page.subscribeTable(table,True)
+        self.dataController(action,dbChanges="^gnr.dbchanges.%s" %table.replace('.','_'),**kwargs)
+    
     def dataSelection(self, path, table=None, method='app.getSelection', columns=None, distinct=None,
                       where=None, order_by=None, group_by=None, having=None, columnsFromView=None, **kwargs):
         """add???
