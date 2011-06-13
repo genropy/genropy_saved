@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
     <statiche label="!!Gestione Razze e Carriere">
-        <razze label="!!Razze" file="razze"/>
+        <razze label="!!Razze" file="razza_page"/>
         <carriere label="!!Carriere" file="carriere"/>
     </statiche>
     <dinamiche label="!!Gestione Personaggi">

@@ -8,7 +8,7 @@ Introduction
     
     Let's see an example of form:
     
-    .. image:: ../../images/form.png
+    .. image:: ../../_images/form.png
     
     In genro you can easy handle the creation of a form through the :ref:`genro_formbuilder`.
     

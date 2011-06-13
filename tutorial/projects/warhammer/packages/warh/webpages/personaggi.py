@@ -7,6 +7,9 @@ Copyright (c) 2008 Softwell. All rights reserved.
 from gnr.core.gnrbag import Bag
 from random import randint
 import datetime
+
+#NISO: this page needs to be upgraded to th mode...
+
 # --------------------------- GnrWebPage Standard header ---------------------------
 class GnrCustomWebPage(object):
     maintable = 'warh.personaggio'

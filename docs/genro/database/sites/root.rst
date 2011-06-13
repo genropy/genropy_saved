@@ -4,7 +4,7 @@
 ``root.py``
 ===========
 
-    .. image:: ../../images/projects/sites/root.png
+    .. image:: ../../_images/projects/sites/root.png
     
     In this file you have to put the WSGI declaration.
     

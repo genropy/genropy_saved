@@ -1,13 +1,13 @@
-.. _genro_simpleproject_index:
+.. _genro_tutorial_index:
 
-=====================
-creation of a project
-=====================
+==============
+Tutorial index
+==============
 
-    .. warning:: chapter to be rewritten completely!
+    add??? A short introduction...
     
 .. toctree::
     :maxdepth: 2
     
-    introduction
-    firststeps
+    project_creation/index
+    showcase/index

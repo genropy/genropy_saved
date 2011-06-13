@@ -4,7 +4,7 @@
 ``instanceconfig.xml``
 ======================
     
-    .. image:: ../../images/projects/instances/instanceconfig.png
+    .. image:: ../../_images/projects/instances/instanceconfig.png
     
     In this file you can modify the ``instanceconfig.xml`` of the specified
     :ref:`genro_project` you're workin' on.

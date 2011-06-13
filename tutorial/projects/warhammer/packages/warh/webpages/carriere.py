@@ -5,6 +5,8 @@ Created by Softwell on 2010-05-15.
 Copyright (c) 2008 Softwell. All rights reserved.
 """
 
+#NISO: this page needs to be upgraded to th mode...
+
 class GnrCustomWebPage(object):
     maintable = 'warh.carriera'
     py_requires = 'public:Public,standard_tables:TableHandlerLight,public:IncludedView'

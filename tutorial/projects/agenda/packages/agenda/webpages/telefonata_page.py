@@ -8,8 +8,7 @@ import datetime
 
 class GnrCustomWebPage(object):
     maintable = 'agenda.telefonata'
-    py_requires = """public:TableHandlerMain
-                     """
+    py_requires = """public:TableHandlerMain"""
     
     def pageAuthTags(self, method=None, **kwargs):
         return 'user'

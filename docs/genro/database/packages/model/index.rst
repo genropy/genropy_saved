@@ -4,7 +4,7 @@
 ``model``
 =========
     
-    .. image:: ../../../images/projects/packages/model.png
+    .. image:: ../../../_images/projects/packages/model.png
     
 .. toctree::
     :maxdepth: 1

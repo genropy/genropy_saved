@@ -52,7 +52,7 @@ class DbModel(object):
         
     @property
     def debug(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self.db.debug
         
     def build(self):

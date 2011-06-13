@@ -42,8 +42,8 @@ class View(BaseComponent):
         return '@anagrafica_id.cognome'
         
     def th_query(self):
-        return dict(column='@anagrafica_id.cognome', op='contains', val='', runOnStart=True)
-
+        return dict(column='@anagrafica_id.nome', op='contains', val='', runOnStart=True)
+        
 #class FormFromAzienda(BaseComponent):
 #    def th_form(self, form):
 #        pane = form.record

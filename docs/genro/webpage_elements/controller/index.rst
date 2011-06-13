@@ -8,7 +8,9 @@ controllers
     :maxdepth: 1
     
     introduction
+    data
     datacontroller
     dataformula
+    dataremote
     datarpc/index
     datascript

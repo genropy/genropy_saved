@@ -17,11 +17,10 @@ Requirements
 
     To use GenroPy, you'll need at least:
     
-    * Mac OS or Linux (Windows is possible but not preferred or covered here)
+    * Mac OS or Linux [#]_
     * Python 2.6
     * Postgres 8
-    * subversion
-    * git (optional)
+    * git
     
     Install **easy_install**::
     
@@ -47,17 +46,10 @@ Requirements
 How to obtain GenroPy
 =====================
 
-    .. warning:: add??? update!
+    Genropy is in a git repository. To obtain genropy, type::
     
-    Genropy is in a svn repository. If you use git then you can track local changes.
-    To obtain genropy, type::
-    
-        svn co http://svn.genropy.org/genro/trunk genro
-    
-    If you have the time here is the git alternative::
-    
-        git svn clone http://robertolupi@svn.genropy.org/genro/trunk genro
-
+        add???
+        
     .. _installingGenropy:
 
 Installing GenroPy
@@ -90,15 +82,31 @@ Project Examples
 
     GenroPy includes some tutorial projects:
     
-    Showcase - it is an incomplete but useful collection of examples.
-    (package and application: **showcase**, site: **testgarden**)
+    * **agenda**: an application to manage phone calls
+      (package, application and site: **agenda**)
+      
+    * **fatture1**: add???change to invoice! - it is a simple invoice application
+      (package: **invoices**, application and site: **fatture1**)
+      
+    * **showcase**: it is an incomplete but useful collection of examples.
+      (package, application and site: **showcase**)
+      
+    To create the database in postgres type::
     
-    Fatture1 --> add???change to invoice! - it is a simple invoice application
-    (package: **invoices**, application and site: **fatture1**)
+        gnrdbsetup instanceName
+        
+    where ``instanceName`` is the name of the instance of your :ref:`genro_project`.
     
-    To create the database in postgres and start the paste :ref:`genro_wsgi` development
-    webserver, type::
+    To start the paste :ref:`genro_wsgi` development webserver, type::
     
-        gnrdbsetup fatture1 --> add???change to invoice!
-        gnrwsgiserve fatture1 --> add???change to invoice!
+        gnrwsgiserve siteName
+        
+    where ``siteName`` is the name of the site folder of your :ref:`genro_project`.
+    
+   .. note:: We suggest you to begin with the **showcase** tutorial: follow the instructions
+             of the :ref:`genro_showcase_index` documentation section to start with it.
+             
+**Footnotes**
+
+.. [#] Windows is supported but it is not preferred and (until now) it is not yet documented
         

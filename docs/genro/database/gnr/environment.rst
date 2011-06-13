@@ -4,12 +4,18 @@
 ``environment.xml``
 ===================
 
-    .. image:: ../../images/projects/gnr/environment.png
+    .. image:: ../../_images/projects/gnr/environment.png
     
     * :ref:`environment_introduction`
     * The :ref:`environment_instances` tag
-    * The :ref:`environment_packages` tag
-    * The :ref:`environment_resources` tag
+    * The :ref:`environment_packages` tag:
+    
+        * :ref:`genro_packages`
+        
+    * The :ref:`environment_resources` tag:
+    
+        * :ref:`environment_resources_components`
+        
     * The :ref:`environment_sites` tag
     
 .. _environment_introduction:
@@ -43,15 +49,47 @@ Introduction
 <packages>
 ==========
 
-    add???
+    The ``<packages>`` tag allow you to specify the packages you want to import in
+    your project. Once they have been imported, you can use their resources, tables
+    and webpages. (add??? E allora cosa servono le tag instances resources projects...
+    AAARGH!!!)
     
-.. _environment_resources:
+    **Example:**
+    
+    ::
+    
+        <packages>
+            <my paths='~/yourRootPathForGenro/.../yourFolderPathOfYourPackages' />
+        </packages>
+        
+    where ``yourRootPathForGenro`` is your root path of your Genro installation.
+    
+.. _genro_packages:
+    
+standard Genro packages
+-----------------------
+    
+    To import the standard genro packages, please add the following tag in the
+    <packages> tag of the ``environment.xml``::
+    
+        <genro path="~/yourRootPathForGenro/genro/packages"/>
+        
+    where ``yourRootPathForGenro`` is your root path of your Genro installation.
+    
+    .. _environment_resources:
 
 <resources>
 ===========
 
-    To configure correctly the ``environment.xml`` file for the usage of :ref:`genro_component`\s,
-    you have to add the following tag::
+    add???
+
+.. _environment_resources_components:
+    
+usage of standard components
+----------------------------
+    
+    To configure correctly the ``environment.xml`` file for the usage of the
+    :ref:`components_standard`\s, you have to add the following tag::
     
        <genro path="$GNRHOME/resources/"/>
        

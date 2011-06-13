@@ -24,4 +24,3 @@ class Table(object):
         tbl.column('magia_base', 'L', default=0, name_long='!!Magia')
         tbl.column('fol_base', 'L', default=0, name_long='!!Punti Follia')
         tbl.column('pf_base', 'X', default=0, name_long='!!Punti Fato')
-        

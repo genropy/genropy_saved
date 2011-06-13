@@ -4,7 +4,7 @@
 Introduction
 ============
 
-    .. image:: ../../images/projects/instances/project_instances.png
+    .. image:: ../../_images/projects/instances/project_instances.png
     
     * :ref:`instances_map`
     * :ref:`instances_autofill`
@@ -26,7 +26,7 @@ Introduction
     ``instances`` folder you will find an ``instance`` folder including a ``custom`` folder,
     a ``data`` folder and the ``instanceconfig`` file.
     
-    .. image:: ../../images/projects/instances/instances1.png
+    .. image:: ../../_images/projects/instances/instances1.png
     
     where ``projectName`` is the name of your instance (we suggest you to call your instance
     with the name you gave to your project).
@@ -51,5 +51,5 @@ autocreation of the ``instances`` folder
     
     Your ``instances`` folder will look like this one:
     
-    .. image:: ../../images/projects/instances/instances2.png
+    .. image:: ../../_images/projects/instances/instances2.png
     

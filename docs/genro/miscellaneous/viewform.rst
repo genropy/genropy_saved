@@ -26,7 +26,9 @@ view-data window
     * visualize the records saved by the user.
     * make a query to search into records
     
-    .. image:: ../images/th/view.png
+    .. image:: ../_images/components/th/view.png
+    
+    add??? features!
     
 .. _genro_data_entry:
 
@@ -39,4 +41,6 @@ data-entry window
       with the right permits to perform these actions - check the add???
       documentation page for more information)
     
-    .. image:: ../images/th/form.png
+    .. image:: ../_images/components/th/form.png
+    
+    add??? features!

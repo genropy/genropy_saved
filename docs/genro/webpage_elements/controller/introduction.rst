@@ -1,11 +1,12 @@
 .. _genro_controllers_intro:
 
-===============================
-Introduction to the controllers
-===============================
+============
+Introduction
+============
 
     * :ref:`controllers_def`
-    * :ref:`controllers_client`, :ref:`controllers_server`
+    * :ref:`controllers_client`
+    * :ref:`controllers_server`
     * :ref:`controllers_attributes`
     * :ref:`controllers_examples`
     
@@ -15,58 +16,64 @@ Definition
 ==========
 
     The Genro controllers receive inputs and initiate a response by making calls on model objects.
-
+    
     We emphasize that all the controllers can be attached to every Genro object.
-
-    .. note:: we recommend you to read :ref:`genro_webpage` before reading this paragraph.
-
+    
+    .. note:: we recommend you to read :ref:`genro_webpage` before reading this section.
+    
     The controllers can be divided in two groups:
     
     * the :ref:`controllers_client`
     * the :ref:`controllers_server`
-
+    
 .. _controllers_client:
 
 client-side controllers
 =======================
 
     The client-side controllers work on the client through Javascript; they are:
-
-    * :ref:`genro_datacontroller`
-    * :ref:`genro_dataformula`
+    
+    * :ref:`genro_datacontroller`: allow to execute a Javascript code
+    * :ref:`genro_dataformula`: allow to insert a value into a specific address of the
+      :ref:`genro_datastore` calculated through a formula
     * :ref:`genro_datascript` (*deprecated*)
-
+    
 .. _controllers_server:
 
 server-side controllers
 =======================
 
     The server-side controllers work on the server thorugh Python; they are:
-
-    * :ref:`genro_datarecord`
-    * :ref:`genro_datarpc`
-    * :ref:`genro_dataselection`
-
+    
+    * :ref:`genro_data`: used to define variables from server to client
+    * :ref:`genro_datarecord`: add???
+    * :ref:`genro_dataremote`: synchronous rpc
+    * :ref:`genro_datarpc`: allow the client to make a call to the server to perform an action.
+    * :ref:`genro_dataselection`: add???
+    
 .. _controllers_attributes:
 
-commons attributes
-==================
+common attributes
+=================
 
     Let's see all the controllers' commons attributes:
     
-    * *_init*: Boolean; if True, the controller is executed when the line containing *_init* is read. Default value is ``False``. For more information, check the :ref:`controllers_init` example.
-    * *_onStart*: Boolean; if True, the controller is executed only after that all the line codes are read. Default value is ``False``. For more information, check the :ref:`controllers_onStart` example.
-    * *_timing*: number (seconds); the controller will be triggered every "x" seconds, where "x" is the number defined in this attribute. For more information, check the :ref:`controllers_timing` example.
-
+    * *_init*: Boolean; if True, the controller is executed when the line containing *_init* is read.
+      Default value is ``False``. For more information, check the :ref:`controllers_init` example.
+    * *_onStart*: Boolean; if True, the controller is executed only after that all the line codes are read.
+      Default value is ``False``. For more information, check the :ref:`controllers_onStart` example.
+    * *_timing*: number (seconds); the controller will be triggered every "x" seconds, where "x" is the
+      number defined in this attribute. For more information, check the :ref:`controllers_timing` example.
+      
 .. _controllers_examples:
 
-Examples
-========
+common attributes: examples
+===========================
 
 .. _controllers_init:
 
 ``init``
-========
+--------
     
     An example of the *_init* attribute::
         
@@ -90,7 +97,7 @@ Examples
 .. _controllers_onStart:
 
 ``onStart``
-===========
+-----------
     
     An example of the *_onStart* attribute::
     
@@ -104,7 +111,7 @@ Examples
 .. _controllers_timing:
 
 ``timing``
-==========
+----------
 
     An example of the *_timing* attribute::
     

@@ -689,7 +689,7 @@ class TimeInterval(object):
 
     @property
     def minutes(self):
-        """Decorator - :ref:`property`. The duration of this TimeInterval in minutes from the start.
+        """A decorator - :ref:`property`. The duration of this TimeInterval in minutes from the start.
         
         :type: int
         """
@@ -837,7 +837,7 @@ class TimePeriod(object):
 
     @property
     def intervals(self):
-        """Decorator - :ref:`property`. Returns the intervals in this TimePeriod.
+        """A decorator - :ref:`property`. Returns the intervals in this TimePeriod.
         
         :type: list
         """

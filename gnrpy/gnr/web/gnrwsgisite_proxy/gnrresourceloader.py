@@ -95,7 +95,7 @@ class ResourceLoader(object):
         
     @property
     def sitemap(self):
-        """Decorator - :ref:`property`. Return the sitemap Bag (if there is no sitemap, creates it)."""
+        """A decorator - :ref:`property`. Return the sitemap Bag (if there is no sitemap, creates it)."""
         if not hasattr(self, '_sitemap'):
             sitemap_path = os.path.join(self.site_path, 'sitemap.xml')
             if not os.path.isfile(sitemap_path):

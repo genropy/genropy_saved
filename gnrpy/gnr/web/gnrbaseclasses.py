@@ -96,8 +96,6 @@ def zzzcomponent_hook(func_or_name):
         register(name, func_or_name)
         return func_or_name
         
-
-
 class BaseComponent(object):
     """add???"""
     def __onmixin__(self, _mixinsource, site=None):

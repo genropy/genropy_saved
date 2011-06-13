@@ -33,7 +33,7 @@ Introduction
     * calculate values in real-time.
     * etc.
     
-    .. image:: ../images/bag/bag-resolver.png
+    .. image:: ../_images/bag/bag-resolver.png
 
 .. _bag_resolver:
 
@@ -278,4 +278,4 @@ Bag Formula: ``the defineSymbol()`` and the ``defineFormula()`` methods
     
     <??? Explain better!!! Now it's necessary to specify with more accuracy how does BagFormula work. The Bag who calls the ``defineFormula()``, ``defineSymbols()`` and ``formula()`` methods becomes a sort of namespace for our spreadsheet like system. It is the origin of the absolute paths and has two important properties that are the dictionary of the formulas and the one of the symbols. />
 
-    .. image:: ../images/bag/bag-resolver2.png
+    .. image:: ../_images/bag/bag-resolver2.png

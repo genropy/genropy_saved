@@ -4,7 +4,7 @@
 introduction
 ============
 
-    .. image:: ../../images/projects/packages/project_packages.png
+    .. image:: ../../_images/projects/packages/project_packages.png
     
     * :ref:`packages_autofill`
     
@@ -53,7 +53,7 @@ autocreation of a package
     In the following image you see the structure of a project called ``my_project`` with
     a package called ``base``:
     
-    .. image:: ../../images/projects/packages/autocreation_packages.png
+    .. image:: ../../_images/projects/packages/autocreation_packages.png
     
     You can create more than one package in your project, repeating the instructions
     of this section.

@@ -4,7 +4,7 @@
 ``resources``
 =============
 
-    .. image:: ../../images/projects/resources/project_resources.png
+    .. image:: ../../_images/projects/resources/project_resources.png
     
     This folder includes all your :ref:`genro_private_resource`\s.
     

@@ -1,8 +1,8 @@
 .. _genro_datastore:
 
-===========
- datastore
-===========
+=========
+datastore
+=========
 
     * :ref:`datastore_description`
     * :ref:`datastore_syntax`
@@ -57,14 +57,12 @@ Access to the datastore from javascript
 
 .. _datastore_debugger:
 
-The datastore graphical interface
-=================================
-
-..The Genro Team is going to change the GI developer tools: until it won't be stable, there is no interest to document this part
+datastore debugger
+==================
 
     You can access to its graphic interface from any Genro webpage by clicking ``ctrl+shift+D`` [#]_:
     
-    .. image:: ../images/datastore.png
+    .. image:: ../_images/datastore.png
 
 **Footnotes**
 

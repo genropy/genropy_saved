@@ -127,13 +127,12 @@ class GnrBaseWebPage(GnrObject):
     canonical_filename = property(_get_canonical_filename)
         
     def rpc_decodeDatePeriod(self, datestr, workdate=None, locale=None):
-        """add???
+        """A :ref:`genro_datarpc`. add???
         
         :param datestr: add???
-        :param workdate: add???. Default value is ``None``
-        :param locale: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param workdate: the working date. (e.g: ``DD/MM/YYYY``). The date format depends on the
+                         value of the *locale* parameter. Default value is ``None``
+        :param locale: add???. Default value is ``None``"""
         workdate = workdate or self.workdate
         locale = locale or self.locale
         period = datestr
@@ -456,28 +455,24 @@ class GnrBaseWebPage(GnrObject):
                            _formId=formId, **kwargs)
                            
     def rpc_loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
-        """add???
+        """A :ref:`genro_datarpc`. add???
         
         :param table: the :ref:`genro_table` name. Default value is ``None``
         :param pkey: the record primary key. Default value is ``None``
-        :param recordGetter: add???. Default value is ``app.getRecord``
-        :returns: add???
-        """
+        :param recordGetter: add???. Default value is ``app.getRecord``"""
         table = table or self.maintable
         getterHandler = self.getPublicMethod('rpc', recordGetter)
         record, recinfo = getterHandler(table=table, pkey=pkey, **kwargs)
         return record, recinfo
         
     def rpc_saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None, _autoreload=False, **kwargs):
-        """add???
+        """A :ref:`genro_datarpc`. add???
         
         :param data: add???
         :param table: the :ref:`genro_table` name. Default value is ``None``
         :param _nocommit: boolean. add???. Default value is ``False``
         :param rowcaption: add???. Default value is ``None``
-        :param _autoreload: boolean. add???. Default value is ``False``
-        :returns: add???
-        """
+        :param _autoreload: boolean. add???. Default value is ``False``"""
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
         onSavingMethod = 'onSaving'
@@ -519,12 +514,10 @@ class GnrBaseWebPage(GnrObject):
             return (pkey, resultAttr)
             
     def rpc_deleteRecordCluster(self, data, table=None, **kwargs):
-        """add???
+        """A :ref:`genro_datarpc`. add???
         
         :param data: add???
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :returns: add???
-        """
+        :param table: the :ref:`genro_table` name. Default value is ``None``"""
         maintable = getattr(self, 'maintable')
         table = table or maintable
         tblobj = self.db.table(table)
@@ -542,7 +535,7 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def rpc_deleteDbRow(self, table, pkey=None, **kwargs):
-        """Method for deleting a single record from a given table.
+        """A :ref:`genro_datarpc`. Method for deleting a single record from a given table.
         
         :param table: the :ref:`genro_table` from which you want to delete a single record
         :param pkey: the record primary key. Default value is ``None``
@@ -561,7 +554,7 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def rpc_deleteDbRows(self, table, pkeys=None, **kwargs):
-        """Method for deleting many records from a given table.
+        """A :ref:`genro_datarpc`. Method for deleting many records from a given table.
         
         :param table: the :ref:`genro_table` from which you want to delete a single record
         :param pkeys: 
@@ -578,11 +571,38 @@ class GnrBaseWebPage(GnrObject):
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
             
-            
     def setLoadingParameters(self, table, **kwargs):
-        """add???
+        """Set parameters at the path ``gnr.tables.TABLE.loadingParameters.PARAMETERNAME``.
         
-        :param table: the :ref:`genro_table` name"""
+        ``TABLE`` is the value you define for the *table* parameter. ``PARAMETERNAME`` is the
+        name you gave to the parameter.
+        
+        :param table: string. You can put the following strings:
+        
+                      * *maintable*: set a parameter value of a column of the table you define in the
+                        :ref:`webpages_maintable` :ref:`webpage variable <webpages_variables>`
+                      
+                            **Example:** if you have a package called ``agenda`` and a :ref:`genro_table`
+                            called ``staff`` and write in your :ref:`webpages_webpages`::
+                            
+                                maintable='staff'
+                                self.setLoadingParameters(table='maintable',price='10000')
+                                
+                            then you will find the value ``10000`` at the path:
+                            ``gnr.tables.maintable.loadingParameters.price``
+                        
+                      * *PACKAGENAME.TABLENAME*: set a parameter value of a column in the table called
+                        ``TABLENAME`` of the package ``PACKAGENAME`` at the path
+                        ``gnr.tables.PACKAGENAME_TABLENAME.loadingParameters.PARAMETERNAME``, where 
+                        ``PARAMETERNAME`` is the name you gave to the parameter.
+                        
+                            **Example:** if you have a package called ``agenda`` and a :ref:`genro_table`
+                            called ``staff`` and write in your :ref:`webpages_webpages`::
+                            
+                                self.setLoadingParameters(table='agenda.staff',price='10000')
+                                
+                            then you will find the value ``10000`` at the path:
+                            ``gnr.tables.agenda_staff.loadingParameters.price``"""
         self.pageSource().dataFormula('gnr.tables.%s.loadingParameters' % table.replace('.', '_'),
                                       '', _onStart=True, **kwargs)
                                       
@@ -696,11 +716,9 @@ class GnrBaseWebPage(GnrObject):
         return page
             
     def rpc_resolverRecall(self, resolverPars=None, **auxkwargs):
-        """add???
+        """A :ref:`genro_datarpc`. add???
         
-        :param resolverPars: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param resolverPars: add???. Default value is ``None``"""
         if isinstance(resolverPars, basestring):
             resolverPars = json.loads(resolverPars) #should never happen
         resolverclass = resolverPars['resolverclass']
@@ -727,22 +745,16 @@ class GnrBaseWebPage(GnrObject):
             return resolver()
             
     def rpc_resetApp(self, **kwargs):
-        """add???"""
+        """A :ref:`genro_datarpc`. add???"""
         self.siteStatus['resetTime'] = time.time()
         self.siteStatusSave()
         
     def rpc_applyChangesToDb(self, **kwargs):
-        """add???
-        
-        :returns: add???
-        """
+        """A :ref:`genro_datarpc`. add???"""
         return self._checkDb(applychanges=True)
         
     def rpc_checkDb(self):
-        """add???
-        
-        :returns: add???
-        """
+        """A :ref:`genro_datarpc`. add???"""
         return self._checkDb(applychanges=False)
         
     def _checkDb(self, applychanges=False, changePath=None, **kwargs):
@@ -759,10 +771,7 @@ class GnrBaseWebPage(GnrObject):
         return self.db.model.modelBagChanges
         
     def rpc_tableStatus(self, **kwargs):
-        """add???
-        
-        :returns: add???
-        """
+        """A :ref:`genro_datarpc`. add???"""
         strbag = self._checkDb(applychanges=False)
         for pkgname, pkg in self.db.packages.items():
             for tablename in pkg.tables.keys():
@@ -771,10 +780,7 @@ class GnrBaseWebPage(GnrObject):
         return strbag
         
     def createFileInData(self, *args):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         if args:
             path = os.path.join(self.siteFolder, 'data', *args)
             dirname = os.path.dirname(path)
@@ -784,10 +790,7 @@ class GnrBaseWebPage(GnrObject):
             return outfile
             
     def createFileInStatic(self, *args):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         if args:
             path = os.path.join(self.siteFolder, 'pages', 'static', *args)
             dirname = os.path.dirname(path)
@@ -797,10 +800,7 @@ class GnrBaseWebPage(GnrObject):
             return outfile
             
     def createFolderInData(self, *args):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         if args:
             path = os.path.join(self.siteFolder, 'data', *args)
             if not os.path.exists(path):
@@ -808,10 +808,7 @@ class GnrBaseWebPage(GnrObject):
             return path
             
     def createFolderInStatic(self, *args):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         if args:
             path = os.path.join(self.siteFolder, 'pages', 'static', *args)
             if not os.path.exists(path):
