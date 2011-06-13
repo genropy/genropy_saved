@@ -26,6 +26,7 @@ import logging
 import shutil
 
 import sys
+import imp
 import os
 import hashlib
 import re
@@ -46,6 +47,95 @@ from gnr.core.gnrsys import expandpath
 from gnr.sql.gnrsql import GnrSqlDb
 
 log = logging.getLogger(__name__)
+
+class NullLoader(object):
+    def load_module(self,fullname):
+        if fullname in sys.modules:
+            return sys.modules[fullname]
+
+class GnrModuleFinder(object):
+
+    path_list=[]
+
+    def __init__(self, path_entry, app):
+        self.path_entry = path_entry
+        self.app = app
+        self.instance_lib = os.path.join(app.instanceFolder, 'lib')
+        if not path_entry==self.instance_lib and not path_entry in self.path_list:
+            raise ImportError
+        return
+
+    def __str__(self):
+        return '<%s for "%s">' % (self.__class__.__name__, self.path_entry)
+
+    def find_module(self, fullname, path=None):
+        path = path or self.path_entry
+        splitted=fullname.split('.')
+        if splitted[0] == 'gnrpkg' and len(splitted)==1:
+            if 'gnrpkg' in sys.modules:
+                pkg_module=sys.modules['gnrpkg']
+            else:
+                pkg_module=imp.new_module('gnrpkg')
+                sys.modules['gnrpkg']=pkg_module
+                pkg_module.__file__ = None
+                pkg_module.__name__ = 'gnrpkg'
+                pkg_module.__path__ = [self.instance_lib]
+                pkg_module.__loader__ = self
+                pkg_module.__package__ = 'gnrpkg'
+            return NullLoader()
+        elif splitted[0] == 'gnrpkg' and len(splitted)==2:
+            pkg = splitted[1]
+            pkg_module = self._get_gnrpkg_module(pkg)
+            if pkg_module:
+                return NullLoader()
+        elif splitted[0] == 'gnrpkg' and len(splitted)>2:
+            pkg = splitted[1]
+            mod_fullname='.'.join(splitted[2:])
+            if pkg in self.app.packages:
+                pkg_module = self._get_gnrpkg_module(pkg)
+                mod_file,mod_pathname,mod_description=imp.find_module(mod_fullname, pkg_module.__path__)
+                return GnrModuleLoader(mod_file,mod_pathname,mod_description)
+        return None
+        
+    def _get_gnrpkg_module(self, pkg):
+        gnrpkg = self.app.packages[pkg]
+        gnrpkg_module_name= 'gnrpkg.%s'%pkg 
+        if gnrpkg_module_name in sys.modules:
+            pkg_module=sys.modules[gnrpkg_module_name]
+        else:
+            pkg_module=imp.new_module(gnrpkg_module_name)
+            sys.modules[gnrpkg_module_name]=pkg_module
+            if os.path.isdir(os.path.join(gnrpkg.customFolder,'lib')):
+                module_path=[os.path.join(gnrpkg.customFolder,'lib')]
+            else:
+                module_path=[]
+            module_path.append(os.path.join(gnrpkg.packageFolder,'lib'))
+            pkg_module.__file__ = None
+            pkg_module.__name__ = gnrpkg_module_name
+            pkg_module.__path__ = module_path
+            self.path_list.extend(module_path)
+            pkg_module.__loader__ = self
+            pkg_module.__package__ = 'gnrpkg'
+        return pkg_module
+            
+class GnrModuleLoader(object):
+
+    def __init__(self, file, pathname, description):
+        self.file=file
+        self.pathname=pathname
+        self.description=description
+
+    def load_module(self, fullname):
+        if fullname in sys.modules:
+            mod = sys.modules[fullname]
+        else:
+            try:
+                mod = imp.load_module(fullname,self.file, self.pathname, self.description)
+                sys.modules[fullname]=mod
+            finally:
+                if self.file:
+                    self.file.close()
+        return mod
 
 class GnrImportException(GnrException):
     """add???"""
@@ -340,6 +430,8 @@ class GnrApp(object):
         if not os.path.isdir(instanceFolder):
             instanceFolder = self.instance_name_to_path(instanceFolder)
         self.instanceFolder = instanceFolder
+        sys.path.append(os.path.join(self.instanceFolder, 'lib'))
+        sys.path_hooks.append(self.get_modulefinder)
         self.pluginFolder = os.path.normpath(os.path.join(self.instanceFolder, 'plugin'))
         self.kwargs = kwargs
         self.packages = Bag()
@@ -365,6 +457,8 @@ class GnrApp(object):
         self.init(forTesting=forTesting)
         self.creationTime = time.time()
 
+    def get_modulefinder(self, path_entry):
+        return GnrModuleFinder(path_entry,self)
 
     def set_environment(self):
         """add???

@@ -3009,7 +3009,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if(!rowdata){
             console.log('no rowdata:',rowdata);
         }
-        return this._customGetter ? this._customGetter.call(this, rowdata) : rowdata[this.field];
+        return this._customGetter ? this._customGetter.call(this, rowdata,inRowIndex) : rowdata[this.field];
     },
 
     mixin_rowCached:function(inRowIndex) {

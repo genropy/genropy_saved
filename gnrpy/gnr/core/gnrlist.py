@@ -376,7 +376,7 @@ class GnrNamedList(list):
             result[v] = k
         return result
         
-    def pop(self, x):
+    def pop(self, x,dflt=None):
         """Same of ``pop`` method's dict
         
         :param x: add???
