@@ -1636,7 +1636,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param table: the :ref:`genro_table` name. Default value is ``None``
         :param methodname: the name of the :ref:`datarpc_method`. Default value is ``None``"""
-        getattr(self.db.table(table),'rpc_%s' %methodname)(self,**kwargs)
+        getattr(self.db.table(table),'rpc_%s' %methodname)(**kwargs)
         
     def lazyBag(self, bag, name=None, location='page:resolvers'):
         """add???
