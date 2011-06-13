@@ -6,12 +6,12 @@ class Package(GnrDboPackage):
     def config_attributes(self):
         return dict(comment='warh package', sqlschema='warh',
                     name_short='Warh', name_long='Warh', name_full='Warh')
-
+                    
     def config_db(self, pkg):
         pass
-
+        
     def loginUrl(self):
         return 'warh/login'
-
+        
 class Table(GnrDboTable):
     pass
