@@ -4,7 +4,7 @@
 dataRpc
 =======
 
-    The ``dataRpc`` belongs to :ref:`genro_datarpc` family, so it is a
+    The ``dataRpc`` belongs to dataRpc family, so it is a
     :ref:`server-side controller <controllers_server>`.
     
     * :ref:`datarpc_def`
@@ -21,27 +21,31 @@ Definition
       To do this, you can use ``_fired='^anotherFolderPath'``; in this case the dataRpc
       is triggered whenever the value contained in ``anotherFolderPath`` changes;
       the "_" is used to hide the trigger parameter in the :ref:`genro_datastore`.
-    * To use a ``dataRpc`` you have to:
       
-        #. define the ``dataRpc`` into the main with the main method
+    To use a ``dataRpc`` you have to:
+      
+    #. define the ``dataRpc``
+    #. create a method called :ref:`datarpc_method`
+      
+.. _datarpc_method:
         
-        #. create a class method called the ``rpc server method``.
-        
-        * In the ``rpc server method`` there will be executed a server action;
-          you can optionally return a value. The syntax is::
+rpc method
+----------
+
+    In the ``rpc method`` there will be executed a server action;
+    you can optionally return a value. The syntax is::
+    
+      def rpc_RpcName(self,args):
+          return something
           
-            def rpc_RpcName(self,args):
-                return something
-              
-        Where: 
+    Where: 
+    
+    * ``RpcName`` is the name of your ``dataRpc``
+    * ``args`` contains all the paramaters passed from the ``dataRpc``
         
-        * ``RpcName`` is the name of your ``dataRpc``; clearly, you have to put the same name that
-          you gave to the ``dataRpc`` in the main.
-        * ``args`` contains all the paramaters passed from the main.
-            
-    * In the rpc you can return something, but as we explained in the ``dataRpc`` :ref:`datarpc_def` paragraph,
-      you can skip this parameter if you want to perform only a server action; alternatively, it allows to
-      return a value into the ``path`` of the ``dataRpc``.
+    * In the rpc you can return something, but as we explained in the ``dataRpc`` :ref:`datarpc_def`
+      section, you can skip this parameter if you want to perform only a server action;
+      alternatively, it allows to return a value into the ``path`` of the ``dataRpc``.
     
 .. _datarpc_examples:
     

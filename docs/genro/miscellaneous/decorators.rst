@@ -38,7 +38,7 @@ decorators
 @public_method
 ==============
 
-    add???
+    It can be used to mark functions as rpc. add??? (link to rpc method?)
     
 .. _struct_method:
 

@@ -66,7 +66,7 @@ def deprecated(func):
     return newFunc
         
 def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
-    """Decorator. add???"""
+    """A decorator. add???"""
     if _dictkwargs:
         extract_kwargs = _dictkwargs
     def decore(func):
@@ -868,7 +868,7 @@ def base_visitor(cls):
 def instanceMixin(obj, source, methods=None, attributes=None, only_callables=True,
                   exclude='js_requires,css_requires,py_requires',
                   prefix=None,mangling_kwargs=None,**kwargs):
-    """Decorator - :ref:`extract_kwargs`. Add to the instance obj methods from 'source'.
+    """A decorator - :ref:`extract_kwargs`. Add to the instance obj methods from 'source'.
     
     :param obj: add???
     :param source: it can be an instance or a class

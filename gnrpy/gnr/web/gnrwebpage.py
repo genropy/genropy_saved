@@ -131,7 +131,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def call_args(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self._call_args
         
     def getCallArgs(self,*args):
@@ -339,7 +339,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def isGuest(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self.user == self.connection.guestname
         
     def rpc_doLogin(self, login=None, guestName=None, **kwargs):
@@ -821,7 +821,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def subscribedTablesDict(self):
-        """Decorator - :ref:`property`. Return a dict of subscribed tables. Every element is a list
+        """A decorator - :ref:`property`. Return a dict of subscribed tables. Every element is a list
            of *page_id*\'s that subscribe that page"""
         if not hasattr(self, '_subscribedTablesDict'):
             self._subscribedTablesDict = self.db.table('adm.served_page').subscribedTablesDict()
@@ -829,41 +829,41 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def application(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self.site.gnrapp
         
     @property
     def app(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         if not hasattr(self, '_app'):
             self._app = GnrWebAppHandler(self)
         return self._app
         
     @property
     def btc(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         if not hasattr(self, '_btc'):
             self._btc = GnrWebBatch(self)
         return self._btc
         
     @property
     def catalog(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self.application.catalog
         
     @property
     def userTags(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self.connection.user_tags
         
     @property
     def user(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self.connection.user
         
     @property
     def connection_id(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self.connection.connection_id
         
     def _set_avatar(self, avatar):
@@ -1058,8 +1058,8 @@ class GnrWebPage(GnrBaseWebPage):
     def getResourceContent(self, resource=None, ext=None, pkg=None):
         """A decorator - :ref:`public_method`. add???
         
-        :param resource: add???`. Default value is ``None``
-        :param ext: add???`. Default value is ``None``
+        :param resource: add???. Default value is ``None``
+        :param ext: add???. Default value is ``None``
         :param pkg: the package name. For more information on a package, check the
                     :ref:`genro_packages_index` documentation page. Default value is ``None``"""
         path =self.getResource(path=resource,ext=ext,pkg=pkg)
@@ -1629,9 +1629,13 @@ class GnrWebPage(GnrBaseWebPage):
         :param table: the :ref:`genro_table` name
         :returns: add???"""
         return self._prepareGridStruct(struct,table)
-  
+        
     @public_method
     def callTableMethod(self,table=None,methodname=None,**kwargs):
+        """A decorator - :ref:`public_method`. add???
+        
+        :param table: the :ref:`genro_table` name. Default value is ``None``
+        :param methodname: the name of the :ref:`datarpc_method`. Default value is ``None``"""
         getattr(self.db.table(table),'rpc_%s' %methodname)(self,**kwargs)
         
     def lazyBag(self, bag, name=None, location='page:resolvers'):

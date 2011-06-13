@@ -213,7 +213,7 @@ class GnrWsgiSite(object):
         
     @property
     def shared_data(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         if not hasattr(self, '_shared_data'):
             memcache_config = self.config['memcache']
             if memcache_config:
@@ -225,7 +225,7 @@ class GnrWsgiSite(object):
         
     @property
     def guest_counter(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         self._guest_counter += 1
         return self._guest_counter
         

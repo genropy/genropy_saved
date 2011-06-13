@@ -111,17 +111,17 @@ class GnrDomSrc(GnrStructData):
 
     @property
     def js_widget(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self.js_sourceNode('w')
     
     @property
     def js_domNode(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self.js_sourceNode('d')
         
     @property
     def js_form(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self.js_sourceNode('f')
     
     def makeRoot(cls, page, source=None):
@@ -257,7 +257,7 @@ class GnrDomSrc(GnrStructData):
         
     @property
     def record(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         assert self.attributes['tag'] == 'FrameForm','only on FrameForm'
         return self.center.contentPane(datapath='.record')
         

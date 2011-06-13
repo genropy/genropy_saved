@@ -59,7 +59,7 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     @property
     def db(self):
-        """Decorator - :ref:`property`. add???"""
+        """A decorator - :ref:`property`. add???"""
         return self.page.db
 
     def getDb(self, dbId=None):

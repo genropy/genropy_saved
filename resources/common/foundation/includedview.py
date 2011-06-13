@@ -24,11 +24,10 @@ from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
 
 class IncludedView(BaseComponent):
-    """
-    IncludedView allows you to manage data of the table in relation many to many. includedViewBox is the main method of this class.
-    """
+    """IncludedView allows you to manage data of the table in relation many to many.
+    includedViewBox is the main method of this class."""
     js_requires = 'public'
-    py_requires = 'gnrcomponents/framegrid:FrameGrid,foundation/macrowidgets:FilterBox'    
+    py_requires = 'gnrcomponents/framegrid:FrameGrid,foundation/macrowidgets:FilterBox'
     
     @struct_method
     def ivnew_adaptSlotbar(self,pane,label=None,slots=None,hasToolbar=False,**kwargs):
@@ -104,7 +103,7 @@ class IncludedView(BaseComponent):
                         **kwargs):
         """\
         This method returns a grid (includedView) for viewing and selecting rows from a many
-        to many table related to the main table, and the widget that allow to edit data.
+        to many table related to the main table, and it returns the widget that allows to edit data.
         You can edit data of a single row (record) using a form (formPars), or picking some rows
         from another table with the picker widget (pickerPars).
         The form can be contained inside a dialog or a contentPane and is useful to edit a single record.
@@ -121,7 +120,7 @@ class IncludedView(BaseComponent):
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
                          Default value is ``None``. For more information, check the :ref:`genro_datapath` and the
                          :ref:`genro_datastore` pages.
-        :param storepath: add???. Default value is ``None``.
+        :param storepath: the path of the data of the includedViewBox. Default value is ``None``.
         :param selectionPars: add???. Default value is ``None``.
         :param formPars: (dict) it contains all the params of the widget who hosts the form.
                          Default value is ``None``.
@@ -739,7 +738,5 @@ class IncludedView(BaseComponent):
             frame.top.slotBar(','.join(slots),_class='slotbar_toolbar pbl_roundedGroupLabel',**slotsKw)
         else:
             frame.top.slotToolbar(','.join(slots),**slotsKw)
-
-        
         return frame.grid
-        
+                
