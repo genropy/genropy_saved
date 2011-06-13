@@ -1632,7 +1632,7 @@ class GnrWebPage(GnrBaseWebPage):
   
     @public_method
     def callTableMethod(self,table=None,methodname=None,**kwargs):
-        getattr(self.db.table(table),'rpc_%s' %methodname)(self,**kwargs)
+        getattr(self.db.table(table),'rpc_%s' %methodname)(**kwargs)
         
     def lazyBag(self, bag, name=None, location='page:resolvers'):
         """add???
