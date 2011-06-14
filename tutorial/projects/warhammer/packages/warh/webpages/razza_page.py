@@ -56,8 +56,14 @@ class GnrCustomWebPage(object):
                                   add_action=True,
                                   del_action=True,
                                   nodeId='FeriteGrid',
-                                  storepath='.fer_base', # path of data
+                                  storepath='.fer_base',
+                                  # the storepath is the path of data of an includedViewBox;
+                                  # the standard storepath is: "PACKAGENAME_TABLENAME.form.record.STOREPATH"
+                                  # - Example: here the standard storepath is "warh_razza.form.record.fer_base"
                                   struct=self.ferite_struct,
+                                  #datapath='grids.FeriteGrid',
+                                  #standard datapath: "grids.NODEID"
+                                  # - Example: here the standard datapath is "grids.FeriteGrid"
                                   datamode='bag',
                                   label='!!Punti Ferita')
                                   
