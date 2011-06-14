@@ -43,13 +43,13 @@ class GnrCustomWebPage(object):
         bottom.button('!!Save', baseClass='bottom_btn', float='right', margin='1px',
                       action='genro.formById("preference").save(true)')
         bottom.button('!!Cancel', baseClass='bottom_btn', float='right', margin='1px',
-                      fire='frame.close')
+                      action='window.parent.genro.wdgById("userpreference").hide();')
 
     def controllers(self, pane):
         pane.dataController("""parent.genro.fireEvent("#userpreference.close");""", _fired="^frame.close")
         pane.dataController("genro.formById('preference').load()", _onStart=True)
         pane.dataRpc('dummy', 'savePreference', data='=preference', nodeId='preference_saver',
-                     _onResult='genro.formById("preference").saved();FIRE frame.setOnParent;FIRE frame.close;')
+                     _onResult='genro.formById("preference").saved();FIRE frame.setOnParent;window.parent.genro.wdgById("userpreference").hide();')
         pane.dataRpc('preference', 'loadPreference', nodeId='preference_loader',
                      _onResult='genro.formById("preference").loaded();')
 
