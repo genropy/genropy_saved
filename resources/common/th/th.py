@@ -108,9 +108,11 @@ class TableHandler(BaseComponent):
                                         default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,formResource=formResource,
                         store_startKey=th_pkey,table=table,loadEvent=loadEvent,form_locked=True,
-                        default_kwargs=default_kwargs,formInIframe=formInIframe,readOnly=readOnly)   
-        wdg.form.top.bar.replaceSlots('|,dismiss','') 
-        wdg.form.top.bar.replaceSlots('navigation,|','') 
+                        default_kwargs=default_kwargs,formInIframe=formInIframe,readOnly=readOnly)
+        formtop = wdg.form.top  
+        if formtop and formtop.bar:
+            formtop.bar.replaceSlots('|,dismiss','') 
+            formtop.bar.replaceSlots('navigation,|','') 
 
         def regionAdapter(kw,**defaults):
             defaults.update(kw)
@@ -137,10 +139,10 @@ class TableHandler(BaseComponent):
                         formInIframe=formInIframe,readOnly=readOnly)    
         return wdg
         
-    @extract_kwargs(default=True)
+    @extract_kwargs(default=True,page=True)
     @struct_method
     def th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,
-                            formInIframe=False,reloader=None,default_kwargs=None,**kwargs):
+                            formInIframe=False,reloader=None,default_kwargs=None,dbname=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,formInIframe=formInIframe,reloader=reloader,
@@ -153,6 +155,10 @@ class TableHandler(BaseComponent):
         grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         grid.dataController("""
+            if(dbname){
+                formUrl = '/'+dbname+formUrl;
+                console.log(formUrl);
+            }
             if(!this._pageHandler){
                 this._pageHandler = new gnr.pageTableHandlerJS(this,_formId,mainpkey,formUrl,default_kwargs,formResource);
             }
@@ -161,7 +167,7 @@ class TableHandler(BaseComponent):
                 this._pageHandler.openPage(pkey);
             }
         """,formUrl=formUrl,formResource=formResource,pkey='^.editrow',_formId=fakeFormId,
-           default_kwargs=default_kwargs,_fakeform=True,mainpkey='^#FORM.pkey')
+           default_kwargs=default_kwargs,_fakeform=True,mainpkey='^#FORM.pkey',dbname=dbname)
         return th    
         
     @struct_method

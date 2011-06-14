@@ -485,19 +485,12 @@ class TableHandlerMain(BaseComponent):
         pkey = pkey or th_kwargs.pop('pkey','*norecord*')
         tableCode = self.maintable.replace('.','_')
         formResource = th_kwargs.pop('formResource',None)
-       #th_formResource=None,th_linker=None,
-       #th_selector=None,th_modal=None,th_showtoolbar=True,th_navigation=None,
-       #th_public=None,
-        
         self._th_mixinResource(tableCode,table=self.maintable,resourceName=formResource,defaultClass='Form')
         resource_options = self._th_hook('options',mangler=tableCode,dflt=dict())()
-        
         th_kwargs.update(resource_options)
         root.attributes.update(overflow='hidden')
         formId = th_kwargs.pop('formId','mainform')
         public = boolean(th_kwargs.pop('public',False))
-        showtoolbar = boolean(th_kwargs.pop('showtoolbar',True))
-
         if  public:
             self._init_pbl()
             root.attributes.update(_class='pbl_root')
@@ -509,37 +502,19 @@ class TableHandlerMain(BaseComponent):
                              store_startKey=pkey,
                              datapath='form',store='recordCluster')
         form.store.attributes.update(store_kwargs)
-        navigation = th_kwargs.pop('navigation',None)
-        if form.store.attributes.get('storeType') == 'Collection':
-            if navigation is not False:
-                navigation = True
-        if th_kwargs.get('modal'):
-            slots='revertbtn,*,cancel,savebtn'
-            form.attributes['hasBottomMessage'] = False
-            bar = form.bottom.slotBar(slots,margin_bottom='2px')
-            bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
-            bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
-            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save")')    
-        elif showtoolbar:
-            slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
-            if th_kwargs.get('linker'):
-                slots = '*,|,semaphore,|,form_revert,form_save'
-            if th_kwargs.get('selector'):
-                slots = slots.replace('*','5,form_selectrecord,*')
-            elif navigation:
-                slots = 'form_navigation,%s' %slots
-            form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')   
+        self.th_formOptions(form,options=th_kwargs)
         form.dataController("""
                                 SET gnr.windowTitle = title;
-                            """,title='=.controller.title')       
-                            
-        form.store.handler('load',**default_kwargs)  
-        self._usePublicBottomMessage(form)
+                            """,title='=.controller.title')    
+        if th_kwargs.get('showfooter',True):
+            self._usePublicBottomMessage(form)
+        form.store.handler('load',**default_kwargs)
         return form
+        
     
     def _usePublicBottomMessage(self,form):
-         form.attributes['hasBottomMessage'] = False
-         form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
+        form.attributes['hasBottomMessage'] = False
+        form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
     
     def rpc_view(self,root,**kwargs):
         pass

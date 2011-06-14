@@ -663,7 +663,6 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
 
 });
 
-
 dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
         var frameNode = sourceNode.getParentNode().getParentNode();

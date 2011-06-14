@@ -13,6 +13,7 @@ class ChunkEditor(BaseComponent):
     
     @struct_method
     def htmlchunk_htmlChunk(self, pane, nodeId=None, data=None, dflt=None, table=None, **kwargs):
+        self.__prepare()
         pane.div(innerHTML="==dataTemplate(tpl,data)",
                  tpl="^gnr.htmlchunk.%s.content" % nodeId,
                  data=data,
@@ -32,7 +33,7 @@ class ChunkEditor(BaseComponent):
         return pane
 
 
-    def onMain_chunkeditor(self):
+    def __prepare(self):
         if not self.isDeveloper():
             return
         page = self.pageSource()
