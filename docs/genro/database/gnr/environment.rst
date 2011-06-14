@@ -62,7 +62,7 @@ Introduction
             <my paths='~/yourRootPathForGenro/.../yourFolderPathOfYourPackages' />
         </packages>
         
-    where ``yourRootPathForGenro`` is your root path of your Genro installation.
+    where ``yourRootPathForGenro`` is your root path of your Genro application.
     
 .. _genro_packages:
     
@@ -74,7 +74,7 @@ standard Genro packages
     
         <genro path="~/yourRootPathForGenro/genro/packages"/>
         
-    where ``yourRootPathForGenro`` is your root path of your Genro installation.
+    where ``yourRootPathForGenro`` is your root path of your Genro application.
     
     .. _environment_resources:
 

@@ -682,11 +682,11 @@ class IncludedView(BaseComponent):
         self._includedViewFormBody(recordBC, controller, storepath, gridId, formPars)
         
     @extract_kwargs(_dictkwargs={'add':True,'del':True,'upd':True,'print':True,'export':True,'tools':True,'top':True})
-    def includedGrid(self, parentBC, nodeId=None,frameCode=None,datapath=None,struct=None,table=None,pbl_classes=True,
-                        storepath=None, label=None, caption=None,filterOn=None,editorEnabled=None,canSort=True,dropCodes=None,
-                        add_kwargs=None,del_kwargs=None,upd_kwargs=None,print_kwargs=None,export_kwargs=None,tools_kwargs=None,
-                        top_kwargs=None,datamode=None,**kwargs):
-        assert not 'selectionPars' in kwargs, 'use tableviewer instead of or attach a selectionStore'
+    def includedGrid(self, parentBC,nodeId=None,frameCode=None,datapath=None,struct=None,table=None,pbl_classes=True,
+                     storepath=None,label=None,caption=None,filterOn=None,editorEnabled=None,canSort=True,dropCodes=None,
+                     add_kwargs=None,del_kwargs=None,upd_kwargs=None,print_kwargs=None,export_kwargs=None,tools_kwargs=None,
+                     top_kwargs=None,datamode=None,**kwargs):
+        assert not 'selectionPars' in kwargs, 'instead of the selectionPars use the tableviewer or attach a selectionStore'
         assert not 'formPars' in kwargs, 'no longer supported'
         assert not 'lock_action' in kwargs, 'no longer supported'
         assert not 'footer' in kwargs, 'no longer supported'
@@ -712,7 +712,7 @@ class IncludedView(BaseComponent):
         if pbl_classes:
             kwargs['_class'] = kwargs.get('_class','') + ' pbl_roundedGroup'
         frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,
-                                grid_nodeId=nodeId,grid_datamode=datamode,grid_table=table,**kwargs)
+                               grid_nodeId=nodeId,grid_datamode=datamode,grid_table=table,**kwargs)
         if storepath.startswith('.'):
             storepath = '#FORM.record%s' %storepath
         gridattr = frame.grid.attributes

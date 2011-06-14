@@ -73,20 +73,45 @@ components requirements
     #. set in your :ref:`webpages_webpages`\s a requirement: every component
        has to be called through the correct :ref:`webpages_py_requires` webpage variable.
        
-       * **Syntax**::
-       
-           py_requires = 'fileName:componentClassName'
-           
-         Where:
-         
-         * ``fileName`` is the name of the file including the component (it is not important
-           to specify its folder, because thorugh the mixin technique Genro searchs within
-           all the folder called :ref:`genro_intro_resources`).
-         * ``componentClassName`` is the name of the class of the component.
-         
        .. note:: In every component's documentation page you fill find the correct syntax for
                  its ``py_requires`` and the name of the package you have to import.
                  
+       * **py_requires syntax**::
+       
+           py_requires = 'folderName/fileName:componentClassName'
+           
+         Where:
+         
+         * ``folderName`` is the name of the folder that includes the file with the component
+           you need.
+         * ``fileName`` is the name of the file including the component (without its
+           ``.py`` suffix)
+         * ``componentClassName`` is the name of the python class of the component.
+         
+         .. note:: You can omit the "``folderName``" if the component is placed at the first
+                   level of a :ref:`genro_intro_resources` folder of an imported package.
+                   
+                   Viceversa, if the component lives in a nested level of a resources folder you
+                   have to specify its path.
+                   
+                    **Example**:  if you need the "``Public``" class of a component called
+                    "``public.py``" that lives at the following path::
+                    
+                     ~/yourRootPathForGenro/genro/.../resources/public.py
+                     
+                    then your "``py_requires``" will be::
+                    
+                     py_requires = 'public:Public'
+                     
+                    **Example**: if you need the "``Power``" class of a component called
+                    "``yourcomponent.py``" that lives at the following path::
+                    
+                     ~/yourRootPathForGenro/genro/.../resources/power_components/yourcomponent.py
+                     
+                    then your "``py_requires``" will be::
+                    
+                     py_requires = 'power_components/yourcomponent:Power'
+                     
 .. _components_standard:
 
 standard component
