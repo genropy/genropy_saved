@@ -6,39 +6,34 @@
 
 
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrlang import extract_kwargs
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrstring import boolean
 
 
 class TableHandlerForm(BaseComponent):
     py_requires="gnrcomponents/formhandler:FormHandler"
 
-    @extract_kwargs(dialog=True,palette=True,default=True)
     @struct_method
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,formResource=None,
-                        dialog_kwargs=None,palette_kwargs=None,default_kwargs=None,formInIframe=False,
-                        readOnly=False,**kwargs):
+                        formInIframe=False,readOnly=False,**kwargs):
+        table = table or pane.attributes.get('table')
+        self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
+        options = self._th_hook('options',mangler=frameCode,dflt=dict())()
+        options['readOnly'] = options.get('readOnly',readOnly)
+        slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
+        options['slots'] = options.get('slots',slots)
+        options.update(kwargs)
         form = pane.view.grid.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
                                  datapath='.form',
                                  childname='form',
                                  table=table,
                                  formResource=formResource,
-                                 dialog_kwargs=dialog_kwargs,
-                                 palette_kwargs=palette_kwargs,
-                                 default_kwargs=default_kwargs,
                                  iframe=formInIframe,
-                                 **kwargs) 
+                                 **options) 
         if formInIframe:
             return form
-        slots = 'navigation,|,*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
-        if readOnly:
-            slots = 'navigation,|,*,|,dismiss,5'
-        form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview',namespace='form')
-        formattr = form.attributes
-        table = formattr.get('table')
-        frameCode = formattr.get('frameCode')
-        self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
+        self.th_formOptions(form,options=options)
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
             for hook in hooks.values():
@@ -48,4 +43,32 @@ class TableHandlerForm(BaseComponent):
         else:
             self._th_hook('form',mangler=frameCode)(form)
         return form
-
+        
+    def th_formOptions(self,form,options=None):
+        showtoolbar = boolean(options.pop('showtoolbar',True))
+        navigation = options.pop('navigation',None)
+        readOnly = options.get('readOnly')
+        if form.store.attributes.get('storeType') == 'Collection':
+            if navigation is not False:
+                navigation = True
+        if options.get('modal'):
+            slots='revertbtn,*,cancel,savebtn'
+            form.attributes['hasBottomMessage'] = False
+            bar = form.bottom.slotBar(slots,margin_bottom='2px')
+            bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
+            bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
+            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save")')    
+        elif showtoolbar:
+            slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
+            slots = options.get('slots',slots)
+            if readOnly:
+                slots = '*,|,dismiss,5'
+            if options.get('linker'):
+                slots = '*,|,semaphore,|,form_revert,form_save'
+            if options.get('selector'):
+                slots = slots.replace('*','5,form_selectrecord,*')
+            elif navigation:
+                slots = 'navigation,|,%s' %slots
+            form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')   
+        if not options.get('showfooter',True):
+            form.attributes['hasBottomMessage'] = False
