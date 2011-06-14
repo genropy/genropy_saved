@@ -89,12 +89,12 @@ class Mixin(BaseComponent):
         sb.frameurl.div().a(innerHTML=formula,_tags='_DEV_',href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame')
         appPref.dataController("""genro.dlg.zoomPalette(pane,null,{top:'10px',left:'10px',
                                                         title:preftitle,height:'450px', width:'800px',
-                                                        palette_transition:null,palette_nodeId:'mainpreference'})""",
+                                                        palette_transition:null,palette_nodeId:'mainpreference'});""",
                             subscribe_app_preference=True,
                             _tags=self.preferenceTags,pane=appPref,preftitle='!!Application preference')
         userPref.dataController("""genro.dlg.zoomPalette(pane,null,{top:'10px',right:'10px',title:preftitle,
                                                         height:'300px', width:'400px',palette_transition:null,
-                                                        palette_nodeId:'userpreference'})""",
+                                                        palette_nodeId:'userpreference'});""",
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
                             
     def prepareCenter(self,pane):

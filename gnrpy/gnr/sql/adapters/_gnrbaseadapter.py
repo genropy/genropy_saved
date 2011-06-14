@@ -222,9 +222,10 @@ class SqlDbAdapter(object):
         result = ' AND '.join(result)
         return result
 
-    def sqlFireEvent(self, link_txt, path, column):
-        result = """'<a href="#" onclick="genro.fireEvent(' ||quote_literal('%s')|| ',' ||quote_literal(%s)||')" >%s</a>' """ % (
-        path, column, link_txt)
+    def sqlFireEvent(self, link_txt, path, column,**kwargs):
+        kw = dict(onclick= """genro.fireEvent(' ||quote_literal('%s')|| ',' ||quote_literal(%s)||')""" %(path, column),href="#" )
+        kw.update(kw)
+        result = """'<a %s >%s</a>'""" % (' '.join(['%s="%s"' %(k,v) for k,v in kw.items()]), link_txt)
         return result
 
     def ageAtDate(self, dateColumn, dateArg=None, timeUnit='day'):
