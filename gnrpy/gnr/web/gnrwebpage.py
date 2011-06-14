@@ -55,7 +55,7 @@ PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
 
 def public_method(func):
-    """This is a decorator which can be used to mark functions as rpc."""
+    """This is a decorator which can be used to mark functions as :ref:`datarpc_method`\s."""
     func.is_rpc = True
     return func
     
@@ -131,7 +131,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def call_args(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self._call_args
         
     def getCallArgs(self,*args):
@@ -339,7 +339,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def isGuest(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.user == self.connection.guestname
         
     def rpc_doLogin(self, login=None, guestName=None, **kwargs):
@@ -544,10 +544,12 @@ class GnrWebPage(GnrBaseWebPage):
     def getPublicMethod(self, prefix, method):
         """add???
         
-        :param prefix: add???
-        :param method: add???
-        :returns: add???
-        """
+        :param prefix: a string. The prefix of the method. It can be:
+                       
+                       * 'remote': this prefix is used for the :ref:`genro_dataremote`\s
+                       * 'rpc': this prefix is used for the :ref:`genro_datarpc`\s
+                       
+        :param method: a string. add???"""
         handler = None
         if ';' in method:
             mixin_info, method = method.split(';')
@@ -574,9 +576,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param _nodebug: no debug mode. add???. Default value is ``False``
-        :param _clocomp: enable closure compile. add???. Default value is ``False``
-        :returns: add???
-        """
+        :param _clocomp: enable closure compile. add???. Default value is ``False``"""
         gnr_static_handler = self.site.getStatic('gnr')
         gnrModulePath = gnr_static_handler.url(self.gnrjsversion)
         arg_dict = {}
@@ -821,7 +821,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def subscribedTablesDict(self):
-        """A decorator - :ref:`property`. Return a dict of subscribed tables. Every element is a list
+        """Return a dict of subscribed tables. Every element is a list
            of *page_id*\'s that subscribe that page"""
         if not hasattr(self, '_subscribedTablesDict'):
             self._subscribedTablesDict = self.db.table('adm.served_page').subscribedTablesDict()
@@ -829,41 +829,41 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def application(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.site.gnrapp
         
     @property
     def app(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         if not hasattr(self, '_app'):
             self._app = GnrWebAppHandler(self)
         return self._app
         
     @property
     def btc(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         if not hasattr(self, '_btc'):
             self._btc = GnrWebBatch(self)
         return self._btc
         
     @property
     def catalog(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.application.catalog
         
     @property
     def userTags(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.connection.user_tags
         
     @property
     def user(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.connection.user
         
     @property
     def connection_id(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.connection.connection_id
         
     def _set_avatar(self, avatar):
@@ -1062,7 +1062,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param ext: add???. Default value is ``None``
         :param pkg: the package name. For more information on a package, check the
                     :ref:`genro_packages_index` documentation page. Default value is ``None``"""
-        path =self.getResource(path=resource,ext=ext,pkg=pkg)
+        path = self.getResource(path=resource,ext=ext,pkg=pkg)
         if path:
             with open(path) as f:
                 result = f.read()

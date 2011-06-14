@@ -35,7 +35,6 @@ import time
 
 thread_ws = dict()
 
-
 class BaseProxy(object):
     def __init__(self, main):
         self.main=main
@@ -66,7 +65,11 @@ def deprecated(func):
     return newFunc
         
 def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
-    """A decorator. add???"""
+    """A decorator. add???
+    
+    :param _adapter: add???
+    :param _dictkwargs: add???
+    :param \*\*extract_kwargs: add???"""
     if _dictkwargs:
         extract_kwargs = _dictkwargs
     def decore(func):

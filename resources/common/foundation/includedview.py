@@ -122,21 +122,27 @@ class IncludedView(BaseComponent):
                          :ref:`genro_datastore` pages.
         :param storepath: the path of the data of the includedViewBox. Default value is ``None``.
         :param selectionPars: add???. Default value is ``None``.
+                              
+                              **selectionPars parameters**:
+                              
+                              * applymethod: add???
+                              * where: the sql "WHERE" clause. For more information check the
+                                :ref:`sql_where` section.
         :param formPars: (dict) it contains all the params of the widget who hosts the form.
                          Default value is ``None``.
                          
-                         **formPars parameters:**
-                         
-                         * mode: `dialog` / `pane`. Default value is `dialog`.
-                         * height: the dialog's height.
-                         * width: the dialog's width.
-                         * formCb: MANDATORY - callback method used to create the form.
-                         
+                            **formPars parameters:**
+                            
+                            * mode: `dialog` / `pane`. Default value is `dialog`.
+                            * height: the dialog's height.
+                            * width: the dialog's width.
+                            * formCb: MANDATORY - callback method used to create the form.
+                            
                              **formCb parameters:**
                              
                              * formBorderCont: a :ref:`genro_bordercontainer` used as root for the formCb's construction.
                              * datapath: allow to create a hierarchy of your data’s addresses into the datastore.
-                                 For more information, check the :ref:`genro_datapath` and the :ref:`genro_datastore` pages.
+                               For more information, check the :ref:`genro_datapath` and the :ref:`genro_datastore` pages.
                              * region: 'center' of the pane/borderContainer where you place it into.
                              * toolbarHandler: OPTIONAL - a callback for the form toolbar.
                              * title: MANDATORY - for dialog mode.
@@ -181,10 +187,10 @@ class IncludedView(BaseComponent):
                            * height: height of the tooltipdialog.
                            * width: width of the tooltipdialog.
                            * label: label of the tooltipdialog.
-                           * table: MANDATORY - the table of the picker grid. From this table you can pick a row for the many to many table you handle.
+                           * table: MANDATORY - the table of the picker grid. From this table you can pick a row
+                                    for the many to many table you handle.
                            * columns: MANDATORY - columns of the picker grid.
                            * nodeId: MANDATORY - id for the picker.
-                           * autowidth, storepath, etc grid params.
                            * filterOn: the columns on which to apply filter.
                            
         :param centerPaneCb: add???. Default value is ``None``.

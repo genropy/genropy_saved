@@ -147,17 +147,17 @@ class SqlTable(GnrObject):
         
     @property
     def model(self):
-        """A decorator - :ref:`property`. Return the corresponding DbTableObj object"""
+        """Return the corresponding DbTableObj object"""
         return self._model
         
     @property
     def pkg(self):
-        """A decorator - :ref:`property`. Return the DbPackageObj object that contains the current table"""
+        """Return the DbPackageObj object that contains the current table"""
         return self.model.pkg
         
     @property
     def db(self):
-        """A decorator - :ref:`property`. Return the GnrSqlDb object"""
+        """Return the GnrSqlDb object"""
         return self.model.db
         
     dbroot = db
@@ -220,57 +220,57 @@ class SqlTable(GnrObject):
         
     @property
     def attributes(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.model.attributes
         
     @property
     def pkey(self):
-        """A decorator - :ref:`property`. Return the DbColumnObj object"""
+        """Return the DbColumnObj object"""
         return self.model.pkey
         
     @property
     def lastTS(self):
-        """A decorator - :ref:`property`. Return the DbColumnObj object"""
+        """Return the DbColumnObj object"""
         return self.model.lastTS
         
     @property
     def logicalDeletionField(self):
-        """A decorator - :ref:`property`. Return the DbColumnObj object"""
+        """Return the DbColumnObj object"""
         return self.model.logicalDeletionField
         
     @property
     def noChangeMerge(self):
-        """A decorator - :ref:`property`. Return the DbColumnObj object"""
+        """Return the DbColumnObj object"""
         return self.model.noChangeMerge
         
     @property
     def rowcaption(self):
-        """A decorator - :ref:`property`. Return the table's :ref:`genro_database_rowcaption`"""
+        """Return the table's :ref:`genro_database_rowcaption`"""
         return self.model.rowcaption
         
     @property
     def columns(self):
-        """A decorator - :ref:`property`. Returns the DbColumnListObj object"""
+        """Returns the DbColumnListObj object"""
         return self.model.columns
         
     @property
     def relations(self):
-        """A decorator - :ref:`property`. Returns the DbColumnListObj object"""
+        """Returns the DbColumnListObj object"""
         return self.model.relations
         
     @property
     def indexes(self):
-        """A decorator - :ref:`property`. Returns the DbIndexListObj object"""
+        """Returns the DbIndexListObj object"""
         return self.model.indexes
         
     @property
     def relations_one(self):
-        """A decorator - :ref:`property`. Return a Bag of relations that start from the current table"""
+        """Return a Bag of relations that start from the current table"""
         return self.model.relations_one
         
     @property
     def relations_many(self):
-        """A decorator - :ref:`property`. Return a bag of relations that point to the current table"""
+        """Return a bag of relations that point to the current table"""
         return self.model.relations_many
         
     def recordCoerceTypes(self, record, null='NULL'):

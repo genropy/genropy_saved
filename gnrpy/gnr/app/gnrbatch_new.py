@@ -166,27 +166,27 @@ class PrintDbData(GnrBatch):
         
     @property
     def batch_prefix(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.htmlMaker.batch_prefix
         
     @property
     def batch_title(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.htmlMaker.batch_title
         
     @property
     def batch_delay(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.htmlMaker.batch_delay
         
     @property
     def batch_cancellable(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.htmlMaker.batch_cancellable
         
     @property
     def batch_thermo_lines(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.htmlMaker.batch_thermo_lines
         
     def collect_result(self):

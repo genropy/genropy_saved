@@ -93,7 +93,12 @@ config_db
         * name_plural
         * audit='lazy' --> consente di visualizzare (DOVE??? Mi sembra una cosa di adm) le modifiche
                            ad un record. Non fa niente quando si crea un nuovo record.
-    
+        * _sendback: boolean. If ``True``, the value of the column is passed during the form save. It is
+          useful when you have to check in anny case a column value even if it doesn't change
+          (using for example the :ref:`onloading_method` or th :ref:`onsaving_method` method).
+          
+        * indexed: boolan. If ``True`` create an SQL index.
+          
     * introduce the sysFields::
         
         self.sysFields(tbl)
