@@ -167,7 +167,7 @@ class TableHandler(BaseComponent):
                 this._pageHandler.openPage(pkey);
             }
         """,formUrl=formUrl,formResource=formResource,pkey='^.editrow',_formId=fakeFormId,
-           default_kwargs=default_kwargs,_fakeform=True,mainpkey='^#FORM.pkey',dbname=dbname)
+           default_kwargs=default_kwargs,_fakeform=True,mainpkey='^#FORM.pkey',dbname=dbname or False)
         return th    
         
     @struct_method
