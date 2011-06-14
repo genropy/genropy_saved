@@ -47,7 +47,7 @@ class GnrWebRpc(GnrBaseProxy):
 
             else:
                 result = None
-                error = 'missing handler:%s' % method
+                error = 'missing handler: %s' % method
         if error:
             self.error = error
         return result

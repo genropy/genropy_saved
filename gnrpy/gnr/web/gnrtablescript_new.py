@@ -328,7 +328,7 @@ class RecordToHtmlNew(RecordToHtmlPage):
 
     @property
     def rowData(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         if self.row_mode == 'attribute':
             return self.currRowDataNode.attr
         else:

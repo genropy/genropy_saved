@@ -128,7 +128,7 @@ class GnrCommand(object):
         
     @property
     def filename(self):
-        """A decorator - :ref:`property`. File where main is implemented
+        """File where main is implemented
         
         :returns: add???
         """
@@ -139,7 +139,7 @@ class GnrCommand(object):
             
     @property
     def lineno(self):
-        """A decorator - :ref:`property`. Line where main is implemented
+        """Line where main is implemented
         
         :returns: add???
         """
@@ -150,7 +150,7 @@ class GnrCommand(object):
             
     @property
     def description(self):
-        """A decorator - :ref:`property`. Return the command description
+        """Return the command description
         
         :returns: the command description
         """

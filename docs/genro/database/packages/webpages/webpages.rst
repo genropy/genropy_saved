@@ -7,8 +7,13 @@ webpage
     .. image:: ../../../_images/projects/packages/webpage.png
     
     * :ref:`webpages_GnrCustomWebPage`
-    * :ref:`webpages_variables`
     * The :ref:`webpages_main` method
+    * :ref:`webpages_methods`:
+    
+        * :ref:`onloading_method`
+        * :ref:`onsaving_method`
+    
+    * :ref:`webpages_variables`
     
 .. _webpages_GnrCustomWebPage:
 
@@ -97,6 +102,27 @@ main
               component itself. For more information check the :ref:`introduction to components
               <genro_components_introduction>` documentation page.
               
+.. _webpages_methods:
+              
+GnrCustomWebPage methods
+========================
+
+    add???
+    
+.. _onloading_method:
+    
+onLoading
+---------
+    
+    add???
+    
+.. _onsaving_method:
+    
+onSaving
+--------
+    
+    add???
+    
     .. _webpages_variables:
 
 webpage variables

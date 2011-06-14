@@ -61,7 +61,7 @@ class StaticHandler(object):
 
     @property
     def home_uri(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         return self.site.home_uri
 
     def absolute_url(self, external=True, *args):
