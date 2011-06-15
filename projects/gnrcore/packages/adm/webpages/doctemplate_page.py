@@ -51,17 +51,23 @@ class GnrCustomWebPage(object):
         grid.dataController("""console.log(data);
                                 var caption = data.fullcaption;
                                 var varname = caption.replace(/\W/g,'_').toLowerCase()
-                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':data.fieldpath,fieldname:caption,varname:varname}));""",
+                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':data.fieldpath,fieldname:caption,varname:varname,virtual_column:data.virtual_column}));""",
                              data="^.dropped_fielditem",grid=grid.js_widget)
         
         treepane = bc.contentPane(region='center').div(position='absolute',top='3px',bottom='3px',left='3px',right='3px',overflow='auto')
         treepane.tree(storepath='.store',draggable=True,onDrag="""
-                                if (treeItem.attr.child_count && treeItem.attr.child_count > 0) {
+                                if (!(treeItem.attr.dtype && treeItem.attr.dtype!='RM' && treeItem.attr.dtype!='RO')) {
                                     return false;
                                 }
                                 dragValues['text/plain'] = treeItem.attr.caption;
                                 dragValues['fielditem'] = treeItem.attr;
-                             """,labelAttribute='caption',hideValues=True)
+                             """,labelAttribute='caption',hideValues=True,font_size='.9em',_class='fieldsTree',
+                             getLabelClass="""if (!node.attr.fieldpath && node.attr.table){return "tableTreeNode"}
+                                        else if(node.attr.relation_path){return "aliasColumnTreeNode"}
+                                        else if(node.attr.sql_formula){return "formulaColumnTreeNode"}""",
+                            getIconClass="""if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}
+                                     else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""")
+          
         treepane.dataRemote('.store.fields', 'relationExplorer', 
                                    table='^#FORM.record.maintable',dosort=False, caption='Fields')
     
