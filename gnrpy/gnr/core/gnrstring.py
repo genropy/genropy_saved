@@ -311,8 +311,15 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True):
     
     >>> templateReplace('$foo loves $bar but she loves $aux and not $foo', {'foo':'John','bar':'Sandra','aux':'Steve'})
     'John loves Sandra but she loves Steve and not John'"""
-    
     if not '$' in myString or not symbolDict: return myString
+    if isinstance(symbolDict, list):
+        while len(symbolDict)>1:
+            tempDict=symbolDict.pop(0)
+            for k,v in tempDict.items():
+                if v and not v.startswith('$'):
+                    tempDict[k]='$%s'%v
+            myString=templateReplace(myString,tempDict,safeMode=False, noneIsBlank=noneIsBlank)
+        symbolDict=symbolDict.pop(0)
     if hasattr(symbolDict, '_htraverse'):
         Tpl = BagTemplate
         if noneIsBlank:

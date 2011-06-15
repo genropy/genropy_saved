@@ -16,7 +16,6 @@ class Table(object):
         tbl.column('content', name_long='!!Content')
         tbl.column('metadata', 'X', name_long='!!Metadata')
         tbl.column('varsbag', 'X', name_long='!!Variables')
-
         tbl.column('username', name_long='!!Username')
         tbl.column('version', name_long='!!Version')
         tbl.column('maintable', name_long='!!Main table')
@@ -48,7 +47,8 @@ class Table(object):
             record.update(extraData)
         record.setItem('_env_', Bag(self.db.currentEnv))
         record.setItem('_template_', templateBuilder.doctemplate_info)
-        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate, record, True),record=record)
+        varsdict = dict(templateBuilder.varsbag.digest('#v.varname,#v.fieldpath'))
+        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate, [varsdict,record], True),record=record)
         return body
 
     def getTemplateBuilder(self, doctemplate=None, templates=None):
@@ -57,6 +57,7 @@ class Table(object):
         doctemplate_info = doctemplate
         virtual_columns = []
         htmlbuilder = BagToHtml(templates=templates, templateLoader=self.db.table('adm.htmltemplate').getTemplate)
+        htmlbuilder.varsbag = doctemplate['varsbag']
         htmlbuilder.doctemplate = self.cleanTemplate(doctemplate_content, virtual_columns)
         htmlbuilder.virtual_columns = ','.join(virtual_columns)
         htmlbuilder.data_tblobj = self.db.table(doctemplate_info['maintable'])
