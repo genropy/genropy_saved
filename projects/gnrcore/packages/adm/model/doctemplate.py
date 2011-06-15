@@ -55,10 +55,10 @@ class Table(object):
         doctemplate = self.recordAs(doctemplate, 'bag')
         doctemplate_content = doctemplate.pop('content')
         doctemplate_info = doctemplate
-        virtual_columns = []
         htmlbuilder = BagToHtml(templates=templates, templateLoader=self.db.table('adm.htmltemplate').getTemplate)
         htmlbuilder.varsbag = doctemplate['varsbag']
-        htmlbuilder.doctemplate = self.cleanTemplate(doctemplate_content, virtual_columns)
+        htmlbuilder.doctemplate = doctemplate_content
+        virtual_columns = [c[0] for c in templateBuilder.varsbag.digest('#v.fieldpath,#v.virtual_column') if c[1]]
         htmlbuilder.virtual_columns = ','.join(virtual_columns)
         htmlbuilder.data_tblobj = self.db.table(doctemplate_info['maintable'])
         htmlbuilder.doctemplate_info = doctemplate_info
