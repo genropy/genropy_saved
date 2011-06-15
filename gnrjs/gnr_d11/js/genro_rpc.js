@@ -773,16 +773,20 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var errorCb = function() {
             console.log(arguments);
         };
-        if (kw.onResult) sender.upload.addEventListener("load", kw.onResult, false);
+        //if (kw.onResult) sender.upload.addEventListener("load", kw.onResult, false);
         if (kw.onProgress) sender.upload.addEventListener("progress", kw.onProgress, false);
         if (kw.onError) sender.upload.addEventListener("error", kw.onError || errorCb, false);
         if (kw.onAbort) sender.upload.addEventListener("abort", kw.onAbort, false);
         var filereader = new FileReader();
+        var onResult = objectPop(kw,'onResult');
         var sendData = function() {
             content.push(fileParam(filereader.result));
             content = content.join('--' + boundary + _crlf) + boundary + '--' + _crlf;
             content = addContentLength(content);
             sender.open("POST", genro.rpc.pageIndexUrl(), true);
+            if(onResult){
+                dojo.connect(sender,'onload',onResult);
+            }
             sender.setRequestHeader("Content-Type", 'multipart/form-data; boundary=' + boundary);
             sender.sendAsBinary(content);
         };

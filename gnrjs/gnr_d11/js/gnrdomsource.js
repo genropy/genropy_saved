@@ -1144,6 +1144,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             else if (setter in domnode.gnr) {
                 dojo.hitch(domnode.gnr, setter)(domnode, value, kw);
             }
+            else if (attr in domnode){
+                domnode[attr] = value;
+            }
             else {
                 var attrdict = {};
                 this.setAttr(attrdict, this, true);

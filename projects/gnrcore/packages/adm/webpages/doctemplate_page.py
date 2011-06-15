@@ -83,8 +83,8 @@ class GnrCustomWebPage(object):
                                  SET preview.idx=0;
                                 """
                    )
-        top = bc.contentPane(region='top', overflow='hidden').toolbar()
-        fb = top.formbuilder(cols=3, border_spacing='2px', visible='^#FORM.record.maintable')
+        bar = bc.contentPane(region='top', overflow='hidden').slotToolbar('fb,*')
+        fb = bar.fb.formbuilder(cols=3, border_spacing='0px', visible='^#FORM.record.maintable')
         fb.dbSelect(dbtable='^#FORM.record.maintable', value='^.selected_id',lbl='!!Record', width='20em')
         box = fb.div(width='70px')
         box.button('!!Previous',

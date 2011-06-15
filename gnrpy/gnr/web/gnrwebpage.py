@@ -123,7 +123,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._workdate = self.page_item['data']['workdate'] #or datetime.date.today()
         self.onIniting(request_args, request_kwargs)
         self._call_args = request_args or tuple()
-        self._call_kwargs = request_kwargs or {}
+        self._call_kwargs = self.site.parse_kwargs(request_kwargs, workdate=self.workdate) or {}
             
     def onPreIniting(self, *request_args, **request_kwargs):
         """add???"""
@@ -293,7 +293,8 @@ class GnrWebPage(GnrBaseWebPage):
     def _rpcDispatcher(self, *args, **kwargs):
         method = kwargs.pop('method',None)
         mode = kwargs.pop('mode','bag')
-        parameters = self.site.parse_kwargs(kwargs, workdate=self.workdate)
+        #parameters = self.site.parse_kwargs(kwargs, workdate=self.workdate)
+        parameters = kwargs
         self._lastUserEventTs = parameters.pop('_lastUserEventTs', None)
         self.site.handle_clientchanges(self.page_id, parameters)
         auth = AUTH_OK
