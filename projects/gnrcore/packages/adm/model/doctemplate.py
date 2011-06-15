@@ -15,6 +15,8 @@ class Table(object):
                    validate_nodup_error='!!This name is already taken')
         tbl.column('content', name_long='!!Content')
         tbl.column('metadata', 'X', name_long='!!Metadata')
+        tbl.column('varsbag', 'X', name_long='!!Variables')
+
         tbl.column('username', name_long='!!Username')
         tbl.column('version', name_long='!!Version')
         tbl.column('maintable', name_long='!!Main table')
