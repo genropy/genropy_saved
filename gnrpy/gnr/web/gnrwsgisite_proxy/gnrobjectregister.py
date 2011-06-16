@@ -148,7 +148,7 @@ class ServerStore(object):
 
     @property
     def data(self):
-        """add???"""
+        """A decorator - :ref:`property`. add???"""
         if self.register_item:
             return self.register_item['data']
         else:
@@ -156,7 +156,7 @@ class ServerStore(object):
 
     @property
     def register_item(self):
-        """add???"""
+        """A decorator - :ref:`property`. add???"""
         if self._register_item != '*':
             return self._register_item
         self._register_item = register_item = self.parent.read(self.register_item_id)
@@ -175,7 +175,7 @@ class ServerStore(object):
 
     @property
     def datachanges(self):
-        """add???"""
+        """A decorator - :ref:`property`. add???"""
         datachanges = []
         if self.register_item:
             datachanges = self.register_item.setdefault('datachanges', [])
@@ -183,11 +183,12 @@ class ServerStore(object):
 
     @property
     def subscribed_paths(self):
-        """add???"""
+        """A decorator - :ref:`property`. add???"""
         if self.register_item:
             return self.register_item['subscribed_paths']
 
 class SiteRegister(object):
+    """add???"""
     def __init__(self, site):
         self.site = site
         self.sd = self.site.shared_data
@@ -313,10 +314,14 @@ class SiteRegister(object):
             for page_id in connection_item['pages']:
                 self.p_register.pop(page_id)
         self.pop_connections_from_user(connection_item['user'], connection_item, delete_if_empty=cascade)
-
-    @lock_page
+        
     #@debug_call
+    @lock_page
     def drop_page(self, page_id, cascade=None):
+        """add???
+        
+        :param page_id: the id of the page
+        :param cascade: the SQL cascade parameter"""
         page_item = self.p_register.pop(page_id)
         if not page_item:
             return

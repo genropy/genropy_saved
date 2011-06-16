@@ -150,10 +150,8 @@ class GnrSqlAppDb(GnrSqlDb):
     """add???"""
     def checkTransactionWritable(self, tblobj):
         """add???
-
-        :param tblobj: the table object
-        :returns: add???
-        """
+        
+        :param tblobj: the table object"""
         if not hasattr(tblobj, '_usesTransaction'):
             tblobj._usesTransaction = boolean(
                     tblobj.attributes.get('transaction', tblobj.pkg.attributes.get('transaction', '')))
@@ -162,24 +160,20 @@ class GnrSqlAppDb(GnrSqlDb):
         
     def delete(self, tblobj, record, **kwargs):
         """add???
-
+        
         :param tblobj: the table object
-        :param record: add???
-        :returns: add???
-        """
+        :param record: add???"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.delete(self, tblobj, record,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'D')
         
     def update(self, tblobj, record, old_record=None, pkey=None,**kwargs):
         """add???
-
+        
         :param tblobj: the table object
         :param record: add???
         :param old_record: add???. Default value is ``None``
-        :param pkey: the record primary key. Default value is ``None``
-        :returns: add???
-        """
+        :param pkey: the record primary key. Default value is ``None``"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.update(self, tblobj, record, old_record=old_record, pkey=pkey,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'U', old_record)
@@ -370,8 +364,7 @@ class GnrPackage(object):
     def onAuthentication(self, avatar):
         """Hook after authentication: receive the avatar and can add information to it
         
-        :param avatar: add???
-        """
+        :param avatar: the avatar (user that logs in)"""
         pass
         
     def configure(self):
@@ -400,8 +393,7 @@ class GnrPackage(object):
             struct.update(config_db_xml)
         
     def onApplicationInited(self):
-        """add???
-        """
+        """add???"""
         pass
         
 class GnrApp(object):
@@ -456,13 +448,12 @@ class GnrApp(object):
             self.webPageCustom = getattr(self.main_module, 'WebPage', None)
         self.init(forTesting=forTesting)
         self.creationTime = time.time()
-
+        
     def get_modulefinder(self, path_entry):
         return GnrModuleFinder(path_entry,self)
-
+        
     def set_environment(self):
-        """add???
-        """
+        """add???"""
         environment_xml = self.gnr_config['gnr.environment_xml']
         if environment_xml:
             for var, value in environment_xml.digest('environment:#k,#a.value'):
@@ -471,10 +462,7 @@ class GnrApp(object):
                     os.environ[var] = str(value)
                     
     def load_gnr_config(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         if os.environ.has_key('VIRTUAL_ENV'):
             config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc','gnr'))
             if os.path.isdir(config_path):
@@ -496,10 +484,7 @@ class GnrApp(object):
         return Bag()
         
     def load_instance_config(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         instance_config_path = os.path.join(self.instanceFolder, 'instanceconfig.xml')
         base_instance_config = Bag(instance_config_path)
         instance_config = self.gnr_config['gnr.instanceconfig.default_xml'] or Bag()
@@ -839,19 +824,21 @@ class GnrApp(object):
             return self.makeAvatar(user=user, user_name=user_name, user_id=user_id, tags=tags,
                                    login_pwd=password, authenticate=authenticate,
                                    defaultTags=defaultTags, **result)
-
+                                   
     def auth_sql(self, node, user, password=None, authenticate=False, **kwargs):
         """Authenticate from database.
         
-        In file instanceconfig.xml insert a tag like::
+        In the :ref:`instances_instanceconfig` file insert a tag like::
         
-           <sql_auth  defaultTags='myusers' dbtable='mypkg.users' 
-                      username='username_fld' pwd='pwd_fld' userid='optional_id_fld' />
+           <sql_auth defaultTags='myusers' dbtable='mypkg.users' 
+                     username='username_fld' pwd='pwd_fld' userid='optional_id_fld' />
         
-        - Mandatory attributes: dbtable, username, pwd
-        - Optional attributes: defaultTags, userid (the primary key of the db table if it is not the username field)
-        Other attributes are aliases of dbfield names: myavatarfield='mydbfield'
-        """
+        where:
+        
+        * dbtable, username and pwd are mandatory attributes
+        * Optional attributes: defaultTags, userid (the primary key of the db table if it is not the username field)
+        
+        Other attributes are aliases of dbfield names: myavatarfield='mydbfield'"""
         attrs = dict(node.getAttr())
         defaultTags = attrs.pop('defaultTags', None)
         kwargs = {}
@@ -867,11 +854,11 @@ class GnrApp(object):
                                    login_pwd=password, authenticate=authenticate, defaultTags=defaultTags, **result)
         except:
             return None
-
+            
     def makeAvatar(self, user, user_name=None, user_id=None, login_pwd=None,
                    authenticate=False, defaultTags=None, pwd=None, tags='', **kwargs):
         """add???
-
+        
         :param user: add???
         :param user_name: add???. Default value is ``None``
         :param user_id: add???. Default value is ``None``
@@ -879,9 +866,7 @@ class GnrApp(object):
         :param authenticate: add???. Default value is ``False``
         :param defaultTags: add???. Default value is ``None``
         :param pwd: add???. Default value is ``None``
-        :param tags: add???. Default value is `` ``
-        :returns: add???
-        """
+        :param tags: add???. Default value is `` ``"""
         if defaultTags:
             tags = ','.join(makeSet(defaultTags, tags or ''))
         if authenticate:
@@ -896,9 +881,7 @@ class GnrApp(object):
 
         :param login_pwd: add???
         :param pwd: add???. Default value is ``None``
-        :param user: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param user: add???. Default value is ``None``"""
         if not pwd:
             if not user:
                 return False
@@ -929,9 +912,7 @@ class GnrApp(object):
         :param login_pwd: add???
         :param pwd: add???
         :param newpwd: add???
-        :param userid: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param userid: add???. Default value is ``None``"""
         if pwd:
             valid = self.validatePassword(login_pwd, pwd)
         else:
@@ -947,9 +928,7 @@ class GnrApp(object):
         """add???
         
         :param resourceTags: add???
-        :param userTags: add???
-        :returns: add???
-        """
+        :param userTags: add???"""
         if not resourceTags:
             return True
         if not userTags:
@@ -978,14 +957,12 @@ class GnrApp(object):
             if valid:
                 return True
         return False
-
+        
     def addResourceTags(self, resourceTags, newTags):
         """add???
-
+        
         :param resourceTags: add???
-        :param newTags: add???
-        :returns: add???
-        """
+        :param newTags: add???"""
         resourceTags = resourceTags or ''
         newTags = newTags or ''
         resourceTags = resourceTags.split(',')
@@ -995,48 +972,40 @@ class GnrApp(object):
             if not tag in resourceTags:
                 resourceTags.append(tag)
         return ','.join(resourceTags)
-
+        
     def addDbstore(self, storename, store):
         """add???
-
+        
         :param storename: add???
-        :param store: add???
-        :returns: add???
-        """
+        :param store: add???"""
         self.db.addDbstore(storename, **store)
-
+        
     def dropDbstore(self, storename):
         """add???
-
-        :param storename: add???
-        """
+        
+        :param storename: add???"""
         self.db.dropDbstore(storename=storename)
-
+        
     def dropAllDbStores(self):
-        """add???
-        """
+        """add???"""
         self.db.dropAllDbStores()
-
+        
     def realPath(self, path):
         """add???
-
-        :param path: add???
-        :returns: add???
-        """
+        
+        :param path: add???"""
         path = os.path.expandvars(str(path))
         if not path.startswith('/'):
             path = os.path.realpath(os.path.join(self.instanceFolder, path))
         return path
-
+        
     def sendmail(self, from_address, to_address, subject, body):
-        """add???
-
-        :param from_address: add???
-        :param to_address: add???
-        :param subject: add???
-        :param body: add???
-        :returns: add???
-        """
+        """Allow to send an email
+        
+        :param from_address: the address that sends the mail
+        :param to_address: the address that receives the mail
+        :param subject: the mail subject
+        :param body: the body mail"""
         if isinstance(body, unicode):
             body = body.encode('utf-8', 'ignore')
         msg = MIMEText(body, _charset='utf-8')
@@ -1062,29 +1031,26 @@ class GnrApp(object):
             s.login(user, pwd)
         s.sendmail(from_address, to_address, msg.as_string())
         s.close()
-
+        
     def errorAnalyze(self, e, caller=None, package=None):
         """add???
-
+        
         :param e: add???
         :param caller: add???. Default value is ``None``
         :param package: add???. Default value is ``None``
         """
         raise e
-    
+        
     def onDbCommitted(self):
         pass
-
-
+        
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         """add???
-
+        
         :param tblobj: the table object
         :param record: add???
         :param event: add???
-        :param old_record: add???. Default value is ``None``
-        :returns: add???
-        """             
+        :param old_record: add???. Default value is ``None``"""
         currentEnv = self.db.currentEnv
         if not currentEnv.get('env_transaction_id'):
             self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
@@ -1108,9 +1074,7 @@ class GnrApp(object):
     def getAuxInstance(self, name=None):
         """add???
         
-        :param name: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param name: add???. Default value is ``None``"""
         if not name:
             return self
         if not name in self.aux_instances:
@@ -1129,13 +1093,11 @@ class GnrAvatar(object):
         self.login_pwd = login_pwd
         self.loginPars = {'tags': self.user_tags}
         self.extra_kwargs = kwargs or dict()
-
+        
     def addTags(self, tags):
         """add???
         
-        :param tags: add???
-        :returns: add???
-        """
+        :param tags: add???"""
         t = self.tags.split(',')
         if isinstance(tags, basestring):
             tags = tags.split(',')
@@ -1151,10 +1113,7 @@ class GnrAvatar(object):
             raise AttributeError("register_item has no attribute '%s'" % fname)
             
     def as_dict(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return dict(user=self.user, user_tags=self.user_tags,
                     user_id=self.user_id, user_name=self.user_name,
                     **self.extra_kwargs)

@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
-#  untitled
+#  public.py
 #
 #  Created by Giovanni Porcari on 2007-03-24.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-#
 
 """ public common11 """
+
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
 from gnr.core.gnrstring import boolean
-
 
 import os
 
@@ -26,8 +25,7 @@ class Public(BaseComponent):
                      foundation/macrowidgets,
                      gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                      gnrcomponents/chat_component/chat_component:ChatComponent"""
-
-
+                     
     def userRecord(self, path=None):
         if not hasattr(self, '_userRecord'):
             user = self.pageArgs.get('_user_')
@@ -35,8 +33,7 @@ class Public(BaseComponent):
                 user = self.user
             self._userRecord = self.db.table('adm.user').record(username=user).output('bag')
         return self._userRecord[path]
-
-    
+        
     def onMain_pbl(self):
         self._init_pbl()
         
@@ -75,28 +72,27 @@ class Public(BaseComponent):
             self.iframeDialog(pane, title='!!User Preference', dlgId='userpreference', src='/adm/user_preference',
                               cached=False, height='300px', width='400px', centerOn='_pageRoot',
                               datapath='gnr.preference.user')
-
-
+                              
     def pbl_userTable(self):
         return 'adm.user'
-
+        
     def rootWidget(self, root, **kwargs):
         return root.borderContainer(_class='pbl_root', **kwargs)
-
+        
     def _pbl_dialogs(self, pane):
         self._pbl_dialogs_waiting(pane)
-
+        
     def _pbl_dialogs_waiting(self, pane):
         def cb_bottom(*args, **kwargs):
             pass
-
+            
         def cb_center(parentBc, **kwargs):
             parentBc.contentPane(**kwargs).div(_class='waiting')
-
+            
         self.simpleDialog(pane, title='!!Waiting', dlgId='pbl_waiting', height='200px', width='300px',
                           cb_center=cb_center,
                           datapath='gnr.tools.waitingdialog', cb_bottom=cb_bottom)
-        
+                          
     @extract_kwargs(top=True,bottom=True)
     def _pbl_frameroot(self, rootbc, title=None, height=None, width=None, flagsLocale=False,
                      top_kwargs=None,bottom_kwargs=None,center_class=None,bottom=True,**kwargs):
@@ -107,7 +103,7 @@ class Public(BaseComponent):
         if bottom:
             self.public_frameBottomBar(frame.bottom,**bottom_kwargs)
         return frame
-    
+        
     def public_frameTopBarSlots(self,baseslot):
         return baseslot
         
@@ -122,7 +118,7 @@ class Public(BaseComponent):
             kwargs['caption_title'] = title
         return pane.slotBar(slots=slots,childname='bar',
                             **kwargs)
-    
+                            
     def public_frameBottomBar(self,pane,slots=None,**kwargs):
         slots = slots or '5,dock,*,messageBox,*,devBtn,locBtn,5'
         if 'messageBox' in slots:
@@ -131,7 +127,7 @@ class Public(BaseComponent):
         return pane.slotBar(slots=slots,childname='bar',
                             _class='pbl_root_bottom',
                             **kwargs)
-        
+                            
     @struct_method
     def public_publicRoot_menuBtn(self,pane,**kwargs):
         pane.div(_class='pbl_menu_icon buttonIcon', connect_onclick="""
@@ -141,7 +137,7 @@ class Public(BaseComponent):
                                     PUBLISH main_left_set_status= 'toggle';
                                 }
                                 """,_inframe='inframe' in self.pageArgs)
-        
+                                
     @struct_method
     def public_publicRoot_workdate(self,pane,**kwargs):
         connect_onclick = None
@@ -152,14 +148,13 @@ class Public(BaseComponent):
                  connect_onclick=connect_onclick)
         if connect_onclick:
             self.pbl_workdate_dialog()
-        
-    
+            
     @struct_method
     def public_publicRoot_caption(self,pane,title='',**kwargs):   
         pane.div(title, _class='pbl_title_caption',
                     subscribe_setWindowTitle='this.domNode.innerHTML=$1;',
                     draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',**kwargs)
-        
+                    
     @struct_method
     def public_publicRoot_pageback(self,pane,**kwargs): 
         pane.div(connect_onclick="genro.pageBack()", title="!!Back",
@@ -170,18 +165,18 @@ class Public(BaseComponent):
             pane.dataRpc('aux.locale_ok', 'changeLocale', locale='^aux.locale')
             pane.dataController('genro.pageReload()', _fired='^aux.locale_ok')
             pane.button(action="SET aux.locale = 'EN'", title="!!English",
-                      _class='icnIntlEn buttonIcon')
+                        _class='icnIntlEn buttonIcon')
             pane.button(action="SET aux.locale = 'IT'", title="!!Italian",
-                      _class='icnIntlIt buttonIcon')
-    
+                        _class='icnIntlIt buttonIcon')
+                        
     @struct_method
-    def public_publicRoot_user(self,pane,**kwargs): 
+    def public_publicRoot_user(self,pane,**kwargs):
         if not self.isGuest:
             pane.div(content=self.user, float='right', _class='pbl_slotbar_label buttonIcon',
                       connect_onclick='PUBLISH preference_open="user";',**kwargs)
         else:
             pane.div()
-    
+            
     @struct_method
     def public_publicRoot_logout(self,pane,**kwargs):
         if not self.isGuest:
@@ -189,7 +184,7 @@ class Public(BaseComponent):
                       _class='pbl_logout buttonIcon', content='&nbsp;',**kwargs)
         else:
             pane.div()
-        
+            
     @struct_method
     def public_publicRoot_dock(self,pane,**kwargs):
         pane.dock(id='default_dock', background='none', border=0)
@@ -203,26 +198,25 @@ class Public(BaseComponent):
                             _else="return 'localizer_hidden'")
         else:
             pane.div()
-                   
+            
     @struct_method
-    def public_publicRoot_devBtn(self,pane,**kwargs):         
+    def public_publicRoot_devBtn(self,pane,**kwargs):
         if self.isDeveloper():
             pane.div(connect_onclick='genro.dev.showDebugger();',
                       _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
         else:
             pane.div()
-        
-    
+            
     @struct_method
     def public_rootStackContainer(self, root, title=None, height=None, width=None,selectedPage=None,**kwargs):
         frame = self._pbl_frameroot(root, title, height=height, width=width,center_widget='StackContainer',**kwargs) 
         return frame
-    
+        
     @struct_method
     def public_rootBorderContainer(self, root, title=None, height=None, width=None, **kwargs):
         frame = self._pbl_frameroot(root, title, height=height, width=width,center_widget='BorderContainer',**kwargs) 
         return frame
-
+        
     @struct_method
     def public_rootTabContainer(self, root, title=None, height=None, width=None, **kwargs):
         frame = self._pbl_frameroot(root, title, height=height, width=width, center_widget='TabContainer',**kwargs) 
@@ -244,41 +238,41 @@ class Public(BaseComponent):
         bottom = self.pbl_bottomBar(rootbc.contentPane(region='bottom', _class='pbl_root_bottom', overflow='hidden'))
         bc = rootbc.borderContainer(region='center', _class='pbl_root_center')
         return bc, top, bottom
-
+        
     def pbl_rootContentPane(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
                             **kwargs):
         bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
                                          flagsLocale=flagsLocale)
         center = bc.contentPane(region='center', **kwargs)
         return center, top, bottom
-           
+        
     def pbl_rootStackContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
                                **kwargs):
         bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
                                          flagsLocale=flagsLocale)
         center = bc.stackContainer(region='center', **kwargs)
         return center, top, bottom
-
+        
     def pbl_rootTabContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
                              **kwargs):
         bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
                                          flagsLocale=flagsLocale)
         center = bc.tabContainer(region='center', **kwargs)
         return center, top, bottom
-
+        
     def pbl_rootBorderContainer(self, root, title=None, height=None, width=None, centered=False, flagsLocale=False,
                                 **kwargs):
         bc, top, bottom = self._pbl_root(root, title, height=height, width=width, centered=centered,
                                          flagsLocale=flagsLocale)
         center = bc.borderContainer(region='center', **kwargs)
         return center, top, bottom
-
+        
     def pbl_topBarLeft(self, pane):
         self.pbl_workdateManager(pane)
-
+        
     def pbl_canChangeWorkdate(self):
         return
-
+        
     def pbl_workdateManager(self, pane):
         connect_onclick = None
         if self.application.checkResourcePermission(self.pbl_canChangeWorkdate(), self.userTags):
@@ -288,8 +282,7 @@ class Public(BaseComponent):
                  connect_onclick=connect_onclick)
         if connect_onclick:
             self.pbl_workdate_dialog()
-    
-    
+            
     def pbl_workdate_dialog(self):
         def cb_center(parentBC, **kwargs):
             pane = parentBC.contentPane(**kwargs)
@@ -301,18 +294,18 @@ class Public(BaseComponent):
         dlg.dataController("SET .data.current_date=date;", date="=gnr.workdate", nodeId='changeWorkdate_loader')
         dlg.dataRpc('gnr.workdate', 'pbl_changeServerWorkdate', newdate='=.data.current_date',
                     _if='newdate', nodeId='changeWorkdate_saver', _onResult='FIRE .saved;')
-
+                    
     def rpc_pbl_changeServerWorkdate(self, newdate=None):
         if newdate:
             self.workdate = newdate
         return self.workdate
-
+        
     def mainLeftTop(self, pane):
         if self.application.checkResourcePermission(self.pbl_preferenceAppTags(), self.userTags):
             pane.div(_class='icnBasePref buttonIcon', connect_onclick='PUBLISH preference_open="app";',
                      tip='!!Application Preferences', position='absolute', left='5px', top='5px')
         pane.div('^gnr.app_preference.adm.instance_data.owner_name')
-
+        
     def pbl_topBar(self, top, title=None, flagsLocale=False):
         """docstring for publicTitleBar"""
         left = top.contentPane(region='left', width='250px')
@@ -341,19 +334,16 @@ class Public(BaseComponent):
                       _class='pbl_logout buttonIcon', content='&nbsp;', float='right')
             right.div(content=self.user, float='right', _class='pbl_username buttonIcon',
                       connect_onclick='PUBLISH preference_open="user";')
-                      
-
         return center
-
+        
     def pbl_bottomBar(self, pane):
         """docstring for publicTitleBar"""
         sc = pane.stackContainer(selectedPage='^pbl.bottom_stack')
         sc.data('pbl.bottom_stack', 'default')
-
         default_bottom = self.pbl_bottom_default(sc.borderContainer(pageName='default'))
         self.pbl_bottom_message(sc.contentPane(pageName='message'))
         return default_bottom
-
+        
     def pbl_bottom_message(self, pane):
         pane.div('^pbl.bottomMsg', _class='pbl_messageBottom', nodeId='bottomMsg')
         pane.dataController("""
@@ -366,14 +356,14 @@ class Public(BaseComponent):
                                 
                                 """,
                             msg='^pbl.bottomMsg', _if='msg')
-
+                            
     def pbl_preferenceAppTags(self):
         return 'admin'
-
+        
     def pbl_bottom_default(self, bc):
         left = bc.contentPane(region='left', overflow='hidden', nodeId='pbl_bottomBarLeft')
         right = bc.contentPane(region='right', overflow='hidden', nodeId='pbl_bottomBarRight')
-
+        
         right.dataScript('gnr.localizerClass', """return 'localizer_'+status""",
                          status='^gnr.localizerStatus', _init=True, _else="return 'localizer_hidden'")
         if self.isDeveloper():
@@ -381,11 +371,11 @@ class Public(BaseComponent):
                       _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
         if self.isLocalizer():
             right.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass', float='right')
-
+            
         center = bc.contentPane(region='center', nodeId='pbl_bottomBarCenter')
         center.dock(id='default_dock', background='none', border=0, float='left', margin_left='4px')
         return dict(left=left, right=right, center=center)
-
+        
     def pbl_batch_floating(self, pane):
         pane.floatingPane(title='public floating', _class='shadow_4',
                           top='80px', left='20px', width='200px', height='470px',
@@ -419,7 +409,7 @@ class Public(BaseComponent):
             images = [f for f in files if f.startswith('%s' % 'custom_logo')]
             if images:
                 return images[0]
-
+                
 class TableHandlerMain(BaseComponent):
     py_requires = """public:Public,th/th:TableHandler"""
     plugin_list=''
@@ -430,14 +420,12 @@ class TableHandlerMain(BaseComponent):
     th_readOnly = False
     maintable = None
     
-
     def th_options(self):
         return dict()
         
     def onMain_pbl(self):
         pass
-    
-
+        
     @extract_kwargs(th=True)
     def main(self,root,th_kwargs=None,**kwargs):
         kwargs.update(self.getCallArgs('th_pkey'))
@@ -446,7 +434,7 @@ class TableHandlerMain(BaseComponent):
         th_options.update(th_kwargs)
         th = self._th_main(root,th_options=th_options,**kwargs)
         return th
-    
+        
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = th_options.get('formInIframe')
         insidePublic = th_options.get('public')
@@ -464,14 +452,13 @@ class TableHandlerMain(BaseComponent):
             self._usePublicBottomMessage(th.form)
         return th
         
-    
     def __th_title(self,th,widget):
         if widget=='stack':
             th.view.top.bar.replaceSlots('vtitle','')
             th.dataFormula('gnr.windowTitle',"(selectedPage=='view'?viewtitle:formtitle)||currTitle",
                             formtitle='^.form.controller.title',viewtitle='^.view.title',
                             selectedPage='^.selectedPage',currTitle='=gnr.windowTitle')    
-    
+                            
     def rpc_form(self, root,**kwargs):
         kwargs.update(self.getCallArgs('pkey'))
         form = self._th_prepareForm(root,**kwargs)
@@ -511,44 +498,41 @@ class TableHandlerMain(BaseComponent):
         form.store.handler('load',**default_kwargs)
         return form
         
-    
     def _usePublicBottomMessage(self,form):
         form.attributes['hasBottomMessage'] = False
         form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
-    
+        
     def rpc_view(self,root,**kwargs):
         pass
-
+        
 #OLD STUFF TO REMOVE
 class ThermoDialog(BaseComponent):
     py_requires = 'foundation/thermo'
-
+    
 class UserObject(BaseComponent):
     py_requires = 'foundation/userobject'
-
+    
 class IncludedView(BaseComponent):
     py_requires = 'foundation/includedview'
-
+    
 class RecordHandler(BaseComponent):
     py_requires = 'foundation/recorddialog'
-
+    
 class Tools(BaseComponent):
     py_requires = 'foundation/tools'
-
+    
 class SelectionHandler(BaseComponent):
     py_requires = 'gnrcomponents/selectionhandler'
-
+    
 class RecordLinker(BaseComponent):
     py_requires = 'gnrcomponents/recordlinker'
-
+    
 class MultiSelect(BaseComponent):
     py_requires = 'gnrcomponents/multiselect'
-
+    
 class DynamicEditor(BaseComponent):
     py_requires = 'foundation/macrowidgets:DynamicEditor'
-
+    
 class RecordToHtmlFrame(BaseComponent):
     py_requires = 'foundation/htmltoframe'
-        
-        
                                     
