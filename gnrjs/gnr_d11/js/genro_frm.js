@@ -1314,7 +1314,11 @@ dojo.declare("gnr.formstores.Base", null, {
         var form=this.form;
         var that = this;
         var saver = this.handlers.save;
-        var kw =form.sourceNode.evaluateOnNode(this.handlers.save.kw);
+        
+
+        var kw = form.sourceNode.evaluateOnNode(this.handlers.save.kw);
+        var onSaving = objectPop(kw,'onSaving');
+
         if (destPkey){
             kw._autoreload=destPkey
         }else if(this.onSaved=='reload' || this.form.isNewRecord()){
@@ -1347,10 +1351,13 @@ dojo.declare("gnr.formstores.Base", null, {
             return resultDict;
         };
         this.handlers.save.rpcmethod = this.handlers.save.rpcmethod || 'saveRecordCluster';
+        var rpckw = objectUpdate({'data':form.getFormChanges(),'table':this.table},kw)
+        if(onSaving){
+            onSaving = funcCreate(onSaving,this);
+            onSaving.call(this,rpckw);
+        }
         var deferred = genro.rpc.remoteCall(this.handlers.save.rpcmethod,
-                                            objectUpdate({'data':form.getFormChanges(),
-                                                          'table':this.table},kw),null,'POST',
-                                                          null,function(){});
+                                            rpckw,null,'POST', null,function(){});
         deferred.addCallback(cb);
         if(saver.callbacks){
             var thatnode = form.sourceNode;

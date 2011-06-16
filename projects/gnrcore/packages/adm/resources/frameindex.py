@@ -14,6 +14,8 @@ class Mixin(BaseComponent):
     plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin'
     index_url = None
     showTabs = True
+    indexTab = False
+    hideLeftPlugins = False
     preferenceTags = 'admin'
     
     def rootWidget(self,root,**kwargs):
@@ -61,7 +63,18 @@ class Mixin(BaseComponent):
                                             this.setRelativeData("selectedFrame",pageName);
                                             """,margin_left='20px',display='inline-block')
         tabroot.div()
-        pane.dataController("genro.framedIndexManager.createTablist(tabroot,data);",data="^iframes",tabroot=tabroot)
+        pane.dataController("""
+                                if(!data){
+                                    if(indexTab){
+                                        data = new gnr.GnrBag();
+                                        data.setItem('indexpage',null,{'fullname':indexTab,pageName:'indexpage',fullpath:'indexpage'});
+                                        SET iframes = data;
+                                    }
+                                }else{
+                                    genro.framedIndexManager.createTablist(tabroot,data);
+                                }
+                                """,
+                            data="^iframes",tabroot=tabroot,indexTab=self.indexTab,_onStart=True)
         pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
                                     if(iframetab){
                                         genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        
@@ -98,7 +111,7 @@ class Mixin(BaseComponent):
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
                             
     def prepareCenter(self,pane):
-        sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
+        sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',margin_left='-5px',
                                 onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);')
         sc.dataController("setTimeout(function(){genro.framedIndexManager.selectIframePage(selectIframePage[0])},1);",subscribe_selectIframePage=True)
 
@@ -134,14 +147,17 @@ class Mixin(BaseComponent):
         scattr['subscribe_changeFrameLabel']='genro.framedIndexManager.changeFrameLabel($1);'
         page = self.pageSource()
         if self.index_url:
-            sc.contentPane(pageName='index',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')
+            sc.contentPane(pageName='indexpage',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')            
+        elif getattr(self,'index_dashboard'):
+            self.index_dashboard(sc.contentPane(pageName='indexpage'))
         page.dataController("""
                             genro.publish('selectIframePage',_menutree__selected[0]);""",
                             subscribe__menutree__selected=True)
                         
 
     def prepareLeft(self,pane):
-        pane.attributes.update(dict(splitter=True,width='200px',datapath='left',margin_right='-1px',overflow='hidden'))
+        pane.attributes.update(dict(splitter=True,width='200px',datapath='left',
+                                    margin_right='-1px',overflow='hidden',_class='hiddenBcPane' if self.hideLeftPlugins else None))
         sc = pane.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',overflow='hidden')
         sc.dataController("""
                             if(!page){return;}

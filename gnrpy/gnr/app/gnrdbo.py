@@ -200,6 +200,29 @@ class TableBase(object):
         :returns: add???
         """
         return self.attributes.get('hasRecordTags', False)
+
+    def setMultidbSubscription(self,tblname):
+        """add???
+        
+        :param tbl: the table
+        :param name_long: add???. Default value is ``None``
+        :param group: add???. Default value is ``None``
+        :returns: add???
+        """
+        pkg,tblname = tblname.split('.')
+        model = self.db.model
+        tbl = model.src['packages.%s.tables.%s' %(pkg,tblname)]
+        subscriptiontbl =  model.src['packages.multidb.tables.subscription']
+        pkey = tbl.parentNode.getAttr('pkey')
+        pkeycolAttrs = tbl.column(pkey).getAttr()
+        tblname = tbl.parentNode.label
+        pkgName = tbl.parent.parentNode.label
+        rel = '%s.%s.%s' % (pkg,tblname, pkey)
+        fkey = rel.replace('.', '_')
+        subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
+                              size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
+                                                                                 many_group='_', one_group='_')
+        
         
     def setTagColumn(self, tbl, name_long=None, group=None):
         """add???

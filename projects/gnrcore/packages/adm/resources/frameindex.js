@@ -19,10 +19,10 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var bc = root._('BorderContainer',pageName,{pageName:pageName,title:label});
         var center = bc._('ContentPane',{'region':'center','overflow':'hidden'});
         var iframeattr = {'height':'100%','width':'100%','border':0,'id':'iframe_'+pageName,frameName:pageName};
-        var iframesbag = this.iframesbag;
-        if(!iframesbag){
-         iframesbag = this.iframesbag = new gnr.GnrBag();
-         genro._data.setItem('iframes',iframesbag);
+        this.iframesbag = genro.getData('iframes');
+        if(!this.iframesbag){
+         this.iframesbag = new gnr.GnrBag();
+         genro._data.setItem('iframes',this.iframesbag);
         }
         var that = this;
         var frameSubscriptions = objectPop(kw,'frameSubscriptions');
@@ -34,7 +34,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var iframe = center._('iframe',iframeattr);
         var node = root.popNode('#0');
         sc.setItem(node.label,node);
-        iframesbag.setItem(pageName,null,{'fullname':label,pageName:pageName,fullpath:kw.fullpath,url:url,subtab:kw.subtab});
+        this.iframesbag.setItem(pageName,null,{'fullname':label,pageName:pageName,fullpath:kw.fullpath,url:url,subtab:kw.subtab});
         sourceNode.setRelativeData('selectedFrame',pageName);
         setTimeout(function(){iframe.getParentNode().domNode.src = url;},1);
     },

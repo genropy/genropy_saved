@@ -6,16 +6,9 @@ class Table(object):
                       name_plural='!!Subscriptions')
         self.sysFields(tbl)
         tbl.column('tablename',name_long='!!Tablename') #table fullname 
-        tbl.column('rec_pkey',name_long='!!Pkey') # if rec_pkey == * means all records
+        #tbl.column('rec_pkey',name_long='!!Pkey') # if rec_pkey == * means all records
         tbl.column('dbstore',name_long='!!Store')
         
-    def trigger_onInserting(self, record_data):
-        """
-        when we add a subscription we must copy data from main db to a store
-        """
-        self.copyRecords(table=record_data['tablename'],
-                         pkey=record_data['rec_pkey'],
-                        dbstore=record_data['dbstore'])
     
     def copyRecords(self,table,pkey,dbstore):
         tblobj = self.db.table(table)
@@ -26,5 +19,12 @@ class Table(object):
         with self.db.tempEnv(storename=dbstore):
             for rec in records:
                 tblobj.insertOrUpdate(rec)
-        
+    
+    def addSubscription(self,table=None,pkey=None,dbstore=None):
+        pkeyname = self.db.table(table).pkey
+        fkey='%s_%s' %(table.replace('.','_'),pkeyname)
+        record = dict(dbstore=dbstore,tablename=table)
+        record[fkey] = pkey
+        self.insert(record)
+        self.copyRecords(table=table,pkey=pkey or '*',dbstore=dbstore)
         
