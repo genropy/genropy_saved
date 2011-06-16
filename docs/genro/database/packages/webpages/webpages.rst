@@ -151,31 +151,22 @@ webpage variables
 py_requires
 -----------
 
+    .. note:: please read the :ref:`components_requirements` doumentation section
+              for more information on the ``py_requires`` syntax and for more
+              information on the place-folder where the components have to lay.
+              
     * Description: a string that allows to include some :ref:`genro_component`\s
-      to your project (or, more generally, Python modules).
-    * Syntax: ``py_requires = 'fileName:componentClassName'``
-    
-        Where:
-        
-        * ``fileName`` is the name of the file including the component (write it without
-          its ``.py`` extension)
-        * ``componentClassName`` is the name of the component class
-        
+      to your project
     * Default value: ``None``
     * Example::
     
-        py_requires = 'public:Public,standard_tables:TableHandler,public:IncludedView'
+        py_requires = """public:Public,
+                         th/th_view:TableHandlerView,
+                         """
     
     In this example you are calling the ``Public`` and the ``IncludedView`` classes of the
     ``public.py`` file and the ``TableHandler`` class of the ``standard_tables.py`` file.
     
-    .. note:: The components you want to use must be placed into a folder named ``resources``
-              
-              * For more information about components, check the :ref:`genro_component`\s
-                documentation page
-              * For more information about their location in a Genro :ref:`genro_project`,
-                please check the :ref:`genro_intro_resources` documentation page
-                
     .. _webpages_css_requires:
 
 css_requires

@@ -832,8 +832,7 @@ class GnrWsgiSite(object):
     def onAuthenticated(self, avatar):
         """add???
         
-        :param avatar: add???
-        """
+        :param avatar: the avatar (user that logs in)"""
         if 'adm' in self.db.packages:
             self.db.packages['adm'].onAuthenticated(avatar)
         for pkg in self.db.packages.values():
@@ -936,9 +935,7 @@ class GnrWsgiSite(object):
         
         :param page: add???
         :param table: the :ref:`genro_table` to which the record belongs to
-        :param pkey: the record primary key.
-        :returns: add???
-        """
+        :param pkey: the record primary key."""
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').lockRecord(page, table, pkey)
             
@@ -947,24 +944,23 @@ class GnrWsgiSite(object):
         
         :param page: add???
         :param table: the :ref:`genro_table` to which the record belongs to
-        :param pkey: the record primary key.
-        :returns: add???
-        """
+        :param pkey: the record primary key."""
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').unlockRecord(page, table, pkey)
             
     def clearRecordLocks(self, **kwargs):
-        """add???
-        :returns: add???
-        """
+        """add???"""
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').clearExistingLocks(**kwargs)
             
     def onClosePage(self, page):
-        """add???
+        """A method called on closure page. Call in the following order:
         
-        :param page: add???
-        """
+        * the :meth:`drop_page() <gnr.web.gnrwsgisite_proxy.gnrobjectregister.SiteRegister.drop_page()>` method
+        * the :meth:`pageLog() <pageLog>` method
+        * the :meth:`clearRecordLocks` method
+        
+        :param page: the :ref:`webpages_webpages`"""
         page_id = page.page_id
         self.register.drop_page(page_id)
         self.pageLog('close', page_id=page_id)
@@ -975,8 +971,7 @@ class GnrWsgiSite(object):
         """Send debug information to the client, if debugging is enabled.
         Press Ctrl+Shift+D to open the debug pane in your browser.
         
-        :param debugtype: string (values: 'sql' or 'py')
-        """
+        :param debugtype: string (values: 'sql' or 'py')"""
         if self.currentPage:
             page = self.currentPage
             if self.debug or page.isDeveloper():
@@ -998,15 +993,14 @@ class GnrWsgiSite(object):
                                             page_id=page_id,public=True)
         
         self.db.updateEnv(env_transaction_id= None,dbevents=None)
-
+        
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         """add???
         
         :param tblobj: add???
         :param record: add???
         :param event: add???
-        :param old_record: add???. Default value is ``None``
-        """
+        :param old_record: add???. Default value is ``None``"""
         if tblobj.attributes.get('broadcast') == '*old*':
             subscribers = self.register.pages(index_name=tblobj.fullname)
             value = Bag([(k, v) for k, v in record.items() if not k.startswith('@')])
@@ -1022,8 +1016,7 @@ class GnrWsgiSite(object):
         :param pageId: add???. Default value is ``None``
         :param filters: add???. Default value is ``None``
         :param origin: add???. Default value is ``None``
-        :param msg_path: add???. Default value is ``None``
-        """
+        :param msg_path: add???. Default value is ``None``"""
         from_page, from_user = (origin.page_id, origin.user) if origin else (None, '*Server*')
         self.currentPage.setInClientData(msg_path or 'gnr.servermsg', value,
                                          page_id=pageId, filters=filters,
@@ -1048,9 +1041,7 @@ class GnrWsgiSite(object):
         :param table: the :ref:`genro_table` name. Default value is ``None``
         :param respath: add???. Default value is ``None``
         :param class_name: add???. Default value is ``None``
-        :param runKwargs: add???. Default value is ``None``
-        :returns: add???
-        """
+        :param runKwargs: add???. Default value is ``None``"""
         script = self.loadTableScript(page=page, table=table, respath=respath, class_name=class_name)
         if runKwargs:
             for k, v in runKwargs.items():

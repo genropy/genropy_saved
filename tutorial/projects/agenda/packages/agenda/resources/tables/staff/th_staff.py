@@ -26,6 +26,10 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='@anagrafica_id.cognome', op='contains', val='', runOnStart=True)
         
+class Form(BaseComponent):
+    def th_form(self, form):
+        pass
+        
 class FormValidations(BaseComponent):
     def th_form(self, form):
         pane = form.record
@@ -90,25 +94,6 @@ class FormValidations(BaseComponent):
         # validate_min
         # validate_nodup
         # validate_remote
-        
-class Form(BaseComponent):
-    def th_form(self, form):
-        pass
-        #pane = form.record
-        #fb = pane.formbuilder(cols=2,border_spacing='6px',fld_width='15em',lbl_color='teal')
-        #fb.field('@anagrafica_id.nome')
-        #fb.field('@anagrafica_id.cognome')
-        #fb.field('@anagrafica_id.email',
-        #          validate_email=True,validate_email_error='!!Formato email non corretto')
-        #fb.field('@anagrafica_id.telefono', ghost='esempio: 347/1212123')
-        #fb.field('@anagrafica_id.codice_fiscale',
-        #          validate_case='u')
-        #fb.field('@anagrafica_id.partita_iva')
-        #fb.field('@anagrafica_id.fax')
-        #fb.field('interno', ghost='esempio: 202')
-        #fb.field('@anagrafica_id.note', tag='simpletextarea', colspan=2, width='100%')
-        #fb.field('ruolo',tag='combobox', lbl='Ruolo nell\'azienda',
-        #          values='dipendente, libero professionista, manager')
         
 #class NisoView(BaseComponent):
 #    def th_struct(self,struct):

@@ -438,7 +438,7 @@ th_webpage
             def th_form(self, form):
                 pass
                 
-    because you will handle the View class in the th_webpage.
+    because you will handle the Form class in the th_webpage.
     
     How are the ``th_webpage`` and the :ref:`th_resource_page` related? Through their
     filename. Let's see this fact through an example:

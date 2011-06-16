@@ -4,8 +4,6 @@
 table
 =====
 
-    .. warning:: this page is a draft.
-    
     .. image:: ../../../_images/projects/packages/model_table.png
     
     * :ref:`table_description`
@@ -93,11 +91,13 @@ config_db
         * name_plural
         * audit='lazy' --> consente di visualizzare (DOVE??? Mi sembra una cosa di adm) le modifiche
                            ad un record. Non fa niente quando si crea un nuovo record.
-        * _sendback: boolean. If ``True``, the value of the column is passed during the form save. It is
-          useful when you have to check in anny case a column value even if it doesn't change
-          (using for example the :ref:`onloading_method` or th :ref:`onsaving_method` method).
+        * _sendback: boolean. If ``True``, the value of the column is passed during the form save, even
+          if it is not change.
           
-        * indexed: boolan. If ``True`` create an SQL index.
+          It is useful when you have to check a column value even if it doesn't change (using for
+          example the :ref:`onloading_method` or the :ref:`onsaving_method` method).
+          
+        * indexed: boolan. If ``True``, create an SQL index.
           
     * introduce the sysFields::
         
@@ -105,7 +105,9 @@ config_db
         
     .. automethod:: gnr.app.gnrdbo.TableBase.sysFields
     
-    add??? self.htableFields(tbl)
+    * introduce the htableField::
+    
+        add??? self.htableFields(tbl)
 
 .. _table_columns:
 
@@ -115,6 +117,7 @@ columns
     There are a lot of columns type you can use:
     
     * the simple :ref:`table_column` (and :ref:`table_relation`\s)
+    * the :ref:`table_relation`
     * the :ref:`table_aliascolumn`
     * the :ref:`table_formulacolumn`
     * the :ref:`table_virtualcolumn`
@@ -127,6 +130,8 @@ column
     .. automethod:: gnr.sql.gnrsqlmodel.DbModelSrc.column
     
     * introduce column(s):
+        
+      ::
         
         tbl.column('tipologia',size=':22',name_long='!!Tipologia')
         
@@ -142,18 +147,28 @@ column
         
 .. _table_relation:
 
-relation
---------
+relation column
+---------------
 
-    tbl.column('anagrafica_id',size=':22',name_long='!!Anagrafica id',group='_').relation('sw_base.anagrafica.id', mode='foreignkey')
+    Allow to create a relation from table to table.
+
+    ::
     
+        tbl.column('registry_id',size=':22',name_long='!!Registry id').relation('sw_base.registry.id',mode='foreignkey')
+        
     attributi di *relation*:
     
+    * first parameter: the path of the relation field
+    
+      ::
+      
+        packageName.tableName.columnName
+        
     * mode='foreignkey'
       se non si mette il mode='foreignkey', la relazione è puramente logica, ed è senza nessun controllo
       di integrità referenziale quando si vuole interagire con il database, mettere mode='foreignkey' -->
       diventa una relazione SQL. Nel 99% dei casi bisogna metterlo!
-    * onDelete='cascade' add??? (altri attributi?)
+    * onDelete='cascade' (other SQL attributes...)
     * one_one='*' / True / ... add??? permette di rendere la relazione "simmetrica"
     * one_group add???
     * relation_name='nome' + storepath='nome' --> mi permette di non riscrivere tutta la relazione
@@ -164,8 +179,12 @@ relation
 aliasColumn
 -----------
 
-    add???
+    The aliasColumn is a column through which you can give a different name to some columns of a related table.
     
+        **Example**:
+        
+        add???
+        
 .. _table_formulacolumn:
 
 formulaColumn

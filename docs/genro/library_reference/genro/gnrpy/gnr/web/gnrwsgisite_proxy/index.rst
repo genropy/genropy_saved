@@ -5,5 +5,6 @@
 .. toctree::
     :maxdepth: 2
     
+    gnrobjectregister
     gnrresourceloader <gnrresourceloader>
     gnrshareddata
