@@ -1282,8 +1282,11 @@ class GnrWebPage(GnrBaseWebPage):
         
     def rpc_onClosePage(self, **kwargs):
         """An rpc on page closure"""
+        self.onClosePage()
         self.site.onClosePage(self)
-        #self.pageFolderRemove()
+        
+    def onClosePage(self):
+        pass
         
     def pageFolderRemove(self):
         """add???"""

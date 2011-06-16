@@ -954,18 +954,12 @@ class GnrWsgiSite(object):
             return self.gnrapp.db.table('sys.locked_record').clearExistingLocks(**kwargs)
             
     def onClosePage(self, page):
-        """A method called on closure page. Call in the following order:
-        
-        * the :meth:`drop_page() <gnr.web.gnrwsgisite_proxy.gnrobjectregister.SiteRegister.drop_page()>` method
-        * the :meth:`pageLog() <pageLog>` method
-        * the :meth:`clearRecordLocks` method
-        
-        :param page: the :ref:`webpages_webpages`"""
+        """A method called on when a page is closed on the client.
+        :param page: the :ref:`webpages_webpages` being closed"""
         page_id = page.page_id
         self.register.drop_page(page_id)
         self.pageLog('close', page_id=page_id)
         self.clearRecordLocks(page_id=page_id)
-
         
     def debugger(self, debugtype, **kwargs):
         """Send debug information to the client, if debugging is enabled.
