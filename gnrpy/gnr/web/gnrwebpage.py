@@ -1243,7 +1243,7 @@ class GnrWebPage(GnrBaseWebPage):
             return
         bc = parentBC.borderContainer(_class='main_left_tab', width='200px', datapath='gnr.main_container.left',
                                       **kwargs)
-        self.mainLeftTop(bc.contentPane(region='top', nodeId='gnr_main_left_bottom', id='gnr_main_left_top'))
+        self.mainLeftTop(bc.contentPane(region='top', nodeId='gnr_main_left_top', id='gnr_main_left_top'))
         bottom = bc.contentPane(region='bottom', nodeId='gnr_main_left_bottom', id='gnr_main_left_bottom',
                                 overflow='hidden')
         plugin_dock = bottom.slotBar(slots='*,%s,*' %self.plugin_list)
