@@ -39,7 +39,7 @@ class GnrCustomWebPage(object):
                           external_categories='=selected_categories', preview=True,
                           footer=footer, onResult='FIRE reload_saved_files;',
                           )
-        pane.dataController("console.log('fatto');", subscribe_flib_uploader_done=True)
+       # pane.dataController("console.log('fatto');", subscribe_flib_uploader_done=True)
 
 
     def process_thumb32(self):

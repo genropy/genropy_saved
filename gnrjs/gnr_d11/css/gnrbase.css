@@ -1118,6 +1118,12 @@ div.dojoxDock {
     width: 16px;
     height: 16px;
 }
+.icnBuilding{
+    background: url(icons/base16/building.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+
 .icnBaseCalendar {
     background: url(icons/base16/calendar.png) no-repeat center center;
     width: 16px;
@@ -2555,7 +2561,7 @@ p {
 
 /* @end */
 
-/* @group iframetab */
+/* @group multibutton */
 
 .multibutton:hover{
 	text-decoration: underline;
@@ -2576,7 +2582,7 @@ p {
     -webkit-border-bottom-left-radius: 6px;
 }
 
-.multibutton_selected.iframetab{
+.multibutton_selected.multibutton{
     color: #fff;
    /* border: 0px;*/
 	/*font-weight: bold;*/
@@ -2585,7 +2591,7 @@ p {
     -webkit-box-shadow:inset 1px 1px 2px #222;
 	
 }
-.multibutton_selected.iframetab:hover{
+.multibutton_selected.multibutton:hover{
 	text-decoration:none;
 }
 

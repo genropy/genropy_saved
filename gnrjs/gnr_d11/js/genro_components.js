@@ -621,18 +621,30 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     }
 });
 
-dojo.declare("gnr.widgets.ConnectedTooltipDialog", gnr.widgets.gnrwdg, {
+
+dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
-        var ddbId = sourceNode.getStringId();
-        var ddb = sourceNode._('dropdownbutton',{hidden:true,id:ddbId});
-        var ttattr = {connect_onOpen:'this.widget.resize();'};
-        
-        ttattr.selfsubscribe_show=function(){
-            dijit.byId(ddbId)._openDropDown(this.getDomNode());
+        var value = objectPop(kw,'value'); //^miorul
+        var placeholder = objectPop(kw,'placeholder');
+        var folder = objectPop(kw,'folder');
+        var filename = objectPop(kw,'filename');
+        filename = sourceNode.currentFromDatasource(filename);
+        if(!sourceNode.currentFromDatasource(value)){
+            sourceNode.setRelativeData(value,placeholder);
         }
-        return ddb._('tooltipdialog',objectUpdate(ttattr,kw));
+        var cb = function(result){
+            console.log(this,result);
+            sourceNode.setRelativeData(value,this.responseText);
+        }
+        var uploaderAttr = {src:value,dropTarget:true,dropTypes:'Files', drop_ext:'png,jpg,gif'};
+        uploaderAttr.onDrop = function(data,files){
+            var f = files[0];
+            genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:folder,filename:filename,onResult:cb});
+        }
+        return sourceNode._('img',objectUpdate(uploaderAttr,kw));
     }
 });
+
 
 dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
