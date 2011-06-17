@@ -157,7 +157,6 @@ class TableHandler(BaseComponent):
         grid.dataController("""
             if(dbname){
                 formUrl = '/'+dbname+formUrl;
-                console.log(formUrl);
             }
             if(!this._pageHandler){
                 this._pageHandler = new gnr.pageTableHandlerJS(this,_formId,mainpkey,formUrl,default_kwargs,formResource);
