@@ -15,7 +15,7 @@ class GnrCustomWebPage(object):
         """childname with struct"""
         pippo = pane.pippo()
         pippo.red.span('hello')
-        pippo.lime.button('click me', action='alert("hello!")')
+        pippo.lime.button('Click me', action='alert("hello!")')
         pippo.bottone
         pippo.bottone.div('36')
         
@@ -24,5 +24,5 @@ class GnrCustomWebPage(object):
         box = pane.div(background='teal')
         box.div(childname='red',background='red',height='25px')
         box.div(childname='lime',background='lime',height='40px')
-        box.button('ciao',childname='bottone',action='alert("ho capito!")')
+        box.button('ciao',childname='bottone',action='alert("Hello!")')
         return box

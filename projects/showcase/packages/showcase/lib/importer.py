@@ -4,7 +4,7 @@
 importer.py
 
 Created by Saverio Porcari on 2008-07-28.
-Copyright (c) 2008 __MyCompanyName__. All rights reserved.
+Copyright (c) 2008 Softwell. All rights reserved.
 """
 
 from gnr.core.gnrbag import Bag, BagResolver, BagCbResolver, DirectoryResolver

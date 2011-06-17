@@ -11,8 +11,7 @@ import datetime
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-
+    
     def test_1_basic(self, pane):
         """dataRpc"""
         pane.div('^demo.today', font_size='20pt', border='3px solid yellow', padding='20px', margin_top='5px')
