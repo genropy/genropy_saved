@@ -10,7 +10,7 @@ from gnr.core.gnrbag import Bag
 class FlibBase(BaseComponent):
     py_requires = 'foundation/includedview:IncludedView'
     css_requires = 'public'
-
+        
     def flibSavedFilesGrid(self, pane, gridId, checked_categories=None, reloader=None, label=None):
         selectionPars = dict(where="@flib_item_category_item_id.@category_id.code LIKE :cat_code || '%%'",
                              cat_code='=.#parent.tree.code',

@@ -629,14 +629,11 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
         var folder = objectPop(kw,'folder');
         var filename = objectPop(kw,'filename');
         filename = sourceNode.currentFromDatasource(filename);
-        if(!sourceNode.currentFromDatasource(value)){
-            sourceNode.setRelativeData(value,placeholder);
-        }
         var cb = function(result){
-            console.log(this,result);
             sourceNode.setRelativeData(value,this.responseText);
         }
-        var uploaderAttr = {src:value,dropTarget:true,dropTypes:'Files', drop_ext:'png,jpg,gif'};
+        var uploaderAttr = {src:'==_v?_v:placeholder;', placeholder:placeholder,_v:value,
+                            dropTarget:true,dropTypes:'Files', drop_ext:'png,jpg,gif'};
         uploaderAttr.onDrop = function(data,files){
             var f = files[0];
             genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:folder,filename:filename,onResult:cb});
