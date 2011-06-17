@@ -184,8 +184,7 @@ class DbModel(object):
     def load(self, source=None):
         """Load the modelsrc from a XML source
         
-        :param source: XML model (diskfile or text or url). Default value is ``None``
-        """
+        :param source: XML model (diskfile or text or url). Default value is ``None``"""
         self.src.update(source)
         
     def importFromDb(self):
@@ -197,8 +196,7 @@ class DbModel(object):
     def save(self, path):
         """save the current modelsrc as XML file at path
         
-        :param path: the file path
-        """
+        :param path: the file path"""
         self.src.save(path)
         
     def check(self, applyChanges=False):
@@ -206,8 +204,7 @@ class DbModel(object):
         
         Save the sql statements that makes the database compatible with the model.
         
-        :param applyChanges: boolean. If ``True``, apply the changes. Default value is ``False``
-        """
+        :param applyChanges: boolean. If ``True``, apply the changes. Default value is ``False``"""
         checker = SqlModelChecker(self.db)
         self.modelChanges = checker.checkDb()
         self.modelBagChanges = checker.bagChanges
