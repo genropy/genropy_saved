@@ -84,6 +84,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
         this.msg_unsaved_changes ="Current record has been modified.";
         this.msg_confirm_delete ="You are going to delete the current record.";
+        dojo.subscribe('onWindowUnload',function(){
+            that.setCurrentPkey(null);
+        })
 
     },
     getParentForm:function(){
