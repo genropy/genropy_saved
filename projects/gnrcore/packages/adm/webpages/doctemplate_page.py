@@ -20,11 +20,13 @@ class GnrCustomWebPage(object):
         bc = form.center.borderContainer()
         form.data('.tableTree', self.db.tableTreeBag(['sys'], omit=True, tabletype='main'))
         top = bc.contentPane(region='top',datapath='.record')
-        fb = top.formbuilder(cols=3, border_spacing='4px')
-        box = fb.field('maintable', width='15em', readOnly=True,validate_notnull=True) 
-        box.menu(storepath='#FORM.tableTree', modifiers='*', _class='smallmenu', action='SET .maintable = $1.fullpath')
+        fb = top.formbuilder(cols=4, border_spacing='4px')
+        box = fb.field('maintable', width='15em', readOnly=True if not self.isDeveloper() else None,validate_notnull=True) 
+        if not self.isDeveloper():
+            box.menu(storepath='#FORM.tableTree', modifiers='*', _class='smallmenu', action='SET .maintable = $1.fullpath')
         fb.field('name', width='20em')
         fb.field('version', width='4em')
+        fb.field('resource_name',_tags='_DEV_')
         tc = bc.tabContainer(region='center')
         self.editorPane(tc.borderContainer(title='Edit template'))
         self.previewPane(tc.borderContainer(title='Preview',datapath='.preview'))
@@ -153,4 +155,3 @@ class GnrCustomWebPage(object):
             return
         tplbuilder = self.tblobj.getTemplateBuilder(doctemplate=doctemplate, templates=templates)
         return self.tblobj.renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)))
-        

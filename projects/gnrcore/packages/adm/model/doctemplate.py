@@ -12,14 +12,31 @@ class Table(object):
         self.sysFields(tbl, id=False)
         tbl.column('name', name_long='!!Name', validate_nodup=True, unique=True,
                    validate_notnull=True, validate_notnull_error='!!Name is mandatory',
-                   validate_nodup_error='!!This name is already taken')
+                   validate_nodup_error='!!This name is already taken',_sendback=True)
         tbl.column('content', name_long='!!Content')
         tbl.column('metadata', 'X', name_long='!!Metadata')
         tbl.column('varsbag', 'X', name_long='!!Variables')
         tbl.column('username', name_long='!!Username')
         tbl.column('version', name_long='!!Version')
         tbl.column('maintable', name_long='!!Main table')
+        tbl.column('resource_name',name_long='!!Resource Name',_sendback=True)
 
+    def trigger_onInserted(self, record_data):
+        if record_data.get('resource_name'):
+            self.copyToResource(record_data['name'])
+        
+    def trigger_onUpdated(self, record_data, old_record):
+        if record_data.get('resource_name'):
+            self.copyToResource(record_data['name'])
+    
+    def copyToResource(self,pkey):
+        record = self.record(pkey=pkey).output('bag')
+        table = record['maintable']
+        resource_name = record['resource_name']
+        varsbag = record['varsbag']
+        self.db.application.site.currentPage.setTableResourceContent(table=table,path='tpl/%s' %resource_name,value=record,ext='xml')
+
+    
     def cleanTemplate(self, doctemplate_content, virtual_columns=None):
         virtual_columns = [] if virtual_columns is None else virtual_columns
         EXTRACT_FIELDS_STRIPPED_RE = r'(?:\$)(.*?)(?:<|\s)'
