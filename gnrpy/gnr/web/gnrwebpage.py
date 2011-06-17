@@ -333,7 +333,6 @@ class GnrWebPage(GnrBaseWebPage):
         self.site.resource_loader.mixinPageComponent(self, pkg, *path,**kwargs)
         
     def tableTemplate(self,table=None,tplname=None):
-        pkg,table = table.split('.')
         return self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext='html')
         
     @property
