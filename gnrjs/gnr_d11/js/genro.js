@@ -126,7 +126,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     _starter:function() {
         var mainWindow = dojo.byId('mainWindow');
-        if (mainWindow.clientHeight==0){
+        if (mainWindow && mainWindow.clientHeight==0){
             genro._startDelayer = setInterval(function(){
                 if(dojo.byId('mainWindow').clientHeight>0){
                     clearInterval(genro._startDelayer);
