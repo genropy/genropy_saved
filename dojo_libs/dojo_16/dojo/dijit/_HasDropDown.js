@@ -13,6 +13,7 @@ dojo.declare("dijit._HasDropDown",null,{_buttonNode:null,_arrowWrapperNode:null,
 if(this.disabled||this.readOnly){
 return;
 }
+dojo.stopEvent(e);
 this._docHandler=this.connect(dojo.doc,"onmouseup","_onDropDownMouseUp");
 this.toggleDropDown();
 },_onDropDownMouseUp:function(e){
@@ -64,6 +65,7 @@ this.inherited(arguments);
 this.connect(this._buttonNode,"onmousedown","_onDropDownMouseDown");
 this.connect(this._buttonNode,"onclick","_onDropDownClick");
 this.connect(this.focusNode,"onkeypress","_onKey");
+this.connect(this.focusNode,"onkeyup","_onKeyUp");
 },destroy:function(){
 if(this.dropDown){
 if(!this.dropDown._destroyed){
@@ -88,12 +90,17 @@ this.closeDropDown();
 dojo.stopEvent(e);
 }else{
 if(!this._opened&&(e.charOrCode==dojo.keys.DOWN_ARROW||((e.charOrCode==dojo.keys.ENTER||e.charOrCode==" ")&&((_5.tagName||"").toLowerCase()!=="input"||(_5.type&&_5.type.toLowerCase()!=="text"))))){
+this._toggleOnKeyUp=true;
+dojo.stopEvent(e);
+}
+}
+},_onKeyUp:function(){
+if(this._toggleOnKeyUp){
+delete this._toggleOnKeyUp;
 this.toggleDropDown();
-d=this.dropDown;
+var d=this.dropDown;
 if(d&&d.focus){
 setTimeout(dojo.hitch(d,"focus"),1);
-}
-dojo.stopEvent(e);
 }
 }
 },_onBlur:function(){

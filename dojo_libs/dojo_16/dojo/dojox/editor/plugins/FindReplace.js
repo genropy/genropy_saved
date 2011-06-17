@@ -17,7 +17,7 @@ dojo.require("dijit._editor._Plugin");
 dojo.require("dijit.form.Button");
 dojo.require("dojox.editor.plugins.ToolbarLineBreak");
 dojo.require("dojo.i18n");
-dojo.requireLocalization("dojox.editor.plugins","FindReplace",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sl,sv,th,tr,zh,zh-tw");
+dojo.requireLocalization("dojox.editor.plugins","FindReplace",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sk,sl,sv,th,tr,zh,zh-tw");
 dojo.experimental("dojox.editor.plugins.FindReplace");
 dojo.declare("dojox.editor.plugins._FindReplaceCloseBox",[dijit._Widget,dijit._Templated],{btnId:"",widget:null,widgetsInTemplate:true,templateString:"<span style='float: right' class='dijitInline' tabindex='-1'>"+"<button class='dijit dijitReset dijitInline' "+"id='${btnId}' dojoAttachPoint='button' dojoType='dijit.form.Button' tabindex='-1' iconClass='dijitEditorIconsFindReplaceClose' showLabel='false'>X</button>"+"</span>",postMixInProperties:function(){
 this.id=dijit.getUniqueId(this.declaredClass.replace(/\./g,"_"));

@@ -9,10 +9,9 @@ if(!dojo._hasResource["dijit._editor.plugins.LinkDialog"]){
 dojo._hasResource["dijit._editor.plugins.LinkDialog"]=true;
 dojo.provide("dijit._editor.plugins.LinkDialog");
 dojo.require("dijit._Widget");
-dojo.require("dijit._Templated");
 dojo.require("dijit._editor._Plugin");
 dojo.require("dijit.TooltipDialog");
-dojo.require("dijit.form.Button");
+dojo.require("dijit.form.DropDownButton");
 dojo.require("dijit.form.ValidationTextBox");
 dojo.require("dijit.form.Select");
 dojo.require("dijit._editor.range");
@@ -109,7 +108,7 @@ _c.urlInput=_c.urlInput.replace(/"/g,"&quot;");
 return _c;
 },setValue:function(_d){
 this._onCloseDialog();
-if(dojo.isIE){
+if(dojo.isIE<9){
 var _e=dijit.range.getSelection(this.editor.window);
 var _f=_e.getRangeAt(0);
 var a=_f.endContainer;
@@ -143,7 +142,7 @@ _10=dojo.withGlobal(this.editor.window,dijit._editor.selection.getSelectedText);
 return {urlInput:url||"",textInput:_10||"",targetSelect:_11||""};
 },_onOpenDialog:function(){
 var a;
-if(dojo.isIE){
+if(dojo.isIE<9){
 var sel=dijit.range.getSelection(this.editor.window);
 var _12=sel.getRangeAt(0);
 a=_12.endContainer;

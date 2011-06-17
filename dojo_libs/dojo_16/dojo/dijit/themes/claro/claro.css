@@ -73,7 +73,6 @@
 }
 .dijitOffScreen {
 	position: absolute;
-	visibility: hidden;
 	left: 50%;
 	top: -10000px;
 }
@@ -802,13 +801,6 @@ body .dijitAlignClient { position: absolute; }
 	background: #fff;
 	position: relative;
 }
-img.dijitColorPaletteUnder {
-	
-	border-style: none;
-	position: absolute;
-	left: 0;
-	top: 0;
-}
 .dijitColorPalette .dijitPaletteTable {
 	
 	padding: 2px 3px 3px 3px;
@@ -826,8 +818,6 @@ img.dijitColorPaletteUnder {
 }
 .dijitColorPalette .dijitPaletteCell {
 	
-	height: 20px;
-	width: 20px;
 	font-size: 1px;
 	vertical-align: middle;
 	text-align: center;
@@ -835,14 +825,19 @@ img.dijitColorPaletteUnder {
 }
 .dijitColorPalette .dijitPaletteImg {
 	
-	width: 16px;
-	height: 14px;
+	padding: 1px;		
 	border: 1px solid #999;
+	margin: 2px 1px;
 	cursor: default;
-	vertical-align: middle;
+	font-size: 1px;		
 }
-.dj_iequirks .dijitColorPalette .dijitPaletteImg {
-	margin: 1px;	
+.dj_gecko .dijitColorPalette .dijitPaletteImg {
+	padding-bottom: 0;	
+}
+.dijitColorPalette .dijitColorPaletteSwatch {
+	
+	width: 14px;
+	height: 12px;
 }
 .dijitPaletteTable td {
 		padding: 0;
@@ -854,18 +849,12 @@ img.dijitColorPaletteUnder {
 .dijitColorPalette .dijitPaletteCellActive .dijitPaletteImg,
 .dijitColorPalette .dijitPaletteCellSelected .dijitPaletteImg {
 	border: 2px solid #000;
+	margin: 1px 0;	
 }
 .dijit_a11y .dijitColorPalette .dijitPaletteTable,
 .dijit_a11y .dijitColorPalette .dijitPaletteTable * {
 	
 	background-color: transparent !important;
-}
-.dj_gecko .dijit_a11y .dijitColorPalette .dijitPaletteCellFocused .dijitPaletteImg {
-	border: 3px dotted #000;	
-	margin: -1px;
-}
-.dijit_a11y  .dijitColorPalette .dijitPaletteCellHover .dijitPaletteImg {
-	border: 2px solid #000 !important;
 }
 .dijitAccordionContainer {
 	border:1px solid #b7b7b7;
@@ -1885,14 +1874,20 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   
   border-color: #b5bcc7;
   -webkit-transition-property: background-color, border;
-  -webkit-transition-duration: .35s;
+  -moz-transition-property: background-color, border;
+  transition-property: background-color, border;
+  -webkit-transition-duration: 0.35s;
+  -moz-transition-duration: 0.35s;
+  transition-duration: 0.35s;
 }
 .claro .dijitTextBox {
   background-color: #ffffff;
 }
 .claro .dijitTextBoxHover, .claro .dijitTextBoxHover .dijitButtonNode {
   border-color: #769dc0;
-  -webkit-transition-duration: .25s;
+  -webkit-transition-duration: 0.25s;
+  -moz-transition-duration: 0.25s;
+  transition-duration: 0.25s;
 }
 .claro .dijitTextBoxHover {
   background-color: #e9f4fe;
@@ -1907,7 +1902,9 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
 }
 .claro .dijitTextBoxFocused, .claro .dijitTextBoxFocused .dijitButtonNode {
   border-color: #769dc0;
-  -webkit-transition-duration: .1s;
+  -webkit-transition-duration: 0.1s;
+  -moz-transition-duration: 0.1s;
+  transition-duration: 0.1s;
 }
 .claro .dijitTextBoxFocused {
   background-color: #ffffff;
@@ -1987,7 +1984,11 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
 .claro .dijitButtonNode {
   
   -webkit-transition-property: background-color;
-  -webkit-transition-duration: .3s;
+  -moz-transition-property: background-color;
+  transition-property: background-color;
+  -webkit-transition-duration: 0.3s;
+  -moz-transition-duration: 0.3s;
+  transition-duration: 0.3s;
 }
 .claro .dijitButton .dijitButtonNode,
 .claro .dijitDropDownButton .dijitButtonNode,
@@ -2051,7 +2052,9 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
 .claro .dijitToggleButtonHover .dijitButtonNode {
   background-color: #abd6ff;
   color: #000000;
-  -webkit-transition-duration: .2s;
+  -webkit-transition-duration: 0.2s;
+  -moz-transition-duration: 0.2s;
+  transition-duration: 0.2s;
 }
 .claro .dijitButtonActive .dijitButtonNode,
 .claro .dijitDropDownButtonActive .dijitButtonNode,
@@ -2061,7 +2064,9 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   -webkit-box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   -moz-box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-  -webkit-transition-duration: .1s;
+  -webkit-transition-duration: 0.1s;
+  -moz-transition-duration: 0.1s;
+  transition-duration: 0.1s;
 }
 .claro .dijitButtonDisabled,
 .claro .dijitDropDownButtonDisabled,
@@ -2308,18 +2313,26 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
 .claro .dijitTabInnerDiv {
   background-color: #efefef;
   -webkit-transition-property: background-color, border;
-  -webkit-transition-duration: .35s;
+  -moz-transition-property: background-color, border;
+  transition-property: background-color, border;
+  -webkit-transition-duration: 0.35s;
+  -moz-transition-duration: 0.35s;
+  transition-duration: 0.35s;
   color: #4a4a4a;
 }
 .claro .dijitTabHover .dijitTabInnerDiv {
   background-color: #abd6ff;
-  -webkit-transition-duration: .25s;
+  -webkit-transition-duration: 0.25s;
+  -moz-transition-duration: 0.25s;
+  transition-duration: 0.25s;
   color: #000000;
 }
 .claro .dijitTabActive .dijitTabInnerDiv {
   background-color: #7dbefa;
   color: #000000;
-  -webkit-transition-duration: .1s;
+  -webkit-transition-duration: 0.1s;
+  -moz-transition-duration: 0.1s;
+  transition-duration: 0.1s;
 }
 .claro .dijitTabChecked .dijitTabInnerDiv {
   background-color: #cfe5fa;
@@ -2562,7 +2575,11 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   padding: 4px;
   border-color: rgba(118, 157, 192, 0);
   -webkit-transition-property: background-color, border-color;
-  -webkit-transition-duration: .3s;
+  -moz-transition-property: background-color, border-color;
+  transition-property: background-color, border-color;
+  -webkit-transition-duration: 0.3s;
+  -moz-transition-duration: 0.3s;
+  transition-duration: 0.3s;
   -moz-border-radius: 2px;
   border-radius: 2px;
 }
@@ -2580,7 +2597,9 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   background-color: #e9f4fe;
   border: solid 1px #cfe5fa;
   padding: 3px;
-  webkit-transition-duration: .2s;
+  -webkit-transition-duration: 0.2s;
+  -moz-transition-duration: 0.2s;
+  transition-duration: 0.2s;
 }
 .claro .dijitTabContainerTabListNested .dijitTabHover .tabLabel {
   text-decoration: none;
@@ -2589,7 +2608,9 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   border: solid 1px #769dc0;
   padding: 3px;
   background: #abd6ff url(layout/images/tabNested.png) repeat-x;
-  -webkit-transition-duration: .1s;
+  -webkit-transition-duration: 0.1s;
+  -moz-transition-duration: 0.1s;
+  transition-duration: 0.1s;
 }
 .claro .dijitTabContainerTabListNested .dijitTabChecked .dijitTabContent {
   padding: 3px;
@@ -2774,8 +2795,14 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   border: solid 1px #b5bcc7;
   margin-bottom: 1px;
   -webkit-transition-property: background-color, border;
-  -webkit-transition-duration: .3s;
+  -moz-transition-property: background-color, border;
+  transition-property: background-color, border;
+  -webkit-transition-duration: 0.3s;
+  -moz-transition-duration: 0.3s;
+  transition-duration: 0.3s;
   -webkit-transition-timing-function: linear;
+  -moz-transition-timing-function: linear;
+  transition-timing-function: linear;
 }
 .claro .dijitAccordionTitle {
   background-color: transparent;
@@ -2806,7 +2833,9 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
 .claro .dijitAccordionInnerContainerActive {
   border: 1px solid #769dc0;
   background-color: #7dbefa;
-  -webkit-transition-duration: .1s;
+  -webkit-transition-duration: 0.1s;
+  -moz-transition-duration: 0.1s;
+  transition-duration: 0.1s;
 }
 .claro .dijitAccordionInnerContainerActive .dijitAccordionTitle {
   background-position: 0 -136px;
@@ -2829,7 +2858,9 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   
   border: 1px solid #769dc0;
   background-color: #abd6ff;
-  -webkit-transition-duration: .2s;
+  -webkit-transition-duration: 0.2s;
+  -moz-transition-duration: 0.2s;
+  transition-duration: 0.2s;
 }
 .claro .dijitAccordionInnerContainerSelectedHover .dijitAccordionChildWrapper, .claro .dijitAccordionInnerContainerSelectedActive .dijitAccordionChildWrapper {
   background-color: #ffffff;
@@ -2957,7 +2988,11 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   background-color: rgba(171, 212, 251, 0);
   
   -webkit-transition-property: background-color, border;
-  -webkit-transition-duration: .35s;
+  -moz-transition-property: background-color, border;
+  transition-property: background-color, border;
+  -webkit-transition-duration: 0.35s;
+  -moz-transition-duration: 0.35s;
+  transition-duration: 0.35s;
 }
 .claro .dijitCalendarPreviousMonth .dijitCalendarDateLabel, .claro .dijitCalendarNextMonth .dijitCalendarDateLabel {
   color: #769dc0;
@@ -2993,7 +3028,9 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   background-color: #abd6ff;
   border: solid 1px #769dc0;
   color: #000000;
-  -webkit-transition-duration: .2s;
+  -webkit-transition-duration: 0.2s;
+  -moz-transition-duration: 0.2s;
+  transition-duration: 0.2s;
 }
 .claro .dijitCalendarNextYearHover, .claro .dijitCalendarPreviousYearHover {
   color: #000000;
@@ -3013,7 +3050,9 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   background-position: 0 -300px;
   background-color: #7dbefa;
   border: solid 1px #ffffff;
-  -webkit-transition-duration: .1s;
+  -webkit-transition-duration: 0.1s;
+  -moz-transition-duration: 0.1s;
+  transition-duration: 0.1s;
 }
 .dj_ie6 .claro .dijitCalendarActiveDate .dijitCalendarDateLabel {
   background-image: none;
@@ -3714,6 +3753,7 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   padding: 4px 1px 2px 0;
   margin: 0 1px;
   
+  background-color: none;
   background-color: transparent;
   background-color: rgba(171, 214, 255, 0);
   background-image: url(images/commonHighlight.png);
@@ -3722,8 +3762,14 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   border-color: rgba(118, 157, 192, 0);
   border-width: 0;
   -webkit-transition-property: background-color, border-color;
-  -webkit-transition-duration: .25s ;
+  -moz-transition-property: background-color, border-color;
+  transition-property: background-color, border-color;
+  -webkit-transition-duration: 0.25s;
+  -moz-transition-duration: 0.25s;
+  transition-duration: 0.25s;
   -webkit-transition-timing-function: ease-out;
+  -moz-transition-timing-function: ease-out;
+  transition-timing-function: ease-out;
 }
 .dj_ie6 .claro .dijitTreeRow {
   background-image: none;
@@ -3742,7 +3788,9 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   margin: 0;
   border: solid 1px #769dc0;
   color: #000000;
-  -webkit-transition-duration: .25s ;
+  -webkit-transition-duration: 0.25s;
+  -moz-transition-duration: 0.25s;
+  transition-duration: 0.25s;
 }
 .claro .dijitTreeRowActive {
   background-color: #7dbefa;
@@ -3812,7 +3860,11 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   -moz-box-shadow: none;
   box-shadow: none;
   -webkit-transition-property: background-color;
-  -webkit-transition-duration: .3s, .35s;
+  -moz-transition-property: background-color;
+  transition-property: background-color;
+  -webkit-transition-duration: 0.3s, 0.35s;
+  -moz-transition-duration: 0.3s, 0.35s;
+  transition-duration: 0.3s, 0.35s;
   background-image: url(images/commonHighlight.png);
   background-position: 0 -30px;
   background-repeat: repeat-x;
@@ -3862,7 +3914,9 @@ DIV.dijitTabDisabled, .dj_ie DIV.dijitTabDisabled {
   padding: 1px;
 }
 .claro .dijitToolbar .dijitComboButtonActive {
-  -webkit-transition-duration: .2s;
+  -webkit-transition-duration: 0.2s;
+  -moz-transition-duration: 0.2s;
+  transition-duration: 0.2s;
   border-width: 1px;
   padding: 0;
 }

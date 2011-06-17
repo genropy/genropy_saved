@@ -15,7 +15,7 @@ var _4=dojo.connect(_1,"onclose",function(_5){
 clearTimeout(_6);
 if(!_5.wasClean){
 _1.disconnected(function(){
-dojox.socket.replace(_1,_1.reconnect());
+dojox.socket.replace(_1,_7=_1.reconnect());
 });
 }
 });
@@ -35,7 +35,7 @@ _3*=_2.backoffRate||2;
 }
 if(!_1.reconnect){
 _1.reconnect=function(){
-return _1.args?dojox.socket.LongPoll(_1.args):dojox.socket(_1.URL);
+return _1.args?dojox.socket.LongPoll(_1.args):dojox.socket.WebSocket({url:_1.URL||_1.url});
 };
 }
 return _1;

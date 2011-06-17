@@ -103,8 +103,8 @@ throw new Error("XMLHTTP not available: "+_b);
 return _a;
 };
 d._isDocumentOk=function(_d){
-var _e=_d.status||0;
-return (_e>=200&&_e<300)||_e==304||_e==1223||!_e;
+var _e=_d.status||0,lp=location.protocol;
+return (_e>=200&&_e<300)||_e==304||_e==1223||(!_e&&(lp=="file:"||lp=="chrome:"||lp=="chrome-extension:"||lp=="app:"));
 };
 var _f=window.location+"";
 var _10=document.getElementsByTagName("base");

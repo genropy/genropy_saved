@@ -50,6 +50,7 @@ this.focusChild(_d,true);
 if(this.focusedChild&&_e!==this.focusedChild){
 this._onChildBlur(this.focusedChild);
 }
+_e.set("tabIndex",this.tabIndex);
 _e.focus(_f?"end":"start");
 this._set("focusedChild",_e);
 },_startupChild:function(_10){

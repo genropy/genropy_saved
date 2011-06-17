@@ -48,8 +48,8 @@ return;
 }
 var fd=new FormData();
 dojo.forEach(this.inputNode.files,function(f,i){
-fd.append("uploadedfiles[]",f);
-});
+fd.append(this.name+"s[]",f);
+},this);
 if(_8){
 for(var nm in _8){
 fd.append(nm,_8[nm]);
@@ -104,7 +104,7 @@ var _11="";
 _10="--"+_10;
 var _12=[];
 dojo.forEach(this.inputNode.files,function(f,i){
-var _13="uploadedfiles[]";
+var _13=this.name+"s[]";
 var _14=this.inputNode.files[i].fileName;
 var _15;
 try{

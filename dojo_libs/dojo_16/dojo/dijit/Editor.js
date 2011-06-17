@@ -193,7 +193,7 @@ var _12=b.mark;
 var col=b.isCollapsed;
 var r,_13,_14,sel;
 if(_12){
-if(dojo.isIE){
+if(dojo.isIE<9){
 if(dojo.isArray(_12)){
 _11=[];
 dojo.forEach(_12,function(n){
@@ -284,7 +284,7 @@ var b=dojo.withGlobal(this.window,dijit.getBookmark);
 var tmp=[];
 if(b&&b.mark){
 var _17=b.mark;
-if(dojo.isIE){
+if(dojo.isIE<9){
 var sel=dijit.range.getSelection(this.window);
 if(!dojo.isArray(_17)){
 if(sel){

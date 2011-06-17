@@ -74,51 +74,55 @@ var _c=function(_d){
 return _d.substring(0,1).toUpperCase()+_d.substring(1);
 };
 var _e=function(_f,dim){
-_f.resize?_f.resize(dim):dojo.marginBox(_f.domNode,dim);
+var _10=_f.resize?_f.resize(dim):dojo.marginBox(_f.domNode,dim);
+if(_10){
+dojo.mixin(_f,_10);
+}else{
 dojo.mixin(_f,dojo.marginBox(_f.domNode));
 dojo.mixin(_f,dim);
+}
 };
-dijit.layout.layoutChildren=function(_10,dim,_11,_12,_13){
+dijit.layout.layoutChildren=function(_11,dim,_12,_13,_14){
 dim=dojo.mixin({},dim);
-dojo.addClass(_10,"dijitLayoutContainer");
-_11=dojo.filter(_11,function(_14){
-return _14.region!="center"&&_14.layoutAlign!="client";
-}).concat(dojo.filter(_11,function(_15){
-return _15.region=="center"||_15.layoutAlign=="client";
+dojo.addClass(_11,"dijitLayoutContainer");
+_12=dojo.filter(_12,function(_15){
+return _15.region!="center"&&_15.layoutAlign!="client";
+}).concat(dojo.filter(_12,function(_16){
+return _16.region=="center"||_16.layoutAlign=="client";
 }));
-dojo.forEach(_11,function(_16){
-var elm=_16.domNode,pos=(_16.region||_16.layoutAlign);
-var _17=elm.style;
-_17.left=dim.l+"px";
-_17.top=dim.t+"px";
-_17.bottom=_17.right="auto";
+dojo.forEach(_12,function(_17){
+var elm=_17.domNode,pos=(_17.region||_17.layoutAlign);
+var _18=elm.style;
+_18.left=dim.l+"px";
+_18.top=dim.t+"px";
+_18.position="absolute";
 dojo.addClass(elm,"dijitAlign"+_c(pos));
-var _18={};
-if(_12&&_12==_16.id){
-_18[_16.region=="top"||_16.region=="bottom"?"h":"w"]=_13;
+var _19={};
+if(_13&&_13==_17.id){
+_19[_17.region=="top"||_17.region=="bottom"?"h":"w"]=_14;
 }
 if(pos=="top"||pos=="bottom"){
-_18.w=dim.w;
-_e(_16,_18);
-dim.h-=_16.h;
+_19.w=dim.w;
+_e(_17,_19);
+dim.h-=_17.h;
 if(pos=="top"){
-dim.t+=_16.h;
+dim.t+=_17.h;
 }else{
-_17.top=dim.t+dim.h+"px";
+_18.top=dim.t+dim.h+"px";
 }
 }else{
 if(pos=="left"||pos=="right"){
-_18.h=dim.h;
-_e(_16,_18);
-dim.w-=_16.w;
+_19.h=dim.h;
+_e(_17,_19);
+dim.w-=_17.w;
 if(pos=="left"){
-dim.l+=_16.w;
+dim.l+=_17.w;
 }else{
-_17.left=dim.l+dim.w+"px";
+_18.left=dim.l+dim.w+"px";
 }
 }else{
 if(pos=="client"||pos=="center"){
-_e(_16,dim);
+_e(_17,dim);
 }
 }
 }

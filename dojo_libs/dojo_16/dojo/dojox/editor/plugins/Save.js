@@ -11,7 +11,7 @@ dojo.provide("dojox.editor.plugins.Save");
 dojo.require("dijit.form.Button");
 dojo.require("dijit._editor._Plugin");
 dojo.require("dojo.i18n");
-dojo.requireLocalization("dojox.editor.plugins","Save",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sl,sv,th,tr,zh,zh-tw");
+dojo.requireLocalization("dojox.editor.plugins","Save",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sk,sl,sv,th,tr,zh,zh-tw");
 dojo.declare("dojox.editor.plugins.Save",dijit._editor._Plugin,{iconClassPrefix:"dijitAdditionalEditorIcon",url:"",logResults:true,_initButton:function(){
 var _1=dojo.i18n.getLocalization("dojox.editor.plugins","Save");
 this.button=new dijit.form.Button({label:_1["save"],showLabel:false,iconClass:this.iconClassPrefix+" "+this.iconClassPrefix+"Save",tabIndex:"-1",onClick:dojo.hitch(this,"_save")});

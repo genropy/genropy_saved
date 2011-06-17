@@ -120,7 +120,7 @@ dijit.setWaiState(this.focusNode,"readonly",_d);
 this._set("readOnly",_d);
 },postCreate:function(){
 this.inherited(arguments);
-if(dojo.isIE){
+if(dojo.isIE<9||(dojo.isIE&&dojo.isQuirks)){
 this.connect(this.focusNode||this.domNode,"onkeydown",this._onKeyDown);
 }
 if(this._resetValue===undefined){

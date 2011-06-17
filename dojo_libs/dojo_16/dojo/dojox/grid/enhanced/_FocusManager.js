@@ -71,6 +71,7 @@ this._headerMouseEventHandlers=[];
 this._currentAreaIdx=-1;
 this._gridBlured=true;
 this._connects.push(dojo.connect(_e,"onBlur",this,"_doBlur"));
+this._connects.push(dojo.connect(_e.scroller,"renderPage",this,"_delayedCellFocus"));
 this.addArea({name:"header",onFocus:dojo.hitch(this,this.focusHeader),onBlur:dojo.hitch(this,this._blurHeader),onMove:dojo.hitch(this,this._navHeader),getRegions:dojo.hitch(this,this._findHeaderCells),onRegionFocus:dojo.hitch(this,this.doColHeaderFocus),onRegionBlur:dojo.hitch(this,this.doColHeaderBlur),onKeyDown:dojo.hitch(this,this._onHeaderKeyDown)});
 this.addArea({name:"content",onFocus:dojo.hitch(this,this._focusContent),onBlur:dojo.hitch(this,this._blurContent),onMove:dojo.hitch(this,this._navContent),onKeyDown:dojo.hitch(this,this._onContentKeyDown)});
 this.addArea({name:"editableCell",onFocus:dojo.hitch(this,this._focusEditableCell),onBlur:dojo.hitch(this,this._blurEditableCell),onKeyDown:dojo.hitch(this,this._onEditableCellKeyDown),onContentMouseEvent:dojo.hitch(this,this._onEditableCellMouseEvent),contentMouseEventPlanner:function(_f,_10){
@@ -308,9 +309,8 @@ if(this.isNavHeader()){
 this.focusHeader();
 }
 },_delayedCellFocus:function(){
-if(this.currentArea().name=="content"){
+this.currentArea("header",true);
 this.focusArea(this._currentAreaIdx);
-}
 },_changeMenuBindNode:function(_2e,_2f){
 var hm=this.grid.headerMenu;
 if(hm&&this._contextMenuBindNode==_2e){
@@ -397,26 +397,8 @@ this.move(_3e,_3f,evt);
 if(evt){
 dojo.stopEvent(evt);
 }
-},move:function(_40,_41){
-this.inherited(arguments);
-var _42=this.cell,row=this.rowIndex;
-if(!this.isNavHeader()&&_42){
-if(_40!==0){
-var _43=_42.view.getRowNode(row);
-if(_43&&dojo.style(_43,"display")==="none"){
-this.move(_40>0?1:-1,_41);
-}
-}else{
-if(_41!==0){
-var _43=_42.getNode(row);
-if(_43&&dojo.style(_43,"display")==="none"){
-this.move(_40,_41>0?1:-1);
-}
-}
-}
-}
-},_onContentKeyDown:function(e,_44){
-if(_44){
+},_onContentKeyDown:function(e,_40){
+if(_40){
 var dk=dojo.keys,s=this.grid.scroller;
 switch(e.keyCode){
 case dk.ENTER:
@@ -455,20 +437,20 @@ break;
 }
 }
 return true;
-},_blurFromEditableCell:false,_isNavigating:false,_navElems:null,_focusEditableCell:function(evt,_45){
-var _46=false;
+},_blurFromEditableCell:false,_isNavigating:false,_navElems:null,_focusEditableCell:function(evt,_41){
+var _42=false;
 if(this._isNavigating){
-_46=true;
+_42=true;
 }else{
 if(this.grid.edit.isEditing()&&this.cell){
-if(this._blurFromEditableCell||!this._blurEditableCell(evt,_45)){
+if(this._blurFromEditableCell||!this._blurEditableCell(evt,_41)){
 this.setFocusIndex(this.rowIndex,this.cell.index);
-_46=true;
+_42=true;
 }
 this._stopEvent(evt);
 }
 }
-return _46;
+return _42;
 },_applyEditableCell:function(){
 try{
 this.grid.edit.apply();
@@ -476,33 +458,33 @@ this.grid.edit.apply();
 catch(e){
 console.warn("_FocusManager._applyEditableCell() error:",e);
 }
-},_blurEditableCell:function(evt,_47){
+},_blurEditableCell:function(evt,_43){
 this._blurFromEditableCell=false;
 if(this._isNavigating){
-var _48=true;
+var _44=true;
 if(evt){
-var _49=this._navElems;
-var _4a=_49.lowest||_49.first;
-var _4b=_49.last||_49.highest||_4a;
-var _4c=dojo.isIE?evt.srcElement:evt.target;
-_48=_4c==(_47>0?_4b:_4a);
+var _45=this._navElems;
+var _46=_45.lowest||_45.first;
+var _47=_45.last||_45.highest||_46;
+var _48=dojo.isIE?evt.srcElement:evt.target;
+_44=_48==(_43>0?_47:_46);
 }
-if(_48){
+if(_44){
 this._isNavigating=false;
 return "content";
 }
 return false;
 }else{
 if(this.grid.edit.isEditing()&&this.cell){
-if(!_47||typeof _47!="number"){
+if(!_43||typeof _43!="number"){
 return false;
 }
-var dir=_47>0?1:-1;
+var dir=_43>0?1:-1;
 var cc=this.grid.layout.cellCount;
-for(var _4d,col=this.cell.index+dir;col>=0&&col<cc;col+=dir){
-_4d=this.grid.getCell(col);
-if(_4d.editable){
-this.cell=_4d;
+for(var _49,col=this.cell.index+dir;col>=0&&col<cc;col+=dir){
+_49=this.grid.getCell(col);
+if(_49.editable){
+this.cell=_49;
 this._blurFromEditableCell=true;
 return false;
 }
@@ -510,9 +492,9 @@ return false;
 if((this.rowIndex>0||dir==1)&&(this.rowIndex<this.grid.rowCount||dir==-1)){
 this.rowIndex+=dir;
 for(col=dir>0?0:cc-1;col>=0&&col<cc;col+=dir){
-_4d=this.grid.getCell(col);
-if(_4d.editable){
-this.cell=_4d;
+_49=this.grid.getCell(col);
+if(_49.editable){
+this.cell=_49;
 break;
 }
 }
@@ -524,35 +506,36 @@ return "content";
 return true;
 },_initNavigatableElems:function(){
 this._navElems=dijit._getTabNavigable(this.cell.getNode(this.rowIndex));
-},_onEditableCellKeyDown:function(e,_4e){
-var dk=dojo.keys,g=this.grid,_4f=g.edit,_50=false,_51=true;
+},_onEditableCellKeyDown:function(e,_4a){
+var dk=dojo.keys,g=this.grid,_4b=g.edit,_4c=false,_4d=true;
 switch(e.keyCode){
 case dk.ENTER:
-if(_4e&&_4f.isEditing()){
+if(_4a&&_4b.isEditing()){
 this._applyEditableCell();
-_50=true;
+_4c=true;
+dojo.stopEvent(e);
 }
 case dk.SPACE:
-if(!_4e&&this._isNavigating){
-_51=false;
+if(!_4a&&this._isNavigating){
+_4d=false;
 break;
 }
-if(_4e){
+if(_4a){
 if(!this.cell.editable&&this.cell.navigatable){
 this._initNavigatableElems();
-var _52=this._navElems.lowest||this._navElems.first;
-if(_52){
+var _4e=this._navElems.lowest||this._navElems.first;
+if(_4e){
 this._isNavigating=true;
-dijit.focus(_52);
+dijit.focus(_4e);
 dojo.stopEvent(e);
 this.currentArea("editableCell",true);
 break;
 }
 }
-if(!_50&&!_4f.isEditing()&&!g.pluginMgr.isFixedCell(this.cell)){
-_4f.setEditCell(this.cell,this.rowIndex);
+if(!_4c&&!_4b.isEditing()&&!g.pluginMgr.isFixedCell(this.cell)){
+_4b.setEditCell(this.cell,this.rowIndex);
 }
-if(_50){
+if(_4c){
 this.currentArea("content",true);
 }else{
 if(this.cell.editable&&g.canEdit()){
@@ -563,28 +546,28 @@ this.currentArea("editableCell",true);
 break;
 case dk.PAGE_UP:
 case dk.PAGE_DOWN:
-if(!_4e&&_4f.isEditing()){
-_51=false;
+if(!_4a&&_4b.isEditing()){
+_4d=false;
 }
 break;
 case dk.ESCAPE:
-if(!_4e){
-_4f.cancel();
+if(!_4a){
+_4b.cancel();
 this.currentArea("content",true);
 }
 }
-return _51;
+return _4d;
 },_onEditableCellMouseEvent:function(evt){
 if(evt.type=="click"){
-var _53=this.cell||evt.cell;
-if(_53&&!_53.editable&&_53.navigatable){
+var _4f=this.cell||evt.cell;
+if(_4f&&!_4f.editable&&_4f.navigatable){
 this._initNavigatableElems();
 if(this._navElems.lowest||this._navElems.first){
-var _54=dojo.isIE?evt.srcElement:evt.target;
-if(_54!=_53.getNode(evt.rowIndex)){
+var _50=dojo.isIE?evt.srcElement:evt.target;
+if(_50!=_4f.getNode(evt.rowIndex)){
 this._isNavigating=true;
 this.focusArea("editableCell",evt);
-dijit.focus(_54);
+dijit.focus(_50);
 return false;
 }
 }

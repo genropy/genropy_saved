@@ -444,10 +444,12 @@ dojo.addClass(this.domNode,this.hoverClass);
 this.onMouseOver(evt);
 }));
 this._cons.push(dojo.connect(this._fileInput,"mouseout",this,function(evt){
+setTimeout(dojo.hitch(this,function(){
 dojo.removeClass(this.domNode,this.activeClass);
 dojo.removeClass(this.domNode,this.hoverClass);
 this.onMouseOut(evt);
 this._checkHtmlCancel("off");
+}),0);
 }));
 this._cons.push(dojo.connect(this._fileInput,"mousedown",this,function(evt){
 dojo.addClass(this.domNode,this.activeClass);

@@ -10,7 +10,7 @@ dojo._hasResource["dojox.grid.EnhancedGrid"]=true;
 dojo.provide("dojox.grid.EnhancedGrid");
 dojo.require("dojox.grid.DataGrid");
 dojo.require("dojox.grid.enhanced._PluginManager");
-dojo.requireLocalization("dojox.grid.enhanced","EnhancedGrid",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sk,sl,sv,th,tr,zh,zh-tw");
+dojo.requireLocalization("dojox.grid.enhanced","EnhancedGrid",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hr,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sk,sl,sv,th,tr,zh,zh-tw");
 dojo.experimental("dojox.grid.EnhancedGrid");
 dojo.declare("dojox.grid.EnhancedGrid",dojox.grid.DataGrid,{plugins:null,pluginMgr:null,keepSelection:false,_pluginMgrClass:dojox.grid.enhanced._PluginManager,postMixInProperties:function(){
 this._nls=dojo.i18n.getLocalization("dojox.grid.enhanced","EnhancedGrid",this.lang);
@@ -30,10 +30,14 @@ this.selection=new dojox.grid.enhanced.DataSelection(this);
 },canSort:function(_2,_3){
 return true;
 },doKeyEvent:function(e){
+try{
 var _4=this.focus.focusView;
 _4.content.decorateEvent(e);
 if(!e.cell){
 _4.header.decorateEvent(e);
+}
+}
+catch(e){
 }
 this.inherited(arguments);
 },doApplyCellEdit:function(_5,_6,_7){

@@ -127,8 +127,8 @@ dojo.require("dojo.dnd.Moveable");
 		},
 		
 		getCellNode: function(inRowNode, inCellIndex){
-			for(var i=0, row; (row=getTr(inRowNode.firstChild, i)); i++){
-				for(var j=0, cell; (cell=row.cells[j]); j++){
+			for(var i=0, row; ((row = getTr(inRowNode.firstChild, i)) && row.cells); i++){
+				for(var j=0, cell; (cell = row.cells[j]); j++){
 					if(this.getCellNodeIndex(cell) == inCellIndex){
 						return cell;
 					}
@@ -350,7 +350,7 @@ dojo.require("dojo.dnd.Moveable");
 		// event helpers
 		getCellX: function(e){
 			var n, x = e.layerX;
-			if(dojo.isMoz){
+			if(dojo.isMoz || dojo.isIE >= 9){
 				n = ascendDom(e.target, makeNotTagName("th"));
 				x -= (n && n.offsetLeft) || 0;
 				var t = e.sourceView.getScrollbarWidth();
@@ -635,8 +635,10 @@ dojo.require("dojo.dnd.Moveable");
 			var i, s, sw, f, fl;
 			for(i=0; (s=inDrag.spanners[i]); i++){
 				sw = s.width + data.deltaX;
-				s.node.style.width = sw + 'px';
-				inDrag.view.setColWidth(s.index, sw);
+				if(sw > 0){
+					s.node.style.width = sw + 'px';
+					inDrag.view.setColWidth(s.index, sw);
+				}
 			}
 			if(dojo._isBodyLtr() || !dojo.isIE){//fix #11339
 				for(i=0; (f=inDrag.followers[i]); i++){

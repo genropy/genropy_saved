@@ -8,7 +8,7 @@
 if(!dojo._hasResource["dojox.encoding.digests._base"]){
 dojo._hasResource["dojox.encoding.digests._base"]=true;
 dojo.provide("dojox.encoding.digests._base");
-dojo.getObject("encodoing.digests",true,dojox);
+dojo.getObject("encoding.digests",true,dojox);
 (function(){
 var d=dojox.encoding.digests;
 d.outputTypes={Base64:0,Hex:1,String:2,Raw:3};

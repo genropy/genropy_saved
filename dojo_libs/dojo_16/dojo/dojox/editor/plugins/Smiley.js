@@ -14,7 +14,7 @@ dojo.require("dijit.form.DropDownButton");
 dojo.require("dojox.editor.plugins._SmileyPalette");
 dojo.require("dojo.i18n");
 dojo.require("dojox.html.format");
-dojo.requireLocalization("dojox.editor.plugins","Smiley",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sl,sv,th,tr,zh,zh-tw");
+dojo.requireLocalization("dojox.editor.plugins","Smiley",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sk,sl,sv,th,tr,zh,zh-tw");
 dojo.experimental("dojox.editor.plugins.Smiley");
 dojo.declare("dojox.editor.plugins.Smiley",dijit._editor._Plugin,{iconClassPrefix:"dijitAdditionalEditorIcon",emoticonMarker:"[]",emoticonImageClass:"dojoEditorEmoticon",_initButton:function(){
 this.dropDown=new dojox.editor.plugins._SmileyPalette();

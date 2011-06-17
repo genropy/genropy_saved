@@ -128,13 +128,13 @@ dojo.declare("dojox.grid.enhanced._Events", null, {
 		//invoke dojox.grid._Events.onCellDblClick()
 		this._events.onCellDblClick.call(this, e);
 		//now focus.setFocusCell need isEditing info, so call it after that is set.
-		this.focus.setFocusCell(e.cell, e.rowIndex);
+		//this.focus.setFocusCell(e.cell, e.rowIndex);
 	},
 	onRowClick: function(e){
 		// summary:
 		//		Overwritten, see dojox.grid._Events.onRowClick()
 		this.edit.rowClick(e);
-		if(e.cell && !e.cell.isRowSelector && (!this.rowSelectCell || !this.rowSelectCell.disabled(e.rowIndex))){
+		if(!e.cell || (!e.cell.isRowSelector && (!this.rowSelectCell || !this.rowSelectCell.disabled(e.rowIndex)))){
 			this.selection.clickSelectEvent(e);
 		}
 	},

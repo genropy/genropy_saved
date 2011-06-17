@@ -73,7 +73,6 @@
 }
 .dijitOffScreen {
 	position: absolute;
-	visibility: hidden;
 	left: 50%;
 	top: -10000px;
 }
@@ -802,13 +801,6 @@ body .dijitAlignClient { position: absolute; }
 	background: #fff;
 	position: relative;
 }
-img.dijitColorPaletteUnder {
-	
-	border-style: none;
-	position: absolute;
-	left: 0;
-	top: 0;
-}
 .dijitColorPalette .dijitPaletteTable {
 	
 	padding: 2px 3px 3px 3px;
@@ -826,8 +818,6 @@ img.dijitColorPaletteUnder {
 }
 .dijitColorPalette .dijitPaletteCell {
 	
-	height: 20px;
-	width: 20px;
 	font-size: 1px;
 	vertical-align: middle;
 	text-align: center;
@@ -835,14 +825,19 @@ img.dijitColorPaletteUnder {
 }
 .dijitColorPalette .dijitPaletteImg {
 	
-	width: 16px;
-	height: 14px;
+	padding: 1px;		
 	border: 1px solid #999;
+	margin: 2px 1px;
 	cursor: default;
-	vertical-align: middle;
+	font-size: 1px;		
 }
-.dj_iequirks .dijitColorPalette .dijitPaletteImg {
-	margin: 1px;	
+.dj_gecko .dijitColorPalette .dijitPaletteImg {
+	padding-bottom: 0;	
+}
+.dijitColorPalette .dijitColorPaletteSwatch {
+	
+	width: 14px;
+	height: 12px;
 }
 .dijitPaletteTable td {
 		padding: 0;
@@ -854,18 +849,12 @@ img.dijitColorPaletteUnder {
 .dijitColorPalette .dijitPaletteCellActive .dijitPaletteImg,
 .dijitColorPalette .dijitPaletteCellSelected .dijitPaletteImg {
 	border: 2px solid #000;
+	margin: 1px 0;	
 }
 .dijit_a11y .dijitColorPalette .dijitPaletteTable,
 .dijit_a11y .dijitColorPalette .dijitPaletteTable * {
 	
 	background-color: transparent !important;
-}
-.dj_gecko .dijit_a11y .dijitColorPalette .dijitPaletteCellFocused .dijitPaletteImg {
-	border: 3px dotted #000;	
-	margin: -1px;
-}
-.dijit_a11y  .dijitColorPalette .dijitPaletteCellHover .dijitPaletteImg {
-	border: 2px solid #000 !important;
 }
 .dijitAccordionContainer {
 	border:1px solid #b7b7b7;

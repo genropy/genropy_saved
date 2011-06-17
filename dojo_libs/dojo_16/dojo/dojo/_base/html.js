@@ -217,7 +217,7 @@ catch(e){
 return f?{}:null;
 }
 };
-dojo._getOpacity=d.isIE?function(_21){
+dojo._getOpacity=d.isIE<9?function(_21){
 try{
 return af(_21).Opacity/100;
 }
@@ -227,7 +227,7 @@ return 1;
 }:function(_22){
 return gcs(_22).opacity;
 };
-dojo._setOpacity=d.isIE?function(_23,_24){
+dojo._setOpacity=d.isIE<9?function(_23,_24){
 var ov=_24*100,_25=_24==1;
 _23.style.zoom=_25?"":1;
 if(!af(_23)){

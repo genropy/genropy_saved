@@ -129,6 +129,7 @@ dojo.declare("dojox.grid.enhanced._FocusManager", dojox.grid._FocusManager, {
 		this._currentAreaIdx = -1;
 		this._gridBlured = true;
 		this._connects.push(dojo.connect(grid, "onBlur", this, "_doBlur"));
+		this._connects.push(dojo.connect(grid.scroller, "renderPage", this, "_delayedCellFocus"));
 		
 		this.addArea({
 			name: "header",
@@ -453,9 +454,8 @@ dojo.declare("dojox.grid.enhanced._FocusManager", dojox.grid._FocusManager, {
 	_delayedCellFocus: function(){
 		// summary:
 		//		Overwritten
-		if(this.currentArea().name == "content"){
-			this.focusArea(this._currentAreaIdx);
-		}
+		this.currentArea("header", true);
+		this.focusArea(this._currentAreaIdx);
 	},
 	_changeMenuBindNode: function(oldBindNode, newBindNode){
 		var hm = this.grid.headerMenu;
@@ -563,25 +563,6 @@ dojo.declare("dojox.grid.enhanced._FocusManager", dojox.grid._FocusManager, {
 		this.move(rowStep, colStep, evt);
 		if(evt){
 			dojo.stopEvent(evt);
-		}
-	},
-	move: function(inRowDelta, inColDelta){
-		// summary:
-		//		Overwritten
-		this.inherited(arguments);
-		var cell = this.cell, row = this.rowIndex;
-		if(!this.isNavHeader() && cell){
-			if(inRowDelta !== 0){//jump over hidden rows
-				var node = cell.view.getRowNode(row);//row node
-				if(node && dojo.style(node, "display") === "none"){
-					this.move(inRowDelta > 0 ? 1 : -1, inColDelta);
-				}
-			}else if(inColDelta !== 0){//jump over hidden cells
-				var node = cell.getNode(row);//cell node
-				if(node && dojo.style(node, "display") === "none"){
-					this.move(inRowDelta, inColDelta > 0 ? 1 : -1);
-				}
-			}
 		}
 	},
 	_onContentKeyDown: function(e, isBubble){
@@ -705,6 +686,7 @@ dojo.declare("dojox.grid.enhanced._FocusManager", dojox.grid._FocusManager, {
 				if(isBubble && edit.isEditing()){
 					this._applyEditableCell();
 					editApplied = true;
+					dojo.stopEvent(e);
 				}
 				//intentional drop through
 			case dk.SPACE:

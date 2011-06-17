@@ -78,6 +78,9 @@ ew.set("displayedValue" in ew?"displayedValue":"value",this.value);
 var _6=dojo.create("span",null,this.domNode,"before");
 var _7=typeof this.editorWrapper=="string"?dojo.getObject(this.editorWrapper):this.editorWrapper;
 this.wrapperWidget=new _7({value:this.value,buttonSave:this.buttonSave,buttonCancel:this.buttonCancel,dir:this.dir,lang:this.lang,tabIndex:this._savedTabIndex,editor:this.editor,inlineEditBox:this,sourceStyle:dojo.getComputedStyle(this.displayNode),save:dojo.hitch(this,"save"),cancel:dojo.hitch(this,"cancel")},_6);
+if(!this._started){
+this.startup();
+}
 }
 var ww=this.wrapperWidget;
 if(dojo.isIE){

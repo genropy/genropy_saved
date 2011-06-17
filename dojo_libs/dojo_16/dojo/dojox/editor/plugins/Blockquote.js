@@ -11,7 +11,7 @@ dojo.provide("dojox.editor.plugins.Blockquote");
 dojo.require("dijit._editor._Plugin");
 dojo.require("dijit.form.Button");
 dojo.require("dojo.i18n");
-dojo.requireLocalization("dojox.editor.plugins","Blockquote",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sl,sv,th,tr,zh,zh-tw");
+dojo.requireLocalization("dojox.editor.plugins","Blockquote",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sk,sl,sv,th,tr,zh,zh-tw");
 dojo.declare("dojox.editor.plugins.Blockquote",dijit._editor._Plugin,{iconClassPrefix:"dijitAdditionalEditorIcon",_initButton:function(){
 this._nlsResources=dojo.i18n.getLocalization("dojox.editor.plugins","Blockquote");
 this.button=new dijit.form.ToggleButton({label:this._nlsResources["blockquote"],showLabel:false,iconClass:this.iconClassPrefix+" "+this.iconClassPrefix+"Blockquote",tabIndex:"-1",onClick:dojo.hitch(this,"_toggleQuote")});

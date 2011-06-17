@@ -102,7 +102,7 @@ return Boolean(_1b&&_1b!=dojo.doc&&dojo.attr(_1b,"idx"));
 },getCellNodeIndex:function(_1c){
 return _1c?Number(dojo.attr(_1c,"idx")):-1;
 },getCellNode:function(_1d,_1e){
-for(var i=0,row;(row=_3(_1d.firstChild,i));i++){
+for(var i=0,row;((row=_3(_1d.firstChild,i))&&row.cells);i++){
 for(var j=0,_1f;(_1f=row.cells[j]);j++){
 if(this.getCellNodeIndex(_1f)==_1e){
 return _1f;
@@ -267,7 +267,7 @@ _32.push("</table>");
 return _32.join("");
 },getCellX:function(e){
 var n,x=e.layerX;
-if(dojo.isMoz){
+if(dojo.isMoz||dojo.isIE>=9){
 n=_8(e.target,_b("th"));
 x-=(n&&n.offsetLeft)||0;
 var t=e.sourceView.getScrollbarWidth();
@@ -455,8 +455,10 @@ if(t){
 var i,s,sw,f,fl;
 for(i=0;(s=_4d.spanners[i]);i++){
 sw=s.width+_4e.deltaX;
+if(sw>0){
 s.node.style.width=sw+"px";
 _4d.view.setColWidth(s.index,sw);
+}
 }
 if(dojo._isBodyLtr()||!dojo.isIE){
 for(i=0;(f=_4d.followers[i]);i++){

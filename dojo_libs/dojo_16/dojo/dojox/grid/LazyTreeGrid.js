@@ -25,7 +25,7 @@ if(!g.treeModel.mayHaveChildren(_3)){
 g.stateChangeNode=null;
 return;
 }
-if(_3){
+if(_3&&!g._loading){
 g.stateChangeNode=this.domNode;
 g.cache.updateCache(this.rowIdx,{"expandoStatus":_2});
 g.expandoFetch(this.rowIdx,_2);
@@ -38,6 +38,7 @@ if(_4&&_5.treeModel.mayHaveChildren(_4)){
 var _6=_5.cache.getExpandoStatusByRowIndex(this.rowIdx);
 this.expandoInner.innerHTML=_6?"-":"+";
 dojo.toggleClass(this.domNode,"dojoxGridExpandoOpened",_6);
+dijit.setWaiState(this.domNode.parentNode,"expanded",_6);
 }
 },setRowNode:function(_7,_8,_9){
 if(this.cellIdx<0||!this.itemId){
@@ -183,7 +184,7 @@ _2a.domNode.parentNode.removeChild(_2a.domNode);
 },this);
 this.inherited(arguments);
 }});
-dojo.mixin(dojox.grid.cells.TreeCell,{formatAtLevel:function(_2c,_2d,_2e,_2f,_30,_31,_32){
+dojox.grid.cells.LazyTreeCell=dojo.mixin(dojo.clone(dojox.grid.cells.TreeCell),{formatAtLevel:function(_2c,_2d,_2e,_2f,_30,_31,_32){
 if(!_2d){
 return this.formatIndexes(_32,_2c,_2d,_2e);
 }
@@ -229,7 +230,7 @@ s[0].cells[0][this.grid.expandoCell].isCollapsable=true;
 this.inherited(arguments);
 },addCellDef:function(_3b,_3c,_3d){
 var obj=this.inherited(arguments);
-return dojo.mixin(obj,dojox.grid.cells.TreeCell);
+return dojo.mixin(obj,dojox.grid.cells.LazyTreeCell);
 }});
 dojo.declare("dojox.grid.TreeGridItemCache",null,{unInit:true,items:null,constructor:function(_3e){
 this.rowsPerPage=_3e.rowsPerPage;
@@ -329,7 +330,9 @@ this.inherited(arguments);
 this.cache.emptyCache();
 this._cleanupExpandoCache();
 },setSortIndex:function(_55,_56){
+if(this.canSort(_55+1)){
 this._cleanup();
+}
 this.inherited(arguments);
 },_refresh:function(_57){
 this._cleanup();
@@ -370,7 +373,6 @@ this._refresh();
 },_fetch:function(_62,_63){
 _62=_62||0;
 this.reqQueue=[];
-this.showMessage(this.loadingMessage);
 var i=0,_64=[];
 var _65=Math.min(this.rowsPerPage,this.cache.items.length-_62);
 for(i=_62;i<_65;i++){
@@ -408,6 +410,10 @@ this._fetchItems(i,dojo.hitch(this,"_onFetchBegin"),dojo.hitch(this,"_onFetchCom
 }
 }
 },_fetchItems:function(idx,_6a,_6b,_6c){
+if(!this._loading){
+this._loading=true;
+this.showMessage(this.loadingMessage);
+}
 var _6d=this.reqQueue[idx].startTreePath.split("/").length-1;
 this._pending_requests[this.reqQueue[idx].startRowIdx]=true;
 if(_6d===0){
@@ -428,107 +434,121 @@ this.treeModel.getChildren(_71,_6b,_6c,this.queryObj);
 this.cache.initCache(_73);
 _73=this.cache.items.length;
 this.inherited(arguments);
-},_onFetchComplete:function(_75,_76,_77){
-var _78="",_79,_7a,_7b;
-if(_76){
-_79=_76.startRowIdx;
-_7a=_76.count;
-_7b=0;
-}else{
-_79=this.queryObj.startRowIdx;
-_7a=this.queryObj.count;
-_7b=this.queryObj.start;
-}
-for(var i=0;i<_7a;i++){
-_78=this.cache.getTreePathByRowIndex(_79+i);
+},filter:function(_75,_76){
+this.cache.emptyCache();
+this.inherited(arguments);
+},_onFetchComplete:function(_77,_78,_79){
+var _7a="",_7b,_7c,_7d;
 if(_78){
-if(!this.cache.getItemByRowIndex(_79+i)){
-this.cache.cacheItem(_79+i,{item:_75[_7b+i],treePath:_78,expandoStatus:false});
+_7b=_78.startRowIdx;
+_7c=_78.count;
+_7d=0;
+}else{
+_7b=this.queryObj.startRowIdx;
+_7c=this.queryObj.count;
+_7d=this.queryObj.start;
+}
+for(var i=0;i<_7c;i++){
+_7a=this.cache.getTreePathByRowIndex(_7b+i);
+if(_7a){
+if(!this.cache.getItemByRowIndex(_7b+i)){
+this.cache.cacheItem(_7b+i,{item:_77[_7d+i],treePath:_7a,expandoStatus:false});
 }
 }
 }
-this._pending_requests[_79]=false;
+this._pending_requests[_7b]=false;
 if(!this.scroller){
 return;
 }
-var len=Math.min(_7a,_75.length);
+var len=Math.min(_7c,_77.length);
 for(i=0;i<len;i++){
-this._addItem(_75[_7b+i],_79+i,true);
+this._addItem(_77[_7d+i],_7b+i,true);
 }
-this.updateRows(_79,len);
+this.updateRows(_7b,len);
 if(this._lastScrollTop){
 this.setScrollTop(this._lastScrollTop);
 }
+if(this._loading){
+this._loading=false;
 if(!this.cache.items.length){
 this.showMessage(this.noDataMessage);
 }else{
 this.showMessage();
 }
-},expandoFetch:function(_7c,_7d){
+}
+},expandoFetch:function(_7e,_7f){
+if(this._loading){
+return;
+}
+this._loading=true;
 this.toggleLoadingClass(true);
-var _7e=this.cache.getItemByRowIndex(_7c);
-this.expandoRowIndex=_7c;
+var _80=this.cache.getItemByRowIndex(_7e);
+this.expandoRowIndex=_7e;
 this._pages=[];
-if(_7d){
-var _7f=this.store.getIdentity(_7e);
-var _80={start:0,count:this.keepRows,parentId:_7f,sort:this.getSortProps()};
-this.treeModel.getChildren(_7e,dojo.hitch(this,"_onExpandoComplete"),dojo.hitch(this,"_onFetchError"),_80);
+if(_7f){
+var _81=this.store.getIdentity(_80);
+var _82={start:0,count:this.keepRows,parentId:_81,sort:this.getSortProps()};
+this.treeModel.getChildren(_80,dojo.hitch(this,"_onExpandoComplete"),dojo.hitch(this,"_onFetchError"),_82);
 }else{
-this.cache.cleanChildren(_7c);
-for(var i=_7c+1,len=this._by_idx.length;i<len;i++){
+this.cache.cleanChildren(_7e);
+for(var i=_7e+1,len=this._by_idx.length;i<len;i++){
 delete this._by_idx[i];
 }
 this.updateRowCount(this.cache.items.length);
-if(this.cache.getTreePathByRowIndex(_7c+1)){
-this._fetch(_7c+1);
+if(this.cache.getTreePathByRowIndex(_7e+1)){
+this._fetch(_7e+1);
 }else{
-this._fetch(_7c);
+this._fetch(_7e);
 }
 this.toggleLoadingClass(false);
 }
-},_onExpandoComplete:function(_81,_82,_83){
-var _84=this.cache.getTreePathByRowIndex(this.expandoRowIndex);
-if(_83&&!isNaN(parseInt(_83,10))){
-_83=parseInt(_83,10);
+},_onExpandoComplete:function(_83,_84,_85){
+var _86=this.cache.getTreePathByRowIndex(this.expandoRowIndex);
+if(_85&&!isNaN(parseInt(_85,10))){
+_85=parseInt(_85,10);
 }else{
-_83=_81.length;
+_85=_83.length;
 }
 var i,j=0,len=this._by_idx.length;
-for(i=this.expandoRowIndex+1;j<_83;i++,j++){
-this.cache.insertItem(i,{item:null,treePath:_84+"/"+j,expandoStatus:false});
+for(i=this.expandoRowIndex+1;j<_85;i++,j++){
+this.cache.insertItem(i,{item:null,treePath:_86+"/"+j,expandoStatus:false});
 }
 this.updateRowCount(this.cache.items.length);
 for(i=this.expandoRowIndex+1;i<len;i++){
 delete this._by_idx[i];
 }
-this.cache.updateCache(this.expandoRowIndex,{childrenNum:_83});
-for(i=0;i<_83;i++){
-this.cache.updateCache(this.expandoRowIndex+1+i,{item:_81[i]});
+this.cache.updateCache(this.expandoRowIndex,{childrenNum:_85});
+for(i=0;i<_85;i++){
+this.cache.updateCache(this.expandoRowIndex+1+i,{item:_83[i]});
 }
-for(i=0;i<Math.min(_83,this.keepRows);i++){
-this._addItem(_81[i],this.expandoRowIndex+1+i,false);
+for(i=0;i<Math.min(_85,this.keepRows);i++){
+this._addItem(_83[i],this.expandoRowIndex+1+i,false);
+this.updateRow(this.expandoRowIndex+1+i);
 }
 this.toggleLoadingClass(false);
 this.stateChangeNode=null;
-if(_83<this.keepRows&&this.cache.getTreePathByRowIndex(this.expandoRowIndex+1+_83)){
-this._fetch(this.expandoRowIndex+1+_83);
+if(this._loading){
+this._loading=false;
 }
-},toggleLoadingClass:function(_85){
+if(_85<this.keepRows&&this.cache.getTreePathByRowIndex(this.expandoRowIndex+1+_85)){
+this._fetch(this.expandoRowIndex+1+_85);
+}
+},toggleLoadingClass:function(_87){
 if(this.stateChangeNode){
-dojo.toggleClass(this.stateChangeNode,"dojoxGridExpandoLoading",_85);
+dojo.toggleClass(this.stateChangeNode,"dojoxGridExpandoLoading",_87);
 }
-},styleRowNode:function(_86,_87){
-if(_87){
-this.rows.styleRowNode(_86,_87);
+},styleRowNode:function(_88,_89){
+if(_89){
+this.rows.styleRowNode(_88,_89);
 }
 },onStyleRow:function(row){
 if(!this.layout._isCollapsable){
 this.inherited(arguments);
 return;
 }
-var _88=dojo.attr(row.node,"dojoxTreeGridBaseClasses");
-if(_88){
-row.customClasses=_88;
+var _8a=dojo.attr(row.node,"dojoxTreeGridBaseClasses");
+if(_8a){
+row.customClasses=_8a;
 }
 var i=row;
 i.customClasses+=(i.odd?" dojoxGridRowOdd":"")+(i.selected?" dojoxGridRowSelected":"")+(i.over?" dojoxGridRowOver":"");
@@ -538,13 +558,13 @@ this.edit.styleRow(i);
 if(e.altKey||e.metaKey){
 return;
 }
-var dk=dojo.keys,_89=e.target,_8a=_89&&_89.firstChild?dijit.byId(_89.firstChild.id):null;
-if(e.keyCode===dk.ENTER&&_8a instanceof dojox.grid._LazyExpando){
-_8a.onToggle();
+var dk=dojo.keys,_8b=e.target,_8c=_8b&&_8b.firstChild?dijit.byId(_8b.firstChild.id):null;
+if(e.keyCode===dk.ENTER&&_8c instanceof dojox.grid._LazyExpando){
+_8c.onToggle();
 }
 this.onKeyDown(e);
 }});
-dojox.grid.LazyTreeGrid.markupFactory=function(_8b,_8c,_8d,_8e){
-return dojox.grid.TreeGrid.markupFactory(_8b,_8c,_8d,_8e);
+dojox.grid.LazyTreeGrid.markupFactory=function(_8d,_8e,_8f,_90){
+return dojox.grid.TreeGrid.markupFactory(_8d,_8e,_8f,_90);
 };
 }

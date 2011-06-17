@@ -31,7 +31,7 @@ dojo.declare("dojox.grid._LazyExpando", [dijit._Widget, dijit._Templated], {
 			g.stateChangeNode = null;
 			return;
 		}
-		if(item){
+		if(item && !g._loading){
 			g.stateChangeNode = this.domNode;
 			g.cache.updateCache(this.rowIdx, {"expandoStatus": open});
 			g.expandoFetch(this.rowIdx, open);
@@ -48,6 +48,7 @@ dojo.declare("dojox.grid._LazyExpando", [dijit._Widget, dijit._Templated], {
 			var state = grid.cache.getExpandoStatusByRowIndex(this.rowIdx);
 			this.expandoInner.innerHTML = state ? "-" : "+";
 			dojo.toggleClass(this.domNode, "dojoxGridExpandoOpened", state);
+			dijit.setWaiState(this.domNode.parentNode, "expanded", state);
 		}
 	},
 	
@@ -242,7 +243,7 @@ dojo.declare("dojox.grid._TreeGridView", [dojox.grid._View], {
 	
 });
 
-dojo.mixin(dojox.grid.cells.TreeCell, {
+dojox.grid.cells.LazyTreeCell = dojo.mixin(dojo.clone(dojox.grid.cells.TreeCell), {
 	formatAtLevel: function(inRowIndexes, inItem, level, summaryRow, toggleClass, cellClasses, inRowIndex){
 		if(!inItem){
 			return this.formatIndexes(inRowIndex, inRowIndexes, inItem, level);
@@ -300,7 +301,7 @@ dojo.declare("dojox.grid._LazyTreeLayout", dojox.grid._Layout, {
 	
 	addCellDef: function(inRowIndex, inCellIndex, inDef){
 		var obj = this.inherited(arguments);
-		return dojo.mixin(obj, dojox.grid.cells.TreeCell);
+		return dojo.mixin(obj, dojox.grid.cells.LazyTreeCell);
 	}
 });
 
@@ -506,7 +507,9 @@ dojo.declare("dojox.grid.LazyTreeGrid", dojox.grid.TreeGrid, {
 	
 	setSortIndex: function(inIndex, inAsc){
 		// Need to clean up the cache before sorting
-		this._cleanup();
+		if(this.canSort(inIndex + 1)){
+			this._cleanup();
+		}
 		this.inherited(arguments);
 	},
 	
@@ -557,7 +560,6 @@ dojo.declare("dojox.grid.LazyTreeGrid", dojox.grid.TreeGrid, {
 		//		scroll the TreeGrid
 		start = start || 0;
 		this.reqQueue = [];
-		this.showMessage(this.loadingMessage);
 		// Check cache, do not need to fetch data if there are required data in cache
 		var i = 0, fetchedItems = [];
 		var count = Math.min(this.rowsPerPage, this.cache.items.length - start);
@@ -612,6 +614,10 @@ dojo.declare("dojox.grid.LazyTreeGrid", dojox.grid.TreeGrid, {
 	},
 	
 	_fetchItems: function(idx, onBegin, onComplete, onError){
+		if(!this._loading){
+			this._loading = true;
+			this.showMessage(this.loadingMessage);
+		}
 		var level = this.reqQueue[idx].startTreePath.split("/").length - 1;
 		this._pending_requests[this.reqQueue[idx].startRowIdx] = true;
 		if(level === 0){
@@ -651,7 +657,12 @@ dojo.declare("dojox.grid.LazyTreeGrid", dojox.grid.TreeGrid, {
 		size = this.cache.items.length;
 		this.inherited(arguments);
 	},
-	
+
+    filter: function(query, reRender){
+    	this.cache.emptyCache();
+        this.inherited(arguments);
+    },
+
 	_onFetchComplete: function(items, request, size){
 		var treePath = "",
 			startRowIdx, count, start;
@@ -691,16 +702,22 @@ dojo.declare("dojox.grid.LazyTreeGrid", dojox.grid.TreeGrid, {
 		if(this._lastScrollTop){
 			this.setScrollTop(this._lastScrollTop);
 		}
-		if(!this.cache.items.length){
-			this.showMessage(this.noDataMessage);
-		}else{
-			this.showMessage();
+		if(this._loading){
+			this._loading = false;
+			if(!this.cache.items.length){
+				this.showMessage(this.noDataMessage);
+			}else{
+				this.showMessage();
+			}
 		}
+		
 	},
 	
 	expandoFetch: function(rowIndex, open){
 		// summary:
 		//		Function for fetch children of a given row
+		if(this._loading){return;}
+		this._loading = true;
 		this.toggleLoadingClass(true);
 		var item = this.cache.getItemByRowIndex(rowIndex);
 		this.expandoRowIndex = rowIndex;
@@ -755,10 +772,14 @@ dojo.declare("dojox.grid.LazyTreeGrid", dojox.grid.TreeGrid, {
 		}
 		for(i = 0; i < Math.min(size, this.keepRows); i++){
 			this._addItem(childItems[i], this.expandoRowIndex + 1 + i, false);
+			this.updateRow(this.expandoRowIndex + 1 + i);
 		}
 		
 		this.toggleLoadingClass(false);
 		this.stateChangeNode = null;
+		if(this._loading){
+			this._loading = false;
+		}
 		if(size < this.keepRows && this.cache.getTreePathByRowIndex(this.expandoRowIndex + 1 + size)){
 			this._fetch(this.expandoRowIndex + 1 + size);
 		}

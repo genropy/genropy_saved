@@ -14,25 +14,27 @@ dojo.require("dojo.date.stamp");
 dojo.require("dijit.form.ValidationTextBox");
 dojo.require("dijit._HasDropDown");
 new Date("X");
-dojo.declare("dijit.form._DateTimeTextBox",[dijit.form.RangeBoundTextBox,dijit._HasDropDown],{templateString:dojo.cache("dijit.form","templates/DropDownBox.html","<div class=\"dijit dijitReset dijitInlineTable dijitLeft\"\n\tid=\"widget_${id}\"\n\trole=\"combobox\"\n\t><div class='dijitReset dijitRight dijitButtonNode dijitArrowButton dijitDownArrowButton dijitArrowButtonContainer'\n\t\tdojoAttachPoint=\"_buttonNode, _popupStateNode\" role=\"presentation\"\n\t\t><input class=\"dijitReset dijitInputField dijitArrowButtonInner\" value=\"&#9660; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t\t\t${_buttonInputDisabled}\n\t/></div\n\t><div class='dijitReset dijitValidationContainer'\n\t\t><input class=\"dijitReset dijitInputField dijitValidationIcon dijitValidationInner\" value=\"&#935;\" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t/></div\n\t><div class=\"dijitReset dijitInputField dijitInputContainer\"\n\t\t><input class='dijitReset dijitInputInner' ${!nameAttrSetting} type=\"text\" autocomplete=\"off\"\n\t\t\tdojoAttachPoint=\"textbox,focusNode\" role=\"textbox\" aria-haspopup=\"true\"\n\t/></div\n></div>\n"),hasDownArrow:true,openOnClick:true,regExpGen:dojo.date.locale.regexp,datePackage:"dojo.date",compare:function(_1,_2){
-return dojo.date.compare(_1,_2,this._selector);
-},forceWidth:true,format:function(_3,_4){
-if(!_3){
+dojo.declare("dijit.form._DateTimeTextBox",[dijit.form.RangeBoundTextBox,dijit._HasDropDown],{templateString:dojo.cache("dijit.form","templates/DropDownBox.html","<div class=\"dijit dijitReset dijitInlineTable dijitLeft\"\n\tid=\"widget_${id}\"\n\trole=\"combobox\"\n\t><div class='dijitReset dijitRight dijitButtonNode dijitArrowButton dijitDownArrowButton dijitArrowButtonContainer'\n\t\tdojoAttachPoint=\"_buttonNode, _popupStateNode\" role=\"presentation\"\n\t\t><input class=\"dijitReset dijitInputField dijitArrowButtonInner\" value=\"&#9660; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t\t\t${_buttonInputDisabled}\n\t/></div\n\t><div class='dijitReset dijitValidationContainer'\n\t\t><input class=\"dijitReset dijitInputField dijitValidationIcon dijitValidationInner\" value=\"&#935; \" type=\"text\" tabIndex=\"-1\" readonly=\"readonly\" role=\"presentation\"\n\t/></div\n\t><div class=\"dijitReset dijitInputField dijitInputContainer\"\n\t\t><input class='dijitReset dijitInputInner' ${!nameAttrSetting} type=\"text\" autocomplete=\"off\"\n\t\t\tdojoAttachPoint=\"textbox,focusNode\" role=\"textbox\" aria-haspopup=\"true\"\n\t/></div\n></div>\n"),hasDownArrow:true,openOnClick:true,regExpGen:dojo.date.locale.regexp,datePackage:"dojo.date",compare:function(_1,_2){
+var _3=this._isInvalidDate(_1);
+var _4=this._isInvalidDate(_2);
+return _3?(_4?0:-1):(_4?1:dojo.date.compare(_1,_2,this._selector));
+},forceWidth:true,format:function(_5,_6){
+if(!_5){
 return "";
 }
-return this.dateLocaleModule.format(_3,_4);
-},"parse":function(_5,_6){
-return this.dateLocaleModule.parse(_5,_6)||(this._isEmpty(_5)?null:undefined);
-},serialize:function(_7,_8){
-if(_7.toGregorian){
-_7=_7.toGregorian();
+return this.dateLocaleModule.format(_5,_6);
+},"parse":function(_7,_8){
+return this.dateLocaleModule.parse(_7,_8)||(this._isEmpty(_7)?null:undefined);
+},serialize:function(_9,_a){
+if(_9.toGregorian){
+_9=_9.toGregorian();
 }
-return dojo.date.stamp.toISOString(_7,_8);
-},dropDownDefaultValue:new Date(),value:new Date(""),_blankValue:null,popupClass:"",_selector:"",constructor:function(_9){
-var _a=_9.datePackage?_9.datePackage+".Date":"Date";
-this.dateClassObj=dojo.getObject(_a,false);
+return dojo.date.stamp.toISOString(_9,_a);
+},dropDownDefaultValue:new Date(),value:new Date(""),_blankValue:null,popupClass:"",_selector:"",constructor:function(_b){
+var _c=_b.datePackage?_b.datePackage+".Date":"Date";
+this.dateClassObj=dojo.getObject(_c,false);
 this.value=new this.dateClassObj("");
-this.datePackage=_9.datePackage||this.datePackage;
+this.datePackage=_b.datePackage||this.datePackage;
 this.dateLocaleModule=dojo.getObject(this.datePackage+".locale",false);
 this.regExpGen=this.dateLocaleModule.regexp;
 this._invalidDate=dijit.form._DateTimeTextBox.prototype.value.toString();
@@ -45,37 +47,37 @@ if(this.openOnClick||!this.hasDownArrow){
 this._buttonNode=this.domNode;
 this.baseClass+=" dijitComboBoxOpenOnClick";
 }
-},_setConstraintsAttr:function(_b){
-_b.selector=this._selector;
-_b.fullYear=true;
-var _c=dojo.date.stamp.fromISOString;
-if(typeof _b.min=="string"){
-_b.min=_c(_b.min);
+},_setConstraintsAttr:function(_d){
+_d.selector=this._selector;
+_d.fullYear=true;
+var _e=dojo.date.stamp.fromISOString;
+if(typeof _d.min=="string"){
+_d.min=_e(_d.min);
 }
-if(typeof _b.max=="string"){
-_b.max=_c(_b.max);
+if(typeof _d.max=="string"){
+_d.max=_e(_d.max);
 }
-this.inherited(arguments,[_b]);
-},_isInvalidDate:function(_d){
-return !_d||isNaN(_d)||typeof _d!="object"||_d.toString()==this._invalidDate;
-},_setValueAttr:function(_e,_f,_10){
-if(_e!==undefined){
-if(typeof _e=="string"){
-_e=dojo.date.stamp.fromISOString(_e);
+this.inherited(arguments);
+},_isInvalidDate:function(_f){
+return !_f||isNaN(_f)||typeof _f!="object"||_f.toString()==this._invalidDate;
+},_setValueAttr:function(_10,_11,_12){
+if(_10!==undefined){
+if(typeof _10=="string"){
+_10=dojo.date.stamp.fromISOString(_10);
 }
-if(this._isInvalidDate(_e)){
-_e=null;
+if(this._isInvalidDate(_10)){
+_10=null;
 }
-if(_e instanceof Date&&!(this.dateClassObj instanceof Date)){
-_e=new this.dateClassObj(_e);
+if(_10 instanceof Date&&!(this.dateClassObj instanceof Date)){
+_10=new this.dateClassObj(_10);
 }
 }
-this.inherited(arguments,[_e,_f,_10]);
+this.inherited(arguments);
 if(this.dropDown){
-this.dropDown.set("value",_e,false);
+this.dropDown.set("value",_10,false);
 }
-},_set:function(_11,_12){
-if(_11=="value"&&this.value instanceof Date&&((this._isInvalidDate(this.value)&&this._isInvalidDate(_12))||this.compare(_12,this.value)==0)){
+},_set:function(_13,_14){
+if(_13=="value"&&this.value instanceof Date&&this.compare(_14,this.value)==0){
 return;
 }
 this.inherited(arguments);
@@ -84,20 +86,20 @@ if(this._isInvalidDate(val)){
 val=new this.dateClassObj();
 }
 this.dropDownDefaultValue=val;
-},openDropDown:function(_13){
+},openDropDown:function(_15){
 if(this.dropDown){
 this.dropDown.destroy();
 }
-var _14=dojo.getObject(this.popupClass,false),_15=this,_16=this.get("value");
-this.dropDown=new _14({onChange:function(_17){
-dijit.form._DateTimeTextBox.superclass._setValueAttr.call(_15,_17,true);
-},id:this.id+"_popup",dir:_15.dir,lang:_15.lang,value:_16,currentFocus:!this._isInvalidDate(_16)?_16:this.dropDownDefaultValue,constraints:_15.constraints,filterString:_15.filterString,datePackage:_15.datePackage,isDisabledDate:function(_18){
-return !_15.rangeCheck(_18,_15.constraints);
+var _16=dojo.getObject(this.popupClass,false),_17=this,_18=this.get("value");
+this.dropDown=new _16({onChange:function(_19){
+dijit.form._DateTimeTextBox.superclass._setValueAttr.call(_17,_19,true);
+},id:this.id+"_popup",dir:_17.dir,lang:_17.lang,value:_18,currentFocus:!this._isInvalidDate(_18)?_18:this.dropDownDefaultValue,constraints:_17.constraints,filterString:_17.filterString,datePackage:_17.datePackage,isDisabledDate:function(_1a){
+return !_17.rangeCheck(_1a,_17.constraints);
 }});
 this.inherited(arguments);
 },_getDisplayedValueAttr:function(){
 return this.textbox.value;
-},_setDisplayedValueAttr:function(_19,_1a){
-this._setValueAttr(this.parse(_19,this.constraints),_1a,_19);
+},_setDisplayedValueAttr:function(_1b,_1c){
+this._setValueAttr(this.parse(_1b,this.constraints),_1c,_1b);
 }});
 }

@@ -13,7 +13,7 @@ dojo.require("dijit.form.Button");
 dojo.require("dojox.grid.enhanced._Plugin");
 dojo.require("dojox.grid.enhanced.plugins.Dialog");
 dojo.require("dojox.grid.enhanced.plugins._StoreLayer");
-dojo.requireLocalization("dojox.grid.enhanced","Pagination",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ru,sl,sv,th,tr,zh,zh-tw");
+dojo.requireLocalization("dojox.grid.enhanced","Pagination",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hr,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sk,sl,sv,th,tr,zh,zh-tw");
 dojo.declare("dojox.grid.enhanced.plugins.Pagination",dojox.grid.enhanced._Plugin,{name:"pagination",pageSize:25,defaultRows:25,_currentPage:0,_maxSize:0,init:function(){
 this.gh=null;
 this.grid.rowsPerPage=this.pageSize=this.grid.rowsPerPage?this.grid.rowsPerPage:this.pageSize;
@@ -201,7 +201,7 @@ _13.onBegin=function(_1a,req){
 req.start=0;
 req.count=_15.pageSize;
 _15._maxSize=_1a;
-_14.endIdx=_14.endIdx>_1a?(_1a-1):_14.endIdx;
+_14.endIdx=_14.endIdx>=_1a?(_1a-1):_14.endIdx;
 if(_14.startIdx>_1a&&_1a!==0){
 _16._pending_requests[req.start]=false;
 _15.gotoFirstPage();
@@ -755,8 +755,8 @@ return;
 }
 if(dojo.trim(_70.toLowerCase())=="all"){
 _70=this._maxItemSize;
+showAll=true;
 }
-this.plugin.showAll=parseInt(_70,10)>=this._maxItemSize?true:false;
 this.plugin.grid.usingPagination=!this.plugin.showAll;
 _70=parseInt(_70,10);
 if(isNaN(_70)||_70<=0){
@@ -864,7 +864,7 @@ dojo.attr(this._pageLabel,"innerHTML",dojo.string.substitute(this.plugin.nls.pag
 this._gotoPageDialog.show();
 },_onConfirm:function(_74){
 if(this._pageTextBox.isValid()&&this._pageTextBox.getDisplayedValue()!==""){
-this.plugin.gotoPage(this._pageTextBox.getDisplayedValue());
+this.plugin.gotoPage(this._pageTextBox.parse(this._pageTextBox.getDisplayedValue()));
 this._gotoPageDialog.hide();
 this._pageTextBox.reset();
 }

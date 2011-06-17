@@ -61,8 +61,8 @@ return false;
 },getValues:function(_13,_14){
 this._assertIsItem(_13);
 this._assertIsAttribute(_14);
-var u=d.hitch(this,"_unescapeHtml");
-var s=d.hitch(d.date.stamp,"fromISOString");
+var u=dojo.hitch(this,"_unescapeHtml");
+var s=dojo.hitch(dojo.date.stamp,"fromISOString");
 switch(_14){
 case "title":
 return [u(_13.title)];
@@ -96,7 +96,7 @@ return false;
 },_fetchItems:function(_17,_18,_19){
 var rq=_17.query=_17.query||{};
 var _1a={format:"json",tagmode:"any"};
-d.forEach(["tags","tagmode","lang","id","ids"],function(i){
+dojo.forEach(["tags","tagmode","lang","id","ids"],function(i){
 if(rq[i]){
 _1a[i]=rq[i];
 }
@@ -107,16 +107,16 @@ _1a.ids=rq.userids;
 }
 var _1b=null;
 var _1c={url:dojox.data.FlickrStore.urlRegistry.match(_17),preventCache:this.urlPreventCache,content:_1a};
-var _1d=d.hitch(this,function(_1e){
+var _1d=dojo.hitch(this,function(_1e){
 if(!!_1b){
-d.disconnect(_1b);
+dojo.disconnect(_1b);
 }
 _18(this._processFlickrData(_1e),_17);
 });
-_1b=d.connect("jsonFlickrFeed",_1d);
-var _1f=d.io.script.get(_1c);
+_1b=dojo.connect("jsonFlickrFeed",_1d);
+var _1f=dojo.io.script.get(_1c);
 _1f.addErrback(function(_20){
-d.disconnect(_1b);
+dojo.disconnect(_1b);
 _19(_20,_17);
 });
 },_processFlickrData:function(_21){
@@ -134,7 +134,7 @@ return str.replace(/&amp;/gm,"&").replace(/&lt;/gm,"<").replace(/&gt;/gm,">").re
 }});
 dojo.extend(dojox.data.FlickrStore,dojo.data.util.simpleFetch);
 var feedsUrl="http://api.flickr.com/services/feeds/";
-var reg=dojox.data.FlickrStore.urlRegistry=new d.AdapterRegistry(true);
+var reg=dojox.data.FlickrStore.urlRegistry=new dojo.AdapterRegistry(true);
 reg.register("group pool",function(_24){
 return !!_24.query["groupid"];
 },feedsUrl+"groups_pool.gne");

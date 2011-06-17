@@ -22,6 +22,7 @@ this.scrollDir="v";
 this.weight=0.6;
 this.fadeScrollBar=true;
 this.disableFlashScrollBar=false;
+this.threshold=0;
 this.init=function(_1){
 if(_1){
 for(var p in _1){
@@ -36,8 +37,8 @@ this._f=(this.scrollDir=="f");
 this._ch=[];
 this._ch.push(dojo.connect(this.containerNode,dojox.mobile.hasTouch?"touchstart":"onmousedown",this,"onTouchStart"));
 if(dojo.isWebKit){
-this._ch.push(dojo.connect(this.containerNode,"webkitAnimationEnd",this,"onFlickAnimationEnd"));
-this._ch.push(dojo.connect(this.containerNode,"webkitAnimationStart",this,"onFlickAnimationStart"));
+this._ch.push(dojo.connect(this.domNode,"webkitAnimationEnd",this,"onFlickAnimationEnd"));
+this._ch.push(dojo.connect(this.domNode,"webkitAnimationStart",this,"onFlickAnimationStart"));
 }
 if(dojo.global.onorientationchange!==undefined){
 this._ch.push(dojo.connect(dojo.global,"onorientationchange",this,"resizeView"));
@@ -122,6 +123,9 @@ var dy=y-this.touchStartY;
 var to={x:this.startPos.x+dx,y:this.startPos.y+dy};
 var _6=this._dim;
 if(this._time.length==1){
+if(dx<this.threshold&&dy<this.threshold){
+return;
+}
 this.addCover();
 this.showScrollBar();
 }

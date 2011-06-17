@@ -8,6 +8,7 @@
 if(!dojo._hasResource["dojo.store.Observable"]){
 dojo._hasResource["dojo.store.Observable"]=true;
 dojo.provide("dojo.store.Observable");
+dojo.getObject("store",true,dojo);
 dojo.store.Observable=function(_1){
 var _2=[],_3=0;
 _1.notify=function(_4,_5){

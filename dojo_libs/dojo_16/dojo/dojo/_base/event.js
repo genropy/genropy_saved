@@ -16,49 +16,48 @@ return;
 }
 _3=_1._normalizeEventName(_3);
 fp=_1._fixCallback(_3,fp);
-var _4=_3;
 if(!dojo.isIE&&(_3=="mouseenter"||_3=="mouseleave")){
-var _5=fp;
+var _4=fp;
 _3=(_3=="mouseenter")?"mouseover":"mouseout";
 fp=function(e){
 if(!dojo.isDescendant(e.relatedTarget,_2)){
-return _5.call(this,e);
+return _4.call(this,e);
 }
 };
 }
 _2.addEventListener(_3,fp,false);
 return fp;
-},remove:function(_6,_7,_8){
-if(_6){
-_7=_1._normalizeEventName(_7);
-if(!dojo.isIE&&(_7=="mouseenter"||_7=="mouseleave")){
-_7=(_7=="mouseenter")?"mouseover":"mouseout";
+},remove:function(_5,_6,_7){
+if(_5){
+_6=_1._normalizeEventName(_6);
+if(!dojo.isIE&&(_6=="mouseenter"||_6=="mouseleave")){
+_6=(_6=="mouseenter")?"mouseover":"mouseout";
 }
-_6.removeEventListener(_7,_8,false);
+_5.removeEventListener(_6,_7,false);
 }
-},_normalizeEventName:function(_9){
-return _9.slice(0,2)=="on"?_9.slice(2):_9;
-},_fixCallback:function(_a,fp){
-return _a!="keypress"?fp:function(e){
+},_normalizeEventName:function(_8){
+return _8.slice(0,2)=="on"?_8.slice(2):_8;
+},_fixCallback:function(_9,fp){
+return _9!="keypress"?fp:function(e){
 return fp.call(this,_1._fixEvent(e,this));
 };
-},_fixEvent:function(_b,_c){
-switch(_b.type){
+},_fixEvent:function(_a,_b){
+switch(_a.type){
 case "keypress":
-_1._setKeyChar(_b);
+_1._setKeyChar(_a);
 break;
 }
-return _b;
-},_setKeyChar:function(_d){
-_d.keyChar=_d.charCode?String.fromCharCode(_d.charCode):"";
-_d.charOrCode=_d.keyChar||_d.keyCode;
+return _a;
+},_setKeyChar:function(_c){
+_c.keyChar=_c.charCode>=32?String.fromCharCode(_c.charCode):"";
+_c.charOrCode=_c.keyChar||_c.keyCode;
 },_punctMap:{106:42,111:47,186:59,187:43,188:44,189:45,190:46,191:47,192:96,219:91,220:92,221:93,222:39}});
-dojo.fixEvent=function(_e,_f){
-return _1._fixEvent(_e,_f);
+dojo.fixEvent=function(_d,_e){
+return _1._fixEvent(_d,_e);
 };
-dojo.stopEvent=function(evt){
-evt.preventDefault();
-evt.stopPropagation();
+dojo.stopEvent=function(_f){
+_f.preventDefault();
+_f.stopPropagation();
 };
 var _10=dojo._listener;
 dojo._connect=function(obj,_11,_12,_13,_14){
@@ -212,7 +211,7 @@ if(!kp||!kp[_1e]){
 return;
 }
 var k=evt.keyCode;
-var _2e=k!=13&&k!=32&&k!=27&&(k<48||k>90)&&(k<96||k>111)&&(k<186||k>192)&&(k<219||k>222);
+var _2e=(k!=13||(dojo.isIE>=9&&!dojo.isQuirks))&&k!=32&&k!=27&&(k<48||k>90)&&(k<96||k>111)&&(k<186||k>192)&&(k<219||k>222);
 if(_2e||evt.ctrlKey){
 var c=_2e?0:k;
 if(evt.ctrlKey){
@@ -232,7 +231,9 @@ c=_1._punctMap[c]||c;
 }
 var _2f=_1._synthesizeEvent(evt,{type:"keypress",faux:true,charCode:c});
 kp.call(evt.currentTarget,_2f);
+if(dojo.isIE<9||(dojo.isIE&&dojo.isQuirks)){
 evt.cancelBubble=_2f.cancelBubble;
+}
 evt.returnValue=_2f.returnValue;
 _1c(evt,_2f.keyCode);
 }

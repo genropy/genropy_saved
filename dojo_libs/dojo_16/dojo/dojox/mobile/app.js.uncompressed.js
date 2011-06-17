@@ -70,7 +70,9 @@ dojo.window.scrollIntoView = function(/*DomNode*/ node, /*Object?*/ pos){
 			return;
 		}
 		var backCompat = doc.compatMode == 'BackCompat',
-			clientAreaRoot = backCompat? body : html,
+			clientAreaRoot = (isIE >= 9 && node.ownerDocument.parentWindow.frameElement)
+				? ((html.clientHeight > 0 && html.clientWidth > 0 && (body.clientHeight == 0 || body.clientWidth == 0 || body.clientHeight > html.clientHeight || body.clientWidth > html.clientWidth)) ? html : body)
+				: (backCompat ? body : html),
 			scrollRoot = isWK ? body : clientAreaRoot,
 			rootWidth = clientAreaRoot.clientWidth,
 			rootHeight = clientAreaRoot.clientHeight,
@@ -95,14 +97,11 @@ dojo.window.scrollIntoView = function(/*DomNode*/ node, /*Object?*/ pos){
 			}else{
 				var pb = dojo._getPadBorderExtents(el);
 				elPos.w -= pb.w; elPos.h -= pb.h; elPos.x += pb.l; elPos.y += pb.t;
-			}
-	
-			if(el != scrollRoot){ // body, html sizes already have the scrollbar removed
 				var clientSize = el.clientWidth,
 					scrollBarSize = elPos.w - clientSize;
 				if(clientSize > 0 && scrollBarSize > 0){
 					elPos.w = clientSize;
-					if(isIE && rtl){ elPos.x += scrollBarSize; }
+					elPos.x += (rtl && (isIE || el.clientLeft > pb.l/*Chrome*/)) ? scrollBarSize : 0;
 				}
 				clientSize = el.clientHeight;
 				scrollBarSize = elPos.h - clientSize;
@@ -131,8 +130,9 @@ dojo.window.scrollIntoView = function(/*DomNode*/ node, /*Object?*/ pos){
 				bot = t + nodePos.h - elPos.h; // beyond bottom: > 0
 			if(r * l > 0){
 				var s = Math[l < 0? "max" : "min"](l, r);
+				if(rtl && ((isIE == 8 && !backCompat) || isIE >= 9)){ s = -s; }
 				nodePos.x += el.scrollLeft;
-				el.scrollLeft += (isIE >= 8 && !backCompat && rtl)? -s : s;
+				el.scrollLeft += s;
 				nodePos.x -= el.scrollLeft;
 			}
 			if(bot * t > 0){
@@ -698,6 +698,9 @@ dojo.mixin(dijit, {
 						}
 					}
 					bm = {isCollapsed:true};
+					if(sel.rangeCount){
+						bm.mark = sel.getRangeAt(0).cloneRange();
+					}
 				}else{
 					rg = sel.getRangeAt(0);
 					bm = {isCollapsed: false, mark: rg.cloneRange()};
@@ -1726,7 +1729,7 @@ dijit.popup = {
 		//		Puts widget inside a wrapper DIV (if not already in one),
 		//		and returns pointer to that wrapper DIV.
 
-		var wrapper = widget.declaredClass ? widget._popupWrapper : (dojo.hasClass(widget.parentNode, "dijitPopup") && widget.parentNode),
+		var wrapper = widget.declaredClass ? widget._popupWrapper : (widget.parentNode && dojo.hasClass(widget.parentNode, "dijitPopup")),
 			node = widget.domNode || widget;
 
 		if(!wrapper){
@@ -3910,6 +3913,7 @@ dojo.declare(
 	scene: "",
 	clickable: false,
 	url: "",
+	urlTarget: "", // node id under which a new view is created
 	transition: "",
 	transitionDir: 1,
 	callback: null,
@@ -3999,6 +4003,7 @@ dojo.declare(
 				dojox.mobile._viewMap[url] = id;
 			}
 			moveTo = id;
+			w = this.findCurrentView(moveTo) || w; // the current view widget
 		}
 		w.performTransition(moveTo, this.transitionDir, this.transition, this.callback && this, this.callback);
 	},
@@ -4006,6 +4011,11 @@ dojo.declare(
 	_parse: function(text){
 		var container = dojo.create("DIV");
 		var view;
+		var id = this.urlTarget;
+		var target = dijit.byId(id) && dijit.byId(id).containerNode ||
+			dojo.byId(id) ||
+			dojox.mobile.currentView && dojox.mobile.currentView.domNode.parentNode ||
+			dojo.body();
 		if(text.charAt(0) == "<"){ // html markup
 			container.innerHTML = text;
 			view = container.firstChild; // <div dojoType="dojox.mobile.View">
@@ -4015,10 +4025,11 @@ dojo.declare(
 			}
 			view.setAttribute("_started", "true"); // to avoid startup() is called
 			view.style.visibility = "hidden";
-			dojo.body().appendChild(container);
+			target.appendChild(container);
 			(dojox.mobile.parser || dojo.parser).parse(container);
+			target.appendChild(target.removeChild(container).firstChild); // reparent
 		}else if(text.charAt(0) == "{"){ // json
-			dojo.body().appendChild(container);
+			target.appendChild(container);
 			this._ws = [];
 			view = this._instantiate(eval('('+text+')'), container);
 			for(var i = 0; i < this._ws.length; i++){
@@ -4696,7 +4707,12 @@ dojox.mobile.parser = new function(){
 				}
 				params["class"] = node.className;
 				params["style"] = node.style && node.style.cssText;
-				ws.push(new cls(params, node));
+				var instance = new cls(params, node);
+				ws.push(instance);
+				var jsId = node.getAttribute("jsId");
+				if(jsId){
+					dojo.setObject(jsId, instance);
+				}
 			}
 			len = ws.length;
 			for(i = 0; i < len; i++){

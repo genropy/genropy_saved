@@ -70,7 +70,9 @@ dojo.window.scrollIntoView = function(/*DomNode*/ node, /*Object?*/ pos){
 			return;
 		}
 		var backCompat = doc.compatMode == 'BackCompat',
-			clientAreaRoot = backCompat? body : html,
+			clientAreaRoot = (isIE >= 9 && node.ownerDocument.parentWindow.frameElement)
+				? ((html.clientHeight > 0 && html.clientWidth > 0 && (body.clientHeight == 0 || body.clientWidth == 0 || body.clientHeight > html.clientHeight || body.clientWidth > html.clientWidth)) ? html : body)
+				: (backCompat ? body : html),
 			scrollRoot = isWK ? body : clientAreaRoot,
 			rootWidth = clientAreaRoot.clientWidth,
 			rootHeight = clientAreaRoot.clientHeight,
@@ -95,14 +97,11 @@ dojo.window.scrollIntoView = function(/*DomNode*/ node, /*Object?*/ pos){
 			}else{
 				var pb = dojo._getPadBorderExtents(el);
 				elPos.w -= pb.w; elPos.h -= pb.h; elPos.x += pb.l; elPos.y += pb.t;
-			}
-	
-			if(el != scrollRoot){ // body, html sizes already have the scrollbar removed
 				var clientSize = el.clientWidth,
 					scrollBarSize = elPos.w - clientSize;
 				if(clientSize > 0 && scrollBarSize > 0){
 					elPos.w = clientSize;
-					if(isIE && rtl){ elPos.x += scrollBarSize; }
+					elPos.x += (rtl && (isIE || el.clientLeft > pb.l/*Chrome*/)) ? scrollBarSize : 0;
 				}
 				clientSize = el.clientHeight;
 				scrollBarSize = elPos.h - clientSize;
@@ -131,8 +130,9 @@ dojo.window.scrollIntoView = function(/*DomNode*/ node, /*Object?*/ pos){
 				bot = t + nodePos.h - elPos.h; // beyond bottom: > 0
 			if(r * l > 0){
 				var s = Math[l < 0? "max" : "min"](l, r);
+				if(rtl && ((isIE == 8 && !backCompat) || isIE >= 9)){ s = -s; }
 				nodePos.x += el.scrollLeft;
-				el.scrollLeft += (isIE >= 8 && !backCompat && rtl)? -s : s;
+				el.scrollLeft += s;
 				nodePos.x -= el.scrollLeft;
 			}
 			if(bot * t > 0){
@@ -698,6 +698,9 @@ dojo.mixin(dijit, {
 						}
 					}
 					bm = {isCollapsed:true};
+					if(sel.rangeCount){
+						bm.mark = sel.getRangeAt(0).cloneRange();
+					}
 				}else{
 					rg = sel.getRangeAt(0);
 					bm = {isCollapsed: false, mark: rg.cloneRange()};
@@ -1726,7 +1729,7 @@ dijit.popup = {
 		//		Puts widget inside a wrapper DIV (if not already in one),
 		//		and returns pointer to that wrapper DIV.
 
-		var wrapper = widget.declaredClass ? widget._popupWrapper : (dojo.hasClass(widget.parentNode, "dijitPopup") && widget.parentNode),
+		var wrapper = widget.declaredClass ? widget._popupWrapper : (widget.parentNode && dojo.hasClass(widget.parentNode, "dijitPopup")),
 			node = widget.domNode || widget;
 
 		if(!wrapper){
@@ -3055,6 +3058,7 @@ dojo.parser = new function(){
 		}else{
 			root = rootNode;
 		}
+		root = root ? dojo.byId(root) : dojo.body();
 		args = args || {};
 
 		var attrName = (args.scope || d._scopeName) + "Type",		// typically "dojoType"
@@ -3140,13 +3144,19 @@ dojo.parser = new function(){
 			}
 		}
 
+		// Ignore bogus entries in inherited hash like {dir: ""}
+		var inherited = {};
+		if(args && args.inherited){
+			for(var key in args.inherited){
+				if(args.inherited[key]){ inherited[key] = args.inherited[key]; }
+			}
+		}
+
 		// Make list of all nodes on page w/dojoType specified
 		var list = [];
 		scan({
-			node: root ? dojo.byId(root) : dojo.body(),
-			inherited: (args && args.inherited) || {
-				dir: dojo._isBodyLtr() ? "ltr" : "rtl"
-			}
+			node: root,
+			inherited: inherited
 		}, list);
 
 		// go build the object instances
@@ -5659,12 +5669,18 @@ dijit.layout.marginBox2contentBox = function(/*DomNode*/ node, /*Object*/ mb){
 
 	var size = function(widget, dim){
 		// size the child
-		widget.resize ? widget.resize(dim) : dojo.marginBox(widget.domNode, dim);
+		var newSize = widget.resize ? widget.resize(dim) : dojo.marginBox(widget.domNode, dim);
 
-		// record child's size, but favor our own numbers when we have them.
-		// the browser lies sometimes
-		dojo.mixin(widget, dojo.marginBox(widget.domNode));
-		dojo.mixin(widget, dim);
+		// record child's size
+		if(newSize){
+			// if the child returned it's new size then use that
+			dojo.mixin(widget, newSize);
+		}else{
+			// otherwise, call marginBox(), but favor our own numbers when we have them.
+			// the browser lies sometimes
+			dojo.mixin(widget, dojo.marginBox(widget.domNode));
+			dojo.mixin(widget, dim);
+		}
 	};
 
 	dijit.layout.layoutChildren = function(/*DomNode*/ container, /*Object*/ dim, /*Widget[]*/ children,
@@ -5707,7 +5723,7 @@ dijit.layout.marginBox2contentBox = function(/*DomNode*/ node, /*Object*/ mb){
 			var elmStyle = elm.style;
 			elmStyle.left = dim.l+"px";
 			elmStyle.top = dim.t+"px";
-			elmStyle.bottom = elmStyle.right = "auto";
+			elmStyle.position = "absolute";
 
 			dojo.addClass(elm, "dijitAlign" + capitalize(pos));
 
@@ -6297,7 +6313,7 @@ dojo.declare("dijit.form._FormValueWidget", dijit.form._FormWidget,
 	postCreate: function(){
 		this.inherited(arguments);
 
-		if(dojo.isIE){ // IE won't stop the event with keypress
+		if(dojo.isIE < 9 || (dojo.isIE && dojo.isQuirks)){ // IE won't stop the event with keypress
 			this.connect(this.focusNode || this.domNode, "onkeydown", this._onKeyDown);
 		}
 		// Update our reset value if it hasn't yet been set (because this.set()
@@ -6540,6 +6556,7 @@ dojo.declare("dijit._KeyNavContainer",
 			if(this.focusedChild && widget !== this.focusedChild){
 				this._onChildBlur(this.focusedChild);
 			}
+			widget.set("tabIndex", this.tabIndex);	// for IE focus outline to appear, must set tabIndex before focs
 			widget.focus(last ? "end" : "start");
 			this._set("focusedChild", widget);
 		},
@@ -9508,8 +9525,8 @@ dojo.provide("dojox.grid._Builder");
 		},
 		
 		getCellNode: function(inRowNode, inCellIndex){
-			for(var i=0, row; (row=getTr(inRowNode.firstChild, i)); i++){
-				for(var j=0, cell; (cell=row.cells[j]); j++){
+			for(var i=0, row; ((row = getTr(inRowNode.firstChild, i)) && row.cells); i++){
+				for(var j=0, cell; (cell = row.cells[j]); j++){
 					if(this.getCellNodeIndex(cell) == inCellIndex){
 						return cell;
 					}
@@ -9731,7 +9748,7 @@ dojo.provide("dojox.grid._Builder");
 		// event helpers
 		getCellX: function(e){
 			var n, x = e.layerX;
-			if(dojo.isMoz){
+			if(dojo.isMoz || dojo.isIE >= 9){
 				n = ascendDom(e.target, makeNotTagName("th"));
 				x -= (n && n.offsetLeft) || 0;
 				var t = e.sourceView.getScrollbarWidth();
@@ -10016,8 +10033,10 @@ dojo.provide("dojox.grid._Builder");
 			var i, s, sw, f, fl;
 			for(i=0; (s=inDrag.spanners[i]); i++){
 				sw = s.width + data.deltaX;
-				s.node.style.width = sw + 'px';
-				inDrag.view.setColWidth(s.index, sw);
+				if(sw > 0){
+					s.node.style.width = sw + 'px';
+					inDrag.view.setColWidth(s.index, sw);
+				}
 			}
 			if(dojo._isBodyLtr() || !dojo.isIE){//fix #11339
 				for(i=0; (f=inDrag.followers[i]); i++){
@@ -13711,6 +13730,19 @@ dojo.declare("dojox.grid._FocusManager", null, {
 					// don't change col if would move to hidden
 					col = i;
 				}
+				//skip hidden row|cell
+				var n = cell.getNode(row);
+				if(!n && inRowDelta){
+					if((row + inRowDelta) >= 0 && (row + inRowDelta) <= rc){
+						this.move(inRowDelta > 0 ? ++inRowDelta : --inRowDelta, inColDelta);
+					}
+					return;
+				}else if((!n || dojo.style(n, "display") === "none") && inColDelta){
+					if((col + inRowDelta) >= 0 && (col + inRowDelta) <= cc){
+						this.move(inRowDelta, inColDelta > 0 ? ++inColDelta : --inColDelta);
+					}
+					return;
+				}
 				this.setFocusIndex(row, col);
 				if(inRowDelta){
 					this.grid.updateRow(r);
@@ -14488,6 +14520,7 @@ dojo.declare("dojox.grid._Events", null, {
 					var curView = this.focus.focusView || this.views.views[0];  //if no focusView than only one view
 					curView.content.decorateEvent(e);
 					this.onRowClick(e);
+					dojo.stopEvent(e);
 				}
 				break;
 			case dk.SPACE:
@@ -15704,6 +15737,7 @@ dojo.provide("dojox.grid._Grid");
 				}
 			}
 			this.views.destroyViews();
+			this.focus.focusView = null;
 			if(s !== this.layout.structure){
 				this.layout.setStructure(s);
 			}

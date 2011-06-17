@@ -233,7 +233,7 @@ dojo.declare("dojox.grid.enhanced.plugins.Selector", dojox.grid.enhanced._Plugin
 		return this._isSelected(type, _createItem(type, rowIndex, colIndex));
 	},
 	toggleSelect: function(type, rowIndex, colIndex){
-		this._startSelect(type, _createItem(type, rowIndex, colIndex), this._config[type] === MULTI, false);
+		this._startSelect(type, _createItem(type, rowIndex, colIndex), this._config[type] === MULTI, false, false, !this.isSelected(type, rowIndex, colIndex));
 		this._endSelect(type);
 	},
 	select: function(type, rowIndex, colIndex){
@@ -823,7 +823,9 @@ dojo.declare("dojox.grid.enhanced.plugins.Selector", dojox.grid.enhanced._Plugin
 					var view = g.views.views[0];
 					if(view instanceof dojox.grid._RowSelector){
 						var rowBarNode = view.getCellNode(_this._lastFocusedRowBarIdx, 0);
-						dojo.toggleClass(rowBarNode, f.focusClass, false);
+						if(rowBarNode){
+							dojo.toggleClass(rowBarNode, f.focusClass, false);
+						}
 						_stopEvent(evt);
 					}
 					return true;

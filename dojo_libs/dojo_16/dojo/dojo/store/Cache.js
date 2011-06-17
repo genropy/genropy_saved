@@ -8,6 +8,7 @@
 if(!dojo._hasResource["dojo.store.Cache"]){
 dojo._hasResource["dojo.store.Cache"]=true;
 dojo.provide("dojo.store.Cache");
+dojo.getObject("store",true,dojo);
 dojo.store.Cache=function(_1,_2,_3){
 _3=_3||{};
 return dojo.delegate(_1,{query:function(_4,_5){

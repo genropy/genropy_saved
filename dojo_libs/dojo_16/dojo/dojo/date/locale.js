@@ -351,31 +351,31 @@ case "y":
 s="\\d{2,4}";
 break;
 case "M":
-s=(l>2)?"\\S+?":p2+"[1-9]|1[0-2]";
+s=(l>2)?"\\S+?":"1[0-2]|"+p2+"[1-9]";
 break;
 case "D":
-s=p2+"[1-9]|"+p3+"[1-9][0-9]|[12][0-9][0-9]|3[0-5][0-9]|36[0-6]";
+s="[12][0-9][0-9]|3[0-5][0-9]|36[0-6]|"+p3+"[1-9][0-9]|"+p2+"[1-9]";
 break;
 case "d":
 s="3[01]|[12]\\d|"+p2+"[1-9]";
 break;
 case "w":
-s=p2+"[1-9]|[1-4][0-9]|5[0-3]";
+s="[1-4][0-9]|5[0-3]|"+p2+"[1-9]";
 break;
 case "E":
 s="\\S+";
 break;
 case "h":
-s=p2+"[1-9]|1[0-2]";
+s="1[0-2]|"+p2+"[1-9]";
 break;
 case "k":
-s=p2+"\\d|1[01]";
+s="1[01]|"+p2+"\\d";
 break;
 case "H":
-s=p2+"\\d|1\\d|2[0-3]";
+s="1\\d|2[0-3]|"+p2+"\\d";
 break;
 case "K":
-s=p2+"[1-9]|1\\d|2[0-4]";
+s="1\\d|2[0-4]|"+p2+"[1-9]";
 break;
 case "m":
 case "s":
@@ -386,10 +386,8 @@ s="\\d{"+l+"}";
 break;
 case "a":
 var am=_46.am||_45["dayPeriods-format-wide-am"],pm=_46.pm||_45["dayPeriods-format-wide-pm"];
-if(_46.strict){
 s=am+"|"+pm;
-}else{
-s=am+"|"+pm;
+if(!_46.strict){
 if(am!=am.toLowerCase()){
 s+="|"+am.toLowerCase();
 }

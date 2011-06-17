@@ -81,10 +81,9 @@ if(this._click.length>1&&(!this._click[0]||!this._click[1])){
 this._click[0]=this._click[1]=e;
 }
 this._events.onCellDblClick.call(this,e);
-this.focus.setFocusCell(e.cell,e.rowIndex);
 },onRowClick:function(e){
 this.edit.rowClick(e);
-if(e.cell&&!e.cell.isRowSelector&&(!this.rowSelectCell||!this.rowSelectCell.disabled(e.rowIndex))){
+if(!e.cell||(!e.cell.isRowSelector&&(!this.rowSelectCell||!this.rowSelectCell.disabled(e.rowIndex)))){
 this.selection.clickSelectEvent(e);
 }
 },onRowContextMenu:function(e){

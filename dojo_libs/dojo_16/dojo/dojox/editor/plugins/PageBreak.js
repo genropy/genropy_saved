@@ -11,7 +11,7 @@ dojo.provide("dojox.editor.plugins.PageBreak");
 dojo.require("dijit._editor.html");
 dojo.require("dijit._editor._Plugin");
 dojo.require("dojo.i18n");
-dojo.requireLocalization("dojox.editor.plugins","PageBreak",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sl,sv,th,tr,zh,zh-tw");
+dojo.requireLocalization("dojox.editor.plugins","PageBreak",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sk,sl,sv,th,tr,zh,zh-tw");
 dojo.declare("dojox.editor.plugins.PageBreak",dijit._editor._Plugin,{useDefaultCommand:false,iconClassPrefix:"dijitAdditionalEditorIcon",_unbreakableNodes:["li","ul","ol"],_pbContent:"<hr style='page-break-after: always;' class='dijitEditorPageBreak'>",_initButton:function(){
 var ed=this.editor;
 var _1=dojo.i18n.getLocalization("dojox.editor.plugins","PageBreak");

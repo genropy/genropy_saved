@@ -249,6 +249,7 @@ _3a=_39.rootNode;
 }else{
 _3a=_38;
 }
+_3a=_3a?dojo.byId(_3a):dojo.body();
 _39=_39||{};
 var _3b=(_39.scope||d._scopeName)+"Type",_3c="data-"+(_39.scope||d._scopeName)+"-";
 function _3d(_3e,_3f){
@@ -289,22 +290,30 @@ _3d({node:_44,inherited:_40},_3f);
 }
 }
 };
-var _49=[];
-_3d({node:_3a?dojo.byId(_3a):dojo.body(),inherited:(_39&&_39.inherited)||{dir:dojo._isBodyLtr()?"ltr":"rtl"}},_49);
-var _4a=_39&&_39.template?{template:true}:null;
-return this.instantiate(_49,_4a,_39);
+var _49={};
+if(_39&&_39.inherited){
+for(var key in _39.inherited){
+if(_39.inherited[key]){
+_49[key]=_39.inherited[key];
+}
+}
+}
+var _4a=[];
+_3d({node:_3a,inherited:_49},_4a);
+var _4b=_39&&_39.template?{template:true}:null;
+return this.instantiate(_4a,_4b,_39);
 };
 }();
 (function(){
-var _4b=function(){
+var _4c=function(){
 if(dojo.config.parseOnLoad){
 dojo.parser.parse();
 }
 };
 if(dojo.getObject("dijit.wai.onload")===dojo._loaders[0]){
-dojo._loaders.splice(1,0,_4b);
+dojo._loaders.splice(1,0,_4c);
 }else{
-dojo._loaders.unshift(_4b);
+dojo._loaders.unshift(_4c);
 }
 })();
 }

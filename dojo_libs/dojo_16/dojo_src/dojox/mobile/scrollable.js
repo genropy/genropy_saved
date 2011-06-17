@@ -74,6 +74,7 @@ dojox.mobile.scrollable = function(){
 	this.weight = 0.6; // frictional drag
 	this.fadeScrollBar = true;
 	this.disableFlashScrollBar = false;
+	this.threshold = 0; // drag threshold value in pixels
 
 //>>excludeStart("dojo", true);
 	if(!dojo.version){ // seems running in a non-dojo environment
@@ -154,8 +155,8 @@ dojox.mobile.scrollable = function(){
 		this._ch.push(dojo.connect(this.containerNode,
 			dojox.mobile.hasTouch ? "touchstart" : "onmousedown", this, "onTouchStart"));
 		if(dojo.isWebKit){
-			this._ch.push(dojo.connect(this.containerNode, "webkitAnimationEnd", this, "onFlickAnimationEnd"));
-			this._ch.push(dojo.connect(this.containerNode, "webkitAnimationStart", this, "onFlickAnimationStart"));
+			this._ch.push(dojo.connect(this.domNode, "webkitAnimationEnd", this, "onFlickAnimationEnd"));
+			this._ch.push(dojo.connect(this.domNode, "webkitAnimationStart", this, "onFlickAnimationStart"));
 		}
 
 		if(dojo.global.onorientationchange !== undefined){
@@ -253,6 +254,7 @@ dojox.mobile.scrollable = function(){
 		var dim = this._dim;
 
 		if(this._time.length == 1){ // the first TouchMove after TouchStart
+			if(dx < this.threshold && dy < this.threshold){ return; }
 			this.addCover();
 			this.showScrollBar();
 		}

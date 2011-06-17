@@ -12,7 +12,7 @@ dojo.require("dijit._base.focus");
 dojo.require("dijit._base.place");
 dojo.require("dijit._base.window");
 dijit.popup={_stack:[],_beginZIndex:1000,_idGen:1,_createWrapper:function(_1){
-var _2=_1.declaredClass?_1._popupWrapper:(dojo.hasClass(_1.parentNode,"dijitPopup")&&_1.parentNode),_3=_1.domNode||_1;
+var _2=_1.declaredClass?_1._popupWrapper:(_1.parentNode&&dojo.hasClass(_1.parentNode,"dijitPopup")),_3=_1.domNode||_1;
 if(!_2){
 _2=dojo.create("div",{"class":"dijitPopup",style:{display:"none"},role:"presentation"},dojo.body());
 _2.appendChild(_3);

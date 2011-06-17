@@ -103,7 +103,11 @@
   background-color: rgba(171, 212, 251, 0);
   
   -webkit-transition-property: background-color, border;
-  -webkit-transition-duration: .35s;
+  -moz-transition-property: background-color, border;
+  transition-property: background-color, border;
+  -webkit-transition-duration: 0.35s;
+  -moz-transition-duration: 0.35s;
+  transition-duration: 0.35s;
 }
 .claro .dijitCalendarPreviousMonth .dijitCalendarDateLabel, .claro .dijitCalendarNextMonth .dijitCalendarDateLabel {
   color: #769dc0;
@@ -139,7 +143,9 @@
   background-color: #abd6ff;
   border: solid 1px #769dc0;
   color: #000000;
-  -webkit-transition-duration: .2s;
+  -webkit-transition-duration: 0.2s;
+  -moz-transition-duration: 0.2s;
+  transition-duration: 0.2s;
 }
 .claro .dijitCalendarNextYearHover, .claro .dijitCalendarPreviousYearHover {
   color: #000000;
@@ -159,7 +165,9 @@
   background-position: 0 -300px;
   background-color: #7dbefa;
   border: solid 1px #ffffff;
-  -webkit-transition-duration: .1s;
+  -webkit-transition-duration: 0.1s;
+  -moz-transition-duration: 0.1s;
+  transition-duration: 0.1s;
 }
 .dj_ie6 .claro .dijitCalendarActiveDate .dijitCalendarDateLabel {
   background-image: none;

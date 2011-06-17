@@ -185,6 +185,7 @@ return;
 }
 }
 this.views.destroyViews();
+this.focus.focusView=null;
 if(s!==this.layout.structure){
 this.layout.setStructure(s);
 }

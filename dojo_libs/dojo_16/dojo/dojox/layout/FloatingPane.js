@@ -117,6 +117,7 @@ this._dockNode=null;
 }
 })}).play();
 this.resize(dojo.coords(this.domNode));
+this._onShow();
 },minimize:function(){
 if(!this._isDocked){
 this.hide(dojo.hitch(this,"_dock"));
@@ -214,9 +215,6 @@ this._inPositioning=false;
 dojo.declare("dojox.layout._DockNode",[dijit._Widget,dijit._Templated],{title:"",paneRef:null,templateString:"<li dojoAttachEvent=\"onclick: restore\" class=\"dojoxDockNode\">"+"<span dojoAttachPoint=\"restoreNode\" class=\"dojoxDockRestoreButton\" dojoAttachEvent=\"onclick: restore\"></span>"+"<span class=\"dojoxDockTitleNode\" dojoAttachPoint=\"titleNode\">${title}</span>"+"</li>",restore:function(){
 this.paneRef.show();
 this.paneRef.bringToTop();
-if(!this.paneRef.isLoaded){
-this.paneRef.refresh();
-}
 this.destroy();
 }});
 }

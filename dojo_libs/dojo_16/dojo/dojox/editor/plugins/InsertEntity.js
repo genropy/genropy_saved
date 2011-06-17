@@ -14,7 +14,7 @@ dojo.require("dijit.form.Button");
 dojo.require("dojox.html.entities");
 dojo.require("dojox.editor.plugins.EntityPalette");
 dojo.require("dojo.i18n");
-dojo.requireLocalization("dojox.editor.plugins","InsertEntity",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sl,sv,th,tr,zh,zh-tw");
+dojo.requireLocalization("dojox.editor.plugins","InsertEntity",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sk,sl,sv,th,tr,zh,zh-tw");
 dojo.declare("dojox.editor.plugins.InsertEntity",dijit._editor._Plugin,{iconClassPrefix:"dijitAdditionalEditorIcon",_initButton:function(){
 this.dropDown=new dojox.editor.plugins.EntityPalette({showCode:this.showCode,showEntityName:this.showEntityName});
 this.connect(this.dropDown,"onChange",function(_1){

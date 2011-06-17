@@ -27,6 +27,9 @@ return {isCollapsed:(_1.end<=_1.start),mark:_1};
 }
 }
 bm={isCollapsed:true};
+if(_1.rangeCount){
+bm.mark=_1.getRangeAt(0).cloneRange();
+}
 }else{
 rg=_1.getRangeAt(0);
 bm={isCollapsed:false,mark:rg.cloneRange()};

@@ -84,8 +84,13 @@ if(_16.onComplete){
 _16.onComplete.call(_18,_16.onItem?null:_1e,_16);
 }
 return _1e;
-},_16.onError&&dojo.hitch(_18,_16.onError));
-},_16.onError&&dojo.hitch(_18,_16.onError));
+},_1f);
+},_1f);
+function _1f(_20){
+if(_16.onError){
+_16.onError.call(_18,_20,_16);
+}
+};
 _16.abort=function(){
 if(_1c.cancel){
 _1c.cancel();
@@ -95,163 +100,163 @@ _16.store=this;
 return _16;
 },getFeatures:function(){
 return {"dojo.data.api.Read":!!this.objectStore.get,"dojo.data.api.Identity":true,"dojo.data.api.Write":!!this.objectStore.put,"dojo.data.api.Notification":true};
-},getLabel:function(_1f){
-if(this.isItem(_1f)){
-return this.getValue(_1f,this.labelProperty);
+},getLabel:function(_21){
+if(this.isItem(_21)){
+return this.getValue(_21,this.labelProperty);
 }
 return undefined;
-},getLabelAttributes:function(_20){
+},getLabelAttributes:function(_22){
 return [this.labelProperty];
-},getIdentity:function(_21){
-return _21.getId?_21.getId():_21[this.objectStore.idProperty||"id"];
-},getIdentityAttributes:function(_22){
+},getIdentity:function(_23){
+return _23.getId?_23.getId():_23[this.objectStore.idProperty||"id"];
+},getIdentityAttributes:function(_24){
 return [this.objectStore.idProperty];
-},fetchItemByIdentity:function(_23){
-var _24;
-dojo.when(this.objectStore.get(_23.identity),function(_25){
-_24=_25;
-_23.onItem.call(_23.scope,_25);
-},function(_26){
-_23.onError.call(_23.scope,_26);
+},fetchItemByIdentity:function(_25){
+var _26;
+dojo.when(this.objectStore.get(_25.identity),function(_27){
+_26=_27;
+_25.onItem.call(_25.scope,_27);
+},function(_28){
+_25.onError.call(_25.scope,_28);
 });
-return _24;
-},newItem:function(_27,_28){
-if(_28){
-var _29=this.getValue(_28.parent,_28.attribute,[]);
-_29=_29.concat([_27]);
-_27.__parent=_29;
-this.setValue(_28.parent,_28.attribute,_29);
+return _26;
+},newItem:function(_29,_2a){
+if(_2a){
+var _2b=this.getValue(_2a.parent,_2a.attribute,[]);
+_2b=_2b.concat([_29]);
+_29.__parent=_2b;
+this.setValue(_2a.parent,_2a.attribute,_2b);
 }
-this._dirtyObjects.push({object:_27,save:true});
-this.onNew(_27);
-return _27;
-},deleteItem:function(_2a){
-this.changing(_2a,true);
-this.onDelete(_2a);
-},setValue:function(_2b,_2c,_2d){
-var old=_2b[_2c];
-this.changing(_2b);
-_2b[_2c]=_2d;
-this.onSet(_2b,_2c,old,_2d);
-},setValues:function(_2e,_2f,_30){
-if(!dojo.isArray(_30)){
+this._dirtyObjects.push({object:_29,save:true});
+this.onNew(_29);
+return _29;
+},deleteItem:function(_2c){
+this.changing(_2c,true);
+this.onDelete(_2c);
+},setValue:function(_2d,_2e,_2f){
+var old=_2d[_2e];
+this.changing(_2d);
+_2d[_2e]=_2f;
+this.onSet(_2d,_2e,old,_2f);
+},setValues:function(_30,_31,_32){
+if(!dojo.isArray(_32)){
 throw new Error("setValues expects to be passed an Array object as its value");
 }
-this.setValue(_2e,_2f,_30);
-},unsetAttribute:function(_31,_32){
-this.changing(_31);
-var old=_31[_32];
-delete _31[_32];
-this.onSet(_31,_32,old,undefined);
-},_dirtyObjects:[],changing:function(_33,_34){
-_33.__isDirty=true;
+this.setValue(_30,_31,_32);
+},unsetAttribute:function(_33,_34){
+this.changing(_33);
+var old=_33[_34];
+delete _33[_34];
+this.onSet(_33,_34,old,undefined);
+},_dirtyObjects:[],changing:function(_35,_36){
+_35.__isDirty=true;
 for(var i=0;i<this._dirtyObjects.length;i++){
-var _35=this._dirtyObjects[i];
-if(_33==_35.object){
-if(_34){
-_35.object=false;
+var _37=this._dirtyObjects[i];
+if(_35==_37.object){
+if(_36){
+_37.object=false;
 if(!this._saveNotNeeded){
-_35.save=true;
+_37.save=true;
 }
 }
 return;
 }
 }
-var old=_33 instanceof Array?[]:{};
-for(i in _33){
-if(_33.hasOwnProperty(i)){
-old[i]=_33[i];
+var old=_35 instanceof Array?[]:{};
+for(i in _35){
+if(_35.hasOwnProperty(i)){
+old[i]=_35[i];
 }
 }
-this._dirtyObjects.push({object:!_34&&_33,old:old,save:!this._saveNotNeeded});
-},save:function(_36){
-_36=_36||{};
-var _37,_38=[];
-var _39={};
-var _3a=[];
-var _3b;
-var _3c=this._dirtyObjects;
-var _3d=_3c.length;
+this._dirtyObjects.push({object:!_36&&_35,old:old,save:!this._saveNotNeeded});
+},save:function(_38){
+_38=_38||{};
+var _39,_3a=[];
+var _3b={};
+var _3c=[];
+var _3d;
+var _3e=this._dirtyObjects;
+var _3f=_3e.length;
 try{
-dojo.connect(_36,"onError",function(){
-if(_36.revertOnError!==false){
-var _3e=_3c;
-_3c=_3a;
-var _3f=0;
+dojo.connect(_38,"onError",function(){
+if(_38.revertOnError!==false){
+var _40=_3e;
+_3e=_3c;
+var _41=0;
 jr.revert();
-_3b._dirtyObjects=_3e;
+_3d._dirtyObjects=_40;
 }else{
-_3b._dirtyObjects=dirtyObject.concat(_3a);
+_3d._dirtyObjects=dirtyObject.concat(_3c);
 }
 });
 if(this.objectStore.transaction){
-var _40=this.objectStore.transaction();
+var _42=this.objectStore.transaction();
 }
-for(var i=0;i<_3c.length;i++){
-var _41=_3c[i];
-var _42=_41.object;
-var old=_41.old;
-delete _42.__isDirty;
-if(_42){
-_37=this.objectStore.put(_42,{overwrite:!!old});
+for(var i=0;i<_3e.length;i++){
+var _43=_3e[i];
+var _44=_43.object;
+var old=_43.old;
+delete _44.__isDirty;
+if(_44){
+_39=this.objectStore.put(_44,{overwrite:!!old});
 }else{
-_37=this.objectStore.remove(this.getIdentity(old));
+_39=this.objectStore.remove(this.getIdentity(old));
 }
-_3a.push(_41);
-_3c.splice(i--,1);
-dojo.when(_37,function(_43){
-if(!(--_3d)){
-if(_36.onComplete){
-_36.onComplete.call(_36.scope,_38);
+_3c.push(_43);
+_3e.splice(i--,1);
+dojo.when(_39,function(_45){
+if(!(--_3f)){
+if(_38.onComplete){
+_38.onComplete.call(_38.scope,_3a);
 }
 }
-},function(_44){
-_3d=-1;
-_36.onError.call(_36.scope,_44);
+},function(_46){
+_3f=-1;
+_38.onError.call(_38.scope,_46);
 });
 }
-if(_40){
-_40.commit();
+if(_42){
+_42.commit();
 }
 }
 catch(e){
-_36.onError.call(_36.scope,value);
+_38.onError.call(_38.scope,value);
 }
-},revert:function(_45){
-var _46=this._dirtyObjects;
-for(var i=_46.length;i>0;){
+},revert:function(_47){
+var _48=this._dirtyObjects;
+for(var i=_48.length;i>0;){
 i--;
-var _47=_46[i];
-var _48=_47.object;
-var old=_47.old;
-if(_48&&old){
+var _49=_48[i];
+var _4a=_49.object;
+var old=_49.old;
+if(_4a&&old){
 for(var j in old){
-if(old.hasOwnProperty(j)&&_48[j]!==old[j]){
-this.onSet(_48,j,_48[j],old[j]);
-_48[j]=old[j];
+if(old.hasOwnProperty(j)&&_4a[j]!==old[j]){
+this.onSet(_4a,j,_4a[j],old[j]);
+_4a[j]=old[j];
 }
 }
-for(j in _48){
+for(j in _4a){
 if(!old.hasOwnProperty(j)){
-this.onSet(_48,j,_48[j]);
-delete _48[j];
+this.onSet(_4a,j,_4a[j]);
+delete _4a[j];
 }
 }
 }else{
 if(!old){
-this.onDelete(_48);
+this.onDelete(_4a);
 }else{
 this.onNew(old);
 }
 }
-delete (_48||old).__isDirty;
-_46.splice(i,1);
+delete (_4a||old).__isDirty;
+_48.splice(i,1);
 }
-},isDirty:function(_49){
-if(!_49){
+},isDirty:function(_4b){
+if(!_4b){
 return !!this._dirtyObjects.length;
 }
-return _49.__isDirty;
+return _4b.__isDirty;
 },onSet:function(){
 },onNew:function(){
 },onDelete:function(){

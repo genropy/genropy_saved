@@ -51,6 +51,7 @@ if(!this.edit.isEditing()){
 var _4=this.focus.focusView||this.views.views[0];
 _4.content.decorateEvent(e);
 this.onRowClick(e);
+dojo.stopEvent(e);
 }
 break;
 case dk.SPACE:

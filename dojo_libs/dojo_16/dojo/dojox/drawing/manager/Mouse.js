@@ -26,12 +26,16 @@ dojo.connect(document.body,"mousedown",this,function(_5){
 });
 dojo.connect(this.container,"mousedown",this,function(_6){
 this.down(_6);
+if(_6.button!=dojo.mouseButtons.RIGHT){
 _3=true;
 c=dojo.connect(document,"mousemove",this,"drag");
+}
 });
 dojo.connect(document,"mouseup",this,function(_7){
+if(_7.button!=dojo.mouseButtons.RIGHT){
 dojo.disconnect(c);
 _3=false;
+}
 this.up(_7);
 });
 dojo.connect(document,"mousemove",this,function(_8){

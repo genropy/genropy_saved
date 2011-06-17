@@ -311,6 +311,20 @@ _2c=this.grid.getCell(col);
 if(!_2c||_2c.hidden===true){
 col=i;
 }
+var n=_2c.getNode(row);
+if(!n&&_27){
+if((row+_27)>=0&&(row+_27)<=rc){
+this.move(_27>0?++_27:--_27,_28);
+}
+return;
+}else{
+if((!n||dojo.style(n,"display")==="none")&&_28){
+if((col+_27)>=0&&(col+_27)<=cc){
+this.move(_27,_28>0?++_28:--_28);
+}
+return;
+}
+}
 this.setFocusIndex(row,col);
 if(_27){
 this.grid.updateRow(r);

@@ -73,9 +73,10 @@ _f=false;
 if(this.store){
 this.closeDropDown();
 var _10=dojo.clone(this.query);
-this._lastQuery=_10[this.labelAttr||this.searchAttr]=this._getDisplayQueryString(_e);
+this._lastQuery=_10[this.searchAttr]=this._getDisplayQueryString(_e);
 this.textbox.value=_e;
 this._lastDisplayedValue=_e;
+this._set("displayedValue",_e);
 var _11=this;
 var _12={query:_10,queryOptions:{ignoreCase:this.ignoreCase,deep:true},onComplete:function(_13,_14){
 _11._fetchHandle=null;

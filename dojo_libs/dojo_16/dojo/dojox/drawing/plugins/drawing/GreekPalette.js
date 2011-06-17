@@ -13,7 +13,7 @@ dojo.require("dijit._Widget");
 dojo.require("dijit._Templated");
 dojo.require("dijit._PaletteMixin");
 dojo.require("dojo.i18n");
-dojo.requireLocalization("dojox.editor.plugins","latinEntities",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sl,sv,th,tr,zh,zh-tw");
+dojo.requireLocalization("dojox.editor.plugins","latinEntities",null,"ROOT,ar,ca,cs,da,de,el,es,fi,fr,he,hu,it,ja,kk,ko,nb,nl,pl,pt,pt-pt,ro,ru,sk,sl,sv,th,tr,zh,zh-tw");
 dojo.declare("dojox.drawing.plugins.drawing.GreekPalette",[dijit._Widget,dijit._Templated,dijit._PaletteMixin],{postMixInProperties:function(){
 var _1=dojox.drawing.library.greek;
 var _2=0;
