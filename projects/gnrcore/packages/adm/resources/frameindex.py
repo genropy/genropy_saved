@@ -121,7 +121,7 @@ class Mixin(BaseComponent):
                                                     frame.src = '';
                                                     setTimeout(function(){
                                                         frame.src = src;
-                                                    },1)"""
+                                                    },1);"""
         scattr['subscribe_closeFrame'] = """
                                             var sc = this.widget;
                                             var selected = sc.getSelectedIndex();

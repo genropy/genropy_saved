@@ -8,7 +8,6 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
     
     """A form is a method to manage both data loading and data saving.
     
@@ -91,19 +90,19 @@ class GnrCustomWebPage(object):
         formpane = self._formpane(bc, datapath='test1', formId='test1', loader='basic')
         fb = formpane.formbuilder(border_spacing='3px')
         fb.div("""In this basic example we let you test a simple case of form.""",
-               font_size='.9em', text_align='justify')
+               font_size='.9em', text_align='justify', margin_top='0.5em')
         fb.div("""We present you two fields (name and surname) and in the right we'll show you a "load"
         button, a "save" button and what you'll normally get in dataSource.""",
-               font_size='.9em', text_align='justify')
+               font_size='.9em', text_align='justify', margin_right='2em')
         fb.div("""1) Try to save WITHOUT doing any change. An alert message we'll warn you that you can't
         save because you have not made any change.""",
-               font_size='.9em', text_align='justify')
+               font_size='.9em', text_align='justify', margin_right='2em')
         fb.div("""2) Now try to write something in the form (in the name field, in the surname field or
-        in both); after that, try to save. A message will show you that your data has been saved in a GenRo.
-        After that, if you try to save again you will hear a sound noise; this sound indicates that you CAN'T
-        save again, even if you change something in the form, UNLESS you click the "load" button. This is a
-        way to prevent to rewrite on a save data.)""",
-               font_size='.9em', text_align='justify', margin_bottom='10px')
+        in both); after that, try to save. A message will show you that your data has been saved in a
+        Bag called GenRoBag. The data is saved through an XML syntax, so the data can easily passed
+        from/to the browser. Now, you can save anymore until you click the "load" button. This is a way
+        to prevent to rewrite on a save data.)""",
+               font_size='.9em', text_align='justify', margin_bottom='10px', margin_right='2em')
         fb.textbox(value='^.name', lbl='!!Name')
         fb.textbox(value='^.surname', lbl='!!Surname')
         

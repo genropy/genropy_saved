@@ -8,7 +8,7 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
+    
 
     def test_1_textbox(self, pane):
         """Textbox"""
@@ -40,12 +40,10 @@ class GnrCustomWebPage(object):
                    promptMessage="""Write something!(regExp='casa')""",
                    regExp='casa'
                    )
-
+                   
         fb.textbox(value='^.surname', lbl='Surname',
                    invalidMessage='You MUST write something!',
-                   #Filippo Astolfi Questo non funziona, però di default esiste
-                   #     un invalidMessage, che dice: "Il valore
-                   #     immesso non è valido." Strano!
+                   #NISO: this one doesn't work properly...
                    tooltipPosition='top',
                    constraints='???')
         fb.div("""In the following textbox I (Filippo Astolfi) write all the attributes that doesn't work

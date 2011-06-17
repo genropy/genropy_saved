@@ -1323,6 +1323,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         result.update(dict([(k, v) for k, v in fieldobj.attributes.items() if k.startswith('validate_')]))
         if 'unmodifiable' in fieldobj.attributes:
             result['unmodifiable'] = fieldobj.attributes.get('unmodifiable')
+        if 'protected' in fieldobj.attributes:
+            result['protected'] = fieldobj.attributes.get('protected')
         relcol = fieldobj.relatedColumn()
         if not relcol is None:
             lnktblobj = relcol.table
@@ -1860,14 +1862,19 @@ class GnrGridStruct(GnrStructData):
                                                                     """ % dict(field=field, action=action or '',threestate=threestate)
                   , dtype='B', **kwargs)
                   
-    def defaultArgsForDType(self, dtype):
+    def defaultArgsForDType(self, dtype,**kwargs):
         """add???
         
         :param dtype: the data type
         :returns: add???
         """
         if dtype == 'B':
-            return dict(format_trueclass="checkboxOn", format_falseclass="checkboxOff")
+            format_trueclass="checkboxOn"
+            format_falseclass="checkboxOff"
+            if kwargs.get('semaphore'):
+                format_trueclass = 'greenLight'
+                format_falseclass = 'redLight'
+            return dict(format_trueclass=format_trueclass, format_falseclass=format_falseclass)
         else:
             return dict()
                 
@@ -1900,7 +1907,7 @@ class GnrGridStruct(GnrStructData):
         name = name or fldobj.name_long
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
-        kwargs = self.defaultArgsForDType(dtype)
+        kwargs = self.defaultArgsForDType(dtype,**user_kwargs)
         kwargs.update(user_kwargs)
         if zoom:
             zoomtbl = fldobj.table

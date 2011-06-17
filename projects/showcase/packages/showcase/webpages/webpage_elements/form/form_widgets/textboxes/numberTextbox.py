@@ -8,8 +8,7 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-
+    
     def test_1_numberTextbox(self, pane):
         """numberTextbox"""
         fb = pane.formbuilder(datapath='test1', cols=2)
@@ -19,4 +18,3 @@ class GnrCustomWebPage(object):
         fb.numberTextbox(value='^.numberTextbox_2', places=3)
         fb.div("With \"places=3\" you must write a number with three decimals.",
                font_size='.9em', text_align='justify')
-        

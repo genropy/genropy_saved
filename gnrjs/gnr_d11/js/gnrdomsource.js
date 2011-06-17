@@ -1094,6 +1094,21 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                                 this.widget.setAttribute('readOnly', !parentAttr['_newrecord']);
                             }
                         }
+                        if (this.attr['protected']) {
+                            var parentAttr = this.getRelativeData('.?');
+                            if ('_newrecord' in parentAttr) {
+                                if(!parentAttr['_newrecord']){
+                                    this.widget.setAttribute('readOnly', true);
+                                    var wdg = this.widget;
+                                    dojo.connect(wdg.domNode,'ondblclick',function(e){
+                                        wdg.setAttribute('readOnly',false);
+                                    });
+                                    dojo.connect(wdg,'onBlur',function(){
+                                        wdg.setAttribute('readOnly',true);
+                                    });
+                                }
+                            }
+                        }
                     }
                     dojo.hitch(this.widget, setter)(value, kw);
                     if ((trgevt != 'del') && (attr == 'value') && (this.hasValidations())) {

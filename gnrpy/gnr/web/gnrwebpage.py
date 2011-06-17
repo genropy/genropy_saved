@@ -333,8 +333,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.site.resource_loader.mixinPageComponent(self, pkg, *path,**kwargs)
         
     def tableTemplate(self,table=None,tplname=None):
-        pkg,table = table.split('.')
-        return self.getResourceContent(resource='tables/%s/tpl/%s' %(table,tplname),pkg=pkg,ext='html')
+        return self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext='html')
         
     @property
     def isGuest(self):
@@ -982,6 +981,7 @@ class GnrWebPage(GnrBaseWebPage):
         pkg,table = table.split('.')
         path,classname= path.split(':')
         return self.importResource('tables/%s/%s' %(table,path),classname=classname,pkg=pkg)
+
         
     @public_method
     def getResourceContent(self, resource=None, ext=None, pkg=None):
@@ -996,6 +996,24 @@ class GnrWebPage(GnrBaseWebPage):
             with open(path) as f:
                 result = f.read()
             return result
+
+    def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
+        pkg,table = table.split('.')    
+        return self.getResourceContent(resource='tables/%s/%s' %(table,path),pkg=pkg,ext=ext)
+        
+    def setTableResourceContent(self,table=None,path=None,value=None,ext=None):
+        pkg,table = table.split('.')
+        path = self.site.getStatic('pkg').path(pkg,'tables',table,path,folder='resources')
+        path = '%s.%s' %(path,ext)
+        if isinstance(value,Bag):
+            value.toXml(path,autocreate=True,addBagTypeAttr=False,typeattrs=False)
+        else:
+            with open(path,'w') as f:
+                f.write(value)
+        return path
+
+
+
 
     def setPreference(self, path, data, pkg=''):
         """add???

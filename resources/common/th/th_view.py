@@ -71,7 +71,7 @@ class TableHandlerView(BaseComponent):
                         height='150px',width='400px')
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
-        pane.div('^.title',color='gray',font_size='.9')
+        pane.div('^.title',font_size='.9')
     
     @struct_method
     def th_slotbar_list_locker(self, pane,**kwargs):

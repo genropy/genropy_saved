@@ -107,7 +107,11 @@ class GnrWebRpc(GnrBaseProxy):
         page.response.content_type = "text/html"
         return result or error
 
-    def rpc_upload_file(self, file_handle=None, uploadPath=None, uploaderId=None, filename=None,**kwargs):
+    def rpc_upload_file(self, *args ,**kwargs):
+        file_handle = kwargs.get('file_handle')
+        uploadPath = kwargs.get('uploadPath')
+        uploaderId = kwargs.get('uploaderId')
+        filename = kwargs.get('filename')
         site = self.page.site
         kwargs = site.parse_kwargs(kwargs)
         file_actions = dictExtract(kwargs, 'process_') or {}

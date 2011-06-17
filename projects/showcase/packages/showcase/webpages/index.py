@@ -1,12 +1,10 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 #
-#  Genro Dojo - Examples & Tutorial
+#  Genro - Examples & Tutorial
 #
 #  Created by Giovanni Porcari on 2007-03-07.
 #  Copyright (c) 2007 Softwell. All rights reserved.
-
-""" GnrDojo Examples & Tutorials """
 
 from gnr.core.gnrlang import gnrImport
 from gnr.core.gnrbag import Bag
@@ -14,7 +12,6 @@ import os
 
 class GnrCustomWebPage(object):
     css_requires = 'index'
-    # js_requires='ckeditor/ckeditor'
     
     def main(self, root, **kwargs):
         rootBC = root.borderContainer(_class='mainindex', **kwargs)
@@ -22,16 +19,10 @@ class GnrCustomWebPage(object):
         self.left_menu(rootBC.contentPane(region='left', width='230px', splitter=True, _class='leftpane'))
         self.top(rootBC.borderContainer(region='top', height='30px', _class='top_pane'))
         center = rootBC.borderContainer(region='center')
-        buttons = center.contentPane(region='bottom', height='36px', _class='centerfooter').div(position='absolute',
-                                                                                                right='20px', top='2px')
-        buttons.button('Page', action='SET stack_selected=0')
-        buttons.button('Source', action='SET stack_selected=1')
-        buttons.button('Documentation', action='SET stack_selected=2')
         
         sc = center.stackContainer(region='center', selected='^stack_selected')
         sc.contentPane(overflow='hidden').iframe(height='100%', width='100%', border='0', src='^iframe.selected_page')
         sc.contentPane(overflow='auto', background_color='#ededed').div(value='^demo.current.source')
-        self.docPane(sc)
         
     def pageController(self, root):
         """The data controller on the page"""
@@ -49,41 +40,12 @@ class GnrCustomWebPage(object):
                             
     def top(self, bc):
         leftpane = bc.contentPane(overflow='hidden', region='left', style='font-size:20px;')
-        leftpane.span("TestGarden > ")
+        leftpane.span("TestGarden > ",color='white')
         leftpane.span().a('^demo.current.relpath', href='^demo.current.relpath', color='white')
+        buttons = bc.span(float='right',style='font-size:13px;')
+        buttons.button('Page',rounded=10,action='SET stack_selected=0')
+        buttons.button('Source',rounded=10,action='SET stack_selected=1')
         
-    def docPane(self, parent):
-        doc = parent.contentPane(overflow='auto', _class='docpane', datapath='demo.doc.description')
-        doc.div('Introduction', _class='doclabel')
-        doc.div('^.introduction', _class='demodoc intro', connect_onclick='genro.wdgById("doc_edit").show()')
-        doc.div('Abstract', _class='doclabel')
-        doc.div('^.abstract', _class='demodoc abstract', connect_onclick='genro.wdgById("doc_edit").show()')
-        doc.div('Widget Children', _class='doclabel')
-        doc.div('^.children', _class='demodoc', connect_onclick='genro.wdgById("doc_edit").show()')
-        doc.div('Parameters', _class='doclabel')
-        doc.div('^.params', _class='demodoc', connect_onclick='genro.wdgById("doc_edit").show()')
-        #doc.div('Link', _class='doclabel')
-        #doc.div(_class='demodoc').a("Click here for Dojo's documentation", href='^demo.doc.description.link')
-        parent.dataRpc('result', 'saveDocumentation', _doSave='^doSave', docbag='=demo.doc',
-                       currpath='=demo.current.syspath', _onResult='genro.wdgById("doc_edit").hide();')
-        parent.dataRpc('demo.doc', 'getDocFile', currpath='^demo.current.syspath',
-                       _if='currpath', _ext='=selected.ext')
-        self.editorDialog(parent)
-        
-    def rpc_saveDocumentation(self, docbag, currpath):
-        if docbag and currpath:
-            docpath, ext = os.path.splitext(currpath)
-            docpath = '%s.xdoc' % docpath
-            docpath = docpath.split('/')
-            filename = docpath.pop()
-            docpath.append('_doc')
-            docpath.append(filename)
-            docpath = '/'.join(docpath)
-            docbag.toXml(docpath, autocreate=True)
-            return 'ok'
-        else:
-            return 'error'
-            
     def rpc_getDocFile(self, currpath):
         docpath = currpath.split('/')
         filename = docpath.pop()
@@ -94,15 +56,6 @@ class GnrCustomWebPage(object):
         if os.path.isfile(docpath):
             result = Bag(docpath)
         return result
-        
-    def editorDialog(self, pane):
-        dlg = pane.dialog(nodeId='doc_edit', title='Doc editor', _class='edit_dlg')
-        fb = dlg.formbuilder(cols=1, border_spacing='3px', font_size='8pt', datapath='demo.doc.description')
-        fb.simpleTextarea(value='^.introduction', lbl='Introduction', lbl_vertical_align='top')
-        fb.simpleTextarea(value='^.abstract', lbl='Abstract', lbl_vertical_align='top')
-        fb.simpleTextarea(value='^.children', lbl='Children', lbl_vertical_align='top')
-        fb.simpleTextarea(value='^.params', lbl='Params', lbl_vertical_align='top')
-        fb.button('Save', action='FIRE doSave=true')
         
     ######################### server side operation #########################
         

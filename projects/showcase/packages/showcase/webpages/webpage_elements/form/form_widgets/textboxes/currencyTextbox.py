@@ -8,10 +8,8 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-
+    
     def test_1_currencyTextbox(self, pane):
         """currencyTextbox"""
         fb = pane.formbuilder(datapath='test1')
         fb.currencyTextBox(value='^.amount', default=1123.34, currency='EUR', locale='it')
-        
