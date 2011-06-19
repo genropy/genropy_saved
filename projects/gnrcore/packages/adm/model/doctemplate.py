@@ -80,8 +80,8 @@ class Table(object):
         htmltables = doc.xpath('//table')
         for t in htmltables:
             attributes = t.attrib
-            if 'summary' in attributes:
-                subname = attributes['summary']
+            if 'row_datasource' in attributes:
+                subname = attributes['row_datasource']
                 tbody = t.xpath('tbody')[0]
                 tbody_lastrow = tbody.getchildren()[-1]
                 tbody.replace(tbody_lastrow,ht.etree.Comment('TEMPLATEROW:$%s' %subname))

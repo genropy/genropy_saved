@@ -155,6 +155,26 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         return savedAttrs;
 
     },
+    dialog_tableProperties:function(definition,ckeditor){
+        this.dialog_table(definition,ckeditor)
+    },
+    dialog_table:function(definition,ckeditor){
+        definition.getContents('info').get('txtBorder')['default']=null;
+        definition.getContents('advanced').get('advStyles')['default']='border-collapse:collapse;'
+        definition.addContents({
+            id : 'gnr_tableProperties',
+            label : 'Genropy',
+            accessKey : 'G',
+            elements : [{id : 'row_datasource',type : 'text',label : 'Row Datasource',
+                        setup: function(i) {
+                            this.setValue(i.getAttribute('row_datasource') || '');
+                        },
+                        commit: function(i, j) {
+                            if (this.getValue()) j.setAttribute('row_datasource', this.getValue());
+                            else j.removeAttribute('row_datasource');
+                        }}]
+            });
+    },
     created: function(widget, savedAttrs, sourceNode) {
         CKEDITOR.replace(widget, savedAttrs.config);
         var ckeditor_id = 'ckedit_' + sourceNode.getStringId();
@@ -180,6 +200,14 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
             }
             sourceNode._rsz=setTimeout(cbResize,100)
         });
+        var that=this;
+        CKEDITOR.on( 'dialogDefinition', function( ev ){
+            if (that['dialog_'+ev.data.name]){
+                that['dialog_'+ev.data.name].call(that,ev.data.definition)
+            }
+        })
+        
+
          
         // dojo.connect(parentWidget,'onShow',function(){console.log("onshow");console.log(arguments);ckeditor.gnr_readOnly('auto');})
         // setTimeout(function(){;},1000);
