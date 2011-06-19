@@ -332,8 +332,11 @@ class GnrWebPage(GnrBaseWebPage):
         :param \*\*kwargs: add???"""
         self.site.resource_loader.mixinPageComponent(self, pkg, *path,**kwargs)
         
-    def tableTemplate(self,table=None,tplname=None):
-        return self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext='html')
+    def tableTemplate(self,table=None,tplname=None,ext='html'):
+        result = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=ext)
+        if ext=='xml':
+            result = Bag(result)['#0']
+        return result
         
     @property
     def isGuest(self):
