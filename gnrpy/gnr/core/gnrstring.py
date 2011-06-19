@@ -39,13 +39,35 @@ try:
     class NoneIsBlankMapWrapper(object):
         
         def __init__(self,data):
-                self.data=data
+            self.data=data
                 
         def __getitem__(self,k):
             value= self.data[k] 
             if value is None:
                 value= ''
             return value
+    
+    class SubtemplateMapWrapper(object):
+        
+        def __init__(self,data,templates=None):
+            self.data=data
+            self.templates=templates
+                
+        def __getitem__(self,k):
+            value= self.data[k] 
+            if value is None:
+                value= ''
+            if hasattr(value, '_htraverse'):
+                templateNode = self.templates.getNode(k)
+                if templateNode:
+                    template = templateNode.value
+                    joiner = templateNode.getAttr('joiner','')
+                    result = []
+                    for k,v in value.items():
+                        result.append(templateReplace(template,v))
+                    value = joiner.join(result)
+            return value
+            
             
 except:
     pass
@@ -311,18 +333,17 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True):
     
     >>> templateReplace('$foo loves $bar but she loves $aux and not $foo', {'foo':'John','bar':'Sandra','aux':'Steve'})
     'John loves Sandra but she loves Steve and not John'"""
+    templateBag=None
+    if hasattr(myString, '_htraverse'):
+        templateBag = myString
+        myString = templateBag.pop('main')
+        
     if not '$' in myString or not symbolDict: return myString
-    if isinstance(symbolDict, list):
-        while len(symbolDict)>1:
-            tempDict=symbolDict.pop(0)
-            for k,v in tempDict.items():
-                if v and not v.startswith('$'):
-                    tempDict[k]='$%s'%v
-            myString=templateReplace(myString,tempDict,safeMode=False, noneIsBlank=noneIsBlank)
-        symbolDict=symbolDict.pop(0)
     if hasattr(symbolDict, '_htraverse'):
         Tpl = BagTemplate
-        if noneIsBlank:
+        if templateBag:
+            symbolDict = SubtemplateMapWrapper(symbolDict,templateBag)
+        elif noneIsBlank:
             symbolDict=NoneIsBlankMapWrapper(symbolDict)
     else:
         Tpl = Template

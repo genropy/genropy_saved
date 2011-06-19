@@ -332,8 +332,11 @@ class GnrWebPage(GnrBaseWebPage):
         :param \*\*kwargs: add???"""
         self.site.resource_loader.mixinPageComponent(self, pkg, *path,**kwargs)
         
-    def tableTemplate(self,table=None,tplname=None, ext='html'):
-        return self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=ext)
+    def tableTemplate(self,table=None,tplname=None,ext='html'):
+        result = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=ext)
+        if ext=='xml':
+            result = Bag(result)['#0']
+        return result
         
     @property
     def isGuest(self):
@@ -1118,7 +1121,6 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param \_auth: add???. Default value is ``AUTH_OK``
         :param debugger: add???. Default value is ``None``"""
-        err = None
         page = self.domSrcFactory.makeRoot(self)
         self._root = page
         pageattr = {}
@@ -1470,7 +1472,7 @@ class GnrWebPage(GnrBaseWebPage):
     def userDocumentUrl(self, *args, **kwargs):
         """add???"""
         if kwargs:
-            return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs)
+            return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs_url)
         else:
             return self.site.getStatic('user').url(self.user, *args)
             

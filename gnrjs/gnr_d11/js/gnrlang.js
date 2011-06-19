@@ -149,8 +149,13 @@ function dataTemplate(str, data, path, showAlways) {
     if (!str) {
         return '';
     }
+    var templates=null;
+     if(str instanceof gnr.GnrBag){
+         templates=str;
+         str=templates.getItem('body')
+     }
     var auxattr = {};
-    var regexpr = /\$([a-zA-Z0-9.@?_]+)/g;
+    var regexpr = /\$([a-zA-Z0-9.@?_^]+)/g;
     var result;
     var is_empty = true;
     if (!data && !showAlways) {
@@ -170,7 +175,24 @@ function dataTemplate(str, data, path, showAlways) {
         result = str.replace(regexpr,
                             function(path) {
                                 var path=path.slice(1)
+                                var subtpl=null
+                                if(path.indexOf('^')>0){
+                                    var x=path.split('^')
+                                    path=x[0]
+                                    var subtpl=templates.getItem(x[1])
+                                    
+                                }
                                 var value = data.getItem(path) || auxattr[path];
+                                if (subtpl){
+                                    if(value instanceof gnr.GnrBag){
+                                        var subval=[]
+                                        value.forEach(function(n){
+                                            subval.push(dataTemplate(subtpl, n.getValue()));
+                                        })
+                                        value = subval.join('');
+                                    }
+                                }
+                                
                                 if (value != null) {
                                     is_empty = false;
                                     if (value instanceof Date) {
