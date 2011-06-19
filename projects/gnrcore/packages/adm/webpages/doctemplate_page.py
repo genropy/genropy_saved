@@ -45,13 +45,12 @@ class GnrCustomWebPage(object):
             r = struct.view().rows()
             r.cell('fieldname', name='Field', width='100%')
             r.cell('varname', name='As', width='10em')
-        grid = self.includedGrid(bc.contentPane(region='bottom',height='30%'),nodeId='variables',storepath='#FORM.record.varsbag',
+        grid = self.includedGrid(bc.contentPane(region='bottom',height='30%',splitter=True),nodeId='variables',storepath='#FORM.record.varsbag',
                                  del_action=True,label='!!Template Variables',struct=struct,datamode='bag')
         editor = grid.gridEditor()
         editor.textbox(gridcell='varname')
         grid.dragAndDrop(dropCodes='fielditem')
-        grid.dataController("""console.log(data);
-                                var caption = data.fullcaption;
+        grid.dataController("""var caption = data.fullcaption;
                                 var varname = caption.replace(/\W/g,'_').toLowerCase()
                                 grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':data.fieldpath,fieldname:caption,varname:varname,virtual_column:data.virtual_column}));""",
                              data="^.dropped_fielditem",grid=grid.js_widget)

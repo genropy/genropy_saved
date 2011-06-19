@@ -2,8 +2,11 @@
 import re
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrbag import Bag
-
+import lxml.html as ht
+from StringIO import StringIO
 from gnr.core.gnrstring import templateReplace
+
+TEMPLATEROW = re.compile(r"<!--TEMPLATEROW:(.*?)-->")
 
 class Table(object):
     def config_db(self, pkg):
@@ -64,10 +67,30 @@ class Table(object):
             record.update(extraData)
         record.setItem('_env_', Bag(self.db.currentEnv))
         record.setItem('_template_', templateBuilder.doctemplate_info)
-        varsdict = dict(templateBuilder.varsbag.digest('#v.varname,#v.fieldpath'))
-        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate, [varsdict,record], True),record=record)
+        varsdict = dict([(k,'$%s' %v) for k,v in templateBuilder.varsbag.digest('#v.varname,#v.fieldpath')])
+        
+        htmlContent = templateReplace(templateBuilder.doctemplate, varsdict, True,False)
+        htmlContent = self.expandSubtemplates(htmlContent)
+        body = templateBuilder(htmlContent=templateReplace(htmlContent,record, True,False),record=record)
         return body
-
+    
+    def expandSubtemplates(self,htmlContent):
+        result = Bag()
+        doc = ht.parse(StringIO(htmlContent)).getroot()
+        htmltables = doc.xpath('//table')
+        for t in htmltables:
+            attributes = t.attrib
+            if 'summary' in attributes:
+                subname = attributes['summary']
+                tbody = t.xpath('tbody')[0]
+                tbody_lastrow = tbody.getchildren()[-1]
+                tbody.replace(tbody_lastrow,ht.etree.Comment('TEMPLATEROW:$%s' %subname))
+                subtemplate=ht.tostring(tbody_lastrow).replace('%s.'%subname,'')
+                result.setItem(subname.replace('.','_'),subtemplate)
+        result.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc)))
+        return result
+        
+ 
     def getTemplateBuilder(self, doctemplate=None, templates=None):
         doctemplate = self.recordAs(doctemplate, 'bag')
         doctemplate_content = doctemplate.pop('content')
