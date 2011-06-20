@@ -572,12 +572,13 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def setLoadingParameters(self, table, **kwargs):
-        """Set parameters at the path ``gnr.tables.TABLE.loadingParameters.PARAMETERNAME``.
+        """Set parameters at the path ``gnr.tables.TABLE.loadingParameters.PARAMETERNAME``,
+        where:
         
-        ``TABLE`` is the value you define for the *table* parameter. ``PARAMETERNAME`` is the
-        name you gave to the parameter.
+        * ``TABLE`` is the value you define for the *table* parameter
+        * ``PARAMETERNAME`` is the name you gave to the parameter.
         
-        :param table: string. You can put the following strings:
+        :param table: MANDATORY - string. You can put the following strings:
         
                       * *maintable*: set a parameter value of a column of the table you define in the
                         :ref:`webpages_maintable` :ref:`webpage variable <webpages_variables>`
