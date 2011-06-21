@@ -975,7 +975,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
     },
     created: function(widget, savedAttrs, sourceNode) {
         dojo.connect(widget, 'startup', dojo.hitch(this, 'afterStartup', widget));
-        if (dojo_version == '1.7') {
+        if (dojo_version == '1.1') {
             dojo.connect(widget, 'addChild', dojo.hitch(this, 'onAddChild', widget));
         }
     },
@@ -1006,13 +1006,20 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         }
 
     },
-    /* onAddChild:function(widget,child){
+    
+    
+    onAddChild:function(widget,child){
      var splitter=widget._splitters[child.region];
      if(splitter){
-     splitter=dijit.getEnclosingWidget(splitter);
-     dojo.connect(splitter,'_stopDrag',dojo.hitch(this,'onSplitterStopDrag',widget,splitter));
-     }
-     },*/
+         if(child.domNode.style.display=='none'){
+             dojo.style(splitter, 'display','none');
+         }
+         //splitter=dijit.getEnclosingWidget(splitter);
+         
+         //dojo.connect(splitter,'_stopDrag',dojo.hitch(this,'onSplitterStopDrag',widget,splitter));
+        }
+     },
+     
     onSplitterStopDrag:function(widget, splitter) {
         var sourceNode = widget.sourceNode;
         if (sourceNode.attr.regions) {
@@ -1068,6 +1075,17 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
             this._layoutChildren();
         }
         return show;
+    },
+    mixin_setRegionVisible:function(region,show){
+        var regionbox = this['_' + region];
+        if(show=='toggle'){
+            var show = regionbox.style.display=='none';
+        }
+        dojo.style(regionbox, 'display', show?'block':'none');
+        if(this._splitters[region]){
+            dojo.style(this._splitters[region], 'display', show?'block':'none');
+        }
+        this._layoutChildren(region);
     }
 });
 

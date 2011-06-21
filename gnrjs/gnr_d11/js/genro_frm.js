@@ -1254,6 +1254,37 @@ dojo.declare("gnr.formstores.Base", null, {
     getParentStoreData:function(){
         return this.parentStore.getData();
     },
+    
+    load_document:function(pkey,default_kw){
+        /*
+        pkey=discpath; it can use the static shortcut syntax;
+        */
+        var form=this.form;
+        var that = this;
+        if(pkey=='*newrecord*'){
+            
+        }else{
+            var loader = this.handlers.load;
+            var kw = this.handlers.load.kw;
+            kw =form.sourceNode.evaluateOnNode(kw); 
+            this.handlers.load.rpcmethod = this.handlers.load.rpcmethod  || 'getSiteDocument';
+            var deferred = genro.rpc.remoteCall(this.handlers.load.rpcmethod ,
+                                                objectUpdate({'path':pkey},kw),null,'POST',null,function(){});
+            deferred.addCallback(function(result){
+                that.loaded(pkey,result.getNode('content'));
+                return result;
+            });
+            
+        }
+        //pkey='path';
+        
+    },
+
+    save_document:function(){},
+    
+    delete_document:function(){},
+
+
     load_memory:function(){
         var sourcebag = this.form.sourceNode.getRelativeData(this.sourcepath);
         var fields = this.fields.split(',');
