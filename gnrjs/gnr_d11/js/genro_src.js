@@ -340,7 +340,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         for (var subscriber in oldSubscribedNodes) {
             if (oldSubscribedNodes[subscriber]) {
                 for (var attr in oldSubscribedNodes[subscriber]) {
-                    dojo.unsubscribe(oldSubscribedNodes[subscriber][attr]);
+                    dojo.forEach(oldSubscribedNodes[subscriber][attr],function(n){
+                        dojo.unsubscribe(n);
+                    });
                 }
 
             }
