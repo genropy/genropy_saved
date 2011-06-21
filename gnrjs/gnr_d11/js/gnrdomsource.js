@@ -825,10 +825,24 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         var nodeSubscribers = genro.src._subscribedNodes[stringId];
         if (nodeSubscribers) {
             for (var attr in nodeSubscribers) {
-                dojo.unsubscribe(nodeSubscribers[attr]);
+                dojo.forEach(nodeSubscribers[attr],function(n){
+                    dojo.unsubscribe(n);
+                })
             }
             delete genro.src._subscribedNodes[stringId];
         }
+    },
+    registerSubscription:function(topic,scope,handler){
+        var stringId = this.getStringId();
+        var subDict=genro.src._subscribedNodes[stringId];
+        if(!subDict){
+            subDict = {};
+            genro.src._subscribedNodes[stringId] = subDict;
+        }
+        if(!(topic in subDict)){
+            subDict[topic] = [];
+        }
+        subDict[topic].push(dojo.subscribe(topic, scope, handler));
     },
     _setDynAttributes : function() {
         var stringId = this.getStringId();
@@ -836,7 +850,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             var nodeSubscribers = {};
             var path,fn,prop;
             for (var attr in this._dynattr) {
-                nodeSubscribers[attr] = this._subscriptionHandle(attr);
+                nodeSubscribers[attr] = [this._subscriptionHandle(attr)];
             }
             genro.src._subscribedNodes[stringId] = nodeSubscribers;
         }
@@ -875,20 +889,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 });
             }
         }
-    },
-    registerSubscription:function(topic,scope,handler){
-        var stringId = this.getStringId();
-        var subDict=genro.src._subscribedNodes[stringId];
-        if(!subDict){
-            subDict = {};
-            genro.src._subscribedNodes[stringId] = subDict;
-        }else{
-            if(subDict[topic]){
-                console.warn('existing subscription for topic '+topic);
-                return;
-            }
-        }
-        subDict[topic] = dojo.subscribe(topic, scope, handler);
     },
     subscribe:function(command,handler){
         var that=this;

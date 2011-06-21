@@ -106,6 +106,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var parentForm = this.getParentForm();
         if(parentForm){
             dojo.connect(parentForm,'load',this,'abort');
+            var that = this;
+            parentForm.subscribe('onLockChange',function(kw){
+                console.log(kw);
+                that.setLocked(kw.locked);
+            })
         }
         if(this.store){
             this.store.init(this);            
