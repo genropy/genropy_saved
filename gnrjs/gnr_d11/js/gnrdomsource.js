@@ -1415,6 +1415,7 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
                 }
             }
             var attributes = attributes || {};
+            tag = objectPop(attributes,'tag')|| tag;
             if (attributes && ('remote' in attributes) && (attributes.remote!='remoteBuilder')) {
                 if (typeof(attributes.remote)=="string"){
                 attributes['remote_handler'] = attributes.remote;

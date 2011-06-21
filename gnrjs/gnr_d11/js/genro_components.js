@@ -229,6 +229,9 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
              slot = children.popNode(side);
              if(slot){
                  node = slot.getValue().getNode('#0');
+                 if(slot.attr.tag=='autoslot'){
+                     objectPop(slot.attr,'tag');
+                 }
              }else{
                  node = children.popNode('#side='+side);
              }
@@ -242,6 +245,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
                      }
                  }) 
                  node.attr['_childname'] = node.attr['_childname'] || side;
+
                  bc._('ContentPane',slot?objectUpdate(slot.attr,{'region':side}):{'region':side}).setItem('#id',node._value,node.attr);
              }
         });

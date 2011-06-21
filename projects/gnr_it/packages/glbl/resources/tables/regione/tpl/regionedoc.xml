@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <GenRoBag><_ins_ts _tag="__ins_ts" _T="DH" _childname="columns.__ins_ts" dtype="DH" name_long="!!Insert date" group="zzz" onInserting="setTSNow">2011-06-19 11:52:59.965888</_ins_ts>
 <_del_ts _tag="__del_ts" _T="NN" _childname="columns.__del_ts" dtype="DH" group="zzz" name_long="!!Logical delete date"></_del_ts>
-<_mod_ts _tag="__mod_ts" _T="DH" group="zzz" onInserting="setTSNow" _childname="columns.__mod_ts" dtype="DH" onUpdating="setTSNow" name_long="!!Update date">2011-06-19 15:22:11.692320</_mod_ts>
-<name validate_notnull="y" validate_nodup="y" _childname="columns.name" dtype="T" validate_nodup_error="!!This name is already taken" _sendback="y" validate_notnull_error="!!Name is mandatory" unique="y" name_long="!!Name">regionedoc</name>
+<_mod_ts _tag="__mod_ts" _T="DH" group="zzz" onInserting="setTSNow" _childname="columns.__mod_ts" dtype="DH" onUpdating="setTSNow" name_long="!!Update date">2011-06-19 15:34:56.104977</_mod_ts>
+<name validate_notnull="y" validate_nodup="y" print_width="35" _childname="columns.name" dtype="T" validate_nodup_error="!!This name is already taken" _sendback="y" validate_notnull_error="!!Name is mandatory" unique="y" name_long="!!Name">regionedoc</name>
 <content _childname="columns.content" dtype="T" name_long="!!Content">&lt;p&gt;
 Sono la regione $nome con sigla $sigla e sono nella zona $zona :&lt;br /&gt;
 le mie province sono:&lt;/p&gt;
-&lt;table border="0" cellpadding="0" cellspacing="0" style="width: 500px;" summary="@province"&gt;
+&lt;table border="1" cellpadding="3" cellspacing="0" style="border-collapse: collapse; border-spacing: 3px; width: 500px;" summary="@province"&gt;
 &lt;tbody&gt;
 &lt;tr&gt;
 &lt;td&gt;
@@ -18,11 +18,11 @@ le mie province sono:&lt;/p&gt;
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;
-$provincia_sigla&lt;/td&gt;
+&amp;nbsp;&amp;nbsp; $provincia_sigla&lt;/td&gt;
 &lt;td&gt;
-$provincia_nome&lt;/td&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; $provincia_nome&lt;/td&gt;
 &lt;td&gt;
-$provincia_codice_istat&lt;/td&gt;
+&amp;nbsp;&amp;nbsp; $provincia_codice_istat&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -55,7 +55,7 @@ $provincia_codice_istat&lt;/td&gt;
 <fieldname>Zona</fieldname>
 <varname>zona</varname>
 <virtual_column _T="NN"></virtual_column></n_931></varsbag>
-<username _T="NN" _childname="columns.username" dtype="T" name_long="!!Username"></username>
-<version _childname="columns.version" dtype="T" name_long="!!Version">1</version>
-<maintable _childname="columns.maintable" dtype="T" name_long="!!Main table">glbl.regione</maintable>
+<username _T="NN" _childname="columns.username" dtype="T" name_long="!!Username" print_width="35"></username>
+<version _childname="columns.version" dtype="T" name_long="!!Version" print_width="35">1</version>
+<maintable _childname="columns.maintable" dtype="T" name_long="!!Main table" print_width="35">glbl.regione</maintable>
 <resource_name _childname="columns.resource_name" dtype="T" name_long="!!Resource Name" _sendback="y">regionedoc</resource_name></GenRoBag>

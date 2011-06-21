@@ -960,6 +960,8 @@ class GnrWebPage(GnrBaseWebPage):
         if result:
             return result[0]
             
+    getResourcePath = getResource
+            
     def importResource(self,path,classname=None,pkg=None):
         """add???
         
@@ -1392,6 +1394,7 @@ class GnrWebPage(GnrBaseWebPage):
             if not 'name_long' in nodeattr:
                 raise Exception(nodeattr) # FIXME: use a specific exception class
             nodeattr['caption'] = nodeattr.pop('name_long')
+            nodeattr.pop('tag',None)
             nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), '/')
             if nodeattr.get('one_relation'):
                 nodeattr['_T'] = 'JS'
@@ -1475,7 +1478,19 @@ class GnrWebPage(GnrBaseWebPage):
             return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs_url)
         else:
             return self.site.getStatic('user').url(self.user, *args)
-            
+   
+    @public_method
+    def getSiteDocument(self,path,**kwargs):
+        ext = os.path.splitext(path)[1]
+        result = Bag()
+        if ext=='.xml':
+            document = Bag(path)
+        else:
+            with open(path) as f:
+                document = f.read()
+        result.setItem('content',document)
+        return result
+                    
     def isLocalizer(self):
         """add???"""
         return (self.userTags and ('_TRD_' in self.userTags))
