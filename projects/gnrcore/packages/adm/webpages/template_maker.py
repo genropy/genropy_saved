@@ -19,20 +19,22 @@ class GnrCustomWebPage(object):
         startPath = self.getResourcePath('tables/%s/tpl/%s' %(table,tplname), ext='xml',pkg=pkg) if tplname else '*newrecord*'
         form.data('.record?maintable',maintable)
         form.data('main.renderpkey',callArgs.get('renderpkey'))
-        toolbar = form.top.slotToolbar(slots='lcol,*,rcol')
-        toolbar.lcol.slotButton('Fields',action='this.form.sourceNode.getWidget().setRegionVisible("left","toggle");')
-        toolbar.rcol.slotButton('Preview',action='this.form.sourceNode.getWidget().setRegionVisible("right","toggle");')
-
         store = form.formStore(handler='document',startKey=startPath)
-        form.left.attributes.update(width='300px',splitter=True,hidden=True)
-        form.right.attributes.update(width='500px',splitter=True,hidden=True)
-
-        leftbc = form.left.borderContainer()
-        self.previewpane(form.right.framePane(frameCode='preview',datapath='.preview'))
-
-        self.fieldstree(leftbc.contentPane(region='top',height='50%',splitter=True,_class='pbl_roundedGroup',margin='3px'))
+        store.handler('load',defaultCb="""function(){
+            var b = new gnr.GnrBag();
+            b.setItem('content',new gnr.GnrBag(),{maintable:maintable});
+            return b.popNode('content');
+        }""",maintable=maintable)
+        
+        toolbar = form.top.slotToolbar(slots='lcol,*,rcol')
+        bc = form.center.borderContainer()
+        toolbar.lcol.slotButton('Fields',action='bc.setRegionVisible("left","toggle");',bc=bc.js_widget)
+        toolbar.rcol.slotButton('Preview',action='bc.setRegionVisible("right","toggle");',bc=bc.js_widget)
+        leftbc = bc.borderContainer(region='left',width='300px',hidden=True)
+        self.fieldstree(leftbc.contentPane(region='top',height='50%',datapath='.fields',splitter=True,_class='pbl_roundedGroup',margin='3px'))
         self.varsgrid(leftbc.contentPane(region='center',margin='3px',margin_top='4px'))
-        self.RichTextEditor(form.center.contentPane(),value='^#FORM.record.source')
+        self.previewpane(bc.framePane(region='right',hidden=True,width='600px'))
+        self.RichTextEditor(bc.contentPane(region='center'),value='^#FORM.record.source')
         
     def rpc_pippo(self,record):
         pass
@@ -50,7 +52,7 @@ class GnrCustomWebPage(object):
                                         else if(node.attr.sql_formula){return "formulaColumnTreeNode"}""",
                             getIconClass="""if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}
                                      else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""",_fired='^#FORM.record.maintable')
-        pane.dataRemote('.store.fields', 'relationExplorer', table='^#FORM.maintable',dosort=False, caption='Fields')
+        pane.dataRemote('.store.fields', 'relationExplorer', table='^#FORM.record?maintable',dosort=False, caption='Fields')
     
     def varsgrid(self,bc):
         def struct(struct):
@@ -69,7 +71,7 @@ class GnrCustomWebPage(object):
     
     def previewpane(self,frame):
         frame.dataRpc('.pkeys', 'getPreviewPkeys',
-                   maintable='^#FORM.maintable', _if='maintable',_POST =True,
+                   maintable='^#FORM.record?maintable', _if='maintable',_POST =True,
                    _onResult="""
                                  var first_row = result[0];
                                  SET .selected_id = first_row; 
@@ -86,8 +88,8 @@ class GnrCustomWebPage(object):
                    action='idx = idx<=pkeys.length?idx+1:0; SET .selected_id = pkeys[idx]; SET .idx = idx;'
                    , idx='=.idx', pkeys='=.pkeys',
                    iconClass="tb_button icnNavNext", showLabel=False)
-        fb = bar.fb.formbuilder(cols=2, border_spacing='0px', visible='^#FORM.maintable')
-        fb.dbSelect(dbtable='^#FORM.maintable', value='^.selected_id',lbl='!!Record', width='10em')
+        fb = bar.fb.formbuilder(cols=2, border_spacing='0px', visible='^#FORM.record?maintable')
+        fb.dbSelect(dbtable='^#FORM.record?maintable', value='^.selected_id',lbl='!!Record', width='10em')
         fb.dbSelect(dbtable='adm.htmltemplate', value='^.html_template_id',
                     selected_name='.html_template_name', lbl='!!Template',
                     width='10em', hasDownArrow=True)

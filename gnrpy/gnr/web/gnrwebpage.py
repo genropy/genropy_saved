@@ -1480,14 +1480,17 @@ class GnrWebPage(GnrBaseWebPage):
             return self.site.getStatic('user').url(self.user, *args)
    
     @public_method
-    def getSiteDocument(self,path,**kwargs):
+    def getSiteDocument(self,path,defaultContent=None,**kwargs):
         ext = os.path.splitext(path)[1]
         result = Bag()
-        if ext=='.xml':
-            document = Bag(path)
+        if not os.path.exists(path):
+            content = defaultContent
         else:
-            with open(path) as f:
-                document = f.read()
+            if ext=='.xml':
+                content = Bag(path)
+            else:
+                with open(path) as f:
+                    content = f.read()
         result.setItem('content',document)
         return result
                     

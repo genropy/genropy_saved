@@ -1260,28 +1260,26 @@ dojo.declare("gnr.formstores.Base", null, {
         return this.parentStore.getData();
     },
     
-    load_document:function(pkey,default_kw){
+    load_document:function(pkey,dflt){
         /*
         pkey=discpath; it can use the static shortcut syntax;
         */
         var form=this.form;
         var that = this;
-        if(pkey=='*newrecord*'){
-            
-        }else{
-            var loader = this.handlers.load;
-            var kw = this.handlers.load.kw;
-            kw =form.sourceNode.evaluateOnNode(kw); 
-            this.handlers.load.rpcmethod = this.handlers.load.rpcmethod  || 'getSiteDocument';
-            var deferred = genro.rpc.remoteCall(this.handlers.load.rpcmethod ,
-                                                objectUpdate({'path':pkey},kw),null,'POST',null,function(){});
-            deferred.addCallback(function(result){
-                that.loaded(pkey,result.getNode('content'));
-                return result;
-            });
-            
-        }
-        //pkey='path';
+        if(this.handlers.load.defaultCb){
+            var dflt = this.handlers.load.defaultCb();
+        };
+        var loader = this.handlers.load;
+        var kw = this.handlers.load.kw;
+        kw =form.sourceNode.evaluateOnNode(kw); 
+        this.handlers.load.rpcmethod = this.handlers.load.rpcmethod  || 'getSiteDocument';
+        var deferred = genro.rpc.remoteCall(this.handlers.load.rpcmethod ,
+                                            objectUpdate({'path':pkey,defaultContent:dflt},kw),null,'POST',null,function(){});
+        deferred.addCallback(function(result){
+            that.loaded(pkey,result.popNode('content'));
+            return result;
+        });
+ 
         
     },
 

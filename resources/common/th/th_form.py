@@ -57,7 +57,7 @@ class TableHandlerForm(BaseComponent):
             bar = form.bottom.slotBar(slots,margin_bottom='2px')
             bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
             bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
-            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save")')    
+            bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')    
         elif showtoolbar:
             slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
             slots = options.get('slots',slots)

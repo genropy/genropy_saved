@@ -268,7 +268,7 @@ font
 
 .pbl_roundedGroupLabel {    
     height: 22px;
-    line-height: 18px;
+    line-height: 22px;
     padding-bottom: 0;
     padding-left: 10px;    
     background-color: #49637c;
@@ -281,6 +281,10 @@ font
     background-image: -webkit-gradient(linear, left top, right bottom, from(rgba(73, 99, 124, 99)), to(rgba(225, 233, 233, 0.99)));
     background-image: -moz-linear-gradient(180deg, rgba(238,245,254, 99), rgba(73, 99, 124, 0.99));
     color: #feffff;
+}
+
+.pbl_roundedGroupLabel.slotbar_horizontal.slotbar_toolbar{
+    line-height: 14px;
 }
 
 .pbl_roundedGroupBottom {
