@@ -2458,12 +2458,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var opt = objectUpdate({}, formatOptions);
             var cellClassFunc;
             if (cellClassCB) {
-                cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex',this);
+                cellClassFunc = funcCreate(cellClassCB, 'cell,v,inRowIndex,originalValue',this);
             }
             return function(v, inRowIndex) {
 
                 if (cellClassFunc) {
-                    cellClassFunc(this, v, inRowIndex);
+                    cellClassFunc(this, v, inRowIndex,this.grid.currRenderedRow[cell.field]);
                 }
                 opt['cellPars'] = {rowIndex:inRowIndex};
                 var zoomPage = opt['zoomPage'];
