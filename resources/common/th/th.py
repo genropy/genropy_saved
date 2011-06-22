@@ -38,7 +38,7 @@ class TableHandler(BaseComponent):
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,reloader=None,virtualStore=False,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
-                            pbl_classes=False,**kwargs):
+                            lockable=False,pbl_classes=False,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -62,10 +62,12 @@ class TableHandler(BaseComponent):
                             }
                             """,pkey='=#FORM.pkey',sourceNode=wdg,message=message,_fired='^#FORM.controller.loaded')                
         top_slots = '#,delrow,addrow'
+        if lockable:
+            top_slots = '#,delrow,addrow,viewlocker'
         if readOnly:
             top_slots = '#'
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
-                                reloader=reloader,virtualStore=virtualStore,top_slots=top_slots,
+                                reloader=reloader,virtualStore=virtualStore,top_slots=top_slots,lockable=lockable,
                                 condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs)    
         if pbl_classes:
             wdg.view.attributes.update(_class='pbl_roundedGroup')

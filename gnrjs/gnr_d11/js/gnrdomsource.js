@@ -938,16 +938,34 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     getFormHandler:function(){
         if (this.form){
             return this.form;
-        } else if (this.attr.parentForm){
+        }        
+        else if (this.attr.parentForm){
             if(typeof(this.attr.parentForm)=='string'){
                 return genro.formById(this.attr.parentForm)
             }
         }
+        
         var parent = this.getParentNode();
         if (parent) {
             return parent.getFormHandler();
+        }else if (window.frameElement){
+            var parentIframe = window.frameElement.sourceNode;
+            if(parentIframe){
+                return parentIframe.getFormHandler()
+            }
         }
     },
+    
+   /* getParentForm:function(){
+        var parentForm = this.sourceNode.getParentNode().form;
+        if(!parentForm && window.frameElement){
+            var parentIframe = window.frameElement.sourceNode;
+            if(parentIframe){
+                return parentIframe.form;
+            }
+        }
+        return parentForm;
+    },*/
     
     inheritedAttribute:function(attr){
         var node = this.attributeOwnerNode(attr);
