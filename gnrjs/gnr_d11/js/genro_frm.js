@@ -374,6 +374,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     doload_store: function(kw) {
         if(kw.destPkey=='*dismiss*'){
             this.reset();
+            this.setCurrentPkey(null);
             this.publish('onDismissed');
             return;
         }
@@ -550,7 +551,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 cb=function(result){
                     that.reset();
                     if(onSaved=='dismiss'){
-                        that.publish('onDismissed');
+                        that.dismiss(); //('onDismissed');
                     }
                 };
             }
