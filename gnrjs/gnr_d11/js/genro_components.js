@@ -998,7 +998,6 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storeNode.setRelativeData(this.storepath,null);
         this.locked = null
         var startLocked= 'startLocked' in kw? objectPop(kw,'startLocked'):true;
-        console.log('startLocked',startLocked);
         for (var k in kw){
             this[k] = kw[k];
         }
@@ -1264,7 +1263,9 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     },
     currentPkeys:function(){
         var data = this.getData();
-        return zip(data.digest('#a._pkey'));
+        var result = [];
+        data.forEach(function(n){result.push(n.attr._pkey)});
+        return result;
     },
     
     onExternalChange:function(changelist,pkeycol){
