@@ -28,10 +28,7 @@
 dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, formId, formDatapath, controllerPath, pkeyPath,formAttr) {
         var that = this;
-        genro.src.afterBuildCalls.push(function(){
-            that.onStartForm();
-        });
-        
+        genro.src.onBuiltCall(function(){that.onStartForm()});
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
@@ -90,28 +87,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
     },
     getParentForm:function(){
-        var parentForm = this.sourceNode.getParentNode().form;
-        if(!parentForm && window.frameElement){
-            var parentIframe = window.frameElement.sourceNode;
-            if(parentIframe){
-                return parentIframe.form;
-            }
-        }
-        return parentForm;
+        return this.sourceNode.getParentNode().getFormHandler();
     },
     onStartForm:function(kw){
         var kw = kw || {};
         this.formDomNode = this.sourceNode.getDomNode();
         this.formContentDomNode = this.contentSourceNode.getDomNode();
-        var parentForm = this.getParentForm();
-        if(parentForm){
-            dojo.connect(parentForm,'load',this,'abort');
-            var that = this;
-            parentForm.subscribe('onLockChange',function(kw){
-                console.log(kw);
-                that.setLocked(kw.locked);
-            })
-        }
         if(this.store){
             this.store.init(this);            
             var that = this;
@@ -125,13 +106,26 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 startKey = this.sourceNode.currentFromDatasource(startKey);
             }
             this.sourceNode.getAttributeFromDatasource(startKey);
-            this.setLocked(this.locked);
+
             if(startKey){
                 var that = this;
                 setTimeout(function(){that.load({destPkey:startKey});},1);
             }
+            var parentForm = this.getParentForm();
+            if(parentForm){
+                dojo.connect(parentForm,'load',this,'abort');
+            }
+            var that = this;
+            var parentStore = this.store.parentStore;
+            if(parentStore){
+                parentStore.storeNode.subscribe('onLockChange',function(kw){
+                    that.setLocked(kw.locked);
+                });
+            }
+            genro.src.afterBuildCalls.push(function(){
+                setTimeout(function(){that.setLocked(that.locked)},1);
+            });
         }
-        
     },
     reset: function() {
         this.resetChanges();
@@ -173,6 +167,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         this.locked = value;
         this.applyDisabledStatus();
+        this.setControllerData('locked',value);
         this.publish('onLockChange',{'locked':this.locked});
     },
     registerChild:function(sourceNode){
@@ -375,6 +370,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     doload_store: function(kw) {
         if(kw.destPkey=='*dismiss*'){
             this.reset();
+            this.setCurrentPkey(null);
             this.publish('onDismissed');
             return;
         }
@@ -551,7 +547,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 cb=function(result){
                     that.reset();
                     if(onSaved=='dismiss'){
-                        that.publish('onDismissed');
+                        that.dismiss(); //('onDismissed');
                     }
                 };
             }
@@ -1237,7 +1233,7 @@ dojo.declare("gnr.formstores.Base", null, {
             }
             callbacks = objectPop(handler,'callbacks');
             rpcmethod = objectPop(handler,'rpcmethod');
-            defaultCb = objectPop(handler,'defaultCb');
+            defaultCb = funcCreate(objectPop(handler,'defaultCb'),'kw');
             that.handlers[action]= {'kw':objectUpdate(actionKw,handler),'method':method,'callbacks':callbacks,'rpcmethod':rpcmethod,defaultCb:defaultCb};
         });
         for (k in kw){
@@ -1266,12 +1262,13 @@ dojo.declare("gnr.formstores.Base", null, {
         */
         var form=this.form;
         var that = this;
-        if(this.handlers.load.defaultCb){
-            var dflt = this.handlers.load.defaultCb();
-        };
         var loader = this.handlers.load;
-        var kw = this.handlers.load.kw;
-        kw =form.sourceNode.evaluateOnNode(kw); 
+        var kw = loader.kw;
+        kw =form.sourceNode.evaluateOnNode(kw);
+        if(loader.defaultCb){
+            var dflt = loader.defaultCb.call(form.sourceNode,kw);
+        };
+ 
         this.handlers.load.rpcmethod = this.handlers.load.rpcmethod  || 'getSiteDocument';
         var deferred = genro.rpc.remoteCall(this.handlers.load.rpcmethod ,
                                             objectUpdate({'path':pkey,defaultContent:dflt},kw),null,'POST',null,function(){});
@@ -1321,20 +1318,21 @@ dojo.declare("gnr.formstores.Base", null, {
             that.loaded(currPkey,result);
             return result;
         };
-        var kw = this.handlers.load.kw;
+        var kw = loader.kw;
+        kw =form.sourceNode.evaluateOnNode(kw); 
         if(pkey=='*newrecord*'){
             var dkw = {};        
-            if(this.handlers.load.defaultCb){
-                var default_kw = objectUpdate((default_kw || {}),(this.handlers.load.defaultCb()||{}));
+            if(loader.defaultCb){
+                var default_kw = objectUpdate((default_kw || {}),(loader.defaultCb.call(form,kw)||{}));
             }
             for (var k in default_kw){
                 dkw['default_'+k] = default_kw[k];
             }
-            kw = objectUpdate(objectUpdate({},kw),dkw);
+            kw = objectUpdate(objectUpdate({},kw), form.sourceNode.evaluateOnNode(dkw)
+);
         }
-        kw =form.sourceNode.evaluateOnNode(kw); 
-        this.handlers.load.rpcmethod = this.handlers.load.rpcmethod || 'loadRecordCluster';
-        var deferred = genro.rpc.remoteCall(this.handlers.load.rpcmethod ,objectUpdate({'pkey':currPkey,
+        loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
+        var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':form.getVirtualColumns(),
                                                   'table':this.table},kw),null,'POST',null,function(){});
         deferred.addCallback(cb);
@@ -1355,7 +1353,7 @@ dojo.declare("gnr.formstores.Base", null, {
 
         var kw = form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         var onSaving = objectPop(kw,'onSaving');
-
+        
         if (destPkey){
             kw._autoreload=destPkey
         }else if(this.onSaved=='reload' || this.form.isNewRecord()){
@@ -1391,7 +1389,11 @@ dojo.declare("gnr.formstores.Base", null, {
         var rpckw = objectUpdate({'data':form.getFormChanges(),'table':this.table},kw)
         if(onSaving){
             onSaving = funcCreate(onSaving,this);
-            onSaving.call(this,rpckw);
+            var dosave = onSaving.call(this,rpckw);
+            if(dosave===false){
+                this.setOpStatus(null);
+                return;
+            }
         }
         var deferred = genro.rpc.remoteCall(this.handlers.save.rpcmethod,
                                             rpckw,null,'POST', null,function(){});

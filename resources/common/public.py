@@ -438,6 +438,7 @@ class TableHandlerMain(BaseComponent):
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = th_options.get('formInIframe')
         insidePublic = th_options.get('public')
+        th_options['lockable'] = th_options.get('lockable',True)
         kwargs.update(th_options)
         if insidePublic:
             root = root.rootContentPane(title=self.tblobj.name_long)

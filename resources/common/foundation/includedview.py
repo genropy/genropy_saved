@@ -713,6 +713,7 @@ class IncludedView(BaseComponent):
             kwargs['_class'] = kwargs.get('_class','') + ' pbl_roundedGroup'
         frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,
                                grid_nodeId=nodeId,grid_datamode=datamode,grid_table=table,**kwargs)
+        frame.dataFormula(".locked","locked",locked="^#FORM.controller.locked")
         if storepath.startswith('.'):
             storepath = '#FORM.record%s' %storepath
         gridattr = frame.grid.attributes

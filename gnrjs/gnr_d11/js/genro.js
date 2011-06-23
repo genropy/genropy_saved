@@ -61,6 +61,7 @@ dojo.declare('gnr.GenroClient', null, {
         this._polling = true;
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
         this.theme = {};
+        this.dojo = dojo;
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
     genroInit:function() {
@@ -268,7 +269,6 @@ dojo.declare('gnr.GenroClient', null, {
                     });
                 }                
                 parentIframe.sourceNode._genro = this;
-                parentIframe.sourceNode._dojo = dojo;
                 parentIframe.sourceNode.publish('pageStarted');
             }
         }, 100);

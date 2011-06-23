@@ -17,18 +17,22 @@ class FrameGridSlots(BaseComponent):
                                 iconClass=_class,visible=enable,**kwargs) 
        
     @struct_method
-    def fgr_slotbar_addrow(self,pane,_class='icnBaseAdd',enable=None,parentForm=True,delay=300,**kwargs):
-        return pane.slotButton(label='!!Add',publish='addrow',iconClass=_class,visible=enable,parentForm=parentForm,
+    def fgr_slotbar_addrow(self,pane,_class='icnBaseAdd',enable=None,delay=300,**kwargs):
+        return pane.slotButton(label='!!Add',publish='addrow',iconClass=_class,visible=enable,disabled='^.locked',
                                 _delay=delay,**kwargs)
          
     @struct_method
-    def fgr_slotbar_delrow(self,pane,_class='icnBaseDelete',enable=None,parentForm=True,**kwargs):
-        return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
+    def fgr_slotbar_delrow(self,pane,_class='icnBaseDelete',enable=None,**kwargs):
+        return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,visible=enable,disabled='^.locked',**kwargs)
+    
+    @struct_method
+    def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
+       # kw['subscribe_%s_onLockChange' %storeId] = "this.widget.setIconClass($1.locked?'icnBaseLocked':'icnBaseUnlocked');"
+        pane.slotButton('!!Locker',width='20px',publish='viewlocker',iconClass='==_locked?"icnBaseLocked":"icnBaseUnlocked";',_locked='^.locked',**kwargs)
     
     @struct_method
     def fgr_slotbar_updrow(self,pane,_class='icnBaseEdit',enable=None,parentForm=True,**kwargs):
         return pane.slotButton(label='!!Delete',publish='updrow',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
-
 
     @struct_method
     def fgr_slotbar_gridConfigurator(self,pane,_class='icnBaseTableEdit box24',frameCode=None,enable=None,parentForm=True,**kwargs):
@@ -68,6 +72,7 @@ class FrameGrid(BaseComponent):
                                             """
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         if top_kwargs:
+            top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
         frame.left.leftBar()
         iv = frame.includedView(autoWidth=False,datapath='.grid',selectedId='.selectedId',
