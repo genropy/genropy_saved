@@ -203,7 +203,7 @@ class FilterBox(BaseComponent):
             caption = col
             if ':' in col:
                 caption, col = col.split(':')
-            colsMenu.child('r', col=col, caption=caption, childcontent='')
+            colsMenu.setItem('r', None,col=col, caption=caption, childcontent='')
         return colsMenu
 
 

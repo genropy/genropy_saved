@@ -95,6 +95,7 @@ class FormHandler(BaseComponent):
                                     var topic = 'form_'+this.attr._linkedFormId+'_load';
                                     genro.publish(topic,{destPkey:$1.pkey});
                                     """
+        gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
         gridattr['subscribe_form_%s_onLoaded' %formId] ="""if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
                                                                 this.widget.selectByRowAttr('_pkey',$1.pkey);
                                                             }

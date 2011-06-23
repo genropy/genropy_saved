@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag><_ins_ts _tag="__ins_ts" _T="DH" _childname="columns.__ins_ts" dtype="DH" name_long="!!Insert date" group="zzz" onInserting="setTSNow">2011-06-19 11:52:59.965888</_ins_ts>
+<_del_ts _tag="__del_ts" _T="NN" _childname="columns.__del_ts" dtype="DH" group="zzz" name_long="!!Logical delete date"></_del_ts>
+<_mod_ts _tag="__mod_ts" _T="DH" group="zzz" onInserting="setTSNow" _childname="columns.__mod_ts" dtype="DH" onUpdating="setTSNow" name_long="!!Update date">2011-06-19 15:34:56.104977</_mod_ts>
+<name validate_notnull="y" validate_nodup="y" print_width="35" _childname="columns.name" dtype="T" validate_nodup_error="!!This name is already taken" _sendback="y" validate_notnull_error="!!Name is mandatory" unique="y" name_long="!!Name">regionedoc</name>
+<content _childname="columns.content" dtype="T" name_long="!!Content">&lt;p&gt;
+Sono la regione $nome con sigla $sigla e sono nella zona $zona :&lt;br /&gt;
+le mie province sono:&lt;/p&gt;
+&lt;table border="1" cellpadding="3" cellspacing="0" style="border-collapse: collapse; border-spacing: 3px; width: 500px;" summary="@province"&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&lt;strong&gt;Sigla&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;Nome&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;
+&lt;strong&gt;Cod.Ist.&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;
+&amp;nbsp;&amp;nbsp; $provincia_sigla&lt;/td&gt;
+&lt;td&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; $provincia_nome&lt;/td&gt;
+&lt;td&gt;
+&amp;nbsp;&amp;nbsp; $provincia_codice_istat&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;
+&lt;br /&gt;
+&amp;nbsp;&lt;/p&gt;
+</content>
+<metadata _childname="columns.metadata" dtype="X" _bag_md5="c86b40828d6ad85f9a0149553b5a6149" name_long="!!Metadata"></metadata>
+<varsbag _childname="columns.varsbag" dtype="X" _bag_md5="9e50cc0a9f4692052c32c7c278929d3b" name_long="!!Variables"><n_916><fieldpath>nome</fieldpath>
+<fieldname>Nome</fieldname>
+<varname>nome</varname>
+<virtual_column _T="NN"></virtual_column></n_916>
+<n_957><fieldpath>@province.sigla</fieldpath>
+<fieldname>Provincia/Sigla</fieldname>
+<varname>provincia_sigla</varname>
+<virtual_column _T="NN"></virtual_column></n_957>
+<n_965><fieldpath>@province.nome</fieldpath>
+<fieldname>Provincia/Nome</fieldname>
+<varname>provincia_nome</varname>
+<virtual_column _T="NN"></virtual_column></n_965>
+<n_973><fieldpath>@province.codice_istat</fieldpath>
+<fieldname>Provincia/Codice Istat</fieldname>
+<varname>provincia_codice_istat</varname>
+<virtual_column _T="NN"></virtual_column></n_973>
+<n_924><fieldpath>sigla</fieldpath>
+<fieldname>Sigla</fieldname>
+<varname>sigla</varname>
+<virtual_column _T="NN"></virtual_column></n_924>
+<n_931><fieldpath>zona</fieldpath>
+<fieldname>Zona</fieldname>
+<varname>zona</varname>
+<virtual_column _T="NN"></virtual_column></n_931></varsbag>
+<username _T="NN" _childname="columns.username" dtype="T" name_long="!!Username" print_width="35"></username>
+<version _childname="columns.version" dtype="T" name_long="!!Version" print_width="35">1</version>
+<maintable _childname="columns.maintable" dtype="T" name_long="!!Main table" print_width="35">glbl.regione</maintable>
+<resource_name _childname="columns.resource_name" dtype="T" name_long="!!Resource Name" _sendback="y">regionedoc</resource_name></GenRoBag>

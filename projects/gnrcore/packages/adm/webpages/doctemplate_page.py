@@ -20,15 +20,18 @@ class GnrCustomWebPage(object):
         bc = form.center.borderContainer()
         form.data('.tableTree', self.db.tableTreeBag(['sys'], omit=True, tabletype='main'))
         top = bc.contentPane(region='top',datapath='.record')
-        fb = top.formbuilder(cols=3, border_spacing='4px')
-        box = fb.field('maintable', width='15em', readOnly=True,validate_notnull=True) 
-        box.menu(storepath='#FORM.tableTree', modifiers='*', _class='smallmenu', action='SET .maintable = $1.fullpath')
+        fb = top.formbuilder(cols=4, border_spacing='4px')
+        box = fb.field('maintable', width='15em', readOnly=True if not self.isDeveloper() else None,validate_notnull=True) 
+        if not self.isDeveloper():
+            box.menu(storepath='#FORM.tableTree', modifiers='*', _class='smallmenu', action='SET .maintable = $1.fullpath')
         fb.field('name', width='20em')
         fb.field('version', width='4em')
+        fb.field('resource_name',_tags='_DEV_')
         tc = bc.tabContainer(region='center')
         self.editorPane(tc.borderContainer(title='Edit template'))
-        self.previewPane(tc.borderContainer(title='Preview',datapath='.preview'))
-
+        self.previewPane(tc.borderContainer(title='Preview',datapath='#FORM.preview'))
+        self.metadataForm(tc.contentPane(title='Metadata'))
+        
     def editorPane(self,bc):
         bc.dataController("""console.log(maintable,bc)
                              genro.dom.setClass(bc._left,"visibleBcPane",maintable!=null); 
@@ -43,13 +46,12 @@ class GnrCustomWebPage(object):
             r = struct.view().rows()
             r.cell('fieldname', name='Field', width='100%')
             r.cell('varname', name='As', width='10em')
-        grid = self.includedGrid(bc.contentPane(region='bottom',height='30%'),nodeId='variables',storepath='#FORM.record.varsbag',
+        grid = self.includedGrid(bc.contentPane(region='bottom',height='30%',splitter=True),nodeId='variables',storepath='#FORM.record.varsbag',
                                  del_action=True,label='!!Template Variables',struct=struct,datamode='bag')
         editor = grid.gridEditor()
         editor.textbox(gridcell='varname')
         grid.dragAndDrop(dropCodes='fielditem')
-        grid.dataController("""console.log(data);
-                                var caption = data.fullcaption;
+        grid.dataController("""var caption = data.fullcaption;
                                 var varname = caption.replace(/\W/g,'_').toLowerCase()
                                 grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':data.fieldpath,fieldname:caption,varname:varname,virtual_column:data.virtual_column}));""",
                              data="^.dropped_fielditem",grid=grid.js_widget)
@@ -66,7 +68,7 @@ class GnrCustomWebPage(object):
                                         else if(node.attr.relation_path){return "aliasColumnTreeNode"}
                                         else if(node.attr.sql_formula){return "formulaColumnTreeNode"}""",
                             getIconClass="""if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}
-                                     else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""")
+                                     else {return opened?'dijitFolderOpened':'dijitFolderClosed'}""",_fired='^#FORM.record.maintable')
           
         treepane.dataRemote('.store.fields', 'relationExplorer', 
                                    table='^#FORM.record.maintable',dosort=False, caption='Fields')
@@ -100,14 +102,14 @@ class GnrCustomWebPage(object):
                     selected_name='.html_template_name', lbl_width='10em', lbl='!!Template',
                     width='20em', hasDownArrow=True)
                     
-        fb.dataRpc('.renderedtemplate', 'renderTemplate', doctemplate='=#FORM.record',
+        fb.dataRpc('.renderedtemplate', 'renderTemplate', doctemplate_id='=#FORM.record.id',
                    _POST =True,record_id='^.selected_id',
-                   templates='^.html_template_name', _if='doctemplate.getItem("content")')
+                   templates='^.html_template_name', _if='doctemplate_id')
 
         bc.contentPane(region='center', padding='10px').div(height='100%', background='white').div(innerHTML='^.renderedtemplate')
 
-    def metadataForm(self, pane, disabled=None):
-        fb = pane.formbuilder(cols=2, border_spacing='4px', fld_width='15em', disabled=disabled)
+    def metadataForm(self, pane):
+        fb = pane.formbuilder(cols=2, border_spacing='4px', fld_width='15em', datapath='#FORM.record.metadata')
         fb.textbox(value='^.subject', lbl='Subject', colspan='2', width='100%')
         fb.textbox(value='^.to_address', lbl='To Address field')
         fb.textbox(value='^.from_address', lbl='From Address field')
@@ -148,9 +150,10 @@ class GnrCustomWebPage(object):
             result = self.db.table(maintable).query(limit=10, order_by='$__ins_ts').selection().output('pkeylist')
         return "%s::JS" % str(result).replace("u'", "'")
 
-    def rpc_renderTemplate(self, doctemplate=None, record_id=None, templates=None, **kwargs):
-        if not doctemplate['content']:
+    def rpc_renderTemplate(self, doctemplate_id=None, record_id=None, templates=None, **kwargs):
+        doctemplate = self.db.table('adm.doctemplate').record(pkey=doctemplate_id).output('bag')
+        templatebag = doctemplate['templatebag']
+        if not templatebag:
             return
-        tplbuilder = self.tblobj.getTemplateBuilder(doctemplate=doctemplate, templates=templates)
+        tplbuilder = self.tblobj.getTemplateBuilder(templatebag=templatebag, templates=templates)
         return self.tblobj.renderTemplate(tplbuilder, record_id=record_id, extraData=Bag(dict(host=self.request.host)))
-        

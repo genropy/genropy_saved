@@ -49,7 +49,7 @@ class TableHandlerView(BaseComponent):
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
         else:
-            top_kwargs['slots']= base_slots    
+            top_kwargs['slots']= base_slots   
         frame = pane.frameGrid(frameCode=frameCode,childname='view',
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',**kwargs)        
@@ -71,14 +71,8 @@ class TableHandlerView(BaseComponent):
                         height='150px',width='400px')
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
-        pane.div('^.title',color='gray',font_size='.9')
+        pane.div('^.title',font_size='.9')
     
-    @struct_method
-    def th_slotbar_list_locker(self, pane,**kwargs):
-        pane.button('!!Locker',width='20px',iconClass='icnBaseUnlocked',showLabel=False,
-                    action='genro.formById("formPane").publish("setLocked","toggle");',
-                    subscribe_form_formPane_onLockChange="""var locked= $1.locked;
-                                                  this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""")
     @struct_method
     def th_gridPane(self, frame,table=None,reloader=None,th_pkey=None,
                         virtualStore=None,condition=None):
@@ -160,7 +154,6 @@ class TableHandlerView(BaseComponent):
                                _onCalling=self.onQueryCalling(),
                                #_reloader=reloader,
                                **condPars)
-
         store.addCallback('FIRE .queryEnd=true; SET .selectmethod=null; return result;')        
         frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                      _updateCount='^.updateCurrentQueryCount',
@@ -176,12 +169,6 @@ class TableHandlerView(BaseComponent):
                             """,
                             _onStart=True,
                             runOnStart=querybase.get('runOnStart', False))
-        # operazioni da fare in caso di nuova query
-        #frame.dataController("""
-        #    this.setRelativeData(".query.where",baseQuery.deepCopy(),{objtype:"query", tbl:maintable});
-        #    genro.querybuilder(mangler).buildQueryPane(); 
-        #""",_fired='^.query.new',baseQuery='=.baseQuery', maintable=table,mangler=mangler)
-        #
 
     def onQueryCalling(self):
         return None
@@ -297,3 +284,4 @@ class TableHandlerView(BaseComponent):
                         'column_dtype': column_dtype,
                         'column_caption': self.app._relPathToCaption(table, column)})
         return result
+

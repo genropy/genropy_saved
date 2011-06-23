@@ -4,7 +4,8 @@
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"
-    dojo_theme = 'tundra'
+    dojo_theme = 'claro'
+    dojo_version='16'
     
     def test_1_basic(self, pane):
         """Basic button"""

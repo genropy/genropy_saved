@@ -346,6 +346,8 @@ class GnrWsgiSite(object):
         :returns: add???
         """
         autocreate = kwargs.get('autocreate', False)
+        if not ':' in static:
+            return static
         static_name, static_path = static.split(':')
         args = self.adaptStaticArgs(static_name, static_path, args)
         dest_path = self.getStatic(static_name).path(*args)

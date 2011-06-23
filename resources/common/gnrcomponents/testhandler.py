@@ -22,16 +22,19 @@ class TestHandler(BaseComponent):
         
     def testHandler_headers(self, pane):
         header = pane.div(width='900px', margin='5px')
-        header.div('Dojo version :', float='left', margin_top='7px', color='gray')
-        pane.data('gnr.dojo_version', '1.5')
-        mdiv = header.dropdownbutton(label='^gnr.dojo_version', float='left')
+        header.div('Dojo version:',float='left',color='teal',
+                    margin_top='7px',margin='3px')
+        pane.data('gnr.dojo_version','1.1')
+        mdiv = header.dropdownbutton(label='^gnr.dojo_version',float='left',margin_top='4px')
         m = mdiv.menu(action='SET gnr. dojo_version=$1.label')
         m.menuline('1.1')
         m.menuline('1.5')
         pane.data('gnr.dojo_theme', 'claro')
-        mdiv = header.dropdownbutton(label='^gnr.dojo_theme', float='right', margin_right='10px', padding_top='1px',
-                                     padding_bottom='1px')
-        header.div('Dojo theme :', float='right', margin_top='7px', color='gray')
+        mdiv = header.dropdownbutton(label='^gnr.dojo_theme',float='right',
+                                     margin_right='10px',margin_top='4px',
+                                     padding_top='1px',padding_bottom='1px')
+        header.div('Dojo theme:',float='right',color='teal',
+                    margin_top='7px',margin_right='3px')
         m = mdiv.menu(action='SET gnr.dojo_theme=$1.label')
         m.menuline('Claro')
         m.menuline('Tundra')
@@ -57,11 +60,11 @@ class TestHandler(BaseComponent):
                                rounded=5,shadow='3px 3px 5px gray',
                                datapath='test.%s' % test_name)
             h = element.div()
-            h.a('Source', href='', float='right', onclick='alert("ggg")', color='white', font_size='10px',
-                margin_right='5px', margin_top='3px', style='cursor:pointer')
+            h.a('Show Source',href='',float='right',onclick='alert("ggg")',style='cursor:pointer',
+                 color='white',font_size='11px',margin_right='5px',margin_top='3px')
             h.div(test_handler.__doc__ or test_name,background_color='#63B8F7',
                   color='white',padding='3px')
-            
+                  
             element = element.div(padding='5px')
             test_handler(element)
             

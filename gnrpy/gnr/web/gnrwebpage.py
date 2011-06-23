@@ -332,9 +332,11 @@ class GnrWebPage(GnrBaseWebPage):
         :param \*\*kwargs: add???"""
         self.site.resource_loader.mixinPageComponent(self, pkg, *path,**kwargs)
         
-    def tableTemplate(self,table=None,tplname=None):
-        pkg,table = table.split('.')
-        return self.getResourceContent(resource='tables/%s/tpl/%s' %(table,tplname),pkg=pkg,ext='html')
+    def tableTemplate(self,table=None,tplname=None,ext='html'):
+        result = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=ext)
+        if ext=='xml':
+            result = Bag(result)['#0']
+        return result
         
     @property
     def isGuest(self):
@@ -958,6 +960,8 @@ class GnrWebPage(GnrBaseWebPage):
         if result:
             return result[0]
             
+    getResourcePath = getResource
+            
     def importResource(self,path,classname=None,pkg=None):
         """add???
         
@@ -982,6 +986,7 @@ class GnrWebPage(GnrBaseWebPage):
         pkg,table = table.split('.')
         path,classname= path.split(':')
         return self.importResource('tables/%s/%s' %(table,path),classname=classname,pkg=pkg)
+
         
     @public_method
     def getResourceContent(self, resource=None, ext=None, pkg=None):
@@ -996,6 +1001,24 @@ class GnrWebPage(GnrBaseWebPage):
             with open(path) as f:
                 result = f.read()
             return result
+
+    def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
+        pkg,table = table.split('.')    
+        return self.getResourceContent(resource='tables/%s/%s' %(table,path),pkg=pkg,ext=ext)
+        
+    def setTableResourceContent(self,table=None,path=None,value=None,ext=None):
+        pkg,table = table.split('.')
+        path = self.site.getStatic('pkg').path(pkg,'tables',table,path,folder='resources')
+        path = '%s.%s' %(path,ext)
+        if isinstance(value,Bag):
+            value.toXml(path,autocreate=True,addBagTypeAttr=False,typeattrs=False)
+        else:
+            with open(path,'w') as f:
+                f.write(value)
+        return path
+
+
+
 
     def setPreference(self, path, data, pkg=''):
         """add???
@@ -1371,6 +1394,7 @@ class GnrWebPage(GnrBaseWebPage):
             if not 'name_long' in nodeattr:
                 raise Exception(nodeattr) # FIXME: use a specific exception class
             nodeattr['caption'] = nodeattr.pop('name_long')
+            nodeattr.pop('tag',None)
             nodeattr['fullcaption'] = concat(prevCaption, self._(nodeattr['caption']), '/')
             if nodeattr.get('one_relation'):
                 nodeattr['_T'] = 'JS'
@@ -1454,7 +1478,22 @@ class GnrWebPage(GnrBaseWebPage):
             return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs_url)
         else:
             return self.site.getStatic('user').url(self.user, *args)
-            
+   
+    @public_method
+    def getSiteDocument(self,path,defaultContent=None,**kwargs):
+        ext = os.path.splitext(path)[1]
+        result = Bag()
+        if not os.path.exists(path):
+            content = defaultContent
+        else:
+            if ext=='.xml':
+                content = Bag(path)
+            else:
+                with open(path) as f:
+                    content = f.read()
+        result.setItem('content',document)
+        return result
+                    
     def isLocalizer(self):
         """add???"""
         return (self.userTags and ('_TRD_' in self.userTags))

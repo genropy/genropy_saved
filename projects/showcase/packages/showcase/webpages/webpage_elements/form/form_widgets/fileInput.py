@@ -10,8 +10,7 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
-    # dojo_theme='claro'    # !! Uncomment this row for Dojo_1.5 usage
-
+    
     def test_1_basic(self, pane):
         """An explanation of "genro.dlg.upload" """
         pane.div("""We show you the "genro.dlg.upload": its first parameter is the name of the dialogue window (you

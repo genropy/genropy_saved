@@ -37,7 +37,8 @@ class TableHandler(BaseComponent):
     @extract_kwargs(condition=True,grid=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,reloader=None,virtualStore=False,condition=None,condition_kwargs=None,
-                            default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,**kwargs):
+                            default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
+                            lockable=False,pbl_classes=False,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -45,7 +46,7 @@ class TableHandler(BaseComponent):
         tableCode = table.replace('.','_')
         th_root = self._th_mangler(pane,table,nodeId=nodeId)
         viewCode='V_%s' %th_root
-        formCode='F_%s' %th_root   
+        formCode='F_%s' %th_root
         wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
                         thlist_root=viewCode,
                         thform_root=formCode,
@@ -61,11 +62,19 @@ class TableHandler(BaseComponent):
                             }
                             """,pkey='=#FORM.pkey',sourceNode=wdg,message=message,_fired='^#FORM.controller.loaded')                
         top_slots = '#,delrow,addrow'
+        if lockable:
+            top_slots = '#,delrow,addrow,viewlocker'
         if readOnly:
             top_slots = '#'
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
-                                reloader=reloader,virtualStore=virtualStore,top_slots=top_slots,
+                                reloader=reloader,virtualStore=virtualStore,top_slots=top_slots,lockable=lockable,
                                 condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs)    
+        if pbl_classes:
+            wdg.view.attributes.update(_class='pbl_roundedGroup')
+            wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
+            wdg.view.top.bar.replaceSlots('tools,5,vtitle','vtitle')
+            wdg.view.top.bar.replaceSlots('count','')
+
         return wdg
     
     @extract_kwargs(dialog=True,default=True)
@@ -155,15 +164,12 @@ class TableHandler(BaseComponent):
         grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         grid.dataController("""
-            if(dbname){
-                formUrl = '/'+dbname+formUrl;
-            }
             if(!this._pageHandler){
                 this._pageHandler = new gnr.pageTableHandlerJS(this,_formId,mainpkey,formUrl,default_kwargs,formResource);
             }
             this._pageHandler.checkMainPkey(mainpkey);
             if(pkey){
-                this._pageHandler.openPage(pkey);
+                this._pageHandler.openPage(pkey,dbname);
             }
         """,formUrl=formUrl,formResource=formResource,pkey='^.editrow',_formId=fakeFormId,
            default_kwargs=default_kwargs,_fakeform=True,mainpkey='^#FORM.pkey',dbname=dbname or False)
@@ -265,8 +271,8 @@ class ThLinker(BaseComponent):
         frame.div(template=self.tableTemplate(linker.attributes['table'],template),
                     datasource='^.@%s' %field,visible=currpkey,margin='4px')
         footer = frame.bottom.slotBar('*,linker_edit')
-        footer.linker_edit.slotButton('Edit current record',baseClass='no_background',iconClass='icnBaseWrite',
-                                       action='linker.publish("loadrecord");',linker=linker,showLabel=False,
+        footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='icnBaseWrite',
+                                       action='linker.publish("loadrecord");',linker=linker,
                                        visible=currpkey,margin='2px',parentForm=True)
         return frame
 

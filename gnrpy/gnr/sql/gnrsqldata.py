@@ -1613,7 +1613,13 @@ class SqlSelection(object):
         :param outsource: add???"""
         for r in outsource:
             yield r[0][1]
-            
+
+    def out_template(self,outsource,rowtemplate=None,joiner=''):
+        result = []
+        for r in outsource:
+            result.append(gnrstring.templateReplace(rowtemplate,dict(r),safeMode=True))
+        return joiner.join(result)
+
     def out_records(self, outsource):
         """add???
         
@@ -2050,6 +2056,12 @@ class SqlRecord(object):
             self._loadRecord(result, self.result, self.compiled.template, resolver_many=resolver_many,
                              resolver_one=resolver_one)
         return result
+        
+    
+    def out_template(self,recordtemplate=None):
+        record=Bag()
+        self._loadRecord(record, self.result, self.compiled.template, resolver_many=True, resolver_one=True)
+        return gnrstring.templateReplace(recordtemplate,record,safeMode=True)
         
     def out_record(self):
         """add???"""

@@ -2,24 +2,51 @@
 import re
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrbag import Bag
-
+import lxml.html as ht
+from StringIO import StringIO
 from gnr.core.gnrstring import templateReplace
+
+TEMPLATEROW = re.compile(r"<!--TEMPLATEROW:(.*?)-->")
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('doctemplate', pkey='name', name_long='!!Document template',
-                        name_plural='!!Document templates')
-        self.sysFields(tbl, id=False)
+        tbl = pkg.table('doctemplate', pkey='id', name_long='!!Document template',
+                        name_plural='!!Document templates',rowcaption='$name')
+        self.sysFields(tbl)
         tbl.column('name', name_long='!!Name', validate_nodup=True, unique=True,
                    validate_notnull=True, validate_notnull_error='!!Name is mandatory',
-                   validate_nodup_error='!!This name is already taken')
-        tbl.column('content', name_long='!!Content')
+                   validate_nodup_error='!!This name is already taken',_sendback=True)
+        tbl.column('content', name_long='!!Content',_sendback=True)
+        tbl.column('templatebag','X')
         tbl.column('metadata', 'X', name_long='!!Metadata')
-        tbl.column('varsbag', 'X', name_long='!!Variables')
+        tbl.column('varsbag', 'X', name_long='!!Variables',_sendback=True)
         tbl.column('username', name_long='!!Username')
         tbl.column('version', name_long='!!Version')
         tbl.column('maintable', name_long='!!Main table')
+        tbl.column('resource_name',name_long='!!Resource Name',_sendback=True)
 
+    def trigger_onInserting(self, record_data):
+        self.compileTemplate(record_data)
+        
+    def trigger_onUpdating(self,record_data,old_record=None):
+        self.compileTemplate(record_data)
+    
+    def trigger_onInserted(self, record_data):
+        if record_data.get('resource_name'):
+            self.copyToResource(record_data['name'])
+        
+    def trigger_onUpdated(self, record_data, old_record):
+        if record_data.get('resource_name'):
+            self.copyToResource(record_data)
+    
+    def copyToResource(self,record):
+        table = record['maintable']
+        resource_name = record['resource_name']
+        self.db.application.site.currentPage.setTableResourceContent(table=table,path='tpl/%s' %resource_name,
+                                                                     value=record['templatebag'],
+                                                                     ext='xml')
+
+    
     def cleanTemplate(self, doctemplate_content, virtual_columns=None):
         virtual_columns = [] if virtual_columns is None else virtual_columns
         EXTRACT_FIELDS_STRIPPED_RE = r'(?:\$)(.*?)(?:<|\s)'
@@ -46,22 +73,45 @@ class Table(object):
         if extraData:
             record.update(extraData)
         record.setItem('_env_', Bag(self.db.currentEnv))
-        record.setItem('_template_', templateBuilder.doctemplate_info)
-        varsdict = dict(templateBuilder.varsbag.digest('#v.varname,#v.fieldpath'))
-        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate, [varsdict,record], True),record=record)
+        #record.setItem('_template_', templateBuilder.doctemplate_info)
+        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, True,False),
+                            record=record)
         return body
+    
+    
+    def compileTemplate(self,record):
+        tplvars =  record['varsbag'].digest('#v.varname,#v.fieldpath,#v.virtual_column')
+        varsdict = dict([(varname,'$%s' %fldpath) for varname,fldpath,virtualcol in tplvars])
+        virtual_columns = [fldpath for varname,fldpath,virtualcol in tplvars if virtualcol]
+        columns = [fldpath for varname,fldpath,virtualcol in tplvars]
 
-    def getTemplateBuilder(self, doctemplate=None, templates=None):
-        doctemplate = self.recordAs(doctemplate, 'bag')
-        doctemplate_content = doctemplate.pop('content')
-        doctemplate_info = doctemplate
+        template = templateReplace(record['content'], varsdict, True,False)
+        templatebag = Bag()
+        doc = ht.parse(StringIO(template)).getroot()
+        htmltables = doc.xpath('//table')
+        for t in htmltables:
+            attributes = t.attrib
+            if 'row_datasource' in attributes:
+                subname = attributes['row_datasource']
+                tbody = t.xpath('tbody')[0]
+                tbody_lastrow = tbody.getchildren()[-1]
+                tbody.replace(tbody_lastrow,ht.etree.Comment('TEMPLATEROW:$%s' %subname))
+                subtemplate=ht.tostring(tbody_lastrow).replace('%s.'%subname,'')
+                templatebag.setItem(subname.replace('.','_'),subtemplate)
+        templatebag.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc)),
+                            maintable=record['maintable'],virtual_columns=','.join(virtual_columns),columns=','.join(columns))
+        record['templatebag'] = templatebag
+        
+ 
+    def getTemplateBuilder(self, templatebag=None, templates=None):
+        #doctemplate = self.recordAs(doctemplate, 'bag')
+        #doctemplate_content = doctemplate.pop('content')
+        #doctemplate_info = doctemplate
         htmlbuilder = BagToHtml(templates=templates, templateLoader=self.db.table('adm.htmltemplate').getTemplate)
-        htmlbuilder.varsbag = doctemplate['varsbag']
-        htmlbuilder.doctemplate = doctemplate_content
-        virtual_columns = [c[0] for c in htmlbuilder.varsbag.digest('#v.fieldpath,#v.virtual_column') if c[1]]
-        htmlbuilder.virtual_columns = ','.join(virtual_columns)
-        htmlbuilder.data_tblobj = self.db.table(doctemplate_info['maintable'])
-        htmlbuilder.doctemplate_info = doctemplate_info
+        htmlbuilder.doctemplate = templatebag
+        htmlbuilder.virtual_columns = templatebag.getItem('main?virtual_columns')
+        htmlbuilder.data_tblobj = self.db.table(templatebag.getItem('main?maintable'))
+        #htmlbuilder.doctemplate_info = doctemplate_info
         return htmlbuilder
     
     def sendMail(self,record_id=None,doctemplate=None,templates=None,**kwargs):

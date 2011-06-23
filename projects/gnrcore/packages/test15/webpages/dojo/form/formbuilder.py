@@ -24,12 +24,3 @@ class GnrCustomWebPage(object):
         fb.combobox(value='^.ttt',lbl='ttt',width='10em',storepath='.xxx',selected_test='.zzz')
         fb.div('^.zzz')
         
-    def test_1_field(self, pane):
-        """Field formbuilder"""
-        fb = pane.formbuilder(cols=2, border_spacing='3px', dbtable='polimed.medico',
-                              fld_width='100%', width='100%')
-        fb.field('@anagrafica_id.cognome', _class='pippo', lbl_class='ttt')
-        fb.field('@anagrafica_id.nome')
-        fb.field('@anagrafica_id.indirizzo', width='100%', colspan=2)
-        fb.field('@anagrafica_id.azienda')
-        fb.field('@anagrafica_id.azienda', tag='radiobutton')

@@ -111,9 +111,7 @@ dojo.declare("gnr.LinkerManager", null, {
         this.linkerform.load({destPkey:pkey,default_kw:this.default_kw});
         var that = this;
         this.linkerform.subscribe('onSaved',function(kw){
-            that.setCurrentPkey(kw.pkey);
             that.closeLinker();
-            that.thdialog.hide();
         });
         this.linkerform.subscribe('onDismissed',function(kw){
             that.thdialog.hide();
@@ -135,7 +133,8 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         this.mainpkey = mainpkey;
         this.default_kwargs = default_kwargs;
         this.pages_dict = {};
-        this.page_kw = {file:formUrl,url_main_call:'form',url_th_linker:true,url_th_public:true,subtab:true,url_th_formId:formId};
+        this.page_kw = {url_main_call:'form',url_th_linker:true,url_th_public:true,subtab:true,url_th_formId:formId};
+        this.formUrl = formUrl;
         this.fakeFormId = formId;
         this.indexgenro = window.parent.genro;
         if(formResource){
@@ -143,8 +142,10 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         }
     },
 
-    openPage:function(pkey){
+    openPage:function(pkey,dbname){
         var pageName;
+        
+        var formUrl = dbname?'/'+dbname+this.formUrl:this.formUrl;
         for (var k in this.pages_dict){
             if(this.pages_dict[k]==pkey){
                 pageName = k;
@@ -154,7 +155,8 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
             pageName = genro.page_id+'_'+genro.getCounter();
             this.pages_dict[pageName] = pkey;
         }
-        var kw = objectUpdate({url_th_pkey:pkey,pageName:pageName},this.page_kw);
+        console.log(formUrl);
+        var kw = objectUpdate({file:formUrl,url_th_pkey:pkey,pageName:pageName},this.page_kw);
 
         if(pkey=='*newrecord*'){
             default_kwargs = this.sourceNode.evaluateOnNode(this.default_kwargs);
@@ -170,6 +172,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         };
         kw['frameSubscriptions'] = subs;
         var that = this;
+        console.log(kw)
         indexgenro.publish('selectIframePage',kw);
     },
     checkMainPkey:function(mainpkey){

@@ -713,6 +713,7 @@ class IncludedView(BaseComponent):
             kwargs['_class'] = kwargs.get('_class','') + ' pbl_roundedGroup'
         frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,
                                grid_nodeId=nodeId,grid_datamode=datamode,grid_table=table,**kwargs)
+        frame.dataFormula(".locked","locked",locked="^#FORM.controller.locked")
         if storepath.startswith('.'):
             storepath = '#FORM.record%s' %storepath
         gridattr = frame.grid.attributes
@@ -733,13 +734,15 @@ class IncludedView(BaseComponent):
         else:
             slots.append('*')
         if del_kwargs:
-            action = add_kwargs.get('action')
-            slots.append('delrow')
-            assert not isinstance(action,basestring), 'custom action are not supported'
+            delaction = del_kwargs.get('action')
+            if delaction:
+                slots.append('delrow')
+                assert not isinstance(delaction,basestring), 'custom action are not supported'
         if add_kwargs:
-            action = add_kwargs.get('action')
-            slots.append('addrow')
-            assert not isinstance(action,basestring), 'custom action are not supported'
+            addaction = add_kwargs.get('action')
+            if addaction:
+                slots.append('addrow')
+                assert not isinstance(addaction,basestring), 'custom action are not supported'
         if pbl_classes:
             frame.top.slotBar(','.join(slots),_class='slotbar_toolbar pbl_roundedGroupLabel',**slotsKw)
         else:
