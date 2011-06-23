@@ -16,15 +16,17 @@ class GnrCustomWebPage(object):
         form = root.frameForm(frameCode='doctemplate',datapath='main')
         maintable = '%s.%s' %(pkg,table)
         tplname = callArgs.get('tplname')
-        startPath = self.getResourcePath('tables/%s/tpl/%s' %(table,tplname), ext='xml',pkg=pkg) if tplname else '*newrecord*'
+        #startPath = self.getResourcePath('tables/%s/tpl/%s' %(table,tplname), ext='xml',pkg=pkg) if tplname else '*newrecord*'
+        startPath = self.site.getStatic('pkg').path(pkg,'tables',table,'tpl',tplname,folder='resources')
+        startPath = '%s.xml' %startPath
         form.data('.record?maintable',maintable)
         form.data('main.renderpkey',callArgs.get('renderpkey'))
         store = form.formStore(handler='document',startKey=startPath)
-        store.handler('load',defaultCb="""function(){
+        store.handler('load',maintable=maintable,defaultCb="""function(kw){
             var b = new gnr.GnrBag();
-            b.setItem('content',new gnr.GnrBag(),{maintable:maintable});
+            b.setItem('content',new gnr.GnrBag(),{maintable:kw.maintable});
             return b.popNode('content');
-        }""",maintable=maintable)
+        }""")
         
         toolbar = form.top.slotToolbar(slots='lcol,*,rcol')
         bc = form.center.borderContainer()

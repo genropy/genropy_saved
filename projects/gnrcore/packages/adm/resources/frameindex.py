@@ -116,7 +116,12 @@ class Mixin(BaseComponent):
         sc.dataController("setTimeout(function(){genro.framedIndexManager.selectIframePage(selectIframePage[0])},1);",subscribe_selectIframePage=True)
 
         scattr = sc.attributes
-        scattr['subscribe_reloadFrame'] = """var frame = dojo.byId("iframe_"+$1);
+        scattr['subscribe_reloadFrame'] = """
+                                            if($1=='indexpage'){
+                                                genro.pageReload();
+                                                return;
+                                            }
+                                            var frame = dojo.byId("iframe_"+$1);
                                                     var src = frame.src;
                                                     frame.src = '';
                                                     setTimeout(function(){

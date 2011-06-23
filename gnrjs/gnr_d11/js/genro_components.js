@@ -982,7 +982,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          var cb = "this.store.onLoaded(result,_isFiredNode);"
          selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
-         rpcNode.store = new gnr.stores[storeType](rpcNode,{'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType});
+         rpcNode.store = new gnr.stores[storeType](rpcNode,{'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType,'startLocked':kw.startLocked});
          return selectionStore;
      }
 });
@@ -993,7 +993,7 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storepath = this.storeNode.attr.storepath;
         this.storeNode.setRelativeData(this.storepath,null);
         this.locked = null
-        var startLocked= 'locked' in kw? objectPop(kw,'startLocked'):true;
+        var startLocked= 'startLocked' in kw? objectPop(kw,'startLocked'):true;
         for (var k in kw){
             this[k] = kw[k];
         }

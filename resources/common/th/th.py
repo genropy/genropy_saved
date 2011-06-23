@@ -164,15 +164,12 @@ class TableHandler(BaseComponent):
         grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         grid.dataController("""
-            if(dbname){
-                formUrl = '/'+dbname+formUrl;
-            }
             if(!this._pageHandler){
                 this._pageHandler = new gnr.pageTableHandlerJS(this,_formId,mainpkey,formUrl,default_kwargs,formResource);
             }
             this._pageHandler.checkMainPkey(mainpkey);
             if(pkey){
-                this._pageHandler.openPage(pkey);
+                this._pageHandler.openPage(pkey,dbname);
             }
         """,formUrl=formUrl,formResource=formResource,pkey='^.editrow',_formId=fakeFormId,
            default_kwargs=default_kwargs,_fakeform=True,mainpkey='^#FORM.pkey',dbname=dbname or False)
