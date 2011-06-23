@@ -1,0 +1,8 @@
+# encoding: utf-8
+
+class Table(object):
+
+    def config_db(self, pkg):
+        tbl =  pkg.table('user_account', rowcaption='id')
+        tbl.column('message_id',size='22',name_long='!!Message id').relation('email.message.id', mode='foreignkey', relation_name='message_mailboxes')
+        tbl.column('mailbox_id',size='22',name_long='!!Mailbox id').relation('email.mailbox.id', mode='foreignkey', relation_name='mailbox_messages')
