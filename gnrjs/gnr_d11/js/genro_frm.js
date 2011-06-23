@@ -28,10 +28,7 @@
 dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, formId, formDatapath, controllerPath, pkeyPath,formAttr) {
         var that = this;
-        genro.src.afterBuildCalls.push(function(){
-            that.onStartForm();
-        });
-        
+        genro.src.onBuiltCall(function(){that.onStartForm()});
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
@@ -129,7 +126,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 setTimeout(function(){that.setLocked(that.locked)},1);
             });
         }
-        
     },
     reset: function() {
         this.resetChanges();
@@ -1357,7 +1353,7 @@ dojo.declare("gnr.formstores.Base", null, {
 
         var kw = form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         var onSaving = objectPop(kw,'onSaving');
-
+        
         if (destPkey){
             kw._autoreload=destPkey
         }else if(this.onSaved=='reload' || this.form.isNewRecord()){
@@ -1393,7 +1389,11 @@ dojo.declare("gnr.formstores.Base", null, {
         var rpckw = objectUpdate({'data':form.getFormChanges(),'table':this.table},kw)
         if(onSaving){
             onSaving = funcCreate(onSaving,this);
-            onSaving.call(this,rpckw);
+            var dosave = onSaving.call(this,rpckw);
+            if(dosave===false){
+                this.setOpStatus(null);
+                return;
+            }
         }
         var deferred = genro.rpc.remoteCall(this.handlers.save.rpcmethod,
                                             rpckw,null,'POST', null,function(){});

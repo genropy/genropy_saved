@@ -171,6 +171,7 @@ class FormHandler(BaseComponent):
         fb.dbselect(value="^.pkey",dbtable=table,
                     parentForm=False,
                     validate_onAccept="if(userChange){this.form.publish('load',{destPkey:value})};",
+                    hasDownArrow=True,
                     lbl=tblobj.name_long)
     
     @struct_method          

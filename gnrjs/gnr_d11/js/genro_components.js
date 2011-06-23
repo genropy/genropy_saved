@@ -982,7 +982,11 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          var cb = "this.store.onLoaded(result,_isFiredNode);"
          selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
-         rpcNode.store = new gnr.stores[storeType](rpcNode,{'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType,'startLocked':kw.startLocked});
+         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType};
+         if('startLocked' in kw){
+             storeKw.startLocked = kw.startLocked;
+         }
+         rpcNode.store = new gnr.stores[storeType](rpcNode,storeKw);
          return selectionStore;
      }
 });
@@ -994,6 +998,7 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storeNode.setRelativeData(this.storepath,null);
         this.locked = null
         var startLocked= 'startLocked' in kw? objectPop(kw,'startLocked'):true;
+        console.log('startLocked',startLocked);
         for (var k in kw){
             this[k] = kw[k];
         }
@@ -1008,6 +1013,10 @@ dojo.declare("gnr.stores._Collection",null,{
             setTimeout(function(){that.setLocked(startLocked)},1);
         }
         genro.src.afterBuildCalls.push(cb);
+    },
+    currentPkeys:function(){
+        console.warn('currentPkeys not implemented in this store',this);
+        return null;
     },
 
     setLocked:function(value){
@@ -1253,6 +1262,11 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                 genro.src.afterBuildCalls.push(cb);
         }
     },
+    currentPkeys:function(){
+        var data = this.getData();
+        return zip(data.digest('#a._pkey'));
+    },
+    
     onExternalChange:function(changelist,pkeycol){
         var eventdict = {};
         var dbevt,pkeys,wasInSelection,willBeInSelection;
@@ -1380,6 +1394,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.pendingPages = {};
         this.lastIdx =0;
     },
+    
     len:function(filtered){
         var data = this.getData();
         if(!data){

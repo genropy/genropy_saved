@@ -25,10 +25,12 @@ dojo.declare("gnr.FramedIndexManager", null, {
          genro._data.setItem('iframes',this.iframesbag);
         }
         var that = this;
-        var frameSubscriptions = objectPop(kw,'frameSubscriptions');
-        iframeattr['onStarted'] = function(){
-            for (var sub in frameSubscriptions){
-                this._dojo.subscribe(sub,frameSubscriptions[sub]);
+        var onStartCallbacks = objectPop(kw,'onStartCallbacks');
+        if(onStartCallbacks){
+            iframeattr['onStarted'] = function(){
+                for (var i=0; i < onStartCallbacks.length; i++) {
+                    onStartCallbacks[i].call(this,this._genro);
+                };
             }
         }
         var iframe = center._('iframe',iframeattr);
