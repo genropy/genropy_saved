@@ -13,5 +13,5 @@ class GnrCustomWebPage(object):
          
     def test_0_firsttest(self,pane):
         """First test description"""
-        pane.checkBoxText('foo,bar,span',textvalue='^.pluto',separator=' -     ')
+        pane.checkBoxText('foo,bar,span',value='^.pluto',separator=' -     ')
         pane.textbox(value='^.pluto')

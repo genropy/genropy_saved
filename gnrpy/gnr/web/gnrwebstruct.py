@@ -1268,8 +1268,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 pane.radioButton(label, group=group)
                 
-    def checkBoxText(self, labels,textvalue=None,separator=',',labels_separator=',',**kwargs):
-        labels = gnrstring.splitAndStrip(labels,labels_separator)
+    def checkBoxText(self, labels,value=None,separator=',',**kwargs):
+        labels = gnrstring.splitAndStrip(labels.replace('\n',','),',')
         action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
                     var separator = actionNode.attr._separator;
                     var textvalue = actionNode.getAttributeFromDatasource('_textvalue');
@@ -1287,7 +1287,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     this.setChecked(v);
                     actionNode.setRelativeData(textvaluepath,values.join(separator),null,null,'cbgroup');
                 """
-        fb = self.formbuilder(_textvalue=textvalue.replace('^','='),action=action,_separator=separator,**kwargs)
+        fb = self.formbuilder(_textvalue=value.replace('^','='),action=action,_separator=separator,**kwargs)
         self.dataController("""if(_triggerpars.kw.reason=='cbgroup'){return}
                                 console.log('bunga')
                                 var values = textvalue? textvalue.split(','):[];
@@ -1300,7 +1300,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                                     node = srcbag.getNodeByAttr('label',n)
                                     node.widget.setChecked(true)
                                 });
-                            """,textvalue=textvalue,fb=fb)
+                            """,textvalue=value,fb=fb)
         for label in labels:
             fb.checkbox(label,_cbgroup=True)
                 
