@@ -1268,7 +1268,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 pane.radioButton(label, group=group)
                 
-    def checkBoxText(self, labels,value=None,separator=',',**kwargs):
+    def checkboxtext(self, labels,value=None,separator=',',**kwargs):
         labels = gnrstring.splitAndStrip(labels.replace('\n',','),',')
         action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
                     var separator = actionNode.attr._separator;
