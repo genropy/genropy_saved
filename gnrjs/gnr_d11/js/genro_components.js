@@ -559,7 +559,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         databag.setItem('caption', defaultLabel);
         this._prepareSearchBoxMenu(searchOn, databag);
         sourceNode.setRelativeData(null, databag);
-        var searchbox = sourceNode._('table', {nodeId:nodeId,width:'100%'})._('tbody')._('tr');
+        var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
         sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field)',
             'searchBoxId':nodeId,currentValue:'^.currentValue',field:'^.field'});
         var searchlbl = searchbox._('td');
@@ -567,7 +567,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
             selected_col:'.field',selected_caption:'.caption'});
         
-        searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,parentForm:false});
+        searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,parentForm:false,width:objectPop(kw,'width') || '10em'});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
             menubag = this._prepareSearchBoxMenu(searchOn, databag);
         });
@@ -887,8 +887,8 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     },
     
     slot_searchOn:function(pane,slotValue,slotKw,frameCode){
-        var div = pane._('div',{'width':slotKw.width || '15em'});
-        div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox',parentForm:false});
+        var div = pane._('div'); //{'width':slotKw.width || '15em'}
+        div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox',parentForm:false,'width':slotKw.width});
 
     },
     slot_count___:function(pane,slotValue,slotKw,frameCode){
@@ -1265,6 +1265,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         var data = this.getData();
         var result = [];
         data.forEach(function(n){result.push(n.attr._pkey)});
+        console.log(result)
         return result;
     },
     
