@@ -4299,9 +4299,19 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
     connectForUpdate: function(widget, sourceNode) {
         return;
     },
+    
     created: function(widget, savedAttrs, sourceNode) {
         if (savedAttrs.auxColumns) {
             widget._popupWidget = new gnr.Gnr_ComboBoxMenu({onChange: dojo.hitch(widget, widget._selectOption)});
+            dojo.connect(widget,'open',function(){
+                var popup = this._popupWidget.domNode.parentNode;
+                var popupcoords = dojo.coords(popup);
+                var bodycoords = dojo.coords(dojo.body());
+                var popupDeltaOverflow = (popupcoords.x+popupcoords.w) -bodycoords.w +10;
+                if(popupDeltaOverflow>0){
+                    popup.style.left = (parseInt(popup.style.left)-popupDeltaOverflow)+'px';
+                }
+            });
         }
         this.connectForUpdate(widget, sourceNode);
         var tag = 'cls_' + sourceNode.attr.tag;

@@ -122,11 +122,12 @@ class Mixin(BaseComponent):
                                                 return;
                                             }
                                             var frame = dojo.byId("iframe_"+$1);
-                                                    var src = frame.src;
-                                                    frame.src = '';
-                                                    setTimeout(function(){
-                                                        frame.src = src;
-                                                    },1);"""
+                                            var src = frame.src;
+                                            frame.src = '';
+                                            setTimeout(function(){
+                                                frame.src = src;
+                                            },1);
+                                            """
         scattr['subscribe_closeFrame'] = """
                                             var sc = this.widget;
                                             var selected = sc.getSelectedIndex();

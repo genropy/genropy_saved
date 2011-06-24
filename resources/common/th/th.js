@@ -133,7 +133,8 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         this.mainpkey = mainpkey;
         this.default_kwargs = default_kwargs;
         this.pages_dict = {};
-        this.page_kw = {url_main_call:'form',url_th_public:true,subtab:true,url_th_formId:formId,url_main_store_storeType:'Collection'};
+        this.page_kw = {url_main_call:'form',url_th_public:true,subtab:true,
+                        url_th_formId:formId,url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection'};
         this.formUrl = formUrl;
         this.fakeFormId = formId;
         this.loadingTitle = 'loading...'
@@ -167,19 +168,15 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         var cblist = [];
         var indexgenro = this.indexgenro;
         var that = this;
+
         cblist.push(function(){
-            indexgenro.dojo.subscribe('form_'+that.fakeFormId+'_onLoaded',
+            var form = this._genro.formById(that.fakeFormId);
+            this._genro.dojo.subscribe('form_'+that.fakeFormId+'_onLoaded',
                                     function(kw){
                                         that.pages_dict[pageName] = kw.pkey;
                                         indexgenro.publish('changeFrameLabel',{pageName:pageName,title:kw.data.attr.caption});
                                     });
-        });
-        cblist.push(function(){
-            var form = this._genro.formById(that.fakeFormId);
             form.store.parentStore = that.viewStore;
-            that.viewStore.storeNode.subscribe('onLockChange',function(kw){
-                form.setLocked(kw.locked);
-            });
             form.setLocked(that.viewStore.locked);
         });
         kw['onStartCallbacks'] = cblist;

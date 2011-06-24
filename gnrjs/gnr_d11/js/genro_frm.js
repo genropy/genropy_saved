@@ -81,9 +81,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
         this.msg_unsaved_changes ="Current record has been modified.";
         this.msg_confirm_delete ="You are going to delete the current record.";
-        dojo.subscribe('onWindowUnload',function(){
-            that.setCurrentPkey(null);
-        })
 
     },
     getParentForm:function(){
@@ -94,6 +91,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDomNode = this.sourceNode.getDomNode();
         this.formContentDomNode = this.contentSourceNode.getDomNode();
         if(this.store){
+            var that = this;
+            dojo.connect(genro,'onWindowUnload',function(){
+                that.setCurrentPkey(null);
+            });
             this.store.init(this);            
             var that = this;
             dojo.connect(this.formContentDomNode,'onclick',function(e){
@@ -115,7 +116,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(parentForm){
                 dojo.connect(parentForm,'load',this,'abort');
             }
-            var that = this;
+            
             var parentStore = this.store.parentStore;
             if(parentStore){
                 parentStore.storeNode.subscribe('onLockChange',function(kw){
@@ -1391,7 +1392,7 @@ dojo.declare("gnr.formstores.Base", null, {
             onSaving = funcCreate(onSaving,this);
             var dosave = onSaving.call(this,rpckw);
             if(dosave===false){
-                this.setOpStatus(null);
+                this.form.setOpStatus(null);
                 return;
             }
         }
