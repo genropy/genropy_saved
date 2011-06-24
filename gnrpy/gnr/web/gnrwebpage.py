@@ -1144,7 +1144,7 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.windowTitle', self.windowTitle())
                 page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
                 page.dataRemote('gnr._pageStore','getPageStoreData',cacheTime=1)
-                page.dataController("genro.publish('dbevent_'+_node.label,{'changelist':change.getItem('#0'),pkeycol:_node.attr.pkeycol});",change="^gnr.dbchanges")
+                page.dataController("""genro.publish('dbevent_'+_node.label,{'changelist':_node._value,'pkeycol':_node.attr.pkeycol});""",changes="^gnr.dbchanges")
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))
                 page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
                 page.data('gnr.homeUrl', self.site.home_uri)

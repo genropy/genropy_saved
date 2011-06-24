@@ -14,8 +14,6 @@ class PluggedPageManager(BaseComponent):
         # print 'plugins'
         # print plugins
         parent.dataController("""
-            console.log('plugins');
-            //console.log(+plugins);
             var sourceNode = this.getParentNode();
             plugins = plugins? plugins.toLowerCase():'';
             var tablist = plugins.split(',');
