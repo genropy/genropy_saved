@@ -1285,7 +1285,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         }
                         actionNode.setRelativeData(textvaluepath,values.join(','),null,null,'cbgroup');
                                  """
-        pane = self.div(_textvalue=textvalue,action=action, **kwargs)
+        pane = self.div(_textvalue=textvalue.replace('^','='),action=action, **kwargs)
         pane.dataController("""if(_triggerpars.kw.reason=='cbgroup'){return}
                                 var values = textvalue? textvalue.split(','):[];
                                 var that = this;
