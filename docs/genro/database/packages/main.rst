@@ -157,9 +157,13 @@ custom_type
     This method returns a ``dict`` through which you can modify the features of
     your custom type. In particular:
     
+    * ``default`` specify a default value for the custom datatype
     * ``dtype`` specify the datatype format (``C`` for char, ``DH`` for datetime... [#]_)
-    * ``size`` specify the lenght of the custom datatype.
-    * ``default`` specify a default value for the custom datatype.
+    * ``format`` add??? Example::
+    
+        format='#.###,00'
+        
+    * ``size`` specify the lenght of the custom datatype
     
     **Example:**
     
