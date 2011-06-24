@@ -1268,15 +1268,37 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 pane.radioButton(label, group=group)
                 
-    def checkboxgroup(self, labels, cols=1, datapath=None, **kwargs):
+    def checkboxgroup(self, labels, cols=1, storepath=None, textvalue=None,**kwargs):
+        #checkboxgroup('aaa,bbb',textstore='^.vvvv')
         if isinstance(labels, basestring):
             labels = labels.split(',')
-        pane = self.div(datapath=datapath, **kwargs).formbuilder(cols=cols)
+        if textvalue and not 'action' in kwargs:
+            action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
+                        var textvalue = actionNode.getAttributeFromDatasource('_textvalue');
+                        var textvaluepath = actionNode.attr._textvalue;
+                        var values = textvalue?textvalue.split(","):[];
+                        var k = dojo.indexOf(values,$1.label);
+                        if(k<0){
+                            values.push($1.label);
+                        }else{
+                            values.splice(k,1);
+                        }
+                        actionNode.setRelativeData(textvaluepath,values.join(','),null,null,'cbgroup');
+                                 """
+        pane = self.div(_textvalue=textvalue,action=action, **kwargs)
+        pane.dataController("""if(_triggerpars.kw.reason=='cbgroup'){return}
+                                var values = textvalue? textvalue.split(','):[];
+                                var that = this;
+                                var label;
+                                that.setRelativeData(storepath,null);
+                                dojo.forEach(values,function(n){
+                                    label = storepath+'.cb_'+n.replace(/\./g,'');
+                                    that.setRelativeData(label,true);
+                                });
+                            """,textvalue=textvalue,storepath=storepath)
+        fb = pane.formbuilder(cols=cols,datapath=storepath)
         for label in labels:
-            if(datapath):
-                pane.checkbox(label, datapath=':%s' % label)
-            else:
-                pane.checkbox(label)
+            fb.checkbox(label, value='^.cb_%s' %label.replace('.','_'))
                 
     def _fieldDecode(self, fld, **kwargs):
         parentfb = self.parentfb
