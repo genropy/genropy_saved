@@ -155,11 +155,12 @@ class TableHandlerView(BaseComponent):
                                #_reloader=reloader,
                                **condPars)
         store.addCallback('FIRE .queryEnd=true; SET .selectmethod=null; return result;')        
-        frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
-                     _updateCount='^.updateCurrentQueryCount',
-                     table=table, where='=.query.where',_showCount='=.tableRecordCount',
-                     excludeLogicalDeleted='=.excludeLogicalDeleted',_if='_updateCount || _showCount',
-                     **condPars)
+        if virtualStore:
+            frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
+                         _updateCount='^.updateCurrentQueryCount',
+                         table=table, where='=.query.where',_showCount='=.tableRecordCount',
+                         excludeLogicalDeleted='=.excludeLogicalDeleted',_if='_updateCount || _showCount',
+                         **condPars)
         
         frame.dataController("""
                                SET .grid.selectedId = null;

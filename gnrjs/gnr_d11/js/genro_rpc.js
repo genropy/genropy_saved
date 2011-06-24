@@ -110,6 +110,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     register_call:function(kw) {
         this.rpc_counter = this.rpc_counter + 1;
         this.rpc_level = this.rpc_level + 1;
+        if(this.rpc_level>5){
+            console.log('rpc_level',this.rpc_level)
+        }
         kw['__rpc_counter'] = this.rpc_counter;
         this.rpc_register['r_' + this.rpc_counter] = kw;
         //console.log('rpc level:'+this.rpc_level)
