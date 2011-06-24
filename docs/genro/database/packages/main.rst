@@ -159,28 +159,31 @@ custom_type
     
     * ``default`` specify a default value for the custom datatype
     * ``dtype`` specify the datatype format (``C`` for char, ``DH`` for datetime... [#]_)
-    * ``format`` add??? Example::
-    
+    * ``format`` Specify the punctuation. For example you can specify the character that
+      specifies the separation between integers and the decimals.
+      
+      Example::
+        
         format='#.###,00'
         
     * ``size`` specify the lenght of the custom datatype
     
-    **Example:**
-    
-    ::
-    
-        def custom_type_money(self):
-            return dict(dtype='N', size='12,2', default=0)
-            
-    (the ``dtype='N'`` means that the type is numerical, the ``size='12,2'`` means a field
-    of 12 characters with two decimals [#]_, the ``default=0`` means that if user don't specify
-    the custom_type value, then it is ``0``).
-            
-    This allows to create in a :ref:`genro_table` a :ref:`table_column` like this one::
-    
-        tbl.column('partners_income',dtype='money',name_long='Partners Income')
+        **Example:**
         
-    where the ``dtype`` of the column is the custom one we created (``money``).
+        ::
+        
+            def custom_type_money(self):
+                return dict(dtype='N', size='12,2', default=0)
+                
+        (the ``dtype='N'`` means that the type is numerical, the ``size='12,2'`` means a field
+        of 12 characters with two decimals [#]_, the ``default=0`` means that if user don't specify
+        the custom_type value, then it is ``0``).
+                
+        This allows to create in a :ref:`genro_table` a :ref:`table_column` like this one::
+        
+            tbl.column('partners_income',dtype='money',name_long='Partners Income')
+            
+        where the ``dtype`` of the column is the custom one we created (``money``).
         
 .. _methods_loginUrl:
 
@@ -203,12 +206,12 @@ loginUrl
     * ``loginName`` is the name of the :ref:`webpages_webpages` (without its ``.py`` extensions)
       in which you define the login authorization.
       
-    **Example:** if you have a package called ``staff`` and your login webpage is called
-    ``my_great_login.py``, then your ``loginUrl`` method should be::
-    
-        def loginUrl(self):
-            return 'staff/my_great_login'
-            
+        **Example:** if you have a package called ``staff`` and your login webpage is called
+        ``my_great_login.py``, then your ``loginUrl`` method should be::
+        
+            def loginUrl(self):
+                return 'staff/my_great_login'
+                
     .. note:: We suggest you to use ``login.py`` as default name for the login page; if you do so,
               your ``loginUrl`` should be::
               
