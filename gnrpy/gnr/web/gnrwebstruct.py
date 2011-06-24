@@ -1268,37 +1268,41 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 pane.radioButton(label, group=group)
                 
-    def checkboxgroup(self, labels, cols=1, storepath=None, textvalue=None,**kwargs):
-        #checkboxgroup('aaa,bbb',textstore='^.vvvv')
-        if isinstance(labels, basestring):
-            labels = labels.split(',')
-        if textvalue and not 'action' in kwargs:
-            action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
-                        var textvalue = actionNode.getAttributeFromDatasource('_textvalue');
-                        var textvaluepath = actionNode.attr._textvalue;
-                        var values = textvalue?textvalue.split(","):[];
-                        var k = dojo.indexOf(values,$1.label);
-                        if(k<0){
-                            values.push($1.label);
-                        }else{
-                            values.splice(k,1);
-                        }
-                        actionNode.setRelativeData(textvaluepath,values.join(','),null,null,'cbgroup');
-                                 """
-        pane = self.div(_textvalue=textvalue.replace('^','='),action=action, **kwargs)
-        pane.dataController("""if(_triggerpars.kw.reason=='cbgroup'){return}
+    def checkBoxText(self, labels,textvalue=None,separator=',',labels_separator=',',**kwargs):
+        labels = gnrstring.splitAndStrip(labels,labels_separator)
+        action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
+                    var separator = actionNode.attr._separator;
+                    var textvalue = actionNode.getAttributeFromDatasource('_textvalue');
+                    var textvaluepath = actionNode.attr._textvalue;
+                    var values = textvalue?textvalue.split(separator):[];
+                    var k = dojo.indexOf(values,$1.label);
+                    var v;
+                    if(k<0){
+                        values.push($1.label);
+                        v = true;
+                    }else{
+                        values.splice(k,1);
+                        v=false;
+                    }
+                    this.setChecked(v);
+                    actionNode.setRelativeData(textvaluepath,values.join(separator),null,null,'cbgroup');
+                """
+        fb = self.formbuilder(_textvalue=textvalue.replace('^','='),action=action,_separator=separator,**kwargs)
+        self.dataController("""if(_triggerpars.kw.reason=='cbgroup'){return}
+                                console.log('bunga')
                                 var values = textvalue? textvalue.split(','):[];
                                 var that = this;
                                 var label;
-                                that.setRelativeData(storepath,null);
+                                var srcbag = fb._value;
+                                srcbag.walk(function(n){if(n.attr.tag=='checkbox'){n.widget.setChecked(false)}});
+                                var node;
                                 dojo.forEach(values,function(n){
-                                    label = storepath+'.cb_'+n.replace(/\./g,'');
-                                    that.setRelativeData(label,true);
+                                    node = srcbag.getNodeByAttr('label',n)
+                                    node.widget.setChecked(true)
                                 });
-                            """,textvalue=textvalue,storepath=storepath)
-        fb = pane.formbuilder(cols=cols,datapath=storepath)
+                            """,textvalue=textvalue,fb=fb)
         for label in labels:
-            fb.checkbox(label, value='^.cb_%s' %label.replace('.','_'))
+            fb.checkbox(label,_cbgroup=True)
                 
     def _fieldDecode(self, fld, **kwargs):
         parentfb = self.parentfb
