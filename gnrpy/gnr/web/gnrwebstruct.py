@@ -1284,7 +1284,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         values.splice(k,1);
                         v=false;
                     }
-                    this.setChecked(v);
+                    this.setAttribute('checked',v);
                     actionNode.setRelativeData(textvaluepath,values.join(separator),null,null,'cbgroup');
                 """
         fb = self.formbuilder(_textvalue=value.replace('^','='),action=action,_separator=separator,**kwargs)
@@ -1294,14 +1294,19 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                                 var that = this;
                                 var label;
                                 var srcbag = fb._value;
-                                srcbag.walk(function(n){if(n.attr.tag=='checkbox'){n.widget.setChecked(false)}});
+                                srcbag.walk(function(n){if(n.attr.tag=='checkbox'){n.widget.setAttribute('checked',false)}});
                                 var node;
                                 dojo.forEach(values,function(n){
                                     node = srcbag.getNodeByAttr('label',n)
-                                    node.widget.setChecked(true)
+                                    if(node){
+                                        node.widget.setAttribute('checked',true);
+                                    }else{
+                                        console.log('removed value  >'+n+'< from options');
+                                    }
                                 });
                             """,textvalue=value,fb=fb)
         for label in labels:
+            print 'created cb with label >'+label+'< '
             fb.checkbox(label,_cbgroup=True)
                 
     def _fieldDecode(self, fld, **kwargs):
