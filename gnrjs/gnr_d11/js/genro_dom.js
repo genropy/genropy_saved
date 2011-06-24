@@ -1151,7 +1151,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         for (var k = 0; k < columns.length; k++) {
             thead = thead + "<th>" + headers[k] + "</th>";
         }
-        thead = thead + "<th style='width:10px; background-color:transparent;'>&nbsp</th></thead>";
+        thead = thead + "<th style='width:11px; background-color:transparent;'>&nbsp</th></thead>";
         var nodes = gridbag.getNodes();
         var item,r, value;
         var tbl = ["<tbody>"];
@@ -1168,9 +1168,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
         var tbody = tbl.join('');
         var cbf = function(cgr) {
 
-            var cgr_h = cgr ? '<colgroup>' + cgr + '<col width=10 /></colgroup>' : '';
+            var cgr_h = cgr ? '<colgroup>' + cgr + '<col width=11 /></colgroup>' : '';
             var cgr_b = cgr ? '<colgroup>' + cgr + '</colgroup>' : '';
-            return '<div class="' + tblclass + '"><div><table>' + cgr_h + '' + thead + '</table></div><div style="overflow-y:auto;max-height:180px;"><table>' + cgr_b + tbody + '</table></div></div>';
+            return '<div class="' + tblclass + '"><div><table>' + cgr_h + '' + thead + '</table></div><div style="overflow-y:auto;overflow-x:hidden;max-height:180px;"><table>' + cgr_b + tbody + '</table></div></div>';
         };
         domnode.innerHTML = cbf('');
         var cb = function() {
