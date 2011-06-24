@@ -92,7 +92,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formContentDomNode = this.contentSourceNode.getDomNode();
         if(this.store){
             var that = this;
-           dojo.connect(genro,'onWindowUnload',function(){
+            dojo.connect(genro,'onWindowUnload',function(){
                 that.setCurrentPkey(null);
             });
             this.store.init(this);            
@@ -1392,7 +1392,7 @@ dojo.declare("gnr.formstores.Base", null, {
             onSaving = funcCreate(onSaving,this);
             var dosave = onSaving.call(this,rpckw);
             if(dosave===false){
-                this.setOpStatus(null);
+                this.form.setOpStatus(null);
                 return;
             }
         }

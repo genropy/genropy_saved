@@ -171,7 +171,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
 
         cblist.push(function(){
             var form = this._genro.formById(that.fakeFormId);
-            indexgenro.dojo.subscribe('form_'+that.fakeFormId+'_onLoaded',
+            this._genro.dojo.subscribe('form_'+that.fakeFormId+'_onLoaded',
                                     function(kw){
                                         that.pages_dict[pageName] = kw.pkey;
                                         indexgenro.publish('changeFrameLabel',{pageName:pageName,title:kw.data.attr.caption});
