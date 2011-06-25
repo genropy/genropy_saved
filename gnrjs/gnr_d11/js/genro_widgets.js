@@ -1086,6 +1086,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
             dojo.style(this._splitters[region], 'display', show?'block':'none');
         }
         this._layoutChildren(region);
+        this.layout();
     }
 });
 
