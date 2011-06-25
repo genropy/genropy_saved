@@ -782,6 +782,8 @@ class GnrApp(object):
             users = Bag(self.realPath(path))
         else:
             users = node.getValue()
+        if not users:
+            return
         for key, attrs in users.digest('#k,#a'):
             if key == user:
                 user_name = attrs.pop('user_name', key)
