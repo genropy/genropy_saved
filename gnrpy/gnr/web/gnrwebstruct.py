@@ -1305,7 +1305,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                                 });
                             """,textvalue=value,separator=separator,fb=fb)
         for label in labels:
-            print 'created cb with label >'+label+'< '
             fb.checkbox(label,_cbgroup=True)
                 
     def _fieldDecode(self, fld, **kwargs):
