@@ -1289,8 +1289,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 """
         fb = self.formbuilder(_textvalue=value.replace('^','='),action=action,_separator=separator,**kwargs)
         self.dataController("""if(_triggerpars.kw.reason=='cbgroup'){return}
-                                console.log('bunga')
-                                var values = textvalue? textvalue.split(','):[];
+                                var values = textvalue? textvalue.split(separator):[];
                                 var that = this;
                                 var label;
                                 var srcbag = fb._value;
@@ -1304,7 +1303,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                                         console.log('removed value  >'+n+'< from options');
                                     }
                                 });
-                            """,textvalue=value,fb=fb)
+                            """,textvalue=value,separator=separator,fb=fb)
         for label in labels:
             print 'created cb with label >'+label+'< '
             fb.checkbox(label,_cbgroup=True)
