@@ -192,7 +192,10 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         var parentDomNode=sourceNode.getParentNode().getDomNode();
         var cbResize=function(){
                 sourceNode._rsz=null
-                ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
+                if(genro.dom.isVisible(ckeditor.element.$)){
+                    ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
+                }
+                
         }
         dojo.connect(parentWidget,'resize',function(){
             if(sourceNode._rsz){

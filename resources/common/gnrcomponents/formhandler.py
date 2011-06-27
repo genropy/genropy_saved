@@ -58,7 +58,7 @@ class FormHandler(BaseComponent):
         closeSubscriber = 'subscribe_form_%s_onDismissed' %formId
         if formRoot:
             if form_kwargs.get('pageName'):
-                formRoot.attributes[loadSubscriber] = 'console.log("mmm");this.widget.switchPage(1);'
+                formRoot.attributes[loadSubscriber] = 'this.widget.switchPage(1);'
                 formRoot.attributes[closeSubscriber] = 'this.widget.switchPage(0);'
         elif dialog_kwargs:
             if 'height' in dialog_kwargs:
@@ -169,8 +169,10 @@ class FormHandler(BaseComponent):
         table = table or pane.getInheritedAttributes()['table']
         tblobj = self.db.table(table)
         fb.dbselect(value="^.pkey",dbtable=table,
-                    parentForm=False,
-                    validate_onAccept="if(userChange){this.form.publish('load',{destPkey:value})};",
+                    parentForm=False,condition=':pkeys IS NULL OR ($pkey IN :pkeys)',
+                    #condition_pkeys='==this.form?this.form.store.parentStore? this.form.store.parentStore.currentPkeys():null:null;',
+                    #validate_onAccept="if(userChange){this.form.publish('load',{destPkey:value})};",
+                    hasDownArrow=True,
                     lbl=tblobj.name_long)
     
     @struct_method          

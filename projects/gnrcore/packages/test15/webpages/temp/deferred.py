@@ -29,9 +29,10 @@ class GnrCustomWebPage(object):
         pane.numberTextBox(value='^.k',default=4)
         pane.button('Somma',fire='^.go')
         pane.textbox(value='^.deferred_res')
-        dr = pane.dataRpc('.res','give_me_five',x='=.x',_fired='^.go')
-        dr.addCallback('return result+z+k',z=26,k='=.k')
-        dr.addCallback('SET .deferred_res = result;')
+        pane.textbox(value='^.res')
+        dr = pane.dataRpc('.res','give_me_five',x='=.x',_fired='^.go',_onResult='result')
+        dr.addCallback('result+z+k',z=26,k='=.k')
+       # dr.addCallback('SET .deferred_res = result;')
         
     def test_2_syncdata(self, pane):
         pane.numberTextBox(value='^.x',default=5)

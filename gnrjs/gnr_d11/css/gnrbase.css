@@ -568,6 +568,7 @@ table.formbuilder {
 
 .multiColumnSelect {
     background-color: #f3f3f3;
+	overflow:hidden;
 }
 
 .multiColumnSelect th {

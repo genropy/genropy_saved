@@ -566,7 +566,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
 
         value = this.convertValueOnBagSetItem(sourceNode, value);
 
-        genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode});
+        genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode,lazySet:true});
     },
     mixin_setTip: function (tip) {
         this.setAttribute('title', tip);
@@ -1086,6 +1086,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
             dojo.style(this._splitters[region], 'display', show?'block':'none');
         }
         this._layoutChildren(region);
+        this.layout();
     }
 });
 
@@ -4299,9 +4300,19 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
     connectForUpdate: function(widget, sourceNode) {
         return;
     },
+    
     created: function(widget, savedAttrs, sourceNode) {
         if (savedAttrs.auxColumns) {
             widget._popupWidget = new gnr.Gnr_ComboBoxMenu({onChange: dojo.hitch(widget, widget._selectOption)});
+            dojo.connect(widget,'open',function(){
+                var popup = this._popupWidget.domNode.parentNode;
+                var popupcoords = dojo.coords(popup);
+                var bodycoords = dojo.coords(dojo.body());
+                var popupDeltaOverflow = (popupcoords.x+popupcoords.w) -bodycoords.w +10;
+                if(popupDeltaOverflow>0){
+                    popup.style.left = (parseInt(popup.style.left)-popupDeltaOverflow)+'px';
+                }
+            });
         }
         this.connectForUpdate(widget, sourceNode);
         var tag = 'cls_' + sourceNode.attr.tag;

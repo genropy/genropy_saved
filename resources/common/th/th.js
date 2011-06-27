@@ -128,15 +128,18 @@ dojo.declare("gnr.LinkerManager", null, {
     }
 });
 dojo.declare("gnr.pageTableHandlerJS",null,{
-    constructor:function(sourceNode,formId,mainpkey,formUrl,default_kwargs,formResource){
+    constructor:function(sourceNode,formId,mainpkey,formUrl,default_kwargs,formResource,viewStore){
         this.sourceNode = sourceNode;
         this.mainpkey = mainpkey;
         this.default_kwargs = default_kwargs;
         this.pages_dict = {};
-        this.page_kw = {url_main_call:'form',url_th_linker:true,url_th_public:true,subtab:true,url_th_formId:formId};
+        this.page_kw = {url_main_call:'form',url_th_public:true,subtab:true,
+                        url_th_formId:formId,url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection'};
         this.formUrl = formUrl;
         this.fakeFormId = formId;
+        this.loadingTitle = 'loading...'
         this.indexgenro = window.parent.genro;
+        this.viewStore = viewStore.store;
         if(formResource){
             this.page_kw['url_th_formResource'] = formResource;
         }
@@ -155,24 +158,29 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
             pageName = genro.page_id+'_'+genro.getCounter();
             this.pages_dict[pageName] = pkey;
         }
-        console.log(formUrl);
-        var kw = objectUpdate({file:formUrl,url_th_pkey:pkey,pageName:pageName},this.page_kw);
-
+        var kw = objectUpdate({file:formUrl,url_th_pkey:pkey,pageName:pageName,label:this.loadingTitle},this.page_kw);
         if(pkey=='*newrecord*'){
             default_kwargs = this.sourceNode.evaluateOnNode(this.default_kwargs);
             for (var k in default_kwargs){
                 kw['url_'+k] = default_kwargs[k];
             }
         }
-        var subs = {};
+        var cblist = [];
         var indexgenro = this.indexgenro;
-        subs['form_'+this.fakeFormId+'_onLoaded'] =  function(kw){
-            that.pages_dict[pageName] = kw.pkey;
-            indexgenro.publish('changeFrameLabel',{pageName:pageName,title:kw.data.attr.caption});
-        };
-        kw['frameSubscriptions'] = subs;
         var that = this;
-        console.log(kw)
+
+        cblist.push(function(){
+            var form = this._genro.formById(that.fakeFormId);
+            this._genro.dojo.subscribe('form_'+that.fakeFormId+'_onLoaded',
+                                    function(kw){
+                                        that.pages_dict[pageName] = kw.pkey;
+                                        indexgenro.publish('changeFrameLabel',{pageName:pageName,title:kw.data.attr.caption});
+                                    });
+            form.store.parentStore = that.viewStore;
+            form.setLocked(that.viewStore.locked);
+        });
+        kw['onStartCallbacks'] = cblist;
+        var that = this;
         indexgenro.publish('selectIframePage',kw);
     },
     checkMainPkey:function(mainpkey){

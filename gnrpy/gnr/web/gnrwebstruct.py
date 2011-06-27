@@ -1268,15 +1268,44 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 pane.radioButton(label, group=group)
                 
-    def checkboxgroup(self, labels, cols=1, datapath=None, **kwargs):
-        if isinstance(labels, basestring):
-            labels = labels.split(',')
-        pane = self.div(datapath=datapath, **kwargs).formbuilder(cols=cols)
+    def checkboxtext(self, labels,value=None,separator=',',**kwargs):
+        labels = gnrstring.splitAndStrip(labels.replace('\n',','),',')
+        action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
+                    var separator = actionNode.attr._separator;
+                    var textvalue = actionNode.getAttributeFromDatasource('_textvalue');
+                    var textvaluepath = actionNode.attr._textvalue;
+                    var values = textvalue?textvalue.split(separator):[];
+                    var k = dojo.indexOf(values,$1.label);
+                    var v;
+                    if(k<0){
+                        values.push($1.label);
+                        v = true;
+                    }else{
+                        values.splice(k,1);
+                        v=false;
+                    }
+                    this.setAttribute('checked',v);
+                    actionNode.setRelativeData(textvaluepath,values.join(separator),null,null,'cbgroup');
+                """
+        fb = self.formbuilder(_textvalue=value.replace('^','='),action=action,_separator=separator,**kwargs)
+        self.dataController("""if(_triggerpars.kw.reason=='cbgroup'){return}
+                                var values = textvalue? textvalue.split(separator):[];
+                                var that = this;
+                                var label;
+                                var srcbag = fb._value;
+                                srcbag.walk(function(n){if(n.attr.tag=='checkbox'){n.widget.setAttribute('checked',false)}});
+                                var node;
+                                dojo.forEach(values,function(n){
+                                    node = srcbag.getNodeByAttr('label',n)
+                                    if(node){
+                                        node.widget.setAttribute('checked',true);
+                                    }else{
+                                        console.log('removed value  >'+n+'< from options');
+                                    }
+                                });
+                            """,textvalue=value,separator=separator,fb=fb)
         for label in labels:
-            if(datapath):
-                pane.checkbox(label, datapath=':%s' % label)
-            else:
-                pane.checkbox(label)
+            fb.checkbox(label,_cbgroup=True)
                 
     def _fieldDecode(self, fld, **kwargs):
         parentfb = self.parentfb

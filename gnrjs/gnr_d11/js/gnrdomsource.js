@@ -163,11 +163,16 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         this.setDataNodeValue();
     },
     setDataNodeValue:function(node, kw, trigger_reason, subscription_args) {
-        if ('_delay' in this.attr) {
+        var delay = this.attr._delay;
+        if(delay == 'auto'){
+            delay = genro.rpc.rpc_level>2? genro.rpc.rpc_level * 100 : null;
+        }
+        if (delay) {
+            console.log('delaing',delay);
             if (this.pendingFire) {
                 clearTimeout(this.pendingFire);
             }
-            this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', node, kw, trigger_reason), this.attr._delay);
+            this.pendingFire = setTimeout(dojo.hitch(this, 'setDataNodeValueDo', node, kw, trigger_reason),delay);
         } else {
             this.setDataNodeValueDo(node, kw, trigger_reason, subscription_args);
         }

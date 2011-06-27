@@ -559,7 +559,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         databag.setItem('caption', defaultLabel);
         this._prepareSearchBoxMenu(searchOn, databag);
         sourceNode.setRelativeData(null, databag);
-        var searchbox = sourceNode._('table', {nodeId:nodeId,width:'100%'})._('tbody')._('tr');
+        var searchbox = sourceNode._('table', {nodeId:nodeId})._('tbody')._('tr');
         sourceNode._('dataController', {'script':'genro.publish(searchBoxId+"_changedValue",currentValue,field)',
             'searchBoxId':nodeId,currentValue:'^.currentValue',field:'^.field'});
         var searchlbl = searchbox._('td');
@@ -567,7 +567,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
         searchlbl._('menu', {'modifiers':'*',_class:'smallmenu',storepath:'.menubag',
             selected_col:'.field',selected_caption:'.caption'});
         
-        searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,parentForm:false});
+        searchbox._('td')._('div',{_class:'searchInputBox'})._('input', {'value':'^.value',connect_onkeyup:kw.onKeyUp,parentForm:false,width:objectPop(kw,'width') || '10em'});
         sourceNode.registerSubscription(nodeId + '_updmenu', this, function(searchOn) {
             menubag = this._prepareSearchBoxMenu(searchOn, databag);
         });
@@ -887,8 +887,8 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     },
     
     slot_searchOn:function(pane,slotValue,slotKw,frameCode){
-        var div = pane._('div',{'width':slotKw.width || '15em'});
-        div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox',parentForm:false});
+        var div = pane._('div'); //{'width':slotKw.width || '15em'}
+        div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox',parentForm:false,'width':slotKw.width});
 
     },
     slot_count___:function(pane,slotValue,slotKw,frameCode){
@@ -978,11 +978,16 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          var storeType = chunkSize? 'VirtualSelection':'Selection';
          kw.row_count = chunkSize;
          var identifier = objectPop(kw,'_identifier') || '_pkey';
+         kw['_delay'] = 'auto'
          var selectionStore = sourceNode._('dataRpc',kw);
          var cb = "this.store.onLoaded(result,_isFiredNode);"
          selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
-         rpcNode.store = new gnr.stores[storeType](rpcNode,{'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType,'startLocked':kw.startLocked});
+         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType};
+         if('startLocked' in kw){
+             storeKw.startLocked = kw.startLocked;
+         }
+         rpcNode.store = new gnr.stores[storeType](rpcNode,storeKw);
          return selectionStore;
      }
 });
@@ -1008,6 +1013,10 @@ dojo.declare("gnr.stores._Collection",null,{
             setTimeout(function(){that.setLocked(startLocked)},1);
         }
         genro.src.afterBuildCalls.push(cb);
+    },
+    currentPkeys:function(){
+        console.warn('currentPkeys not implemented in this store',this);
+        return null;
     },
 
     setLocked:function(value){
@@ -1253,6 +1262,14 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                 genro.src.afterBuildCalls.push(cb);
         }
     },
+    currentPkeys:function(){
+        var data = this.getData();
+        var result = [];
+        data.forEach(function(n){result.push(n.attr._pkey)});
+        console.log(result)
+        return result;
+    },
+    
     onExternalChange:function(changelist,pkeycol){
         var eventdict = {};
         var dbevt,pkeys,wasInSelection,willBeInSelection;
@@ -1380,6 +1397,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         this.pendingPages = {};
         this.lastIdx =0;
     },
+    
     len:function(filtered){
         var data = this.getData();
         if(!data){

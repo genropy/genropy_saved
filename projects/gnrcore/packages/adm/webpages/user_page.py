@@ -40,8 +40,9 @@ class GnrCustomWebPage(object):
         fb.textBox(value='^.md5pwd', lbl='Password', type='password',validate_notnull=True, validate_notnull_error='!!Required')
         fb.field('status', tag='filteringSelect', values='!!conf:Confirmed,wait:Waiting', 
                  validate_notnull=True, validate_notnull_error='!!Required')
+        fb.field('avatar_rootpage',lbl='!!Startpage',tip='!!User start page',colspan=2)
         fb.field('adm.user.email', lbl='!!Email')
-        
+
     
     def userAuth(self,pane):
         th = pane.plainTableHandler(relation='@tags',viewResource=':ViewFromUser')

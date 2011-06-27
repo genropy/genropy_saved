@@ -28,10 +28,7 @@
 dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, formId, formDatapath, controllerPath, pkeyPath,formAttr) {
         var that = this;
-        genro.src.afterBuildCalls.push(function(){
-            that.onStartForm();
-        });
-        
+        genro.src.onBuiltCall(function(){that.onStartForm()});
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
@@ -84,9 +81,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
 
         this.msg_unsaved_changes ="Current record has been modified.";
         this.msg_confirm_delete ="You are going to delete the current record.";
-        dojo.subscribe('onWindowUnload',function(){
-            that.setCurrentPkey(null);
-        })
 
     },
     getParentForm:function(){
@@ -97,6 +91,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formDomNode = this.sourceNode.getDomNode();
         this.formContentDomNode = this.contentSourceNode.getDomNode();
         if(this.store){
+            var that = this;
+           //dojo.connect(genro,'onWindowUnload',function(){
+           //    that.setCurrentPkey(null);
+           //});
             this.store.init(this);            
             var that = this;
             dojo.connect(this.formContentDomNode,'onclick',function(e){
@@ -118,7 +116,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(parentForm){
                 dojo.connect(parentForm,'load',this,'abort');
             }
-            var that = this;
+            
             var parentStore = this.store.parentStore;
             if(parentStore){
                 parentStore.storeNode.subscribe('onLockChange',function(kw){
@@ -129,7 +127,6 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 setTimeout(function(){that.setLocked(that.locked)},1);
             });
         }
-        
     },
     reset: function() {
         this.resetChanges();
@@ -641,11 +638,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     getVirtualColumns:function() {
         var virtual_columns = [];
-        this.sourceNode.getValue().walk(function(n) {
+        this.sourceNode._value.walk(function(n) {
             if (n.attr._virtual_column) {
                 virtual_columns.push(n.attr._virtual_column)
             }
-        });
+        },'static');
         return virtual_columns.join(',');
     },
 
@@ -1357,7 +1354,7 @@ dojo.declare("gnr.formstores.Base", null, {
 
         var kw = form.sourceNode.evaluateOnNode(this.handlers.save.kw);
         var onSaving = objectPop(kw,'onSaving');
-
+        
         if (destPkey){
             kw._autoreload=destPkey
         }else if(this.onSaved=='reload' || this.form.isNewRecord()){
@@ -1393,7 +1390,11 @@ dojo.declare("gnr.formstores.Base", null, {
         var rpckw = objectUpdate({'data':form.getFormChanges(),'table':this.table},kw)
         if(onSaving){
             onSaving = funcCreate(onSaving,this);
-            onSaving.call(this,rpckw);
+            var dosave = onSaving.call(this,rpckw);
+            if(dosave===false){
+                this.form.setOpStatus(null);
+                return;
+            }
         }
         var deferred = genro.rpc.remoteCall(this.handlers.save.rpcmethod,
                                             rpckw,null,'POST', null,function(){});
