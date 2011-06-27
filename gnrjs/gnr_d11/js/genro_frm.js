@@ -92,9 +92,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.formContentDomNode = this.contentSourceNode.getDomNode();
         if(this.store){
             var that = this;
-            dojo.connect(genro,'onWindowUnload',function(){
-                that.setCurrentPkey(null);
-            });
+           //dojo.connect(genro,'onWindowUnload',function(){
+           //    that.setCurrentPkey(null);
+           //});
             this.store.init(this);            
             var that = this;
             dojo.connect(this.formContentDomNode,'onclick',function(e){
@@ -638,11 +638,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     getVirtualColumns:function() {
         var virtual_columns = [];
-        this.sourceNode.getValue().walk(function(n) {
+        this.sourceNode._value.walk(function(n) {
             if (n.attr._virtual_column) {
                 virtual_columns.push(n.attr._virtual_column)
             }
-        });
+        },'static');
         return virtual_columns.join(',');
     },
 

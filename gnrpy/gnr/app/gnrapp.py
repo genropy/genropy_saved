@@ -756,12 +756,14 @@ class GnrApp(object):
             authmethods = self.config['authentication']
             if authmethods:
                 for node in self.config['authentication'].nodes:
-                    avatar = getattr(self, 'auth_%s' % node.label.replace('_auth', ''))(node, user, password=password,
+                    authmode = node.label.replace('_auth', '')
+                    avatar = getattr(self, 'auth_%s' % authmode)(node, user, password=password,
                                                                                         authenticate=authenticate,
                                                                                         **kwargs)
                                                                              
                     if not (avatar is None):
                         avatar.page = page
+                        avatar.authmode = authmode
                         for pkg in self.packages.values():
                             pkg.onAuthentication(avatar)
                         return avatar
@@ -782,6 +784,8 @@ class GnrApp(object):
             users = Bag(self.realPath(path))
         else:
             users = node.getValue()
+        if not users:
+            return
         for key, attrs in users.digest('#k,#a'):
             if key == user:
                 user_name = attrs.pop('user_name', key)

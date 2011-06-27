@@ -1284,23 +1284,26 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         values.splice(k,1);
                         v=false;
                     }
-                    this.setChecked(v);
+                    this.setAttribute('checked',v);
                     actionNode.setRelativeData(textvaluepath,values.join(separator),null,null,'cbgroup');
                 """
         fb = self.formbuilder(_textvalue=value.replace('^','='),action=action,_separator=separator,**kwargs)
         self.dataController("""if(_triggerpars.kw.reason=='cbgroup'){return}
-                                console.log('bunga')
-                                var values = textvalue? textvalue.split(','):[];
+                                var values = textvalue? textvalue.split(separator):[];
                                 var that = this;
                                 var label;
                                 var srcbag = fb._value;
-                                srcbag.walk(function(n){if(n.attr.tag=='checkbox'){n.widget.setChecked(false)}});
+                                srcbag.walk(function(n){if(n.attr.tag=='checkbox'){n.widget.setAttribute('checked',false)}});
                                 var node;
                                 dojo.forEach(values,function(n){
                                     node = srcbag.getNodeByAttr('label',n)
-                                    node.widget.setChecked(true)
+                                    if(node){
+                                        node.widget.setAttribute('checked',true);
+                                    }else{
+                                        console.log('removed value  >'+n+'< from options');
+                                    }
                                 });
-                            """,textvalue=value,fb=fb)
+                            """,textvalue=value,separator=separator,fb=fb)
         for label in labels:
             fb.checkbox(label,_cbgroup=True)
                 
