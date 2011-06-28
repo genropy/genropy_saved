@@ -1438,7 +1438,11 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
     
     onExternalChange:function(changelist){
-        var selectionKw = this.getData().getParentNode().attr;
+        var parentNodeData = this.getData().getParentNode();
+        if(!parentNodeData){
+            return;
+        }
+        var selectionKw = parentNodeData.attr;
         var that = this;
         var rpc_attr = objectUpdate({},this.storeNode.attr);
         objectUpdate(rpc_attr,{'selectionName':selectionKw.selectionName,
