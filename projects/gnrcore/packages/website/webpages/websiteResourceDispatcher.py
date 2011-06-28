@@ -47,6 +47,14 @@ class GnrCustomWebPage(object):
                     return dict(page=page[0],folder=folder[0],path=self.codeToPath(folder[0]))
         raise httpexceptions.HTTPNotFound(comment='Page not found.')
 
+    def getMenu(self):
+        menu=list()
+        folders=mainpage.db.table('website.folder').query(where='level=:livello',livello='0',order_by='$position asc').fetch()
+        for f in folders:
+            subfolders=folders=mainpage.db.table('website.folder').query(where='parent_code=:padre',padre=f['code']).fetch()
+            menu.append([f,subfolders])
+        return menu
+
     def getPagesByFolder(self,folder):
         return self.db.table('website.page').query(where='$folder=:folder_pkey',folder_pkey=folder['pkey'],order_by='position').fetch()
 

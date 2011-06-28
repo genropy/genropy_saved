@@ -14,11 +14,11 @@ class View(BaseComponent):
         return struct
         
     def th_order(self):
-        return '@_row_counter'
+        return '@page_id.permalink'
         
     def th_query(self):
         return dict(column='@page_id.permalink',op='contains',val='%',runOnStart=True)
         
 class Form(BaseComponent):
     def th_form(self,form):
-        pass
+        bc=form.center.borderContainer()

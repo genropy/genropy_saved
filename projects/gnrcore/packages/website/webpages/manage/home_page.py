@@ -32,7 +32,7 @@ class GnrCustomWebPage(object):
                             onDrag= 'dragValues["page"] = dragValues.gridrow.rowset;',
                             draggable_row=True)
         iv.selectionStore(table='website.page',autoSelect=True,_onStart=True,
-                          externalChanges=False,
+                          externalChanges=False,order_by='$permalink desc',
                           where='$id IS NOT NULL')
                           
     def frameArticles(self,frame):

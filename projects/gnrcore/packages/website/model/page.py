@@ -19,10 +19,12 @@ class Table(object):
                                                                         onDelete='CASCADE')
 
     def trigger_onInserting(self, record):
-        record['content'] = record['content'].replace('../_site','/_site')
+        if record['content']:
+            record['content'] = record['content'].replace('../_site','/_site')
 
     def trigger_onUpdating(self, record,old_record):
-        record['content'] = record['content'].replace('../_site','/_site')
+        if record['content']:
+            record['content'] = record['content'].replace('../_site','/_site')
         
     def folder_view(self,struct):
         r = struct.view().rows()
