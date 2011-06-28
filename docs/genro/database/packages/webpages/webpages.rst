@@ -12,6 +12,7 @@ webpage
     
         * :ref:`onloading_method`
         * :ref:`onsaving_method`
+        * :ref:`onsaved_method`
     
     * :ref:`webpages_variables`
     
@@ -114,15 +115,54 @@ GnrCustomWebPage methods
 onLoading
 ---------
     
+    .. method:: onLoading(self, record, newrecord, loadingParameters, recInfo)
+    
     add???
     
+    **Parameters:**
+                    * **record** - You find the value of the record saved into a :ref:`genro_bag`.
+                        
+                        Example::
+                        
+                            0 - (str) id: aBcDeFgHiJkLmNoPrStUvZ  <dtype='A'>
+                            1 - (unicode) name: my date <dtype='A' oldValue='None'>
+                            2 - (date) data: 2011-06-29  <dtype='D' oldValue='None'>
+                            3 - (date) data_to: 2011-07-02  <dtype='D' oldValue='None'>
+                            4 - (bool) year: True  <dtype='B' oldValue='None'>
+                            5 - (unicode) day: 10  <dtype='L' oldValue='None'>
+                            6 - (unicode) month: 5  <dtype='L' oldValue='None'>
+                            
+                    * **newrecord** - 
+                    * **loadingParameters** - 
+                    * **recInfo** - 
+                    
 .. _onsaving_method:
     
 onSaving
 --------
     
+    .. method:: onSaving(self,recordCluster,recordClusterAttr,resultAttr)
+    
     add???
     
+    **Parameters:**
+                    * **recordCluster** - 
+                    * **recordClusterAttr** - 
+                    * **resultAttr** - 
+                    
+.. _onsaved_method:
+    
+onSaved
+-------
+    
+    .. method:: onSaved(self,record,resultAttr)
+    
+    add???
+    
+    **Parameters:**
+                    * **record** - 
+                    * **resultAttr** - 
+                    
     .. _webpages_variables:
 
 webpage variables
