@@ -87,13 +87,15 @@ main
     
     where:
     
-    * the ``root`` is a :ref:`genro_bag` that passes a :ref:`genro_contentpane`.
+    * the ``root`` is a :ref:`genro_bag` that passes a :ref:`genro_contentpane`. To this contentPane
+      you can append every :ref:`genro_webpage_elements_index` you need, like a div, a
+      :ref:`genro_button` or a more complex object like a :ref:`genro_form` and so on.
       
-      But, if you import the ``public.py`` :ref:`webpages_py_requires` in your GnrCustomWebPage::
+      If you import the ``public.py`` :ref:`webpages_py_requires` in your GnrCustomWebPage::
       
         py_requires = 'public:Public'
         
-      then the ``root`` passes a :ref:`genro_bordercontainer`.
+      then the ``root`` passes a :ref:`genro_bordercontainer`, not a contentPane.
       
     * in the ``**kwargs`` you will find all the values passed to the client through
       the :ref:`genro_xmlhttprequest`.

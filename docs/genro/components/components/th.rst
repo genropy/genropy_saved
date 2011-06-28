@@ -497,27 +497,10 @@ TableHandler py_requires
 th_webpage methods
 ------------------
     
-    You may define the following methods (remember to define the :ref:`webpages_main`
-    method if you are using the tableHandler as a :ref:`components_passive`)::
-        
-        def pageAuthTags(self, method=None, **kwargs):
-            return 'user'
-            
-        def tableWriteTags(self):
-            return 'user'
-            
-        def tableDeleteTags(self):
-            return 'user'
-            
-    where:
+    Remember to define the :ref:`webpages_main` method if you are using the
+    tableHandler as a :ref:`components_passive`.
     
-    * The ``pageAuthTags``, the ``tableWriteTags`` and the ``tableDeleteTags`` methods
-      handle the permits of the page to see it, write on it and delete records. The return
-      string (in the example returns ``user``) allow to define who has the permits to act.
-      You can find more information on page permits into the :ref:`instanceconfig_authentication`
-      section of the :ref:`genro_gnr_instanceconfig` documentation page)
-      
-    After that, we have to define the ``th_form`` method; it replaces the ``th_form``
+    After that, you have to define the ``th_form`` method; it replaces the ``th_form``
     method we wrote in the :ref:`th_resource_page`.
     
 .. _th_webpage_th_form:
