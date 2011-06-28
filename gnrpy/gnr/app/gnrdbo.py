@@ -11,7 +11,7 @@ class GnrDboPackage(object):
         """add???
         
         :param externaldb: add???
-        :param empty_before: add???. Default value is ``None``
+        :param empty_before: add???. 
         :returns: add???
         """
         tables = self.attributes.get('export_order') or ''
@@ -40,7 +40,7 @@ class GnrDboPackage(object):
         :param code: add???
         :param codekey: add???
         :param output: add???
-        :param date: add???. Default value is ``None``
+        :param date: add???. 
         :param phyear: add???. Default value is ``False``
         :param lastAssigned: add???. Default value is ``0``
         :returns: add???
@@ -57,7 +57,7 @@ class GnrDboPackage(object):
         :param code: add???
         :param codekey: add???
         :param output: add???
-        :param date: add???. Default value is ``None``
+        :param date: add???. 
         :param phyear: add???. Default value is ``False``
         :param value: add???. Default value is ``0``
         :returns: add???
@@ -69,7 +69,7 @@ class GnrDboPackage(object):
         """add???
         
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``
+                    :ref:`genro_packages_index` documentation page. 
         :returns: add???
         """
         return self.dbtable('userobject').loadUserObject(pkg=pkg or self.name, **kwargs)
@@ -79,7 +79,7 @@ class GnrDboPackage(object):
         
         :param data: add???
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``
+                    :ref:`genro_packages_index` documentation page. 
         :returns: add???
         """
         return self.dbtable('userobject').saveUserObject(data, pkg=pkg or self.name, **kwargs)
@@ -89,7 +89,7 @@ class GnrDboPackage(object):
         
         :param id: add???
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``
+                    :ref:`genro_packages_index` documentation page. 
         :returns: add???
         """
         return self.dbtable('userobject').deleteUserObject(pkg=pkg or self.name, id=id)
@@ -98,7 +98,7 @@ class GnrDboPackage(object):
         """add???
         
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``
+                    :ref:`genro_packages_index` documentation page. 
         :returns: add???
         """
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
@@ -107,7 +107,7 @@ class GnrDboPackage(object):
         """Get a preference for the current package.
         
         :param path: dotted name of the preference item
-        :param dflt: default value. Default value is ``None``
+        :param dflt: default value. 
         :returns: value of the specified preference, or **dflt** if it is missing.
         """
         return self.db.table('adm.preference').getPreference(path, pkg=self.name, dflt=dflt)
@@ -205,8 +205,8 @@ class TableBase(object):
         """add???
         
         :param tbl: the table
-        :param name_long: add???. Default value is ``None``
-        :param group: add???. Default value is ``None``
+        :param name_long: add???. 
+        :param group: add???. 
         :returns: add???
         """
         pkg,tblname = tblname.split('.')
@@ -228,8 +228,8 @@ class TableBase(object):
         """add???
         
         :param tbl: the table
-        :param name_long: add???. Default value is ``None``
-        :param group: add???. Default value is ``None``
+        :param name_long: add???. 
+        :param group: add???. 
         :returns: add???
         """
         name_long = name_long or '!!Tag'
@@ -316,7 +316,7 @@ class GnrHTable(TableBase):
         """add???
         
         :param record_data: add???
-        :param old_record: add???. Default value is ``None``
+        :param old_record: add???. 
         :returns: add???
         """
         if old_record and ((record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code'])):
@@ -361,7 +361,7 @@ class Table_counter(TableBase):
         :param code: add???
         :param codekey: add???. Default value is ``$YYYY_$MM_$K``
         :param output: add???. Default value is ``$K/$YY$MM.$NNNN``
-        :param old_record: add???. Default value is ``None``
+        :param old_record: add???. 
         :returns: add???
         """
         self.getCounter(name, pkg, code, codekey=codekey, output=output, date=date,
@@ -411,7 +411,7 @@ class Table_counter(TableBase):
         :param code: add???
         :param codekey: add???. Default value is ``$YYYY_$MM_$K``
         :param output: add???. Default value is ``$K/$YY$MM.$NNNN``
-        :param date: add???. Default value is ``None``
+        :param date: add???. 
         :param phyear: add???. Default value is ``False``
         :param lastAssigned: add???. Default value is ``0``
         :returns: add???
@@ -524,17 +524,17 @@ class Table_userobject(TableBase):
         """add???
         
         :param data: add???
-        :param id: add???. Default value is ``None``
-        :param code: add???. Default value is ``None``
-        :param objtype: add???. Default value is ``None``
+        :param id: add???. 
+        :param code: add???. 
+        :param objtype: add???. 
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``
-        :param tbl: the table. Default value is ``None``
-        :param userid: add???. Default value is ``None``
-        :param description: add???. Default value is ``None``
-        :param authtags: add???. Default value is ``None``
-        :param private: add???. Default value is ``None``
-        :param inside_shortlist: add???. Default value is ``None``
+                    :ref:`genro_packages_index` documentation page. 
+        :param tbl: the table. 
+        :param userid: add???. 
+        :param description: add???. 
+        :param authtags: add???. 
+        :param private: add???. 
+        :param inside_shortlist: add???. 
         :returns: add???
         """
         if id:
@@ -564,8 +564,8 @@ class Table_userobject(TableBase):
     def loadUserObject(self, id=None, objtype=None, **kwargs):
         """add???
         
-        :param id: add???. Default value is ``None``
-        :param objtype: add???. Default value is ``None``
+        :param id: add???. 
+        :param objtype: add???. 
         :returns: add???
         """
         if id:
@@ -581,7 +581,7 @@ class Table_userobject(TableBase):
         
         :param id: add???
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``
+                    :ref:`genro_packages_index` documentation page. 
         :returns: add???
         """
         self.delete({'id': id})
@@ -589,13 +589,13 @@ class Table_userobject(TableBase):
     def listUserObject(self, objtype=None, pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None):
         """add???
         
-        :param objtype: add???. Default value is ``None``
+        :param objtype: add???. 
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``
-        :param tbl: add???. Default value is ``None``
-        :param userid: add???. Default value is ``None``
-        :param authtags: add???. Default value is ``None``
-        :param onlyQuicklist: add???. Default value is ``None``
+                    :ref:`genro_packages_index` documentation page. 
+        :param tbl: add???. 
+        :param userid: add???. 
+        :param authtags: add???. 
+        :param onlyQuicklist: add???. 
         :returns: add???
         """
         onlyQuicklist = onlyQuicklist or False
@@ -653,7 +653,7 @@ class Table_recordtag(TableBase):
         """add???
         
         :param record_data: add???
-        :param old_record_data: add???. Default value is ``None``"""
+        :param old_record_data: add???. """
         tablename = record_data['tablename']
         parentTag = record_data['tag']
         parentDescription = record_data['description']

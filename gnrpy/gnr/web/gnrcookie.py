@@ -114,7 +114,7 @@ class Cookie(object):
         
         :param Class: add???
         :param str: add???
-        :param secret: add???. Default value is ``None``
+        :param secret: add???. 
         :returns: a dict of Cookies
         """
         dict = _parse_cookie(str, Class, **kw)

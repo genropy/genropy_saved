@@ -289,8 +289,8 @@ def filter(item, include=None, exclude=None, wildcard='%'):
     """add???
     
     :param item: add???
-    :param include: add???. Default value is ``None``
-    :param exclude: add???. Default value is ``None``
+    :param include: add???. 
+    :param exclude: add???. 
     :param wildcard: add???. Default value is ``%``
     :returns: add???
     """
@@ -326,7 +326,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True):
     """Allow to replace string's chunks.
     
     :param myString: template string
-    :param symbolDict: dictionary that links symbol and values. Default value is ``None``.
+    :param symbolDict: dictionary that links symbol and values. .
     :param safeMode: if ``True`` (``False``) uses the ``safe_substitute()`` (``substitute()``) Python method.
                      Default value is ``False``.
     :param noneIsBlank: add???. Default value is ``True``
@@ -596,7 +596,7 @@ def encode(number, base='/16', nChars=None):
        
     :param number: number to encode
     :param base: base of encoding. Default value is ``/16``
-    :param nChar: number of characters of the result. Default value is ``None``
+    :param nChar: number of characters of the result. 
     :returns: encoded number as string
     """
     import math
@@ -628,7 +628,7 @@ def fromText(mystring, obj, locale=None):
     
     :param mystring: add???
     :param obj: add???
-    :param locale: add???. Default value is ``None``
+    :param locale: add???. 
     :returns: add???
     """
     #what?
@@ -641,11 +641,11 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
     according to the given localization or format.
     
     :param obj: the object to be transformed in a string
-    :param locale: add???. Default value is ``None``
-    :param format: add???. Default value is ``None``
-    :param mask: add???. Default value is ``None``
-    :param encoding: The multibyte character encoding you choose. Default value is ``None``
-    :param currency: add???. Default value is ``None``
+    :param locale: add???. 
+    :param format: add???. 
+    :param mask: add???. 
+    :param encoding: The multibyte character encoding you choose. 
+    :param currency: add???. 
     :returns: a unicode string representing an object of any class
     """
     if isinstance(obj, list) or isinstance(obj, tuple):
@@ -665,10 +665,10 @@ def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     """add???
     
     :param dtype: add???.
-    :param locale: add???. Default value is ``None``
-    :param format: add???. Default value is ``None``
-    :param mask: add???. Default value is ``None``
-    :param encoding: The multibyte character encoding you choose. Default value is ``None``
+    :param locale: add???. 
+    :param format: add???. 
+    :param mask: add???. 
+    :param encoding: The multibyte character encoding you choose. 
     :returns: add???
     """
     typeSamples = {'B': 'true', 'D': datetime.date(2005, 10, 10), 'H': datetime.time(4, 5),
@@ -701,7 +701,7 @@ def pickleObject(obj, zipfilename=None):
     """Return the Pickle string for the given object.
         
     :param obj: The given object
-    :param zipfilename: add???. Default value is ``None``
+    :param zipfilename: add???. 
     :returns: the Pickle string for the given object
     """
     objstr = cPickle.dumps(obj)
@@ -713,7 +713,7 @@ def unpickleObject(objstr, zipfilename=None):
     """Load an object from a pickle string.
         
     :param objstr: The given object string
-    :param zipfilename: add???. Default value is ``None``
+    :param zipfilename: add???. 
     :returns: the object loaded from the pickle string
     """
     if zipfilename:
@@ -770,7 +770,7 @@ def toSecureJsonJS(obj, key=None):
     """add???
         
     :param obj: add???
-    :param key: add???. Default value is ``None``
+    :param key: add???. 
     :returns: add???
     """
     result = json.dumps(obj, cls=JsonEncoderJS)

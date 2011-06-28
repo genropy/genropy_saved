@@ -183,8 +183,8 @@ class GnrDomSrc(GnrStructData):
         the :meth:`gnr.core.gnrstructures.GnrStructData.child` and return it
         
         :param tag: add???
-        :param childname: add???. Default value is ``None``
-        :param envelope: add???. Default value is ``None``
+        :param childname: add???. 
+        :param envelope: add???. 
         :returns: a child
         """
         if '_tags' in kwargs and not self.page.application.checkResourcePermission(kwargs['_tags'], self.page.userTags):
@@ -221,7 +221,7 @@ class GnrDomSrc(GnrStructData):
         
         :param tag: the html tag
         :param childcontent: the html content
-        :param value: add???. Default value is ``None``
+        :param value: add???. 
         :returns: the child
         """
         if childcontent :
@@ -243,8 +243,8 @@ class GnrDomSrc(GnrStructData):
     def framepane(self,frameCode=None,centerCb=None,**kwargs):
         """Create a framepane.
         
-        :param frameCode: the framepane code. Default value is ``None``
-        :param centerCb: add???. Default value is ``None``
+        :param frameCode: the framepane code. 
+        :param centerCb: add???. 
         :returns: the framepane
         """
         frameCode = frameCode or 'frame_#'
@@ -265,13 +265,13 @@ class GnrDomSrc(GnrStructData):
     def frameform(self,formId=None,frameCode=None,store=None,storeCode=None,slots=None,table=None,store_kwargs=None,**kwargs):
         """A decorator - :ref:`extract_kwargs`. add???
         
-        :param formId: add???. Default value is ``None``
-        :param frameCode: add???. Default value is ``None``
-        :param store: add???. Default value is ``None``
-        :param storeCode: add???. Default value is ``None``
-        :param slots: add???. Default value is ``None``
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param store_kwargs: add???. Default value is ``None``"""
+        :param formId: add???. 
+        :param frameCode: add???. 
+        :param store: add???. 
+        :param storeCode: add???. 
+        :param slots: add???. 
+        :param table: the :ref:`genro_table` name. 
+        :param store_kwargs: add???. """
         formId = formId or '%s_form' %frameCode
         if not storeCode:
             storeCode = formId
@@ -295,13 +295,13 @@ class GnrDomSrc(GnrStructData):
     def formstore(self,handler='recordCluster',nodeId=None,table=None,storeType=None,parentStore=None,**kwargs):
         """add???
         
-        :param storepath: add???. Default value is ``None``
+        :param storepath: add???. 
         :param handler: add???. Default value is ``recordCluster``
         :param nodeId: the page nodeId. For more information, check the :ref:`genro_nodeid`
-                       documentation page. Default value is ``None``
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param storeType: add???. Default value is ``None``
-        :param parentStore: add???. Default value is ``None``
+                       documentation page. 
+        :param table: the :ref:`genro_table` name. 
+        :param storeType: add???. 
+        :param parentStore: add???. 
         :returns: the formstore
         """
         assert self.attributes.get('tag','').lower()=='frameform', 'formstore can be created only inside a FrameForm'
@@ -328,7 +328,7 @@ class GnrDomSrc(GnrStructData):
         """add???
         
         :param action: add???
-        :param handler_type: add???. Default value is ``None``
+        :param handler_type: add???. 
         :returns: the formstore handler
         """
         return self.child('formstore_handler',childname=action,action=action,handler_type=handler_type,**kwargs)
@@ -458,7 +458,7 @@ class GnrDomSrc(GnrStructData):
     def script(self, content='', **kwargs):
         """Handle the <script> html tag
         
-        :param content: the <script> content. Default value is ``None``
+        :param content: the <script> content. 
         :returns: the <script> html tag
         """
         return self.child('script', childcontent=content, **kwargs)
@@ -494,7 +494,7 @@ class GnrDomSrc(GnrStructData):
         
         :param name: add???
         :param pars: add???. Default value is ``''``
-        :param funcbody: add???. Default value is ``None``
+        :param funcbody: add???. 
         :returns: add???
         """
         if not funcbody:
@@ -507,7 +507,7 @@ class GnrDomSrc(GnrStructData):
         
         :param event: add???. Default value is ``''``
         :param pars: add???. Default value is ``''``
-        :param funcbody: add???. Default value is ``None``
+        :param funcbody: add???. 
         :returns: add???
         """
         if not (funcbody and pars):
@@ -524,7 +524,7 @@ class GnrDomSrc(GnrStructData):
         
         :param what: add???
         :param event: add???
-        :param func: add???. Default value is ``None``
+        :param func: add???. 
         :returns: add???
         """
         objPath = None
@@ -553,9 +553,9 @@ class GnrDomSrc(GnrStructData):
     def styleSheet(self, cssText=None, cssTitle=None, href=None):
         """Create the styleSheet
         
-        :param cssText: add???. Default value is ``None``
-        :param cssTitle: add???. Default value is ``None``
-        :param href: add???. Default value is ``None``
+        :param cssText: add???. 
+        :param cssTitle: add???. 
+        :param href: add???. 
         :returns: add???
         """
         self.child('stylesheet',childname=None, childcontent=cssText, href=href, cssTitle=cssTitle)
@@ -584,7 +584,7 @@ class GnrDomSrc(GnrStructData):
         
         :param cols: set the number of columns. Default value is ``1``.
         :param table: set the database :ref:`genro_table`. For more details, see :ref:`genro_dbtable`.
-                      Default value is ``None``.
+                      .
         :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'``
                          (actually it is the unique defined class).
         :param lblclass: set label style. Default value is ``'gnrfieldlabel'``.
@@ -592,15 +592,15 @@ class GnrDomSrc(GnrStructData):
          ``T``: set label on top of text field. Default value is ``'L'``.
         :param _class: for CSS style.
         :param fieldclass: CSS class appended to every formbuilder's child. Default value is ``gnrfield``.
-        :param lblalign: It seems broken add??? Set horizontal label alignment. Default value is ``None``.
+        :param lblalign: It seems broken add??? Set horizontal label alignment. .
         :param lblvalign: set vertical label alignment. Default value is ``'middle'``.
-        :param fldalign: set field horizontal align. Default value is ``None``.
+        :param fldalign: set field horizontal align. .
         :param fldvalign: set field vertical align. Default value is ``'middle'``.
         :param disabled: If ``True``, user can't act on the object (write, drag...).
                          For more information, check the :ref:`genro_disabled` documentation page.
                          Default value is ``False``.
-        :param rowdatapath: Add a description ???. Default value is ``None``.
-        :param head_rows: Add a description add???. Default value is ``None``.
+        :param rowdatapath: Add a description ???. .
+        :param head_rows: Add a description add???. .
         :param \*\*kwargs: *border_spacing*: define the space between form fields. Default value is ``6px``
         
                            *datapath*: set the root's path of formbuilder's fields. For more details,
@@ -766,7 +766,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def dataController(self, script=None, **kwargs):
         """Allow to execute a Javascript code
         
-        :param script: the Javascript code that ``datacontroller`` has to execute. Default value is ``None``
+        :param script: the Javascript code that ``datacontroller`` has to execute. 
         :param \*\*kwargs: *_init*, *_onStart*, *_timing*. For more information,
                        check the controllers' :ref:`controllers_attributes` section
         :returns: the dataController
@@ -818,23 +818,23 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def virtualSelectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
         """add???
         
-        :param storeCode: add???. Default value is ``None``
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param storepath: add???. Default value is ``None``
+        :param storeCode: add???. 
+        :param table: the :ref:`genro_table` name. 
+        :param storepath: add???. 
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. Default value is ``None``"""
+                        :ref:`sql_columns` section. """
         self.selectionStore(storeCode=storeCode,table=table, storepath=storepath,columns=columns,**kwargs)
         
     def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
         """add???
         
-        :param storeCode: add???. Default value is ``None``
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param storepath: add???. Default value is ``None``
+        :param storeCode: add???. 
+        :param table: the :ref:`genro_table` name. 
+        :param storepath: add???. 
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. Default value is ``None``
+                        :ref:`sql_columns` section. 
         :returns: the selectionStore
         """
         attr = self.attributes
@@ -874,21 +874,21 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param path: add???
-        :param table: the :ref:`genro_table` name. Default value is ``None``
+        :param table: the :ref:`genro_table` name. 
         :param method: add???. Default value is ``app.getSelection``
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. Default value is ``None``
-        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". Default value is ``None``
+                        :ref:`sql_columns` section. 
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". 
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-                      Default value is ``None``
+                      
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
-                         :ref:`sql_order_by` section. Default value is ``None``
+                         :ref:`sql_order_by` section. 
         :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
-                         Default value is ``None``
+                         
         :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
-                       Default value is ``None``
-        :param columnsFromView: add???. Default value is ``None``
+                       
+        :param columnsFromView: add???. 
         :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                        check the :ref:`rpc_attributes` section
         :returns: add???
@@ -910,7 +910,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                           
     def directoryStore(self, rootpath=None, storepath='.store', **kwargs):
         """add???
-        :param rootpath: add???. Default value is ``None``
+        :param rootpath: add???. 
         :param storepath: add???. Default value is ``.store``
         """
         store = DirectoryResolver(rootpath or '/', **kwargs)()
@@ -921,11 +921,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param pane: add???
-        :param table: the :ref:`genro_table` name. Default value is ``None``
+        :param table: the :ref:`genro_table` name. 
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-                      Default value is ``None``
+                      
         :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
-                         Default value is ``None``
+                         
         :param storepath: add???. Default value is ``.store``
         """
         t0 = time()
@@ -946,7 +946,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param path: add???
         :param table: the :ref:`genro_table` name
-        :param pkey: the record primary key. Default value is ``None``
+        :param pkey: the record primary key. 
         :param method: add???. Default value is ``app.getRecord``
         :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                        check the :ref:`rpc_attributes` section
@@ -982,7 +982,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
-        :param datapath: the path of data. Default value is ``None``.
+        :param datapath: the path of data. .
                          For more information, check the :ref:`genro_datapath` section
         :returns: a palettePane
         """
@@ -993,7 +993,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
-        :param datapath: the path of data. Default value is ``None``.
+        :param datapath: the path of data. .
                          For more information, check the :ref:`genro_datapath` section
         :returns: a paletteTree
         """
@@ -1006,12 +1006,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
-        :param struct: add???. Default value is ``None``
+        :param struct: add???. 
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. Default value is ``None``
-        :param structpath: add???. Default value is ``None``
-        :param datapath: the path of data. Default value is ``None``.
+                        :ref:`sql_columns` section. 
+        :param structpath: add???. 
+        :param datapath: the path of data. .
                          For more information, check the :ref:`genro_datapath` section"""
         datapath= datapath or 'gnr.palettes.%s' %paletteCode
         structpath = structpath or '.grid.struct'
@@ -1056,17 +1056,17 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                              datapath=None, nodeId=None, configurable=True, _newGrid=False,childname=None,**kwargs):
         """add???
         
-        :param frameCode: add???. Default value is ``None``
-        :param struct: add???. Default value is ``None``
+        :param frameCode: add???. 
+        :param struct: add???. 
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. Default value is ``None``
-        :param storepath: add???. Default value is ``None``
-        :param structpath: add???. Default value is ``None``
-        :param datapath: the path of data. Default value is ``None``.
+                        :ref:`sql_columns` section. 
+        :param storepath: add???. 
+        :param structpath: add???. 
+        :param datapath: the path of data. .
                          For more information, check the :ref:`genro_datapath` section
         :param nodeId: the page nodeId. For more information, check the :ref:`genro_nodeid`
-                       documentation page. Default value is ``None``
+                       documentation page. 
         :param configurable: boolean. add???. Default value is ``True``
         :param _newGrid: boolean. add???. Default value is ``False``
         :returns: add???
@@ -1098,16 +1098,16 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                             nodeId=None, relativeWorkspace=None, **kwargs):
         """add???
         
-        :param storepath: add???. Default value is ``None``
-        :param structpath: add???. Default value is ``None``
-        :param struct: add???. Default value is ``None``
+        :param storepath: add???. 
+        :param structpath: add???. 
+        :param struct: add???. 
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. Default value is ``None``
-        :param table: the :ref:`genro_table` name. Default value is ``None``
+                        :ref:`sql_columns` section. 
+        :param table: the :ref:`genro_table` name. 
         :param nodeId: the page nodeId. For more information, check the :ref:`genro_nodeid`
-                       documentation page. Default value is ``None``
-        :param relativeWorkspace: add???. Default value is ``None``
+                       documentation page. 
+        :param relativeWorkspace: add???. 
         :returns: add???"""
         nodeId = nodeId or self.page.getUuid()
         prefix = 'grids.%s' %nodeId if not relativeWorkspace else ''
@@ -1122,10 +1122,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def gridStruct(self, struct=None, columns=None):
         """add???
         
-        :param struct: add???. Default value is ``None``
+        :param struct: add???. 
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. Default value is ``None``"""
+                        :ref:`sql_columns` section. """
         gridattr=self.attributes
         structpath = gridattr.get('structpath')
         table = gridattr.get('table')
@@ -1188,9 +1188,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def slotBar(self,slots=None,slotbarCode=None,namespace=None,childname='bar',**kwargs):
         """Return a :ref:``
         
-        :param slots: add???. Default value is ``None``
-        :param slotbarCode: add???. Default value is ``None``
-        :param namespace: add???. Default value is ``None``"""
+        :param slots: add???. 
+        :param slotbarCode: add???. 
+        :param namespace: add???. """
         namespace = namespace or self.parent.attributes.get('namespace')
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,childname=childname,**kwargs)
         toolbarArgs = tb.attributes
@@ -1489,8 +1489,8 @@ class GnrFormBuilder(object):
         """add???
         
         :param field: add???
-        :param row: add???. Default value is ``None``
-        :param col: add???. Default value is ``None``
+        :param row: add???. 
+        :param col: add???. 
         :returns: add???
         """
         field = dict(field)
@@ -1595,7 +1595,7 @@ class GnrFormBuilder(object):
         """add???
         
         :param fields: add???
-        :param row: add???. Default value is ``None``
+        :param row: add???. 
         """
         colcurr = -1
         if row is None:
@@ -1775,8 +1775,8 @@ class GnrGridStruct(GnrStructData):
         
         :param cls: add???
         :param page: add???
-        :param maintable: add???. Default value is ``None``
-        :param source: add???. Default value is ``None``
+        :param maintable: add???. 
+        :param source: add???. 
         :returns: add???
         """
         root = GnrStructData.makeRoot(source=source, protocls=cls)
@@ -1810,7 +1810,7 @@ class GnrGridStruct(GnrStructData):
     def view(self, tableobj=None, **kwargs):
         """add???
         
-        :param tableobj: add???. Default value is ``None``
+        :param tableobj: add???. 
         :returns: add???
         """
         self.tableobj = tableobj
@@ -1819,9 +1819,9 @@ class GnrGridStruct(GnrStructData):
     def rows(self, classes=None, cellClasses=None, headerClasses=None, **kwargs):
         """add???
         
-        :param classes: add???. Default value is ``None``
-        :param cellClasses: add???. Default value is ``None``
-        :param headerClasses: add???. Default value is ``None``
+        :param classes: add???. 
+        :param cellClasses: add???. 
+        :param headerClasses: add???. 
         :returns: add???
         """
         return self.child('rows', classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
@@ -1830,13 +1830,13 @@ class GnrGridStruct(GnrStructData):
              **kwargs):
         """add???
         
-        :param field: add???. Default value is ``None``
-        :param name: add???. Default value is ``None``
-        :param width: add???. Default value is ``None``
-        :param dtype: add???. Default value is ``None``
-        :param classes: add???. Default value is ``None``
-        :param cellClasses: add???. Default value is ``None``
-        :param headerClasses: add???. Default value is ``None``
+        :param field: add???. 
+        :param name: add???. 
+        :param width: add???. 
+        :param dtype: add???. 
+        :param classes: add???. 
+        :param cellClasses: add???. 
+        :param headerClasses: add???. 
         :returns: a cell
         """
         return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
@@ -1847,11 +1847,11 @@ class GnrGridStruct(GnrStructData):
                      calculated=False, radioButton=False,threestate=False, **kwargs):
         """add???
         
-        :param field: add???. Default value is ``None``
-        :param falseclasses: add???. Default value is ``None``
-        :param trueclasses: add???. Default value is ``None``
+        :param field: add???. 
+        :param falseclasses: add???. 
+        :param trueclasses: add???. 
         :param classes: add???. Default value is ``row_checker``
-        :param action: add???. Default value is ``None``
+        :param action: add???. 
         :param name: add???. Default value is ``''``
         :param calculated: boolean. add???. Default value is ``False``
         :param radioButton: boolean. add???. Default value is ``False``
@@ -1913,15 +1913,15 @@ class GnrGridStruct(GnrStructData):
         
         :param field: MANDATORY - it contains the name of the :ref:`genro_field` from which
                       the fieldcell inherits.
-        :param _as: add???. Default value is ``None``
+        :param _as: add???. 
         :param name: with *name* you can override the :ref:`genro_name_long` of the
-                     :ref:`genro_field` form widget. Default value is ``None``
-        :param width: the fieldcell width. Default value is ``None``
+                     :ref:`genro_field` form widget. 
+        :param width: the fieldcell width. 
         :param dtype: you can override the *dtype* of the :ref:`genro_field` form widget.
-                      Default value is ``None``
-        :param classes: add???. Default value is ``None``
-        :param cellClasses: add???. Default value is ``None``
-        :param headerClasses: add???. Default value is ``None``
+                      
+        :param classes: add???. 
+        :param cellClasses: add???. 
+        :param headerClasses: add???. 
         :param zoom: a link to the object to which the fieldcell refers to.
                      For more information, check the :ref:`genro_zoom` documentation page.
                      Default value is ``False``
@@ -1968,7 +1968,7 @@ class GnrGridStruct(GnrStructData):
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section.
         :param unit: the field unit. Default value is ``em``
-        :param totalWidth: add???. Default value is ``None``
+        :param totalWidth: add???. 
         
         r.fields('name/Name:20,address/My Addr:130px....')"""
         tableobj = self.tblobj
@@ -2023,7 +2023,7 @@ class GnrGridStruct(GnrStructData):
         
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. Default value is ``None``"""
+                        :ref:`sql_columns` section. """
         if columns is None:
             columns = []
         for v, fld in self.digest('#v,#a.field'):

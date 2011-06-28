@@ -13,9 +13,9 @@ def localize(obj, format=None, currency=None, locale=None):
     """add???
     
     :param obj: add???
-    :param format: add???. Default value is ``None``
-    :param currency: add???. Default value is ``None``
-    :param locale: add???. Default value is ``None``
+    :param format: add???. 
+    :param currency: add???. 
+    :param locale: add???. 
     :returns: add???
     """
     locale = (locale or DEFAULT_LOCALE).replace('-', '_').split(';')[0]
@@ -33,8 +33,8 @@ def localize_number(obj, locale, format=None, currency=None):
     
     :param obj: add???
     :param locale: add???
-    :param format: add???. Default value is ``None``
-    :param currency: add???. Default value is ``None``
+    :param format: add???. 
+    :param currency: add???. 
     :returns: add???
     """
     if format:
@@ -57,7 +57,7 @@ def localize_date(obj, locale, format=None, **kwargs):
     
     :param obj: add???
     :param locale: add???
-    :param format: add???. Default value is ``None``
+    :param format: add???. 
     :returns: add???
     """
     format = format or 'short'
@@ -68,7 +68,7 @@ def localize_datetime(obj, locale, format=None, **kwargs):
     
     :param obj: add???
     :param locale: add???
-    :param format: add???. Default value is ``None``
+    :param format: add???. 
     :returns: add???
     """
     format = format or 'short'
@@ -79,7 +79,7 @@ def localize_time(obj, locale, format=None, **kwargs):
     
     :param obj: add???
     :param locale: add???
-    :param format: add???. Default value is ``None``
+    :param format: add???. 
     :returns: add???
     """
     format = format or 'short'
@@ -176,7 +176,7 @@ def parselocal(txt, cls, locale=None):
     
     :param txt: add???
     :param cls: add???
-    :param locale: add???. Default value is ``None``
+    :param locale: add???. 
     :returns: an object of the ``cls`` class
     """
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
@@ -195,7 +195,7 @@ def parselocal(txt, cls, locale=None):
 def getMonthNames(locale=None):
     """add???
     
-    :param locale: ???add. Default value is ``None``
+    :param locale: ???add. 
     :returns: add???
     """
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
@@ -206,7 +206,7 @@ def getMonthNames(locale=None):
 def getDayNames(locale=None):
     """add???
     
-    :param locale: ???add. Default value is ``None``
+    :param locale: ???add. 
     :returns: add???
     """
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
@@ -217,7 +217,7 @@ def getDayNames(locale=None):
 def getQuarterNames(locale=None):
     """add???
     
-    :param locale: ???add. Default value is ``None``
+    :param locale: ???add. 
     :returns: add???
     """
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
@@ -229,7 +229,7 @@ def getDateKeywords(keyword, locale=None):
     """add???
     
     :param keyword: ???add
-    :param locale: ???add. Default value is ``None``
+    :param locale: ???add. 
     :returns: add???
     """
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')

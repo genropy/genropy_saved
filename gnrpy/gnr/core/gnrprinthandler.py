@@ -39,7 +39,7 @@ class PrinterConnection(GnrBaseService):
     def initPdf(self, printerParams=None, **kwargs):
         """add???
         
-        :param printerParams: add???. Default value is ``None``
+        :param printerParams: add???. 
         """
         self.zipped = printerParams.pop('zipped')
         self.printAgent = self.printPdf
@@ -49,7 +49,7 @@ class PrinterConnection(GnrBaseService):
         
         :param pdf_list: add???
         :param jobname: add???
-        :param outputFilePath: add???. Default value is ``None``
+        :param outputFilePath: add???. 
         """
         if self.zipped:
             outputFilePath += '.zip'
@@ -70,8 +70,8 @@ class PrinterConnection(GnrBaseService):
     def initPrinter(self, printer_name=None, printerParams=None, **kwargs):
         """add???
         
-        :param printer_name: add???. Default value is ``None``
-        :param printerParams: add???. Default value is ``None``
+        :param printer_name: add???. 
+        :param printerParams: add???. 
         """
         printerParams = printerParams or Bag()
         self.cups_connection = cups.Connection()
@@ -124,7 +124,7 @@ class PrintHandler(object):
         
         :param src_path: add???
         :param destPath: add???
-        :param orientation: add???. Default value is ``None``
+        :param orientation: add???. 
         :returns: add???
         """
         orientation = orientation or 'Portrait'
@@ -198,8 +198,8 @@ class PrintHandler(object):
     def getPrinterConnection(self, printer_name=None, printerParams=None, **kwargs):
         """add???
         
-        :param printer_name: add???. Default value is ``None``
-        :param printerParams: add???. Default value is ``None``
+        :param printer_name: add???. 
+        :param printerParams: add???. 
         """
         return PrinterConnection(self, printer_name=printer_name, printerParams=printerParams, **kwargs)
         
@@ -228,8 +228,8 @@ class PrintHandler(object):
     def zipPdf(self, file_list=None, zipPath=None):
         """add???
         
-        :param file_list: add???. Default value is ``None``
-        :param zipPath: add???. Default value is ``None``
+        :param file_list: add???. 
+        :param zipPath: add???. 
         """
         self.parent.zipFiles(file_list=file_list, zipPath=zipPath)
         

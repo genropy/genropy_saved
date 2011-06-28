@@ -39,34 +39,34 @@ class RecordLinker(BaseComponent):
         """Creates a :ref:`genro_linker` inside a :ref:`genro_formbuilder`.
         
         :param fb: (mandatory) the formbuilder
-        :param table: (mandatory) string. The :ref:`genro_table`. Default value is ``None``
-        :param field: string. Field name. Default value is ``None``
-        :param dialogPars: (mandatory) dict. Dialog parameters. Default value is ``None``.
+        :param table: (mandatory) string. The :ref:`genro_table`. 
+        :param field: string. Field name. 
+        :param dialogPars: (mandatory) dict. Dialog parameters. .
                            
                            dialogPars accepts:
                            
                            * dlgId
                            * onSaved
                            
-        :param record_template: string. Template for the record summary. Default value is ``None``
-        :param record_path: datapath. Default value is ``None``
+        :param record_template: string. Template for the record summary. 
+        :param record_path: datapath. 
         :param lbl: the linkerField's label
                     (a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`).
-                    Default value is ``None``
-        :param value: string. Where to store the selected ID. Default value is ``None``
-        :param width: the linkerField's width. Default value is ``None``
-        :param height: the linkerField's height. Default value is ``None``
+                    
+        :param value: string. Where to store the selected ID. 
+        :param width: the linkerField's width. 
+        :param height: the linkerField's height. 
         :param colspan: a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`.
                         Default value is ``1``
         :param rowspan: add???. Default value is ``1``
         :param disabled: If ``True``, user can't act on the object (write, drag...).
                          For more information, check the :ref:`genro_disabled` documentation page.
                          Default value is ``False``
-        :param default_path: add???. Default value is ``None``
+        :param default_path: add???. 
         :param zoom: It allows to open the linked record in a :ref:`genro_dialog`.
                      For further details, check the :ref:`genro_zoom` documentation page.
                      Default value is ``False``
-        :param record_reloader: add???. Default value is ``None``
+        :param record_reloader: add???. 
         """
         
         # --------------------------------------------------------------------------------------------- Mandatory parameters
