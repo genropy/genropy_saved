@@ -111,6 +111,7 @@ dojo.declare("gnr.LinkerManager", null, {
         this.linkerform.load({destPkey:pkey,default_kw:this.default_kw});
         var that = this;
         this.linkerform.subscribe('onSaved',function(kw){
+            that.setCurrentPkey(kw.pkey);
             that.closeLinker();
         });
         this.linkerform.subscribe('onDismissed',function(kw){
@@ -118,7 +119,7 @@ dojo.declare("gnr.LinkerManager", null, {
         });
         
     },
-    
+        
     loadrecord:function(pkey){
         this.openrecord(this.getCurrentPkey());
     },
