@@ -599,11 +599,16 @@ class GnrWsgiSite(object):
         request_kwargs.pop('_no_cache_', None)
         storename = None
         #print 'site dispatcher: ',path_list
-        
+        isRootstore = boolean(request_kwargs.pop('_rootstore_',None))
         if path_list and path_list[0] in self.dbstores:
             storename = path_list.pop(0)
-            if not path_list:
-                path_list= self.get_path_list('')
+        if path_list and path_list[0] == '_rootstore_':
+            isRootstore = True
+            path_list.pop(0)
+        if not path_list:
+            path_list= self.get_path_list('')
+        if isRootstore is True:
+            storename = None
         if path_list and path_list[0] == '_ping':
             try:
                 self.log_print('kwargs: %s' % str(request_kwargs), code='PING')

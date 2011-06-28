@@ -1,9 +1,9 @@
 # encoding: utf-8
-
-class Table(object):
+from gnr.app.gnrdbo import GnrHTable
+class Table(GnrHTable):
 
     def config_db(self, pkg):
-        tbl =  pkg.table('example', rowcaption='hello_code')
+        tbl =  pkg.table('mailbox', rowcaption='mailbox_name', pkey='id', name_long='!!Mailbox', name_plural='!!Mailboxes')
         self.sysFields(tbl)
         self.htableFields(tbl)
         tbl.column('mailbox_name',size=':40',name_long='!!Mailbox Name')

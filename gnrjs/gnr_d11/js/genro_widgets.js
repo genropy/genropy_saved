@@ -566,7 +566,7 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
 
         value = this.convertValueOnBagSetItem(sourceNode, value);
 
-        genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode});
+        genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode,lazySet:true});
     },
     mixin_setTip: function (tip) {
         this.setAttribute('title', tip);

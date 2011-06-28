@@ -1430,7 +1430,7 @@ dojo.declare("gnr.GnrBag", null, {
                     label = splittedlabel[0];
                     var attr = splittedlabel[1];
                     var node = obj.getNode(label, false, true);
-                    if(kwargs.lazySet && node.attr[attr] === value){
+                    if(kwargs.lazySet && ((node.attr[attr] === value) || ((node.attr[attr]==null) && (value==undefined)))){
                         return;
                     }
                     var auxattr = {};
@@ -1497,7 +1497,7 @@ dojo.declare("gnr.GnrBag", null, {
                 node.setResolver(resolver);
             }
             if(kwargs.lazySet){
-                if(node._value===value){
+                if((node._value===value) || ((node._value==null) && (value==undefined))){
                     return;
                 }
             }
