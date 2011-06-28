@@ -5,27 +5,9 @@ validations
 ===========
     
     * :ref:`validations_intro`
-    * :ref:`validations_list`:
-    
-        * :ref:`validate_call`
-        * :ref:`validate_dbselect`
-        * :ref:`validate_email`
-        * :ref:`validate_empty`
-        * :ref:`validate_exist`
-        * :ref:`validate_gridnodup`
-        * :ref:`validate_len`
-        * :ref:`validate_max`
-        * :ref:`validate_min`
-        * :ref:`validate_nodup`
-        * :ref:`validate_notnull`
-        * :ref:`validate_regex`
-        * :ref:`validate_remote`
-        
-    * :ref:`validations_other_list`
+    * :ref:`validations_list`
     * :ref:`validations_common`
-    * :ref:`validations_example`:
-    
-        * :ref:`validations_form_example`
+    * :ref:`validations_example`: :ref:`validations_form_example`
 
 .. _validations_intro:
 
@@ -54,11 +36,47 @@ introduction
       
 .. _validations_list:
 
-Genro validations
-=================
+standard validations
+====================
 
-    Let's see a complete list of Genro validations:
+    The standard Genro validations are:
     
+    * :ref:`validate_call`
+    * :ref:`validate_dbselect`
+    * :ref:`validate_email`
+    * :ref:`validate_empty`
+    * :ref:`validate_exist`
+    * :ref:`validate_gridnodup`
+    * :ref:`validate_len`
+    * :ref:`validate_max`
+    * :ref:`validate_min`
+    * :ref:`validate_nodup`
+    * :ref:`validate_notnull`
+    * :ref:`validate_regex`
+    * :ref:`validate_remote`
+    
+    For these validations, you can add one of these two suffixes:
+    
+    * *error*: Allow to warn user of his uncorrect typing (through a tooltip); user can't save the form.
+      
+      Example::
+      
+        root.textbox(value='^.email',
+                     validate_email=True,
+                     validate_email_error='Hint tooltip')
+                     
+        root.textbox(value='^.no_dot_here',
+                     validate_notnull=True,validate_notnull_error='!!Required',
+                     validate_regex='!\.',validate_regex_error='!!Invalid code: "." char is not allowed')
+                     
+    * *warning*: Allow to warn user of his uncorrect typing (through a tip); if you use the *warning*,
+      user can save the form even if its typing doesn't satisfy the validations.
+      
+      Example::
+        
+        root.textBox(value='^.email2',lbl="secondary email",
+                     validate_email=True,validate_email_warning='Uncorrect email format')
+                     
 .. _validate_call:
     
 validate_call
@@ -267,76 +285,68 @@ validate_remote
     
         add??? (example...)
         
-.. _validations_other_list:
+.. _validations_common:
+    
+other validations
+=================
 
-other Genro validations
-=======================
+    There are also some not-standard validations (the difference is that you can't attach
+    to them the *error* or the *warning* suffix)
+    
+    They are:
+    
+    * :ref:`validate_case`
+    * :ref:`validate_onaccept`
+    * :ref:`validate_onreject`
+    
+.. _validate_case:
+
+validate_case
+-------------
     
     The following validations have a small difference with a normal validation: they control
     the correct user input, and if they find it wrong, they automatically change it.
     
-    * *validate_case*: you have many options:
+    You have many options (you can call them 'cult' options, just to remember their name):
     
-        * *validate_case='c'* (or *validate_case='capitalize'*): Set the first letter
-          of every word uppercase
-        * *validate_case='t'* (or *validate_case='title'*): Set the first letter of
-          the first word uppercase
-        * *validate_case='u'* (or *validate_case='upper'*): Set every letter uppercase
-        * *validate_case='l'* (or *validate_case='lower'*): Set every letter lowercase
+    * *validate_case='c'* (or *validate_case='capitalize'*): Set the first letter
+      of every word uppercase
+    * *validate_case='u'* (or *validate_case='upper'*): Set every letter uppercase
+    * *validate_case='l'* (or *validate_case='lower'*): Set every letter lowercase
+    * *validate_case='t'* (or *validate_case='title'*): Set the first letter of
+      the first word uppercase
+      
+      Example::
+      
+        root.textbox(value='^.name',validate_case='c')
+        root.textbox(value='^.fiscal_code',validate_case='u')
         
-          Example::
-          
-            root.textbox(value='^.name',validate_case='c')
-            root.textbox(value='^.fiscal_code',validate_case='u')
-          
-.. _validations_common:
+.. _validate_onaccept:
+
+validate_onaccept
+-----------------
+
+    Perform a javascript action after a correct user input
     
-suffixes to validations
-=======================
-    
-    **Syntax**: ``validationName`` + ``_`` + ``validationAttribute``
-    
-    Where:
-    
-    * ``validationName`` is one of the :ref:`validations_list` showed in the previous
-      section (like :ref:`validate_email`, :ref:`validate_regex`)
-    * ``validationAttribute`` is one of the following validations:
-    
-        * *error*: Allow to warn user of his uncorrect typing (through a tooltip); user can't save the form.
-          
-          Example::
-          
-            root.textbox(value='^.email',
-                         validate_email=True,
-                         validate_email_error='Hint tooltip')
-                         
-            root.textbox(value='^.no_dot_here',
-                         validate_notnull=True,validate_notnull_error='!!Required',
-                         validate_regex='!\.',validate_regex_error='!!Invalid code: "." char is not allowed')
-                         
-        * *onAccept*: perform a javascript action after a correct input
+      Example::
+      
+        root.timetextbox(value='^.orario.inizio',
+                         validate_onAccept="if (value){SET .orario.fine=value;}")
+        root.timetextbox(value='^.orario.fine')
         
-          Example::
-          
-            root.timetextbox(value='^.orario.inizio',
-                             validate_onAccept="if (value){SET .orario.fine=value;}")
-            root.timetextbox(value='^.orario.fine')
-            
-        * *onReject*: perform a javascript action after an uncorrect input
+.. _validate_onreject:
+
+validate_onreject
+-----------------
         
-          Example::
-          
-            root.textBox(value='^.short_string',validate_len=':10',
-                         validate_onReject='alert("The string "+"\'"+value+"\'"+" is too long")')
-        
-        * *warning*: Allow to warn user of his uncorrect typing (through a tip); if you use the *warning*,
-          user can save the form even if its typing doesn't satisfy the validations.
-          
-          Example::
-            
-            root.textBox(value='^.email2',lbl="secondary email",
-                         validate_email=True,validate_email_warning='Uncorrect email format')
-                         
+    Perform a javascript action after an uncorrect user input
+    
+      Example::
+      
+        root.textBox(value='^.short_string',
+                     validate_len=':10',
+                     validate_onReject='alert("The string "+"\'"+value+"\'"+" is too long")')
+                     
 .. _validations_example:
 
 examples
