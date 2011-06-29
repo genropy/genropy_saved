@@ -45,9 +45,9 @@ class BagFromXml(object):
         
         :param source: add???
         :param fromFile: add???
-        :param catalog: add???. Default value is ``None``
+        :param catalog: add???. 
         :param bagcls: add???. Default value is ``Bag``
-        :param empty: add???. Default value is ``None``
+        :param empty: add???. 
         :returns: add???
         """
         if not bagcls: bagcls = Bag
@@ -89,9 +89,9 @@ class BagFromXml(object):
         
         :param source: add???
         :param fromFile: add???
-        :param catalog: add???. Default value is ``None``
+        :param catalog: add???. 
         :param bagcls: add???. Default value is ``Bag``
-        :param empty: add???. Default value is ``None``
+        :param empty: add???. 
         :param testmode: add???. Default value is ``False``
         :returns: add???
         """
@@ -298,21 +298,21 @@ class BagToXml(object):
         Is also possible to write the result on a file, passing the path of the file as the ``filename`` parameter.
         
         :param bag: the Bag to transform in a XML block version
-        :param filename: the path of the output file. Default value is ``None``
+        :param filename: the path of the output file. 
         :param encoding: allow to set the XML encoding. Default value is ``UTF-8``
-        :param catalog: add???. Default value is ``None``
+        :param catalog: add???. 
         :param typeattrs: add???. Default value is ``True``
         :param typevalue: add???. Default value is ``True``
         :param addBagTypeAttr: add???. Default value is ``True``
-        :param onBuildTag: add???. Default value is ``None``
+        :param onBuildTag: add???. 
         :param unresolved: add???. Default value is ``False``
         :param autocreate: add???. Default value is ``False``
-        :param docHeader: add???. Default value is ``none``
-        :param self_closed_tags: add???. Default value is ``None``
-        :param translate_cb: add???. Default value is ``None``
+        :param docHeader: add???. 
+        :param self_closed_tags: add???. 
+        :param translate_cb: add???. 
         :param omitUnknownTypes: add???. Default value is ``False``
         :param omitRoot: add???. Default value is ``False``
-        :param forceTagAttr: add???. Default value is ``None``
+        :param forceTagAttr: add???. 
         :returns: an XML version of the bag.
         
         >>> mybag = Bag()
@@ -357,7 +357,7 @@ class BagToXml(object):
         
         :param tagName: add???
         :param value: add???
-        :param attributes: add???. Default value is ``None``
+        :param attributes: add???. 
         :param cls: add???. Default value is `` ``
         :param xmlMode: add???. Default value is ``False``
         :returns: the XML tag that represent self BagNode.

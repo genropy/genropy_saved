@@ -54,7 +54,7 @@ class GnrStructData(Bag):
         """add???
         
         :param attrname: add???
-        :param checker: add???. Default value is ``None``
+        :param checker: add???. 
         :returns: add???
         """
         if checker is None:
@@ -93,10 +93,10 @@ class GnrStructData(Bag):
         
         :param tag: structure type
         :param name: structure name. Default value is formed by ``tag_position``
-        :param content: optional structure content. Default value is ``None``
-        :param _parentTag: add???. Default value is ``None``
-        :param _attributes: add???. Default value is ``None``
-        :param childname: add???. Default value is ``None``
+        :param content: optional structure content. 
+        :param _parentTag: add???. 
+        :param _attributes: add???. 
+        :param childname: add???. 
         :returns: the new structure if content is ``None``, else the parent
         """
         where = self
@@ -311,7 +311,7 @@ class GnrStructObj(GnrObject):
         """Build a child
         
         :param path: add???
-        :param default: add???. Default value is ``None``
+        :param default: add???. 
         :param static: add???. Default value is ``False``
         :returns: add???
         """
@@ -333,7 +333,7 @@ class GnrStructObj(GnrObject):
         """Build a child
         
         :param name: add???
-        :param default: add???. Default value is ``None``
+        :param default: add???. 
         :returns: add???
         """
         name = name.lower()
@@ -353,7 +353,7 @@ class GnrStructObj(GnrObject):
         """Build a child
         
         :param name: add???
-        :param default: add???. Default value is ``None``
+        :param default: add???. 
         :returns: add???
         """
         return self.children.get(name.lower(), default=default)

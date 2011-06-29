@@ -202,6 +202,7 @@ class TableHandler(BaseComponent):
         rootattr['datapath'] = 'main'
         rootattr['overflow'] = 'hidden'
         rootattr['_fakeform'] = True
+        rootattr['table'] = table
         rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey; FIRE .controller.loaded;'
         if pkey:
             root.dataController('SET .pkey = pkey; FIRE .controller.loaded;',pkey=pkey,_onStart=True)
@@ -254,7 +255,7 @@ class ThLinker(BaseComponent):
             openIfNew = True if openIfNew is None else openIfNew
         if openIfNew:
             linker.attributes.update(_class='==newrecord?"th_enableLinker th_linker": "th_linker"',
-                                      newrecord='^#FORM.record?_newrecord')
+                                      newrecord='^#FORM.controller.is_newrecord')
         if newRecordOnly:
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',

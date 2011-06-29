@@ -52,8 +52,8 @@ def command(name=None, description=None, *args, **kwargs):
     
     See ``ArgumentParser`` constructor in the ``argparse`` module for help on args.
     
-    :param name: add???. Default value is ``None``
-    :param description: add???. Default value is ``None``
+    :param name: add???. 
+    :param description: add???. 
     :returns: the new command
     """
     

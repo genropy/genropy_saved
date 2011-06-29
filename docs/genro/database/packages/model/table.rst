@@ -171,8 +171,8 @@ relation column
     * onDelete='cascade' (other SQL attributes...)
     * one_one='*' / True / ... add??? permette di rendere la relazione "simmetrica"
     * one_group add???
-    * relation_name='nome' + storepath='nome' --> mi permette di non riscrivere tutta la relazione
-      (@blabla.@bleble.nome) che è contenuta nella column con il relation path (:ref:`sql_relation_path`)
+    * relation_name='STRING'; allow to use the relation parameter in a :ref:`genro_th` component. For more
+      information on the relation parameter, please check the :ref:`th_relation_condition` example. 
       
 .. _table_aliascolumn:
 

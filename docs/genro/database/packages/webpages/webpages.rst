@@ -12,6 +12,7 @@ webpage
     
         * :ref:`onloading_method`
         * :ref:`onsaving_method`
+        * :ref:`onsaved_method`
     
     * :ref:`webpages_variables`
     
@@ -86,13 +87,15 @@ main
     
     where:
     
-    * the ``root`` is a :ref:`genro_bag` that passes a :ref:`genro_contentpane`.
+    * the ``root`` is a :ref:`genro_bag` that passes a :ref:`genro_contentpane`. To this contentPane
+      you can append every :ref:`genro_webpage_elements_index` you need, like a div, a
+      :ref:`genro_button` or a more complex object like a :ref:`genro_form` and so on.
       
-      But, if you import the ``public.py`` :ref:`webpages_py_requires` in your GnrCustomWebPage::
+      If you import the ``public.py`` :ref:`webpages_py_requires` in your GnrCustomWebPage::
       
         py_requires = 'public:Public'
         
-      then the ``root`` passes a :ref:`genro_bordercontainer`.
+      then the ``root`` passes a :ref:`genro_bordercontainer`, not a contentPane.
       
     * in the ``**kwargs`` you will find all the values passed to the client through
       the :ref:`genro_xmlhttprequest`.
@@ -114,15 +117,54 @@ GnrCustomWebPage methods
 onLoading
 ---------
     
+    .. method:: onLoading(self, record, newrecord, loadingParameters, recInfo)
+    
     add???
     
+    **Parameters:**
+                    * **record** - You find the value of the record saved into a :ref:`genro_bag`.
+                        
+                        Example::
+                        
+                            0 - (str) id: aBcDeFgHiJkLmNoPrStUvZ  <dtype='A'>
+                            1 - (unicode) name: my date <dtype='A' oldValue='None'>
+                            2 - (date) data: 2011-06-29  <dtype='D' oldValue='None'>
+                            3 - (date) data_to: 2011-07-02  <dtype='D' oldValue='None'>
+                            4 - (bool) year: True  <dtype='B' oldValue='None'>
+                            5 - (unicode) day: 10  <dtype='L' oldValue='None'>
+                            6 - (unicode) month: 5  <dtype='L' oldValue='None'>
+                            
+                    * **newrecord** - 
+                    * **loadingParameters** - 
+                    * **recInfo** - 
+                    
 .. _onsaving_method:
     
 onSaving
 --------
     
+    .. method:: onSaving(self,recordCluster,recordClusterAttr,resultAttr)
+    
     add???
     
+    **Parameters:**
+                    * **recordCluster** - 
+                    * **recordClusterAttr** - 
+                    * **resultAttr** - 
+                    
+.. _onsaved_method:
+    
+onSaved
+-------
+    
+    .. method:: onSaved(self,record,resultAttr)
+    
+    add???
+    
+    **Parameters:**
+                    * **record** - 
+                    * **resultAttr** - 
+                    
     .. _webpages_variables:
 
 webpage variables

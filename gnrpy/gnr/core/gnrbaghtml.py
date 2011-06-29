@@ -136,10 +136,10 @@ class BagToHtml(object):
         """add???
         
         :param obj: add???
-        :param locale: add???. Default value is ``None``
-        :param format: add???. Default value is ``None``
-        :param mask: add???. Default value is ``None``
-        :param encoding: The multibyte character encoding you choose. Default value is ``None``
+        :param locale: add???. 
+        :param format: add???. 
+        :param mask: add???. 
+        :param encoding: The multibyte character encoding you choose. 
         :returns: add???
         """
         locale = locale or self.locale
@@ -149,7 +149,7 @@ class BagToHtml(object):
     def createHtml(self, filepath=None):
         """add???
         
-        :param filepath: add???. Default value is ``None``
+        :param filepath: add???. 
         :returns: add???
         """
         #filepath = filepath or self.filepath
@@ -193,7 +193,7 @@ class BagToHtml(object):
         """add???
         
         :param path: add???
-        :param default: add???. Default value is ``None``
+        :param default: add???. 
         :returns: add???
         """
         wildchars = []
@@ -223,12 +223,12 @@ class BagToHtml(object):
         """add???
         
         :param path: add???
-        :param default: add???. Default value is ``None``
-        :param locale: add???. Default value is ``None``
-        :param format: add???. Default value is ``None``
-        :param mask: add???. Default value is ``None``
+        :param default: add???. 
+        :param locale: add???. 
+        :param format: add???. 
+        :param mask: add???. 
         :param root: the root of the page. For more information, check the
-                     :ref:`webpages_main` documentation section. Default value is ``None``
+                     :ref:`webpages_main` documentation section. 
         :returns: add???
         """
         if root is None:
@@ -263,7 +263,7 @@ class BagToHtml(object):
     def pageCounter(self, mask=None):
         """add???
         
-        :param mask: add???. Default value is ``None``
+        :param mask: add???. 
         """
         mask = mask or '%s/%s'
         
@@ -348,7 +348,7 @@ class BagToHtml(object):
     def rowField(self, path=None, **kwargs):
         """add???
         
-        :param path: add???. Default value is ``None``
+        :param path: add???. 
         :returns: add???
         """
         #if self.row_mode=='attribute':
@@ -361,13 +361,13 @@ class BagToHtml(object):
                 format=None, mask=None, currency=None, **kwargs):
         """add???
         
-        :param field: add???. Default value is ``None``
-        :param value: add???. Default value is ``None``
-        :param default: add???. Default value is ``None``
-        :param locale: add???. Default value is ``None``
-        :param format: add???. Default value is ``None``
-        :param mask: add???. Default value is ``None``
-        :param currency: add???. Default value is ``None``
+        :param field: add???. 
+        :param value: add???. 
+        :param default: add???. 
+        :param locale: add???. 
+        :param format: add???. 
+        :param mask: add???. 
+        :param currency: add???. 
         :returns: add???
         """
         if field:
@@ -524,7 +524,7 @@ class BagToHtml(object):
         """add???
         
         :param footer: add???
-        :param lastPage: add???. Default value is ``None``
+        :param lastPage: add???. 
         """
         pass
         
@@ -532,7 +532,7 @@ class BagToHtml(object):
         """add???
         
         :param footer: add???
-        :param lastPage: add???. Default value is ``None``
+        :param lastPage: add???. 
         """
         pass
         

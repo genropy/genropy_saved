@@ -7,6 +7,7 @@ button
     * :ref:`button_def`
     * :ref:`button_description`
     * :ref:`button_attributes`
+    * :ref:`button_icon`
     * :ref:`button_examples`: :ref:`button_action`, :ref:`button_example_macro`
     
 .. _button_def:
@@ -34,6 +35,7 @@ Attributes
     **button attributes**:
     
     * *action*: allow to execute a javascript callback. For more information, check the :ref:`button_action` section below
+    * *iconClass*: the button icon. Default value is ``None`` Check the :ref:`button_icon` section for the complete list.
     * *showLabel*: (boolean). If ``True``, show the button label. Default value is ``True``
     
     **commons attributes**:
@@ -46,6 +48,38 @@ Attributes
     * *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath`
       documentation page
     * *visible*: if False, hide the widget. For more information, check the :ref:`genro_visible` documentation page
+
+.. _button_icon:
+
+Icons
+=====
+
+    There an icon set in the framework; to use them, you need to write the name of the icon
+    as a string of the iconClass attribute.
+    
+    For the complete list of icons, check the gnrbase.css file at the path::
+    
+        ~/yourRootPathForGenro/genro/gnrjs/gnr_d11/css/gnrbase.css
+        
+    Where:
+    
+    * ``yourRootPathForGenro`` is the path where you set the framework
+    * ``gnr_dNUMBER`` is the folder with the version you're using for Dojo
+      (example: write ``gnr_d11`` to use Dojo 1.1, ``gnr_d16`` to use Dojo 1.6 and so on)
+        
+        **Example**: let's look to the css of the icon ``building.png`` ::
+            
+            .icnBuilding{
+                background: url(icons/base16/building.png) no-repeat center center;
+                width: 16px;
+                height: 16px;
+            }
+            
+        To add it, just write in the button ``iconClass='icnBuilding'``::
+            
+            class GnrCustomWebPage(object):
+                def main(self,root,**kwargs):
+                    root.button('Click me',action='alert("Hello!")',iconClass='icnBuilding')
 
 .. _button_examples:
 

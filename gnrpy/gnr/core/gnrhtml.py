@@ -129,10 +129,10 @@ class GnrHtmlSrc(GnrStructData):
         :param lbl_height: add the label height. Default value is ``3``
         :param lbl_class: add the label class. Default value is ``lbl_base``
         :param content_class: add the content class. Default value is ``content_base``
-        :param hasBorderTop: add the top border. Default value is ``None``
-        :param hasBorderLeft: add the left border. Default value is ``None``
-        :param hasBorderRight: add the right border. Default value is ``None``
-        :param hasBorderBottom: add the bottom border. Default value is ``None``
+        :param hasBorderTop: add the top border. 
+        :param hasBorderLeft: add the left border. 
+        :param hasBorderRight: add the right border. 
+        :param hasBorderBottom: add the bottom border. 
         :returns: the layout
         """
         self.style(".%s_layout{border:%s%s %s %s;position:absolute;}" % (
@@ -169,11 +169,11 @@ class GnrHtmlSrc(GnrStructData):
         """Construct a row.
         
         :param height: the row's height. Default value is ``0``
-        :param row_border: the row's border. Default value is ``None``
-        :param cell_border: the border of the row's cell. Default value is ``None``
-        :param lbl_height: the height of the row's label. Default value is ``None``
-        :param lbl_class: the class of the row's label. Default value is ``None``
-        :param content_class: the class of the row's content. Default value is ``None``
+        :param row_border: the row's border. 
+        :param cell_border: the border of the row's cell. 
+        :param lbl_height: the height of the row's label. 
+        :param lbl_class: the class of the row's label. 
+        :param content_class: the class of the row's content. 
         :returns: the row
         """
         assert self.parentNode.getAttr('tag') == 'layout'
@@ -204,13 +204,13 @@ class GnrHtmlSrc(GnrStructData):
              cell_border=None, **kwargs):
         """Construct a cell.
         
-        :param content: the row's content. Default value is ``None``
+        :param content: the row's content. 
         :param width: the row's width. Default value is ``0``
-        :param content_class: the row's content class. Default value is ``None``
-        :param lbl: the cell's lbl. Default value is ``None``
-        :param lbl_class: the class of the row's label. Default value is ``None``
-        :param lbl_height: the height of the row's label. Default value is ``None``
-        :param lbl_height: the border of the row's label. Default value is ``None``
+        :param content_class: the row's content class. 
+        :param lbl: the cell's lbl. 
+        :param lbl_class: the class of the row's label. 
+        :param lbl_height: the height of the row's label. 
+        :param lbl_height: the border of the row's label. 
         :returns: the cell
         """
         assert self.parentNode.getAttr('tag') == 'row'
@@ -381,7 +381,7 @@ class GnrHtmlBuilder(object):
     def toHtml(self, filepath=None):
         """add???
         
-        :param filepath: add???. Default value is ``None``
+        :param filepath: add???. 
         :returns: add???
         """
         if filepath:

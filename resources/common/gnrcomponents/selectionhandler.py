@@ -28,7 +28,7 @@ class SelectionHandler(BaseComponent):
     
     selectionHandler is a new component that is used as a replacement for includedView and recordDialog. 
     It adds a navigation toolbar for first, previous, next and last.
-    It adds a + button to add new records from within the dialog
+    It adds a "+" button to add new records from within the dialog
     It manages automatically:
     
     * all the dataControllers for add and delete .

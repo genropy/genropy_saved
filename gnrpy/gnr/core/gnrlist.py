@@ -337,7 +337,7 @@ class GnrNamedList(list):
         """Same of ``get`` method's dict
         
         :param x: add???
-        :param default: the value returned if ``self[x]`` is ``None``. Default value is ``None``
+        :param default: the value returned if ``self[x]`` is ``None``. 
         :returns: add???
         """
         try:

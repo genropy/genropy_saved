@@ -55,11 +55,11 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
     
     :param datestr: the string to be interpreted
     :param workdate: a date of reference to calculate relative periods (e.g: tomorrow; e.g: this week).
-                     Default value is ``None``
-    :param months: names of months according to locale (just for caching). Default value is ``None``
-    :param days: names of weekdays according to locale (just for caching). Default value is ``None``
-    :param quarters: names of quarters according to locale (just for caching). Default value is ``None``
-    :param locale: the current locale string (e.g: en, en_us, it). Default value is ``None``
+                     
+    :param months: names of months according to locale (just for caching). 
+    :param days: names of weekdays according to locale (just for caching). 
+    :param quarters: names of quarters according to locale (just for caching). 
+    :param locale: the current locale string (e.g: en, en_us, it). 
     :param isEndPeriod: if the string represents a period, return the end date (default return the start date)
     :returns: datetime.date or tuple(year,month) or None
     
@@ -219,9 +219,9 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
 def periodCaption(dateFrom=None, dateTo=None, locale=None):
     """Convert two dates to a string in the specified locale that decodeDatePeriod will understand.
     
-    :param dateFrom: add???. Default value is ``None``
-    :param dateTo: add???. Default value is ``None``
-    :param locale: add???. Default value is ``None``
+    :param dateFrom: add???. 
+    :param dateTo: add???. 
+    :param locale: add???. 
     :returns: add???
     """
     localNoPeriod = gnrlocale.getDateKeywords('no period', locale)[0]
@@ -259,8 +259,8 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     * a single expression representing a single date: e.g. today returns ``'2008-04-28'``
     
     :param datestr: add???
-    :param workdate: add???. Default value is ``None``
-    :param locale: add???. Default value is ``None``
+    :param workdate: add???. 
+    :param locale: add???. 
     :param returnDate: add???. Default value is ``False``
     :param dtype: add???. Default value is ``D``
     :returns: add???
@@ -356,9 +356,9 @@ def monthStart(year=None, month=None, date=None):
     """Return datetime.date of the first day of the month.
     If ``date`` is given, then ``year`` and ``month`` are readed from date.
     
-    :param year: The year you specify. Default value is ``None``
-    :param month: The month you specify. Default value is ``None``
-    :param date: add???. Default value is ``None``
+    :param year: The year you specify. 
+    :param month: The month you specify. 
+    :param date: add???. 
     :returns: datetime.date of the first day of the month
     """
     if date:
@@ -370,9 +370,9 @@ def monthEnd(year=None, month=None, date=None):
     """Return datetime.date of the last day of the month.
     If ``date`` is given, then ``year`` and ``month`` are readed from date.
     
-    :param year: The year you specify. Default value is ``None``
-    :param month: The month you specify. Default value is ``None``
-    :param date: add???. Default value is ``None``
+    :param year: The year you specify. 
+    :param month: The month you specify. 
+    :param date: add???. 
     :returns: datetime.date of the last day of the month
     """
     if date:
@@ -403,9 +403,9 @@ def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
     """add???
     
     :param period: add???
-    :param wkdlist: add???. Default value is ``None``
-    :param locale: add???. Default value is ``None``
-    :param workdate: add???. Default value is ``None``
+    :param wkdlist: add???. 
+    :param locale: add???. 
+    :param workdate: add???. 
     :param asDate: add???. Default value is ``True``
     """
     dstart, dstop = decodeDatePeriod(period, returnDate=True, locale=locale, workdate=workdate)

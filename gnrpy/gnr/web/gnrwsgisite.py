@@ -233,7 +233,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param msg: add??
-        :param code: add???. Default value is ``None``"""
+        :param code: add???. """
         if getattr(self, 'debug', True):
             if code and code in OP_TO_LOG:
                 print '***** %s : %s' % (code, msg)
@@ -318,7 +318,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param service_handler: add???
-        :param service_name: add???. Default value is ``None``
+        :param service_name: add???. 
         :returns: add???
         """
         return self.services.add(service_handler, service_name=service_name, **kwargs)
@@ -666,7 +666,7 @@ class GnrWsgiSite(object):
         
         :param result: add???
         :param response: add???
-        :param totaltime: add???. Default value is ``None``
+        :param totaltime: add???. 
         :returns: add???
         """
         if totaltime:
@@ -752,7 +752,7 @@ class GnrWsgiSite(object):
         
         :param environ: add???
         :param start_response: add??
-        :param debug_message: add???. Default value is ``None``
+        :param debug_message: add???. 
         :returns: add???
         """
         exc = httpexceptions.HTTPNotFound(
@@ -768,7 +768,7 @@ class GnrWsgiSite(object):
         
         :param environ: add???
         :param start_response: add??
-        :param debug_message: add???. Default value is ``None``
+        :param debug_message: add???. 
         :returns: add???
         """
         exc = httpexceptions.HTTPForbidden(
@@ -785,7 +785,7 @@ class GnrWsgiSite(object):
         :param message: add???
         :param environ: add???
         :param start_response: add??
-        :param debug_message: add???. Default value is ``None``
+        :param debug_message: add???. 
         :returns: add???
         """
         if '%%s' in message:
@@ -851,7 +851,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param event: add???
-        .param page_id: add???. Default value is ``None``
+        .param page_id: add???. 
         """
         if False and 'adm' in self.db.packages:
             self.db.table('adm.served_page').pageLog(event, page_id=page_id)
@@ -860,7 +860,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param event: add???
-        .param connection_id: add???. Default value is ``None``
+        .param connection_id: add???. 
         """
         if False and 'adm' in self.db.packages:
             self.db.table('adm.connection').connectionLog(event, connection_id=connection_id)
@@ -923,7 +923,7 @@ class GnrWsgiSite(object):
     def dropConnectionFolder(self, connection_id=None):
         """add???
         
-        :param connection_id: add???. Default value is ``None``
+        :param connection_id: add???. 
         """
         pathlist = ['data', '_connections']
         if connection_id:
@@ -1001,7 +1001,7 @@ class GnrWsgiSite(object):
         :param tblobj: add???
         :param record: add???
         :param event: add???
-        :param old_record: add???. Default value is ``None``"""
+        :param old_record: add???. """
         if tblobj.attributes.get('broadcast') == '*old*':
             subscribers = self.register.pages(index_name=tblobj.fullname)
             value = Bag([(k, v) for k, v in record.items() if not k.startswith('@')])
@@ -1014,10 +1014,10 @@ class GnrWsgiSite(object):
         """Send a message
         
         :param value: add???
-        :param pageId: add???. Default value is ``None``
-        :param filters: add???. Default value is ``None``
-        :param origin: add???. Default value is ``None``
-        :param msg_path: add???. Default value is ``None``"""
+        :param pageId: add???. 
+        :param filters: add???. 
+        :param origin: add???. 
+        :param msg_path: add???. """
         from_page, from_user = (origin.page_id, origin.user) if origin else (None, '*Server*')
         self.currentPage.setInClientData(msg_path or 'gnr.servermsg', value,
                                          page_id=pageId, filters=filters,
@@ -1038,11 +1038,11 @@ class GnrWsgiSite(object):
         
         This is typically used to customize prints and batch jobs for a particular installation
         
-        :param page: add???. Default value is ``None``
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param respath: add???. Default value is ``None``
-        :param class_name: add???. Default value is ``None``
-        :param runKwargs: add???. Default value is ``None``"""
+        :param page: add???. 
+        :param table: the :ref:`genro_table` name. 
+        :param respath: add???. 
+        :param class_name: add???. 
+        :param runKwargs: add???. """
         script = self.loadTableScript(page=page, table=table, respath=respath, class_name=class_name)
         if runKwargs:
             for k, v in runKwargs.items():
@@ -1053,10 +1053,10 @@ class GnrWsgiSite(object):
     def loadTableScript(self, page=None, table=None, respath=None, class_name=None):
         """add???
         
-        :param page: add???. Default value is ``None``
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param respath: add???. Default value is ``None``
-        :param class_name: add???. Default value is ``None``
+        :param page: add???. 
+        :param table: the :ref:`genro_table` name. 
+        :param respath: add???. 
+        :param class_name: add???. 
         :returns: add???
         """
         return self.resource_loader.loadTableScript(page=page, table=table, respath=respath, class_name=class_name)
@@ -1096,8 +1096,8 @@ class GnrWsgiSite(object):
         :param response: add???
         :param environ: add???
         :param start_response: add???
-        :param page_id: add???. Default value is ``None``
-        :param reason: add???. Default value is ``None``
+        :param page_id: add???. 
+        :param reason: add???. 
         :returns: add???
         """
         kwargs = self.parse_kwargs(kwargs)
@@ -1119,8 +1119,8 @@ class GnrWsgiSite(object):
         """add???
         
         :param page_id: add???
-        :param user: add???. Default value is ``None``
-        :param local_datachanges: add???. Default value is ``None``
+        :param user: add???. 
+        :param local_datachanges: add???. 
         :returns: add???
         """
         result = Bag()
@@ -1166,8 +1166,8 @@ class GnrWsgiSite(object):
     def handle_clientchanges(self, page_id=None, parameters=None):
         """add???
         
-        :param page_id: add???. Default value is ``None``
-        :param parameters: add???. Default value is ``None``
+        :param page_id: add???. 
+        :param parameters: add???. 
         """
         if '_serverstore_changes' in parameters:
             serverstore_changes = parameters.pop('_serverstore_changes', None)
@@ -1181,7 +1181,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param kwargs: add???
-        :param workdate: add???. Default value is ``None``
+        :param workdate: add???. 
         :returns: add???
         """
         catalog = self.gnrapp.catalog
@@ -1214,8 +1214,8 @@ class GnrWsgiSite(object):
     def zipFiles(self, file_list=None, zipPath=None):
         """add???
         
-        :param file_list: add???. Default value is ``None``
-        :param zipPath: add???. Default value is ``None``
+        :param file_list: add???. 
+        :param zipPath: add???. 
         """
         import zipfile
         

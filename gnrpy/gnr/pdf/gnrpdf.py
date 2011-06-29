@@ -49,16 +49,16 @@ class GnrPdfSrc(GnrStructData):
         
         :param psfontname: add???
         :param size: add???
-        :param leading: add???. Default value is ``None``
+        :param leading: add???. 
         """
         self.child('setFont', psfontname=psfontname, size=size, leading=leading)
         
     def drawString(self, x=None, y=None, text=None, **kwargs):
         """add???
         
-        :param x: add???. Default value is ``None``
-        :param y: add???. Default value is ``None``
-        :param text: add???. Default value is ``None``
+        :param x: add???. 
+        :param y: add???. 
+        :param text: add???. 
         """
         self.child('drawString', x=x, y=y, text=text, **kwargs)
         

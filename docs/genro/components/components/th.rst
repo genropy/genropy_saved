@@ -26,10 +26,7 @@ tableHandler
         * :ref:`th_webpage_th_form`
         * :ref:`th_form_center_path`
     
-    * :ref:`th_types`:
-    
-        * :ref:`types_py_requires`
-        * :ref:`types_common_attributes`
+    * :ref:`th_types`: :ref:`types_py_requires` - :ref:`types_common_attributes` - :ref:`th_relation_condition`
         
         * :ref:`th_border`
         * :ref:`th_dialog`
@@ -500,34 +497,10 @@ TableHandler py_requires
 th_webpage methods
 ------------------
     
-    You may define the following methods (remember to define the :ref:`webpages_main`
-    method if you are using the tableHandler as a :ref:`components_passive`)::
-        
-        def pageAuthTags(self, method=None, **kwargs):
-            return 'user'
-            
-        def windowTitle(self):
-            return 'Registry'
-            
-        def barTitle(self):
-            return 'Registry'
-            
-        def tableWriteTags(self):
-            return 'user'
-            
-        def tableDeleteTags(self):
-            return 'user'
-            
-    where:
+    Remember to define the :ref:`webpages_main` method if you are using the
+    tableHandler as a :ref:`components_passive`.
     
-    * The ``pageAuthTags``, the ``tableWriteTags`` and the ``tableDeleteTags`` methods
-      handle the permits of the page to see it, write on it and delete records. The return
-      string (in the example returns ``user``) allow to define who has the permits to act.
-      You can find more information on page permits into the :ref:`instanceconfig_authentication`
-      section of the :ref:`genro_gnr_instanceconfig` documentation page)
-    * The ``windowTitle`` and the ``barTitle`` methods define the title and the bar of the page on the browser.
-    
-    After that, we have to define the ``th_form`` method; it replaces the ``th_form``
+    After that, you have to define the ``th_form`` method; it replaces the ``th_form``
     method we wrote in the :ref:`th_resource_page`.
     
 .. _th_webpage_th_form:
@@ -624,11 +597,20 @@ common attributes
     Some attributes are common to every of these types and we describe those
     attributes here:
     
-    * *pane*: add???
-    * *nodeId*: the id the tableHandler type. For more information, check the
-      :ref:`genro_nodeid` documentation page. Default value is ``None``
-    * *table*: the path of the :ref:`genro_table` linked to your tableHandler.
-      The syntax is ``table = 'packageName.tableName'``. Default value is ``None``
+    * *pane*: MANDATORY - the :ref:`genro_contentpane` to which the TableHandler
+      is linked.
+      
+      .. warning:: you MUST link your TableHandler only to a :ref:`genro_contentpane`,
+                   so you can't use a :ref:`genro_bordercontainer`, a
+                   :ref:`genro_tabcontainer` or other :ref:`layout elements <genro_layout_index>`
+      
+    * *nodeId*: the id of the TableHandler type. If you don't need a specific nodeId, the component
+                handles it automatically. For more information on the meaning of the nodeId, check
+                the :ref:`genro_nodeid` documentation page.
+    * *table*: the path of the :ref:`genro_table` linked to your tableHandler. It is MANDATORY
+      unless you use the relation attribute. For more information, check the
+      :ref:`th_relation_condition` example.
+      The syntax is ``table = 'packageName.tableName'``.
     
       Example::
       
@@ -636,30 +618,36 @@ common attributes
         
     * *th_pkey*: add???. Default value is ``None``
     * *datapath*: the path of your data. For more information, check the
-      :ref:`genro_datapath` documentation page. Default value is ``None``
+      :ref:`genro_datapath` documentation page.
     * *formResource*: allow to change the default :ref:`th_form_class`.
-        Check the :ref:`th_formresource` section for more information.
-        Default value is ``None``
+      Check the :ref:`th_formresource` section for more information.
     * *viewResource*: allow to change the default :ref:`th_view_class`.
-        Check the :ref:`th_viewresource` section for more information.
-        Default value is ``None``
-    * *formInIframe*: add???. Default value is ``False``
-    * *reloader*: add???. Default value is ``None``
+      Check the :ref:`th_viewresource` section for more information.
+    * *formInIframe*: add???.
+    * *reloader*: add???.
     * *readOnly*: boolean. If ``True``, the TableHandler is in read-only mode,
       so user can visualize records and open the :ref:`th_form_class`, but
-      he can't add/delete/modify records.
-      Default value is ``True`` or ``False`` depending on the widget
-      (check it in their method definition).
+      he can't add/delete/modify records. Default value is ``True`` or ``False``
+      depending on the widget (check it in their method definition).
     * *default_kwargs*: you can add different kwargs:
         
         * *virtualStore*: boolean. add??? Default value is ``False``
-        * *relation*: add???. Default value is ``None``.
-        * *condition*: add???. Default value is ``None``.
-        * *condition_kwargs*: add???. Default value is ``None``.
-        * *grid_kwargs*: add???. Default value is ``None``.
-        * *hiderMessage*: add???. Default value is ``None``.
-        * *pageName*: add???. Default value is ``None``.
+        * *relation*: add???.
+        * *condition*: MANDATORY unless you specify the relation attribute. Check the
+          :ref:`th_relation_condition` example for more information.
+        * *condition_kwargs*: the parameters of the condition. Check the
+          :ref:`th_relation_condition` example for more information.
+        * *grid_kwargs*: add???.
+        * *hiderMessage*: add???.
+        * *pageName*: add???.
         
+.. _th_relation_condition:
+
+usage of table, condition and relation parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    add???
+    
 .. _th_border:
 
 th_borderTableHandler

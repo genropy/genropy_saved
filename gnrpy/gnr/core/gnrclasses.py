@@ -55,12 +55,12 @@ class GnrClassCatalog(object):
             
         :param cls: the class itself by reference
         :param key: a string, is a short name of the class, as found in textual values to parse or write
-        :param aliases: other keys to parse using this class. Default value is ``None``
+        :param aliases: other keys to parse using this class. 
         :param altcls: other classes to write in the same way. All values will be parsed with the main class.
-                       Default value is ``None``
+                       
         :param align: add???. Default value is ``L``
         :param empty: the class or value to be used for empty parsed values (example ``''`` for strings).
-                      Default value is ``None``
+                      
         """
         self.classes[key] = cls
         self.align[key] = align
@@ -148,7 +148,7 @@ class GnrClassCatalog(object):
             
         :param o: add???
         :param quoted: add???. Default value is ``False``
-        :param translate_cb: add???. Default value is ``None``
+        :param translate_cb: add???. 
         :returns: add???
         """
         if isinstance(o, basestring):
@@ -220,7 +220,7 @@ class GnrClassCatalog(object):
             
         :param o: add???
         :param quoted: add???. Default value is ``False``
-        :param translate_cb: add???. Default value is ``None``
+        :param translate_cb: add???. 
         :returns: add???
         """
         t = self.names.get(type(o), 'T')
@@ -236,7 +236,7 @@ class GnrClassCatalog(object):
         """Add???
             
         :param o: add???
-        :param translate_cb: add???. Default value is ``None``
+        :param translate_cb: add???. 
         :returns: add???
         """
         c = self.names.get(type(o))
@@ -325,7 +325,7 @@ class GnrClassCatalog(object):
         """Add???
             
         :param txt: add???
-        :param workdate: add???. Default value is ``None``
+        :param workdate: add???. 
         :returns: add???
         """
         splitted = gnrstring.wordSplit(txt)
@@ -336,7 +336,7 @@ class GnrClassCatalog(object):
         """Add???
             
         :param txt: add???
-        :param workdate: add???. Default value is ``None``
+        :param workdate: add???. 
         :returns: add???
         """
         if txt != '0000-00-00':
