@@ -276,6 +276,12 @@ class GnrWebPage(GnrBaseWebPage):
         self.db.workdate = workdate
         
     workdate = property(_get_workdate, _set_workdate)
+
+    @public_method
+    def setWorkdate(self,workdate=None):
+        if workdate:
+            self.workdate = workdate
+            
     ###### END: PROXY DEFINITION #########
         
     def __call__(self):
