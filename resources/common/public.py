@@ -334,17 +334,20 @@ class Public(BaseComponent):
 
 class PublicSlots(BaseComponent):
     @struct_method
-    def pbl_slotbar_workdateBtn(self,pane,**kwargs):
-        action = None
-        if self.application.checkResourcePermission(self.pbl_canChangeWorkdate(), self.userTags):
-            connect_onclick = 'this.getAttributeFromDatasource("dlg").show();'
-            dlg = pane.dialog(height='100px', width='200px',closable=True)
-            fb = dlg.formbuilder(cols=1, border_spacing='5px', margin='25px', margin_top='20px')
-            fb.dateTextBox(value='^gnr.workdate', width='8em', lbl='!!Date')
-            fb.dataRpc('dummy',self.setWorkdate,workdate='^gnr.workdate',_if='workdate')
+    def public_slotbar_workdateBtn(self,pane,**kwargs):
+        pane.data('gnr.workdate', self.workdate)
+        dlg = pane.dialog(title='!!New Workdate',closable=True)
+        frame = dlg.framePane(height='100px',width='200px',datapath='gnr.workdatemanager')
+        frame.dataRpc('gnr.workdate',self.setWorkdate,workdate='=.date',_if='workdate',_fired='^.confirm',
+                        _onResult='console.log(arguments);')
+        fb = frame.formbuilder(cols=1, border_spacing='5px', margin='25px', margin_top='20px')
+        fb.dateTextBox(value='^.date', width='8em', lbl='!!Date')
+        footer = frame.bottom.slotBar('*,confirmbtn')
+        footer.confirmbtn.button('!!Confirm',action='FIRE .confirm;dlg.widget.hide();',dlg=dlg)
+        
         pane.div('^gnr.workdate', format='short',
-                 _class='pbl_slotbar_label buttonIcon',
-                 connect_onclick=connect_onclick,dlg=dlg)
+                connect_onclick='this.getAttributeFromDatasource("dlg").widget.show(); SET gnr.workdatemanager.date=GET gnr.workdate;',
+                 _class='pbl_slotbar_label buttonIcon',dlg=dlg)
 
 
 #######################OLD SLOTS#######################

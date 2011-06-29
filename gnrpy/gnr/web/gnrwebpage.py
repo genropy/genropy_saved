@@ -281,6 +281,7 @@ class GnrWebPage(GnrBaseWebPage):
     def setWorkdate(self,workdate=None):
         if workdate:
             self.workdate = workdate
+        return self.workdate
             
     ###### END: PROXY DEFINITION #########
         
