@@ -507,10 +507,10 @@ class TableHandlerMain(BaseComponent):
             root = root.rootContentPane(title=self.tblobj.name_long)
         else:
             root.attributes.update(tag='ContentPane',_class=None)
-        
+        root.attributes.update(datapath=self.maintable.replace('.','_'))
         form = root.frameForm(frameCode=formId,formId=formId,table=self.maintable,
                              store_startKey=pkey,
-                             datapath='form',store='recordCluster')
+                             datapath='.form',store='recordCluster')
         form.store.attributes.update(store_kwargs)
         self.th_formOptions(form,options=th_kwargs)
         form.dataController("""
