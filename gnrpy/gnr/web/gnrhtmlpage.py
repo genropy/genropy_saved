@@ -23,6 +23,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 from gnr.core.gnrhtml import GnrHtmlSrc, GnrHtmlBuilder
 from gnr.web.gnrwebpage import GnrWebPage
+from gnr.core.gnrstring import  splitAndStrip
 
 class GnrHtmlPage(GnrWebPage):
     srcfactory = GnrHtmlSrc
@@ -196,6 +197,12 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         self.body = self.builder.body
         self.dojo()
         self.gnr_css()
+        js_requires = getattr(self, 'js_requires', [])
+        print js_requires
+        for js_require in js_requires:
+             urls =self.getResourceExternalUriList(js_require,'js') or []
+             for url in urls:
+                self.body.script('genro.dom.loadJs("%s")' %url)
         self.main(self.body, *args, **kwargs)
         self.finalizeDojo()
         result = self.builder.toHtml()
