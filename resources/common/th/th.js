@@ -47,6 +47,7 @@ dojo.declare("gnr.LinkerManager", null, {
         this.formResource = sourceNode.attr._formResource;
         this.field = sourceNode.attr._field;
         this.fieldpath = '#FORM.record.'+this.field;
+        this.resolverpath = '#FORM.record.@'+this.field;
         this.table = sourceNode.attr.table;
         this.fakeFormId = sourceNode.attr._formId || 'LK_'+this.table.replace('.','_');
         this.embedded = sourceNode.attr._embedded;
@@ -77,8 +78,11 @@ dojo.declare("gnr.LinkerManager", null, {
         return this.sourceNode.getRelativeData(this.fieldpath);
     },
     setCurrentPkey:function(pkey){
-        this.sourceNode.setRelativeData(this.fieldpath,null,null,null,false);
+        var currkey = this.sourceNode.getRelativeData(this.fieldpath);
         this.sourceNode.setRelativeData(this.fieldpath,pkey);
+        if(currkey==pkey){
+            this.sourceNode.getRelativeData(this.resolverpath).getParentNode().getValue('reload');
+        }
     },    
     openrecord:function(pkey){
         if(this.form.locked){
