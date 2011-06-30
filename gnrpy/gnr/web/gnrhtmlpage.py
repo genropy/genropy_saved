@@ -202,7 +202,7 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         for js_require in js_requires:
              urls =self.getResourceExternalUriList(js_require,'js') or []
              for url in urls:
-                self.body.script('genro.dom.loadJs("%s")' %url)
+                self.body.script(src=url)
         self.main(self.body, *args, **kwargs)
         self.finalizeDojo()
         result = self.builder.toHtml()
