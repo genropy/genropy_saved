@@ -686,13 +686,42 @@ th_borderTableHandler
     :ref:`types_common_attributes` section. The attributes that belongs only
     to the borderTableHandler are listed here:
     
-    * *widget_kwargs*: add???. Default value is ``None``
-    * *loadEvent*: add???. Default value is ``'onSelected'``
-    * *viewRegion*: add?. Default value is ``None``
-    * *formRegion*: add?. Default value is ``None``
-    * *vpane_kwargs*: add?. Default value is ``None``
-    * *fpane_kwargs*: add?. Default value is ``None``
-    
+    * *widget_kwargs*: add???
+    * *loadEvent*: add???
+    * *viewRegion*: add?
+    * *formRegion*: add?
+    * *vpane_kwargs*: allow to set the attributes of the :ref:`genro_view_data`.
+      
+      In particular, you have the following options:
+      
+      * *vpane_region*: specify the region occupied by the View class. As for the
+        :ref:`genro_bordercontainer`, you may choose between these values: top, left,
+        right, bottom, center. By default, the View class has ``vpane_region='top'``
+      * *vpane_width* (OR *vpane_height*): specify the width (or the height) occupied
+        by the View class (tip: we suggest you to use a percentage, like '30%')
+        By default, the View class has ``vpane_height='50%'``
+      * *add???*: other options?
+      
+      Example::
+      
+        vpane_region='left',vpane_width='36%'
+        
+    * *fpane_kwargs*: allow to set the attributes of the :ref:`genro_data_entry`.
+      
+      In particular, you have the following options:
+      
+      * *fpane_region*: specify the region occupied by the Form class. As for the
+        :ref:`genro_bordercontainer`, you may choose between these values: top, left,
+        right, bottom, center. By default, the Form class has ``fpane_region='bottom'``
+      * *fpane_width*: specify the width occupied by the Form class (tip: we
+        suggest you to use a percentage, like '30%') By default, the Form class has
+        ``fpane_height='50%'``
+      * *add???*: other options?
+      
+      Example::
+
+          vpane_region='right',vpane_width='70%'
+      
 .. _th_dialog:
 
 th_dialogTableHandler
