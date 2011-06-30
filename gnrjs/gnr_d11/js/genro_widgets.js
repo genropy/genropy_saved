@@ -2574,6 +2574,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
                             //formats = objectUpdate(formats, localTypes[dtype]);
                             var cellClassCB = objectPop(cell, 'cellClassCB');
+                            var _customGetter = objectPop(cell,'_customGetter');
+                            if(_customGetter){
+                                cell._customGetter = funcCreate(_customGetter);
+                            }
                             cell.formatter = _cellFormatter(formats, cellClassCB);
                             delete cell.tag;
                             row.push(cell);

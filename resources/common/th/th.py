@@ -206,7 +206,7 @@ class TableHandler(BaseComponent):
         rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey; FIRE .controller.loaded;'
         if pkey:
             root.dataController('SET .pkey = pkey; FIRE .controller.loaded;',pkey=pkey,_onStart=True)
-            root.dataRecord('.record',table,pkey='^#FORM.pkey')
+            root.dataRecord('.record',table,pkey='^#FORM.pkey',_if='pkey')
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
 class ThLinker(BaseComponent):
@@ -255,7 +255,7 @@ class ThLinker(BaseComponent):
             openIfNew = True if openIfNew is None else openIfNew
         if openIfNew:
             linker.attributes.update(_class='==newrecord?"th_enableLinker th_linker": "th_linker"',
-                                      newrecord='=#FORM.record?_newrecord',_fired='^#FORM.controller.loaded')
+                                      newrecord='^#FORM.controller.is_newrecord')
         if newRecordOnly:
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',

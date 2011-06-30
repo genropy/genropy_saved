@@ -691,10 +691,10 @@ class SqlQueryCompiler(object):
                             testallpath = '.'.join(bagpath + ['*'])
                             # if joinExtra.get('one_one') we had to eager load the relation in order to use the joinExtra conditions
                             is_eager_one = attrs.get('eager_one') and self.db.allow_eager_one and attrs.get('mode') == 'O'
-                            if extra_one_one\
+                            if False and (extra_one_one \
                                or (fieldpath in self.eager)\
                                or (testallpath in self.eager)\
-                            or (is_eager_one and not fieldpath in self.lazy):
+                            or (is_eager_one and not fieldpath in self.lazy)):
                                 #call recordFields recoursively for related records to be loaded in one query                                
                                 alias, newpath = self.getAlias(attrs, newpath, newbase)
                                 self.cpl.template.setItem('.'.join(bagpath + [field]), None, _attributes=attrs,
@@ -1691,7 +1691,7 @@ class SqlSelection(object):
             result.setItem('r_%i' % j, content, _pkey=row.get('pkey'))
         return result
         
-    def out_baglist(self, outsource, recordResolver=False, caption=False):
+    def out_baglist(self, outsource, recordResolver=False, labelIsPkey=False):
         """add???
         
         :param outsource: add???
@@ -1701,8 +1701,11 @@ class SqlSelection(object):
         for j, row in enumerate(outsource):
             row = dict(row)
             pkey = row.pop('pkey', None)
-            spkey = 'r_%i' % j
-            result.setItem(spkey, Bag(row), _pkey=pkey)
+            if labelIsPkey:
+                label = pkey
+            else:
+                label = 'r_%i' % j
+            result.setItem(label, Bag(row), _pkey=pkey)
         return result
         
     def out_selection(self, outsource, recordResolver=False, caption=False):
