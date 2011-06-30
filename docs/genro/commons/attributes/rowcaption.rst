@@ -1,4 +1,4 @@
-.. _genro_database_rowcaption:
+.. _genro_rowcaption:
 
 ==========
 Rowcaption

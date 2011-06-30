@@ -7,7 +7,7 @@ Genropy
 =======
 
 :Release: |version|
-:Last update: June 28, 2011
+:Last update: |today|
 
 .. Be careful with the code below. If you screw the indentation, the doc contents page will appear messed up!
 

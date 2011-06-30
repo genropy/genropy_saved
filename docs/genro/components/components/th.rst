@@ -26,7 +26,9 @@ tableHandler
         * :ref:`th_webpage_th_form`
         * :ref:`th_form_center_path`
     
-    * :ref:`th_types`: :ref:`types_py_requires` - :ref:`types_common_attributes` - :ref:`th_relation_condition`
+    * :ref:`th_types`:
+    
+        :ref:`types_py_requires` - :ref:`types_common_attributes` (:ref:`th_relation_condition`) - :ref:`th_options`
         
         * :ref:`th_border`
         * :ref:`th_dialog`
@@ -40,6 +42,11 @@ tableHandler
         * :ref:`th_linker_type`
         * :ref:`th_thiframe`
         * :ref:`th_iframedispatcher`
+        
+    * :ref:`th_attr_expl`:
+    
+        * :ref:`th_formresource`
+        * :ref:`th_viewresource`
         
 .. _th_introduction:
 
@@ -640,6 +647,8 @@ common attributes
         * *grid_kwargs*: add???.
         * *hiderMessage*: add???.
         * *pageName*: add???.
+        * *pbl_classes*: if ``True``, allow to use the pbl_roundedgroup and the roundedgrouplabel
+          style attributes (of the base CSS theme of Genro) in your TableHandler
         
 .. _th_relation_condition:
 
@@ -647,6 +656,13 @@ usage of table, condition and relation parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     add???
+    
+.. _th_options:
+
+th_options
+----------
+
+    add??? (I have to wait that this method becomes stable...)
     
 .. _th_border:
 
@@ -886,6 +902,8 @@ th_iframedispatcher
     * *methodname*: add???. Default value is ``None``
     * *pkey*: add???. Default value is ``None``
     
+.. _th_attr_expl:
+
 Attributes explanation
 ======================
 
