@@ -2578,6 +2578,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             if(_customGetter){
                                 cell._customGetter = funcCreate(_customGetter);
                             }
+                            if(cell.dtype=='B'){
+                                formats['trueclass']="checkboxOn";
+                                formats['falseclass']="checkboxOff";
+                            }
+                            if(cell.semaphore){
+                                formats['trueclass'] = 'greenLight';
+                                formats['falseclass'] = 'redLight';
+                            }
                             cell.formatter = _cellFormatter(formats, cellClassCB);
                             delete cell.tag;
                             row.push(cell);
