@@ -36,7 +36,7 @@ class FrameGridSlots(BaseComponent):
 
     @struct_method
     def fgr_slotbar_gridConfigurator(self,pane,_class='icnBaseTableEdit box24',frameCode=None,enable=None,parentForm=True,**kwargs):
-        pane.div(tip='!!Configurate view', _class=_class,visible=enable,_gridConfigurator=True,**kwargs)
+        pane.div(tip='!!Configure view', _class=_class,visible=enable,_gridConfigurator=True,**kwargs)
         
     @struct_method
     def fgr_slotbar_gridTrashColumns(self,pane,_class='icnBaseTrash box24',frameCode=None,enable=None,parentForm=True,**kwargs):
