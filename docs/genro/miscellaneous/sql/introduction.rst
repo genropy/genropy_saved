@@ -65,6 +65,19 @@ columns
         
         add??? (other examples...)
         
+.. _sql_deferred:
+
+deferred
+--------
+
+    The sql "DEFERRED" clause.
+    
+    Boolean, ``True`` to get... add???
+    
+    Example::
+    
+        add???
+        
 .. _sql_distinct:
 
 distinct

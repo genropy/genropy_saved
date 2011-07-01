@@ -51,3 +51,26 @@ Validity
     that are :ref:`genro_accordioncontainer`, :ref:`genro_bordercontainer`, :ref:`genro_stackcontainer`,
     :ref:`genro_tabcontainer`, or if you create a :ref:`genro_form` you can give it to a :ref:`genro_formbuilder`.
     
+.. _datapath_symbolic:
+
+symbolic datapath
+=================
+
+    A symbolic datapath is a path that allow assign to an object the same path of another object.
+    
+    Let's suppose to have two objects (called ``A`` and ``B``): the ``A`` object is the one you want
+    to assign the path of the ``B`` object. To create a symbolic datapath, you have to give to the
+    ``A`` object a datapath that begins with the sharp character (``#``) followed by a string equal
+    to the nodeId value (string) of the ``B`` object.
+    
+        Example::
+    
+            add???
+            
+.. _symbolic_form:
+
+#FORM
+-----
+    
+    add??? 
+    
