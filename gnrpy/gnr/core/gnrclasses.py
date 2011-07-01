@@ -29,6 +29,10 @@ from decimal import Decimal
 
 ISO_MATCH = re.compile(r'\d{4}\W\d{1,2}\W\d{1,2}')
 
+
+class GnrMixinError(Exception):
+    pass
+
 class GnrClassCatalog(object):
     """add???"""
     __standard = None
