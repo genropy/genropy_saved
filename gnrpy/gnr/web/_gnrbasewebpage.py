@@ -74,7 +74,7 @@ class GnrBaseWebPage(GnrObject):
         
         :param name: add???
         :param value: add???
-        :param secret: add???. Default value is ``None``
+        :param secret: add???. 
         :returns: add???
         """
         return self.request.newMarshalCookie(name, value, secret=secret, **kw)
@@ -84,8 +84,8 @@ class GnrBaseWebPage(GnrObject):
         
         :param cookieName: add???
         :param cookieType: add???
-        :param secret: add???. Default value is ``None``
-        :param path: add???. Default value is ``None``
+        :param secret: add???. 
+        :param path: add???. 
         :returns: add???
         """
         return self.request.get_cookie(cookieName, cookieType, secret=secret, path=path)
@@ -131,8 +131,8 @@ class GnrBaseWebPage(GnrObject):
         
         :param datestr: add???
         :param workdate: the working date. (e.g: ``DD/MM/YYYY``). The date format depends on the
-                         value of the *locale* parameter. Default value is ``None``
-        :param locale: add???. Default value is ``None``"""
+                         value of the *locale* parameter. 
+        :param locale: add???. """
         workdate = workdate or self.workdate
         locale = locale or self.locale
         period = datestr
@@ -198,7 +198,7 @@ class GnrBaseWebPage(GnrObject):
     def pageAuthTags(self, method=None, **kwargs):
         """Allow to define users authorizations
         
-        :param method: add???. Default value is ``None``
+        :param method: add???. 
         :returns: a string containing the users authorizations
         """
         return ""
@@ -228,8 +228,8 @@ class GnrBaseWebPage(GnrObject):
     def unfreezeSelection(self, dbtable=None, name=None):
         """add???
         
-        :param dbtable: add???. Default value is ``None``
-        :param name: add???. Default value is ``None``
+        :param dbtable: add???. 
+        :param name: add???. 
         :returns: add???
         """
         assert name, 'name is mandatory'
@@ -244,15 +244,15 @@ class GnrBaseWebPage(GnrObject):
                          condition=None, table=None, condition_args=None):
         """add???
         
-        :param selectionName: add???. Default value is ``None``
-        :param selectedRowidx: add???. Default value is ``None``
-        :param filterCb: add???. Default value is ``None``
+        :param selectionName: add???. 
+        :param selectedRowidx: add???. 
+        :param filterCb: add???. 
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. Default value is ``None``
-        :param condition: add???. Default value is ``None``
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param condition_args: add???. Default value is ``None``
+                        :ref:`sql_columns` section. 
+        :param condition: add???. 
+        :param table: the :ref:`genro_table` name. 
+        :param condition_args: add???. 
         :returns: add???
         """
         # table is for checking if the selection belong to the table
@@ -327,7 +327,7 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param tofile: add???
-        :param fromfile: add???. Default value is ``None``
+        :param fromfile: add???. 
         :returns: add???
         """
         fromfile = fromfile or self.filename
@@ -376,14 +376,14 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param formId: the id of the :ref:`genro_form`.
-        :param table: the :ref:`genro_table` related to the form. Default value is ``None``
-        :param method: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` related to the form. 
+        :param method: add???. 
         :param _fired: add???. Default value is ``''``
-        :param datapath: the :ref:`genro_datapath` form. Default value is ``None``
+        :param datapath: the :ref:`genro_datapath` form. 
         :param resultPath: add???. Default value is ``dummy``
         :param changesOnly: boolean. add???. Default value is ``True``
-        :param onSaving: add???. Default value is ``None``
-        :param onSaved: add???. Default value is ``None``
+        :param onSaving: add???. 
+        :param onSaved: add???. 
         :param saveAlways: boolean. add???. Default value is ``False``
         """
         method = method or 'saveRecordCluster'
@@ -424,16 +424,16 @@ class GnrBaseWebPage(GnrObject):
         
         :param formId: the id of the :ref:`genro_form`.
         :param resultPath: add???
-        :param table: the :ref:`genro_table` related to the form. Default value is ``None``
-        :param pkey: the record primary key. Default value is ``None``
-        :param datapath: the :ref:`genro_datapath` form. Default value is ``None``
-        :param _fired: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` related to the form. 
+        :param pkey: the record primary key. 
+        :param datapath: the :ref:`genro_datapath` form. 
+        :param _fired: add???. 
         :param loadOnStart: boolean add???. Default value is ``False``
         :param lock: boolean. add???. Default value is ``False``
-        :param method: add???. Default value is ``None``
-        :param onLoading: add???. Default value is ``None``
-        :param onLoaded: add???. Default value is ``None``
-        :param loadingParameters: add???. Default value is ``None``
+        :param method: add???. 
+        :param onLoading: add???. 
+        :param onLoaded: add???. 
+        :param loadingParameters: add???. 
         """
         pkey = pkey or '*newrecord*'
         method = method or 'loadRecordCluster'
@@ -457,8 +457,8 @@ class GnrBaseWebPage(GnrObject):
     def rpc_loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
         """A :ref:`genro_datarpc`. add???
         
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param pkey: the record primary key. Default value is ``None``
+        :param table: the :ref:`genro_table` name. 
+        :param pkey: the record primary key. 
         :param recordGetter: add???. Default value is ``app.getRecord``"""
         table = table or self.maintable
         getterHandler = self.getPublicMethod('rpc', recordGetter)
@@ -469,9 +469,9 @@ class GnrBaseWebPage(GnrObject):
         """A :ref:`genro_datarpc`. add???
         
         :param data: add???
-        :param table: the :ref:`genro_table` name. Default value is ``None``
+        :param table: the :ref:`genro_table` name. 
         :param _nocommit: boolean. add???. Default value is ``False``
-        :param rowcaption: add???. Default value is ``None``
+        :param rowcaption: add???. 
         :param _autoreload: boolean. add???. Default value is ``False``"""
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
@@ -518,7 +518,7 @@ class GnrBaseWebPage(GnrObject):
         """A :ref:`genro_datarpc`. add???
         
         :param data: add???
-        :param table: the :ref:`genro_table` name. Default value is ``None``"""
+        :param table: the :ref:`genro_table` name. """
         maintable = getattr(self, 'maintable')
         table = table or maintable
         tblobj = self.db.table(table)
@@ -539,7 +539,7 @@ class GnrBaseWebPage(GnrObject):
         """A :ref:`genro_datarpc`. Method for deleting a single record from a given table.
         
         :param table: the :ref:`genro_table` from which you want to delete a single record
-        :param pkey: the record primary key. Default value is ``None``
+        :param pkey: the record primary key. 
         :returns: if it works, returns the primary key and the deleted attribute.
                   Else, return an exception"""
         try:
@@ -573,12 +573,13 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def setLoadingParameters(self, table, **kwargs):
-        """Set parameters at the path ``gnr.tables.TABLE.loadingParameters.PARAMETERNAME``.
+        """Set parameters at the path ``gnr.tables.TABLE.loadingParameters.PARAMETERNAME``,
+        where:
         
-        ``TABLE`` is the value you define for the *table* parameter. ``PARAMETERNAME`` is the
-        name you gave to the parameter.
+        * ``TABLE`` is the value you define for the *table* parameter
+        * ``PARAMETERNAME`` is the name you gave to the parameter.
         
-        :param table: string. You can put the following strings:
+        :param table: MANDATORY - string. You can put the following strings:
         
                       * *maintable*: set a parameter value of a column of the table you define in the
                         :ref:`webpages_maintable` :ref:`webpage variable <webpages_variables>`
@@ -719,7 +720,7 @@ class GnrBaseWebPage(GnrObject):
     def rpc_resolverRecall(self, resolverPars=None, **auxkwargs):
         """A :ref:`genro_datarpc`. add???
         
-        :param resolverPars: add???. Default value is ``None``"""
+        :param resolverPars: add???. """
         if isinstance(resolverPars, basestring):
             resolverPars = json.loads(resolverPars) #should never happen
         resolverclass = resolverPars['resolverclass']

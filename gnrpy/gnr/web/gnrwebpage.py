@@ -276,6 +276,13 @@ class GnrWebPage(GnrBaseWebPage):
         self.db.workdate = workdate
         
     workdate = property(_get_workdate, _set_workdate)
+
+    @public_method
+    def setWorkdate(self,workdate=None):
+        if workdate:
+            self.workdate = workdate
+        return self.workdate
+            
     ###### END: PROXY DEFINITION #########
         
     def __call__(self):
@@ -349,8 +356,8 @@ class GnrWebPage(GnrBaseWebPage):
         * The user exists and his password is correct.
         * The user is a guest
         
-        :param login: add???. Default value is ``None``
-        :param guestName: add???. Default value is ``None``"""
+        :param login: add???. 
+        :param guestName: add???. """
         loginPars = {}
         if guestName:
             avatar = self.application.getAvatar(guestName)
@@ -389,14 +396,14 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param recordCluster: add???
         :param recordClusterAttr: add???
-        :param resultAttr: add???. Default value is ``None``"""
+        :param resultAttr: add???. """
         pass
         
     def onSaved(self, record, resultAttr=None, **kwargs):
         """add???
         
         :param record: add???
-        :param resultAttr: add???. Default value is ``None``"""
+        :param resultAttr: add???. """
         pass
         
     def onDeleting(self, recordCluster, recordClusterAttr):
@@ -488,11 +495,11 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param obj: add???
-        :param locale: add???. Default value is ``None``
-        :param format: add???. Default value is ``None``
-        :param mask: add???. Default value is ``None``
-        :param encoding: add???. Default value is ``None``
-        :param dtype: add???. Default value is ``None``"""
+        :param locale: add???. 
+        :param format: add???. 
+        :param mask: add???. 
+        :param encoding: add???. 
+        :param dtype: add???. """
         locale = locale or self.locale
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
         
@@ -636,8 +643,8 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param _expiry: add???. Default value is ``None``
-        :param _host: add???. Default value is ``None``
+        :param _expiry: add???. 
+        :param _host: add???. 
         :param method: add???. Default value is ``root``"""
         assert 'sys' in self.site.gnrapp.packages
         external_token = self.db.table('sys.external_token').create_token(path, expiry=_expiry, allowed_host=_host,
@@ -670,7 +677,7 @@ class GnrWebPage(GnrBaseWebPage):
         """Create a Grid Struct and return it.
         
         :param maintable: the table to which the struct refers to. For more information,
-                          check the :ref:`webpages_maintable` section. Default value is ``None``"""
+                          check the :ref:`webpages_maintable` section. """
         return GnrGridStruct.makeRoot(self, maintable=maintable)
         
     def _get_folders(self):
@@ -703,7 +710,7 @@ class GnrWebPage(GnrBaseWebPage):
     def connectionStore(self, connection_id=None, triggered=True):
         """add???
         
-        :param connection_id: add???. Default value is ``None``
+        :param connection_id: add???. 
         :param triggered: boolean. add???. Default value is ``True``"""
         connection_id = connection_id or self.connection_id
         return self.site.register.connectionStore(connection_id, triggered=triggered)
@@ -711,7 +718,7 @@ class GnrWebPage(GnrBaseWebPage):
     def userStore(self, user=None, triggered=True):
         """add???
         
-        :param user: add???. Default value is ``None``
+        :param user: add???. 
         :param triggered: boolean. add???. Default value is ``True``"""
         user = user or self.user
         return self.site.register.userStore(user, triggered=triggered)
@@ -719,8 +726,8 @@ class GnrWebPage(GnrBaseWebPage):
     def rpc_setStoreSubscription(self, storename=None, client_path=None, active=True):
         """add???
         
-        :param storename: add???. Default value is ``None``
-        :param client_path: add???. Default value is ``None``
+        :param storename: add???. 
+        :param client_path: add???. 
         :param active: boolean. add???. Default value is ``True``
         """
         with self.pageStore() as store:
@@ -735,7 +742,7 @@ class GnrWebPage(GnrBaseWebPage):
     def clientPage(self, page_id=None):
         """add???
         
-        :param page_id: add???. Default value is ``None``"""
+        :param page_id: add???. """
         return ClientPageHandler(self, page_id or self.page_id)
         
     def _get_pkgapp(self):
@@ -875,7 +882,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param ext: add???. Default value is ``None``"""
+        :param ext: add???. """
         return self.site.resource_loader.getResourceList(self.resourceDirs, path, ext=ext)
         
         
@@ -883,7 +890,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param ext: add???. Default value is ``None``
+        :param ext: add???. 
         :param add_mtime: add???. Default value is ``False``"""
         flist = self.getResourceList(path, ext=ext)
         return [self.resolveResourceUri(f, add_mtime=add_mtime) for f in flist]
@@ -892,7 +899,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param ext: add???. Default value is ``None``
+        :param ext: add???. 
         :param add_mtime: add???. Default value is ``False``"""
         flist = self.getResourceList(path, ext=ext)
         return [self.externalUrl(self.resolveResourceUri(f, add_mtime=add_mtime)) for f in flist]
@@ -907,10 +914,10 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param ext: add???. Default value is ``None``
+        :param ext: add???. 
         :param add_mtime: add???. Default value is ``False``
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
             return
@@ -922,7 +929,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param fpath: add???
         :param add_mtime: add???. Default value is ``False``
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         url = None 
         packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
         pkg = pkg or self.packageId
@@ -950,9 +957,9 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param ext: add???. Default value is ``None``
+        :param ext: add???. 
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         resourceDirs = self.resourceDirs
         if pkg:
             resourceDirs = self.site.resource_loader.package_resourceDirs(pkg)
@@ -966,9 +973,9 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param classname: add???. Default value is ``None``
+        :param classname: add???. 
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         res = self.getResource(path,pkg=pkg,ext='py')
         if res:
             m = gnrImport(res)
@@ -982,7 +989,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param table: add???
         :param path: add???
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         pkg,table = table.split('.')
         path,classname= path.split(':')
         return self.importResource('tables/%s/%s' %(table,path),classname=classname,pkg=pkg)
@@ -992,10 +999,10 @@ class GnrWebPage(GnrBaseWebPage):
     def getResourceContent(self, resource=None, ext=None, pkg=None):
         """A decorator - :ref:`public_method`. add???
         
-        :param resource: add???. Default value is ``None``
-        :param ext: add???. Default value is ``None``
+        :param resource: add???. 
+        :param ext: add???. 
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         path = self.getResource(path=resource,ext=ext,pkg=pkg)
         if path:
             with open(path) as f:
@@ -1075,12 +1082,12 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param value: add???. Default value is ``None``
-        :param attributes: add???. Default value is ``None``
-        :param page_id: add???. Default value is ``None``
-        :param filters: add???. Default value is ``None``
+        :param value: add???. 
+        :param attributes: add???. 
+        :param page_id: add???. 
+        :param filters: add???. 
         :param fired: add???. Default value is ``False``
-        :param reason: add???. Default value is ``None``
+        :param reason: add???. 
         :param public: add???. Default value is ``False``
         :param replace: add???. Default value is ``False``"""
         if filters:
@@ -1107,9 +1114,9 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param message: add???
-        :param page_id: add???. Default value is ``None``
-        :param filters: add???. Default value is ``None``
-        :param msg_path: add???. Default value is ``None``"""
+        :param page_id: add???. 
+        :param filters: add???. 
+        :param msg_path: add???. """
         self.site.sendMessageToClient(message, pageId=pageId, filters=filters, origin=self, msg_path=msg_path)
         
     def _get_package_folder(self):
@@ -1122,7 +1129,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param \_auth: add???. Default value is ``AUTH_OK``
-        :param debugger: add???. Default value is ``None``"""
+        :param debugger: add???. """
         page = self.domSrcFactory.makeRoot(self)
         self._root = page
         pageattr = {}
@@ -1320,10 +1327,10 @@ class GnrWebPage(GnrBaseWebPage):
         
         This is typically used to customize prints and batch jobs for a particular installation.
         
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param respath: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name. 
+        :param respath: add???. 
         :param class_name: add???. Default value is ``'Main'``
-        :param downloadAs: add???. Default value is ``None``"""
+        :param downloadAs: add???. """
         if downloadAs:
             import mimetypes
             
@@ -1335,7 +1342,7 @@ class GnrWebPage(GnrBaseWebPage):
     def rpc_remoteBuilder(self, handler=None, **kwargs):
         """add???
         
-        :param handler: add???. Default value is ``None``"""
+        :param handler: add???. """
         handler = self.getPublicMethod('remote', handler)
         if handler:
             pane = self.newSourceRoot()
@@ -1354,8 +1361,8 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param value: add???. Default value is ``None``
-        :param pageId: add???. Default value is ``None``"""
+        :param value: add???. 
+        :param pageId: add???. """
         with self.pageStore(pageId) as store:
             store.setItem(path, value)
             
@@ -1382,7 +1389,7 @@ class GnrWebPage(GnrBaseWebPage):
                              omit='', **kwargs):
         """add???
         
-        :param table: the :ref:`genro_table` name. Default value is ``None``
+        :param table: the :ref:`genro_table` name. 
         :param prevRelation: add???. Default value is ``''``
         :param prevCaption: add???. Default value is ``''``
         :param omit: add???. Default value is ``''``"""
@@ -1417,12 +1424,12 @@ class GnrWebPage(GnrBaseWebPage):
     def rpc_setInClientPage(self, pageId=None, changepath=None, value=None, fired=None, attr=None, reason=None):
         """add???
         
-        :param pageId: add???. Default value is ``None``
-        :param changepath: add???. Default value is ``None``
-        :param value: add???. Default value is ``None``
-        :param fired: add???. Default value is ``None``
-        :param attr: add???. Default value is ``None``
-        :param reason: add???. Default value is ``None``"""
+        :param pageId: add???. 
+        :param changepath: add???. 
+        :param value: add???. 
+        :param fired: add???. 
+        :param attr: add???. 
+        :param reason: add???. """
         with self.clientPage(pageId) as clientPage:
             clientPage.set(changepath, value, attr=attr, reason=reason, fired=fired)
             
@@ -1505,9 +1512,9 @@ class GnrWebPage(GnrBaseWebPage):
     def addToContext(self, value=None, serverpath=None, clientpath=None):
         """add???
         
-        :param value: add???. Default value is ``None``
-        :param serverpath: add???. Default value is ``None``
-        :param clientpath: add???. Default value is ``None``
+        :param value: add???. 
+        :param serverpath: add???. 
+        :param clientpath: add???. 
         """
         self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
         
@@ -1592,15 +1599,15 @@ class GnrWebPage(GnrBaseWebPage):
     def callTableMethod(self,table=None,methodname=None,**kwargs):
         """A decorator - :ref:`public_method`. add???
         
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param methodname: the name of the :ref:`datarpc_method`. Default value is ``None``"""
+        :param table: the :ref:`genro_table` name. 
+        :param methodname: the name of the :ref:`datarpc_method`. """
         getattr(self.db.table(table),'rpc_%s' %methodname)(**kwargs)
         
     def lazyBag(self, bag, name=None, location='page:resolvers'):
         """add???
         
         :param bag: a :ref:`genro_bag`
-        :param name: add???. Default value is ``None``
+        :param name: add???. 
         :param location: add???. Default value is ``page:resolvers``
         :returns: add???"""
         freeze_path = self.site.getStaticPath(location, name, autocreate=-1)

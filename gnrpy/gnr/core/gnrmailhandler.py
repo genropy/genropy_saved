@@ -86,15 +86,15 @@ class MailHandler(GnrBaseService):
         
         :param name: the account's name
         :param from_address: the address that will appear in the recipients from field.
-                             Default value is ``None``
-        :param smtp_host: the smtp host to send this email. Default value is ``None``
-        :param username: add???. Default value is ``None``
+                             
+        :param smtp_host: the smtp host to send this email. 
+        :param username: add???. 
         :param password: the username's password (if a username is required for
-                         authentication). Default value is ``None``
+                         authentication). 
         :param port: if a non standard port is used then it can be overridden.
-                     Default value is ``None``
+                     
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-                    Default value is ``None``
+                    
         :param default: boolean. add???. Default value is ``False``
         """
         self.smtp_accounts[name] = dict(from_address=from_address,
@@ -130,18 +130,18 @@ class MailHandler(GnrBaseService):
         
         :param account: if an account has been defined previously with :meth:`set_smtp_account`
                         then this account can be used instead of having to repeat all the mail
-                        parameters contained. Default value is ``None``
+                        parameters contained. 
         :param from_address: the address that will appear in the recipients from field.
-                             Default value is ``None``
-        :param smtp_host: the smtp host to send this email. Default value is ``None``
+                             
+        :param smtp_host: the smtp host to send this email. 
         :param port: if a non standard port is used then it can be overridden.
-                     Default value is ``None``
+                     
         :param user: if a username is required for authentication.
-                     Default value is ``None``
+                     
         :param password: the username's password (if a username is required for
-                         authentication). Default value is ``None``
+                         authentication). 
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-                    Default value is ``None``
+                    
         :param tls: boolean. Allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
                     
@@ -164,16 +164,16 @@ class MailHandler(GnrBaseService):
         
         :param account: if an account has been defined previously with :meth:`set_smtp_account`
                         then this account can be used instead of having to repeat all the mail
-                        parameters contained. Default value is ``None``
-        :param smtp_host: the smtp host to send this email. Default value is ``None``
+                        parameters contained. 
+        :param smtp_host: the smtp host to send this email. 
         :param port: if a non standard port is used then it can be overridden.
-                     Default value is ``None``
+                     
         :param user: if a username is required for authentication.
-                     Default value is ``None``
+                     
         :param password: the username's password (if a username is required for
-                         authentication). Default value is ``None``
+                         authentication). 
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-                    Default value is ``None``
+                    
         :param tls: allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
                     
@@ -200,9 +200,9 @@ class MailHandler(GnrBaseService):
         """Handle the mail addresses
         
         :param from_address: the address that will appear in the recipients from field.
-                             Default value is ``None``
-        :param to_address: address where the email will be sent. Default value is ``None``
-        :param multiple_mode: add???. Default value is ``None``
+                             
+        :param to_address: address where the email will be sent. 
+        :param multiple_mode: add???. 
         :returns: lists of addresses
         """
         cc = bcc = None
@@ -228,10 +228,10 @@ class MailHandler(GnrBaseService):
         :param body: body of the email. If you pass ``html=True`` attribute,
                      then you can pass in the body the html tags
         :param attachments: path of the attachment to be sent with the email.
-                            Default value is ``None``
-        :param html: add???. Default value is ``None``
+                            
+        :param html: add???. 
         :param charset: a different charser may be defined by its standard name.
-                        Default value is ``None``.
+                        .
         :returns: the message
         """
         charset = charset or 'us-ascii' # us-ascii is the email default, gnr default is utf-8.
@@ -268,30 +268,30 @@ class MailHandler(GnrBaseService):
         """Add???
         
         :param datasource: add???
-        :param to_address: address where the email will be sent. Default value is ``None``
+        :param to_address: address where the email will be sent. 
         :param cc_address: can be a comma deliminated str of email addresses or a list or tuple.
-                           Default value is ``None``
+                           
         :param bcc_address: can be a comma deliminated str of email addresses or a list or tuple.
-                            Default value is ``None``
-        :param subject: add???. Default value is ``None``
+                            
+        :param subject: add???. 
         :param from_address: the address that will appear in the recipients from field.
-                             Default value is ``None``
+                             
         :param body: body of the email. If you pass ``html=True`` attribute,
-                     then you can pass in the body the html tags. Default value is ``None``
+                     then you can pass in the body the html tags. 
         :param attachments: path of the attachment to be sent with the email.
-                            Default value is ``None``
+                            
         :param account: if an account has been defined previously with :meth:`set_smtp_account`
                         then this account can be used instead of having to repeat all the mail
-                        parameters contained. Default value is ``None``
-        :param smtp_host: the smtp host to send this email. Default value is ``None``
+                        parameters contained. 
+        :param smtp_host: the smtp host to send this email. 
         :param port: if a non standard port is used then it can be overridden.
-                     Default value is ``None``
+                     
         :param user: if a username is required for authentication.
-                     Default value is ``None``
+                     
         :param password: the username's password (if a username is required for
-                         authentication). Default value is ``None``
+                         authentication). 
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-                    Default value is ``None``
+                    
         :param tls: allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
                     
@@ -337,27 +337,27 @@ class MailHandler(GnrBaseService):
         :param subject: subject of the email
         :param body: body of the email. If you pass ``html=True`` attribute,
                      then you can pass in the body the html tags.
-                     Default value is ``None``
+                     
         :param cc_address: can be a comma deliminated str of email addresses or a list or tuple.
-                           Default value is ``None``
+                           
         :param bcc_address: can be a comma deliminated str of email addresses or a list or tuple.
-                            Default value is ``None``
+                            
         :param attachments: path of the attachment to be sent with the email.
-                            Default value is ``None``
+                            
         :param account: if an account has been defined previously with :meth:`set_smtp_account`
                         then this account can be used instead of having to repeat all the mail
-                        parameters contained. Default value is ``None``
+                        parameters contained. 
         :param from_address: the address that will appear in the recipients from field.
-                             Default value is ``None``
-        :param smtp_host: the smtp host to send this email. Default value is ``None``
+                             
+        :param smtp_host: the smtp host to send this email. 
         :param port: if a non standard port is used then it can be overridden.
-                     Default value is ``None``
+                     
         :param user: if a username is required for authentication.
-                     Default value is ``None``
+                     
         :param password: the username's password (if a username is required for
-                         authentication). Default value is ``None``
+                         authentication). 
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-                    Default value is ``None``
+                    
         :param tls: allow to communicate with an smtp server (the default value is ``False``). You may choose three ways:
                     
                     1. no encryption
@@ -412,21 +412,21 @@ class MailHandler(GnrBaseService):
         :param body: body of the email. If you pass ``html=True`` attribute,
                      then you can pass in the body the html tags
         :param attachments: path of the attachment to be sent with the email.
-                            Default value is ``None``
+                            
         :param account: if an account has been defined previously with :meth:`set_smtp_account`
                         then this account can be used instead of having to repeat all the mail
-                        parameters contained. Default value is ``None``
+                        parameters contained. 
         :param from_address: the address that will appear in the recipients from field.
-                             Default value is ``None``
-        :param smtp_host: the smtp host to send this email. Default value is ``None``
+                             
+        :param smtp_host: the smtp host to send this email. 
         :param port: if a non standard port is used then it can be overridden.
-                     Default value is ``None``
+                     
         :param user: if a username is required for authentication.
-                     Default value is ``None``
+                     
         :param password: the username's password (if a username is required for
-                         authentication). Default value is ``None``
+                         authentication). 
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-                    Default value is ``None``
+                    
         :param tls: allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
                     

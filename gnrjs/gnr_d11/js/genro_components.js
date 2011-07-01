@@ -627,7 +627,6 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
         var placeholder = objectPop(kw,'placeholder');
         var folder = objectPop(kw,'folder');
         var filename = objectPop(kw,'filename');
-        filename = sourceNode.currentFromDatasource(filename);
         var cb = function(result){
             sourceNode.setRelativeData(value,this.responseText);
         };
@@ -635,7 +634,8 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
                             dropTarget:true,dropTypes:'Files', drop_ext:'png,jpg,gif'};
         uploaderAttr.onDrop = function(data,files){
             var f = files[0];
-            genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:folder,filename:filename,onResult:cb});
+            genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:folder,filename:sourceNode.currentFromDatasource(filename),
+                                                      onResult:cb});
         };
         return sourceNode._('img',objectUpdate(uploaderAttr,kw));
     }
@@ -1438,7 +1438,11 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
     
     onExternalChange:function(changelist){
-        var selectionKw = this.getData().getParentNode().attr;
+        var parentNodeData = this.getData().getParentNode();
+        if(!parentNodeData){
+            return;
+        }
+        var selectionKw = parentNodeData.attr;
         var that = this;
         var rpc_attr = objectUpdate({},this.storeNode.attr);
         objectUpdate(rpc_attr,{'selectionName':selectionKw.selectionName,

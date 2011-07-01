@@ -148,7 +148,7 @@ def debug_call(func):
 def timer_call(time_list=None, print_time=True):
     """add???
     
-    :param time_list: add???. Default value is ``None``
+    :param time_list: add???. 
     :param print_time: add???. Default value is ``True``"""
     time_list = time_list or []
 
@@ -240,7 +240,7 @@ def gnrImport(source, importAs=None, avoidDup=False):
     """add???
     
     :param source: add???
-    :param importAs: add???. Default value is ``None``
+    :param importAs: add???. 
     :param avoidDup: if ``True``, allow to avoid duplicates. Default value is ``False``
     :returns: add???
     """
@@ -472,7 +472,7 @@ class GnrAddOn(object):
     def recorderDo(self, recorder=None):
         """add???
         
-        :param recorder: add???. Default value is ``None``
+        :param recorder: add???. 
         :returns: add???
         """
         if not recorder: recorder = self.__recorder__[:]
@@ -518,7 +518,7 @@ class GnrAddOn(object):
         """add???
         
         :param src: is a string of a python function or an imported function
-        :param importAs: a name for identify the function in error messages. Default value is ``None``
+        :param importAs: a name for identify the function in error messages. 
         :param bound: boolean. If ``True`` the function will be bounded to this instance. Default value is ``True``
         """
         if isinstance(src, basestring):
@@ -553,7 +553,7 @@ class GnrRemeberableAddOn(GnrAddOn):
     def rememberMe(self, name=None):
         """add???
         
-        :param name: add???. Default value is ``None``.
+        :param name: add???. .
         """
         objid = id(self)
         #self._gnr_members__[objid]=weakref.ref(self)
@@ -657,7 +657,7 @@ def addBoundCallable(obj, method, importAs=None):
     
     :param obj: add???
     :param method: add???
-    :param importAs: add???. Default value is ``None``
+    :param importAs: add???. 
     """
     z = type(obj.__init__)
     k = z(method, obj, obj.__class__)
@@ -717,7 +717,7 @@ def compareInstances(a, b, __visited=None):
     
     :param a: add???
     :param b: add???
-    :param _visited: add???. Default value is ``None``
+    :param _visited: add???. 
     :returns: add???
     """
     if not __visited:
@@ -751,7 +751,7 @@ def setCallable(obj, name, argstring=None, func='pass'):
     
     :param obj: add???
     :param name: add???
-    :param argstring: add???. Default value is ``None``
+    :param argstring: add???. 
     :param func: add???. Default value is ``pass``
     """
     body = '    ' + '\n    '.join(func.split('\n'))
@@ -787,7 +787,7 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
     
     :param target_class: add???
     :param source_class: add???
-    :param methods: add???. Default value is ``None``
+    :param methods: add???. 
     :param only_callables: add???. Default value is ``True``
     :param exclude: add???. Default value is ``js_requires,css_requires,py_requires``
     If not 'methods' all methods are added.  
@@ -875,11 +875,11 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     
     :param obj: add???
     :param source: it can be an instance or a class
-    :param methods: If ``None``, then all methods are added. Default value is ``None``
-    :param attributes: add???. Default value is ``None``
+    :param methods: If ``None``, then all methods are added. 
+    :param attributes: add???. 
     :param only_callables: add???. Default value is ``True``
     :param exclude: add???. Default value is ``js_requires,css_requires,py_requires``
-    :param prefix: add???. Default value is ``None``
+    :param prefix: add???. 
     :returns: add???
     """
     if isinstance(methods, basestring):
@@ -1024,10 +1024,10 @@ def errorLog(proc_name, host=None, from_address='', to_address=None, user=None, 
     """add???
     
     :param proc_name: add???
-    :param host: add???. Default value is ``None``
+    :param host: add???. 
     :param from_address: add???. Default value is `` ``
-    :param to_address: add???. Default value is ``None``
-    :param user: add???. Default value is ``None``
+    :param to_address: add???. 
+    :param user: add???. 
     :param password: add???. Default value is `` ``
     :returns: add???
     """

@@ -2574,6 +2574,18 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
 
                             //formats = objectUpdate(formats, localTypes[dtype]);
                             var cellClassCB = objectPop(cell, 'cellClassCB');
+                            var _customGetter = objectPop(cell,'_customGetter');
+                            if(_customGetter){
+                                cell._customGetter = funcCreate(_customGetter);
+                            }
+                            if(cell.dtype=='B'){
+                                formats['trueclass']="checkboxOn";
+                                formats['falseclass']="checkboxOff";
+                            }
+                            if(cell.semaphore){
+                                formats['trueclass'] = 'greenLight';
+                                formats['falseclass'] = 'redLight';
+                            }
                             cell.formatter = _cellFormatter(formats, cellClassCB);
                             delete cell.tag;
                             row.push(cell);
@@ -2632,9 +2644,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
     mixin_addColumn:function(col, toPos) {
         //if(!('column' in drop_event.dragDropInfo)){ return }
         var colsBag = this.structBag.getItem('#0.#0');
-        colsBag.setItem('cellx_' + genro.getCounter(), null, {'width':'8em','name':col.fullcaption,
+        colsBag.setItem('cellx_' + genro.getCounter(), null, objectUpdate({'width':'8em','name':col.fullcaption,
             'dtype':col.dtype, 'field':col.fieldpath,
-            'tag':'cell'}, {'_position':toPos + 1});
+            'tag':'cell'},objectExtract(col,'cell_*')), {'_position':toPos + 1});
     },
     onDragStart:function(dragInfo) {
         var dragmode = dragInfo.dragmode;

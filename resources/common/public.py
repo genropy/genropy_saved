@@ -23,6 +23,7 @@ class Public(BaseComponent):
     py_requires = """foundation/menu:MenuLink,
                      foundation/dialogs,
                      foundation/macrowidgets,
+                     public:PublicSlots,
                      gnrcomponents/batch_handler/batch_handler:BatchMonitor,
                      gnrcomponents/chat_component/chat_component:ChatComponent"""
                      
@@ -127,85 +128,6 @@ class Public(BaseComponent):
         return pane.slotBar(slots=slots,childname='bar',
                             _class='pbl_root_bottom',
                             **kwargs)
-                            
-    @struct_method
-    def public_publicRoot_menuBtn(self,pane,**kwargs):
-        pane.div(_class='pbl_menu_icon buttonIcon', connect_onclick="""
-                                if(this.attr._inframe){
-                                    genro.publish({'topic':'main_left_set_status',parent:true},'toggle');
-                                }else{
-                                    PUBLISH main_left_set_status= 'toggle';
-                                }
-                                """,_inframe='inframe' in self.pageArgs)
-                                
-    @struct_method
-    def public_publicRoot_workdate(self,pane,**kwargs):
-        connect_onclick = None
-        if self.application.checkResourcePermission(self.pbl_canChangeWorkdate(), self.userTags):
-            connect_onclick = 'FIRE #changeWorkdate_dlg.open;'
-        pane.div('^gnr.workdate', format='short',
-                 _class='pbl_slotbar_label buttonIcon',
-                 connect_onclick=connect_onclick)
-        if connect_onclick:
-            self.pbl_workdate_dialog()
-            
-    @struct_method
-    def public_publicRoot_caption(self,pane,title='',**kwargs):   
-        pane.div(title, _class='pbl_title_caption',
-                    subscribe_setWindowTitle='this.domNode.innerHTML=$1;',
-                    draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',**kwargs)
-                    
-    @struct_method
-    def public_publicRoot_pageback(self,pane,**kwargs): 
-        pane.div(connect_onclick="genro.pageBack()", title="!!Back",
-                 _class='icnBaseUpYellow buttonIcon', content='&nbsp;',**kwargs)
-                 
-    @struct_method
-    def public_publicRoot_flagsLocale(self,pane,**kwargs): 
-            pane.dataRpc('aux.locale_ok', 'changeLocale', locale='^aux.locale')
-            pane.dataController('genro.pageReload()', _fired='^aux.locale_ok')
-            pane.button(action="SET aux.locale = 'EN'", title="!!English",
-                        _class='icnIntlEn buttonIcon')
-            pane.button(action="SET aux.locale = 'IT'", title="!!Italian",
-                        _class='icnIntlIt buttonIcon')
-                        
-    @struct_method
-    def public_publicRoot_user(self,pane,**kwargs):
-        if not self.isGuest:
-            pane.div(content=self.user, float='right', _class='pbl_slotbar_label buttonIcon',
-                      connect_onclick='PUBLISH preference_open="user";',**kwargs)
-        else:
-            pane.div()
-            
-    @struct_method
-    def public_publicRoot_logout(self,pane,**kwargs):
-        if not self.isGuest:
-            pane.div(connect_onclick="genro.logout()", title="!!Logout",
-                      _class='pbl_logout buttonIcon', content='&nbsp;',**kwargs)
-        else:
-            pane.div()
-            
-    @struct_method
-    def public_publicRoot_dock(self,pane,**kwargs):
-        pane.dock(id='default_dock', background='none', border=0)
-        
-    @struct_method
-    def public_publicRoot_locBtn(self,pane,**kwargs):
-        if self.isLocalizer():
-            pane.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass', float='right')
-            pane.dataFormula('gnr.localizerClass', """ 'localizer_'+status;""",
-                            status='^gnr.localizerStatus', _init=True, 
-                            _else="return 'localizer_hidden'")
-        else:
-            pane.div()
-            
-    @struct_method
-    def public_publicRoot_devBtn(self,pane,**kwargs):
-        if self.isDeveloper():
-            pane.div(connect_onclick='genro.dev.showDebugger();',
-                      _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
-        else:
-            pane.div()
             
     @struct_method
     def public_rootStackContainer(self, root, title=None, height=None, width=None,selectedPage=None,**kwargs):
@@ -409,7 +331,107 @@ class Public(BaseComponent):
             images = [f for f in files if f.startswith('%s' % 'custom_logo')]
             if images:
                 return images[0]
-                
+
+class PublicSlots(BaseComponent):
+    @struct_method
+    def public_slotbar_workdateBtn(self,pane,**kwargs):
+        pane.data('gnr.workdate', self.workdate)
+        dlg = pane.dialog(title='!!New Workdate',closable=True)
+        frame = dlg.framePane(height='100px',width='200px',datapath='gnr.workdatemanager')
+        frame.dataRpc('gnr.workdate',self.setWorkdate,workdate='=.date',_if='workdate',_fired='^.confirm',
+                        _onResult='console.log(arguments);')
+        fb = frame.formbuilder(cols=1, border_spacing='5px', margin='25px', margin_top='20px')
+        fb.dateTextBox(value='^.date', width='8em', lbl='!!Date')
+        footer = frame.bottom.slotBar('*,confirmbtn')
+        footer.confirmbtn.button('!!Confirm',action='FIRE .confirm;dlg.widget.hide();',dlg=dlg)
+        
+        pane.div('^gnr.workdate', format='short',
+                connect_onclick='this.getAttributeFromDatasource("dlg").widget.show(); SET gnr.workdatemanager.date=GET gnr.workdate;',
+                 _class='pbl_slotbar_label buttonIcon',dlg=dlg)
+
+
+#######################OLD SLOTS#######################
+
+    @struct_method
+    def public_publicRoot_workdate(self,pane,**kwargs):
+        connect_onclick = None
+        if self.application.checkResourcePermission(self.pbl_canChangeWorkdate(), self.userTags):
+            connect_onclick = 'FIRE #changeWorkdate_dlg.open;'
+        pane.div('^gnr.workdate', format='short',
+                 _class='pbl_slotbar_label buttonIcon',
+                 connect_onclick=connect_onclick)
+        if connect_onclick:
+            self.pbl_workdate_dialog()
+            
+    @struct_method
+    def pbl_publicRoot_menuBtn(self,pane,**kwargs):
+        pane.div(_class='pbl_menu_icon buttonIcon', connect_onclick="""
+                                if(this.attr._inframe){
+                                    genro.publish({'topic':'main_left_set_status',parent:true},'toggle');
+                                }else{
+                                    PUBLISH main_left_set_status= 'toggle';
+                                }
+                                """,_inframe='inframe' in self.pageArgs)
+            
+    @struct_method
+    def public_publicRoot_caption(self,pane,title='',**kwargs):   
+        pane.div(title, _class='pbl_title_caption',
+                    subscribe_setWindowTitle='this.domNode.innerHTML=$1;',
+                    draggable=True,onDrag='dragValues["webpage"] = genro.page_id;',**kwargs)
+                    
+    @struct_method
+    def public_publicRoot_pageback(self,pane,**kwargs): 
+        pane.div(connect_onclick="genro.pageBack()", title="!!Back",
+                 _class='icnBaseUpYellow buttonIcon', content='&nbsp;',**kwargs)
+                 
+    @struct_method
+    def public_publicRoot_flagsLocale(self,pane,**kwargs): 
+            pane.dataRpc('aux.locale_ok', 'changeLocale', locale='^aux.locale')
+            pane.dataController('genro.pageReload()', _fired='^aux.locale_ok')
+            pane.button(action="SET aux.locale = 'EN'", title="!!English",
+                        _class='icnIntlEn buttonIcon')
+            pane.button(action="SET aux.locale = 'IT'", title="!!Italian",
+                        _class='icnIntlIt buttonIcon')
+                        
+    @struct_method
+    def public_publicRoot_user(self,pane,**kwargs):
+        if not self.isGuest:
+            pane.div(content=self.user, float='right', _class='pbl_slotbar_label buttonIcon',
+                      connect_onclick='PUBLISH preference_open="user";',**kwargs)
+        else:
+            pane.div()
+            
+    @struct_method
+    def public_publicRoot_logout(self,pane,**kwargs):
+        if not self.isGuest:
+            pane.div(connect_onclick="genro.logout()", title="!!Logout",
+                      _class='pbl_logout buttonIcon', content='&nbsp;',**kwargs)
+        else:
+            pane.div()
+            
+    @struct_method
+    def public_publicRoot_dock(self,pane,**kwargs):
+        pane.dock(id='default_dock', background='none', border=0)
+        
+    @struct_method
+    def public_publicRoot_locBtn(self,pane,**kwargs):
+        if self.isLocalizer():
+            pane.div(connect_onclick='genro.dev.openLocalizer()', _class='^gnr.localizerClass', float='right')
+            pane.dataFormula('gnr.localizerClass', """ 'localizer_'+status;""",
+                            status='^gnr.localizerStatus', _init=True, 
+                            _else="return 'localizer_hidden'")
+        else:
+            pane.div()
+            
+    @struct_method
+    def public_publicRoot_devBtn(self,pane,**kwargs):
+        if self.isDeveloper():
+            pane.div(connect_onclick='genro.dev.showDebugger();',
+                      _class='icnBaseEye buttonIcon', float='right', margin_right='5px')
+        else:
+            pane.div()
+
+
 class TableHandlerMain(BaseComponent):
     py_requires = """public:Public,th/th:TableHandler"""
     plugin_list=''
@@ -485,10 +507,10 @@ class TableHandlerMain(BaseComponent):
             root = root.rootContentPane(title=self.tblobj.name_long)
         else:
             root.attributes.update(tag='ContentPane',_class=None)
-        
+        root.attributes.update(datapath=self.maintable.replace('.','_'))
         form = root.frameForm(frameCode=formId,formId=formId,table=self.maintable,
                              store_startKey=pkey,
-                             datapath='form',store='recordCluster')
+                             datapath='.form',store='recordCluster')
         form.store.attributes.update(store_kwargs)
         self.th_formOptions(form,options=th_kwargs)
         form.dataController("""

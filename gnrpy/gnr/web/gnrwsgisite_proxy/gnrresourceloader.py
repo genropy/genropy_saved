@@ -153,9 +153,9 @@ class ResourceLoader(object):
     def get_page_class(self, path=None, pkg=None):
         """add???
         
-        :param path: add???. Default value is ``None``
+        :param path: add???. 
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         if pkg == '*':
             module_path = os.path.join(self.site_path, path)
             pkg = self.site.config['packages?default']
@@ -209,7 +209,7 @@ class ResourceLoader(object):
         
         :param page_classe: add???
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         if pkg:
             package = self.gnrapp.packages[pkg]
         if package and package.webPageMixin:
@@ -224,7 +224,7 @@ class ResourceLoader(object):
         
         :param path: add???
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         plugin_webpage_classes = []
         path = path.split(os.path.sep)
         pkg = pkg and self.site.gnrapp.packages[pkg]
@@ -254,7 +254,7 @@ class ResourceLoader(object):
         :param page_class: add???
         :param path: add???
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         path = path.split(os.path.sep)
         if pkg:
             customPagePath = os.path.join(self.gnrapp.customFolder, pkg, 'webpages', *path)
@@ -270,7 +270,7 @@ class ResourceLoader(object):
         :param page_class: add???
         :param path: add???
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         if pkg:
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
         else:
@@ -437,7 +437,7 @@ class ResourceLoader(object):
         
         :param resourceDirs: add???
         :param path: add???
-        :param ext: add???. Default value is ``None``
+        :param ext: add???. 
         """
         result = []
         if ext == 'css' or ext == 'js':
@@ -498,10 +498,10 @@ class ResourceLoader(object):
         """add???
         
         :param page: add???
-        :param table: the :ref:`genro_table` name. Default value is ``None``
-        :param respath: add???. Default value is ``None``
-        :param class_name: add???. Default value is ``None``
-        :param _onDefault: add???. Default value is ``None``
+        :param table: the :ref:`genro_table` name. 
+        :param respath: add???. 
+        :param class_name: add???. 
+        :param _onDefault: add???. 
         """
         class_name = class_name or 'Main'
         application = self.gnrapp

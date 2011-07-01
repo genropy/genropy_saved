@@ -86,9 +86,9 @@ class GnrSqlDb(GnrObject):
         :param user: a database user's name (for sqlite is None)
         :param password: the user's password (for sqlite is None)
         :param port: the connection port (for sqlite is None)
-        :param main_schema: the database main schema. Default value is ``None``
-        :param debugger: add???. Default value is ``None``
-        :param application: add???. Default value is ``None``
+        :param main_schema: the database main schema. 
+        :param debugger: add???. 
+        :param application: add???. 
         :param allow_eager_many: add???. Default value is ``False``
         :param allow_eager_one: add???. Default value is ``False``"""
         self.implementation = implementation
@@ -165,7 +165,7 @@ class GnrSqlDb(GnrObject):
     def loadModel(self, source=None):
         """Load the model.src from a XML source
         
-        :param source: the XML model (diskfile or text or url). Default value is ``None``
+        :param source: the XML model (diskfile or text or url). 
         """
         self.model.load(source)
         
@@ -243,7 +243,7 @@ class GnrSqlDb(GnrObject):
     def use_store(self, storename=None):
         """add???
         
-        :param storename: add???. Default value is ``None``"""
+        :param storename: add???. """
         self.updateEnv(storename=storename)
         
     def get_dbname(self):
@@ -288,12 +288,12 @@ class GnrSqlDb(GnrObject):
         """Execute the sql statement using given kwargs
         
         :param sql: the sql statement.
-        :param sqlargs: optional sql arguments. Default value is ``None``
-        :param cursor: an sql cursor. Default value is ``None``
-        :param cursorname: the name of the cursor. Default value is ``None``
+        :param sqlargs: optional sql arguments. 
+        :param cursor: an sql cursor. 
+        :param cursorname: the name of the cursor. 
         :param autocommit: if ``True``, at the end of the execution runs the :meth:`commit()` method.
                            Default value is ``False``
-        :param dbtable: the :ref:`genro_table`...add??? . Default value is ``None``
+        :param dbtable: the :ref:`genro_table`...add??? . 
         :returns: the sql cursor"""
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
@@ -358,8 +358,8 @@ class GnrSqlDb(GnrObject):
         
         :param tblobj: the table object
         :param record: an object implementing dict interface as colname, colvalue
-        :param old_record: the record to be overwritten. Default value is ``None``
-        :param pkey: the record primary key. Default value is ``None``"""
+        :param old_record: the record to be overwritten. 
+        :param pkey: the record primary key. """
         tblobj.protect_update(record, old_record=old_record)
         tblobj.protect_validate(record, old_record=old_record)
         tblobj._doFieldTriggers('onUpdating', record)
@@ -434,9 +434,9 @@ class GnrSqlDb(GnrObject):
     def tableTreeBag(self, packages=None, omit=None, tabletype=None):
         """add???
         
-        :param packages: add???. Default value is ``None``
-        :param omit: add???. Default value is ``None``
-        :param tabletype: add???. Default value is ``None``
+        :param packages: add???. 
+        :param omit: add???. 
+        :param tabletype: add???. 
         :returns: add???"""
         result = Bag()
         for pkg, pkgobj in self.packages.items():
@@ -460,7 +460,7 @@ class GnrSqlDb(GnrObject):
         
         :param tblname: table name
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         return self.model.table(tblname, pkg=pkg).dbtable
             
     def query(self, table, **kwargs):
@@ -485,7 +485,7 @@ class GnrSqlDb(GnrObject):
         :param table: the :ref:`genro_table` name
         :param prevCaption: add???. Default value is ``''``
         :param prevRelation: add???. Default value is ``''``
-        :param translator: add???. Default value is ``None``"""
+        :param translator: add???. """
         return self.table(table).relationExplorer(prevCaption=prevCaption,
                                                   prevRelation=prevRelation,
                                                   translator=translator, **kwargs)
@@ -636,11 +636,11 @@ class DbStoresHandler(object):
         """add???
         
         :param storename: add???
-        :param dbname: add???. Default value is ``None``
-        :param host: add???. Default value is ``None``
-        :param user: add???. Default value is ``None``
-        :param password: add???. Default value is ``None``
-        :param port: add???. Default value is ``None``
+        :param dbname: add???. 
+        :param host: add???. 
+        :param user: add???. 
+        :param password: add???. 
+        :param port: add???. 
         :param save: add???. Default value is ``True``"""
         self.config.setItem('%s_xml' % storename, None, file_name=storename)
         self.config.setItem('%s_xml.db' % storename, None, dbname=dbname, host=host, user=user, password=password,
@@ -669,7 +669,7 @@ class DbStoresHandler(object):
         """add???
         
         :param storename: add???
-        :param changes: add???. Default value is ``None``"""
+        :param changes: add???. """
         with self.db.tempEnv(storename=storename):
             changes = changes or self.db.model.check()
             if changes:

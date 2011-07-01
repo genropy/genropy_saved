@@ -172,8 +172,8 @@ class GnrSqlAppDb(GnrSqlDb):
         
         :param tblobj: the table object
         :param record: add???
-        :param old_record: add???. Default value is ``None``
-        :param pkey: the record primary key. Default value is ``None``"""
+        :param old_record: add???. 
+        :param pkey: the record primary key. """
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.update(self, tblobj, record, old_record=old_record, pkey=pkey,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'U', old_record)
@@ -237,8 +237,8 @@ class GnrPackage(object):
 
         :param pkg_id: add???
         :param application: add???
-        :param path: add???. Default value is ``None``
-        :param filename: add???. Default value is ``None``
+        :param path: add???. 
+        :param filename: add???. 
         :returns: add???
         """
         self.id = pkg_id
@@ -721,8 +721,8 @@ class GnrApp(object):
 
         :param path: add???
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``
-        :param locale: add???. Default value is ``None``
+                    :ref:`genro_packages_index` documentation page. 
+        :param locale: add???. 
         :returns: add???
         """
         if not pkg:
@@ -747,9 +747,9 @@ class GnrApp(object):
         """add???
 
         :param user: add???
-        :param password: add???. Default value is ``None``
+        :param password: add???. 
         :param authenticate: add???. Default value is ``False``
-        :param page: add???. Default value is ``None``
+        :param page: add???. 
         :returns: add???
         """
         if user:
@@ -864,12 +864,12 @@ class GnrApp(object):
         """add???
         
         :param user: add???
-        :param user_name: add???. Default value is ``None``
-        :param user_id: add???. Default value is ``None``
-        :param login_pwd: add???. Default value is ``None``
+        :param user_name: add???. 
+        :param user_id: add???. 
+        :param login_pwd: add???. 
         :param authenticate: add???. Default value is ``False``
-        :param defaultTags: add???. Default value is ``None``
-        :param pwd: add???. Default value is ``None``
+        :param defaultTags: add???. 
+        :param pwd: add???. 
         :param tags: add???. Default value is `` ``"""
         if defaultTags:
             tags = ','.join(makeSet(defaultTags, tags or ''))
@@ -884,8 +884,8 @@ class GnrApp(object):
         """add???
 
         :param login_pwd: add???
-        :param pwd: add???. Default value is ``None``
-        :param user: add???. Default value is ``None``"""
+        :param pwd: add???. 
+        :param user: add???. """
         if not pwd:
             if not user:
                 return False
@@ -916,7 +916,7 @@ class GnrApp(object):
         :param login_pwd: add???
         :param pwd: add???
         :param newpwd: add???
-        :param userid: add???. Default value is ``None``"""
+        :param userid: add???. """
         if pwd:
             valid = self.validatePassword(login_pwd, pwd)
         else:
@@ -1040,8 +1040,8 @@ class GnrApp(object):
         """add???
         
         :param e: add???
-        :param caller: add???. Default value is ``None``
-        :param package: add???. Default value is ``None``
+        :param caller: add???. 
+        :param package: add???. 
         """
         raise e
         
@@ -1054,7 +1054,7 @@ class GnrApp(object):
         :param tblobj: the table object
         :param record: add???
         :param event: add???
-        :param old_record: add???. Default value is ``None``"""
+        :param old_record: add???. """
         currentEnv = self.db.currentEnv
         if not currentEnv.get('env_transaction_id'):
             self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
@@ -1078,7 +1078,7 @@ class GnrApp(object):
     def getAuxInstance(self, name=None):
         """add???
         
-        :param name: add???. Default value is ``None``"""
+        :param name: add???. """
         if not name:
             return self
         if not name in self.aux_instances:

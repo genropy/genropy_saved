@@ -23,6 +23,7 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 from gnr.core.gnrhtml import GnrHtmlSrc, GnrHtmlBuilder
 from gnr.web.gnrwebpage import GnrWebPage
+from gnr.core.gnrstring import  splitAndStrip
 
 class GnrHtmlPage(GnrWebPage):
     srcfactory = GnrHtmlSrc
@@ -156,14 +157,15 @@ class GnrHtmlDojoPage(GnrHtmlPage):
     srcfactory = GnrHtmlDojoSrc
         
     def dojo(self, version=None, theme=None):
+        self.dojo_static_handler = self.site.getStatic('dojo')
         theme = theme or self.theme
         version = version or self.dojo_version
         djConfig = "parseOnLoad: true, isDebug: %s, locale: '%s'" % (
         self.isDeveloper() and 'true' or 'false', self.locale)
-        css_dojo = getattr(self, '_css_dojo_d%s' % version)(theme=theme)
+        css_dojo = self.frontend.css_frontend(theme=theme)
         import_statements = ';\n    '.join(
-                ['@import url("%s")' % self.site.dojo_static_url(version, 'dojo', f) for f in css_dojo])
-        self.body.script(src=self.site.dojo_static_url(version, 'dojo', 'dojo', 'dojo.js'), djConfig=djConfig)
+                ['@import url("%s")' % self.dojo_static_handler.url(version, 'dojo', f) for f in css_dojo])
+        self.body.script(src=self.dojo_static_handler.url(version, 'dojo', 'dojo', 'dojo.js'), djConfig=djConfig)
         self.builder.head.style(import_statements + ';\n', type="text/css")
             
     def finalizeDojo(self):
@@ -195,6 +197,12 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         self.body = self.builder.body
         self.dojo()
         self.gnr_css()
+        js_requires = getattr(self, 'js_requires', [])
+        print js_requires
+        for js_require in js_requires:
+             urls =self.getResourceExternalUriList(js_require,'js') or []
+             for url in urls:
+                self.body.script(src=url)
         self.main(self.body, *args, **kwargs)
         self.finalizeDojo()
         result = self.builder.toHtml()

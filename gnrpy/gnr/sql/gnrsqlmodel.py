@@ -108,23 +108,23 @@ class DbModel(object):
         
         :param many_relation_tuple: tuple. The column of the "many table". e.g: ('video','movie','director_id')
         :param oneColumn: string. The column of the "one table". e.g: 'video.director.id'
-        :param mode: relation, insensitive, foreignkey. Default value is ``None``
-        :param one_one: add???. Default value is ``None``
-        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. Default value is ``None``
-        :param onDelete_sql: add???. Default value is ``None``
-        :param onUpdate: add???. Default value is ``None``
-        :param onUpdate_sql: add???. Default value is ``None``
-        :param deferred: add???. Default value is ``None``
+        :param mode: relation, insensitive, foreignkey. 
+        :param one_one: add???. 
+        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. 
+        :param onDelete_sql: add???. 
+        :param onUpdate: add???. 
+        :param onUpdate_sql: add???. 
+        :param deferred: add???. 
         :param eager_one: boolean. If ``True`` ('Y') the one_to_many relation is eager.
-                          Default value is ``None``
+                          
         :param eager_many: boolean. If ``True`` ('Y') the many_to_one relation is eager.
-                           Default value is ``None``
-        :param relation_name: add???. Default value is ``None``
-        :param one_name: the one_to_many relation's name. e.g: 'movies'. Default value is ``None``
-        :param many_name: the many_to_one relation's name. e.g: 'director'. Default value is ``None``
-        :param one_group: add???. Default value is ``None``
-        :param many_group: add???. Default value is ``None``
-        :param many_order_by: add???. Default value is ``None``
+                           
+        :param relation_name: add???. 
+        :param one_name: the one_to_many relation's name. e.g: 'movies'. 
+        :param many_name: the many_to_one relation's name. e.g: 'director'. 
+        :param one_group: add???. 
+        :param many_group: add???. 
+        :param many_order_by: add???. 
         """
         try:
             many_pkg, many_table, many_field = many_relation_tuple
@@ -184,7 +184,7 @@ class DbModel(object):
     def load(self, source=None):
         """Load the modelsrc from a XML source
         
-        :param source: XML model (diskfile or text or url). Default value is ``None``"""
+        :param source: XML model (diskfile or text or url). """
         self.src.update(source)
         
     def importFromDb(self):
@@ -249,7 +249,7 @@ class DbModel(object):
         
         :param tblname: the table name
         :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``None``"""
+                    :ref:`genro_packages_index` documentation page. """
         if '.' in tblname:
             pkg, tblname = tblname.split('.')[:2]
         if pkg is None:
@@ -282,11 +282,11 @@ class DbModelSrc(GnrStructData):
         """Add a package to the structure.
         
         :param name: the package name
-        :param sqlschema: add???. Default value is ``None``
-        :param comment: the package's comment. Default value is ``None``
-        :param name_short: the package's short name. Default value is ``None``
-        :param name_long: the package's long name. Default value is ``None``
-        :param name_full: the package's full name. Default value is ``None``"""
+        :param sqlschema: add???. 
+        :param comment: the package's comment. 
+        :param name_short: the package's short name. 
+        :param name_long: the package's long name. 
+        :param name_full: the package's full name. """
         if not 'packages' in self: #if it is the first package it prepares the package_list packages
             self.child('package_list', 'packages')
         
@@ -309,13 +309,13 @@ class DbModelSrc(GnrStructData):
         """Add a table to the structure.
         
         :param name: the table name
-        :param pkey: the record primary key. Default value is ``None``
-        :param lastTS: add???. Default value is ``None``
-        :param sqlschema: add???. Default value is ``None``
-        :param comment: the table's comment. Default value is ``None``
-        :param name_short: the table's short name. Default value is ``None``
-        :param name_long: the table's long name. Default value is ``None``
-        :param name_full: the table's full name. Default value is ``None``
+        :param pkey: the record primary key. 
+        :param lastTS: add???. 
+        :param sqlschema: add???. 
+        :param comment: the table's comment. 
+        :param name_short: the table's short name. 
+        :param name_long: the table's long name. 
+        :param name_full: the table's full name. 
         :returns: a table"""
         if not 'tables' in self:
             #if it is the first table it prepares the table_list tables
@@ -334,24 +334,24 @@ class DbModelSrc(GnrStructData):
         """Insert a column into a table.
         
         :param name: the column name
-        :param dtype: the data type. Default value is ``None``
-        :param size: string. ``'min:max'`` or fixed lenght ``'len'``. Default value is ``None``
-        :param default: add???. Default value is ``None``
-        :param notnull: add???. Default value is ``None``
-        :param unique: boolean. Same of the sql UNIQUE. Default value is ``None``
-        :param indexed: add???. Default value is ``None``
-        :param sqlname: add???. Default value is ``None``
-        :param comment: the column's comment. Default value is ``None``
-        :param name_short: the column's short name. Default value is ``None``
-        :param name_long: the column's long name. Default value is ``None``
-        :param name_full: the column's full name. Default value is ``None``
+        :param dtype: the data type. 
+        :param size: string. ``'min:max'`` or fixed lenght ``'len'``. 
+        :param default: add???. 
+        :param notnull: add???. 
+        :param unique: boolean. Same of the sql UNIQUE. 
+        :param indexed: add???. 
+        :param sqlname: add???. 
+        :param comment: the column's comment. 
+        :param name_short: the column's short name. 
+        :param name_long: the column's long name. 
+        :param name_full: the column's full name. 
         :param group: a hierarchical path of logical categories and subacategories the columns belongs to.
                       If the group path starts with '_' the group is "reserved" (invisible).
                       If it starts with '*' it can be seen only through administration tools.
-                      Default value is ``None``
-        :param onInserting: add???. Default value is ``None``
-        :param onUpdating: add???. Default value is ``None``
-        :param onDeleting: add???. Default value is ``None``"""
+                      
+        :param onInserting: add???. 
+        :param onUpdating: add???. 
+        :param onDeleting: add???. """
         if '::' in name:
             name, dtype = name.split('::')
         if not 'columns' in self:
@@ -368,9 +368,9 @@ class DbModelSrc(GnrStructData):
         created with the :meth:`table` method
         
         :param name: the column name
-        :param relation_path: the column's related path. Default value is ``None``
-        :param sql_formula: add???. Default value is ``None``
-        :param py_method: add???. Default value is ``None``"""
+        :param relation_path: the column's related path. 
+        :param sql_formula: add???. 
+        :param py_method: add???. """
         if '::' in name: name, dtype = name.split('::')
         if not 'virtual_columns' in self:
             self.child('virtual_columns_list', 'virtual_columns')
@@ -427,9 +427,9 @@ class DbModelSrc(GnrStructData):
     def index(self, columns=None, name=None, unique=None):
         """Add an index to a column. ``self`` must be a column src or an index_list
         
-        :param columns: list, or tuple, or string separated by commas. Default value is ``None``
-        :param name: the index name. Default value is ``None``
-        :param unique: boolean. Same of the sql UNIQUE. Default value is ``None``"""
+        :param columns: list, or tuple, or string separated by commas. 
+        :param name: the index name. 
+        :param unique: boolean. Same of the sql UNIQUE. """
         if isinstance(columns, list) or isinstance(columns, tuple):
             columns = ','.join(columns)
         if not name:
@@ -449,24 +449,24 @@ class DbModelSrc(GnrStructData):
         :param related_column: add???
         :param mode: relation or insensitive or foreignkey. Default value is ``relation``
         :param one_name: the one_to_many relation's name. e.g: 'movies'.
-                         Default value is ``None``
+                         
         :param many_name: the many_to_one relation's name. e.g: 'director'.
-                          Default value is ``None``
+                          
         :param eager_one: boolean. If ``True`` the one_to_many relation is eager.
-                          Default value is ``None``
+                          
         :param eager_many: boolean. If ``True`` the many_to_one relation is eager.
-                           Default value is ``None``
-        :param one_one: add???. Default value is ``None``
-        :param child: add???. Default value is ``None``
-        :param one_group: add???. Default value is ``None``
-        :param many_group: add???. Default value is ``None``
-        :param onUpdate: add???. Default value is ``None``
-        :param onUpdate_sql: add???. Default value is ``None``
-        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. Default value is ``None``
-        :param onDelete_sql: add???. Default value is ``None``
-        :param deferred: add???. Default value is ``None``
-        :param relation_name: add???. Default value is ``None``
-        :returns: add???. Default value is ``None``"""
+                           
+        :param one_one: add???. 
+        :param child: add???. 
+        :param one_group: add???. 
+        :param many_group: add???. 
+        :param onUpdate: add???. 
+        :param onUpdate_sql: add???. 
+        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. 
+        :param onDelete_sql: add???. 
+        :param deferred: add???. 
+        :param relation_name: add???. 
+        :returns: add???. """
         
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode,
                             one_name=one_name, many_name=many_name, one_one=one_one, child=child,
@@ -548,8 +548,8 @@ class DbModelObj(GnrStructObj):
         
     def getAttr(self, attr=None, dflt=None):
         """
-        :param attr: the attribute. Default value is ``None``
-        :param dflt: the default. Default value is ``None``
+        :param attr: the attribute. 
+        :param dflt: the default. 
         """
         if attr:
             return self.attributes.get(attr, dflt)

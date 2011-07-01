@@ -114,14 +114,14 @@ class IncludedView(BaseComponent):
                          .. note:: The includedViewBox and its sons can only accept the borderContainer
                                    layout container.
         :param nodeId: the includedViewbox's Id. For more information, check :ref:`genro_nodeid` page.
-                       Default value is ``None``.
+                       .
         :param table: the includedViewbox's reference :ref:`genro_table`.
-                      Default value is ``None``.
+                      .
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
-                         Default value is ``None``. For more information, check the :ref:`genro_datapath` and the
+                         . For more information, check the :ref:`genro_datapath` and the
                          :ref:`genro_datastore` pages.
-        :param storepath: the path of the data of the includedViewBox. Default value is ``None``.
-        :param selectionPars: add???. Default value is ``None``.
+        :param storepath: the path of the data of the includedViewBox. .
+        :param selectionPars: add???. .
                               
                               **selectionPars parameters**:
                               
@@ -129,7 +129,7 @@ class IncludedView(BaseComponent):
                               * where: the sql "WHERE" clause. For more information check the
                                 :ref:`sql_where` section.
         :param formPars: (dict) it contains all the params of the widget who hosts the form.
-                         Default value is ``None``.
+                         .
                          
                             **formPars parameters:**
                             
@@ -148,39 +148,39 @@ class IncludedView(BaseComponent):
                              * title: MANDATORY - for dialog mode.
                              * pane: OPTIONAL - pane of the form input.
             
-        :param label: (string) allow to create a label for the includedView. Default value is ``None``.
-        :param caption: add???. Default value is ``None``.
-        :param footer: add???. Default value is ``None``.
-        :param add_action: (boolean) allow the insertion of a row in the includedView. Default value is ``None``.
+        :param label: (string) allow to create a label for the includedView. .
+        :param caption: add???. .
+        :param footer: add???. .
+        :param add_action: (boolean) allow the insertion of a row in the includedView. .
         :param add_class: the css class of the add button. Default value is ``buttonIcon icnBaseAdd``.
         :param add_enable: a path to enable/disable add action. Default value is ``^form.canWrite``.
-        :param del_action: (boolean) allow the deleting of a row in the includedView. Default value is ``None``.
+        :param del_action: (boolean) allow the deleting of a row in the includedView. .
         :param del_class: the css class of the delete button. Default value is ``buttonIcon icnBaseDelete``.
         :param del_enable: a path to enable/disable del action. Default value is ``^form.canWrite``.
-        :param upd_action: add???. Default value is ``None``.
+        :param upd_action: add???. .
         :param upd_class: add???. Default value is ``buttonIcon icnBaseEdit``.
         :param upd_enable: add???. Default value is ``^form.canWrite``.
-        :param close_action: (boolean) adding closing button in tooltipDialog. Default value is ``None``.
-        :param close_class: css class of close button. Default value is ``None``.
-        :param print_action: add???. Default value is ``None``.
-        :param print_class: add???. Default value is ``None``.
-        :param pdf_action: add???. Default value is ``None``.
-        :param pdf_class: add???. Default value is ``None``.
-        :param pdf_name: add???. Default value is ``None``.
-        :param export_action: add???. Default value is ``None``.
-        :param export_class: add???. Default value is ``None``.
-        :param tools_action: add???. Default value is ``None``.
-        :param tools_class: add???. Default value is ``None``.
-        :param tools_enable: add???. Default value is ``None``.
-        :param tools_lbl: add???. Default value is ``None``.
+        :param close_action: (boolean) adding closing button in tooltipDialog. .
+        :param close_class: css class of close button. .
+        :param print_action: add???. .
+        :param print_class: add???. .
+        :param pdf_action: add???. .
+        :param pdf_class: add???. .
+        :param pdf_name: add???. .
+        :param export_action: add???. .
+        :param export_class: add???. .
+        :param tools_action: add???. .
+        :param tools_class: add???. .
+        :param tools_enable: add???. .
+        :param tools_lbl: add???. .
         :param lock_action: an optional parameter; add???. Default value is ``False``.
-        :param tools_menu: add???. Default value is ``None``.
+        :param tools_menu: add???. .
         :param _onStart: an optional parameter; (Boolean) if True, the controller is executed only
                          after that all the line codes are read. Default value is ``False``.
         :param filterOn: (boolean, only for picker) allow the filter into the picker grid.
-                         Default value is ``None``.
+                         .
         :param pickerPars: (dict) it contains all the params of the tooltip dialog which host the
-                           picker grid. Default value is ``None``.
+                           picker grid. .
                            
                            **Parameters:**
                            
@@ -193,12 +193,12 @@ class IncludedView(BaseComponent):
                            * nodeId: MANDATORY - id for the picker.
                            * filterOn: the columns on which to apply filter.
                            
-        :param centerPaneCb: add???. Default value is ``None``.
-        :param editorEnabled: add???. Default value is ``None``.
-        :param parentLock: add???. Default value is ``None``.
-        :param reloader: add???. Default value is ``None``.
-        :param externalChanges: add???. Default value is ``None``.
-        :param addOnCb: add???. Default value is ``None``.
+        :param centerPaneCb: add???. .
+        :param editorEnabled: add???. .
+        :param parentLock: add???. .
+        :param reloader: add???. .
+        :param externalChanges: add???. .
+        :param addOnCb: add???. .
         :param zoom: It allows to open the linked record in a :ref:`genro_dialog`.
                      For further details, check the :ref:`genro_zoom` documentation page.
                      Default value is ``True``.

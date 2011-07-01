@@ -252,12 +252,12 @@ class GnrHtmlSrc(GnrStructData):
     def cell(self, content=None, width=0, lbl=None, lbl_class=None, lbl_height=None, content_class=None, **kwargs):
         """Define a cell
         
-        :param content: the cell's content. Default value is ``None``
+        :param content: the cell's content. 
         :param width: the cell's width. Default value is ``0``
-        :param lbl: the cell's lbl. Default value is ``None``
-        :param lbl_class: the cell's lbl_class. Default value is ``None``
-        :param lbl_height: the cell's lbl_height. Default value is ``None``
-        :param content_class: the cell's content_class. Default value is ``None``
+        :param lbl: the cell's lbl. 
+        :param lbl_class: the cell's lbl_class. 
+        :param lbl_height: the cell's lbl_height. 
+        :param content_class: the cell's content_class. 
         :returns: the cell
         """
         row = self
@@ -387,7 +387,7 @@ class GnrHtmlPdf(object):
     def toXml(self, filename=None, encoding='UTF-8'):
         """Transform the HTML into a XML, using the ``toXml`` method of the ``gnr.core.gnrbag``
         
-        :param filename: the name of the output file. Default value is ``None``
+        :param filename: the name of the output file. 
         :param encoding: The multibyte character encoding you choose. Default value is ``UTF-8``
         :returns: the XML file
         """
@@ -397,7 +397,7 @@ class GnrHtmlPdf(object):
     def toHtml(self, filename=None):
         """add???
         
-        :param filename: add???. Default value is ``None``
+        :param filename: add???. 
         """
         if filename:
             filename = expandpath(filename)
@@ -407,7 +407,7 @@ class GnrHtmlPdf(object):
     def toPdf(self, filename=None):
         """Call the PDF webkit generator
         
-        :param filename: add???. Default value is ``None``
+        :param filename: add???. 
         """
         pass
         

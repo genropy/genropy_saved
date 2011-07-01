@@ -72,7 +72,7 @@ class GnrDict(dict):
         """add???
         
         :param label: add???
-        :param default: add???. Default value is ``None``
+        :param default: add???. 
         """
         return dict.get(self, self._label_convert(label), default)
         
@@ -160,7 +160,7 @@ class GnrDict(dict):
         """add???
         
         :param key: add???
-        :param d: add???. Default value is ``None``
+        :param d: add???. 
         :returns: add???
         """
         key = self._label_convert(key)
@@ -229,7 +229,7 @@ class GnrDict(dict):
     def sort(self, cmpfunc=None):
         """add???
         
-        :param cmpfunc: add???. Default value is ``None``
+        :param cmpfunc: add???. 
         :returns: add???
         """
         self._list.sort(cmpfunc)
