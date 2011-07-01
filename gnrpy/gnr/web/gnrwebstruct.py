@@ -1992,7 +1992,7 @@ class GnrGridStruct(GnrStructData):
             widths.append(width)
             wtot = wtot + width
             dtypes.append(fldobj.dtype)
-            fld_kwargs.append(self.defaultArgsForDType(fldobj.dtype))
+            #fld_kwargs.append(self.defaultArgsForDType(fldobj.dtype))
             
         if totalWidth:
             for j, w in enumerate(widths):
