@@ -198,7 +198,6 @@ class GnrHtmlDojoPage(GnrHtmlPage):
         self.dojo()
         self.gnr_css()
         js_requires = getattr(self, 'js_requires', [])
-        print js_requires
         for js_require in js_requires:
              urls =self.getResourceExternalUriList(js_require,'js') or []
              for url in urls:
