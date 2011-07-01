@@ -1891,24 +1891,9 @@ class GnrGridStruct(GnrStructData):
                                                                     """ % dict(field=field, action=action or '',threestate=threestate)
                   , dtype='B', **kwargs)
                   
-    def defaultArgsForDType(self, dtype,**kwargs):
-        """add???
-        
-        :param dtype: the data type
-        :returns: add???
-        """
-        if dtype == 'B':
-            format_trueclass="checkboxOn"
-            format_falseclass="checkboxOff"
-            if kwargs.get('semaphore'):
-                format_trueclass = 'greenLight'
-                format_falseclass = 'redLight'
-            return dict(format_trueclass=format_trueclass, format_falseclass=format_falseclass)
-        else:
-            return dict()
-                
+
     def fieldcell(self, field, _as=None, name=None, width=None, dtype=None,
-                  classes=None, cellClasses=None, headerClasses=None, zoom=False, **user_kwargs):
+                  classes=None, cellClasses=None, headerClasses=None, zoom=False, **kwargs):
         """A form widget that inherits every attribute from the :ref:`genro_field` widget.
         
         :param field: MANDATORY - it contains the name of the :ref:`genro_field` from which
@@ -1936,8 +1921,6 @@ class GnrGridStruct(GnrStructData):
         name = name or fldobj.name_long
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
-        kwargs = self.defaultArgsForDType(dtype,**user_kwargs)
-        kwargs.update(user_kwargs)
         if zoom:
             zoomtbl = fldobj.table
             relfldlst = tableobj.fullRelationPath(field).split('.')

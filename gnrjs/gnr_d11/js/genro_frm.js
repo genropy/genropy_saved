@@ -507,6 +507,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 return this.do_save(kw.destPkey);
             } else {
                 this.fireControllerData('save_failed','nochange');
+                if(kw.destPkey){
+                    this.load({destPkey:kw.destPkey});
+                }
             }
         }
         else {
