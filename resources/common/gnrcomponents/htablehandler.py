@@ -55,7 +55,7 @@ class HTableResolver(BagResolver):
             caption = tblobj.recordCaption(row)
             children.setItem(row['pkey'], None,
                              caption=caption,
-                             pkey=row['pkey'], code=row['code'],
+                             pkey=row['pkey'], code=row.get('code'),
                              node_class='tree_related')
         return children
         
