@@ -368,7 +368,7 @@ class SqlQueryCompiler(object):
                       group_by='', having='', for_update=False,
                       relationDict=None,
                       bagFields=False,
-                      count=False, excludeLogicalDeleted=True,
+                      count=False, excludeLogicalDeleted=True,excludeDraft=True,
                       addPkeyColumn=True):
         """Prepare the SqlCompiledQuery to get the sql query for a selection.
         
@@ -492,8 +492,9 @@ class SqlQueryCompiler(object):
         where = gnrstring.templateReplace(where, colPars)
         #if excludeLogicalDeleted==True we have additional conditions in the where clause
         logicalDeletionField = self.tblobj.logicalDeletionField
+        diagnostic = self.tblobj.attributes.get('diagnostic')
         if logicalDeletionField:
-            if excludeLogicalDeleted == True:
+            if excludeLogicalDeleted is True:
                 extracnd = 't0.%s IS NULL' % logicalDeletionField
                 if where:
                     where = '%s AND %s' % (extracnd, where)
@@ -502,7 +503,13 @@ class SqlQueryCompiler(object):
             elif excludeLogicalDeleted == 'mark':
                 if not (aggregate or count):
                     columns = '%s, t0.%s AS _isdeleted' % (columns, logicalDeletionField)
-                    
+        if diagnostic:
+            if excludeDraft is True:
+                extracnd = 't0.__errors IS NULL'
+                if where:
+                    where = '%s AND %s' % (extracnd, where)
+                else:
+                    where = extracnd
         # add a special joinCondition for the main selection, not for JOINs
         if self.joinConditions:
             extracnd, one_one = self.getJoinCondition('*', '*', 't0')
@@ -843,7 +850,7 @@ class SqlQuery(object):
                  group_by=None, having=None, for_update=False,
                  relationDict=None, sqlparams=None, bagFields=False,
                  joinConditions=None, sqlContextName=None,
-                 excludeLogicalDeleted=True,
+                 excludeLogicalDeleted=True,excludeDraft=True,
                  addPkeyColumn=True, locale=None,
                  **kwargs):
         self.dbtable = dbtable
@@ -857,6 +864,7 @@ class SqlQuery(object):
         self.relationDict = relationDict or {}
         self.sqlparams.update(kwargs)
         self.excludeLogicalDeleted = excludeLogicalDeleted
+        self.excludeDraft = excludeDraft
         self.addPkeyColumn = addPkeyColumn
         self.locale = locale
         
@@ -914,6 +922,7 @@ class SqlQuery(object):
                                                                   count=count,
                                                                   bagFields=self.bagFields,
                                                                   excludeLogicalDeleted=self.excludeLogicalDeleted,
+                                                                  excludeDraft=self.excludeDraft,
                                                                   addPkeyColumn=self.addPkeyColumn,
                                                                   **self.querypars)
                                                                   

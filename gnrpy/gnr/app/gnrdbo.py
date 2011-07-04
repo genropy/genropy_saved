@@ -123,7 +123,7 @@ class GnrDboPackage(object):
 class TableBase(object):
     """add???"""
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, group='zzz',
-                   diagnostic=False, group_name='!!System'):
+                    group_name='!!System'):
         """Add some useful columns for tables management (*in primis*, the ``id`` column)
         
         :param tbl: a database table
@@ -166,11 +166,13 @@ class TableBase(object):
         if audit:
             tbl.column('__version','L',name_long='Audit version',
                         onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
+        diagnostic = tbl.attributes.get('diagnostic')
         if diagnostic:
             tbl.column('__warnings',name_long='!!Warnings',onInserting='_checkWarnings',onUpdating='diagnostic_warnings')
             tbl.column('__errors',name_long='!!Errors',onInserting='_checkErrors',onUpdating='diagnostic_errors')
             tbl.formulaColumn('__is_draft','$__errors IS NOT NULL',dtype='B',name_long='!!Draft')
-            
+            tbl.formulaColumn('__has_warnings','$__warnings IS NOT NULL',dtype='B',name_long='!!Has warnings')
+
             
     def trigger_setTSNow(self, record, fldname):
         """This method is triggered during the insertion (or a change) of a record. It returns
