@@ -719,7 +719,7 @@ class DbTableObj(DbModelObj):
         """property. Returns the table's logicalDeletionField"""
         return self.attributes.get('draftField', '')
         
-    logicalDeletionField = property(_get_logicalDeletionField)
+    draftField = property(_get_draftField)
         
     def _get_noChangeMerge(self):
         """property. set noChangeMerge to True to avoid automatic merge of concurrent non conflicting changes"""
