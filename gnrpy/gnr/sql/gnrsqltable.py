@@ -237,6 +237,11 @@ class SqlTable(GnrObject):
     def logicalDeletionField(self):
         """Return the DbColumnObj object"""
         return self.model.logicalDeletionField
+
+    @property
+    def draftField(self):
+        """Return the DbColumnObj object"""
+        return self.model.draftField
         
     @property
     def noChangeMerge(self):

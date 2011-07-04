@@ -492,7 +492,7 @@ class SqlQueryCompiler(object):
         where = gnrstring.templateReplace(where, colPars)
         #if excludeLogicalDeleted==True we have additional conditions in the where clause
         logicalDeletionField = self.tblobj.logicalDeletionField
-        diagnostic = self.tblobj.attributes.get('diagnostic')
+        draftField = self.tblobj.draftField
         if logicalDeletionField:
             if excludeLogicalDeleted is True:
                 extracnd = 't0.%s IS NULL' % logicalDeletionField
@@ -503,9 +503,9 @@ class SqlQueryCompiler(object):
             elif excludeLogicalDeleted == 'mark':
                 if not (aggregate or count):
                     columns = '%s, t0.%s AS _isdeleted' % (columns, logicalDeletionField)
-        if diagnostic:
+        if draftField:
             if excludeDraft is True:
-                extracnd = 't0.__errors IS NULL'
+                extracnd = 't0.%s IS NULL' %draftField
                 if where:
                     where = '%s AND %s' % (extracnd, where)
                 else:
