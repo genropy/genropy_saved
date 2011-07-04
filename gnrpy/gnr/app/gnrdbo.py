@@ -183,14 +183,20 @@ class TableBase(object):
             record[fldname] = datetime.datetime.today()
     
     def trigger_diagnostic_warnings(self,record,fldname):
-        if hasattr(self,'diagnostic_warnings'):
-            warnings = self.diagnostic_warnings(record)
-            record[fldname] = '\n'.join(warnings) if warnings else None
+        warnings = self.diagnostic_warnings(record)
+        record[fldname] = '\n'.join(warnings) if warnings else None
+    
+    def diagnostic_warnings(self, record):
+        print 'You should override for diagnostic'
+        return
     
     def trigger_diagnostic_errors(self,record,fldname):
-        if hasattr(self,'diagnostic_errors'):
-            errors = self.diagnostic_errors(record) 
-            record[fldname] = '\n'.join(errors) if errors else None
+        errors = self.diagnostic_errors(record) 
+        record[fldname] = '\n'.join(errors) if errors else None
+    
+    def diagnostic_errors(self,record):
+        print 'You should override for diagnostic'
+        return
             
     def trigger_setAuditVersionIns(self,record,fldname):
         """add???
