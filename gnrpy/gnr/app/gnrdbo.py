@@ -168,12 +168,12 @@ class TableBase(object):
                         onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
         diagnostic = tbl.attributes.get('diagnostic')
         if diagnostic:
-            tbl.column('__warnings',name_long='!!Warnings',onInserting='_checkWarnings',onUpdating='diagnostic_warnings')
-            tbl.column('__errors',name_long='!!Errors',onInserting='_checkErrors',onUpdating='diagnostic_errors')
+            tbl.column('__warnings',name_long='!!Warnings',onInserting='diagnostic_warnings',onUpdating='diagnostic_warnings',group=group)
+            tbl.column('__errors',name_long='!!Errors',onInserting='diagnostic_errors',onUpdating='diagnostic_errors',group=group)
         if draftField:
             draftField = '__is_draft' if draftField is True else draftField
-            tbl.column(draftField, dtype='B', name_long='!!Is Draft')
             tbl.attributes['draftField'] =draftField
+            tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
         
             
     def trigger_setTSNow(self, record, fldname):
