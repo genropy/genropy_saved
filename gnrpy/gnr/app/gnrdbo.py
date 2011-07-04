@@ -190,7 +190,7 @@ class TableBase(object):
     def trigger_diagnostic_errors(self,record,fldname):
         if hasattr(self,'diagnostic_errors'):
             errors = self.diagnostic_errors(record) 
-            record[fldname] = ','.join(errors) if errors else None
+            record[fldname] = '\n'.join(errors) if errors else None
             
     def trigger_setAuditVersionIns(self,record,fldname):
         """add???
