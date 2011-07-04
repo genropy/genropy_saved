@@ -78,7 +78,7 @@ class TableHandlerView(BaseComponent):
                     action='SET .excludeLogicalDeleted=!GET .excludeLogicalDeleted;',
                     checked='^.excludeLogicalDeleted?=!#v')
         table = pane.getInheritedAttributes()['table']
-        if self.db.table(table).attributes.get('diagnostic'):
+        if self.db.table(table).draftField:
             menu.menuline('!!Show drafts',
                             action='SET .excludeDraft=!GET .excludeDraft;',
                             checked='^.excludeDraft?=!#v')
