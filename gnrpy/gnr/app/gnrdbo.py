@@ -122,7 +122,8 @@ class GnrDboPackage(object):
         
 class TableBase(object):
     """add???"""
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, group='zzz', group_name='!!System'):
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, group='zzz',
+                   diagnostic=False, group_name='!!System'):
         """Add some useful columns for tables management (*in primis*, the ``id`` column)
         
         :param tbl: a database table
@@ -163,7 +164,13 @@ class TableBase(object):
                        group='_')
         audit = tbl.attributes.get('audit')
         if audit:
-            tbl.column('__version','L',name_long='Audit version',onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
+            tbl.column('__version','L',name_long='Audit version',
+                        onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
+        if diagnostic:
+            tbl.column('__warnings',name_long='!!Warnings',onInserting='_checkWarnings',onUpdating='diagnostic_warnings')
+            tbl.column('__errors',name_long='!!Errors',onInserting='_checkErrors',onUpdating='diagnostic_errors')
+            tbl.formulaColumn('__is_draft','$__errors IS NOT NULL',dtype='B',name_long='!!Draft')
+            
             
     def trigger_setTSNow(self, record, fldname):
         """This method is triggered during the insertion (or a change) of a record. It returns
@@ -174,6 +181,16 @@ class TableBase(object):
         :param fldname: the field name"""
         if not getattr(record, '_notUserChange', None):
             record[fldname] = datetime.datetime.today()
+    
+    def trigger_diagnostic_warnings(self,record,fldname):
+        if hasattr(self,'diagnostic_warnings'):
+            warnings = self.diagnostic_warnings(record)
+            record[fldname] = '\n'.join(warnings) if warnings else None
+    
+    def trigger_diagnostic_errors(self,record,fldname):
+        if hasattr(self,'diagnostic_errors'):
+            errors = self.diagnostic_errors(record) 
+            record[fldname] = ','.join(errors) if errors else None
             
     def trigger_setAuditVersionIns(self,record,fldname):
         """add???
