@@ -32,7 +32,7 @@ decorators
 
     .. automethod:: gnr.web.gnrwebpage.public_method
     
-    To use it, remember to import the properly :ref:`webpages_py_requires`, that is::
+    To use it, import in your file::
     
         from gnr.web.gnrwebpage import public_method
     

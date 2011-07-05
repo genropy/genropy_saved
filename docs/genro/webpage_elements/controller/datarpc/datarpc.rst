@@ -75,7 +75,7 @@ passing a dataRpc as a callable
             return something # Here goes the code for the validate remote...
             
     As you can see, to pass the method as a callable you have to use the :ref:`public_method`
-    decorator; so remember to import the properly :ref:`webpages_py_requires`. that is::
+    decorator; so, you have to import::
     
         from gnr.web.gnrwebpage import public_method
         
