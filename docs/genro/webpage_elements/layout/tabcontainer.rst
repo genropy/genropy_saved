@@ -4,7 +4,9 @@
 tabContainer
 ============
 
-    .. note:: The Genro tabContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's tabContainer documentation.
+    .. note:: The Genro tabContainer has been taken from Dojo without adding any modifies.
+              In this page you will find some interesting features that we want to point up.
+              For more information, check the Dojo's tabContainer documentation.
 
     * :ref:`tab_definition`
     * :ref:`tab_attributes`
@@ -18,7 +20,8 @@ Definition
 
     .. method:: pane.tabContainer([**kwargs])
 
-    A TabContainer is a container that has multiple panes, but shows only one pane at a time. There are a set of tabs corresponding to each pane, where each tab has the title of the pane.
+    A TabContainer is a container that has multiple panes, but shows only one pane at a time.
+    There are a set of tabs corresponding to each pane, where each tab has the title of the pane.
 
 .. _tab_attributes:
 
@@ -27,13 +30,17 @@ Attributes
 
     **tabContainer's attributes**:
     
-    * *tabPosition*: define the place of the paneContainer's labels. Default value is ``top-h``. For all supported possibilities, check the :ref:`tab_tabposition` example
+    * *tabPosition*: define the place of the paneContainer's labels. Default value is ``top-h``.
+      For all supported possibilities, check the :ref:`tab_tabposition` example
 
-    * *selected*: Allow to visualize in the :ref:`genro_datastore` the current selected tab as a type-number into a specific folder. Default value is ``None``. Check the :ref:`tab_selected` example for more information.
-
+    * *selected*: Allow to specify the pane to visualize. You will find in the :ref:`genro_datastore`
+                  the current selected tab as a type-number into a specific folder. If you don't specify
+                  it, then the first pane will be visualized (but in this case you have to pass it as
+                  a ``**kwargs``). Check the :ref:`tab_selected` example for more information.
+                  
     **attributes of the tabContainer's children (paneContainers)**:
     
-    There aren't particular attributes.
+    * *title*: the title of a pane; it is shown on the relative tab of the pane.
     
     **commons attributes**:
     
@@ -67,7 +74,8 @@ Attributes explanation
 "selected" attribute
 --------------------
 
-    With the *selected* attribute Genro create a folder path in the :ref:`genro_datastore` where lies a number indicating the tab selected (for the first tab you'll find 0, for the second one 1 and so on).
+    With the *selected* attribute Genro create a folder path in the :ref:`genro_datastore` where lies
+    a number indicating the tab selected (for the first tab you'll find 0, for the second one 1 and so on).
     
     The syntax is ``selected='folderPathName'``
     

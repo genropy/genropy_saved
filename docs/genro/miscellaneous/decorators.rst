@@ -32,9 +32,14 @@ decorators
 
     .. automethod:: gnr.web.gnrwebpage.public_method
     
+    To use it, remember to import the properly :ref:`webpages_py_requires`, that is::
+    
+        from gnr.web.gnrwebpage import public_method
+    
 .. _struct_method:
 
 @struct_method
 ==============
 
     .. automethod:: gnr.web.gnrwebstruct.struct_method
+    

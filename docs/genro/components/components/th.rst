@@ -17,7 +17,7 @@ tableHandler
     * :ref:`th_resource_page`:
     
         * the :ref:`th_view_class` (methods: :ref:`th_struct`, :ref:`th_order` and :ref:`th_query`)
-        * the :ref:`th_form_class`
+        * the :ref:`th_form_class` (:ref:`th_rpc`)
         
     * :ref:`th_webpage`:
     
@@ -412,6 +412,15 @@ Form class
               to a normal webpage; for more information, check the :ref:`menu_th` documentation
               section.
               
+.. _th_rpc:
+
+usage of a dataRpc in a resource webpage
+----------------------------------------
+
+    In a :ref:`th_resource_page` you can't use a :ref:`genro_datarpc` unless you pass it as a
+    callable. For more information, check the :ref:`datarpc_callable` section of the
+    :ref:`genro_datarpc` documentation page
+                      
     .. _th_webpage:
 
 th_webpage

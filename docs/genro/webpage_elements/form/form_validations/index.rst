@@ -274,16 +274,19 @@ validate_regex
     
 validate_remote
 ---------------
-
-    ::
-    
-        validate_remote = 'rpcName'     # 'rpcName' is the name of your dataRpc.
         
     Allow to validate a field through a :ref:`genro_datarpc`.
     
-    ::
+    You can pass the dataRpc as a string::
+        
+        validate_remote = 'rpcName'     # 'rpcName' is the name of your dataRpc.
     
-        add??? (example...)
+    or you can pass it as a callable::
+    
+        validate_remote = self.RpcName
+        
+    where ``RpcName`` is the name of the dataRpc defined through the :ref:`public_method`.
+    For more information, check the :ref:`datarpc_callable` section.
         
 .. _validations_common:
     
