@@ -42,9 +42,8 @@ def clean_and_unescape(text):
     """Removes HTML or XML character references and entities from a text string.
     
     :param text: The HTML (or XML) source text.
-    :returns: The plain text, as a Unicode string, if necessary.
-    """
-
+    :returns: The plain text, as a Unicode string, if necessary."""
+    
     def fixup(m):
         text = m.group(0)
         if text[:2] == "&#":
@@ -86,17 +85,12 @@ class MailHandler(GnrBaseService):
         
         :param name: the account's name
         :param from_address: the address that will appear in the recipients from field.
-                             
         :param smtp_host: the smtp host to send this email. 
-        :param username: add???. 
-        :param password: the username's password (if a username is required for
-                         authentication). 
+        :param username: the username. 
+        :param password: the username's password (if a username is required for authentication). 
         :param port: if a non standard port is used then it can be overridden.
-                     
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-                    
-        :param default: boolean. add???. Default value is ``False``
-        """
+        :param default: boolean. add???"""
         self.smtp_accounts[name] = dict(from_address=from_address,
                                         smtp_host=smtp_host, username=username,
                                         password=password, port=port, ssl=ssl)
@@ -106,22 +100,19 @@ class MailHandler(GnrBaseService):
     def set_smtp_default_account(self, name):
         """Allow to use the saved account parameters for the subsequent SMTP mails
         
-        :param name: the default account's name
-        """
+        :param name: the default account's name"""
         self.default_smtp_account = name
         
     def set_pop_default_account(self, name):
         """Allow to use the saved account parameters for the subsequent POP mails
         
-        :param name: the default account's name
-        """
+        :param name: the default account's name"""
         self.default_pop_account = name
         
     def set_imap_default_account(self, name):
         """Allow to use the saved account parameters for the subsequent IMAP mails
         
-        :param name: the default account's name
-        """
+        :param name: the default account's name"""
         self.default_imap_account = name
         
     def get_account_params(self, account=None, from_address=None, smtp_host=None, port=None,
@@ -132,24 +123,20 @@ class MailHandler(GnrBaseService):
                         then this account can be used instead of having to repeat all the mail
                         parameters contained. 
         :param from_address: the address that will appear in the recipients from field.
-                             
         :param smtp_host: the smtp host to send this email. 
         :param port: if a non standard port is used then it can be overridden.
-                     
         :param user: if a username is required for authentication.
-                     
         :param password: the username's password (if a username is required for
                          authentication). 
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-                    
         :param tls: boolean. Allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
                     
-                    1. no encryption
-                    2. ssl -> all data is encrypted on a ssl layer
-                    3. tls -> server and client begin communitation in a unsecure way and after a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
-        :returns: the account parameters
-        """
+                    #. no encryption
+                    #. ssl -> all data is encrypted on a ssl layer
+                    #. tls -> server and client begin communitation in a unsecure way and after a starttls
+                       command they start to encrypt data (this is the way you use to connect to gmail smtp)
+        :returns: the account parameters"""
         account = account or self.default_smtp_account
         if account:
             account_params = self.smtp_accounts[account]
@@ -167,21 +154,17 @@ class MailHandler(GnrBaseService):
                         parameters contained. 
         :param smtp_host: the smtp host to send this email. 
         :param port: if a non standard port is used then it can be overridden.
-                     
         :param user: if a username is required for authentication.
-                     
         :param password: the username's password (if a username is required for
                          authentication). 
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-                    
         :param tls: allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
                     
-                    1. no encryption
-                    2. ssl -> all data is encrypted on a ssl layer
-                    3. tls -> server and client begin communitation in a unsecure way and after a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
-        :returns: the smtp connection
-        """
+                    #. no encryption
+                    #. ssl -> all data is encrypted on a ssl layer
+                    #. tls -> server and client begin communitation in a unsecure way and after a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
+        :returns: the smtp connection"""
         if ssl:
             smtp = getattr(smtplib, 'SMTP_SSL')
         else:
@@ -200,11 +183,9 @@ class MailHandler(GnrBaseService):
         """Handle the mail addresses
         
         :param from_address: the address that will appear in the recipients from field.
-                             
-        :param to_address: address where the email will be sent. 
-        :param multiple_mode: add???. 
-        :returns: lists of addresses
-        """
+        :param to_address: address where the email will be sent.
+        :param multiple_mode: add???.
+        :returns: lists of addresses"""
         cc = bcc = None
         if isinstance(to_address, basestring):
             to_address = [address.strip() for address in to_address.replace(';', ',').split(',') if address]
@@ -228,12 +209,9 @@ class MailHandler(GnrBaseService):
         :param body: body of the email. If you pass ``html=True`` attribute,
                      then you can pass in the body the html tags
         :param attachments: path of the attachment to be sent with the email.
-                            
-        :param html: add???. 
+        :param html: add???.
         :param charset: a different charser may be defined by its standard name.
-                        .
-        :returns: the message
-        """
+        :returns: the message"""
         charset = charset or 'us-ascii' # us-ascii is the email default, gnr default is utf-8.
                                         # This is used to prevent explicit "charset = None" to be passed
         attachments = attachments or []
@@ -270,43 +248,34 @@ class MailHandler(GnrBaseService):
         :param datasource: add???
         :param to_address: address where the email will be sent. 
         :param cc_address: can be a comma deliminated str of email addresses or a list or tuple.
-                           
         :param bcc_address: can be a comma deliminated str of email addresses or a list or tuple.
-                            
-        :param subject: add???. 
+        :param subject: string, the email subject. 
         :param from_address: the address that will appear in the recipients from field.
-                             
         :param body: body of the email. If you pass ``html=True`` attribute,
                      then you can pass in the body the html tags. 
         :param attachments: path of the attachment to be sent with the email.
-                            
         :param account: if an account has been defined previously with :meth:`set_smtp_account`
                         then this account can be used instead of having to repeat all the mail
                         parameters contained. 
         :param smtp_host: the smtp host to send this email. 
         :param port: if a non standard port is used then it can be overridden.
-                     
         :param user: if a username is required for authentication.
-                     
         :param password: the username's password (if a username is required for
                          authentication). 
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-                    
         :param tls: allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
                     
-                    1. no encryption
-                    2. ssl -> all data is encrypted on a ssl layer
-                    3. tls -> server and client begin communitation in a unsecure way and after a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
-        
+                    #. no encryption
+                    #. ssl -> all data is encrypted on a ssl layer
+                    #. tls -> server and client begin communitation in a unsecure way and after a starttls
+                       command they start to encrypt data (this is the way you use to connect to gmail smtp)
         :param html: boolean. If ``True``, html tags can be used in the body of the email. Appropriate headers are attached.
                      The default value is ``False``.
         :param charset: a different charser may be defined by its standard name.
                         Default value is ``utf-8``.
         :param async: boolean. If ``True``, then a separate process is spawned to send the email and control
-                      is returned immediately to the calling function. The default value is ``False``.
-        """
-        
+                      is returned immediately to the calling function. The default value is ``False``."""
         def get_templated(field):
             value = datasource.getItem('_meta_.%s' % field)
             if not value:
@@ -337,44 +306,33 @@ class MailHandler(GnrBaseService):
         :param subject: subject of the email
         :param body: body of the email. If you pass ``html=True`` attribute,
                      then you can pass in the body the html tags.
-                     
         :param cc_address: can be a comma deliminated str of email addresses or a list or tuple.
-                           
         :param bcc_address: can be a comma deliminated str of email addresses or a list or tuple.
-                            
         :param attachments: path of the attachment to be sent with the email.
-                            
         :param account: if an account has been defined previously with :meth:`set_smtp_account`
                         then this account can be used instead of having to repeat all the mail
                         parameters contained. 
         :param from_address: the address that will appear in the recipients from field.
-                             
         :param smtp_host: the smtp host to send this email. 
         :param port: if a non standard port is used then it can be overridden.
-                     
         :param user: if a username is required for authentication.
-                     
         :param password: the username's password (if a username is required for
                          authentication). 
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
+        :param tls: allow to communicate with an smtp server (the default value is ``False``).
+                    You may choose three ways:
                     
-        :param tls: allow to communicate with an smtp server (the default value is ``False``). You may choose three ways:
-                    
-                    1. no encryption
-                    
-                    2. ssl -> all data is encrypted on a ssl layer
-                    
-                    3. tls -> server and client begin communitation in a unsecure way and after
-                               a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
-                    
+                    #. no encryption
+                    #. ssl -> all data is encrypted on a ssl layer
+                    #. tls -> server and client begin communitation in a unsecure way and after
+                       a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
+                       
         :param html: boolean. If ``True`` then html tags can be used in the body of the email. Appropriate headers are attached.
                      The default value is ``False``.
         :param charset: a different charser may be defined by its standard name.
                         Default value is ``utf-8``.
         :param async: if set to true, then a separate process is spawned to send the email and control
-                      is returned immediately to the calling function. The default value is ``False``.
-        """
-        
+                      is returned immediately to the calling function. The default value is ``False``."""
         account_params = self.get_account_params(account=account, from_address=from_address,
                                                  smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl,
                                                  tls=tls)
@@ -412,45 +370,34 @@ class MailHandler(GnrBaseService):
         :param body: body of the email. If you pass ``html=True`` attribute,
                      then you can pass in the body the html tags
         :param attachments: path of the attachment to be sent with the email.
-                            
         :param account: if an account has been defined previously with :meth:`set_smtp_account`
                         then this account can be used instead of having to repeat all the mail
                         parameters contained. 
         :param from_address: the address that will appear in the recipients from field.
-                             
         :param smtp_host: the smtp host to send this email. 
         :param port: if a non standard port is used then it can be overridden.
-                     
         :param user: if a username is required for authentication.
-                     
         :param password: the username's password (if a username is required for
                          authentication). 
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-                    
         :param tls: allow to communicate with an smtp server. Default value is ``False``.
                     You may choose three ways:
                     
-                    1. no encryption
-                    2. ssl -> all data is encrypted on a ssl layer
-                    3. tls -> server and client begin communitation in a unsecure way and after a starttls command they start to encrypt data (this is the way you use to connect to gmail smtp)
+                    #. no encryption
+                    #. ssl -> all data is encrypted on a ssl layer
+                    #. tls -> server and client begin communitation in a unsecure way and after a starttls
+                       command they start to encrypt data (this is the way you use to connect to gmail smtp)
         
         :param html: boolean. If ``True``, html tags can be used in the body of the email. Appropriate headers are attached.
                      The default value is ``False``.
-        
-        ???
-        :param multiple_mode: allow to send a mail to many addresses. Its parameters are:
+        :param multiple_mode: allow to send a mail to many addresses.
+                              Its parameters are:
                               
                               ``False`` - single mail for recipient
-                              
                               ``to, To, TO`` - a mail sent to all recipient in to field
-                              
                               ``bcc, Bcc, BCC`` - a mail sent to ourself with all recipient in bcc address
                               
-                              Default value is ``False``.
-        
-        :param charset: a different charser may be defined by its standard name.
-                        Default value is ``utf-8``.
-        """
+        :param charset: a different charser may be defined by its standard name. Default value is ``utf-8``."""
         account_params = self.get_account_params(account=account, from_address=from_address,
                                                  smtp_host=smtp_host, port=port, user=user, password=password, ssl=ssl,
                                                  tls=tls)
@@ -468,3 +415,4 @@ class MailHandler(GnrBaseService):
             if progress_cb:
                 progress_cb(i + 1, total_to)
         smtp_connection.close()
+        
