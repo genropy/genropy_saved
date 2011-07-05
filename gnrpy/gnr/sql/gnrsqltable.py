@@ -911,6 +911,14 @@ class SqlTable(GnrObject):
     def protect_validate(self, record, old_record=None):
         pass
         
+    def diagnostic_errors(self,record,old_record=None):
+        print 'You should override for diagnostic'
+        return
+    
+    def diagnostic_warnings(self,record,old_record=None):
+        print 'You should override for diagnostic'
+        return
+    
     def check_updatable(self, record):
         """add???
         

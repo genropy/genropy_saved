@@ -168,8 +168,8 @@ class TableBase(object):
                         onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
         diagnostic = tbl.attributes.get('diagnostic')
         if diagnostic:
-            tbl.column('__warnings',name_long='!!Warnings',onInserting='diagnostic_warnings',onUpdating='diagnostic_warnings',group=group)
-            tbl.column('__errors',name_long='!!Errors',onInserting='diagnostic_errors',onUpdating='diagnostic_errors',group=group)
+            tbl.column('__warnings',name_long='!!Warnings',group=group)
+            tbl.column('__errors',name_long='!!Errors',group=group)
         if draftField:
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] =draftField
@@ -186,21 +186,6 @@ class TableBase(object):
         if not getattr(record, '_notUserChange', None):
             record[fldname] = datetime.datetime.today()
     
-    def trigger_diagnostic_warnings(self,record,fldname):
-        warnings = self.diagnostic_warnings(record)
-        record[fldname] = '\n'.join(warnings) if warnings else None
-    
-    def diagnostic_warnings(self, record):
-        print 'You should override for diagnostic'
-        return
-    
-    def trigger_diagnostic_errors(self,record,fldname):
-        errors = self.diagnostic_errors(record) 
-        record[fldname] = '\n'.join(errors) if errors else None
-    
-    def diagnostic_errors(self,record):
-        print 'You should override for diagnostic'
-        return
             
     def trigger_setAuditVersionIns(self,record,fldname):
         """add???
