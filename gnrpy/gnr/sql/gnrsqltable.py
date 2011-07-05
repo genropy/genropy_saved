@@ -237,6 +237,11 @@ class SqlTable(GnrObject):
     def logicalDeletionField(self):
         """Return the DbColumnObj object"""
         return self.model.logicalDeletionField
+
+    @property
+    def draftField(self):
+        """Return the DbColumnObj object"""
+        return self.model.draftField
         
     @property
     def noChangeMerge(self):
@@ -464,6 +469,7 @@ class SqlTable(GnrObject):
               distinct=None, limit=None, offset=None,
               group_by=None, having=None, for_update=False,
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
+              excludeDraft=True,
               addPkeyColumn=True, locale=None,
               mode=None, **kwargs):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
@@ -502,7 +508,7 @@ class SqlTable(GnrObject):
                          distinct=distinct, limit=limit, offset=offset,
                          group_by=group_by, having=having, for_update=for_update,
                          relationDict=relationDict, sqlparams=sqlparams,
-                         excludeLogicalDeleted=excludeLogicalDeleted,
+                         excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft,
                          addPkeyColumn=addPkeyColumn, locale=locale,
                          **kwargs)
         return query
@@ -606,7 +612,7 @@ class SqlTable(GnrObject):
             self.db.adapter.sql_deleteSelection(self, pkeyList=[x[0] for x in todelete])
             
     #Jeff added the support to deleteSelection for passing no condition so that all records would be deleted
-    def deleteSelection(self, condition_field=None, condition_value=None, excludeLogicalDeleted=False, condition_op='=',
+    def deleteSelection(self, condition_field=None, condition_value=None, excludeLogicalDeleted=False, excludeDraft=False,condition_op='=',
                         where=None, **kwargs):
         """add???
         
@@ -623,7 +629,7 @@ class SqlTable(GnrObject):
             
         q = self.query(where=where,
                        excludeLogicalDeleted=excludeLogicalDeleted,
-                       addPkeyColumn=False,
+                       addPkeyColumn=False,excludeDraft=excludeDraft,
                        for_update=True, **kwargs)
         sel = q.fetch()
         for r in sel:
@@ -1034,7 +1040,7 @@ class SqlTable(GnrObject):
         :param path: add???
         """
         filepath = os.path.join(path, '%s_dump.xml' % self.name)
-        records = self.query(excludeLogicalDeleted=False).fetch()
+        records = self.query(excludeLogicalDeleted=False,excludeDraft=False).fetch()
         result = Bag()
         
         for r in records:
@@ -1058,7 +1064,7 @@ class SqlTable(GnrObject):
                 record.pop('_isdeleted')
                 self.insert(record)
                 
-    def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=True, source_records=None,bagFields=True, **querykwargs):
+    def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=True,excludeDraft=True, source_records=None,bagFields=True, **querykwargs):
         """add???
         
         :param dbsource: sourcedb
@@ -1073,6 +1079,7 @@ class SqlTable(GnrObject):
         dest_tbl = dbdest.table(tbl_name)
         querykwargs['addPkeyColumn'] = False
         querykwargs['excludeLogicalDeleted'] = excludeLogicalDeleted
+        querykwargs['excludeDraft'] = excludeDraft
         source_records = source_records or source_tbl.query(bagFields=bagFields,**querykwargs).fetch()
         if empty_before:
             dest_tbl.empty()
@@ -1092,7 +1099,7 @@ class SqlTable(GnrObject):
             for rec in records:
                 self.insertOrUpdate(rec)
                 
-    def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True, source_records=None, **querykwargs):
+    def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True,excludeDraft=True, source_records=None, **querykwargs):
         """add???
         
         :param instance: add???
@@ -1105,10 +1112,10 @@ class SqlTable(GnrObject):
             instance = self.db.application.getAuxInstance(instance)
         dest_db = instance.db
         self.copyToDb(self.db,dest_db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
-                        source_records=source_records,**querykwargs)
+                        excludeDraft=True,source_records=source_records,**querykwargs)
                         
     def importFromAuxInstance(self, instance, tbl_name=None, empty_before=False, 
-                                excludeLogicalDeleted=True, source_records=None, **querykwargs):
+                                excludeLogicalDeleted=True,excludeDraft=True, source_records=None, **querykwargs):
         """add???
         
         :param instance: add???
@@ -1122,7 +1129,7 @@ class SqlTable(GnrObject):
             instance = self.db.application.getAuxInstance(instance)
         source_db = instance.db
         self.copyToDb(source_db,self.db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
-                      source_records=source_records,**querykwargs)
+                      source_records=source_records,excludeDraft=excludeDraft,**querykwargs)
                       
     def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
         """add???

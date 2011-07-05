@@ -508,7 +508,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                          recordResolver=True, selectionName='', structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, selectmethod_prefix='rpc', expressions=None, sum_columns=None,
-                         sortedBy=None, excludeLogicalDeleted=True,savedQuery=None,savedView=None, externalChanges=None,**kwargs):
+                         sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,savedQuery=None,savedView=None, externalChanges=None,**kwargs):
         t = time.time()
         tblobj = self.db.table(table)
         row_start = int(row_start)
@@ -551,7 +551,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                                       row_count=row_count,
                                       recordResolver=recordResolver, selectionName=selectionName, 
                                       pkeys=pkeys, fromSelection=fromSelection,
-                                      sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted, **kwargs)
+                                      sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft, **kwargs)
             if applymethod:
                 applyPars = self._getApplyMethodPars(kwargs)
                 self.page.getPublicMethod('rpc', applymethod)(selection, **applyPars)
@@ -582,6 +582,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         if totalRowCount:
             resultAttributes['totalRowCount'] = tblobj.query(where=condition,
                                                              excludeLogicalDeleted=excludeLogicalDeleted,
+                                                             excludeDraft=excludeDraft,
                                                              **kwargs).count()
         if sum_columns:
             for col in sum_columns.split(','):
@@ -623,7 +624,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                               relationDict=None, sqlparams=None, row_start=None, row_count=None,
                               recordResolver=None, selectionName=None, pkeys=None, fromSelection=None,
                               sortedBy=None, sqlContextName=None,
-                              excludeLogicalDeleted=True,**kwargs):
+                              excludeLogicalDeleted=True,excludeDraft=True,**kwargs):
         sqlContextBag = None
         if sqlContextName:
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
@@ -649,7 +650,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         query = tblobj.query(columns=columns, distinct=distinct, where=where,
                              order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
                              relationDict=relationDict, sqlparams=sqlparams, locale=self.page.locale,
-                             excludeLogicalDeleted=excludeLogicalDeleted, **kwargs)
+                             excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft, **kwargs)
         if sqlContextName:
             self._joinConditionsFromContext(query, sqlContextName)
         selection = query.selection(sortedBy=sortedBy, _aggregateRows=True)
@@ -883,7 +884,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 #pass
 
     def rpc_dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
-                     _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None,
+                     _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None,excludeDraft=True,
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
                      notnull=None, weakCondition=False, **kwargs):
         """
@@ -925,6 +926,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 where = '$%s = :id' % identifier
             selection = tblobj.query(columns=','.join(resultcolumns),
                                      where=where, excludeLogicalDeleted=False,
+                                     excludeDraft=excludeDraft,
                                      limit=1, id=_id).selection()
         elif querystring:
             querystring = querystring.strip('*')
@@ -980,7 +982,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             whereargs.update(kwargs)
             whereargs.update(searchargs)
             if where and condition:
-                where = '( %s ) AND ( %s) ' % (where, condition)
+                where = '( %s ) AND ( %s ) ' % (where, condition)
             else:
                 where = where or condition
             return tblobj.query(where=where, columns=','.join(resultcolumns), limit=limit,
