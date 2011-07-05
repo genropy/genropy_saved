@@ -6,6 +6,8 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrclasses import GnrMixinError
+
 class TableHandlerCommon(BaseComponent):
     
     def _th_relationExpand(self,pane,relation=None,condition=None,condition_kwargs=None,default_kwargs=None,**kwargs):
@@ -36,7 +38,11 @@ class TableHandlerCommon(BaseComponent):
         pkg,tablename = table.split('.')
         defaultModule = 'th_%s' %tablename
         resourceName = self._th_getResourceName(resourceName,defaultModule,defaultClass)
-        self.mixinComponent(pkg,'tables',tablename,resourceName,mangling_th=rootCode)
+        try:
+            self.mixinComponent(self.package.name,'tables','_packages',pkg,tablename,resourceName,mangling_th=rootCode)
+        except GnrMixinError:
+            self.mixinComponent(pkg,'tables',tablename,resourceName,mangling_th=rootCode)
+            
     
     def _th_getResClass(self,table=None,resourceName=None,defaultClass=None):
         pkg,tablename = table.split('.')

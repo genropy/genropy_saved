@@ -16,13 +16,13 @@ from gnr.web.gnrwebpage import GnrWebPage
 from gnr.web._gnrbasewebpage import GnrWebServerError
 from gnr.web.gnrbaseclasses import BaseResource
 from gnr.web.gnrbaseclasses import BaseWebtool
+from gnr.core.gnrclasses import GnrMixinError
 import glob
 import logging
 
 log = logging.getLogger(__name__)
 
-class GnrMixinError(Exception):
-    pass
+
     
 class ResourceLoader(object):
     """add???"""
