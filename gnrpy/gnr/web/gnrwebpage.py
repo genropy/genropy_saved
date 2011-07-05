@@ -48,6 +48,8 @@ from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relie
 
 import datetime
 
+"""""" # MANDATORY for Sphinx autodoc!
+
 AUTH_OK = 0
 AUTH_NOT_LOGGED = 1
 AUTH_FORBIDDEN = -1
