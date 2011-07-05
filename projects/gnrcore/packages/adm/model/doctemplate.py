@@ -2,7 +2,6 @@
 import re
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrbag import Bag
-import lxml.html as ht
 from StringIO import StringIO
 from gnr.core.gnrstring import templateReplace
 
@@ -80,6 +79,7 @@ class Table(object):
     
     
     def compileTemplate(self,record):
+        import lxml.html as ht
         tplvars =  record['varsbag'].digest('#v.varname,#v.fieldpath,#v.virtual_column')
         varsdict = dict([(varname,'$%s' %fldpath) for varname,fldpath,virtualcol in tplvars])
         virtual_columns = [fldpath for varname,fldpath,virtualcol in tplvars if virtualcol]
