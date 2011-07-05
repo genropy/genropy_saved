@@ -12,8 +12,7 @@ class GnrDboPackage(object):
         
         :param externaldb: add???
         :param empty_before: add???. 
-        :returns: add???
-        """
+        :returns: add???"""
         tables = self.attributes.get('export_order') or ''
         self.db.setConstraintsDeferred()
         for tbl in splitAndStrip(tables):
@@ -27,8 +26,7 @@ class GnrDboPackage(object):
         :param codekey: codekey format (e.g. ``$YY`` for year)
         :param output: output format (e.g. ``$YY.$NNNN`` for year)
         :param date: current date
-        :returns: string
-        """
+        :returns: string"""
         return self.dbtable('counter').getCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output,
                                                   date=date, phyear=phyear, lastAssigned=lastAssigned)
                                                   
@@ -43,8 +41,7 @@ class GnrDboPackage(object):
         :param date: add???. 
         :param phyear: add???. Default value is ``False``
         :param lastAssigned: add???. Default value is ``0``
-        :returns: add???
-        """
+        :returns: add???"""
         return self.dbtable('counter').getLastCounterDate(name=name, pkg=self.name, code=code, codekey=codekey,
                                                           output=output,
                                                           date=date, phyear=phyear, lastAssigned=lastAssigned)

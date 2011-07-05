@@ -32,9 +32,14 @@ decorators
 
     .. automethod:: gnr.web.gnrwebpage.public_method
     
+    To use it, import in your file::
+    
+        from gnr.web.gnrwebpage import public_method
+    
 .. _struct_method:
 
 @struct_method
 ==============
 
     .. automethod:: gnr.web.gnrwebstruct.struct_method
+    

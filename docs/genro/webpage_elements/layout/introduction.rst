@@ -4,34 +4,8 @@
 Introduction to the layout elements
 ===================================
     
-    Genro inherits some of its forms (containers and panes) directly from Dojo.
-    
-    There are also some layout elements built directly through GenroPy.
-    
-    The containers can be of two types: the Containers and the ContentPanes.
-    
-    * The containers are able to contain other Containers or ContentPanes.
-    * The ContentPanes are able to contain every webpage element, but not a Container.
-    
-    In Genro you can use the layout containers to put panes (or other containers) in specific regions of your page.
-    Every container has its children, that are :ref:`genro_contentpane`\s (For example, the accordionContainer
-    has the accordionPanes as its children)
-    
-.. _genro_layout_widgets:
-
-Genro layout elements
-=====================
-
-    The **Genro** layout elements are:
-    
-    * the :ref:`genro_framepane`
-    
-.. _dojo_layout_widgets:
-
-Dojo layout elements
-====================
-
-    The **Dojo** layout elements are:
+    Genro inherits some of its forms (containers and panes) directly from Dojo: we call
+    them **Dojo layout elements**; they are:
     
     * the :ref:`genro_bordercontainer`
     * the :ref:`genro_contentpane`
@@ -39,6 +13,20 @@ Dojo layout elements
     * the :ref:`genro_splitcontainer`
     * the :ref:`genro_stackcontainer`
     * the :ref:`genro_tabcontainer`
+    
+    There are also some layout elements built directly through GenroPy - the **Genro layout elements**:
+    
+    * the :ref:`genro_framepane`
+    
+    .. warning:: This is a Dojo rule that works in Genro, too. It is very important that you know it, so
+                 we'll tell this rule to you:
+                 
+                 a contentPane can include a BorderContainer or a TabContainer on any other layout
+                 element if and only if it is a UNIQUE child.
+    
+    Lastly, in Genro you can use the layout containers to put panes (or other containers) in specific regions
+    of your page. Every container has its children, that are :ref:`genro_contentpane`\s (For example,
+    the accordionContainer has the accordionPanes as its children)
     
 .. _genro_layout_common_attributes:
 
