@@ -113,6 +113,8 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=2, border_spacing='4px', fld_width='15em', disabled=disabled)
         fb.textbox(value='^.subject', lbl='Subject', colspan='2', width='100%')
         fb.textbox(value='^.to_address', lbl='To Address field')
+        fb.textbox(value='^.cc_address', lbl='CC Address field')
+        fb.textbox(value='^.bcc_address', lbl='BCC Address field')
         fb.textbox(value='^.from_address', lbl='From Address field')
 
     def html_item_res(self):
