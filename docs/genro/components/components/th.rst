@@ -632,7 +632,7 @@ common attributes
       
         table='base.staff'
         
-    * *th_pkey*: add???. Default value is ``None``
+    * *th_pkey*: add???.
     * *datapath*: the path of your data. For more information, check the
       :ref:`genro_datapath` documentation page.
     * *formResource*: allow to change the default :ref:`th_form_class`.
@@ -647,7 +647,7 @@ common attributes
       depending on the widget (check it in their method definition).
     * *default_kwargs*: you can add different kwargs:
         
-        * *virtualStore*: boolean. add??? Default value is ``False``
+        * *virtualStore*: boolean. add???
         * *relation*: add???.
         * *condition*: MANDATORY unless you specify the relation attribute. Check the
           :ref:`th_relation_condition` example for more information.
@@ -754,7 +754,6 @@ th_dialogTableHandler
     to the dialogTableHandler are listed here:
     
     * *dialog_kwargs*: MANDATORY - define the height and the width of the dialog.
-      Default value is ``None``
       
       Example::
       
@@ -810,7 +809,6 @@ th_paletteTableHandler
     to the paletteTableHandler are listed here:
     
     * *palette_kwargs*: MANDATORY - define the height and the width of the palette.
-      Default value is ``None``
       
       Example::
       
@@ -839,7 +837,7 @@ th_plainTableHandler
     :ref:`types_common_attributes` section. The attributes that belongs only
     to the plainTableHandler are listed here:
     
-    * *widget_kwargs*: add???. Default value is ``None``
+    * *widget_kwargs*: add???.
     
 .. _th_stack:
 
@@ -866,7 +864,7 @@ th_stackTableHandler
     :ref:`types_common_attributes` section. The attributes that belongs only
     to the stackTableHandler are listed here:
     
-    * *widget_kwargs*: add???. Default value is ``None``
+    * *widget_kwargs*: add???.
     
 .. _th_iframe_types:
 
@@ -897,10 +895,10 @@ th_linker
     **attributes**:
     
     * *pane*: add???.
-    * *field*: add???. Default value is ``None``
-    * *formResource*: add???. Default value is ``None``
-    * *newRecordOnly*: add???. Default value is ``None``
-    * *openIfNew*: add???. Default value is ``None``
+    * *field*: add???.
+    * *formResource*: add???.
+    * *newRecordOnly*: add???.
+    * *openIfNew*: add???.
     
 .. _th_thiframe:
 
@@ -918,8 +916,8 @@ th_thIframe
     **attributes**:
     
     * *pane*: add???.
-    * *method*: add???. Default value is ``None``
-    * *src*: add???. Default value is ``None``
+    * *method*: add???.
+    * *src*: add???.
     
 .. _th_iframedispatcher:
 
@@ -937,8 +935,8 @@ th_iframedispatcher
     **attributes**:
     
     * *root*: add???.
-    * *methodname*: add???. Default value is ``None``
-    * *pkey*: add???. Default value is ``None``
+    * *methodname*: add???.
+    * *pkey*: add???.
     
 .. _th_attr_expl:
 
