@@ -24,12 +24,12 @@ class GnrCustomWebPage(object):
         return '!!Protocols'
     
     def th_form(self,form,**kwargs):
-        form_center = form.center
+        form_center = form.record
         
         fb = form_center.formbuilder(cols=2, width='350px', margin_left='.5em', border_spacing='3px', margin_top='.5em',
                               lbl_width='8em',tdl_width='8em', fld_width='100%')
 
-        fb.field('code', width='10em', colspan=1)
-        fb.filteringSelect(value='^.direction', values='!!I:In,O:Out,B:Both',lbl='!!Direction', colspan=1)
+        fb.field('code', width='10em', colspan=2)
+        fb.filteringSelect(value='^.direction', values='!!I:In,O:Out,B:Both',lbl='!!Direction', colspan=2)
         fb.field('description', colspan=2)
         
