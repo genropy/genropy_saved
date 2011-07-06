@@ -1050,7 +1050,7 @@ class GnrWsgiSite(object):
         result = script(**kwargs)
         return result
         
-    def loadTableScript(self, page=None, table=None, respath=None, class_name=None):
+    def loadTableScript(self, page=None, table=None, respath=None, class_name=None,extPkg=None):
         """add???
         
         :param page: add???. 
@@ -1059,7 +1059,7 @@ class GnrWsgiSite(object):
         :param class_name: add???. 
         :returns: add???
         """
-        return self.resource_loader.loadTableScript(page=page, table=table, respath=respath, class_name=class_name)
+        return self.resource_loader.loadTableScript(page=page, table=table, respath=respath, class_name=class_name,extPkg=extPkg)
         
     def _get_resources(self):
         if not hasattr(self, '_resources'):

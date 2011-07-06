@@ -494,7 +494,7 @@ class ResourceLoader(object):
                 page.dynamic_js_requires[js] = page.getResourceUri(js,'js',add_mtime=True,pkg=pkg)
         page.mixin(component,**kwargs)
         
-    def loadTableScript(self, page, table=None, respath=None, class_name=None, _onDefault=None):
+    def loadTableScript(self, page, table=None, respath=None, class_name=None, _onDefault=None,extPkg=None):
         """add???
         
         :param page: add???
@@ -518,6 +518,10 @@ class ResourceLoader(object):
             tablename = table.name
             resourceDirs = self.package_resourceDirs(table.pkg.name)
         modName = os.path.join('tables', tablename, *(respath.split('/')))
+        
+        if extPkg:
+            modName = os.path.join('tables','_packages',extPkg, tablename, *(respath.split('/')))
+        
         #resourceDirs = application.packages[table.pkg.name].resourceDirs
         modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
         if modPathList:
