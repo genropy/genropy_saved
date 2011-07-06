@@ -10,12 +10,11 @@ commons attributes
     
     * :ref:`genro_datapath`
     * :ref:`genro_dbtable`
-    * :ref:`genro_disabled`
     * :ref:`genro_hidden`
     * :ref:`genro_label`
     * :ref:`genro_nodeid`
     * :ref:`genro_readonly`
-    * :ref:`genro_database_rowcaption`
+    * :ref:`genro_rowcaption`
     * :ref:`genro_tooltip`
     * *value*: see :ref:`genro_datapath`
     * :ref:`genro_visible`

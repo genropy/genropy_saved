@@ -350,6 +350,11 @@ class GnrSqlDb(GnrObject):
         tblobj.protect_validate(record)
         tblobj._doFieldTriggers('onInserting', record)
         tblobj.trigger_onInserting(record)
+        if tblobj.attributes.get('diagnostic'):
+            errors = tblobj.diagnostic_errors(record)
+            warnings = tblobj.diagnostic_warnings(record)
+            record['__errors'] = '\n'.join(errors) if errors else None
+            record['__warnings'] = '\n'.join(warnings) if warnings else None
         self.adapter.insert(tblobj, record,**kwargs)
         tblobj.trigger_onInserted(record)
         
@@ -364,6 +369,11 @@ class GnrSqlDb(GnrObject):
         tblobj.protect_validate(record, old_record=old_record)
         tblobj._doFieldTriggers('onUpdating', record)
         tblobj.trigger_onUpdating(record, old_record=old_record)
+        if tblobj.attributes.get('diagnostic'):
+            errors = tblobj.diagnostic_errors(record)
+            warnings = tblobj.diagnostic_warnings(record)
+            record['__errors'] = '\n'.join(errors) if errors else None
+            record['__warnings'] = '\n'.join(warnings) if warnings else None
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
         tblobj.trigger_onUpdated(record, old_record=old_record)
         

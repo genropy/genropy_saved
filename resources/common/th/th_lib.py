@@ -39,10 +39,10 @@ class TableHandlerCommon(BaseComponent):
         defaultModule = 'th_%s' %tablename
         resourceName = self._th_getResourceName(resourceName,defaultModule,defaultClass)
         try:
-            self.mixinComponent(self.package.name,resourceName,mangling_th=rootCode)
-            print 'pippo'
+            self.mixinComponent(self.package.name,'tables','_packages',pkg,tablename,resourceName,mangling_th=rootCode)
         except GnrMixinError:
             self.mixinComponent(pkg,'tables',tablename,resourceName,mangling_th=rootCode)
+            
     
     def _th_getResClass(self,table=None,resourceName=None,defaultClass=None):
         pkg,tablename = table.split('.')

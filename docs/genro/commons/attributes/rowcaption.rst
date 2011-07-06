@@ -1,4 +1,4 @@
-.. _genro_database_rowcaption:
+.. _genro_rowcaption:
 
 ==========
 Rowcaption
@@ -12,7 +12,9 @@ Rowcaption
 Definition
 ==========
 
-    *rowcaption* is the textual representation of a record, and it is used with all the form widgets that draw their value from a database :ref:`genro_table`, that are :ref:`genro_field`, :ref:`genro_dbselect` and :ref:`genro_dbcombobox`.
+    *rowcaption* is the textual representation of a record, and it is used with all the form widgets
+    that draw their value from a database :ref:`genro_table`, that are :ref:`genro_field`,
+    :ref:`genro_dbselect` and :ref:`genro_dbcombobox`.
 
 .. _database_description_examples:
 
