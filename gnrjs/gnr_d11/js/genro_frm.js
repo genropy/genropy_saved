@@ -1338,7 +1338,7 @@ dojo.declare("gnr.formstores.Base", null, {
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':form.getVirtualColumns(),
-                                                  'table':this.table},kw),null,'POST',null,function(){});
+                                                  'table':this.table, timeout:0},kw),null,'POST',null,function(){});
         deferred.addCallback(cb);
         if(loader.callbacks){
             var thatnode = form.sourceNode;
