@@ -1866,12 +1866,10 @@ class GnrGridStruct(GnrStructData):
 
         self.cell(field, name=name, format_trueclass=trueclass, format_falseclass=falseclass,format_nullclass=nullclass,
                   classes=classes, calculated=calculated, format_onclick="""
-                                                                    var idx = kw.rowIndex;
                                                                     var threestate =('%(threestate)s' == 'True');
-                                                                    var rowpath = '#'+idx;
+                                                                    var rowpath = '#'+this.widget.absIndex(kw.rowIndex);
                                                                     var sep = this.widget.gridEditor? '.':'?';
                                                                     var valuepath=rowpath+sep+'%(field)s';
-                                                                    var disabledpath = rowpath+'?disabled';
                                                                     var storebag = this.widget.storebag();
                                                                     var blocked = this.form? this.form.locked: !this.widget.editorEnabled;
                                                                     if (blocked){
@@ -1884,8 +1882,8 @@ class GnrGridStruct(GnrStructData):
                                                                         checked = !checked;
                                                                     }
                                                                     storebag.setItem(valuepath, checked);
-                                                                    this.publish('checked_%(field)s',{row:this.widget.rowByIndex(idx),
-                                                                                                      pkey:this.widget.rowIdByIndex(idx),
+                                                                    this.publish('checked_%(field)s',{row:this.widget.rowByIndex(kw.rowIndex),
+                                                                                                      pkey:this.widget.rowIdByIndex(kw.rowIndex),
                                                                                                       checked:checked});
                                                                     %(action)s
                                                                     """ % dict(field=field, action=action or '',threestate=threestate)
