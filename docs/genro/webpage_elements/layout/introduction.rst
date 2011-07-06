@@ -37,8 +37,6 @@ Common attributes
     
     * *datapath*: set the root's path of data. Default value is ``None``. For more details, check
       the :ref:`genro_datapath` page
-    * *disabled*: if True, disable the container/pane. Default value is ``False``. For more information,
-      check the :ref:`genro_disabled` documentation page
     * *height*: Set the height of the container. MANDATORY if the container is the father container (example: height='100px')
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
       check the :ref:`genro_hidden` documentation page

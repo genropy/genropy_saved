@@ -570,8 +570,7 @@ class GnrDomSrc(GnrStructData):
         
         :param name: add???. Default value is ``''``
         :param source: add???. Default value is ``''``
-        :returns: add???
-        """
+        :returns: add???"""
         return self.child('macro', childname=name, childcontent=source, **kwargs)
         
     def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
@@ -582,25 +581,22 @@ class GnrDomSrc(GnrStructData):
         """In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers,
         and that's because formbuilder can manage automatically fields and their positioning.
         
-        :param cols: set the number of columns. Default value is ``1``.
-        :param table: set the database :ref:`genro_table`. For more details, see :ref:`genro_dbtable`.
-                      .
+        :param cols: set the number of columns.
+        :param table: set the database :ref:`genro_table`.
         :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'``
                          (actually it is the unique defined class).
-        :param lblclass: set label style. Default value is ``'gnrfieldlabel'``.
+        :param lblclass: set label style.
         :param lblpos: set label position: ``L``: set label on the left side of text field.
-         ``T``: set label on top of text field. Default value is ``'L'``.
+                       ``T``: set label on top of text field. Default value is ``'L'``.
         :param _class: for CSS style.
-        :param fieldclass: CSS class appended to every formbuilder's child. Default value is ``gnrfield``.
-        :param lblalign: It seems broken add??? Set horizontal label alignment. .
-        :param lblvalign: set vertical label alignment. Default value is ``'middle'``.
-        :param fldalign: set field horizontal align. .
+        :param fieldclass: CSS class appended to every formbuilder's child.
+        :param lblalign: Set horizontal label alignment (It seems broken... add???)
+        :param lblvalign: set vertical label alignment.
+        :param fldalign: set field horizontal align.
         :param fldvalign: set field vertical align. Default value is ``'middle'``.
         :param disabled: If ``True``, user can't act on the object (write, drag...).
-                         For more information, check the :ref:`genro_disabled` documentation page.
-                         Default value is ``False``.
-        :param rowdatapath: Add a description ???. .
-        :param head_rows: Add a description add???. .
+        :param rowdatapath: add???
+        :param head_rows: add???
         :param \*\*kwargs: *border_spacing*: define the space between form fields. Default value is ``6px``
         
                            *datapath*: set the root's path of formbuilder's fields. For more details,
@@ -619,8 +615,7 @@ class GnrDomSrc(GnrStructData):
                            
                            *tdf_*: add???
                            
-                           *tdl_*: add???
-        """
+                           *tdl_*: add???"""
         commonPrefix = ('lbl_', 'fld_', 'row_', 'tdf_', 'tdl_')
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
@@ -638,16 +633,14 @@ class GnrDomSrc(GnrStructData):
     def place(self, fields):
         """add???
         
-        :param fields: add???
-        """
+        :param fields: add???"""
         if hasattr(self, 'fbuilder'):
             self.fbuilder.setFields(fields)
             
     def getField(self, fld):
         """add???
         
-        :param fld: add???
-        """
+        :param fld: add???"""
         result = {}
         if '.' in fld:
             x = fld.split('.')

@@ -81,18 +81,6 @@ components
                                       add_action=True,del_action=True)
                                       
             gridEditor = iv.gridEditor()
-            
-    * *rd*: write a :ref:`genro_recorddialog`
-    
-        ::
-        
-            self.recordDialog('','^',height='',
-                              width='',title='',
-                              savePath='',
-                              formCb=self.)
-                              
-            def (self,parentContainer,disabled,table):
-                pass
                 
 .. _web_controllers:
 
@@ -119,6 +107,10 @@ form
     * *fi*: write a :ref:`genro_field` --> ``field('')``
     * *fc*: write a :ref:`genro_fieldcell` --> ``fieldcell('',name='',width='')``
     * *fb*: write a :ref:`genro_formbuilder` --> ``formbuilder(cols=, border_spacing='',disabled=disabled)``
+    
+      .. deprecated:: 0.7
+        
+                      please cancel the disabled attribute, that is deprecated.
     
 .. _web_layout:
     

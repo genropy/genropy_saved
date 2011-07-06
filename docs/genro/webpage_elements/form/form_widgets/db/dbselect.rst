@@ -20,9 +20,12 @@ Definition and Description
     
     dbSelect [#]_ is a :ref:`genro_filteringselect` that takes the values through a query on the database [#]_.
     
-    User can choose between all the values contained into the linked :ref:`genro_table` (you have to specify the table from which user makes his selection), and dbSelect keep track into the :ref:`genro_datastore` of the ID of the record chosen by the user.
+    User can choose between all the values contained into the linked :ref:`genro_table` (you have to specify
+    the table from which user makes his selection), and dbSelect keep track into the :ref:`genro_datastore`
+    of the ID of the record chosen by the user.
     
-    While user write in the dbSelect, partially matched values will be shown in a pop-up menu below the input text box.
+    While user write in the dbSelect, partially matched values will be shown in a pop-up menu below the
+    input text box.
     
     To specify the table related to the dbSelect you have to use the mandatory :ref:`genro_dbtable` attribute.
     

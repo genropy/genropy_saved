@@ -616,9 +616,10 @@ common attributes
     * *pane*: MANDATORY - the :ref:`genro_contentpane` to which the TableHandler
       is linked.
       
-      .. warning:: you MUST link your TableHandler only to a :ref:`genro_contentpane`,
-                   so you can't use a :ref:`genro_bordercontainer`, a
-                   :ref:`genro_tabcontainer` or other :ref:`layout elements <genro_layout_index>`
+      .. note:: we suggest you to link a TableHandler to a :ref:`genro_contentpane`;
+                avoid a :ref:`genro_bordercontainer`, a :ref:`genro_tabcontainer` or
+                other :ref:`layout elements <genro_layout_index>` (if you use them, pay
+                attention to use the correct attributes of the layout elements)
       
     * *nodeId*: the id of the TableHandler type. If you don't need a specific nodeId, the component
                 handles it automatically. For more information on the meaning of the nodeId, check
