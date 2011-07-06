@@ -10,7 +10,6 @@ Common attributes
     introduction to commons attributes <introduction>
     datapath
     dbtable
-    disabled
     hidden
     label
     nodeId

@@ -52,7 +52,7 @@ Common attributes
      *limit*              Set the number of visible choices on the pop-up      ``10``                  
                           menu below the input textbox during user typing                              
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *rowcaption*         Allow user to view records through                   ``None``                 :ref:`genro_database_rowcaption` page 
+     *rowcaption*         Allow user to view records through                   ``None``                 :ref:`genro_rowcaption` page 
                           :ref:`genro_name_long` value.                                                
                           Without *rowcaption*, user will see value ID.                                
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------

@@ -17,7 +17,7 @@ tableHandler
     * :ref:`th_resource_page`:
     
         * the :ref:`th_view_class` (methods: :ref:`th_struct`, :ref:`th_order` and :ref:`th_query`)
-        * the :ref:`th_form_class`
+        * the :ref:`th_form_class` (:ref:`th_rpc`)
         
     * :ref:`th_webpage`:
     
@@ -26,7 +26,9 @@ tableHandler
         * :ref:`th_webpage_th_form`
         * :ref:`th_form_center_path`
     
-    * :ref:`th_types`: :ref:`types_py_requires` - :ref:`types_common_attributes` - :ref:`th_relation_condition`
+    * :ref:`th_types`:
+    
+        :ref:`types_py_requires` - :ref:`types_common_attributes` (:ref:`th_relation_condition`) - :ref:`th_options`
         
         * :ref:`th_border`
         * :ref:`th_dialog`
@@ -40,6 +42,11 @@ tableHandler
         * :ref:`th_linker_type`
         * :ref:`th_thiframe`
         * :ref:`th_iframedispatcher`
+        
+    * :ref:`th_attr_expl`:
+    
+        * :ref:`th_formresource`
+        * :ref:`th_viewresource`
         
 .. _th_introduction:
 
@@ -405,6 +412,15 @@ Form class
               to a normal webpage; for more information, check the :ref:`menu_th` documentation
               section.
               
+.. _th_rpc:
+
+usage of a dataRpc in a resource webpage
+----------------------------------------
+
+    In a :ref:`th_resource_page` you can't use a :ref:`genro_datarpc` unless you pass it as a
+    callable. For more information, check the :ref:`datarpc_callable` section of the
+    :ref:`genro_datarpc` documentation page
+                      
     .. _th_webpage:
 
 th_webpage
@@ -616,7 +632,7 @@ common attributes
       
         table='base.staff'
         
-    * *th_pkey*: add???. Default value is ``None``
+    * *th_pkey*: add???.
     * *datapath*: the path of your data. For more information, check the
       :ref:`genro_datapath` documentation page.
     * *formResource*: allow to change the default :ref:`th_form_class`.
@@ -631,7 +647,7 @@ common attributes
       depending on the widget (check it in their method definition).
     * *default_kwargs*: you can add different kwargs:
         
-        * *virtualStore*: boolean. add??? Default value is ``False``
+        * *virtualStore*: boolean. add???
         * *relation*: add???.
         * *condition*: MANDATORY unless you specify the relation attribute. Check the
           :ref:`th_relation_condition` example for more information.
@@ -640,6 +656,8 @@ common attributes
         * *grid_kwargs*: add???.
         * *hiderMessage*: add???.
         * *pageName*: add???.
+        * *pbl_classes*: if ``True``, allow to use the pbl_roundedgroup and the roundedgrouplabel
+          style attributes (of the base CSS theme of Genro) in your TableHandler
         
 .. _th_relation_condition:
 
@@ -647,6 +665,13 @@ usage of table, condition and relation parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     add???
+    
+.. _th_options:
+
+th_options
+----------
+
+    add??? (I have to wait that this method becomes stable...)
     
 .. _th_border:
 
@@ -670,13 +695,42 @@ th_borderTableHandler
     :ref:`types_common_attributes` section. The attributes that belongs only
     to the borderTableHandler are listed here:
     
-    * *widget_kwargs*: add???. Default value is ``None``
-    * *loadEvent*: add???. Default value is ``'onSelected'``
-    * *viewRegion*: add?. Default value is ``None``
-    * *formRegion*: add?. Default value is ``None``
-    * *vpane_kwargs*: add?. Default value is ``None``
-    * *fpane_kwargs*: add?. Default value is ``None``
-    
+    * *widget_kwargs*: add???
+    * *loadEvent*: add???
+    * *viewRegion*: add?
+    * *formRegion*: add?
+    * *vpane_kwargs*: allow to set the attributes of the :ref:`genro_view_data`.
+      
+      In particular, you have the following options:
+      
+      * *vpane_region*: specify the region occupied by the View class. As for the
+        :ref:`genro_bordercontainer`, you may choose between these values: top, left,
+        right, bottom, center. By default, the View class has ``vpane_region='top'``
+      * *vpane_width* (OR *vpane_height*): specify the width (or the height) occupied
+        by the View class (tip: we suggest you to use a percentage, like '30%')
+        By default, the View class has ``vpane_height='50%'``
+      * *add???*: other options?
+      
+      Example::
+      
+        vpane_region='left',vpane_width='36%'
+        
+    * *fpane_kwargs*: allow to set the attributes of the :ref:`genro_data_entry`.
+      
+      In particular, you have the following options:
+      
+      * *fpane_region*: specify the region occupied by the Form class. As for the
+        :ref:`genro_bordercontainer`, you may choose between these values: top, left,
+        right, bottom, center. By default, the Form class has ``fpane_region='bottom'``
+      * *fpane_width*: specify the width occupied by the Form class (tip: we
+        suggest you to use a percentage, like '30%') By default, the Form class has
+        ``fpane_height='50%'``
+      * *add???*: other options?
+      
+      Example::
+
+          vpane_region='right',vpane_width='70%'
+      
 .. _th_dialog:
 
 th_dialogTableHandler
@@ -700,7 +754,6 @@ th_dialogTableHandler
     to the dialogTableHandler are listed here:
     
     * *dialog_kwargs*: MANDATORY - define the height and the width of the dialog.
-      Default value is ``None``
       
       Example::
       
@@ -756,7 +809,6 @@ th_paletteTableHandler
     to the paletteTableHandler are listed here:
     
     * *palette_kwargs*: MANDATORY - define the height and the width of the palette.
-      Default value is ``None``
       
       Example::
       
@@ -785,7 +837,7 @@ th_plainTableHandler
     :ref:`types_common_attributes` section. The attributes that belongs only
     to the plainTableHandler are listed here:
     
-    * *widget_kwargs*: add???. Default value is ``None``
+    * *widget_kwargs*: add???.
     
 .. _th_stack:
 
@@ -812,7 +864,7 @@ th_stackTableHandler
     :ref:`types_common_attributes` section. The attributes that belongs only
     to the stackTableHandler are listed here:
     
-    * *widget_kwargs*: add???. Default value is ``None``
+    * *widget_kwargs*: add???.
     
 .. _th_iframe_types:
 
@@ -843,10 +895,10 @@ th_linker
     **attributes**:
     
     * *pane*: add???.
-    * *field*: add???. Default value is ``None``
-    * *formResource*: add???. Default value is ``None``
-    * *newRecordOnly*: add???. Default value is ``None``
-    * *openIfNew*: add???. Default value is ``None``
+    * *field*: add???.
+    * *formResource*: add???.
+    * *newRecordOnly*: add???.
+    * *openIfNew*: add???.
     
 .. _th_thiframe:
 
@@ -864,8 +916,8 @@ th_thIframe
     **attributes**:
     
     * *pane*: add???.
-    * *method*: add???. Default value is ``None``
-    * *src*: add???. Default value is ``None``
+    * *method*: add???.
+    * *src*: add???.
     
 .. _th_iframedispatcher:
 
@@ -883,9 +935,11 @@ th_iframedispatcher
     **attributes**:
     
     * *root*: add???.
-    * *methodname*: add???. Default value is ``None``
-    * *pkey*: add???. Default value is ``None``
+    * *methodname*: add???.
+    * *pkey*: add???.
     
+.. _th_attr_expl:
+
 Attributes explanation
 ======================
 

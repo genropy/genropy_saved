@@ -165,10 +165,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     setDataNodeValue:function(node, kw, trigger_reason, subscription_args) {
         var delay = this.attr._delay;
         if(delay == 'auto'){
-            delay = genro.rpc.rpc_level>2? genro.rpc.rpc_level * 100 : null;
+            delay = null;//genro.rpc.rpc_level>2? genro.rpc.rpc_level * 100 : null;
         }
         if (delay) {
-            console.log('delaing',delay);
             if (this.pendingFire) {
                 clearTimeout(this.pendingFire);
             }

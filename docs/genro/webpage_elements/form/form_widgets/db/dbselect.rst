@@ -6,7 +6,10 @@ dbSelect
 
     * :ref:`dbselect_def`
     * :ref:`dbselect_attributes`
-    * :ref:`dbselect_examples`: :ref:`dbselect_examples_simple`
+    * :ref:`dbselect_examples`:
+    
+        * :ref:`dbselect_examples_simple`
+        * :ref:`dbselect_examples_condition`
 
 .. _dbselect_def:
 
@@ -47,6 +50,13 @@ simple example
                 fb=pane.formbuilder(datapath='test1',cols=2)
                 fb.dbSelect(dbtable='showcase.person',rowcaption='$name',
                             value='^.person_id',lbl='Star')
+                            
+.. _dbselect_examples_condition:
+
+condition example
+-----------------
+
+    add??? (an example with the condition...)
                             
 **Footnotes**
 

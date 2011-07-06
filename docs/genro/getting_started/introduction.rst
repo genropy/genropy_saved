@@ -31,6 +31,7 @@ Other things
 Genro controllers
 =================
 
+    (change the name or specify the difference with the :ref:`genro_datacontroller_index`)
     ??? Explain:
     
         - ``^``
