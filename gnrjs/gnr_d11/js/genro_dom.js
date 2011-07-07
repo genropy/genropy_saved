@@ -1252,8 +1252,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             messageArgs = objectNotEmpty(messageArgs)? messageArgs:  {position:'relative',
                                             text_align:'center',
                                             font_size:'24pt',top:'50%',
-                                          color:'rgba(80, 80, 80, 0.2)',
-                                          text_shadow:'2px 2px 4px'};
+                                          color:'rgba(80, 80, 80, 0.2)'};
             var button = objectPop(kw,'button');
             if(button){
                 messageArgs['connect_onclick'] = button;
@@ -1269,7 +1268,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
                 messageArgs['gradient_to'] = 'whitesmoke';
                 messageArgs['gradient_deg'] = 90;
                 messageArgs['display'] = 'inline-block';
-                messageArgs['padding'] = '3px';
+                messageArgs['padding-left'] = '5px';
+                messageArgs['padding-right'] = '5px';
                 messageArgs['color'] = 'gray';
             }
             messageArgs.innerHTML = message;
