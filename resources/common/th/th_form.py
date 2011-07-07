@@ -34,12 +34,6 @@ class TableHandlerForm(BaseComponent):
         if formInIframe:
             return form
         self.th_formOptions(form,options=options)
-        form.dataController("""
-                            genro.dlg.alert(msg+' '+this.form.getRecordCaption()+': '+(reason=='invalid'?invalid:nochange),'Save failed');""",
-                                reason="^.controller.save_failed",
-                                msg='!!You cannot save',
-                                invalid='!!invalid record',
-                                nochange='!!no change to save')
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
             for hook in hooks.values():
@@ -54,6 +48,12 @@ class TableHandlerForm(BaseComponent):
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         readOnly = options.get('readOnly')
+        form.dataController("""
+                    genro.dlg.alert(msg+' '+this.form.getRecordCaption()+': '+(reason=='invalid'?invalid:nochange),'Save failed');""",
+                        reason="^.controller.save_failed",_if='reason',
+                        msg='!!You cannot save',
+                        invalid='!!invalid record',
+                        nochange='!!no change to save')
         if form.store.attributes.get('storeType') == 'Collection':
             if navigation is not False:
                 navigation = True
