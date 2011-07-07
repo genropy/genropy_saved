@@ -65,7 +65,8 @@ class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
     @extract_kwargs(top=True,grid=True)
     @struct_method
-    def fgr_frameGrid(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,**kwargs):
+    def fgr_frameGrid(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,tools=None,**kwargs):
+        tools = tools or '5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,gridReload'
         kwargs['selfsubscribe_tools'] = """ var bc = this.getWidget();
                                             genro.dom.toggleClass(bc._left,"visibleBcPane"); 
                                             bc._layoutChildren("left");
@@ -74,7 +75,7 @@ class FrameGrid(BaseComponent):
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
-        frame.left.leftBar()
+        frame.left.leftBar(tools)
         iv = frame.includedView(autoWidth=False,datapath='.grid',selectedId='.selectedId',
                                 struct=struct,sortedBy='^.sorted',
                                 selfsubscribe_delrow='this.widget.deleteRows();',
@@ -82,8 +83,8 @@ class FrameGrid(BaseComponent):
         return frame
 
     @struct_method
-    def fgr_leftBar(self,pane):
-        pane.slotToolbar('5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,gridReload')
+    def fgr_leftBar(self,pane,slots):
+        pane.slotToolbar(slots)
         pane.attributes['_class'] = 'hiddenBcPane'
         
     def fgr_relationHandler(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,**kwargs):

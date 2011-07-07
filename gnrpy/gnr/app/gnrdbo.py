@@ -12,8 +12,7 @@ class GnrDboPackage(object):
         
         :param externaldb: add???
         :param empty_before: add???. 
-        :returns: add???
-        """
+        :returns: add???"""
         tables = self.attributes.get('export_order') or ''
         self.db.setConstraintsDeferred()
         for tbl in splitAndStrip(tables):
@@ -27,8 +26,7 @@ class GnrDboPackage(object):
         :param codekey: codekey format (e.g. ``$YY`` for year)
         :param output: output format (e.g. ``$YY.$NNNN`` for year)
         :param date: current date
-        :returns: string
-        """
+        :returns: string"""
         return self.dbtable('counter').getCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output,
                                                   date=date, phyear=phyear, lastAssigned=lastAssigned)
                                                   
@@ -43,8 +41,7 @@ class GnrDboPackage(object):
         :param date: add???. 
         :param phyear: add???. Default value is ``False``
         :param lastAssigned: add???. Default value is ``0``
-        :returns: add???
-        """
+        :returns: add???"""
         return self.dbtable('counter').getLastCounterDate(name=name, pkg=self.name, code=code, codekey=codekey,
                                                           output=output,
                                                           date=date, phyear=phyear, lastAssigned=lastAssigned)
@@ -122,7 +119,8 @@ class GnrDboPackage(object):
         
 class TableBase(object):
     """add???"""
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, md5=False, group='zzz', group_name='!!System'):
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True,draftField=False, md5=False, group='zzz',
+                    group_name='!!System'):
         """Add some useful columns for tables management (*in primis*, the ``id`` column)
         
         :param tbl: a database table
@@ -163,7 +161,17 @@ class TableBase(object):
                        group='_')
         audit = tbl.attributes.get('audit')
         if audit:
-            tbl.column('__version','L',name_long='Audit version',onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
+            tbl.column('__version','L',name_long='Audit version',
+                        onUpdating='setAuditVersionUpd', onInserting='setAuditVersionIns')
+        diagnostic = tbl.attributes.get('diagnostic')
+        if diagnostic:
+            tbl.column('__warnings',name_long='!!Warnings',group=group)
+            tbl.column('__errors',name_long='!!Errors',group=group)
+        if draftField:
+            draftField = '__is_draft' if draftField is True else draftField
+            tbl.attributes['draftField'] =draftField
+            tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
+        
             
     def trigger_setTSNow(self, record, fldname):
         """This method is triggered during the insertion (or a change) of a record. It returns
@@ -174,6 +182,7 @@ class TableBase(object):
         :param fldname: the field name"""
         if not getattr(record, '_notUserChange', None):
             record[fldname] = datetime.datetime.today()
+    
             
     def trigger_setAuditVersionIns(self,record,fldname):
         """add???

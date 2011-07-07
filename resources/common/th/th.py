@@ -53,14 +53,15 @@ class TableHandler(BaseComponent):
                         nodeId=nodeId,
                         table=table,
                         **kwargs)
-        message= hiderMessage or '!!Save the main record to use this pane.'
         wdg.dataController("""
+                            message = message || msg_prefix+' '+(this.getFormHandler().getRecordCaption() || "main record");
                             if(pkey=='*newrecord*'){
-                                sourceNode.setHiderLayer({message:message});
+                                sourceNode.setHiderLayer({message:message,button:'this.getFormHandler().save();'});
                             }else{
                                 sourceNode.setHiderLayer(null,true);
                             }
-                            """,pkey='=#FORM.pkey',sourceNode=wdg,message=message,_fired='^#FORM.controller.loaded')                
+                            """,pkey='=#FORM.pkey',sourceNode=wdg,message=hiderMessage or False,msg_prefix='!!Save',
+                                _fired='^#FORM.controller.loaded')                
         top_slots = '#,delrow,addrow'
         if lockable:
             top_slots = '#,delrow,addrow,viewlocker'

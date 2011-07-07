@@ -49,10 +49,11 @@ class TableHandlerView(BaseComponent):
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
         else:
-            top_kwargs['slots']= base_slots   
+            top_kwargs['slots']= base_slots
+        leftTools = '5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,optionsMenu,gridReload'
         frame = pane.frameGrid(frameCode=frameCode,childname='view',
                                struct=self._th_hook('struct',mangler=frameCode),
-                               datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',**kwargs)        
+                               datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',tools=leftTools,**kwargs)        
         self._th_listController(frame,table=table)
         if queryTool:
             self._th_queryToolController(frame,table=table)
@@ -69,6 +70,20 @@ class TableHandlerView(BaseComponent):
                         dockButton_baseClass='no_background',
                         datapath='.query.where',
                         height='150px',width='400px')
+
+    @struct_method
+    def th_slotbar_optionsMenu(self,pane,**kwargs):
+        menu = pane.div(tip='!!Query options',_class='buttonIcon icnBaseAction').menu(_class='smallmenu',modifiers='*')
+        menu.menuline('!!Show logical deleted',
+                    action='SET .excludeLogicalDeleted=!GET .excludeLogicalDeleted;',
+                    checked='^.excludeLogicalDeleted?=!#v')
+        table = pane.getInheritedAttributes()['table']
+        if self.db.table(table).draftField:
+            menu.menuline('!!Show drafts',
+                            action='SET .excludeDraft=!GET .excludeDraft;',
+                            checked='^.excludeDraft?=!#v')
+
+        
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title',font_size='.9')
@@ -147,7 +162,8 @@ class TableHandlerView(BaseComponent):
                                selectionName=selectionName, recordResolver=False, condition=condition,
                                sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
                                row_start='0', externalChanges=True,
-                               excludeLogicalDeleted='^.excludeLogicalDeleted',
+                               excludeLogicalDeleted='=.excludeLogicalDeleted',
+                               excludeDraft='=.excludeDraft',
                                applymethod='onLoadingSelection',
                                timeout=180000, selectmethod='=.selectmethod',
                                selectmethod_prefix='customQuery',
@@ -159,7 +175,8 @@ class TableHandlerView(BaseComponent):
             frame.dataRpc('.currentQueryCount', 'app.getRecordCount', condition=condition,
                          _updateCount='^.updateCurrentQueryCount',
                          table=table, where='=.query.where',_showCount='=.tableRecordCount',
-                         excludeLogicalDeleted='=.excludeLogicalDeleted',_if='_updateCount || _showCount',
+                         excludeLogicalDeleted='=.excludeLogicalDeleted',
+                         excludeDraft='=.excludeDraft',_if='_updateCount || _showCount',
                          **condPars)
         
         frame.dataController("""
@@ -220,7 +237,7 @@ class TableHandlerView(BaseComponent):
         pane.data('.table',table,**tblattr)
         options = self._th_hook('options',mangler=pane)() or dict()
         pane.data('.excludeLogicalDeleted', options.get('excludeLogicalDeleted',True))
-        pane.data('.showDeleted', options.get('excludeLogicalDeleted',False))
+        pane.data('.excludeDraft', options.get('excludeDraft',True))
         pane.data('.tableRecordCount',options.get('tableRecordCount',True))
 
 

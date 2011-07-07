@@ -48,6 +48,8 @@ from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relie
 
 import datetime
 
+"""""" # MANDATORY for Sphinx autodoc!
+
 AUTH_OK = 0
 AUTH_NOT_LOGGED = 1
 AUTH_FORBIDDEN = -1
@@ -992,7 +994,10 @@ class GnrWebPage(GnrBaseWebPage):
                     :ref:`genro_packages_index` documentation page. """
         pkg,table = table.split('.')
         path,classname= path.split(':')
-        return self.importResource('tables/%s/%s' %(table,path),classname=classname,pkg=pkg)
+        resource = self.importResource('tables/_packages/%s/%s/%s' %(pkg,table,path),classname=classname,pkg=self.package.name)
+        if not resource:
+            resource = self.importResource('tables/%s/%s' %(table,path),classname=classname,pkg=pkg)
+        return resource
 
         
     @public_method
@@ -1011,7 +1016,10 @@ class GnrWebPage(GnrBaseWebPage):
 
     def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
         pkg,table = table.split('.')    
-        return self.getResourceContent(resource='tables/%s/%s' %(table,path),pkg=pkg,ext=ext)
+        resourceContent = self.getResourceContent(resource='tables/%s/%s/%s' %(pkg,table,path),pkg=self.package.name,ext=ext)
+        if not resourceContent:
+            resourceContent = self.getResourceContent(resource='tables/%s/%s' %(table,path),pkg=pkg,ext=ext)
+        return resourceContent
         
     def setTableResourceContent(self,table=None,path=None,value=None,ext=None):
         pkg,table = table.split('.')
@@ -1024,6 +1032,31 @@ class GnrWebPage(GnrBaseWebPage):
                 f.write(value)
         return path
 
+    def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
+        """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).
+
+        This is typically used to customize prints and batch jobs for a particular installation
+
+        :param table: the :ref:`genro_table` name. 
+        :param respath: add???. 
+        :param class_name: add???. 
+        :param runKwargs: add???. """
+        script = self.loadTableScript(table=table, respath=respath, class_name=class_name)
+        if runKwargs:
+            for k, v in runKwargs.items():
+                kwargs[str(k)] = v
+        result = script(**kwargs)
+        return result
+
+    def loadTableScript(self, table=None, respath=None, class_name=None):
+        """add???
+
+        :param table: the :ref:`genro_table` name. 
+        :param respath: add???. 
+        :param class_name: add???. 
+        :returns: add???
+        """
+        return self.site.loadTableScript(self, table=table, respath=respath, class_name=class_name)
 
 
 

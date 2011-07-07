@@ -4,15 +4,15 @@
 dataRpc
 =======
 
-    The ``dataRpc`` belongs to dataRpc family, so it is a
-    :ref:`server-side controller <controllers_server>`.
+    The ``dataRpc`` belongs to dataRpc family, so it is a :ref:`server-side controller <controllers_server>`.
     
     * :ref:`datarpc_def`
-    * :ref:`datarpc_examples`
+    * :ref:`datarpc_string`
+    * :ref:`datarpc_callable`
     
 .. _datarpc_def:
 
-Definition
+definition
 ==========
     
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataRpc
@@ -24,92 +24,58 @@ Definition
       
     To use a ``dataRpc`` you have to:
       
-    #. define the ``dataRpc``
-    #. create a method called :ref:`datarpc_method`
-      
-.. _datarpc_method:
-        
-rpc method
-----------
+    #. Pass the ``dataRpc`` as a string or as a callable.
+    #. Create the dataRpc method that will execute a server action; you can optionally
+       return a value. its form changes a bit according to the way you call it
+       (string/callable)
+       
+.. _datarpc_string:
 
-    In the ``rpc method`` there will be executed a server action;
-    you can optionally return a value. The syntax is::
+passing a dataRpc as a string
+-----------------------------
+
+    **passing the dataRpc**::
     
-      def rpc_RpcName(self,args):
-          return something
-          
+        root.dataRpc('pathOfData','RpcName',_fired='^updateTime')
+        
+    This is an example of a dataRpc called as a string. The first parameter (``pathOfData``) is a
+    string with the path of the value returned (if the dataRpc returns something). The second value
+    (``RpcName``) is a string with the dataRpc name.
+    
+    **defining the dataRpc**
+    
+    The syntax is::
+    
+        def rpc_RpcName(self,args):
+            return something
+            
     Where: 
     
     * ``RpcName`` is the name of your ``dataRpc``
     * ``args`` contains all the paramaters passed from the ``dataRpc``
+    
+.. _datarpc_callable:
+
+passing a dataRpc as a callable
+-------------------------------
+
+    **passing the dataRpc**::
+    
+        root.field('id_rate',rowcaption='$code',
+                    validate_remote=self.check_rate,
+                    validate_remote_error='Error!')
+                      
+    This is an example of a dataRpc called as a callable. The :ref:`validate_remote` is a
+    :ref:`validation <genro_validations>` that allows to validate a field through a dataRpc.
+    
+    **defining the dataRpc**::
+                      
+        @public_method                    
+        def check_rate(self,**kwargs):
+            return something # Here goes the code for the validate remote...
+            
+    As you can see, to pass the method as a callable you have to use the :ref:`public_method`
+    decorator; so, you have to import::
+    
+        from gnr.web.gnrwebpage import public_method
         
-    * In the rpc you can return something, but as we explained in the ``dataRpc`` :ref:`datarpc_def`
-      section, you can skip this parameter if you want to perform only a server action;
-      alternatively, it allows to return a value into the ``path`` of the ``dataRpc``.
-    
-.. _datarpc_examples:
-    
-Examples
-========
-
-    **First example**::
-    
-        # -*- coding: UTF-8 -*-
-        
-        import datetime
-        
-        class GnrCustomWebPage(object):
-            def main(self, root, **kwargs):
-                root.div('Hello assopy',font_size='40pt',border='3px solid yellow',padding='20px')
-                
-    Now we define a :ref:`genro_data` that describes the current date and it is calculated through Python code
-    and it is served in the main page as a static data::
-
-                root.data('demo.today', self.toText(datetime.datetime.today()))
-                
-    The next instruction is just a ``div`` to show the data. The first parameter of the div is its value, so you
-    can write value='^demo.today' and it is just a div to show the content of the folder path ``demo.today``.
-    Through this ``div`` we can see the data that has been calculated from the server when the page has been loaded::
-
-                root.div('^demo.today',font_size='20pt',border='3px solid yellow',padding='20px',margin_top='5px')
-
-    now we introduce the ``dataRpc``: when the instruction is triggered the client will call the server method
-    'getTime' and will put the result in demo.hour::
-
-                root.dataRpc('demo.hour','getTime',_fired='^updateTime',_init=True)
-                
-                hour=root.div(font_size='20pt',border='3px solid yellow',padding='20px',margin_top='5px' )
-                hour.span('^demo.hour')
-
-    Now we introduce a button, so instead of putting the rpc call inside the button script, we use the button
-    just to trigger a formula that we added in the client. A sleeping formula that is fired from this button::
-    
-                hour.button('Update',fire='updateTime',margin='20px')
-                
-    Please note that the ``fire`` attribute in :ref:`genro_button` is a shortcut for a script that puts 'true' in
-    the destination path and then put again false. So for a little while we have a true in that location.
-    
-    Here lies the ``rpc server method`` definition::
-    
-            def rpc_getTime(self):
-                return self.toText(datetime.datetime.now(),format='HH:mm:ss')
-                
-    Here we report all the example::
-    
-        # -*- coding: UTF-8 -*-
-        
-        import datetime
-        
-        class GnrCustomWebPage(object):
-            def main(self, root, **kwargs):
-                root.div('Hello assopy',font_size='40pt',border='3px solid yellow',padding='20px')
-                root.data('demo.today', self.toText(datetime.datetime.today()))
-                root.div('^demo.today',font_size='20pt',border='3px solid yellow',padding='20px',margin_top='5px')
-                root.dataRpc('demo.hour','getTime',_fired='^updateTime',_init=True)
-                hour=root.div(font_size='20pt',border='3px solid yellow',padding='20px',margin_top='5px' )
-                hour.span('^demo.hour')
-                hour.button('Update',fire='updateTime',margin='20px')
-                
-            def rpc_getTime(self):
-                return self.toText(datetime.datetime.now(),format='HH:mm:ss')
-                

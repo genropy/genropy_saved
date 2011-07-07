@@ -114,7 +114,8 @@ class DbModel(object):
         :param onDelete_sql: add???. 
         :param onUpdate: add???. 
         :param onUpdate_sql: add???. 
-        :param deferred: add???. 
+        :param deferred: the same of the sql "DEFERRED". For more information, check the
+                         :ref:`sql_deferred` section.
         :param eager_one: boolean. If ``True`` ('Y') the one_to_many relation is eager.
                           
         :param eager_many: boolean. If ``True`` ('Y') the many_to_one relation is eager.
@@ -464,7 +465,8 @@ class DbModelSrc(GnrStructData):
         :param onUpdate_sql: add???. 
         :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. 
         :param onDelete_sql: add???. 
-        :param deferred: add???. 
+        :param deferred: the same of the sql "DEFERRED". For more information, check the
+                         :ref:`sql_deferred` section.
         :param relation_name: add???. 
         :returns: add???. """
         
@@ -714,6 +716,12 @@ class DbTableObj(DbModelObj):
         return self.attributes.get('logicalDeletionField', '')
         
     logicalDeletionField = property(_get_logicalDeletionField)
+
+    def _get_draftField(self):
+        """property. Returns the table's logicalDeletionField"""
+        return self.attributes.get('draftField', '')
+        
+    draftField = property(_get_draftField)
         
     def _get_noChangeMerge(self):
         """property. set noChangeMerge to True to avoid automatic merge of concurrent non conflicting changes"""

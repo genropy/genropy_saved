@@ -34,10 +34,10 @@ class BaseView(BaseClasses):
     def th_condition(self):
         """return dict()"""
         return
+        
     def th_options(self):
         return dict()
-
-
+        
 class BaseForm(BaseClasses):
     def th_form(self, form):
         pass

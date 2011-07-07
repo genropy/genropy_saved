@@ -12,4 +12,4 @@ readOnly
     Boolean. If ``True``, the element that carry the readOnly attribute is
     in read-only mode.
     
-    add???
+    **Validity:** it works on every object.

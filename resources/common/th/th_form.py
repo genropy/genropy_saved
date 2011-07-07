@@ -48,6 +48,12 @@ class TableHandlerForm(BaseComponent):
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         readOnly = options.get('readOnly')
+        form.dataController("""
+                    genro.dlg.alert(msg+' '+this.form.getRecordCaption()+': '+(reason=='invalid'?invalid:nochange),'Save failed');""",
+                        reason="^.controller.save_failed",_if='reason',
+                        msg='!!You cannot save',
+                        invalid='!!invalid record',
+                        nochange='!!no change to save')
         if form.store.attributes.get('storeType') == 'Collection':
             if navigation is not False:
                 navigation = True
