@@ -31,7 +31,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         this.css3AttrNames = ['rounded','gradient','shadow','transform','transition'];
         this.styleAttrNames = ['height', 'width','top','left', 'right', 'bottom',
             'visibility','opacity', 'overflow', 'float', 'clear', 'display',
-            'z_index', 'border','position','padding','margin',
+            'z_index', 'border','position','padding','margin','cursor',
             'color','white_space','vertical_align','background'].concat(this.css3AttrNames);
         
     },
@@ -1241,6 +1241,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             rootNode = parentId ? genro.nodeById(parentId) : genro.src.getNode();
         }else{
             rootNode = parentId;
+            parentId = rootNode.getStringId();
         }
         
         var default_kw = {'position':'absolute',top:'0',left:'0',right:'0','bottom':0,
@@ -1253,6 +1254,24 @@ dojo.declare("gnr.GnrDomHandler", null, {
                                             font_size:'24pt',top:'50%',
                                           color:'rgba(80, 80, 80, 0.2)',
                                           text_shadow:'2px 2px 4px'};
+            var button = objectPop(kw,'button');
+            if(button){
+                messageArgs['connect_onclick'] = button;
+                messageArgs['rounded'] = '6'
+                messageArgs['top'] = null;
+                messageArgs['bottom'] = '5px';
+                messageArgs['right'] = '5px';
+                messageArgs['font_size'] = '14pt';
+                messageArgs['position'] = 'absolute'
+                messageArgs['margin'] = 'auto';
+                messageArgs['cursor'] = 'pointer';
+                messageArgs['gradient_from'] = 'silver';
+                messageArgs['gradient_to'] = 'whitesmoke';
+                messageArgs['gradient_deg'] = 90;
+                messageArgs['display'] = 'inline-block';
+                messageArgs['padding'] = '3px';
+                messageArgs['color'] = 'gray';
+            }
             messageArgs.innerHTML = message;
             var messagePane = hider._('div',messageArgs);
         }
