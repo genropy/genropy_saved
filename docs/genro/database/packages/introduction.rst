@@ -19,6 +19,11 @@ introduction
               can't be imported with the statement ``import`` *module* or with ``from``
               *module* ``import``.
     
+.. _about_schema:
+
+about a schema
+--------------
+    
     Every Genro package has got a corresponding sql schema. We suggest you to call both the
     package and the schema with the **same name** - this simplifies your work. Otherwise,
     if you keep different names for the package and for the schema, remember that when you

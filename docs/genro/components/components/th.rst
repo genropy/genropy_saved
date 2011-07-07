@@ -37,11 +37,18 @@ tableHandler
         * :ref:`th_plain`
         * :ref:`th_stack`
         
-    * :ref:`th_iframe_types`
+    * :ref:`th_iframe_types`:
     
-        * :ref:`th_linker_type`
         * :ref:`th_thiframe`
+        * :ref:`th_iframedialog`
         * :ref:`th_iframedispatcher`
+        * :ref:`th_iframepalette`
+    
+    * :ref:`th_linker_type`:
+    
+        * :ref:`th_linker_base`
+        * :ref:`th_linkerbar`
+        * :ref:`th_linkerbox`
         
     * :ref:`th_attr_expl`:
     
@@ -342,20 +349,31 @@ th_order
         def th_order(self):
             return 'surname'
             
-    The ``th_order`` returns a field of your table, and orders the View class
-    alphabetically in relation to the field you wrote.
+    * The ``th_order`` allows to order the View class alphabetically in relation
+      to the field you wrote.
+      
+    * You can write more than a field; if you do this, the order will follow hierarchically
+      the sequence of fields you choose.
+      
+        **Example**::
+        
+            def th_order(self):
+                return 'date,hour'
+                
+        In this case the records will be ordered following the date order and inside
+        the same date following the hour order.
     
-    You can optionally add after the field table:
+    * You can optionally specify if the order follows the ascending or the descending way:
+        
+        * ``:a``: ascending. The records will be showned according to ascending order.
+        * ``:d``: descending. The records will be showned according to descending order.
     
-    * ``:a``: ascending. The records will be showned according to ascending order.
-    * ``:d``: descending. The records will be showned according to descending order.
+        By default, the ``th_order()`` follows the ascending way (``:a``)
     
-    By default, the ``th_order()`` method has got the ``:a``.
-    
-    Example::
-    
-        def th_order(self):
-            return 'name:d'
+        **Example**::
+        
+            def th_order(self):
+                return 'name:d'
             
 .. _th_query:
 
@@ -754,11 +772,15 @@ th_dialogTableHandler
     :ref:`types_common_attributes` section. The attributes that belongs only
     to the dialogTableHandler are listed here:
     
-    * *dialog_kwargs*: MANDATORY - define the height and the width of the dialog.
-      
+    * *dialog_kwargs*: there are many options:
+    
+        * *dialog_height*: MANDATORY - define the dialog height
+        * *dialog_width*: MANDATORY - define the dialog width
+        * *dialog_title*: define the dialog title
+        
       Example::
       
-        dialog_height='100px'; dialog_width='300px'
+        dialog_height='100px',dialog_width='300px',dialog_title='Customer'
         
 .. _th_page:
 
@@ -876,30 +898,10 @@ iframe types
     
     They are:
     
-    * :ref:`th_linker_type`
-    * :ref:`th_thIframe`
+    * :ref:`th_thiframe`
+    * :ref:`th_iframedialog`
     * :ref:`th_iframedispatcher`
-    
-    .. _th_linker_type:
-
-th_linker
----------
-    
-    **Definition:**
-    
-    .. method:: th_linker(self,pane,field=None,formResource=None,newRecordOnly=None,openIfNew=None,**kwargs)
-    
-    **Description:**
-    
-    add???
-    
-    **attributes**:
-    
-    * *pane*: add???.
-    * *field*: add???.
-    * *formResource*: add???.
-    * *newRecordOnly*: add???.
-    * *openIfNew*: add???.
+    * :ref:`th_iframepalette`
     
 .. _th_thiframe:
 
@@ -920,6 +922,23 @@ th_thIframe
     * *method*: add???.
     * *src*: add???.
     
+.. _th_iframedialog:
+
+th_IframeDialog
+---------------
+
+    **Definition:**
+    
+    .. method:: th_thIframeDialog(self,pane,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    add???
+    
 .. _th_iframedispatcher:
 
 th_iframedispatcher
@@ -938,6 +957,96 @@ th_iframedispatcher
     * *root*: add???.
     * *methodname*: add???.
     * *pkey*: add???.
+    
+.. _th_iframepalette:
+
+th_IframePalette
+----------------
+
+    **Definition:**
+    
+    .. method:: th_thIframePalette(self,pane,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    add???
+    
+.. _th_linker_type:
+
+linker types
+============
+
+    add???
+    
+    They are:
+    
+    * :ref:`th_linker_base`
+    * :ref:`th_linkerbar`
+    * :ref:`th_linkerbox`
+
+.. _th_linker_base:
+
+th_linker
+---------
+
+    **Definition:**
+    
+    .. method:: th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,openIfNew=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    add???
+    
+.. _th_linkerbar:
+
+th_linkerBar
+------------
+
+    **Definition:**
+    
+    .. method:: th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    add???
+    
+.. _th_linkerbox:
+
+th_linkerBox
+------------
+
+    **Definition:**
+    
+    .. method:: th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfNew=None,_class='pbl_roundedGroup',label=None,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    add???
+    
+    Example::
+    
+        linkerBox('customer_id',
+                   dialog_width='300px',dialog_height='260px',dialog_title='Customer',
+                   validate_notnull=True,validate_notnull_error='!!Required',
+                   newRecordOnly=True,formResource=':MyForm')
+                   
+    add??? example explanation
     
 .. _th_attr_expl:
 
