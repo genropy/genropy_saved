@@ -113,7 +113,7 @@ class TableHandlerView(BaseComponent):
         condPars = {}
         if isinstance(condition,dict):
             condPars = condition
-            condition = condPars.pop('condition')
+            condition = condPars.pop('condition',None)
         elif condition:
             condPars = condition[1] or {}
             condition = condition[0]
