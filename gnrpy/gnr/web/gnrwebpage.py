@@ -43,7 +43,7 @@ from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
 from gnr.web.gnrwebstruct import GnrGridStruct, struct_method
 from gnr.core.gnrlang import getUuid,gnrImport, GnrException
 from gnr.core.gnrbag import Bag, BagResolver,BagCbResolver
-from gnr.core.gnrlang import deprecated
+from gnr.core.gnrdecorator import public_method,deprecated
 from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relies on BaseComponent being defined in this file
 
 import datetime
@@ -56,10 +56,7 @@ AUTH_FORBIDDEN = -1
 PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
 
-def public_method(func):
-    """This is a decorator which can be used to mark functions as :ref:`datarpc_method`\s."""
-    func.is_rpc = True
-    return func
+
     
 class GnrWebPageException(GnrException):
     pass
@@ -1032,6 +1029,31 @@ class GnrWebPage(GnrBaseWebPage):
                 f.write(value)
         return path
 
+    def callTableScript(self, page=None, table=None, respath=None, class_name=None, runKwargs=None, **kwargs):
+        """Call a script from a table's resources (e.g: ``_resources/tables/<table>/<respath>``).
+
+        This is typically used to customize prints and batch jobs for a particular installation
+
+        :param table: the :ref:`genro_table` name. 
+        :param respath: add???. 
+        :param class_name: add???. 
+        :param runKwargs: add???. """
+        script = self.loadTableScript(table=table, respath=respath, class_name=class_name)
+        if runKwargs:
+            for k, v in runKwargs.items():
+                kwargs[str(k)] = v
+        result = script(**kwargs)
+        return result
+
+    def loadTableScript(self, table=None, respath=None, class_name=None):
+        """add???
+
+        :param table: the :ref:`genro_table` name. 
+        :param respath: add???. 
+        :param class_name: add???. 
+        :returns: add???
+        """
+        return self.site.loadTableScript(self, table=table, respath=respath, class_name=class_name)
 
 
 
@@ -1609,7 +1631,11 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param table: the :ref:`genro_table` name. 
         :param methodname: the name of the :ref:`datarpc_method`. """
-        getattr(self.db.table(table),'rpc_%s' %methodname)(**kwargs)
+        handler = getattr(self.db.table(table), methodname, None)
+        if not handler or not getattr(handler, 'is_rpc', False):
+            handler = getattr(self.db.table(table),'rpc_%s' %methodname)
+        return handler(**kwargs)
+        
         
     def lazyBag(self, bag, name=None, location='page:resolvers'):
         """add???

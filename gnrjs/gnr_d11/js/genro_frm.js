@@ -431,6 +431,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.newRecord = this.isNewRecord();
         genro.dom.setClass(this.sourceNode,'form_new_record',this.newRecord);
         if(data){
+            this._recordcaption = data.attr.caption;
             this.publish('record_caption',{'caption':data.attr.caption});
             var tablename = controllerData.getItem('table?name_long');
             var record_title = tablename? tablename+': '+data.attr.caption:data.attr.caption;
@@ -451,6 +452,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         
         
+    },
+    
+    getRecordCaption:function(){
+        return this._recordcaption;
     },
     
     focus:function(node){
@@ -498,12 +503,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         if (!this.opStatus) {
             var always = always || this.getControllerData('is_newrecord');
+            var invalid = !this.isValid();
+            if (invalid) {
+                this.fireControllerData('save_failed','invalid');
+                return 'invalid:' + invalid;
+            }
             if (this.changed || always) {
-                var invalid = !this.isValid();
-                if (invalid) {
-                    this.fireControllerData('save_failed','invalid');
-                    return 'invalid:' + invalid;
-                }
                 return this.do_save(kw.destPkey);
             } else {
                 this.fireControllerData('save_failed','nochange');
@@ -1338,7 +1343,7 @@ dojo.declare("gnr.formstores.Base", null, {
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':form.getVirtualColumns(),
-                                                  'table':this.table},kw),null,'POST',null,function(){});
+                                                  'table':this.table, timeout:0},kw),null,'POST',null,function(){});
         deferred.addCallback(cb);
         if(loader.callbacks){
             var thatnode = form.sourceNode;

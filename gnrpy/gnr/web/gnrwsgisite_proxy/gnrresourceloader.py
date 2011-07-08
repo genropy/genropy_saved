@@ -494,7 +494,7 @@ class ResourceLoader(object):
                 page.dynamic_js_requires[js] = page.getResourceUri(js,'js',add_mtime=True,pkg=pkg)
         page.mixin(component,**kwargs)
         
-    def loadTableScript(self, page, table=None, respath=None, class_name=None, _onDefault=None):
+    def loadTableScript(self, page, table=None, respath=None, class_name=None):
         """add???
         
         :param page: add???
@@ -505,20 +505,28 @@ class ResourceLoader(object):
         """
         class_name = class_name or 'Main'
         application = self.gnrapp
-        if not table:
-            _onDefault = True
         if ':' in respath:
             table, respath = respath.split(':')
-        if _onDefault:
+        if isinstance(table, basestring):
+            table = application.db.table(table)
+        if not table:
             tablename = '_default'
-            resourceDirs = page.resourceDirs
+            modName = os.path.join('tables', tablename, *(respath.split('/')))
         else:
-            if isinstance(table, basestring):
-                table = application.db.table(table)
             tablename = table.name
+            pkgname = table.pkg.name
+            modName = os.path.join('tables','_packages',pkgname, tablename, *(respath.split('/')))
+        resourceDirs = page.resourceDirs
+        modPathList = self.getResourceList(resourceDirs, modName, 'py')
+        if not modPathList and table is not None:
             resourceDirs = self.package_resourceDirs(table.pkg.name)
-        modName = os.path.join('tables', tablename, *(respath.split('/')))
-        #resourceDirs = application.packages[table.pkg.name].resourceDirs
+            modName = os.path.join('tables', tablename, *(respath.split('/')))
+            modPathList = self.getResourceList(resourceDirs, modName, 'py')
+            if not modPathList:
+                tablename = '_default'
+                resourceDirs = page.resourceDirs
+                modName = os.path.join('tables', tablename, *(respath.split('/')))
+                modPathList = self.getResourceList(resourceDirs, modName, 'py')
         modPathList = self.getResourceList(resourceDirs, modName, 'py') or []
         if modPathList:
             modPathList.reverse()
@@ -533,11 +541,9 @@ class ResourceLoader(object):
                     classMixin(resource_class, custom_resource_class, only_callables=False)
             resource_obj = resource_class(page=page, resource_table=table)
             return resource_obj
-        elif not _onDefault:
-            return self.loadTableScript(page, table=table, respath=respath, _onDefault=True)
         else:
             raise GnrWebServerError('Cannot import component %s' % modName)
-            
+    
     def resourcesAtPath(self, pkg, path, ext):
         """add???
         

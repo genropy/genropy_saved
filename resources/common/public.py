@@ -468,19 +468,24 @@ class TableHandlerMain(BaseComponent):
             root.attributes.update(tag='ContentPane',_class=None)
         thwidget = th_options.get('widget','stack')
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=self.maintable.replace('.','_'),**kwargs)
+        if insidePublic and hasattr(self,'th_customizePublicFrame'):
+            self.th_customizePublicFrame(root)
         th.attributes.update(dict(border_left='1px solid gray'))
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
-        self.__th_title(th,thwidget)
+        self.__th_title(th,thwidget,insidePublic)
         if insidePublic and not formInIframe:
             self._usePublicBottomMessage(th.form)
         return th
         
-    def __th_title(self,th,widget):
-        if widget=='stack':
+    def __th_title(self,th,widget,insidePublic):
+        if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
-            th.dataFormula('gnr.windowTitle',"(selectedPage=='view'?viewtitle:formtitle)||currTitle",
+            if widget=='stack':
+                th.dataFormula('gnr.windowTitle',"(selectedPage=='view'?viewtitle:formtitle)||currTitle",
                             formtitle='^.form.controller.title',viewtitle='^.view.title',
-                            selectedPage='^.selectedPage',currTitle='=gnr.windowTitle')    
+                            selectedPage='^.selectedPage',currTitle='=gnr.windowTitle')  
+            else:
+                th.dataFormula('gnr.windowTitle','viewtitle',viewtitle='^.view.title',_onStart=True)
                             
     def rpc_form(self, root,**kwargs):
         kwargs.update(self.getCallArgs('pkey'))

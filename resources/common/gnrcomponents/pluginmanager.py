@@ -29,7 +29,10 @@ class PluggedPageManager(BaseComponent):
                                                     datapath:dpath},
                             {'_position':k});
                 p._('ContentPane',{region:'center',remote:'ppm_pluginTab',
-                                    remote_handlerName:remoteTemplate.replace('$',plugin)});
+                                    remote_handlerName:remoteTemplate.replace('$',plugin),
+                                    remote__onRemote:function(){
+                                        sourceNode.setRelativeData('#FORM.plugin.'+plugin+'.built',true,null,true);
+                                    }});
                 }else{
                     currNode = content.getNode('#'+k);
                     while(currNode &&(currNode.label!=plugin)&&(currNode.attr._plugin==true)){

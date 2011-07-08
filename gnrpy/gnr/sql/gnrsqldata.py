@@ -505,7 +505,7 @@ class SqlQueryCompiler(object):
                     columns = '%s, t0.%s AS _isdeleted' % (columns, logicalDeletionField)
         if draftField:
             if excludeDraft is True:
-                extracnd = 't0.%s IS NULL' %draftField
+                extracnd = 't0.%s IS NOT TRUE' %draftField
                 if where:
                     where = '%s AND %s' % (extracnd, where)
                 else:

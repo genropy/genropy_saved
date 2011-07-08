@@ -32,7 +32,7 @@ from gnr.core.gnrdict import dictExtract
 import uuid
 import base64
 import time
-
+from gnr.core.gnrdecorator import deprecated  # keep for compatibility
 thread_ws = dict()
 
 class BaseProxy(object):
@@ -48,21 +48,7 @@ def thlocal():
     """add???"""
     return thread_ws.setdefault(thread.get_ident(), {})
         
-def deprecated(func):
-    """This is a decorator which can be used to mark functions
-    as deprecated. It will result in a warning being emitted
-    when the function is used.
-    
-    :param func: the function to deprecate"""
-    def newFunc(*args, **kwargs):
-        warnings.warn("Call to deprecated function %s." % func.__name__,
-                      category=DeprecationWarning, stacklevel=2)
-        return func(*args, **kwargs)
-        
-    newFunc.__name__ = func.__name__
-    newFunc.__doc__ = func.__doc__
-    newFunc.__dict__.update(func.__dict__)
-    return newFunc
+
         
 def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
     """A decorator. add???
