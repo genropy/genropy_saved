@@ -470,13 +470,13 @@ class TableHandlerMain(BaseComponent):
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=self.maintable.replace('.','_'),**kwargs)
         th.attributes.update(dict(border_left='1px solid gray'))
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
-        self.__th_title(th,thwidget)
+        self.__th_title(th,thwidget,insidePublic)
         if insidePublic and not formInIframe:
             self._usePublicBottomMessage(th.form)
         return th
         
-    def __th_title(self,th,widget):
-        if widget=='stack':
+    def __th_title(self,th,widget,insidePublic):
+        if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
             th.dataFormula('gnr.windowTitle',"(selectedPage=='view'?viewtitle:formtitle)||currTitle",
                             formtitle='^.form.controller.title',viewtitle='^.view.title',
