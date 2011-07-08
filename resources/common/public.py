@@ -103,8 +103,6 @@ class Public(BaseComponent):
         self.public_frameTopBar(frame.top,title=title,**top_kwargs)
         if bottom:
             self.public_frameBottomBar(frame.bottom,**bottom_kwargs)
-        if hasattr(self,'pbl_customizePublicFrame'):
-            self.customizePublicFrame(frame)
         return frame
         
     def public_frameTopBarSlots(self,baseslot):
@@ -470,6 +468,8 @@ class TableHandlerMain(BaseComponent):
             root.attributes.update(tag='ContentPane',_class=None)
         thwidget = th_options.get('widget','stack')
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=self.maintable.replace('.','_'),**kwargs)
+        if insidePublic and hasattr(self,'th_customizePublicFrame'):
+            self.th_customizePublicFrame(root)
         th.attributes.update(dict(border_left='1px solid gray'))
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
         self.__th_title(th,thwidget,insidePublic)
