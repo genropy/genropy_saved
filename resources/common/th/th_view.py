@@ -98,9 +98,6 @@ class TableHandlerView(BaseComponent):
             if not filter(lambda e: e.startswith('pkey'),sortedBy.split(',')):
                 sortedBy = sortedBy +',pkey' 
         frame.data('.grid.sorted',sortedBy or 'pkey')
-        if not condition:
-            condition = self._th_hook('condition',mangler=mangler)()
-        
         if th_pkey:
             querybase = dict(column=self.db.table(table).pkey,op='equal',val=th_pkey,runOnStart=True)
         else:
@@ -109,10 +106,7 @@ class TableHandlerView(BaseComponent):
         frame.data('.baseQuery', queryBag)
         frame.dataFormula('.title','view_title || name_plural',name_plural='=.table?name_plural',view_title='=.title',_init=True)
         frame.dataFormula('.query.where', 'q.deepCopy();',q='=.baseQuery',_onStart=True)
-
-
         condPars = {}
-
         if isinstance(condition,dict):
             condPars = condition
             condition = condPars.pop('condition')
