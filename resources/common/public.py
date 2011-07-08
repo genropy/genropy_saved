@@ -103,6 +103,8 @@ class Public(BaseComponent):
         self.public_frameTopBar(frame.top,title=title,**top_kwargs)
         if bottom:
             self.public_frameBottomBar(frame.bottom,**bottom_kwargs)
+        if hasattr(self,'pbl_customizePublicFrame'):
+            self.customizePublicFrame(frame)
         return frame
         
     def public_frameTopBarSlots(self,baseslot):
@@ -478,9 +480,12 @@ class TableHandlerMain(BaseComponent):
     def __th_title(self,th,widget,insidePublic):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
-            th.dataFormula('gnr.windowTitle',"(selectedPage=='view'?viewtitle:formtitle)||currTitle",
+            if widget=='stack':
+                th.dataFormula('gnr.windowTitle',"(selectedPage=='view'?viewtitle:formtitle)||currTitle",
                             formtitle='^.form.controller.title',viewtitle='^.view.title',
-                            selectedPage='^.selectedPage',currTitle='=gnr.windowTitle')    
+                            selectedPage='^.selectedPage',currTitle='=gnr.windowTitle')  
+            else:
+                th.dataFormula('gnr.windowTitle','viewtitle',viewtitle='^.view.title',_onStart=True)
                             
     def rpc_form(self, root,**kwargs):
         kwargs.update(self.getCallArgs('pkey'))
