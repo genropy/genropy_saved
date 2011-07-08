@@ -36,7 +36,7 @@ class TableHandlerView(BaseComponent):
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,reloader=None,virtualStore=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,**kwargs):
         queryTool = kwargs['queryTool'] if 'queryTool' in kwargs else virtualStore
-        condition_kwargs = condition_kwargs or dict()
+        condition_kwargs = condition_kwargs or self._th_hook('condition',mangler=frameCode,dflt=dict())()
         if condition:
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
