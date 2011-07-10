@@ -116,8 +116,8 @@ config_attributes
     * ``sqlschema`` includes a string with the name of the database schema.
     
       .. note:: we suggest you to call with the same name both the schema and the
-                package. For more information, check the
-                :ref:`introduction to a package <genro_packages_introduction>`.
+                package. For more information, check the :ref:`about_schema`
+                documentation section.
                 
     * ``comment`` includes a comment string.
     * ``name_short`` includes a string of the :ref:`genro_name_short` of the schema.

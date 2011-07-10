@@ -13,7 +13,6 @@ Definition
 ==========
     
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataRemote
-        
     
     **commons attributes**:
     

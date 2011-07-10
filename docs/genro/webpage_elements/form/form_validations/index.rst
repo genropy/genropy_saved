@@ -6,7 +6,18 @@ validations
     
     * :ref:`validations_intro`
     * :ref:`validations_list`
-    * :ref:`validations_common`
+    
+        ========================== ========================== =======================
+        :ref:`validate_call`       :ref:`validate_gridnodup`  :ref:`validate_notnull`
+        :ref:`validate_dbselect`   :ref:`validate_len`        :ref:`validate_regex`  
+        :ref:`validate_email`      :ref:`validate_max`        :ref:`validate_remote` 
+        :ref:`validate_empty`      :ref:`validate_min`                               
+        :ref:`validate_exist`      :ref:`validate_nodup`                             
+        ========================== ========================== =======================
+
+    * :ref:`validations_common`:
+    
+        :ref:`validate_case`, :ref:`validate_onaccept`, :ref:`validate_onreject`
     * :ref:`validations_example`: :ref:`validations_form_example`
 
 .. _validations_intro:

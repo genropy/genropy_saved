@@ -175,8 +175,7 @@ List of all the components
     
     * iframedialog
     * simpledialog
-    * :ref:`genro_recorddialog`
-    
+        
     :ref:`linker <genro_linker>`:
     
     * :ref:`genro_recordlinker`

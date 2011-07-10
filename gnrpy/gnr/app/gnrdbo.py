@@ -123,7 +123,7 @@ class TableBase(object):
                     group_name='!!System'):
         """Add some useful columns for tables management (*in primis*, the ``id`` column)
         
-        :param tbl: a database table
+        :param tbl: the database :ref:`genro_table`
         :param id: boolean. If ``True``, create the ``id`` column. It is normally used as the primary key of a table.
                    Default value is ``True``
         :param ins: boolean. If ``True``, create the ``__ins_ts`` column. Allow to know the time (date and hour)
@@ -213,8 +213,8 @@ class TableBase(object):
     def setMultidbSubscription(self,tblname):
         """add???
         
-        :param tbl: the table
-        :param name_long: add???. 
+        :param tbl: the database :ref:`genro_table`
+        :param name_long: the :ref:`genro_name_long`
         :param group: add???. 
         :returns: add???
         """
@@ -236,11 +236,9 @@ class TableBase(object):
     def setTagColumn(self, tbl, name_long=None, group=None):
         """add???
         
-        :param tbl: the table
-        :param name_long: add???. 
-        :param group: add???. 
-        :returns: add???
-        """
+        :param tbl: the database :ref:`genro_table`
+        :param name_long: the :ref:`genro_name_long`
+        :param group: add???"""
         name_long = name_long or '!!Tag'
         tagtbl = tbl.parentNode.parentbag.parentNode.parentbag.table('recordtag_link')
         tblname = tbl.parentNode.label
@@ -277,7 +275,7 @@ class GnrHTable(TableBase):
                         validate_notnull_error='!!Required', base_view=True,
                         validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed')
         
-        :param tbl: the table"""
+        :param tbl: the database :ref:`genro_table`"""
         columns = tbl['columns'] or []
         if not 'code' in columns:
             tbl.column('code', name_long='!!Code', base_view=True)
@@ -538,7 +536,7 @@ class Table_userobject(TableBase):
         :param objtype: add???. 
         :param pkg: the package name. For more information on a package, check the
                     :ref:`genro_packages_index` documentation page. 
-        :param tbl: the table. 
+        :param tbl: the database :ref:`genro_table`
         :param userid: add???. 
         :param description: add???. 
         :param authtags: add???. 
@@ -601,7 +599,7 @@ class Table_userobject(TableBase):
         :param objtype: add???. 
         :param pkg: the package name. For more information on a package, check the
                     :ref:`genro_packages_index` documentation page. 
-        :param tbl: add???. 
+        :param tbl: the database :ref:`genro_table` 
         :param userid: add???. 
         :param authtags: add???. 
         :param onlyQuicklist: add???. 

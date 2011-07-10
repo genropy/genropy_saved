@@ -17,52 +17,52 @@ Common attributes
     to :ref:`genro_dbcombobox`:
     
     ==================== =================================================== ========================== ======================================
-       Attribute                   Description                                  Default                       Example                        
+       Attribute                   Description                                  Default                       Example                         
     ==================== =================================================== ========================== ======================================
-     *dbtable*            MANDATORY - Select the database                      ``None``                 :ref:`genro_dbtable` explanation page
-                          :ref:`genro_table` for database widget                                                                             
-                          query.                                                                                                             
+     *dbtable*            MANDATORY - Select the database                      ``None``                 :ref:`genro_dbtable` explanation page 
+                          :ref:`genro_table` for database widget                                                                              
+                          query.                                                                                                              
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *alternatePkey*      Alternate primary key: allow to save user choice     ``None``                
-                          through a different parameter respect to the                                 
-                          default ID. You can set any other field's                                    
-                          parameter as alternatePkey                                                   
+     *alternatePkey*      Alternate primary key: allow to save user choice     ``None``                                                       
+                          through a different parameter respect to the                                                                        
+                          default ID. You can set any other field's                                                                           
+                          parameter as alternatePkey                                                                                          
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *auxColumns*         Show in a pop-up menu below the input textbox        ``None``                 :ref:`db_auxColumns` explanation page
-                          query parameters (*columns* becomes MANDATORY).                                                                    
+     *auxColumns*         Show in a pop-up menu below the input textbox        ``None``                 :ref:`db_auxColumns` example          
+                          query parameters (*columns* becomes MANDATORY).                                                                     
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *columns*            Additional view                                      ``None``                 :ref:`db_columns` example            
+     *columns*            Additional view                                      ``None``                 :ref:`db_columns` example             
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *condition*          Start a SQL query.                                   ``None``                 :ref:`db_condition` example          
+     *condition*          Start a SQL query.                                   ``None``                 :ref:`db_condition` example           
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *disabled*           If True, user can't act on the widget.               ``False``                :ref:`genro_disabled` explanation page
+     *hasDownArrow*       If True, show an arrow and let the user choose       ``False``                :ref:`db_hasdownarrow` example        
+                          from all the entries (so, the *limit* attribute                                                                     
+                          is overridden.                                                                                                      
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *hasDownArrow*       If True, show an arrow and let the user choose       ``False``                :ref:`db_hasdownarrow` example
-                          from all the entries (so, the *limit* attribute                              
-                          is overridden.                                         
+     *hidden*             Hide the widget.                                     ``False``                :ref:`genro_hidden` example           
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *hidden*             Hide the widget.                                     ``False``                :ref:`genro_hidden` explanation page
+     *ignoreCase*         If True, allow the user to ignore the case           ``True``                                                       
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *ignoreCase*         If True, allow the user to ignore the case           ``True``                
+     *label*              You can't use the *label* attribute; if you          ``None``                 :ref:`lbl_formbuilder` example        
+                          want to give a label to your widget, check the                                                                      
+                          :ref:`lbl_formbuilder` example                                                                                      
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *label*              You can't use the *label* attribute; if you          ``None``                 :ref:`lbl_formbuilder` example
-                          want to give a label to your widget, check the                               
-                          :ref:`lbl_formbuilder` example                                               
+     *limit*              Set the number of visible choices on the pop-up      ``10``                                                         
+                          menu below the input textbox during user typing.                                                                    
+                          Set *limit* to "0" (``limit=0``) to allow to see                                                                    
+                          all the possible values                                                                                             
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *limit*              Set the number of visible choices on the pop-up      ``10``                  
-                          menu below the input textbox during user typing                              
+     *rowcaption*         Allow user to view records through                   ``None``                 :ref:`genro_rowcaption` page          
+                          :ref:`genro_name_long` value.                                                                                       
+                          Without *rowcaption*, user will see value ID.                                                                       
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *rowcaption*         Allow user to view records through                   ``None``                 :ref:`genro_rowcaption` page 
-                          :ref:`genro_name_long` value.                                                
-                          Without *rowcaption*, user will see value ID.                                
-    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *selected*           You can add different parameters with the sintax:    ``None``                 :ref:`db_selected` example
-                          ``selected_nameOfATableColumn='datapathFolder'``.                            
+     *selected*           You can add different parameters with the sintax:    ``None``                 :ref:`db_selected` example            
+                          ``selected_nameOfATableColumn='datapathFolder'``.                                                                   
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
      *value*              Set a path for widget's values.                      ``None``                 :ref:`genro_datapath` explanation page
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *visible*            if False, hide the widget (but keep a place in       ``True``                 :ref:`genro_visible` explanation page
-                          the :ref:`genro_datastore` for it).                                           
+     *visible*            if False, hide the widget (but keep a place in       ``True``                 :ref:`genro_visible` explanation page 
+                          the :ref:`genro_datastore` for it).                                                                                 
     ==================== =================================================== ========================== ======================================
     
 .. _db_examples:
@@ -189,7 +189,7 @@ Condition
 
 .. _db_columns:
 
-Columns
+columns
 =======
 
     When a user begins to type something into the ``dbSelect`` (or ``dbCombobox``) field, he will
@@ -208,24 +208,36 @@ Columns
 auxColumns
 ==========
 
-    The *auxColumns* attribute allow to visualize in a menu below the dbSelect (or dbCombobox)
-    some additional fields.
-
+    The *auxColumns* attribute is a string that allows to visualize in a menu below the
+    dbSelect (or dbCombobox) one or more additional fields.
+    
+    Remember the following rules:
+    
+    #. Every field must be preceded by a dollar (``$``) like::
+    
+        $name
+    
+    #. If you write more than a field, separate them through a comma (``,``) like::
+    
+        $name,$surname
+        
     **Example**::
-
+    
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
                 root.dbCombobox(dbtable='showcase.person',value='^.person_id',
-                                lbl='Star', auxColumns='$nationality')
+                                lbl='Star',auxColumns='$nationality,$birth_year')
 
 .. _db_hasdownarrow:
 
 hasDownArrow
 ============
 
-    If True, the *hasDownArrow* attribute inserts a "down arrow", letting the user the possibility
-    to search between ALL the entries (so the *limit* attribute is overridden)
+    If ``True``, the *hasDownArrow* attribute:
     
+    #. changes the appearence of the field adding a "down arrow"
+    #. bring the *limit* attribute to "0" (so user can scroll through all the possible values)
+       
     **Example**::
         
         class GnrCustomWebPage(object):
