@@ -1,7 +1,7 @@
 .. _tables_th_files:
 
 ==============================
-tableHandler resource webpages
+TableHandler resource webpages
 ==============================
 
     .. image:: ../../../../_images/projects/packages/tables_th.png

@@ -1,7 +1,7 @@
 .. _genro_th:
 
 ============
-tableHandler
+TableHandler
 ============
 
     .. note:: it is a :ref:`components_standard`.
@@ -64,9 +64,9 @@ tableHandler
 Introduction
 ============
 
-    The tableHandler is the Genro way to handle data visualization and data entry.
+    The TableHandler is the Genro way to handle data visualization and data entry.
     
-    The tableHandler is structured in two main classes:
+    The TableHandler is structured in two main classes:
     
     * the View class, that allows to manage data visualization
     * the Form class, that allows to manage data entry
@@ -82,10 +82,10 @@ Introduction
     For more information of the GUI of these two pages, please check the
     :ref:`genro_view_data` and the :ref:`genro_data_entry` documentation pages.
     
-    The tableHandler carries many features:
+    The TableHandler carries many features:
     
-    * You can create your tableHandlers into the ``resources`` folder of your
-      :ref:`genro_project`\s. This fact allows to reuse the tableHandlers you created
+    * You can create your TableHandlers into the ``resources`` folder of your
+      :ref:`genro_project`\s. This fact allows to reuse the TableHandlers you created
       in more than a webpage.
       
       Example: if you have to create a table with the registry (in italian , the
@@ -98,26 +98,26 @@ Introduction
       section for more information.
       
     In the following sections we try to explain all the info you need to make the new
-    tableHandlers works.
+    TableHandlers works.
     
 .. _th_map:
 
-tableHandler: paths
+TableHandler: paths
 ===================
 
-    In this section you will learn about the path structure of the tableHandler.
+    In this section you will learn about the path structure of the TableHandler.
     
     .. note:: you can inspect the path of your data in a webpage directly on your
               browser opening the :ref:`datastore_debugger`.
               
     .. image:: ../../_images/components/th/th_map.png
         
-    As any other object in Genro, the tableHandler gathers all the informations through
+    As any other object in Genro, the TableHandler gathers all the informations through
     a :ref:`genro_bag` structure, that looks like a hierarchiacal and nested structure.
     
     You can access to every level of the structure.
     
-    .. warning:: This is important. The root path for the tableHandler data is::
+    .. warning:: This is important. The root path for the TableHandler data is::
                  
                     packageName_tableName
                     
@@ -130,7 +130,7 @@ tableHandler: paths
     Nested to it there are the :ref:`th_map_form` level and the :ref:`th_map_view` level
     that handle respectively the path of the data of the :ref:`th_form_class` and
     :ref:`th_view_class`.
-    Depending on which :ref:`tableHandler type <th_types>` you will use, there can be also
+    Depending on which :ref:`TableHandler type <th_types>` you will use, there can be also
     the :ref:`th_map_selectedpage` level, that specifies if the selected page is the
     view-data window or the data-entry window.
     
@@ -257,10 +257,10 @@ view
     
 .. _th_firststeps:
 
-tableHandler: first steps
+TableHandler: first steps
 =========================
 
-    Now we'll guide you in a "step by step" creation of a tableHandler.
+    Now we'll guide you in a "step by step" creation of a TableHandler.
     
     Let's suppose that your project is called ``my_project``. Inside the :ref:`packages_model`
     folder we create a table called ``registry.py`` with all the records you need (name,
@@ -288,7 +288,7 @@ resource webpage
     
     .. image:: ../../_images/components/th/th.png
     
-    Pay attention that for every tableHandler you want to create, you have to repeat
+    Pay attention that for every TableHandler you want to create, you have to repeat
     the point 3 and 4 of the previous list; for example, if you have three tables called
     ``registry.py``, ``staff.py`` and ``auth.py``, you have to create three folders into the
     ``tables`` folder with a ``th_`` file in each folder, as you can see in the following
@@ -521,14 +521,14 @@ TableHandler py_requires
 
     You have to define the correct :ref:`webpages_py_requires` for your component.
     
-    You have two possibilities, because you can use the ``tableHandler`` component as an
+    You have two possibilities, because you can use the ``TableHandler`` component as an
     :ref:`components_active` or a :ref:`components_passive`
     
-    **active tableHandler**::
+    **active TableHandler**::
     
         py_requires = 'public:TableHandlerMain'
         
-    **passive tableHandler**::
+    **passive TableHandler**::
     
         py_requires = 'th/th:TableHandler'
         
@@ -538,7 +538,7 @@ th_webpage methods
 ------------------
     
     Remember to define the :ref:`webpages_main` method if you are using the
-    tableHandler as a :ref:`components_passive`.
+    TableHandler as a :ref:`components_passive`.
     
     After that, you have to define the ``th_form`` method; it replaces the ``th_form``
     method we wrote in the :ref:`th_resource_page`.
@@ -599,16 +599,16 @@ th_form
                              
     .. _th_types:
 
-tableHandler types
+TableHandler types
 ==================
 
-    In this section we explain all the tableHandler types. They are a different way to
+    In this section we explain all the TableHandler types. They are a different way to
     show the :ref:`genro_view_data` and the :ref:`genro_data_entry`:
     
     * :ref:`th_border`: show the ``view-data window`` and the ``data-entry window``
       in a single page.
-    * :ref:`th_dialog`: show the ``data-entry window`` in a :ref:`genro_dialog` that appears
-      over the ``view-data window``.
+    * :ref:`th_dialog`: show the ``data-entry window`` in a dialog that appears over the
+      ``view-data window``.
     * :ref:`th_palette`: show the ``data-entry window`` in a :ref:`genro_palette` that appears
       over the ``view-data window``.
     * :ref:`th_plain`: show only the ``view-data window``. User can't modify records.
@@ -638,7 +638,7 @@ TableHandler common attributes
     * *nodeId*: the id of the TableHandler type. If you don't need a specific nodeId, the component
                 handles it automatically. For more information on the meaning of the nodeId, check
                 the :ref:`genro_nodeid` documentation page.
-    * *table*: the path of the :ref:`genro_table` linked to your tableHandler. It is MANDATORY
+    * *table*: the path of the :ref:`genro_table` linked to your TableHandler. It is MANDATORY
       unless you use the relation attribute. For more information, check the
       :ref:`th_relation_condition` example.
       The syntax is ``table = 'packageName.tableName'``.
@@ -905,9 +905,7 @@ iframe common attributes
 ------------------------
 
     Some attributes are common to every of these types and we describe those
-attributes here:
-
-    add???
+attributes here... add???
     
 .. _th_thiframe:
 
@@ -1025,8 +1023,8 @@ attributes here:
 
 .. _th_linker_base:
 
-th_linker
----------
+linker
+------
 
     **Definition:**
     
@@ -1051,8 +1049,8 @@ th_linker
     
 .. _th_linkerbar:
 
-th_linkerBar
-------------
+linkerBar
+---------
 
     **Definition:**
     
@@ -1074,8 +1072,8 @@ th_linkerBar
     
 .. _th_linkerbox:
 
-th_linkerBox
-------------
+linkerBox
+---------
 
     **Definition:**
     
