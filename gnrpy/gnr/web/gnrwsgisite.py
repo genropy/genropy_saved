@@ -387,7 +387,7 @@ class GnrWsgiSite(object):
         if static_name == 'user':
             args = (self.currentPage.user,) + args #comma does matter
         elif static_name == 'conn':
-            args = (self.currentPage.connection_id) + args
+            args = (self.currentPage.connection_id,) + args
         elif static_name == 'page':
             args = (self.currentPage.connection_id, self.currentPage.page_id) + args
         return args
