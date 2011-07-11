@@ -47,9 +47,7 @@ class FilterList(list):
 def thlocal():
     """add???"""
     return thread_ws.setdefault(thread.get_ident(), {})
-        
-
-        
+    
 def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
     """A decorator. add???
     

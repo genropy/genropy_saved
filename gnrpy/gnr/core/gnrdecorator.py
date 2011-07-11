@@ -24,7 +24,9 @@
 
 
 def public_method(func):
-    """This is a decorator which can be used to mark functions as :ref:`datarpc_method`\s."""
+    """This is a decorator which can be used to mark functions as :ref:`genro_datarpc`\s.
+    
+    :param func: the function to set as public method"""
     func.is_rpc = True
     return func
 

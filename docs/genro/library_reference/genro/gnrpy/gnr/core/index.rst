@@ -10,6 +10,7 @@
     gnrbagxml
     gnrclasses
     gnrdate
+    gnrdecorator
     gnrdict
     gnrhtml
     gnrlang
