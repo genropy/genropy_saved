@@ -938,10 +938,12 @@ class SqlQuery(object):
         return result
         
     def fetchAsDict(self, key=None, ordered=False):
-        """Return the :meth:`fetch` as a dict of the given key
+        """Return the :meth:`fetch` as a dict that has as a key the parameter key you gave (or the pkey if you
+        don't specify any key) and as value the record you get from the query.
         
         :param key: the key you give (if ``None``, it takes the pkey). 
-        :param ordered: boolean. add???. Default value is ``False``"""
+        :param ordered: boolean. if ``True``, return the fetch using a :class:`GnrDict <gnr.core.gnrdict.GnrDict>`,
+                        otherwise (``False``) return the fetch using a normal dict."""
         fetch = self.fetch()
         key = key or self.dbtable.pkey
         if ordered:

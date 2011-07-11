@@ -9,7 +9,6 @@ checkbox
     * :ref:`checkbox_def`
     * :ref:`checkbox_description`
     * :ref:`checkbox_attributes`
-    * :ref:`checkbox_examples`
     
 .. _checkbox_def:
 
@@ -42,12 +41,22 @@ Attributes
     * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
     * *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath` documentation page
     * *visible*: if False, hide the widget. For more information, check the :ref:`genro_visible` documentation page
+    
+simple example
+==============
 
-.. _checkbox_examples:
-
-Examples
-========
-
-    Example::
+    ::
     
         pane.checkbox(value='^name',label='Name')
+        
+.. _checkboxtext:
+        
+checkBoxText
+============
+
+    .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.checkboxtext
+    
+    **Example**::
+    
+        pane.checkBoxText('foo,bar,span',value='^.pluto',separator=' - ')
+        pane.textbox(value='^.pluto')

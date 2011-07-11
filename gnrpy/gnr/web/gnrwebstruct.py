@@ -1263,6 +1263,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 pane.radioButton(label, group=group)
                 
     def checkboxtext(self, labels,value=None,separator=',',**kwargs):
+        """A group of checkboxes that allow to compose a string with checkbox labels.
+                
+        :param labels: a string separated by comma set of words. For every words there will be
+                       created a single checkbox
+        :param value: the path of the checkboxtext value
+        :param separator: the characters that separate the checkbox text"""
         labels = gnrstring.splitAndStrip(labels.replace('\n',','),',')
         action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
                     var separator = actionNode.attr._separator;
