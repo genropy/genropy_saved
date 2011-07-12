@@ -9,4 +9,5 @@ component
     
     introduction
     writing
+    components_list
     components/index

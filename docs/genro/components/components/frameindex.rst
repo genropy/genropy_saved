@@ -20,5 +20,7 @@ package importation
     
     package to be imported: ``adm``
     
+    add??? <gnrcore:adm/>
+    
     .. note:: for more information on package importation, check the
               :ref:`instanceconfig_packages` documentation section

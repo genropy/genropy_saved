@@ -4,7 +4,20 @@
 TableHandler
 ============
 
-    .. note:: it is a :ref:`components_standard`.
+    .. note:: summary of the component requirements:
+              
+              * It is a :ref:`components_standard`.
+              * It can be used both as an :ref:`components_active` or as a :ref:`components_passive`:
+              
+                * :ref:`webpages_py_requires` to use the component as an **active component**::
+                  
+                      py_requires = 'public:TableHandlerMain'
+                      
+                * :ref:`webpages_py_requires` to use the component as a **passive component**::
+                      
+                      py_requires = 'th/th:TableHandler'
+                      
+    **Introduction, paths, first steps**
     
     * :ref:`th_introduction`
     * :ref:`th_map`:
@@ -14,6 +27,9 @@ TableHandler
         * :ref:`th_map_view`
         
     * :ref:`th_firststeps`
+    
+    **Creation of a webpage: the "resource webpage" and the "th_webpage"**
+    
     * :ref:`th_resource_page`:
     
         * the :ref:`th_view_class` (methods: :ref:`th_struct`, :ref:`th_order` and :ref:`th_query`)
@@ -21,14 +37,15 @@ TableHandler
         
     * :ref:`th_webpage`:
     
-        * :ref:`th_py_requires`
         * :ref:`th_webpage_methods`
         * :ref:`th_webpage_th_form`
         * :ref:`th_form_center_path`
+        
+    **The components**
     
     * :ref:`th_types`:
     
-        :ref:`th_common_attributes` (:ref:`th_relation_condition`) - :ref:`th_options`
+        :ref:`th_common_attributes` - :ref:`th_options`
         
         * :ref:`th_border`
         * :ref:`th_dialog`
@@ -54,10 +71,13 @@ TableHandler
         * :ref:`th_linkerbar`
         * :ref:`th_linkerbox`
         
+    **Further informations**
+    
     * :ref:`th_attr_expl`:
     
         * :ref:`th_formresource`
         * :ref:`th_viewresource`
+        * :ref:`th_relation_condition`
         
 .. _th_introduction:
 
@@ -514,24 +534,6 @@ th_webpage
     :ref:`genro_webpage_elements_index`\s that support it. Check for more information the
     :ref:`webpages_maintable` and the :ref:`genro_dbtable` documentation pages.
     
-.. _th_py_requires:
-    
-TableHandler py_requires
-------------------------
-
-    You have to define the correct :ref:`webpages_py_requires` for your component.
-    
-    You have two possibilities, because you can use the ``TableHandler`` component as an
-    :ref:`components_active` or a :ref:`components_passive`
-    
-    **active TableHandler**::
-    
-        py_requires = 'public:TableHandlerMain'
-        
-    **passive TableHandler**::
-    
-        py_requires = 'th/th:TableHandler'
-        
 .. _th_webpage_methods:
     
 th_webpage methods
@@ -615,10 +617,6 @@ TableHandler types
     * :ref:`th_stack`: show the ``data-entry window`` and the ``view-data window``
       in two different stack.
       
-    They represent a different way to visualize the :ref:`genro_data_entry`, where users
-    can add/delete/modify their records. For example, the ``dialogTablehandler`` show the
-    *data-entry window* in a dialog that will appear over the :ref:`genro_view_data`.
-    
     .. _th_common_attributes:
     
 TableHandler common attributes
@@ -673,14 +671,7 @@ TableHandler common attributes
         * *pageName*: add???.
         * *pbl_classes*: if ``True``, allow to use the pbl_roundedgroup and the roundedgrouplabel
           style attributes (of the base CSS theme of Genro) in your TableHandler
-        
-.. _th_relation_condition:
-
-usage of table, condition and relation parameters
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-    add???
-    
+          
 .. _th_options:
 
 th_options
@@ -690,8 +681,8 @@ th_options
     
 .. _th_border:
 
-th_borderTableHandler
----------------------
+borderTableHandler
+------------------
 
     **Definition:**
     
@@ -703,6 +694,14 @@ th_borderTableHandler
     :ref:`genro_view_data` and the :ref:`genro_data_entry` in a single page.
     
     .. image:: ../../_images/components/th/border_th.png
+    
+    .. note:: you have to call the TableHandler without the ``th_`` string.
+              
+              Example::
+                    
+                    def th_form(self, form):
+                        pane = form.center.contentPane()
+                        pane.borderTableHandler(...) #not th_borderTableHandler !
     
     **Attributes:**
     
@@ -748,8 +747,8 @@ th_borderTableHandler
       
 .. _th_dialog:
 
-th_dialogTableHandler
----------------------
+dialogTableHandler
+------------------
 
     **Definition:**
     
@@ -761,6 +760,14 @@ th_dialogTableHandler
     the :ref:`genro_view_data`.
     
     .. image:: ../../_images/components/th/dialog_th.png
+    
+    .. note:: you have to call the TableHandler without the ``th_`` string.
+              
+              Example::
+                    
+                    def th_form(self, form):
+                        pane = form.center.contentPane()
+                        pane.dialogTableHandler(...) #not th_dialogTableHandler !
     
     **attributes:**
     
@@ -780,8 +787,8 @@ th_dialogTableHandler
         
 .. _th_page:
 
-th_pageTableHandler
--------------------
+pageTableHandler
+----------------
 
     **Definition:**
     
@@ -792,6 +799,14 @@ th_pageTableHandler
     The pageTableHandler add???
     
     add??? add image!
+    
+    .. note:: you have to call the TableHandler without the ``th_`` string.
+              
+              Example::
+                    
+                    def th_form(self, form):
+                        pane = form.center.contentPane()
+                        pane.pageTableHandler(...) #not th_pageTableHandler !
     
     **attributes**:
     
@@ -807,8 +822,8 @@ th_pageTableHandler
     
 .. _th_palette:
 
-th_paletteTableHandler
-----------------------
+paletteTableHandler
+-------------------
 
     **Definition:**
     
@@ -820,6 +835,14 @@ th_paletteTableHandler
     over the :ref:`genro_view_data`.
     
     .. image:: ../../_images/components/th/palette_th.png
+    
+    .. note:: you have to call the TableHandler without the ``th_`` string.
+              
+              Example::
+                    
+                    def th_form(self, form):
+                        pane = form.center.contentPane()
+                        pane.paletteTableHandler(...) #not th_paletteTableHandler !
     
     **attributes**:
     
@@ -835,8 +858,8 @@ th_paletteTableHandler
         
 .. _th_plain:
 
-th_plainTableHandler
---------------------
+plainTableHandler
+-----------------
 
     **Definition:**
     
@@ -850,6 +873,14 @@ th_plainTableHandler
     
     .. image:: ../../_images/components/th/plain_th.png
     
+    .. note:: you have to call the TableHandler without the ``th_`` string.
+              
+              Example::
+                    
+                    def th_form(self, form):
+                        pane = form.center.contentPane()
+                        pane.plainTableHandler(...) #not th_plainTableHandler !
+    
     **attributes**:
     
     The attributes that belong to every TableHandler are described in the
@@ -860,8 +891,8 @@ th_plainTableHandler
     
 .. _th_stack:
 
-th_stackTableHandler
---------------------
+stackTableHandler
+-----------------
 
     **Definition:**
     
@@ -876,6 +907,14 @@ th_stackTableHandler
     *but shows only one child at a time (like looking at the pages in a book one by one).>>*
     
     .. image:: ../../_images/components/th/stack_th.png
+    
+    .. note:: you have to call the TableHandler without the ``th_`` string.
+              
+              Example::
+                    
+                    def th_form(self, form):
+                        pane = form.center.contentPane()
+                        pane.stackTableHandler(...) #not th_stackTableHandler !
     
     **attributes**:
     
@@ -909,8 +948,8 @@ attributes here... add???
     
 .. _th_thiframe:
 
-th_thIframe
------------
+thIframe
+--------
     
     **Definition:**
     
@@ -928,8 +967,8 @@ th_thIframe
     
 .. _th_iframedialog:
 
-th_IframeDialog
----------------
+IframeDialog
+------------
 
     **Definition:**
     
@@ -945,8 +984,8 @@ th_IframeDialog
     
 .. _th_iframedispatcher:
 
-th_iframedispatcher
--------------------
+iframedispatcher
+----------------
     
     **Definition:**
     
@@ -964,8 +1003,8 @@ th_iframedispatcher
     
 .. _th_iframepalette:
 
-th_IframePalette
-----------------
+IframePalette
+-------------
 
     **Definition:**
     
@@ -1114,6 +1153,8 @@ linkerBox
 
 Attributes explanation
 ======================
+
+    In this section we detail the features of the TableHandler attributes
 
 .. _th_formresource:
 
@@ -1283,6 +1324,13 @@ viewResource attribute
        the View class called ``Form``, the viewResource will be::
        
         viewResource='th_staff:Form'
+        
+.. _th_relation_condition:
+
+usage of table, condition and relation parameters
+-------------------------------------------------
+
+    add???
         
 **Footnotes**:
 
