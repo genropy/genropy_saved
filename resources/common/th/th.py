@@ -61,7 +61,7 @@ class TableHandler(BaseComponent):
                                 sourceNode.setHiderLayer(null,true);
                             }
                             """,pkey='=#FORM.pkey',sourceNode=wdg,message=hiderMessage or False,msg_prefix='!!Save',
-                                _fired='^#FORM.controller.loaded')                
+                                _fired='^#FORM.controller.loaded',_delay=1)                
         top_slots = '#,delrow,addrow'
         if lockable:
             top_slots = '#,delrow,addrow,viewlocker'

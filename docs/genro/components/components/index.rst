@@ -10,6 +10,4 @@ list of components
     IncludedView <includedview>
     frameindex
     linkerField
-    recorddialog
-    recordlinker
     th

@@ -283,11 +283,12 @@ class DbModelSrc(GnrStructData):
         """Add a package to the structure.
         
         :param name: the package name
-        :param sqlschema: add???. 
+        :param sqlschema: actual sql name of the schema. For more information check the :ref:`about_schema`
+                          documentation section
         :param comment: the package's comment. 
-        :param name_short: the package's short name. 
-        :param name_long: the package's long name. 
-        :param name_full: the package's full name. """
+        :param name_short: the :ref:`genro_name_short` of the package
+        :param name_long: the :ref:`genro_name_long` of the package
+        :param name_full: the :ref:`genro_name_full` of the package"""
         if not 'packages' in self: #if it is the first package it prepares the package_list packages
             self.child('package_list', 'packages')
         
@@ -307,16 +308,17 @@ class DbModelSrc(GnrStructData):
               comment=None,
               name_short=None, name_long=None, name_full=None,
               **kwargs):
-        """Add a table to the structure.
+        """Add a database :ref:`genro_table` to the structure.
         
         :param name: the table name
         :param pkey: the record primary key. 
-        :param lastTS: add???. 
-        :param sqlschema: add???. 
+        :param lastTS: the date of the last modification (TS = timestamp)
+        :param sqlschema: actual sql name of the schema. For more information check the :ref:`about_schema`
+                          documentation section
         :param comment: the table's comment. 
-        :param name_short: the table's short name. 
-        :param name_long: the table's long name. 
-        :param name_full: the table's full name. 
+        :param name_short: the :ref:`genro_name_short` of the table
+        :param name_long: the :ref:`genro_name_long` of the table
+        :param name_full: the :ref:`genro_name_full` of the table 
         :returns: a table"""
         if not 'tables' in self:
             #if it is the first table it prepares the table_list tables
@@ -332,10 +334,10 @@ class DbModelSrc(GnrStructData):
                name_short=None, name_long=None, name_full=None,
                group=None, onInserting=None, onUpdating=None, onDeleting=None,
                **kwargs):
-        """Insert a column into a table.
+        """Insert a :ref:`table_column` into a table.
         
         :param name: the column name
-        :param dtype: the data type. 
+        :param dtype: the data type.
         :param size: string. ``'min:max'`` or fixed lenght ``'len'``. 
         :param default: add???. 
         :param notnull: add???. 
@@ -343,13 +345,12 @@ class DbModelSrc(GnrStructData):
         :param indexed: add???. 
         :param sqlname: add???. 
         :param comment: the column's comment. 
-        :param name_short: the column's short name. 
-        :param name_long: the column's long name. 
-        :param name_full: the column's full name. 
+        :param name_short: the :ref:`genro_name_short` of the column
+        :param name_long: the :ref:`genro_name_long` of the column
+        :param name_full: the :ref:`genro_name_full` of the column
         :param group: a hierarchical path of logical categories and subacategories the columns belongs to.
                       If the group path starts with '_' the group is "reserved" (invisible).
                       If it starts with '*' it can be seen only through administration tools.
-                      
         :param onInserting: add???. 
         :param onUpdating: add???. 
         :param onDeleting: add???. """

@@ -16,7 +16,11 @@ decorators
 @deprecated
 ===========
 
-    .. automethod:: gnr.core.gnrlang.deprecated
+    .. automethod:: gnr.core.gnrdecorator.deprecated
+    
+    To use it, import in your file::
+    
+        from gnr.core.gnrdecorator import public_method
     
 .. _extract_kwargs:
 
@@ -30,11 +34,11 @@ decorators
 @public_method
 ==============
 
-    .. automethod:: gnr.web.gnrwebpage.public_method
+    .. automethod:: gnr.core.gnrdecorator.public_method
     
     To use it, import in your file::
     
-        from gnr.web.gnrwebpage import public_method
+        from gnr.core.gnrdecorator import public_method
     
 .. _struct_method:
 

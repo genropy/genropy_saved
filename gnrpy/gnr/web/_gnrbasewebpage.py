@@ -573,38 +573,47 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def setLoadingParameters(self, table, **kwargs):
-        """Set parameters at the path ``gnr.tables.TABLE.loadingParameters.PARAMETERNAME``,
-        where:
+        """
+        .. deprecated:: 0.7
+                           
+        This method has been replaced by the :ref:`genro_th` method. For more information,
+        check the explanation about the **handler** level in the :ref:`th_map_form_data`
+        documentation section 
         
-        * ``TABLE`` is the value you define for the *table* parameter
-        * ``PARAMETERNAME`` is the name you gave to the parameter.
-        
-        :param table: MANDATORY - string. You can put the following strings:
-        
-                      * *maintable*: set a parameter value of a column of the table you define in the
-                        :ref:`webpages_maintable` :ref:`webpage variable <webpages_variables>`
+            .. note:: **old documentation:**
                       
-                            **Example:** if you have a package called ``agenda`` and a :ref:`genro_table`
-                            called ``staff`` and write in your :ref:`webpages_webpages`::
-                            
-                                maintable='staff'
-                                self.setLoadingParameters(table='maintable',price='10000')
-                                
-                            then you will find the value ``10000`` at the path:
-                            ``gnr.tables.maintable.loadingParameters.price``
-                        
-                      * *PACKAGENAME.TABLENAME*: set a parameter value of a column in the table called
-                        ``TABLENAME`` of the package ``PACKAGENAME`` at the path
-                        ``gnr.tables.PACKAGENAME_TABLENAME.loadingParameters.PARAMETERNAME``, where 
-                        ``PARAMETERNAME`` is the name you gave to the parameter.
-                        
-                            **Example:** if you have a package called ``agenda`` and a :ref:`genro_table`
-                            called ``staff`` and write in your :ref:`webpages_webpages`::
-                            
-                                self.setLoadingParameters(table='agenda.staff',price='10000')
-                                
-                            then you will find the value ``10000`` at the path:
-                            ``gnr.tables.agenda_staff.loadingParameters.price``"""
+                      Set parameters at the path ``gnr.tables.TABLE.loadingParameters.PARAMETERNAME``,
+                      where:
+                      
+                      * ``TABLE`` is the value you define for the *table* parameter
+                      * ``PARAMETERNAME`` is the name you gave to the parameter.
+                      
+                      :param table: MANDATORY - string. You can put the following strings:
+                      
+                                    * *maintable*: set a parameter value of a column of the table you define in the
+                                      :ref:`webpages_maintable` :ref:`webpage variable <webpages_variables>`
+                                    
+                                          **Example:** if you have a package called ``agenda`` and a :ref:`genro_table`
+                                          called ``staff`` and write in your :ref:`webpages_webpages`::
+                                          
+                                              maintable='staff'
+                                              self.setLoadingParameters(table='maintable',price='10000')
+                                              
+                                          then you will find the value ``10000`` at the path:
+                                          ``gnr.tables.maintable.loadingParameters.price``
+                                      
+                                    * *PACKAGENAME.TABLENAME*: set a parameter value of a column in the table called
+                                      ``TABLENAME`` of the package ``PACKAGENAME`` at the path
+                                      ``gnr.tables.PACKAGENAME_TABLENAME.loadingParameters.PARAMETERNAME``, where 
+                                      ``PARAMETERNAME`` is the name you gave to the parameter.
+                                      
+                                          **Example:** if you have a package called ``agenda`` and a :ref:`genro_table`
+                                          called ``staff`` and write in your :ref:`webpages_webpages`::
+                                          
+                                              self.setLoadingParameters(table='agenda.staff',price='10000')
+                                              
+                                          then you will find the value ``10000`` at the path:
+                                          ``gnr.tables.agenda_staff.loadingParameters.price``"""
         self.pageSource().dataFormula('gnr.tables.%s.loadingParameters' % table.replace('.', '_'),
                                       '', _onStart=True, **kwargs)
                                       

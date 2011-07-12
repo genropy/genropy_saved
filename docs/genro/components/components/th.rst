@@ -1,7 +1,7 @@
 .. _genro_th:
 
 ============
-tableHandler
+TableHandler
 ============
 
     .. note:: it is a :ref:`components_standard`.
@@ -28,7 +28,7 @@ tableHandler
     
     * :ref:`th_types`:
     
-        :ref:`types_py_requires` - :ref:`types_common_attributes` (:ref:`th_relation_condition`) - :ref:`th_options`
+        :ref:`th_common_attributes` (:ref:`th_relation_condition`) - :ref:`th_options`
         
         * :ref:`th_border`
         * :ref:`th_dialog`
@@ -37,11 +37,22 @@ tableHandler
         * :ref:`th_plain`
         * :ref:`th_stack`
         
-    * :ref:`th_iframe_types`
+    * :ref:`th_iframe_types`:
     
-        * :ref:`th_linker_type`
+        :ref:`th_iframe_common_attributes`
+    
         * :ref:`th_thiframe`
+        * :ref:`th_iframedialog`
         * :ref:`th_iframedispatcher`
+        * :ref:`th_iframepalette`
+    
+    * :ref:`th_linker_type`:
+    
+        :ref:`th_linker_common_attributes`
+    
+        * :ref:`th_linker_base`
+        * :ref:`th_linkerbar`
+        * :ref:`th_linkerbox`
         
     * :ref:`th_attr_expl`:
     
@@ -53,9 +64,9 @@ tableHandler
 Introduction
 ============
 
-    The tableHandler is the Genro way to handle data visualization and data entry.
+    The TableHandler is the Genro way to handle data visualization and data entry.
     
-    The tableHandler is structured in two main classes:
+    The TableHandler is structured in two main classes:
     
     * the View class, that allows to manage data visualization
     * the Form class, that allows to manage data entry
@@ -71,10 +82,10 @@ Introduction
     For more information of the GUI of these two pages, please check the
     :ref:`genro_view_data` and the :ref:`genro_data_entry` documentation pages.
     
-    The tableHandler carries many features:
+    The TableHandler carries many features:
     
-    * You can create your tableHandlers into the ``resources`` folder of your
-      :ref:`genro_project`\s. This fact allows to reuse the tableHandlers you created
+    * You can create your TableHandlers into the ``resources`` folder of your
+      :ref:`genro_project`\s. This fact allows to reuse the TableHandlers you created
       in more than a webpage.
       
       Example: if you have to create a table with the registry (in italian , the
@@ -87,26 +98,26 @@ Introduction
       section for more information.
       
     In the following sections we try to explain all the info you need to make the new
-    tableHandlers works.
+    TableHandlers works.
     
 .. _th_map:
 
-tableHandler: paths
+TableHandler: paths
 ===================
 
-    In this section you will learn about the path structure of the tableHandler.
+    In this section you will learn about the path structure of the TableHandler.
     
     .. note:: you can inspect the path of your data in a webpage directly on your
               browser opening the :ref:`datastore_debugger`.
               
     .. image:: ../../_images/components/th/th_map.png
         
-    As any other object in Genro, the tableHandler gathers all the informations through
+    As any other object in Genro, the TableHandler gathers all the informations through
     a :ref:`genro_bag` structure, that looks like a hierarchiacal and nested structure.
     
     You can access to every level of the structure.
     
-    .. warning:: This is important. The root path for the tableHandler data is::
+    .. warning:: This is important. The root path for the TableHandler data is::
                  
                     packageName_tableName
                     
@@ -119,7 +130,7 @@ tableHandler: paths
     Nested to it there are the :ref:`th_map_form` level and the :ref:`th_map_view` level
     that handle respectively the path of the data of the :ref:`th_form_class` and
     :ref:`th_view_class`.
-    Depending on which :ref:`tableHandler type <th_types>` you will use, there can be also
+    Depending on which :ref:`TableHandler type <th_types>` you will use, there can be also
     the :ref:`th_map_selectedpage` level, that specifies if the selected page is the
     view-data window or the data-entry window.
     
@@ -185,7 +196,7 @@ form - data levels
     
     .. image:: ../../_images/components/th/th_map_form_data.png
     
-    In the form level you can find three data levels:
+    In the form level you can find four data levels:
     
     * **controller**: it contains many levels that allow to control the save/load management,
       the incorrect fields and so on (you can check all of them by activating the
@@ -208,6 +219,8 @@ form - data levels
             
       * **title**: string. It includes the name of the record title in the :ref:`genro_data_entry`.
       * **valid**: boolean, string. True if every :ref:`validation <genro_validations>` is satisfied.
+      
+    * **handler**: add???
       
     * **record**: this level contains all the :ref:`table_column`\s of your :ref:`genro_table`.
       
@@ -244,10 +257,10 @@ view
     
 .. _th_firststeps:
 
-tableHandler: first steps
+TableHandler: first steps
 =========================
 
-    Now we'll guide you in a "step by step" creation of a tableHandler.
+    Now we'll guide you in a "step by step" creation of a TableHandler.
     
     Let's suppose that your project is called ``my_project``. Inside the :ref:`packages_model`
     folder we create a table called ``registry.py`` with all the records you need (name,
@@ -275,7 +288,7 @@ resource webpage
     
     .. image:: ../../_images/components/th/th.png
     
-    Pay attention that for every tableHandler you want to create, you have to repeat
+    Pay attention that for every TableHandler you want to create, you have to repeat
     the point 3 and 4 of the previous list; for example, if you have three tables called
     ``registry.py``, ``staff.py`` and ``auth.py``, you have to create three folders into the
     ``tables`` folder with a ``th_`` file in each folder, as you can see in the following
@@ -342,20 +355,31 @@ th_order
         def th_order(self):
             return 'surname'
             
-    The ``th_order`` returns a field of your table, and orders the View class
-    alphabetically in relation to the field you wrote.
+    * The ``th_order`` allows to order the View class alphabetically in relation
+      to the field you wrote.
+      
+    * You can write more than a field; if you do this, the order will follow hierarchically
+      the sequence of fields you choose.
+      
+        **Example**::
+        
+            def th_order(self):
+                return 'date,hour'
+                
+        In this case the records will be ordered following the date order and inside
+        the same date following the hour order.
     
-    You can optionally add after the field table:
+    * You can optionally specify if the order follows the ascending or the descending way:
+        
+        * ``:a``: ascending. The records will be showned according to ascending order.
+        * ``:d``: descending. The records will be showned according to descending order.
     
-    * ``:a``: ascending. The records will be showned according to ascending order.
-    * ``:d``: descending. The records will be showned according to descending order.
+        By default, the ``th_order()`` follows the ascending way (``:a``)
     
-    By default, the ``th_order()`` method has got the ``:a``.
-    
-    Example::
-    
-        def th_order(self):
-            return 'name:d'
+        **Example**::
+        
+            def th_order(self):
+                return 'name:d'
             
 .. _th_query:
 
@@ -497,14 +521,14 @@ TableHandler py_requires
 
     You have to define the correct :ref:`webpages_py_requires` for your component.
     
-    You have two possibilities, because you can use the ``tableHandler`` component as an
+    You have two possibilities, because you can use the ``TableHandler`` component as an
     :ref:`components_active` or a :ref:`components_passive`
     
-    **active tableHandler**::
+    **active TableHandler**::
     
         py_requires = 'public:TableHandlerMain'
         
-    **passive tableHandler**::
+    **passive TableHandler**::
     
         py_requires = 'th/th:TableHandler'
         
@@ -514,7 +538,7 @@ th_webpage methods
 ------------------
     
     Remember to define the :ref:`webpages_main` method if you are using the
-    tableHandler as a :ref:`components_passive`.
+    TableHandler as a :ref:`components_passive`.
     
     After that, you have to define the ``th_form`` method; it replaces the ``th_form``
     method we wrote in the :ref:`th_resource_page`.
@@ -575,16 +599,16 @@ th_form
                              
     .. _th_types:
 
-tableHandler types
+TableHandler types
 ==================
 
-    In this section we explain all the tableHandler types. They are a different way to
+    In this section we explain all the TableHandler types. They are a different way to
     show the :ref:`genro_view_data` and the :ref:`genro_data_entry`:
     
     * :ref:`th_border`: show the ``view-data window`` and the ``data-entry window``
       in a single page.
-    * :ref:`th_dialog`: show the ``data-entry window`` in a :ref:`genro_dialog` that appears
-      over the ``view-data window``.
+    * :ref:`th_dialog`: show the ``data-entry window`` in a dialog that appears over the
+      ``view-data window``.
     * :ref:`th_palette`: show the ``data-entry window`` in a :ref:`genro_palette` that appears
       over the ``view-data window``.
     * :ref:`th_plain`: show only the ``view-data window``. User can't modify records.
@@ -595,20 +619,10 @@ tableHandler types
     can add/delete/modify their records. For example, the ``dialogTablehandler`` show the
     *data-entry window* in a dialog that will appear over the :ref:`genro_view_data`.
     
-.. _types_py_requires:
-
-py_requires
------------
+    .. _th_common_attributes:
     
-    If you use one of the TableHandler types, it is mandatory to add the following
-    :ref:`webpages_py_requires` in your :ref:`webpages_webpages`::
-    
-        py_requires = 'th/th:TableHandler'
-        
-    .. _types_common_attributes:
-    
-common attributes
------------------
+TableHandler common attributes
+------------------------------
 
     Some attributes are common to every of these types and we describe those
     attributes here:
@@ -616,14 +630,15 @@ common attributes
     * *pane*: MANDATORY - the :ref:`genro_contentpane` to which the TableHandler
       is linked.
       
-      .. warning:: you MUST link your TableHandler only to a :ref:`genro_contentpane`,
-                   so you can't use a :ref:`genro_bordercontainer`, a
-                   :ref:`genro_tabcontainer` or other :ref:`layout elements <genro_layout_index>`
+      .. note:: we suggest you to link a TableHandler to a :ref:`genro_contentpane`;
+                avoid a :ref:`genro_bordercontainer`, a :ref:`genro_tabcontainer` or
+                other :ref:`layout elements <genro_layout_index>` (if you use them, pay
+                attention to use the correct attributes of the layout elements)
       
     * *nodeId*: the id of the TableHandler type. If you don't need a specific nodeId, the component
                 handles it automatically. For more information on the meaning of the nodeId, check
                 the :ref:`genro_nodeid` documentation page.
-    * *table*: the path of the :ref:`genro_table` linked to your tableHandler. It is MANDATORY
+    * *table*: the path of the :ref:`genro_table` linked to your TableHandler. It is MANDATORY
       unless you use the relation attribute. For more information, check the
       :ref:`th_relation_condition` example.
       The syntax is ``table = 'packageName.tableName'``.
@@ -692,7 +707,7 @@ th_borderTableHandler
     **Attributes:**
     
     The attributes that belong to every TableHandler are described in the
-    :ref:`types_common_attributes` section. The attributes that belongs only
+    :ref:`th_common_attributes` section. The attributes that belongs only
     to the borderTableHandler are listed here:
     
     * *widget_kwargs*: add???
@@ -750,14 +765,18 @@ th_dialogTableHandler
     **attributes:**
     
     The attributes that belong to every TableHandler are described in the
-    :ref:`types_common_attributes` section. The attributes that belongs only
+    :ref:`th_common_attributes` section. The attributes that belongs only
     to the dialogTableHandler are listed here:
     
-    * *dialog_kwargs*: MANDATORY - define the height and the width of the dialog.
-      
+    * *dialog_kwargs*: there are many options:
+    
+        * *dialog_height*: MANDATORY - define the dialog height
+        * *dialog_width*: MANDATORY - define the dialog width
+        * *dialog_title*: define the dialog title
+        
       Example::
       
-        dialog_height='100px'; dialog_width='300px'
+        dialog_height='100px',dialog_width='300px',dialog_title='Customer'
         
 .. _th_page:
 
@@ -777,7 +796,7 @@ th_pageTableHandler
     **attributes**:
     
     The attributes that belong to every TableHandler are described in the
-    :ref:`types_common_attributes` section. The attributes that belongs only
+    :ref:`th_common_attributes` section. The attributes that belongs only
     to the pageTableHandler are listed here:
     
     * *formUrl=None*: add???
@@ -805,7 +824,7 @@ th_paletteTableHandler
     **attributes**:
     
     The attributes that belong to every TableHandler are described in the
-    :ref:`types_common_attributes` section. The attributes that belongs only
+    :ref:`th_common_attributes` section. The attributes that belongs only
     to the paletteTableHandler are listed here:
     
     * *palette_kwargs*: MANDATORY - define the height and the width of the palette.
@@ -834,7 +853,7 @@ th_plainTableHandler
     **attributes**:
     
     The attributes that belong to every TableHandler are described in the
-    :ref:`types_common_attributes` section. The attributes that belongs only
+    :ref:`th_common_attributes` section. The attributes that belongs only
     to the plainTableHandler are listed here:
     
     * *widget_kwargs*: add???.
@@ -861,7 +880,7 @@ th_stackTableHandler
     **attributes**:
     
     The attributes that belong to every TableHandler are described in the
-    :ref:`types_common_attributes` section. The attributes that belongs only
+    :ref:`th_common_attributes` section. The attributes that belongs only
     to the stackTableHandler are listed here:
     
     * *widget_kwargs*: add???.
@@ -875,30 +894,18 @@ iframe types
     
     They are:
     
-    * :ref:`th_linker_type`
-    * :ref:`th_thIframe`
+    * :ref:`th_thiframe`
+    * :ref:`th_iframedialog`
     * :ref:`th_iframedispatcher`
+    * :ref:`th_iframepalette`
     
-    .. _th_linker_type:
+.. _th_iframe_common_attributes:
 
-th_linker
----------
-    
-    **Definition:**
-    
-    .. method:: th_linker(self,pane,field=None,formResource=None,newRecordOnly=None,openIfNew=None,**kwargs)
-    
-    **Description:**
-    
-    add???
-    
-    **attributes**:
-    
-    * *pane*: add???.
-    * *field*: add???.
-    * *formResource*: add???.
-    * *newRecordOnly*: add???.
-    * *openIfNew*: add???.
+iframe common attributes
+------------------------
+
+    Some attributes are common to every of these types and we describe those
+attributes here... add???
     
 .. _th_thiframe:
 
@@ -919,6 +926,23 @@ th_thIframe
     * *method*: add???.
     * *src*: add???.
     
+.. _th_iframedialog:
+
+th_IframeDialog
+---------------
+
+    **Definition:**
+    
+    .. method:: th_thIframeDialog(self,pane,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    add???
+    
 .. _th_iframedispatcher:
 
 th_iframedispatcher
@@ -938,6 +962,154 @@ th_iframedispatcher
     * *methodname*: add???.
     * *pkey*: add???.
     
+.. _th_iframepalette:
+
+th_IframePalette
+----------------
+
+    **Definition:**
+    
+    .. method:: th_thIframePalette(self,pane,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    add???
+    
+.. _th_linker_type:
+
+linker types
+============
+
+    add??? (introduction)
+    
+    They are:
+    
+    * :ref:`th_linker_base`
+    * :ref:`th_linkerbar`
+    * :ref:`th_linkerbox`
+
+.. _th_linker_common_attributes:
+
+linker common attributes
+------------------------
+
+    Some attributes are common to every of these types and we describe those
+attributes here:
+
+    * *pane*: MANDATORY - the :ref:`genro_contentpane` to which the TableHandler
+      is linked.
+      
+      .. warning:: you have to link a TableHandler to a :ref:`genro_contentpane`;
+                   you can't use any other :ref:`layout elements <genro_layout_index>`
+                   
+    * *field*: a :ref:`genro_field`; through this object the linker becomes related to the
+      :ref:`genro_table` to which the field belongs to.
+    * *newRecordOnly*: add???
+    * *dialog_kwargs*: there are many options:
+    
+        * *dialog_height*: MANDATORY - define the dialog height
+        * *dialog_width*: MANDATORY - define the dialog width
+        * *dialog_title*: define the dialog title
+        
+      Example::
+      
+        dialog_height='100px',dialog_width='300px',dialog_title='Customer'
+        
+    * *default_kwargs*: add???
+
+.. _th_linker_base:
+
+linker
+------
+
+    **Definition:**
+    
+    .. method:: th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,openIfNew=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    The attributes that belong to every linker are described in the
+    :ref:`th_linker_common_attributes` section. The attributes that belongs only
+    to the th_linker are listed here:
+    
+    * *formResource*: allow to change the default :ref:`th_form_class`. Check the
+      :ref:`th_formresource` section for more information.
+    * *formUrl*: add???
+    * *table*: the database :ref:`genro_table` to which the th_linker refers to
+    * *openIfNew*: add???
+    * *embedded*: add???
+    
+.. _th_linkerbar:
+
+linkerBar
+---------
+
+    **Definition:**
+    
+    .. method:: th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    The attributes that belong to every linker are described in the
+    :ref:`th_linker_common_attributes` section. The attributes that belongs only
+    to the th_linkerBar are listed here:
+    
+    * *label*: the label of the linkerBar
+    * *table*: the database :ref:`genro_table` to which the th_linkerBar refers to
+    * *_class*: the CSS style
+    
+.. _th_linkerbox:
+
+linkerBox
+---------
+
+    **Definition:**
+    
+    .. method:: th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfNew=None,_class='pbl_roundedGroup',label=None,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **attributes**:
+    
+    The attributes that belong to every linker are described in the
+    :ref:`th_linker_common_attributes` section. The attributes that belongs only
+    to the th_linkerBox are listed here:
+    
+    * *template*: add???
+    * *frameCode*: add???
+    * *formResource*: allow to change the default :ref:`th_form_class`. Check the
+      :ref:`th_formresource` section for more information.
+    * *openIfNew*: add???
+    * *_class*: the CSS style
+    * *label*: the th_linkerBox label
+    
+        **Example**
+        
+        add??? example explanation
+        
+        add??? Explain of the tpl folder --> resources/tables/*TableName*/tpl/default.html
+        
+        ::
+        
+            linkerBox('customer_id',
+                       dialog_width='300px',dialog_height='260px',dialog_title='Customer',
+                       validate_notnull=True,validate_notnull_error='!!Required',
+                       newRecordOnly=True,formResource=':MyForm')
+                       
 .. _th_attr_expl:
 
 Attributes explanation

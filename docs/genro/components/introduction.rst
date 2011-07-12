@@ -171,15 +171,16 @@ List of all the components
     types. You can discover more of a component type or more of a component by clicking
     on the relative links.
 
-    :ref:`dialogs <genro_dialog>`:
+    **Dialogs**:
     
     * iframedialog
     * simpledialog
-    * :ref:`genro_recorddialog`
+        
+    **Linkers**:
     
-    :ref:`linker <genro_linker>`:
-    
-    * :ref:`genro_recordlinker`
+    * :ref:`th_linker_base`
+    * :ref:`th_linkerbar`
+    * :ref:`th_linkerbox`
     
     **Tables**:
     
@@ -187,7 +188,7 @@ List of all the components
     
     **add???**
     
-    * :ref:`genro_includedview`
+    * :ref:`genro_includedview` - **deprecated** (*0.7*)
     * timetable_dh
     * :ref:`genro_frameindex`
         

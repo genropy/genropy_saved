@@ -82,8 +82,6 @@ formbuilder commons attributes
 
     The following attributes can be given both to formbuilder than to its children:
     
-    * *disabled*: if True, allow to disable this widget. Default value is ``False``.
-      For more information, check the :ref:`genro_disabled` documentation page
     * *hidden*: if True, allow to hide this widget. Default value is ``False``.
       For more information, check the :ref:`genro_hidden` documentation page
     * *visible*: if False, hide the widget. For more information, check the :ref:`genro_visible` documentation page
@@ -98,8 +96,7 @@ Examples
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
                 bc = root.borderContainer(datapath='testForm')
-                fb = bc.formbuilder(cols=2,fld_width='10em',disabled='^.disabled',
-                                    hidden='^.hidden',visible='^.visible')
+                fb = bc.formbuilder(cols=2,fld_width='10em',hidden='^.hidden',visible='^.visible')
                 fb.textbox(value='^.name', lbl='Name')
                 fb.textbox(value='^.surname', lbl='Surname')
                 fb.numberTextbox(value='^.age', lbl="Age", width='4em')

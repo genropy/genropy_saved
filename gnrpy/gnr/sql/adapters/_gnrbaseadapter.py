@@ -435,8 +435,8 @@ class SqlDbAdapter(object):
         """Drop an index
         
         :param index_name: name of the index (unique in schema)
-        :param sqlschema: actual sql name of the schema. 
-        """
+        :param sqlschema: actual sql name of the schema. For more information check the :ref:`about_schema`
+                          documentation section"""
         if sqlschema:
             index_name = '%s.%s' % (sqlschema, index_name)
         return "DROP INDEX IF EXISTS %s;" % index_name
@@ -447,9 +447,9 @@ class SqlDbAdapter(object):
         :param index_name: name of the index (unique in schema)
         :param columns: comma separated string (or list or tuple) of :ref:`genro_columns` to include in the index
         :param table_sql: actual sql name of the table
-        :param sqlschema: actual sql name of the schema. 
-        :unique: boolean for unique indexing. 
-        """
+        :param sqlschema: actual sql name of the schema. For more information check the :ref:`about_schema`
+                          documentation section
+        :unique: boolean for unique indexing"""
         if sqlschema:
             table_sql = '%s.%s' % (sqlschema, table_sql)
         if unique:
