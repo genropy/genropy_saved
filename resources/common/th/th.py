@@ -54,7 +54,8 @@ class TableHandler(BaseComponent):
                         table=table,
                         **kwargs)
         wdg.dataController("""
-                            message = message || msg_prefix+' '+(this.getFormHandler().getRecordCaption() || "main record");
+                            var currform = this.getFormHandler();
+                            message = message || msg_prefix+' '+ (currform?currform.getRecordCaption():"main record");
                             if(pkey=='*newrecord*'){
                                 sourceNode.setHiderLayer({message:message,button:'this.getFormHandler().save();'});
                             }else{
