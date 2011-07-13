@@ -182,7 +182,10 @@ class TableScriptToHtml(BagToHtml):
         if not record:
             return
         self.thermo_kwargs = thermo
-        record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
+        if record=='*':
+            record = None
+        else:
+            record = self.tblobj.recordAs(record, virtual_columns=self.virtual_columns)
         html_folder = self.getHtmlPath(autocreate=True)
         html = super(TableScriptToHtml, self).__call__(record=record, folder=html_folder, **kwargs)
         if not html:

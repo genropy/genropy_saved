@@ -1293,7 +1293,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             var kw = objectUpdate({'_sourceNode':this.storeNode,_pkeys:insOrUpdKeys},this.storeNode.attr)
             kw.condition = original_condition?original_condition+' AND '+newcondition:newcondition;
             genro.rpc.remoteCall('app.getSelection', 
-                                kw,null,null,null,
+                                kw,null,'POST',null,
                                 function(result){
                                             willBeInSelection={};
                                             result.getValue().forEach(function(n){
