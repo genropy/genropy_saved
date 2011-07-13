@@ -2108,7 +2108,6 @@ border='1px solid gray',margin='2px', rounded=10,
     padding-top:0;
 }
 .dijitError.th_linkerField{
-    display:block; 
 	background: transparent url(icons/base12/invalid.png) no-repeat right center !important;
 }
 

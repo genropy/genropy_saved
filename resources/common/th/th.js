@@ -116,7 +116,6 @@ dojo.declare("gnr.LinkerManager", null, {
         var that = this;
         this.linkerform.subscribe('onSaved',function(kw){
             that.setCurrentPkey(kw.pkey);
-            that.closeLinker();
         });
         this.linkerform.subscribe('onDismissed',function(kw){
             that.thdialog.hide();
