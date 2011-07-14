@@ -765,7 +765,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         params['page_id'] = genro.page_id;
         params['uploaderId'] = kw.uploaderId;
         params['uploadPath'] = kw.uploadPath;
-
+        params['filename'] = kw.filename;
         var sourceNode = kw.uploaderId ? genro.nodeById(kw.uploaderId) : null;
         params = this.serializeParameters(genro.src.dynamicParameters(params, sourceNode));
         for (key in params) {

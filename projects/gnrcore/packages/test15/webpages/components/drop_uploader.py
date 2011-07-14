@@ -16,8 +16,10 @@ class GnrCustomWebPage(object):
     def test_0_img_uploader(self, pane):
         #pane.img(src='^.avatar_url')
         pane.textbox(value='^.avatar_url')
+        pane.textbox(value='^.id')
         pane.imgUploader(value='^.avatar_url',height='100px',width='100px',folder='user:staff/avatar',filename='=.id',
                         placeholder='http://images.apple.com/euro/home/images/icloud_hero.png')
+                        
     def test_1_uploader(self, pane):
         """File Uploader"""
         self.dropUploader(pane)
