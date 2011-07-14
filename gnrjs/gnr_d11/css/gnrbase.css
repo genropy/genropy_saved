@@ -104,7 +104,6 @@ body.workInProgress{
 
 .tundra .dijitComboBox .dijitButtonNode, .tundra .dijitSpinner .dijitButtonNode {
 	position: absolute;
-	top: 0;
 	bottom: 0;
 	right: 0;
 }
@@ -1113,7 +1112,11 @@ div.dojoxDock {
     width:32px;
 }
 /* @group Base16 */
-
+.icnBaseActivity{
+    background: url(icons/base16/activity_icon.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
 .icnBaseAdd {
     background: url(icons/base16/add.gif) no-repeat center center;
     width: 16px;
@@ -2105,7 +2108,6 @@ border='1px solid gray',margin='2px', rounded=10,
     padding-top:0;
 }
 .dijitError.th_linkerField{
-    display:block; 
 	background: transparent url(icons/base12/invalid.png) no-repeat right center !important;
 }
 

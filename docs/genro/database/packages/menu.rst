@@ -185,7 +185,7 @@ menu icons
 
 .. _menu_th:
 
-menu lines for resource page of a tableHandler
+menu lines for resource page of a TableHandler
 ==============================================
 
     If you have created some :ref:`th_resource_page`\s, then the tag line in the menu

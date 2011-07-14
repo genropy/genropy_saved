@@ -1635,7 +1635,7 @@ class GnrWebPage(GnrBaseWebPage):
         """A decorator - :ref:`public_method`. add???
         
         :param table: the :ref:`genro_table` name. 
-        :param methodname: the name of the :ref:`datarpc_method`. """
+        :param methodname: the method name of the :ref:`genro_datarpc`."""
         handler = getattr(self.db.table(table), methodname, None)
         if not handler or not getattr(handler, 'is_rpc', False):
             handler = getattr(self.db.table(table),'rpc_%s' %methodname)

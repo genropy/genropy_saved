@@ -10,4 +10,3 @@ component
     introduction
     writing
     components/index
-    types

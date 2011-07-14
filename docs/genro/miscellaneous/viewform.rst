@@ -10,8 +10,7 @@ view and data windows
     * the :ref:`genro_view_data`
     
     These two windows can live in a single :ref:`webpages_webpages`, or in two
-    :ref:`genro_stackcontainer`\s, or one in a page and one in a :ref:`genro_dialog`,
-    and so on.
+    :ref:`genro_stackcontainer`\s, or one in a page and one in a dialog, and so on.
     
     There is a :ref:`genro_component` that allows to handle the creation and the
     disposition of these two windows: the :ref:`genro_th`.
