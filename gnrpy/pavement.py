@@ -44,7 +44,7 @@ setup(
         url='http://www.genropy.org/',
         author_email='info@genropy.org',
         license='LGPL',
-        scripts=['../scripts/gnrdbsetup', '../scripts/gnrmkinstance', '../scripts/gnrmksite', '../scripts/gnrmkpackage',
+        scripts=['../scripts/gnrdbsetup', '../scripts/gnrmkinstance', '../scripts/gnrmksite', '../scripts/gnrheartbeat', '../scripts/gnrmkpackage',
                  '../scripts/gnrwsgiserve',
                  '../scripts/gnrsendmail', '../scripts/gnrsitelocalize', '../scripts/gnrtrdeamon',
                  '../scripts/rmltester', '../scripts/gnrsync4d',
