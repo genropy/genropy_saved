@@ -171,6 +171,9 @@ body.workInProgress{
     background:transparent;
     padding: 0px 0px;
 }
+.slotbar_toolbar .dijitButton, .slotbar_toolbar .dijitDropDownButton, .slotbar_toolbar .dijitComboButton{
+    margin:0;
+}
 .bottom_btnDisabled .dijitButtonNode {
     opacity: .6;
     cursor: not-allowed !important;

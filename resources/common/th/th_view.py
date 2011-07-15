@@ -55,6 +55,7 @@ class TableHandlerView(BaseComponent):
         else:
             top_kwargs['slots']= base_slots
         leftTools = '5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,optionsMenu,gridReload'
+        top_kwargs['height'] = top_kwargs.get('height','20px')
         frame = pane.frameGrid(frameCode=frameCode,childname='view',
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',tools=leftTools,**kwargs)        
@@ -95,27 +96,62 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
         table = pane.getInheritedAttributes()['table']
-        dialog = pane.dialog(title='!!Save query')
+        mangler = pane.getInheritedAttributes()['th_root']
+        dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
+                                _pref='!!Save query: ',_code='^.query.savedlg.code')                        
         self.th_saveQueryDlg(dialog,table)
+        groupCode = '%s_extendedTools' %mangler
+        group = pane.paletteGroup(groupCode=groupCode,title='Extended tools',
+                                    dockTo='dummyDock',
+                                    datapath='.tools')
+        self.th_extendedTools(group,table,mangler)
         menu = pane.div(_class='buttonIcon icnSavedQuery',tip='!!Stored query',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*')
         querymenu = Bag()
-        querymenu.setItem('r_0',None,caption='!!Base Query')
+        querymenu.setItem('r_0',None,caption='!!Base Query',action='FIRE .basequery')
         querymenu.setItem('r_1',None,caption='-')
         querymenu.setItem('r_2',None,caption='!!Save Query',action='this.getAttributeFromDatasource("dialog").show();',dialog=dialog.js_widget)
-        querymenu.setItem('r_3',None,caption='!!Save As...',action='SET .savedlg = new gnr.GnrBag(); this.getAttributeFromDatasource("dialog").show();',dialog=dialog.js_widget)
-        querymenu.setItem('r_4',None,caption='!!Open palette')
+        querymenu.setItem('r_3',None,caption='!!Save As...',action='SET .savedlg = new gnr.GnrBag(); this.getAttributeFromDatasource("dialog").show();',
+                            dialog=dialog.js_widget,disabled='^.querypkey?=!#v')
+        querymenu.setItem('r_4',None,caption='!!Delete Query',action='FIRE .delete;',disabled='^.querypkey?=!#v')
+        querymenu.setItem('r_5',None,caption='!!Show tools',action='genro.wdgById(this.attr.palette_id).show();',palette_id='%s_floating' %groupCode)
+        querymenu.setItem('r_6',None,caption='-')
         jsresolver = "genro.rpc.remoteResolver('th_getQuickQueries',{table:'%s'},{cacheTime:'5'})" %table
-        querymenu.setItem('r_4', jsresolver, _T='JS', caption='!!Quick query',
+        querymenu.setItem('r_7', jsresolver, _T='JS', caption='!!Quick query',
                        action='SET .querypkey = $1.pkey;')
-        rpc = pane.dataRpc('dummy',self.th_loadQuery,pkey='^.query.querypkey',table=table)
+        pane.dataRpc('dummy',self.th_deleteQuery,pkey='=.query.querypkey',table=table,_fired='^.query.delete',
+                    _onResult='FIRE .query.basequery;')
+        pane.dataController("SET .query.where = baseQuery.deepCopy(); SET .query.querypkey =null;SET .query.savedlg = new gnr.GnrBag();",_fired="^.query.basequery",baseQuery='=.baseQuery')
+        rpc = pane.dataRpc('dummy',self.th_loadQuery,pkey='^.query.querypkey',table=table,_if='pkey')
         rpc.addCallback("""
             SET .query.savedlg = new gnr.GnrBag(result.attr);
             SET .query.where = result._value.deepCopy();
+            FIRE .runQuery;
             return result;
         """)
         pane.data('.query.menu',querymenu)
 
-    
+    def th_extendedTools(self,group,table,mangler):
+        group.paletteTree('%s_fields'%mangler,title='Fields',datapath=False,
+                            tree_storepath='gnr.qb.%s.fieldstree' %table.replace('.','_'),
+                            tree_onDrag=""" if (!(treeItem.attr.dtype && treeItem.attr.dtype != 'RM' && treeItem.attr.dtype != 'RO')) {
+                                                    return false;
+                                                }
+                                             var table = '%s'
+                                             var code = table.replace('.','_');
+                                             var fldinfo = objectUpdate({}, treeItem.attr);
+                                             fldinfo['maintable'] = table;
+                                             dragValues['text/plain'] = treeItem.attr.fieldpath;
+                                             dragValues['gnrdbfld_' + code] = fldinfo;
+                                             """ %table,
+                                             tree_getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}')
+        querypalette = group.paletteTree('%s_savedQuery' %mangler,title='Queries',datapath='.queries',
+                                            tree__fired='^.#parent.#parent.query.saved',
+                                            tree_connect_ondblclick='SET .#parent.#parent.query.querypkey = dijit.getEnclosingWidget($1.target).item.attr.pkey;')
+        querypalette.dataRemote('.store.queries',self.th_listQueries,table=table,caption='Queries',cacheTime=5)
+        group.paletteTree('%s_prints' %mangler,title='Prints',datapath='.prints')
+        group.paletteTree('%s_actions' %mangler,title='Actions',datapath='.actions')
+        group.paletteTree('%s_emails' %mangler,title='Emails',datapath='.emails')
+
     def th_saveQueryDlg(self,dialog,table):
         frame = dialog.framePane(datapath='.query.savedlg',width='350px',height='200px')
         fb = frame.formbuilder(cols=3, width='320px', border_spacing='5px',margin='10px',margin_top='10px')
@@ -131,10 +167,9 @@ class TableHandlerView(BaseComponent):
         footer.cancel.button('!!Cancel',action='dialog.hide();',dialog=jsdlg)
         footer.confirm.button('!!Confirm',action='FIRE .#parent.savequery; dialog.hide();',dialog=jsdlg)
         fb.dataRpc('.#parent.querypkey',self.th_saveQuery,table=table,id='=.id',data='=.#parent.where',code='=.code',
-                    description='=.description', authtags='=.authtags', private='=.private', quicklist='=.quicklist',_fired='^.#parent.savequery')
-        
+                    description='=.description', authtags='=.authtags', private='=.private', 
+                    quicklist='=.quicklist',_fired='^.#parent.savequery',_if='code',_onResult='FIRE .#parent.saved;')
 
-        
     @struct_method
     def th_gridPane(self, frame,table=None,reloader=None,th_pkey=None,
                         virtualStore=None,condition=None):

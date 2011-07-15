@@ -20,8 +20,8 @@ class TableHandlerForm(BaseComponent):
         self._th_mixinResource(frameCode,table=table,resourceName=formResource,defaultClass='Form') 
         options = self._th_hook('options',mangler=frameCode,dflt=dict())()
         options['readOnly'] = options.get('readOnly',readOnly)
-        slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
-        options['slots'] = options.get('slots',slots)
+       #slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
+       #options['slots'] = options.get('slots',slots)
         options.update(kwargs)
         form = pane.view.grid.linkedForm(frameCode=frameCode,
                                  th_root=frameCode,
@@ -65,7 +65,7 @@ class TableHandlerForm(BaseComponent):
             bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')    
         elif showtoolbar:
-            default_slots = '*,|,semaphore,|,formcommands,|,5,locker,5'
+            default_slots = '*,|,semaphore,|,formcommands,|,dismiss,5,locker,5'
             slots = options.get('slots',default_slots)
             if readOnly:
                 slots = '*,|,dismiss,5'

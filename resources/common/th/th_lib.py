@@ -131,18 +131,19 @@ class TableHandlerCommon(BaseComponent):
                        description=None, authtags=None, private=False, inside_shortlist=None,quicklist=False,**kwargs):
         pkg,tbl = table.split('.')
         package = self.db.package(pkg)
-        record = package.saveUserObject(data=data,objtype='query',
-                                                pkg=pkg,tbl=table,userid=self.user,quicklist=quicklist or False,
-                                                code=code,table=table,authtags=authtags,id=pkey,
-                                                description=description,private=private or False)
+        record = dict(data=data,objtype='query',
+                    pkg=pkg,tbl=table,userid=self.user,quicklist=quicklist or False,
+                    code=code,table=table,authtags=authtags,id=pkey,
+                    description=description,private=private or False)
+        package.dbtable('userobject').insertOrUpdate(record)
         self.db.commit()
         return record['id']
 
     @public_method
-    def th_deleteQuery(self,table=None,id=None):
+    def th_deleteQuery(self,table=None,pkey=None):
         pkg,tbl = table.split('.')
         package = self.db.package(pkg)
-        package.deleteUserObject(id)
+        package.deleteUserObject(pkey)
         self.db.commit()
         
     @public_method

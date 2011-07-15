@@ -980,7 +980,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                          For more information, check the :ref:`genro_datapath` section
         :returns: a palettePane
         """
-        datapath= datapath or 'gnr.palettes.%s' %paletteCode
+        datapath= 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         return self.child('PalettePane',paletteCode=paletteCode,datapath=datapath,**kwargs)
         
     def paletteTree(self, paletteCode, datapath=None, **kwargs):
@@ -991,7 +991,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                          For more information, check the :ref:`genro_datapath` section
         :returns: a paletteTree
         """
-        datapath= datapath or 'gnr.palettes.%s' %paletteCode
+        datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         palette = self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,
                              autoslots='top,left,right,bottom',**kwargs)
         return palette
@@ -1007,7 +1007,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param structpath: add???. 
         :param datapath: the path of data. .
                          For more information, check the :ref:`genro_datapath` section"""
-        datapath= datapath or 'gnr.palettes.%s' %paletteCode
+        datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         structpath = structpath or '.grid.struct'
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
         paletteGrid = self.child('paletteGrid',paletteCode=paletteCode,
