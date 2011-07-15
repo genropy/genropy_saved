@@ -6,7 +6,8 @@ from gnr.core.gnrsys import expandpath
 import sys
 import os
 import glob
-
+import urllib
+import time
 usage = """
 gnrheartbeat"""
 
@@ -24,6 +25,11 @@ parser.add_option('-s', '--site',
 parser.add_option('--config',
                   dest='config_path',
                   help="gnrserve file path")
+
+parser.add_option('--interval',
+                dest='interval',
+                default=60,
+                help="Heartbeat interval (in seconds)")
 
 (options, args) = parser.parse_args()
 
@@ -94,13 +100,21 @@ def get_site_url(site_name):
             exit(-1)
         else:
             site_config = get_site_config(site_path, gnr_config)
-            print site_config
+            return 'http://localhost:%s'%site_config['wsgi?port']
         
 if __name__ == '__main__':
     site_name = options.site or args[0]
     if not site_name.startswith('http://'):
         site_url=get_site_url(site_name)
-    url = None
-    #while True:
-    #    response = urllib.urlopen(url)
+    url = "%s/task/heartbeat"%site_url
+    while True:
+        if options.verbose:
+            print 'Calling url %s'%url
+        response = urllib.urlopen(url)
+        response_code = response.getcode()
+        if response_code!=200:
+            if options.verbose:
+                print 'Response code: %s'%response_code
+        time.sleep(options.interval)
+        
         
