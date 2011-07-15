@@ -1117,6 +1117,11 @@ div.dojoxDock {
     width: 16px;
     height: 16px;
 }
+.icnSavedQuery{
+    background: url(icons/base16/saved_query.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
 .icnBaseAdd {
     background: url(icons/base16/add.gif) no-repeat center center;
     width: 16px;

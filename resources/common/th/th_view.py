@@ -45,7 +45,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if queryTool:
-            base_slots = ['tools','5','vtitle','5','queryfb','|','queryTool','*','count','5']
+            base_slots = ['tools','5','vtitle','5','queryfb','|','queryTool','queryMenu','*','count','5']
             top_kwargs['queryfb_table'] = table
         else:
             base_slots = ['tools','5','vtitle','count','*','searchOn']
@@ -91,7 +91,50 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title',font_size='.9')
+
+    @struct_method
+    def th_slotbar_queryMenu(self,pane,**kwargs):
+        table = pane.getInheritedAttributes()['table']
+        dialog = pane.dialog(title='!!Save query')
+        self.th_saveQueryDlg(dialog,table)
+        menu = pane.div(_class='buttonIcon icnSavedQuery',tip='!!Stored query',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*')
+        querymenu = Bag()
+        querymenu.setItem('r_0',None,caption='!!Base Query')
+        querymenu.setItem('r_1',None,caption='-')
+        querymenu.setItem('r_2',None,caption='!!Save Query',action='this.getAttributeFromDatasource("dialog").show();',dialog=dialog.js_widget)
+        querymenu.setItem('r_3',None,caption='!!Save As...',action='SET .savedlg = new gnr.GnrBag(); this.getAttributeFromDatasource("dialog").show();',dialog=dialog.js_widget)
+        querymenu.setItem('r_4',None,caption='!!Open palette')
+        jsresolver = "genro.rpc.remoteResolver('th_getQuickQueries',{table:'%s'},{cacheTime:'5'})" %table
+        querymenu.setItem('r_4', jsresolver, _T='JS', caption='!!Quick query',
+                       action='SET .querypkey = $1.pkey;')
+        rpc = pane.dataRpc('dummy',self.th_loadQuery,pkey='^.query.querypkey',table=table)
+        rpc.addCallback("""
+            SET .query.savedlg = new gnr.GnrBag(result.attr);
+            SET .query.where = result._value.deepCopy();
+            return result;
+        """)
+        pane.data('.query.menu',querymenu)
+
     
+    def th_saveQueryDlg(self,dialog,table):
+        frame = dialog.framePane(datapath='.query.savedlg',width='350px',height='200px')
+        fb = frame.formbuilder(cols=3, width='320px', border_spacing='5px',margin='10px',margin_top='10px')
+        fb.div(lbl='Flags:', colspan=1)
+        fb.checkbox(value='^.quicklist', lbl='', label='!!Quicklist', colspan=1, tooltip='!!Available in shortcuts')
+        fb.checkbox(value='^.private', lbl='', label='!!Private', colspan=1, tooltip='!!Only for me.')
+        fb.textbox(value='^.code', colspan=3, tooltip='Dotted path and name',lbl='!!Code')
+        fb.textbox(value='^.authtags', colspan=3, lbl='!!Permissions', tooltip='!!Comma separated list of auth tags.')
+        fb.simpleTextarea(lbl='!!Description', value='^.description', height='3.75em',
+                          width='100%', border='1px solid gray', lbl_vertical_align='top', colspan=3)
+        jsdlg = dialog.js_widget
+        footer = frame.bottom.slotBar('*,cancel,confirm')
+        footer.cancel.button('!!Cancel',action='dialog.hide();',dialog=jsdlg)
+        footer.confirm.button('!!Confirm',action='FIRE .#parent.savequery; dialog.hide();',dialog=jsdlg)
+        fb.dataRpc('.#parent.querypkey',self.th_saveQuery,table=table,id='=.id',data='=.#parent.where',code='=.code',
+                    description='=.description', authtags='=.authtags', private='=.private', quicklist='=.quicklist',_fired='^.#parent.savequery')
+        
+
+        
     @struct_method
     def th_gridPane(self, frame,table=None,reloader=None,th_pkey=None,
                         virtualStore=None,condition=None):
