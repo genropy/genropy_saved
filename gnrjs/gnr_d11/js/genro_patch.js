@@ -11,7 +11,7 @@ genropatches.mozillaStarter = function(){
     }else{
         dojo.addOnLoad(genro, 'start');
     }
-}
+};
 
 genropatches.comboBox = function() {
     dojo.require('dijit.form.ComboBox');

@@ -117,7 +117,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         dojo.forEach(urlList,function(url){
             var name = url.split('?')[0];
             var splitted_name = name.split('.');
-            var file_ext =splitted_name[splitted_name.length-1].toLowerCase()
+            var file_ext =splitted_name[splitted_name.length-1].toLowerCase();
             if (file_ext=='js'){
                 this.loadJs(url);
             }
@@ -400,14 +400,14 @@ dojo.declare("gnr.GnrDomHandler", null, {
      css3style_transition:function(value,valuedict, styledict,noConvertStyle){
         var key= dojo.isSafari?'-webkit-transition':'-moz-transition';
          
-        transition_property='width,height'
+        transition_property='width,height';
         if(value){
             styledict[key] = value;
         }
         for (var prop in valuedict){
-            value=valuedict[prop]
-            if (prop=='function'){prop='timing-function'}
-            if (((prop=='duration') ||(prop=='delay')) && ((value+'').indexOf('s')<0)){value=value+'s'}
+            value=valuedict[prop];
+            if (prop=='function'){prop='timing-function';}
+            if (((prop=='duration') ||(prop=='delay')) && ((value+'').indexOf('s')<0)){value=value+'s';}
             styledict[key+'-'+prop] = value;
         }
         
@@ -490,8 +490,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
                                     return '-moz-border-radius-'+y+x;};
         var rounded_corners = this.normalizedRoundedCorners(value,valuedict);
         for(var k in rounded_corners){
-            var v = rounded_corners[k]
-            k=k.split('_')
+            var v = rounded_corners[k];
+            k=k.split('_');
             styledict[cb(k[0],k[1])] = v+'px';
         }
 
@@ -518,12 +518,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
                     v = rounded_dict[k[0]];
                     for(var i=1; i<k.length; i++){
                         m = k[i];
-                        result[(m[0]=='t'? 'top':'bottom')+'_'+(m[1]=='l'? 'left':'right')]=v
+                        result[(m[0]=='t'? 'top':'bottom')+'_'+(m[1]=='l'? 'left':'right')]=v;
                     }
                 }
             });
         }
-        return result
+        return result;
     },
     
     style_setall:  function(label, styledict/*{}*/, attributes/*{}*/, noConvertStyle) {
@@ -1256,12 +1256,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
             var button = objectPop(kw,'button');
             if(button){
                 messageArgs['connect_onclick'] = button;
-                messageArgs['rounded'] = '6'
+                messageArgs['rounded'] = '6';
                 messageArgs['top'] = null;
                 messageArgs['bottom'] = '5px';
                 messageArgs['right'] = '5px';
                 messageArgs['font_size'] = '14pt';
-                messageArgs['position'] = 'absolute'
+                messageArgs['position'] = 'absolute';
                 messageArgs['margin'] = 'auto';
                 messageArgs['cursor'] = 'pointer';
                 messageArgs['gradient_from'] = 'silver';
@@ -1282,7 +1282,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
         if (what){
             var cs = dojo.getComputedStyle(what);
             if (!cs || cs.display=='none' || cs.visibility=='hidden'){
-                return false
+                return false;
             }
             if(what.clientHeight ==0 || what.clientWidth == 0){
                 return false;

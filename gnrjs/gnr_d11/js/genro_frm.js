@@ -28,7 +28,7 @@
 dojo.declare("gnr.GnrFrmHandler", null, {
     constructor: function(sourceNode, formId, formDatapath, controllerPath, pkeyPath,formAttr) {
         var that = this;
-        genro.src.onBuiltCall(function(){that.onStartForm()});
+        genro.src.onBuiltCall(function(){that.onStartForm();});
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
@@ -51,7 +51,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         
         this.frameCode = sourceNode.attr.frameCode;
         if(this.frameCode){
-            this.formParentNode = genro.getFrameNode(this.frameCode,'frame').getParentNode().getParentNode()
+            this.formParentNode = genro.getFrameNode(this.frameCode,'frame').getParentNode().getParentNode();
         }else{
             this.formParentNode = this.sourceNode.getParentNode();
         }
@@ -124,7 +124,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 });
             }
             genro.src.afterBuildCalls.push(function(){
-                setTimeout(function(){that.setLocked(that.locked)},1);
+                setTimeout(function(){that.setLocked(that.locked);},1);
             });
         }
     },
@@ -133,7 +133,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:true}
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:true};
         genro.publish(topic,kw);
     },
     subscribe: function(command,cb,scope){
@@ -159,7 +159,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
     },
     isDisabled:function(){
-        return this.locked || this.status=='readOnly' || this.status=='noItem'
+        return this.locked || this.status=='readOnly' || this.status=='noItem';
     },
     
     setLocked:function(value){
@@ -262,7 +262,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     
     deleteConfirmDlg:function(kw){
          var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'250px'});
-         dlg.center._('div',{innerHTML:this.msg_confirm_delete, text_align:'center',height:'50px'})
+         dlg.center._('div',{innerHTML:this.msg_confirm_delete, text_align:'center',height:'50px'});
          var form = this;
          var slotbar = dlg.bottom._('slotBar',{slots:'*,cancel,delete',
                                                 action:function(){
@@ -311,7 +311,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             var that = this;
             if(command=='save'){
                 this.setCurrentPkey(kw.destPkey);
-                this.do_save()
+                this.do_save();
             }
             else if(command=='discard'){
                 this.doload_loader(kw);
@@ -325,7 +325,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     
     openPendingChangesDlg:function(kw){
          var dlg = genro.dlg.quickDialog('Pending changes',{_showParent:true,width:'250px'});
-         dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',height:'50px'})
+         dlg.center._('div',{innerHTML:this.msg_unsaved_changes, text_align:'center',height:'50px'});
          var form = this;
          var slotbar = dlg.bottom._('slotBar',{slots:'discard,*,cancel,save',
                                                 action:function(){
@@ -419,7 +419,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.setFormData(data);
         }
         this.publish('onLoaded',{pkey:this.getCurrentPkey(),data:data});
-        this._hideHider()
+        this._hideHider();
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
         var controllerData = this.getControllerData();
         this.protect_write = this.isProtectWrite();
@@ -478,7 +478,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         genro.dom.removeClass(this.sourceNode,'form_activeForm');
     },
     isRegisteredWidget:function(wdg){
-        return (wdg.sourceNode._id in this._register)
+        return (wdg.sourceNode._id in this._register);
     },
     onFocusElement:function(wdg){
         if(this.isRegisteredWidget(wdg) && (typeof(wdg.focus)=='function')){
@@ -551,7 +551,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                         that.setCurrentPkey(destPkey);
                         that.load({'destPkey':destPkey});
                     }
-                }
+                };
             }else{
                 cb=function(result){
                     that.reset();
@@ -563,7 +563,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             if(deferred){
                 deferred.addCallback(function(result){
                     cb(result);
-                    return result
+                    return result;
                 });
             }
             return deferred;
@@ -648,7 +648,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var virtual_columns = [];
         this.sourceNode._value.walk(function(n) {
             if (n.attr._virtual_column) {
-                virtual_columns.push(n.attr._virtual_column)
+                virtual_columns.push(n.attr._virtual_column);
             }
         },'static');
         return virtual_columns.join(',');
@@ -690,7 +690,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                                 var loadedValue = objectPop(n.attr,'_loadedValue');
                                 n.attr.__old = asTypedTxt(loadedValue, n.attr.dtype);
                             }
-                        },'static')
+                        },'static');
                         if(value.len()>0 || !isNewRecord){
                             data.setItem(node.label, value, objectUpdate({'_gnrbag':true}, node.attr));
                             data.__isRealChange = true;
@@ -841,11 +841,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             status = 'readOnly';
         }
         else if(!isValid){
-            status = 'error'
+            status = 'error';
         }
         else{
             var changes = this.getChangesLogger();
-            var changed = (changes.len() > 0)
+            var changed = (changes.len() > 0);
             this.changed = changed;
             this.setControllerData('changed',changed);
             status = this.changed ? 'changed':'ok';
@@ -853,7 +853,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if(this.status!=status){
             this.status=status;
             this.publish('onStatusChange',{'status':this.status});
-            var formDomNode = this.formDomNode
+            var formDomNode = this.formDomNode;
             dojo.forEach(this._status_list,function(st){
                 genro.dom.setClass(formDomNode,'form_'+st,st==status);
             });
@@ -1364,16 +1364,16 @@ dojo.declare("gnr.formstores.Base", null, {
         var onSaving = objectPop(kw,'onSaving');
         
         if (destPkey){
-            kw._autoreload=destPkey
+            kw._autoreload=destPkey;
         }else if(this.onSaved=='reload' || this.form.isNewRecord()){
-            kw._autoreload=true
+            kw._autoreload=true;
         }
         //kw._autoreload = null;
         var autoreload =kw._autoreload;
         
         var cb = function(result){
             if (result){
-                var resultDict={}
+                var resultDict={};
                 if (result.error){
                     resultDict['error'] = result.error;
                 }
@@ -1395,7 +1395,7 @@ dojo.declare("gnr.formstores.Base", null, {
             return resultDict;
         };
         this.handlers.save.rpcmethod = this.handlers.save.rpcmethod || 'saveRecordCluster';
-        var rpckw = objectUpdate({'data':form.getFormChanges(),'table':this.table},kw)
+        var rpckw = objectUpdate({'data':form.getFormChanges(),'table':this.table},kw);
         if(onSaving){
             onSaving = funcCreate(onSaving,this);
             var dosave = onSaving.call(this,rpckw);
@@ -1430,7 +1430,7 @@ dojo.declare("gnr.formstores.Base", null, {
         var cb = function(result){
             that.deleted(result);
             return result;
-        }
+        };
         deferred.addCallback(cb);
         if(deleter.callbacks){
             var thatnode = form.sourceNode;
@@ -1442,7 +1442,7 @@ dojo.declare("gnr.formstores.Base", null, {
         return deferred;
     },
     loaded:function(pkey,result){
-        this.setNavigationStatus(pkey)
+        this.setNavigationStatus(pkey);
         this.form.loaded(result);
     },
     deleted:function(result){
@@ -1458,7 +1458,7 @@ dojo.declare("gnr.formstores.Base", null, {
         return this.handlers.load.method.call(this,pkey,default_kw);
     },
     deleteItem:function(pkey){
-        return this.handlers.del.method.call(this,pkey)
+        return this.handlers.del.method.call(this,pkey);
     },
     setNavigationStatus:function(){
         return;
@@ -1480,7 +1480,7 @@ dojo.declare("gnr.formstores.Collection", gnr.formstores.Base, {
         if(pkey!='*norecord*' && pkey!='*newrecord*'){
             var currIdx = this.parentStore.getIdxFromPkey(pkey);
         }
-        var kw = {}
+        var kw = {};
         if(currIdx<0){
             kw.first = true;
             kw.last = true;
