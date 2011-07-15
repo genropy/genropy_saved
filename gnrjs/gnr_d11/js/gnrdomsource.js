@@ -1462,7 +1462,7 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
             attributes.tag = tag;
             var handler=genro.wdg.getHandler(tag)
             if(handler && handler.onStructChild){
-                handler.onStructChild(attributes)
+                handler.onStructChild(attributes,this)
             }
             this.setItem(name, content, attributes, extrakw);
             return content;

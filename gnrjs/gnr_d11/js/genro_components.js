@@ -10,6 +10,9 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         sourceNode.attr.tag=objectPop(attributes,'tag');
         var datapath=objectPop(attributes,'datapath');
         if(datapath){sourceNode.attr.datapath=datapath;}
+        else if(datapath===false){
+            sourceNode.attr.datapath = '';
+        }
         var contentKwargs = this.contentKwargs(sourceNode, attributes);
         if (!this.createContent) {
             return false;
@@ -25,8 +28,8 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         sourceNode.unfreeze(true);
         return false;
     },
-    onStructChild:function(attributes) {
-        if (!attributes.datapath) {
+    onStructChild:function(attributes,source) {
+        if (source.getParentNode().attr.datapath==null && attributes.datapath==null) {
             var defaultDatapath = this.defaultDatapath(attributes);
             if (defaultDatapath) {
                 attributes.datapath = defaultDatapath;
@@ -370,28 +373,23 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
 });
 
 dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
-    contentKwargs:function(sourceNode, attributes){
-        attributes['frameCode'] = attributes.paletteCode;
-        var draggableFolders = objectPop(attributes,'draggableFolders');
-        attributes.tree_onDrag = function(dragValues, dragInfo, treeItem) {
+    createContent:function(sourceNode, kw) {
+        
+        var frameCode = kw.frameCode = kw.paletteCode;
+        var editable = objectPop(kw, 'editable');
+        var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
+        var storepath = objectPop(kw, 'storepath') || '.store';
+        var draggableFolders = objectPop(kw,'draggableFolders');
+        var default_onDrag =  function(dragValues, dragInfo, treeItem) {
             if (treeItem.attr.child_count && treeItem.attr.child_count > 0 && !draggableFolders) {
                 return false;
             }
             dragValues['text/plain'] = treeItem.attr.caption;
-            dragValues[attributes.paletteCode] = treeItem.attr;
+            dragValues[frameCode] = treeItem.attr;
         };
-        attributes.tree_draggable=true;
-        return attributes;
-    },
-
-    createContent:function(sourceNode, kw) {
-        var frameCode = kw.frameCode;
-        var editable = objectPop(kw, 'editable');
-        var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
-        var storepath = objectPop(kw, 'storepath') || '.store';
         var tree_kwargs = {_class:'fieldsTree', hideValues:true,
-                            margin:'6px',nodeId:treeId,
-                            'frameCode':frameCode,
+                            margin:'6px',nodeId:treeId,draggable:true,
+                            'frameCode':frameCode,onDrag:default_onDrag,
                             storepath:storepath,labelAttribute:'caption'};
         objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
         var searchOn = objectPop(kw, 'searchOn');
