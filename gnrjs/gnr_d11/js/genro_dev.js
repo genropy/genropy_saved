@@ -40,7 +40,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
             if(e.altKey && e.shiftKey){
                 var sourceNode = genro.src.enclosingSourceNode(e.target);
                 genro.src.highlightNode(sourceNode);
-                genro.publish('srcInspector_editnode',sourceNode)
+                genro.publish('srcInspector_editnode',sourceNode);
             }else{
                 genro.src.highlightNode();
             }
@@ -57,8 +57,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
                 var sourceNode = genro.src.enclosingSourceNode(e.target);
                 console.log('------current edit node:-------');
                 console.log(sourceNode);
-                genro.publish('srcInspector_editnode',sourceNode)
-                
+                genro.publish('srcInspector_editnode',sourceNode);
             }
             
             

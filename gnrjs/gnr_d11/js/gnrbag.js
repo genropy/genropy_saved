@@ -1139,26 +1139,25 @@ dojo.declare("gnr.GnrBag", null, {
     },
     moveNode:function(fromPos, toPos, doTrigger) {
         if (toPos < 0) {
-            return
+            return;
         }
-        var doTrigger = (doTrigger == null) ? true : doTrigger
+        var doTrigger = (doTrigger == null) ? true : doTrigger;
         var destlabel = this.getNodes()[toPos].label;
         if (fromPos instanceof Array && fromPos.length > 1) {
-            fromPos.sort()
-            var delta = (fromPos[0] < toPos) ? 1 : 0
+            fromPos.sort();
+            var delta = (fromPos[0] < toPos) ? 1 : 0;
             var popped = [];
             for (var i = fromPos.length - 1; i >= 0; i--) {
-                popped.push(this._pop('#' + fromPos[i], doTrigger))
+                popped.push(this._pop('#' + fromPos[i], doTrigger));
             }
-            ;
-            var toPos = this.index(destlabel) + delta
+            var toPos = this.index(destlabel) + delta;
             var bag = this;
             dojo.forEach(popped, function(n) {
                 bag._insertNode(n, toPos, doTrigger);
-            })
+            });
         } else {
             if (fromPos instanceof Array) {
-                fromPos = fromPos[0]
+                fromPos = fromPos[0];
             }
             if (toPos != fromPos) {
                 var node = this._pop('#' + fromPos, doTrigger);
@@ -1239,8 +1238,7 @@ dojo.declare("gnr.GnrBag", null, {
         dojo.forEach(b._nodes,function(n){
             n._parentbag = that;
             that._nodes.push(n);
-        })
-        
+        });
     },
 
     /**

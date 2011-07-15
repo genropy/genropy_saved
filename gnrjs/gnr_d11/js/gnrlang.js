@@ -152,7 +152,7 @@ function dataTemplate(str, data, path, showAlways) {
     var templates=null;
      if(str instanceof gnr.GnrBag){
          templates=str;
-         str=templates.getItem('body')
+         str=templates.getItem('body');
      }
     var auxattr = {};
     var regexpr = /\$([a-zA-Z0-9.@?_^]+)/g;
@@ -174,18 +174,18 @@ function dataTemplate(str, data, path, showAlways) {
         }
         result = str.replace(regexpr,
                             function(path) {
-                                var path=path.slice(1)
-                                var subtpl=null
+                                var path=path.slice(1);
+                                var subtpl=null;
                                 if(path.indexOf('^')>0){
-                                    var x=path.split('^')
-                                    path=x[0]
-                                    var subtpl=templates.getItem(x[1])
+                                    var x=path.split('^');
+                                    path=x[0];
+                                    var subtpl=templates.getItem(x[1]);
                                     
                                 }
                                 var value = data.getItem(path) || auxattr[path];
                                 if (subtpl){
                                     if(value instanceof gnr.GnrBag){
-                                        var subval=[]
+                                        var subval=[];
                                         value.forEach(function(n){
                                             subval.push(dataTemplate(subtpl, n.getValue()));
                                         })
@@ -557,7 +557,7 @@ function quoted(astring) {
 
 function convertFromText(value, t, fromLocale) {
     if (value == null) {
-        return null
+        return null;
     }
     if (!t && value.indexOf('::') >= 0) {
         value = value.split('::');
@@ -939,13 +939,13 @@ function funcCreate(fnc, pars, scope) {
 }
 function highlightLinks(text) {
     var makeLink = function(href, title) {
-        return "<a href='" + href + "'>" + title + "</a>"
+        return "<a href='" + href + "'>" + title + "</a>";
     }
     text = text.replace(/(?:\b|\+)(?:mailto:)?([\w\.+#-]+)@([\w\.-]+\.\w{2,4})\b/g, function(address) {
-        return makeLink('mailto:' + address, address)
+        return makeLink('mailto:' + address, address);
     });
     text = text.replace(/((\w+:\/\/)[-a-zA-Z0-9:@;?&=\/%\+\.\*!'\(\),\$_\{\}\^~\[\]`#|]+)/g, function(link) {
-        return makeLink(link, link)
+        return makeLink(link, link);
     });
     return text;
 
@@ -986,7 +986,7 @@ function addDaysToDate(dateStart,daysToAdd,excludeWD){
     var wd;
     if(daysToAdd<0){
         daysToAdd = -daysToAdd;
-        delta = -1
+        delta = -1;
     }
     while(daysToAdd>0){
         currDate.setDate(currDate.getDate()+delta);
@@ -995,7 +995,7 @@ function addDaysToDate(dateStart,daysToAdd,excludeWD){
             daysToAdd--;
         }
     }
-    return currDate
+    return currDate;
 };
 
 function localeParser(/*String*/value, /*Object?*/options) {
