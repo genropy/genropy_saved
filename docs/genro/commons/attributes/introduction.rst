@@ -8,6 +8,7 @@ commons attributes
     
     Nevertheless, we report those attributes even in the single widget, suggesting to take vision of this page for more details.
     
+    * :ref:`genro_action`
     * :ref:`genro_datapath`
     * :ref:`genro_dbtable`
     * :ref:`genro_hidden`

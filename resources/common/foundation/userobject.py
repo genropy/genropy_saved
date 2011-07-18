@@ -58,7 +58,7 @@ class UserObject(BaseComponent):
         fb.div(lbl='Flags', colspan=1)
         fb.field('quicklist', lbl='', label='!!Quicklist', colspan=1, tooltip='!!Available in shortcuts')
         fb.field('private', lbl='', label='!!Private', colspan=1, tooltip='!!Only for me.')
-        fb.field('code', autospan=3, tooltip='Dotted path and name')
+        fb.field('code', autospan=3, tooltip='!!Dotted path and name')
         fb.field('authtags', autospan=3, lbl='!!Permissions', tooltip='!!Comma separated list of auth tags.')
         fb.simpleTextarea(lbl='!!Description', value='^.description', height='3.75em',
                           width='100%', border='1px solid gray', lbl_vertical_align='top', colspan=3)

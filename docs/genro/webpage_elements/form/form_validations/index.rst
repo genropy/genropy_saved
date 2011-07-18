@@ -35,7 +35,7 @@ introduction
       :ref:`webpages_webpages` or in a :ref:`table_column` of a :ref:`genro_table`
       of your :ref:`packages_model` folder, because the validations have been
       thought to use them in :ref:`webpages_webpages` but work great also in your
-      :ref:`genro_table`\s.
+      :ref:`tables <genro_table>`.
     * For every validation, you have a list of suffixes (explained in the
       :ref:`validations_common` section) through which you can add some features
       to the standard :ref:`validations_list` (like writing a javascript alert on

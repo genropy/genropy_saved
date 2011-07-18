@@ -127,9 +127,7 @@ class GnrHtmlSrc(GnrStructData):
         """add???
         
         :param value: add???
-        :param um: add???
-        :returns: add???
-        """
+        :param um: the unit of measurement."""
         try:
             value = float(value)
             i_value = int(value)
@@ -178,22 +176,20 @@ class GnrHtmlSrc(GnrStructData):
                border_size=0.1, border_color='red', lbl_height=3,
                lbl_class='lbl_base', content_class='content_base',
                border_style='solid', **kwargs):
-        """define the layout attributes
+        """Allow to personalize the layout and return it
         
-        :param width: the layout's width. Default value is ``0``
-        :param height: the layout's height. Default value is ``0``
-        :param top: the layout's top. Default value is ``0``
-        :param left: the layout's left. Default value is ``0``
-        :param layout_name: the layout's name. Default value is ``l1``
-        :param um: the layout's unit of measurement. Default value is ``mm``
-        :param border_size: the size of the layout's border. Default value is ``0.1``
-        :param border_color: the color of the layout's border. Default value is ``red``
-        :param lbl_height: the height of the layout's label. Default value is ``3``
-        :param lbl_class: the class of the layout's label. Default value is ``lbl_base``
-        :param content_class: the class of the layout's content. Default value is ``content_base``
-        :param border_style: the syle of the layout's border. Default value is ``solid``
-        :returns: the layout
-        """
+        :param width: the layout's width.
+        :param height: the layout's height.
+        :param top: the layout's top.
+        :param left: the layout's left.
+        :param layout_name: the layout's name.
+        :param um: the layout's unit of measurement.
+        :param border_size: the size of the layout's border.
+        :param border_color: the color of the layout's border.
+        :param lbl_height: the height of the layout's label.
+        :param lbl_class: the class of the layout's label.
+        :param content_class: the class of the layout's content.
+        :param border_style: the syle of the layout's border."""
         parentNode = self.parentNode
         if parentNode.getAttr('tag') == 'cell':
             if not width:
@@ -253,7 +249,7 @@ class GnrHtmlSrc(GnrStructData):
         """Define a cell
         
         :param content: the cell's content. 
-        :param width: the cell's width. Default value is ``0``
+        :param width: the cell's width.
         :param lbl: the cell's lbl. 
         :param lbl_class: the cell's lbl_class. 
         :param lbl_height: the cell's lbl_height. 
@@ -340,8 +336,7 @@ class GnrHtmlSrc(GnrStructData):
         """add???
         
         :param attr: ???
-        :param um: ???
-        """
+        :param um: the unit of measurement."""
         style = attr.pop('style', '')
         style_dict = dict([(x.split(':')) for x in style.split(';') if x])
         style_dict.update(kwargs)
@@ -361,15 +356,13 @@ class GnrHtmlSrc(GnrStructData):
         attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
         
     def globalCss(self, layout_name='', um='mm', border_size=0.1, border_color='gray', border_style='solid'):
-        """handle the css attributes
+        """handle the css attributes and return them
         
-        :param layout_name: the layout's name. Default value is ``''``
-        :param um: the unit of measurement. Default value is ``mm``
-        :param border_size: the border size. Default value is ``0.1``
-        :param border_color: the border color. Default value is ``gray``
-        :param border_style: the border style. Default value is ``solid``
-        :returns: the css attributes
-        """
+        :param layout_name: the layout's name.
+        :param um: the unit of measurement.
+        :param border_size: the border size.
+        :param border_color: the border color.
+        :param border_style: the border style."""
         st = '%s%s %s %s' % (border_size, um, border_style, border_color)
         css = """.%s_tl{border-top:%s;border-left:%s;position:absolute;}
                   .%s_br{border-bottom:%s;border-right:%s;position:absolute;}

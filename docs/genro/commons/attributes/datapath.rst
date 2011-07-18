@@ -5,14 +5,17 @@ datapath
 ========
 
     * :ref:`datapath_def`
+    * :ref:`datapath_syntax`
     * :ref:`datapath_validity`
+    * :ref:`datapath_symbolic`
+    * :ref:`form_path`
     
 .. _datapath_def:
 
-Definition and description
+definition and description
 ==========================
 
-    *datapath* is an attribute used to create a hierarchy of your data's addresses into
+    The *datapath* is an attribute used to create a hierarchy of your data's addresses into
     the :ref:`genro_datastore`.
     
     The element on which you apply this attribute will be able to become the father of other
@@ -21,7 +24,10 @@ Definition and description
     In the child elements we can specify through the *value* attribute either to set a relative
     path to the father, or an absolute path.
     
-    The syntax:
+.. _datapath_syntax:
+
+syntax
+======
     
     * ``absolutePathInDatastore``: your data will be saved in its absolute path.
     * ``.relativePathInDatastore``: your path will be relative. Pay attention that you can use
@@ -43,7 +49,7 @@ Definition and description
     
 .. _datapath_validity:
 
-Validity
+validity
 ========
 
     You can give the *datapath* attribute to each object, but it is useful give this attribute only
@@ -67,10 +73,10 @@ symbolic datapath
     
             add???
             
-.. _symbolic_form:
+.. _form_path:
 
-#FORM
------
+the #FORM path
+--------------
     
     add??? 
     

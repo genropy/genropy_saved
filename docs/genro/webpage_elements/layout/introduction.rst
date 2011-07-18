@@ -24,9 +24,9 @@ Introduction to the layout elements
                  a contentPane can include a BorderContainer or a TabContainer on any other layout
                  element if and only if it is a UNIQUE child.
     
-    Lastly, in Genro you can use the layout containers to put panes (or other containers) in specific regions
-    of your page. Every container has its children, that are :ref:`genro_contentpane`\s (For example,
-    the accordionContainer has the accordionPanes as its children)
+    Lastly, in Genro you can use the layout containers to put panes (or other containers) in specific
+    regions of your page. Every container has its children, that are :ref:`contentPanes <genro_contentpane>`
+    (For example, the accordionContainer has the accordionPanes as its children)
     
 .. _genro_layout_common_attributes:
 

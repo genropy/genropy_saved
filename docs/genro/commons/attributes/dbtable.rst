@@ -5,11 +5,13 @@ dbtable
 =======
 
     * :ref:`dbtable_def`
+    * :ref:`dbtable_syntax`
+    * :ref:`dbtable_validity`
     * :ref:`dbtable_examples`
 
 .. _dbtable_def:
 
-Definition and description
+definition and description
 ==========================
 
     ::
@@ -25,31 +27,39 @@ Definition and description
     Obviously, if you have a maintable AND a dbtable value, the dbtable value will
     prevail on the maintable value.
     
-    **syntax**::
+.. _dbtable_syntax:
+
+syntax
+======
     
-        packageName.tableName.attributeName``
+    ::
+    
+        dbtable='packageName.tableName.columnName'
         
     where:
     
-    * ``packageName`` is the name of the package on which you're working [#]_ ;
-    * ``tableName`` is the name of the :ref:`genro_table` on which is executed the user query.
+    * ``packageName`` is the name of the :ref:`package <genro_packages_index>` on which you're working;
+    * ``tableName`` is the name of the :ref:`genro_table` on which is executed the user query;
+    * ``columnName`` is the name of the database :ref:`table_column`.
+    
+    .. note:: you can omit the ``packageName`` if the dbtable is used on a :ref:`webpages_webpages` that
+              belongs to the package you should specify.
         
-    **validity:**
+.. _dbtable_validity:
+
+validity
+========
     
     the *dbtable* attribute works on:
     
-    * :ref:`genro_form_widgets_index`:
-        
-        * :ref:`genro_formbuilder`
-        * :ref:`genro_field`
-        * :ref:`genro_dbselect`
-        * :ref:`genro_dbcombobox`
-        
-    * add??? components...
-        
+    * :ref:`genro_dbcombobox`
+    * :ref:`genro_dbselect`
+    * :ref:`genro_field`
+    * :ref:`genro_formbuilder`
+    
 .. _dbtable_examples:
 
-Examples
+examples
 ========
 
     Based on the form widget you're working on, there is a different use of *dbtable*:
@@ -58,7 +68,3 @@ Examples
           please check the :ref:`genro_field` page.
         * For the :ref:`genro_dbselect` and the :ref:`genro_dbcombobox` form widgets,
           please check the dbSelect and dbCombobox :ref:`db_examples` page.
-
-**Footnotes:**
-
-.. [#] For more information on a package, check the :ref:`genro_packages_index` paragraph.

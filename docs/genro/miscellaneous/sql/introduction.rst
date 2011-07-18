@@ -39,7 +39,7 @@ columns
     The ``columns`` attribute represents the :ref:`table_columns` to be returned by the
     "SELECT" clause in the traditional sql query.
     
-    It is a string of column names and :ref:`sql_relation_path`\s separated by comma
+    It is a string of column names and :ref:`relation paths <sql_relation_path>` separated by comma
     (you can use a list or a tuple, too).
     
     It is a standard sql column clause and may contain sql functions and the "AS" operator.

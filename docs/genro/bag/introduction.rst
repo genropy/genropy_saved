@@ -11,31 +11,27 @@ Bag
     
 .. _bag_what:
 
-Overview
+overview
 ========
 
-    A :class:`Bag` is a Genro class used to create a multi-purpose datastructure, and it is ideal for storing and retrieving any kind of complex hierarchical data in tidily and deeply way.
+    A :class:`Bag` is a Genro class used to create a multi-purpose datastructure, and it is ideal for
+    storing and retrieving any kind of complex hierarchical data in tidily and deeply way.
     
     Nested elements can be accessed with a path of keys joined with dots.
     
     >>> mybag['foo.bar'] = 'spam'
     >>> x = mybag['foo.bar']
     
-    We are going to see that:
-    
-    * A Bag is hierarchic.
-    * A Bag is ordered.
-    * You can have different values at the same path.
-    
-    Also, a Bag takes some Dictionary features:
+    A Bag takes some Dictionary features:
     
     * Both Bag and Dictionary are made by a set of ``key:value`` pairs.
     * Values are accessed using a key (called *path*).
     * Both Bag and Dictionary can shrink or grow as needed.
     * Both Bag and Dictionary can be nested.
-    * A Bag inherit some Dictionary methods [#]_ and some syntax forms (that we will document in the following Bag documentation pages).
+    * A Bag inherit some Dictionary methods [#]_ and some syntax forms (that we will document
+      in the following Bag documentation pages).
     
-    A Bag carries some features that Dictionary hasn't got:
+    Most important, a Bag carries some features that Dictionary hasn't got:
     
     +-------------------------------------------------------------------+----------------------------------------------------------------------+
     | Dictionary                                                        | Bag                                                                  |
@@ -51,45 +47,54 @@ Overview
     
 .. _bag_intro_hierarchical:
 
-Definitions
+definitions
 ===========
     
-    **Bag definition:** A Bag is a collection of :ref:`bag_bagnode`\s. You can use a Bag as a `flat Bag`_ or as a `hierarchical Bag`_.
+    1. *definition -* **Bag**: A Bag is a collection of :ref:`bagnode`\s. You can use a Bag as a `flat Bag`_
+       or as a `hierarchical Bag`_.
+       
+    2. *definition -* **BagNode**: a :class:`BagNode` (or "node") is a Genro class composed by three metadata:
     
-    **BagNode definition:** a :class:`BagNode` (or "node") is a Genro class composed by three metadata:
-    
-    * a single label.
-    * a single value (or *item*).
-    * one or more :ref:`bag_attributes`.
-    
-    Where:
-    
-    * The "value" contains the value of the Bagnode.
-    * The "attributes" allow to insert other metadata (for more information, check the :ref:`bag_attributes` page).
-    
-        .. note:: The couple ``label:value`` carries many analogies with the ``key:value`` couple Dictionary [#]_, so you can think to the Bag label as a transposition of the Dictionary key (for example, with the :meth:`Bag.keys` method you will get all the Bag labels) but for its nature a key is unique, while Bag label can be unique or not. <???> approfondire! spiegare che la vera chiave di una Bag è il *path*, ma che c'è un'analogia con i metodi del Python dict() (ad esempio keys()...)</???>
-    
-    Let's see a scheme of a BagNode:
-    
-    .. image:: ../_images/bag/bag-bagnode.png
-    
-    A BagNode value can be a Bag, so a Bag is a *recursive and hierarchical container*.
-    
-    We now introduce the two definitions of a Bag:
-    
+       * a single label.
+       * a single value (or *item*).
+       * one or more :ref:`bag_attributes`.
+       
+       Where:
+       
+       * The "value" contains the value of the Bagnode.
+       * The "attributes" allow to insert other metadata (for more information, check the :ref:`bag_attributes` page).
+       
+           .. note:: The couple ``label:value`` carries many analogies with the ``key:value`` couple
+                     Dictionary [#]_, so you can think to the Bag label as a transposition of the Dictionary key
+                     (for example, with the :meth:`Bag.keys` method you will get all the Bag labels) but for its
+                     nature a key is unique, while Bag label can be unique or not. <add???> approfondire! spiegare
+                     che la vera chiave di una Bag è il *path*, ma che c'è un'analogia con i metodi del Python
+                     dict() (ad esempio keys()...)</add???>
+       
+       Let's see a scheme of a BagNode:
+       
+       .. image:: ../_images/bag/bag-bagnode.png
+       
+       A BagNode value can be a Bag, so a Bag is a *recursive and hierarchical container*.
+       
+       We now introduce the two definitions of a Bag:
+       
     .. _flat Bag:
     
-    **flat Bag:** it is a Bag in which all of its BagNodes don't have a Bag as their value.
+    3. *definition -* **flat Bag**: it is a Bag in which all of its BagNodes don't have a Bag as their value.
     
     .. _hierarchical Bag:
     
-    **hierarchical Bag:** it is a nested Bag with complex path, including Bags as a value of some BagNodes (check :ref:`bag_path` paragraph for more explanation).
-    
-        .. note:: there is no syntax difference in the two definitions, as you can see in the :ref:`bag_instance` paragraph.
-    
-    Each Bag may access directly to its inner elements using a *path*.
-    
-    **path:** a *path* is a concatenation of traversed Bag labels separated by a dot (``.``) (For more information, check :ref:`bag_path` paragraph).
+    4. *definition -* **hierarchical Bag**: it is a nested Bag with complex path, including Bags as a value
+       of some BagNodes (check :ref:`bag_path` paragraph for more explanation).
+       
+           .. note:: there is no syntax difference in the two definitions, as you can see in the
+                     :ref:`bag_instance` paragraph.
+       
+       Each Bag may access directly to its inner elements using a *path*.
+       
+    5. *definition -* **path**: it is a concatenation of traversed Bag labels separated by a dot (``.``)
+       (For more information, check :ref:`bag_path` paragraph).
 
 **Footnotes:**
 

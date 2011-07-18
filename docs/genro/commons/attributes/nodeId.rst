@@ -10,37 +10,32 @@ nodeId
 
 .. _nodeId_def:
 
-Definition and description
+definition and description
 ==========================
 
-    *nodeId* is an attribute used to give an ID to an object.
+    The *nodeId* is an attribute used to specify the ID of a :ref:`bagnode`.
+    
+    * Every object in Genro is a** :ref:`genro_bag`
+    * Every Bag is a collection of :ref:`bagnode`\s
+    * Every BagNode is unique because of its *nodeId*
     
     Some object supports the *Code* attribute. For example, the :ref:`genro_framepane` has got the
     *frameCode* and :ref:`genro_toolbar` have got the slotbarCode.
     Through the *Code* attribute, the *nodeId* is automatically created in the object to which you
     give the code and in every child of this object.
     
-    If the object you are using doesn't support the *Code* attribute, you have to define a *nodeId*
-    for him and a different *nodeId* for every of its children.
-    
 .. _nodeId_validity:
 
-Validity
+validity
 ========
 
     **Validity:** you can give ``nodeId`` attribute to the following objects:
     
-        :ref:`genro_component`\s:
-        
-        * add???
-        
-        :ref:`genro_webpage_elements_index`\s:
-        
-        * add???
-        
+    * add???
+    
 .. _nodeId_examples:
 
-Examples
+examples
 ========
 
     add???

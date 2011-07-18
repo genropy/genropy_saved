@@ -4,6 +4,27 @@
 tooltip
 =======
 
-    add???
+    * :ref:`tooltip_def`
+    * :ref:`tooltip_validity`
+    * :ref:`tooltip_examples`
+
+.. _tooltip_def:
+
+definition and description
+==========================
     
-    Dojo tooltip. You can use it on every object.
+    The Dojo tooltip.
+    
+.. _tooltip_validity:
+
+validity
+========
+
+    It works on every object.
+
+.. _tooltip_examples:
+
+examples
+========
+
+    add???
