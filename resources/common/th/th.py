@@ -250,7 +250,7 @@ class ThLinker(BaseComponent):
                             addtpl='!!Add a new $table2',
                             t1=tblobj.name_long, t2=related_tblobj.name_long)        
         if formResource or formUrl:
-            linker.div(_class='th_linkerAdd',tip='^.tip_add' ,childname='addbutton',
+            linker.div(_class='th_linkerAdd',tip='^.tip_add',childname='addbutton',
                         connect_onclick="this.getParentNode().publish('newrecord')")
             linker.attributes.update(_embedded=False)
             embedded = False

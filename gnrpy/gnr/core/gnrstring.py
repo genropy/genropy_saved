@@ -664,13 +664,11 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
 def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     """add???
     
-    :param dtype: add???.
+    :param dtype: the :ref:`genro_datatype`.
     :param locale: add???. 
     :param format: add???. 
     :param mask: add???. 
-    :param encoding: The multibyte character encoding you choose. 
-    :returns: add???
-    """
+    :param encoding: The multibyte character encoding you choose."""
     typeSamples = {'B': 'true', 'D': datetime.date(2005, 10, 10), 'H': datetime.time(4, 5),
                    'DH': datetime.datetime.now(),
                    'I': 1234, 'L': 48205294, 'R': 34567.67, 'serial': 123445566}

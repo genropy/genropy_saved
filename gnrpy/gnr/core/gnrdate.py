@@ -262,7 +262,7 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     :param workdate: add???. 
     :param locale: add???. 
     :param returnDate: add???. Default value is ``False``
-    :param dtype: add???. Default value is ``D``
+    :param dtype: the :ref:`genro_datatype`.
     :returns: add???
     """
     workdate = workdate or datetime.date.today()

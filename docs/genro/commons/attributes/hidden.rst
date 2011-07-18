@@ -5,28 +5,36 @@ hidden
 ======
 
     * :ref:`hidden_def`
+    * :ref:`hidden_validity`
     * :ref:`hidden_examples`
 
 .. _hidden_def:
 
-Definition
-==========
+definition and description
+==========================
 
     ::
     
-        hidden = False
+        hidden = BOOLEAN
+        
+    where BOOLEAN is ``True`` or ``False``.
 
-    If ``True``, allow to hide its object: every object's content disappear. Also, the physical space
-    occupied from the object in the webpage is released.
+    If ``True``, allow to hide its object: every object's content disappear. Also, the
+    physical space occupied from the object in the webpage is released.
 
-    **Validity:** it works on every object.
+.. _hidden_validity:
+
+validity
+========
+
+    It works on every object.
 
 .. _hidden_examples:
 
-Examples
+examples
 ========
 
-    **Example 1**: A simple example::
+    **A simple example**::
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
@@ -39,8 +47,7 @@ Examples
                 fb.button('Show the div!',fire='^.show')
                 fb.div('You can hide me!',hidden='^.hidden',colspan=2,border='4px solid red')
     
-    **Example 2**: An example that wants to clarify the difference between the *visible* and
-    the *hidden* attributes::
+    **Differences between "hidden" and "visible"**::
     
         class GnrCustomWebPage(object):
             def test_4_test(self, pane):

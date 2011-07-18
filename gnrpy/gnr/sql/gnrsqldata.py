@@ -52,7 +52,10 @@ class SqlCompiledQuery(object):
        It is used to store all parameters needed to compile a query string."""
        
     def __init__(self, maintable, relationDict=None):
-        """:param maintable: the name of the main table to query.
+        """Initialize the SqlCompiledQuery class
+        
+        :param maintable: the name of the main table to query. For more information,
+                          check the :ref:`webpages_maintable` section.
         :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
                              ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
                              ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).

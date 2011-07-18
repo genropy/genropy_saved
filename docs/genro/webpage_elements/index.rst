@@ -10,10 +10,11 @@ webpage element
     introduction
     html
     css
+    javascript
     layout/index
     controller/index
     form/index
-    fieldcell
+    cells/index
     menu
     toolbar
     tree

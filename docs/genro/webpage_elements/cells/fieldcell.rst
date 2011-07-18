@@ -15,7 +15,6 @@ Definition
 ==========
 
     .. automethod:: gnr.web.gnrwebstruct.GnrGridStruct.fieldcell
-        
     
     The Genro ``fieldcell`` inherits the structure and the attributes of the :ref:`genro_field` form widget. add???
     

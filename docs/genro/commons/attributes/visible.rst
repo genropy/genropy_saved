@@ -5,28 +5,36 @@ visible
 =======
 
     * :ref:`visible_def`
+    * :ref:`visible_validity`
     * :ref:`visible_examples`
-
+    
 .. _visible_def:
 
-Definition and Description
+definition and description
 ==========================
 
     ::
     
-        visible = True
+        visible = BOOLEAN
         
+    where BOOLEAN is ``True`` or ``False``.
+    
     If ``True``, make visible an object. If ``False``, hide the boxes but keep the boxes content.
     Also, the physical space occupied from the object in the webpage is kept (empty).
     
-    **Validity:** it works on every object.
+.. _visible_validity:
+
+validity
+========
+    
+    It works on every object.
 
 .. _visible_examples:
 
-Examples
+examples
 ========
 
-    An example that wants to clarify the difference between the *visible* and the *hidden* attributes::
+    **Differences between "hidden" and "visible"**::
     
         class GnrCustomWebPage(object):
             def test_4_test(self, pane):

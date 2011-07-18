@@ -1,4 +1,4 @@
-.. _bag_bagnode:
+.. _bagnode:
 
 =======
 BagNode

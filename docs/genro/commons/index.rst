@@ -1,8 +1,8 @@
 .. _genro_commons:
 
-=======
-Commons
-=======
+======================================
+common attributes, datatypes and names
+======================================
 
 .. toctree::
     :maxdepth: 2

@@ -998,7 +998,7 @@ class GnrWsgiSite(object):
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         """add???
         
-        :param tblobj: add???
+        :param tblobj: the table object
         :param record: add???
         :param event: add???
         :param old_record: add???. """

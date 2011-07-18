@@ -4,32 +4,46 @@
 Rowcaption
 ==========
 
-    * :ref:`database_definition`
-    * :ref:`database_description_examples`: :ref:`rowcaption_genro_table`, :ref:`rowcaption_webpage`
+    * :ref:`rowcaption_def`
+    * :ref:`rowcaption_validity`
+    * :ref:`rowcaption_examples`: :ref:`rowcaption_genro_table`, :ref:`rowcaption_webpage`
 
-.. _database_definition:
+.. _rowcaption_def:
 
-Definition
-==========
+definition and description
+==========================
 
-    *rowcaption* is the textual representation of a record, and it is used with all the form widgets
-    that draw their value from a database :ref:`genro_table`, that are :ref:`genro_field`,
-    :ref:`genro_dbselect` and :ref:`genro_dbcombobox`.
+    The *rowcaption* attribute is the textual representation of a record in a user query.
+    If you don't use it, user will see the :ref:`genro_nodeid` of the object, so remember
+    always to specify it.
+    
+    It can be defined in two places:
+    
+    * directly into the database :ref:`genro_table`: check :ref:`rowcaption_genro_table`
+    * in the query-field (``field``, ``dbselect`` or ``dbcombobox``) placed into the webpage: check :ref:`rowcaption_webpage`
+    
+.. _rowcaption_validity:
 
-.. _database_description_examples:
+validity
+========
 
-Description and examples
-========================
-
-    *rowcaption* can be defined in two places:
-
-        * directly into the database table: check :ref:`rowcaption_genro_table`
-        * in the query-field (``field``, ``dbselect`` or ``dbcombobox``) placed into the webpage: check :ref:`rowcaption_webpage`
-
+    The *rowcaption* attribute works on all the form widgets that draw their value from a database :ref:`genro_table`.
+    
+    They are:
+    
+    * :ref:`genro_field`
+    * :ref:`genro_dbselect`
+    * :ref:`genro_dbcombobox`
+    
+.. _rowcaption_examples:
+    
+examples
+========
+    
 .. _rowcaption_genro_table:
 
 rowcaption in the database table
-================================
+--------------------------------
 
     Let's see an example::
 

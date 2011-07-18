@@ -8,6 +8,7 @@ Common attributes
     :maxdepth: 1
     
     introduction to commons attributes <introduction>
+    action
     datapath
     dbtable
     hidden
