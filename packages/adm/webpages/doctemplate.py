@@ -54,13 +54,15 @@ class GnrCustomWebPage(object):
         bc.dataController('SET mainbc.regions.left?show = maintable?true:false', maintable='^.maintable')
         self.left(bc.contentPane(region='left', width='280px', splitter=True, datapath='table'))
         top = bc.contentPane(margin='5px', region='top').toolbar()
-        fb = top.formbuilder(cols=6, border_spacing='4px', disabled=disabled)
+        fb = top.formbuilder(cols=7, border_spacing='4px', disabled=disabled)
 
         box = fb.field('maintable', width='15em', readOnly=True,
                        validate_notnull=True) #fb.div(_class='fakeTextBox floatingPopup',width='15em',lbl='Table',colspan=2)
         box.menu(storepath='tableTree', modifiers='*', _class='smallmenu', action='SET .maintable = $1.fullpath')
         fb.field('name', width='20em')
         fb.field('version', width='4em')
+        fb.field('locale', width='4em')
+        fb.dataFormula('.locale','page_locale', page_locale='=gnr.locale', id='^.id', _if='!id')
         fb.checkbox(value='^mainbc.regions.left?show', label='!!Show fields')
         tc = bc.tabContainer(region='center', nodeId='doc_tabs', selectedPage='^doc_tabs.selectedPage')
         editorPane = tc.contentPane(title='Edit', pageName='edit', id='editpage')

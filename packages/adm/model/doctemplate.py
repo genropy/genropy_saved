@@ -17,6 +17,7 @@ class Table(object):
         tbl.column('metadata', 'X', name_long='!!Metadata')
         tbl.column('username', name_long='!!Username')
         tbl.column('version', name_long='!!Version')
+        tbl.column('locale', name_long='!!Locale')
         tbl.column('maintable', name_long='!!Main table')
 
     def cleanTemplate(self, doctemplate_content, virtual_columns=None):
@@ -37,16 +38,18 @@ class Table(object):
         return sub_span.sub(replace_span, doctemplate_content)
 
 
-    def renderTemplate(self, templateBuilder, record_id=None, extraData=None):
+    def renderTemplate(self, templateBuilder, record_id=None, extraData=None,locale=None,formats=None):
         record = Bag()
         if record_id:
             record = templateBuilder.data_tblobj.record(pkey=record_id,
                                                         virtual_columns=templateBuilder.virtual_columns).output('bag')
         if extraData:
             record.update(extraData)
+        locale = locale or templateBuilder.locale
+        formats = dict()
         record.setItem('_env_', Bag(self.db.currentEnv))
         record.setItem('_template_', templateBuilder.doctemplate_info)
-        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate, record, True),record=record)
+        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate, safeMode=True, locale=locale, formats=formats),record=record)
         return body
 
     def getTemplateBuilder(self, doctemplate=None, templates=None):
@@ -59,9 +62,10 @@ class Table(object):
         htmlbuilder.virtual_columns = ','.join(virtual_columns)
         htmlbuilder.data_tblobj = self.db.table(doctemplate_info['maintable'])
         htmlbuilder.doctemplate_info = doctemplate_info
+        htmlbuilder.locale = doctemplate['locale']
         return htmlbuilder
     
-    def sendMail(self,record_id=None,doctemplate=None,templates=None,**kwargs):
+    def sendMail(self,record_id=None,doctemplate=None,templates=None,locale=None,formats=None,**kwargs):
         htmlBuilder = self.getTemplateBuilder(doctemplate=doctemplate,templates=templates)
         body = self.renderTemplate(htmlBuilder, record_id=record_id)
         datasource = htmlBuilder.record
