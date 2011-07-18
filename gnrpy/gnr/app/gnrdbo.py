@@ -520,6 +520,7 @@ class Table_userobject(TableBase):
         tbl.column('pkg', name_long='!!Package') # package code
         tbl.column('tbl', name_long='!!Table') # full table name: package.table
         tbl.column('userid', name_long='!!User ID', indexed='y')
+        tbl.column('resource_name', name_long='!!Resource name', indexed='y')
         tbl.column('description', 'T', name_long='!!Description', indexed='y')
         tbl.column('data', 'X', name_long='!!Data')
         tbl.column('authtags', 'T', name_long='!!Auth tags')
