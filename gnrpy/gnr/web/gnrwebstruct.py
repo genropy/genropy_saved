@@ -976,10 +976,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
-        :param datapath: the path of data. .
-                         For more information, check the :ref:`genro_datapath` section
-        :returns: a palettePane
-        """
+        :param datapath: the path of data. For more information, check the :ref:`genro_datapath` section"""
         datapath= 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         return self.child('PalettePane',paletteCode=paletteCode,datapath=datapath,**kwargs)
         
@@ -987,8 +984,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
-        :param datapath: the path of data. .
-                         For more information, check the :ref:`genro_datapath` section
+        :param datapath: the path of data. For more information, check the :ref:`genro_datapath` section
         :returns: a paletteTree
         """
         datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
@@ -1005,8 +1001,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section. 
         :param structpath: add???. 
-        :param datapath: the path of data. .
-                         For more information, check the :ref:`genro_datapath` section"""
+        :param datapath: the path of data. For more information, check the :ref:`genro_datapath` section"""
         datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         structpath = structpath or '.grid.struct'
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
@@ -1263,6 +1258,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 pane.radioButton(label, group=group)
                 
     def checkboxtext(self, labels,value=None,separator=',',**kwargs):
+        """A group of checkboxes that allow to compose a string with checkbox labels.
+                
+        :param labels: a string separated by comma set of words. For every words there will be
+                       created a single checkbox
+        :param value: the path of the checkboxtext value
+        :param separator: the characters that separate the checkbox text"""
         labels = gnrstring.splitAndStrip(labels.replace('\n',','),',')
         action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
                     var separator = actionNode.attr._separator;
@@ -1512,9 +1513,8 @@ class GnrFormBuilder(object):
         """add???
         
         :param fields: add???
-        :param rowstart: add???. Default value is ``0``
-        :param colstart: add???. Default value is ``0``
-        """
+        :param rowstart: add???.
+        :param colstart: add???."""
         for field in fields:
             self.setField(field)
                 
@@ -1757,19 +1757,22 @@ class GnrDomSrc_dojo_15(GnrDomSrc_dojo_11):
 class GnrDomSrc_dojo_16(GnrDomSrc_dojo_11):
     pass
 class GnrGridStruct(GnrStructData):
-    """add???
+    """This class handles the creation of a :ref:`genro_struct`
     
-    r = struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
+    add??? (introduce the example)
     
-    r.child('cell',field='protocollo',width='9em',name='Protocollo')
-    """
+    ::
     
+        r = struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
+        r.child('cell',field='procedure',width='9em',name='Procedure')"""
+        
     def makeRoot(cls, page, maintable=None, source=None):
         """add???
         
         :param cls: add???
         :param page: add???
-        :param maintable: add???. 
+        :param maintable: the table to which the struct refers to. For more information,
+                          check the :ref:`webpages_maintable` section.
         :param source: add???. 
         :returns: add???
         """
@@ -1822,34 +1825,36 @@ class GnrGridStruct(GnrStructData):
         
     def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, headerClasses=None,
              **kwargs):
-        """add???
+        """Return a :ref:`genro_cell`.
         
-        :param field: add???. 
-        :param name: add???. 
-        :param width: add???. 
-        :param dtype: add???. 
-        :param classes: add???. 
-        :param cellClasses: add???. 
-        :param headerClasses: add???. 
-        :returns: a cell
-        """
+        :param field: add???.
+        :param name: add???.
+        :param width: the width of the cell
+        :param dtype: the :ref:`genro_datatype`.
+        :param classes: add???.
+        :param cellClasses: add???.
+        :param headerClasses: add???."""
         return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                           
     def checkboxcell(self, field=None, falseclass=None,
                      trueclass=None,nullclass=None, classes='row_checker', action=None, name=' ',
                      calculated=False, radioButton=False,threestate=False, **kwargs):
-        """add???
+        """Return a boolean checkbox :ref:`genro_cell`. add???
         
-        :param field: add???. 
-        :param falseclasses: add???. 
-        :param trueclasses: add???. 
+        :param field: add???.
+        :param falseclass: the css class for the false state.
+        :param trueclass: the css class for the true state.
+        :param nullclass: the css class for the null state, the optional third state that you can
+                          specify through the **threestate** parameter
         :param classes: add???. Default value is ``row_checker``
-        :param action: add???. 
-        :param name: add???. Default value is ``''``
-        :param calculated: boolean. add???. Default value is ``False``
-        :param radioButton: boolean. add???. Default value is ``False``
-        """
+        :param action: allow to execute a javascript callback. For more information, check the
+                       :ref:`genro_action` documentation page
+        :param name: add???. Default value is ``' '``
+        :param calculated: boolean. add???.
+        :param radioButton: boolean. add???.
+        :param threestate: boolean. If ``True``, create a third state (the "null" state) besides the ``True``
+                           and the ``False`` state."""
         if not field:
             field = '_checked'
             calculated = True
@@ -1886,24 +1891,20 @@ class GnrGridStruct(GnrStructData):
 
     def fieldcell(self, field, _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None, zoom=False, **kwargs):
-        """A form widget that inherits every attribute from the :ref:`genro_field` widget.
-        
+        """Return a :ref:`genro_cell` that inherits every attribute from the :ref:`genro_field` widget.
+
         :param field: MANDATORY - it contains the name of the :ref:`genro_field` from which
                       the fieldcell inherits.
         :param _as: add???. 
         :param name: with *name* you can override the :ref:`genro_name_long` of the
                      :ref:`genro_field` form widget. 
         :param width: the fieldcell width. 
-        :param dtype: you can override the *dtype* of the :ref:`genro_field` form widget.
-                      
+        :param dtype: the :ref:`genro_datatype`. You can override the *dtype* of the :ref:`genro_field` form widget.
         :param classes: add???. 
         :param cellClasses: add???. 
         :param headerClasses: add???. 
         :param zoom: a link to the object to which the fieldcell refers to.
-                     For more information, check the :ref:`genro_zoom` documentation page.
-                     Default value is ``False``
-        :returns: add???
-        """
+                     For more information, check the :ref:`genro_zoom` documentation page."""
         if not self.tblobj:
             self.root._missing_table = True
             return

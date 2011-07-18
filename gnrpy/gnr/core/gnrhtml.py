@@ -111,30 +111,28 @@ class GnrHtmlSrc(GnrStructData):
                lbl_height=3, lbl_class='lbl_base', content_class='content_base',
                hasBorderTop=None, hasBorderLeft=None, hasBorderRight=None, hasBorderBottom=None,
                **kwargs):
-        """Build the layout.
+        """Build the layout and return it.
         
-        :param name: the layout name. Default value is ``l1``
-        :param um: add???. Default value is ``mm``
-        :param top: the height of the top region. Default value is ``0``
-        :param left: the width of the left region. Default value is ``0``
-        :param bottom: the height of the bottom region. Default value is ``0``
-        :param right: the width of the right region. Default value is ``0``
-        :param width: layout's width. Default value is ``0``
-        :param height: layout's height. Default value is ``0``
-        :param border_width: add the border width. Default value is ``0.3``
-        :param border_color: add the border color. Default value is ``grey``
-        :param border_style: add the border style. Default value is ``solid``
-        :param row_border: add the row border. Default value is ``True``
-        :param cell_border: add the cell border. Default value is ``True``
-        :param lbl_height: add the label height. Default value is ``3``
-        :param lbl_class: add the label class. Default value is ``lbl_base``
-        :param content_class: add the content class. Default value is ``content_base``
-        :param hasBorderTop: add the top border. 
-        :param hasBorderLeft: add the left border. 
-        :param hasBorderRight: add the right border. 
-        :param hasBorderBottom: add the bottom border. 
-        :returns: the layout
-        """
+        :param name: the layout name.
+        :param um: the layout's unit of measurement.
+        :param top: the height of the top region.
+        :param left: the width of the left region.
+        :param bottom: the height of the bottom region.
+        :param right: the width of the right region.
+        :param width: layout's width.
+        :param height: layout's height.
+        :param border_width: add the border width.
+        :param border_color: add the border color.
+        :param border_style: add the border style.
+        :param row_border: add the row border.
+        :param cell_border: add the cell border.
+        :param lbl_height: add the label height.
+        :param lbl_class: add the label class.
+        :param content_class: add the content class.
+        :param hasBorderTop: add the top border.
+        :param hasBorderLeft: add the left border.
+        :param hasBorderRight: add the right border.
+        :param hasBorderBottom: add the bottom border."""
         self.style(".%s_layout{border:%s%s %s %s;position:absolute;}" % (
         name, border_width, um, border_style, border_color))
             
@@ -205,7 +203,7 @@ class GnrHtmlSrc(GnrStructData):
         """Construct a cell.
         
         :param content: the row's content. 
-        :param width: the row's width. Default value is ``0``
+        :param width: the row's width.
         :param content_class: the row's content class. 
         :param lbl: the cell's lbl. 
         :param lbl_class: the class of the row's label. 
@@ -414,8 +412,7 @@ class GnrHtmlBuilder(object):
         """add???
         
         :param attr: add???
-        :param um: add???
-        """
+        :param um: the unit of measurement."""
         style = attr.pop('style', '')
         style = style.replace('\n', '')
         style_dict = dict([(splitAndStrip(x, ':')) for x in style.split(';') if ':' in x])

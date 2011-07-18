@@ -8,22 +8,16 @@ menu
               check the :ref:`genro_dropdownbutton` documentation page.
     
     * :ref:`menu_def`
-    * :ref:`menu_description`
     * :ref:`menu_attributes`
     * :ref:`menu_examples`: :ref:`menu_examples_simple`
     
 .. _menu_def:
     
-Definition
-==========
+definition and description
+==========================
     
     .. method:: dropdownbutton.menu([**kwargs])
     
-.. _menu_description:
-
-Description
-===========
-
     Constructs a button that opens a :ref:`genro_menu` or a ``tooltipdialog``.
     
     * You can create a *menu* appending it to a dropdownbutton::
@@ -35,7 +29,7 @@ Description
     
         .. method:: menu.menuline(label=None[,**kwargs])
         
-    in the ``**kwargs`` lies the :ref:`button_action` attribute (an attribute of the :ref:`genro_button` widget) ::
+    in the ``**kwargs`` lies the :ref:`genro_action` attribute::
     
         menuline('Open...',action="alert('Opening...')")
         
@@ -45,22 +39,25 @@ Description
 
 .. _menu_attributes:
 
-Attributes
+attributes
 ==========
     
     **menu attributes**:
     
-    * *action*: allow to execute a javascript callback. For more information, check the :ref:`button_action` section of the ``button`` form widget.
-    
+    * *action*: allow to execute a javascript callback. For more information, check the :ref:`genro_action`
+      documentation page
+          
     **commons attributes**:
     
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`genro_hidden` documentation page
-    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, you have to give it to the dropdownbutton. Check the :ref:`menu_examples_simple`.
+    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
+      check the :ref:`genro_hidden` documentation page
+    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, you have
+      to give it to the dropdownbutton. Check the :ref:`menu_examples_simple`.
     * *visible*: if False, hide the widget. For more information, check the :ref:`genro_visible` documentation page
 
 .. _menu_examples:
 
-Examples
+examples
 ========
 
 .. _menu_examples_simple:

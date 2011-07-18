@@ -498,7 +498,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param format: add???. 
         :param mask: add???. 
         :param encoding: add???. 
-        :param dtype: add???. """
+        :param dtype: the :ref:`genro_datatype`."""
         locale = locale or self.locale
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
         
@@ -681,7 +681,7 @@ class GnrWebPage(GnrBaseWebPage):
         """Create a Grid Struct and return it.
         
         :param maintable: the table to which the struct refers to. For more information,
-                          check the :ref:`webpages_maintable` section. """
+                          check the :ref:`webpages_maintable` section."""
         return GnrGridStruct.makeRoot(self, maintable=maintable)
         
     def _get_folders(self):

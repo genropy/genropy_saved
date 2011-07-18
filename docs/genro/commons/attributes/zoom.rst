@@ -4,36 +4,38 @@
 zoom
 ====
 
-    * :ref:`zoom_definition_description`
+    * :ref:`zoom_def`
+    * :ref:`zoom_validity`
     * :ref:`zoom_examples`
+    
+.. _zoom_def:
 
-.. _zoom_definition_description:
-
-Definition and description
+definition and description
 ==========================
 
-    Boolean. If ``True``, allow the user to open in a different tab (or window) a page including
-    the object the zoom refers to.
+    ::
+    
+        zoom = BOOLEAN
+        
+    where BOOLEAN is ``True`` or ``False``.
+
+    Boolean. If ``True``, allow the user to open in a different tab (or window) a page
+    including the object the zoom refers to.
 
 .. _zoom_validity:
 
-Validity
+validity
 ========
 
     You can give *zoom* attribute to the following objects:
     
-    * :ref:`genro_form_widgets_index`:
+    * :ref:`genro_field`
+    * :ref:`genro_fieldcell`
+    * :ref:`genro_linkerfield`
     
-        * :ref:`genro_field`
-        * :ref:`genro_fieldcell`
-    
-    * :ref:`genro_component`\s:
-    
-        * :ref:`genro_linkerfield`
-        
 .. _zoom_examples:
 
-Examples
+examples
 ========
 
     add???

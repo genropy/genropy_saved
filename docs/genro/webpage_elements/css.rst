@@ -77,7 +77,7 @@ Introduction
 Dojo themes
 ===========
 
-    The default Dojo theme for all the :ref:`webpages_webpages`\s is 'tundra'.
+    The default Dojo theme for all the :ref:`webpages <webpages_webpages>` is 'tundra'.
     
     You can change a Dojo theme in your webpage: check the :ref:`webpages_dojo_theme` section
     for the correct syntax, the complete reference list of compatible Dojo themes and more.

@@ -206,8 +206,7 @@ class IncludedView(BaseComponent):
         :param canSort: add???. Default value is ``True``.
         :param fromPicker_target_fields: allow to bind the picker's table. columns to the includedView columns of the many to many table.
         :param fromPicker_nodup_field: if this column value is present in the includedView it allows to replace that row instead of adding a duplicate row.
-        :param \*\*kwargs: autowidth, storepath, etc.
-        """
+        :param \*\*kwargs: **autowidth**, **storepath**, etc."""
         if storepath:
             assert not storepath.startswith('^') and not storepath.startswith('='),\
             "storepath should be a plain datapath, no ^ or ="

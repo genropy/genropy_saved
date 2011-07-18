@@ -10,6 +10,17 @@ Introduction to GenroPy
     
     (add??? continue!!!)
     
+Bag, BagNode, nodeId
+====================
+
+    This is very important: 
+    
+    * Every object in Genro is a** :ref:`genro_bag`
+    * Every Bag is a collection of :ref:`BagNodes <bagnode>`
+    * Every BagNode is unique because of its :ref:`genro_nodeid`
+    
+    add???
+    
 Client / Server
 ===============
     

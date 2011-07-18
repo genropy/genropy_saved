@@ -46,9 +46,9 @@ class TableHandlerToolbox(BaseComponent):
 
         self.toolboxFromResources(tc.contentPane(title_tip='!!Actions', pageName='action', iconClass='icnBaseAction'),
                                   res_type='action')
-        self.toolboxFromResources(tc.contentPane(title_tip='Mails', pageName='mail', iconClass='icnBaseEmail'),
+        self.toolboxFromResources(tc.contentPane(title_tip='!!Mails', pageName='mail', iconClass='icnBaseEmail'),
                                   res_type='mail')
-        self.toolboxFromResources(tc.contentPane(title_tip='Prints', pageName='print', iconClass='icnBasePrinter'),
+        self.toolboxFromResources(tc.contentPane(title_tip='!!Prints', pageName='print', iconClass='icnBasePrinter'),
                                   res_type='print')
         tc.dataController("""
                             var selectedRowidx = genro.wdgById('maingrid').getSelectedRowidx();

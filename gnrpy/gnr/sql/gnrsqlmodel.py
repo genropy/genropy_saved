@@ -337,7 +337,7 @@ class DbModelSrc(GnrStructData):
         """Insert a :ref:`table_column` into a table.
         
         :param name: the column name
-        :param dtype: the data type.
+        :param dtype: the :ref:`genro_datatype`.
         :param size: string. ``'min:max'`` or fixed lenght ``'len'``. 
         :param default: add???. 
         :param notnull: add???. 
@@ -397,7 +397,7 @@ class DbModelSrc(GnrStructData):
         
         :param name: the column name
         :param sql_formula: add???
-        :param dtype: the data type. Default value is ``A``
+        :param dtype: the :ref:`genro_datatype`. Default value is ``A``
         :returns: a formulaColumn
         """
         return self.virtual_column(name, sql_formula=sql_formula, dtype=dtype, **kwargs)
@@ -408,7 +408,7 @@ class DbModelSrc(GnrStructData):
         
         :param name: the column name
         :param sql_formula: add???
-        :param dtype: the data type. Default value is ``A``
+        :param dtype: the :ref:`genro_datatype`. Default value is ``A``
         :returns: a formulaColumn
         """
         return self.virtual_column(name, py_method=py_method, **kwargs)

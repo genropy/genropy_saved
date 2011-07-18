@@ -4,12 +4,34 @@
 readOnly
 ========
 
+    * :ref:`readonly_def`
+    * :ref:`readonly_validity`
+    * :ref:`readonly_examples`
+    
+.. _readonly_def:
+
+definition and description
+==========================
+
     ::
     
-        readOnly = True
-        readOnly = False
+        readOnly = BOOLEAN
         
-    Boolean. If ``True``, the element that carry the readOnly attribute is
+    where BOOLEAN is ``True`` or ``False``.
+    
+    Boolean. If ``True``, the element that carries the readOnly attribute is
     in read-only mode.
     
-    **Validity:** it works on every object.
+.. _readonly_validity:
+
+validity
+========
+
+    It works on every object.
+    
+.. _readonly_examples:
+
+examples
+========
+
+    add???
