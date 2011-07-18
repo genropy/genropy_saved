@@ -49,7 +49,7 @@ class Table(object):
         formats = dict()
         record.setItem('_env_', Bag(self.db.currentEnv))
         record.setItem('_template_', templateBuilder.doctemplate_info)
-        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate, safeMode=True, locale=locale, formats=formats),record=record)
+        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate, record, safeMode=True, locale=locale, formats=formats),record=record)
         return body
 
     def getTemplateBuilder(self, doctemplate=None, templates=None):
