@@ -7,7 +7,7 @@
 "Test formhandler selection store"
 
 from gnr.web.gnrwebstruct import struct_method
-from gnr.web.gnrwebpage import public_method
+from gnr.core.gnrdecorator import public_method
 
 class GnrCustomWebPage(object):
     testOnly='_2_'
