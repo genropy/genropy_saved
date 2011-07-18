@@ -335,11 +335,12 @@ class ViewQueryUtils(BaseComponent):
                                 table=table,
                                 action="genro.dev.relationExplorer(table,palettetitle,{'left':'20pxpx','top':'20px','height':'270px','width':'180px'})")
         menu = bar.editmenu.div(_class='icnBaseEdit buttonIcon').menu(modifiers='*')
-        menu.menuline(label='!!Delete Query',action='FIRE .delete;',disabled='^.querypkey?=!#v')
-        menu.menuline(label='-')
         menu.menuline(label='!!Save Query',action='this.getAttributeFromDatasource("dialog").show();',dialog=dialog.js_widget)
         menu.menuline(label='!!Save As...',action='SET .meta = new gnr.GnrBag(); this.getAttributeFromDatasource("dialog").show();',
                                     dialog=dialog.js_widget,disabled='^.querypkey?=!#v')
+        menu.menuline(label='-')
+        menu.menuline(label='!!Delete Query',action='FIRE .delete;',disabled='^.querypkey?=!#v')
+
         palette.div(nodeId='%s_query_root' %mangler)
 
     @public_method

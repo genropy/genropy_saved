@@ -102,7 +102,13 @@ body.workInProgress{
     background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
 }
 
-.tundra .dijitComboBox .dijitButtonNode, .tundra .dijitSpinner .dijitButtonNode {
+.tundra .dijitComboBox .dijitButtonNode{
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	top: 0;
+}
+.tundra .dijitSpinner .dijitButtonNode {
 	position: absolute;
 	bottom: 0;
 	right: 0;
