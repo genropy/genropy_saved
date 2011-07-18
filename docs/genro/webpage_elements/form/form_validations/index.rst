@@ -4,6 +4,8 @@
 validations
 ===========
     
+    *Last page update*: |today|
+    
     * :ref:`validations_intro`
     * :ref:`validations_list`
     

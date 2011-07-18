@@ -1,7 +1,9 @@
 ================================
 :mod:`gnr.sql.gnrsql_exceptions`
 ================================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.sql.gnrsql_exceptions`` classes:
 
     * :ref:`gnrsqldeleeteexception`

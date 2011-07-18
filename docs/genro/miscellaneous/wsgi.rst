@@ -3,7 +3,9 @@
 ====
 WSGI
 ====
-
+    
+    *Last page update*: |today|
+    
     WSGI (*Web Server Gateway Interface*) is a standard for interfacing with Python web frameworks webservers. It also allows you to compose various web components together through a system of middlewares (similar concept, but not compatible with similar components in Django). A WSGI_ site contains links to many useful resources (frameworks, middlewares, servers).
     
     .. _WSGI: http://wsgi.org/wsgi

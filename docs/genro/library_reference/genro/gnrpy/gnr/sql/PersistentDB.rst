@@ -2,6 +2,8 @@
 :mod:`gnr.sql.PersistentDB`
 ===========================
 
+    *Last page update*: |today|
+    
 * Index of ``gnr.sql.PersistentDB`` classes:
     
     Main class:

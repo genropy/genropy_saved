@@ -3,7 +3,9 @@
 =====
 query
 =====
-
+    
+    *Last page update*: |today|
+    
     add???
     
     In a query you can refer itself to the primary key with::

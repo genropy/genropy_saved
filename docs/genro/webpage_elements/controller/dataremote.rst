@@ -4,6 +4,8 @@
 dataRemote
 ==========
     
+    *Last page update*: |today|
+    
     * :ref:`dataremote_def`
     * :ref:`dataremote_examples`
 

@@ -1,7 +1,9 @@
 ============================================================
 :mod:`gnr.app.gnrdeploy` -- tools for the creation of a DBMS
 ============================================================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.app.gnrdeploy`` classes:
 
     * :ref:`gnrapp_gnrdeploy`

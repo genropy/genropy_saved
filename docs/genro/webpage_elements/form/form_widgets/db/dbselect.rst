@@ -3,7 +3,9 @@
 ========
 dbSelect
 ========
-
+    
+    *Last page update*: |today|
+    
     * :ref:`dbselect_def`
     * :ref:`dbselect_attributes`
     * :ref:`dbselect_examples`:

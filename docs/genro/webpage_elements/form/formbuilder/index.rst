@@ -3,7 +3,9 @@
 ===========
 formbuilder
 ===========
-
+    
+    *Last page update*: |today|
+    
     * :ref:`formbuilder_def`
     * :ref:`formbuilder_description`
     * :ref:`formbuilder_attributes`: :ref:`formbuilder_fb_attributes`,

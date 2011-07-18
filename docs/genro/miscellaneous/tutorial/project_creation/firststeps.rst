@@ -3,7 +3,9 @@
 ===========
 First steps
 ===========
-
+    
+    *Last page update*: |today|
+    
     .. warning:: chapter to be rewritten completely!
     
     * :ref:`simple_build_package`

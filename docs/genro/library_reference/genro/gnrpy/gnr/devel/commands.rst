@@ -1,7 +1,9 @@
 =========================
 :mod:`gnr.devel.commands`
 =========================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.devel.commands`` classes:
 
     * :ref:`commands_cmdrunner`

@@ -1,7 +1,9 @@
 =======================
 :mod:`resources.common`
 =======================
-
+    
+    *Last page update*: |today|
+    
     .. warning:: add??? Completely to redo!
 
 .. toctree::

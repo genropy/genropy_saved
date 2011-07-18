@@ -3,7 +3,9 @@
 ==========================
 Basic functions (part two)
 ==========================
-
+    
+    *Last page update*: |today|
+    
     * :ref:`bag_hierarchical`
     * :ref:`bag_path`
     * :ref:`bag_setting_hierchical`

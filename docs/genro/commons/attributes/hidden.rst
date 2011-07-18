@@ -3,7 +3,9 @@
 ======
 hidden
 ======
-
+    
+    *Last page update*: |today|
+    
     * :ref:`hidden_def`
     * :ref:`hidden_validity`
     * :ref:`hidden_examples`

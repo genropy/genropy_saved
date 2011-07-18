@@ -4,6 +4,8 @@
  attributes
 ============
 
+    *Last page update*: |today|
+
     * :ref:`bag_attributes_setItem`
     * :ref:`bag_attributes_setAttr`
     * :ref:`bag_getting_attributes`

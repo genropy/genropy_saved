@@ -3,7 +3,9 @@
 =======
 tooltip
 =======
-
+    
+    *Last page update*: |today|
+    
     * :ref:`tooltip_def`
     * :ref:`tooltip_validity`
     * :ref:`tooltip_examples`

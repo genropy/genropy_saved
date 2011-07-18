@@ -1,7 +1,9 @@
 =========================
 :mod:`gnr.utils.ssmtplib`
 =========================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.utils.ssmtplib`` classes:
     
     Main class:

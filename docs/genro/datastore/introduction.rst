@@ -3,7 +3,9 @@
 =========
 datastore
 =========
-
+    
+    *Last page update*: |today|
+    
     * :ref:`datastore_description`
     * :ref:`datastore_syntax`
     * :ref:`datastore_access`

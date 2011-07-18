@@ -3,7 +3,9 @@
 =============
 dataSelection
 =============
-
+    
+    *Last page update*: |today|
+    
     .. warning:: to be written!
     
     The ``dataSelection`` belongs to :ref:`genro_datarpc` family, so it is a

@@ -1,8 +1,10 @@
 ===========================================================
 :mod:`gnr.devel.utils` -- Tools to build command-line tools
 ===========================================================
-
-.. automodule:: gnr.devel.utils
+    
+    *Last page update*: |today|
+    
+    .. automodule:: gnr.devel.utils
 
 Autodiscovery
 =============

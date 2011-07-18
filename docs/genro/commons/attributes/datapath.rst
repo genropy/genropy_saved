@@ -3,7 +3,9 @@
 ========
 datapath
 ========
-
+    
+    *Last page update*: |today|
+    
     * :ref:`datapath_def`
     * :ref:`datapath_syntax`
     * :ref:`datapath_validity`

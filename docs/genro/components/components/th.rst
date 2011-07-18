@@ -3,7 +3,9 @@
 ============
 TableHandler
 ============
-
+    
+    *Last page update*: |today|
+    
     .. note:: summary of the component requirements:
               
               * It is a :ref:`components_standard`.

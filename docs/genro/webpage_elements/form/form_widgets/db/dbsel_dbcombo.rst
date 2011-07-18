@@ -3,7 +3,9 @@
 ===========================================
 dbSelect and dbCombobox: commons attributes
 ===========================================
-
+    
+    *Last page update*: |today|
+    
     * :ref:`db_genro_attributes`
     * :ref:`db_examples`: :ref:`db_selected`, :ref:`db_condition`, :ref:`db_columns`
       and :ref:`db_auxColumns`, :ref:`db_hasdownarrow`

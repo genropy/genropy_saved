@@ -3,7 +3,9 @@
 ==========
 FrameIndex
 ==========
-
+    
+    *Last page update*: |today|
+    
     .. note:: it is NOT a :ref:`components_standard` --> you have to
               :ref:`import the right package<frameindex_package_import>`.
               

@@ -3,7 +3,9 @@
 ====================================
 :mod:`gnr.web.gnrwebpage` - Webpages
 ====================================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.web.gnrwebpage`` classes:
     
     Main class:

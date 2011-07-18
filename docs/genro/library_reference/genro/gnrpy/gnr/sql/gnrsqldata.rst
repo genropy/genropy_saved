@@ -1,7 +1,9 @@
 ===================================================
 :mod:`gnr.sql.gnrsqldata` -- Queries and Selections
 ===================================================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.sql.gnrsql`` classes:
 
     Main classes:

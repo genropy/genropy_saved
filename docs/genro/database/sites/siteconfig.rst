@@ -4,6 +4,8 @@
 ``sitesconfig.xml``
 ===================
     
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/sites/siteconfig.png
     
     In this file you can modify the ``sitesconfig.xml`` of the specified :ref:`genro_project`

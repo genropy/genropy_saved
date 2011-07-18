@@ -3,7 +3,9 @@
 =======
 webpage
 =======
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../../_images/projects/packages/webpage.png
     
     * :ref:`webpages_GnrCustomWebPage`

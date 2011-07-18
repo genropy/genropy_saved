@@ -3,7 +3,9 @@
 ============
 Introduction
 ============
-
+    
+    *Last page update*: |today|
+    
     * :ref:`controllers_def`
     * :ref:`controllers_client`
     * :ref:`controllers_server`

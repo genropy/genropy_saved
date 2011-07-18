@@ -3,7 +3,9 @@
 ==================================================
 filteringSelect, comboBox, dbSelect and dbCombobox
 ==================================================
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

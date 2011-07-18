@@ -4,6 +4,8 @@
 Bag
 ===
 
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

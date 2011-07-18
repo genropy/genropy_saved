@@ -3,7 +3,9 @@
 ========
 readOnly
 ========
-
+    
+    *Last page update*: |today|
+    
     * :ref:`readonly_def`
     * :ref:`readonly_validity`
     * :ref:`readonly_examples`

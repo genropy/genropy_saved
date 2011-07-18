@@ -3,7 +3,9 @@
 ============
 Introduction
 ============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/gnr/gnr.png
     
     The ``.gnr`` folder is a hidden folder that includes all the general customization

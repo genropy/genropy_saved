@@ -3,7 +3,9 @@
 =====================
 Creation of a webpage
 =====================
-
+    
+    *Last page update*: |today|
+    
 .. _webpage_build_phase:
 
 The build phase

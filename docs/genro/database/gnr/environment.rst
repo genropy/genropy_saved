@@ -3,7 +3,9 @@
 ===================
 ``environment.xml``
 ===================
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/gnr/environment.png
     
     * :ref:`environment_introduction`

@@ -1,7 +1,9 @@
 =====================
 :mod:`gnr.pdf.gnrpdf`
 =====================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.pdf.gnrpdf`` classes:
 
     * :ref:`gnrpdf_gnrpdf`

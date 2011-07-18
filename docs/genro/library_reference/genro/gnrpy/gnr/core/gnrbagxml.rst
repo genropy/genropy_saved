@@ -1,7 +1,9 @@
 =========================
 :mod:`gnr.core.gnrbagxml`
 =========================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.core.gnrbagxml`` classes:
 
     * :ref:`gnrbagxml_bagfromxml`

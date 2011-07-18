@@ -4,6 +4,8 @@
 project
 =======
     
+    *Last page update*: |today|
+    
     * :ref:`genro_project_introduction`
     * :ref:`genro_project_basic_structure`
     * :ref:`genro_project_autocreation`:

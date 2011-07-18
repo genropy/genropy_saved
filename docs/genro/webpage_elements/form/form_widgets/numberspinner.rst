@@ -4,6 +4,8 @@
 numberSpinner
 =============
     
+    *Last page update*: |today|
+    
     .. note:: The Genro numberspinner has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's numberspinner documentation.
     
     * :ref:`numberspinner_def`

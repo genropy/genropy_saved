@@ -4,6 +4,8 @@
 :mod:`gnr.web.gnrwsgisite`
 ==========================
 
+    *Last page update*: |today|
+
 * Index of ``gnr.web.gnrwsgisite`` classes:
     
     Main class:

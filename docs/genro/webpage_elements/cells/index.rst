@@ -3,7 +3,9 @@
 =====
 cells
 =====
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

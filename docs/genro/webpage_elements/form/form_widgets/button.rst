@@ -3,7 +3,9 @@
 ======
 button
 ======
-
+    
+    *Last page update*: |today|
+    
     * :ref:`button_def`
     * :ref:`button_description`
     * :ref:`button_attributes`

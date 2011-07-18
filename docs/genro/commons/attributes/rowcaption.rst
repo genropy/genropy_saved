@@ -1,9 +1,11 @@
 .. _genro_rowcaption:
 
 ==========
-Rowcaption
+rowcaption
 ==========
-
+    
+    *Last page update*: |today|
+    
     * :ref:`rowcaption_def`
     * :ref:`rowcaption_validity`
     * :ref:`rowcaption_examples`: :ref:`rowcaption_genro_table`, :ref:`rowcaption_webpage`

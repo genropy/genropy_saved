@@ -3,7 +3,9 @@
 =============
 ``resources``
 =============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/resources/project_resources.png
     
     This folder includes all your :ref:`genro_private_resource`\s.

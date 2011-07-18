@@ -4,6 +4,8 @@
 ``model``
 =========
     
+    *Last page update*: |today|
+    
     .. image:: ../../../_images/projects/packages/model.png
     
 .. toctree::

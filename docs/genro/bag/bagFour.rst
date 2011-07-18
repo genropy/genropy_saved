@@ -4,6 +4,8 @@
 Resolver and dynamic bags
 =========================
 
+    *Last page update*: |today|
+    
     * :ref:`bag_four_introduction`
     * :ref:`bag_resolver`
     * :ref:`bag_resolver_example1`

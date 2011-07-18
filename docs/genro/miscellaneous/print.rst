@@ -3,7 +3,9 @@
 ===================
 Posters and Reports
 ===================
-
+    
+    *Last page update*: |today|
+    
 In GenroPy, le stampe sono gestite come *resource script* delle tabelle. In questo modo possono essere facilmente personalizzate per ogni installazione.
 
 Per costruire una stampa o un report, si crea una classe derivata da :class:`gnr.web.gnrtablescript.RecordToHtmlNew`. Esempio::

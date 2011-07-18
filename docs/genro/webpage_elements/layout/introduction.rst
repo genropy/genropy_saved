@@ -4,6 +4,8 @@
 Introduction to the layout elements
 ===================================
     
+    *Last page update*: |today|
+    
     Genro inherits some of its forms (containers and panes) directly from Dojo: we call
     them **Dojo layout elements**; they are:
     

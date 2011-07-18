@@ -3,7 +3,9 @@
 ==============
 dataController
 ==============
-
+    
+    *Last page update*: |today|
+    
     The ``dataController`` belongs to :ref:`controllers_client` family.
 
     * :ref:`datacontroller_def`

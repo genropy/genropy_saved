@@ -4,6 +4,8 @@
 struct
 ======
 
+    *Last page update*: |today|
+    
     add???
     
     * Definition: La struct è definita ad hoc per fare il modello visivo di una griglia.

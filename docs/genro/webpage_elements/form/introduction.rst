@@ -3,7 +3,9 @@
 ============
 Introduction
 ============
-
+    
+    *Last page update*: |today|
+    
     A form allows the users to enter data that are sent to a server for processing.
     
     Let's see an example of form:

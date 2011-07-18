@@ -3,7 +3,9 @@
 =====
 table
 =====
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../../_images/projects/packages/model_table.png
     
     * :ref:`table_description`

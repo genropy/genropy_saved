@@ -1,7 +1,9 @@
 ==============
 :mod:`gnr.pdf`
 ==============
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

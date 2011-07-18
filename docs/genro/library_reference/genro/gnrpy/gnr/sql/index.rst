@@ -1,7 +1,9 @@
 ==================================
 :mod:`gnr.sql` -- Database support
 ==================================
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

@@ -3,7 +3,9 @@
 ====
 tree
 ====
-
+    
+    *Last page update*: |today|
+    
     .. warning:: to be completed!! add???
     
     * :ref:`tree_def`

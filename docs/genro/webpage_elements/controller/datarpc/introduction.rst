@@ -3,7 +3,9 @@
 =======================
 Introduction to the Rpc
 =======================
-
+    
+    *Last page update*: |today|
+    
     The ``Rpc`` belongs to :ref:`controllers_server` family.
     
     * :ref:`rpc_def`

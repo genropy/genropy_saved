@@ -1,7 +1,9 @@
 =================================================
 :mod:`gnr.sql.gnrsqlmodel` -- Database Model
 =================================================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.sql.gnrsqlmodel`` classes:
 
     Main classes:

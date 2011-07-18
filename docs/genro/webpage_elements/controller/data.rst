@@ -3,7 +3,9 @@
 ====
 data
 ====
-
+    
+    *Last page update*: |today|
+    
     * :ref:`data_def`
     * :ref:`data_examples`: 
 

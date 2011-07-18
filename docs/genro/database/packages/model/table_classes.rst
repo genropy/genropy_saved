@@ -3,7 +3,9 @@
 =============
 table classes
 =============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../../_images/projects/packages/model_table.png
     
     In this page we discuss all the possible classes through which you can instantiate a :ref:`genro_table`

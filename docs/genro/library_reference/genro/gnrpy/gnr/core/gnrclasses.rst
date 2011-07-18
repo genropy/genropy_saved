@@ -1,7 +1,9 @@
 ==========================
 :mod:`gnr.core.gnrclasses`
 ==========================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.core.gnrclasses`` classes:
 
     * :ref:`gnrclasses_gnrclasscatalog`

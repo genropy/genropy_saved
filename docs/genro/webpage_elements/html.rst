@@ -3,7 +3,9 @@
 =============
 HTML elements
 =============
-
+    
+    *Last page update*: |today|
+    
     You can use an HTML element following the device of the Genro HTML syntax: in Genro, every HTML element
     is defined as a Python function, like::
     

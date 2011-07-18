@@ -3,7 +3,9 @@
 ===========
 ``main.py``
 ===========
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/packages/main.png
     
     * :ref:`main_intro`

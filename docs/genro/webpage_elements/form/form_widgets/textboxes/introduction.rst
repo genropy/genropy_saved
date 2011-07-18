@@ -4,6 +4,8 @@
 introduction to textboxes
 =========================
     
+    *Last page update*: |today|
+    
     The textboxes are form widgets used to insert input data.
     
     There are different textbox types:

@@ -3,7 +3,9 @@
 ===
 Bag
 ===
-
+    
+    *Last page update*: |today|
+    
     * :ref:`bag_what`
     * :ref:`bag_intro_hierarchical`
 
