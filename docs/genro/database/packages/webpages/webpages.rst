@@ -124,7 +124,8 @@ onLoading
     add???
     
     **Parameters:**
-                    * **record** - You find the value of the record saved into a :ref:`genro_bag`.
+                    * **record** - the value of the saved record contained into a :ref:`genro_bag`.
+                      This Bag can be manipulated to alter the data being supplied to the client.
                         
                         Example::
                         
@@ -136,9 +137,18 @@ onLoading
                             5 - (unicode) day: 10  <dtype='L' oldValue='None'>
                             6 - (unicode) month: 5  <dtype='L' oldValue='None'>
                             
-                    * **newrecord** - 
-                    * **loadingParameters** - 
-                    * **recInfo** - 
+                    * **newrecord** - boolean.
+                    * **loadingParameters** - :ref:`genro_bag` or dict
+                    * **recInfo** - dict. It contains metadata that are used by the framework to determine
+                      which behavior is determined in various situations. ``RecInfo`` may contain the
+                      following values:
+                      
+                      ``_alwaysSaveRecord`` -- boolean. Control the behavior during the rescue:
+                      
+                      * ``False`` (default) -- When a user inserts a new record and immediately saves
+                        (without change), then there is no record saved or stored in the database.
+                      * ``True`` -- if the user inserts a new record then save without making changes,
+                        always created a new record.
                     
 .. _onsaving_method:
     
