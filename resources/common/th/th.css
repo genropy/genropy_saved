@@ -456,7 +456,7 @@
 
 .queryAsk .st_conditionValue {
     color: navy;
-    background: url(images/questionMark.png) no-repeat right;
+    background: white url(../images/questionMark.png) no-repeat 95%;
 }
 
 /* @end */
