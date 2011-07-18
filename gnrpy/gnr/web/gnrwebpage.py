@@ -1419,8 +1419,9 @@ class GnrWebPage(GnrBaseWebPage):
         if printer_name and printer_name != 'PDF':
             attributes = self.getService('print').getPrinterAttributes(printer_name)
             return attributes
-            
-    def rpc_relationExplorer(self, table=None, prevRelation='', prevCaption='',
+    
+    @public_method    
+    def relationExplorer(self, table=None, prevRelation='', prevCaption='',
                              omit='', **kwargs):
         """add???
         

@@ -6,7 +6,6 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
-from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrclasses import GnrMixinError
 
 class TableHandlerCommon(BaseComponent):
@@ -107,49 +106,6 @@ class TableHandlerCommon(BaseComponent):
         """
         return None
 
-    @public_method
-    def th_listQueries(self,table, onlyQuicklist=False, **kwargs):
-        result = Bag()
-        if hasattr(self.package, 'listUserObject'):
-            objectsel = self.package.listUserObject(objtype='query', userid=self.user, tbl=table,
-                                                    onlyQuicklist=onlyQuicklist, authtags=self.userTags)
-            if objectsel:
-                for i, r in enumerate(objectsel.data):
-                    attrs = dict([(str(k), v) for k, v in r.items()])
-                    result.setItem(r['code'] or 'r_%i' % i, None, **attrs)
-        return result
-            
-    @public_method
-    def th_loadQuery(self, table=None,code=None,userid=None, pkey=None,**kwargs):
-        pkg,tbl = table.split('.')
-        package = self.db.package(pkg)
-        data, metadata = package.loadUserObject(userid=self.user, id=pkey,code=code,table=table,objtype='query')
-        return (data, metadata)
-        
-    @public_method
-    def th_saveQuery(self, table=None,pkey=None,data=None,code=None,  userid=None,
-                       description=None, authtags=None, private=False, inside_shortlist=None,quicklist=False,**kwargs):
-        pkg,tbl = table.split('.')
-        package = self.db.package(pkg)
-        record = dict(data=data,objtype='query',
-                    pkg=pkg,tbl=table,userid=self.user,quicklist=quicklist or False,
-                    code=code,table=table,authtags=authtags,id=pkey,
-                    description=description,private=private or False)
-        package.dbtable('userobject').insertOrUpdate(record)
-        self.db.commit()
-        return record['id']
-
-    @public_method
-    def th_deleteQuery(self,table=None,pkey=None):
-        pkg,tbl = table.split('.')
-        package = self.db.package(pkg)
-        package.deleteUserObject(pkey)
-        self.db.commit()
-        
-    @public_method
-    def th_getQuickQueries(self, table=None,**kwargs):
-        result = self.th_listQueries(table, onlyQuicklist=True, **kwargs)
-        return result
 
 
 class QueryHelper(BaseComponent):
@@ -277,56 +233,5 @@ class QueryHelper(BaseComponent):
                                 tagbag='=.data.tagbag', queryrow='=.opener.row',
                                 nodeId="helper_tag_saver")
                                 
-class LstQueryHandler(BaseComponent):
-    def rpc_getSqlOperators(self):
-        result = Bag()
-        listop = ('equal', 'startswith', 'wordstart', 'contains', 'startswithchars', 'greater', 'greatereq',
-                  'less', 'lesseq', 'between', 'isnull', 'istrue', 'isfalse', 'nullorempty', 'in', 'regex')
-        optype_dict = dict(alpha=['contains', 'startswith', 'equal', 'wordstart',
-                                  'startswithchars', 'isnull', 'nullorempty', 'in', 'regex',
-                                  'greater', 'greatereq', 'less', 'lesseq', 'between'],
-                           date=['equal', 'in', 'isnull', 'greater', 'greatereq', 'less', 'lesseq', 'between'],
-                           number=['equal', 'greater', 'greatereq', 'less', 'lesseq', 'isnull', 'in'],
-                           boolean=['istrue', 'isfalse', 'isnull'],
-                           others=['equal', 'greater', 'greatereq', 'less', 'lesseq', 'in'])
-
-        wt = self.db.whereTranslator
-        for op in listop:
-            result.setItem('op.%s' % op, None, caption='!!%s' % wt.opCaption(op))
-        for optype, values in optype_dict.items():
-            for operation in values:
-                result.setItem('op_spec.%s.%s' % (optype, operation), operation,
-                               caption='!!%s' % wt.opCaption(operation))
-        customOperatorsHandlers = [(x[12:], getattr(self, x)) for x in dir(self) if x.startswith('customSqlOp_')]
-        for optype, handler in customOperatorsHandlers:
-            operation, caption = handler(optype_dict=optype_dict)
-            result.setItem('op_spec.%s.%s' % (optype, operation), operation, caption=caption)
-            result.setItem('op.%s' % operation, None, caption=caption)
-
-        result.setItem('op_spec.unselected_column.x', None, caption='!!Please select the column')
-
-        result.setItem('jc.and', None, caption='!!AND')
-        result.setItem('jc.or', None, caption='!!OR')
-
-        result.setItem('not.yes', None, caption='&nbsp;')
-        result.setItem('not.not', None, caption='!!NOT')
-
-        return result
-
-    def toolboxQueries(self, container):
-        self.savedQueryController(container)
-        trpane = container.contentPane(region='center')
-        treepane = trpane.div(_class='treeContainer')
-        treepane.tree(storepath='list.query.saved_menu', persist=False, inspect='shift',
-                      labelAttribute='caption', connect_ondblclick='FIRE list.runQuery = true;',
-                      selected_pkey='list.query.selectedId', selected_code='list.query.selectedCode',
-                      selectedLabelClass='selectedTreeNode',
-                      _class='queryTree',
-                      hideValues=True, _reload='^list.query.reload')
-
-    def savedQueryController(self, pane):
-        pane.dataRemote('list.query.saved_menu', 'list_query', tbl=self.maintable, cacheTime=3)
-        pane.dataRpc('list.query.where', 'load_query', id='^list.query.selectedId', _if='id',
-                     _onResult='genro.querybuilder("%s").buildQueryPane();' %self.maintable.replace('.','_'))
 
 

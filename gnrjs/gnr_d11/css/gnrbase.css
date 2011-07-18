@@ -1125,6 +1125,12 @@ div.dojoxDock {
     width: 16px;
     height: 16px;
 }
+.icnSavedViews{
+    background: url(icons/base16/saved_views.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+
 .icnBaseAdd {
     background: url(icons/base16/add.gif) no-repeat center center;
     width: 16px;
