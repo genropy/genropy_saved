@@ -20,7 +20,7 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_tableViewer(self,pane,frameCode=None,table=None,relation=None,th_pkey=None,viewResource=None,
                        reloader=None,virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
-        self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
+        resourceName= self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
         resourceCondition = self._th_hook('condition',mangler=frameCode,dflt=dict())()
         condition = condition or resourceCondition.pop('condition',None)
         condition_kwargs.update(dictExtract(resourceCondition,'condition_'))
@@ -75,7 +75,6 @@ class TableHandlerView(BaseComponent):
             menu.menuline('!!Show drafts',
                             action='SET .excludeDraft=!GET .excludeDraft;',
                             checked='^.excludeDraft?=!#v')
-
         
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
@@ -98,7 +97,7 @@ class TableHandlerView(BaseComponent):
         pane.dataController("""
                                 var q = key=='__basequery__'? baseQuery:standard.getItem(key);
                                 SET .query.where = q.deepCopy(); 
-                                SET .query.querypkey = null;SET .query.savedlg = new gnr.GnrBag();
+                                SET .query.querypkey = null;SET .query.meta = new gnr.GnrBag();
                                 if(key!='__basequery__'){
                                     FIRE .runQuery;
                                 }
@@ -106,33 +105,11 @@ class TableHandlerView(BaseComponent):
                             key="^.query.loadstandard",baseQuery='=.baseQuery',standard='=.query.standard')
         rpc = pane.dataRpc('dummy',self.th_loadUserObject,pkey='^.query.querypkey',table=table,_if='pkey')
         rpc.addCallback("""
-            SET .query.savedlg = new gnr.GnrBag(result.attr);
+            SET .query.meta = new gnr.GnrBag(result.attr);
             SET .query.where = result._value.deepCopy();
             FIRE .runQuery;
             return result;
         """)
-    def th_extendedTools(self,group,table,mangler):
-        group.paletteTree('%s_fields'%mangler,title='Fields',datapath=False,
-                            tree_storepath='gnr.qb.%s.fieldstree' %table.replace('.','_'),
-                            tree_onDrag=""" if (!(treeItem.attr.dtype && treeItem.attr.dtype != 'RM' && treeItem.attr.dtype != 'RO')) {
-                                                    return false;
-                                                }
-                                             var table = '%s'
-                                             var code = table.replace('.','_');
-                                             var fldinfo = objectUpdate({}, treeItem.attr);
-                                             fldinfo['maintable'] = table;
-                                             dragValues['text/plain'] = treeItem.attr.fieldpath;
-                                             dragValues['gnrdbfld_' + code] = fldinfo;
-                                             """ %table,
-                                             tree_getIconClass='if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}')
-        querypalette = group.paletteTree('%s_savedQuery' %mangler,title='Queries',datapath='.queries',
-                                            tree__fired='^.#parent.#parent.query.saved',
-                                            tree_connect_ondblclick='SET .#parent.#parent.query.querypkey = dijit.getEnclosingWidget($1.target).item.attr.pkey;')
-        querypalette.dataRemote('.store.queries',self.th_listQueries,table=table,caption='Queries',cacheTime=5)
-        group.paletteTree('%s_prints' %mangler,title='Prints',datapath='.prints')
-        group.paletteTree('%s_actions' %mangler,title='Actions',datapath='.actions')
-        group.paletteTree('%s_emails' %mangler,title='Emails',datapath='.emails')
-
 
 
     @struct_method
@@ -337,31 +314,39 @@ class ViewQueryUtils(BaseComponent):
         inattr = pane.getInheritedAttributes()
         mangler = inattr['th_root']
         table = inattr['table']
-        pane.dataRpc('.querypkey',self.th_saveUserObject,objtype='query',table=table,id='=.savedlg.id',data='=.where',code='=.savedlg.code',
-                    description='=.savedlg.description', authtags='=.savedlg.authtags', private='=.savedlg.private', 
+        pane.dataRpc('.querypkey',self.th_saveUserObject,objtype='query',table=table,id='=.meta.id',data='=.where',code='=.meta.code',
+                    description='=.meta.description', authtags='=.meta.authtags', private='=.meta.private', 
                     _fired='^.save',_if='code',_onResult='FIRE .saved;')
         pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.querypkey',table=table,_fired='^.query.delete',
-                    _onResult='FIRE .query.basequery;')
+                    _onResult='FIRE .query.loadstandard="__basequery__";')
         dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
-                                _pref='!!Save query: ',_code='^.code',datapath='.query.savedlg')
-        #
-        #                 querymenu.setItem('r_4',None,caption='!!Delete Query',action='FIRE .delete;',disabled='^.querypkey?=!#v')
-        #querymenu.setItem('r_6',None,caption='-')
-        #querymenu.setItem('r_2',None,caption='!!Save Query',action='this.getAttributeFromDatasource("dialog").show();',dialog=dialog.js_widget)
-        #querymenu.setItem('r_3',None,caption='!!Save As...',action='SET .savedlg = new gnr.GnrBag(); this.getAttributeFromDatasource("dialog").show();',
-                #                    dialog=dialog.js_widget,disabled='^.querypkey?=!#v')                        
+                                _pref='!!Save query: ',_code='^.code',datapath='.query.meta')
+
         self.th_saveUserObjectDialog(dialog,table)
         palette = pane.palettePane('%s_queryTool' %mangler,title='!!Query tool',
                         dockButton_iconClass='icnBaseLens',
-                        nodeId='%s_query_root' %mangler,datapath='.query.where',
+                        datapath='.query.where',
                         dockButton_baseClass='no_background',
                         height='150px',width='400px')
+        bar = palette.slotToolbar('cap,*,show_fields,editmenu',font_size='.8em',datapath='.#parent')
+        bar.cap.div(innerHTML='==pref+(code||"-");',pref="!!Query:",code='^.meta.code')
+        bar.show_fields.button('!!Show fields',
+                                palettetitle='!!Fields',
+                                table=table,
+                                action="genro.dev.relationExplorer(table,palettetitle,{'left':'20pxpx','top':'20px','height':'270px','width':'180px'})")
+        menu = bar.editmenu.div(_class='icnBaseEdit buttonIcon').menu(modifiers='*')
+        menu.menuline(label='!!Delete Query',action='FIRE .delete;',disabled='^.querypkey?=!#v')
+        menu.menuline(label='-')
+        menu.menuline(label='!!Save Query',action='this.getAttributeFromDatasource("dialog").show();',dialog=dialog.js_widget)
+        menu.menuline(label='!!Save As...',action='SET .meta = new gnr.GnrBag(); this.getAttributeFromDatasource("dialog").show();',
+                                    dialog=dialog.js_widget,disabled='^.querypkey?=!#v')
+        palette.div(nodeId='%s_query_root' %mangler)
 
     @public_method
-    def th_listUserObject(self,table, objtype=None,resource_name=None, **kwargs):
+    def th_listUserObject(self,table, objtype=None,namespace=None, **kwargs):
         result = Bag()
         if hasattr(self.package, 'listUserObject'):
-            objectsel = self.package.listUserObject(objtype=objtype,resource_name=resource_name, userid=self.user, tbl=table,
+            objectsel = self.package.listUserObject(objtype=objtype,namespace=namespace, userid=self.user, tbl=table,
                                                     authtags=self.userTags)
             if objectsel:
                 for i, r in enumerate(objectsel.data):
@@ -394,11 +379,11 @@ class ViewQueryUtils(BaseComponent):
         return querymenu
         
     @public_method
-    def th_saveUserObject(self, table=None,objtype=None,resource_name=None,pkey=None,data=None,code=None,  userid=None,
+    def th_saveUserObject(self, table=None,objtype=None,namespace=None,pkey=None,data=None,code=None,  userid=None,
                        description=None, authtags=None, private=False, inside_shortlist=None,quicklist=False,**kwargs):
         pkg,tbl = table.split('.')
         package = self.db.package(pkg)
-        record = dict(data=data,objtype=objtype,resource_name=resource_name,
+        record = dict(data=data,objtype=objtype,namespace=namespace,
                     pkg=pkg,tbl=table,userid=self.user,quicklist=quicklist or False,
                     code=code,table=table,authtags=authtags,id=pkey,
                     description=description,private=private or False)

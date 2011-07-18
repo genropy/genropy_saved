@@ -42,6 +42,7 @@ class TableHandlerCommon(BaseComponent):
             self.mixinComponent(self.package.name,'tables','_packages',pkg,tablename,resourceName,mangling_th=rootCode)
         except GnrMixinError:
             self.mixinComponent(pkg,'tables',tablename,resourceName,mangling_th=rootCode)
+        return resourceName
             
     
     def _th_getResClass(self,table=None,resourceName=None,defaultClass=None):
