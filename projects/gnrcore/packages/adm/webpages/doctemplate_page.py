@@ -20,11 +20,13 @@ class GnrCustomWebPage(object):
         bc = form.center.borderContainer()
         form.data('.tableTree', self.db.tableTreeBag(['sys'], omit=True, tabletype='main'))
         top = bc.contentPane(region='top',datapath='.record')
-        fb = top.formbuilder(cols=4, border_spacing='4px')
+        fb = top.formbuilder(cols=5, border_spacing='4px')
         box = fb.field('maintable', width='15em', readOnly=True if not self.isDeveloper() else None,validate_notnull=True) 
         if not self.isDeveloper():
             box.menu(storepath='#FORM.tableTree', modifiers='*', _class='smallmenu', action='SET .maintable = $1.fullpath')
         fb.field('name', width='20em')
+        fb.field('locale', width='4em')
+        fb.dataFormula('.locale','page_locale', page_locale='=gnr.locale', id='^.id', _if='!id')
         fb.field('version', width='4em')
         fb.field('resource_name',_tags='_DEV_')
         tc = bc.tabContainer(region='center')
@@ -37,7 +39,7 @@ class GnrCustomWebPage(object):
                              genro.dom.setClass(bc._left,"visibleBcPane",maintable!=null); 
                              bc._layoutChildren("left");
                          """,maintable="^#FORM.record.maintable",bc=bc.js_widget)
-        self.variableGrid(bc.borderContainer(region='left',width='260px',splitter=True,_class='hiddenBcPane'))
+        self.variableGrid(bc.borderContainer(region='left',width='350px',splitter=True,_class='hiddenBcPane'))
         self.RichTextEditor(bc.contentPane(region='center'), value='^#FORM.record.content', height='100%',
                             toolbar=self.rte_toolbar_standard())
         
@@ -46,10 +48,12 @@ class GnrCustomWebPage(object):
             r = struct.view().rows()
             r.cell('fieldname', name='Field', width='100%')
             r.cell('varname', name='As', width='10em')
+            r.cell('format', name='Format', width='10em')
         grid = self.includedGrid(bc.contentPane(region='bottom',height='30%',splitter=True),nodeId='variables',storepath='#FORM.record.varsbag',
                                  del_action=True,label='!!Template Variables',struct=struct,datamode='bag')
         editor = grid.gridEditor()
         editor.textbox(gridcell='varname')
+        editor.textbox(gridcell='format')
         grid.dragAndDrop(dropCodes='fielditem')
         grid.dataController("""var caption = data.fullcaption;
                                 var varname = caption.replace(/\W/g,'_').toLowerCase()
