@@ -1126,7 +1126,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         for row in storebag:
             outdata.append(row.getAttr())
 
-        result = self.page.pluginhandler.get_plugin('mako')(path=makotemplate, striped='odd_row,even_row',
+        result = self.page.pluginhandler.get_plugin('mako')(mako_path=makotemplate, striped='odd_row,even_row',
                                                             outdata=outdata, colAttrs=colAttrs,
                                                             columns=columns, meta=kwargs)
 
