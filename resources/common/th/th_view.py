@@ -316,7 +316,7 @@ class ViewQueryUtils(BaseComponent):
         table = inattr['table']
         pane.dataRpc('.querypkey',self.th_saveUserObject,objtype='query',table=table,id='=.meta.id',data='=.where',code='=.meta.code',
                     description='=.meta.description', authtags='=.meta.authtags', private='=.meta.private', 
-                    _fired='^.save',_if='code',_onResult='FIRE .saved;')
+                    _fired='^.save',_if='code',_onResult='FIRE .saved;',datapath='.query')
         pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.querypkey',table=table,_fired='^.query.delete',
                     _onResult='FIRE .query.loadstandard="__basequery__";')
         dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
