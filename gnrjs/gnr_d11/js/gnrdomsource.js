@@ -146,7 +146,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
             } else if (this._dataprovider /*&& (kw.evt!='del')*/) { //VERIFICARE perché erano escusi gli eventi DEL
                 if(prop=='_timing'){
-                    this.setTiming(kw.value)
+                    this.setTiming(kw.value);
                 }else{
                     this.setDataNodeValue(kw.node, kw, trigger_reason);
                 }
@@ -316,7 +316,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 }
                 if (doCall != false) {
                     if (!this._deferredRegister){
-                        this._deferredRegister ={}
+                        this._deferredRegister ={};
                     }   
                     var deferred = genro.rpc.remoteCall(method, kwargs, null, httpMethod, null, cb);
                     if(deferred){
@@ -325,14 +325,14 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                         var that = this;
                         deferred.addCallback(function(result){
                             delete that._deferredRegister[deferred.id];
-                            return result
-                        })
+                            return result;
+                        });
                         if(this._callbacks){
                             this._callbacks.forEach(function(n){
                                 var kw = objectUpdate({},kwargs);
                                 kw['_isFiredNode'] = isFiredNode;
                                 genro.rpc.addDeferredCb(deferred,n.getValue(),objectUpdate(kw,n.attr),that);
-                            })
+                            });
                         }
                     }
                 }
@@ -680,7 +680,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
 
         if (!tag) {
             //console.warn('notag in build domsource',arguments.callee);
-            this._buildChildren(destination)
+            this._buildChildren(destination);
             return;
         }
         this._registerInForm();
@@ -713,8 +713,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if(formHandler){
             this.form = formHandler;
             if(this.attr.parentForm!==false){
-                formHandler.registerChild(this)
-                genro.src.formsToUpdate[this.form.formId]=this.form
+                formHandler.registerChild(this);
+                genro.src.formsToUpdate[this.form.formId]=this.form;
             }
         }
     },
@@ -723,7 +723,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (nodeId) {
             var reg_node = genro.src._index[nodeId];
             if(reg_node){
-                genro.assert(reg_node===this,'duplicate nodeId:'+nodeId)
+                genro.assert(reg_node===this,'duplicate nodeId:'+nodeId);
 
             }
             genro.src._index[nodeId] = this;
@@ -831,7 +831,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             for (var attr in nodeSubscribers) {
                 dojo.forEach(nodeSubscribers[attr],function(n){
                     dojo.unsubscribe(n);
-                })
+                });
             }
             delete genro.src._subscribedNodes[stringId];
         }
@@ -906,7 +906,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             };
             var currAttr = that.currentAttributes();
             funcApply(h, that.currentAttributes(),that,argNames,argValues);
-        }
+        };
         var topic = (this.attr.nodeId || this.getStringId()) +'_'+command;
         this.registerSubscription(topic,this,handler);
     },
@@ -918,7 +918,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             content._nodes = [];
             dojo.forEach(nodes,function(n){
                 content.setItem(n.label,n);
-            })
+            });
         }
         
         //if ('onLazyContentCreated' in widget) {
@@ -945,7 +945,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }        
         else if (this.attr.parentForm){
             if(typeof(this.attr.parentForm)=='string'){
-                return genro.formById(this.attr.parentForm)
+                return genro.formById(this.attr.parentForm);
             }
         }
         
@@ -955,7 +955,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }else if (window.frameElement){
             var parentIframe = window.frameElement.sourceNode;
             if(parentIframe){
-                return parentIframe.getFormHandler()
+                return parentIframe.getFormHandler();
             }
         }
     },
@@ -980,7 +980,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     
     setHiderLayer:function(kw,removeHider){
         if(removeHider){
-            this.unwatch('isVisibile')
+            this.unwatch('isVisibile');
             this.getValue().popNode('hiderNode');
         }else if (!this.getValue().getNode('hiderNode')){
             var that = this;
@@ -1033,7 +1033,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
         value = (value != null) ? value : '';
         if(attr_lower=='disabled'){
-            return this.setDisabled(value)
+            return this.setDisabled(value);
         }
         if (attr == 'datapath') {
             var absDatapath = this.absDatapath();
@@ -1382,7 +1382,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     replaceContent:function(value){
         var currval = this._value;
         if(currval instanceof gnr.GnrDomSource){
-            dojo.forEach(currval._nodes,function(n){currval.popNode(n.label)});
+            dojo.forEach(currval._nodes,function(n){currval.popNode(n.label);});
         }else{
             currval = new gnr.GnrDomSource();
             this._value = currval;
@@ -1460,9 +1460,9 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
                 content = new gnr.GnrDomSource();
             }
             attributes.tag = tag;
-            var handler=genro.wdg.getHandler(tag)
+            var handler=genro.wdg.getHandler(tag);
             if(handler && handler.onStructChild){
-                handler.onStructChild(attributes)
+                handler.onStructChild(attributes,this);
             }
             this.setItem(name, content, attributes, extrakw);
             return content;
@@ -1483,11 +1483,11 @@ dojo.declare("gnr.GnrDomSource", gnr.GnrStructData, {
         var node;
         dojo.forEach(childpath,function(childname){
             if (childname=='parent'){
-                node=curr.getParentNode().getParentNode()
+                node=curr.getParentNode().getParentNode();
                 curr=node.getValue();
             }else if(childname.indexOf('#')==0){
-                node=curr.getParentNode().
-                node=node.nodeById(childname.slice(1))
+                node=curr.getParentNode();
+                node=node.nodeById(childname.slice(1));
                 curr=node.getValue();
             }
             else{

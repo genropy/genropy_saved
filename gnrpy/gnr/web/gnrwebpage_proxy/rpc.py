@@ -124,8 +124,14 @@ class GnrWebRpc(GnrBaseProxy):
         dest_dir = site.getStaticPath(uploadPath, autocreate=True)
         f = file_handle.file
         content = f.read()
-        filename = filename or file_handle.filename
+        original_filename = file_handle.filename
+        original_ext = os.path.splitext(original_filename)[1]
+
+        filename = filename or original_filename
         file_ext = os.path.splitext(filename)[1]
+        if not file_ext:
+            filename = '%s.%s' %(filename,original_ext)
+            file_ext = original_ext
         file_path = site.getStaticPath(uploadPath, filename)
         file_url = site.getStaticUrl(uploadPath, filename)
         with file(file_path, 'wb') as outfile:

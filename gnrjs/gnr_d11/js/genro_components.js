@@ -10,6 +10,9 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         sourceNode.attr.tag=objectPop(attributes,'tag');
         var datapath=objectPop(attributes,'datapath');
         if(datapath){sourceNode.attr.datapath=datapath;}
+        else if(datapath===false){
+            sourceNode.attr.datapath = '';
+        }
         var contentKwargs = this.contentKwargs(sourceNode, attributes);
         if (!this.createContent) {
             return false;
@@ -25,8 +28,8 @@ dojo.declare("gnr.widgets.gnrwdg", null, {
         sourceNode.unfreeze(true);
         return false;
     },
-    onStructChild:function(attributes) {
-        if (!attributes.datapath) {
+    onStructChild:function(attributes,source) {
+        if (source.getParentNode().attr.datapath==null && attributes.datapath==null) {
             var defaultDatapath = this.defaultDatapath(attributes);
             if (defaultDatapath) {
                 attributes.datapath = defaultDatapath;
@@ -370,28 +373,23 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
 });
 
 dojo.declare("gnr.widgets.PaletteTree", gnr.widgets.gnrwdg, {
-    contentKwargs:function(sourceNode, attributes){
-        attributes['frameCode'] = attributes.paletteCode;
-        var draggableFolders = objectPop(attributes,'draggableFolders');
-        attributes.tree_onDrag = function(dragValues, dragInfo, treeItem) {
+    createContent:function(sourceNode, kw) {
+        
+        var frameCode = kw.frameCode = kw.paletteCode;
+        var editable = objectPop(kw, 'editable');
+        var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
+        var storepath = objectPop(kw, 'storepath') || '.store';
+        var draggableFolders = objectPop(kw,'draggableFolders');
+        var default_onDrag =  function(dragValues, dragInfo, treeItem) {
             if (treeItem.attr.child_count && treeItem.attr.child_count > 0 && !draggableFolders) {
                 return false;
             }
             dragValues['text/plain'] = treeItem.attr.caption;
-            dragValues[attributes.paletteCode] = treeItem.attr;
+            dragValues[frameCode] = treeItem.attr;
         };
-        attributes.tree_draggable=true;
-        return attributes;
-    },
-
-    createContent:function(sourceNode, kw) {
-        var frameCode = kw.frameCode;
-        var editable = objectPop(kw, 'editable');
-        var treeId = objectPop(kw, 'treeId') || frameCode + '_tree';
-        var storepath = objectPop(kw, 'storepath') || '.store';
         var tree_kwargs = {_class:'fieldsTree', hideValues:true,
-                            margin:'6px',nodeId:treeId,
-                            'frameCode':frameCode,
+                            margin:'6px',nodeId:treeId,draggable:true,
+                            'frameCode':frameCode,onDrag:default_onDrag,
                             storepath:storepath,labelAttribute:'caption'};
         objectUpdate(tree_kwargs, objectExtract(kw, 'tree_*'));
         var searchOn = objectPop(kw, 'searchOn');
@@ -634,7 +632,7 @@ dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
                             dropTarget:true,dropTypes:'Files', drop_ext:'png,jpg,gif'};
         uploaderAttr.onDrop = function(data,files){
             var f = files[0];
-            genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:folder,filename:sourceNode.currentFromDatasource(filename),
+            genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:sourceNode.currentFromDatasource(folder),filename:sourceNode.currentFromDatasource(filename),
                                                       onResult:cb});
         };
         return sourceNode._('img',objectUpdate(uploaderAttr,kw));
@@ -758,20 +756,20 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
             if(slot=='*'){
                 r._('td',{'_class':'slotbar_elastic_spacer',width:spacerWidth+'%'});
                 return;
-            }
+            };
             if(slot==parseInt(slot)){
                 r._('td')._('div',{width:slot+'px'});
                 return;
-            }
+            };
             if(slot=='|'){
                 r._('td')._('div',{_class:'slotbar_spacer'});
                 return;
-            }
+            };
             cell = r._('td',objectUpdate({_slotname:slot},buildKw.cell));
             if(lblPos=='R'){
                 cellKwLbl['width'] = cellKwLbl['width'] || '1px';
                 labelCell = r._('td',cellKwLbl); 
-            }
+            };
             slotNode = children.popNode(slot);
             if (!that['slot_'+slot] && slotNode){
                 if(slotNode.attr.tag=='slot'){
@@ -978,9 +976,9 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          var storeType = chunkSize? 'VirtualSelection':'Selection';
          kw.row_count = chunkSize;
          var identifier = objectPop(kw,'_identifier') || '_pkey';
-         kw['_delay'] = 'auto'
+         kw['_delay'] = 'auto';
          var selectionStore = sourceNode._('dataRpc',kw);
-         var cb = "this.store.onLoaded(result,_isFiredNode);"
+         var cb = "this.store.onLoaded(result,_isFiredNode);";
          selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
          var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType};
@@ -997,21 +995,21 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storeNode = node;
         this.storepath = this.storeNode.attr.storepath;
         this.storeNode.setRelativeData(this.storepath,null);
-        this.locked = null
+        this.locked = null;
         var startLocked= 'startLocked' in kw? objectPop(kw,'startLocked'):true;
         for (var k in kw){
             this[k] = kw[k];
         }
         var that = this;
         var cb = function(){
-            that.storeNode.subscribe('setLocked',function(v){that.setLocked(v)});
+            that.storeNode.subscribe('setLocked',function(v){that.setLocked(v);});
             var parentForm = that.storeNode.getFormHandler();
             if(parentForm){
-                parentForm.subscribe('onLockChange',function(kw){that.setLocked(kw.locked)});
+                parentForm.subscribe('onLockChange',function(kw){that.setLocked(kw.locked);});
             }
             startLocked = parentForm?parentForm.locked:startLocked;
-            setTimeout(function(){that.setLocked(startLocked)},1);
-        }
+            setTimeout(function(){that.setLocked(startLocked);},1);
+        };
         genro.src.afterBuildCalls.push(cb);
     },
     currentPkeys:function(){
@@ -1048,7 +1046,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'250px'});
         var delete_manyrows_msg = this.delete_manyrows_msg.replace('$count',count);
         var msg = count==1?this.delete_onerow_msg:delete_manyrows_msg;
-        dlg.center._('div',{innerHTML:msg, text_align:'center',height:'50px'})
+        dlg.center._('div',{innerHTML:msg, text_align:'center',height:'50px'});
         var that = this;
         var slotbar = dlg.bottom._('slotBar',{slots:'*,cancel,delete',
                                                 action:function(){
@@ -1062,7 +1060,7 @@ dojo.declare("gnr.stores._Collection",null,{
         if(count>1){
             var fb = genro.dev.formbuilder(dlg.center,1);
             fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl:'Count'});
-            btnattr['disabled']='==_count!=_tot;'
+            btnattr['disabled']='==_count!=_tot;';
             btnattr['_tot'] = count;
             genro.setData('gnr._dev.deleteask.count',null);
             btnattr['_count'] = '^gnr._dev.deleteask.count';
@@ -1126,7 +1124,7 @@ dojo.declare("gnr.stores._Collection",null,{
             return;
         }
         var item;
-        data=data.getNodes()
+        data=data.getNodes();
         if ((idx<0)||( idx>(data.length-1))){
             return null;
         }    
@@ -1150,7 +1148,7 @@ dojo.declare("gnr.stores._Collection",null,{
         }
     },
     getGridRowDataByIdx:function(grid,idx){
-        var rowdata={}
+        var rowdata={};
         var node=this.itemByIdx(idx);
         if (node){
             rowdata= grid.rowFromBagNode(node,this.externalChangedKeys);
@@ -1213,7 +1211,7 @@ dojo.declare("gnr.stores._Collection",null,{
             this._filtered = null;
             return null;
         }
-        var filtered=[]
+        var filtered=[];
         var excludeList = null;
         if (grid.excludeListCb) {
             excludeList = grid.excludeListCb.call(this.sourceNode);
@@ -1231,14 +1229,14 @@ dojo.declare("gnr.stores._Collection",null,{
         this._filtered=filtered;
         this._filterToRebuild=false;
     }
-})
+});
 
 dojo.declare("gnr.stores.BagRows",gnr.stores._Collection,{
     keyGetter :function(n){
         return n.getValue('static').getItem(this.identifier);
     },
     getRowByIdx:function(idx){
-        return 
+        return ;
     },
     getItems:function(){
         var data=this.getData();
@@ -1258,7 +1256,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         if(this.storeNode.attr.externalChanges){
             var cb = function(){that.storeNode.registerSubscription('dbevent_'+that.storeNode.attr.table.replace('.','_'),that,function(kw){
                 that.onExternalChange(kw.changelist,kw.pkeycol);          
-                })};
+                });};
                 genro.src.afterBuildCalls.push(cb);
         }
     },
@@ -1290,10 +1288,10 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         if (insOrUpdKeys.length>0) {
             var original_condition =  this.storeNode.attr.condition;
             var newcondition = ' ( $'+pkeycol+' IN :_pkeys ) ';
-            var kw = objectUpdate({'_sourceNode':this.storeNode,_pkeys:insOrUpdKeys},this.storeNode.attr)
+            var kw = objectUpdate({'_sourceNode':this.storeNode,_pkeys:insOrUpdKeys},this.storeNode.attr);
             kw.condition = original_condition?original_condition+' AND '+newcondition:newcondition;
             genro.rpc.remoteCall('app.getSelection', 
-                                kw,null,null,null,
+                                kw,null,'POST',null,
                                 function(result){
                                             willBeInSelection={};
                                             result.getValue().forEach(function(n){
@@ -1369,19 +1367,19 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         var item=null;
         if (idx >= 0) {
             idx = this.absIndex(idx);
-            var nodes=this.getItems()
+            var nodes=this.getItems();
             if (idx <= this.len()) {
-                item=nodes[idx]
+                item=nodes[idx];
             }
         }
-        return item
+        return item;
     },
 
     deleteRows:function(pkeys){
         var that = this;
         genro.serverCall('deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table},function(result){
             that.onDeletedRows(result);
-        })
+        });
     },
     onDeletedRows:function(result){
         if(result && result.error){
@@ -1450,14 +1448,14 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         genro.rpc.remoteCall('app.checkFreezedSelection', 
                                             rpc_attr,null,null,null,
                                          function(result){
-                                             that.onExternalChangeResult(changelist,result)
+                                             that.onExternalChangeResult(changelist,result);
                                              return result;
                                           });
     },
 
     
     clearBagCache:function() {
-        var data = this.getData()
+        var data = this.getData();
         if(data){
             data.clear();
         }
@@ -1485,8 +1483,8 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             
             if (dataPage){
                 this.currCachedPageIdx = pageIdx;
-                this.currCachedPage=dataPage
-                return this.currCachedPage.getNodes()[rowIdx]
+                this.currCachedPage=dataPage;
+                return this.currCachedPage.getNodes()[rowIdx];
             }else{
                 this.currCachedPageIdx=-1;
                 this.currCachedPage=null;
@@ -1503,25 +1501,25 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
                 
                
             }
-            return this.currCachedPage.getNodes()[rowIdx]
+            return this.currCachedPage.getNodes()[rowIdx];
         }
     },
 
     getDataChunk:function(pageIdx){
 
         if (pageIdx in this.pendingPages){
-            return
+            return;
         }else{
             var pageData=this.getData().getItem('P_' + pageIdx);
             if (pageData){
                 return pageData;    
             }
             if(this.isScrolling){
-                return
+                return;
             }
             if(this.pendingTimeout){
                 if (this.pendingTimeout.idx==pageIdx){
-                    return
+                    return;
                 }else{
                     clearTimeout(this.pendingTimeout.handler);
                     this.pendingTimeout = {};
@@ -1530,10 +1528,10 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             var that = this;
             this.pendingTimeout={'idx':pageIdx,
                                 'handler':setTimeout(function(){
-                                that.loadBagPageFromServer(pageIdx)
+                                that.loadBagPageFromServer(pageIdx);
                                 },10)
             };
-            return
+            return;
         }
     },
     onChunkLoaded:function(result,pageIdx){
@@ -1565,7 +1563,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             null,
             null,
             null,
-            sync?null:function(result){return that.onChunkLoaded(result,pageIdx)});
+            sync?null:function(result){return that.onChunkLoaded(result,pageIdx);});
         if(sync){
             return this.onChunkLoaded(result,pageIdx);
         }else{

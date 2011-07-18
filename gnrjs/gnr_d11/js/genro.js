@@ -122,7 +122,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.prefs = {'recordpath':'tables.$dbtable.record',
             'selectionpath':'tables.$dbtable.selection',
             'limit':'50'};
-        this._starter()
+        this._starter();
 
     },
     _starter:function() {
@@ -273,11 +273,11 @@ dojo.declare('gnr.GenroClient', null, {
             }
         }, 100);
         genro.dev.shortcut('f1', function(e) {
-            genro.publish('SAVERECORD', e)
-        })
+            genro.publish('SAVERECORD', e);
+        });
         genro.dev.shortcut('f3', function(e) {
-            genro.publish('PRINTRECORD', e)
-        })
+            genro.publish('PRINTRECORD', e);
+        });
         /* if (dojo.isSafari && genro.wdgById('pbl_root')){
          setTimeout(genro.forceResize,1);
          }*/
@@ -337,7 +337,7 @@ dojo.declare('gnr.GenroClient', null, {
             var wdg = dijit.getEnclosingWidget(e.target);
             if(wdg){
                 if(wdg.isFocusable()){
-                    return
+                    return ;
                 }
                 var sourceNode = wdg.sourceNode;
                 if(sourceNode){
@@ -857,18 +857,18 @@ dojo.declare('gnr.GenroClient', null, {
                 args.push(arguments[i]);
             }
             dojo.publish(topic, args);
-            return
+            return ;
         }
         var parent=topic['parent'];
         var iframe=topic['iframe'];
-        var kw=topic['kw'] || kw
+        var kw=topic['kw'] || kw;
         if('nodeId' in topic){
-            var node= genro.nodeById(topic['nodeId'])
+            var node= genro.nodeById(topic['nodeId']);
             if (node){
                 node.publish(topic['topic'],kw);
             }
         }else if('form' in topic){
-            var form=genro.getForm(topic['form'])
+            var form=genro.getForm(topic['form']);
             if (form){
                 form.publish(topic['topic'],kw);
             }
@@ -878,8 +878,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
 
         if (iframe){
-            var t=objectUpdate({},topic)
-            objectPop(t,'parent')
+            var t=objectUpdate({},topic);
+            objectPop(t,'parent');
             if (iframe=='*'){
                 dojo.forEach(window.frames,function(f){
                     if (f.genro){
@@ -898,7 +898,7 @@ dojo.declare('gnr.GenroClient', null, {
         }
         
         if(parent && (window.parent!=window) && window.parent.genro ){
-            var t=objectUpdate({},topic)
+            var t=objectUpdate({},topic);
             objectPop(t,'iframe');
             objectPop(t,'parent');
             window.parent.genro.publish(t,kw);
@@ -997,7 +997,7 @@ dojo.declare('gnr.GenroClient', null, {
         if(side=='frame'){
             return frameNode;
         }
-        var containerNode =  frameNode.getValue().getNodes()[0]
+        var containerNode =  frameNode.getValue().getNodes()[0];
         if(!side){
             return containerNode;
         }
@@ -1031,8 +1031,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
         else{
             if(nodeId.indexOf('/')>=0){
-                childpath=nodeId.split('/')
-                nodeId=childpath[0]
+                childpath=nodeId.split('/');
+                nodeId=childpath[0];
                 childpath = childpath.slice(1).join('/');
             }
             if(nodeId.indexOf('FORM')==0){
@@ -1144,7 +1144,7 @@ dojo.declare('gnr.GenroClient', null, {
     
     makeDeferred:function(cb){
         var deferred = new dojo.Deferred();
-        setTimeout(function(){deferred.callback(cb())},1);
+        setTimeout(function(){deferred.callback(cb());},1);
         return deferred;
     },
     
