@@ -6,6 +6,7 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrclasses import GnrMixinError
 
 class TableHandlerCommon(BaseComponent):
@@ -106,8 +107,49 @@ class TableHandlerCommon(BaseComponent):
         """
         return None
 
+    @public_method
+    def th_listQueries(self,table, onlyQuicklist=False, **kwargs):
+        result = Bag()
+        if hasattr(self.package, 'listUserObject'):
+            objectsel = self.package.listUserObject(objtype='query', userid=self.user, tbl=table,
+                                                    onlyQuicklist=onlyQuicklist, authtags=self.userTags)
+            if objectsel:
+                for i, r in enumerate(objectsel.data):
+                    attrs = dict([(str(k), v) for k, v in r.items()])
+                    result.setItem(r['code'] or 'r_%i' % i, None, **attrs)
+        return result
+            
+    @public_method
+    def th_loadQuery(self, table=None,code=None,userid=None, pkey=None,**kwargs):
+        pkg,tbl = table.split('.')
+        package = self.db.package(pkg)
+        data, metadata = package.loadUserObject(userid=self.user, id=pkey,code=code,table=table,objtype='query')
+        return (data, metadata)
+        
+    @public_method
+    def th_saveQuery(self, table=None,pkey=None,data=None,code=None,  userid=None,
+                       description=None, authtags=None, private=False, inside_shortlist=None,quicklist=False,**kwargs):
+        pkg,tbl = table.split('.')
+        package = self.db.package(pkg)
+        record = dict(data=data,objtype='query',
+                    pkg=pkg,tbl=table,userid=self.user,quicklist=quicklist or False,
+                    code=code,table=table,authtags=authtags,id=pkey,
+                    description=description,private=private or False)
+        package.dbtable('userobject').insertOrUpdate(record)
+        self.db.commit()
+        return record['id']
 
-
+    @public_method
+    def th_deleteQuery(self,table=None,pkey=None):
+        pkg,tbl = table.split('.')
+        package = self.db.package(pkg)
+        package.deleteUserObject(pkey)
+        self.db.commit()
+        
+    @public_method
+    def th_getQuickQueries(self, table=None,**kwargs):
+        result = self.th_listQueries(table, onlyQuicklist=True, **kwargs)
+        return result
 
 
 class QueryHelper(BaseComponent):

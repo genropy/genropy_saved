@@ -598,28 +598,25 @@ class GnrDomSrc(GnrStructData):
         :param disabled: If ``True``, user can't act on the object (write, drag...).
         :param rowdatapath: add???
         :param head_rows: add???
-        :param \*\*kwargs: **border_spacing**: define the space between form fields. Default value is ``6px``
+        :param \*\*kwargs: *border_spacing*: define the space between form fields. Default value is ``6px``
         
-                           **datapath**: set the root's path of formbuilder's fields. For more details,
+                           *datapath*: set the root's path of formbuilder's fields. For more details,
                            check the :ref:`genro_datapath` documentation page.
                            
-                           **dbtable**: define the "dbtable" attribute for all the formbuilder children
-                           who supports it. For more information, check the :ref:`genro_dbtable` documentation page
-                           
-                           **width**: define the formbuilder width. You can use only percent (e.g: ``width='60%'``)
+                           *width*: define the formbuilder width. You can use only percent (e.g: ``width='60%'``)
                            and the formbuilder must be child of a pane or a div with a defined width and height.
                            
-                           **fld_ + CSSexpression**: set a CSS expression to every formbuilder's field.
+                           *fld_ + CSSexpression*: set a CSS expression to every formbuilder's field.
                            (e.g: fld_color='red', fld_width='100%')
                            
-                           **lbl_ + CSSexpression**: set a CSS expression to every lbl's field.
+                           *lbl_ + CSSexpression*: set a CSS expression to every lbl's field.
                            (e.g: lbl_width='10em')
                            
-                           **row_**: add???
+                           *row_*: add???
                            
-                           **tdf_**: add???
+                           *tdf_*: add???
                            
-                           **tdl_**: add???"""
+                           *tdl_*: add???"""
         commonPrefix = ('lbl_', 'fld_', 'row_', 'tdf_', 'tdl_')
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
@@ -743,27 +740,31 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     #    self.child('FramePane',slots='top,left,bottom,right',**kwargs)
         
     def dataFormula(self, path, formula, **kwargs):
-        """Allow to insert a value into a specific address of the :ref:`genro_datastore` calculated
-        through a formula
+        """Allow to insert a value into a specific address of the :ref:`genro_datastore` calculated through a formula
         
         :param path: the dataFormula's path
         :param formula: the dataFormula's formula
-        :param \*\*kwargs: formula parameters and other ones"""
+        :param \*\*kwargs: formula parameters and other ones
+        :returns: the dataFormula
+        """
         return self.child('dataFormula', path=path, formula=formula, **kwargs)
         
     def dataScript(self, path, script, **kwargs):
-        """add???
-        
+        """
         :param path: the dataScript's path
-        :param script: the dataScript's formula"""
+        :param script: the dataScript's formula
+        :returns: the dataScript
+        """
         return self.child('dataScript', path=path, script=script, **kwargs)
         
     def dataController(self, script=None, **kwargs):
-        """Allow to execute javascript code
+        """Allow to execute a Javascript code
         
         :param script: the Javascript code that ``datacontroller`` has to execute. 
-        :param \*\*kwargs: **_init**, **_onStart**, **_timing**. For more information,
-                           check the controllers' :ref:`controllers_attributes` section"""
+        :param \*\*kwargs: *_init*, *_onStart*, *_timing*. For more information,
+                       check the controllers' :ref:`controllers_attributes` section
+        :returns: the dataController
+        """
         return self.child('dataController', script=script, **kwargs)
         
     def dataRpc(self, path, method, **kwargs):
@@ -773,22 +774,25 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                      you have to write it even if you don't return any value in the ``dataRpc``
                      (in this situation it will become a "mandatory but dummy" parameter)
         :param method: the name of your ``dataRpc`` method
-        :param \*\*kwargs: **_onCalling**, **_onResult**, **sync**. For more information,
-                           check the :ref:`rpc_attributes` section"""
+        :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
+                       check the :ref:`rpc_attributes` section"""
         return self.child('dataRpc', path=path, method=method, **kwargs)
         
     def selectionstore_addcallback(self,*args,**kwargs):
         """add???
         
         :param args: add???
-        :param \*\*kwargs: add???"""
+        :param \*\*kwargs: add???
+        """
         self.datarpc_addcallback(*args,**kwargs)
         
     def datarpc_addcallback(self,cb,**kwargs):
         """add???
         
         :param cb: add???
-        :param \*\*kwargs: add???"""
+        :param \*\*kwargs: add???
+        :returns: add???
+        """
         self.child('callBack',childcontent=cb,**kwargs)
         return self
         
@@ -796,7 +800,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param cb: add???
-        :param \*\*kwargs: add???"""
+        :param \*\*kwargs: add???
+        :returns: add???
+        """
         self.child('callBack',childcontent=cb,_isErrBack=True,**kwargs)
         return self
         
@@ -811,7 +817,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param storepath: add???. 
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section."""
+                        :ref:`sql_columns` section. """
         self.selectionStore(storeCode=storeCode,table=table, storepath=storepath,columns=columns,**kwargs)
         
     def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
@@ -822,7 +828,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param storepath: add???. 
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section."""
+                        :ref:`sql_columns` section. 
+        :returns: the selectionStore
+        """
         attr = self.attributes
         parentTag = attr.get('tag')
         #columns = columns or '==gnr.getGridColumns(this);'
@@ -875,8 +883,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
                        
         :param columnsFromView: add???. 
-        :param \*\*kwargs: **_onCalling**, **_onResult**, **sync**. For more information,
-                           check the :ref:`rpc_attributes` section"""
+        :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
+                       check the :ref:`rpc_attributes` section
+        :returns: add???
+        """
         if 'name' in kwargs:
             kwargs['_name'] = kwargs.pop('name')
         if 'content' in kwargs:
@@ -895,7 +905,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def directoryStore(self, rootpath=None, storepath='.store', **kwargs):
         """add???
         :param rootpath: add???. 
-        :param storepath: add???. Default value is ``.store``"""
+        :param storepath: add???. Default value is ``.store``
+        """
         store = DirectoryResolver(rootpath or '/', **kwargs)()
         self.data(storepath, store)
     
@@ -909,7 +920,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                       
         :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
                          
-        :param storepath: add???. Default value is ``.store``"""
+        :param storepath: add???. Default value is ``.store``
+        """
         t0 = time()
         tblobj = self.db.table(table)
         columns = [x for x in group_by if not callable(x)]
@@ -930,8 +942,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param table: the :ref:`genro_table` name
         :param pkey: the record primary key. 
         :param method: add???. Default value is ``app.getRecord``
-        :param \*\*kwargs: **_onCalling**, **_onResult**, **sync**. For more information,
-                           check the :ref:`rpc_attributes` section"""
+        :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
+                       check the :ref:`rpc_attributes` section
+        :returns: a dataRecord
+        """
         return self.child('dataRpc', path=path, table=table, pkey=pkey, method=method, **kwargs)
         
     def dataRemote(self, path, method, **kwargs):
@@ -941,8 +955,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param path: the path where the dataRemote will save the result of the rpc
         :param method: the rpc name that has to be executed
-        :param \*\*kwargs: **cacheTime=NUMBER**: The cache stores the retrieved value and keeps
-                           it for a number of seconds equal to ``NUMBER``"""
+        :param \*\*kwargs: *cacheTime=NUMBER*: The cache stores the retrieved value and keeps
+                       it for a number of seconds equal to ``NUMBER``
+        :returns: a dataRemote
+        """
         return self.child('dataRemote', path=path, method=method, **kwargs)
         
     def dataResource(self,path,resource=None, ext=None, pkg=None):
@@ -951,7 +967,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def paletteGroup(self, groupCode, **kwargs):
         """add???
         
-        :param groupCode: add???"""
+        :param groupCode: add???
+        :returns: a paletteGroup
+        """
         return self.child('PaletteGroup',groupCode=groupCode,**kwargs)
         
     def palettePane(self, paletteCode, datapath=None, **kwargs):
@@ -959,8 +977,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
         :param datapath: the path of data. .
-                         For more information, check the :ref:`genro_datapath` section"""
-        datapath= datapath or 'gnr.palettes.%s' %paletteCode
+                         For more information, check the :ref:`genro_datapath` section
+        :returns: a palettePane
+        """
+        datapath= 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         return self.child('PalettePane',paletteCode=paletteCode,datapath=datapath,**kwargs)
         
     def paletteTree(self, paletteCode, datapath=None, **kwargs):
@@ -971,7 +991,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                          For more information, check the :ref:`genro_datapath` section
         :returns: a paletteTree
         """
-        datapath= datapath or 'gnr.palettes.%s' %paletteCode
+        datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         palette = self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,
                              autoslots='top,left,right,bottom',**kwargs)
         return palette
@@ -987,7 +1007,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param structpath: add???. 
         :param datapath: the path of data. .
                          For more information, check the :ref:`genro_datapath` section"""
-        datapath= datapath or 'gnr.palettes.%s' %paletteCode
+        datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         structpath = structpath or '.grid.struct'
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
         paletteGrid = self.child('paletteGrid',paletteCode=paletteCode,
@@ -1243,12 +1263,6 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 pane.radioButton(label, group=group)
                 
     def checkboxtext(self, labels,value=None,separator=',',**kwargs):
-        """A group of checkboxes that allow to compose a string with checkbox labels.
-                
-        :param labels: a string separated by comma set of words. For every words there will be
-                       created a single checkbox
-        :param value: the path of the checkboxtext value
-        :param separator: the characters that separate the checkbox text"""
         labels = gnrstring.splitAndStrip(labels.replace('\n',','),',')
         action = """var actionNode = this.sourceNode.attributeOwnerNode('action');
                     var separator = actionNode.attr._separator;
@@ -1742,24 +1756,20 @@ class GnrDomSrc_dojo_15(GnrDomSrc_dojo_11):
     
 class GnrDomSrc_dojo_16(GnrDomSrc_dojo_11):
     pass
-    
 class GnrGridStruct(GnrStructData):
-    """This class handles the creation of a :ref:`genro_struct`
+    """add???
     
-    add??? (introduce the example)
+    r = struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
     
-    ::
+    r.child('cell',field='protocollo',width='9em',name='Protocollo')
+    """
     
-        r = struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
-        r.child('cell',field='procedure',width='9em',name='Procedure')"""
-        
     def makeRoot(cls, page, maintable=None, source=None):
         """add???
         
         :param cls: add???
         :param page: add???
-        :param maintable: the table to which the struct refers to. For more information,
-                          check the :ref:`webpages_maintable` section.
+        :param maintable: add???. 
         :param source: add???. 
         :returns: add???
         """
@@ -1794,49 +1804,52 @@ class GnrGridStruct(GnrStructData):
     def view(self, tableobj=None, **kwargs):
         """add???
         
-        :param tableobj: the table object"""
+        :param tableobj: add???. 
+        :returns: add???
+        """
         self.tableobj = tableobj
         return self.child('view', **kwargs)
         
     def rows(self, classes=None, cellClasses=None, headerClasses=None, **kwargs):
         """add???
         
-        :param classes: add???.
-        :param cellClasses: add???.
-        :param headerClasses: add???."""
+        :param classes: add???. 
+        :param cellClasses: add???. 
+        :param headerClasses: add???. 
+        :returns: add???
+        """
         return self.child('rows', classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
         
-    def cell(self, field=None, name=None, width=None, dtype=None,
-             classes=None, cellClasses=None, headerClasses=None, **kwargs):
-        """Return a :ref:`genro_cell`.
+    def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, headerClasses=None,
+             **kwargs):
+        """add???
         
-        :param field: add???.
-        :param name: add???.
-        :param width: the width of the cell
-        :param dtype: the :ref:`genro_datatype`.
-        :param classes: add???.
-        :param cellClasses: add???.
-        :param headerClasses: add???."""
+        :param field: add???. 
+        :param name: add???. 
+        :param width: add???. 
+        :param dtype: add???. 
+        :param classes: add???. 
+        :param cellClasses: add???. 
+        :param headerClasses: add???. 
+        :returns: a cell
+        """
         return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                           
-    def checkboxcell(self, field=None, falseclass=None, trueclass=None, nullclass=None, classes='row_checker',
-                     action=None, name=' ', calculated=False, radioButton=False, threestate=False, **kwargs):
-        """Return a boolean checkbox :ref:`genro_cell`. add???
+    def checkboxcell(self, field=None, falseclass=None,
+                     trueclass=None,nullclass=None, classes='row_checker', action=None, name=' ',
+                     calculated=False, radioButton=False,threestate=False, **kwargs):
+        """add???
         
-        :param field: add???.
-        :param falseclass: the css class for the false state.
-        :param trueclass: the css class for the true state.
-        :param nullclass: the css class for the null state, the optional third state that you can
-                          specify through the **threestate** parameter
+        :param field: add???. 
+        :param falseclasses: add???. 
+        :param trueclasses: add???. 
         :param classes: add???. Default value is ``row_checker``
-        :param action: allow to execute a javascript callback. For more information, check the
-                       :ref:`genro_action` documentation page
-        :param name: add???. Default value is ``' '``
-        :param calculated: boolean. add???.
-        :param radioButton: boolean. add???.
-        :param threestate: boolean. If ``True``, create a third state (the "null" state) besides the ``True``
-                           and the ``False`` state."""
+        :param action: add???. 
+        :param name: add???. Default value is ``''``
+        :param calculated: boolean. add???. Default value is ``False``
+        :param radioButton: boolean. add???. Default value is ``False``
+        """
         if not field:
             field = '_checked'
             calculated = True
@@ -1845,8 +1858,8 @@ class GnrGridStruct(GnrStructData):
         if threestate:
             nullclass = nullclass or ('checkboxOnOff' if not radioButton else nullclass or 'radioOnOff')
 
-        self.cell(field,name=name,format_trueclass=trueclass,format_falseclass=falseclass,format_nullclass=nullclass,
-                  classes=classes,calculated=calculated,format_onclick="""
+        self.cell(field, name=name, format_trueclass=trueclass, format_falseclass=falseclass,format_nullclass=nullclass,
+                  classes=classes, calculated=calculated, format_onclick="""
                                                                     var threestate =('%(threestate)s' == 'True');
                                                                     var rowpath = '#'+this.widget.absIndex(kw.rowIndex);
                                                                     var sep = this.widget.gridEditor? '.':'?';
@@ -1873,7 +1886,7 @@ class GnrGridStruct(GnrStructData):
 
     def fieldcell(self, field, _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None, zoom=False, **kwargs):
-        """Return a :ref:`genro_cell` that inherits every attribute from the :ref:`genro_field` widget.
+        """A form widget that inherits every attribute from the :ref:`genro_field` widget.
         
         :param field: MANDATORY - it contains the name of the :ref:`genro_field` from which
                       the fieldcell inherits.
@@ -1881,12 +1894,16 @@ class GnrGridStruct(GnrStructData):
         :param name: with *name* you can override the :ref:`genro_name_long` of the
                      :ref:`genro_field` form widget. 
         :param width: the fieldcell width. 
-        :param dtype: the :ref:`genro_datatype`. You can override the *dtype* of the :ref:`genro_field` form widget.
+        :param dtype: you can override the *dtype* of the :ref:`genro_field` form widget.
+                      
         :param classes: add???. 
         :param cellClasses: add???. 
         :param headerClasses: add???. 
         :param zoom: a link to the object to which the fieldcell refers to.
-                     For more information, check the :ref:`genro_zoom` documentation page."""
+                     For more information, check the :ref:`genro_zoom` documentation page.
+                     Default value is ``False``
+        :returns: add???
+        """
         if not self.tblobj:
             self.root._missing_table = True
             return

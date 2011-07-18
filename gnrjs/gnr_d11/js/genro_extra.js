@@ -156,11 +156,11 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
 
     },
     dialog_tableProperties:function(definition,ckeditor){
-        this.dialog_table(definition,ckeditor)
+        this.dialog_table(definition,ckeditor);
     },
     dialog_table:function(definition,ckeditor){
         definition.getContents('info').get('txtBorder')['default']=null;
-        definition.getContents('advanced').get('advStyles')['default']='border-collapse:collapse;'
+        definition.getContents('advanced').get('advStyles')['default']='border-collapse:collapse;';
         definition.addContents({
             id : 'gnr_tableProperties',
             label : 'Genropy',
@@ -191,24 +191,24 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         ckeditor.gnr_readOnly('auto');
         var parentDomNode=sourceNode.getParentNode().getDomNode();
         var cbResize=function(){
-                sourceNode._rsz=null
+                sourceNode._rsz=null;
                 if(genro.dom.isVisible(ckeditor.element.$)){
                     ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
                 }
                 
-        }
+        };
         dojo.connect(parentWidget,'resize',function(){
             if(sourceNode._rsz){
-                clearTimeout(sourceNode._rsz)
+                clearTimeout(sourceNode._rsz);
             }
-            sourceNode._rsz=setTimeout(cbResize,100)
+            sourceNode._rsz=setTimeout(cbResize,100);
         });
         var that=this;
         CKEDITOR.on( 'dialogDefinition', function( ev ){
             if (that['dialog_'+ev.data.name]){
-                that['dialog_'+ev.data.name].call(that,ev.data.definition)
+                that['dialog_'+ev.data.name].call(that,ev.data.definition);
             }
-        })
+        });
         
 
          
@@ -229,7 +229,7 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         this.setData(this.sourceNode.getAttributeFromDatasource('value'));
     },
     mixin_gnr_setInDatastore : function() {
-        var value=this.getData()
+        var value=this.getData();
         if(this.sourceNode.getAttributeFromDatasource('value')!=value){
             this.sourceNode.setAttributeInDatasource('value',value );
         }

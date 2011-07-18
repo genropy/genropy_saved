@@ -292,11 +292,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         dlg.center = center;
         dlg.bottom = bottom;
         dlg.close_action = function() {
-            dlg.getParentNode().widget.hide()
+            dlg.getParentNode().widget.hide();
         };
         dlg.show_action = function() {
             node.unfreeze();
-            dlg.getParentNode().widget.show()
+            dlg.getParentNode().widget.show();
         };
         return dlg;
     },

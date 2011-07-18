@@ -65,7 +65,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
     },
     onBuiltCall:function(cb,delay){
-        this.afterBuildCalls.push(delay? function(){setTimeout(cb,1)}:cb);
+        this.afterBuildCalls.push(delay? function(){setTimeout(cb,1);}:cb);
     },
     
     nodeTrigger:function(kw) {
@@ -228,7 +228,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     
     
     buildNode: function(sourceNode, where, ind) {
-        this.formsToUpdate={}
+        this.formsToUpdate={};
         this.afterBuildCalls = [];
         sourceNode.build(where, ind);
         var cb;
@@ -237,7 +237,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             cb.call();
         }
         for (var formId in this.formsToUpdate){
-            var form = this.formsToUpdate[formId]
+            var form = this.formsToUpdate[formId];
             form.applyDisabledStatus();
         } 
     },
@@ -356,7 +356,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this.stripDataNode(node);
         var content = node.getValue('static');
         if (content instanceof gnr.GnrDomSource) {
-            content.forEach(function(node){genro.src.stripDataNode(node)},'static');
+            content.forEach(function(node){genro.src.stripDataNode(node);},'static');
         }
     },
     stripDataNode:function(node){
@@ -439,7 +439,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                         }
                         node._dataControllerSubscription(subscriptions);
                     }
-                }
+                };
                 genro.src.afterBuildCalls.push(cb);
             }
             
@@ -470,7 +470,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                     var dynval = stringStrip(val);
                     if (dynval.indexOf('==') == 0) {
                         //val = genro.evaluate(dynval.slice(2));
-                        val = funcApply("return "+dynval.slice(2),source,sourceNode)
+                        val = funcApply("return "+dynval.slice(2),source,sourceNode);
                     } else if ((dynval.indexOf('^') == 0) || (dynval.indexOf('=') == 0)) {
                         path = dynval.slice(1);
                         if (sourceNode) {
@@ -499,6 +499,6 @@ dojo.declare("gnr.GnrSrcHandler", null, {
        return genro.src.getNode()._('div', path)._(widget,path,pars);;
        //var node = genro.src.getNode(path).clearValue();
        //return node._(widget,path,pars);        
-    },
+    }
 
 });

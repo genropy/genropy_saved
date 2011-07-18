@@ -111,7 +111,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         this.rpc_counter = this.rpc_counter + 1;
         this.rpc_level = this.rpc_level + 1;
         if(this.rpc_level>5){
-            console.log('rpc_level',this.rpc_level)
+            console.log('rpc_level',this.rpc_level);
         }
         kw['__rpc_counter'] = this.rpc_counter;
         this.rpc_register['r_' + this.rpc_counter] = kw;
@@ -538,7 +538,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             cblocals['result'] = result;
             var newresult = funcApply(func, cblocals, sourceNode);
             return  newresult===undefined? result:newresult;
-        }
+        };
         if(isErrBack){
             deferred.addErrback(cb);
         }else{
@@ -765,7 +765,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         params['page_id'] = genro.page_id;
         params['uploaderId'] = kw.uploaderId;
         params['uploadPath'] = kw.uploadPath;
-
+        params['filename'] = kw.filename;
         var sourceNode = kw.uploaderId ? genro.nodeById(kw.uploaderId) : null;
         params = this.serializeParameters(genro.src.dynamicParameters(params, sourceNode));
         for (key in params) {

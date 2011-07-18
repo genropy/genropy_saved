@@ -545,7 +545,12 @@ class GnrWebPage(GnrBaseWebPage):
             self.mixinComponent(__mixin_pkg, *__mixin_path_list)
         if '.' in method:
             proxy_name, submethod = method.split('.', 1)
-            proxy_object = getattr(self, proxy_name, None)
+            if proxy_name=='_table':
+                sep='.'
+                table_name,sep,submethod = submethod.rpartition(sep)
+                proxy_object = self.db.table(table_name)
+            else:
+                proxy_object = getattr(self, proxy_name, None)
             if not proxy_object:
                 proxy_class = self.pluginhandler.get_plugin(proxy_name)
                 proxy_object = proxy_class(self)

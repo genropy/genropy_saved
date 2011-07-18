@@ -215,7 +215,7 @@ class ThLinker(BaseComponent):
     @extract_kwargs(dialog=True,default=True)
     @struct_method 
     def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
-                    openIfNew=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs):
+                    openIfEmpty=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs):
         if not table:
             if '.' in field:
                 fldlst = field.split('.')
@@ -254,10 +254,9 @@ class ThLinker(BaseComponent):
                         connect_onclick="this.getParentNode().publish('newrecord')")
             linker.attributes.update(_embedded=False)
             embedded = False
-            openIfNew = True if openIfNew is None else openIfNew
-        if openIfNew:
-            linker.attributes.update(_class='==newrecord?"th_enableLinker th_linker": "th_linker"',
-                                      newrecord='^#FORM.controller.is_newrecord')
+            openIfEmpty = True if openIfEmpty is None else openIfEmpty
+        if openIfEmpty:
+            pane.dataController("genro.dom.setClass(linker,'th_enableLinker',!currvalue)",linker=linker.js_domNode,currvalue='^#FORM.record.%s' %field)          
         if newRecordOnly:
             linker.attributes.update(visible='^#FORM.record?_newrecord')
         linker.field('%s.%s' %(table,field),childname='selector',datapath='#FORM.record',
@@ -266,10 +265,10 @@ class ThLinker(BaseComponent):
         return linker
     
     @struct_method 
-    def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfNew=None,_class='pbl_roundedGroup',label=None,**kwargs):
+    def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfEmpty=None,_class='pbl_roundedGroup',label=None,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         frame = pane.framePane(frameCode=frameCode,_class=_class)
-        linkerBar = frame.top.linkerBar(field=field,formResource=formResource,newRecordOnly=newRecordOnly,openIfNew=openIfNew,label=label,**kwargs)
+        linkerBar = frame.top.linkerBar(field=field,formResource=formResource,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
         frame.div(template=self.tableTemplate(linker.attributes['table'],template),
