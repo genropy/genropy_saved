@@ -4,6 +4,8 @@
 framePane
 =========
     
+    *Last page update*: |today|
+    
     * :ref:`frame_def`: :ref:`frame_sides`
     * :ref:`frame_attributes`
     * :ref:`frame_examples`: :ref:`frame_examples_simple` :ref:`toolbar_example`

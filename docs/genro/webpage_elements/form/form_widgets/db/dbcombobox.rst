@@ -3,7 +3,9 @@
 ==========
 dbCombobox
 ==========
-
+    
+    *Last page update*: |today|
+    
     * :ref:`dbcombobox_def`
     * :ref:`dbcombobox_examples`
     * :ref:`dbcombobox_attributes`

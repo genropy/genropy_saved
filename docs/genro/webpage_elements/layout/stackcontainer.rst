@@ -4,7 +4,11 @@
 stackContainer
 ==============
     
-    .. note:: The Genro stackContainer has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's stackContainer documentation.
+    *Last page update*: |today|
+    
+    .. note:: The Genro stackContainer has been taken from Dojo without adding any modifies. In this page
+              you will find some interesting features that we want to point up. For more information, check
+              the Dojo's stackContainer documentation.
     
     * :ref:`stack_def`
     * :ref:`stack_attributes`

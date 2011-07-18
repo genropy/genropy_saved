@@ -3,7 +3,9 @@
 ========
 Textmate
 ========
-
+    
+    *Last page update*: |today|
+    
     Textmate is the Genro Team choice for text editor. You can download it from http://macromates.com/
     
     * :ref:`textmate_bundle`

@@ -3,7 +3,9 @@
 ====
 zoom
 ====
-
+    
+    *Last page update*: |today|
+    
     * :ref:`zoom_def`
     * :ref:`zoom_validity`
     * :ref:`zoom_examples`

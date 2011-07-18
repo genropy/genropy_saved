@@ -1,7 +1,9 @@
 ==========================================================================================
 :mod:`gnr.app.gnrdbo` -- Counters, tables and other services for the hierarchical database
 ==========================================================================================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.app.gnrdbo`` classes:
 
     * :ref:`gnrapp_gnrdbopkg`

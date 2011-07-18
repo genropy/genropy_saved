@@ -3,7 +3,9 @@
 ============
 introduction
 ============
-
+    
+    *Last page update*: |today|
+    
     add???
     
 .. _sql_relation:

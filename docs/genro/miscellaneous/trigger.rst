@@ -3,7 +3,9 @@
 =======
 trigger
 =======
-
+    
+    *Last page update*: |today|
+    
     add???
     
     def trigger_onUpdating(self, record_data, old_record):

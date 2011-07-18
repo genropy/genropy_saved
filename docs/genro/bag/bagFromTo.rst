@@ -4,6 +4,8 @@
 Bag from/to source
 ==================
 
+    *Last page update*: |today|
+    
     * :ref:`bag_from_to_XML`:
     * :ref:`bag_to_xml`
     * :ref:`from_XML`

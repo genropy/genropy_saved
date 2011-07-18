@@ -3,7 +3,9 @@
 ===
 CSS
 ===
-
+    
+    *Last page update*: |today|
+    
     * :ref:`css_introduction`
     * :ref:`css_dojo_themes`
     * :ref:`css_genro_themes`

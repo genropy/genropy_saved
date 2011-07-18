@@ -3,7 +3,9 @@
 =========
 resources
 =========
-
+    
+    *Last page update*: |today|
+    
     A ``resources`` folder is thought to speed up your work, because it is used to
     keep all the stuff that you need to use over and over in a Genro :ref:`genro_project`.
     

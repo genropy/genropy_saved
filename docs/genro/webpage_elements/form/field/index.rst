@@ -3,7 +3,9 @@
 =====
 field
 =====
-
+    
+    *Last page update*: |today|
+    
     * :ref:`field_def`
     * :ref:`field_description`
     * :ref:`field_attributes`

@@ -3,7 +3,9 @@
 ============
 Introduction
 ============
-
+    
+    *Last page update*: |today|
+    
     In this section we introduce four input field used to get a value chosen from a list of values or from a database.
     
     **Values from a list**:

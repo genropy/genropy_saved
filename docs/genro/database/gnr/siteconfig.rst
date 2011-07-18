@@ -3,7 +3,9 @@
 ==============
 ``siteconfig``
 ==============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/gnr/siteconfig.png
     
     * :ref:`gnr_siteconfig_default`

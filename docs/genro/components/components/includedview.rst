@@ -3,7 +3,9 @@
 ============
 includedView
 ============
-
+    
+    *Last page update*: |today|
+    
     .. deprecated:: 0.7
     
     .. note:: **Old documentation**:

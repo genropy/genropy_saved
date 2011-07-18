@@ -3,7 +3,9 @@
 ==============
 Tutorial index
 ==============
-
+    
+    *Last page update*: |today|
+    
     add??? A short introduction...
     
 .. toctree::

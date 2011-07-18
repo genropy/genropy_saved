@@ -4,6 +4,8 @@
 :mod:`gnr.web.gnrwebutils`
 ==========================
 
+    *Last page update*: |today|
+
 * Index of ``gnr.web.gnrwebutils`` classes:
     
     * :ref:`gnrwebutils_gnrwebpdf`

@@ -1,7 +1,9 @@
 =============================================
 :mod:`gnr.sql.gnrsqltable` -- Database Tables
 =============================================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.sql.gnrsqltable`` classes:
     
     Main class:

@@ -3,7 +3,9 @@
 =====
 label
 =====
-
+    
+    *Last page update*: |today|
+    
     * :ref:`label_def`
     * :ref:`label_validity`: :ref:`lbl_formbuilder`
     

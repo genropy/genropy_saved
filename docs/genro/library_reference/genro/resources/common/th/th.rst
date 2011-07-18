@@ -4,6 +4,8 @@
 :class:`TableHandler`
 =====================
     
+    *Last page update*: |today|
+    
     .. warning:: add??? The decorators prevent to make autodoc...
     
     .. module:: resources.common.th.th.TableHandler

@@ -3,7 +3,9 @@
 ==================
 Advanced functions
 ==================
-
+    
+    *Last page update*: |today|
+    
     * :ref:`bag_backward_path`
     * :ref:`bag_trigger`
     * :ref:`bag_trigger_on_a_bag`

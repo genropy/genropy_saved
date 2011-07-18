@@ -2,6 +2,8 @@
 :mod:`gnr.web` -- Web support
 =============================
 
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

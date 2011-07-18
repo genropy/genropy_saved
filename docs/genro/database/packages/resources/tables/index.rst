@@ -3,7 +3,9 @@
 ==========
 ``tables``
 ==========
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../../../_images/projects/packages/tables.png
 
 .. toctree::

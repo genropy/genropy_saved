@@ -4,6 +4,8 @@
 currencyTextbox
 ===============
     
+    *Last page update*: |today|
+    
     .. note:: We recommend you to read :ref:`genro_textboxes` first.
     
     * :ref:`currencytextbox_def`

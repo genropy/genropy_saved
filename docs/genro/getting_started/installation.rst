@@ -4,6 +4,8 @@
 GenroPy Installation
 ====================
 
+    *Last page update*: |today|
+    
     * :ref:`installationRequirements`
     * :ref:`obtainingGenropy`
     * :ref:`installingGenropy`
@@ -109,4 +111,3 @@ Project Examples
 **Footnotes**
 
 .. [#] Windows is supported but it is not preferred and (until now) it is not yet documented
-        

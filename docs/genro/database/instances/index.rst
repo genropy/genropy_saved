@@ -3,7 +3,9 @@
 =============
 ``instances``
 =============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/instances/project_instances.png
 
 .. toctree::

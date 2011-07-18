@@ -1,15 +1,8 @@
-.. GenroPy documentation master file, created by sphinx-quickstart on Wed Jun 16 10:22:46 2010.
-
 .. _genro_index:
 
-=======
-Genropy
-=======
-
-:Release: |version|
-:Last update: |today|
-
-.. Be careful with the code below. If you screw the indentation, the doc contents page will appear messed up!
+=============================
+Genropy v0.7dev documentation
+=============================
 
 .. toctree::
     :maxdepth: 2

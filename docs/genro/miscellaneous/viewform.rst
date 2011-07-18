@@ -3,7 +3,9 @@
 =====================
 view and data windows
 =====================
-
+    
+    *Last page update*: |today|
+    
     Usually the GUI management of a form is made by two sections:
     
     * the :ref:`genro_data_entry`

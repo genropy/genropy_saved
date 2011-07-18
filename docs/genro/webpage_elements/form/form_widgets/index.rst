@@ -3,7 +3,9 @@
 ============
 form widgets
 ============
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

@@ -4,6 +4,8 @@
 Introduction: the creation of a project
 =======================================
 
+    *Last page update*: |today|
+    
     .. warning:: chapter to be rewritten completely!
     
     * :ref:`genro_project_creation`

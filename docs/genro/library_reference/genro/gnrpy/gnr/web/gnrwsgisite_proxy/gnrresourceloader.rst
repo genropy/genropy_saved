@@ -4,7 +4,9 @@
 :mod:`gnrresourceloader`
 ========================
 
-* Index of ``gnr.web.gnrwsgisite_proxy.gnrresourceloader`` class:
+    *Last page update*: |today|
+    
+    * Index of ``gnr.web.gnrwsgisite_proxy.gnrresourceloader`` class:
 
     .. module:: gnr.web.gnrwsgisite_proxy.gnrresourceloader.ResourceLoader
     

@@ -3,7 +3,9 @@
 =======================
 Introduction to GenroPy
 =======================
-
+    
+    *Last page update*: |today|
+    
     .. warning:: this section is (until now!) only a sketch.
     
     GenroPy (or Genro) is a Framework for business applications.

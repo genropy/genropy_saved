@@ -1,7 +1,9 @@
 =====================================================
 :mod:`gnr.core.gnrstring` - tools for string handling
 =====================================================
-
+    
+    *Last page update*: |today|
+    
 List index of :mod:`gnr.core.gnrstring` methods
 ===============================================
 

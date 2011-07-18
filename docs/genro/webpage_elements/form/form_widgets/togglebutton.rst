@@ -3,7 +3,9 @@
 ============
 togglebutton
 ============
-
+    
+    *Last page update*: |today|
+    
     .. note:: The Genro togglebutton has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's togglebutton documentation.
     
     * :ref:`togglebutton_def`

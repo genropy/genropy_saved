@@ -4,6 +4,8 @@
 Library reference
 =================
 
+    *Last page update*: |today|
+    
     In this section you can find a lot of documentation made through Sphinx autodoc_.
     
     The structure of this index follow the hierarchy of the Genro's folders.

@@ -2,6 +2,8 @@
 :mod:`gnr.core.gnrdict` -- Dictionaries
 =======================================
 
+    *Last page update*: |today|
+    
 * Index of ``gnr.core.gnrdict`` classes:
 
     * :ref:`gnrdict_gnrdict`

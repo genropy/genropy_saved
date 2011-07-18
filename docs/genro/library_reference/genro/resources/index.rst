@@ -1,8 +1,10 @@
 ================
 :mod:`resources`
 ================
-
-.. warning:: add??? This section is completely to redo!
+    
+    *Last page update*: |today|
+    
+    .. warning:: add??? This section is completely to redo!
 
 .. toctree::
 

@@ -3,8 +3,10 @@
 ===================
 :mod:`IncludedView`
 ===================
-
-.. warning:: add??? Completely to redo!
+    
+    *Last page update*: |today|
+    
+    .. warning:: add??? Completely to redo!
 
 .. automodule:: resources.common.foundation.includedview
     :members:

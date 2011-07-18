@@ -3,9 +3,11 @@
 ===========
 dataFormula
 ===========
-
+    
+    *Last page update*: |today|
+    
     The ``dataFormula`` belongs to :ref:`controllers_client` family.
-
+    
     * :ref:`dataformula_def`
     * :ref:`dataformula_examples`
 

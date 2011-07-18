@@ -4,6 +4,8 @@
 :mod:`gnr.web.gnrwebstruct` -- Web structures
 =============================================
 
+    *Last page update*: |today|
+    
 * Index of ``gnr.web.gnrwebstruct`` classes:
     
     * :ref:`gnrwebstruct_gnrdomsrc`

@@ -4,6 +4,8 @@
 showcase
 ========
 
+    *Last page update*: |today|
+    
     .. warning:: chapter to be written completely!
     
 .. toctree::

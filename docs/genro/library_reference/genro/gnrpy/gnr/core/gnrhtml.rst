@@ -2,6 +2,8 @@
 :mod:`gnr.core.gnrhtml` -- Server-side HTML generations (web pages and printable reports)
 =========================================================================================
 
+    *Last page update*: |today|
+
 * Index of ``gnr.core.gnrhtml`` classes:
     
     * :ref:`gnrhtml_gnrhtmlbuilder`

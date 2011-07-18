@@ -3,7 +3,9 @@
 ==================
 ``instanceconfig``
 ==================
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/gnr/instanceconfig.png
     
     * :ref:`gnr_instanceconfig_default`:

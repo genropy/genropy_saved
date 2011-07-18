@@ -3,7 +3,9 @@
 =======
 dataRpc
 =======
-
+    
+    *Last page update*: |today|
+    
     The ``dataRpc`` belongs to dataRpc family, so it is a :ref:`server-side controller <controllers_server>`.
     
     * :ref:`datarpc_def`

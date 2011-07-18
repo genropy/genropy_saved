@@ -3,7 +3,9 @@
 ============
 Introduction
 ============
-
+    
+    *Last page update*: |today|
+    
     * :ref:`components_def`
     * :ref:`components_location`
     * :ref:`components_active_passive`

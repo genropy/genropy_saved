@@ -2,6 +2,8 @@
 :mod:`gnr.core.gnrlog`
 ======================
 
+    *Last page update*: |today|
+
 * Index of ``gnr.core.gnrlist`` classes:
     
     * :ref:`gnrlog_coloredformatter`

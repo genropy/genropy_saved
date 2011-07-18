@@ -3,7 +3,9 @@
 ============
 introduction
 ============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/packages/project_packages.png
     
     * :ref:`packages_autofill`

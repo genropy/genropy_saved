@@ -3,7 +3,9 @@
 =====================
 creation of a project
 =====================
-
+    
+    *Last page update*: |today|
+    
     .. warning:: chapter to be rewritten completely!
     
 .. toctree::

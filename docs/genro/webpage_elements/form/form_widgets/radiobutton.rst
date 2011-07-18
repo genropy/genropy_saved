@@ -3,7 +3,9 @@
 ===========
 radiobutton
 ===========
-
+    
+    *Last page update*: |today|
+    
     .. note:: The Genro radiobutton has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's radiobutton documentation.
     
     * :ref:`radiobutton_def`

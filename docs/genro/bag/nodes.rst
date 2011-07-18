@@ -4,17 +4,17 @@
 BagNode
 =======
 
+    *Last page update*: |today|
+
     .. module:: gnr.core.gnrbag
 
     We discovered in the previous paragraph that we can associate a set of :ref:`bag_attributes` to each item, and we know that each item is a BagNode.
     
     We remember you that a :class:`BagNode` is a class composed by:
     
-    - a single label.
-    
-    - A single value (or item).
-    
-    - One or more attributes.
+    * a single label.
+    * A single value (or item).
+    * One or more attributes.
     
     If you need to work with nodes, you may get them with the following methods:
     

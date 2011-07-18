@@ -3,7 +3,9 @@
 =====
 dtype
 =====
-
+    
+    *Last page update*: |today|
+    
     * :ref:`datatype_format`:
     
         * :ref:`datatype_c`

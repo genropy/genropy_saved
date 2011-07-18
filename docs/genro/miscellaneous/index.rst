@@ -3,7 +3,9 @@
 ===================
 Documents to revise
 ===================
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

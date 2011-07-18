@@ -3,7 +3,9 @@
 ============
 ``menu.xml``
 ============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/packages/menu.png
     
     * :ref:`menu_intro`

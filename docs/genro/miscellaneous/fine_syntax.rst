@@ -3,7 +3,9 @@
 ===========
 Fine syntax
 ===========
-
+    
+    *Last page update*: |today|
+    
     :ref:`syntax_attributes`:
     
     * :ref:`attributes_childname`

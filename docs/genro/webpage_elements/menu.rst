@@ -3,7 +3,9 @@
 ====
 menu
 ====
-
+    
+    *Last page update*: |today|
+    
     .. note:: To create a menu, you have to use the ``dropdownbutton`` form widget. For more information,
               check the :ref:`genro_dropdownbutton` documentation page.
     

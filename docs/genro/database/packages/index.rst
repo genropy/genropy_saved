@@ -3,7 +3,9 @@
 ============
 ``packages``
 ============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/packages/project_packages.png
     
 .. toctree::

@@ -4,6 +4,8 @@
 Introduction
 ============
     
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/sites/project_sites.png
     
     * :ref:`sites_map`

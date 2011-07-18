@@ -1,7 +1,9 @@
 ===============================
 :mod:`gnr.core.gnrprinthandler`
 ===============================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.core.gnrprinthandler`` classes:
     
     * :ref:`gnrprinthandler_printhandler`

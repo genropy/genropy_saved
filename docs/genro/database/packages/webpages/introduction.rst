@@ -3,7 +3,9 @@
 ============
 ``webpages``
 ============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../../_images/projects/packages/webpages.png
     
     In the ``webpages`` folder you can keep all your :ref:`webpages_webpages`\s.

@@ -4,6 +4,8 @@
 Basic functions
 ===============
 
+    *Last page update*: |today|
+    
     * :ref:`bag_instance`
     * :ref:`bag_set_get`
     * :ref:`bag_printing`

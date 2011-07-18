@@ -4,6 +4,8 @@
 components list
 ===============
 
+    *Last page update*: |today|
+    
     add???
     
     * the :ref:`genro_th`: add???

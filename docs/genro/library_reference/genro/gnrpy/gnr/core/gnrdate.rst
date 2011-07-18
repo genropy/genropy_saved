@@ -2,6 +2,8 @@
 :mod:`gnr.core.gnrdate` -- Utilities for date and time management
 =================================================================
 
+    *Last page update*: |today|
+    
 * Index of ``gnr.core.gnrdate`` classes:
 
     * :ref:`gnrdate_timeinterval`

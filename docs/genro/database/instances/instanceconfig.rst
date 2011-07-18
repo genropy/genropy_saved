@@ -4,6 +4,8 @@
 ``instanceconfig.xml``
 ======================
     
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/instances/instanceconfig.png
     
     In this file you can modify the ``instanceconfig.xml`` of the specified

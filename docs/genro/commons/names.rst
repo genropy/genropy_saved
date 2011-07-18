@@ -3,7 +3,9 @@
 =====
 Names
 =====
-
+    
+    *Last page update*: |today|
+    
     * :ref:`genro_name_full`
     * :ref:`genro_name_long`
     * :ref:`genro_name_plural`

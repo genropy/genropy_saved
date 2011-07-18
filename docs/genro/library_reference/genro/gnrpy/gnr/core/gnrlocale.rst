@@ -2,6 +2,8 @@
 :mod:`gnr.core.gnrlocale` - tools for data and time handling
 ============================================================
 
+    *Last page update*: |today|
+
 * Index of ``gnr.core.gnrlocale`` classes:
 
     There is no class defined

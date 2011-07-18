@@ -4,6 +4,8 @@
 Introduction to the form widgets
 ================================
     
+    *Last page update*: |today|
+    
     We can divide the form widgets in three categories:
     
     #. the :ref:`genro_form_widgets`

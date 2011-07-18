@@ -3,7 +3,9 @@
 ======
 action
 ======
-
+    
+    *Last page update*: |today|
+    
     * :ref:`action_def`
     * :ref:`action_validity`
     * :ref:`action_examples`

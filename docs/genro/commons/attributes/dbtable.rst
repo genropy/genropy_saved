@@ -3,7 +3,9 @@
 =======
 dbtable
 =======
-
+    
+    *Last page update*: |today|
+    
     * :ref:`dbtable_def`
     * :ref:`dbtable_syntax`
     * :ref:`dbtable_validity`

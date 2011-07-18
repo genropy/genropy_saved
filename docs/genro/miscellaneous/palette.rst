@@ -3,5 +3,7 @@
 =======
 palette
 =======
-
+    
+    *Last page update*: |today|
+    
     add???

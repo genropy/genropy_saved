@@ -4,7 +4,9 @@
 :mod:`gnrshareddata`
 ====================
 
-.. warning:: to be completed!
+    *Last page update*: |today|
+    
+    .. warning:: to be completed!
 
 .. _gnrsharedata_classes:
 

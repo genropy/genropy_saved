@@ -3,7 +3,9 @@
 ======
 nodeId
 ======
-
+    
+    *Last page update*: |today|
+    
     * :ref:`nodeId_def`
     * :ref:`nodeId_validity`
     * :ref:`nodeId_examples`

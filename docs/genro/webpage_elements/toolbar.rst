@@ -4,6 +4,8 @@
 slotBar (and slotToolbar)
 =========================
     
+    *Last page update*: |today|
+    
     * :ref:`toolbar_def`
     * :ref:`toolbar_attributes`
     * :ref:`toolbar_examples`: :ref:`toolbar_examples_simple`
