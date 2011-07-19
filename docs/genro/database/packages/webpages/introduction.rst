@@ -14,12 +14,17 @@
     handles all the stuff you need for a webpage is the :ref:`webpages_GnrCustomWebPage`
     class - in the next documentation page we'll describe this class.
     
-    When you create a :ref:`genro_project`, you (probably) will have the following webpages:
+    When you create a :ref:`genro_project`, you (probably) will create the following webpages:
     
     #. A login page. For more information, check the :ref:`methods_loginUrl` documentation
        section
-    #. An index page (``index.py``). You can build your own index, or you can use a
-       :ref:`genro_component` that handles it: the :ref:`genro_frameindex`.
+    #. An index page. You can build your own index, or you can use a
+       :ref:`genro_component` that handles it, like the :ref:`genro_frameindex`.
+       
+       .. note:: by default, the name of the first page loaded has to be ``index.py``. You can
+                 change this default using the *homepage* attribute of the :ref:`siteconfig_wsgi`
+                 tag of the :ref:`genro_gnr_siteconfig` file
+                 
     #. A set of webpages related to some database :ref:`genro_table`\s.
        
        .. note:: when you create a webpage that is related to a :ref:`genro_table`,
