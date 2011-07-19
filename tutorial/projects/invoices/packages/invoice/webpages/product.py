@@ -10,7 +10,7 @@ from gnr.core.gnrbag import Bag
 from datetime import datetime
 
 class GnrCustomWebPage(object):
-    maintable = 'invc.product'
+    maintable = 'invoice.product'
     py_requires = 'public:Public,standard_tables:TableHandler,public:IncludedView,public:RecordHandler'
 
     ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
@@ -65,11 +65,11 @@ class GnrCustomWebPage(object):
     def invoicesPage(self, bc, disabled=False):
         topbc = bc.borderContainer(region='top', height='50%', splitter=True)
         centerbc = bc.borderContainer(region='center')
-        self.recordDialog('invc.invoice', firedPkey='^fired.invoice_id', height='400px', width='700px', title='Invoice',
+        self.recordDialog('invoice.invoice', firedPkey='^fired.invoice_id', height='400px', width='700px', title='Invoice',
                           formCb=self.invoiceForm, onSaved='FIRE reloadinvoice')
-        bc.dataSelection('selections.invoices', 'invc.invoice', where='@invc_invoice_row_invoice_id.product_id=:prid',
+        bc.dataSelection('selections.invoices', 'invoice.invoice', where='@invoice_invoice_row_invoice_id.product_id=:prid',
                          prid='^.id', columnsFromView='invoices_grid', _fired='^reloadinvoice')
-        bc.dataSelection('selections.invoice_rows', 'invc.invoice_row', where='invoice_id=:invid',
+        bc.dataSelection('selections.invoice_rows','invoice.invoice_row', where='invoice_id=:invid',
                          invid='^aux.invoice_id', columnsFromView='rows_from_invoice')
 
         self.includedViewBox(topbc, nodeId='invoices_grid', label='!!Invoices',
@@ -77,11 +77,11 @@ class GnrCustomWebPage(object):
                              columns="""number,date,customer,city,net,vat,total""",
                              selectedId='aux.invoice_id',
                              connect_onRowDblClick='FIRE fired.invoice_id=GET aux.invoice_id',
-                             table='invc.invoice', autoWidth=True)
+                             table='invoice.invoice', autoWidth=True)
         iv = self.includedViewBox(centerbc, nodeId='rows_from_invoice', label='!!Invoice Rows',
                                   storepath='selections.invoice_rows',
                                   columns="""@product_id.code,@product_id.description,quantity,price,total""",
-                                  table='invc.invoice_row', autoWidth=True)
+                                  table='invoice.invoice_row', autoWidth=True)
 
     def invoiceForm(self, parentContainer, disabled, table):
         pane = parentContainer.contentPane()
@@ -96,10 +96,10 @@ class GnrCustomWebPage(object):
     def rowsPage(self, bc, disabled=False):
         self.includedViewBox(bc, label='!!Invoices Rows',
                              filterOn='Customer:@invoice_id.customer,City:@invoice_id.city,Price:price',
-                             storepath='.@invc_invoice_row_product_id',
+                             storepath='.@invoice_invoice_row_product_id',
                              columns="""@invoice_id.number,@invoice_id.date,@invoice_id.customer,@invoice_id.city,
                                         quantity,price,total""",
-                             table='invc.invoice_row', autoWidth=True)
+                             table='invoice.invoice_row', autoWidth=True)
 
     ############################## RPC_METHODS ###################################
 

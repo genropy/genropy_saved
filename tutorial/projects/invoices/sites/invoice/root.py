@@ -8,9 +8,7 @@ site = GnrWsgiSite(__file__)
 def application(environ, start_response):
     return site(environ, start_response)
 
-
 if __name__ == '__main__':
     from gnr.web.server import NewServer
-
     server = NewServer(__file__)
     server.run()

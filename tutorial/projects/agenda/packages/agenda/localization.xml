@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<GenRoBag>
+    <Grid_options _key="Grid options" en="Grid options" it="Opzioni della vista"></Grid_options>
+    <Configure_view _key="Configure view" en="Configure view" it="Configura la vista"></Configure_view>
+    <Drop_here_a_column_edit_styles _key="Drop here a column to edit styles" en="Drop here a column to edit styles" it="Sposta qui una colonna per modificare lo stile"></Drop_here_a_column_edit_styles>
+    <Drop_here_a_column_remove _key="Drop here a column to remove it from the view" en="Drop here a column to remove it from the view" it="Sposta qui una colonna per rimuoverla dalla vista"> </Drop_here_a_column_remove>
+    <export _key="export" en="Export (.xls)" it="Esporta in formato Excel"></export>
+    <Query_options _key="Query options" en="Query options" it="Opzioni di ricerca"></Query_options>
+    <Reload _key="Reload" en="Reload" it="Ricarica (attiva le modifiche di configurazione)"></Reload>
+    <search _key="search" en="Search" it="Ricerca"></search>
+    <op_ _key="op." en="Op." it="Op."></op_>
+    <not _key="not" en="NOT" it="NOT"></not>
+    <and _key="and" en="AND" it="AND"></and>
+    <OR _key="OR" en="OR" it="OR"></OR>
+    <contains _key="contains" en="Contains" it="Contiene"></contains>
+    <starts_with _key="starts with" en="Starts with (case insensitive)" it="Inizia per (non contano maiuscole/minuscole)"></starts_with>
+    <equal_to _key="equal to" en="Equal to" it="Uguale a"></equal_to>
+    <word_start _key="word start" en="At least one word that starts with" it="Almeno una parola che inizia per"></word_start>
+    <starts_with_chars _key="starts with chars" en="Starts with (case sensitive)" it="Inizia per (contano maiuscole/minuscole)"></starts_with_chars>
+    <is_null _key="is null" en="Is null" it="Nullo"></is_null>
+    <is_null_or_empty _key="is null or empty" en="Is null or empty" it="E' nullo o vuoto"></is_null_or_empty>
+    <in _key="in" en="In" it="Dentro"></in>
+    <regular_expression _key="regular expression" en="Regular expression" it="Espressione regolare (regexp)"></regular_expression>
+    <greater_than _key="greater than" en="Greater than" it="Maggiore di"></greater_than>
+    <greater_or_equal_to _key="greater or equal to" en="Greater or equal to" it="Maggiore o uguale a"></greater_or_equal_to>
+    <less_than _key="less than" en="Less than" it="Minore di"></less_than>
+    <less_or_equal_to _key="less or equal to" en="Less or equal to" it="Minore o uguale a"></less_or_equal_to>
+    <between _key="between" en="Between (value1,value2)" it="Tra (valore1,valore2)"></between>
+    <value _key="value" en="" it="Valore"></value>
+    <run_query _key="run query" en="" it="Esegui la ricerca"></run_query>
+    <query_tool _key="Query tool" en="Query tool" it="Strumenti di ricerca"></query_tool>
+    <stored_query _key="Stored query" en="Stored query" it="Ricerche salvate"></stored_query>
+    <base_query _key="Base Query" en="Base Query" it="Ricerca di base"></base_query>
+    <delete _key="delete" en="Delete selected records" it="Distruggi i record selezionati"></delete>
+    <add _key="add" en="Add a new record" it="Aggiungi un nuovo record"></add>
+    <Locker _key="Locker" en="Locker" it="Blocca/Sblocca"></Locker>    
+    <first _key="first" en="First" it="Primo"></first>
+    <previous _key="prev" en="Previous" it="Precedente"></previous>
+    <next _key="next" en="Next" it="Successivo"></next>
+    <last _key="last" en="Last" it="Ultimo"></last>
+    <delete_current_record _key="Delete current record" en="Delete current record" it="Distruggi il record corrente"></delete_current_record>
+    <revert _key="revert" en="Revert" it="Annulla modifiche"></revert>
+    <save _key="save" en="Save" it="Salva"></save>
+    <dismiss _key="Dismiss" en="Dismiss" it="Ritorna alla vista"></dismiss>
+    <save_failed_ _key="Save failed" en="Error during save" it="Errore nel salvataggio"></save_failed_>
+    <you_cannot_save_ _key="You cannot save" en="You cannot save" it="Non puoi salvare"></you_cannot_save_>
+    <no_change_to_save_ _key="No change to save" en="there are no changes to save" it="non ci sono modifiche da salvare"></no_change_to_save_>
+    <invalid_record_ _key="Invalid record" en="some fields are not valid" it="ci sono dei campi non validi"></invalid_record_>
+</GenRoBag>
