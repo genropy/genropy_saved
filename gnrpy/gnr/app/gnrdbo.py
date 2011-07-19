@@ -520,7 +520,6 @@ class Table_userobject(TableBase):
         tbl.column('pkg', name_long='!!Package') # package code
         tbl.column('tbl', name_long='!!Table') # full table name: package.table
         tbl.column('userid', name_long='!!User ID', indexed='y')
-        tbl.column('namespace', name_long='!!Resource name', indexed='y')
         tbl.column('description', 'T', name_long='!!Description', indexed='y')
         tbl.column('data', 'X', name_long='!!Data')
         tbl.column('authtags', 'T', name_long='!!Auth tags')
@@ -594,7 +593,7 @@ class Table_userobject(TableBase):
         """
         self.delete({'id': id})
         
-    def listUserObject(self, objtype=None, namespace=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None):
+    def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None):
         """add???
         
         :param objtype: add???. 
@@ -620,12 +619,10 @@ class Table_userobject(TableBase):
             where.append('$objtype = :val_objtype')
         if tbl:
             where.append('$tbl = :val_tbl')
-        if namespace:
-            where.append('$namespace = :val_namespace')
         where = ' AND '.join(where)
-        sel = self.query(columns='$code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private, $quicklist,$namespace',
+        sel = self.query(columns='$code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private, $quicklist',
                          where=where, order_by='$code',
-                         val_objtype=objtype, val_tbl=tbl,val_namespace=namespace).selection()
+                         val_objtype=objtype, val_tbl=tbl).selection()
                          
         sel.filter(checkUserObj)
         return sel

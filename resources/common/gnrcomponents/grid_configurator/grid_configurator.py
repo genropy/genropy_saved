@@ -6,28 +6,20 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import public_method
 
 class GridConfigurator(BaseComponent):
     js_requires = 'gnrcomponents/grid_configurator/grid_configurator'
     css_requires = 'gnrcomponents/grid_configurator/grid_configurator'
 
-
-    def rpc_gridConfigurationMenu(self, gridId=None, table=None, selectedViewPkey=None):
+    @public_method
+    def gridConfigurationMenu(self, gridId=None, table=None, selectedViewPkey=None):
         result = Bag()
-        if not hasattr(self.package, 'listUserObject'):
-            return
-        objtype = 'iv_%s_%s' % (self.pagename, gridId)
-        objectsel = self.package.listUserObject(objtype=objtype, userid=self.user, authtags=self.userTags)
-        selectedViewPkey = selectedViewPkey or None
-        result.setItem('baseview', None,
+        result.setItem('_baseview_', None,
                        action="genro.grid_configurator.loadGridBaseView(this.attr.gridId)",
                        label='Base View', checked=selectedViewPkey is None,
                        gridId=gridId)
-        if objectsel:
-            for i, r in enumerate(objectsel.data):
-                attrs = dict([(str(k), v) for k, v in r.items()])
-                result.setItem(r['code'] or 'r_%i' % i, None, label=attrs.get('description'), pkey=attrs['pkey'],
-                               checked=selectedViewPkey == attrs['pkey']);
+        self.grid_configurator_savedViewsMenu(result,gridId=gridId,selectedViewPkey=selectedViewPkey)
         result.setItem('-', None, label='-')
         if table:
             result.setItem('fieldstree', None, label='!!Show Fields Tree', floating_title='!! Fields',
@@ -40,11 +32,25 @@ class GridConfigurator(BaseComponent):
                        disabled='==_selectedViewPkey==null;', _selectedViewPkey='=.selectedViewPkey')
         return result
 
-    def rpc_deleteViewGrid(self, pkey=None):
+    def grid_configurator_savedViewsMenu(self,menu,gridId=None,selectedViewPkey=None,**kwargs):
+        if not hasattr(self.package, 'listUserObject'):
+            return
+        objtype = 'iv_%s_%s' % (self.pagename, gridId)
+        objectsel = self.package.listUserObject(objtype=objtype, userid=self.user, authtags=self.userTags)
+        selectedViewPkey = selectedViewPkey or None
+        if objectsel:
+            for i, r in enumerate(objectsel.data):
+                attrs = dict([(str(k), v) for k, v in r.items()])
+                menu.setItem(r['code'] or 'r_%i' % i, None, label=attrs.get('description'), pkey=attrs['pkey'],
+                               checked=selectedViewPkey == attrs['pkey'],gridId=gridId,**kwargs);
+    
+    @public_method
+    def deleteViewGrid(self, pkey=None):
         self.package.deleteUserObject(pkey)
         self.db.commit()
-
-    def rpc_saveGridCustomView(self, gridId=None, save_info=None, data=None):
+    
+    @public_method
+    def saveGridCustomView(self, gridId=None, save_info=None, data=None):
         description = save_info['description']
         code = description.replace('.', '_').lower()
         objtype = 'iv_%s_%s' % (self.pagename, gridId)
