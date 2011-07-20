@@ -105,7 +105,7 @@ public resource
        it through a ``webpages variable``:
        
         * :ref:`webpages_py_requires` for Genro :ref:`genro_component`\s and other Python modules
-        * :ref:`webpages_js_requires` for the Javascript files
+        * :ref:`webpages_js_requires` for the javascript files
         * :ref:`webpages_css_requires` for the CSS files
         
         For more information (and examples) on ``webpages variables``, check the
@@ -134,7 +134,7 @@ private resource
         .. image:: ../_images/projects/resources/private_resources1.png
         
         Now, if you would want to keep in your *private* resources some images, a CSS
-        file and a Javascript file, your project tree might be the following one:
+        file and a javascript file, your project tree might be the following one:
         
         .. image:: ../_images/projects/resources/private_resources2.png
         
@@ -155,7 +155,7 @@ private resource
        it through a ``webpages variable``:
        
         * :ref:`webpages_py_requires` for the Python files
-        * :ref:`webpages_js_requires` for the Javascript files
+        * :ref:`webpages_js_requires` for the javascript files
         * :ref:`webpages_css_requires` for the CSS files
         
         For more information, check the :ref:`webpages_variables` documentation section.

@@ -10,7 +10,7 @@ form
     :maxdepth: 1
     
     introduction <introduction>
-    formbuilder/index
+    formbuilder
     form_widgets/index
-    form_validations/index
-    field/index
+    form_validations
+    field

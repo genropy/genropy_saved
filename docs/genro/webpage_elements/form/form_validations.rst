@@ -7,19 +7,17 @@ validations
     *Last page update*: |today|
     
     * :ref:`validations_intro`
-    * :ref:`validations_list`
+    * :ref:`validations_list`:
     
-        ========================== ========================== =======================
-        :ref:`validate_call`       :ref:`validate_gridnodup`  :ref:`validate_notnull`
-        :ref:`validate_dbselect`   :ref:`validate_len`        :ref:`validate_regex`  
-        :ref:`validate_email`      :ref:`validate_max`        :ref:`validate_remote` 
-        :ref:`validate_empty`      :ref:`validate_min`                               
-        :ref:`validate_exist`      :ref:`validate_nodup`                             
-        ========================== ========================== =======================
-
+        :ref:`validate_call`, :ref:`validate_dbselect`, :ref:`validate_email`, :ref:`validate_empty`,
+        :ref:`validate_exist`, :ref:`validate_gridnodup`, :ref:`validate_len`, :ref:`validate_max`,
+        :ref:`validate_min`, :ref:`validate_nodup`, :ref:`validate_notnull`, :ref:`validate_regex`,
+        :ref:`validate_remote`
+        
     * :ref:`validations_common`:
-    
+        
         :ref:`validate_case`, :ref:`validate_onaccept`, :ref:`validate_onreject`
+        
     * :ref:`validations_example`: :ref:`validations_form_example`
 
 .. _validations_intro:
@@ -45,7 +43,7 @@ introduction
     * Most of the validations have to be implemented through Python. There a few
       validations that you can use only on javascript side. If we don't specify
       anything for a validation, then it is built through Python; otherwise we specify
-      that you have to implement it through Javascript.
+      that you have to implement it through javascript.
       
 .. _validations_list:
 
@@ -54,19 +52,19 @@ standard validations
 
     The standard Genro validations are:
     
-    * :ref:`validate_call`
-    * :ref:`validate_dbselect`
-    * :ref:`validate_email`
-    * :ref:`validate_empty`
-    * :ref:`validate_exist`
-    * :ref:`validate_gridnodup`
-    * :ref:`validate_len`
-    * :ref:`validate_max`
-    * :ref:`validate_min`
-    * :ref:`validate_nodup`
-    * :ref:`validate_notnull`
-    * :ref:`validate_regex`
-    * :ref:`validate_remote`
+    * :ref:`validate_call`: allow to write some javascript code
+    * :ref:`validate_dbselect`: a tool of the :ref:`genro_dbselect`
+    * :ref:`validate_email`: allow to validate an email format
+    * :ref:`validate_empty`: deprecated validation
+    * :ref:`validate_exist`: allow to check the existence of a field in the database
+    * :ref:`validate_gridnodup`: allow to avoid having duplicates in a grid
+    * :ref:`validate_len`: oblige user to use a precise lenght in a field insertion
+    * :ref:`validate_max`: javascript validation. Max characters supported
+    * :ref:`validate_min`: javascript validation. Min characters supported
+    * :ref:`validate_nodup`: allow to avoid having duplicates in the database
+    * :ref:`validate_notnull`: allow to set a field as a required field
+    * :ref:`validate_regex`: allow to impose a regular expression (of the re_ Python module) validation on the field
+    * :ref:`validate_remote`: allow to validate a field through a :ref:`genro_datarpc`
     
     For these validations, you can add one of these two suffixes:
     
@@ -97,7 +95,7 @@ validate_call
     
     ::
     
-        validate_call = """Javascript code..."""
+        validate_call = """javascript code..."""
         
     Allow to write some javascript code. The only obligation is that your code has
     to return a boolean value (`true` or `false`). If `true`, then the validation
@@ -208,7 +206,7 @@ validate_len
     
         validate_len='NUMBER:NUMBER'
         
-    This validation oblige user to a precise lenght in a field user inserction::
+    This validation oblige user to a precise lenght in a field user insertion::
     
         root.textbox(value='^.name',validate_len='5:30') # from 5 to 30 characters!
         root.textbox(value='^.fiscal_code',validate_len=':16') # max number: 16
@@ -225,7 +223,7 @@ validate_max
     
         validate_max:NUMBER
         
-    Javascript validation. Max characters supported
+    javascript validation. Max characters supported
     
 .. _validate_min:
     
@@ -236,7 +234,7 @@ validate_min
     
         validate_min:NUMBER
     
-    Javascript validation. Min characters supported.
+    javascript validation. Min characters supported.
     
 .. _validate_nodup:
     
@@ -260,7 +258,7 @@ validate_notnull
     
         validate_notnull = True
     
-    If `True`, set the field as a required field.
+    If `True`, set a field as a required field.
     
     ::
     
@@ -275,7 +273,7 @@ validate_regex
     
         validate_regex = 'WriteHereARegexExpression'
         
-    Allow to create a regular expression (of the re_ Python module) that works on the field.
+    Allow to impose a regular expression (of the re_ Python module) validation on the field.
     
     ::
         
@@ -311,9 +309,9 @@ other validations
     
     They are:
     
-    * :ref:`validate_case`
-    * :ref:`validate_onaccept`
-    * :ref:`validate_onreject`
+    * :ref:`validate_case`: check the case and modify it if it is not corresponding to the request
+    * :ref:`validate_onaccept`: perform a javascript action after a correct user input
+    * :ref:`validate_onreject`: perform a javascript action after an uncorrect user input
     
 .. _validate_case:
 

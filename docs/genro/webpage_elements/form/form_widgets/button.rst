@@ -103,7 +103,7 @@ Genro macros
     dataController, using the following syntax::
     
         pane.dataController('write-JS-Here!',_fired="^startJS")     # in place of "write-JS-here" you have
-                                                                    #     to write some Javascript code
+                                                                    #     to write some javascript code
         pane.button('Unleash the dataController!',fire='^startJS')  # when this button is clicked, the JS wrote in the
                                                                     #     dataController will be executed
                                                                     
@@ -125,4 +125,4 @@ Genro macros
 
 **Footnotes:**
 
-.. [#] In Genro there are different macros used as a shortcut that you can use in place of some Javascript command. For a complete list and relative explanation, check the :ref:`genro_macro` documentation page.
+.. [#] In Genro there are different macros used as a shortcut that you can use in place of some javascript command. For a complete list and relative explanation, check the :ref:`genro_macro` documentation page.

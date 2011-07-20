@@ -14,7 +14,7 @@ struct
       eredita da bag
       
       TUTTI I METODI DEL gnrwebstruct fanno una CHILD alla fine!!!! La parte vera e propria di
-      costruzione dell'oggetto HTML viene fatta lato Javascript! (attraverso il sourceNode!)
+      costruzione dell'oggetto HTML viene fatta lato javascript! (attraverso il sourceNode!)
       
     * spiegare il metodo child(): la child di fatto è una setItem
     

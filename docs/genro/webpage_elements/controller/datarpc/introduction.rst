@@ -31,9 +31,9 @@ Definition
 
     Here we list all the common parameters of the Rpc:
     
-    * *_onCalling*: allows to execute a Javascript code BEFORE the controller action.
+    * *_onCalling*: allows to execute a javascript code BEFORE the controller action.
       Default value is ``None``
-    * *_onResult*: allows to execute a Javascript code AFTER that the controller have
+    * *_onResult*: allows to execute a javascript code AFTER that the controller have
       finished its action. Default value is ``None``
     * *sync*: boolean. If True, Genro stops every further action until the Rpc containing
       ``sync=True`` finishes. Default value is ``False``

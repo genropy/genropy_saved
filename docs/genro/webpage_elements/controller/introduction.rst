@@ -33,9 +33,9 @@ Definition
 client-side controllers
 =======================
 
-    The client-side controllers work on the client through Javascript; they are:
+    The client-side controllers work on the client through javascript; they are:
     
-    * :ref:`genro_datacontroller`: allow to execute a Javascript code
+    * :ref:`genro_datacontroller`: allow to execute a javascript code
     * :ref:`genro_dataformula`: allow to insert a value into a specific address of the
       :ref:`genro_datastore` calculated through a formula
     * :ref:`genro_datascript` (*deprecated*)

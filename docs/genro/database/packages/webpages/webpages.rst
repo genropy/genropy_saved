@@ -193,7 +193,7 @@ webpage variables
     * CSS variables: :ref:`webpages_css_requires`, :ref:`webpages_css_theme`
     * Dojo variables: :ref:`webpages_dojo_source`, :ref:`webpages_dojo_theme`,
       :ref:`webpages_dojo_version`
-    * Javascript variables: :ref:`webpages_js_requires`
+    * javascript variables: :ref:`webpages_js_requires`
     * Page options: :ref:`webpages_pageOptions`
     * Polling variables: :ref:`webpages_auto_polling`, :ref:`webpages_user_polling`
     * Other variables: :ref:`webpages_auth_tags`, :ref:`webpages_eagers`,
@@ -264,7 +264,7 @@ dojo_source
 
     * Description: boolean. Webpage variable for Dojo developers. If ``True``, you can read the
       javascript code decompressed [#]_.
-    * Default value: Default value is ``False`` (compressed Javascript)
+    * Default value: Default value is ``False`` (compressed javascript)
     * Example::
     
         dojo_source = True
@@ -393,7 +393,7 @@ eagers
 gnrjsversion
 ------------
 
-    * Description: Genro Javascript libraries compatible with the relative Dojo version (type: number).
+    * Description: Genro javascript libraries compatible with the relative Dojo version (type: number).
     * Default value: the value you specify in the :ref:`siteconfig_jslib` tag of your :ref:`sites_siteconfig`.
       If you didn't specify it, the default value is '11' (i.e: Genro JS libraries compatible with Dojo 1.1)
     * Example::
