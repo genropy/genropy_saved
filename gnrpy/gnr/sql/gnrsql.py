@@ -432,7 +432,7 @@ class GnrSqlDb(GnrObject):
     def package(self, pkg):
         """Return a package object
         
-        :param pkg: the package name. For more information on a package, check the
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
                     :ref:`genro_packages_index` documentation page."""
         return self.model.package(pkg)
             
@@ -469,7 +469,7 @@ class GnrSqlDb(GnrObject):
         """Return a table object
         
         :param tblname: table name
-        :param pkg: the package name. For more information on a package, check the
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
                     :ref:`genro_packages_index` documentation page. """
         return self.model.table(tblname, pkg=pkg).dbtable
             

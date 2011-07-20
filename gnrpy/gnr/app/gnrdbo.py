@@ -11,22 +11,22 @@ class GnrDboPackage(object):
         """add???
         
         :param externaldb: add???
-        :param empty_before: add???. 
-        :returns: add???"""
+        :param empty_before: add???"""
         tables = self.attributes.get('export_order') or ''
         self.db.setConstraintsDeferred()
         for tbl in splitAndStrip(tables):
             self.db.table(tbl).copyToDb(externaldb,self.db,empty_before=empty_before)
             
     def getCounter(self, name, code, codekey, output, date=None, phyear=False, lastAssigned=0):
-        """Generate a new number from the specified counter.
+        """Generate a new number from the specified counter and return it.
         
-        :param name: counter name
-        :param code: counter code
-        :param codekey: codekey format (e.g. ``$YY`` for year)
-        :param output: output format (e.g. ``$YY.$NNNN`` for year)
-        :param date: current date
-        :returns: string"""
+        :param name: the counter name
+        :param code: the counter code
+        :param codekey: the codekey format (e.g. ``$YY`` for year)
+        :param output: the output format (e.g. ``$YY.$NNNN`` for year)
+        :param date: the current date
+        :param phyear: the fiscal year
+        :param lastAssigned: add???"""
         return self.dbtable('counter').getCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output,
                                                   date=date, phyear=phyear, lastAssigned=lastAssigned)
                                                   
@@ -34,14 +34,13 @@ class GnrDboPackage(object):
                            date=None, phyear=False, lastAssigned=0):
         """add???
         
-        :param name: add???
-        :param code: add???
-        :param codekey: add???
-        :param output: add???
-        :param date: add???. 
-        :param phyear: add???. Default value is ``False``
-        :param lastAssigned: add???. Default value is ``0``
-        :returns: add???"""
+        :param name: the counter name
+        :param code: the counter code
+        :param codekey: the codekey format (e.g. ``$YY`` for year)
+        :param output: the output format (e.g. ``$YY.$NNNN`` for year)
+        :param date: the current date
+        :param phyear: the fiscal year
+        :param lastAssigned: add???"""
         return self.dbtable('counter').getLastCounterDate(name=name, pkg=self.name, code=code, codekey=codekey,
                                                           output=output,
                                                           date=date, phyear=phyear, lastAssigned=lastAssigned)
@@ -50,92 +49,79 @@ class GnrDboPackage(object):
                    date=None, phyear=False, value=0):
         """add???
         
-        :param name: add???
-        :param code: add???
-        :param codekey: add???
-        :param output: add???
-        :param date: add???. 
-        :param phyear: add???. Default value is ``False``
-        :param value: add???. Default value is ``0``
-        :returns: add???
-        """
+        :param name: the counter name
+        :param code: the counter code
+        :param codekey: the codekey format (e.g. ``$YY`` for year)
+        :param output: the output format (e.g. ``$YY.$NNNN`` for year)
+        :param date: the current date
+        :param phyear: the fiscal year
+        :param value: add???"""
         return self.dbtable('counter').setCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output,
                                                   date=date, phyear=phyear, value=value)
                                                   
     def loadUserObject(self, pkg=None, **kwargs):
         """add???
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. 
-        :returns: add???
-        """
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page"""
         return self.dbtable('userobject').loadUserObject(pkg=pkg or self.name, **kwargs)
         
     def saveUserObject(self, data, pkg=None, **kwargs):
         """add???
         
         :param data: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. 
-        :returns: add???
-        """
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page"""
         return self.dbtable('userobject').saveUserObject(data, pkg=pkg or self.name, **kwargs)
         
     def deleteUserObject(self, id, pkg=None):
         """add???
         
-        :param id: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. 
-        :returns: add???
-        """
+        :param id: the object id
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page"""
         return self.dbtable('userobject').deleteUserObject(pkg=pkg or self.name, id=id)
         
     def listUserObject(self, pkg=None, **kwargs):
         """add???
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. 
-        :returns: add???
-        """
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page"""
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
         
     def getPreference(self, path, dflt=None):
         """Get a preference for the current package.
         
-        :param path: dotted name of the preference item
-        :param dflt: default value. 
-        :returns: value of the specified preference, or **dflt** if it is missing.
-        """
+        :param path: a dotted name of the preference item
+        :param dflt: the default value
+        :returns: value of the specified preference, or *dflt* if it is missing"""
         return self.db.table('adm.preference').getPreference(path, pkg=self.name, dflt=dflt)
         
     def setPreference(self, path, value):
         """Set a preference for the current package.
         
-        :param path: dotted name of the preference item
-        :param value: new value
-        """
+        :param path: a dotted name of the preference item
+        :param value: the new value"""
         self.db.table('adm.preference').setPreference(path, value, pkg=self.name)
         
 class TableBase(object):
     """add???"""
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True,draftField=False, md5=False, group='zzz',
-                    group_name='!!System'):
-        """Add some useful columns for tables management (*in primis*, the ``id`` column)
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, draftField=False, md5=False, 
+                  group='zzz', group_name='!!System'):
+        """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the database :ref:`genro_table`
-        :param id: boolean. If ``True``, create the ``id`` column. It is normally used as the primary key of a table.
-                   Default value is ``True``
+        :param id: boolean. If ``True``, create the ``id`` column. It is normally used as the primary key of a table
         :param ins: boolean. If ``True``, create the ``__ins_ts`` column. Allow to know the time (date and hour)
-                    of the entry of a record. Default value is ``True``
+                    of the entry of a record
         :param upd: boolean. If ``True``, create the ``__mod_ts`` column. Allow to know the time (date and hour)
-                    of a modify on a record. Default value is ``True``
+                    of a modify on a record
         :param ldel: boolean. If ``True``, create the ``__del_ts`` column. Allow to know the time (date and hour)
-                     of the delete of a record. Default value is ``True``
-        :param md5: boolean. add???. Default value is ``False``
-        :param group: add???. Default value is ``zzz``
-        :param group_name: add???. Default value is ``!!System``
-        """
+                     of the delete of a record
+        :param draftField: add???
+        :param md5: boolean. add???
+        :param group: add???
+        :param group_name: add???"""
         if id:
             tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id',_sendback=True)
             pkey = tbl.attributes.get('pkey')
@@ -182,42 +168,37 @@ class TableBase(object):
         :param fldname: the field name"""
         if not getattr(record, '_notUserChange', None):
             record[fldname] = datetime.datetime.today()
-    
             
-    def trigger_setAuditVersionIns(self,record,fldname):
+    def trigger_setAuditVersionIns(self, record, fldname):
         """add???
         
         :param record: the record
         :param fldname: the field name"""
         record[fldname] = 0
         
-    def trigger_setAuditVersionUpd(self,record,fldname):
+    def trigger_setAuditVersionUpd(self, record, fldname):
         """add???
         
-        :param record: add???
-        :param fldname: add???
-        :returns: add???
-        """
+        :param record: the record
+        :param fldname: the field name"""
         record[fldname] = (record.get(fldname) or 0)+ 1
         
     def trigger_setRecordMd5(self, record, fldname):
+        """add???
+        
+        :param record: the record
+        :param fldname: the field name"""
         pass
         
     def hasRecordTags(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return self.attributes.get('hasRecordTags', False)
 
     def setMultidbSubscription(self,tblname):
         """add???
         
-        :param tbl: the database :ref:`genro_table`
-        :param name_long: the :ref:`genro_name_long`
-        :param group: add???. 
-        :returns: add???
-        """
+        :param tblname: a string composed by the package name and the database :ref:`genro_table` name
+                        separated by a dot (``.``)"""
         pkg,tblname = tblname.split('.')
         model = self.db.model
         tbl = model.src['packages.%s.tables.%s' %(pkg,tblname)]
@@ -231,8 +212,7 @@ class TableBase(object):
         subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
                               size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
                                                                                  many_group='_', one_group='_')
-        
-        
+                                                                                 
     def setTagColumn(self, tbl, name_long=None, group=None):
         """add???
         
@@ -256,9 +236,11 @@ class TableBase(object):
         tbl.aliasColumn('_recordtag_tag', relation_path='%s.tag' % relation_path, name_long='!!Tagcode', group='_')
         
 class GnrHTable(TableBase):
-    """A hierarchical table"""
+    """A hierarchical table. More information on the :ref:`classes_htable` documentation section."""
     def htableFields(self, tbl):
-        """Add the following columns in your table:
+        """:param tbl: the database :ref:`genro_table`
+        
+        This method adds the following :ref:`table_columns` in your table:
         
         * the "code" column
         * the "description" column
@@ -273,9 +255,7 @@ class GnrHTable(TableBase):
             tbl.column('description', name_long='!!Description', base_view=True)
             tbl.column('child_code', name_long='!!Child code', validate_notnull=True,
                         validate_notnull_error='!!Required', base_view=True,
-                        validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed')
-        
-        :param tbl: the database :ref:`genro_table`"""
+                        validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed')"""
         columns = tbl['columns'] or []
         if not 'code' in columns:
             tbl.column('code', name_long='!!Code', base_view=True)
@@ -306,9 +286,7 @@ class GnrHTable(TableBase):
     def trigger_onInserting(self, record_data):
         """add???
         
-        :param record_data: add???
-        :returns: add???
-        """
+        :param record_data: add???"""
         self.assignCode(record_data)
         
     def assignCode(self, record_data):
@@ -323,9 +301,7 @@ class GnrHTable(TableBase):
         """add???
         
         :param record_data: add???
-        :param old_record: add???. 
-        :returns: add???
-        """
+        :param old_record: add???"""
         if old_record and ((record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code'])):
             old_code = old_record['code']
             self.assignCode(record_data)
@@ -334,6 +310,7 @@ class GnrHTable(TableBase):
 class GnrDboTable(TableBase):
     """add???"""
     def use_dbstores(self):
+        """add???"""
         return True
         
 class Table_counter(TableBase):
@@ -343,10 +320,10 @@ class Table_counter(TableBase):
         return True
         
     def config_db(self, pkg):
-        """add???
+        """Configure the database, creating the database :ref:`genro_table` and some :ref:`table_columns`
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page."""
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page"""
         tbl = pkg.table('counter', pkey='codekey', name_long='!!Counter', transaction=False)
         self.sysFields(tbl, id=False, ins=True, upd=True)
         tbl.column('codekey', size=':32', readOnly='y', name_long='!!Codekey', indexed='y')
@@ -362,35 +339,32 @@ class Table_counter(TableBase):
                    date=None, phyear=False, value=0):
         """add???
         
-        :param name: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page.
-        :param code: add???
-        :param codekey: add???. Default value is ``$YYYY_$MM_$K``
-        :param output: add???. Default value is ``$K/$YY$MM.$NNNN``
-        :param old_record: add???. 
-        :returns: add???
-        """
+        :param name: the counter name
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page
+        :param code: the counter code
+        :param codekey: the codekey format (e.g. ``$YY`` for year)
+        :param output: the output format (e.g. ``$YY.$NNNN`` for year)
+        :param date: the current date
+        :param phyear: the fiscal year
+        :param value: add???"""
         self.getCounter(name, pkg, code, codekey=codekey, output=output, date=date,
                         phyear=phyear, lastAssigned=value - 1)
                         
     def getCounter(self, name, pkg, code,
                    codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN',
                    date=None, phyear=False, lastAssigned=0):
-        """Generate a new number from the specified counter.
+        """Generate a new number from the specified counter and return it as a string
         
-        (you can also use the :meth:`GnrDboPackage.getCounter` convenience method)
-        
-        :param name: counter name
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page.
-        :param code: counter code.
-        :param codekey: formatting string for the key.
-        :param output: formatting output for the key.
-        :param date: the date of counter attribution.
-        :param phyear: fiscal year.
-        :returns: string
-        """
+        :param name: the counter name
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page
+        :param code: the counter code
+        :param codekey: the formatting string for the key
+        :param output: the formatting output for the key
+        :param date: the the date of counter attribution
+        :param phyear: the fiscal year
+        :param lastAssigned: add???"""
         ymd = self.getYmd(date, phyear=phyear)
         codekey = '%s_%s' % (pkg, self.counterCode(code, codekey, ymd))
         
@@ -412,17 +386,15 @@ class Table_counter(TableBase):
                            date=None, phyear=False, lastAssigned=0):
         """add???
         
-        :param name: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page.
-        :param code: add???
-        :param codekey: add???. Default value is ``$YYYY_$MM_$K``
-        :param output: add???. Default value is ``$K/$YY$MM.$NNNN``
-        :param date: add???. 
-        :param phyear: add???. Default value is ``False``
-        :param lastAssigned: add???. Default value is ``0``
-        :returns: add???
-        """
+        :param name: the counter name
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page
+        :param code: the counter code
+        :param codekey: the formatting string for the key
+        :param output: the formatting output for the key
+        :param date: the the date of counter attribution
+        :param phyear: the fiscal year
+        :param lastAssigned: add???"""
         ymd = self.getYmd(date, phyear=phyear)
         codekey = '%s_%s' % (pkg, self.counterCode(code, codekey, ymd))
         record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
@@ -430,16 +402,14 @@ class Table_counter(TableBase):
             return record['last_used']
             
     def createCounter(self, codekey, code, pkg, name, lastAssigned):
-        """add???
+        """Create a counter. The counter is built through a :ref:`genro_bag`
         
-        :param codekey: add???
-        :param code: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page.
-        :param name: add???
-        :param lastAssigned: add???
-        :returns: add???
-        """
+        :param codekey: the formatting string for the key
+        :param code: the counter code
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page
+        :param name: the counter name
+        :param lastAssigned: add???"""
         record = Bag()
         record['name'] = '%s-%s' % (pkg, name)
         record['code'] = code
@@ -450,13 +420,11 @@ class Table_counter(TableBase):
         return self.record(codekey, mode='record', for_update=True)
         
     def counterCode(self, code, codekey, ymd):
-        """compose a counter code key
+        """Compose a counter code key and return it
         
-        :param code: add???
-        :param codekey: add???
-        :param ymd: add???
-        :returns: add???
-        """
+        :param code: the counter code
+        :param codekey: the formatting string for the key
+        :param ymd: a tuple including year, month and day as strings"""
         codekey = codekey.replace('$YYYY', ymd[0])
         codekey = codekey.replace('$YY', ymd[0][2:])
         codekey = codekey.replace('$MM', ymd[1])
@@ -465,18 +433,15 @@ class Table_counter(TableBase):
         return codekey
         
     def formatCode(self, code, output, ymd, counter):
-        """add???
+        """Create the output for the code and return it
         
-        :param code: add???
-        :param output: add???
-        :param ymd: add???
-        :param counter: add???
-        :returns: add???
-        """
+        :param code: the counter code
+        :param output: the formatting output for the key
+        :param ymd: a tuple including year, month and day as strings
+        :param counter: the long integer counter"""
         x = '$N%s' % output.split('$N')[1]
         
         output = output.replace(x, str(counter).zfill(len(x) - 1))
-        
         output = output.replace('$YYYY', ymd[0])
         output = output.replace('$YY', ymd[0][2:])
         output = output.replace('$MM', ymd[1])
@@ -487,10 +452,8 @@ class Table_counter(TableBase):
     def getYmd(self, date, phyear=False):
         """Return a tuple (year, month, date) of strings from a date.
         
-        :param date: datetime
-        :param phyear: physical year (not yet implemented). Default value is ``False``
-        :returns: a tuple of strings (year, month, date)
-        """
+        :param date: the datetime
+        :param phyear: the fiscal year (not yet implemented)"""
         if not date:
             return ('0000', '00', '00')
         if phyear:
@@ -509,10 +472,10 @@ class Table_userobject(TableBase):
         return False
         
     def config_db(self, pkg):
-        """add???
+        """Configure the database, creating the database :ref:`genro_table` and some :ref:`table_columns`
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page."""
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page"""
         tbl = pkg.table('userobject', pkey='id', name_long='!!User Object', transaction=False)
         self.sysFields(tbl, id=True, ins=True, upd=True)
         tbl.column('code', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
@@ -531,19 +494,17 @@ class Table_userobject(TableBase):
         """add???
         
         :param data: add???
-        :param id: add???. 
-        :param code: add???. 
-        :param objtype: add???. 
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. 
+        :param id: add???
+        :param code: add???
+        :param objtype: add???
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page
         :param tbl: the database :ref:`genro_table`
-        :param userid: add???. 
-        :param description: add???. 
-        :param authtags: add???. 
-        :param private: add???. 
-        :param inside_shortlist: add???. 
-        :returns: add???
-        """
+        :param userid: add???
+        :param description: add???
+        :param authtags: add???
+        :param private: add???
+        :param inside_shortlist: add???"""
         if id:
             record = self.record(id, mode='record', for_update=True, ignoreMissing=True)
         else:
@@ -571,10 +532,8 @@ class Table_userobject(TableBase):
     def loadUserObject(self, id=None, objtype=None, **kwargs):
         """add???
         
-        :param id: add???. 
-        :param objtype: add???. 
-        :returns: add???
-        """
+        :param id: add???
+        :param objtype: add???"""
         if id:
             record = self.record(id, mode='record', ignoreMissing=True)
         else:
@@ -587,24 +546,20 @@ class Table_userobject(TableBase):
         """add???
         
         :param id: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. 
-        :returns: add???
-        """
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page"""
         self.delete({'id': id})
         
     def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None):
         """add???
         
-        :param objtype: add???. 
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. 
+        :param objtype: add???
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page 
         :param tbl: the database :ref:`genro_table` 
-        :param userid: add???. 
-        :param authtags: add???. 
-        :param onlyQuicklist: add???. 
-        :returns: add???
-        """
+        :param userid: add???
+        :param authtags: add???
+        :param onlyQuicklist: add???"""
         onlyQuicklist = onlyQuicklist or False
         
         def checkUserObj(r):
@@ -634,10 +589,10 @@ class Table_recordtag(TableBase):
         return True
         
     def config_db(self, pkg):
-        """add???
+        """Configure the database, creating the database :ref:`genro_table` and some :ref:`table_columns`
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page."""
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page"""
         tbl = pkg.table('recordtag', pkey='id', name_long='!!Record tags', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tablename', name_long='!!Table name')
@@ -658,7 +613,7 @@ class Table_recordtag(TableBase):
         """add???
         
         :param record_data: add???
-        :param old_record_data: add???. """
+        :param old_record_data: add???"""
         tablename = record_data['tablename']
         parentTag = record_data['tag']
         parentDescription = record_data['description']
@@ -710,7 +665,7 @@ class Table_recordtag(TableBase):
         """add???
         
         :param record_data: add???
-        :param old_record_data: add???"""
+        :param old_record: add???"""
         if not record_data['maintag']:
             self.setTagChildren(record_data, old_record)
             
@@ -721,10 +676,10 @@ class Table_recordtag_link(TableBase):
         return True
         
     def config_db(self, pkg):
-        """add???
+        """Configure the database, creating the database :ref:`genro_table` and some :ref:`table_columns`
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page."""
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
+                    :ref:`genro_packages_index` documentation page"""
         tbl = pkg.table('recordtag_link', pkey='id', name_long='!!Record tag link', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tag_id', name_long='!!Tag id', size='22').relation('recordtag.id', onDelete='cascade',
@@ -736,7 +691,7 @@ class Table_recordtag_link(TableBase):
         """add???
         
         :param table: the :ref:`genro_table` name
-        :param record_id: add???"""
+        :param record_id: the record id"""
         where = '$%s=:record_id' % self.tagForeignKey(table)
         return self.query(columns='@tag_id.tag,@tag_id.description',
                           where=where, record_id=record_id).fetchAsDict(key='@tag_id.tag')
@@ -761,7 +716,7 @@ class Table_recordtag_link(TableBase):
         """add???
         
         :param table: the :ref:`genro_table` name
-        :param record_id: add???
+        :param record_id: the record id
         :param tag: add???
         :param value: add???"""
         fkey = self.tagForeignKey(table)
@@ -793,7 +748,7 @@ class Table_recordtag_link(TableBase):
         """add???
         
         :param table: the :ref:`genro_table` name
-        :param record_id: add???"""
+        :param record_id: the record id"""
         result = Bag()
         taglinks = self.query(columns='@tag_id.maintag AS maintag, @tag_id.subtag AS subtag, @tag_id.tag AS tag',
                               where='$%s=:record_id' % self.tagForeignKey(table), record_id=record_id).fetch()

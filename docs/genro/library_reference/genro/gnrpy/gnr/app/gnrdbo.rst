@@ -61,10 +61,10 @@
     .. module:: gnr.app.gnrdbo.TableBase
     
     ================================== ==================================
-    :meth:`hasRecordTags`              :meth:`trigger_setAuditVersionUpd`
+    :meth:`hasRecordTags`              :meth:`trigger_setAuditVersionIns`
+    :meth:`setMultidbSubscription`     :meth:`trigger_setAuditVersionUpd`
     :meth:`setTagColumn`               :meth:`trigger_setRecordMd5`      
-    :meth:`sysFields`                  :meth:`trigger_setTSNow`          
-    :meth:`trigger_setAuditVersionIns`                                   
+    :meth:`sysFields`                  :meth:`trigger_setTSNow`                                             
     ================================== ==================================
 
 .. _gnrapp_tblcounter:

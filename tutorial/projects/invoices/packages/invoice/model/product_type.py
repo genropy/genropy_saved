@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# VISTOAL: 291008
+
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('product_type',pkey='code',name_plural='!!Products Type',
