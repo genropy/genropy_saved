@@ -9,7 +9,8 @@ class Table(object):
         tbl.column('number',size='10',name_long='!!Number')
         tbl.column('date','D',name_long='!!Date')
         tbl.column('customer_id',size='22',name_long='!!Customer_ID',validate_notnull=True,
-                    validate_notnull_error='!!Customer is mandatory').relation('customer.id',onDelete='raise',mode='foreignkey')
+                    validate_notnull_error='!!Customer is mandatory').relation('customer.id',onDelete='raise',
+                                                                                mode='foreignkey',relation_name='invoices')
         tbl.column('net','money',name_long='!!Net')
         tbl.column('vat','N',size='12',name_long='!!Vat')
         tbl.column('total','N',size='15,2',name_long='!!Total')
@@ -25,5 +26,3 @@ class Table(object):
         
     def getInvoiceNumber(self, invoiceDate):
         return self.pkg.getCounter(name='Invoice Number',codekey='$K_$YY',output='$K/$YY$NNNNN',code='IN',date=invoiceDate)
-                                   
-    #  def invoiceTotal(self):

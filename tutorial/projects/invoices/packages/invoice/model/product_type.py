@@ -8,7 +8,8 @@ class Table(object):
         self.sysFields(tbl,id=False)
         tbl.column('code',size=':6',name_long='!!Code',unique=True,indexed=True,
                     validate_notnull=True,validate_notnull_error='!!Code is required',
-                    validate_len=':6',validate_len_max='!!Too long')
+                    validate_len=':6',validate_len_max='!!Too long',
+                    validate_case='u')
         tbl.column('description',size=':24',name_long='!!Description',unique=True,indexed=True,
                     validate_notnull=True,validate_notnull_error='!!Description is required')
 

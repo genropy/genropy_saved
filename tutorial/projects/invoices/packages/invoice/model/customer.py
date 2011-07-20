@@ -4,7 +4,7 @@
 class Table(object):
     def config_db(self, pkg):
         tbl = pkg.table('customer',pkey='id',rowcaption='$code,$name:%s - %s',
-                         name_long='!!Customers',name_plural='!!Customers')
+                         name_long='!!Customer',name_plural='!!Customers')
         self.sysFields(tbl)
         tbl.column('code',size=':6',name_long='!!Code',unique=True,indexed=True)
         tbl.column('name',size=':24',name_long='!!Name',unique=True,indexed=True)

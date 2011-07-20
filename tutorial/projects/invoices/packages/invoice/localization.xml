@@ -49,24 +49,35 @@
     <invalid_record_ _key="Invalid record" en="some fields are not valid" it="ci sono dei campi non validi"></invalid_record_>
     <!--tablehandler-->
     
-    <!--menu-->
-    <invoices_tables _key="Invoices Tables" en="Invoices Tables" it="Tabelle Fatture"></invoices_tables>
-    <customer _key="Customers" en="Customers" it="Clienti"></customer>
-    <products _key="Products" en="Products" it="Prodotti"></products>
-    <products_type _key="Products Type" en="Products Type" it="Tipi di prodotto"></products_type>
-    <invoices _key="Invoices" en="Invoices" it="Fatture"></invoices>
-    <single_record _key="Single Record" en="Single Record" it="Singolo record"></single_record>
-    <invoice_login _key="Invoice - Login" en="Invoice - Login" it="Programma Fatture - Accesso"></invoice_login>
-    <username _key="Username: invoice" en="Username: invoice" it="Nome utente: invoice"></username>
-    <enter _key="Enter" en="Enter" it="Entra"></enter>
-    <!--menu-->
-    
-    <!--columns-->
-    <code _key="Code" en="Code" it="Codice"></code>
-    <name _key="Name" en="Name" it="Nome"></name>
+    <!--invoice package-->
     <address _key="Address" en="Address" it="Indirizzo"></address>
-    <zip _key="Zip" en="Zip" it="CAP"></zip>
     <city _key="City" en="City" it="Città"></city>
+    <code _key="Code" en="Code" it="Codice"></code>
+    <Code_is_required_ _key="Code is required" en="Code is required" it="Il codice e' obbligatorio"></Code_is_required_>
     <country _key="Country" en="Country" it="Paese"></country>
-    <!--columns-->
+    <customer _key="Customer" en="Customer" it="Cliente"></customer>
+    <customers _key="Customers" en="Customers" it="Clienti"></customers>
+    <date _key="Date" en="Date" it="Data"></date>
+    <description _key="Description" en="Description" it="Descrizione"></description>
+    <Description_is_required_ _key="Description is required" en="Description is required" it="La descrizione è obbligatoria"></Description_is_required_>
+    <enter _key="Enter" en="Enter" it="Entra"></enter>
+    <full_description _key="Full Description" en="Full Descr." it="Descr. Completa"></full_description>
+    <invoices _key="Invoices" en="Invoices" it="Fatture"></invoices>
+    <invoice_login _key="Invoice - Login" en="Invoice: login" it="Programma Fatture: accesso"></invoice_login>
+    <invoices_rows _key="Invoices Rows" en="Invoices Rows" it="Righe Fatture"></invoices_rows>
+    <invoices_tables _key="Invoices Tables" en="Invoices Tables" it="Tabelle Fatture"></invoices_tables>
+    <name _key="Name" en="Name" it="Nome"></name>
+    <net _key="Net" en="Net" it="Netto"></net>
+    <number _key="Number" en="Number" it="Numero"></number>
+    <price _key="Price" en="Price" it="Prezzo"></price>
+    <product _key="Product" en="Product" it="Prodotto"></product>
+    <products _key="Products" en="Products" it="Prodotti"></products>
+    <product_type _key="Product Type" en="Product Type" it="Tipo di prodotto"></product_type>
+    <products_type _key="Products Type" en="Products Type" it="Tipi di prodotto"></products_type>
+    <single_record _key="Single Record" en="Single Record" it="Singolo record"></single_record>
+    <total _key="Total" en="Total" it="Totale"></total>
+    <username _key="Username: invoice" en="Username: invoice" it="Nome utente: invoice"></username>
+    <vat _key="Vat" en="Vat" it="Iva"></vat>
+    <zip _key="Zip" en="Zip" it="CAP"></zip>
+    <!--invoice package-->
 </GenRoBag>

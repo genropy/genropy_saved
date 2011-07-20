@@ -9,7 +9,7 @@ class Table(object):
         tbl.column('code',size=':6',name_long='!!Code',unique=True,indexed=True)
         tbl.column('description',size=':24',name_long='!!Description',unique=True,indexed=True)
         tbl.column('full_description',name_long='!!Full Description')
-        tbl.column('product_type',name_long='!!Product Type').relation('product_type.code', mode='foreignkey')
+        tbl.column('product_type',name_long='!!Product Type').relation('product_type.code',mode='foreignkey')
         tbl.column('price',name_long='!!Price',dtype='R')
         
     def trigger_onUpdating(self, record, old_record):

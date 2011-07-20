@@ -8,7 +8,8 @@ class Table(object):
         tbl.column('id',size='22',group='_',readOnly=True,name_long='Id')
         self.sysFields(tbl,id=False)
         tbl.column('invoice_id',size='22',name_long='!!Invoice_ID').relation('invoice.id',mode='foreignkey',
-                                                                              onDelete='cascade',deferred=True)
+                                                                              onDelete='cascade',deferred=True,
+                                                                              relation_name='invoice_rows')
         tbl.column('product_id', size='22', name_long='!!Product_ID').relation('product.id',mode='foreignkey',
                                                                                 onDelete='raise')
         tbl.column('quantity', 'R', name_long='!!Quantity')
