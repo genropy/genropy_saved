@@ -170,11 +170,20 @@ relation column
       se non si mette il mode='foreignkey', la relazione è puramente logica, ed è senza nessun controllo
       di integrità referenziale quando si vuole interagire con il database, mettere mode='foreignkey' -->
       diventa una relazione SQL. Nel 99% dei casi bisogna metterlo!
-    * onDelete='cascade' (other SQL attributes...)
+      
     * one_one='*' / True / ... add??? permette di rendere la relazione "simmetrica"
     * one_group add???
-    * relation_name='STRING'; allow to use the relation parameter in a :ref:`genro_th` component. For more
-      information on the relation parameter, please check the :ref:`th_relation_condition` example. 
+    * relation_name='STRING'; 
+      allow to use the relation parameter in a :ref:`genro_th` component. For more
+      information on the relation parameter, please check the :ref:`th_relation_condition` example.
+      NON SOLO!
+      correggere: spiegare che è l'attributo che semplifica la sintassi standard del path di relazione inverso...
+      linkare al paragrafo in cui si spiegano i path di relazioni inversi (esiste?)
+      
+    SQL attributes:
+    * onDelete='cascade'
+    * deferred boolean
+    * others? add???
       
 .. _table_aliascolumn:
 
