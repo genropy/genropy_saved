@@ -8,14 +8,13 @@ Copyright (c) 2008 Softwell. All rights reserved.
 class GnrCustomWebPage(object):
     maintable = 'invoice.customer'
     py_requires = 'public:TableHandlerMain'
-        
-    def th_form(self,form,**kwargs):
-        bc = form.center.borderContainer()
-        tc = bc.tabContainer(margin='5px',**kwargs)
-        self.page1(tc.borderContainer(title='!!Profiles',datapath='.record'))
-        self.page2(tc.borderContainer(title='!!Invoices'))
+    
+    def th_form(self, form, **kwargs):
+        tc = form.center.tabContainer(margin='5px',**kwargs)
+        self.page1(tc.borderContainer(title='!!Profiles',_class='pbl_roundedGroup',datapath='.record'))
+        self.page2(tc.borderContainer(title='!!Invoices',_class='pbl_roundedGroup'))
 
-    def page1(self,bc):
+    def page1(self, bc):
         fb = bc.formbuilder(cols=2,dbtable='invoice.customer')
         fb.field('code',readOnly = not self.isDeveloper())
         fb.field('name',autoFocus=True)
@@ -26,10 +25,10 @@ class GnrCustomWebPage(object):
 
     def page2(self, bc):
         bc.div('hello!')
-        #self.includedViewBox(bc, label='!!Invoices',
+        #self.includedViewBox(bc,table='invoice.invoice',label='!!Invoices',
         #                     storepath='.@invoice_invoice_customer_id',
         #                     columns="""number,date,net,vat,total""",
-        #                     table='invoice.invoice', autoWidth=True)
+        #                     autoWidth=True)
                              
     def onLoading(self, record, newrecord, loadingParameters, recInfo):
         if newrecord:

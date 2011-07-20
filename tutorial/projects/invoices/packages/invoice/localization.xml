@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <GenRoBag>
+    <!--tablehandler-->
     <Grid_options _key="Grid options" en="Grid options" it="Opzioni della vista"></Grid_options>
     <Configure_view _key="Configure view" en="Configure view" it="Configura la vista"></Configure_view>
     <Drop_here_a_column_edit_styles _key="Drop here a column to edit styles" en="Drop here a column to edit styles" it="Sposta qui una colonna per modificare lo stile"></Drop_here_a_column_edit_styles>
@@ -46,7 +47,9 @@
     <you_cannot_save_ _key="You cannot save" en="You cannot save" it="Non puoi salvare"></you_cannot_save_>
     <no_change_to_save_ _key="No change to save" en="there are no changes to save" it="non ci sono modifiche da salvare"></no_change_to_save_>
     <invalid_record_ _key="Invalid record" en="some fields are not valid" it="ci sono dei campi non validi"></invalid_record_>
+    <!--tablehandler-->
     
+    <!--menu-->
     <invoices_tables _key="Invoices Tables" en="Invoices Tables" it="Tabelle Fatture"></invoices_tables>
     <customer _key="Customers" en="Customers" it="Clienti"></customer>
     <products _key="Products" en="Products" it="Prodotti"></products>
@@ -56,7 +59,14 @@
     <invoice_login _key="Invoice - Login" en="Invoice - Login" it="Programma Fatture - Accesso"></invoice_login>
     <username _key="Username: invoice" en="Username: invoice" it="Nome utente: invoice"></username>
     <enter _key="Enter" en="Enter" it="Entra"></enter>
+    <!--menu-->
+    
+    <!--columns-->
     <code _key="Code" en="Code" it="Codice"></code>
     <name _key="Name" en="Name" it="Nome"></name>
+    <address _key="Address" en="Address" it="Indirizzo"></address>
+    <zip _key="Zip" en="Zip" it="CAP"></zip>
+    <city _key="City" en="City" it="Città"></city>
     <country _key="Country" en="Country" it="Paese"></country>
+    <!--columns-->
 </GenRoBag>

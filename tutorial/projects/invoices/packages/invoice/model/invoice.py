@@ -3,8 +3,7 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('invoice',pkey='id',
-                         name_long='!!Invoice',name_plural='!!Invoices')
+        tbl = pkg.table('invoice',pkey='id',name_long='!!Invoice',name_plural='!!Invoices')
         tbl.column('id',size='22',group='_',readOnly=True,name_long='!!Id')
         self.sysFields(tbl,id=False)
         tbl.column('number',size='10',name_long='!!Number')
