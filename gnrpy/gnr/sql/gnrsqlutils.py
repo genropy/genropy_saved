@@ -37,7 +37,7 @@ class ModelExtractor(object):
     def buildTables(self, pkg, pkg_name):
         """add???
         
-        :param pkg: the package name. For more information on a package, check the
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
                     :ref:`genro_packages_index` documentation page
         :param pkg_name: add???
         """
@@ -160,7 +160,7 @@ class SqlModelChecker(object):
         """Check if the current package is contained by a not defined schema and then call the
         :meth:`_checkTable` method for each table. Return a list containing sql statements
         
-        :param pkg: the package name. For more information on a package, check the
+        :param pkg: the abbreviation for the package name. For more information on a package, check the
                     :ref:`genro_packages_index` documentation page
         :returns: a list containing sql statements"""
         self._checkSqlSchema(pkg)

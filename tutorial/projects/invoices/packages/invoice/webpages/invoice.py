@@ -4,8 +4,9 @@
 Created by Softwell on 2008-07-10.
 Copyright (c) 2008 Softwell. All rights reserved.
 """
+
 class GnrCustomWebPage(object):
-    maintable = 'invc.invoice'
+    maintable = 'invoice.invoice'
     py_requires = 'public:Public,standard_tables:TableHandler,public:IncludedView'
 
     ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
@@ -52,16 +53,16 @@ class GnrCustomWebPage(object):
 
     def invoice_body_old(self, bc, disabled=False):
         iv = self.includedViewBox(bc, label='!!Rows',
-                                  storepath='.@invc_invoice_row_invoice_id', struct=self.rowstruct(),
+                                  storepath='.@invoice_invoice_row_invoice_id', struct=self.rowstruct(),
                                   autoWidth=True, add_action=True, del_action=True)
         gridEditor = iv.gridEditor()
-        gridEditor.dbSelect(dbtable='invc.product', value='^.product_id', gridcell='@product_id.description')
+        gridEditor.dbSelect(dbtable='invoice.product', value='^.product_id', gridcell='@product_id.description')
         gridEditor.numbertextbox(gridcell='quantity')
         gridEditor.currencytextbox(gridcell='price')
 
     def invoice_body(self, bc, disabled=False):
         self.includedViewBox(bc, label='!!Rows', nodeId='invoice_rows_grid',
-                             storepath='.@invc_invoice_row_invoice_id', struct=self.rowstruct(),
+                             storepath='.@invoice_invoice_row_invoice_id', struct=self.rowstruct(),
                              autoWidth=True,
                              add_action=True, del_action=True,
                              formPars=dict(height='300px', width='400px',
@@ -70,7 +71,7 @@ class GnrCustomWebPage(object):
 
     def invoicerow(self, parentBC, disabled=False, **kwargs):
         pane = parentBC.contentPane(**kwargs)
-        fb = pane.formbuilder(cols=1, dbtable='invc.invoice_row', border_spacing='4px', disabled=disabled)
+        fb = pane.formbuilder(cols=1, dbtable='invoice.invoice_row', border_spacing='4px', disabled=disabled)
         fb.field('product_id', selected_price='.price')
         fb.field('quantity', validate_onAccept='FIRE calculateTotal')
         fb.field('price', tag='currencytextbox', validate_onAccept='FIRE calculateTotal')
@@ -91,7 +92,7 @@ class GnrCustomWebPage(object):
         fb.field('net', tag='currencytextbox', readOnly=True, width='100%')
         fb.field('vat', tag='currencytextbox', readOnly=True, width='100%')
         fb.field('total', tag='currencytextbox', readOnly=True, width='100%')
-        pane.dataFormula('.net', "rows.sum('total')", rows='=.@invc_invoice_row_invoice_id', _fired='^calculateTotal')
+        pane.dataFormula('.net', "rows.sum('total')", rows='=.@invoice_invoice_row_invoice_id', _fired='^calculateTotal')
         pane.dataFormula('.vat', 'dojo.number.round(net*vat_rate/100.0,2)', net='^.net',
                          vat_rate=int(self.site.config['defaults?vat_rate'] or 0))
         pane.dataFormula('.total', 'net+vat', net='^.net', vat='^.vat')

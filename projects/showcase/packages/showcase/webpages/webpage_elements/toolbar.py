@@ -15,21 +15,7 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return 'slotBar and slotToolbar'
         
-    def _test_1_simple(self,pane):
-        """simple example"""
-        workdate = str(datetime.datetime.now().date())
-        frame = pane.framePane(frameCode='dummy',height='150px',margin='10px',
-                               rounded=10,design='headline') # design='sidebar'
-        top = frame.top.slotToolbar(slotbarCode='dummy1',slots='*,foo,*',height='20px')
-        top.foo.div('Hello!')
-        left = frame.left.slotToolbar(slotbarCode='dummy2',slots='*,foo,*',width='30px')
-        left.foo.div('Left Hello!')
-        right = frame.right.slotToolbar(slotbarCode='dummy3',slots='*,foo,*',width='30px')
-        right.foo.div('Right Hello!')
-        bottom = frame.bottom.slotBar(slotCode='dummy8',slots='*,foo,*',height='20px')
-        bottom.foo.div('Hello! (from the bottom slotBar)')
-        
-    def test_2_features(self,pane):
+    def test_1_features(self,pane):
         """framePane, slotToolbar and CSS 3"""
         workdate = str(datetime.datetime.now().date())
         pane.data('.color','white')
@@ -86,7 +72,7 @@ class GnrCustomWebPage(object):
         fb.numbertextbox(value='^.deg',lbl='deg',width='3em')
         
         bottom = pane.bottom.slotToolbar(slots='300,bar,*',height='20px',
-                                          gradient_from='^.from',gradient_to='^.to')
+                                         gradient_from='^.from',gradient_to='^.to')
         bottom.bar.div('Here goes the messages for user',color='^.color')
         
         #sb = frame.div('Remember: a slotToolbar (or a slotBar) can be attached to any div!',
@@ -96,11 +82,8 @@ class GnrCustomWebPage(object):
         #sb.dummy.button(label='',iconClass='icnBasePref',showLabel=False,
         #                action="alert('A wonderful action!')")
         #frame.div('Here goes the \"center\" content.',margin='20px')
-        view = pane.includedView(_newGrid=True)
-        struct = view.gridStruct('name')
-        view.selectionStore(table='showcase.person',_onStart=True,storeCode='mystore_2')
         
-    def test_3_div(self,pane):
+    def test_2_div(self,pane):
         """slotToolbar and toolBar attached on a div"""
         pane.div('You can attach a toolbar to any div:')
         top = pane.div().slotToolbar(slotbarCode='top',slots='hello,foo,dummy',

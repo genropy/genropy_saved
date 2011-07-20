@@ -29,10 +29,10 @@ class GnrCustomWebPage(object):
         pane = form.record
         fb = pane.formbuilder(cols=3,fld_width='15em',lbl_color='teal')
         fb.field('giorno',readOnly=True,name='!!Day',
-                  width='6em',tooltip='The field is not editable')
+                  width='6em',tooltip='!!The field is not editable')
         fb.field('ora',readOnly=True,name='!!Hour',
-                  width='6em',tooltip='The field is not editable')
-        fb.field('username',readOnly=True,lbl='!!User',tooltip='The field is not editable')
+                  width='6em',tooltip='!!The field is not editable')
+        fb.field('username',readOnly=True,lbl='!!User',tooltip='!!The field is not editable')
         fb.field('contatto_id',zoom=True,lbl='!!Caller',colspan=2,
                   selected_azienda_id='.azienda_id',
                   validate_notnull=True,validate_notnull_error='!!Required field')

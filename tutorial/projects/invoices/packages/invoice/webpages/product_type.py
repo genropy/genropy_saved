@@ -4,8 +4,9 @@
 Created by Softwell on 2008-07-10.
 Copyright (c) 2008 Softwell. All rights reserved.
 """
+
 class GnrCustomWebPage(object):
-    maintable = 'invc.product_type'
+    maintable = 'invoice.product_type'
     py_requires = 'public:Public,standard_tables:TableHandler'
 
     ######################## STANDARD TABLE OVERRIDDEN METHODS ###############

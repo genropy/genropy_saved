@@ -4,7 +4,8 @@
 # Created by Francesco Porcari on 2010-09-08.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-from gnr.web.gnrwebpage import public_method,BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrlang import gnrImport, objectExtract
 from gnr.core.gnrbag import Bag
 

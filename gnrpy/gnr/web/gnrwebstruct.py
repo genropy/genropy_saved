@@ -140,6 +140,17 @@ class GnrDomSrc(GnrStructData):
     def _get_page(self):
         return self.root._page
     page = property(_get_page)
+    
+    def checkNodeId(self,nodeId):
+        assert not nodeId in self.register_nodeId,'%s is duplicated' %nodeId
+        self.page._register_nodeId[nodeId] = self
+            
+    @property
+    def register_nodeId(self):
+        if not hasattr(self.page,'_register_nodeId'):
+            register = dict()
+            self.page._register_nodeId = register
+        return  self.page._register_nodeId
         
     def _get_parentfb(self):
         if hasattr(self, 'fbuilder'):
@@ -170,7 +181,7 @@ class GnrDomSrc(GnrStructData):
             subtag = ('%s_%s' %(parentTag,fname)).lower()
             if hasattr(self,subtag):
                 return getattr(self,subtag)
-        raise AttributeError("object has no attribute '%s'" % fname)
+        raise AttributeError("object has no attribute '%s':Provide another nodeId" % fname)
     
     @deprecated
     def getAttach(self, childname):
@@ -214,6 +225,8 @@ class GnrDomSrc(GnrStructData):
         for k,v in kwargs.items():
             if isinstance(v,GnrStructData):
                 kwargs[k]=v.js_sourceNode()
+        if kwargs.get('nodeId'):
+            self.checkNodeId(kwargs['nodeId'])
         return GnrStructData.child(obj, tag, childname=childname, childcontent=childcontent,**kwargs)
 
         

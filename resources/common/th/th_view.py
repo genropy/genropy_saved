@@ -13,7 +13,7 @@ from gnr.core.gnrbag import Bag
 
 class TableHandlerView(BaseComponent):
     py_requires = """th/th_lib:QueryHelper,
-                     th/th_view:ViewQueryUtils,
+                     th/th_view:THViewUtils,
                      gnrcomponents/framegrid:FrameGrid"""
                          
     @extract_kwargs(condition=True)
@@ -45,7 +45,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if queryTool:
-            base_slots = ['tools','5','vtitle','5','queryfb','|','queryTool','queryMenu','*','count','5']
+            base_slots = ['tools','5','vtitle','5','queryfb','|','queryTool','queryMenu','viewsMenu','*','count','5']
         else:
             base_slots = ['tools','5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
@@ -110,6 +110,21 @@ class TableHandlerView(BaseComponent):
             FIRE .runQuery;
             return result;
         """)
+
+    @struct_method
+    def th_slotbar_viewsMenu(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        mangler = inattr['th_root']
+        table = inattr['table']
+        menu = pane.div(padding_left='5px',_class='buttonIcon vieselectorIcn',tip='!!Stored query',datapath='.grid').menu(storepath='.th_viewmenu',_class='smallmenu',modifiers='*')
+        q = Bag()
+        pyqueries = self._th_hook('struct',mangler=mangler,asDict=True)
+        for k,v in pyqueries.items():
+            prefix,name=k.split('_struct_')
+            q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
+        pane.data('.grid.resource_structs',q)
+        pane.dataRemote('.grid.th_viewmenu',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),
+                        table=table,mangler=mangler,cacheTime=10)
 
 
     @struct_method
@@ -246,9 +261,9 @@ class TableHandlerView(BaseComponent):
         fb = pane.formbuilder(cols=6, datapath='.query.where', _class='query_form',
                                    border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
         fb.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
-                    nodeId='%s_fastQueryColumn' %mangler,
-                     dropTarget=True,
-                    lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder('%s').onChangedQueryColumn(this,data);" %mangler})
+                  nodeId='%s_fastQueryColumn' %mangler,
+                   dropTarget=True,
+                  lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder('%s').onChangedQueryColumn(this,data);" %mangler})
         optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
@@ -307,7 +322,7 @@ class TableHandlerView(BaseComponent):
                         'column_caption': self.app._relPathToCaption(table, column)})
         return result
 
-class ViewQueryUtils(BaseComponent):
+class THViewUtils(BaseComponent):
 
     @struct_method
     def th_slotbar_queryTool(self,pane,**kwargs):
@@ -361,6 +376,21 @@ class ViewQueryUtils(BaseComponent):
         package = self.db.package(pkg)
         data, metadata = package.loadUserObject(id=pkey)
         return (data, metadata)
+
+    @public_method
+    def th_menuViews(self,table=None,mangler=None,pyviews=None,**kwargs):
+        result = Bag()
+        gridId = '%s_grid' %mangler
+        result.setItem('_baseview_', None,
+                       action="genro.grid_configurator.loadGridBaseView(this.attr.gridId)",
+                       label='Base View',gridId=gridId)
+        if pyviews:
+            for k,caption in pyviews:
+                result.setItem(k.replace('_','.'),None,caption=caption,action="""genro.grid_configurator.loadGridBaseView(this.attr.gridId,this.attr.viewkey);""",viewkey=k,gridId=gridId)
+        result.setItem('r_1',None,caption='-')
+        self.grid_configurator_savedViewsMenu(result,gridId,action="genro.grid_configurator.loadCustomView(this.attr.gridId, this.attr.pkey);")
+        return result
+        
     
     @public_method
     def th_menuQueries(self,table=None,mangler=None,pyqueries=None,**kwargs):
@@ -378,6 +408,7 @@ class ViewQueryUtils(BaseComponent):
                 attrs = dict([(str(k), v) for k, v in r.items()])
                 querymenu.setItem(r['code'] or 's_%i' % i, None, action='SET .querypkey = $1.pkey;',**attrs)
         return querymenu
+        
         
     @public_method
     def th_saveUserObject(self, table=None,objtype=None,namespace=None,pkey=None,data=None,code=None,  userid=None,

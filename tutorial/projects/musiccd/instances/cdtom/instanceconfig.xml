@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
     <packages>
-        <adm/>
-        <glbl/>
+        <gnrcore:adm/>
+        <gnr_it:glbl/>
         <libcd/>
     </packages>
     <db dbname='cdtom'/>
