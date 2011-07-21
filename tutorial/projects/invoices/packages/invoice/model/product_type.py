@@ -12,5 +12,3 @@ class Table(object):
                     validate_case='u')
         tbl.column('description',size=':24',name_long='!!Description',unique=True,indexed=True,
                     validate_notnull=True,validate_notnull_error='!!Description is required')
-
-            

@@ -3,9 +3,10 @@
     <db dbname="Invoices"/>
     <packages>
         <invoice/>
+        <gnr_it:glbl/>
         <gnrcore:adm/>
         <gnrcore:sys/>
-        <gnr_it:glbl/>
+        <gnrsw:sw_base/>
     </packages>
     <authentication pkg='invoice'>
         <xml_auth defaultTags="users,xml">

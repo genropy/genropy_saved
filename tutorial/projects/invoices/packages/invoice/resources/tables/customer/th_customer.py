@@ -14,6 +14,9 @@ class View(BaseComponent):
         r = struct.view().rows()
         r.fieldcell('code',width='5em')
         r.fieldcell('name',width='15em')
+        r.fieldcell('address',width='15em')
+        r.fieldcell('zip',width='5em')
+        r.fieldcell('city',width='10em')
         r.fieldcell('country',width='10em')
         
     def th_order(self):

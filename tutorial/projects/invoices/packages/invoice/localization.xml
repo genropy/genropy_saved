@@ -51,6 +51,7 @@
     
     <!--invoice package-->
     <address _key="Address" en="Address" it="Indirizzo"></address>
+    <automatically_added _key="Automatically added" en="Automatically added" it="Aggiunto automaticamente"></automatically_added>
     <city _key="City" en="City" it="Città"></city>
     <code _key="Code" en="Code" it="Codice"></code>
     <Code_is_required_ _key="Code is required" en="Code is required" it="Il codice e' obbligatorio"></Code_is_required_>
@@ -65,15 +66,22 @@
     <invoices _key="Invoices" en="Invoices" it="Fatture"></invoices>
     <invoice_login _key="Invoice - Login" en="Invoice: login" it="Programma Fatture: accesso"></invoice_login>
     <invoices_rows _key="Invoices Rows" en="Invoices Rows" it="Righe Fatture"></invoices_rows>
+    <invoices_rows_2 _key="Invoices_rows" en="Invoices Rows" it="Righe Fatture"></invoices_rows_2>
     <invoices_tables _key="Invoices Tables" en="Invoices Tables" it="Tabelle Fatture"></invoices_tables>
     <name _key="Name" en="Name" it="Nome"></name>
     <net _key="Net" en="Net" it="Netto"></net>
+    <new_customer _key="New Customer" en="New Customer" it="Nuovo cliente"></new_customer>
+    <new_products _key="New Products" en="New Products" it="Nuovo prodotto"></new_products>
+    <new_products_type _key="New Products Type" en="New Products Type" it="Nuovo tipo di prodotto"></new_products_type>
+    <new_invoice _key="New Invoice" en="New Invoice" it="Nuova Fattura"></new_invoice>
     <number _key="Number" en="Number" it="Numero"></number>
     <price _key="Price" en="Price" it="Prezzo"></price>
     <product _key="Product" en="Product" it="Prodotto"></product>
     <products _key="Products" en="Products" it="Prodotti"></products>
     <product_type _key="Product Type" en="Product Type" it="Tipo di prodotto"></product_type>
     <products_type _key="Products Type" en="Products Type" it="Tipi di prodotto"></products_type>
+    <profiles _key="Profiles" en="Profiles" it="Profili"></profiles>
+    <quantity _key="Quantity" en="Quantity" it="Quantità"></quantity>
     <single_record _key="Single Record" en="Single Record" it="Singolo record"></single_record>
     <total _key="Total" en="Total" it="Totale"></total>
     <username _key="Username: invoice" en="Username: invoice" it="Nome utente: invoice"></username>

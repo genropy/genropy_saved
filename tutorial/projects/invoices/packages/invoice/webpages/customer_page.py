@@ -13,24 +13,22 @@ class GnrCustomWebPage(object):
         tc = form.center.tabContainer(margin='5px',**kwargs)
         self.page1(tc.borderContainer(title='!!Profiles',_class='pbl_roundedGroup',datapath='.record'))
         self.page2(tc.contentPane(title='!!Invoices',_class='pbl_roundedGroup'))
-
+        
     def page1(self, bc):
-        fb = bc.formbuilder(cols=2,dbtable='invoice.customer')
-        fb.field('code',readOnly = not self.isDeveloper())
-        fb.field('name',autoFocus=True)
-        fb.field('country',rowcaption='$name')
+        fb = bc.formbuilder(cols=2)
+        fb.field('code',tooltip='!!Automatically added',readOnly = not self.isDeveloper())
+        fb.field('name',validate_case='c')
         fb.field('address')
         fb.field('zip')
-        fb.field('city')
-
+        fb.field('city',validate_case='t')
+        #NISO: non va la dbSelect...
+        fb.field('country',tag='dbSelect',dbtable='glbl.nazione',value='.country',
+                  columns='$code,$name',hasDownArrow=True)        
+                  
     def page2(self, pane):
-        th = pane.plainTableHandler(relation='@invoices',pbl_classes=True,
+        th = pane.plainTableHandler(relation='@invoices',
                                     viewResource=':ViewFromCustomer')
-        #self.includedViewBox(bc,table='invoice.invoice',label='!!Invoices',
-        #                     storepath='.@invoice_invoice_customer_id',
-        #                     columns="""number,date,net,vat,total""",
-        #                     autoWidth=True)
-                             
+                                    
     def onLoading(self, record, newrecord, loadingParameters, recInfo):
         if newrecord:
             country = self.site.config('defaults?country')
