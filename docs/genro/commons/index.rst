@@ -9,6 +9,7 @@ common attributes, datatypes and names
 .. toctree::
     :maxdepth: 2
     
+    introduction
     attributes/index
     datatypes
     names

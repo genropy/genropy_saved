@@ -1,7 +1,7 @@
 .. _genro_commons_names:
 
 =====
-Names
+names
 =====
     
     *Last page update*: |today|

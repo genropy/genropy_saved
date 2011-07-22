@@ -15,7 +15,7 @@ Introduction to the form widgets
 .. _genro_form_widgets:
 
 Genro form widgets
-------------------
+==================
 
     The **Genro** form widgets are:
     
@@ -25,7 +25,7 @@ Genro form widgets
 .. _dojo_improved_form_widgets:
 
 modified-Dojo form widgets
---------------------------
+==========================
 
     The **modified-Dojo** form widgets are:
     
@@ -43,7 +43,7 @@ modified-Dojo form widgets
 .. _dojo_form_widgets:
 
 Dojo form widgets
------------------
+=================
     
     The **Dojo** form widgets are:
     
@@ -56,4 +56,3 @@ Dojo form widgets
     * :ref:`genro_simplearea`
     * :ref:`genro_slider`
     * :ref:`genro_togglebutton`
-    

@@ -38,7 +38,6 @@ Attributes
     
     * *width*: (horizontalSlider) MANDATORY - define the width of your horizontalSlider
     * *height*: (verticalSlider) MANDATORY - define the height of your verticalSlider
-    * *default*: Add a default value in your slider. Default value is 0
     * *intermediateChanges*: (Boolean) If True, it allows to changes value of slider during slider move
     * *maximum*: Add the maximum value of the slider. Default value is 100
     * *minimum*: Add the minimum value of the slider. Default value is 0
@@ -64,7 +63,6 @@ simple example
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
-                root.horizontalSlider(value='^integer_number', width='200px',
+                root.horizontalSlider(value='^integer_number',width='200px',
                                       maximum=50, discreteValues=51)
-                root.verticalSlider(value='^integer_number', height='100px',
-                                      default=10, minimum=0)
+                root.verticalSlider(value='^integer_number', height='100px',minimum=0)

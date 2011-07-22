@@ -34,8 +34,8 @@ Attributes
     
     **numberTextbox**:
     
-    * *default* (or *default_value*): Add a default number to your numberTextbox. Default value is ``None``
-    * *places*: Numbers of decimals. If it's reached the following decimal to the last supported one, a tooltip error will warn user. Default value is ``3``
+    * *places*: Numbers of decimals. If it's reached the following decimal to the last supported one,
+      a tooltip error will warn user. Default value is ``3``
     
     **commons attributes**:
     
@@ -55,4 +55,4 @@ simple example
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
-                root.numberTextbox(value='^numberTextbox',default=36)
+                root.numberTextbox(value='^number')

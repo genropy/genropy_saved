@@ -20,4 +20,4 @@ form widgets
     togglebutton
     tooltipdialog
     db/index
-    textboxes: dateTextbox, numberTextbox, textbox and timeTextbox <textboxes/index>
+    textboxes: textbox, currencyTextBox, dateTextbox, numberTextbox and timeTextbox <textboxes/index>

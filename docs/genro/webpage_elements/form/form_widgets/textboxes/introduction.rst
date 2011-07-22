@@ -35,3 +35,6 @@ Common attributes
     * *value*: specify the path of the widget's value. For more information, check the :ref:`genro_datapath`
       documentation page
     * *visible*: if False, hide the widget. For more information, check the :ref:`genro_visible` documentation page
+    
+    We remeber also that if you want to assign a default value to any textbox, you can use the
+    :ref:`genro_data` controller.

@@ -1,7 +1,7 @@
 .. _genro_common_index:
 
 =================
-Common attributes
+common attributes
 =================
     
     *Last page update*: |today|
