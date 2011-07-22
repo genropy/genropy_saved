@@ -3,7 +3,7 @@
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('customer',pkey='id',rowcaption='$code,$name:%s - %s',
+        tbl = pkg.table('customer',pkey='id',rowcaption='$name,$code:%s [%s]',
                          name_long='!!Customer',name_plural='!!Customers')
         self.sysFields(tbl)
         tbl.column('code',size=':6',name_long='!!Code',unique=True,indexed=True)

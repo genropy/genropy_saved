@@ -12,8 +12,8 @@ class GnrCustomWebPage(object):
     def th_form(self, form, **kwargs):
         tc = form.center.tabContainer(margin='5px', **kwargs)
         self.productPage(tc.contentPane(title='!!Product',datapath='.record'))
-        self.invoicesPage(tc.borderContainer(title='!!Invoices'))
-        self.rowsPage(tc.borderContainer(title='!!Invoices Rows'))
+        #self.invoicesPage(tc.borderContainer(title='!!Invoices'))
+        #self.rowsPage(tc.borderContainer(title='!!Invoices Rows'))
 
     def productPage(self, pane):
         fb = pane.formbuilder(cols=2)
@@ -26,8 +26,7 @@ class GnrCustomWebPage(object):
         pane.dataFormula(".full_description", "description", description='^.description',
                          full_description='=.full_description', _if='!full_description')
                          
-    def invoicesPage(self, bc):
-        bc.div('invoicesPage da convertire...', margin='5px')
+    #def invoicesPage(self, bc):
     #    topbc = bc.borderContainer(region='top', height='50%', splitter=True)
     #    centerbc = bc.borderContainer(region='center')
     #    self.recordDialog('invoice.invoice', firedPkey='^fired.invoice_id', height='400px', width='700px', title='Invoice',
@@ -58,8 +57,7 @@ class GnrCustomWebPage(object):
     #    fb.field('date', readOnly=True, width='100%')
     #    fb.field('customer_id', width='100%', colspan='2')
 
-    def rowsPage(self, bc):
-        bc.div('rowsPage da convertire...', margin='5px')
+    #def rowsPage(self, bc):
         #self.includedViewBox(bc, label='!!Invoices Rows',
         #                     filterOn='Customer:@invoice_id.customer,City:@invoice_id.city,Price:price',
         #                     storepath='.@invoice_invoice_row_product_id',

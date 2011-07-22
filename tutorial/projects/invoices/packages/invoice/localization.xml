@@ -54,23 +54,26 @@
     <automatically_added _key="Automatically added" en="Automatically added" it="Aggiunto automaticamente"></automatically_added>
     <city _key="City" en="City" it="Città"></city>
     <code _key="Code" en="Code" it="Codice"></code>
-    <Code_is_required_ _key="Code is required" en="Code is required" it="Il codice e' obbligatorio"></Code_is_required_>
+    <Code_is_required_ _key="Code is required" en="Code is required" it="Inserimento codice obbligatorio"></Code_is_required_>
     <country _key="Country" en="Country" it="Paese"></country>
     <customer _key="Customer" en="Customer" it="Cliente"></customer>
+    <Customer_is_mandatory_ _key="Customer is mandatory" en="Customer is mandatory" it="Inserimento cliente obbligatorio"></Customer_is_mandatory_>
     <customers _key="Customers" en="Customers" it="Clienti"></customers>
     <date _key="Date" en="Date" it="Data"></date>
     <description _key="Description" en="Description" it="Descrizione"></description>
-    <Description_is_required_ _key="Description is required" en="Description is required" it="La descrizione è obbligatoria"></Description_is_required_>
+    <Description_is_required_ _key="Description is required" en="Description is required" it="Inserimento descrizione obbligatorio"></Description_is_required_>
     <enter _key="Enter" en="Enter" it="Entra"></enter>
     <full_description _key="Full Description" en="Full Descr." it="Descr. Completa"></full_description>
+    <invoice _key="Invoice" en="Invoice" it="Fattura"></invoice>
     <invoices _key="Invoices" en="Invoices" it="Fatture"></invoices>
     <invoice_login _key="Invoice - Login" en="Invoice: login" it="Programma Fatture: accesso"></invoice_login>
+    <invoice_row _key="Invoice_row" en="Invoice Row" it="Riga Fattura"></invoice_row>
     <invoices_rows _key="Invoices Rows" en="Invoices Rows" it="Righe Fatture"></invoices_rows>
-    <invoices_rows_2 _key="Invoices_rows" en="Invoices Rows" it="Righe Fatture"></invoices_rows_2>
     <invoices_tables _key="Invoices Tables" en="Invoices Tables" it="Tabelle Fatture"></invoices_tables>
     <name _key="Name" en="Name" it="Nome"></name>
     <net _key="Net" en="Net" it="Netto"></net>
     <new_customer _key="New Customer" en="New Customer" it="Nuovo cliente"></new_customer>
+    <new_invoice_row _key="New Invoice_row" en="New Invoice Row" it="Nuova Riga Fattura"></new_invoice_row>
     <new_products _key="New Products" en="New Products" it="Nuovo prodotto"></new_products>
     <new_products_type _key="New Products Type" en="New Products Type" it="Nuovo tipo di prodotto"></new_products_type>
     <new_invoice _key="New Invoice" en="New Invoice" it="Nuova Fattura"></new_invoice>
