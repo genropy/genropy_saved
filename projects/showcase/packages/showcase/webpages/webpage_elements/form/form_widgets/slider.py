@@ -26,8 +26,7 @@ class GnrCustomWebPage(object):
                   write only integer numbers.""",
                font_size='.9em', text_align='justify')
                
-        fb.horizontalSlider(value='^.float_number', width='200px', minimum=10,
-                            default=25, lbl='!!Float number')
+        fb.horizontalSlider(value='^.float_number', width='200px', minimum=10, lbl='!!Float number')
         fb.numberTextBox(value='^.float_number', width='4em', places='^.decimals')
         fb.numberSpinner(value='^.decimals', width='4em', min=0, max=15, lbl='decimals')
         fb.div("""Here you can choose the number of decimals.""",
@@ -41,13 +40,13 @@ class GnrCustomWebPage(object):
         fb.dataFormula('.width_calc', 'w+umw', w='^.width', umw='^.um_width')
         fb.dataFormula('.font_size', 'font+umf', font='^.font', umf='^.um_font')
         
-        fb.horizontalSlider(value='^.width', width='200px', default=8, minimum=3,
+        fb.horizontalSlider(value='^.width', width='200px', minimum=3,
                             intermediateChanges=True, lbl='!!Width button')
         fb.numberTextBox(value='^.width', width='4em')
         fb.comboBox(value='^.um_width', width='5em', values='em,px,%', default='em')
         fb.br()
         
-        fb.horizontalslider(value='^.font', width='200px', default=11, minimum=4,
+        fb.horizontalslider(value='^.font', width='200px', minimum=4,
                             discreteValues=97, intermediateChanges=True, lbl='!!Width font')
         fb.numberTextBox(value='^.font', width='4em')
         fb.comboBox(value='^.um_font', width='5em', values='pt,px', default='pt')

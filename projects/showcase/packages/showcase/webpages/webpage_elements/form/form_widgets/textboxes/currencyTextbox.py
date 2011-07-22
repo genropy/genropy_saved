@@ -12,4 +12,4 @@ class GnrCustomWebPage(object):
     def test_1_currencyTextbox(self, pane):
         """currencyTextbox"""
         fb = pane.formbuilder(datapath='test1')
-        fb.currencyTextBox(value='^.amount', default=1123.34, currency='EUR', locale='it')
+        fb.currencyTextBox(value='^.amount', currency='EUR', locale='it')
