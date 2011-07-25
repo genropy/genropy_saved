@@ -2570,7 +2570,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                             if (dtype) {
                                 formats = objectUpdate(objectUpdate({}, localTypes[dtype]), formats);
                             }
-
                             //formats = objectUpdate(formats, localTypes[dtype]);
                             var cellClassCB = objectPop(cell, 'cellClassCB');
                             var _customGetter = objectPop(cell,'_customGetter');

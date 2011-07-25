@@ -465,7 +465,13 @@ dojo.declare('gnr.GenroClient', null, {
             if (!f.pattern && f.places == 0) {
                 f.pattern = '##########';
             }
-            v = stringStrip(dojo.currency.format(v, f));
+            if (!f.currency){
+                v = stringStrip(dojo.number.format(v, f));
+            }
+            else
+            {
+                v = stringStrip(dojo.currency.format(v, f));
+            }
         }
         else if (typeof(v) == 'boolean' || f.dtype == 'B') {
             var divcontent,divclass;
