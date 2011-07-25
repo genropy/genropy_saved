@@ -681,7 +681,7 @@ class IncludedView(BaseComponent):
         self._includedViewFormBody(recordBC, controller, storepath, gridId, formPars)
         
     @extract_kwargs(_dictkwargs={'add':True,'del':True,'upd':True,'print':True,'export':True,'tools':True,'top':True})
-    def includedGrid(self, parentBC,nodeId=None,frameCode=None,datapath=None,struct=None,table=None,pbl_classes=True,
+    def includedGrid(self,parentBC,nodeId=None,frameCode=None,datapath=None,struct=None,table=None,pbl_classes=True,
                      storepath=None,label=None,caption=None,filterOn=None,editorEnabled=None,canSort=True,dropCodes=None,
                      add_kwargs=None,del_kwargs=None,upd_kwargs=None,print_kwargs=None,export_kwargs=None,tools_kwargs=None,
                      top_kwargs=None,datamode=None,**kwargs):

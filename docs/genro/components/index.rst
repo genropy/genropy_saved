@@ -10,6 +10,6 @@ component
     :maxdepth: 1
     
     introduction
-    writing
     components_list
     components/index
+    writing

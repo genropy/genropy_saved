@@ -16,12 +16,12 @@ class GnrCustomWebPage(object):
         #self.rowsPage(tc.borderContainer(title='!!Invoices Rows'))
 
     def productPage(self, pane):
-        fb = pane.formbuilder(cols=2)
+        fb = pane.formbuilder(cols=2,lbl_width='7em',fld_width='20em')
         fb.field('code',readOnly=True,width='7em')
         fb.field('description')
         fb.field('price',tag='currencyTextbox',width='7em')
         fb.field('product_type',hasDownArrow=True)
-        fb.field('full_description',tag='simpleTextArea',height='8ex',width='100%',colspan=2,lbl_vertical_align='top')
+        fb.field('full_description',tag='simpleTextArea',width='100%',height='8ex',colspan=2,lbl_vertical_align='top')
         pane.dataFormula("form.title", "code+'-'+description", code="^.code", description="^.description")
         pane.dataFormula(".full_description", "description", description='^.description',
                          full_description='=.full_description', _if='!full_description')

@@ -1,7 +1,7 @@
 .. _genro_components_introduction:
 
 ============
-Introduction
+introduction
 ============
     
     *Last page update*: |today|
@@ -10,7 +10,6 @@ Introduction
     * :ref:`components_location`
     * :ref:`components_active_passive`
     * :ref:`components_requirements`
-    * :ref:`components_list`
     
 .. _components_def:
 
@@ -119,7 +118,7 @@ components requirements
                          then your "``py_requires``" will be::
                          
                              py_requires = 'power_components/yourcomponent:Power'
-                     
+                             
 .. _components_standard:
 
 standard component
@@ -168,35 +167,4 @@ passive component
 -----------------
     
     The passive component is a component that doesn't have its own main method, so you
-    have to define your own *main* method in your :ref:`webpages_webpages`.
-    
-.. _components_list:
-
-List of all the components
-==========================
-
-    We list here all the components you can find in Genro. You can find them divided in
-    types. You can discover more of a component type or more of a component by clicking
-    on the relative links.
-
-    **Dialogs**:
-    
-    * iframedialog
-    * simpledialog
-        
-    **Linkers**:
-    
-    * :ref:`th_linker_base`
-    * :ref:`th_linkerbar`
-    * :ref:`th_linkerbox`
-    
-    **Tables**:
-    
-    * :ref:`genro_th`
-    
-    **add???**
-    
-    * :ref:`genro_includedview` - **deprecated** (*0.7*)
-    * timetable_dh
-    * :ref:`genro_frameindex`
-        
+    have to define your own *main* method in your :ref:`webpages_webpages`.        

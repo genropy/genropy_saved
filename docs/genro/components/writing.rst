@@ -1,15 +1,20 @@
 .. _genro_components_writing:
 
 ===================
-Writing a component
+writing a component
 ===================
     
     *Last page update*: |today|
     
+    * :ref:`writing_good_component`
+    * :ref:`component_tutorial`
+    
     Writing a component with GenroPy is easy: the framework allow to create a component
     in a simple way and allow to extract it from a page for an external usage.
 
-How to create a good component
+.. _writing_good_component:
+
+how to create a good component
 ==============================
 
     If you want to create a good component you have to follow some useful tips:
@@ -54,6 +59,13 @@ How to create a good component
     * **Test your component in a blank page.** In this way you can verify if all the dependencies (like
       :ref:`webpages_py_requires`, :ref:`webpages_css_requires`, etc.) are correctly declared and you can
       verify the correct management of a lack of callbacks.
+      
+.. _component_tutorial:
+
+tutorial: creation of a component
+=================================
+
+    add???
       
 **Footnotes:**
 

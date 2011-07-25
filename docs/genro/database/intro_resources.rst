@@ -12,8 +12,9 @@ resources
     We'll call *resources* all the files that you keep in a ``resources`` folder.
     In particular, your *resources* can be:
     
-    * javascript files
-    * :ref:`genro_css` files
+    * javascript and CSS files: you probably know everything about javascript and css.
+      What you don't know is how they interact with Genro. For more information, check
+      the :ref:`genro_css` and the :ref:`genro_javascript` documentation page
     * :ref:`genro_component`\s, or, more generally, other Python modules
     
     You can define your resources as *public resources* or *private resources*:
@@ -23,7 +24,7 @@ resources
       project in which the resource has been defined.
       
 .. _genro_public_resource:
-    
+
 public resource
 ---------------
     

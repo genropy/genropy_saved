@@ -73,6 +73,10 @@ TableHandler
         * :ref:`th_linkerbar`
         * :ref:`th_linkerbox`
         
+    * :ref:`includedgrid`:
+    
+        :ref:`ig_attributes`
+        
     **Further informations**
     
     * :ref:`th_attr_expl`:
@@ -80,6 +84,13 @@ TableHandler
         * :ref:`th_formresource`
         * :ref:`th_viewresource`
         * :ref:`th_relation_condition`
+        
+    **GUI**
+        
+    * :ref:`th_gui`:
+    
+        * :ref:`th_query_bar`
+    
         
 .. _th_introduction:
 
@@ -318,6 +329,11 @@ resource webpage
     
     .. image:: ../../_images/components/th/th2.png
     
+    .. note:: by default the View and the Form classes will be showned in two different pages
+              of a single stack container. In other words, the default TableHandler type used
+              will be the :ref:`th_stack`. If you need any other TableHandler type, you have
+              to use the :ref:`th_options` method to change this default behavior.
+    
     Let's check now the code inside a resource page.
     
     We have to create a :ref:`th_view_class` and a :ref:`th_form_class`. For doing this
@@ -458,7 +474,7 @@ Form class
               to a normal webpage; for more information, check the :ref:`menu_th` documentation
               section.
               
-.. _th_rpc:
+    .. _th_rpc:
 
 usage of a dataRpc in a resource webpage
 ----------------------------------------
@@ -662,12 +678,20 @@ TableHandler common attributes
       depending on the widget (check it in their method definition).
     * *default_kwargs*: you can add different kwargs:
         
-        * *virtualStore*: boolean. add???
-        * *relation*: add???.
+        * *virtualStore*: boolean. If it is set to ``True``, it introduces two features:
+            
+            #. Add the :ref:`th_query_bar` (if it is not yet visualized)
+            #. Optimize the time to give the result of a user query: if the user query
+               returns a huge set of records as result, the virtualStore load on the client
+               only the set of records that user sees in his window, and load more records
+               when user scrolls through the result list.
+               
+        * *relation*: an alternative to the *table* and the *condition* attributes. For more
+          information, check the :ref:`th_relation_condition` sections
         * *condition*: MANDATORY unless you specify the relation attribute. Check the
-          :ref:`th_relation_condition` example for more information.
+          :ref:`th_relation_condition` section for more information.
         * *condition_kwargs*: the parameters of the condition. Check the
-          :ref:`th_relation_condition` example for more information.
+          :ref:`th_relation_condition` section for more information.
         * *grid_kwargs*: add???.
         * *hiderMessage*: add???.
         * *pageName*: add???.
@@ -678,9 +702,46 @@ TableHandler common attributes
 
 th_options
 ----------
-
-    add??? (I have to wait that this method becomes stable...)
     
+    It returns a dict to customize your Tablehandler. You can use it both as a method of the
+    :ref:`th_view_class` or as a method of the :ref:`th_form_class`.
+    
+    * *DIALOG_KWARGS* add???
+    
+    * *formInIframe*: add???
+    * *formResource*: allow to change the default :ref:`th_form_class`
+      Check the :ref:`th_formresource` section for more information
+    * *fpane_kwargs*: string. Use it if you have a :ref:`th_border`. Allow to set the
+      attributes of the :ref:`genro_data_entry`. For the complete list and description
+      of the *fpane_kwargs* check the :ref:`th_border` section
+    * *public*: add???
+    * *readOnly*: boolean. If ``True``, the element that carries the readOnly attribute is
+      in read-only mode
+    * *viewResource*: allow to change the default :ref:`th_view_class`
+      Check the :ref:`th_viewresource` section for more information
+    * *virtualStore*: boolean. If it is set to ``True``, it introduces two features:
+          
+        #. Add the :ref:`th_query_bar` (if it is not yet visualized)
+        #. Optimize the time to give the result of a user query: if the user query
+           returns a huge set of records as result, the virtualStore load on the client
+           only the set of records that user sees in his window, and load more records
+           when user scrolls through the result list
+           
+    * *vpane_kwargs*: string. Use it if you have a :ref:`th_border`. Allow to set the
+      attributes of the :ref:`genro_view_data`. For the complete list and description
+      of the *vpane_kwargs* check the :ref:`th_border` section
+    * *widget*: string. Specify the TableHandler you want to use. The accepted strings are:
+        
+        * 'border' for the :ref:`th_border`
+        * 'dialog' for the :ref:`th_dialog`
+        * 'stack' for the :ref:`th_stack`
+        
+        **Example**::
+        
+            class View(BaseComponent):
+                def th_options(self):
+                    return dict(widget='border',vpane_height='60%')
+                    
 .. _th_border:
 
 borderTableHandler
@@ -688,7 +749,7 @@ borderTableHandler
 
     **Definition:**
     
-    .. method:: th_borderTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',readOnly=False,viewRegion=None,formRegion=None,vpane_kwargs=None,fpane_kwargs=None,**kwargs)
+    .. method:: TableHandler.th_borderTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',readOnly=False,viewRegion=None,formRegion=None,vpane_kwargs=None,fpane_kwargs=None,**kwargs)
     
     **Description:**
     
@@ -715,7 +776,7 @@ borderTableHandler
     * *loadEvent*: add???
     * *viewRegion*: add?
     * *formRegion*: add?
-    * *vpane_kwargs*: allow to set the attributes of the :ref:`genro_view_data`.
+    * *vpane_kwargs*: allow to set the attributes of the :ref:`genro_view_data`
       
       In particular, you have the following options:
       
@@ -725,13 +786,12 @@ borderTableHandler
       * *vpane_width* (OR *vpane_height*): specify the width (or the height) occupied
         by the View class (tip: we suggest you to use a percentage, like '30%')
         By default, the View class has ``vpane_height='50%'``
-      * *add???*: other options?
-      
+        
       Example::
       
         vpane_region='left',vpane_width='36%'
         
-    * *fpane_kwargs*: allow to set the attributes of the :ref:`genro_data_entry`.
+    * *fpane_kwargs*: allow to set the attributes of the :ref:`genro_data_entry`
       
       In particular, you have the following options:
       
@@ -741,7 +801,6 @@ borderTableHandler
       * *fpane_width*: specify the width occupied by the Form class (tip: we
         suggest you to use a percentage, like '30%') By default, the Form class has
         ``fpane_height='50%'``
-      * *add???*: other options?
       
       Example::
 
@@ -754,7 +813,7 @@ dialogTableHandler
 
     **Definition:**
     
-    .. method:: th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,[**kwargs])
+    .. method:: TableHandler.th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
     
     **Description:**
     
@@ -794,7 +853,7 @@ pageTableHandler
 
     **Definition:**
     
-    .. method:: th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,formInIframe=False,reloader=None,default_kwargs=None,**kwargs)
+    .. method:: TableHandler.th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,formInIframe=False,reloader=None,default_kwargs=None,dbname=None,**kwargs)
     
     **Description:**
     
@@ -829,7 +888,7 @@ paletteTableHandler
 
     **Definition:**
     
-    .. method:: th_paletteTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,palette_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
+    .. method:: TableHandler.th_paletteTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,palette_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
     
     **Description:**
     
@@ -865,7 +924,7 @@ plainTableHandler
 
     **Definition:**
     
-    .. method:: th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=True,**kwargs)
+    .. method:: TableHandler.th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,reloader=None,readOnly=True,**kwargs)
     
     **Description:**
     
@@ -898,7 +957,7 @@ stackTableHandler
 
     **Definition:**
     
-    .. method:: th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
+    .. method:: TableHandler.th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
     
     **Description:**
     
@@ -955,7 +1014,7 @@ thIframe
     
     **Definition:**
     
-    .. method:: th_thIframe(self,pane,method=None,src=None,**kwargs)
+    .. method:: TableHandler.th_thIframe(self,pane,method=None,src=None,**kwargs)
     
     **Description:**
     
@@ -974,7 +1033,7 @@ IframeDialog
 
     **Definition:**
     
-    .. method:: th_thIframeDialog(self,pane,**kwargs)
+    .. method:: ThLinker.th_thIframeDialog(self,pane,**kwargs)
     
     **Description:**
     
@@ -991,7 +1050,7 @@ iframedispatcher
     
     **Definition:**
     
-    .. method:: rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,**kwargs)
+    .. method:: TableHandler.rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,table=None,**kwargs)
     
     **Description:**
     
@@ -999,9 +1058,10 @@ iframedispatcher
     
     **attributes**:
     
-    * *root*: add???.
-    * *methodname*: add???.
-    * *pkey*: add???.
+    * *root*: add???
+    * *methodname*: add???
+    * *pkey*: add???
+    * *table*: add???
     
 .. _th_iframepalette:
 
@@ -1010,7 +1070,7 @@ IframePalette
 
     **Definition:**
     
-    .. method:: th_thIframePalette(self,pane,**kwargs)
+    .. method:: ThLinker.th_thIframePalette(self,pane,**kwargs)
     
     **Description:**
     
@@ -1043,10 +1103,6 @@ attributes here:
 
     * *pane*: MANDATORY - the :ref:`genro_contentpane` to which the TableHandler
       is linked.
-      
-      .. warning:: you have to link a TableHandler to a :ref:`genro_contentpane`;
-                   you can't use any other :ref:`layout elements <genro_layout_index>`
-                   
     * *field*: a :ref:`genro_field`; through this object the linker becomes related to the
       :ref:`genro_table` to which the field belongs to.
     * *newRecordOnly*: add???
@@ -1069,7 +1125,7 @@ linker
 
     **Definition:**
     
-    .. method:: th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,openIfNew=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs)
+    .. method:: ThLinker.th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,openIfEmpty=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs)
     
     **Description:**
     
@@ -1085,7 +1141,7 @@ linker
       :ref:`th_formresource` section for more information.
     * *formUrl*: add???
     * *table*: the database :ref:`genro_table` to which the th_linker refers to
-    * *openIfNew*: add???
+    * *openIfEmpty*: add???
     * *embedded*: add???
     
 .. _th_linkerbar:
@@ -1095,7 +1151,7 @@ linkerBar
 
     **Definition:**
     
-    .. method:: th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs)
+    .. method:: ThLinker.th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs)
     
     **Description:**
     
@@ -1118,7 +1174,7 @@ linkerBox
 
     **Definition:**
     
-    .. method:: th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfNew=None,_class='pbl_roundedGroup',label=None,**kwargs)
+    .. method:: ThLinker.th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfEmpty=None,_class='pbl_roundedGroup',label=None,**kwargs)
     
     **Description:**
     
@@ -1134,7 +1190,7 @@ linkerBox
     * *frameCode*: add???
     * *formResource*: allow to change the default :ref:`th_form_class`. Check the
       :ref:`th_formresource` section for more information.
-    * *openIfNew*: add???
+    * *openIfEmpty*: add???
     * *_class*: the CSS style
     * *label*: the th_linkerBox label
     
@@ -1151,6 +1207,30 @@ linkerBox
                        validate_notnull=True,validate_notnull_error='!!Required',
                        newRecordOnly=True,formResource=':MyForm')
                        
+.. _includedgrid:
+
+includedGrid
+============
+
+    .. method:: add???
+    
+    lavora come se fosse la visualizzazione di una Bag; nella rappresentazione griglia
+    vedi tutte le righe di una Bag, quando editi (dialog oppure inline) (l'editing inline
+    è solo della includedGrid). gridEditor serve a modificare la includedGrid.
+    
+    il "datapath" dell'includedGrid serve solo come retrocompatibilità con l'includedView, quindi come
+    path per i dati nell'includedGrid bisogna usare lo "storepath"
+
+    lo storepath può puntare alla Bag (aggiungere anche il datamode='bag'), oppure si può puntare 	ad un path chiocciolinato
+    
+    
+.. _ig_attributes:
+
+includedGrid attributes
+-----------------------
+
+    add???
+
 .. _th_attr_expl:
 
 Attributes explanation
@@ -1332,8 +1412,39 @@ viewResource attribute
 usage of table, condition and relation parameters
 -------------------------------------------------
 
-    add???
+    A correct setting of a TableHandler needs:
+    
+    * a *table* parameter: string. Set the :ref:`genro_table` to which the TableHandler is linked.
+    * *condition*: the condition gathers the default query parameters, that will be added to the
+      optional query made by the user.
+      
+    Alternatively, if add???, you can specify the *relation* parameter;
+    if you do so, the *table* and the *condition* attributes are taken automatically.
+    
+    Let's see some examples:
+    
+        **Example**: *table* and *condition* usage
         
+            add???
+            
+        **Example**: *relation* usage
+        
+            add???
+    
+.. _th_gui:
+    
+TableHandler GUI
+================
+
+    In this section we describe all the pre-set tools user finds in the TableHandler
+
+.. _th_query_bar:
+    
+query bar
+---------
+
+    add???
+    
 **Footnotes**:
 
 .. [#] The title of the view page is taken from the :ref:`genro_name_long` of the :ref:`genro_table` to which the current webpage refers to.

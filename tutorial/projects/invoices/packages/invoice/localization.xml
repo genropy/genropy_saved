@@ -55,7 +55,7 @@
     <city _key="City" en="City" it="Città"></city>
     <code _key="Code" en="Code" it="Codice"></code>
     <Code_is_required_ _key="Code is required" en="Code is required" it="Inserimento codice obbligatorio"></Code_is_required_>
-    <country _key="Country" en="Country" it="Paese"></country>
+    <country _key="Country" en="Country" it="Nazione"></country>
     <customer _key="Customer" en="Customer" it="Cliente"></customer>
     <Customer_is_mandatory_ _key="Customer is mandatory" en="Customer is mandatory" it="Inserimento cliente obbligatorio"></Customer_is_mandatory_>
     <customers _key="Customers" en="Customers" it="Clienti"></customers>

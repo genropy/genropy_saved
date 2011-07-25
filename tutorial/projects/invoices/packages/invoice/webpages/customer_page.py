@@ -22,7 +22,7 @@ class GnrCustomWebPage(object):
         fb.field('zip')
         fb.field('city',validate_case='t')
         #NISO: non va la dbSelect...
-        fb.field('country',tag='dbSelect',dbtable='glbl.nazione',value='.country',
+        fb.field('country',name='!!Country',tag='dbSelect',dbtable='glbl.nazione',value='.country',
                   columns='$code,$name',hasDownArrow=True)        
                   
     def page2(self, pane):

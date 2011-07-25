@@ -13,7 +13,7 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('code',width='7em')
-        r.fieldcell('description',width='20em')
+        r.fieldcell('description',width='25em')
         r.fieldcell('price',width='7em')
         
     def th_order(self):
