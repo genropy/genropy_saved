@@ -1,7 +1,10 @@
 .. _sql_commons:
 
+=======
 commons
 =======
+
+    *Last page update*: |today|
 
     * :ref:`pkey`
     * :ref:`relationdict`
@@ -9,14 +12,14 @@ commons
 .. _pkey:
 
 pkey
-----
+====
 
     add???
 
 .. _relationdict:
 
 relationDict
-------------
+============
 
     A dict to assign a symbolic name to a :ref:`relation_path`.
     

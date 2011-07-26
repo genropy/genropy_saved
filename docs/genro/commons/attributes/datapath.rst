@@ -80,5 +80,7 @@ symbolic datapath
 the #FORM path
 --------------
     
-    add??? 
+    add???
     
+    ``#FORM.pkey`` is the current pkey of the record
+        

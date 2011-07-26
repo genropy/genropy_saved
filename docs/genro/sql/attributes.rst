@@ -4,6 +4,8 @@
 sql attributes
 ==============
 
+    *Last page update*: |today|
+    
     * :ref:`sql_attributes`:
     
         * :ref:`sql_columns`

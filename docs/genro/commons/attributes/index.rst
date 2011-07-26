@@ -18,6 +18,7 @@ common attributes
     nodeId
     readonly
     rowcaption
+    tags
     tooltip
     visible
     zoom

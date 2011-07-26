@@ -4,6 +4,8 @@
 paths
 =====
 
+    *Last page update*: |today|
+    
     * :ref:`relation_path`
     * :ref:`inv_rel_path`
 
