@@ -342,7 +342,7 @@ class GnrPackage(object):
         
           .. note:: we suggest you to call with the same name both the schema and the
                     package. For more information, check the
-                    :ref:`introduction to a package <genro_packages_introduction>`.
+                    :ref:`introduction to a package <packages_introduction>`.
                     
         * ``comment`` includes a comment string.
         * ``name_short`` includes a string of the :ref:`name_short` of the schema.

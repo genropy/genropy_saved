@@ -97,7 +97,7 @@ def zzzcomponent_hook(func_or_name):
         return func_or_name
         
 class BaseComponent(object):
-    """The base class for the :ref:`components <genro_component>`"""
+    """The base class for the :ref:`components <component>`"""
     def __onmixin__(self, _mixinsource, site=None):
         js_requires = splitAndStrip(getattr(_mixinsource, 'js_requires', ''), ',')
         css_requires = splitAndStrip(getattr(_mixinsource, 'css_requires', ''), ',')

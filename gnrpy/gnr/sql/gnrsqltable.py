@@ -250,7 +250,7 @@ class SqlTable(GnrObject):
         
     @property
     def rowcaption(self):
-        """Return the table's :ref:`database_rowcaption`"""
+        """Return the table's :ref:`rowcaption`"""
         return self.model.rowcaption
         
     @property
