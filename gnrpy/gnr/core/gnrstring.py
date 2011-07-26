@@ -653,9 +653,7 @@ def encode(number, base='/16', nChars=None):
 def fromIsoDate(datestring):
     """add???
         
-    :param datestring: add???
-    :returns: add???
-    """
+    :param datestring: add???"""
     if datestring and datestring != '0000-00-00':
         return datetime.date(*[int(el) for el in wordSplit(datestring)])
         
@@ -664,26 +662,22 @@ def fromText(mystring, obj, locale=None):
     
     :param mystring: add???
     :param obj: add???
-    :param locale: add???. 
-    :returns: add???
-    """
+    :param locale: string. The current locale (e.g: en, en_us, it)"""
     #what?
     return parselocal(mystring, obj, locale=locale)
     
 def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=None):
-    """Return a unicode string representing an object of any class.
+    """Return a unicode string representing an object of any class
     
     If there are ``locale`` or ``format`` parameters Babel is used to format the value
-    according to the given localization or format.
+    according to the given localization or format
     
     :param obj: the object to be transformed in a string
-    :param locale: add???. 
-    :param format: add???. 
-    :param mask: add???. 
-    :param encoding: The multibyte character encoding you choose. 
-    :param currency: add???. 
-    :returns: a unicode string representing an object of any class
-    """
+    :param locale: string. The current locale (e.g: en, en_us, it)
+    :param format: add???
+    :param mask: add???
+    :param encoding: The multibyte character encoding you choose
+    :param currency: add???"""
     if isinstance(obj, list) or isinstance(obj, tuple):
         return ','.join([toText(v) for v in obj])
         #what?
@@ -700,11 +694,11 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
 def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     """add???
     
-    :param dtype: the :ref:`datatype`.
-    :param locale: add???. 
-    :param format: add???. 
-    :param mask: add???. 
-    :param encoding: The multibyte character encoding you choose."""
+    :param dtype: the :ref:`datatype`
+    :param locale: string. The current locale (e.g: en, en_us, it)
+    :param format: add???
+    :param mask: add???
+    :param encoding: The multibyte character encoding you choose"""
     typeSamples = {'B': 'true', 'D': datetime.date(2005, 10, 10), 'H': datetime.time(4, 5),
                    'DH': datetime.datetime.now(),
                    'I': 1234, 'L': 48205294, 'R': 34567.67, 'serial': 123445566}

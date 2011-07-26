@@ -1,4 +1,4 @@
-.. _tree:
+.. _genro_tree:
 
 ====
 tree

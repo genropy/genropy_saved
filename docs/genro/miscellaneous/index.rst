@@ -20,7 +20,6 @@ Documents to revise
     palette
     print
     struct
-    textmate
     trigger
     user_interface
     viewform

@@ -11,3 +11,5 @@ SQL
     
     introduction
     query
+    attributes
+    commons

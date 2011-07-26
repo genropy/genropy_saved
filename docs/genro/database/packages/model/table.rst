@@ -45,18 +45,10 @@ Definition
 Creation of a table
 ===================
     
-    To autocreate a table header, you have to install Textmate_ with :ref:`textmate_bundle`.
-    
-    .. _Textmate: http://macromates.com/
-    
-    If you have them, then you can write "table" and then press the "Tab" key.
-    
-    Alternatively, you can write by yourself the header lines:
-    
-    * First write the following line for the utf-8 encoding::
+    First write the following line for the utf-8 encoding::
     
         # encoding: utf-8
-    
+        
     Now we have to introduce the right class for a table; there are many options (that we
     discuss in the :ref:`table_classes` documentation page). We use now the standard
     method::

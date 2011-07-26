@@ -154,7 +154,7 @@ class ResourceLoader(object):
         """add???
         
         :param path: add???. 
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         if pkg == '*':
             module_path = os.path.join(self.site_path, path)
@@ -208,7 +208,7 @@ class ResourceLoader(object):
         """Look for custom classes in the package
         
         :param page_classe: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         if pkg:
             package = self.gnrapp.packages[pkg]
@@ -223,7 +223,7 @@ class ResourceLoader(object):
         """Look in the plugins folders for a file named as the current webpage and get all classes
         
         :param path: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         plugin_webpage_classes = []
         path = path.split(os.path.sep)
@@ -253,7 +253,7 @@ class ResourceLoader(object):
         
         :param page_class: add???
         :param path: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         path = path.split(os.path.sep)
         if pkg:
@@ -269,7 +269,7 @@ class ResourceLoader(object):
         
         :param page_class: add???
         :param path: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         if pkg:
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
@@ -307,7 +307,7 @@ class ResourceLoader(object):
     def package_resourceDirs(self, pkg):
         """add???
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page"""
         pkg = self.gnrapp.packages[pkg]
         if not hasattr(pkg, '_resourceDirs'):
@@ -464,7 +464,7 @@ class ResourceLoader(object):
     def loadResource(self, pkg, *path):
         """add???
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param \* path: add???"""
         resourceDirs = self.package_resourceDirs(pkg)
@@ -477,7 +477,7 @@ class ResourceLoader(object):
         """add???
         
         :param page: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param \* path: add???
         """
@@ -547,7 +547,7 @@ class ResourceLoader(object):
     def resourcesAtPath(self, pkg, path, ext):
         """add???
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param path: add???
         :param ext: add???"""

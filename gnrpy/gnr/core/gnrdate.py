@@ -54,12 +54,11 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
     """Parse a string representing a date or a period.
     
     :param datestr: the string to be interpreted
-    :param workdate: a date of reference to calculate relative periods (e.g: tomorrow; e.g: this week).
-                     
-    :param months: names of months according to locale (just for caching). 
-    :param days: names of weekdays according to locale (just for caching). 
-    :param quarters: names of quarters according to locale (just for caching). 
-    :param locale: the current locale string (e.g: en, en_us, it). 
+    :param workdate: a date of reference to calculate relative periods (e.g: tomorrow; e.g: this week)
+    :param months: names of months according to locale (just for caching)
+    :param days: names of weekdays according to locale (just for caching)
+    :param quarters: names of quarters according to locale (just for caching)
+    :param locale: string. The current locale (e.g: en, en_us, it)
     :param isEndPeriod: if the string represents a period, return the end date (default return the start date)
     :returns: datetime.date or tuple(year,month) or None
     
@@ -219,11 +218,9 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
 def periodCaption(dateFrom=None, dateTo=None, locale=None):
     """Convert two dates to a string in the specified locale that decodeDatePeriod will understand.
     
-    :param dateFrom: add???. 
-    :param dateTo: add???. 
-    :param locale: add???. 
-    :returns: add???
-    """
+    :param dateFrom: add???
+    :param dateTo: add???
+    :param locale: string. The current locale (e.g: en, en_us, it)"""
     localNoPeriod = gnrlocale.getDateKeywords('no period', locale)[0]
     localTo = gnrlocale.getDateKeywords('to', locale)[0]
     localFrom = gnrlocale.getDateKeywords('from', locale)[0]
@@ -240,7 +237,7 @@ def periodCaption(dateFrom=None, dateTo=None, locale=None):
         
 def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtype='D'):
     """Parse a string representing a date or a period and returns a string of one or two dates in iso format separated by ``;``.
-    See doc of :meth:`decodeOneDate` for details on possible formats of a single date.
+    See doc of :meth:`decodeOneDate` for details on possible formats of a single date
     
     The input string can be:
     
@@ -259,12 +256,11 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     * a single expression representing a single date: e.g. today returns ``'2008-04-28'``
     
     :param datestr: add???
-    :param workdate: add???. 
-    :param locale: add???. 
+    :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
+                     value of the *locale* parameter
+    :param locale: string. The current locale (e.g: en, en_us, it)
     :param returnDate: add???. Default value is ``False``
-    :param dtype: the :ref:`datatype`.
-    :returns: add???
-    """
+    :param dtype: the :ref:`datatype`"""
     workdate = workdate or datetime.date.today()
     months = gnrlocale.getMonthNames(locale)
     days = gnrlocale.getDayNames(locale)
@@ -403,11 +399,11 @@ def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
     """add???
     
     :param period: add???
-    :param wkdlist: add???. 
-    :param locale: add???. 
-    :param workdate: add???. 
-    :param asDate: add???. Default value is ``True``
-    """
+    :param wkdlist: add???
+    :param locale: string. The current locale (e.g: en, en_us, it)
+    :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
+                     value of the *locale* parameter
+    :param asDate: add???. Default value is ``True``"""
     dstart, dstop = decodeDatePeriod(period, returnDate=True, locale=locale, workdate=workdate)
     itr = rrule.rrule(rrule.DAILY, dtstart=dstart, until=dstop, byweekday=wkdlist)
     for d in itr:

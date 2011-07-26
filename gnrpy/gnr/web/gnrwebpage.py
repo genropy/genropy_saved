@@ -332,7 +332,7 @@ class GnrWebPage(GnrBaseWebPage):
     def mixinComponent(self, pkg, *path,**kwargs):
         """add???
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param \*path: add???
         :param \*\*kwargs: add???"""
@@ -487,18 +487,18 @@ class GnrWebPage(GnrBaseWebPage):
     def rpc_changeLocale(self, locale):
         """add???
         
-        :param locale: add???"""
+        :param locale: string. The current locale (e.g: en, en_us, it)"""
         self.connection.locale = locale.lower()
         
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, dtype=None):
         """add???
         
         :param obj: add???
-        :param locale: add???. 
-        :param format: add???. 
-        :param mask: add???. 
-        :param encoding: add???. 
-        :param dtype: the :ref:`datatype`."""
+        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param format: add???
+        :param mask: add???
+        :param encoding: add???
+        :param dtype: the :ref:`datatype`"""
         locale = locale or self.locale
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
         
@@ -920,7 +920,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: add???
         :param ext: add???. 
         :param add_mtime: add???. Default value is ``False``
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
@@ -932,7 +932,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param fpath: add???
         :param add_mtime: add???. Default value is ``False``
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         url = None 
         packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
@@ -962,7 +962,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param ext: add???. 
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         resourceDirs = self.resourceDirs
         if pkg:
@@ -978,7 +978,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param classname: add???. 
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         res = self.getResource(path,pkg=pkg,ext='py')
         if res:
@@ -992,7 +992,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param table: add???
         :param path: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         pkg,table = table.split('.')
         path,classname= path.split(':')
@@ -1008,7 +1008,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param resource: add???. 
         :param ext: add???. 
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         path = self.getResource(path=resource,ext=ext,pkg=pkg)
         if path:
@@ -1067,7 +1067,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param data: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. Default value is ``''``"""
         self.site.setPreference(path, data, pkg=pkg)
         
@@ -1075,7 +1075,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. Default value is ``''``
         :param dflt: add???. Default value is ``''``"""
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
@@ -1084,7 +1084,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. Default value is ``''``
         :param dflt: add???. Default value is ``''``
         :param username: add???. Default value is ``''``"""
@@ -1107,7 +1107,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param data: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. Default value is ``''``
         :param username: add???. Default value is ``''``"""
         self.site.setUserPreference(path, data, pkg=pkg, username=username)

@@ -173,7 +173,7 @@ class DbModel(object):
     def checkRelationIndex(self, pkg, table, column):
         """add???
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page.
         :param table: the :ref:`table` name
         :param column: add???"""
@@ -230,7 +230,7 @@ class DbModel(object):
     def packageMixin(self, pkg, obj):
         """add???
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page.
         :param obj: add???"""
         self._doMixin('pkg.%s' % pkg, obj)
@@ -241,7 +241,7 @@ class DbModel(object):
     def package(self, pkg):
         """Return a package object
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page."""
         return self.obj[pkg]
         
@@ -249,7 +249,7 @@ class DbModel(object):
         """Return a table object
         
         :param tblname: the table name
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page. """
         if '.' in tblname:
             pkg, tblname = tblname.split('.')[:2]

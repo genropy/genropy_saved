@@ -700,12 +700,10 @@ class GnrApp(object):
     def updateLocalization(self, pkg, data, locale):
         """add???
 
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param data: add???
-        :param locale: add???
-        :returns: add???
-        """
+        :param locale: string. The current locale (e.g: en, en_us, it)"""
         pkgobj = self.packages[pkg]
         locpath = os.path.join(pkgobj.packageFolder, 'localization.xml')
         pkglocbag = Bag(locpath)
@@ -720,11 +718,9 @@ class GnrApp(object):
         """add???
 
         :param path: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`packages_index` documentation page. 
-        :param locale: add???. 
-        :returns: add???
-        """
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page
+        :param locale: string. The current locale (e.g: en, en_us, it)"""
         if not pkg:
             pkg = self.config.getAttr('packages', 'default')
         return self.packages[pkg].getResource(path, locale=locale)

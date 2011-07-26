@@ -8,11 +8,14 @@ query
     
     add???
     
-    In a query you can refer itself to the primary key with::
+    In a query you can refer itself to the primary key of the table with the
+    following syntax::
     
         where='$pkey=:pkey'
         
-    example::
+    where :ref:`pkey` is the name for the primary key.
     
-        >>> db.table('glbl.provincia').query(where='$pkey=:pkey',pkey='MI',addPkeyColumn=False).fetch()
-        [[sigla=MI,regione=LOM,nome=Milano,codice_istat=013,ordine=22,ordine_tot=None,cap_valido=None]]
+        **Example**:
+        
+        >>> db.table('location.province').query(where='$pkey=:pkey',pkey='MI',addPkeyColumn=False).fetch()
+        [initials=MI,region=LOM,name=Milan,istat_code=013,order=22,total_order=None,valid_vat=None]

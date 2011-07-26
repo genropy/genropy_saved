@@ -37,10 +37,10 @@ class ModelExtractor(object):
     def buildTables(self, pkg, pkg_name):
         """add???
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
-        :param pkg_name: add???
-        """
+        :param pkg_name: the name of the package. For more information, check the
+                         :ref:`packages_index` documentation page"""
         elements = self.dbroot.adapter.listElements('tables', schema=pkg_name)
         for tbl_name in elements:
             tbl = pkg.table(tbl_name)
@@ -50,11 +50,10 @@ class ModelExtractor(object):
     def buildColumns(self, tbl, pkg_name, tbl_name):
         """add???
         
-        :param tbl: add???
-        :param pkg_name: the name of your package. For more information, check the
+        :param tbl: the :ref:`table` object
+        :param pkg_name: the name of the package. For more information, check the
                          :ref:`packages_index` documentation page
-        :param tbl_name: add???
-        """
+        :param tbl_name: the name of the database :ref:`table`"""
         columns = list(self.dbroot.adapter.getColInfo(schema=pkg_name, table=tbl_name))
         gnrlist.sortByItem(columns, 'position')
         
@@ -82,9 +81,10 @@ class ModelExtractor(object):
     def buildIndexes(self, tbl, pkg_name, tbl_name):
         """add???
         
-        :param tbl: add???
-        :param pkg_name: add???
-        :param tbl_name: add???"""
+        :param tbl: the :ref:`table` object
+        :param pkg_name: the name of the package. For more information, check the
+                         :ref:`packages_index` documentation page
+        :param tbl_name: the name of the database :ref:`table`"""
         for ind in self.dbroot.adapter.getIndexesForTable(schema=pkg_name, table=tbl_name):
             if not ind['primary']:
                 tbl.index(ind['columns'], name=ind['name'], unique=ind['unique'])
@@ -160,7 +160,7 @@ class SqlModelChecker(object):
         """Check if the current package is contained by a not defined schema and then call the
         :meth:`_checkTable` method for each table. Return a list containing sql statements
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :returns: a list containing sql statements"""
         self._checkSqlSchema(pkg)
@@ -202,8 +202,7 @@ class SqlModelChecker(object):
         """Check if any column has been changed and then build the sql statements for
         adding/deleting/editing table's columns calling the :meth:`_buildColumn` method.
         
-        :param tbl: the table to be checked
-        """
+        :param tbl: the :ref:`table` object"""
         tablechanges = []
         
         if tbl.columns:

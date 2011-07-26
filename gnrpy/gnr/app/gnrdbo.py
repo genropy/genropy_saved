@@ -62,7 +62,7 @@ class GnrDboPackage(object):
     def loadUserObject(self, pkg=None, **kwargs):
         """add???
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page"""
         return self.dbtable('userobject').loadUserObject(pkg=pkg or self.name, **kwargs)
         
@@ -70,7 +70,7 @@ class GnrDboPackage(object):
         """add???
         
         :param data: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page"""
         return self.dbtable('userobject').saveUserObject(data, pkg=pkg or self.name, **kwargs)
         
@@ -78,14 +78,14 @@ class GnrDboPackage(object):
         """add???
         
         :param id: the object id
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page"""
         return self.dbtable('userobject').deleteUserObject(pkg=pkg or self.name, id=id)
         
     def listUserObject(self, pkg=None, **kwargs):
         """add???
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page"""
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
         
@@ -110,7 +110,7 @@ class TableBase(object):
                   group='zzz', group_name='!!System'):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
-        :param tbl: the database :ref:`table`
+        :param tbl: the :ref:`table` object
         :param id: boolean. If ``True``, create the ``id`` column. It is normally used as the primary key of a table
         :param ins: boolean. If ``True``, create the ``__ins_ts`` column. Allow to know the time (date and hour)
                     of the entry of a record
@@ -216,7 +216,7 @@ class TableBase(object):
     def setTagColumn(self, tbl, name_long=None, group=None):
         """add???
         
-        :param tbl: the database :ref:`table`
+        :param tbl: the :ref:`table` object
         :param name_long: the :ref:`name_long`
         :param group: add???"""
         name_long = name_long or '!!Tag'
@@ -238,7 +238,7 @@ class TableBase(object):
 class GnrHTable(TableBase):
     """A hierarchical table. More information on the :ref:`classes_htable` documentation section."""
     def htableFields(self, tbl):
-        """:param tbl: the database :ref:`table`
+        """:param tbl: the :ref:`table` object
         
         This method adds the following :ref:`table_columns` in your table:
         
@@ -322,7 +322,7 @@ class Table_counter(TableBase):
     def config_db(self, pkg):
         """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page"""
         tbl = pkg.table('counter', pkey='codekey', name_long='!!Counter', transaction=False)
         self.sysFields(tbl, id=False, ins=True, upd=True)
@@ -340,7 +340,7 @@ class Table_counter(TableBase):
         """add???
         
         :param name: the counter name
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param code: the counter code
         :param codekey: the codekey format (e.g. ``$YY`` for year)
@@ -357,7 +357,7 @@ class Table_counter(TableBase):
         """Generate a new number from the specified counter and return it as a string
         
         :param name: the counter name
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param code: the counter code
         :param codekey: the formatting string for the key
@@ -387,7 +387,7 @@ class Table_counter(TableBase):
         """add???
         
         :param name: the counter name
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param code: the counter code
         :param codekey: the formatting string for the key
@@ -406,7 +406,7 @@ class Table_counter(TableBase):
         
         :param codekey: the formatting string for the key
         :param code: the counter code
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param name: the counter name
         :param lastAssigned: add???"""
@@ -474,7 +474,7 @@ class Table_userobject(TableBase):
     def config_db(self, pkg):
         """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page"""
         tbl = pkg.table('userobject', pkey='id', name_long='!!User Object', transaction=False)
         self.sysFields(tbl, id=True, ins=True, upd=True)
@@ -497,9 +497,9 @@ class Table_userobject(TableBase):
         :param id: add???
         :param code: add???
         :param objtype: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
-        :param tbl: the database :ref:`table`
+        :param tbl: the :ref:`table` object
         :param userid: add???
         :param description: add???
         :param authtags: add???
@@ -546,7 +546,7 @@ class Table_userobject(TableBase):
         """add???
         
         :param id: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page"""
         self.delete({'id': id})
         
@@ -554,9 +554,9 @@ class Table_userobject(TableBase):
         """add???
         
         :param objtype: add???
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page 
-        :param tbl: the database :ref:`table` 
+        :param tbl: the :ref:`table` object
         :param userid: add???
         :param authtags: add???
         :param onlyQuicklist: add???"""
@@ -591,7 +591,7 @@ class Table_recordtag(TableBase):
     def config_db(self, pkg):
         """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page"""
         tbl = pkg.table('recordtag', pkey='id', name_long='!!Record tags', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
@@ -678,7 +678,7 @@ class Table_recordtag_link(TableBase):
     def config_db(self, pkg):
         """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
         
-        :param pkg: the abbreviation for the package name. For more information on a package, check the
+        :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page"""
         tbl = pkg.table('recordtag_link', pkey='id', name_long='!!Record tag link', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)

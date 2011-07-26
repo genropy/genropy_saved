@@ -130,9 +130,9 @@ class GnrBaseWebPage(GnrObject):
         """A :ref:`datarpc`. add???
         
         :param datestr: add???
-        :param workdate: the working date. (e.g: ``DD/MM/YYYY``). The date format depends on the
-                         value of the *locale* parameter. 
-        :param locale: add???. """
+        :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
+                         value of the *locale* parameter
+        :param locale: string. The current locale (e.g: en, en_us, it)"""
         workdate = workdate or self.workdate
         locale = locale or self.locale
         period = datestr

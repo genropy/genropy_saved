@@ -109,3 +109,4 @@ Fill comboBox through a Bag
                 
     The advantage of using a Bag is that you can add attributes to your records, but you lose the keys
     (they aren't supported from combobox).
+    Note that the id is set to the :ref:`pkey` attribute, that is the primary key.

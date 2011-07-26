@@ -136,12 +136,10 @@ class BagToHtml(object):
         """add???
         
         :param obj: add???
-        :param locale: add???. 
-        :param format: add???. 
-        :param mask: add???. 
-        :param encoding: The multibyte character encoding you choose. 
-        :returns: add???
-        """
+        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param format: add???
+        :param mask: add???
+        :param encoding: The multibyte character encoding you choose. """
         locale = locale or self.locale
         encoding = locale or self.encoding
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding, **kwargs)
@@ -223,14 +221,12 @@ class BagToHtml(object):
         """add???
         
         :param path: add???
-        :param default: add???. 
-        :param locale: add???. 
-        :param format: add???. 
-        :param mask: add???. 
+        :param default: add???
+        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param format: add???
+        :param mask: add???
         :param root: the root of the page. For more information, check the
-                     :ref:`webpages_main` documentation section. 
-        :returns: add???
-        """
+                     :ref:`webpages_main` documentation section"""
         if root is None:
             root = self._data['record']
         attr = {}
@@ -361,15 +357,13 @@ class BagToHtml(object):
                 format=None, mask=None, currency=None, **kwargs):
         """add???
         
-        :param field: add???. 
-        :param value: add???. 
-        :param default: add???. 
-        :param locale: add???. 
-        :param format: add???. 
-        :param mask: add???. 
-        :param currency: add???. 
-        :returns: add???
-        """
+        :param field: add???
+        :param value: add???
+        :param default: add???
+        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param format: add???
+        :param mask: add???
+        :param currency: add???"""
         if field:
             if callable(field):
                 value = field()

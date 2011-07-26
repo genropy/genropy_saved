@@ -282,8 +282,7 @@ class SqlTable(GnrObject):
         """Check and coerce types in record.
         
         :param record: an object implementing dict interface as colname, colvalue
-        :param null: add???. Default value is ``NULL``
-        """
+        :param null: add???"""
         converter = self.db.typeConverter
         for k in record.keys():
             if not k.startswith('@'):
@@ -375,11 +374,9 @@ class SqlTable(GnrObject):
     def newrecord(self, assignId=False, resolver_one=None, resolver_many=None, **kwargs):
         """add???
         
-        :param assignId: add???. Default value is ``False``
-        :param resolver_one: add???. 
-        :param resolver_many: add???. 
-        :returns: the new record
-        """
+        :param assignId: add???
+        :param resolver_one: add???
+        :param resolver_many: add???"""
         newrecord = self.buildrecord(kwargs, resolver_one=resolver_one, resolver_many=resolver_many)
         if assignId:
             newrecord[self.pkey] = self.newPkeyValue()
@@ -399,26 +396,20 @@ class SqlTable(GnrObject):
          
         :param pkey: the record primary key. 
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-                      .
         :param lazy: add???. 
         :param eager: add???. 
         :param mode: bag, dict, json. 
-        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
-                             ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
-                             ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
-                             
-        :param ignoreMissing: add???. Default value is ``False``
-        :param virtual_columns: add???. 
-        :param ignoreDuplicate: add???. Default value is ``False``
-        :param bagFields: boolean. If ``True``, include fields of type Bag (``X``) when columns is ``*`` or contains
-                          ``*@relname.filter``. Default value is ``True``
+        :param relationDict: a dict to assign a symbolic name to a :ref:`relation_path`. For more information
+                             check the :ref:`relationdict` documentation section
+        :param ignoreMissing: add???
+        :param virtual_columns: add???
+        :param ignoreDuplicate: add???
+        :param bagFields: boolean. If ``True``, include fields of type Bag (``X``) when columns is ``*``
+                          or contains ``*@relname.filter``
         :param joinConditions: special conditions for joining related tables. See the
-                               :meth:`setJoinCondition() <gnr.sql.gnrsqldata.SqlQuery.setJoinCondition()>` method.
-                               
-        :param sqlContextName: add???. 
-        :param for_update: add???. Default value is ``False``
-        :returns: the record
-        """
+                               :meth:`setJoinCondition() <gnr.sql.gnrsqldata.SqlQuery.setJoinCondition()>` method
+        :param sqlContextName: add???
+        :param for_update: add???"""
         record = SqlRecord(self, pkey=pkey, where=where,
                            lazy=lazy, eager=eager,
                            relationDict=relationDict,
@@ -439,8 +430,8 @@ class SqlTable(GnrObject):
         Accept and return a record as a bag, dict or primary pkey (as a string).
         
         :param record: a bag, a dict or a string (i.e. the record's pkey)
-        :param mode: 'dict' or 'bag' or 'pkey'. Default value is ``bag``
-        :param virtual_columns: add???. 
+        :param mode: 'dict' or 'bag' or 'pkey'
+        :param virtual_columns: add???.
         :returns: a bag, a dict or a string (i.e. the record's pkey)
         """
         if isinstance(record, basestring):
@@ -477,33 +468,26 @@ class SqlTable(GnrObject):
         
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. Default value is ``*``
-        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-                      
+                        :ref:`sql_columns` section
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
-                         :ref:`sql_order_by` section. 
-        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". 
-        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator.
-                      
-        :param offset: corresponding to the sql "OFFSET" operator. 
-        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
-                         
-        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
-                       
-        :param for_update: boolean. add???. Default value is ``False``
-        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
-                             ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
-                             ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
-                             
-        :param sqlparams: an optional dictionary for sql query parameters. 
+                         :ref:`sql_order_by` section
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator
+        :param offset: corresponding to the sql "OFFSET" operator
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
+        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
+        :param for_update: boolean. add???
+        :param relationDict: a dict to assign a symbolic name to a :ref:`relation_path`. For more information
+                             check the :ref:`relationdict` documentation section
+        :param sqlparams: an optional dictionary for sql query parameters
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
-                                      "logical deleted". Default value is ``True``.
-        :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute. Default value is ``True``
-        :param locale: add???. 
-        :param mode: add???. 
-        :param \*\*kwargs: another way to pass sql query parameters
-        :returns: a query
-        """
+                                      "logical deleted"
+        :param excludeDraft: add???
+        :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute
+        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param mode: add???
+        :param \*\*kwargs: another way to pass sql query parameters"""
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
                          group_by=group_by, having=having, for_update=for_update,
@@ -619,9 +603,9 @@ class SqlTable(GnrObject):
         :param condition_field: add???. 
         :param condition_value: add???. 
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
-                                      "logical deleted". Default value is ``False``
-        :param condition_op: add???. Default value is ``=``
-        """
+                                      "logical deleted"
+        :param excludeDraft: add???
+        :param condition_op: add???"""
         # if self.trigger_onDeleting:
         if(condition_field and condition_value):
             where = '%s %s :condition_value' % (condition_field, condition_op)
@@ -672,9 +656,8 @@ class SqlTable(GnrObject):
     def lock(self, mode='ACCESS EXCLUSIVE', nowait=False):
         """add???
         
-        :param mode: add???. Default value is ``ACCESS EXCLUSIVE``
-        :param nowait: boolean. add???. Default value is ``False``
-        """
+        :param mode: add???
+        :param nowait: boolean. add???"""
         self.db.adapter.lockTable(self, mode, nowait)
         
     def insert(self, record, **kwargs):
@@ -995,10 +978,8 @@ class SqlTable(GnrObject):
         """add???
         
         :param record: add???
-        :param newrecord: boolean. add???. Default value is ``False``
-        :param rowcaption: add???. 
-        :returns: add???
-        """
+        :param newrecord: boolean. add???
+        :param rowcaption: add???"""
         if newrecord:
             return '!!New %s' % self.name_long.replace('!!', '')
         else:
@@ -1077,11 +1058,10 @@ class SqlTable(GnrObject):
         
         :param dbsource: sourcedb
         :param dbdest: destdb
-        :param empty_before: boolean. add???. Default value is ``False``
+        :param empty_before: boolean. add???
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
-                                      "logical deleted". Default value is ``True``
-        :param source_records: add???. 
-        """
+                                      "logical deleted"
+        :param source_records: add???"""
         tbl_name = self.fullname
         source_tbl = dbsource.table(tbl_name)
         dest_tbl = dbdest.table(tbl_name)
@@ -1110,12 +1090,12 @@ class SqlTable(GnrObject):
     def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True,excludeDraft=True, source_records=None, **querykwargs):
         """add???
         
-        :param instance: add???
-        :param empty_before: boolean. add???. Default value is ``False``
+        :param instance: the name of the instance
+        :param empty_before: boolean. add???
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
-                                      "logical deleted". Default value is ``True``
-        :param source_records: add???. 
-        """
+                                      "logical deleted"
+        :param excludeDraft: add???
+        :param source_records: add???"""
         if isinstance(instance,basestring):
             instance = self.db.application.getAuxInstance(instance)
         dest_db = instance.db
@@ -1126,13 +1106,13 @@ class SqlTable(GnrObject):
                                 excludeLogicalDeleted=True,excludeDraft=True, source_records=None, **querykwargs):
         """add???
         
-        :param instance: add???
-        :param tbl_name: add???. 
-        :param empty_before: boolean. add???. Default value is ``False``
+        :param instance: the name of the instance
+        :param tbl_name: the name of the database :ref:`table`
+        :param empty_before: boolean. add???
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
-                                      "logical deleted". Default value is ``True``
-        :param source_records: add???. 
-        """
+                                      "logical deleted"
+        :param excludeDraft: add???
+        :param source_records: add???"""
         if isinstance(instance,basestring):
             instance = self.db.application.getAuxInstance(instance)
         source_db = instance.db
@@ -1142,11 +1122,10 @@ class SqlTable(GnrObject):
     def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
         """add???
         
-        :param omit: add???. Default value is ``''``
-        :param prevRelation: add???. Default value is ``''``
-        :param dosort: boolean. add???. Default value is ``True``
-        :param pyresolver: boolean. add???. Default value is ``False``
-        """
+        :param omit: add???
+        :param prevRelation: add???
+        :param dosort: boolean. add???
+        :param pyresolver: boolean. add???"""
         def xvalue(attributes):
             if not pyresolver:
                 return

@@ -94,6 +94,7 @@ Filling a filteringSelect through a Bag
                     return mytable
                     
     First we fill (and create) a Bag with the "sports" function, then the filteringSelect let the user choose a Bag's value through the storepath, that define the path from which the filteringSelect must to take values. Finally, the user choice will be save at the path: "bag_value".
+    Note that the id is set to the :ref:`pkey` attribute, that is the primary key.
 
 .. _below:
 .. _values_example:
