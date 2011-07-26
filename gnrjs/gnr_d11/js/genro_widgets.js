@@ -2568,7 +2568,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                                 cell.classes = (cell.classes || '') + ' hiddenColumn';
                             }
                             if (dtype) {
-                                formats = objectUpdate(objectUpdate({}, localTypes[dtype]), formats);
+                                if (!formats.pattern){
+                                    formats = objectUpdate(objectUpdate({}, localTypes[dtype]), formats);
+                                }
                             }
                             //formats = objectUpdate(formats, localTypes[dtype]);
                             var cellClassCB = objectPop(cell, 'cellClassCB');
