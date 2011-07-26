@@ -1,4 +1,4 @@
-.. _genro_library_gnrcookie:
+.. _library_gnrcookie:
 
 ========================
 :mod:`gnr.web.gnrcookie`

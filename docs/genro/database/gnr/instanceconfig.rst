@@ -1,4 +1,4 @@
-.. _genro_gnr_instanceconfig:
+.. _gnr_instanceconfig:
 
 ==================
 ``instanceconfig``
@@ -29,13 +29,13 @@
     
     The ``default.xml`` file is an XML file that allows to:
     
-    * define the packages you want to use in your :ref:`genro_project`
+    * define the packages you want to use in your :ref:`project`
     * define the name of your database
-    * handle the permits of your :ref:`genro_project`
+    * handle the permits of your :ref:`project`
     
     .. note:: the ``default.xml`` file of the ``.gnr/instanceconfig`` folder set the
               default values for the :ref:`instances_instanceconfig` file of all your
-              :ref:`genro_project`.
+              :ref:`project`.
               
               You can obviously redefine the values of the ``instanceconfig.xml`` file
               for every project you make, setting the features directly in the
@@ -82,8 +82,8 @@ Tags
 ^^^^^^^^^^^^^^
     
     The ``<packages>`` tag allow to include any other package from other projects: this allow
-    you to use every file (:ref:`genro_table`\s, :ref:`webpages_webpages`\s,
-    :ref:`genro_intro_resources`) of the packages you've imported. If you want to import one
+    you to use every file (:ref:`tables <table>`, :ref:`webpages <webpages_webpages>`,
+    :ref:`intro_resources`) of the packages you've imported. If you want to import one
     package, you have to:
     
     #. include its path into the :ref:`environment_packages` tag of your ``environment.xml`` file

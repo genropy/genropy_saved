@@ -345,11 +345,11 @@ class GnrPackage(object):
                     :ref:`introduction to a package <genro_packages_introduction>`.
                     
         * ``comment`` includes a comment string.
-        * ``name_short`` includes a string of the :ref:`genro_name_short` of the schema.
-        * ``name_long`` includes a string of the :ref:`genro_name_long` of the schema.
-        * ``name_plural`` includes a string of the :ref:`genro_name_plural` of the schema.
+        * ``name_short`` includes a string of the :ref:`name_short` of the schema.
+        * ``name_long`` includes a string of the :ref:`name_long` of the schema.
+        * ``name_plural`` includes a string of the :ref:`name_plural` of the schema.
         
-        If you follow the instructions of the :ref:`genro_project_autocreation` documentation section,
+        If you follow the instructions of the :ref:`project_autocreation` documentation section,
         you will find your :ref:`packages_main` file with the ``config_attributes`` method filled
         as the following one::
         
@@ -701,7 +701,7 @@ class GnrApp(object):
         """add???
 
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+                    :ref:`packages_index` documentation page
         :param data: add???
         :param locale: add???
         :returns: add???
@@ -721,7 +721,7 @@ class GnrApp(object):
 
         :param path: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. 
+                    :ref:`packages_index` documentation page. 
         :param locale: add???. 
         :returns: add???
         """

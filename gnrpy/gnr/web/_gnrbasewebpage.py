@@ -127,7 +127,7 @@ class GnrBaseWebPage(GnrObject):
     canonical_filename = property(_get_canonical_filename)
         
     def rpc_decodeDatePeriod(self, datestr, workdate=None, locale=None):
-        """A :ref:`genro_datarpc`. add???
+        """A :ref:`datarpc`. add???
         
         :param datestr: add???
         :param workdate: the working date. (e.g: ``DD/MM/YYYY``). The date format depends on the
@@ -251,7 +251,7 @@ class GnrBaseWebPage(GnrObject):
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section. 
         :param condition: add???. 
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param condition_args: add???. 
         :returns: add???
         """
@@ -284,7 +284,7 @@ class GnrBaseWebPage(GnrObject):
         """Return an external link to the page
         
         :param path: the path to the page from the :ref:`sites_pages` folder
-                     of a :ref:`genro_project`
+                     of a :ref:`project`
         :returns: an external link to the page
         """
         return self.request.construct_url(self.getDomainUrl(path, **kwargs))
@@ -375,11 +375,11 @@ class GnrBaseWebPage(GnrObject):
                   resultPath='dummy', changesOnly=True, onSaving=None, onSaved=None, saveAlways=False, **kwargs):
         """add???
         
-        :param formId: the id of the :ref:`genro_form`.
-        :param table: the :ref:`genro_table` related to the form. 
+        :param formId: the id of the :ref:`form`.
+        :param table: the :ref:`table` related to the form. 
         :param method: add???. 
         :param _fired: add???. Default value is ``''``
-        :param datapath: the :ref:`genro_datapath` form. 
+        :param datapath: the :ref:`datapath` form. 
         :param resultPath: add???. Default value is ``dummy``
         :param changesOnly: boolean. add???. Default value is ``True``
         :param onSaving: add???. 
@@ -422,11 +422,11 @@ class GnrBaseWebPage(GnrObject):
                    method=None, onLoading=None, onLoaded=None, loadingParameters=None, **kwargs):
         """add???
         
-        :param formId: the id of the :ref:`genro_form`.
+        :param formId: the id of the :ref:`form`.
         :param resultPath: add???
-        :param table: the :ref:`genro_table` related to the form. 
+        :param table: the :ref:`table` related to the form. 
         :param pkey: the record primary key. 
-        :param datapath: the :ref:`genro_datapath` form. 
+        :param datapath: the :ref:`datapath` form. 
         :param _fired: add???. 
         :param loadOnStart: boolean add???. Default value is ``False``
         :param lock: boolean. add???. Default value is ``False``
@@ -455,9 +455,9 @@ class GnrBaseWebPage(GnrObject):
                            _formId=formId, **kwargs)
                            
     def rpc_loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
-        """A :ref:`genro_datarpc`. add???
+        """A :ref:`datarpc`. add???
         
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param pkey: the record primary key. 
         :param recordGetter: add???. Default value is ``app.getRecord``"""
         table = table or self.maintable
@@ -466,10 +466,10 @@ class GnrBaseWebPage(GnrObject):
         return record, recinfo
         
     def rpc_saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None, _autoreload=False, **kwargs):
-        """A :ref:`genro_datarpc`. add???
+        """A :ref:`datarpc`. add???
         
         :param data: add???
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param _nocommit: boolean. add???. Default value is ``False``
         :param rowcaption: add???. 
         :param _autoreload: boolean. add???. Default value is ``False``"""
@@ -515,10 +515,10 @@ class GnrBaseWebPage(GnrObject):
             return (pkey, resultAttr)
             
     def rpc_deleteRecordCluster(self, data, table=None, **kwargs):
-        """A :ref:`genro_datarpc`. add???
+        """A :ref:`datarpc`. add???
         
         :param data: add???
-        :param table: the :ref:`genro_table` name. """
+        :param table: the :ref:`table` name. """
         maintable = getattr(self, 'maintable')
         table = table or maintable
         tblobj = self.db.table(table)
@@ -536,9 +536,9 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def rpc_deleteDbRow(self, table, pkey=None, **kwargs):
-        """A :ref:`genro_datarpc`. Method for deleting a single record from a given table.
+        """A :ref:`datarpc`. Method for deleting a single record from a given table.
         
-        :param table: the :ref:`genro_table` from which you want to delete a single record
+        :param table: the :ref:`table` from which you want to delete a single record
         :param pkey: the record primary key. 
         :returns: if it works, returns the primary key and the deleted attribute.
                   Else, return an exception"""
@@ -555,9 +555,9 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def rpc_deleteDbRows(self, table, pkeys=None, **kwargs):
-        """A :ref:`genro_datarpc`. Method for deleting many records from a given table.
+        """A :ref:`datarpc`. Method for deleting many records from a given table.
         
-        :param table: the :ref:`genro_table` from which you want to delete a single record
+        :param table: the :ref:`table` from which you want to delete a single record
         :param pkeys: 
         :returns: if it works, returns the primary key and the deleted attribute.
                   Else, return an exception"""
@@ -576,7 +576,7 @@ class GnrBaseWebPage(GnrObject):
         """
         .. deprecated:: 0.7
                            
-        This method has been replaced by the :ref:`genro_th` method. For more information,
+        This method has been replaced by the :ref:`th` method. For more information,
         check the explanation about the **handler** level in the :ref:`th_map_form_data`
         documentation section 
         
@@ -593,7 +593,7 @@ class GnrBaseWebPage(GnrObject):
                                     * *maintable*: set a parameter value of a column of the table you define in the
                                       :ref:`webpages_maintable` :ref:`webpage variable <webpages_variables>`
                                     
-                                          **Example:** if you have a package called ``agenda`` and a :ref:`genro_table`
+                                          **Example:** if you have a package called ``agenda`` and a :ref:`table`
                                           called ``staff`` and write in your :ref:`webpages_webpages`::
                                           
                                               maintable='staff'
@@ -607,7 +607,7 @@ class GnrBaseWebPage(GnrObject):
                                       ``gnr.tables.PACKAGENAME_TABLENAME.loadingParameters.PARAMETERNAME``, where 
                                       ``PARAMETERNAME`` is the name you gave to the parameter.
                                       
-                                          **Example:** if you have a package called ``agenda`` and a :ref:`genro_table`
+                                          **Example:** if you have a package called ``agenda`` and a :ref:`table`
                                           called ``staff`` and write in your :ref:`webpages_webpages`::
                                           
                                               self.setLoadingParameters(table='agenda.staff',price='10000')
@@ -648,7 +648,7 @@ class GnrBaseWebPage(GnrObject):
     def pageSource(self, nodeId=None):
         """add???
         
-        :param nodeId: the page nodeId. For more information, check the :ref:`genro_nodeid`
+        :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
                        documentation page."""
         if nodeId:
             return self._root.nodeById(nodeId)
@@ -656,8 +656,8 @@ class GnrBaseWebPage(GnrObject):
             return self._root
             
     def rootWidget(self, root, **kwargs):
-        """Return a :ref:`genro_contentpane`. You can attach to it any :ref:`genro_webpage_elements_index`.
-        You can override this method to receive a different :ref:`genro_layout_index` widget respect to
+        """Return a :ref:`contentpane`. You can attach to it any :ref:`webpage_elements_index`.
+        You can override this method to receive a different :ref:`layout_index` widget respect to
         the ``contentPane``.
         
         :param root: the root of the page. For more information, check the
@@ -727,7 +727,7 @@ class GnrBaseWebPage(GnrObject):
         return page
             
     def rpc_resolverRecall(self, resolverPars=None, **auxkwargs):
-        """A :ref:`genro_datarpc`. add???
+        """A :ref:`datarpc`. add???
         
         :param resolverPars: add???. """
         if isinstance(resolverPars, basestring):
@@ -756,16 +756,16 @@ class GnrBaseWebPage(GnrObject):
             return resolver()
             
     def rpc_resetApp(self, **kwargs):
-        """A :ref:`genro_datarpc`. add???"""
+        """A :ref:`datarpc`. add???"""
         self.siteStatus['resetTime'] = time.time()
         self.siteStatusSave()
         
     def rpc_applyChangesToDb(self, **kwargs):
-        """A :ref:`genro_datarpc`. add???"""
+        """A :ref:`datarpc`. add???"""
         return self._checkDb(applychanges=True)
         
     def rpc_checkDb(self):
-        """A :ref:`genro_datarpc`. add???"""
+        """A :ref:`datarpc`. add???"""
         return self._checkDb(applychanges=False)
         
     def _checkDb(self, applychanges=False, changePath=None, **kwargs):
@@ -782,7 +782,7 @@ class GnrBaseWebPage(GnrObject):
         return self.db.model.modelBagChanges
         
     def rpc_tableStatus(self, **kwargs):
-        """A :ref:`genro_datarpc`. add???"""
+        """A :ref:`datarpc`. add???"""
         strbag = self._checkDb(applychanges=False)
         for pkgname, pkg in self.db.packages.items():
             for tablename in pkg.tables.keys():

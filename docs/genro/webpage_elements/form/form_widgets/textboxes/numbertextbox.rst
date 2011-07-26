@@ -1,4 +1,4 @@
-.. _genro_numbertextbox:
+.. _numbertextbox:
 
 =============
 numberTextbox
@@ -6,7 +6,7 @@ numberTextbox
     
     *Last page update*: |today|
     
-    .. note:: We recommend you to read :ref:`genro_textboxes` first.
+    .. note:: We recommend you to read :ref:`textboxes` first.
 
     * :ref:`numbertextbox_def`
     * :ref:`numbertextbox_description`

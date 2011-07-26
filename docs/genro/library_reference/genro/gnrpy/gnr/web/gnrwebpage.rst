@@ -1,4 +1,4 @@
-.. _genro_library_gnrwebpage:
+.. _library_gnrwebpage:
 
 ====================================
 :mod:`gnr.web.gnrwebpage` - Webpages

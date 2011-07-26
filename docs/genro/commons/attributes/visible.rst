@@ -1,4 +1,4 @@
-.. _genro_visible:
+.. _visible:
 
 =======
 visible

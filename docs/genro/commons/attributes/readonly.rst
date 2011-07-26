@@ -1,4 +1,4 @@
-.. _genro_readonly:
+.. _readonly:
 
 ========
 readOnly

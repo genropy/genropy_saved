@@ -1,4 +1,4 @@
-.. _genro_showcase_intro:
+.. _showcase_intro:
 
 =========================
 Showcase: an introduction

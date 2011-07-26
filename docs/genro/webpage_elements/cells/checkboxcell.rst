@@ -1,4 +1,4 @@
-.. _genro_checkboxcell:
+.. _checkboxcell:
 
 ============
 checkboxcell

@@ -1,4 +1,4 @@
-.. _genro_form:
+.. _form:
 
 ====
 form

@@ -117,4 +117,4 @@ Attributes in a path: insert a condition
 
 **Footnotes:**
 
-.. [#] The other two ways are: labels (check the :ref:`genro_bag_one` introduction paragraph) and numeric index ``#index`` (check the :ref:`bag_getting_values_advanced` paragraph). 
+.. [#] The other two ways are: labels (check the :ref:`bag_one` introduction paragraph) and numeric index ``#index`` (check the :ref:`bag_getting_values_advanced` paragraph). 

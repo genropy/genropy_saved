@@ -1,4 +1,4 @@
-.. _genro_components_list:
+.. _components_list:
 
 ===============
 components list
@@ -9,7 +9,7 @@ components list
     There are a lot of components in Genro. They provide you different solutions to simplify your work.
     In this page we list ALL of them with a short description, in order to help you in the search of
     the right component for your task (and if you don't find it, you can always create your own one,
-    following the walkthrough of the :ref:`genro_components_writing` documentation page)
+    following the walkthrough of the :ref:`components_writing` documentation page)
     
     **Dialogs**:
     
@@ -18,14 +18,14 @@ components list
     
     **Index pages**: management of the index page of your project
     
-    * :ref:`genro_frameindex`: it allows to handle your :ref:`webpages_webpages` as iframes of the main
+    * :ref:`frameindex`: it allows to handle your :ref:`webpages_webpages` as iframes of the main
       page.
     
     **View/Form handler**: a preconceived interface with a View class for the view of the inserted
     records and a Form class for the records insertion.
     
-    * :ref:`genro_includedview`: **deprecated** since version *0.7* and replaced by the :ref:`genro_th`
-    * the :ref:`genro_th`: add???
+    * :ref:`includedview`: **deprecated** since version *0.7* and replaced by the :ref:`th`
+    * the :ref:`th`: add???
     
       This component is structured in many components:
       

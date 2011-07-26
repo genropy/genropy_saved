@@ -1,4 +1,4 @@
-.. _genro_css:
+.. _css:
 
 ===
 CSS
@@ -8,8 +8,8 @@ CSS
     
     * :ref:`css_introduction`
     * :ref:`css_dojo_themes`
-    * :ref:`css_genro_themes`
-    * :ref:`css_genro_names`
+    * :ref:`css_themes`
+    * :ref:`css_names`
 
 .. _css_introduction:
 
@@ -21,7 +21,7 @@ Introduction
     There are two ways of adding CSS style in Genro:
     
     #. The first way is the nearest to the standard way to use CSS. You have to create a CSS
-       file, put it into your :ref:`genro_intro_resources` and call it into your page.
+       file, put it into your :ref:`intro_resources` and call it into your page.
        
        .. warning:: you probably know the following syntax::
                     
@@ -69,10 +69,10 @@ Introduction
     You should also know that:
     
     * Genro allows to use some CSS preset style: the :ref:`css_dojo_themes` and the Genro
-      :ref:`css_genro_themes`
+      :ref:`css_themes`
     * When you use CSS style directly in a Genro webpage there are some CSS attributes that
       have a different name respect to their standard CSS name: check the
-      :ref:`css_genro_names` section for the complete list
+      :ref:`css_names` section for the complete list
       
 .. _css_dojo_themes:
 
@@ -84,7 +84,7 @@ Dojo themes
     You can change a Dojo theme in your webpage: check the :ref:`webpages_dojo_theme` section
     for the correct syntax, the complete reference list of compatible Dojo themes and more.
     
-.. _css_genro_themes:
+.. _css_themes:
 
 CSS themes
 ==========
@@ -103,7 +103,7 @@ CSS themes
     * *elephant*
     * *pro*
 
-.. _css_genro_names:
+.. _css_names:
 
 Genro CSS names
 ===============

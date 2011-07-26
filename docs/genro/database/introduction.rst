@@ -1,4 +1,4 @@
-.. _genro_project:
+.. _project:
 
 =======
 project
@@ -6,13 +6,13 @@ project
     
     *Last page update*: |today|
     
-    * :ref:`genro_project_introduction`
-    * :ref:`genro_project_basic_structure`
-    * :ref:`genro_project_autocreation`:
+    * :ref:`project_introduction`
+    * :ref:`project_basic_structure`
+    * :ref:`project_autocreation`:
         
-        * :ref:`genro_project_help`
+        * :ref:`project_help`
     
-.. _genro_project_introduction:
+.. _project_introduction:
 
 introduction
 ============
@@ -41,7 +41,7 @@ introduction
             from gnr.app.gnrapp import GnrApp
             instance = GnrApp('name_of_project')
           
-        More information in the :ref:`genro_instances_index` documentation section.
+        More information in the :ref:`instances_index` documentation section.
         
     * The ``packages`` folder:
     
@@ -51,7 +51,7 @@ introduction
                     containing a file ``__init__.py``), and Genro packages can't be imported
                     with the statement ``import`` *module* or with ``from`` *module* ``import``
                     
-        More information in the :ref:`genro_packages_index` documentation section.
+        More information in the :ref:`packages_index` documentation section.
         
     * The ``resources`` folder:
     
@@ -60,7 +60,7 @@ introduction
           
         * You will use it for all the common tools of your project.
         
-        For an introduction to the resources, please check the :ref:`genro_intro_resources`
+        For an introduction to the resources, please check the :ref:`intro_resources`
         documentation page.
         
     * The ``sites`` folder:
@@ -73,9 +73,9 @@ introduction
           
           .. _WingIDE: http://www.wingware.com/
           
-        More information in the :ref:`genro_sites_index` documentation section.
+        More information in the :ref:`sites_index` documentation section.
         
-.. _genro_project_basic_structure:
+.. _project_basic_structure:
 
 Basic structure
 ===============
@@ -85,14 +85,14 @@ Basic structure
     we were talking about:
     
     * ``project`` folder
-        * :ref:`genro_instances_index` folder - here lies all your instance folder.
+        * :ref:`instances_index` folder - here lies all your instance folder.
           Every instance folder has got:
           
           * a :ref:`instances_custom` folder
           * a :ref:`instances_data` folder
           * an :ref:`instances_instanceconfig` file
           
-        * :ref:`genro_packages_index` folder - here lies all your package folder.
+        * :ref:`packages_index` folder - here lies all your package folder.
           Every package folder has got:
           
           * a :ref:`packages_lib` folder
@@ -101,17 +101,17 @@ Basic structure
           * a :ref:`packages_model` folder
           * a :ref:`public_resources` folder
           * a :ref:`packages_webpages` folder
-              * one or more :ref:`webpages_webpages`\s
+              * one or more :ref:`webpages <webpages_webpages>`
                     
-        * :ref:`private_resources` folder (for all your project :ref:`genro_private_resource`\s)
-        * :ref:`genro_sites_index` folder - here lies all your sites folder.
+        * :ref:`private_resources` folder (for all your project :ref:`private resources <private_resource>`)
+        * :ref:`sites_index` folder - here lies all your sites folder.
           Every site folder has got:
           
           * a :ref:`sites_pages` folder
           * a :ref:`sites_root` file
           * a :ref:`sites_siteconfig` file
           
-.. _genro_project_autocreation:
+.. _project_autocreation:
 
 Project autocreation
 ====================
@@ -131,7 +131,7 @@ Project autocreation
               of the site folder (inside the ``sites`` folder) are equal to the name of the
               ``project`` folder. This is a convention to keep order in your project.
               
-.. _genro_project_help:
+.. _project_help:
 
 terminal help
 -------------

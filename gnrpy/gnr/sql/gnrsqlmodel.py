@@ -174,8 +174,8 @@ class DbModel(object):
         """add???
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page.
-        :param table: the :ref:`genro_table` name
+                    :ref:`packages_index` documentation page.
+        :param table: the :ref:`table` name
         :param column: add???"""
         tblobj = self.table(table, pkg=pkg)
         indexname = '%s_%s_key' % (table, column)
@@ -231,7 +231,7 @@ class DbModel(object):
         """add???
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page.
+                    :ref:`packages_index` documentation page.
         :param obj: add???"""
         self._doMixin('pkg.%s' % pkg, obj)
         
@@ -242,7 +242,7 @@ class DbModel(object):
         """Return a package object
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page."""
+                    :ref:`packages_index` documentation page."""
         return self.obj[pkg]
         
     def table(self, tblname, pkg=None):
@@ -250,7 +250,7 @@ class DbModel(object):
         
         :param tblname: the table name
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+                    :ref:`packages_index` documentation page. """
         if '.' in tblname:
             pkg, tblname = tblname.split('.')[:2]
         if pkg is None:
@@ -286,9 +286,9 @@ class DbModelSrc(GnrStructData):
         :param sqlschema: actual sql name of the schema. For more information check the :ref:`about_schema`
                           documentation section
         :param comment: the package's comment. 
-        :param name_short: the :ref:`genro_name_short` of the package
-        :param name_long: the :ref:`genro_name_long` of the package
-        :param name_full: the :ref:`genro_name_full` of the package"""
+        :param name_short: the :ref:`name_short` of the package
+        :param name_long: the :ref:`name_long` of the package
+        :param name_full: the :ref:`name_full` of the package"""
         if not 'packages' in self: #if it is the first package it prepares the package_list packages
             self.child('package_list', 'packages')
         
@@ -308,7 +308,7 @@ class DbModelSrc(GnrStructData):
               comment=None,
               name_short=None, name_long=None, name_full=None,
               **kwargs):
-        """Add a database :ref:`genro_table` to the structure.
+        """Add a database :ref:`table` to the structure.
         
         :param name: the table name
         :param pkey: the record primary key. 
@@ -316,9 +316,9 @@ class DbModelSrc(GnrStructData):
         :param sqlschema: actual sql name of the schema. For more information check the :ref:`about_schema`
                           documentation section
         :param comment: the table's comment. 
-        :param name_short: the :ref:`genro_name_short` of the table
-        :param name_long: the :ref:`genro_name_long` of the table
-        :param name_full: the :ref:`genro_name_full` of the table 
+        :param name_short: the :ref:`name_short` of the table
+        :param name_long: the :ref:`name_long` of the table
+        :param name_full: the :ref:`name_full` of the table 
         :returns: a table"""
         if not 'tables' in self:
             #if it is the first table it prepares the table_list tables
@@ -337,7 +337,7 @@ class DbModelSrc(GnrStructData):
         """Insert a :ref:`table_column` into a table.
         
         :param name: the column name
-        :param dtype: the :ref:`genro_datatype`.
+        :param dtype: the :ref:`datatype`.
         :param size: string. ``'min:max'`` or fixed lenght ``'len'``. 
         :param default: add???. 
         :param notnull: add???. 
@@ -345,9 +345,9 @@ class DbModelSrc(GnrStructData):
         :param indexed: add???. 
         :param sqlname: add???. 
         :param comment: the column's comment. 
-        :param name_short: the :ref:`genro_name_short` of the column
-        :param name_long: the :ref:`genro_name_long` of the column
-        :param name_full: the :ref:`genro_name_full` of the column
+        :param name_short: the :ref:`name_short` of the column
+        :param name_long: the :ref:`name_long` of the column
+        :param name_full: the :ref:`name_full` of the column
         :param group: a hierarchical path of logical categories and subacategories the columns belongs to.
                       If the group path starts with '_' the group is "reserved" (invisible).
                       If it starts with '*' it can be seen only through administration tools.
@@ -397,7 +397,7 @@ class DbModelSrc(GnrStructData):
         
         :param name: the column name
         :param sql_formula: add???
-        :param dtype: the :ref:`genro_datatype`. Default value is ``A``
+        :param dtype: the :ref:`datatype`. Default value is ``A``
         :returns: a formulaColumn
         """
         return self.virtual_column(name, sql_formula=sql_formula, dtype=dtype, **kwargs)
@@ -408,7 +408,7 @@ class DbModelSrc(GnrStructData):
         
         :param name: the column name
         :param sql_formula: add???
-        :param dtype: the :ref:`genro_datatype`. Default value is ``A``
+        :param dtype: the :ref:`datatype`. Default value is ``A``
         :returns: a formulaColumn
         """
         return self.virtual_column(name, py_method=py_method, **kwargs)

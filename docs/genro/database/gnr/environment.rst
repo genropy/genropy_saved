@@ -12,7 +12,7 @@
     * The :ref:`environment_instances` tag
     * The :ref:`environment_packages` tag:
     
-        * :ref:`genro_packages`
+        * :ref:`packages`
         
     * The :ref:`environment_resources` tag:
     
@@ -26,14 +26,14 @@ Introduction
 ============
 
     The ``environment.xml`` allow to define the root paths for your
-    :ref:`genro_project` folders.
+    :ref:`project` folders.
     
     We remind you that every project folder includes the following four subfolders:
     
-    * the :ref:`genro_instances_index` folder
-    * the :ref:`genro_packages_index` folder
+    * the :ref:`instances_index` folder
+    * the :ref:`packages_index` folder
     * the :ref:`private_resources` folder
-    * the :ref:`genro_sites_index` folder
+    * the :ref:`sites_index` folder
     
     You have to define the path of the genro project's folders and the path for the
     dojo's contents. Optionally, you can specify the path of your projects (and theirs
@@ -66,7 +66,7 @@ Introduction
         
     where ``yourRootPathForGenro`` is your root path of your Genro application.
     
-.. _genro_packages:
+.. _packages:
     
 standard Genro packages
 -----------------------
@@ -91,7 +91,7 @@ usage of standard components
 ----------------------------
     
     To configure correctly the ``environment.xml`` file for the usage of the
-    :ref:`components_standard`\s, you have to add the following tag::
+    :ref:`standard components <components_standard>`, you have to add the following tag::
     
        <genro path="$GNRHOME/resources/"/>
        

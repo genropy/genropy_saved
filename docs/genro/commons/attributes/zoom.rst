@@ -1,4 +1,4 @@
-.. _genro_zoom:
+.. _zoom:
 
 ====
 zoom
@@ -31,9 +31,9 @@ validity
 
     You can give *zoom* attribute to the following objects:
     
-    * :ref:`genro_field`
-    * :ref:`genro_fieldcell`
-    * :ref:`genro_linkerfield`
+    * :ref:`field`
+    * :ref:`fieldcell`
+    * :ref:`linkerfield`
     
 .. _zoom_examples:
 

@@ -1,4 +1,4 @@
-.. _genro_palette:
+.. _palette:
 
 =======
 palette

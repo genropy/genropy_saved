@@ -1,4 +1,4 @@
-.. _genro_sql:
+.. _sql:
 
 ===
 SQL

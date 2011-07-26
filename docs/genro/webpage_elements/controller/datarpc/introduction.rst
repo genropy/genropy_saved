@@ -1,4 +1,4 @@
-.. _genro_datarpc_introduction:
+.. _datarpc_introduction:
 
 =======================
 Introduction to the Rpc
@@ -20,9 +20,9 @@ Definition
     
     The ``rpc`` family is composed by:
     
-    * :ref:`genro_datarecord`
-    * :ref:`genro_datarpc`
-    * :ref:`genro_dataselection`.
+    * :ref:`datarecord`
+    * :ref:`datarpc`
+    * :ref:`dataselection`.
     
 .. _rpc_attributes:
 

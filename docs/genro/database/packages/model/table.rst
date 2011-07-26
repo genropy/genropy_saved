@@ -1,4 +1,4 @@
-.. _genro_table:
+.. _table:
 
 =====
 table
@@ -14,7 +14,7 @@ table
     * :ref:`table_config_db`
     * :ref:`table_columns`
     
-        * the simple :ref:`table_column` (and :ref:`table_relation`\s)
+        * the simple :ref:`table_column` (and :ref:`relation columns <table_relation>`)
         * the :ref:`table_aliascolumn`
         * the :ref:`table_formulacolumn`
         * the :ref:`table_virtualcolumn`
@@ -58,7 +58,7 @@ Creation of a table
         # encoding: utf-8
     
     Now we have to introduce the right class for a table; there are many options (that we
-    discuss in the :ref:`genro_table_classes` documentation page). We use now the standard
+    discuss in the :ref:`table_classes` documentation page). We use now the standard
     method::
     
         class Table(object):
@@ -118,7 +118,7 @@ columns
 
     There are a lot of columns type you can use:
     
-    * the simple :ref:`table_column` (and :ref:`table_relation`\s)
+    * the simple :ref:`table_column` (and :ref:`relation columns <table_relation>`)
     * the :ref:`table_relation`
     * the :ref:`table_aliascolumn`
     * the :ref:`table_formulacolumn`
@@ -140,9 +140,9 @@ column
     * column attributes:
     
         * size
-        * :ref:`genro_name_long`
-        * :ref:`genro_name_plural`
-        * :ref:`genro_name_short`
+        * :ref:`name_long`
+        * :ref:`name_plural`
+        * :ref:`name_short`
         * required (???)
         * unique (boolean)
         *  _sendback (boolean) add???
@@ -174,7 +174,7 @@ relation column
     * one_one='*' / True / ... add??? permette di rendere la relazione "simmetrica"
     * one_group add???
     * relation_name='STRING'; 
-      allow to use the relation parameter in a :ref:`genro_th` component. For more
+      allow to use the relation parameter in a :ref:`th` component. For more
       information on the relation parameter, please check the :ref:`th_relation_condition` example.
       NON SOLO!
       correggere: spiegare che è l'attributo che semplifica la sintassi standard del path di relazione inverso...
@@ -237,7 +237,7 @@ virtualColumn
 validations in a column
 -----------------------
 
-    add??? --> link to :ref:`genro_validations`...
+    add??? --> link to :ref:`validations`...
     
 .. _table_examples:
 

@@ -1,4 +1,4 @@
-.. _genro_struct:
+.. _struct:
 
 ======
 struct

@@ -1,4 +1,4 @@
-.. _genro_datarpc_index:
+.. _datarpc_index:
 
 =================================================
 the dataRpc: dataRpc, dataRecord, dataSelection

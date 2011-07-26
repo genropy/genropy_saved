@@ -1,4 +1,4 @@
-.. _genro_datatype:
+.. _datatype:
 
 =====
 dtype

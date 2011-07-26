@@ -333,7 +333,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+                    :ref:`packages_index` documentation page
         :param \*path: add???
         :param \*\*kwargs: add???"""
         self.site.resource_loader.mixinPageComponent(self, pkg, *path,**kwargs)
@@ -498,7 +498,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param format: add???. 
         :param mask: add???. 
         :param encoding: add???. 
-        :param dtype: the :ref:`genro_datatype`."""
+        :param dtype: the :ref:`datatype`."""
         locale = locale or self.locale
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
         
@@ -533,8 +533,8 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param prefix: a string. The prefix of the method. It can be:
                        
-                       * 'remote': this prefix is used for the :ref:`genro_dataremote`\s
-                       * 'rpc': this prefix is used for the :ref:`genro_datarpc`\s
+                       * 'remote': this prefix is used for the :ref:`dataremote`\s
+                       * 'rpc': this prefix is used for the :ref:`datarpc`\s
                        
         :param method: a string. add???"""
         handler = None
@@ -692,7 +692,7 @@ class GnrWebPage(GnrBaseWebPage):
     def subscribeTable(self,table,subscribe=True):
         """add???
         
-        :param table: the :ref:`genro_table` name
+        :param table: the :ref:`table` name
         :param subscribe: add???. Default value is ``True``"""
         with self.pageStore() as store:
             subscribed_tables = store.register_item['subscribed_tables']
@@ -921,7 +921,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param ext: add???. 
         :param add_mtime: add???. Default value is ``False``
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+                    :ref:`packages_index` documentation page. """
         fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
             return
@@ -933,7 +933,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param fpath: add???
         :param add_mtime: add???. Default value is ``False``
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+                    :ref:`packages_index` documentation page. """
         url = None 
         packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
         pkg = pkg or self.packageId
@@ -963,7 +963,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: add???
         :param ext: add???. 
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+                    :ref:`packages_index` documentation page. """
         resourceDirs = self.resourceDirs
         if pkg:
             resourceDirs = self.site.resource_loader.package_resourceDirs(pkg)
@@ -979,7 +979,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: add???
         :param classname: add???. 
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+                    :ref:`packages_index` documentation page. """
         res = self.getResource(path,pkg=pkg,ext='py')
         if res:
             m = gnrImport(res)
@@ -993,7 +993,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param table: add???
         :param path: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+                    :ref:`packages_index` documentation page. """
         pkg,table = table.split('.')
         path,classname= path.split(':')
         resource = self.importResource('tables/_packages/%s/%s/%s' %(pkg,table,path),classname=classname,pkg=self.package.name)
@@ -1009,7 +1009,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param resource: add???. 
         :param ext: add???. 
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+                    :ref:`packages_index` documentation page. """
         path = self.getResource(path=resource,ext=ext,pkg=pkg)
         if path:
             with open(path) as f:
@@ -1039,7 +1039,7 @@ class GnrWebPage(GnrBaseWebPage):
 
         This is typically used to customize prints and batch jobs for a particular installation
 
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param respath: add???. 
         :param class_name: add???. 
         :param runKwargs: add???. """
@@ -1053,7 +1053,7 @@ class GnrWebPage(GnrBaseWebPage):
     def loadTableScript(self, table=None, respath=None, class_name=None):
         """add???
 
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param respath: add???. 
         :param class_name: add???. 
         :returns: add???
@@ -1068,7 +1068,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: add???
         :param data: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``''``"""
+                    :ref:`packages_index` documentation page. Default value is ``''``"""
         self.site.setPreference(path, data, pkg=pkg)
         
     def getPreference(self, path, pkg='', dflt=''):
@@ -1076,7 +1076,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``''``
+                    :ref:`packages_index` documentation page. Default value is ``''``
         :param dflt: add???. Default value is ``''``"""
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
         
@@ -1085,7 +1085,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``''``
+                    :ref:`packages_index` documentation page. Default value is ``''``
         :param dflt: add???. Default value is ``''``
         :param username: add???. Default value is ``''``"""
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
@@ -1108,7 +1108,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: add???
         :param data: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``''``
+                    :ref:`packages_index` documentation page. Default value is ``''``
         :param username: add???. Default value is ``''``"""
         self.site.setUserPreference(path, data, pkg=pkg, username=username)
         
@@ -1296,13 +1296,13 @@ class GnrWebPage(GnrBaseWebPage):
     def mainLeftTop(self, pane):
         """The main left top of the page.
         
-        :param pane: a :ref:`genro_contentpane`"""
+        :param pane: a :ref:`contentpane`"""
         pass
             
     def mainLeftContent(self, parentBC, **kwargs):
         """the main left content of the page.
         
-        :param parentBC: the root parent :ref:`genro_bordercontainer`"""
+        :param parentBC: the root parent :ref:`bordercontainer`"""
         plugin_list = getattr(self, 'plugin_list', None)
         if not plugin_list or 'inframe' in self.pageArgs:
             return
@@ -1362,7 +1362,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         This is typically used to customize prints and batch jobs for a particular installation.
         
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param respath: add???. 
         :param class_name: add???. Default value is ``'Main'``
         :param downloadAs: add???. """
@@ -1425,7 +1425,7 @@ class GnrWebPage(GnrBaseWebPage):
                              omit='', **kwargs):
         """add???
         
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param prevRelation: add???. Default value is ``''``
         :param prevCaption: add???. Default value is ``''``
         :param omit: add???. Default value is ``''``"""
@@ -1627,7 +1627,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param struct: add???
-        :param table: the :ref:`genro_table` name
+        :param table: the :ref:`table` name
         :returns: add???"""
         return self._prepareGridStruct(struct,table)
         
@@ -1635,8 +1635,8 @@ class GnrWebPage(GnrBaseWebPage):
     def callTableMethod(self,table=None,methodname=None,**kwargs):
         """A decorator - :ref:`public_method`. add???
         
-        :param table: the :ref:`genro_table` name. 
-        :param methodname: the method name of the :ref:`genro_datarpc`."""
+        :param table: the :ref:`table` name. 
+        :param methodname: the method name of the :ref:`datarpc`."""
         handler = getattr(self.db.table(table), methodname, None)
         if not handler or not getattr(handler, 'is_rpc', False):
             handler = getattr(self.db.table(table),'rpc_%s' %methodname)
@@ -1646,7 +1646,7 @@ class GnrWebPage(GnrBaseWebPage):
     def lazyBag(self, bag, name=None, location='page:resolvers'):
         """add???
         
-        :param bag: a :ref:`genro_bag`
+        :param bag: a :ref:`bag`
         :param name: add???. 
         :param location: add???. Default value is ``page:resolvers``
         :returns: add???"""

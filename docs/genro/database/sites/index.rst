@@ -1,4 +1,4 @@
-.. _genro_sites_index:
+.. _sites_index:
 
 =========
 ``sites``

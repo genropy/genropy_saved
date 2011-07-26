@@ -1,4 +1,4 @@
-.. _genro_commons:
+.. _commons:
 
 ======================================
 common attributes, datatypes and names

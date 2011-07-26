@@ -1,4 +1,4 @@
-.. _genro_library_gnrbaseclasses:
+.. _library_gnrbaseclasses:
 
 =============================
 :mod:`gnr.web.gnrbaseclasses`

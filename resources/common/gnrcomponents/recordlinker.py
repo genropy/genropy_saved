@@ -35,10 +35,10 @@ class RecordLinker(BaseComponent):
     def linkerField(self, fb, table=None, field=None, dialogPars=None, record_template=None, record_path=None, lbl=None,
                     value=None, width=None, height=None, colspan=1, rowspan=1, disabled=False, default_path=None,
                     zoom=False, record_reloader=None, **kwargs):
-        """Creates a linker inside a :ref:`genro_formbuilder`.
+        """Creates a linker inside a :ref:`formbuilder`.
         
         :param fb: (mandatory) the formbuilder
-        :param table: (mandatory) string. The :ref:`genro_table`
+        :param table: (mandatory) string. The :ref:`table`
         :param field: string. Field name
         :param dialogPars: (mandatory) dict. Dialog parameters
                            
@@ -57,10 +57,10 @@ class RecordLinker(BaseComponent):
         :param colspan: a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`
         :param rowspan: add???
         :param disabled: If ``True``, user can't act on the object (write, drag...)
-                         For more information, check the :ref:`genro_disabled` documentation page
+                         For more information, check the :ref:`disabled` documentation page
         :param default_path: add???
-        :param zoom: It allows to open the linked record in a :ref:`genro_dialog`
-                     For further details, check the :ref:`genro_zoom` documentation page
+        :param zoom: It allows to open the linked record in a :ref:`dialog`
+                     For further details, check the :ref:`zoom` documentation page
         :param record_reloader: add???"""
         
         # --------------------------------------------------------------------------------------------- Mandatory parameters

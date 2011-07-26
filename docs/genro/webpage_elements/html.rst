@@ -1,4 +1,4 @@
-.. _genro_html:
+.. _html:
 
 =============
 HTML elements
@@ -46,7 +46,7 @@ HTML elements
         pane.div(width='100%',height='300px').IncludedView(struct=self._gridStruct2(),
                                                            storepath='lista_regioni',nodeId='regioni_grid')
                                                            
-    .. _genro_html_elements:
+    .. _html_elements:
     
 list of HTML elements
 ---------------------

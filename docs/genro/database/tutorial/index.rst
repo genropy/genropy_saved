@@ -1,4 +1,4 @@
-.. _genro_tutorial_index:
+.. _tutorial_index:
 
 ===============================
 Tutorial: creation of a project

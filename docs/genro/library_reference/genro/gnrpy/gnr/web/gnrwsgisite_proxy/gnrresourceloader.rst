@@ -1,4 +1,4 @@
-.. _genro_web_gnrresourceloader:
+.. _web_gnrresourceloader:
 
 ========================
 :mod:`gnrresourceloader`

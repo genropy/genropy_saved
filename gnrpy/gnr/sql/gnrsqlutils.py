@@ -38,7 +38,7 @@ class ModelExtractor(object):
         """add???
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+                    :ref:`packages_index` documentation page
         :param pkg_name: add???
         """
         elements = self.dbroot.adapter.listElements('tables', schema=pkg_name)
@@ -52,7 +52,7 @@ class ModelExtractor(object):
         
         :param tbl: add???
         :param pkg_name: the name of your package. For more information, check the
-                         :ref:`genro_packages_index` documentation page
+                         :ref:`packages_index` documentation page
         :param tbl_name: add???
         """
         columns = list(self.dbroot.adapter.getColInfo(schema=pkg_name, table=tbl_name))
@@ -161,7 +161,7 @@ class SqlModelChecker(object):
         :meth:`_checkTable` method for each table. Return a list containing sql statements
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+                    :ref:`packages_index` documentation page
         :returns: a list containing sql statements"""
         self._checkSqlSchema(pkg)
         if pkg.tables:

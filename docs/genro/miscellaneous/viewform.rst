@@ -1,4 +1,4 @@
-.. _genro_viewform:
+.. _viewform:
 
 =====================
 view and form windows
@@ -7,27 +7,27 @@ view and form windows
     *Last page update*: |today|
     
     * :ref:`view_form_intro`
-    * :ref:`genro_view_data`
-    * :ref:`genro_data_entry`
+    * :ref:`view_data`
+    * :ref:`data_entry`
     
 .. _view_form_intro:
 
 introduction
 ============
     
-    The GUI of a database :ref:`genro_project` is usually composed by two sections:
+    The GUI of a database :ref:`project` is usually composed by two sections:
     
-    * the :ref:`genro_view_data`
-    * the :ref:`genro_data_entry`
+    * the :ref:`view_data`
+    * the :ref:`data_entry`
     
     These two windows can live in a single :ref:`webpages_webpages`, or in two
-    :ref:`stackContainers <genro_stackcontainer>`, or one in a page and one in a
+    :ref:`stackContainers <stackcontainer>`, or one in a page and one in a
     dialog, and so on.
     
     In Genro you find a pre-set GUI for the management of ``view-data window`` and
-    the ``data-entry window``: the :ref:`genro_th` component.
+    the ``data-entry window``: the :ref:`th` component.
     
-.. _genro_view_data:
+.. _view_data:
 
 view-data window
 ================
@@ -39,9 +39,9 @@ view-data window
     
     .. image:: ../_images/components/th/view.png
     
-    If you use the :ref:`genro_th` component you have a pre-set GUI that carries those features.
+    If you use the :ref:`th` component you have a pre-set GUI that carries those features.
     
-.. _genro_data_entry:
+.. _data_entry:
 
 data-entry window
 =================
@@ -54,4 +54,4 @@ data-entry window
     
     .. image:: ../_images/components/th/form.png
     
-    If you use the :ref:`genro_th` component you have a pre-set GUI that carries those features.
+    If you use the :ref:`th` component you have a pre-set GUI that carries those features.

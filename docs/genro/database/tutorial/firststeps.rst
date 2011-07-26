@@ -1,4 +1,4 @@
-.. _genro_simple_firststeps:
+.. _simple_firststeps:
 
 ===========
 first steps

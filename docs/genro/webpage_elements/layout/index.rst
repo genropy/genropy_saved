@@ -1,4 +1,4 @@
-.. _genro_layout_index:
+.. _layout_index:
 
 ======
 layout

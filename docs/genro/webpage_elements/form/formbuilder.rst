@@ -1,4 +1,4 @@
-.. _genro_formbuilder:
+.. _formbuilder:
 
 ===========
 formbuilder
@@ -74,7 +74,7 @@ formbuilder's fields attributes
         ``+`` to refer itself at the following row
         ``*`` to refer itself at the current row
         
-    * *value*: Set a path for formbuilder's values. For more details, see :ref:`genro_datapath`.
+    * *value*: Set a path for formbuilder's values. For more details, see :ref:`datapath`.
       Default value is ``None``
       
 .. _formbuilder_commons_attributes:
@@ -85,8 +85,8 @@ formbuilder commons attributes
     The following attributes can be given both to formbuilder than to its children:
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``.
-      For more information, check the :ref:`genro_hidden` documentation page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`genro_visible` documentation page
+      For more information, check the :ref:`hidden` documentation page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` documentation page
 
 .. _formbuilder_examples:
 

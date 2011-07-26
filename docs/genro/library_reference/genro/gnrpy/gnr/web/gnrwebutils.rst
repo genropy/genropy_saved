@@ -1,4 +1,4 @@
-.. _genro_library_gnrwebutils:
+.. _library_gnrwebutils:
 
 ==========================
 :mod:`gnr.web.gnrwebutils`

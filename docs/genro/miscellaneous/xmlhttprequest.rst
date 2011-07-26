@@ -1,4 +1,4 @@
-.. _genro_xmlhttprequest:
+.. _xmlhttprequest:
 
 ==============
 XMLHttpRequest

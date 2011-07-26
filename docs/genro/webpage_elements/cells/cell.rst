@@ -1,4 +1,4 @@
-.. _genro_cell:
+.. _cell:
 
 ====
 cell

@@ -1,4 +1,4 @@
-.. _genro_dataremote:
+.. _dataremote:
 
 ==========
 dataRemote

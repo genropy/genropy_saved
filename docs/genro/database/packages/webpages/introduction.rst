@@ -8,26 +8,26 @@
     
     .. image:: ../../../_images/projects/packages/webpages.png
     
-    In the ``webpages`` folder you can keep all your :ref:`webpages_webpages`\s.
+    In the ``webpages`` folder you can keep all your :ref:`webpages <webpages_webpages>`.
     
     In Genropy, a webpage is written as a Python file; in particular, the class that
     handles all the stuff you need for a webpage is the :ref:`webpages_GnrCustomWebPage`
     class - in the next documentation page we'll describe this class.
     
-    When you create a :ref:`genro_project`, you (probably) will create the following webpages:
+    When you create a :ref:`project`, you (probably) will create the following webpages:
     
     #. A login page. For more information, check the :ref:`methods_loginUrl` documentation
        section
     #. An index page. You can build your own index, or you can use a
-       :ref:`genro_component` that handles it, like the :ref:`genro_frameindex`.
+       :ref:`component` that handles it, like the :ref:`frameindex`.
        
        .. note:: by default, the name of the first page loaded has to be ``index.py``. You can
                  change this default using the *homepage* attribute of the :ref:`siteconfig_wsgi`
-                 tag of the :ref:`genro_gnr_siteconfig` file
+                 tag of the :ref:`gnr_siteconfig` file
                  
-    #. A set of webpages related to some database :ref:`genro_table`\s.
+    #. A set of webpages related to some database :ref:`tables <table>`.
        
-       .. note:: when you create a webpage that is related to a :ref:`genro_table`,
+       .. note:: when you create a webpage that is related to a :ref:`table`,
                  please name it following this convention::
                  
                    tableName + ``_page.py``

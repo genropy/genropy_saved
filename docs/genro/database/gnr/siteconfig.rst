@@ -1,4 +1,4 @@
-.. _genro_gnr_siteconfig:
+.. _gnr_siteconfig:
 
 ==============
 ``siteconfig``
@@ -69,10 +69,10 @@ Tags
     Let's see its content:
     
     * The file begins and ends with a ``<GenRoBag>`` tag: that's because during the
-      execution of the project, this file is being converted in a :ref:`genro_bag_intro`.
+      execution of the project, this file is being converted in a :ref:`bag_intro`.
     * *<connection_timeout>*: handle the connection timeout.
     * *<connection_refresh>*: handle the connection refresh.
-    * *<wsgi>*: allow to define some connections properties used by the :ref:`genro_wsgi`.
+    * *<wsgi>*: allow to define some connections properties used by the :ref:`wsgi`.
       For more information, check the :ref:`siteconfig_wsgi` section.
     * *<jslib>*: allow to specify the dojo version used. For more information,
       check the :ref:`siteconfig_jslib` section.
@@ -88,7 +88,7 @@ Tags
 ``<wsgi>``
 ----------
 
-    Allow to define some connections properties used by the :ref:`genro_wsgi`:
+    Allow to define some connections properties used by the :ref:`wsgi`:
     
     * *homepage*: specify the first :ref:`webpages_webpages` opened on your application.
                   **syntax**:
@@ -99,7 +99,7 @@ Tags
                     
                   Where:
                   
-                  * ``packageName`` is the name of the :ref:`package <genro_packages_index>`
+                  * ``packageName`` is the name of the :ref:`package <packages_index>`
                     to which the page belongs to
                   * ``pageName`` is the name of the webpage (without the ``.py`` extension)
                   
@@ -131,7 +131,7 @@ Tags
     .. _mainpackage:
     
     * *mainpackage*: a string including the name of your main
-      :ref:`package <genro_packages_index>`
+      :ref:`package <packages_index>`
       
     ::
     
@@ -170,7 +170,7 @@ Tags
         <gui css_theme='aqua'/>
         
     The Genro CSS themes override the Dojo theme you're using. For more information, check
-    the :ref:`css_dojo_themes` and the :ref:`css_genro_themes` sections.
+    the :ref:`css_dojo_themes` and the :ref:`css_themes` sections.
     
 .. _siteconfig_dojo:
 
@@ -199,8 +199,8 @@ Tags
     
     * The ``<common/>`` tag: write it to be able to use a lot of Genro tools:
         
-        * Genro :ref:`genro_component`\s
-        * Genro :ref:`css_genro_themes`
+        * Genro :ref:`components <component>`
+        * Genro :ref:`css_themes`
         
       .. note:: It is strongly recommended to insert this tag.
       

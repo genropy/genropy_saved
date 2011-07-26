@@ -1,4 +1,4 @@
-.. _genro_components_index:
+.. _components_index:
 
 ===================
 index of components

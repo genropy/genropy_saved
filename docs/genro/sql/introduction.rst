@@ -13,9 +13,18 @@ introduction
 relation path
 =============
 
-    add??? A relation path is ...
+    You can create relations between database :ref:`tables <table>`. For doing this, add???
+    
+    To create a relation path you have to specify a foreign key in the model table
     
     Relation paths uses a syntax based on the char '@' and 'dot notation'. (e.g. "@member_id.name").
+    
+    ::
+    
+        tbl.column('anagrafica_id',size='22',name_long='!!Anagrafica',group='_').relation('sw_base.anagrafica.id',mode='foreignkey',
+                                                                                           onDelete='cascade',one_one='*',
+                                                                                           one_group='10',many_group='_',one_name='!!Anagrafica')
+    
     
 .. _sql_direct_rel_path:
     

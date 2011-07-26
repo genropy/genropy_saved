@@ -888,7 +888,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
                      notnull=None, weakCondition=False, **kwargs):
         """
-        :param dbtable: database :ref:`genro_table` source for the query
+        :param dbtable: database :ref:`table` source for the query
         :param columns: the :ref:`table_columns` that are involved into the query
         :param auxColumns: showed only as result, not involved in the search.
         :param hiddenColumns: data that is retrieved but is not showed.

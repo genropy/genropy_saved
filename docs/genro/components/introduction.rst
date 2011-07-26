@@ -1,4 +1,4 @@
-.. _genro_components_introduction:
+.. _components_introduction:
 
 ============
 introduction
@@ -20,7 +20,7 @@ definition
     than one project. Every component can be rewritten in most of its parts (methods) overriding them.
     This ensures the ability to customize a component for your specific purpose.
     
-    Components belong to the family of Genro :ref:`genro_intro_resources`.
+    Components belong to the family of Genro :ref:`intro_resources`.
     
 .. _components_location:
 
@@ -38,7 +38,7 @@ components location
        the folder), then the component is **private**: this means that anyone can use this component
        only in the project in which it has been created.
        
-       The **private** components belong to the family of the :ref:`genro_private_resource`\s.
+       The **private** components belong to the family of the :ref:`private resources <private_resource>`.
        
     #. If you place your component at the following path::
         
@@ -48,13 +48,13 @@ components location
        ``resources`` is a mandatory name for the folder), then the component is **public**:
        this means that anyone can use this component in any project.
        
-       The **public** components belong to the family of the :ref:`genro_public_resource`\s.
+       The **public** components belong to the family of the :ref:`public resources <public_resource>`.
        
        .. warning:: to use a *public* component, you have to specify some requirements.
                     Please read the :ref:`components_requirements` for more information.
                     
     For more information on *private* and *public* components (that is, *private* and *public*
-    resources) please check the :ref:`genro_intro_resources` documentation page.
+    resources) please check the :ref:`intro_resources` documentation page.
     
 .. _components_requirements:
 
@@ -71,7 +71,7 @@ components requirements
        .. note:: this step is optionally if the component you want to import is a
                  :ref:`components_standard`
                  
-    #. set in your :ref:`webpages_webpages`\s a requirement: every component
+    #. set in your :ref:`webpages <webpages_webpages>` a requirement: every component
        has to be called through the correct :ref:`webpages_py_requires` webpage variable.
        
        .. note:: In every component's documentation page you fill find the correct syntax for
@@ -96,7 +96,7 @@ components requirements
                          py_requires = 'folderName/fileName'
                          
                    #. You can omit the "``folderName``" if the component is placed at the first
-                      level of a :ref:`genro_intro_resources` folder of an imported package.
+                      level of a :ref:`intro_resources` folder of an imported package.
                       
                       Viceversa, if the component lives in a nested level of a resources folder you
                       have to specify its path.

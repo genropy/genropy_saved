@@ -1,4 +1,4 @@
-.. _genro_instances_index:
+.. _instances_index:
 
 =============
 ``instances``

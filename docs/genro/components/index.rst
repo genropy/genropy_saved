@@ -1,4 +1,4 @@
-.. _genro_component:
+.. _component:
 
 =========
 component

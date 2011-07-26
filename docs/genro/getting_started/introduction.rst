@@ -1,4 +1,4 @@
-.. _genro_introduction:
+.. _introduction:
 
 =======================
 Introduction to GenroPy
@@ -17,9 +17,9 @@ Bag, BagNode, nodeId
 
     This is very important: 
     
-    * Every object in Genro is a** :ref:`genro_bag`
+    * Every object in Genro is a** :ref:`bag`
     * Every Bag is a collection of :ref:`BagNodes <bagnode>`
-    * Every BagNode is unique because of its :ref:`genro_nodeid`
+    * Every BagNode is unique because of its :ref:`nodeid`
     
     add???
     
@@ -32,19 +32,19 @@ Genro values
 ============
 
     * ??? Explain how Genro handle folder, subfolder through the '.' syntax and through the usage of the Bag.
-    * Then explain the :ref:`genro_datastore`
+    * Then explain the :ref:`datastore`
     
 Other things
 ============
     
-    * :ref:`genro_controllers` ???
+    * :ref:`controllers` ???
     
-.. _genro_controllers:
+.. _controllers:
 
 Genro controllers
 =================
 
-    (change the name or specify the difference with the :ref:`genro_datacontroller_index`)
+    (change the name or specify the difference with the :ref:`datacontroller_index`)
     ??? Explain:
     
         - ``^``

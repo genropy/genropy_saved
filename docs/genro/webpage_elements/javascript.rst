@@ -1,4 +1,4 @@
-.. _genro_javascript:
+.. _javascript:
 
 ==========
 javascript

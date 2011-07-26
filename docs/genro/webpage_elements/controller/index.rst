@@ -1,4 +1,4 @@
-.. _genro_datacontroller_index:
+.. _datacontroller_index:
 
 ===========
 controllers

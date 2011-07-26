@@ -1,4 +1,4 @@
-.. _genro_packages_index:
+.. _packages_index:
 
 ============
 ``packages``

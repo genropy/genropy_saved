@@ -1,4 +1,4 @@
-.. _genro_library_reference:
+.. _library_reference:
 
 =================
 Library reference

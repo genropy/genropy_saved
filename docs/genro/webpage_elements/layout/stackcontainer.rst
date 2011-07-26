@@ -1,4 +1,4 @@
-.. _genro_stackcontainer:
+.. _stackcontainer:
 
 ==============
 stackContainer
@@ -41,7 +41,7 @@ Attributes
     
     **commons attributes**:
     
-        For commons attributes, see :ref:`genro_layout_common_attributes`
+        For commons attributes, see :ref:`layout_common_attributes`
 
 .. _stack_examples:
 
@@ -54,7 +54,7 @@ simple example
 --------------
 
     Here we show you a simple code containing a ``stackContainer``, in which the *selectedPage*
-    is linked with the :ref:`genro_filteringselect` keys::
+    is linked with the :ref:`filteringselect` keys::
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):

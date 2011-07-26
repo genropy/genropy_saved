@@ -1,4 +1,4 @@
-.. _genro_showcase_index:
+.. _showcase_index:
 
 ========
 showcase

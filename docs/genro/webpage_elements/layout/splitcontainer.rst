@@ -1,4 +1,4 @@
-.. _genro_splitcontainer:
+.. _splitcontainer:
 
 ==============
 splitContainer

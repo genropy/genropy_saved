@@ -1,4 +1,4 @@
-.. _genro_simple_introduction:
+.. _simple_introduction:
 
 ============
 introduction
@@ -8,9 +8,9 @@ introduction
     
     .. warning:: chapter to be rewritten completely! --> guide through the "invoice" tutorial?
     
-    * :ref:`genro_project_creation`
+    * :ref:`project_creation`
     
-.. _genro_project_creation:
+.. _project_creation:
 
 create a Genro project
 ======================
@@ -21,7 +21,7 @@ create a Genro project
         
         gnrmkproject projectname
         
-    This will create a folder with the project name you have chosen, and 4 empties subfolders called: ``instances``, ``packages``, ``genro_resources``, ``genro_sites``.
+    This will create a folder with the project name you have chosen, and 4 empties subfolders called: ``instances``, ``packages``, ``resources``, ``sites``.
     
     In the following image you can see the project folder with its relative subfolders (we choose ``myproject`` as project name):
     

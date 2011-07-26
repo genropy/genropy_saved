@@ -1,4 +1,4 @@
-.. _genro_validations:
+.. _validations:
 
 ===========
 validations
@@ -25,17 +25,17 @@ validations
 introduction
 ============
 
-    To make obligations onto user input filling out a :ref:`genro_form`,
+    To make obligations onto user input filling out a :ref:`form`,
     Genro provides an helpful developer's tool: the validations.
     
     Remember that:
     
     * The form can be saved only if all the validation requirements are satisfied.
     * You can use the validations on every single form's element of your
-      :ref:`webpages_webpages` or in a :ref:`table_column` of a :ref:`genro_table`
+      :ref:`webpages_webpages` or in a :ref:`table_column` of a :ref:`table`
       of your :ref:`packages_model` folder, because the validations have been
       thought to use them in :ref:`webpages_webpages` but work great also in your
-      :ref:`tables <genro_table>`.
+      :ref:`tables <table>`.
     * For every validation, you have a list of suffixes (explained in the
       :ref:`validations_common` section) through which you can add some features
       to the standard :ref:`validations_list` (like writing a javascript alert on
@@ -53,7 +53,7 @@ standard validations
     The standard Genro validations are:
     
     * :ref:`validate_call`: allow to write some javascript code
-    * :ref:`validate_dbselect`: a tool of the :ref:`genro_dbselect`
+    * :ref:`validate_dbselect`: a tool of the :ref:`dbselect`
     * :ref:`validate_email`: allow to validate an email format
     * :ref:`validate_empty`: deprecated validation
     * :ref:`validate_exist`: allow to check the existence of a field in the database
@@ -64,7 +64,7 @@ standard validations
     * :ref:`validate_nodup`: allow to avoid having duplicates in the database
     * :ref:`validate_notnull`: allow to set a field as a required field
     * :ref:`validate_regex`: allow to impose a regular expression (of the re_ Python module) validation on the field
-    * :ref:`validate_remote`: allow to validate a field through a :ref:`genro_datarpc`
+    * :ref:`validate_remote`: allow to validate a field through a :ref:`datarpc`
     
     For these validations, you can add one of these two suffixes:
     
@@ -103,7 +103,7 @@ validate_call
     can't be saved.
     
     You can write js directly inside the validation, or you can put a name of a js
-    function defined in a ``.js`` file kept into your :ref:`genro_intro_resources`.
+    function defined in a ``.js`` file kept into your :ref:`intro_resources`.
     
     **Example:**
     
@@ -143,7 +143,7 @@ validate_dbselect
     
         validate_dbselect = True
     
-    It is used in the :ref:`genro_dbselect` form widget.
+    It is used in the :ref:`dbselect` form widget.
     
     If ``True``, prevents the user to write a name that is not included in the
     table related to the dbSelect. Default value in a dbSelect is ``True``
@@ -191,7 +191,7 @@ validate_gridnodup
     
         validate_gridnodup = True
         
-    .. note:: it can be used only inside a :ref:`genro_grid`.
+    .. note:: it can be used only inside a :ref:`grid`.
     
     A validation that avoid having duplicates in a grid: it checks if the user
     insertion is already saved in the database, and validates the form if and
@@ -286,7 +286,7 @@ validate_regex
 validate_remote
 ---------------
         
-    Allow to validate a field through a :ref:`genro_datarpc`.
+    Allow to validate a field through a :ref:`datarpc`.
     
     You can pass the dataRpc as a string::
         

@@ -1,4 +1,4 @@
-.. _genro_packages_introduction:
+.. _packages_introduction:
 
 ============
 introduction
@@ -13,8 +13,8 @@ introduction
     .. module:: gnr.app.gnrdeploy
     
     The ``packages`` folder includes the packages for your application. A package
-    is composed principally by some database :ref:`genro_table`\s and by some
-    :ref:`webpages_webpages`\s.
+    is composed principally by some database :ref:`tables <table>` and by some
+    :ref:`webpages <webpages_webpages>`.
     
     .. note:: The Genro packages are not Python packages (so they are not a set of
               linked modules, containing a file ``__init__.py``), and Genro packages
@@ -37,9 +37,9 @@ about a schema
 autocreation of a package
 =========================
 
-    If you follow the steps of the :ref:`genro_project_autocreation` section, inside your
+    If you follow the steps of the :ref:`project_autocreation` section, inside your
     project you have the 4 subfolders we spoke in the
-    :ref:`project introduction <genro_project_introduction>` in which a project is commonly
+    :ref:`project introduction <project_introduction>` in which a project is commonly
     structured.
     
     To create a project inside the ``packages`` subfolder, you can type in your terminal::
@@ -54,7 +54,7 @@ autocreation of a package
     * a :ref:`packages_main` file
     * a :ref:`packages_menu` file
     * a :ref:`packages_model` folder
-    * a :ref:`public_resources` folder (for :ref:`genro_public_resource`\s)
+    * a :ref:`public_resources` folder (for :ref:`public resources <public_resource>`)
     * a :ref:`packages_webpages` folder
     
     In the following image you see the structure of a project called ``my_project`` with

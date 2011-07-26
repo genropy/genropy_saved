@@ -1,4 +1,4 @@
-.. _genro_macro:
+.. _macro:
 
 ============
 Genro macros
@@ -8,7 +8,7 @@ Genro macros
     
     We list here the four Genro macro: these operations can be specified in the javascript events associated with an interface, and the framework deals gnrjs to the expansion of these macros. It can be accessed from its datastore javascript code (ie from code written in .JS file and then read without macro-expansion) using simple javascript functions.
 
-.. _genro_set:
+.. _set:
 
 SET
 ===
@@ -19,25 +19,25 @@ SET
     
         this.setRelativeData("goofy",aaa);
         
-.. _genro_put:
+.. _put:
 
 PUT
 ===
     
     Set a value, but does not trigger the events associated.
     
-.. _genro_get:
+.. _get:
     
 GET
 ===
 
-    Read the contents of a value in the :ref:`genro_datastore`
+    Read the contents of a value in the :ref:`datastore`
     
     **Example**: ``GET goofy`` is a shortcut for the following command::
     
         this.getRelativeData("goofy");
         
-.. _genro_fire:
+.. _fire:
 
 FIRE
 ====

@@ -1,4 +1,4 @@
-.. _genro_frameindex:
+.. _frameindex:
 
 ==========
 FrameIndex

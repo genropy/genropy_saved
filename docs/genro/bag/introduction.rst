@@ -1,4 +1,4 @@
-.. _genro_bag_intro:
+.. _bag_intro:
 
 ===
 Bag
@@ -52,8 +52,8 @@ overview
 definitions
 ===========
     
-    1. *definition -* **Bag**: A Bag is a collection of :ref:`bagnode`\s. You can use a Bag as a `flat Bag`_
-       or as a `hierarchical Bag`_.
+    1. *definition -* **Bag**: A Bag is a collection of :ref:`BagNodes <bagnode>`. You can use a Bag
+       as a `flat Bag`_ or as a `hierarchical Bag`_.
        
     2. *definition -* **BagNode**: a :class:`BagNode` (or "node") is a Genro class composed by three metadata:
     

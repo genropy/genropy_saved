@@ -700,7 +700,7 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
 def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     """add???
     
-    :param dtype: the :ref:`genro_datatype`.
+    :param dtype: the :ref:`datatype`.
     :param locale: add???. 
     :param format: add???. 
     :param mask: add???. 

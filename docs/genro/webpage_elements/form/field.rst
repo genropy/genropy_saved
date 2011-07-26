@@ -1,4 +1,4 @@
-.. _genro_field:
+.. _field:
 
 =====
 field
@@ -23,11 +23,11 @@ Definition
 Description
 ===========
 
-    ``field`` is used to view, select and modify data included in a database :ref:`genro_table`.
+    ``field`` is used to view, select and modify data included in a database :ref:`table`.
 
-    Its type is inherited from the type of data contained in the table to which ``field`` refers. For example, if ``field`` catches data from a :ref:`genro_numbertextbox`, its type is actually a ``numberTextbox``.
+    Its type is inherited from the type of data contained in the table to which ``field`` refers. For example, if ``field`` catches data from a :ref:`numbertextbox`, its type is actually a ``numberTextbox``.
 
-    ``field`` MUST be a child of the :ref:`genro_formbuilder` form widget, and ``formbuilder`` itself MUST have a :ref:`genro_datapath` for inner relative path gears. So, ``field`` search a form to bind itself to, so don't forget to link every ``field`` to a ``formbuilder``. Here is an example::
+    ``field`` MUST be a child of the :ref:`formbuilder` form widget, and ``formbuilder`` itself MUST have a :ref:`datapath` for inner relative path gears. So, ``field`` search a form to bind itself to, so don't forget to link every ``field`` to a ``formbuilder``. Here is an example::
         
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
@@ -53,20 +53,20 @@ Attributes
     * *limit*: The max number of rows displayed in a field as response to user request.
       The last line is always a line with no characters, so user can choose it to not perform his request
     * *lbl*: Set the Field label. Properly, "lbl" is a formbuilder's child attribute, so if you don't specify
-      it, then ``field`` will inherit it from the :ref:`genro_name_long` attribute of the requested data
-    * *rowcaption*: Allow user to view records through the record's :ref:`genro_name_long` value. Check for
-      more information on :ref:`genro_rowcaption` page
-    * *zoom*: Allow to open the linked record in its :ref:`genro_table`. For further details, check the
-      :ref:`genro_zoom` page
+      it, then ``field`` will inherit it from the :ref:`name_long` attribute of the requested data
+    * *rowcaption*: Allow user to view records through the record's :ref:`name_long` value. Check for
+      more information on :ref:`rowcaption` page
+    * *zoom*: Allow to open the linked record in its :ref:`table`. For further details, check the
+      :ref:`zoom` page
       
     **Common attributes**:
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
-      check the :ref:`genro_hidden` documentation page
+      check the :ref:`hidden` documentation page
     * *label*: You can't use the *label* attribute; if you want to give a label to your widget,
       check the :ref:`lbl_formbuilder` example
-    * *visible*: if False, hide the widget (but keep a place in the :ref:`genro_datastore` for it).
-      For more information, check the :ref:`genro_visible` documentation page
+    * *visible*: if False, hide the widget (but keep a place in the :ref:`datastore` for it).
+      For more information, check the :ref:`visible` documentation page
 
 .. _field_examples:
 
@@ -88,7 +88,7 @@ Examples
                 
                 fb.field(field='person_id',rowcaption='$name')
                 
-    So, the first value of the field contains the name of the attribute you want to save in the :ref:`genro_datastore` (for rowcaption explanation, check :ref:`field_attributes`).
+    So, the first value of the field contains the name of the attribute you want to save in the :ref:`datastore` (for rowcaption explanation, check :ref:`field_attributes`).
 
 .. _second_one:
 

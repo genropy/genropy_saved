@@ -1,4 +1,4 @@
-.. _genro_wsgi:
+.. _wsgi:
 
 ====
 WSGI
@@ -21,7 +21,7 @@ WSGI
     .. _Paste: http://pythonpaste.org/
     .. _WebOb: http://pythonpaste.org/webob/reference.html
     
-    We report here the WSGI declaration (you can find it in the :ref:`sites_root` file, within the :ref:`genro_sites_index` folder of every Genro :ref:`genro_project`)::
+    We report here the WSGI declaration (you can find it in the :ref:`sites_root` file, within the :ref:`sites_index` folder of every Genro :ref:`project`)::
     
         import sys
         sys.stdout = sys.stderr

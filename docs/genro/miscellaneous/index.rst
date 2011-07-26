@@ -1,4 +1,4 @@
-.. _genro_miscellaneous_index:
+.. _miscellaneous_index:
 
 ===================
 Documents to revise

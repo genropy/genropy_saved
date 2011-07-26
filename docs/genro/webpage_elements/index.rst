@@ -1,4 +1,4 @@
-.. _genro_webpage_elements_index:
+.. _webpage_elements_index:
 
 ===============
 webpage element

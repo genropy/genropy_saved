@@ -109,17 +109,17 @@ class IncludedView(BaseComponent):
         The form can be contained inside a dialog or a contentPane and is useful to edit a single record.
         If the data is stored inside another table you should use the picker to select the rows from that table.
         
-        :param parentBC: MANDATORY - parentBC is a :ref:`genro_bordercontainer`
+        :param parentBC: MANDATORY - parentBC is a :ref:`bordercontainer`
                          
                          .. note:: The includedViewBox and its sons can only accept the borderContainer
                                    layout container.
-        :param nodeId: the includedViewbox's Id. For more information, check :ref:`genro_nodeid` page.
+        :param nodeId: the includedViewbox's Id. For more information, check :ref:`nodeid` page.
                        .
-        :param table: the includedViewbox's reference :ref:`genro_table`.
+        :param table: the includedViewbox's reference :ref:`table`.
                       .
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
-                         . For more information, check the :ref:`genro_datapath` and the
-                         :ref:`genro_datastore` pages.
+                         . For more information, check the :ref:`datapath` and the
+                         :ref:`datastore` pages.
         :param storepath: the path of the data of the includedViewBox. .
         :param selectionPars: add???. .
                               
@@ -140,9 +140,9 @@ class IncludedView(BaseComponent):
                             
                              **formCb parameters:**
                              
-                             * formBorderCont: a :ref:`genro_bordercontainer` used as root for the formCb's construction.
+                             * formBorderCont: a :ref:`bordercontainer` used as root for the formCb's construction.
                              * datapath: allow to create a hierarchy of your data’s addresses into the datastore.
-                               For more information, check the :ref:`genro_datapath` and the :ref:`genro_datastore` pages.
+                               For more information, check the :ref:`datapath` and the :ref:`datastore` pages.
                              * region: 'center' of the pane/borderContainer where you place it into.
                              * toolbarHandler: OPTIONAL - a callback for the form toolbar.
                              * title: MANDATORY - for dialog mode.
@@ -199,8 +199,8 @@ class IncludedView(BaseComponent):
         :param reloader: add???. .
         :param externalChanges: add???. .
         :param addOnCb: add???. .
-        :param zoom: It allows to open the linked record in a :ref:`genro_dialog`.
-                     For further details, check the :ref:`genro_zoom` documentation page.
+        :param zoom: It allows to open the linked record in a :ref:`dialog`.
+                     For further details, check the :ref:`zoom` documentation page.
                      Default value is ``True``.
         :param hasToolbar: add???. Default value is ``False``.
         :param canSort: add???. Default value is ``True``.

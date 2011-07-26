@@ -1,4 +1,4 @@
-.. _genro_attributes:
+.. _attributes:
 
 ==================
 commons attributes
@@ -10,15 +10,15 @@ commons attributes
     
     Nevertheless, we report those attributes even in the single widget, suggesting to take vision of this page for more details.
     
-    * :ref:`genro_action`
-    * :ref:`genro_datapath`
-    * :ref:`genro_dbtable`
-    * :ref:`genro_hidden`
-    * :ref:`genro_label`
-    * :ref:`genro_nodeid`
-    * :ref:`genro_readonly`
-    * :ref:`genro_rowcaption`
-    * :ref:`genro_tooltip`
-    * *value*: see :ref:`genro_datapath`
-    * :ref:`genro_visible`
-    * :ref:`genro_zoom`
+    * :ref:`action`
+    * :ref:`datapath`
+    * :ref:`dbtable`
+    * :ref:`hidden`
+    * :ref:`label`
+    * :ref:`nodeid`
+    * :ref:`readonly`
+    * :ref:`rowcaption`
+    * :ref:`tooltip`
+    * *value*: see :ref:`datapath`
+    * :ref:`visible`
+    * :ref:`zoom`

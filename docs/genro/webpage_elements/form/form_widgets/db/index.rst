@@ -1,4 +1,4 @@
-.. _genro_db_index:
+.. _db_index:
 
 ==================================================
 filteringSelect, comboBox, dbSelect and dbCombobox

@@ -29,7 +29,7 @@ GnrCustomWebPage
     an istance of a GnrCustomWebPage, that is a custom class of the :class:`GnrWebPage`.
     
     You can act on a Genro webpage through many webpage elements: please check the
-    :ref:`introduction to webpage elements <genro_webpage_elements_intro>` if you need
+    :ref:`introduction to webpage elements <webpage_elements_intro>` if you need
     to learn more about them.
     
     The GnrCustomWebPage (Genro Custom Webpage) is add???(a mixin class?) through which you can
@@ -53,10 +53,10 @@ GnrCustomWebPage
        
         * :ref:`webpages_maintable`: allow to create shortcuts for users query
         * :ref:`webpages_py_requires`: allow to include some Genro
-          :ref:`genro_component`\s to your webpage (or, more generally, Python modules)
+          :ref:`components <component>` to your webpage (or, more generally, Python modules)
         * :ref:`webpages_js_requires`: allow to include some javascript functionality
           to your webpage
-        * :ref:`webpages_css_requires`: allow to include some :ref:`genro_css`
+        * :ref:`webpages_css_requires`: allow to include some :ref:`css`
           to your webpage
     
     #. You have to define the :ref:`webpages_main` method (unless you're using an active
@@ -89,23 +89,23 @@ main
     
     where:
     
-    * the ``root`` is a :ref:`genro_bag` that passes a :ref:`genro_contentpane`. To this contentPane
-      you can append every :ref:`genro_webpage_elements_index` you need, like a div, a
-      :ref:`genro_button` or a more complex object like a :ref:`genro_form` and so on.
+    * the ``root`` is a :ref:`bag` that passes a :ref:`contentpane`. To this contentPane
+      you can append every :ref:`webpage_elements_index` you need, like a div, a
+      :ref:`button` or a more complex object like a :ref:`form` and so on.
       
       If you import the ``public.py`` :ref:`webpages_py_requires` in your GnrCustomWebPage::
       
         py_requires = 'public:Public'
         
-      then the ``root`` passes a :ref:`genro_bordercontainer`, not a contentPane.
+      then the ``root`` passes a :ref:`bordercontainer`, not a contentPane.
       
     * in the ``**kwargs`` you will find all the values passed to the client through
-      the :ref:`genro_xmlhttprequest`.
+      the :ref:`xmlhttprequest`.
       
     .. note:: Usually the ``main`` method is MANDATORY. But, if you use an :ref:`components_active`,
               you may avoid to define it because the ``main`` method is defined within the
               component itself. For more information check the :ref:`introduction to components
-              <genro_components_introduction>` documentation page.
+              <components_introduction>` documentation page.
               
 .. _webpages_methods:
               
@@ -124,7 +124,7 @@ onLoading
     add???
     
     **Parameters:**
-                    * **record** - the value of the saved record contained into a :ref:`genro_bag`.
+                    * **record** - the value of the saved record contained into a :ref:`bag`.
                       This Bag can be manipulated to alter the data being supplied to the client.
                         
                         Example::
@@ -138,7 +138,7 @@ onLoading
                             6 - (unicode) month: 5  <dtype='L' oldValue='None'>
                             
                     * **newrecord** - boolean.
-                    * **loadingParameters** - :ref:`genro_bag` or dict
+                    * **loadingParameters** - :ref:`bag` or dict
                     * **recInfo** - dict. It contains metadata that are used by the framework to determine
                       which behavior is determined in various situations. ``RecInfo`` may contain the
                       following values:
@@ -209,7 +209,7 @@ py_requires
               for more information on the ``py_requires`` syntax and for more
               information on the place-folder where the components have to lay.
               
-    * Description: a string that allows to include some :ref:`genro_component`\s
+    * Description: a string that allows to include some :ref:`components <component>`
       to your project
     * Default value: ``None``
     * Example::
@@ -236,10 +236,10 @@ css_requires
         
     .. note:: The CSS files you want to use must be placed into your "``resources``" folder
               
-              * For more information about Genro CSS, please check the :ref:`genro_css`
+              * For more information about Genro CSS, please check the :ref:`css`
                 documentation page.
-              * For more information about their location in a Genro :ref:`genro_project`,
-                please check the :ref:`genro_intro_resources` documentation page.
+              * For more information about their location in a Genro :ref:`project`,
+                please check the :ref:`intro_resources` documentation page.
                 
     .. _webpages_css_theme:
 
@@ -290,7 +290,7 @@ dojo_theme
 dojo_version
 ------------
     
-    * Description: a number that allows to specify the Dojo version of your :ref:`genro_project`.
+    * Description: a number that allows to specify the Dojo version of your :ref:`project`.
       You have to write the version supported without the dot (e.g: write '11' for Dojo '1.1')
     * Default value: the value you specify in the :ref:`siteconfig_dojo` tag of your :ref:`sites_siteconfig`.
       If you didn't specify it, the default value is '11'
@@ -314,7 +314,7 @@ js_requires
     .. note:: The js files you want to use must be placed into your "``resources``" folder
               
               * For more information about Genro js and their location in Genro, please check
-                the :ref:`genro_intro_resources` documentation page.
+                the :ref:`intro_resources` documentation page.
                 
     .. _webpages_pageOptions:
 
@@ -379,8 +379,8 @@ eagers
         * *key*: ``packageName.tableName``, where:
         
             * ``packageName`` is the name of your package (for more information check the
-              :ref:`genro_packages_index` page)
-            * ``tableName`` is the name of the :ref:`genro_table`
+              :ref:`packages_index` page)
+            * ``tableName`` is the name of the :ref:`table`
             
         * *value*: includes a :ref:`sql_relation_path
     * Default value: ``{}`` (an empty dict)
@@ -405,21 +405,21 @@ gnrjsversion
 maintable
 ---------
     
-    * Description: a string that allows to link your webpage to a :ref:`genro_table`.
-      It becomes the :ref:`genro_dbtable` default value of all the elements of your
+    * Description: a string that allows to link your webpage to a :ref:`table`.
+      It becomes the :ref:`dbtable` default value of all the elements of your
       webpage that support the ``dbtable`` attribute.
     * Syntax: ``maintable = 'packageName.tableName'``, where:
     
         * ``packageName`` is the name of your package (for more information, check the
-          :ref:`genro_packages_index` page)
-        * ``tableName`` is the name of the :ref:`genro_table`
+          :ref:`packages_index` page)
+        * ``tableName`` is the name of the :ref:`table`
     
     * Default value: ``None``
     * Example::
     
         maintable = 'agenda.call'
         
-    For more information, check the :ref:`genro_dbtable` documentation page.
+    For more information, check the :ref:`dbtable` documentation page.
     
     .. _webpages_recordlock:
 

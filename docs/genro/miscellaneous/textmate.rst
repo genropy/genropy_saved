@@ -1,4 +1,4 @@
-.. _genro_textmate:
+.. _textmate:
 
 ========
 Textmate
@@ -45,8 +45,8 @@ Shortcuts
     
     * To use shortcuts, write the shortcut, then press the *Tab* key.
     * Many shortcuts will create some fields with two exclamation mark (``!!``) as begin string.
-      The ``!!`` feature allows to create a multilanguage :ref:`genro_project`. For more information,
-      check the :ref:`genro_languages` documentation page.
+      The ``!!`` feature allows to create a multilanguage :ref:`project`. For more information,
+      check the :ref:`languages` documentation page.
       
 .. _shortcuts_web:
     
@@ -58,8 +58,8 @@ Web shortcuts
 components
 ----------
 
-    * *inc*: write a :ref:`genro_includedview` --> includedView(struct=,autoWidth=True,storepath='')
-    * *iv*: write the :ref:`genro_includedview`\box. You can choose between two options:
+    * *inc*: write a :ref:`includedview` --> includedView(struct=,autoWidth=True,storepath='')
+    * *iv*: write the :ref:`includedview`\box. You can choose between two options:
     
         * gnrweb: includedViewBox(dbselection)
         
@@ -89,26 +89,26 @@ components
 controllers
 -----------
 
-    * *data*: write one of the :ref:`genro_datacontroller_index`.
+    * *data*: write one of the :ref:`datacontroller_index`.
       You can choose between many options:
       
-      * write a :ref:`genro_dataformula` --> ``dataFormula("", "",_fired="")``
-      * write a :ref:`genro_datacontroller` --> ``dataController("",_fired="")``
-      * write a :ref:`genro_data` --> ``data("", "")``
-      * write a :ref:`genro_datascript` --> ``dataScript("dummy", "return;",_fired="")``
-      * write a :ref:`genro_datarecord` --> ``dataRecord('','',pkey='')``
-      * write a :ref:`genro_dataselection` --> ``dataSelection('','',where='')``
-      * write a :ref:`genro_datarpc` --> ``dataRpc('','',par='')``
+      * write a :ref:`dataformula` --> ``dataFormula("", "",_fired="")``
+      * write a :ref:`datacontroller` --> ``dataController("",_fired="")``
+      * write a :ref:`data` --> ``data("", "")``
+      * write a :ref:`datascript` --> ``dataScript("dummy", "return;",_fired="")``
+      * write a :ref:`datarecord` --> ``dataRecord('','',pkey='')``
+      * write a :ref:`dataselection` --> ``dataSelection('','',where='')``
+      * write a :ref:`datarpc` --> ``dataRpc('','',par='')``
 
 .. _web_form:
 
 form
 ----
 
-    * *dbsel*: write a :ref:`genro_dbselect` --> ``dbSelect(dbtable='',columns='',value='',_class='gnrfield')``
-    * *fi*: write a :ref:`genro_field` --> ``field('')``
-    * *fc*: write a :ref:`genro_fieldcell` --> ``fieldcell('',name='',width='')``
-    * *fb*: write a :ref:`genro_formbuilder` --> ``formbuilder(cols=, border_spacing='',disabled=disabled)``
+    * *dbsel*: write a :ref:`dbselect` --> ``dbSelect(dbtable='',columns='',value='',_class='gnrfield')``
+    * *fi*: write a :ref:`field` --> ``field('')``
+    * *fc*: write a :ref:`fieldcell` --> ``fieldcell('',name='',width='')``
+    * *fb*: write a :ref:`formbuilder` --> ``formbuilder(cols=, border_spacing='',disabled=disabled)``
     
       .. deprecated:: 0.7
         
@@ -119,11 +119,11 @@ form
 layout elements
 ---------------
     
-    * *ac*: write a :ref:`genro_accordioncontainer` --> ``accordionContainer()``
-    * *bc*: write a :ref:`genro_bordercontainer` --> ``borderContainer()``
-    * *cp*: write a :ref:`genro_contentpane` --> ``contentPane()``
-    * *sc*: write a :ref:`genro_stackcontainer` --> ``stackContainer()``
-    * *tc*: write a :ref:`genro_tabcontainer` --> ``tabContainer()``
+    * *ac*: write a :ref:`accordioncontainer` --> ``accordionContainer()``
+    * *bc*: write a :ref:`bordercontainer` --> ``borderContainer()``
+    * *cp*: write a :ref:`contentpane` --> ``contentPane()``
+    * *sc*: write a :ref:`stackcontainer` --> ``stackContainer()``
+    * *tc*: write a :ref:`tabcontainer` --> ``tabContainer()``
     
 .. _web_handlers:
     
@@ -159,8 +159,8 @@ handlers
 Struct shortcuts
 ================
     
-    * *cel*: write row of a :ref:`genro_struct` --> ``r.cell('', name='', width='')``
-    * *str*: write a :ref:`genro_struct`. You can choose between two options:
+    * *cel*: write row of a :ref:`struct` --> ``r.cell('', name='', width='')``
+    * *str*: write a :ref:`struct`. You can choose between two options:
     
         * gnrweb: struct IV
         
@@ -198,13 +198,13 @@ table elements
         * gnrsql: add column Date --> ``tbl.column('','D',name_long='!!')``
         * gnrsql: add column Xml --> ``tbl.column('','X',name_long='!!')``
           
-          .. note:: use it also to instantiate a column with a :ref:`genro_bag_intro` dtype
+          .. note:: use it also to instantiate a column with a :ref:`bag_intro` dtype
                 
         * gnrsql: add column Bool --> ``tbl.column('','B',name_long='!!')``
         * gnrsql: add column Time --> ``tbl.column('','H',name_long='!!')``
         * gnrsql: add foreignkey --> ``tbl.column('',size='22',group='_',name_long='')``
         
-    * *table*: write a :ref:`genro_table`\'s header
+    * *table*: write a :ref:`table`\'s header
     
             ::
             
@@ -224,7 +224,7 @@ table elements
 Triggers
 --------
     
-    * *trig*: write a :ref:`genro_trigger`. You can choose between many options:
+    * *trig*: write a :ref:`trigger`. You can choose between many options:
     
         * gnrsql: trigger(upd) --> ``def trigger_onUpdating(self, record_data, old_record):``
         * gnrsql: trigger(del) --> ``def trigger_onDeleting(self, record):``
@@ -235,7 +235,7 @@ Triggers
 Validations
 ===========
 
-    * *val*: write a :ref:`genro_validations`. You can choose between many options:
+    * *val*: write a :ref:`validations`. You can choose between many options:
     
         * validate: notnull --> ``validate_notnull=True,validate_notnull_error='!!Required'``
         * validate: len --> ``validate_len='Too long:',validate_len_max='!!Too long',validate_len_min='!!Too long'``

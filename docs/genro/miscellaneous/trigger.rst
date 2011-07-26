@@ -1,4 +1,4 @@
-.. _genro_trigger:
+.. _trigger:
 
 =======
 trigger

@@ -1,4 +1,4 @@
-.. _genro_form_widgets_index:
+.. _form_widgets_index:
 
 ============
 form widgets

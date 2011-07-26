@@ -1,4 +1,4 @@
-.. _genro_datacontroller:
+.. _datacontroller:
 
 ==============
 dataController

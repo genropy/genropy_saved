@@ -1,4 +1,4 @@
-.. _genro_index:
+.. _index:
 
 =============================
 Genropy v0.7dev documentation

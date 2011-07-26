@@ -529,7 +529,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+                    :ref:`packages_index` documentation page
         :param \*path: add???
         :returns: add???
         """
@@ -871,7 +871,7 @@ class GnrWsgiSite(object):
         :param path: add???
         :param data: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``''``
+                    :ref:`packages_index` documentation page. Default value is ``''``
         """
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
@@ -882,7 +882,7 @@ class GnrWsgiSite(object):
         
         :param path: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``''``
+                    :ref:`packages_index` documentation page. Default value is ``''``
         :param dflt: add???. Default value is ``''``
         :returns: add???
         """
@@ -895,7 +895,7 @@ class GnrWsgiSite(object):
         
         :param path: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``''``
+                    :ref:`packages_index` documentation page. Default value is ``''``
         :param dflt: add???. Default value is ``''``
         :param username: add???. Default value is ``''``
         :returns: add???
@@ -911,7 +911,7 @@ class GnrWsgiSite(object):
         :param path: add???
         :param data: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. Default value is ``''``
+                    :ref:`packages_index` documentation page. Default value is ``''``
         :param username: add???. Default value is ``''``
         :returns: add???
         """
@@ -941,7 +941,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param page: add???
-        :param table: the :ref:`genro_table` to which the record belongs to
+        :param table: the :ref:`table` to which the record belongs to
         :param pkey: the record primary key."""
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').lockRecord(page, table, pkey)
@@ -950,7 +950,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param page: add???
-        :param table: the :ref:`genro_table` to which the record belongs to
+        :param table: the :ref:`table` to which the record belongs to
         :param pkey: the record primary key."""
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').unlockRecord(page, table, pkey)
@@ -1039,7 +1039,7 @@ class GnrWsgiSite(object):
         This is typically used to customize prints and batch jobs for a particular installation
         
         :param page: add???. 
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param respath: add???. 
         :param class_name: add???. 
         :param runKwargs: add???. """
@@ -1054,7 +1054,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param page: add???. 
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param respath: add???. 
         :param class_name: add???. 
         :returns: add???
@@ -1080,7 +1080,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page"""
+                    :ref:`packages_index` documentation page"""
         return ('%s%s/%s' % (self.home_uri, pkg, '/'.join(args))).replace('//', '/')
         
     def webtools_url(self, tool, **kwargs):

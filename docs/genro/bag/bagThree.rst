@@ -1,4 +1,4 @@
-.. _genro_bag_three:
+.. _bag_three:
 
 ==================
 Advanced functions

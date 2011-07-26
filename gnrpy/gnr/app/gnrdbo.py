@@ -63,7 +63,7 @@ class GnrDboPackage(object):
         """add???
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page"""
+                    :ref:`packages_index` documentation page"""
         return self.dbtable('userobject').loadUserObject(pkg=pkg or self.name, **kwargs)
         
     def saveUserObject(self, data, pkg=None, **kwargs):
@@ -71,7 +71,7 @@ class GnrDboPackage(object):
         
         :param data: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page"""
+                    :ref:`packages_index` documentation page"""
         return self.dbtable('userobject').saveUserObject(data, pkg=pkg or self.name, **kwargs)
         
     def deleteUserObject(self, id, pkg=None):
@@ -79,14 +79,14 @@ class GnrDboPackage(object):
         
         :param id: the object id
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page"""
+                    :ref:`packages_index` documentation page"""
         return self.dbtable('userobject').deleteUserObject(pkg=pkg or self.name, id=id)
         
     def listUserObject(self, pkg=None, **kwargs):
         """add???
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page"""
+                    :ref:`packages_index` documentation page"""
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
         
     def getPreference(self, path, dflt=None):
@@ -110,7 +110,7 @@ class TableBase(object):
                   group='zzz', group_name='!!System'):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
-        :param tbl: the database :ref:`genro_table`
+        :param tbl: the database :ref:`table`
         :param id: boolean. If ``True``, create the ``id`` column. It is normally used as the primary key of a table
         :param ins: boolean. If ``True``, create the ``__ins_ts`` column. Allow to know the time (date and hour)
                     of the entry of a record
@@ -197,7 +197,7 @@ class TableBase(object):
     def setMultidbSubscription(self,tblname):
         """add???
         
-        :param tblname: a string composed by the package name and the database :ref:`genro_table` name
+        :param tblname: a string composed by the package name and the database :ref:`table` name
                         separated by a dot (``.``)"""
         pkg,tblname = tblname.split('.')
         model = self.db.model
@@ -216,8 +216,8 @@ class TableBase(object):
     def setTagColumn(self, tbl, name_long=None, group=None):
         """add???
         
-        :param tbl: the database :ref:`genro_table`
-        :param name_long: the :ref:`genro_name_long`
+        :param tbl: the database :ref:`table`
+        :param name_long: the :ref:`name_long`
         :param group: add???"""
         name_long = name_long or '!!Tag'
         tagtbl = tbl.parentNode.parentbag.parentNode.parentbag.table('recordtag_link')
@@ -238,7 +238,7 @@ class TableBase(object):
 class GnrHTable(TableBase):
     """A hierarchical table. More information on the :ref:`classes_htable` documentation section."""
     def htableFields(self, tbl):
-        """:param tbl: the database :ref:`genro_table`
+        """:param tbl: the database :ref:`table`
         
         This method adds the following :ref:`table_columns` in your table:
         
@@ -320,10 +320,10 @@ class Table_counter(TableBase):
         return True
         
     def config_db(self, pkg):
-        """Configure the database, creating the database :ref:`genro_table` and some :ref:`table_columns`
+        """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page"""
+                    :ref:`packages_index` documentation page"""
         tbl = pkg.table('counter', pkey='codekey', name_long='!!Counter', transaction=False)
         self.sysFields(tbl, id=False, ins=True, upd=True)
         tbl.column('codekey', size=':32', readOnly='y', name_long='!!Codekey', indexed='y')
@@ -341,7 +341,7 @@ class Table_counter(TableBase):
         
         :param name: the counter name
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+                    :ref:`packages_index` documentation page
         :param code: the counter code
         :param codekey: the codekey format (e.g. ``$YY`` for year)
         :param output: the output format (e.g. ``$YY.$NNNN`` for year)
@@ -358,7 +358,7 @@ class Table_counter(TableBase):
         
         :param name: the counter name
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+                    :ref:`packages_index` documentation page
         :param code: the counter code
         :param codekey: the formatting string for the key
         :param output: the formatting output for the key
@@ -388,7 +388,7 @@ class Table_counter(TableBase):
         
         :param name: the counter name
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+                    :ref:`packages_index` documentation page
         :param code: the counter code
         :param codekey: the formatting string for the key
         :param output: the formatting output for the key
@@ -402,12 +402,12 @@ class Table_counter(TableBase):
             return record['last_used']
             
     def createCounter(self, codekey, code, pkg, name, lastAssigned):
-        """Create a counter. The counter is built through a :ref:`genro_bag`
+        """Create a counter. The counter is built through a :ref:`bag`
         
         :param codekey: the formatting string for the key
         :param code: the counter code
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+                    :ref:`packages_index` documentation page
         :param name: the counter name
         :param lastAssigned: add???"""
         record = Bag()
@@ -472,10 +472,10 @@ class Table_userobject(TableBase):
         return False
         
     def config_db(self, pkg):
-        """Configure the database, creating the database :ref:`genro_table` and some :ref:`table_columns`
+        """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page"""
+                    :ref:`packages_index` documentation page"""
         tbl = pkg.table('userobject', pkey='id', name_long='!!User Object', transaction=False)
         self.sysFields(tbl, id=True, ins=True, upd=True)
         tbl.column('code', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
@@ -498,8 +498,8 @@ class Table_userobject(TableBase):
         :param code: add???
         :param objtype: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
-        :param tbl: the database :ref:`genro_table`
+                    :ref:`packages_index` documentation page
+        :param tbl: the database :ref:`table`
         :param userid: add???
         :param description: add???
         :param authtags: add???
@@ -547,7 +547,7 @@ class Table_userobject(TableBase):
         
         :param id: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page"""
+                    :ref:`packages_index` documentation page"""
         self.delete({'id': id})
         
     def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None):
@@ -555,8 +555,8 @@ class Table_userobject(TableBase):
         
         :param objtype: add???
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page 
-        :param tbl: the database :ref:`genro_table` 
+                    :ref:`packages_index` documentation page 
+        :param tbl: the database :ref:`table` 
         :param userid: add???
         :param authtags: add???
         :param onlyQuicklist: add???"""
@@ -589,10 +589,10 @@ class Table_recordtag(TableBase):
         return True
         
     def config_db(self, pkg):
-        """Configure the database, creating the database :ref:`genro_table` and some :ref:`table_columns`
+        """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page"""
+                    :ref:`packages_index` documentation page"""
         tbl = pkg.table('recordtag', pkey='id', name_long='!!Record tags', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tablename', name_long='!!Table name')
@@ -676,10 +676,10 @@ class Table_recordtag_link(TableBase):
         return True
         
     def config_db(self, pkg):
-        """Configure the database, creating the database :ref:`genro_table` and some :ref:`table_columns`
+        """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
         
         :param pkg: the abbreviation for the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page"""
+                    :ref:`packages_index` documentation page"""
         tbl = pkg.table('recordtag_link', pkey='id', name_long='!!Record tag link', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tag_id', name_long='!!Tag id', size='22').relation('recordtag.id', onDelete='cascade',
@@ -690,7 +690,7 @@ class Table_recordtag_link(TableBase):
     def getTagLinks(self, table, record_id):
         """add???
         
-        :param table: the :ref:`genro_table` name
+        :param table: the :ref:`table` name
         :param record_id: the record id"""
         where = '$%s=:record_id' % self.tagForeignKey(table)
         return self.query(columns='@tag_id.tag,@tag_id.description',
@@ -703,7 +703,7 @@ class Table_recordtag_link(TableBase):
     def getTagDict(self, table):
         """add???
         
-        :param table: the :ref:`genro_table` name"""
+        :param table: the :ref:`table` name"""
         currentEnv = self.db.currentEnv
         cachename = '_tagDict_%s' % table.replace('.', '_')
         tagDict = currentEnv.get(cachename)
@@ -715,7 +715,7 @@ class Table_recordtag_link(TableBase):
     def assignTagLink(self, table, record_id, tag, value):
         """add???
         
-        :param table: the :ref:`genro_table` name
+        :param table: the :ref:`table` name
         :param record_id: the record id
         :param tag: add???
         :param value: add???"""
@@ -747,7 +747,7 @@ class Table_recordtag_link(TableBase):
     def getTagLinksBag(self, table, record_id):
         """add???
         
-        :param table: the :ref:`genro_table` name
+        :param table: the :ref:`table` name
         :param record_id: the record id"""
         result = Bag()
         taglinks = self.query(columns='@tag_id.maintag AS maintag, @tag_id.subtag AS subtag, @tag_id.tag AS tag',
@@ -763,7 +763,7 @@ class Table_recordtag_link(TableBase):
     def getCountLinkDict(self, table, pkeys):
         """add???
         
-        :param table: the :ref:`genro_table` name
+        :param table: the :ref:`table` name
         :param pkeys: add???"""
         return self.query(columns='@tag_id.tag as tag,count(*) as howmany', group_by='@tag_id.tag',
                           where='$%s IN :pkeys' % self.tagForeignKey(table), pkeys=pkeys).fetchAsDict(key='tag')
@@ -771,6 +771,6 @@ class Table_recordtag_link(TableBase):
     def tagForeignKey(self, table):
         """add???
         
-        :param table: the :ref:`genro_table` name"""
+        :param table: the :ref:`table` name"""
         tblobj = self.db.table(table)
         return '%s_%s' % (tblobj.name, tblobj.pkey)

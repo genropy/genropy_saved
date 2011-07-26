@@ -1,4 +1,4 @@
-.. _genro_commons_names:
+.. _commons_names:
 
 =====
 names
@@ -6,35 +6,35 @@ names
     
     *Last page update*: |today|
     
-    * :ref:`genro_name_full`
-    * :ref:`genro_name_long`
-    * :ref:`genro_name_plural`
-    * :ref:`genro_name_short`
+    * :ref:`name_full`
+    * :ref:`name_long`
+    * :ref:`name_plural`
+    * :ref:`name_short`
     
     add???
     
-.. _genro_name_full:
+.. _name_full:
 
 name_full
 =========
 
     add???
     
-.. _genro_name_long:
+.. _name_long:
 
 name_long
 =========
 
     add???
     
-.. _genro_name_short:
+.. _name_short:
 
 name_short
 ==========
 
     add???
     
-.. _genro_name_plural:
+.. _name_plural:
 
 name_plural
 ===========

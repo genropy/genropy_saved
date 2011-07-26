@@ -1,4 +1,4 @@
-.. _genro_numberspinner:
+.. _numberspinner:
 
 =============
 numberSpinner
@@ -25,7 +25,7 @@ Definition
 Description
 ===========
     
-    numberSpinner is similar to :ref:`genro_numbertextbox`, but makes integer entry easier when small adjustments are required.
+    numberSpinner is similar to :ref:`numbertextbox`, but makes integer entry easier when small adjustments are required.
 
     There are two features:
 
@@ -45,12 +45,12 @@ Attributes
     **commons attributes**:
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
-      check the :ref:`genro_hidden` documentation page
+      check the :ref:`hidden` documentation page
     * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check
       the :ref:`lbl_formbuilder` example
     * *value*: specify the path of the widget's value. For more information, check the
-      :ref:`genro_datapath` documentation page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`genro_visible`
+      :ref:`datapath` documentation page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`visible`
       documentation page
       
 .. _numberspinner_examples:

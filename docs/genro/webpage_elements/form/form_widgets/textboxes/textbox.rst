@@ -1,4 +1,4 @@
-.. _genro_textbox:
+.. _textbox:
 
 =======
 textbox
@@ -6,7 +6,7 @@ textbox
     
     *Last page update*: |today|
     
-    .. note:: We recommend you to read :ref:`genro_textboxes` first.
+    .. note:: We recommend you to read :ref:`textboxes` first.
 
     * :ref:`textbox_def`
     * :ref:`textbox_description`

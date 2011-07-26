@@ -1,4 +1,4 @@
-.. _genro_currencytextbox:
+.. _currencytextbox:
 
 ===============
 currencyTextbox
@@ -6,7 +6,7 @@ currencyTextbox
     
     *Last page update*: |today|
     
-    .. note:: We recommend you to read :ref:`genro_textboxes` first.
+    .. note:: We recommend you to read :ref:`textboxes` first.
     
     * :ref:`currencytextbox_def`
     * :ref:`currencytextBox_description`

@@ -1,4 +1,4 @@
-.. _genro_decorators:
+.. _decorators:
 
 ==========
 decorators
