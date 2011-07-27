@@ -446,30 +446,34 @@ class DbModelSrc(GnrStructData):
                  many_name=None, eager_one=None, eager_many=None, one_one=None, child=None,
                  one_group=None, many_group=None, onUpdate=None, onUpdate_sql=None, onDelete=None,
                  onDelete_sql=None, deferred=None, relation_name=None, **kwargs):
-        """Add a relation in the current model
+        """Add a :ref:`relation_path` to the :ref:`table`
         
         :param related_column: add???
-        :param mode: relation or insensitive or foreignkey. Default value is ``relation``
-        :param one_name: the one_to_many relation's name. e.g: 'movies'.
-                         
-        :param many_name: the many_to_one relation's name. e.g: 'director'.
-                          
-        :param eager_one: boolean. If ``True`` the one_to_many relation is eager.
-                          
-        :param eager_many: boolean. If ``True`` the many_to_one relation is eager.
-                           
-        :param one_one: add???. 
-        :param child: add???. 
-        :param one_group: add???. 
-        :param many_group: add???. 
-        :param onUpdate: add???. 
-        :param onUpdate_sql: add???. 
-        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. 
-        :param onDelete_sql: add???. 
+        
+                               The syntax of the *related_column* is based on the char '@' and
+                               'dot notation'. (e.g. "@member_id.name") add???
+        
+        :param mode: string. the ``relation`` method mode. You can choose between:
+                     
+                     * 'relation': add???
+                     * 'foreignkey': add???
+                     * 'insensitive': add???
+                     
+        :param one_name: the one_to_many relation's name. e.g: 'movies'
+        :param many_name: the many_to_one relation's name. e.g: 'director'
+        :param eager_one: boolean. If ``True`` the one_to_many relation is eager
+        :param eager_many: boolean. If ``True`` the many_to_one relation is eager
+        :param one_one: add???
+        :param child: add???
+        :param one_group: add???
+        :param many_group: add???
+        :param onUpdate: add???
+        :param onUpdate_sql: add???
+        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
+        :param onDelete_sql: add???
         :param deferred: the same of the sql "DEFERRED". For more information, check the
-                         :ref:`sql_deferred` section.
-        :param relation_name: add???. 
-        :returns: add???. """
+                         :ref:`sql_deferred` section
+        :param relation_name: add???"""
         
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode,
                             one_name=one_name, many_name=many_name, one_one=one_one, child=child,

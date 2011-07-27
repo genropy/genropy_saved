@@ -4,6 +4,8 @@
 introduction
 ============
 
+    *Last page update*: |today|
+    
     In this section we describe all the attributes and metadata that are common to many
     objects.
     

@@ -6,15 +6,13 @@ sql attributes
 
     *Last page update*: |today|
     
-    * :ref:`sql_attributes`:
-    
-        * :ref:`sql_columns`
-        * :ref:`sql_deferred`
-        * :ref:`sql_distinct`
-        * :ref:`sql_group_by`
-        * :ref:`sql_having`
-        * :ref:`sql_order_by`
-        * :ref:`sql_where`
+    * :ref:`sql_columns`
+    * :ref:`sql_deferred`
+    * :ref:`sql_distinct`
+    * :ref:`sql_group_by`
+    * :ref:`sql_having`
+    * :ref:`sql_order_by`
+    * :ref:`sql_where`
         
 .. _sql_columns:
 

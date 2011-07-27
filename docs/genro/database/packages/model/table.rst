@@ -93,16 +93,28 @@ config_db
           
         * indexed: boolan. If ``True``, create an SQL index.
           
-    * introduce the sysFields::
+.. _sysfields:
+
+sysFields
+---------
+    
+    .. automethod:: gnr.app.gnrdbo.TableBase.sysFields
+    
+    To call it in the table page, type::
         
         self.sysFields(tbl)
         
-    .. automethod:: gnr.app.gnrdbo.TableBase.sysFields
-    
-    * introduce the htableField::
-    
-        add??? self.htableFields(tbl)
+.. _htablefields:
 
+htableFields
+------------
+    
+    .. automethod:: gnr.app.gnrdbo.GnrHTable.htableFields
+    
+    To call it in the table page, type::
+    
+        self.htableFields(tbl)
+    
 .. _table_columns:
 
 columns
@@ -141,42 +153,43 @@ column
         
 .. _table_relation:
 
-relation column
+relation method
 ---------------
 
-    Allow to create a relation from table to table.
+    .. automethod:: gnr.sql.gnrsqlmodel.DbModelSrc.relation
 
+    Allow to create a relation from table to table.
+    
+    Attention!! add??? Integrate the following lines directly in the docstrings of the method!
+    
     ::
+        
+        * first parameter: the path of the relation field. Syntax: ``packageName.tableName.columnName``
+        * mode='foreignkey'
+          se non si mette il mode='foreignkey', la relazione è puramente logica, ed è senza nessun controllo
+          di integrità referenziale quando si vuole interagire con il database, mettere mode='foreignkey' -->
+          diventa una relazione SQL. Nel 99% dei casi bisogna metterlo!
+        * one_one='*' / True / ... add??? permette di rendere la relazione "simmetrica"
+        * one_group add???
+        * relation_name='STRING'; 
+          allow to use the relation parameter in a :ref:`th` component. For more
+          information on the relation parameter, please check the :ref:`th_relation_condition` example.
+          NON SOLO!
+          correggere: spiegare che è l'attributo che semplifica la sintassi standard del path di relazione inverso...
+          linkare al paragrafo in cui si spiegano i path di relazioni inversi (esiste?)
+          
+        SQL attributes:
+        
+        * onDelete='cascade'
+        * deferred boolean
+        * others? add???
+    
+    **Example**::
     
         tbl.column('registry_id',size=':22',name_long='!!Registry id').relation('sw_base.registry.id',mode='foreignkey')
         
-    attributi di *relation*:
-    
-    * first parameter: the path of the relation field
-    
-      ::
-      
-        packageName.tableName.columnName
-        
-    * mode='foreignkey'
-      se non si mette il mode='foreignkey', la relazione è puramente logica, ed è senza nessun controllo
-      di integrità referenziale quando si vuole interagire con il database, mettere mode='foreignkey' -->
-      diventa una relazione SQL. Nel 99% dei casi bisogna metterlo!
-      
-    * one_one='*' / True / ... add??? permette di rendere la relazione "simmetrica"
-    * one_group add???
-    * relation_name='STRING'; 
-      allow to use the relation parameter in a :ref:`th` component. For more
-      information on the relation parameter, please check the :ref:`th_relation_condition` example.
-      NON SOLO!
-      correggere: spiegare che è l'attributo che semplifica la sintassi standard del path di relazione inverso...
-      linkare al paragrafo in cui si spiegano i path di relazioni inversi (esiste?)
-      
-    SQL attributes:
-    * onDelete='cascade'
-    * deferred boolean
-    * others? add???
-      
+        add??? example explanation!
+            
 .. _table_aliascolumn:
 
 aliasColumn
