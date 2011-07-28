@@ -1417,7 +1417,8 @@ usage of table, condition and relation parameters
     * *condition*: the condition gathers the default query parameters, that will be added to the
       optional query made by the user.
       
-    Alternatively, if add???, you can specify the *relation* parameter;
+    Alternatively, if add???, you can specify the *relation* parameter (link the relation parameter
+    to the :ref:`relation_name`!!!);
     if you do so, the *table* and the *condition* attributes are taken automatically.
     
     Let's see some examples:
