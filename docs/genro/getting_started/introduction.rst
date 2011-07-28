@@ -10,8 +10,6 @@ Introduction to GenroPy
     
     GenroPy (or Genro) is a Framework for business applications.
     
-    (add??? continue!!!)
-    
 Bag, BagNode, nodeId
 ====================
 
@@ -47,14 +45,9 @@ Genro controllers
     (change the name or specify the difference with the :ref:`datacontroller_index`)
     ??? Explain:
     
-        - ``^``
-        
-        - ``=``
-        
-        - ``==``
-        
-        - ``.`` is the dot a controller???
-        
+    * ``^``
+    * ``=``
+    
 **Footnotes**:
 
 .. [#] For Dojo documentation check the official Dojo_ webpage. For additional documentation see also `Dojo Campus`_.

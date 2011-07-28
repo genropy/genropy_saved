@@ -12,15 +12,7 @@ table
     * :ref:`table_definition`
     * :ref:`table_creation`
     * :ref:`table_config_db`
-    * :ref:`table_columns`
-    
-        * the simple :ref:`table_column` (and :ref:`relation columns <table_relation>`)
-        * the :ref:`table_aliascolumn`
-        * the :ref:`table_formulacolumn`
-        * the :ref:`table_virtualcolumn`
-        
-        * :ref:`table_validations`
-        
+    * :ref:`table_columns`, :ref:`table_validations`
     * :ref:`table_examples`
     
 .. _table_description:
@@ -31,7 +23,7 @@ Description
     A table is one of the most important part of your project. In relational databases and
     flat file databases, a table is a set of data elements that is organized using a model
     of vertical :ref:`table_columns` (which are identified by their name) and horizontal
-    rows. Each row is identified by the table's primary key (pkey).
+    rows. Each row is identified by the table's primary key (:ref:`pkey`).
     
 .. _table_definition:
 
@@ -76,6 +68,8 @@ config_db
         
         tbl = pkg.table('company', pkey='id', rowcaption='@registry_id.name',
                          name_long='Company', name_plural='Companies')
+                         
+    add??? automethod of table method!
                          
     * table attributes:
     
@@ -122,8 +116,8 @@ columns
 
     There are a lot of columns type you can use:
     
-    * the simple :ref:`table_column` (and :ref:`relation columns <table_relation>`)
-    * the :ref:`table_relation`
+    * the simple :ref:`table_column`
+    * the :ref:`table_relation_column` (and the :ref:`table_relation`)
     * the :ref:`table_aliascolumn`
     * the :ref:`table_formulacolumn`
     * the :ref:`table_virtualcolumn`
@@ -135,22 +129,17 @@ column
 
     .. automethod:: gnr.sql.gnrsqlmodel.DbModelSrc.column
     
-    * introduce column(s):
-        
-      ::
+    **Example**::
         
         tbl.column('tipologia',size=':22',name_long='!!Tipologia')
         
-    * column attributes:
+.. _table_relation_column:
+
+relation column
+---------------
+
+    To create a relation column, you have to attach the :ref:`table_relation` to a column
     
-        * size
-        * :ref:`name_long`
-        * :ref:`name_plural`
-        * :ref:`name_short`
-        * required (???)
-        * unique (boolean)
-        *  _sendback (boolean) add???
-        
 .. _table_relation:
 
 relation method
