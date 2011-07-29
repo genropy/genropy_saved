@@ -2075,7 +2075,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         objectPopAll(attributes);
         objectUpdate(attributes, gridAttributes);
         attributes._identifier = identifier;
-
+        this.highlightExternalChanges = sourceNode.attr.highlightExternalChanges || true;
         return savedAttrs;
     },
 
@@ -3562,7 +3562,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if(externalChangedKeys){
             var pkey = result[this._identifier];
             var change = externalChangedKeys[pkey];
-            if(change){
+            if(change && this.highlightExternalChanges){
                 result._customClasses= result._customClasses? result._customClasses+' selectionLocalChange':'selectionLocalChange';
             }
         }
