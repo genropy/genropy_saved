@@ -170,7 +170,7 @@ Tags
               :ref:`instanceconfig_packages` section.
         
     The ``adm`` package allow to manage the authentications. For more information on it, check
-    the add??? documentation page.
+    the add??? page.
     
     Inside the ``<authentication>`` tag we have to define two different tags: the ``<py_auth>``
     and the ``<xml_auth>``.

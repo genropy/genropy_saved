@@ -113,7 +113,7 @@ Introduction
     .. image:: ../../_images/components/th/form.png
     
     For more information of the GUI of these two pages, please check the
-    :ref:`view_data` and the :ref:`data_entry` documentation pages.
+    :ref:`view_data` and the :ref:`data_entry` pages.
     
     The TableHandler carries many features:
     
@@ -470,8 +470,7 @@ Form class
         fb.field('email',colspan=2)
         
     .. note:: in the :ref:`packages_menu`, a resource page needs a different syntax respect
-              to a normal webpage; for more information, check the :ref:`menu_th` documentation
-              section.
+              to a normal webpage; for more information, check the :ref:`menu_th` section.
               
     .. _th_rpc:
 
@@ -480,9 +479,9 @@ usage of a dataRpc in a resource webpage
 
     In a :ref:`th_resource_page` you can't use a :ref:`datarpc` unless you pass it as a
     callable. For more information, check the :ref:`datarpc_callable` section of the
-    :ref:`datarpc` documentation page
-                      
-    .. _th_webpage:
+    :ref:`datarpc` page.
+    
+.. _th_webpage:
 
 th_webpage
 ==========
@@ -549,7 +548,7 @@ th_webpage
     :ref:`webpage elements <webpage_elements_index>`). If you define the ``maintable``, then you have
     defined the standard value for all the :ref:`dbtable` attributes of your
     :ref:`webpage elements <webpage_elements_index>` that support it. Check for more information the
-    :ref:`webpages_maintable` and the :ref:`dbtable` documentation pages.
+    :ref:`webpages_maintable` and the :ref:`dbtable` pages.
     
 .. _th_webpage_methods:
     
@@ -652,7 +651,7 @@ TableHandler common attributes
       
     * *nodeId*: the id of the TableHandler type. If you don't need a specific nodeId, the component
                 handles it automatically. For more information on the meaning of the nodeId, check
-                the :ref:`nodeid` documentation page.
+                the :ref:`nodeid` page.
     * *table*: the path of the :ref:`table` linked to your TableHandler. It is MANDATORY
       unless you use the relation attribute. For more information, check the
       :ref:`th_relation_condition` example.
@@ -664,7 +663,7 @@ TableHandler common attributes
         
     * *th_pkey*: add???.
     * *datapath*: the path of your data. For more information, check the
-      :ref:`datapath` documentation page.
+      :ref:`datapath` page.
     * *formResource*: allow to change the default :ref:`th_form_class`.
       Check the :ref:`th_formresource` section for more information.
     * *viewResource*: allow to change the default :ref:`th_view_class`.

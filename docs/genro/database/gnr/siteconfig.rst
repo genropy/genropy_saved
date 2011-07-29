@@ -72,7 +72,7 @@ Tags
       execution of the project, this file is being converted in a :ref:`bag_intro`.
     * *<connection_timeout>*: handle the connection timeout.
     * *<connection_refresh>*: handle the connection refresh.
-    * *<wsgi>*: allow to define some connections properties used by the :ref:`wsgi`.
+    * *<wsgi>*: allow to define some connections properties used by the :ref:`wsgi_intro`.
       For more information, check the :ref:`siteconfig_wsgi` section.
     * *<jslib>*: allow to specify the dojo version used. For more information,
       check the :ref:`siteconfig_jslib` section.
@@ -88,7 +88,7 @@ Tags
 ``<wsgi>``
 ----------
 
-    Allow to define some connections properties used by the :ref:`wsgi`:
+    Allow to define some connections properties used by the :ref:`wsgi_intro`:
     
     * *homepage*: specify the first :ref:`webpages_webpages` opened on your application.
                   **syntax**:

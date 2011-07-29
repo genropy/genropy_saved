@@ -85,8 +85,8 @@ formbuilder commons attributes
     The following attributes can be given both to formbuilder than to its children:
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``.
-      For more information, check the :ref:`hidden` documentation page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` documentation page
+      For more information, check the :ref:`hidden` page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
 
 .. _formbuilder_examples:
 

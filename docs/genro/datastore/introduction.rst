@@ -37,7 +37,7 @@ Datastore syntax
       will be informed of changes to the datastore
     * equal: ``=accessed.from.resolver``, reads the datastore content.
     
-    For more information on absolute and relative paths, check the :ref:`datapath` documentation page.
+    For more information on absolute and relative paths, check the :ref:`datapath` page.
 
 .. _datastore_access:
 

@@ -62,11 +62,11 @@ Attributes
     **Common attributes**:
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
-      check the :ref:`hidden` documentation page
+      check the :ref:`hidden` page
     * *label*: You can't use the *label* attribute; if you want to give a label to your widget,
       check the :ref:`lbl_formbuilder` example
     * *visible*: if False, hide the widget (but keep a place in the :ref:`datastore` for it).
-      For more information, check the :ref:`visible` documentation page
+      For more information, check the :ref:`visible` page
 
 .. _field_examples:
 

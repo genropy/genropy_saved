@@ -10,8 +10,7 @@ FrameIndex
               
               * It is NOT a :ref:`components_standard`, so you have to import the correct
                 package in your :ref:`instances_instanceconfig` file (more information on the
-                importation of a package in the :ref:`instanceconfig_packages` documentation
-                section).
+                importation of a package in the :ref:`instanceconfig_packages` section).
                 
                 For the FrameIndex the package to be imported is the ``adm`` package.
                 The syntax is::

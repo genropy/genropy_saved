@@ -18,4 +18,4 @@
     you have to modify the :ref:`gnr_siteconfig` file of the :ref:`gnr_index` folder.
     
     However, the complete description of the ``sitesconfig.xml`` file lies in the global
-    :ref:`gnr_siteconfig` file documentation page. Check it for more information.
+    :ref:`gnr_siteconfig` file page. Check it for more information.

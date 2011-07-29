@@ -42,8 +42,7 @@ Creation of a table
         # encoding: utf-8
         
     Now we have to introduce the right class for a table; there are many options (that we
-    discuss in the :ref:`table_classes` documentation page). We use now the standard
-    method::
+    discuss in the :ref:`table_classes` page). We use now the standard method::
     
         class Table(object):
         

@@ -151,7 +151,7 @@ Attributes
 
               slots='20,messageBox,*,searchOn'
 
-          For more information, check the :ref:`includedview` documentation page
+          For more information, check the :ref:`includedview` page
         
 .. _toolbar_examples:
 

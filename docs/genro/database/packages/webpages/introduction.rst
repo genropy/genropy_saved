@@ -12,12 +12,11 @@
     
     In Genropy, a webpage is written as a Python file; in particular, the class that
     handles all the stuff you need for a webpage is the :ref:`webpages_GnrCustomWebPage`
-    class - in the next documentation page we'll describe this class.
+    class - in the next page we'll describe this class.
     
     When you create a :ref:`project`, you (probably) will create the following webpages:
     
-    #. A login page. For more information, check the :ref:`methods_loginUrl` documentation
-       section
+    #. A login page. For more information, check the :ref:`methods_loginUrl` section
     #. An index page. You can build your own index, or you can use a
        :ref:`component` that handles it, like the :ref:`frameindex`.
        

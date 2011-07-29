@@ -21,7 +21,7 @@ basic Table
     
     This class is the most common class used in a :ref:`project`.
     
-    For more information check the :ref:`table` documentation page.
+    For more information check the :ref:`table` page.
     
 .. _classes_htable:
 

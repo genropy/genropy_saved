@@ -54,7 +54,7 @@ components location
                     Please read the :ref:`components_requirements` for more information.
                     
     For more information on *private* and *public* components (that is, *private* and *public*
-    resources) please check the :ref:`intro_resources` documentation page.
+    resources) please check the :ref:`intro_resources` page.
     
 .. _components_requirements:
 
@@ -66,7 +66,7 @@ components requirements
     #. import the name of the package that includes the component you want
        to use in the :ref:`instanceconfig_packages` tag of your
        :ref:`instances_instanceconfig` file (for more information, check the
-       :ref:`instanceconfig_packages` documentation section)
+       :ref:`instanceconfig_packages` section)
        
        .. note:: this step is optionally if the component you want to import is a
                  :ref:`components_standard`
@@ -134,7 +134,7 @@ standard component
                  :ref:`gnr_environment` file (if you have correctly configured the file!)
                  
                  To learn how to configure the ``environment.xml`` file, check the
-                 :ref:`environment_resources_components` documentation section.
+                 :ref:`environment_resources_components` section.
                  
     .. note:: Remeber to import the proper component's :ref:`webpages_py_requires`.
                  

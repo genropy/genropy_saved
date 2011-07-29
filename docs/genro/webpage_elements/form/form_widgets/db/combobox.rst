@@ -45,10 +45,10 @@ Attributes
     
     **Common attributes**:
     
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`hidden` documentation page
+    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`hidden` page
     * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
-    * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath` documentation page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` documentation page
+    * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath` page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
     
 .. _combobox_examples:
 
@@ -79,9 +79,8 @@ Fill comboBox through *values* attribute
 Fill comboBox through a Bag
 ===========================
 
-    Postponing all info of a ``Bag`` and of a ``data`` on the relative pages of documentation
-    (:ref:`bag_intro` introduction page and :ref:`data` page), we'll show here how
-    you can add values to ``combobox`` using a ``Bag``.
+    Postponing all info of a ``Bag`` and of a ``data`` on the relative pages (:ref:`bag_intro`
+    introduction page and :ref:`data` page), we'll show here how you can add values to ``combobox`` using a ``Bag``.
     
     **Example**::
 

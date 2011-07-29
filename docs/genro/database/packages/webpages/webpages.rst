@@ -105,7 +105,7 @@ main
     .. note:: Usually the ``main`` method is MANDATORY. But, if you use an :ref:`components_active`,
               you may avoid to define it because the ``main`` method is defined within the
               component itself. For more information check the :ref:`introduction to components
-              <components_introduction>` documentation page.
+              <components_introduction>` page.
               
 .. _webpages_methods:
               
@@ -236,10 +236,9 @@ css_requires
         
     .. note:: The CSS files you want to use must be placed into your "``resources``" folder
               
-              * For more information about Genro CSS, please check the :ref:`css`
-                documentation page.
+              * For more information about Genro CSS, please check the :ref:`css` page.
               * For more information about their location in a Genro :ref:`project`,
-                please check the :ref:`intro_resources` documentation page.
+                please check the :ref:`intro_resources` page.
                 
     .. _webpages_css_theme:
 
@@ -314,7 +313,7 @@ js_requires
     .. note:: The js files you want to use must be placed into your "``resources``" folder
               
               * For more information about Genro js and their location in Genro, please check
-                the :ref:`intro_resources` documentation page.
+                the :ref:`intro_resources` page.
                 
     .. _webpages_pageOptions:
 
@@ -419,7 +418,7 @@ maintable
     
         maintable = 'agenda.call'
         
-    For more information, check the :ref:`dbtable` documentation page.
+    For more information, check the :ref:`dbtable` page.
     
     .. _webpages_recordlock:
 
@@ -432,5 +431,5 @@ recordLock
     
 **Footnotes**:
 
-.. [#] For more information on active and passive components, please check the :ref:`components_active_passive` documentation section.
-.. [#] Dojo is usually sent compressed to the client. But if you want to debug it, it is better to read it uncompressed
+.. [#] For more information on active and passive components, please check the :ref:`components_active_passive` section.
+.. [#] Dojo is usually sent compressed to the client. But if you want to debug it, it is better to read it uncompressed.

@@ -41,7 +41,7 @@ Common attributes
       the :ref:`datapath` page
     * *height*: Set the height of the container. MANDATORY if the container is the father container (example: height='100px')
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
-      check the :ref:`hidden` documentation page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` documentation page
+      check the :ref:`hidden` page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
     
     You can obviously add :ref:`css` to your containers.

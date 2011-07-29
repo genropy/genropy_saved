@@ -43,10 +43,9 @@ Attributes
     **commons attributes**:
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``.
-      For more information, check the :ref:`hidden` documentation page
+      For more information, check the :ref:`hidden` page
     * *label*: the dropdownbutton's *label*.
-    * *visible*: if False, hide the widget. For more information, check the
-      :ref:`visible` documentation page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
 
 .. _ddb_examples:
 

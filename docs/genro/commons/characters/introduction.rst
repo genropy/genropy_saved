@@ -1,4 +1,4 @@
-.. _sql_intro:
+.. _chars_intro:
 
 ============
 introduction

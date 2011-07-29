@@ -10,4 +10,4 @@
     
     This folder includes all your :ref:`private resources <private_resource>`.
     
-    For more information, check the :ref:`intro_resources` documentation page. 
+    For more information, check the :ref:`intro_resources` page. 

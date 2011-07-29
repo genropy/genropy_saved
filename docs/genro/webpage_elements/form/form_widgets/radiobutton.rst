@@ -41,12 +41,12 @@ Attributes
     **Common attributes**:
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``.
-      For more information, check the :ref:`hidden` documentation page
+      For more information, check the :ref:`hidden` page
     * *label*: Set the radiobutton label
     * *value*: specify the path of the widget's value. For more information, check
-      the :ref:`datapath` documentation page
+      the :ref:`datapath` page
     * *visible*: if False, hide the widget (but keep a place in the :ref:`datastore` for it).
-      For more information, check the :ref:`visible` documentation page
+      For more information, check the :ref:`visible` page
     
 .. _radiobutton_examples:
 

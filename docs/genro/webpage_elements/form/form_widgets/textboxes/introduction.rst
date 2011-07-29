@@ -17,7 +17,7 @@ introduction to textboxes
     * :ref:`timetextbox`
     
     .. note:: The main additional feature to the Dojo textboxes is the compatibility with the Genro validations.
-              For more information, check the :ref:`validations` documentation page.
+              For more information, check the :ref:`validations` page.
     
 .. _textboxes_attributes:
 
@@ -29,12 +29,10 @@ Common attributes
     **commons attributes**:
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check
-      the :ref:`hidden` documentation page
+      the :ref:`hidden` page
     * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check the
       :ref:`lbl_formbuilder` example
-    * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath`
-      documentation page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` documentation page
+    * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath` page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
     
-    We remeber also that if you want to assign a default value to any textbox, you can use the
-    :ref:`data` controller.
+    We remeber also that if you want to assign a default value to any textbox, you can use the :ref:`data` controller.

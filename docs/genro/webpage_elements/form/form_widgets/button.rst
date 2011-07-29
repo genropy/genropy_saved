@@ -36,8 +36,7 @@ attributes
 
     **button attributes**:
     
-    * *action*: allow to execute a javascript callback. For more information, check the :ref:`action`
-      documentation section
+    * *action*: allow to execute a javascript callback. For more information, check the :ref:`action` section
     * *iconClass*: the button icon. Default value is ``None``. For more information, check the
       :ref:`button_icon` section
     * *showLabel*: (boolean). If ``True``, show the button label. Default value is ``True``
@@ -45,11 +44,10 @@ attributes
     **commons attributes**:
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check
-      the :ref:`hidden` documentation page
+      the :ref:`hidden` page
     * *label*: the label of the widget.
-    * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath`
-      documentation page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` documentation page
+    * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath` page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
 
 .. _button_icon:
 
@@ -125,4 +123,4 @@ Genro macros
 
 **Footnotes:**
 
-.. [#] In Genro there are different macros used as a shortcut that you can use in place of some javascript command. For a complete list and relative explanation, check the :ref:`macro` documentation page.
+.. [#] In Genro there are different macros used as a shortcut that you can use in place of some javascript command. For a complete list and relative explanation, check the :ref:`macro` page.

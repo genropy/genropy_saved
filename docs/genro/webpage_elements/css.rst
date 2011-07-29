@@ -36,7 +36,7 @@ Introduction
        (write the CSS filename without its ``.css`` extension).
        
        The ``css_requires`` is a :ref:`webpage variable <webpages_variables>`. For more information
-       on it, check the :ref:`webpages_css_requires` documentation section.
+       on it, check the :ref:`webpages_css_requires` section.
        
     #. The second way is to use CSS style directly in your Genro :ref:`webpages_webpages`.
        When you do this, please pay attention that the CSS syntax is a little different

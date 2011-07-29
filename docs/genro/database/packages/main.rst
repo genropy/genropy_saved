@@ -118,8 +118,7 @@ config_attributes
     * ``sqlschema`` includes a string with the name of the database schema.
     
       .. note:: we suggest you to call with the same name both the schema and the
-                package. For more information, check the :ref:`about_schema`
-                documentation section.
+                package. For more information, check the :ref:`about_schema` section.
                 
     * ``comment`` includes a comment string.
     * ``name_short`` includes a string of the :ref:`name_short` of the schema.
@@ -222,8 +221,7 @@ loginUrl
                     
               where ``packageName`` is the name of your package.
     
-    For more information on how to build a login page, please check the :ref:`login_auth`
-    documentation page.
+    For more information on how to build a login page, please check the :ref:`login_auth` page.
     
 .. add??? Understand if the following methods are old or new...
 .. 

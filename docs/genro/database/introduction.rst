@@ -8,9 +8,7 @@ project
     
     * :ref:`project_introduction`
     * :ref:`project_basic_structure`
-    * :ref:`project_autocreation`:
-        
-        * :ref:`project_help`
+    * :ref:`project_autocreation` (:ref:`project_help`)
     
 .. _project_introduction:
 
@@ -41,7 +39,7 @@ introduction
             from gnr.app.gnrapp import GnrApp
             instance = GnrApp('name_of_project')
           
-        More information in the :ref:`instances_index` documentation section.
+        More information in the :ref:`instances_index` section.
         
     * The ``packages`` folder:
     
@@ -51,7 +49,7 @@ introduction
                     containing a file ``__init__.py``), and Genro packages can't be imported
                     with the statement ``import`` *module* or with ``from`` *module* ``import``
                     
-        More information in the :ref:`packages_index` documentation section.
+        More information in the :ref:`packages_index` section.
         
     * The ``resources`` folder:
     
@@ -60,8 +58,7 @@ introduction
           
         * You will use it for all the common tools of your project.
         
-        For an introduction to the resources, please check the :ref:`intro_resources`
-        documentation page.
+        For an introduction to the resources, please check the :ref:`intro_resources` page.
         
     * The ``sites`` folder:
     
@@ -73,7 +70,7 @@ introduction
           
           .. _WingIDE: http://www.wingware.com/
           
-        More information in the :ref:`sites_index` documentation section.
+        More information in the :ref:`sites_index` section.
         
 .. _project_basic_structure:
 

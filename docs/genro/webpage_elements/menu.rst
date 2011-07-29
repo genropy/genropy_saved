@@ -7,7 +7,7 @@ menu
     *Last page update*: |today|
     
     .. note:: To create a menu, you have to use the ``dropdownbutton`` form widget. For more information,
-              check the :ref:`dropdownbutton` documentation page.
+              check the :ref:`dropdownbutton` page.
     
     * :ref:`menu_def`
     * :ref:`menu_attributes`
@@ -46,16 +46,15 @@ attributes
     
     **menu attributes**:
     
-    * *action*: allow to execute a javascript callback. For more information, check the :ref:`action`
-      documentation page
+    * *action*: allow to execute a javascript callback. For more information, check the :ref:`action` page
           
     **commons attributes**:
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
-      check the :ref:`hidden` documentation page
+      check the :ref:`hidden` page
     * *label*: You can't use the *label* attribute; if you want to give a label to your widget, you have
       to give it to the dropdownbutton. Check the :ref:`menu_examples_simple`.
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` documentation page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
 
 .. _menu_examples:
 

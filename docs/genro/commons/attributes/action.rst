@@ -17,7 +17,7 @@ definition and description
 
     The *action* attribute is a javascript callback that receives all the ``**kwargs`` parameters.
     It receives a string with javascript code. For more information of the usage of javascript in
-    Genro please check the :ref:`javascript` documentation section.
+    Genro please check the :ref:`javascript` section.
     
 .. _action_validity:
 

@@ -13,4 +13,5 @@ common attributes, datatypes and names
     attributes/index
     datatypes
     names
+    characters/index
     

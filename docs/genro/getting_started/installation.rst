@@ -99,14 +99,14 @@ Project Examples
         
     where ``instanceName`` is the name of the instance of your :ref:`project`.
     
-    To start the paste :ref:`wsgi` development webserver, type::
+    To start the paste :ref:`wsgi_intro` development webserver, type::
     
         gnrwsgiserve siteName
         
     where ``siteName`` is the name of the site folder of your :ref:`project`.
     
    .. note:: We suggest you to begin with the **showcase** tutorial: follow the instructions
-             of the :ref:`showcase_index` documentation section to start with it.
+             of the :ref:`showcase_index` section to start with it.
              
 **Footnotes**
 

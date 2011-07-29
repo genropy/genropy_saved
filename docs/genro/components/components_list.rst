@@ -9,7 +9,7 @@ components list
     There are a lot of components in Genro. They provide you different solutions to simplify your work.
     In this page we list ALL of them with a short description, in order to help you in the search of
     the right component for your task (and if you don't find it, you can always create your own one,
-    following the walkthrough of the :ref:`components_writing` documentation page)
+    following the walkthrough of the :ref:`components_writing` page)
     
     **Dialogs**:
     
