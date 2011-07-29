@@ -131,14 +131,22 @@ column
     
     **Example**::
         
-        tbl.column('tipologia',size=':22',name_long='!!Tipologia')
+        tbl.column('my_column',size=':15',name_long='!!My column')
+        
+    where ``tbl`` is the table object.
         
 .. _table_relation_column:
 
 relation column
 ---------------
 
-    To create a relation column, you have to attach the :ref:`table_relation` to a column
+    The relation column is a column that allows to build relations between tables.
+
+    To create a relation column, you have to attach the :ref:`table_relation` to a :ref:`table_column`::
+    
+        tbl.column('my_column',size=':15',name_long='!!My column').relation(...)
+        
+    where ``tbl`` is the table object. In the next section we talk about the ``relation`` method.
     
 .. _table_relation:
 

@@ -45,29 +45,32 @@ creation of a relation
             class Table(object):
                 def config_db(self, pkg):
                  
-        1b. in the ``config_db`` method you have to attach the table to the pkg object::
+        1b. in the ``config_db`` method you have to attach the table to the pkg object
         
-            tbl = pkg.table('exam',pkey='id',name_long='Exam',name_plural='Exams')
-        
-    2. then you have to create a :ref:`table_relation_column` by making a :ref:`table_column` and
-       attaching to it the :ref:`table_relation`::
-       
-        tbl.column('stud_id',size='22',name_long='Student ID').relation('school.student.id',mode='foreignkey')
-        
-       ``column`` parameters:
+            **Example**::
             
-       * ``stud_id`` is a mandatory name for the relation column, that is a column through which you have
-         made the relation
-       * ``size`` is the column lenght; we put ``22`` because the ID lenght is 22
-       * ``name_long`` is used for the visualization of the column in the :ref:`webpages <webpages_webpages>`
-         (more information :ref:`here <name_long>`)
-         
-       ``relation`` parameters:
+                tbl = pkg.table('exam',pkey='id',name_long='Exam',name_plural='Exams')
+                
+    2. then you have to create a :ref:`table_relation_column` by making a :ref:`table_column` and
+       attaching to it the :ref:`table_relation`
        
-       * ``school.student.id`` is a string composed by the name of the package that includes the table
-         to relate (``school``), the name of the table to relate (``student``) and its :ref:`pkey` (``id``)
-       * ``mode='foreignkey'`` is a string that transform the relation in a SQL relation
-       
+        **Example**::
+        
+             tbl.column('stud_id',size='22',name_long='Student ID').relation('school.student.id',mode='foreignkey')
+             
+        ``column`` parameters:
+        
+        * ``stud_id`` is a mandatory name for the relation column, that is a column through which you have
+          made the relation
+        * ``size`` is the column lenght; we put ``22`` because the ID lenght is 22
+        * ``name_long`` is used for the visualization of the column (more information :ref:`here <name_long>`)
+        
+        ``relation`` parameters:
+        
+        * ``school.student.id`` is a string composed by the name of the package that includes the table
+          to relate (``school``), the name of the table to relate (``student``) and its :ref:`pkey` (``id``)
+        * ``mode='foreignkey'`` is a string that transform the relation in a SQL relation
+        
        .. note:: You can get more information on the points 1a and 1b in the :ref:`table` documentation page.
                  You can get more information on the point 2 in the example :ref:`below <path_example_one>`
                  and in the definition of the :ref:`table_relation`.
