@@ -1,4 +1,4 @@
-.. _genro_login_auth:
+.. _login_auth:
 
 ====================
 login authorizations

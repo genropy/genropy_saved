@@ -108,7 +108,14 @@ class DbModel(object):
         
         :param many_relation_tuple: tuple. The column of the "many table". e.g: ('video','movie','director_id')
         :param oneColumn: string. The column of the "one table". e.g: 'video.director.id'
-        :param mode: relation, insensitive, foreignkey. 
+        :param mode: string. The method's mode. You can choose between:
+                     
+                     * 'relation': default mode. It defines a purely logical and case-sensitive relation:
+                       there is no referential integrity check
+                     * 'foreignkey': the relation becomes a SQL relation
+                     * 'insensitive': same features of the ``mode='relation'`` but the relation
+                        is *case-insensitive*
+                     
         :param one_one: add???. 
         :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. 
         :param onDelete_sql: add???. 
@@ -117,10 +124,9 @@ class DbModel(object):
         :param deferred: the same of the sql "DEFERRED". For more information, check the
                          :ref:`sql_deferred` section.
         :param eager_one: boolean. If ``True`` ('Y') the one_to_many relation is eager.
-                          
         :param eager_many: boolean. If ``True`` ('Y') the many_to_one relation is eager.
-                           
-        :param relation_name: add???. 
+        :param relation_name: string. It defines the :ref:`inv_rel_path`. For more information,
+                              check the :ref:`relation_name` documentation section
         :param one_name: the one_to_many relation's name. e.g: 'movies'. 
         :param many_name: the many_to_one relation's name. e.g: 'director'. 
         :param one_group: add???. 
@@ -173,9 +179,9 @@ class DbModel(object):
     def checkRelationIndex(self, pkg, table, column):
         """add???
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page.
-        :param table: the :ref:`genro_table` name
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page.
+        :param table: the :ref:`table` name
         :param column: add???"""
         tblobj = self.table(table, pkg=pkg)
         indexname = '%s_%s_key' % (table, column)
@@ -230,8 +236,8 @@ class DbModel(object):
     def packageMixin(self, pkg, obj):
         """add???
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page.
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page.
         :param obj: add???"""
         self._doMixin('pkg.%s' % pkg, obj)
         
@@ -241,16 +247,16 @@ class DbModel(object):
     def package(self, pkg):
         """Return a package object
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page."""
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page."""
         return self.obj[pkg]
         
     def table(self, tblname, pkg=None):
         """Return a table object
         
         :param tblname: the table name
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page. """
         if '.' in tblname:
             pkg, tblname = tblname.split('.')[:2]
         if pkg is None:
@@ -286,9 +292,9 @@ class DbModelSrc(GnrStructData):
         :param sqlschema: actual sql name of the schema. For more information check the :ref:`about_schema`
                           documentation section
         :param comment: the package's comment. 
-        :param name_short: the :ref:`genro_name_short` of the package
-        :param name_long: the :ref:`genro_name_long` of the package
-        :param name_full: the :ref:`genro_name_full` of the package"""
+        :param name_short: the :ref:`name_short` of the package
+        :param name_long: the :ref:`name_long` of the package
+        :param name_full: the :ref:`name_full` of the package"""
         if not 'packages' in self: #if it is the first package it prepares the package_list packages
             self.child('package_list', 'packages')
         
@@ -308,7 +314,7 @@ class DbModelSrc(GnrStructData):
               comment=None,
               name_short=None, name_long=None, name_full=None,
               **kwargs):
-        """Add a database :ref:`genro_table` to the structure.
+        """Add a database :ref:`table` to the structure and returns it.
         
         :param name: the table name
         :param pkey: the record primary key. 
@@ -316,10 +322,10 @@ class DbModelSrc(GnrStructData):
         :param sqlschema: actual sql name of the schema. For more information check the :ref:`about_schema`
                           documentation section
         :param comment: the table's comment. 
-        :param name_short: the :ref:`genro_name_short` of the table
-        :param name_long: the :ref:`genro_name_long` of the table
-        :param name_full: the :ref:`genro_name_full` of the table 
-        :returns: a table"""
+        :param name_short: the :ref:`name_short` of the table
+        :param name_long: the :ref:`name_long` of the table
+        :param name_full: the :ref:`name_full` of the table
+        :param name_plural: the :ref:`name_plural` of the table"""
         if not 'tables' in self:
             #if it is the first table it prepares the table_list tables
             self.child('table_list', 'tables')
@@ -337,7 +343,7 @@ class DbModelSrc(GnrStructData):
         """Insert a :ref:`table_column` into a table.
         
         :param name: the column name
-        :param dtype: the :ref:`genro_datatype`.
+        :param dtype: the :ref:`datatype`.
         :param size: string. ``'min:max'`` or fixed lenght ``'len'``. 
         :param default: add???. 
         :param notnull: add???. 
@@ -345,9 +351,9 @@ class DbModelSrc(GnrStructData):
         :param indexed: add???. 
         :param sqlname: add???. 
         :param comment: the column's comment. 
-        :param name_short: the :ref:`genro_name_short` of the column
-        :param name_long: the :ref:`genro_name_long` of the column
-        :param name_full: the :ref:`genro_name_full` of the column
+        :param name_short: the :ref:`name_short` of the column
+        :param name_long: the :ref:`name_long` of the column
+        :param name_full: the :ref:`name_full` of the column
         :param group: a hierarchical path of logical categories and subacategories the columns belongs to.
                       If the group path starts with '_' the group is "reserved" (invisible).
                       If it starts with '*' it can be seen only through administration tools.
@@ -397,7 +403,7 @@ class DbModelSrc(GnrStructData):
         
         :param name: the column name
         :param sql_formula: add???
-        :param dtype: the :ref:`genro_datatype`. Default value is ``A``
+        :param dtype: the :ref:`datatype`. Default value is ``A``
         :returns: a formulaColumn
         """
         return self.virtual_column(name, sql_formula=sql_formula, dtype=dtype, **kwargs)
@@ -408,7 +414,7 @@ class DbModelSrc(GnrStructData):
         
         :param name: the column name
         :param sql_formula: add???
-        :param dtype: the :ref:`genro_datatype`. Default value is ``A``
+        :param dtype: the :ref:`datatype`. Default value is ``A``
         :returns: a formulaColumn
         """
         return self.virtual_column(name, py_method=py_method, **kwargs)
@@ -429,9 +435,9 @@ class DbModelSrc(GnrStructData):
     def index(self, columns=None, name=None, unique=None):
         """Add an index to a column. ``self`` must be a column src or an index_list
         
-        :param columns: list, or tuple, or string separated by commas. 
-        :param name: the index name. 
-        :param unique: boolean. Same of the sql UNIQUE. """
+        :param columns: list, or tuple, or string separated by commas
+        :param name: the index name
+        :param unique: boolean. Same of the sql UNIQUE"""
         if isinstance(columns, list) or isinstance(columns, tuple):
             columns = ','.join(columns)
         if not name:
@@ -446,38 +452,49 @@ class DbModelSrc(GnrStructData):
                  many_name=None, eager_one=None, eager_many=None, one_one=None, child=None,
                  one_group=None, many_group=None, onUpdate=None, onUpdate_sql=None, onDelete=None,
                  onDelete_sql=None, deferred=None, relation_name=None, **kwargs):
-        """Add a relation in the current model
+        """Add a relation between two :ref:`tables <table>`. This relation can be traveled in the
+        direct direction (:ref:`relation_path`) or in the inverse direction (:ref:`inv_rel_path`)
         
-        :param related_column: add???
-        :param mode: relation or insensitive or foreignkey. Default value is ``relation``
-        :param one_name: the one_to_many relation's name. e.g: 'movies'.
-                         
-        :param many_name: the many_to_one relation's name. e.g: 'director'.
-                          
-        :param eager_one: boolean. If ``True`` the one_to_many relation is eager.
-                          
-        :param eager_many: boolean. If ``True`` the many_to_one relation is eager.
-                           
-        :param one_one: add???. 
-        :param child: add???. 
-        :param one_group: add???. 
-        :param many_group: add???. 
-        :param onUpdate: add???. 
-        :param onUpdate_sql: add???. 
-        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. 
-        :param onDelete_sql: add???. 
+        :param related_column: string. The path of the related column. Syntax:
+                               ``packageName.tableName.pkeyColumnName``, where:
+                               
+                               * ``packageName`` is the name of the :ref:`package <packages_index>` folder
+                                 (you can omit it if the tables to link live in the same package folder)
+                               * ``tableName`` is the name of the :ref:`table` to be related
+                               * ``pkeyColumnName`` is the name of the :ref:`pkey` of the table to be related
+                               
+        :param mode: string. The method's mode. You can choose between:
+                     
+                     * 'relation': default mode. It defines a purely logical and case-sensitive relation:
+                       there is no referential integrity check
+                     * 'foreignkey': the relation becomes a SQL relation
+                     * 'insensitive': same features of the ``mode='relation'`` but the relation
+                       is *case-insensitive*
+                       
+        :param one_name: the one_to_many relation's name. e.g: 'movies'
+        :param many_name: the many_to_one relation's name. e.g: 'director'
+        :param eager_one: boolean. If ``True`` the one_to_many relation is eager
+        :param eager_many: boolean. If ``True`` the many_to_one relation is eager
+        :param one_one: add???
+        :param child: add???
+        :param one_group: add???
+        :param many_group: add???
+        :param onUpdate: add???
+        :param onUpdate_sql: add???
+        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
+        :param onDelete_sql: add???
         :param deferred: the same of the sql "DEFERRED". For more information, check the
-                         :ref:`sql_deferred` section.
-        :param relation_name: add???. 
-        :returns: add???. """
+                         :ref:`sql_deferred` section
+        :param relation_name: string. It defines the :ref:`inv_rel_path`. For more information,
+                              check the :ref:`relation_name` documentation section"""
         
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode,
                             one_name=one_name, many_name=many_name, one_one=one_one, child=child,
-                            one_group=one_group, many_group=many_group, deferred=deferred, onUpdate=onUpdate,
-                            onDelete=onDelete,
-                            eager_one=eager_one, eager_many=eager_many, onUpdate_sql=onUpdate_sql,
-                            onDelete_sql=onDelete_sql, relation_name=relation_name,
-                            **kwargs)
+                            one_group=one_group, many_group=many_group, deferred=deferred,
+                            onUpdate=onUpdate, onDelete=onDelete,
+                            eager_one=eager_one, eager_many=eager_many,
+                            onUpdate_sql=onUpdate_sql, onDelete_sql=onDelete_sql,
+                            relation_name=relation_name, **kwargs)
                             
 class DbModelObj(GnrStructObj):
     """Base class for all the StructObj in this module"""

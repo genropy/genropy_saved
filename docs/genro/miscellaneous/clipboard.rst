@@ -1,4 +1,4 @@
-.. _genro_clipboard:
+.. _clipboard:
 
 =================================
 Miscellaneous notes about GenroPy

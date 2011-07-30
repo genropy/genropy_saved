@@ -93,7 +93,7 @@ EXCEPTIONS = {'save': GnrSqlSaveException,
               'protect_validate': GnrSqlProtectValidateException}
               
 class SqlTable(GnrObject):
-    """The base class for database tables.
+    """The base class for database :ref:`tables <table>`.
     
     Your tables will inherit from it (altough it won't be explicit in your code, since it's
     done by GenroPy mixin machinery).
@@ -106,9 +106,7 @@ class SqlTable(GnrObject):
     You can also get them from the application instance::
     
         app = GnrApp('instancename')
-        app.db.table('packagename.tablename')
-    
-    """
+        app.db.table('packagename.tablename')"""
     def __init__(self, tblobj):
         self._model = tblobj
         self.name = tblobj.name
@@ -124,9 +122,8 @@ class SqlTable(GnrObject):
         """add???
         
         :param exception: the exception raised.
-        :param record: add???. 
-        :param msg: add???. 
-        """
+        :param record: add???.
+        :param msg: add???."""
         if isinstance(exception,basestring):
             exception = EXCEPTIONS.get(exception)
             if not exception:
@@ -165,24 +162,19 @@ class SqlTable(GnrObject):
     def column(self, name):
         """Returns a column object.
         
-        :param name: A column's name or a relation path starting from the current table. (eg. ``@director_id.name``)
-        """
+        :param name: A column's name or a relation path starting from the current table. (eg. ``@director_id.name``)"""
         return self.model.column(name)
         
     def fullRelationPath(self, name):
         """add???
         
-        :param name: add???
-        :returns: add???
-        """
+        :param name: add???"""
         return self.model.fullRelationPath(name)
         
     def getColumnPrintWidth(self, column):
-        """Allow to find the correct width for printing.
+        """Allow to find the correct width for printing and return it
         
-        :param column: the column to print
-        :returns: the print width
-        """
+        :param column: the column to print"""
         if column.dtype in ['A', 'C', 'T', 'X', 'P']:
             size = column.attributes.get('size', None)
             if not size:
@@ -250,7 +242,7 @@ class SqlTable(GnrObject):
         
     @property
     def rowcaption(self):
-        """Return the table's :ref:`genro_database_rowcaption`"""
+        """Return the table's :ref:`rowcaption`"""
         return self.model.rowcaption
         
     @property
@@ -282,8 +274,7 @@ class SqlTable(GnrObject):
         """Check and coerce types in record.
         
         :param record: an object implementing dict interface as colname, colvalue
-        :param null: add???. Default value is ``NULL``
-        """
+        :param null: add???"""
         converter = self.db.typeConverter
         for k in record.keys():
             if not k.startswith('@'):
@@ -306,13 +297,11 @@ class SqlTable(GnrObject):
                     record[k] = v
                     
     def buildrecord(self, fields, resolver_one=None, resolver_many=None):
-        """Build a new record
+        """Build a new record and return it
         
         :param fields: add???
-        :param resolver_one: add???. 
-        :param resolver_many: add???. 
-        :returns: the new record
-        """
+        :param resolver_one: add???
+        :param resolver_many: add???"""
         newrecord = Bag()
         for fld_node in self.model.relations:
             fld = fld_node.label
@@ -356,8 +345,7 @@ class SqlTable(GnrObject):
     def buildrecord_(self, fields):
         """add???
         
-        :param fields: add???
-        """
+        :param fields: add???"""
         newrecord = Bag()
         for fld in self.columns.keys():
             v = fields.get(fld)
@@ -375,11 +363,9 @@ class SqlTable(GnrObject):
     def newrecord(self, assignId=False, resolver_one=None, resolver_many=None, **kwargs):
         """add???
         
-        :param assignId: add???. Default value is ``False``
-        :param resolver_one: add???. 
-        :param resolver_many: add???. 
-        :returns: the new record
-        """
+        :param assignId: add???
+        :param resolver_one: add???
+        :param resolver_many: add???"""
         newrecord = self.buildrecord(kwargs, resolver_one=resolver_one, resolver_many=resolver_many)
         if assignId:
             newrecord[self.pkey] = self.newPkeyValue()
@@ -399,26 +385,20 @@ class SqlTable(GnrObject):
          
         :param pkey: the record primary key. 
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-                      .
         :param lazy: add???. 
         :param eager: add???. 
         :param mode: bag, dict, json. 
-        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
-                             ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
-                             ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
-                             
-        :param ignoreMissing: add???. Default value is ``False``
-        :param virtual_columns: add???. 
-        :param ignoreDuplicate: add???. Default value is ``False``
-        :param bagFields: boolean. If ``True``, include fields of type Bag (``X``) when columns is ``*`` or contains
-                          ``*@relname.filter``. Default value is ``True``
+        :param relationDict: a dict to assign a symbolic name to a :ref:`relation_path`. For more information
+                             check the :ref:`relationdict` documentation section
+        :param ignoreMissing: add???
+        :param virtual_columns: add???
+        :param ignoreDuplicate: add???
+        :param bagFields: boolean. If ``True``, include fields of type Bag (``X``) when columns is ``*``
+                          or contains ``*@relname.filter``
         :param joinConditions: special conditions for joining related tables. See the
-                               :meth:`setJoinCondition() <gnr.sql.gnrsqldata.SqlQuery.setJoinCondition()>` method.
-                               
-        :param sqlContextName: add???. 
-        :param for_update: add???. Default value is ``False``
-        :returns: the record
-        """
+                               :meth:`setJoinCondition() <gnr.sql.gnrsqldata.SqlQuery.setJoinCondition()>` method
+        :param sqlContextName: add???
+        :param for_update: add???"""
         record = SqlRecord(self, pkey=pkey, where=where,
                            lazy=lazy, eager=eager,
                            relationDict=relationDict,
@@ -434,15 +414,11 @@ class SqlTable(GnrObject):
             return record
             
     def recordAs(self, record, mode='bag', virtual_columns=None):
-        """Return a record in the specified mode.
-        
-        Accept and return a record as a bag, dict or primary pkey (as a string).
+        """Accept and return a record as a bag, dict or primary pkey (as a string)
         
         :param record: a bag, a dict or a string (i.e. the record's pkey)
-        :param mode: 'dict' or 'bag' or 'pkey'. Default value is ``bag``
-        :param virtual_columns: add???. 
-        :returns: a bag, a dict or a string (i.e. the record's pkey)
-        """
+        :param mode: 'dict' or 'bag' or 'pkey'
+        :param virtual_columns: add???"""
         if isinstance(record, basestring):
             if mode == 'pkey':
                 return record
@@ -459,10 +435,8 @@ class SqlTable(GnrObject):
         return record
             
     def defaultValues (self):
-        """Override this method to assign defaults to new record.
-           
-        :returns: a dictionary - fill it with defaults
-        """
+        """Override this method to assign defaults to new record. Return a dictionary - fill
+        it with defaults"""
         return dict([(x.name, x.attributes['default'])for x in self.columns.values() if 'default' in x.attributes])
         
     def query(self, columns='*', where=None, order_by=None,
@@ -477,33 +451,26 @@ class SqlTable(GnrObject):
         
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. Default value is ``*``
-        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-                      
+                        :ref:`sql_columns` section
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
-                         :ref:`sql_order_by` section. 
-        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". 
-        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator.
-                      
-        :param offset: corresponding to the sql "OFFSET" operator. 
-        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
-                         
-        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
-                       
-        :param for_update: boolean. add???. Default value is ``False``
-        :param relationDict: a dict to assign a symbolic name to a :ref:`sql_relation_path`. ``dict(myname='@relname.colname')``
-                             ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
-                             ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
-                             
-        :param sqlparams: an optional dictionary for sql query parameters. 
+                         :ref:`sql_order_by` section
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator
+        :param offset: corresponding to the sql "OFFSET" operator
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
+        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
+        :param for_update: boolean. add???
+        :param relationDict: a dict to assign a symbolic name to a :ref:`relation_path`. For more information
+                             check the :ref:`relationdict` documentation section
+        :param sqlparams: an optional dictionary for sql query parameters
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
-                                      "logical deleted". Default value is ``True``.
-        :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute. Default value is ``True``
-        :param locale: add???. 
-        :param mode: add???. 
-        :param \*\*kwargs: another way to pass sql query parameters
-        :returns: a query
-        """
+                                      "logical deleted"
+        :param excludeDraft: add???
+        :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute
+        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param mode: add???
+        :param \*\*kwargs: another way to pass sql query parameters"""
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
                          group_by=group_by, having=having, for_update=for_update,
@@ -516,10 +483,9 @@ class SqlTable(GnrObject):
     def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, **kwargs):
         """add???
         
-        :param updater: add???. 
-        :param _wrapper: add???. 
-        :param _wrapperKwargs: add???. 
-        """
+        :param updater: add???
+        :param _wrapper: add???
+        :param _wrapperKwargs: add???"""
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
@@ -534,14 +500,11 @@ class SqlTable(GnrObject):
     def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
         """add???
         
-        :param pkey: the record primary key. 
+        :param pkey: the record primary key
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. 
-        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-                      
-        :returns: add???
-        """
+                        :ref:`sql_columns` section
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
         where = where or '$%s=:pkey' % self.pkey
         kwargs.pop('limit', None)
         fetch = self.query(columns=columns, limit=1, where=where,
@@ -558,8 +521,7 @@ class SqlTable(GnrObject):
         """add???
         
         :param wherebag: add???
-        :param sqlArgs: add???. 
-        :returns: add???
+        :param sqlArgs: add???
         
         Not sure what this is, but here is the previous existing docstrings in all their glory::
         
@@ -568,19 +530,16 @@ class SqlTable(GnrObject):
             <c_2 not="true::B" jc='AND'>
                     <condition column="" op=""/>
                     <condition column="" op="" jc='OR'/>
-            </c_2>
-        """
+            </c_2>"""
         if sqlArgs is None:
             sqlArgs = {}
         result = self.db.whereTranslator(self, wherebag, sqlArgs, **kwargs)
         return result, sqlArgs
         
     def frozenSelection(self, fpath):
-        """Get a pickled selection
+        """Get a pickled selection and return it
         
-        :param fpath: add???
-        :returns: add???
-        """
+        :param fpath: add???"""
         selection = self.db.unfreezeSelection(fpath)
         assert selection.dbtable == self, 'the frozen selection does not belong to this table'
         return selection
@@ -588,8 +547,7 @@ class SqlTable(GnrObject):
     def checkPkey(self, record):
         """add???
         
-        :param record: add???
-        """
+        :param record: add???"""
         pkeyValue = record.get(self.pkey)
         newkey = False
         if pkeyValue in (None, ''):
@@ -602,11 +560,10 @@ class SqlTable(GnrObject):
         self.db.adapter.emptyTable(self)
         
     def sql_deleteSelection(self, where, **kwargs):
-        """Delete a selection from the table. It works only in SQL so no python trigger is executed.
+        """Delete a selection from the table. It works only in SQL so no python trigger is executed
         
-        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-        :param \*\*kwargs: optional arguments for the "where" attribute
-        """
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
+        :param \*\*kwargs: optional arguments for the "where" attribute"""
         todelete = self.query('$%s' % self.pkey, where=where, addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if todelete:
             self.db.adapter.sql_deleteSelection(self, pkeyList=[x[0] for x in todelete])
@@ -616,12 +573,12 @@ class SqlTable(GnrObject):
                         where=None, **kwargs):
         """add???
         
-        :param condition_field: add???. 
-        :param condition_value: add???. 
+        :param condition_field: add???
+        :param condition_value: add???
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
-                                      "logical deleted". Default value is ``False``
-        :param condition_op: add???. Default value is ``=``
-        """
+                                      "logical deleted"
+        :param excludeDraft: add???
+        :param condition_op: add???"""
         # if self.trigger_onDeleting:
         if(condition_field and condition_value):
             where = '%s %s :condition_value' % (condition_field, condition_op)
@@ -640,20 +597,16 @@ class SqlTable(GnrObject):
     def touchRecords(self, where=None, **kwargs):
         """add???
         
-        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-                      
-        """
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
         sel = self.query(where=where, addPkeyColumn=False, for_update=True, **kwargs).fetch()
         for row in sel:
             row._notUserChange = True
             self.update(row, old_record=dict(row))
             
     def existsRecord(self, record):
-        """Check if a record already exists in the table
+        """Check if a record already exists in the table and return it (if it is not already in the keys)
         
-        :param record: the record to be checked
-        :returns: add???
-        """
+        :param record: the record to be checked"""
         if not hasattr(record, 'keys'):
             record = {self.pkey: record}
         return self.db.adapter.existsRecord(self, record)
@@ -661,8 +614,7 @@ class SqlTable(GnrObject):
     def insertOrUpdate(self, record):
         """Insert a single record if it doesn't exist, else update it
         
-        :param record: a dictionary that represent the record that must be updated
-        """
+        :param record: a dictionary that represent the record that must be updated"""
         pkey = record.get(self.pkey)
         if (not pkey in (None, '')) and self.existsRecord(record):
             return self.update(record)
@@ -672,23 +624,20 @@ class SqlTable(GnrObject):
     def lock(self, mode='ACCESS EXCLUSIVE', nowait=False):
         """add???
         
-        :param mode: add???. Default value is ``ACCESS EXCLUSIVE``
-        :param nowait: boolean. add???. Default value is ``False``
-        """
+        :param mode: add???
+        :param nowait: boolean. add???"""
         self.db.adapter.lockTable(self, mode, nowait)
         
     def insert(self, record, **kwargs):
         """Insert a single record
         
-        :param record: a dictionary representing the record that must be inserted
-        """
+        :param record: a dictionary representing the record that must be inserted"""
         self.db.insert(self, record, **kwargs)
         
     def delete(self, record, **kwargs):
         """Delete a single record from this table.
         
-        :param record: a dictionary, bag or pkey (string)
-        """
+        :param record: a dictionary, bag or pkey (string)"""
         if isinstance(record, basestring):
             record = self.recordAs(record, 'dict')
         self.db.delete(self, record, **kwargs)
@@ -696,8 +645,7 @@ class SqlTable(GnrObject):
     def deleteRelated(self, record):
         """add???
         
-        :param record: a dictionary, bag or pkey (string)
-        """
+        :param record: a dictionary, bag or pkey (string)"""
         for rel in self.relations_many:
             onDelete = rel.getAttr('onDelete', '').lower()
             if onDelete and not (onDelete in ('i', 'ignore')):
@@ -717,10 +665,9 @@ class SqlTable(GnrObject):
     def update(self, record, old_record=None, pkey=None,**kwargs):
         """Update a single record
         
-        :param record: add???. 
-        :param old_record: add???. 
-        :param pkey: the record primary key. 
-        """
+        :param record: add???
+        :param old_record: add???
+        :param pkey: the record primary key"""
         self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
         
     def writeRecordCluster(self, recordCluster, recordClusterAttr, debugPath=None):
@@ -728,8 +675,7 @@ class SqlTable(GnrObject):
         
         :param recordCluster: add???
         :param recordClusterAttr: add???
-        :param debugPath: add???. 
-        """
+        :param debugPath: add???"""
         def onBagColumns(attributes=None,**kwargs):
             if attributes and '__old' in attributes:
                 attributes.pop('__old')
@@ -811,8 +757,7 @@ class SqlTable(GnrObject):
         
         :param data: add???
         :param debugPath: add???
-        :param name: add???. 
-        """
+        :param name: add???"""
         name = name or self.name
         filepath = os.path.join(debugPath, '%s.xml' % name)
         data.toXml(filepath, autocreate=True)
@@ -845,10 +790,7 @@ class SqlTable(GnrObject):
                 getattr(self, 'trigger_%s' % trgFunc)(record, fldname)
                 
     def newPkeyValue(self):
-        """Get a new unique id to use as primary key on the current table
-        
-        :returns: add???
-        """
+        """Get a new unique id to use as primary key on the current table"""
         pkey = self.model.pkey
         if self.model.column(pkey).dtype in ('L', 'I', 'R'):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0] or [0]
@@ -857,10 +799,7 @@ class SqlTable(GnrObject):
             return getUuid()
             
     def baseViewColumns(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         allcolumns = self.model.columns
         result = [k for k, v in allcolumns.items() if v.attributes.get('base_view')]
         if not result:
@@ -870,9 +809,7 @@ class SqlTable(GnrObject):
     def getResource(self, path):
         """add???
         
-        :param path: add???
-        :returns: add???
-        """
+        :param path: add???"""
         return self.db.getResource(self, path)
         
         #---------- method to implement via mixin
@@ -922,8 +859,7 @@ class SqlTable(GnrObject):
     def check_updatable(self, record):
         """add???
         
-        :param record: add???
-        """
+        :param record: add???"""
         try:
             self.protect_update(record,record)
             return True
@@ -933,8 +869,7 @@ class SqlTable(GnrObject):
     def check_deletable(self, record):
         """add???
         
-        :param record: add???
-        """
+        :param record: add???"""
         try:
             self.protect_delete(record)
             return True
@@ -946,7 +881,7 @@ class SqlTable(GnrObject):
         
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. """
+                        :ref:`sql_columns` section"""
         result = []
         if not columns:
             return result
@@ -964,19 +899,15 @@ class SqlTable(GnrObject):
         
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. 
-        :param captioncolumns: add???. 
-        :returns: add???
-        """
+                        :ref:`sql_columns` section
+        :param captioncolumns: add???"""
         columns = columns or self.model.queryfields or captioncolumns
         return self.columnsFromString(columns)
         
     def rowcaptionDecode(self, rowcaption=None):
         """add???
         
-        :param rowcaption: add???. 
-        :returns: add???
-        """
+        :param rowcaption: add???"""
         rowcaption = rowcaption or self.rowcaption
         if not rowcaption:
             return [], ''
@@ -995,10 +926,8 @@ class SqlTable(GnrObject):
         """add???
         
         :param record: add???
-        :param newrecord: boolean. add???. Default value is ``False``
-        :param rowcaption: add???. 
-        :returns: add???
-        """
+        :param newrecord: boolean. add???
+        :param rowcaption: add???"""
         if newrecord:
             return '!!New %s' % self.name_long.replace('!!', '')
         else:
@@ -1018,17 +947,13 @@ class SqlTable(GnrObject):
     def colToAs(self, col):
         """add???
         
-        :param col: add???
-        :returns: add???
-        """
+        :param col: add???"""
         return self.db.colToAs(col)
         
     def relationName(self, relpath):
         """add???
         
-        :param relpath: add???
-        :returns: add???
-        """
+        :param relpath: add???"""
         relpath = self.model.resolveRelationPath(relpath)
         attributes = self.model.relations.getAttr(relpath)
         joiner = attributes['joiner'][0]
@@ -1045,8 +970,7 @@ class SqlTable(GnrObject):
     def xmlDump(self, path):
         """add???
         
-        :param path: add???
-        """
+        :param path: add???"""
         filepath = os.path.join(path, '%s_dump.xml' % self.name)
         records = self.query(excludeLogicalDeleted=False,excludeDraft=False).fetch()
         result = Bag()
@@ -1060,8 +984,7 @@ class SqlTable(GnrObject):
     def importFromXmlDump(self, path):
         """add???
         
-        :param col: add???
-        """
+        :param path: add???"""
         if '.xml' in path:
             filepath = path
         else:
@@ -1072,16 +995,17 @@ class SqlTable(GnrObject):
                 record.pop('_isdeleted')
                 self.insert(record)
                 
-    def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=True,excludeDraft=True, source_records=None,bagFields=True, **querykwargs):
+    def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=True, excludeDraft=True,
+                 source_records=None, bagFields=True, **querykwargs):
         """add???
         
         :param dbsource: sourcedb
         :param dbdest: destdb
-        :param empty_before: boolean. add???. Default value is ``False``
+        :param empty_before: boolean. add???
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
-                                      "logical deleted". Default value is ``True``
-        :param source_records: add???. 
-        """
+                                      "logical deleted"
+        :param excludeDraft: add???
+        :param source_records: add???"""
         tbl_name = self.fullname
         source_tbl = dbsource.table(tbl_name)
         dest_tbl = dbdest.table(tbl_name)
@@ -1099,6 +1023,11 @@ class SqlTable(GnrObject):
                 
     
     def copyToDbstore(self,pkey=None,dbstore=None,bagFields=True,**kwargs):
+        """add???
+        
+        :param pkey: add???
+        :param dbstore: add???
+        :param bagFields: add???"""
         queryargs = kwargs
         if pkey:
             queryargs = dict(where='$pkey=:pkey',pkey=pkey)
@@ -1107,32 +1036,33 @@ class SqlTable(GnrObject):
             for rec in records:
                 self.insertOrUpdate(rec)
                 
-    def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True,excludeDraft=True, source_records=None, **querykwargs):
+    def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True,
+                            excludeDraft=True, source_records=None, **querykwargs):
         """add???
         
-        :param instance: add???
-        :param empty_before: boolean. add???. Default value is ``False``
+        :param instance: the name of the instance
+        :param empty_before: boolean. add???
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
-                                      "logical deleted". Default value is ``True``
-        :param source_records: add???. 
-        """
+                                      "logical deleted"
+        :param excludeDraft: add???
+        :param source_records: add???"""
         if isinstance(instance,basestring):
             instance = self.db.application.getAuxInstance(instance)
         dest_db = instance.db
         self.copyToDb(self.db,dest_db,empty_before=empty_before,excludeLogicalDeleted=excludeLogicalDeleted,
                         excludeDraft=True,source_records=source_records,**querykwargs)
                         
-    def importFromAuxInstance(self, instance, tbl_name=None, empty_before=False, 
-                                excludeLogicalDeleted=True,excludeDraft=True, source_records=None, **querykwargs):
+    def importFromAuxInstance(self, instance, tbl_name=None, empty_before=False, excludeLogicalDeleted=True,
+                              excludeDraft=True, source_records=None, **querykwargs):
         """add???
         
-        :param instance: add???
-        :param tbl_name: add???. 
-        :param empty_before: boolean. add???. Default value is ``False``
+        :param instance: the name of the instance
+        :param tbl_name: the name of the database :ref:`table`
+        :param empty_before: boolean. add???
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
-                                      "logical deleted". Default value is ``True``
-        :param source_records: add???. 
-        """
+                                      "logical deleted"
+        :param excludeDraft: add???
+        :param source_records: add???"""
         if isinstance(instance,basestring):
             instance = self.db.application.getAuxInstance(instance)
         source_db = instance.db
@@ -1142,11 +1072,10 @@ class SqlTable(GnrObject):
     def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
         """add???
         
-        :param omit: add???. Default value is ``''``
-        :param prevRelation: add???. Default value is ``''``
-        :param dosort: boolean. add???. Default value is ``True``
-        :param pyresolver: boolean. add???. Default value is ``False``
-        """
+        :param omit: add???
+        :param prevRelation: add???
+        :param dosort: boolean. add???
+        :param pyresolver: boolean. add???"""
         def xvalue(attributes):
             if not pyresolver:
                 return

@@ -1,4 +1,4 @@
-.. _genro_datarecord:
+.. _datarecord:
 
 ==========
 dataRecord
@@ -8,7 +8,7 @@ dataRecord
     
     .. warning:: to be written!
     
-    The ``dataRecord`` belongs to :ref:`genro_datarpc` family, so it is a
+    The ``dataRecord`` belongs to :ref:`datarpc` family, so it is a
     :ref:`server-side controller <controllers_server>`.
     
     * :ref:`datarecord_def`

@@ -118,13 +118,12 @@ config_attributes
     * ``sqlschema`` includes a string with the name of the database schema.
     
       .. note:: we suggest you to call with the same name both the schema and the
-                package. For more information, check the :ref:`about_schema`
-                documentation section.
+                package. For more information, check the :ref:`about_schema` section.
                 
     * ``comment`` includes a comment string.
-    * ``name_short`` includes a string of the :ref:`genro_name_short` of the schema.
-    * ``name_long`` includes a string of the :ref:`genro_name_long` of the schema.
-    * ``name_plural`` includes a string of the :ref:`genro_name_plural` of the schema.
+    * ``name_short`` includes a string of the :ref:`name_short` of the schema.
+    * ``name_long`` includes a string of the :ref:`name_long` of the schema.
+    * ``name_plural`` includes a string of the :ref:`name_plural` of the schema.
     
     **Example:**
     
@@ -143,7 +142,7 @@ config_db
 ---------
     
     .. warning:: this method is not used anymore in the ``main.py``, but it is used only as the
-                 main method of a database :ref:`genro_table`.
+                 main method of a database :ref:`table`.
                  
 .. _methods_custom_type:
 
@@ -152,7 +151,7 @@ custom_type
 
     **custom_type_CUSTOMNAME** (*self*)
     
-    With this method you can create your own :ref:`genro_datatype`.
+    With this method you can create your own :ref:`datatype`.
     
     ``CUSTOMNAME`` is the name you choose for your custom type.
     
@@ -181,7 +180,7 @@ custom_type
         of 12 characters with two decimals [#]_, the ``default=0`` means that if user don't specify
         the custom_type value, then it is ``0``).
                 
-        This allows to create in a :ref:`genro_table` a :ref:`table_column` like this one::
+        This allows to create in a :ref:`table` a :ref:`table_column` like this one::
         
             tbl.column('partners_income',dtype='money',name_long='Partners Income')
             
@@ -203,7 +202,7 @@ loginUrl
                 
     where:
     
-    * ``packageName`` is the name of the :ref:`package <genro_packages_index>` that contains
+    * ``packageName`` is the name of the :ref:`package <packages_index>` that contains
       the login authorization page.
     * ``loginName`` is the name of the :ref:`webpages_webpages` (without its ``.py`` extensions)
       in which you define the login authorization.
@@ -222,8 +221,7 @@ loginUrl
                     
               where ``packageName`` is the name of your package.
     
-    For more information on how to build a login page, please check the :ref:`genro_login_auth`
-    documentation page.
+    For more information on how to build a login page, please check the :ref:`login_auth` page.
     
 .. add??? Understand if the following methods are old or new...
 .. 

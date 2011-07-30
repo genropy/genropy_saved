@@ -1,4 +1,4 @@
-.. _genro_accordioncontainer:
+.. _accordioncontainer:
 
 ==================
 accordionContainer
@@ -19,7 +19,7 @@ Definition
     
     .. method:: pane.accordionContainer([**kwargs])
     
-    Like :ref:`genro_stackcontainer` and :ref:`genro_tabcontainer`, an ``accordion container`` holds a set of accordionPanes whose titles are all visible, but only one pane's content is visible at a time. Clicking on a pane title slides the currently-displayed one away, similar to a garage door.
+    Like :ref:`stackcontainer` and :ref:`tabcontainer`, an ``accordion container`` holds a set of accordionPanes whose titles are all visible, but only one pane's content is visible at a time. Clicking on a pane title slides the currently-displayed one away, similar to a garage door.
     
     .. method:: pane.accordionPane([**kwargs])
     
@@ -38,7 +38,7 @@ Attributes
     
     **commons attributes**:
     
-        For commons attributes, see :ref:`genro_layout_common_attributes`
+        For commons attributes, see :ref:`layout_common_attributes`
         
 .. _accordion_examples:
 

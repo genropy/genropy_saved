@@ -1,4 +1,4 @@
-.. _genro_contentpane:
+.. _contentpane:
 
 ===========
 contentPane
@@ -38,7 +38,7 @@ Attributes
 
     **commons attributes**:
 
-        For commons attributes, see :ref:`genro_layout_common_attributes`.
+        For commons attributes, see :ref:`layout_common_attributes`.
 
 .. _cp_examples:
 
@@ -63,7 +63,7 @@ simple example
 form example
 ------------
 
-    We show you now a :ref:`genro_form`, built through a :ref:`genro_bordercontainer`
+    We show you now a :ref:`form`, built through a :ref:`bordercontainer`
     and three contentPanes::
     
         class GnrCustomWebPage(object):

@@ -1,4 +1,4 @@
-.. _genro_framepane:
+.. _framepane:
 
 =========
 framePane
@@ -15,7 +15,7 @@ framePane
 Definition
 ==========
     
-    A framePane is a :ref:`genro_bordercontainer` with :ref:`frame_sides` attribute added: these sides
+    A framePane is a :ref:`bordercontainer` with :ref:`frame_sides` attribute added: these sides
     follow the Dojo borderContainer suddivision: there is indeed the *top*, the *bottom*, the *left*
     and the *right* side.
     
@@ -27,13 +27,13 @@ sides
     Through the *sides* attribute we can add buttons, icons or menus and use them to execute 'tasks':
     you may have a button to export excel, one to print and so on.
     
-    For example, in the *top side* you can keep a :ref:`genro_toolbar` with a selector for
-    :ref:`genro_table`\'s records [#]_ and in the *bottom side* you can keep a place for messages
+    For example, in the *top side* you can keep a :ref:`toolbar` with a selector for
+    :ref:`table`\'s records [#]_ and in the *bottom side* you can keep a place for messages
     that will inform the user of the correct (or uncorrect) execution of its action.
     
     Every *side* can be highly customized with regard to the look and with regard to its tools.
     
-    You can add a framePane to a ``:ref:`genro_palette` add???``
+    You can add a framePane to a ``:ref:`palette` add???``
     
 .. _frame_attributes:
 
@@ -42,7 +42,7 @@ Attributes
     
     **framePane's attributes**:
     
-    * *frameCode*: MANDATORY - autocreate a :ref:`genro_nodeid` for the framePane AND autocreate hierarchic nodeIds
+    * *frameCode*: MANDATORY - autocreate a :ref:`nodeid` for the framePane AND autocreate hierarchic nodeIds
       for every framePane child. Default value is ``None``.
       
       Example::
@@ -63,7 +63,7 @@ Attributes
     
     **Common attributes**:
     
-        For common attributes, check the :ref:`genro_layout_common_attributes` section.
+        For common attributes, check the :ref:`layout_common_attributes` section.
         
 .. _frame_examples:
 
@@ -94,8 +94,8 @@ slotToolbar, slotBar example
 ----------------------------
     
     For some examples with the slotToolbar and the slotBar, please check the
-    :ref:`genro_toolbar` documentation page
+    :ref:`toolbar` documentation page
     
 **Footnotes**:
 
-.. [#] Like a :ref:`iv_searchbox` of the :ref:`genro_includedview` component
+.. [#] Like a :ref:`iv_searchbox` of the :ref:`includedview` component

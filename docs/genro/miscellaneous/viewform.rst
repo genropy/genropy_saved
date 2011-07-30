@@ -1,38 +1,47 @@
-.. _genro_viewform:
+.. _viewform:
 
 =====================
-view and data windows
+view and form windows
 =====================
     
     *Last page update*: |today|
     
-    Usually the GUI management of a form is made by two sections:
+    * :ref:`view_form_intro`
+    * :ref:`view_data`
+    * :ref:`data_entry`
     
-    * the :ref:`genro_data_entry`
-    * the :ref:`genro_view_data`
+.. _view_form_intro:
+
+introduction
+============
+    
+    The GUI of a database :ref:`project` is usually composed by two sections:
+    
+    * the :ref:`view_data`
+    * the :ref:`data_entry`
     
     These two windows can live in a single :ref:`webpages_webpages`, or in two
-    :ref:`stackContainers <genro_stackcontainer>`, or one in a page and one in a
+    :ref:`stackContainers <stackcontainer>`, or one in a page and one in a
     dialog, and so on.
     
-    There is a :ref:`genro_component` that allows to handle the creation and the
-    disposition of these two windows: the :ref:`genro_th`.
+    In Genro you find a pre-set GUI for the management of ``view-data window`` and
+    the ``data-entry window``: the :ref:`th` component.
     
-.. _genro_view_data:
+.. _view_data:
 
 view-data window
 ================
 
-    The ``view-data window`` allow to:
+    The ``view-data window`` should allow to:
     
-    * visualize the records saved by the user.
+    * visualize the records saved by the user
     * make a query to search into records
     
     .. image:: ../_images/components/th/view.png
     
-    add??? features!
+    If you use the :ref:`th` component you have a pre-set GUI that carries those features.
     
-.. _genro_data_entry:
+.. _data_entry:
 
 data-entry window
 =================
@@ -40,9 +49,8 @@ data-entry window
     The ``data-entry window`` allow to:
     
     * modify, add or delete a single records (user must authenticate himself
-      with the right permits to perform these actions - check the add???
-      documentation page for more information)
+      with the right permits to perform these actions - check the add??? page for more information)
     
     .. image:: ../_images/components/th/form.png
     
-    add??? features!
+    If you use the :ref:`th` component you have a pre-set GUI that carries those features.

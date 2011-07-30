@@ -1,4 +1,4 @@
-.. _genro_linkerfield:
+.. _linkerfield:
 
 ===========
 linkerField

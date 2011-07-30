@@ -1,4 +1,4 @@
-.. _genro_data:
+.. _data:
 
 ====
 data

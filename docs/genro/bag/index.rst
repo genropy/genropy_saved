@@ -1,4 +1,4 @@
-.. _genro_bag:
+.. _bag:
 
 ===
 Bag

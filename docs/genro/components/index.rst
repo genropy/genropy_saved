@@ -1,4 +1,4 @@
-.. _genro_component:
+.. _component:
 
 =========
 component
@@ -10,6 +10,6 @@ component
     :maxdepth: 1
     
     introduction
-    writing
     components_list
     components/index
+    writing

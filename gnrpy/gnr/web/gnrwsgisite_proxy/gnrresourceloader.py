@@ -154,8 +154,8 @@ class ResourceLoader(object):
         """add???
         
         :param path: add???. 
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page. """
         if pkg == '*':
             module_path = os.path.join(self.site_path, path)
             pkg = self.site.config['packages?default']
@@ -208,8 +208,8 @@ class ResourceLoader(object):
         """Look for custom classes in the package
         
         :param page_classe: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page. """
         if pkg:
             package = self.gnrapp.packages[pkg]
         if package and package.webPageMixin:
@@ -223,8 +223,8 @@ class ResourceLoader(object):
         """Look in the plugins folders for a file named as the current webpage and get all classes
         
         :param path: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page. """
         plugin_webpage_classes = []
         path = path.split(os.path.sep)
         pkg = pkg and self.site.gnrapp.packages[pkg]
@@ -253,8 +253,8 @@ class ResourceLoader(object):
         
         :param page_class: add???
         :param path: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page. """
         path = path.split(os.path.sep)
         if pkg:
             customPagePath = os.path.join(self.gnrapp.customFolder, pkg, 'webpages', *path)
@@ -269,8 +269,8 @@ class ResourceLoader(object):
         
         :param page_class: add???
         :param path: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page. """
         if pkg:
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
         else:
@@ -307,8 +307,8 @@ class ResourceLoader(object):
     def package_resourceDirs(self, pkg):
         """add???
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page"""
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page"""
         pkg = self.gnrapp.packages[pkg]
         if not hasattr(pkg, '_resourceDirs'):
             pagesPath = os.path.join(pkg.packageFolder, 'webpages')
@@ -464,8 +464,8 @@ class ResourceLoader(object):
     def loadResource(self, pkg, *path):
         """add???
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page
         :param \* path: add???"""
         resourceDirs = self.package_resourceDirs(pkg)
         resource_class = cloneClass('CustomResource', BaseResource)
@@ -477,8 +477,8 @@ class ResourceLoader(object):
         """add???
         
         :param page: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page
         :param \* path: add???
         """
         component=self.loadResource(pkg,*path)
@@ -498,7 +498,7 @@ class ResourceLoader(object):
         """add???
         
         :param page: add???
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param respath: add???. 
         :param class_name: add???. 
         :param _onDefault: add???. 
@@ -547,8 +547,8 @@ class ResourceLoader(object):
     def resourcesAtPath(self, pkg, path, ext):
         """add???
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page
         :param path: add???
         :param ext: add???"""
         result = Bag()

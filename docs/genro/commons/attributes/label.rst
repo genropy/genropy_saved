@@ -1,4 +1,4 @@
-.. _genro_label:
+.. _label:
 
 =====
 label
@@ -31,11 +31,11 @@ label through formbuilder
 
     If your widget doesn't support the *label* attribute but you want to give to it a label, you have to:
     
-        #. create a form (use the :ref:`genro_formbuilder` form widget)
+        #. create a form (use the :ref:`formbuilder` form widget)
         #. append your widget to the formbuilder
         #. use the formbuilder's *lbl* attribute on your widget.
         
-    **Example** (with :ref:`genro_combobox`)::
+    **Example** (with :ref:`combobox`)::
     
             class GnrCustomWebPage(object):
                 def test_1_values(self,pane):

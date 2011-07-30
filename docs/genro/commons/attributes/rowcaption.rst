@@ -1,4 +1,4 @@
-.. _genro_rowcaption:
+.. _rowcaption:
 
 ==========
 rowcaption
@@ -8,7 +8,7 @@ rowcaption
     
     * :ref:`rowcaption_def`
     * :ref:`rowcaption_validity`
-    * :ref:`rowcaption_examples`: :ref:`rowcaption_genro_table`, :ref:`rowcaption_webpage`
+    * :ref:`rowcaption_examples`: :ref:`rowcaption_table`, :ref:`rowcaption_webpage`
 
 .. _rowcaption_def:
 
@@ -16,12 +16,12 @@ definition and description
 ==========================
 
     The *rowcaption* attribute is the textual representation of a record in a user query.
-    If you don't use it, user will see the :ref:`genro_nodeid` of the object, so remember
+    If you don't use it, user will see the :ref:`nodeid` of the object, so remember
     always to specify it.
     
     It can be defined in two places:
     
-    * directly into the database :ref:`genro_table`: check :ref:`rowcaption_genro_table`
+    * directly into the database :ref:`table`: check :ref:`rowcaption_table`
     * in the query-field (``field``, ``dbselect`` or ``dbcombobox``) placed into the webpage: check :ref:`rowcaption_webpage`
     
 .. _rowcaption_validity:
@@ -29,20 +29,20 @@ definition and description
 validity
 ========
 
-    The *rowcaption* attribute works on all the form widgets that draw their value from a database :ref:`genro_table`.
+    The *rowcaption* attribute works on all the form widgets that draw their value from a database :ref:`table`.
     
     They are:
     
-    * :ref:`genro_field`
-    * :ref:`genro_dbselect`
-    * :ref:`genro_dbcombobox`
+    * :ref:`field`
+    * :ref:`dbselect`
+    * :ref:`dbcombobox`
     
 .. _rowcaption_examples:
     
 examples
 ========
     
-.. _rowcaption_genro_table:
+.. _rowcaption_table:
 
 rowcaption in the database table
 --------------------------------
@@ -72,7 +72,7 @@ rowcaption in the database table
                                                # alternate way to format the rowcaption with fields
                                                # and addition characters.
 
-    Obviously, you can also use the "@" syntax (check in :ref:`genro_table` page for further details).
+    Obviously, you can also use the "@" syntax (check in :ref:`table` page for further details).
 
 .. _rowcaption_webpage:
 

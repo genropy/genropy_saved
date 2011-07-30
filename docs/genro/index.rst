@@ -1,4 +1,4 @@
-.. _genro_index:
+.. _index:
 
 =============================
 Genropy v0.7dev documentation
@@ -11,8 +11,9 @@ Genropy v0.7dev documentation
     getting_started/index
     bag/index
     webpage_elements/index
-    database/index
+    sql/index
     components <components/index>
+    database/index
     miscellaneous/index
     library_reference/index
     

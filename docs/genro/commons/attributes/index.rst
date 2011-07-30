@@ -1,7 +1,7 @@
-.. _genro_common_index:
+.. _common_index:
 
 =================
-Common attributes
+common attributes
 =================
     
     *Last page update*: |today|
@@ -18,6 +18,7 @@ Common attributes
     nodeId
     readonly
     rowcaption
+    tags
     tooltip
     visible
     zoom

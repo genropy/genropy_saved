@@ -1,4 +1,4 @@
-.. _genro_gnr_index:
+.. _gnr_index:
 
 ========
 ``.gnr``

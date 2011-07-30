@@ -1,4 +1,4 @@
-.. _genro_library_gnrwsgisite:
+.. _library_gnrwsgisite:
 
 ==========================
 :mod:`gnr.web.gnrwsgisite`

@@ -284,7 +284,7 @@ class GnrDomSrc(GnrStructData):
         :param store: add???. 
         :param storeCode: add???. 
         :param slots: add???. 
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param store_kwargs: add???. """
         formId = formId or '%s_form' %frameCode
         if not storeCode:
@@ -311,9 +311,9 @@ class GnrDomSrc(GnrStructData):
         
         :param storepath: add???. 
         :param handler: add???. Default value is ``recordCluster``
-        :param nodeId: the page nodeId. For more information, check the :ref:`genro_nodeid`
+        :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
                        documentation page. 
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param storeType: add???. 
         :param parentStore: add???. 
         :returns: the formstore
@@ -596,7 +596,7 @@ class GnrDomSrc(GnrStructData):
         and that's because formbuilder can manage automatically fields and their positioning.
         
         :param cols: set the number of columns.
-        :param table: set the database :ref:`genro_table`.
+        :param table: set the database :ref:`table`.
         :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'``
                          (actually it is the unique defined class).
         :param lblclass: set label style.
@@ -614,7 +614,7 @@ class GnrDomSrc(GnrStructData):
         :param \*\*kwargs: *border_spacing*: define the space between form fields. Default value is ``6px``
         
                            *datapath*: set the root's path of formbuilder's fields. For more details,
-                           check the :ref:`genro_datapath` documentation page.
+                           check the :ref:`datapath` documentation page.
                            
                            *width*: define the formbuilder width. You can use only percent (e.g: ``width='60%'``)
                            and the formbuilder must be child of a pane or a div with a defined width and height.
@@ -753,7 +753,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     #    self.child('FramePane',slots='top,left,bottom,right',**kwargs)
         
     def dataFormula(self, path, formula, **kwargs):
-        """Allow to insert a value into a specific address of the :ref:`genro_datastore` calculated through a formula
+        """Allow to insert a value into a specific address of the :ref:`datastore` calculated through a formula
         
         :param path: the dataFormula's path
         :param formula: the dataFormula's formula
@@ -826,7 +826,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param storeCode: add???. 
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param storepath: add???. 
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
@@ -837,7 +837,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param storeCode: add???. 
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param storepath: add???. 
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
@@ -881,7 +881,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param path: add???
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param method: add???. Default value is ``app.getSelection``
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
@@ -928,7 +928,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param pane: add???
-        :param table: the :ref:`genro_table` name. 
+        :param table: the :ref:`table` name. 
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
                       
         :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
@@ -952,7 +952,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param path: add???
-        :param table: the :ref:`genro_table` name
+        :param table: the :ref:`table` name
         :param pkey: the record primary key. 
         :param method: add???. Default value is ``app.getRecord``
         :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
@@ -989,7 +989,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
-        :param datapath: the path of data. For more information, check the :ref:`genro_datapath` section"""
+        :param datapath: the path of data. For more information, check the :ref:`datapath` section"""
         datapath= 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         return self.child('PalettePane',paletteCode=paletteCode,datapath=datapath,**kwargs)
         
@@ -997,7 +997,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
-        :param datapath: the path of data. For more information, check the :ref:`genro_datapath` section
+        :param datapath: the path of data. For more information, check the :ref:`datapath` section
         :returns: a paletteTree
         """
         datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
@@ -1014,7 +1014,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section. 
         :param structpath: add???. 
-        :param datapath: the path of data. For more information, check the :ref:`genro_datapath` section"""
+        :param datapath: the path of data. For more information, check the :ref:`datapath` section"""
         datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         structpath = structpath or '.grid.struct'
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
@@ -1066,8 +1066,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param storepath: add???. 
         :param structpath: add???. 
         :param datapath: the path of data. .
-                         For more information, check the :ref:`genro_datapath` section
-        :param nodeId: the page nodeId. For more information, check the :ref:`genro_nodeid`
+                         For more information, check the :ref:`datapath` section
+        :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
                        documentation page. 
         :param configurable: boolean. add???. Default value is ``True``
         :param _newGrid: boolean. add???. Default value is ``False``
@@ -1106,8 +1106,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section. 
-        :param table: the :ref:`genro_table` name. 
-        :param nodeId: the page nodeId. For more information, check the :ref:`genro_nodeid`
+        :param table: the :ref:`table` name. 
+        :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
                        documentation page. 
         :param relativeWorkspace: add???. 
         :returns: add???"""
@@ -1770,7 +1770,7 @@ class GnrDomSrc_dojo_15(GnrDomSrc_dojo_11):
 class GnrDomSrc_dojo_16(GnrDomSrc_dojo_11):
     pass
 class GnrGridStruct(GnrStructData):
-    """This class handles the creation of a :ref:`genro_struct`
+    """This class handles the creation of a :ref:`struct`
     
     add??? (introduce the example)
     
@@ -1838,12 +1838,12 @@ class GnrGridStruct(GnrStructData):
         
     def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, headerClasses=None,
              **kwargs):
-        """Return a :ref:`genro_cell`.
+        """Return a :ref:`cell`.
         
         :param field: add???.
         :param name: add???.
         :param width: the width of the cell
-        :param dtype: the :ref:`genro_datatype`.
+        :param dtype: the :ref:`datatype`.
         :param classes: add???.
         :param cellClasses: add???.
         :param headerClasses: add???."""
@@ -1853,7 +1853,7 @@ class GnrGridStruct(GnrStructData):
     def checkboxcell(self, field=None, falseclass=None,
                      trueclass=None,nullclass=None, classes='row_checker', action=None, name=' ',
                      calculated=False, radioButton=False,threestate=False, **kwargs):
-        """Return a boolean checkbox :ref:`genro_cell`. add???
+        """Return a boolean checkbox :ref:`cell`. add???
         
         :param field: add???.
         :param falseclass: the css class for the false state.
@@ -1862,7 +1862,7 @@ class GnrGridStruct(GnrStructData):
                           specify through the **threestate** parameter
         :param classes: add???. Default value is ``row_checker``
         :param action: allow to execute a javascript callback. For more information, check the
-                       :ref:`genro_action` documentation page
+                       :ref:`action` documentation page
         :param name: add???. Default value is ``' '``
         :param calculated: boolean. add???.
         :param radioButton: boolean. add???.
@@ -1904,20 +1904,20 @@ class GnrGridStruct(GnrStructData):
 
     def fieldcell(self, field, _as=None, name=None, width=None, dtype=None,
                   classes=None, cellClasses=None, headerClasses=None, zoom=False, **kwargs):
-        """Return a :ref:`genro_cell` that inherits every attribute from the :ref:`genro_field` widget.
+        """Return a :ref:`cell` that inherits every attribute from the :ref:`field` widget.
 
-        :param field: MANDATORY - it contains the name of the :ref:`genro_field` from which
+        :param field: MANDATORY - it contains the name of the :ref:`field` from which
                       the fieldcell inherits.
         :param _as: add???. 
-        :param name: with *name* you can override the :ref:`genro_name_long` of the
-                     :ref:`genro_field` form widget. 
+        :param name: with *name* you can override the :ref:`name_long` of the
+                     :ref:`field` form widget. 
         :param width: the fieldcell width. 
-        :param dtype: the :ref:`genro_datatype`. You can override the *dtype* of the :ref:`genro_field` form widget.
+        :param dtype: the :ref:`datatype`. You can override the *dtype* of the :ref:`field` form widget.
         :param classes: add???. 
         :param cellClasses: add???. 
         :param headerClasses: add???. 
         :param zoom: a link to the object to which the fieldcell refers to.
-                     For more information, check the :ref:`genro_zoom` documentation page."""
+                     For more information, check the :ref:`zoom` documentation page."""
         if not self.tblobj:
             self.root._missing_table = True
             return

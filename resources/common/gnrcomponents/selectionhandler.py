@@ -32,7 +32,7 @@ class SelectionHandler(BaseComponent):
     It manages automatically:
     
     * all the dataControllers for add and delete .
-    * the the add_action and del_action.
+    * the add_action and del_action.
     * the connect_onRowDblClick parameter.
     
     To replace an includedView and recordDialog do the following:

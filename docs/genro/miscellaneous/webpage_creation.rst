@@ -1,4 +1,4 @@
-.. _genro_webpage:
+.. _webpage:
 
 =====================
 Creation of a webpage
@@ -12,20 +12,20 @@ The build phase
 ===============
 
     In the construction of the pages, first GenroPy loads the browser (client) with its JavaScript engine
-    (the Genro engine). Then the Javascript engine immediately requests the server to build the recipe for
-    the DOM. This recipe is returned to the client in a :ref:`genro_bag`. This is the page description
+    (the Genro engine). Then the javascript engine immediately requests the server to build the recipe for
+    the DOM. This recipe is returned to the client in a :ref:`bag`. This is the page description
     and content of the original datastore form of bags. At this point, the JS can make calls to the python
     code to further buildings on the page.
     
     In practice, GenroPy behaves in this way:
     
-    #. The client makes the HTTP request page ``foo`` through :ref:`genro_wsgi` site::
+    #. The client makes the HTTP request page ``foo`` through :ref:`wsgi_intro` site::
     
         client ----------- HTTP ----------> server (wsgisite)
         
     #. GenroPy sends a standard blank page, which contains practically only the engine ``gnrjs``::
     
-        client <----- Javascript engine --- server (wsgisite)
+        client <----- javascript engine --- server (wsgisite)
         
     #. The JavaScript engine calls the server page content, that is a server side Python function called the
        ``main`` of ``WebPage`` ::
@@ -33,7 +33,7 @@ The build phase
         js engine ------- ready ----------> server
         
     #. The server sends a description of the page content in high level in terms of widgets, and content of
-       the :ref:`genro_datastore` in the form of bags::
+       the :ref:`datastore` in the form of bags::
         
         page js <-------- bags ------------ page python
         
@@ -42,9 +42,9 @@ The build phase
     
         page js <- dataRpc() or remote() -> page python
         
-    Genro creates a :ref:`genro_bag_intro` using genropy syntax and this ``Bag`` is sent as XML to the client.
-    In the client the :ref:`webpage elements <genro_webpage_elements_index>` will be stored in the struct bag
-    (??? find a name for the struct Bag!), while data elements will be placed in the :ref:`genro_datastore`.
+    Genro creates a :ref:`bag_intro` using genropy syntax and this ``Bag`` is sent as XML to the client.
+    In the client the :ref:`webpage elements <webpage_elements_index>` will be stored in the struct bag
+    (??? find a name for the struct Bag!), while data elements will be placed in the :ref:`datastore`.
     
     When the XML arrives and the two bags are created a builder is started that will use the struct bag to
     create html and dojo elements. The builder will also 'link' data bag with the related widgets using the
@@ -64,12 +64,12 @@ The build phase
     
     In Genro, to use a script you have to use data and controllers:
     
-    * client-side controllers: :ref:`genro_datacontroller`, :ref:`genro_dataformula`,
-      :ref:`genro_datascript` (deprecated).
-    * server-side controllers: :ref:`genro_datarecord`, :ref:`genro_datarpc`,
-      :ref:`genro_dataselection`, :ref:`genro_data`.
+    * client-side controllers: :ref:`datacontroller`, :ref:`dataformula`,
+      :ref:`datascript` (deprecated).
+    * server-side controllers: :ref:`datarecord`, :ref:`datarpc`,
+      :ref:`dataselection`, :ref:`data`.
     
-    For an introduction to the controllers, please check :ref:`genro_controllers_intro`
+    For an introduction to the controllers, please check :ref:`controllers_intro`
     
 **Footnotes**:
 

@@ -306,7 +306,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return ref_dict.values()
 
     def getPkey(self, table, schema):
-        """:param table: the :ref:`genro_table` name
+        """:param table: the :ref:`table` name
         :param schema: schema name
         :return: list of columns wich are the primary key for the table"""
         sql = """SELECT k.column_name        AS col
@@ -325,7 +325,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """Get a (list of) dict containing details about all the indexes of a table.
         Each dict has those info: name, primary (bool), unique (bool), columns (comma separated string)
         
-        :param table: the :ref:`genro_table` name
+        :param table: the :ref:`table` name
         :param schema: schema name
         :returns: list of index infos"""
         sql = """SELECT indcls.relname AS name, indisunique AS unique, indisprimary AS primary, indkey AS columns

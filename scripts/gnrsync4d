@@ -52,5 +52,6 @@ if __name__=='__main__':
     app_kwargs['sync4d_name'] = options.sync4d_name or app_kwargs.get('sync4d_name','sync4d')
     app = GnrAppSync4D(*args, **app_kwargs)
     if options.rebuild:
-        app.rebuildRecipe()
-    app.loop()
+        app.rebuildRecipe(modelOnly=True)
+    else:
+        app.loop()

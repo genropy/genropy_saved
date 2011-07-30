@@ -1,4 +1,4 @@
-.. _genro_currencytextbox:
+.. _currencytextbox:
 
 ===============
 currencyTextbox
@@ -6,7 +6,7 @@ currencyTextbox
     
     *Last page update*: |today|
     
-    .. note:: We recommend you to read :ref:`genro_textboxes` first.
+    .. note:: We recommend you to read :ref:`textboxes` first.
     
     * :ref:`currencytextbox_def`
     * :ref:`currencytextBox_description`
@@ -35,7 +35,6 @@ Attributes
     **currencyTextbox**:
     
     * *currency*: specify used currency. Default value is ``EUR``
-    * *default*: Add a default number to your widget. Default value is ``None``
     * *locale*: specify currency format type. Default value is ``it``
     
     **commons attributes**:
@@ -56,5 +55,4 @@ simple example
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
-                root.currencyTextBox(value='^amount',default=1123.34,
-                                     currency='EUR',locale='it')	
+                root.currencyTextBox(value='^amount',currency='EUR',locale='it')	

@@ -1,4 +1,4 @@
-.. _genro_tooltipdialog:
+.. _tooltipdialog:
 
 =============
 tooltipdialog

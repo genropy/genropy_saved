@@ -1,4 +1,4 @@
-	.. _genro_timetextbox:
+	.. _timetextbox:
 
 ===========
 timeTextbox
@@ -6,7 +6,7 @@ timeTextbox
     
     *Last page update*: |today|
     
-    .. note:: We recommend you to read :ref:`genro_textboxes` first.
+    .. note:: We recommend you to read :ref:`textboxes` first.
     
     * :ref:`timetextbox_def`
     * :ref:`timetextbox_description`

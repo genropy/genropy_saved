@@ -1,10 +1,12 @@
-.. _genro_database_index:
+.. _database_index:
 
 ==============
 Genro Projects
 ==============
     
     *Last page update*: |today|
+    
+    In this section there is the explanation of how to build a Genro project database management.
     
 .. toctree::
     :maxdepth: 2
@@ -16,3 +18,5 @@ Genro Projects
     the ``packages`` folder <packages/index>
     the ``resources`` folder <resources/index>
     the ``sites`` folder <sites/index>
+    tutorial/index
+    

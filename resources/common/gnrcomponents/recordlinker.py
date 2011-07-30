@@ -19,7 +19,6 @@
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from gnr.web.gnrbaseclasses import BaseComponent
-
 import warnings
 
 class RecordLinker(BaseComponent):
@@ -36,38 +35,33 @@ class RecordLinker(BaseComponent):
     def linkerField(self, fb, table=None, field=None, dialogPars=None, record_template=None, record_path=None, lbl=None,
                     value=None, width=None, height=None, colspan=1, rowspan=1, disabled=False, default_path=None,
                     zoom=False, record_reloader=None, **kwargs):
-        """Creates a :ref:`genro_linker` inside a :ref:`genro_formbuilder`.
+        """Creates a linker inside a :ref:`formbuilder`.
         
         :param fb: (mandatory) the formbuilder
-        :param table: (mandatory) string. The :ref:`genro_table`. 
-        :param field: string. Field name. 
-        :param dialogPars: (mandatory) dict. Dialog parameters. .
+        :param table: (mandatory) string. The :ref:`table`
+        :param field: string. Field name
+        :param dialogPars: (mandatory) dict. Dialog parameters
                            
                            dialogPars accepts:
                            
                            * dlgId
                            * onSaved
                            
-        :param record_template: string. Template for the record summary. 
-        :param record_path: datapath. 
+        :param record_template: string. Template for the record summary
+        :param record_path: datapath
         :param lbl: the linkerField's label
-                    (a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`).
-                    
-        :param value: string. Where to store the selected ID. 
-        :param width: the linkerField's width. 
-        :param height: the linkerField's height. 
-        :param colspan: a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`.
-                        Default value is ``1``
-        :param rowspan: add???. Default value is ``1``
-        :param disabled: If ``True``, user can't act on the object (write, drag...).
-                         For more information, check the :ref:`genro_disabled` documentation page.
-                         Default value is ``False``
-        :param default_path: add???. 
-        :param zoom: It allows to open the linked record in a :ref:`genro_dialog`.
-                     For further details, check the :ref:`genro_zoom` documentation page.
-                     Default value is ``False``
-        :param record_reloader: add???. 
-        """
+                    (a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`)
+        :param value: string. Where to store the selected ID
+        :param width: the linkerField's width
+        :param height: the linkerField's height
+        :param colspan: a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`
+        :param rowspan: add???
+        :param disabled: If ``True``, user can't act on the object (write, drag...)
+                         For more information, check the :ref:`disabled` documentation page
+        :param default_path: add???
+        :param zoom: It allows to open the linked record in a :ref:`dialog`
+                     For further details, check the :ref:`zoom` documentation page
+        :param record_reloader: add???"""
         
         # --------------------------------------------------------------------------------------------- Mandatory parameters
         

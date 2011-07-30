@@ -1,4 +1,4 @@
-.. _genro_web_gnrobjectregister:
+.. _web_gnrobjectregister:
 
 ========================
 :mod:`gnrobjectregister`

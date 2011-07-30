@@ -1,7 +1,7 @@
-.. _genro_components_introduction:
+.. _components_introduction:
 
 ============
-Introduction
+introduction
 ============
     
     *Last page update*: |today|
@@ -10,7 +10,6 @@ Introduction
     * :ref:`components_location`
     * :ref:`components_active_passive`
     * :ref:`components_requirements`
-    * :ref:`components_list`
     
 .. _components_def:
 
@@ -21,7 +20,7 @@ definition
     than one project. Every component can be rewritten in most of its parts (methods) overriding them.
     This ensures the ability to customize a component for your specific purpose.
     
-    Components belong to the family of Genro :ref:`genro_intro_resources`.
+    Components belong to the family of Genro :ref:`intro_resources`.
     
 .. _components_location:
 
@@ -39,7 +38,7 @@ components location
        the folder), then the component is **private**: this means that anyone can use this component
        only in the project in which it has been created.
        
-       The **private** components belong to the family of the :ref:`genro_private_resource`\s.
+       The **private** components belong to the family of the :ref:`private resources <private_resource>`.
        
     #. If you place your component at the following path::
         
@@ -49,13 +48,13 @@ components location
        ``resources`` is a mandatory name for the folder), then the component is **public**:
        this means that anyone can use this component in any project.
        
-       The **public** components belong to the family of the :ref:`genro_public_resource`\s.
+       The **public** components belong to the family of the :ref:`public resources <public_resource>`.
        
        .. warning:: to use a *public* component, you have to specify some requirements.
                     Please read the :ref:`components_requirements` for more information.
                     
     For more information on *private* and *public* components (that is, *private* and *public*
-    resources) please check the :ref:`genro_intro_resources` documentation page.
+    resources) please check the :ref:`intro_resources` page.
     
 .. _components_requirements:
 
@@ -67,12 +66,12 @@ components requirements
     #. import the name of the package that includes the component you want
        to use in the :ref:`instanceconfig_packages` tag of your
        :ref:`instances_instanceconfig` file (for more information, check the
-       :ref:`instanceconfig_packages` documentation section)
+       :ref:`instanceconfig_packages` section)
        
        .. note:: this step is optionally if the component you want to import is a
                  :ref:`components_standard`
                  
-    #. set in your :ref:`webpages_webpages`\s a requirement: every component
+    #. set in your :ref:`webpages <webpages_webpages>` a requirement: every component
        has to be called through the correct :ref:`webpages_py_requires` webpage variable.
        
        .. note:: In every component's documentation page you fill find the correct syntax for
@@ -97,7 +96,7 @@ components requirements
                          py_requires = 'folderName/fileName'
                          
                    #. You can omit the "``folderName``" if the component is placed at the first
-                      level of a :ref:`genro_intro_resources` folder of an imported package.
+                      level of a :ref:`intro_resources` folder of an imported package.
                       
                       Viceversa, if the component lives in a nested level of a resources folder you
                       have to specify its path.
@@ -119,7 +118,7 @@ components requirements
                          then your "``py_requires``" will be::
                          
                              py_requires = 'power_components/yourcomponent:Power'
-                     
+                             
 .. _components_standard:
 
 standard component
@@ -135,7 +134,7 @@ standard component
                  :ref:`gnr_environment` file (if you have correctly configured the file!)
                  
                  To learn how to configure the ``environment.xml`` file, check the
-                 :ref:`environment_resources_components` documentation section.
+                 :ref:`environment_resources_components` section.
                  
     .. note:: Remeber to import the proper component's :ref:`webpages_py_requires`.
                  
@@ -168,35 +167,4 @@ passive component
 -----------------
     
     The passive component is a component that doesn't have its own main method, so you
-    have to define your own *main* method in your :ref:`webpages_webpages`.
-    
-.. _components_list:
-
-List of all the components
-==========================
-
-    We list here all the components you can find in Genro. You can find them divided in
-    types. You can discover more of a component type or more of a component by clicking
-    on the relative links.
-
-    **Dialogs**:
-    
-    * iframedialog
-    * simpledialog
-        
-    **Linkers**:
-    
-    * :ref:`th_linker_base`
-    * :ref:`th_linkerbar`
-    * :ref:`th_linkerbox`
-    
-    **Tables**:
-    
-    * :ref:`genro_th`
-    
-    **add???**
-    
-    * :ref:`genro_includedview` - **deprecated** (*0.7*)
-    * timetable_dh
-    * :ref:`genro_frameindex`
-        
+    have to define your own *main* method in your :ref:`webpages_webpages`.        

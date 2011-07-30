@@ -1,4 +1,4 @@
-.. _genro_library_gnrwebstruct:
+.. _library_gnrwebstruct:
 
 =============================================
 :mod:`gnr.web.gnrwebstruct` -- Web structures

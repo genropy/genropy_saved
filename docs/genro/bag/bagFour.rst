@@ -1,4 +1,4 @@
-.. _genro_bag_four:
+.. _bag_four:
 
 =========================
 Resolver and dynamic bags

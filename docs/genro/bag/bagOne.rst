@@ -1,4 +1,4 @@
-.. _genro_bag_one:
+.. _bag_one:
 
 ===============
 Basic functions

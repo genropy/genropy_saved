@@ -445,7 +445,7 @@ class SqlDbAdapter(object):
         """Create a new index
         
         :param index_name: name of the index (unique in schema)
-        :param columns: comma separated string (or list or tuple) of :ref:`genro_columns` to include in the index
+        :param columns: comma separated string (or list or tuple) of :ref:`columns` to include in the index
         :param table_sql: actual sql name of the table
         :param sqlschema: actual sql name of the schema. For more information check the :ref:`about_schema`
                           documentation section

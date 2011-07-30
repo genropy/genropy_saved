@@ -884,22 +884,31 @@ class GnrWebAppHandler(GnrBaseProxy):
                 #pass
 
     def rpc_dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
-                     _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None,excludeDraft=True,
+                     _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None, excludeDraft=True,
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
                      notnull=None, weakCondition=False, **kwargs):
         """
-        * dbtable: table source for the query
-        * columns: columns that are involved into the query
-        * auxColumns: showed only as result, not involved in the search.
-        * hiddenColumns: data that is retrieved but is not showed.
-        * rowcaption: what you see into the field. Often is different from 
-                      what you set with dbselect
-        * condition: more condition into the query. Every kwargs params that 
-                    starts with condition_  are the variables involved in the 'where' clause.
-        * selectmethod: custom rpc_method you can use to make the query on the server.
-        * weakCondition: will apply the condition if there is a result, but if there is no result for the condition
-                         then the condition will not be used. A selectmethod over-rides this attribute.
-        """
+        :param dbtable: database :ref:`table` source for the query
+        :param columns: the :ref:`table_columns` that are involved into the query
+        :param auxColumns: showed only as result, not involved in the search.
+        :param hiddenColumns: data that is retrieved but is not showed.
+        :param rowcaption: what you see into the field. Often is different from what you set
+                           with dbselect
+        :param querystring: add???
+        :param ignoreCase: add???
+        :param exclude: add???
+        :param excludeDraft: add???
+        :param condition: more condition into the query. Every kwargs params that 
+                          starts with condition_ are the variables involved in the 'where' clause.
+        :param limit: string. Numbers of visualized data after the query (default is 10)
+                      set limit to '0' to visualize all data.
+        :param alternatePkey: add???
+        :param order_by: add???
+        :param selectmethod: custom rpc_method you can use to make the query on the server.
+        :param notnull: add???
+        :param weakCondition: it will apply the condition if there is a result, but if there is no
+                              result for the condition then the condition will not be used. A
+                              selectmethod over-rides this attribute."""
         resultClass = ''
         if selectmethod or not condition:
             weakCondition = False

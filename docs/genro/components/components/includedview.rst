@@ -1,4 +1,4 @@
-.. _genro_includedview:
+.. _includedview:
 
 ============
 includedView

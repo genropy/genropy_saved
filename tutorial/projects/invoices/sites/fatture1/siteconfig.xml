@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<GenRoBag>
-    <wsgi homepage='invc/index' mainpackage='invc' port='8083' debug='true'/>
-    <defaults country='IT' vat_rate='20'/>
-</GenRoBag>

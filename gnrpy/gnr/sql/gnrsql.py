@@ -293,7 +293,7 @@ class GnrSqlDb(GnrObject):
         :param cursorname: the name of the cursor. 
         :param autocommit: if ``True``, at the end of the execution runs the :meth:`commit()` method.
                            Default value is ``False``
-        :param dbtable: the :ref:`genro_table`...add??? . 
+        :param dbtable: the :ref:`table`...add??? . 
         :returns: the sql cursor"""
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
@@ -432,8 +432,8 @@ class GnrSqlDb(GnrObject):
     def package(self, pkg):
         """Return a package object
         
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page."""
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page."""
         return self.model.package(pkg)
             
     def _get_packages(self):
@@ -469,15 +469,15 @@ class GnrSqlDb(GnrObject):
         """Return a table object
         
         :param tblname: table name
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. """
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page. """
         return self.model.table(tblname, pkg=pkg).dbtable
             
     def query(self, table, **kwargs):
         """An sql query. For more information, check the :meth:`query() <gnr.sql.gnrsqltable.SqlTable.query()>`
         method of the gnrsqltable.SqlTable.
         
-        :param table: the :ref:`genro_table` on which the query will be executed"""
+        :param table: the :ref:`table` on which the query will be executed"""
         return self.table(table).query(**kwargs)
         
     def colToAs(self, col):
@@ -492,7 +492,7 @@ class GnrSqlDb(GnrObject):
                          translator=None, **kwargs):
         """add???
         
-        :param table: the :ref:`genro_table` name
+        :param table: the :ref:`table` name
         :param prevCaption: add???. Default value is ``''``
         :param prevRelation: add???. Default value is ``''``
         :param translator: add???. """

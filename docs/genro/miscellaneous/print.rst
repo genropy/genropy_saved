@@ -1,4 +1,4 @@
-.. _genro_miscellaneous_print:
+.. _miscellaneous_print:
 
 ===================
 Posters and Reports

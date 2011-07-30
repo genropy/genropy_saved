@@ -1,4 +1,4 @@
-.. _genro_workdate:
+.. _workdate:
 
 ========
 workdate

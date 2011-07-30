@@ -1,4 +1,4 @@
-.. _genro_miscellaneous_index:
+.. _miscellaneous_index:
 
 ===================
 Documents to revise
@@ -19,11 +19,8 @@ Documents to revise
     login
     palette
     print
-    sql/index
     struct
-    textmate
     trigger
-    tutorial/index
     user_interface
     viewform
     webpage_creation
