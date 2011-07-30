@@ -3350,11 +3350,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if (n == null) {
             var n = this.storeRowCount();
         }
+        var scrollBox = this.views.views[0].scrollboxNode;
+        var scrollLeft = scrollBox.scrollLeft;
         this.currRenderedRowIndex = null;
         this.currRenderedRow = null;
         this.updateRowCount_replaced(n);
-        
+
         this.updateTotalsCount();
+        scrollBox.scrollLeft = scrollLeft;
     },
     mixin_setSortedBy:function(sortedBy) {
         this.sortedBy = sortedBy;
@@ -4058,16 +4061,19 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             
             var store = this._collectionStore;
             this._virtual = store.storeType=='VirtualSelection';
-            this.domNode.addEventListener("scroll", function() { 
-            if(store._scroll_timeout){
-                clearTimeout(store._scroll_timeout);
-            }else{
-                store.isScrolling=true;
-            }
-            store._scroll_timeout=setTimeout(function(){
-                store.isScrolling=false;
-                store._scroll_timeout=null;
-                storeNode.publish('updateRows');
+            this.domNode.addEventListener("scroll", function(e) { 
+                var lastRow = that.scroller.lastVisibleRow;
+                if(store._scroll_timeout){
+                    clearTimeout(store._scroll_timeout);
+                }else{
+                    store.isScrolling=true;
+                }
+                store._scroll_timeout=setTimeout(function(){
+                    store.isScrolling=false;
+                    store._scroll_timeout=null;
+                    if(lastRow!=that.scroller.lastVisibleRow){
+                        storeNode.publish('updateRows');
+                    }
                 },500);
             }, true);
             
