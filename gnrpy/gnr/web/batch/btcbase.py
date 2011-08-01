@@ -115,14 +115,16 @@ class BaseResourceBatch(object):
         """override me"""
         pass
 
-    def defineSelection(self, selectionName=None, selectedRowidx=None, selectionFilterCb=None):
+    def defineSelection(self, selectionName=None, selectedRowidx=None, selectionFilterCb=None, sortBy=None):
         self.selectionName = selectionName
         self.selectedRowidx = selectedRowidx
         self.selectionFilterCb = selectionFilterCb
+        self.sortBy=sortBy
 
     def get_selection(self, columns=None):
         selection = self.page.getUserSelection(selectionName=self.selectionName,
                                                selectedRowidx=self.selectedRowidx, filterCb=self.selectionFilterCb,
+                                               sortBy=self.sortby,
                                                columns=columns)
         return selection
 
