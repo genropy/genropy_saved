@@ -124,7 +124,7 @@ class BaseResourceBatch(object):
     def get_selection(self, columns=None):
         selection = self.page.getUserSelection(selectionName=self.selectionName,
                                                selectedRowidx=self.selectedRowidx, filterCb=self.selectionFilterCb,
-                                               sortBy=self.sortby,
+                                               sortBy=self.sortBy,
                                                columns=columns)
         return selection
 
