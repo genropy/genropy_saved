@@ -241,6 +241,7 @@ class GnrBaseWebPage(GnrObject):
         return selection
         
     def getUserSelection(self, selectionName=None, selectedRowidx=None, filterCb=None, columns=None,
+                        sortBy=None,
                          condition=None, table=None, condition_args=None):
         """add???
         
@@ -269,6 +270,8 @@ class GnrBaseWebPage(GnrObject):
                 selectedRowidx = [int(x) for x  in selectedRowidx.split(',')]
                 selectedRowidx = set(selectedRowidx) #use uniquify (gnrlang) instead
             selection.filter(lambda r: r['rowidx'] in selectedRowidx)
+        if sortBy:
+            selection.sort(sortBy)
         if columns:
             condition_args = condition_args or {}
             pkeys = selection.output('pkeylist')

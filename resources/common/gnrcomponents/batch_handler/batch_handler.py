@@ -152,12 +152,13 @@ class TableScriptRunner(BaseComponent):
                            _fired="^.save", pars='=.data',immediate=batch_dict.get('immediate',False))
     @public_method
     def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectionFilterCb=None,
+                             sortBy=None,
                              selectedRowidx=None,
                              parameters=None, printerOptions=None, **kwargs):
         tblobj = self.tblobj or self.db.table(table)
         res_obj = self.site.loadTableScript(self, tblobj, '%s/%s' % (res_type, resource), class_name='Main')
         res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
-                                selectionFilterCb=selectionFilterCb)
+                                selectionFilterCb=selectionFilterCb, sortBy=sortBy)
         parameters = parameters or {}
         parameters['_printerOptions'] = printerOptions
         res_obj(parameters=parameters, **kwargs)
