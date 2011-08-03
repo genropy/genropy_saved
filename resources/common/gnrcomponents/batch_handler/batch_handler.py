@@ -154,11 +154,12 @@ class TableScriptRunner(BaseComponent):
 
     def rpc_table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectionFilterCb=None,
                              selectedRowidx=None,
+                             sortBy=None,
                              parameters=None, printerOptions=None, **kwargs):
         tblobj = self.tblobj or self.db.table(table)
         res_obj = self.site.loadTableScript(self, tblobj, '%s/%s' % (res_type, resource), class_name='Main')
         res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
-                                selectionFilterCb=selectionFilterCb)
+                                selectionFilterCb=selectionFilterCb, sortBy=sortBy)
         parameters = parameters or {}
         parameters['_printerOptions'] = printerOptions
         res_obj(parameters=parameters, **kwargs)
