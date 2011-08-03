@@ -45,6 +45,7 @@ class TableScriptRunner(BaseComponent):
                                        SET .selectionFilterCb =  params['selectionFilterCb'];
                                        SET .gridId = params['gridId'];
                                        SET .selectedRowidx =  params['selectedRowidx'];
+                                       SET .sortBy =  params['sortBy'];
                                        SET .paramspath = params['paramspath'];
                                        SET .onCalling = params['onCalling'];
                                        FIRE .build_pars_dialog;
@@ -64,7 +65,9 @@ class TableScriptRunner(BaseComponent):
                             selectionName='=.selectionName',
                             printerOptions='==this.getRelativeData("gnr.server_print.printers."+resource);',
                             selectionFilterCb='=.selectionFilterCb',
-                            selectedRowidx="=.selectedRowidx", _POST=True, timeout=0)
+                            selectedRowidx="=.selectedRowidx",
+                            sortBy="=.sortBy",
+                            _POST=True, timeout=0)
 
         plugin_main.div().remote('table_script_parameters',
                                  resource='=.resource',
