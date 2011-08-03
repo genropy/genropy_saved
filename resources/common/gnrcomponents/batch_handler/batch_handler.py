@@ -45,6 +45,7 @@ class TableScriptRunner(BaseComponent):
                                        SET .selectionFilterCb =  params['selectionFilterCb'];
                                        SET .gridId = params['gridId'];
                                        SET .selectedRowidx =  params['selectedRowidx'];
+                                       SET .sortBy =  params['sortBy'];
                                        SET .paramspath = params['paramspath'];
                                        SET .onCalling = params['onCalling'];
                                        FIRE .build_pars_dialog;
@@ -64,7 +65,9 @@ class TableScriptRunner(BaseComponent):
                             selectionName='=.selectionName',
                             printerOptions='==this.getRelativeData("gnr.server_print.printers."+resource);',
                             selectionFilterCb='=.selectionFilterCb',
-                            selectedRowidx="=.selectedRowidx", _POST=True, timeout=0)
+                            selectedRowidx="=.selectedRowidx",
+                            sortBy="=.sortBy",
+                            _POST=True, timeout=0)
 
         plugin_main.div(width='0').remote(self.table_script_parameters,
                                  resource='=.resource',
@@ -157,6 +160,8 @@ class TableScriptRunner(BaseComponent):
                              parameters=None, printerOptions=None, **kwargs):
         tblobj = self.tblobj or self.db.table(table)
         res_obj = self.site.loadTableScript(self, tblobj, '%s/%s' % (res_type, resource), class_name='Main')
+        print 'call defineSelection'
+        print sortBy
         res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
                                 selectionFilterCb=selectionFilterCb, sortBy=sortBy)
         parameters = parameters or {}
