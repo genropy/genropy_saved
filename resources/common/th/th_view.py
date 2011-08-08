@@ -14,13 +14,15 @@ from gnr.core.gnrbag import Bag
 class TableHandlerView(BaseComponent):
     py_requires = """th/th_lib:QueryHelper,
                      th/th_view:THViewUtils,
-                     gnrcomponents/framegrid:FrameGrid"""
+                     gnrcomponents/framegrid:FrameGrid,
+                     gnrcomponents/batch_handler/batch_handler:TableScriptHandler
+                     """
                          
     @extract_kwargs(condition=True)
     @struct_method
     def th_tableViewer(self,pane,frameCode=None,table=None,relation=None,th_pkey=None,viewResource=None,
                        reloader=None,virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
-        resourceName= self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
+        self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
         resourceCondition = self._th_hook('condition',mangler=frameCode,dflt=dict())()
         condition = condition or resourceCondition.pop('condition',None)
         condition_kwargs.update(dictExtract(resourceCondition,'condition_'))
@@ -45,7 +47,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if queryTool:
-            base_slots = ['tools','5','vtitle','5','queryfb','|','queryTool','queryMenu','viewsMenu','*','count','5']
+            base_slots = ['tools','5','vtitle','5','queryfb','|','queryTool','queryMenu','viewsMenu','10','|','10','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
         else:
             base_slots = ['tools','5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
@@ -85,7 +87,7 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         mangler = inattr['th_root']
         table = inattr['table']
-        menu = pane.div(_class='buttonIcon icnSavedQuery',tip='!!Stored query',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*')
+        pane.div(_class='buttonIcon icnSavedQuery',tip='!!Stored query',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*')
         q = Bag()
         pyqueries = self._th_hook('query',mangler=mangler,asDict=True)
         for k,v in pyqueries.items():
@@ -116,7 +118,7 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         mangler = inattr['th_root']
         table = inattr['table']
-        menu = pane.div(padding_left='5px',_class='buttonIcon vieselectorIcn',tip='!!Stored query',datapath='.grid').menu(storepath='.th_viewmenu',_class='smallmenu',modifiers='*')
+        pane.div(padding_left='5px',_class='buttonIcon vieselectorIcn',tip='!!Stored query',datapath='.grid').menu(storepath='.th_viewmenu',_class='smallmenu',modifiers='*')
         q = Bag()
         pyqueries = self._th_hook('struct',mangler=mangler,asDict=True)
         for k,v in pyqueries.items():
@@ -125,6 +127,51 @@ class TableHandlerView(BaseComponent):
         pane.data('.grid.resource_structs',q)
         pane.dataRemote('.grid.th_viewmenu',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),
                         table=table,mangler=mangler,cacheTime=10)
+    @struct_method
+    def th_slotbar_resourcePrints(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        mangler = inattr['th_root']
+        table = inattr['table']
+        pane.div(_class='buttonIcon icnBasePrinter').menu(modifiers='*',storepath='.resources.print.menu',
+                    action="""
+                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
+                            kw.resource = $1.resource;
+                            kw['selectedRowidx'] = genro.wdgById(kw.gridId).getSelectedRowidx();
+                            genro.publish({topic:"table_script_run",parent:true},kw)
+                            """,
+                    batch_selectionName=mangler,batch_gridId='%s_grid' %mangler,batch_table=table,batch_res_type='print',
+                    batch_sourcepage_id=self.page_id)
+        pane.dataRemote('.resources.print.menu',self.table_script_resource_tree_data,res_type='print', table=table,cacheTime=5)
+
+    @struct_method
+    def th_slotbar_resourceActions(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        table = inattr['table']
+        mangler = inattr['th_root']
+        pane.div(_class='buttonIcon icnBaseAction').menu(modifiers='*',storepath='.resources.action.menu',action="""
+                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
+                            kw.resource = $1.resource;
+                            kw['selectedRowidx'] = genro.wdgById(kw.gridId).getSelectedRowidx();
+                            genro.publish({topic:"table_script_run",parent:true},kw)
+                            """,
+                    batch_selectionName=mangler,batch_gridId='%s_grid' %mangler,batch_table=table,batch_res_type='action',
+                    batch_sourcepage_id=self.page_id)
+        pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,res_type='action', table=table,cacheTime=5)
+
+    @struct_method
+    def th_slotbar_resourceMails(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        table = inattr['table']
+        mangler = inattr['th_root']
+        pane.div(_class='buttonIcon icnBaseEmail').menu(modifiers='*',storepath='.resources.mail.menu',action="""
+                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
+                            kw.resource = $1.resource;
+                            kw['selectedRowidx'] = genro.wdgById(kw.gridId).getSelectedRowidx();
+                            genro.publish({topic:"table_script_run",parent:true},kw)
+                            """,
+                    batch_selectionName=mangler,batch_gridId='%s_grid' %mangler,batch_table=table,batch_res_type='mail',
+                    batch_sourcepage_id=self.page_id)        
+        pane.dataRemote('.resources.mail.menu',self.table_script_resource_tree_data,res_type='mail', table=table,cacheTime=5)
 
 
     @struct_method
@@ -224,7 +271,6 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_queryfb(self, pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table'] 
-        tablecode = table.replace('.','_')
         mangler = inattr['th_root']
         pane.dataController(
                 """this._querybuilder = new gnr.GnrQueryBuilder(this,table,"query_root");
@@ -387,7 +433,7 @@ class THViewUtils(BaseComponent):
         if pyviews:
             for k,caption in pyviews:
                 result.setItem(k.replace('_','.'),None,caption=caption,action="""genro.grid_configurator.loadGridBaseView(this.attr.gridId,this.attr.viewkey);""",viewkey=k,gridId=gridId)
-        result.setItem('r_1',None,caption='-')
+        #result.setItem('r_1',None,caption='-')
         self.grid_configurator_savedViewsMenu(result,gridId,action="genro.grid_configurator.loadCustomView(this.attr.gridId, this.attr.pkey);")
         return result
         

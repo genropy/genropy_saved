@@ -7,7 +7,10 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 class Mixin(BaseComponent):
-    py_requires="""foundation/menu:MenuIframes,gnrcomponents/batch_handler/batch_handler,
+    py_requires="""foundation/menu:MenuIframes,
+                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
+                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
+
                    gnrcomponents/chat_component/chat_component"""
     js_requires='frameindex'
     css_requires='frameindex,public'
