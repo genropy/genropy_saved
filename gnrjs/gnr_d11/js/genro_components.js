@@ -1028,7 +1028,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var btnattr = {label:'Delete',command:'deleteRows'};
         if(count>1){
             var fb = genro.dev.formbuilder(dlg.center,1);
-            fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl:'Count'});
+            fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl:'Count',parentForm:false});
             btnattr['disabled']='==_count!=_tot;';
             btnattr['_tot'] = count;
             genro.setData('gnr._dev.deleteask.count',null);
