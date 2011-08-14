@@ -203,13 +203,14 @@ class GnrBaseWebPage(GnrObject):
         """
         return ""
         
-    def pageLocalDocument(self, docname):
+    def pageLocalDocument(self, docname,page_id=None):
         """add???
         
         :param docname: add???
         :returns: add???
         """
-        folder = os.path.join(self.connectionFolder, self.page_id)
+        page_id = page_id or self.page_id
+        folder = os.path.join(self.connectionFolder, page_id)
         if not os.path.isdir(folder):
             os.makedirs(folder)
         return os.path.join(folder, docname)
@@ -225,7 +226,7 @@ class GnrBaseWebPage(GnrObject):
         selection.freeze(path, autocreate=True)
         return path
         
-    def unfreezeSelection(self, dbtable=None, name=None):
+    def unfreezeSelection(self, dbtable=None, name=None,page_id=None):
         """add???
         
         :param dbtable: add???. 
@@ -235,12 +236,13 @@ class GnrBaseWebPage(GnrObject):
         assert name, 'name is mandatory'
         if isinstance(dbtable, basestring):
             dbtable = self.db.table(dbtable)
-        selection = self.db.unfreezeSelection(self.pageLocalDocument(name))
+        selection = self.db.unfreezeSelection(self.pageLocalDocument(name,page_id=page_id))
         if dbtable and selection is not None:
             assert dbtable == selection.dbtable, 'unfrozen selection does not belong to the given table'
         return selection
         
     def getUserSelection(self, selectionName=None, selectedRowidx=None, filterCb=None, columns=None,
+                        sortBy=None,page_id=None,
                          condition=None, table=None, condition_args=None):
         """add???
         
@@ -259,7 +261,7 @@ class GnrBaseWebPage(GnrObject):
         assert selectionName, 'selectionName is mandatory'
         if isinstance(table, basestring):
             table = self.db.table(table)
-        selection = self.unfreezeSelection(dbtable=table, name=selectionName)
+        selection = self.unfreezeSelection(dbtable=table, name=selectionName,page_id=page_id)
         table = table or selection.dbtable
         if filterCb:
             filterCb = getattr(self, 'rpc_%s' % filterCb)
@@ -269,6 +271,8 @@ class GnrBaseWebPage(GnrObject):
                 selectedRowidx = [int(x) for x  in selectedRowidx.split(',')]
                 selectedRowidx = set(selectedRowidx) #use uniquify (gnrlang) instead
             selection.filter(lambda r: r['rowidx'] in selectedRowidx)
+        if sortBy:
+            selection.sort(sortBy)
         if columns:
             condition_args = condition_args or {}
             pkeys = selection.output('pkeylist')

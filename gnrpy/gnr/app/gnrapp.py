@@ -1098,7 +1098,7 @@ class GnrAvatar(object):
         """add???
         
         :param tags: add???"""
-        t = self.tags.split(',')
+        t = self.user_tags.split(',')
         if isinstance(tags, basestring):
             tags = tags.split(',')
         for tag in tags:
