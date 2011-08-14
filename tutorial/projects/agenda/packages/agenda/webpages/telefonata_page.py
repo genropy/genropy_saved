@@ -10,21 +10,6 @@ class GnrCustomWebPage(object):
     maintable = 'agenda.telefonata'
     py_requires = """public:TableHandlerMain"""
     
-    def pageAuthTags(self, method=None, **kwargs):
-        return 'user'
-        
-    def windowTitle(self):
-        return '!!Calls'
-        
-    def barTitle(self):
-        return '!!Calls'
-        
-    def tableWriteTags(self):
-        return 'user'
-        
-    def tableDeleteTags(self):
-        return 'user'
-        
     def th_form(self,form,**kwargs):
         pane = form.record
         fb = pane.formbuilder(cols=3,fld_width='15em',lbl_color='teal')
