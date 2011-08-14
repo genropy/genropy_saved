@@ -1,4 +1,4 @@
-.. _form_widgets_index:
+.. _form_widgets:
 
 ============
 form widgets

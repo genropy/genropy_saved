@@ -16,7 +16,7 @@ introduction
     * :ref:`html`
     * :ref:`css` elements
     * :ref:`javascript` elements
-    * :ref:`form_widgets_index` - The primary UI
+    * :ref:`form_widgets` - The primary UI
     * :ref:`forms <form>` - the standard way to let the user enter data
     * :ref:`datacontroller_index` - receive input and initiate a response by making calls on model objects
     

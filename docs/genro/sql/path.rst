@@ -7,10 +7,12 @@ relation paths
     *Last page update*: |today|
     
     * :ref:`paths_intro`
-    * :ref:`relation`
-    * :ref:`relation_path`
-    * :ref:`inv_rel_path`
-    * :ref:`composed_path`
+    * :ref:`relation`:
+    
+        * :ref:`relation_path`
+        * :ref:`inv_rel_path`
+        * :ref:`composed_path`
+        
     * :ref:`path_examples`: :ref:`path_example_one`
     
 .. _paths_intro:
@@ -19,7 +21,6 @@ introduction
 ============
 
     You can create a relation between two or more database :ref:`tables <table>`.
-    We explain the steps to create these relations in the :ref:`next <relation>` section.
     
     When you create a relation, you can walk this connection in a direction or in the opposite one:
     
@@ -28,18 +29,18 @@ introduction
     
     .. image:: ../_images/sql/path.png
     
-    So, the relation is ONE but we make a distinction between the direct direction and the
-    inverse direction because they support a different syntax.
+    So, the relation is ONE but the paths in a direction or in the opposite one support different syntax.
     
     **Usage**:
     
     Once you have created your relation path, you can use it to use data of a table in another
     related table.
     
-    There are many objects through which you can use relation paths (and inverse relation paths):
+    For example, you can use an HTML div, a :ref:`field` or a :ref:`fieldcell` to get data:
     
-    * for the complete list, check the :ref:`at_usage` section
-    * for examples on their usage, check the :ref:`path_examples` section
+    * for a complete list of the elements that support the relation paths, check the
+      :ref:`at_usage` section
+    * for some examples on the usage of the relation paths, check the :ref:`path_examples` section
     
 .. _relation:
 
@@ -221,8 +222,8 @@ examples
 
 .. _path_example_one:
 
-relation path, inverse relation path
-------------------------------------
+college example
+---------------
 
     Let's describe a small set of :ref:`tables <table>` to explain how the concepts of
     :ref:`relation_path` and :ref:`inv_rel_path` work in a Genro :ref:`project`.

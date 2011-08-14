@@ -16,7 +16,7 @@ Introduction
     
     The formbuilder uses:
     
-    * :ref:`form_widgets_index`: for users interaction
+    * :ref:`form_widgets`: for users interaction
     * :ref:`validations`: check the correct form of users input
     * :ref:`field`: a widget creator used to view, select or modify data included in
       a database :ref:`table`.

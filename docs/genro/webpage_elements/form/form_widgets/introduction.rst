@@ -1,4 +1,4 @@
-.. _form_widgets_introduction:
+.. _form_widgets_intro:
 
 ================================
 Introduction to the form widgets
@@ -8,17 +8,18 @@ Introduction to the form widgets
     
     We can divide the form widgets in three categories:
     
-    #. the :ref:`form_widgets`
+    #. the :ref:`genro_form_widgets`
     #. the :ref:`dojo_improved_form_widgets`
     #. the :ref:`dojo_form_widgets`
     
-.. _form_widgets:
+.. _genro_form_widgets:
 
 Genro form widgets
 ==================
 
     The **Genro** form widgets are:
     
+    * :ref:`checkboxtext`
     * :ref:`dbcombobox`
     * :ref:`dbselect`
     
