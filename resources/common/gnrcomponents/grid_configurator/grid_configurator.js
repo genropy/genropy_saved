@@ -113,9 +113,13 @@ var genro_plugin_grid_configurator = {
         return structBag;
     },
 
-    loadGridBaseView:function(gridId) {
+    loadGridBaseView:function(gridId,resView) {
         var gridSourceNode = genro.nodeById(gridId);
-        gridSourceNode.setRelativeData(gridSourceNode.attr.structpath, gridSourceNode.baseStructBag.deepCopy());
+        viewbag = gridSourceNode.baseStructBag;
+        if(resView){
+            viewbag = gridSourceNode.getRelativeData(gridSourceNode.gridControllerPath + '.resource_structs.'+resView);
+        }
+        gridSourceNode.setRelativeData(gridSourceNode.attr.structpath, viewbag.deepCopy());
         gridSourceNode.setRelativeData(gridSourceNode.gridControllerPath + '.confMenu.selectedViewPkey', null);
         var node = genro.getDataNode(gridSourceNode.gridControllerPath + '.confMenu.data');
         genro.setInStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + gridId, null);

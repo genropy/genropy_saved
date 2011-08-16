@@ -2,6 +2,8 @@
 :mod:`gnr.core.gnrlang`
 =======================
 
+    *Last page update*: |today|
+    
 * Index of ``gnr.core.gnrlang`` classes:
     
     * :ref:`gnrlang_filterlist`

@@ -1,9 +1,11 @@
-.. _genro_layout_index:
+.. _layout_index:
 
 ======
 layout
 ======
 
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

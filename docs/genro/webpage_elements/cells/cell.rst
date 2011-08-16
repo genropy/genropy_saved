@@ -1,9 +1,11 @@
-.. _genro_cell:
+.. _cell:
 
 ====
 cell
 ====
-
+    
+    *Last page update*: |today|
+    
     add???
     
     .. automethod:: gnr.web.gnrwebstruct.GnrGridStruct.cell

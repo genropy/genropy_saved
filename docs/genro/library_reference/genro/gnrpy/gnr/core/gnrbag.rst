@@ -1,11 +1,13 @@
-.. _genro_library_gnrbags:
+.. _library_gnrbags:
 
 =======================================
 :mod:`gnr.core.gnrbag`- Bags and Struct
 =======================================
 
+    *Last page update*: |today|
+    
     .. note::
-
+        
         It is better to have 100 functions operate on one data structure
         than 10 functions on 10 data structures.
         – Alan J. Perlis, Epigrams on Programming
@@ -35,7 +37,7 @@
 
     .. module:: gnr.core.gnrbag.Bag
 
-    The Genro :ref:`genro_bag_intro` has a consistent number of methods. They are listed here in alphabetical order.
+    The Genro :ref:`bag_intro` has a consistent number of methods. They are listed here in alphabetical order.
 
     ======================== ======================== ============================= =====================
     :meth:`addItem`          :meth:`fillFrom`         :meth:`has_key`               :meth:`setItem`      

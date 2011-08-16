@@ -10,23 +10,7 @@ class GnrCustomWebPage(object):
     maintable = 'agenda.staff'
     py_requires = """public:TableHandlerMain"""
     
-    def pageAuthTags(self, method=None, **kwargs):
-        return 'user'
-        
-    def windowTitle(self):
-        return '!!Staff'
-        
-    def barTitle(self):
-        return '!!Staff'
-        
-    def tableWriteTags(self):
-        return 'user'
-        
-    def tableDeleteTags(self):
-        return 'user'
-        
     def th_form(self, form, **kwargs):
-        #bc = form.record.borderContainer(margin='3px')
         tc = form.center.tabContainer(margin='3px',selected='^.selected_tab')
         self.staffInfo(tc.borderContainer(title='Profilo', design='sidebar', margin='3px', datapath='.record', nodeId='staffId'))
         self.phoneInfo(tc.contentPane(title='Phone call', margin='3px'))
@@ -66,29 +50,11 @@ class GnrCustomWebPage(object):
         
     def phoneInfo(self, pane, **kwargs):
         pane.dialogTableHandler(relation='@phone_calls',
-                                formResource=':FormFromReceiver',
-                                viewResource=':ViewFromReceiver',
-                                #condition='...',
-                                dialog_height='400px',
-                                dialog_width='700px',
-                                dialog_title='Phone calls')
+                                formResource=':FormFromReceiver',viewResource=':ViewFromReceiver',
+                                dialog_height='400px',dialog_width='700px',dialog_title='Phone calls')
                                 
     def onSaving_agenda_telefonata(self, recordCluster, recordClusterAttr, resultAttr=None):
         call_checked = recordCluster.pop('call_checked')
         if call_checked:
             recordCluster['vista_il'] = datetime.datetime.now()
             
-    # Prova con "thIframe" ... (non funziona!)
-    #def th_form(self,form,**kwargs):
-    #    tc = form.center.tabContainer(margin='3px', selected='^.selected_tab')
-    #    tc.contentPane(title='Companies', margin='3px').thIframe('companies')
-    #    tc.contentPane(title='Staff', margin='3px').thIframe('staff')
-    #    
-    #def iframe_companies(self, pane, **kwargs):
-    #    th = pane.dialogTableHandler(table='agenda.azienda',virtualStore=True,
-    #                                 dialog_height='500px',dialog_width='700px',dialog_title='COMPANY')
-    #    
-    #def iframe_staff(self, pane, **kwargs):
-    #    th = pane.paletteTableHandler(table='agenda.staff',virtualStore=True,
-    #                                  palette_height='500px',palette_width='700px',dialog_title='STAFF')
-                                      

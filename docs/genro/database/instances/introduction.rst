@@ -1,9 +1,11 @@
-.. _genro_instances_introduction:
+.. _instances_introduction:
 
 ============
 Introduction
 ============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/instances/project_instances.png
     
     * :ref:`instances_map`
@@ -22,7 +24,7 @@ Introduction
 ``instances`` folder content list
 =================================
 
-    If you follow the steps of the :ref:`genro_project_autocreation` section, inside your
+    If you follow the steps of the :ref:`project_autocreation` section, inside your
     ``instances`` folder you will find an ``instance`` folder including a ``custom`` folder,
     a ``data`` folder and the ``instanceconfig`` file.
     
@@ -47,7 +49,7 @@ autocreation of the ``instances`` folder
         gnrmkinstance instanceName
         
     where ``instanceName`` is the name of your instance (we suggest you to call your instance
-    with the name you gave to your :ref:`genro_project`).
+    with the name you gave to your :ref:`project`).
     
     Your ``instances`` folder will look like this one:
     

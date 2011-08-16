@@ -1,9 +1,11 @@
-.. _genro_bag_two:
+.. _bag_two:
 
 ==========================
 Basic functions (part two)
 ==========================
-
+    
+    *Last page update*: |today|
+    
     * :ref:`bag_hierarchical`
     * :ref:`bag_path`
     * :ref:`bag_setting_hierchical`
@@ -169,5 +171,5 @@ The digest method
 
 **Footnotes**
 
-.. [#] Check the :ref:`genro_bag_one` page.
+.. [#] Check the :ref:`bag_one` page.
 .. [#] If you need to use the dot (``.``) in the name of the instance (label), but you didn't want them to be interpreted as part of a complex path, you have to add a backslash (``\``) before the dot.

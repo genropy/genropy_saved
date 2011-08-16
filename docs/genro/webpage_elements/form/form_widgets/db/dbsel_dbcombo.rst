@@ -1,26 +1,28 @@
-.. _genro_dbselect_dbcombobox:
+.. _dbselect_dbcombobox:
 	
 ===========================================
 dbSelect and dbCombobox: commons attributes
 ===========================================
-
-    * :ref:`db_genro_attributes`
+    
+    *Last page update*: |today|
+    
+    * :ref:`db_attributes`
     * :ref:`db_examples`: :ref:`db_selected`, :ref:`db_condition`, :ref:`db_columns`
       and :ref:`db_auxColumns`, :ref:`db_hasdownarrow`
 
-.. _db_genro_attributes:
+.. _db_attributes:
 
 Common attributes
 =================
 
-    Here we show the attributes that belong both to :ref:`genro_dbselect` than
-    to :ref:`genro_dbcombobox`:
+    Here we show the attributes that belong both to :ref:`dbselect` than
+    to :ref:`dbcombobox`:
     
     ==================== =================================================== ========================== ======================================
        Attribute                   Description                                  Default                       Example                         
     ==================== =================================================== ========================== ======================================
-     *dbtable*            MANDATORY - Select the database                      ``None``                 :ref:`genro_dbtable` explanation page 
-                          :ref:`genro_table` for database widget                                                                              
+     *dbtable*            MANDATORY - Select the database                      ``None``                 :ref:`dbtable` explanation page 
+                          :ref:`table` for database widget                                                                              
                           query.                                                                                                              
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
      *alternatePkey*      Alternate primary key: allow to save user choice     ``None``                                                       
@@ -39,7 +41,7 @@ Common attributes
                           from all the entries (so, the *limit* attribute                                                                     
                           is overridden.                                                                                                      
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *hidden*             Hide the widget.                                     ``False``                :ref:`genro_hidden` example           
+     *hidden*             Hide the widget.                                     ``False``                :ref:`hidden` example           
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
      *ignoreCase*         If True, allow the user to ignore the case           ``True``                                                       
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
@@ -52,17 +54,17 @@ Common attributes
                           Set *limit* to "0" (``limit=0``) to allow to see                                                                    
                           all the possible values                                                                                             
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *rowcaption*         Allow user to view records through                   ``None``                 :ref:`genro_rowcaption` page          
-                          :ref:`genro_name_long` value.                                                                                       
+     *rowcaption*         Allow user to view records through                   ``None``                 :ref:`rowcaption` page          
+                          :ref:`name_long` value.                                                                                       
                           Without *rowcaption*, user will see value ID.                                                                       
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
      *selected*           You can add different parameters with the sintax:    ``None``                 :ref:`db_selected` example            
                           ``selected_nameOfATableColumn='datapathFolder'``.                                                                   
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *value*              Set a path for widget's values.                      ``None``                 :ref:`genro_datapath` explanation page
+     *value*              Set a path for widget's values.                      ``None``                 :ref:`datapath` explanation page
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *visible*            if False, hide the widget (but keep a place in       ``True``                 :ref:`genro_visible` explanation page 
-                          the :ref:`genro_datastore` for it).                                                                                 
+     *visible*            if False, hide the widget (but keep a place in       ``True``                 :ref:`visible` explanation page 
+                          the :ref:`datastore` for it).                                                                                 
     ==================== =================================================== ========================== ======================================
     
 .. _db_examples:
@@ -75,14 +77,14 @@ Examples
 Selected
 ========
 
-    With the *selected* attribute you can draw multiple attributes to the :ref:`genro_datastore`
+    With the *selected* attribute you can draw multiple attributes to the :ref:`datastore`
     through a single *dbSelect* or ``dbCombobox``; the sintax is::
     
         selected_nameOfATableColumn='datapathFolder'
 
     **Example:**
 
-    let's consider a simple Genro Project [#]_ including a database :ref:`genro_table`
+    let's consider a simple Genro Project [#]_ including a database :ref:`table`
     and a :ref:`webpages_GnrCustomWebPage`. 
 
     The table includes a list of actors::
@@ -98,7 +100,7 @@ Selected
                 tbl.column('nationality',name_short='Ntl',name_long='Nationality')
                 tbl.column('number','L',name_long='Number')
 
-    here we show the webpage::
+    here we show the :ref:`webpages_webpages`::
 
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
@@ -109,7 +111,7 @@ Selected
     This dbSelect allows user to choose from the ``table`` called "person" an actor;
     after user choice has been done, the dbSelect will do these operations:
 
-    * a save of the auctor's ID into the :ref:`genro_datastore` at the path: ``/myform/person_id``;
+    * a save of the auctor's ID into the :ref:`datastore` at the path: ``/myform/person_id``;
     * through the syntax ``selected_name='.name'``, dbSelect will do a save of the value of
       the actor's column named "name" into the path: ``/myform/name``;
     * through the syntax ``selected_year='.year'``, dbSelect will do a save of the value of
@@ -197,7 +199,7 @@ columns
 
     The usual procedure of a ``dbSelect`` query is to search through the records owned by the
     *rowcaption* attribute and to save the record chosen by the user through record's ID into
-    the :ref:`genro_datastore`.
+    the :ref:`datastore`.
 
     If you define *columns*, the ``dbSelect`` will continue to visualize only the records owned
     by the *rowcaption* attribute, but ``dbSelect`` will search ONLY through the record columns
@@ -260,4 +262,4 @@ hasDownArrow
                           
 **Footnotes:**
 
-.. [#] For more information on a creation of a project, check the :ref:`genro_simple_introduction` page.
+.. [#] For more information on a creation of a project, check the :ref:`simple_introduction` page.

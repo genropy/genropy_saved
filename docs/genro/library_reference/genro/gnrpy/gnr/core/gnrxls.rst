@@ -1,7 +1,9 @@
 ======================
 :mod:`gnr.core.gnrxls`
 ======================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.core.gnrxls`` classes:
     
     * :ref:`gnrxls_xlsreader`

@@ -1,10 +1,12 @@
-.. _genro_web_gnrobjectregister:
+.. _web_gnrobjectregister:
 
 ========================
 :mod:`gnrobjectregister`
 ========================
-
-.. warning:: to be completed!
+    
+    *Last page update*: |today|
+    
+    .. warning:: to be completed!
 
 .. _gnrobjectregister_classes:
 

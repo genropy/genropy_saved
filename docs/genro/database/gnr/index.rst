@@ -1,9 +1,11 @@
-.. _genro_gnr_index:
+.. _gnr_index:
 
 ========
 ``.gnr``
 ========
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 2
     

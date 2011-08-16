@@ -1,9 +1,11 @@
-.. _genro_visible:
+.. _visible:
 
 =======
 visible
 =======
-
+    
+    *Last page update*: |today|
+    
     * :ref:`visible_def`
     * :ref:`visible_validity`
     * :ref:`visible_examples`

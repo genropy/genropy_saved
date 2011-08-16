@@ -253,13 +253,13 @@ class GnrCustomWebPage(object):
             
     def numberTextbox(self, tc):
         fb = tc.contentPane(title='numberTextbox', datapath='.numberTextbox').formbuilder(cols=2, border_spacing='10px')
-        fb.numberTextbox(value='^.age', lbl="Age", default=36)
+        fb.numberTextbox(value='^.age', lbl="Age")
         fb.numberTextbox(value='^.age', lbl="Age echo")
         
     def currencyTextbox(self, tc):
         fb = tc.contentPane(title='currencyTextbox', datapath='.currencyTextbox').formbuilder(cols=2,
                                                                                               border_spacing='10px')
-        fb.currencyTextbox(value='^.amount', default=1123.34, currency='EUR', locale='it', lbl="Age")
+        fb.currencyTextbox(value='^.amount', currency='EUR', locale='it', lbl="Age")
         fb.currencyTextbox(value='^.amount', currency='EUR', locale='it', lbl="Age echo")
         
     def dateTextbox(self, tc):

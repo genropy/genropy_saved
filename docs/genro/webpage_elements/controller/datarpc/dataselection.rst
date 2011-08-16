@@ -1,12 +1,14 @@
-.. _genro_dataselection:
+.. _dataselection:
 
 =============
 dataSelection
 =============
-
+    
+    *Last page update*: |today|
+    
     .. warning:: to be written!
     
-    The ``dataSelection`` belongs to :ref:`genro_datarpc` family, so it is a
+    The ``dataSelection`` belongs to :ref:`datarpc` family, so it is a
     :ref:`server-side controller <controllers_server>`.
     
     * :ref:`dataselection_def`

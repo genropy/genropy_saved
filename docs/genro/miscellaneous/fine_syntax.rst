@@ -1,9 +1,11 @@
-.. _genro_fine_syntax:
+.. _fine_syntax:
 
 ===========
 Fine syntax
 ===========
-
+    
+    *Last page update*: |today|
+    
     :ref:`syntax_attributes`:
     
     * :ref:`attributes_childname`
@@ -24,7 +26,7 @@ _childname
 
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc
     
-    The *_childname* attribute allow to give an alternative name to a :ref:`genro_webpage_elements_index`.
+    The *_childname* attribute allow to give an alternative name to a :ref:`webpage_elements_index`.
     
     You have to define the *_childname* as an attribute of one of your elements, then
     you have to use the :meth:`getAttach`(add???) method to append it to its layout father.

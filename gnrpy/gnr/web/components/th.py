@@ -9,7 +9,6 @@ Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseClasses
 
-
 class BaseView(BaseClasses):
     def th_struct(self,struct):
         r = struct.view().rows()
@@ -47,7 +46,6 @@ class BaseForm(BaseClasses):
         return
 
 class BaseLinker(BaseClasses):
- 
     def th_options(self):
         return dict(columns=None,#columns for the query
                     auxColumns=None

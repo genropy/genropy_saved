@@ -1,9 +1,11 @@
-.. _genro_decorators:
+.. _decorators:
 
 ==========
 decorators
 ==========
-
+    
+    *Last page update*: |today|
+    
     We describe here all the Python decorators you can find in Genro. They are:
     
     * the :ref:`deprecated` decorator

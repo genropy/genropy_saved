@@ -188,6 +188,7 @@ class GnrAppSync4D(GnrApp):
     
     def __init__(self, *args, **kwargs):
         self.sync4d_name = kwargs.pop('sync4d_name','sync4d')
+        self.rebuild = kwargs.pop('rebuild',False)
         super(GnrAppSync4D,self).__init__(*args,**kwargs)
     
     def onIniting(self):
@@ -198,7 +199,7 @@ class GnrAppSync4D(GnrApp):
             raise GnrSync4DException('missing package path')
         self.s4d = Struct4D(self, basepath)
         self.checkChanges = False
-        if not self.config['packages']:
+        if not self.config['packages'] or self.rebuild:
             self.rebuildRecipe()
 
     def onInited(self):
@@ -408,9 +409,10 @@ class GnrAppSync4D(GnrApp):
                     attr['from'] = '%s.%s' % (pkg, tbl)
                 self.setSubTriggerSchemata(tr)
 
-    def rebuildRecipe(self):
+    def rebuildRecipe(self, modelOnly=False):
         self.s4d.build(self.config)
-        self.config.toXml(os.path.join(self.instanceFolder, 'instanceconfig.xml'))
+        if not modelOnly:
+            self.config.toXml(os.path.join(self.instanceFolder, 'instanceconfig.xml'))
 
     def importTable(self, tbl):
         if len(tbl) > 23:

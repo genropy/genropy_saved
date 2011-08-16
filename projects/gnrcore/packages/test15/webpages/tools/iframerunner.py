@@ -6,7 +6,7 @@
 
 "iframerunner"
 
-from gnr.web.gnrwebpage import public_method
+from gnr.core.gnrdecorator import public_method
 
 class GnrCustomWebPage(object):
     py_requires="gnrcomponents/testhandler:TestHandlerFull"

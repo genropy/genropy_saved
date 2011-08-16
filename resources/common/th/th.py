@@ -23,15 +23,13 @@ from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrlang import extract_kwargs
 
 class TableHandler(BaseComponent):
-    """Main class of th"""
     js_requires = 'th/th'
     css_requires= 'th/th'
     py_requires='th/th_view:TableHandlerView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
-
     
     def _th_mangler(self,pane,table,nodeId=None):
         tableCode = table.replace('.','_')
-        th_root = nodeId or '%s_%i' %(tableCode,id(pane.parentNode))
+        th_root = nodeId or tableCode #'%s_%i' %(tableCode,id(pane.parentNode))
         return th_root
     
     @extract_kwargs(condition=True,grid=True)

@@ -1,8 +1,10 @@
-.. _genro_sites_introduction:
+.. _sites_introduction:
 
 ============
 Introduction
 ============
+    
+    *Last page update*: |today|
     
     .. image:: ../../_images/projects/sites/project_sites.png
     
@@ -26,7 +28,7 @@ Introduction
 ``sites`` folder content list
 =============================
 
-    If you follow the steps of the :ref:`genro_project_autocreation` section, inside your
+    If you follow the steps of the :ref:`project_autocreation` section, inside your
     ``sites`` folder you will find a ``site`` folder including ``pages`` folder, a ``root``
     file and a ``siteconfig`` file.
     
@@ -46,7 +48,7 @@ autocreation of the ``sites`` folder
         gnrmksite sitesName
         
     where ``sitesName`` is the name of your ``sites`` folder (that we suggest you to call as your
-    :ref:`genro_project` folder).
+    :ref:`project` folder).
     
     Your ``sites`` folder will look like this one:
     

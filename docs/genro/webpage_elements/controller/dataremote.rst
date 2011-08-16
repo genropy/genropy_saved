@@ -1,8 +1,10 @@
-.. _genro_dataremote:
+.. _dataremote:
 
 ==========
 dataRemote
 ==========
+    
+    *Last page update*: |today|
     
     * :ref:`dataremote_def`
     * :ref:`dataremote_examples`

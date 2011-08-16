@@ -1,24 +1,18 @@
-.. _genro_table:
+.. _table:
 
 =====
 table
 =====
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../../_images/projects/packages/model_table.png
     
     * :ref:`table_description`
     * :ref:`table_definition`
     * :ref:`table_creation`
     * :ref:`table_config_db`
-    * :ref:`table_columns`
-    
-        * the simple :ref:`table_column` (and :ref:`table_relation`\s)
-        * the :ref:`table_aliascolumn`
-        * the :ref:`table_formulacolumn`
-        * the :ref:`table_virtualcolumn`
-        
-        * :ref:`table_validations`
-        
+    * :ref:`table_columns`, :ref:`table_validations`
     * :ref:`table_examples`
     
 .. _table_description:
@@ -29,7 +23,7 @@ Description
     A table is one of the most important part of your project. In relational databases and
     flat file databases, a table is a set of data elements that is organized using a model
     of vertical :ref:`table_columns` (which are identified by their name) and horizontal
-    rows. Each row is identified by the table's primary key (pkey).
+    rows. Each row is identified by the table's primary key (:ref:`pkey`).
     
 .. _table_definition:
 
@@ -43,21 +37,12 @@ Definition
 Creation of a table
 ===================
     
-    To autocreate a table header, you have to install Textmate_ with :ref:`textmate_bundle`.
-    
-    .. _Textmate: http://macromates.com/
-    
-    If you have them, then you can write "table" and then press the "Tab" key.
-    
-    Alternatively, you can write by yourself the header lines:
-    
-    * First write the following line for the utf-8 encoding::
+    First write the following line for the utf-8 encoding::
     
         # encoding: utf-8
-    
+        
     Now we have to introduce the right class for a table; there are many options (that we
-    discuss in the :ref:`genro_table_classes` documentation page). We use now the standard
-    method::
+    discuss in the :ref:`table_classes` page). We use now the standard method::
     
         class Table(object):
         
@@ -83,6 +68,8 @@ config_db
         tbl = pkg.table('company', pkey='id', rowcaption='@registry_id.name',
                          name_long='Company', name_plural='Companies')
                          
+    add??? automethod of table method!
+                         
     * table attributes:
     
         * pkey
@@ -99,16 +86,28 @@ config_db
           
         * indexed: boolan. If ``True``, create an SQL index.
           
-    * introduce the sysFields::
+.. _sysfields:
+
+sysFields
+---------
+    
+    .. automethod:: gnr.app.gnrdbo.TableBase.sysFields
+    
+    To call it in the table page, type::
         
         self.sysFields(tbl)
         
-    .. automethod:: gnr.app.gnrdbo.TableBase.sysFields
-    
-    * introduce the htableField::
-    
-        add??? self.htableFields(tbl)
+.. _htablefields:
 
+htableFields
+------------
+    
+    .. automethod:: gnr.app.gnrdbo.GnrHTable.htableFields
+    
+    To call it in the table page, type::
+    
+        self.htableFields(tbl)
+    
 .. _table_columns:
 
 columns
@@ -116,8 +115,8 @@ columns
 
     There are a lot of columns type you can use:
     
-    * the simple :ref:`table_column` (and :ref:`table_relation`\s)
-    * the :ref:`table_relation`
+    * the simple :ref:`table_column`
+    * the :ref:`table_relation_column` (and the :ref:`table_relation`)
     * the :ref:`table_aliascolumn`
     * the :ref:`table_formulacolumn`
     * the :ref:`table_virtualcolumn`
@@ -129,51 +128,38 @@ column
 
     .. automethod:: gnr.sql.gnrsqlmodel.DbModelSrc.column
     
-    * introduce column(s):
+    **Example**::
         
-      ::
+        tbl.column('my_column',size=':15',name_long='!!My column')
         
-        tbl.column('tipologia',size=':22',name_long='!!Tipologia')
+    where ``tbl`` is the table object.
         
-    * column attributes:
-    
-        * size
-        * :ref:`genro_name_long`
-        * :ref:`genro_name_plural`
-        * :ref:`genro_name_short`
-        * required (???)
-        * unique (boolean)
-        *  _sendback (boolean) add???
-        
-.. _table_relation:
+.. _table_relation_column:
 
 relation column
 ---------------
 
-    Allow to create a relation from table to table.
+    The relation column is a column that allows to build relations between tables.
 
-    ::
+    To create a relation column, you have to attach the :ref:`table_relation` to a :ref:`table_column`::
+    
+        tbl.column('my_column',size=':15',name_long='!!My column').relation(...)
+        
+    where ``tbl`` is the table object. In the next section we talk about the ``relation`` method.
+    
+.. _table_relation:
+
+relation method
+---------------
+
+    .. automethod:: gnr.sql.gnrsqlmodel.DbModelSrc.relation
+        
+    **Example**::
     
         tbl.column('registry_id',size=':22',name_long='!!Registry id').relation('sw_base.registry.id',mode='foreignkey')
         
-    attributi di *relation*:
-    
-    * first parameter: the path of the relation field
-    
-      ::
-      
-        packageName.tableName.columnName
-        
-    * mode='foreignkey'
-      se non si mette il mode='foreignkey', la relazione è puramente logica, ed è senza nessun controllo
-      di integrità referenziale quando si vuole interagire con il database, mettere mode='foreignkey' -->
-      diventa una relazione SQL. Nel 99% dei casi bisogna metterlo!
-    * onDelete='cascade' (other SQL attributes...)
-    * one_one='*' / True / ... add??? permette di rendere la relazione "simmetrica"
-    * one_group add???
-    * relation_name='STRING'; allow to use the relation parameter in a :ref:`genro_th` component. For more
-      information on the relation parameter, please check the :ref:`th_relation_condition` example. 
-      
+        add??? example explanation!
+            
 .. _table_aliascolumn:
 
 aliasColumn
@@ -226,7 +212,7 @@ virtualColumn
 validations in a column
 -----------------------
 
-    add??? --> link to :ref:`genro_validations`...
+    add??? --> link to :ref:`validations`...
     
 .. _table_examples:
 

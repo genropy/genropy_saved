@@ -49,7 +49,7 @@ class GnrCustomWebPage(object):
     def bottom(self, bottom):
         #bottom.a('!!Zoom',float='left',href='/adm/app_preference')
         bottom.button('!!Save', baseClass='bottom_btn', float='right', margin='1px',
-                      action='genro.formById("preference").save(true);')
+                      action='console.log("uuu");var f=genro.formById("preference").save(true);console.log(f);')
         bottom.button('!!Cancel', baseClass='bottom_btn', float='right', margin='1px',
                       action='window.parent.genro.wdgById("mainpreference").hide();')
 

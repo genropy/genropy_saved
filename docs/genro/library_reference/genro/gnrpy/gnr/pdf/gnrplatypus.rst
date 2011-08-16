@@ -1,7 +1,9 @@
 ==========================
 :mod:`gnr.pdf.gnrplatypus`
 ==========================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.pdf.gnrplatypus`` classes:
 
     * :ref:`gnrplatypus_`

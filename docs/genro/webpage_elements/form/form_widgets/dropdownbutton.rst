@@ -1,9 +1,11 @@
-.. _genro_dropdownbutton:
+.. _dropdownbutton:
 
 ==============
 dropdownbutton
 ==============
-
+    
+    *Last page update*: |today|
+    
     .. note:: The Genro dropdownbutton has been taken from Dojo without adding any modifies.
               In this page you will find some interesting features that we want to point up.
               For more information, check the Dojo's dropdownbutton documentation.
@@ -27,7 +29,7 @@ Description
 
     The dropdownbutton is a button that allow to make more than one action.
     
-    It can be also used to build a :ref:`genro_menu` or a :ref:`genro_tooltipdialog`.
+    It can be also used to build a :ref:`menu` or a :ref:`tooltipdialog`.
     
 .. _ddb_attributes:
 
@@ -41,10 +43,9 @@ Attributes
     **commons attributes**:
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``.
-      For more information, check the :ref:`genro_hidden` documentation page
+      For more information, check the :ref:`hidden` page
     * *label*: the dropdownbutton's *label*.
-    * *visible*: if False, hide the widget. For more information, check the
-      :ref:`genro_visible` documentation page
+    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
 
 .. _ddb_examples:
 

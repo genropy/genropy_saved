@@ -1,9 +1,11 @@
-.. _genro_controllers_intro:
+.. _controllers_intro:
 
 ============
 Introduction
 ============
-
+    
+    *Last page update*: |today|
+    
     * :ref:`controllers_def`
     * :ref:`controllers_client`
     * :ref:`controllers_server`
@@ -19,7 +21,7 @@ Definition
     
     We emphasize that all the controllers can be attached to every Genro object.
     
-    .. note:: we recommend you to read :ref:`genro_webpage` before reading this section.
+    .. note:: we recommend you to read :ref:`webpage` before reading this section.
     
     The controllers can be divided in two groups:
     
@@ -31,12 +33,12 @@ Definition
 client-side controllers
 =======================
 
-    The client-side controllers work on the client through Javascript; they are:
+    The client-side controllers work on the client through javascript; they are:
     
-    * :ref:`genro_datacontroller`: allow to execute a Javascript code
-    * :ref:`genro_dataformula`: allow to insert a value into a specific address of the
-      :ref:`genro_datastore` calculated through a formula
-    * :ref:`genro_datascript` (*deprecated*)
+    * :ref:`datacontroller`: allow to execute a javascript code
+    * :ref:`dataformula`: allow to insert a value into a specific address of the
+      :ref:`datastore` calculated through a formula
+    * :ref:`datascript` (*deprecated*)
     
 .. _controllers_server:
 
@@ -45,11 +47,11 @@ server-side controllers
 
     The server-side controllers work on the server thorugh Python; they are:
     
-    * :ref:`genro_data`: used to define variables from server to client
-    * :ref:`genro_datarecord`: add???
-    * :ref:`genro_dataremote`: synchronous rpc
-    * :ref:`genro_datarpc`: allow the client to make a call to the server to perform an action.
-    * :ref:`genro_dataselection`: add???
+    * :ref:`data`: used to define variables from server to client
+    * :ref:`datarecord`: add???
+    * :ref:`dataremote`: synchronous rpc
+    * :ref:`datarpc`: allow the client to make a call to the server to perform an action.
+    * :ref:`dataselection`: add???
     
 .. _controllers_attributes:
 
@@ -92,7 +94,7 @@ common attributes: examples
             def rpc_getTime(self):
                 return self.toText(datetime.datetime.now(), format='HH:mm:ss')
                 
-    The *_init* attribute allows to launch the rpc called ``getTime`` as soon as the line containing the :ref:`genro_datarpc` is read.
+    The *_init* attribute allows to launch the rpc called ``getTime`` as soon as the line containing the :ref:`datarpc` is read.
     
 .. _controllers_onStart:
 

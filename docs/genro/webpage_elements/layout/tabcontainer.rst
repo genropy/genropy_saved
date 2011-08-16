@@ -1,9 +1,11 @@
-.. _genro_tabcontainer:
+.. _tabcontainer:
 
 ============
 tabContainer
 ============
-
+    
+    *Last page update*: |today|
+    
     .. note:: The Genro tabContainer has been taken from Dojo without adding any modifies.
               In this page you will find some interesting features that we want to point up.
               For more information, check the Dojo's tabContainer documentation.
@@ -33,7 +35,7 @@ Attributes
     * *tabPosition*: define the place of the paneContainer's labels. Default value is ``top-h``.
       For all supported possibilities, check the :ref:`tab_tabposition` example
 
-    * *selected*: Allow to specify the pane to visualize. You will find in the :ref:`genro_datastore`
+    * *selected*: Allow to specify the pane to visualize. You will find in the :ref:`datastore`
                   the current selected tab as a type-number into a specific folder. If you don't specify
                   it, then the first pane will be visualized (but in this case you have to pass it as
                   a ``**kwargs``). Check the :ref:`tab_selected` example for more information.
@@ -44,7 +46,7 @@ Attributes
     
     **commons attributes**:
     
-    For commons attributes, see :ref:`genro_layout_common_attributes`
+    For commons attributes, see :ref:`layout_common_attributes`
     
 .. _tab_examples:
 
@@ -74,7 +76,7 @@ Attributes explanation
 "selected" attribute
 --------------------
 
-    With the *selected* attribute Genro create a folder path in the :ref:`genro_datastore` where lies
+    With the *selected* attribute Genro create a folder path in the :ref:`datastore` where lies
     a number indicating the tab selected (for the first tab you'll find 0, for the second one 1 and so on).
     
     The syntax is ``selected='folderPathName'``

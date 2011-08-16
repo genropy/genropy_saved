@@ -1,7 +1,9 @@
 ==========
 :mod:`gnr`
 ==========
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

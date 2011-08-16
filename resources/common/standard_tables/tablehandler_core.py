@@ -280,7 +280,7 @@ class LstQueryHandler(BaseComponent):
         return result
 
     def rpc_fieldExplorer(self, table=None, omit=None):
-        result = self.rpc_relationExplorer(table=table, omit=omit)
+        result = self.relationExplorer(table=table, omit=omit)
         customQuery = self.listCustomCbBag('customQuery_')
         if customQuery:
             result.addItem('-', None)

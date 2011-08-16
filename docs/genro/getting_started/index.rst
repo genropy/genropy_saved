@@ -1,9 +1,11 @@
-.. _genro_getting_started:
+.. _getting_started:
 
 ===============
 Getting started
 ===============
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 2
     

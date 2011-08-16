@@ -1,14 +1,16 @@
-.. _genro_form:
+.. _form:
 
 ====
 form
 ====
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     
     introduction <introduction>
-    formbuilder/index
+    formbuilder
     form_widgets/index
-    form_validations/index
-    field/index
+    form_validations
+    field

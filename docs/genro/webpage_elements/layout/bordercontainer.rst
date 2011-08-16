@@ -1,14 +1,16 @@
-.. _genro_bordercontainer:
+.. _bordercontainer:
 
 ===============
 borderContainer
 ===============
-
+    
+    *Last page update*: |today|
+    
     .. note:: The Genro borderContainer has been taken from Dojo without adding any modifies. In this page you will
               find some interesting features that we want to point up. For more information, check the Dojo's
               borderContainer documentation.
               
-    .. note:: In GenroPy you can find the :ref:`genro_framepane`, an enhancement of the Dojo borderContainer.
+    .. note:: In GenroPy you can find the :ref:`framepane`, an enhancement of the Dojo borderContainer.
     
     * :ref:`border_def`
     * :ref:`border_attributes`
@@ -26,7 +28,7 @@ Definition
     right (or trailing), top, and bottom with a mandatory center to fill in any remaining space.
     Each edge region may have an optional splitter user interface for manual resizing.
     
-    In order to define a borderContainer you have to define at least one :ref:`genro_contentpane`
+    In order to define a borderContainer you have to define at least one :ref:`contentpane`
     as a borderContainer child. This contentPane must include the ``region='center'`` attribute::
     
         bc = root.borderContainer(height='200px')
@@ -55,7 +57,7 @@ Attributes
     
     **Common attributes**:
     
-        For commons attributes, see :ref:`genro_layout_common_attributes`
+        For commons attributes, see :ref:`layout_common_attributes`
         
 .. _border_examples:
 
@@ -89,7 +91,7 @@ Attributes explanation
 -------------------
 
     With the *regions* attribute you can act on the regions of the borderContainer's children. You can modify
-    their dimensions, and see them in the :ref:`genro_datastore`.
+    their dimensions, and see them in the :ref:`datastore`.
     
     The syntax is: ``regions='folderName'``.
     If you have to interact with the regions, the syntax is: ``folderName.regionName``; so, if you have to
@@ -99,7 +101,7 @@ Attributes explanation
     
         bc = borderContainer(regions='^regions')
         
-    You can modify their dimensions for example with :ref:`genro_data`::
+    You can modify their dimensions for example with :ref:`data`::
         
         root.data('regions.left?show',False) # these two lines have the same meaning
         root.data('regions.left',show=False)

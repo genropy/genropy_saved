@@ -1,9 +1,11 @@
-.. _genro_datarpc_introduction:
+.. _datarpc_introduction:
 
 =======================
 Introduction to the Rpc
 =======================
-
+    
+    *Last page update*: |today|
+    
     The ``Rpc`` belongs to :ref:`controllers_server` family.
     
     * :ref:`rpc_def`
@@ -18,9 +20,9 @@ Definition
     
     The ``rpc`` family is composed by:
     
-    * :ref:`genro_datarecord`
-    * :ref:`genro_datarpc`
-    * :ref:`genro_dataselection`.
+    * :ref:`datarecord`
+    * :ref:`datarpc`
+    * :ref:`dataselection`.
     
 .. _rpc_attributes:
 
@@ -29,9 +31,9 @@ Definition
 
     Here we list all the common parameters of the Rpc:
     
-    * *_onCalling*: allows to execute a Javascript code BEFORE the controller action.
+    * *_onCalling*: allows to execute a javascript code BEFORE the controller action.
       Default value is ``None``
-    * *_onResult*: allows to execute a Javascript code AFTER that the controller have
+    * *_onResult*: allows to execute a javascript code AFTER that the controller have
       finished its action. Default value is ``None``
     * *sync*: boolean. If True, Genro stops every further action until the Rpc containing
       ``sync=True`` finishes. Default value is ``False``

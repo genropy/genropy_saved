@@ -1,9 +1,11 @@
-.. _genro_datastore:
+.. _datastore:
 
 =========
 datastore
 =========
-
+    
+    *Last page update*: |today|
+    
     * :ref:`datastore_description`
     * :ref:`datastore_syntax`
     * :ref:`datastore_access`
@@ -14,7 +16,7 @@ datastore
 Description
 ===========
     
-    The datastore is a Genro :ref:`genro_bag_intro` used to keep track of data.
+    The datastore is a Genro :ref:`bag_intro` used to keep track of data.
 
 .. _datastore_syntax:
 
@@ -35,7 +37,7 @@ Datastore syntax
       will be informed of changes to the datastore
     * equal: ``=accessed.from.resolver``, reads the datastore content.
     
-    For more information on absolute and relative paths, check the :ref:`genro_datapath` documentation page.
+    For more information on absolute and relative paths, check the :ref:`datapath` page.
 
 .. _datastore_access:
 
@@ -44,13 +46,13 @@ Access to the datastore from javascript
 
     The possible operations on the datastore include some macros, that are:
     
-    * :ref:`genro_set`
-    * :ref:`genro_put`
-    * :ref:`genro_get`
-    * :ref:`genro_fire`
+    * :ref:`set`
+    * :ref:`put`
+    * :ref:`get`
+    * :ref:`fire`
     
     They can be specified in the javascript events associated with an interface, and the framework deals
-    gnrjs to the expansion of these macros. Check the :ref:`genro_macro` page for further details.
+    gnrjs to the expansion of these macros. Check the :ref:`macro` page for further details.
 
 .. _datastore_debugger:
 

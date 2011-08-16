@@ -1,9 +1,11 @@
-.. _genro_datatype:
+.. _datatype:
 
 =====
 dtype
 =====
-
+    
+    *Last page update*: |today|
+    
     * :ref:`datatype_format`:
     
         * :ref:`datatype_c`
@@ -125,5 +127,5 @@ custom type
 ===========
 
     You can build your own datatype. For more information, check the :ref:`methods_custom_type`
-    documentation section of the ``custom_type`` method.
+    section of the ``custom_type`` method.
     

@@ -1,9 +1,11 @@
-.. _genro_datacontroller_index:
+.. _datacontroller_index:
 
 ===========
 controllers
 ===========
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

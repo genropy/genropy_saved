@@ -1,9 +1,11 @@
-.. _genro_datarpc:
+.. _datarpc:
 
 =======
 dataRpc
 =======
-
+    
+    *Last page update*: |today|
+    
     The ``dataRpc`` belongs to dataRpc family, so it is a :ref:`server-side controller <controllers_server>`.
     
     * :ref:`datarpc_def`
@@ -20,7 +22,7 @@ definition
     * in the ``**kwargs`` you have to define a parameter who allows the ``dataRpc`` to be triggered
       To do this, you can use ``_fired='^anotherFolderPath'``; in this case the dataRpc
       is triggered whenever the value contained in ``anotherFolderPath`` changes;
-      the "_" is used to hide the trigger parameter in the :ref:`genro_datastore`.
+      the "_" is used to hide the trigger parameter in the :ref:`datastore`.
       
     To use a ``dataRpc`` you have to:
       
@@ -66,7 +68,7 @@ passing a dataRpc as a callable
                     validate_remote_error='Error!')
                       
     This is an example of a dataRpc called as a callable. The :ref:`validate_remote` is a
-    :ref:`validation <genro_validations>` that allows to validate a field through a dataRpc.
+    :ref:`validation <validations>` that allows to validate a field through a dataRpc.
     
     **defining the dataRpc**::
                       

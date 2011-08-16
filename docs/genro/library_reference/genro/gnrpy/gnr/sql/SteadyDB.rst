@@ -1,7 +1,9 @@
 =======================
 :mod:`gnr.sql.SteadyDB`
 =======================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.sql.SteadyDB`` classes:
     
     Classes:

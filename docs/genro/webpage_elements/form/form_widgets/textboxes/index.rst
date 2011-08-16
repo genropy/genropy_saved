@@ -1,9 +1,11 @@
-.. _genro_textboxes_index:
+.. _textboxes_index:
 
 =========
 Textboxes
 =========
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

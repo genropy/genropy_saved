@@ -1,7 +1,9 @@
-.. _genro_grid:
+.. _grid:
 
 ====
 grid
 ====
-
+    
+    *Last page update*: |today|
+    
     add???

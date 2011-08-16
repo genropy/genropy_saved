@@ -1,9 +1,11 @@
-.. _genro_dbcombobox:
+.. _dbcombobox:
 
 ==========
 dbCombobox
 ==========
-
+    
+    *Last page update*: |today|
+    
     * :ref:`dbcombobox_def`
     * :ref:`dbcombobox_examples`
     * :ref:`dbcombobox_attributes`
@@ -15,21 +17,21 @@ Definition and Description
 
     .. method:: pane.dbcombobox([**kwargs])
     
-    The Genro ``dbCombobox`` is a :ref:`genro_combobox` that conducts research on specific columns in a database
+    The Genro ``dbCombobox`` is a :ref:`combobox` that conducts research on specific columns in a database
     table. While user write in the dbCombobox, partially matched values will be shown in a pop-up menu below
-    the input text box. The ``dbCombobox`` has got the same parameters of the :ref:`genro_dbselect`, and allows
+    the input text box. The ``dbCombobox`` has got the same parameters of the :ref:`dbselect`, and allows
     to choose from values situated in the database AND from values that aren't in the database. These "new"
-    values aren't added in the database but they have being placed in the :ref:`genro_datastore`, so they can be
+    values aren't added in the database but they have being placed in the :ref:`datastore`, so they can be
     handled from Genropy. [#]_
     
-    To specify the table related to the dbCombobox you have to use the mandatory :ref:`genro_dbtable` attribute.
+    To specify the table related to the dbCombobox you have to use the mandatory :ref:`dbtable` attribute.
     
 .. _dbcombobox_attributes:
 
 dbCombobox attributes
 =====================
 
-    For the list of dbCombobox attributes, please check :ref:`db_genro_attributes`.
+    For the list of dbCombobox attributes, please check :ref:`db_attributes`.
 
 .. _dbcombobox_examples:
 
@@ -51,4 +53,4 @@ Examples
 
 **Footnotes**
 
-.. [#] We remember to you that ``dbCombobox`` supports only the values (not the keys!); so the main ``dbCombobox`` feature is that it permits to enter values in the :ref:`genro_datastore`, but they won't be stored in the database.
+.. [#] We remember to you that ``dbCombobox`` supports only the values (not the keys!); so the main ``dbCombobox`` feature is that it permits to enter values in the :ref:`datastore`, but they won't be stored in the database.

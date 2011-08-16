@@ -1,7 +1,9 @@
 =============================================
 :mod:`gnr.core.gnrlist` - Operations on lists
 =============================================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.core.gnrlist`` classes:
     
     * :ref:`gnrlist_gnrclasscatalog`

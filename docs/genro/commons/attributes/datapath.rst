@@ -1,9 +1,11 @@
-.. _genro_datapath:
+.. _datapath:
 
 ========
 datapath
 ========
-
+    
+    *Last page update*: |today|
+    
     * :ref:`datapath_def`
     * :ref:`datapath_syntax`
     * :ref:`datapath_validity`
@@ -16,7 +18,7 @@ definition and description
 ==========================
 
     The *datapath* is an attribute used to create a hierarchy of your data's addresses into
-    the :ref:`genro_datastore`.
+    the :ref:`datastore`.
     
     The element on which you apply this attribute will be able to become the father of other
     elements.
@@ -54,8 +56,8 @@ validity
 
     You can give the *datapath* attribute to each object, but it is useful give this attribute only
     to the objects that contain other objects. For example, you can give it to the container objects,
-    that are :ref:`genro_accordioncontainer`, :ref:`genro_bordercontainer`, :ref:`genro_stackcontainer`,
-    :ref:`genro_tabcontainer`, or if you create a :ref:`genro_form` you can give it to a :ref:`genro_formbuilder`.
+    that are :ref:`accordioncontainer`, :ref:`bordercontainer`, :ref:`stackcontainer`,
+    :ref:`tabcontainer`, or if you create a :ref:`form` you can give it to a :ref:`formbuilder`.
     
 .. _datapath_symbolic:
 
@@ -78,5 +80,7 @@ symbolic datapath
 the #FORM path
 --------------
     
-    add??? 
+    add???
     
+    ``#FORM.pkey`` is the current pkey of the record
+        

@@ -1,7 +1,9 @@
 ============================================
 The :mod:`gnr.core.gnrstructures` structures
 ============================================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.core.gnrstructures`` classes:
     
     * :ref:`gnrstructures_gnrstructdata`

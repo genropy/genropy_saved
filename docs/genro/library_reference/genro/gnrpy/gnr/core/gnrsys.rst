@@ -1,7 +1,9 @@
 ===================
 ``gnr.core.gnrsys``
 ===================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.core.gnrsys`` classes:
 
     There is no class defined

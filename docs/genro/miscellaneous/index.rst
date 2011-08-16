@@ -1,9 +1,11 @@
-.. _genro_miscellaneous_index:
+.. _miscellaneous_index:
 
 ===================
 Documents to revise
 ===================
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     
@@ -17,11 +19,8 @@ Documents to revise
     login
     palette
     print
-    sql/index
     struct
-    textmate
     trigger
-    tutorial/index
     user_interface
     viewform
     webpage_creation

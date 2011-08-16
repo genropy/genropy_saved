@@ -1,9 +1,11 @@
-.. _genro_library_gnrcookie:
+.. _library_gnrcookie:
 
 ========================
 :mod:`gnr.web.gnrcookie`
 ========================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.web.gnrcookie`` classes:
 
     * :ref:`gnrcookie_cookie`

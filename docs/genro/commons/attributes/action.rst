@@ -1,9 +1,11 @@
-.. _genro_action:
+.. _action:
 
 ======
 action
 ======
-
+    
+    *Last page update*: |today|
+    
     * :ref:`action_def`
     * :ref:`action_validity`
     * :ref:`action_examples`
@@ -15,7 +17,7 @@ definition and description
 
     The *action* attribute is a javascript callback that receives all the ``**kwargs`` parameters.
     It receives a string with javascript code. For more information of the usage of javascript in
-    Genro please check the :ref:`genro_javascript` documentation section.
+    Genro please check the :ref:`javascript` section.
     
 .. _action_validity:
 
@@ -24,9 +26,9 @@ validity
     
     The *action* attribute works on:
     
-    * :ref:`genro_button`
-    * :ref:`genro_checkboxcell`
-    * :ref:`genro_menu`
+    * :ref:`button`
+    * :ref:`checkboxcell`
+    * :ref:`menu`
     
 .. _action_examples:
     

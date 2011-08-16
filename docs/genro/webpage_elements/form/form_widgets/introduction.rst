@@ -1,8 +1,10 @@
-.. _genro_form_widgets_introduction:
+.. _form_widgets_intro:
 
 ================================
 Introduction to the form widgets
 ================================
+    
+    *Last page update*: |today|
     
     We can divide the form widgets in three categories:
     
@@ -13,45 +15,45 @@ Introduction to the form widgets
 .. _genro_form_widgets:
 
 Genro form widgets
-------------------
+==================
 
     The **Genro** form widgets are:
     
-    * :ref:`genro_dbcombobox`
-    * :ref:`genro_dbselect`
+    * :ref:`checkboxtext`
+    * :ref:`dbcombobox`
+    * :ref:`dbselect`
     
 .. _dojo_improved_form_widgets:
 
 modified-Dojo form widgets
---------------------------
+==========================
 
     The **modified-Dojo** form widgets are:
     
-    * :ref:`genro_button`
-    * :ref:`genro_tooltipdialog`
+    * :ref:`button`
+    * :ref:`tooltipdialog`
     
     Textboxes:
     
-    * :ref:`genro_textbox`
-    * :ref:`genro_currencytextbox`
-    * :ref:`genro_datetextbox`
-    * :ref:`genro_numbertextbox`
-    * :ref:`genro_timetextbox`
+    * :ref:`textbox`
+    * :ref:`currencytextbox`
+    * :ref:`datetextbox`
+    * :ref:`numbertextbox`
+    * :ref:`timetextbox`
     
 .. _dojo_form_widgets:
 
 Dojo form widgets
------------------
+=================
     
     The **Dojo** form widgets are:
     
-    * :ref:`genro_checkbox`
-    * :ref:`genro_combobox`
-    * :ref:`genro_dropdownbutton`
-    * :ref:`genro_filteringselect`
-    * :ref:`genro_numberspinner`
-    * :ref:`genro_radiobutton`
-    * :ref:`genro_simplearea`
-    * :ref:`genro_slider`
-    * :ref:`genro_togglebutton`
-    
+    * :ref:`checkbox`
+    * :ref:`combobox`
+    * :ref:`dropdownbutton`
+    * :ref:`filteringselect`
+    * :ref:`numberspinner`
+    * :ref:`radiobutton`
+    * :ref:`simplearea`
+    * :ref:`slider`
+    * :ref:`togglebutton`

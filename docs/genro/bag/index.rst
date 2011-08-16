@@ -1,9 +1,11 @@
-.. _genro_bag:
+.. _bag:
 
 ===
 Bag
 ===
 
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

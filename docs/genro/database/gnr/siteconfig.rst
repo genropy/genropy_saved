@@ -1,9 +1,11 @@
-.. _genro_gnr_siteconfig:
+.. _gnr_siteconfig:
 
 ==============
 ``siteconfig``
 ==============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/gnr/siteconfig.png
     
     * :ref:`gnr_siteconfig_default`
@@ -67,10 +69,10 @@ Tags
     Let's see its content:
     
     * The file begins and ends with a ``<GenRoBag>`` tag: that's because during the
-      execution of the project, this file is being converted in a :ref:`genro_bag_intro`.
+      execution of the project, this file is being converted in a :ref:`bag_intro`.
     * *<connection_timeout>*: handle the connection timeout.
     * *<connection_refresh>*: handle the connection refresh.
-    * *<wsgi>*: allow to define some connections properties used by the :ref:`genro_wsgi`.
+    * *<wsgi>*: allow to define some connections properties used by the :ref:`wsgi_intro`.
       For more information, check the :ref:`siteconfig_wsgi` section.
     * *<jslib>*: allow to specify the dojo version used. For more information,
       check the :ref:`siteconfig_jslib` section.
@@ -86,9 +88,34 @@ Tags
 ``<wsgi>``
 ----------
 
-    Allow to define some connections properties used by the :ref:`genro_wsgi`:
+    Allow to define some connections properties used by the :ref:`wsgi_intro`:
     
-    * *port*: specify the port number
+    * *homepage*: specify the first :ref:`webpages_webpages` opened on your application.
+                  **syntax**:
+                  
+                  ::
+                  
+                    packageName/pageName
+                    
+                  Where:
+                  
+                  * ``packageName`` is the name of the :ref:`package <packages_index>`
+                    to which the page belongs to
+                  * ``pageName`` is the name of the webpage (without the ``.py`` extension)
+                  
+                  By default, the ``packageName`` is set to your mainpackage_ and the ``pageName``
+                  is set to ``index``
+                  
+                    **Example**: the following homepage
+                    
+                    ::
+                    
+                        <wsgi homepage='invc/my_index'/>
+                        
+                    allow to start your application with a ``myindex.py`` webpage included
+                    into a package called ``invc``.
+                    
+    * *port*: specify the port number for your applications
     * *reload*: boolean. If ``True``, ... ???
     * *debug*: boolean. If ``True`` and if a programming error is revealed during the execution
                of a :ref:`webpages_webpages`, it allows to send a traceback of the error through
@@ -96,14 +123,19 @@ Tags
                
     This is an example of the ``<wsgi>`` tag::
     
-        <wsgi port="8083" reload="true" debug="true"/>
+        <wsgi homepage='invc/index' port="8083" reload="true" debug="true"/>
         
-    There is also the *mainpackage* property, but you have to define it into the local
+    There is also the *mainpackage* property, but we advise you to create it into the local
     :ref:`sites_siteconfig` of your project:
     
-    * *mainpackage*: a string including the name of your main package::
+    .. _mainpackage:
     
-        <wsgi port="8083" reload="true" debug="false" mainpackage="agenda" />
+    * *mainpackage*: a string including the name of your main
+      :ref:`package <packages_index>`
+      
+    ::
+    
+        <wsgi mainpackage="agenda" port="8083" reload="true" debug="false" />
     
 .. _siteconfig_jslib:
 
@@ -138,7 +170,7 @@ Tags
         <gui css_theme='aqua'/>
         
     The Genro CSS themes override the Dojo theme you're using. For more information, check
-    the :ref:`css_dojo_themes` and the :ref:`css_genro_themes` sections.
+    the :ref:`css_dojo_themes` and the :ref:`css_themes` sections.
     
 .. _siteconfig_dojo:
 
@@ -167,8 +199,8 @@ Tags
     
     * The ``<common/>`` tag: write it to be able to use a lot of Genro tools:
         
-        * Genro :ref:`genro_component`\s
-        * Genro :ref:`css_genro_themes`
+        * Genro :ref:`components <component>`
+        * Genro :ref:`css_themes`
         
       .. note:: It is strongly recommended to insert this tag.
       

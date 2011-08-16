@@ -1,10 +1,12 @@
-.. _genro_textbox:
+.. _textbox:
 
 =======
 textbox
 =======
-
-    .. note:: We recommend you to read :ref:`genro_textboxes` first.
+    
+    *Last page update*: |today|
+    
+    .. note:: We recommend you to read :ref:`textboxes` first.
 
     * :ref:`textbox_def`
     * :ref:`textbox_description`
@@ -33,7 +35,6 @@ Attributes
     **textbox attributes**:
     
     * *constraints*: TBC ???
-    * *default* (or *default_value*): a default text message
     * *invalidMessage*: tooltip text that appears when the content of the textbox is invalid
     * *promptMessage*: tooltip text that appears when the textbox is empty and on focus
     * *required*: define if the field is a required field or not. Default value is ``False``

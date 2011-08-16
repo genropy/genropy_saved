@@ -1,9 +1,11 @@
-.. _genro_cells:
+.. _cells:
 
 =====
 cells
 =====
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     

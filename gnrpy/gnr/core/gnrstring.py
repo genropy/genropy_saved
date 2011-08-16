@@ -47,11 +47,45 @@ try:
                 value= ''
             return value
     
+    class LocalizedWrapper(object):
+
+        def __init__(self,data, locale=None,templates=None, formats=None, noneIsBlank=None):
+            self.data=data
+            self.locale=locale
+            self.formats=formats or dict()
+            self.templates=templates
+            self.noneIsBlank=noneIsBlank
+
+        def __getitem__(self,k):
+            value= self.data[k]
+            if self.noneIsBlank and value is None:
+                value= ''
+            
+            if self.templates and hasattr(value, '_htraverse'):
+                templateNode = self.templates.getNode(k)
+                if templateNode:
+                    template = templateNode.value
+                    joiner = templateNode.getAttr('joiner','')
+                    result = []
+                    for k,v in value.items():
+                        result.append(templateReplace(template,v, locale=self.locale, 
+                                        formats=self.formats, noneIsBlank=self.noneIsBlank))
+                    value = joiner.join(result)
+            if self.locale:
+                format = None
+                if hasattr(self.data, '_htraverse'):
+                    attrs = self.data.getAttr(k) or dict()
+                    format = attrs.get('format')
+                format = format or self.formats.get(k)
+                value = toText(value,locale=self.locale, format=format)
+            return value
+    
     class SubtemplateMapWrapper(object):
         
-        def __init__(self,data,templates=None):
+        def __init__(self,data,templates=None, locale=None):
             self.data=data
             self.templates=templates
+            self.locale=locale
                 
         def __getitem__(self,k):
             value= self.data[k] 
@@ -64,7 +98,7 @@ try:
                     joiner = templateNode.getAttr('joiner','')
                     result = []
                     for k,v in value.items():
-                        result.append(templateReplace(template,v))
+                        result.append(templateReplace(template,v, locale=self.locale))
                     value = joiner.join(result)
             return value
             
@@ -322,7 +356,7 @@ def regexDelete(myString, pattern):
     """
     return re.sub(pattern, '', myString)
     
-def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True):
+def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, formats=None):
     """Allow to replace string's chunks.
     
     :param myString: template string
@@ -341,12 +375,14 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True):
     if not '$' in myString or not symbolDict: return myString
     if hasattr(symbolDict, '_htraverse'):
         Tpl = BagTemplate
-        if templateBag:
-            symbolDict = SubtemplateMapWrapper(symbolDict,templateBag)
-        elif noneIsBlank:
-            symbolDict=NoneIsBlankMapWrapper(symbolDict)
+        #if templateBag:
+        #    symbolDict = SubtemplateMapWrapper(symbolDict,templateBag, locale=locale)
+        #elif noneIsBlank:
+        #    symbolDict=NoneIsBlankMapWrapper(symbolDict)
+        #  above is replaced by LocalizedWrapper
     else:
         Tpl = Template
+    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats)
     if safeMode:
         return Tpl(myString).safe_substitute(symbolDict)
     else:
@@ -617,9 +653,7 @@ def encode(number, base='/16', nChars=None):
 def fromIsoDate(datestring):
     """add???
         
-    :param datestring: add???
-    :returns: add???
-    """
+    :param datestring: add???"""
     if datestring and datestring != '0000-00-00':
         return datetime.date(*[int(el) for el in wordSplit(datestring)])
         
@@ -628,26 +662,22 @@ def fromText(mystring, obj, locale=None):
     
     :param mystring: add???
     :param obj: add???
-    :param locale: add???. 
-    :returns: add???
-    """
+    :param locale: string. The current locale (e.g: en, en_us, it)"""
     #what?
     return parselocal(mystring, obj, locale=locale)
     
 def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=None):
-    """Return a unicode string representing an object of any class.
+    """Return a unicode string representing an object of any class
     
     If there are ``locale`` or ``format`` parameters Babel is used to format the value
-    according to the given localization or format.
+    according to the given localization or format
     
     :param obj: the object to be transformed in a string
-    :param locale: add???. 
-    :param format: add???. 
-    :param mask: add???. 
-    :param encoding: The multibyte character encoding you choose. 
-    :param currency: add???. 
-    :returns: a unicode string representing an object of any class
-    """
+    :param locale: string. The current locale (e.g: en, en_us, it)
+    :param format: add???
+    :param mask: add???
+    :param encoding: The multibyte character encoding you choose
+    :param currency: add???"""
     if isinstance(obj, list) or isinstance(obj, tuple):
         return ','.join([toText(v) for v in obj])
         #what?
@@ -664,11 +694,11 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
 def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     """add???
     
-    :param dtype: the :ref:`genro_datatype`.
-    :param locale: add???. 
-    :param format: add???. 
-    :param mask: add???. 
-    :param encoding: The multibyte character encoding you choose."""
+    :param dtype: the :ref:`datatype`
+    :param locale: string. The current locale (e.g: en, en_us, it)
+    :param format: add???
+    :param mask: add???
+    :param encoding: The multibyte character encoding you choose"""
     typeSamples = {'B': 'true', 'D': datetime.date(2005, 10, 10), 'H': datetime.time(4, 5),
                    'DH': datetime.datetime.now(),
                    'I': 1234, 'L': 48205294, 'R': 34567.67, 'serial': 123445566}

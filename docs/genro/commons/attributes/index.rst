@@ -1,9 +1,11 @@
-.. _genro_common_index:
+.. _common_index:
 
 =================
-Common attributes
+common attributes
 =================
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     
@@ -16,6 +18,7 @@ Common attributes
     nodeId
     readonly
     rowcaption
+    tags
     tooltip
     visible
     zoom

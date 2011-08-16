@@ -1,9 +1,11 @@
-.. _genro_bag_one:
+.. _bag_one:
 
 ===============
 Basic functions
 ===============
 
+    *Last page update*: |today|
+    
     * :ref:`bag_instance`
     * :ref:`bag_set_get`
     * :ref:`bag_printing`

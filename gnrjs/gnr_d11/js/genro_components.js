@@ -923,37 +923,6 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     }
 });
 
-//STORES
-
-//dojo.declare("gnr.widgets.BagStore", gnr.widgets.gnrwdg, {
-//     contentKwargs: function(sourceNode, attributes) {
-//         if ('name' in attributes){
-//             attributes['_name'] = objectPop(attributes,'name');
-//         }
-//         if ('content' in attributes){
-//             attributes['_content'] = objectPop(attributes,'content');
-//         }
-//         attributes.columns = attributes.columns || '==gnr.getGridColumns(this);';
-//         return attributes;
-//     },
-//
-//     createContent:function(sourceNode, kw,children) {
-//         var storepath = objectPop(kw,'storepath');
-//         
-//         var storeType = chunkSize? 'VirtualSelection':'Selection';
-//         kw.row_count = chunkSize;
-//         var storeType = kw.row_count? 'VirtualSelection':'Selection';
-//         var identifier = objectPop(kw,'_identifier') || '_pkey';
-//         var selectionStore = sourceNode._('dataRpc',kw);
-//         var cb = "this.store.onLoaded(result,_isFiredNode);"
-//         selectionStore._('callBack',{content:cb});
-//         var rpcNode = selectionStore.getParentNode();
-//         rpcNode.store = new gnr.stores[storeType](rpcNode,{'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType});
-//         return selectionStore;
-//     }
-//});
-
-
 dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
      contentKwargs: function(sourceNode, attributes) {
          if ('name' in attributes){
@@ -1059,7 +1028,7 @@ dojo.declare("gnr.stores._Collection",null,{
         var btnattr = {label:'Delete',command:'deleteRows'};
         if(count>1){
             var fb = genro.dev.formbuilder(dlg.center,1);
-            fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl:'Count'});
+            fb.addField('numberTextBox',{value:'^gnr._dev.deleteask.count',width:'5em',lbl:'Count',parentForm:false});
             btnattr['disabled']='==_count!=_tot;';
             btnattr['_tot'] = count;
             genro.setData('gnr._dev.deleteask.count',null);

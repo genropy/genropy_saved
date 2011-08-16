@@ -1,12 +1,14 @@
-.. _genro_table_classes:
+.. _table_classes:
 
 =============
 table classes
 =============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../../_images/projects/packages/model_table.png
     
-    In this page we discuss all the possible classes through which you can instantiate a :ref:`genro_table`
+    In this page we discuss all the possible classes through which you can instantiate a :ref:`table`
     
     add???
     
@@ -17,9 +19,9 @@ basic Table
 
     .. class:: class Table(object)
     
-    This class is the most common class used in a :ref:`genro_project`.
+    This class is the most common class used in a :ref:`project`.
     
-    For more information check the :ref:`genro_table` documentation page.
+    For more information check the :ref:`table` page.
     
 .. _classes_htable:
 

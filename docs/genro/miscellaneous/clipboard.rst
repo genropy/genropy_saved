@@ -1,9 +1,11 @@
-.. _genro_clipboard:
+.. _clipboard:
 
 =================================
 Miscellaneous notes about GenroPy
 =================================
-
+    
+    *Last page update*: |today|
+    
 Mapping models the database structure
 =====================================
 

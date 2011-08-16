@@ -1,7 +1,9 @@
-.. _genro_palette:
+.. _palette:
 
 =======
 palette
 =======
-
+    
+    *Last page update*: |today|
+    
     add???

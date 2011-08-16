@@ -1,10 +1,12 @@
-.. _genro_datetextbox:
+.. _datetextbox:
 
 ===========
 dateTextbox
 ===========
-
-    .. note:: We recommend you to read :ref:`genro_textboxes` first.
+    
+    *Last page update*: |today|
+    
+    .. note:: We recommend you to read :ref:`textboxes` first.
     
     * :ref:`datetextbox_def`
     * :ref:`datetextbox_description`

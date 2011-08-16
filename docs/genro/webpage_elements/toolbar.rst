@@ -1,8 +1,10 @@
-.. _genro_toolbar:
+.. _toolbar:
 
 =========================
 slotBar (and slotToolbar)
 =========================
+    
+    *Last page update*: |today|
     
     * :ref:`toolbar_def`
     * :ref:`toolbar_attributes`
@@ -27,7 +29,7 @@ Definition
                 def main(self,root,**kwargs):
                     root.div('Hello!',margin='20px').slotToolbar(...)
         
-    You can use it in combo with a :ref:`genro_framepane`::
+    You can use it in combo with a :ref:`framepane`::
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
@@ -42,7 +44,7 @@ Definition
 Attributes
 ==========
 
-    * *slotbarCode*: MANDATORY - autocreate a :ref:`genro_nodeid` for the slotToolbar AND autocreate
+    * *slotbarCode*: MANDATORY - autocreate a :ref:`nodeid` for the slotToolbar AND autocreate
       hierarchic nodeIds for every slotToolbar child. Default value is ``None``.
     * *slots*: MANDATORY - create a configurable UI inside the div or pane in which the
       slotToolbar is defined.
@@ -135,7 +137,7 @@ Attributes
                                    gradient_color_2='red,100',gradient_deg='^.deg')
 
         * You can specify the position of slots label. Pay attention that, as the toolbars are built
-          on the :ref:`genro_formbuilder`, to modify the labels you have to use the *lbl* attribute,
+          on the :ref:`formbuilder`, to modify the labels you have to use the *lbl* attribute,
           not the *label* attribute::
 
               lbl_position='T' # possible values: 'T' (top), 'B' (bottom), 'L' (left), 'R' (right)
@@ -149,7 +151,7 @@ Attributes
 
               slots='20,messageBox,*,searchOn'
 
-          For more information, check the :ref:`genro_includedview` documentation page
+          For more information, check the :ref:`includedview` page
         
 .. _toolbar_examples:
 

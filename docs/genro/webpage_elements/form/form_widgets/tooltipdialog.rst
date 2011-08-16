@@ -1,9 +1,11 @@
-.. _genro_tooltipdialog:
+.. _tooltipdialog:
 
 =============
 tooltipdialog
 =============
-
+    
+    *Last page update*: |today|
+    
     Dojo modified!! --> add??? add all the difference respect to the Dojo tooltipdialog!
     
     --> check test15/gnrwdg/tooltipDialog (prima fare update)!

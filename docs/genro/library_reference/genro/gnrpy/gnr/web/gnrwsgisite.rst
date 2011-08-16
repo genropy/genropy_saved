@@ -1,8 +1,10 @@
-.. _genro_library_gnrwsgisite:
+.. _library_gnrwsgisite:
 
 ==========================
 :mod:`gnr.web.gnrwsgisite`
 ==========================
+
+    *Last page update*: |today|
 
 * Index of ``gnr.web.gnrwsgisite`` classes:
     

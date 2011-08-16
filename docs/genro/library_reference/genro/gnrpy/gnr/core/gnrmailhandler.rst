@@ -2,6 +2,8 @@
 :mod:`gnr.core.gnrmailhandler`
 ==============================
 
+    *Last page update*: |today|
+
 * Index of ``gnr.core.gnrmailhandler`` classes:
     
     * :ref:`gnrmailhandler_mailhandler`

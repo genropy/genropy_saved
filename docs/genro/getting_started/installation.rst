@@ -1,9 +1,11 @@
-.. _genro_installation:
+.. _installation:
 
 ====================
 GenroPy Installation
 ====================
 
+    *Last page update*: |today|
+    
     * :ref:`installationRequirements`
     * :ref:`obtainingGenropy`
     * :ref:`installingGenropy`
@@ -66,7 +68,7 @@ Installing GenroPy
 Configuring GenroPy
 ===================
 
-    GenroPy uses the :ref:`genro_gnr_index` folder for configuration::
+    GenroPy uses the :ref:`gnr_index` folder for configuration::
     
         cd ../example_configuration/
         cp -a moveto.gnr $HOME/.gnr
@@ -95,18 +97,17 @@ Project Examples
     
         gnrdbsetup instanceName
         
-    where ``instanceName`` is the name of the instance of your :ref:`genro_project`.
+    where ``instanceName`` is the name of the instance of your :ref:`project`.
     
-    To start the paste :ref:`genro_wsgi` development webserver, type::
+    To start the paste :ref:`wsgi_intro` development webserver, type::
     
         gnrwsgiserve siteName
         
-    where ``siteName`` is the name of the site folder of your :ref:`genro_project`.
+    where ``siteName`` is the name of the site folder of your :ref:`project`.
     
    .. note:: We suggest you to begin with the **showcase** tutorial: follow the instructions
-             of the :ref:`genro_showcase_index` documentation section to start with it.
+             of the :ref:`showcase_index` section to start with it.
              
 **Footnotes**
 
 .. [#] Windows is supported but it is not preferred and (until now) it is not yet documented
-        

@@ -102,7 +102,13 @@ body.workInProgress{
     background-image: -moz-linear-gradient(-90deg, rgba(182, 182, 182, 0.75),rgba(239, 239, 239, 0.9));
 }
 
-.tundra .dijitComboBox .dijitButtonNode, .tundra .dijitSpinner .dijitButtonNode {
+.tundra .dijitComboBox .dijitButtonNode{
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	top: 0;
+}
+.tundra .dijitSpinner .dijitButtonNode {
 	position: absolute;
 	bottom: 0;
 	right: 0;
@@ -1125,6 +1131,12 @@ div.dojoxDock {
     width: 16px;
     height: 16px;
 }
+.icnSavedViews{
+    background: url(icons/base16/saved_views.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
+
 .icnBaseAdd {
     background: url(icons/base16/add.gif) no-repeat center center;
     width: 16px;

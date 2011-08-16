@@ -1,9 +1,11 @@
-.. _genro_th:
+.. _th:
 
 ============
 TableHandler
 ============
-
+    
+    *Last page update*: |today|
+    
     .. note:: summary of the component requirements:
               
               * It is a :ref:`components_standard`.
@@ -71,6 +73,10 @@ TableHandler
         * :ref:`th_linkerbar`
         * :ref:`th_linkerbox`
         
+    * :ref:`includedgrid`:
+    
+        :ref:`ig_attributes`
+        
     **Further informations**
     
     * :ref:`th_attr_expl`:
@@ -78,6 +84,13 @@ TableHandler
         * :ref:`th_formresource`
         * :ref:`th_viewresource`
         * :ref:`th_relation_condition`
+        
+    **GUI**
+        
+    * :ref:`th_gui`:
+    
+        * :ref:`th_query_bar`
+    
         
 .. _th_introduction:
 
@@ -100,13 +113,13 @@ Introduction
     .. image:: ../../_images/components/th/form.png
     
     For more information of the GUI of these two pages, please check the
-    :ref:`genro_view_data` and the :ref:`genro_data_entry` documentation pages.
+    :ref:`view_data` and the :ref:`data_entry` pages.
     
     The TableHandler carries many features:
     
     * You can create your TableHandlers into the ``resources`` folder of your
-      :ref:`genro_project`\s. This fact allows to reuse the TableHandlers you created
-      in more than a webpage.
+      :ref:`projects <project>`. This fact allows to reuse the TableHandlers
+      you created in more than a webpage.
       
       Example: if you have to create a table with the registry (in italian , the
       *anagrafica*) of a society, a registry of the staff, a registry of society
@@ -133,7 +146,7 @@ TableHandler: paths
     .. image:: ../../_images/components/th/th_map.png
         
     As any other object in Genro, the TableHandler gathers all the informations through
-    a :ref:`genro_bag` structure, that looks like a hierarchiacal and nested structure.
+    a :ref:`bag` structure, that looks like a hierarchiacal and nested structure.
     
     You can access to every level of the structure.
     
@@ -142,7 +155,7 @@ TableHandler: paths
                     packageName_tableName
                     
                  where ``packageName`` is the name of your package and ``tableName`` is
-                 the name of your :ref:`genro_table`.
+                 the name of your :ref:`table`.
                  
     For example, if the package name is called ``base`` and the table is ``registry.py``,
     the path will be ``.base_registry``.
@@ -163,8 +176,8 @@ selectedPage
     
     The selectedPage contains:
     
-    * *form*, if the selected page is the :ref:`genro_view_data`.
-    * *view*, if the selected page is the :ref:`genro_data_entry`.
+    * *form*, if the selected page is the :ref:`view_data`.
+    * *view*, if the selected page is the :ref:`data_entry`.
     
 .. _th_map_form:
 
@@ -192,10 +205,10 @@ form - layout levels
         .packageName_tableName.form
         
     The inner gears of the ``form`` level are built in complete analogy with
-    the structure of a Dojo :ref:`genro_bordercontainer`, so this level includes
+    the structure of a Dojo :ref:`bordercontainer`, so this level includes
     five region-paths:
     
-    * ``top``: it includes the title of the view page [#]_ and the :ref:`genro_workdate`.
+    * ``top``: it includes the title of the view page [#]_ and the :ref:`workdate`.
     
       (The ``top`` level has a ``bar`` sublevel: this sublevel contains
         some query tools and some buttons to add or delete records.)
@@ -225,7 +238,7 @@ form - data levels
       We point up the following levels:
       
       * **invalidFields**: string. If some field is uncorrect (that is, it doesn't satisfy a
-          :ref:`validation <genro_validations>`) it contains the path of that field::
+          :ref:`validation <validations>`) it contains the path of that field::
           
               packageName_tableName_form_record_columnName
               
@@ -237,12 +250,11 @@ form - data levels
         
             packageName.tableName
             
-      * **title**: string. It includes the name of the record title in the :ref:`genro_data_entry`.
-      * **valid**: boolean, string. True if every :ref:`validation <genro_validations>` is satisfied.
+      * **title**: string. It includes the name of the record title in the :ref:`data_entry`.
+      * **valid**: boolean, string. True if every :ref:`validation <validations>` is satisfied.
       
     * **handler**: add???
-      
-    * **record**: this level contains all the :ref:`table_column`\s of your :ref:`genro_table`.
+    * **record**: this level contains all the :ref:`columns <table_column>` of your :ref:`table`.
       
       At the ``th/form/record`` level, the path of the data is::
         
@@ -273,7 +285,7 @@ view
         
             packageName.tableName
             
-    * **title**: string. It contains the name of the record title in the :ref:`genro_view_data`
+    * **title**: string. It contains the name of the record title in the :ref:`view_data`
     
 .. _th_firststeps:
 
@@ -315,6 +327,11 @@ resource webpage
     image:
     
     .. image:: ../../_images/components/th/th2.png
+    
+    .. note:: by default the View and the Form classes will be showned in two different pages
+              of a single stack container. In other words, the default TableHandler type used
+              will be the :ref:`th_stack`. If you need any other TableHandler type, you have
+              to use the :ref:`th_options` method to change this default behavior.
     
     Let's check now the code inside a resource page.
     
@@ -359,9 +376,9 @@ th_struct
             r.fieldcell('surname', width='12em')
             r.fieldcell('email', width='15em')
             
-    This method allow to create the :ref:`genro_struct` with its rows (usually you
-    will use some :ref:`genro_fieldcell`); in the example above, ``name``, ``surname``
-    and ``email`` are three rows of a :ref:`genro_table`.
+    This method allow to create the :ref:`struct` with its rows (usually you
+    will use some :ref:`fieldcell`); in the example above, ``name``, ``surname``
+    and ``email`` are three rows of a :ref:`table`.
     
 .. _th_order:
 
@@ -438,7 +455,7 @@ Form class
         
     (Remember? We explained this line in the :ref:`th_map` section)
     
-    The next line can be the :ref:`genro_formbuilder` definition [#]_::
+    The next line can be the :ref:`formbuilder` definition [#]_::
     
         fb = pane.formbuilder(cols=2,border_spacing='2px')
         
@@ -453,19 +470,18 @@ Form class
         fb.field('email',colspan=2)
         
     .. note:: in the :ref:`packages_menu`, a resource page needs a different syntax respect
-              to a normal webpage; for more information, check the :ref:`menu_th` documentation
-              section.
+              to a normal webpage; for more information, check the :ref:`menu_th` section.
               
-.. _th_rpc:
+    .. _th_rpc:
 
 usage of a dataRpc in a resource webpage
 ----------------------------------------
 
-    In a :ref:`th_resource_page` you can't use a :ref:`genro_datarpc` unless you pass it as a
+    In a :ref:`th_resource_page` you can't use a :ref:`datarpc` unless you pass it as a
     callable. For more information, check the :ref:`datarpc_callable` section of the
-    :ref:`genro_datarpc` documentation page
-                      
-    .. _th_webpage:
+    :ref:`datarpc` page.
+    
+.. _th_webpage:
 
 th_webpage
 ==========
@@ -477,7 +493,7 @@ th_webpage
     a much complex :ref:`th_form_class` and that takes the :ref:`th_view_class` from
     its :ref:`th_resource_page` related.
     
-    .. note:: when you create a ``th_webpage`` that is related to a :ref:`genro_table`,
+    .. note:: when you create a ``th_webpage`` that is related to a :ref:`table`,
               please name it following this convention::
               
                 tableName + ``_page.py``
@@ -502,7 +518,7 @@ th_webpage
     
         **Example:** let's suppose that you have a project called ``my_project``
         with a package called ``base``. In the package ``base`` there are some
-        :ref:`genro_table`\s (``auth.py``, ``invoice.py``, ``registry.py`` and
+        :ref:`tables <table>` (``auth.py``, ``invoice.py``, ``registry.py`` and
         ``staff.py``), a :ref:`th_resource_page` (``th_staff.py``) and some
         ``th_webpages`` (``auth_page.py``, ``invoice_page.py`` and ``staff_page.py``):
         
@@ -514,25 +530,25 @@ th_webpage
           table name) and the ``th_webpage`` (``staff_page.py`` [#]_) in the correct place
           (``base/webpages``).
           
-        * "auth" and "invoice" are "not ok", because there aren't the :ref:`th_resource_page`\s
-          called ``th_auth.py`` and ``th_invoice.py``, that are MANDATORIES in order to use the
-          ``th_webpages``.
+        * "auth" and "invoice" are "not ok", because there aren't the
+          :ref:`resource pages <th_resource_page>` called ``th_auth.py`` and ``th_invoice.py``,
+          that are MANDATORIES in order to use the ``th_webpages``.
           
     To create your ``th_webpage``, you have to write::
     
         class GnrCustomWebPage(object):
         
-    Then you MAY specify the :ref:`genro_table` to which this page refers to::
+    Then you MAY specify the :ref:`table` to which this page refers to::
     
         maintable = 'packageName.tableName'
         
     This line it is not mandatory, because a :ref:`webpages_webpages` (or a ``th_webpage``)
     is related to a table through its :ref:`webpages_maintable` (a :ref:`webpages_variables`)
-    or through the :ref:`genro_dbtable` attribute (defined inside one of the
-    :ref:`webpage elements <genro_webpage_elements_index>`). If you define the ``maintable``, then you have
-    defined the standard value for all the :ref:`genro_dbtable` attributes of your
-    :ref:`webpage elements <genro_webpage_elements_index>` that support it. Check for more information the
-    :ref:`webpages_maintable` and the :ref:`genro_dbtable` documentation pages.
+    or through the :ref:`dbtable` attribute (defined inside one of the
+    :ref:`webpage elements <webpage_elements_index>`). If you define the ``maintable``, then you have
+    defined the standard value for all the :ref:`dbtable` attributes of your
+    :ref:`webpage elements <webpage_elements_index>` that support it. Check for more information the
+    :ref:`webpages_maintable` and the :ref:`dbtable` pages.
     
 .. _th_webpage_methods:
     
@@ -560,8 +576,8 @@ th_form
         
     If you need more information on this line, please check the :ref:`th_map` section.
     
-    After that, you have to create your :ref:`genro_form`. The next line can be the
-    :ref:`genro_formbuilder` definition::
+    After that, you have to create your :ref:`form`. The next line can be the
+    :ref:`formbuilder` definition::
     
         fb = pane.formbuilder(cols=2,border_spacing='2px')
         
@@ -581,8 +597,8 @@ th_form
 ``center`` path
 ---------------
 
-    If you need to use some :ref:`genro_layout_index` elements in your page, like a
-    :ref:`genro_tabcontainer`, you have to pass from the ``form.center`` path.
+    If you need to use some :ref:`layout_index` elements in your page, like a
+    :ref:`tabcontainer`, you have to pass from the ``form.center`` path.
     
     **Example**:
     
@@ -605,13 +621,13 @@ TableHandler types
 ==================
 
     In this section we explain all the TableHandler types. They are a different way to
-    show the :ref:`genro_view_data` and the :ref:`genro_data_entry`:
+    show the :ref:`view_data` and the :ref:`data_entry`:
     
     * :ref:`th_border`: show the ``view-data window`` and the ``data-entry window``
       in a single page.
     * :ref:`th_dialog`: show the ``data-entry window`` in a dialog that appears over the
       ``view-data window``.
-    * :ref:`th_palette`: show the ``data-entry window`` in a :ref:`genro_palette` that appears
+    * :ref:`th_palette`: show the ``data-entry window`` in a :ref:`palette` that appears
       over the ``view-data window``.
     * :ref:`th_plain`: show only the ``view-data window``. User can't modify records.
     * :ref:`th_stack`: show the ``data-entry window`` and the ``view-data window``
@@ -625,18 +641,18 @@ TableHandler common attributes
     Some attributes are common to every of these types and we describe those
     attributes here:
     
-    * *pane*: MANDATORY - the :ref:`genro_contentpane` to which the TableHandler
+    * *pane*: MANDATORY - the :ref:`contentpane` to which the TableHandler
       is linked.
       
-      .. note:: we suggest you to link a TableHandler to a :ref:`genro_contentpane`;
-                avoid a :ref:`genro_bordercontainer`, a :ref:`genro_tabcontainer` or
-                other :ref:`layout elements <genro_layout_index>` (if you use them, pay
+      .. note:: we suggest you to link a TableHandler to a :ref:`contentpane`;
+                avoid a :ref:`bordercontainer`, a :ref:`tabcontainer` or
+                other :ref:`layout elements <layout_index>` (if you use them, pay
                 attention to use the correct attributes of the layout elements)
       
     * *nodeId*: the id of the TableHandler type. If you don't need a specific nodeId, the component
                 handles it automatically. For more information on the meaning of the nodeId, check
-                the :ref:`genro_nodeid` documentation page.
-    * *table*: the path of the :ref:`genro_table` linked to your TableHandler. It is MANDATORY
+                the :ref:`nodeid` page.
+    * *table*: the path of the :ref:`table` linked to your TableHandler. It is MANDATORY
       unless you use the relation attribute. For more information, check the
       :ref:`th_relation_condition` example.
       The syntax is ``table = 'packageName.tableName'``.
@@ -647,7 +663,7 @@ TableHandler common attributes
         
     * *th_pkey*: add???.
     * *datapath*: the path of your data. For more information, check the
-      :ref:`genro_datapath` documentation page.
+      :ref:`datapath` page.
     * *formResource*: allow to change the default :ref:`th_form_class`.
       Check the :ref:`th_formresource` section for more information.
     * *viewResource*: allow to change the default :ref:`th_view_class`.
@@ -660,12 +676,20 @@ TableHandler common attributes
       depending on the widget (check it in their method definition).
     * *default_kwargs*: you can add different kwargs:
         
-        * *virtualStore*: boolean. add???
-        * *relation*: add???.
+        * *virtualStore*: boolean. If it is set to ``True``, it introduces two features:
+            
+            #. Add the :ref:`th_query_bar` (if it is not yet visualized)
+            #. Optimize the time to give the result of a user query: if the user query
+               returns a huge set of records as result, the virtualStore load on the client
+               only the set of records that user sees in his window, and load more records
+               when user scrolls through the result list.
+               
+        * *relation*: an alternative to the *table* and the *condition* attributes. For more
+          information, check the :ref:`th_relation_condition` sections
         * *condition*: MANDATORY unless you specify the relation attribute. Check the
-          :ref:`th_relation_condition` example for more information.
+          :ref:`th_relation_condition` section for more information.
         * *condition_kwargs*: the parameters of the condition. Check the
-          :ref:`th_relation_condition` example for more information.
+          :ref:`th_relation_condition` section for more information.
         * *grid_kwargs*: add???.
         * *hiderMessage*: add???.
         * *pageName*: add???.
@@ -676,9 +700,46 @@ TableHandler common attributes
 
 th_options
 ----------
-
-    add??? (I have to wait that this method becomes stable...)
     
+    It returns a dict to customize your Tablehandler. You can use it both as a method of the
+    :ref:`th_view_class` or as a method of the :ref:`th_form_class`.
+    
+    * *DIALOG_KWARGS* add???
+    
+    * *formInIframe*: add???
+    * *formResource*: allow to change the default :ref:`th_form_class`
+      Check the :ref:`th_formresource` section for more information
+    * *fpane_kwargs*: string. Use it if you have a :ref:`th_border`. Allow to set the
+      attributes of the :ref:`data_entry`. For the complete list and description
+      of the *fpane_kwargs* check the :ref:`th_border` section
+    * *public*: add???
+    * *readOnly*: boolean. If ``True``, the element that carries the readOnly attribute is
+      in read-only mode
+    * *viewResource*: allow to change the default :ref:`th_view_class`
+      Check the :ref:`th_viewresource` section for more information
+    * *virtualStore*: boolean. If it is set to ``True``, it introduces two features:
+          
+        #. Add the :ref:`th_query_bar` (if it is not yet visualized)
+        #. Optimize the time to give the result of a user query: if the user query
+           returns a huge set of records as result, the virtualStore load on the client
+           only the set of records that user sees in his window, and load more records
+           when user scrolls through the result list
+           
+    * *vpane_kwargs*: string. Use it if you have a :ref:`th_border`. Allow to set the
+      attributes of the :ref:`view_data`. For the complete list and description
+      of the *vpane_kwargs* check the :ref:`th_border` section
+    * *widget*: string. Specify the TableHandler you want to use. The accepted strings are:
+        
+        * 'border' for the :ref:`th_border`
+        * 'dialog' for the :ref:`th_dialog`
+        * 'stack' for the :ref:`th_stack`
+        
+        **Example**::
+        
+            class View(BaseComponent):
+                def th_options(self):
+                    return dict(widget='border',vpane_height='60%')
+                    
 .. _th_border:
 
 borderTableHandler
@@ -686,12 +747,12 @@ borderTableHandler
 
     **Definition:**
     
-    .. method:: th_borderTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',readOnly=False,viewRegion=None,formRegion=None,vpane_kwargs=None,fpane_kwargs=None,**kwargs)
+    .. method:: TableHandler.th_borderTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,loadEvent='onSelected',readOnly=False,viewRegion=None,formRegion=None,vpane_kwargs=None,fpane_kwargs=None,**kwargs)
     
     **Description:**
     
-    Based on the Dojo :ref:`genro_bordercontainer`, the borderTableHandler shows the
-    :ref:`genro_view_data` and the :ref:`genro_data_entry` in a single page.
+    Based on the Dojo :ref:`bordercontainer`, the borderTableHandler shows the
+    :ref:`view_data` and the :ref:`data_entry` in a single page.
     
     .. image:: ../../_images/components/th/border_th.png
     
@@ -713,33 +774,31 @@ borderTableHandler
     * *loadEvent*: add???
     * *viewRegion*: add?
     * *formRegion*: add?
-    * *vpane_kwargs*: allow to set the attributes of the :ref:`genro_view_data`.
+    * *vpane_kwargs*: allow to set the attributes of the :ref:`view_data`
       
       In particular, you have the following options:
       
       * *vpane_region*: specify the region occupied by the View class. As for the
-        :ref:`genro_bordercontainer`, you may choose between these values: top, left,
+        :ref:`bordercontainer`, you may choose between these values: top, left,
         right, bottom, center. By default, the View class has ``vpane_region='top'``
       * *vpane_width* (OR *vpane_height*): specify the width (or the height) occupied
         by the View class (tip: we suggest you to use a percentage, like '30%')
         By default, the View class has ``vpane_height='50%'``
-      * *add???*: other options?
-      
+        
       Example::
       
         vpane_region='left',vpane_width='36%'
         
-    * *fpane_kwargs*: allow to set the attributes of the :ref:`genro_data_entry`.
+    * *fpane_kwargs*: allow to set the attributes of the :ref:`data_entry`
       
       In particular, you have the following options:
       
       * *fpane_region*: specify the region occupied by the Form class. As for the
-        :ref:`genro_bordercontainer`, you may choose between these values: top, left,
+        :ref:`bordercontainer`, you may choose between these values: top, left,
         right, bottom, center. By default, the Form class has ``fpane_region='bottom'``
       * *fpane_width*: specify the width occupied by the Form class (tip: we
         suggest you to use a percentage, like '30%') By default, the Form class has
         ``fpane_height='50%'``
-      * *add???*: other options?
       
       Example::
 
@@ -752,12 +811,12 @@ dialogTableHandler
 
     **Definition:**
     
-    .. method:: th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,[**kwargs])
+    .. method:: TableHandler.th_dialogTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,dialog_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
     
     **Description:**
     
-    The dialogTableHandler shows the :ref:`genro_data_entry` in a dialog over
-    the :ref:`genro_view_data`.
+    The dialogTableHandler shows the :ref:`data_entry` in a dialog over
+    the :ref:`view_data`.
     
     .. image:: ../../_images/components/th/dialog_th.png
     
@@ -792,7 +851,7 @@ pageTableHandler
 
     **Definition:**
     
-    .. method:: th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,formInIframe=False,reloader=None,default_kwargs=None,**kwargs)
+    .. method:: TableHandler.th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,formInIframe=False,reloader=None,default_kwargs=None,dbname=None,**kwargs)
     
     **Description:**
     
@@ -827,12 +886,12 @@ paletteTableHandler
 
     **Definition:**
     
-    .. method:: th_paletteTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,palette_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
+    .. method:: TableHandler.th_paletteTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,palette_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
     
     **Description:**
     
-    The paletteTableHandler shows the :ref:`genro_data_entry` in a palette
-    over the :ref:`genro_view_data`.
+    The paletteTableHandler shows the :ref:`data_entry` in a palette
+    over the :ref:`view_data`.
     
     .. image:: ../../_images/components/th/palette_th.png
     
@@ -863,13 +922,13 @@ plainTableHandler
 
     **Definition:**
     
-    .. method:: th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=True,**kwargs)
+    .. method:: TableHandler.th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,reloader=None,readOnly=True,**kwargs)
     
     **Description:**
     
-    With the plainTableHandler you have only the :ref:`genro_view_data`, so user
-    can't modify, add and delete records (infact, the *readOnly* attribute is set
-    to ``True``).
+    With the plainTableHandler you have only the :ref:`view_data`. Also, by default
+    user can't modify, add and delete records (infact, the *readOnly* attribute is set
+    to ``True``). Set it to ``False`` to change this default behavior.
     
     .. image:: ../../_images/components/th/plain_th.png
     
@@ -896,12 +955,12 @@ stackTableHandler
 
     **Definition:**
     
-    .. method:: th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
+    .. method:: TableHandler.th_stackTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,widget_kwargs=None,reloader=None,default_kwargs=None,readOnly=False,**kwargs)
     
     **Description:**
     
-    Based on the Dojo :ref:`genro_stackcontainer`, the stackTableHandler shows the
-    :ref:`genro_view_data` and the :ref:`genro_data_entry` in two different pages.
+    Based on the Dojo :ref:`stackcontainer`, the stackTableHandler shows the
+    :ref:`view_data` and the :ref:`data_entry` in two different pages.
     
     Remembering the Dojo StackContainer definition: *<<A container that has multiple children,*
     *but shows only one child at a time (like looking at the pages in a book one by one).>>*
@@ -953,7 +1012,7 @@ thIframe
     
     **Definition:**
     
-    .. method:: th_thIframe(self,pane,method=None,src=None,**kwargs)
+    .. method:: TableHandler.th_thIframe(self,pane,method=None,src=None,**kwargs)
     
     **Description:**
     
@@ -972,7 +1031,7 @@ IframeDialog
 
     **Definition:**
     
-    .. method:: th_thIframeDialog(self,pane,**kwargs)
+    .. method:: ThLinker.th_thIframeDialog(self,pane,**kwargs)
     
     **Description:**
     
@@ -989,7 +1048,7 @@ iframedispatcher
     
     **Definition:**
     
-    .. method:: rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,**kwargs)
+    .. method:: TableHandler.rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,table=None,**kwargs)
     
     **Description:**
     
@@ -997,9 +1056,10 @@ iframedispatcher
     
     **attributes**:
     
-    * *root*: add???.
-    * *methodname*: add???.
-    * *pkey*: add???.
+    * *root*: add???
+    * *methodname*: add???
+    * *pkey*: add???
+    * *table*: add???
     
 .. _th_iframepalette:
 
@@ -1008,7 +1068,7 @@ IframePalette
 
     **Definition:**
     
-    .. method:: th_thIframePalette(self,pane,**kwargs)
+    .. method:: ThLinker.th_thIframePalette(self,pane,**kwargs)
     
     **Description:**
     
@@ -1039,14 +1099,10 @@ linker common attributes
     Some attributes are common to every of these types and we describe those
 attributes here:
 
-    * *pane*: MANDATORY - the :ref:`genro_contentpane` to which the TableHandler
+    * *pane*: MANDATORY - the :ref:`contentpane` to which the TableHandler
       is linked.
-      
-      .. warning:: you have to link a TableHandler to a :ref:`genro_contentpane`;
-                   you can't use any other :ref:`layout elements <genro_layout_index>`
-                   
-    * *field*: a :ref:`genro_field`; through this object the linker becomes related to the
-      :ref:`genro_table` to which the field belongs to.
+    * *field*: a :ref:`field`; through this object the linker becomes related to the
+      :ref:`table` to which the field belongs to.
     * *newRecordOnly*: add???
     * *dialog_kwargs*: there are many options:
     
@@ -1067,7 +1123,7 @@ linker
 
     **Definition:**
     
-    .. method:: th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,openIfNew=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs)
+    .. method:: ThLinker.th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,openIfEmpty=None,embedded=True,dialog_kwargs=None,default_kwargs=None,**kwargs)
     
     **Description:**
     
@@ -1082,8 +1138,8 @@ linker
     * *formResource*: allow to change the default :ref:`th_form_class`. Check the
       :ref:`th_formresource` section for more information.
     * *formUrl*: add???
-    * *table*: the database :ref:`genro_table` to which the th_linker refers to
-    * *openIfNew*: add???
+    * *table*: the database :ref:`table` to which the th_linker refers to
+    * *openIfEmpty*: add???
     * *embedded*: add???
     
 .. _th_linkerbar:
@@ -1093,7 +1149,7 @@ linkerBar
 
     **Definition:**
     
-    .. method:: th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs)
+    .. method:: ThLinker.th_linkerBar(self,pane,field=None,label=None,table=None,_class='pbl_roundedGroupLabel',newRecordOnly=True,**kwargs)
     
     **Description:**
     
@@ -1106,7 +1162,7 @@ linkerBar
     to the th_linkerBar are listed here:
     
     * *label*: the label of the linkerBar
-    * *table*: the database :ref:`genro_table` to which the th_linkerBar refers to
+    * *table*: the database :ref:`table` to which the th_linkerBar refers to
     * *_class*: the CSS style
     
 .. _th_linkerbox:
@@ -1116,7 +1172,7 @@ linkerBox
 
     **Definition:**
     
-    .. method:: th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfNew=None,_class='pbl_roundedGroup',label=None,**kwargs)
+    .. method:: ThLinker.th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfEmpty=None,_class='pbl_roundedGroup',label=None,**kwargs)
     
     **Description:**
     
@@ -1132,7 +1188,7 @@ linkerBox
     * *frameCode*: add???
     * *formResource*: allow to change the default :ref:`th_form_class`. Check the
       :ref:`th_formresource` section for more information.
-    * *openIfNew*: add???
+    * *openIfEmpty*: add???
     * *_class*: the CSS style
     * *label*: the th_linkerBox label
     
@@ -1149,6 +1205,30 @@ linkerBox
                        validate_notnull=True,validate_notnull_error='!!Required',
                        newRecordOnly=True,formResource=':MyForm')
                        
+.. _includedgrid:
+
+includedGrid
+============
+
+    .. method:: add???
+    
+    lavora come se fosse la visualizzazione di una Bag; nella rappresentazione griglia
+    vedi tutte le righe di una Bag, quando editi (dialog oppure inline) (l'editing inline
+    è solo della includedGrid). gridEditor serve a modificare la includedGrid.
+    
+    il "datapath" dell'includedGrid serve solo come retrocompatibilità con l'includedView, quindi come
+    path per i dati nell'includedGrid bisogna usare lo "storepath"
+
+    lo storepath può puntare alla Bag (aggiungere anche il datamode='bag'), oppure si può puntare 	ad un path chiocciolinato
+    
+    
+.. _ig_attributes:
+
+includedGrid attributes
+-----------------------
+
+    add???
+
 .. _th_attr_expl:
 
 Attributes explanation
@@ -1207,7 +1287,7 @@ formResource attribute
       where:
       
       * ``fileNameOfYourResource``: the name of your :ref:`th_resource_page`.
-        If your file is called ``th_`` followed by the name of the :ref:`genro_table`
+        If your file is called ``th_`` followed by the name of the :ref:`table`
         to which your page is related, you can omit to write the
         ``fileNameOfYourResource``, because the standard name is taken automatically.
         Otherwise, write it without its ``.py`` extension.
@@ -1291,7 +1371,7 @@ viewResource attribute
       where:
       
       * ``fileNameOfYourResource``: the name of your :ref:`th_resource_page`.
-        If your file is called ``th_`` followed by the name of the :ref:`genro_table`
+        If your file is called ``th_`` followed by the name of the :ref:`table`
         to which your page is related, you can omit to write the
         ``fileNameOfYourResource``, because the standard name is taken automatically.
         Otherwise, write it without its ``.py`` extension.
@@ -1330,10 +1410,42 @@ viewResource attribute
 usage of table, condition and relation parameters
 -------------------------------------------------
 
-    add???
+    A correct setting of a TableHandler needs:
+    
+    * a *table* parameter: string. Set the :ref:`table` to which the TableHandler is linked.
+    * *condition*: the condition gathers the default query parameters, that will be added to the
+      optional query made by the user.
+      
+    Alternatively, if add???, you can specify the *relation* parameter (link the relation parameter
+    to the :ref:`relation_name`!!!);
+    if you do so, the *table* and the *condition* attributes are taken automatically.
+    
+    Let's see some examples:
+    
+        **Example**: *table* and *condition* usage
         
+            add???
+            
+        **Example**: *relation* usage
+        
+            add???
+    
+.. _th_gui:
+    
+TableHandler GUI
+================
+
+    In this section we describe all the pre-set tools user finds in the TableHandler
+
+.. _th_query_bar:
+    
+query bar
+---------
+
+    add???
+    
 **Footnotes**:
 
-.. [#] The title of the view page is taken from the :ref:`genro_name_long` of the :ref:`genro_table` to which the current webpage refers to.
-.. [#] The :ref:`genro_formbuilder` allows to create in a simple way a :ref:`genro_form`. Follow the links for more information.
+.. [#] The title of the view page is taken from the :ref:`name_long` of the :ref:`table` to which the current webpage refers to.
+.. [#] The :ref:`formbuilder` allows to create in a simple way a :ref:`form`. Follow the links for more information.
 .. [#] We remember you that the name of the ``th_webpage`` can be the one you prefer, but as a convention we suggest you to call it with ``name of table`` + ``_page`` suffix.

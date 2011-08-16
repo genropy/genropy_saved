@@ -1,7 +1,9 @@
-.. _genro_workdate:
+.. _workdate:
 
 ========
 workdate
 ========
-
+    
+    *Last page update*: |today|
+    
     add???

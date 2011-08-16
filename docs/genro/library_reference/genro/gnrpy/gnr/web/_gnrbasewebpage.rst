@@ -1,9 +1,11 @@
-.. _genro_library_gnrbasewebpage1:
+.. _library_gnrbasewebpage1:
 
 ==============================
 :mod:`gnr.web._gnrbasewebpage`
 ==============================
-
+    
+    *Last page update*: |today|
+    
 .. _gnrbasewebpage1_gnrbasewebpage:
 
 Index of :class:`GnrBaseWebPage` methods

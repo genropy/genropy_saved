@@ -342,14 +342,14 @@ class GnrPackage(object):
         
           .. note:: we suggest you to call with the same name both the schema and the
                     package. For more information, check the
-                    :ref:`introduction to a package <genro_packages_introduction>`.
+                    :ref:`introduction to a package <packages_introduction>`.
                     
         * ``comment`` includes a comment string.
-        * ``name_short`` includes a string of the :ref:`genro_name_short` of the schema.
-        * ``name_long`` includes a string of the :ref:`genro_name_long` of the schema.
-        * ``name_plural`` includes a string of the :ref:`genro_name_plural` of the schema.
+        * ``name_short`` includes a string of the :ref:`name_short` of the schema.
+        * ``name_long`` includes a string of the :ref:`name_long` of the schema.
+        * ``name_plural`` includes a string of the :ref:`name_plural` of the schema.
         
-        If you follow the instructions of the :ref:`genro_project_autocreation` documentation section,
+        If you follow the instructions of the :ref:`project_autocreation` documentation section,
         you will find your :ref:`packages_main` file with the ``config_attributes`` method filled
         as the following one::
         
@@ -700,12 +700,10 @@ class GnrApp(object):
     def updateLocalization(self, pkg, data, locale):
         """add???
 
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page
         :param data: add???
-        :param locale: add???
-        :returns: add???
-        """
+        :param locale: string. The current locale (e.g: en, en_us, it)"""
         pkgobj = self.packages[pkg]
         locpath = os.path.join(pkgobj.packageFolder, 'localization.xml')
         pkglocbag = Bag(locpath)
@@ -720,11 +718,9 @@ class GnrApp(object):
         """add???
 
         :param path: add???
-        :param pkg: the package name. For more information on a package, check the
-                    :ref:`genro_packages_index` documentation page. 
-        :param locale: add???. 
-        :returns: add???
-        """
+        :param pkg: the package object. For more information on a package, check the
+                    :ref:`packages_index` documentation page
+        :param locale: string. The current locale (e.g: en, en_us, it)"""
         if not pkg:
             pkg = self.config.getAttr('packages', 'default')
         return self.packages[pkg].getResource(path, locale=locale)
@@ -1102,7 +1098,7 @@ class GnrAvatar(object):
         """add???
         
         :param tags: add???"""
-        t = self.tags.split(',')
+        t = self.user_tags.split(',')
         if isinstance(tags, basestring):
             tags = tags.split(',')
         for tag in tags:

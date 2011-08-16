@@ -1,9 +1,11 @@
-.. _genro_html:
+.. _html:
 
 =============
 HTML elements
 =============
-
+    
+    *Last page update*: |today|
+    
     You can use an HTML element following the device of the Genro HTML syntax: in Genro, every HTML element
     is defined as a Python function, like::
     
@@ -44,7 +46,7 @@ HTML elements
         pane.div(width='100%',height='300px').IncludedView(struct=self._gridStruct2(),
                                                            storepath='lista_regioni',nodeId='regioni_grid')
                                                            
-    .. _genro_html_elements:
+    .. _html_elements:
     
 list of HTML elements
 ---------------------

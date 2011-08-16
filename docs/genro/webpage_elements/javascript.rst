@@ -1,9 +1,11 @@
-.. _genro_javascript:
+.. _javascript:
 
 ==========
 javascript
 ==========
-
+    
+    *Last page update*: |today|
+    
     .. warning:: this section is only a sketch.
     
     add???

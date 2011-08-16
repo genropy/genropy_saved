@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRoBag>
+    <invoices label="!!Invoices Tables" basepath="/invoice" tags="user">
+        <customers label="!!Customers" file="customer_page" tags="user"/>
+        <products label="!!Products" file="product_page" tags="user"/>
+        <products_type label="!!Products Type" file="product_type_page" tags="user"/>
+        <invoice label="!!Invoices" file="invoice_page" tags="user"/>
+        <singlerecord label="!!Single Record" file="single_record_page" tags="user"/>
+    </invoices>
+</GenRoBag>

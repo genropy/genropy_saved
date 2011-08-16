@@ -1,9 +1,11 @@
-.. _genro_form_widgets_index:
+.. _form_widgets:
 
 ============
 form widgets
 ============
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 1
     
@@ -18,4 +20,4 @@ form widgets
     togglebutton
     tooltipdialog
     db/index
-    textboxes: dateTextbox, numberTextbox, textbox and timeTextbox <textboxes/index>
+    textboxes: textbox, currencyTextBox, dateTextbox, numberTextbox and timeTextbox <textboxes/index>

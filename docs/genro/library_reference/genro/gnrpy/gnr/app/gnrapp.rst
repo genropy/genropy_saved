@@ -1,7 +1,9 @@
 ==============================================
 :mod:`gnr.app.gnrapp` -- Application Instances
 ==============================================
-
+    
+    *Last page update*: |today|
+    
 * Index of ``gnr.app.gnrapp`` classes:
     
     * :ref:`gnrapp_gnrapp`

@@ -1,9 +1,11 @@
-.. _genro_datastore_index:
+.. _datastore_index:
 
 =========
 datastore
 =========
-
+    
+    *Last page update*: |today|
+    
 .. toctree::
     :maxdepth: 2
     

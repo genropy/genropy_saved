@@ -4,7 +4,8 @@
 # Created by Francesco Porcari on 2010-09-08.
 # Copyright (c) 2010 Softwell. All rights reserved.
 
-from gnr.web.gnrwebpage import public_method,BaseComponent
+from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrlang import gnrImport, objectExtract
 from gnr.core.gnrbag import Bag
 
@@ -28,84 +29,9 @@ class BatchMonitor(BaseComponent):
         pane.dataRpc('dummy', 'setStoreSubscription', active=False, subscribe_batch_monitor_off=True,
                      _onCalling='genro.rpc.setPolling();', storename='user')
 
-class TableScriptRunner(BaseComponent):
+class TableScriptHandler(BaseComponent):
     py_requires = 'foundation/dialogs,gnrcomponents/printer_option_dialog:PrinterOption'
     js_requires = 'gnrcomponents/batch_handler/batch_handler'
-
-    def onMain_table_script_runner(self):
-        page = self.pageSource()
-        plugin_main = page.div(datapath='gnr.plugin.table_script_runner', nodeId='table_script_runner')
-        plugin_main.dataController(""" var params = table_script_run[0];
-                                       SET .res_type= params['res_type'];
-                                       SET .table =  params['table'];
-                                       SET .resource =  params['resource'];
-                                       SET .selectionName =  params['selectionName'];
-                                       SET .publishOnResult = params['publishOnResult'];
-                                       SET .selectionFilterCb =  params['selectionFilterCb'];
-                                       SET .gridId = params['gridId'];
-                                       SET .selectedRowidx =  params['selectedRowidx'];
-                                       SET .paramspath = params['paramspath'];
-                                       SET .onCalling = params['onCalling'];
-                                       FIRE .build_pars_dialog;
-                                       FIRE #table_script_dlg_parameters.open;
-                                    """, subscribe_table_script_run=True)
-
-        rpc = plugin_main.dataRpc('dummy', self.table_script_run,
-                            _fired='^.run',
-                            _onCalling='=.onCalling',
-                            _onResult='if(kwargs._publishOnResult){genro.publish(kwargs._publishOnResult);}',
-                            parameters='=.parameters',
-                            resource='=.resource',
-                            res_type='=.res_type',
-                            table='=.table',
-                            gridId='=.gridId',
-                            _publishOnResult='=.publishOnResult',
-                            selectionName='=.selectionName',
-                            printerOptions='==this.getRelativeData("gnr.server_print.printers."+resource);',
-                            selectionFilterCb='=.selectionFilterCb',
-                            selectedRowidx="=.selectedRowidx", _POST=True, timeout=0)
-
-        plugin_main.div(width='0').remote(self.table_script_parameters,
-                                 resource='=.resource',
-                                 res_type='=.res_type',
-                                 title='=.title',
-                                 table='=.table',
-                                 _fired='^.build_pars_dialog')
-
-    def table_script_resource_tree(self, pane, table=None, res_type=None, selectionName=None, gridId=None, _class=None,
-                                   **kwargs):
-        pane.dataRemote('.tree.store', 'table_script_resource_tree_data', table=table, cacheTime=10, res_type=res_type)
-        pane.tree(storepath='.tree.store', persist=False,
-                  labelAttribute='caption', hideValues=True,
-                  _class=_class,
-                  selected_resource='.resource',
-                  connect_ondblclick='FIRE .run_table_script',
-                  tooltip_callback="return sourceNode.attr.description || sourceNode.label;",
-                  **kwargs)
-
-        pane.dataController("""
-                            var selectedRowidx = gridId?genro.wdgById(gridId).getSelectedRowidx():null;
-                            var pars = {table:table,res_type:res_type,selectionName:selectionName,selectedRowidx:selectedRowidx,resource:resource,gridId:gridId}
-                            console.log(pars);
-                            PUBLISH table_script_run=pars;""",
-                            _fired="^.run_table_script", selectionName=selectionName, table=table,
-                            gridId=gridId, res_type=res_type, resource='=.resource')
-
-
-    def table_script_dialog_center(self, parentBc, hasParameters=None, resource=None, **kwargs):
-        if hasattr(self, 'table_script_option_pane'):
-            paramsBc = parentBc.borderContainer(pageName='params', datapath='.data', **kwargs)
-            if hasParameters:
-                parameters_pane = paramsBc.contentPane(region='top', _class='ts_parametersPane')
-                parameters_pane.mainStack = parentBc.mainStack
-                self.table_script_parameters_pane(parameters_pane)
-            self.table_script_option_pane(paramsBc.contentPane(region='bottom', datapath='.batch_options',
-                                                               _class='ts_optionsPane'), resource=resource)
-        elif hasParameters:
-            parameters_pane = parentBc.contentPane(pageName='params', datapath='.data', **kwargs)
-            parameters_pane.mainStack = parentBc.mainStack
-            self.table_script_parameters_pane(parameters_pane)
-
     @public_method
     def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, **kwargs):
         pkgname, tblname = table.split('.')
@@ -151,31 +77,34 @@ class TableScriptRunner(BaseComponent):
                            _fired="^.save", pars='=.data',immediate=batch_dict.get('immediate',False))
     @public_method
     def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectionFilterCb=None,
-                             selectedRowidx=None,
+                             sortBy=None,
+                             selectedRowidx=None,sourcepage_id=None,
                              parameters=None, printerOptions=None, **kwargs):
         tblobj = self.tblobj or self.db.table(table)
         res_obj = self.site.loadTableScript(self, tblobj, '%s/%s' % (res_type, resource), class_name='Main')
+        res_obj.sourcepage_id = sourcepage_id or self.page_id
         res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
-                                selectionFilterCb=selectionFilterCb)
+                                selectionFilterCb=selectionFilterCb, sortBy=sortBy)
         parameters = parameters or {}
         parameters['_printerOptions'] = printerOptions
         res_obj(parameters=parameters, **kwargs)
-
-    def rpc_table_script_resource_tree_data(self, table=None, res_type=None):
+        
+    @public_method
+    def table_script_resource_tree_data(self, table=None, res_type=None):
         #pkg,tblname = table.split('.')
         tblobj = self.db.table(table)
         pkg = tblobj.pkg.name
         tblname = tblobj.name
         result = Bag()
         resources = self.site.resource_loader.resourcesAtPath(pkg, 'tables/%s/%s' % (tblname, res_type), 'py')
+        resources_custom = self.site.resource_loader.resourcesAtPath(self.package.name, 'tables/_packages/%s/%s/%s' % (pkg,tblname, res_type), 'py')
+        resources.update(resources_custom)
         forbiddenNodes = []
-
         def cb(node, _pathlist=None):
             has_parameters = False
             if node.attr['file_ext'] == 'py':
                 resmodule = gnrImport(node.attr['abs_path'])
                 tags = getattr(resmodule, 'tags', '')
-
                 if tags and not self.application.checkResourcePermission(tags, self.userTags):
                     if node.label == '_doc':
                         forbiddenNodes.append('.'.join(_pathlist))
@@ -191,14 +120,94 @@ class TableScriptRunner(BaseComponent):
                     has_parameters = hasattr(mainclass, 'parameters_pane')
                     result.setItem('.'.join(_pathlist + [node.label]), None, caption=caption, description=description,
                                    resource=node.attr['rel_path'][:-3], has_parameters=has_parameters)
-
         resources.walk(cb, _pathlist=[])
         for forbidden in forbiddenNodes:
             result.pop(forbidden)
         return result
+        
+    def table_script_dialog_center(self, parentBc, hasParameters=None, resource=None, **kwargs):
+        if hasattr(self, 'table_script_option_pane'):
+            paramsBc = parentBc.borderContainer(pageName='params', datapath='.data', **kwargs)
+            if hasParameters:
+                parameters_pane = paramsBc.contentPane(region='top', _class='ts_parametersPane')
+                parameters_pane.mainStack = parentBc.mainStack
+                self.table_script_parameters_pane(parameters_pane)
+            self.table_script_option_pane(paramsBc.contentPane(region='bottom', datapath='.batch_options',
+                                                               _class='ts_optionsPane'), resource=resource)
+        elif hasParameters:
+            parameters_pane = parentBc.contentPane(pageName='params', datapath='.data', **kwargs)
+            parameters_pane.mainStack = parentBc.mainStack
+            self.table_script_parameters_pane(parameters_pane)
+    
+    def table_script_controllers(self,page):
+        plugin_main = page.div(datapath='gnr.plugin.table_script_runner', nodeId='table_script_runner')
+        plugin_main.dataController(""" var params = table_script_run[0];
+                                       SET .res_type= params['res_type'];
+                                       SET .table =  params['table'];
+                                       SET .resource =  params['resource'];
+                                       SET .selectionName =  params['selectionName'];
+                                       SET .publishOnResult = params['publishOnResult'];
+                                       SET .selectionFilterCb =  params['selectionFilterCb'];
+                                       SET .gridId = params['gridId'];
+                                       SET .selectedRowidx =  params['selectedRowidx'];
+                                       SET .sortBy =  params['sortBy'];
+                                       SET .paramspath = params['paramspath'];
+                                       SET .onCalling = params['onCalling'];
+                                       SET .sourcepage_id = params['sourcepage_id'];
+                                       FIRE .build_pars_dialog;
+                                       FIRE #table_script_dlg_parameters.open;
+                                    """, subscribe_table_script_run=True)
 
-    def rpc_table_script_renderTemplate(self, doctemplate=None, record_id=None, templates=None, **kwargs):
-        doctemplate_tbl = self.db.table('adm.doctemplate')
-        tplbuilder = doctemplate_tbl.getTemplateBuilder(doctemplate=doctemplate, templates=templates)
-        return doctemplate_tbl.renderTemplate(tplbuilder, record_id=record_id,
-                                              extraData=Bag(dict(host=self.request.host)))
+        plugin_main.dataRpc('dummy', self.table_script_run,
+                            _fired='^.run',
+                            _onCalling='=.onCalling',
+                            _onResult='if(kwargs._publishOnResult){genro.publish(kwargs._publishOnResult);}',
+                            parameters='=.parameters',
+                            resource='=.resource',
+                            res_type='=.res_type',
+                            table='=.table',
+                            gridId='=.gridId',
+                            _publishOnResult='=.publishOnResult',
+                            selectionName='=.selectionName',
+                            printerOptions='==this.getRelativeData("gnr.server_print.printers."+resource);',
+                            selectionFilterCb='=.selectionFilterCb',
+                            sourcepage_id='=.sourcepage_id',
+                            selectedRowidx="=.selectedRowidx",
+                            sortBy="=.sortBy",
+                            _POST=True, timeout=0)
+
+        plugin_main.div(width='0').remote(self.table_script_parameters,
+                                 resource='=.resource',
+                                 res_type='=.res_type',
+                                 title='=.title',
+                                 table='=.table',
+                                 _fired='^.build_pars_dialog')
+
+
+
+class TableScriptRunner(TableScriptHandler):
+    """Old"""
+    py_requires = 'foundation/dialogs,gnrcomponents/printer_option_dialog:PrinterOption'
+    js_requires = 'gnrcomponents/batch_handler/batch_handler'
+
+    def onMain_table_script_runner(self):
+        page = self.pageSource()
+        self.table_script_controllers(page)
+        
+    def table_script_resource_tree(self, pane, table=None, res_type=None, selectionName=None, gridId=None, _class=None,
+                                   **kwargs):
+        pane.dataRemote('.tree.store', self.table_script_resource_tree_data, table=table, cacheTime=10, res_type=res_type)
+        pane.tree(storepath='.tree.store', persist=False,
+                  labelAttribute='caption', hideValues=True,
+                  _class=_class,
+                  selected_resource='.resource',
+                  connect_ondblclick='FIRE .run_table_script',
+                  tooltip_callback="return sourceNode.attr.description || sourceNode.label;",
+                  **kwargs)
+        pane.dataController("""
+                            var selectedRowidx = gridId?genro.wdgById(gridId).getSelectedRowidx():null;
+                            var pars = {table:table,res_type:res_type,selectionName:selectionName,selectedRowidx:selectedRowidx,resource:resource,gridId:gridId}
+                            console.log(pars);
+                            PUBLISH table_script_run=pars;""",
+                            _fired="^.run_table_script", selectionName=selectionName, table=table,
+                            gridId=gridId, res_type=res_type, resource='=.resource')

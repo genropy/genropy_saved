@@ -1,8 +1,10 @@
-.. _genro_library_gnrwebutils:
+.. _library_gnrwebutils:
 
 ==========================
 :mod:`gnr.web.gnrwebutils`
 ==========================
+
+    *Last page update*: |today|
 
 * Index of ``gnr.web.gnrwebutils`` classes:
     

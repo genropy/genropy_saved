@@ -7,11 +7,15 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 class Mixin(BaseComponent):
-    py_requires="""foundation/menu:MenuIframes,gnrcomponents/batch_handler/batch_handler,
+    py_requires="""foundation/menu:MenuIframes,
+                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
+                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
+
                    gnrcomponents/chat_component/chat_component"""
     js_requires='frameindex'
     css_requires='frameindex,public'
     plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin'
+    custom_plugin_list = None
     index_url = None
     showTabs = True
     indexTab = False
@@ -49,6 +53,10 @@ class Mixin(BaseComponent):
         leftbar = bc.contentPane(region='left',overflow='hidden').div(display='inline-block', margin_left='10px')  
         for btn in ['menuToggle']+self.plugin_list.split(','):
             getattr(self,'btn_%s' %btn)(leftbar)
+            
+        if self.custom_plugin_list:
+            for btn in self.custom_plugin_list.split(','):
+                getattr(self,'btn_%s' %btn)(leftbar)
                 
         rightbar = bc.contentPane(region='right',overflow='hidden').div(display='inline-block', margin_right='10px')
         for btn in ['refresh','delete']:

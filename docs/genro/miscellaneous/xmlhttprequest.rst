@@ -1,7 +1,9 @@
-.. _genro_xmlhttprequest:
+.. _xmlhttprequest:
 
 ==============
 XMLHttpRequest
 ==============
-
+    
+    *Last page update*: |today|
+    
     add???

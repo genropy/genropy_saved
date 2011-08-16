@@ -21,6 +21,7 @@ class Table(object):
         tbl.column('varsbag', 'X', name_long='!!Variables',_sendback=True)
         tbl.column('username', name_long='!!Username')
         tbl.column('version', name_long='!!Version')
+        tbl.column('locale', name_long='!!Locale')
         tbl.column('maintable', name_long='!!Main table')
         tbl.column('resource_name',name_long='!!Resource Name',_sendback=True)
 
@@ -64,27 +65,40 @@ class Table(object):
         return sub_span.sub(replace_span, doctemplate_content)
 
 
-    def renderTemplate(self, templateBuilder, record_id=None, extraData=None):
+    def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None, formats=None):
         record = Bag()
         if record_id:
             record = templateBuilder.data_tblobj.record(pkey=record_id,
                                                         virtual_columns=templateBuilder.virtual_columns).output('bag')
         if extraData:
             record.update(extraData)
+        locale = locale or templateBuilder.locale
+        formats = templateBuilder.formats or dict()
+        formats.update(templateBuilder.formats or dict())
         record.setItem('_env_', Bag(self.db.currentEnv))
         #record.setItem('_template_', templateBuilder.doctemplate_info)
-        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, True,False),
+        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats),
                             record=record)
         return body
     
     
     def compileTemplate(self,record):
         import lxml.html as ht
-        tplvars =  record['varsbag'].digest('#v.varname,#v.fieldpath,#v.virtual_column')
-        varsdict = dict([(varname,'$%s' %fldpath) for varname,fldpath,virtualcol in tplvars])
-        virtual_columns = [fldpath for varname,fldpath,virtualcol in tplvars if virtualcol]
-        columns = [fldpath for varname,fldpath,virtualcol in tplvars]
-
+        tplvars =  record['varsbag'].digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format')
+        #varsdict = dict([(varname,'$%s' %fldpath) for varname,fldpath,virtualcol,format in tplvars])
+        #virtual_columns = [fldpath for varname,fldpath,virtualcol,format in tplvars if virtualcol]
+        #columns = [fldpath for varname,fldpath,virtualcol in tplvars]
+        formats = dict()
+        columns = []
+        virtual_columns = []
+        varsdict = dict()
+        for varname,fldpath,virtualcol,format in tplvars:
+            varsdict[varname] = '$%s' %fldpath
+            formats[fldpath] = format
+            columns.append(fldpath)
+            if virtualcol:
+                virtual_columns.append(fldpath)
+                
         template = templateReplace(record['content'], varsdict, True,False)
         templatebag = Bag()
         doc = ht.parse(StringIO(template)).getroot()
@@ -99,7 +113,7 @@ class Table(object):
                 subtemplate=ht.tostring(tbody_lastrow).replace('%s.'%subname,'')
                 templatebag.setItem(subname.replace('.','_'),subtemplate)
         templatebag.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc)),
-                            maintable=record['maintable'],virtual_columns=','.join(virtual_columns),columns=','.join(columns))
+                            maintable=record['maintable'],locale=record['locale'],virtual_columns=','.join(virtual_columns),columns=','.join(columns),formats=formats)
         record['templatebag'] = templatebag
         
  
@@ -110,6 +124,8 @@ class Table(object):
         htmlbuilder = BagToHtml(templates=templates, templateLoader=self.db.table('adm.htmltemplate').getTemplate)
         htmlbuilder.doctemplate = templatebag
         htmlbuilder.virtual_columns = templatebag.getItem('main?virtual_columns')
+        htmlbuilder.locale = templatebag.getItem('main?locale')
+        htmlbuilder.formats = templatebag.getItem('main?formats')
         htmlbuilder.data_tblobj = self.db.table(templatebag.getItem('main?maintable'))
         #htmlbuilder.doctemplate_info = doctemplate_info
         return htmlbuilder

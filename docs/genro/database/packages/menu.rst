@@ -3,7 +3,9 @@
 ============
 ``menu.xml``
 ============
-
+    
+    *Last page update*: |today|
+    
     .. image:: ../../_images/projects/packages/menu.png
     
     * :ref:`menu_intro`
@@ -20,7 +22,7 @@
 Introduction
 ============
     
-    This XML file allows to create a menu for your project's :ref:`webpages_webpages`\s.
+    This XML file allows to create a menu for your project's :ref:`webpages <webpages_webpages>`.
     
     If you have autocreated it (following the instructions of the :ref:`packages_autofill`
     section) you will find this code::
@@ -29,7 +31,7 @@ Introduction
         <GenRoBag>
         </GenRoBag>
     
-    All you have to do is to fill the :ref:`genro_bag_intro` called ``<GenRoBag>`` with tags.
+    All you have to do is to fill the :ref:`bag_intro` called ``<GenRoBag>`` with tags.
     Every :ref:`webpages_webpages` of your project has to fill a single tag. The syntax is::
     
         <tagName label='labelName' file='packageName/fileName' />
@@ -188,7 +190,7 @@ menu icons
 menu lines for resource page of a TableHandler
 ==============================================
 
-    If you have created some :ref:`th_resource_page`\s, then the tag line in the menu
+    If you have created some :ref:`resource pages <th_resource_page>`, then the tag line in the menu
     is a little different from the one for the normal webpages.
     
     In particular, the syntax of the tag is::

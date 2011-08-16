@@ -1,8 +1,10 @@
-.. _genro_sites_index:
+.. _sites_index:
 
 =========
 ``sites``
 =========
+    
+    *Last page update*: |today|
     
     .. image:: ../../_images/projects/sites/project_sites.png
     

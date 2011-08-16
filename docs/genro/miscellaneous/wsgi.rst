@@ -1,9 +1,11 @@
-.. _genro_wsgi:
+.. _wsgi_intro:
 
 ====
 WSGI
 ====
-
+    
+    *Last page update*: |today|
+    
     WSGI (*Web Server Gateway Interface*) is a standard for interfacing with Python web frameworks webservers. It also allows you to compose various web components together through a system of middlewares (similar concept, but not compatible with similar components in Django). A WSGI_ site contains links to many useful resources (frameworks, middlewares, servers).
     
     .. _WSGI: http://wsgi.org/wsgi
@@ -19,7 +21,7 @@ WSGI
     .. _Paste: http://pythonpaste.org/
     .. _WebOb: http://pythonpaste.org/webob/reference.html
     
-    We report here the WSGI declaration (you can find it in the :ref:`sites_root` file, within the :ref:`genro_sites_index` folder of every Genro :ref:`genro_project`)::
+    We report here the WSGI declaration (you can find it in the :ref:`sites_root` file, within the :ref:`sites_index` folder of every Genro :ref:`project`)::
     
         import sys
         sys.stdout = sys.stderr
