@@ -1018,7 +1018,7 @@ class GnrWebPage(GnrBaseWebPage):
 
     def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
         pkg,table = table.split('.')    
-        resourceContent = self.getResourceContent(resource='tables/%s/%s/%s' %(pkg,table,path),pkg=self.package.name,ext=ext)
+        resourceContent = self.getResourceContent(resource='tables/_packages/%s/%s/%s' %(pkg,table,path),pkg=self.package.name,ext=ext)
         if not resourceContent:
             resourceContent = self.getResourceContent(resource='tables/%s/%s' %(table,path),pkg=pkg,ext=ext)
         return resourceContent
@@ -1707,7 +1707,13 @@ class LazyBagResolver(BagResolver):
         """add???"""
         filepath = self._page.site.getStaticPath(self.location, self.resolverName)
         self.sourceBag = Bag('%s.pik' % filepath)
-        
+
+## 
+
+    def windowTitle(self):
+        """Return the window title"""
+        return os.path.splitext(os.path.basename(self.filename))[0].replace('_', ' ').capitalize()
+
 class GnrMakoPage(GnrWebPage):
     """add???"""
     def onPreIniting(self, request_args, request_kwargs):
