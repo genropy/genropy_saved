@@ -68,8 +68,7 @@ class FrameGrid(BaseComponent):
     def fgr_frameGrid(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,tools=None,**kwargs):
         tools = tools or '5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,gridReload'
         kwargs['selfsubscribe_tools'] = """ var bc = this.getWidget();
-                                            genro.dom.toggleClass(bc._left,"visibleBcPane"); 
-                                            bc._layoutChildren("left");
+                                            bc.setRegionVisible("left","toggle");
                                             """
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         if top_kwargs:
@@ -84,8 +83,9 @@ class FrameGrid(BaseComponent):
 
     @struct_method
     def fgr_leftBar(self,pane,slots):
+        pane.attributes['overflow'] = 'hidden'
+        pane.attributes['hidden'] = True
         pane.slotToolbar(slots)
-        pane.attributes['_class'] = 'hiddenBcPane'
         
     def fgr_relationHandler(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,**kwargs):
         pass
