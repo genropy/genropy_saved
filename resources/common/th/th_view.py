@@ -192,7 +192,6 @@ class TableHandlerView(BaseComponent):
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
         frame.dataFormula('.title','view_title || name_plural',name_plural='=.table?name_plural',view_title='=.title',_init=True)
-        frame.dataFormula('.query.where', 'q.deepCopy();',q='=.baseQuery',_onStart=True)
         condPars = {}
         if isinstance(condition,dict):
             condPars = condition
@@ -302,9 +301,9 @@ class TableHandlerView(BaseComponent):
                     qb.createMenues();
                     dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
                     dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
+                    SET .query.where = baseQuery.deepCopy();
                     qb.buildQueryPane();
-        """,_onStart=True,mangler=mangler)
-        
+        """,_onStart=True,mangler=mangler,baseQuery='=.baseQuery')        
         fb = pane.formbuilder(cols=6, datapath='.query.where', _class='query_form',
                                    border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
         fb.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
