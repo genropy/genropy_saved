@@ -49,7 +49,7 @@ batch_monitor.create_local_root = function(sync) {
         node.freeze();
         var paletteBtc = node._('palettePane',{'paletteCode':'localBatches',
                                                     title:'Local batches',
-                                                    dockTo:'default_dock:open',
+                                                    dockTo:false,
                                                     width:'200px',
                                                     height:'250px',
                                                     selfsubscribe_showing:function(){
