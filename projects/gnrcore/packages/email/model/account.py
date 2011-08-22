@@ -14,5 +14,6 @@ class Table(object):
         tbl.column('ssl','B',name_long='!!SSL')
         tbl.column('username',size=':80',name_long='!!Username')
         tbl.column('password',size=':80',name_long='!!Password')
-        
+        tbl.column('ssl','B',name_long='!!SSL')
+        tbl.column('last_uid',name_long='!!Last UID')
         
