@@ -399,8 +399,8 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             column_caption:this.getCaption('column', pars)});
         this.buildQueryPane();
     },
-    cleanQueryPane:function() {
-        var querybag = this.sourceNode.getRelativeData('.query.where');
+    cleanQueryPane:function(querybag) {
+        //var querybag = this.sourceNode.getRelativeData('.query.where');
         var wrongLinesPathlist = [];
         var cb = function(node) {
             var attr = node.attr;
