@@ -182,15 +182,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         batchClass = self._batchFinder(batch)
         batch = batchClass(self.page)
         if forked:
-            try:
-                result = batch.run(**kwargs)
-                error = None
-                _cls = None
-            except Exception, err:
-                result = self.page._errorPage(err, batch, kwargs)
-                result._page = None
-                error = 'serverError'
-                _cls = 'domsource'
+            result = batch.run(**kwargs)
+            error = None
+            _cls = None
             self.page.setInClientData(resultpath, result, attributes=dict(_error=error, __cls=_cls))
         else:
             return batch.run(**kwargs)
