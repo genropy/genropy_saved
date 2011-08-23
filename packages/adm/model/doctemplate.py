@@ -62,7 +62,7 @@ class Table(object):
         htmlbuilder.virtual_columns = ','.join(virtual_columns)
         htmlbuilder.data_tblobj = self.db.table(doctemplate_info['maintable'])
         htmlbuilder.doctemplate_info = doctemplate_info
-        htmlbuilder.locale = doctemplate['locale']
+        htmlbuilder.locale = doctemplate_info['locale']
         return htmlbuilder
     
     def sendMail(self,record_id=None,doctemplate=None,templates=None,locale=None,formats=None,**kwargs):
