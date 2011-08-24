@@ -47,7 +47,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if queryTool:
-            base_slots = ['queryMenu','queryfb','|','queryTool','viewsMenu','10','export','|','10','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
+            base_slots = ['queryMenu','queryfb','2','runbtn','|','queryTool','viewsMenu','10','export','|','10','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
         else:
             base_slots = ['tools','5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
@@ -88,7 +88,7 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
-        pane.div('^.meta.code',_class='buttonIcon',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*',
+        pane.div(_class='icnBaseArrowDown buttonIcon',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*',
                  action="""if($1.pkey){
                                 SET .querypkey = $1.pkey;
                           }else if($1.selectmethod){
@@ -103,7 +103,7 @@ class TableHandlerView(BaseComponent):
         pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
         for k,v in pyqueries.items():
             pars = dictExtract(dict(v.__dict__),'query_')
-            code = pars.pop('code')
+            code = pars.get('code')
             q.setItem(code,None,tip=pars.get('description'),selectmethod=v,**pars)
         pane.data('.query.pyqueries',q)
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
@@ -115,7 +115,7 @@ class TableHandlerView(BaseComponent):
                                 SET .query.caption = baseCode;
                                 SET .query.meta = new gnr.GnrBag({code:baseCode});
                                 """,
-                            key="^.query.loadBaseQuery",baseQuery='=.baseQuery',baseCode='!!Search')
+                            _fired="^.query.loadBaseQuery",baseQuery='=.baseQuery',baseCode='!!Search')
         
  
         rpc = pane.dataRpc('dummy',self.th_loadUserObject,pkey='^.query.querypkey',table=table,_if='pkey')
@@ -283,6 +283,11 @@ class TableHandlerView(BaseComponent):
     #def th_slotbar_queryfb(self, pane,**kwargs):
     #    pane.borderContainer()
     #    
+    @struct_method
+    def th_slotbar_runbtn(self,pane,**kwargs):
+        pane.slotButton(label='!!Run query',publish='runbtn',
+                               baseClass='no_background',
+                               iconClass='tb_button db_query')
     
     @struct_method
     def th_slotbar_queryfb(self, pane,**kwargs):
@@ -325,15 +330,16 @@ class TableHandlerView(BaseComponent):
                    qb.createMenues();
                    dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
                    dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
-                   SET .query.where = baseQuery.deepCopy();
+                   FIRE .query.loadBaseQuery;
                    qb.buildQueryPane();
         """,_onStart=True,th_root=th_root,baseQuery='=.baseQuery')        
-        fb = pane.formbuilder(cols=4, datapath='.query.where', _class='query_form',width='620px',overflow='hidden',
+        fb = pane.formbuilder(cols=3, datapath='.query.where', _class='query_form',width='600px',overflow='hidden',
                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
         fb.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
                  nodeId='%s_fastQueryColumn' %th_root,
                   dropTarget=True,row_hidden='^.#parent.extended',
-                 lbl='',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querybuilder.onChangedQueryColumn(this,data);" %th_root})
+                 lbl='!!Search:',tdl_width='4em',
+                 **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querybuilder.onChangedQueryColumn(this,data);" %th_root})
         optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
@@ -356,11 +362,7 @@ class TableHandlerView(BaseComponent):
 
         value_textbox.div('^.c_0', hidden='==!(_op in  TH("%s").querybuilder.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
-                 
-        fb.slotButton(label='!!Run query',publish='runbtn',
-                               baseClass='no_background',
-                               iconClass='tb_button db_query')
-        fb.div('^.#parent.caption',colspan=4,row_hidden='^.#parent.extended?=!#v',width='100%')
+        fb.div('^.#parent.caption',lbl='!!Search:',tdl_width='4em',colspan=3,row_hidden='^.#parent.extended?=!#v',width='99%', _class='fakeTextBox')
         
     def _th_viewController(self,pane,table=None,th_root=None):
         table = table or self.maintable
