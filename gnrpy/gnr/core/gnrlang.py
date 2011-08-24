@@ -155,19 +155,7 @@ def timer_call(time_list=None, print_time=True):
         return wrapper
         
     return decore
-    
-def metadata(**kwargs):
-    """add???
-    
-    :returns: add???
-    """
-    def decore(func):
-        for k, v in kwargs.items():
-            setattr(func, k, v)
-        return func
-        
-    return decore
-    
+
 def getUuid():
     """Return a Python Universally Unique IDentifier 3 (UUID3) through the Python \'base64.urlsafe_b64encode\' method"""
     return base64.urlsafe_b64encode(uuid.uuid3(uuid.uuid1(), str(thread.get_ident())).bytes)[0:22]

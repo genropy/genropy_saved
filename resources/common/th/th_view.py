@@ -47,7 +47,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if queryTool:
-            base_slots = ['tools','5','vtitle','5','queryfb','|','queryTool','queryMenu','viewsMenu','10','export','|','10','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
+            base_slots = ['queryMenu','queryfb','|','queryTool','viewsMenu','10','export','|','10','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
         else:
             base_slots = ['tools','5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
@@ -88,27 +88,40 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         mangler = inattr['th_root']
         table = inattr['table']
-        pane.div(_class='buttonIcon icnSavedQuery',tip='!!Stored query',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*')
+        pane.div(_class='buttonIcon icnSavedQuery',tip='!!Stored query',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*',
+                 action="""if($1.pkey){
+                                SET .querypkey = $1.pkey;
+                          }else if($1.selectmethod){
+                                SET .selectmethod=$1.selectmethod;
+                                SET .meta = new gnr.GnrBag($1);
+                                FIRE .#parent.runQuery;
+                                SET .where = new gnr.GnrBag();
+                                SET .caption = $1.description;
+                          }
+                          SET .extended=true;""")
         q = Bag()
         pyqueries = self._th_hook('query',mangler=mangler,asDict=True)
         for k,v in pyqueries.items():
-            prefix,name=k.split('_query_')
-            q.setItem(name,self._prepareQueryBag(v(),table=table),caption=v.__doc__)
-        pane.data('.query.standard',q)
-        pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries=q.digest('#k,#a.caption'),
+            pars = dictExtract(dict(v.__dict__),'query_')
+            code = pars.pop('code')
+            q.setItem(code,None,caption=pars.pop('description'),selectmethod=v,**pars)
+        pane.data('.query.pyqueries',q)
+        pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
                         table=table,mangler=mangler,caption='Queries',cacheTime=10)
         pane.dataController("""
-                                var q = key=='__basequery__'? baseQuery:standard.getItem(key);
-                                SET .query.where = q.deepCopy(); 
-                                SET .query.querypkey = null;SET .query.meta = new gnr.GnrBag();
-                                if(key!='__basequery__'){
-                                    FIRE .runQuery;
-                                }
+                                SET .query.where = baseQuery.deepCopy(); 
+                                SET .query.querypkey = null;
+                                SET .query.selectmethod = null;
+                                SET .query.caption = baseCaption;
+                                SET .query.meta = new gnr.GnrBag();
                                 """,
-                            key="^.query.loadstandard",baseQuery='=.baseQuery',standard='=.query.standard')
+                            key="^.query.loadBaseQuery",baseQuery='=.baseQuery',baseCaption='!!Search')
+        
+ 
         rpc = pane.dataRpc('dummy',self.th_loadUserObject,pkey='^.query.querypkey',table=table,_if='pkey')
         rpc.addCallback("""
             SET .query.meta = new gnr.GnrBag(result.attr);
+            SET .query.caption = result.attr.description;
             SET .query.where = result._value.deepCopy();
             FIRE .runQuery;
             return result;
@@ -244,8 +257,7 @@ class TableHandlerView(BaseComponent):
                                excludeLogicalDeleted='=.excludeLogicalDeleted',
                                excludeDraft='=.excludeDraft',
                                applymethod='onLoadingSelection',
-                               timeout=180000, selectmethod='=.selectmethod',
-                               selectmethod_prefix='customQuery',
+                               timeout=180000, selectmethod='=.query.selectmethod',
                                _onCalling=self._th_hook('onQueryCalling',mangler=mangler)(),
                                **condPars)
         store.addCallback('FIRE .queryEnd=true; SET .selectmethod=null; return result;')        
@@ -267,76 +279,88 @@ class TableHandlerView(BaseComponent):
                             runOnStart=querybase.get('runOnStart', False))
 
     
+    #@struct_method
+    #def th_slotbar_queryfb(self, pane,**kwargs):
+    #    pane.borderContainer()
+    #    
+    
     @struct_method
     def th_slotbar_queryfb(self, pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table'] 
         mangler = inattr['th_root']
         pane.dataController(
-                """this._querybuilder = new gnr.GnrQueryBuilder(this,table,"query_root");
-                   this._queryanalyzer = new gnr.GnrQueryAnalyzer(this,table);
-                """ 
-                , _init=True,table=table,nodeId='%s_queryscripts' %mangler)
-        
-        pane.dataController("""
-                               genro.querybuilder(mangler).cleanQueryPane(querybag); 
-                               SET .queryRunning = true;
-                               var parslist = genro.queryanalyzer(mangler).translateQueryPars();
-                               if (parslist.length>0){
-                                  genro.queryanalyzer(mangler).buildParsDialog(parslist);
-                               }else{
-                                  FIRE .runQueryDo = true;
-                               }
-                            """,mangler=mangler,_fired="^.runQuery",querybag='=.query.where',_if='querybag.getItem("#0?column")')
+               """this._querybuilder = new gnr.GnrQueryBuilder(this,table,"query_root");
+                  this._queryanalyzer = new gnr.GnrQueryAnalyzer(this,table);
+               """ 
+               , _init=True,table=table,nodeId='%s_queryscripts' %mangler)
+
+        pane.dataController("""if(selectmethod){
+                                var parslist=[];
+                              }else if(querybag.getItem("#0?column")){
+                                    genro.querybuilder(mangler).cleanQueryPane(querybag); 
+                                    SET .queryRunning = true;
+                                    var parslist = genro.queryanalyzer(mangler).translateQueryPars();
+                              }
+                              if (parslist.length>0){
+                                    genro.queryanalyzer(mangler).buildParsDialog(parslist);
+                                }else{
+                                    FIRE .runQueryDo = true;
+                              }
+                              
+                              
+                           """,mangler=mangler,_fired="^.runQuery",
+                           querybag='=.query.where',
+                           selectmethod='=.query.selectmethod')
         pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
-                            cnt='^.currentQueryCount', _if='cnt', _else='',
-                            msg='!!Current query will return _rec_ items')
+                           cnt='^.currentQueryCount', _if='cnt', _else='',
+                           msg='!!Current query will return _rec_ items')
         pane.dataController("""SET .currentQueryCountAsString = waitmsg;
-                               FIRE .updateCurrentQueryCount;
-                                genro.dlg.alert(alertmsg,dlgtitle);
-                                  """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
-                               dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
+                              FIRE .updateCurrentQueryCount;
+                               genro.dlg.alert(alertmsg,dlgtitle);
+                                 """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
+                              dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
         pane.dataController("""
-                    var qb = genro.querybuilder(mangler);
-                    qb.createMenues();
-                    dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
-                    dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
-                    SET .query.where = baseQuery.deepCopy();
-                    qb.buildQueryPane();
+                   var qb = genro.querybuilder(mangler);
+                   qb.createMenues();
+                   dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
+                   dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
+                   SET .query.where = baseQuery.deepCopy();
+                   qb.buildQueryPane();
         """,_onStart=True,mangler=mangler,baseQuery='=.baseQuery')        
-        fb = pane.formbuilder(cols=6, datapath='.query.where', _class='query_form',
-                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
+        fb = pane.formbuilder(cols=4, datapath='.query.where', _class='query_form',width='620px',overflow='hidden',
+                                  border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
         fb.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
-                  nodeId='%s_fastQueryColumn' %mangler,
-                   dropTarget=True,
-                  lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder('%s').onChangedQueryColumn(this,data);" %mangler})
+                 nodeId='%s_fastQueryColumn' %mangler,
+                  dropTarget=True,row_hidden='^.#parent.extended',
+                 lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder('%s').onChangedQueryColumn(this,data);" %mangler})
         optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
-                 display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %mangler,
-                 border_right='1px solid silver')
-                 
+                display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %mangler,
+                border_right='1px solid silver')
         optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %mangler, 
-                 selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
-                 connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %mangler,
-                 action="genro.querybuilder('%s').onChangedQueryOp($2,$1);" %mangler,
-                 _dtype='^.c_0?column_dtype',
-                 _class='floatingPopup', display='inline-block', padding_left='2px')
-                 
+                selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
+                connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %mangler,
+                action="genro.querybuilder('%s').onChangedQueryOp($2,$1);" %mangler,
+                _dtype='^.c_0?column_dtype',
+                _class='floatingPopup', display='inline-block', padding_left='2px')
+        
         value_textbox = fb.textbox(lbl='!!Value', value='^.c_0', width='12em', lbl_width='5em',
-                                        _autoselect=True,
-                                        row_class='^.c_0?css_class', position='relative',
-                                        disabled='==(_op in genro.querybuilder("%s").helper_op_dict)'  %mangler, _op='^.c_0?op',
-                                        connect_onclick="genro.querybuilder('%s').getHelper(this);" %mangler,
-                                        validate_onAccept='genro.queryanalyzer("%s").checkQueryLineValue(this,value);' %mangler,
-                                        _class='st_conditionValue')
+                                       _autoselect=True,
+                                       row_class='^.c_0?css_class', position='relative',
+                                       disabled='==(_op in genro.querybuilder("%s").helper_op_dict)'  %mangler, _op='^.c_0?op',
+                                       connect_onclick="genro.querybuilder('%s').getHelper(this);" %mangler,
+                                       validate_onAccept='genro.queryanalyzer("%s").checkQueryLineValue(this,value);' %mangler,
+                                       _class='st_conditionValue')
 
         value_textbox.div('^.c_0', hidden='==!(_op in  genro.querybuilder("%s").helper_op_dict)' %mangler,
-                          _op='^.c_0?op', _class='helperField')
-                          
+                         _op='^.c_0?op', _class='helperField')
+                 
         fb.slotButton(label='!!Run query',publish='runbtn',
-                                baseClass='no_background',
-                                iconClass='tb_button db_query')
+                               baseClass='no_background',
+                               iconClass='tb_button db_query')
+        fb.div('^.#parent.caption',colspan=4,row_hidden='^.#parent.extended?=!#v',width='100%')
         
     def _th_viewController(self,pane,table=None,mangler=None):
         table = table or self.maintable
@@ -369,40 +393,50 @@ class TableHandlerView(BaseComponent):
         return result
 
 class THViewUtils(BaseComponent):
-
+    js_requires='th/th_querytool'
     @struct_method
     def th_slotbar_queryTool(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         mangler = inattr['th_root']
         table = inattr['table']
-        pane.dataRpc('.querypkey',self.th_saveUserObject,objtype='query',table=table,id='=.meta.id',data='=.where',code='=.meta.code',
-                    description='=.meta.description', authtags='=.meta.authtags', private='=.meta.private', 
-                    _fired='^.save',_if='code',_onResult='FIRE .saved;',datapath='.query')
-        pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.querypkey',table=table,_fired='^.query.delete',
-                    _onResult='FIRE .query.loadstandard="__basequery__";')
-        dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
-                                _pref='!!Save query: ',_code='^.code',datapath='.query.meta')
-
-        self.th_saveUserObjectDialog(dialog,table)
-        palette = pane.palettePane('%s_queryTool' %mangler,title='!!Query tool',
-                        dockButton_iconClass='icnBaseLens',
-                        datapath='.query.where',
-                        dockButton_baseClass='no_background',
-                        height='150px',width='400px')
-        bar = palette.slotToolbar('cap,*,show_fields,editmenu',font_size='.8em',datapath='.#parent')
-        bar.cap.div(innerHTML='==pref+(code||"-");',pref="!!Query:",code='^.meta.code')
-        bar.show_fields.button('!!Show fields',
-                                palettetitle='!!Fields',
-                                table=table,
-                                action="genro.dev.relationExplorer(table,palettetitle,{'left':'20pxpx','top':'20px','height':'270px','width':'180px'})")
-        menu = bar.editmenu.div(_class='icnBaseEdit buttonIcon').menu(modifiers='*')
-        menu.menuline(label='!!Save Query',action='this.getAttributeFromDatasource("dialog").show();',dialog=dialog.js_widget)
-        menu.menuline(label='!!Save As...',action='SET .meta = new gnr.GnrBag(); this.getAttributeFromDatasource("dialog").show();',
-                                    dialog=dialog.js_widget,disabled='^.querypkey?=!#v')
-        menu.menuline(label='-')
-        menu.menuline(label='!!Delete Query',action='FIRE .delete;',disabled='^.querypkey?=!#v')
-
-        palette.div(nodeId='%s_query_root' %mangler)
+        pane.slotButton(iconClass='icnBaseLens',action="""
+                                                        var qt= new gnr.AdvancedQueryTool(this,mangler);
+                                                        
+                                                        """,mangler=mangler)
+        
+   #@struct_method
+   #def th_slotbar_queryTool(self,pane,**kwargs):
+   #    inattr = pane.getInheritedAttributes()
+   #    mangler = inattr['th_root']
+   #    table = inattr['table']
+   #    pane.dataRpc('.querypkey',self.th_saveUserObject,objtype='query',table=table,id='=.meta.id',data='=.where',code='=.meta.code',
+   #                description='=.meta.description', authtags='=.meta.authtags', private='=.meta.private', 
+   #                _fired='^.save',_if='code',_onResult='FIRE .saved;',datapath='.query')
+   #    pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.querypkey',table=table,_fired='^.query.delete',
+   #                _onResult='FIRE .query.loadstandard="__basequery__";')
+   #    dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
+   #                            _pref='!!Save query: ',_code='^.code',datapath='.query.meta')
+   #
+   #    self.th_saveUserObjectDialog(dialog,table)
+   #    palette = pane.palettePane('%s_queryTool' %mangler,title='!!Query tool',
+   #                    dockButton_iconClass='icnBaseLens',
+   #                    datapath='.query.where',
+   #                    dockButton_baseClass='no_background',
+   #                    height='150px',width='400px')
+   #    bar = palette.slotToolbar('cap,*,show_fields,editmenu',font_size='.8em',datapath='.#parent')
+   #    bar.cap.div(innerHTML='==pref+(code||"-");',pref="!!Query:",code='^.meta.code')
+   #    bar.show_fields.button('!!Show fields',
+   #                            palettetitle='!!Fields',
+   #                            table=table,
+   #                            action="genro.dev.relationExplorer(table,palettetitle,{'left':'20pxpx','top':'20px','height':'270px','width':'180px'})")
+   #    menu = bar.editmenu.div(_class='icnBaseEdit buttonIcon').menu(modifiers='*')
+   #    menu.menuline(label='!!Save Query',action='this.getAttributeFromDatasource("dialog").show();',dialog=dialog.js_widget)
+   #    menu.menuline(label='!!Save As...',action='SET .meta = new gnr.GnrBag(); this.getAttributeFromDatasource("dialog").show();',
+   #                                dialog=dialog.js_widget,disabled='^.querypkey?=!#v')
+   #    menu.menuline(label='-')
+   #    menu.menuline(label='!!Delete Query',action='FIRE .delete;',disabled='^.querypkey?=!#v')
+   #
+   #    palette.div(nodeId='%s_query_root' %mangler)
 
     @public_method
     def th_listUserObject(self,table, objtype=None,namespace=None, **kwargs):
@@ -441,18 +475,18 @@ class THViewUtils(BaseComponent):
     @public_method
     def th_menuQueries(self,table=None,mangler=None,pyqueries=None,**kwargs):
         querymenu = Bag()
-        querymenu.setItem('r_0',None,caption='!!Base Query',action='FIRE .loadstandard="__basequery__";')
+        querymenu.setItem('r_0',None,caption='!!Search',action='FIRE .loadBaseQuery; SET .extended=false;')
         if pyqueries:
             querymenu.setItem('r_1',None,caption='-')
-            for k,caption in pyqueries:
-                querymenu.setItem(k.replace('_','.'),None,caption=caption,action='FIRE .loadstandard=$1.querykey;',querykey=k)
+            for n in pyqueries:
+                querymenu.setItem(n.label,n.value,_attributes=n.attr)
                 
         savedqueries = self.package.listUserObject(objtype='query', userid=self.user, tbl=table,authtags=self.userTags)
         if savedqueries:
             querymenu.setItem('r_2',None,caption='-')
             for i, r in enumerate(savedqueries.data):
                 attrs = dict([(str(k), v) for k, v in r.items()])
-                querymenu.setItem(r['code'] or 's_%i' % i, None, action='SET .querypkey = $1.pkey;',**attrs)
+                querymenu.setItem(r['code'] or 's_%i' % i, None,**attrs)
         return querymenu
         
         
