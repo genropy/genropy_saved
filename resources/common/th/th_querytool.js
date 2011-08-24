@@ -1,11 +1,11 @@
 dojo.declare("gnr.PlainQueryTool", null, {
-    constructor:function(pane,mangler){
+    constructor:function(pane,th_root){
         
     }
 });
 
 dojo.declare("gnr.AdvancedQueryTool", null, {
-    constructor:function(sourceNode,mangler){
+    constructor:function(sourceNode,th_root){
         sourceNode.setRelativeData('.query.full',true)
         this.queryRoot = sourceNode._('palettePane',{'title':'AdvancedQueryTool',dockTo:false});
     }
@@ -13,17 +13,13 @@ dojo.declare("gnr.AdvancedQueryTool", null, {
 
 
 dojo.declare("gnr.GnrQueryBuilder", null, {
-    constructor: function(sourceNode, maintable,rootId) {
-        if (!genro.querybuilder){
-            genro.querybuilder = function(mangler){
-                return genro.nodeById(mangler+'_'+'queryscripts')._querybuilder;
-            }
-        }
+    constructor: function(th,sourceNode, maintable,rootId) {
+        this.th = th;
         this.sourceNode = sourceNode;
         this.rootId = rootId;
         this.maintable = maintable;
         this.tablecode = maintable.replace('.','_');
-        this.mangler = sourceNode.getInheritedAttributes()['th_root'];
+        this.th_root = this.th.th_root;
         this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
             'D':'date','DH':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
@@ -41,8 +37,8 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
     },
     
     relativeId:function(id){
-        if(this.mangler){
-             return this.mangler + '_' + id;
+        if(this.th_root){
+             return this.th_root + '_' + id;
         }else{
             return this.tablecode+'_'+id;
         }
@@ -61,7 +57,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.jc',id:this.relativeId('qb_jc_menu')});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:this.relativeId('qb_not_menu')});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',id:this.relativeId('qb_fields_menu'),
-            action:"genro.querybuilder('"+this.mangler+"').onChangedQueryColumn($2,$1,$2.attr.relpath);"});
+            action:"TH('"+this.th_root+"').querybuilder.onChangedQueryColumn($2,$1,$2.attr.relpath);"});
 
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:this.relativeId('qb_op_menu')});
 
@@ -194,8 +190,6 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         if(op in this.helper_op_dict){
             console.log('get helper for',op);
         }
-        
-        //if(GET .c_0?op in genro.querybuilder('%s').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='c_0';}
     },
 
     _buildQueryRow: function(tr, node, i, level) {
@@ -221,21 +215,22 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             this._buildQueryGroup(cell, val, level + 1);
         } else {
             var op_menu_id = 'qb_op_menu_' + (this.getDtypeGroup(attr.column_dtype || 'T'));
+            var curr_th = "TH('"+this.th_root+"')";
             attr.column_caption = this.getCaption('column', attr);
             attr.op_caption = this.getCaption('op', attr);
             var tdattr = {_class:'qb_div qb_field floatingPopup',connectedMenu:this.relativeId('qb_fields_menu'),relpath:node.label,dropTarget:true,
                             innerHTML:'^' + relpath + '?column_caption'};
-            tdattr['onDrop_gnrdbfld_'+this.maintable.replace('.','_')]="console.log(arguments);genro.querybuilder('"+this.mangler+"').onChangedQueryColumn(this,data,'" + node.label + "');"
+            tdattr['onDrop_gnrdbfld_'+this.maintable.replace('.','_')]=curr_th+".querybuilder.onChangedQueryColumn(this,data,'" + node.label + "');"
             tr._('td')._('div', tdattr);
             tr._('td')._('div', {_class:'qb_div qb_op floatingPopup',
-                connectedMenu:'==genro.querybuilder("'+this.mangler+'").getOpMenuId(_dtype);',
+                connectedMenu:'==_qb.getOpMenuId(_dtype);',
                 _dtype:'^' + relpath + '?column_dtype',selected_fullpath:relpath + '?op',
                 selected_caption: relpath + '?op_caption',innerHTML:'^' + relpath + '?op_caption',
-                id:'_op_' + node.getStringId(),_fired:'^' + relpath + '?column_dtype'});
+                id:'_op_' + node.getStringId(),_fired:'^' + relpath + '?column_dtype',_qb:this});
             var valtd = tr._('td')._('div', {_class:'qb_div qb_value'});
 
             var input_attrs = {value:'^' + relpath, width:'10em',
-                _autoselect:true,_class:'st_conditionValue',validate_onAccept:'genro.queryanalyzer("'+this.mangler+'").checkQueryLineValue(this,value);'};
+                _autoselect:true,_class:'st_conditionValue',validate_onAccept:curr_th+'.queryanalyzer.checkQueryLineValue(this,value);'};
             if (attr.value_caption) {
                 var fld_id = node.getStringId() + '_value';
                 input_attrs['id'] = fld_id;
@@ -249,7 +244,6 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
                 that.getHelper(this);
             }
             
-            //"var op = GET " + relpath + "?op;if(op in genro.querybuilder('"+this.mangler+"').helper_op_dict){FIRE .#parent.#parent.helper.queryrow='" + relpath.slice(1) + "';}";
             input_attrs.disabled = "==(_op in _helperOp);";
             input_attrs._helperOp = this.helper_op_dict;
             input_attrs._op = '^' + relpath + '?op';
@@ -282,13 +276,8 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
     
 });
 dojo.declare("gnr.GnrQueryAnalyzer", null, {
-    constructor: function(sourceNode, table,mangler) {
-        if (!genro.queryanalyzer){
-            genro.queryanalyzer = function(mangler){
-                return genro.nodeById(mangler+'_'+'queryscripts')._queryanalyzer;
-            }
-        }
-        this.mangler = mangler;
+    constructor: function(th,sourceNode, table) {
+        this.th_root = th.th_root;
         this.maintable = table;
         this.sourceNode = sourceNode;
         this.wherepath = this.sourceNode.absDatapath()+'.query.where';

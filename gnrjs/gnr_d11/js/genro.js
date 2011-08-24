@@ -62,6 +62,7 @@ dojo.declare('gnr.GenroClient', null, {
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
         this.theme = {};
         this.dojo = dojo;
+        this.ext={};
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
     genroInit:function() {

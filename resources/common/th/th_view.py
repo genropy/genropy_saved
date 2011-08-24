@@ -86,9 +86,9 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
-        mangler = inattr['th_root']
+        th_root = inattr['th_root']
         table = inattr['table']
-        pane.div(_class='buttonIcon icnSavedQuery',tip='!!Stored query',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*',
+        pane.div('^.meta.code',_class='buttonIcon',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*',
                  action="""if($1.pkey){
                                 SET .querypkey = $1.pkey;
                           }else if($1.selectmethod){
@@ -100,22 +100,22 @@ class TableHandlerView(BaseComponent):
                           }
                           SET .extended=true;""")
         q = Bag()
-        pyqueries = self._th_hook('query',mangler=mangler,asDict=True)
+        pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
         for k,v in pyqueries.items():
             pars = dictExtract(dict(v.__dict__),'query_')
             code = pars.pop('code')
-            q.setItem(code,None,caption=pars.pop('description'),selectmethod=v,**pars)
+            q.setItem(code,None,tip=pars.get('description'),selectmethod=v,**pars)
         pane.data('.query.pyqueries',q)
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
-                        table=table,mangler=mangler,caption='Queries',cacheTime=10)
+                        table=table,th_root=th_root,caption='Queries',cacheTime=10)
         pane.dataController("""
                                 SET .query.where = baseQuery.deepCopy(); 
                                 SET .query.querypkey = null;
                                 SET .query.selectmethod = null;
-                                SET .query.caption = baseCaption;
-                                SET .query.meta = new gnr.GnrBag();
+                                SET .query.caption = baseCode;
+                                SET .query.meta = new gnr.GnrBag({code:baseCode});
                                 """,
-                            key="^.query.loadBaseQuery",baseQuery='=.baseQuery',baseCaption='!!Search')
+                            key="^.query.loadBaseQuery",baseQuery='=.baseQuery',baseCode='!!Search')
         
  
         rpc = pane.dataRpc('dummy',self.th_loadUserObject,pkey='^.query.querypkey',table=table,_if='pkey')
@@ -130,21 +130,21 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_viewsMenu(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
-        mangler = inattr['th_root']
+        th_root = inattr['th_root']
         table = inattr['table']
         pane.div(padding_left='5px',_class='buttonIcon vieselectorIcn',tip='!!Stored query',datapath='.grid').menu(storepath='.th_viewmenu',_class='smallmenu',modifiers='*')
         q = Bag()
-        pyviews = self._th_hook('struct',mangler=mangler,asDict=True)
+        pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
         for k,v in pyviews.items():
             prefix,name=k.split('_struct_')
             q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
         pane.data('.grid.resource_structs',q)
         pane.dataRemote('.grid.th_viewmenu',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),
-                        table=table,mangler=mangler,cacheTime=10)
+                        table=table,mangler=th_root,cacheTime=10)
     @struct_method
     def th_slotbar_resourcePrints(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
-        mangler = inattr['th_root']
+        th_root = inattr['th_root']
         table = inattr['table']
         pane.div(_class='buttonIcon icnBasePrinter').menu(modifiers='*',storepath='.resources.print.menu',
                     action="""
@@ -153,7 +153,7 @@ class TableHandlerView(BaseComponent):
                             kw['selectedRowidx'] = genro.wdgById(kw.gridId).getSelectedRowidx();
                             genro.publish({topic:"table_script_run",parent:true},kw)
                             """,
-                    batch_selectionName=mangler,batch_gridId='%s_grid' %mangler,batch_table=table,batch_res_type='print',
+                    batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',
                     batch_sourcepage_id=self.page_id)
         pane.dataRemote('.resources.print.menu',self.table_script_resource_tree_data,res_type='print', table=table,cacheTime=5)
 
@@ -161,14 +161,14 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_resourceActions(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
-        mangler = inattr['th_root']
+        th_root = inattr['th_root']
         pane.div(_class='buttonIcon icnBaseAction').menu(modifiers='*',storepath='.resources.action.menu',action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
                             kw['selectedRowidx'] = genro.wdgById(kw.gridId).getSelectedRowidx();
                             genro.publish({topic:"table_script_run",parent:true},kw)
                             """,
-                    batch_selectionName=mangler,batch_gridId='%s_grid' %mangler,batch_table=table,batch_res_type='action',
+                    batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='action',
                     batch_sourcepage_id=self.page_id)
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,res_type='action', table=table,cacheTime=5)
 
@@ -176,14 +176,14 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_resourceMails(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
-        mangler = inattr['th_root']
+        th_root = inattr['th_root']
         pane.div(_class='buttonIcon icnBaseEmail').menu(modifiers='*',storepath='.resources.mail.menu',action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
                             kw['selectedRowidx'] = genro.wdgById(kw.gridId).getSelectedRowidx();
                             genro.publish({topic:"table_script_run",parent:true},kw)
                             """,
-                    batch_selectionName=mangler,batch_gridId='%s_grid' %mangler,batch_table=table,batch_res_type='mail',
+                    batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='mail',
                     batch_sourcepage_id=self.page_id)        
         pane.dataRemote('.resources.mail.menu',self.table_script_resource_tree_data,res_type='mail', table=table,cacheTime=5)
 
@@ -192,8 +192,8 @@ class TableHandlerView(BaseComponent):
     def th_gridPane(self, frame,table=None,reloader=None,th_pkey=None,
                         virtualStore=None,condition=None):
         table = table or self.maintable
-        mangler = frame.getInheritedAttributes()['th_root']
-        sortedBy=self._th_hook('order',mangler=mangler)()
+        th_root = frame.getInheritedAttributes()['th_root']
+        sortedBy=self._th_hook('order',mangler=th_root)()
         if sortedBy :
             if not filter(lambda e: e.startswith('pkey'),sortedBy.split(',')):
                 sortedBy = sortedBy +',pkey' 
@@ -201,7 +201,7 @@ class TableHandlerView(BaseComponent):
         if th_pkey:
             querybase = dict(column=self.db.table(table).pkey,op='equal',val=th_pkey,runOnStart=True)
         else:
-            querybase = self._th_hook('query',mangler=mangler)() or dict()
+            querybase = self._th_hook('query',mangler=th_root)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
         frame.dataFormula('.title','view_title || name_plural',name_plural='=.table?name_plural',view_title='=.title',_init=True)
@@ -220,7 +220,7 @@ class TableHandlerView(BaseComponent):
         }
         
         SET .grid.columns = columns;
-        """, hiddencolumns=self._th_hook('hiddencolumns',mangler=mangler)(),
+        """, hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
                             struct='^.grid.struct', _init=True)
 
         gridattr = frame.grid.attributes
@@ -241,7 +241,7 @@ class TableHandlerView(BaseComponent):
         chunkSize=self.rowsPerPage()*4   if virtualStore else None  
         if virtualStore:
             chunkSize=self.rowsPerPage()*4
-            selectionName = '*%s' %mangler
+            selectionName = '*%s' %th_root
         else:
             chunkSize = None
             selectionName = None
@@ -258,7 +258,7 @@ class TableHandlerView(BaseComponent):
                                excludeDraft='=.excludeDraft',
                                applymethod='onLoadingSelection',
                                timeout=180000, selectmethod='=.query.selectmethod',
-                               _onCalling=self._th_hook('onQueryCalling',mangler=mangler)(),
+                               _onCalling=self._th_hook('onQueryCalling',mangler=th_root)(),
                                **condPars)
         store.addCallback('FIRE .queryEnd=true; SET .selectmethod=null; return result;')        
         if virtualStore:
@@ -288,28 +288,28 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_queryfb(self, pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table'] 
-        mangler = inattr['th_root']
+        th_root = inattr['th_root']
         pane.dataController(
-               """this._querybuilder = new gnr.GnrQueryBuilder(this,table,"query_root");
-                  this._queryanalyzer = new gnr.GnrQueryAnalyzer(this,table);
+               """var th = TH(th_root);
+                  th.querybuilder = new gnr.GnrQueryBuilder(th,this,table,"query_root");
+                  th.queryanalyzer = new gnr.GnrQueryAnalyzer(th,this,table);
                """ 
-               , _init=True,table=table,nodeId='%s_queryscripts' %mangler)
+               , _init=True,table=table,th_root = th_root)
 
-        pane.dataController("""if(selectmethod){
+        pane.dataController("""var th=TH(th_root)
+                                if(selectmethod){
                                 var parslist=[];
                               }else if(querybag.getItem("#0?column")){
-                                    genro.querybuilder(mangler).cleanQueryPane(querybag); 
+                                    th.querybuilder.cleanQueryPane(querybag); 
                                     SET .queryRunning = true;
-                                    var parslist = genro.queryanalyzer(mangler).translateQueryPars();
+                                    var parslist = th.queryanalyzer.translateQueryPars();
                               }
                               if (parslist.length>0){
-                                    genro.queryanalyzer(mangler).buildParsDialog(parslist);
+                                    th.queryanalyzer.buildParsDialog(parslist);
                                 }else{
                                     FIRE .runQueryDo = true;
                               }
-                              
-                              
-                           """,mangler=mangler,_fired="^.runQuery",
+                              """,th_root=th_root,_fired="^.runQuery",
                            querybag='=.query.where',
                            selectmethod='=.query.selectmethod')
         pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
@@ -321,40 +321,40 @@ class TableHandlerView(BaseComponent):
                                  """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
                               dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
         pane.dataController("""
-                   var qb = genro.querybuilder(mangler);
+                   var qb = TH(th_root).querybuilder;
                    qb.createMenues();
                    dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
                    dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
                    SET .query.where = baseQuery.deepCopy();
                    qb.buildQueryPane();
-        """,_onStart=True,mangler=mangler,baseQuery='=.baseQuery')        
+        """,_onStart=True,th_root=th_root,baseQuery='=.baseQuery')        
         fb = pane.formbuilder(cols=4, datapath='.query.where', _class='query_form',width='620px',overflow='hidden',
                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
         fb.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
-                 nodeId='%s_fastQueryColumn' %mangler,
+                 nodeId='%s_fastQueryColumn' %th_root,
                   dropTarget=True,row_hidden='^.#parent.extended',
-                 lbl='!!Search',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"genro.querybuilder('%s').onChangedQueryColumn(this,data);" %mangler})
+                 lbl='',**{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querybuilder.onChangedQueryColumn(this,data);" %th_root})
         optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
-                display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %mangler,
+                display='inline-block', width='1.5em', _class='floatingPopup', nodeId='%s_fastQueryNot' %th_root,
                 border_right='1px solid silver')
-        optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %mangler, 
+        optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %th_root, 
                 selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
-                connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %mangler,
-                action="genro.querybuilder('%s').onChangedQueryOp($2,$1);" %mangler,
+                connectedMenu='==TH("%s").querybuilder.getOpMenuId(_dtype);' %th_root,
+                action="TH('%s').querybuilder.onChangedQueryOp($2,$1);" %th_root,
                 _dtype='^.c_0?column_dtype',
                 _class='floatingPopup', display='inline-block', padding_left='2px')
         
         value_textbox = fb.textbox(lbl='!!Value', value='^.c_0', width='12em', lbl_width='5em',
                                        _autoselect=True,
                                        row_class='^.c_0?css_class', position='relative',
-                                       disabled='==(_op in genro.querybuilder("%s").helper_op_dict)'  %mangler, _op='^.c_0?op',
-                                       connect_onclick="genro.querybuilder('%s').getHelper(this);" %mangler,
-                                       validate_onAccept='genro.queryanalyzer("%s").checkQueryLineValue(this,value);' %mangler,
+                                       disabled='==(_op in TH("%s").querybuilder.helper_op_dict)'  %th_root, _op='^.c_0?op',
+                                       connect_onclick="TH('%s').querybuilder.getHelper(this);" %th_root,
+                                       validate_onAccept='TH("%s").queryanalyzer.checkQueryLineValue(this,value);' %th_root,
                                        _class='st_conditionValue')
 
-        value_textbox.div('^.c_0', hidden='==!(_op in  genro.querybuilder("%s").helper_op_dict)' %mangler,
+        value_textbox.div('^.c_0', hidden='==!(_op in  TH("%s").querybuilder.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
                  
         fb.slotButton(label='!!Run query',publish='runbtn',
@@ -362,7 +362,7 @@ class TableHandlerView(BaseComponent):
                                iconClass='tb_button db_query')
         fb.div('^.#parent.caption',colspan=4,row_hidden='^.#parent.extended?=!#v',width='100%')
         
-    def _th_viewController(self,pane,table=None,mangler=None):
+    def _th_viewController(self,pane,table=None,th_root=None):
         table = table or self.maintable
         tblattr = dict(self.db.table(table).attributes)
         tblattr.pop('tag',None)
@@ -397,12 +397,12 @@ class THViewUtils(BaseComponent):
     @struct_method
     def th_slotbar_queryTool(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
-        mangler = inattr['th_root']
+        th_root = inattr['th_root']
         table = inattr['table']
         pane.slotButton(iconClass='icnBaseLens',action="""
-                                                        var qt= new gnr.AdvancedQueryTool(this,mangler);
+                                                        var qt= new gnr.AdvancedQueryTool(this,th_root);
                                                         
-                                                        """,mangler=mangler)
+                                                        """,th_root=th_root)
         
    #@struct_method
    #def th_slotbar_queryTool(self,pane,**kwargs):
@@ -458,9 +458,9 @@ class THViewUtils(BaseComponent):
         return (data, metadata)
 
     @public_method
-    def th_menuViews(self,table=None,mangler=None,pyviews=None,**kwargs):
+    def th_menuViews(self,table=None,th_root=None,pyviews=None,**kwargs):
         result = Bag()
-        gridId = '%s_grid' %mangler
+        gridId = '%s_grid' %th_root
         result.setItem('_baseview_', None,
                        action="genro.grid_configurator.loadGridBaseView(this.attr.gridId)",
                        label='Base View',gridId=gridId)
@@ -473,7 +473,7 @@ class THViewUtils(BaseComponent):
         
     
     @public_method
-    def th_menuQueries(self,table=None,mangler=None,pyqueries=None,**kwargs):
+    def th_menuQueries(self,table=None,th_root=None,pyqueries=None,**kwargs):
         querymenu = Bag()
         querymenu.setItem('r_0',None,caption='!!Search',action='FIRE .loadBaseQuery; SET .extended=false;')
         if pyqueries:

@@ -1,3 +1,11 @@
+var TH = function(th_root){
+    genro.ext.th_instances = genro.ext.th_instances || {};
+    if(!(th_root in genro.ext.th_instances)){
+        genro.ext.th_instances[th_root] = {th_root:th_root};
+    }
+    return genro.ext.th_instances[th_root];
+};
+
 dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
     thiframe: function(parent,kw){
         var table = objectPop(kw,'table');
