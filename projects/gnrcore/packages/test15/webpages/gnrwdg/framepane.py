@@ -83,8 +83,7 @@ class GnrCustomWebPage(object):
         
         left = frame.left
         sidebar = left.slotBar(slots='*,mytree,*',border_right='1px solid gray',closable='close',
-                    closable_background='black',closable_transition='2s',splitter=True,
-                                        closable_top=0)
+                    closable_background='darkblue',closable_transition='2s',splitter=True)
         sidebar.mytree.button('Pippo')
         
         

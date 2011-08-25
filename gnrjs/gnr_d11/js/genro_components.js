@@ -222,7 +222,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
         var rounded_corners = genro.dom.normalizedRoundedCorners(kw.rounded,objectExtract(kw,'rounded_*',true));
         var centerPars = objectExtract(kw,'center_*');
         var bc = sourceNode._('BorderContainer', kw);
-        var slot,v;
+        var slot,v,sideKw;
         var sides= kw.design=='sidebar'? ['left','right','top','bottom']:['top','bottom','left','right'];
         var corners={'left':['top_left','bottom_left'],'right':['top_right','bottom_right'],'top':['top_left','top_right'],'bottom':['bottom_left','bottom_right']};
         dojo.forEach(sides,function(side){
@@ -237,7 +237,8 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
              }
              if(node){                 
                  node.attr['frameCode'] = frameCode;
-                 slot.attr.splitter = slot.attr.splitter || objectPop(node.attr,'splitter');
+                 sideKw = slot?objectUpdate(slot.attr,{'region':side}):{'region':side};
+                 sideKw.splitter = sideKw.splitter || objectPop(node.attr,'splitter');
                  objectPop(node.attr,'side');
                  dojo.forEach(corners[side],function(c){
                      v=objectPop(rounded_corners,c);
@@ -246,7 +247,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
                      }
                  });
                  node.attr['_childname'] = node.attr['_childname'] || side;
-                 bc._('ContentPane',slot?objectUpdate(slot.attr,{'region':side}):{'region':side}).setItem('#id',node._value,node.attr);
+                 bc._('ContentPane',sideKw).setItem('#id',node._value,node.attr);
              }
         });
         slot = children.popNode('center');
