@@ -87,7 +87,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     getParentWidget:function() {
         var parentNode = this.getParentNode();
         if (parentNode) {
-            return parentNode.getWidget();
+            return parentNode.widget?parentNode.widget : parentNode.getParentWidget();
         }
     },
     destroy:function() {

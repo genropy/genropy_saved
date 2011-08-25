@@ -117,16 +117,24 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         var node = genro._firingNode;
         node.setRelativeData('#helper_in.buffer', node.getRelativeData(node.attr._relpath));
     },
-
-    buildQueryPane: function(startNode, datapath) {
-        var startNode = startNode || genro.nodeById(this.rootId) ||  genro.nodeById(this.relativeId(this.rootId));
-        if(startNode){
-            startNode.clearValue();
-            startNode.freeze();
-            this._buildQueryGroup(startNode, this.sourceNode.getRelativeData('.query.where'), 0);
-            startNode.unfreeze();
-        }
+    openPalette:function(){
+        var datapath = this.sourceNode.absDatapath();
+        genro.src.getNode()._('div', '_advancedquery_');
+        var node = genro.src.getNode('_advancedquery_').clearValue();
+        node.freeze();
+        var pane = node._('palettePane',{'title':'Query Tool',dockTo:false,datapath:datapath+'.query.where'});
+        this._buildQueryGroup(pane, this.sourceNode.getRelativeData('.query.where'), 0);
+        node.unfreeze();
+        //this.buildQueryPane(pane.getParentNode());
     },
+    
+    buildQueryPane: function(startNode) {
+        startNode.clearValue();
+        startNode.freeze();
+        this._buildQueryGroup(startNode, this.sourceNode.getRelativeData('.query.where'), 0);
+        startNode.unfreeze();
+    },
+    
     addDelFunc : function(mode, pos, e) {
         var querybag,addblock;
         if (e) {

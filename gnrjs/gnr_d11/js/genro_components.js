@@ -237,6 +237,7 @@ dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
              }
              if(node){                 
                  node.attr['frameCode'] = frameCode;
+                 slot.attr.splitter = slot.attr.splitter || objectPop(node.attr,'splitter');
                  objectPop(node.attr,'side');
                  dojo.forEach(corners[side],function(c){
                      v=objectPop(rounded_corners,c);
@@ -720,12 +721,57 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         return attributes;
     },
     
+    addClosableHandle:function(sourceNode,kw){
+        var pane = sourceNode.getParentNode();
+        var bc = pane.widget.parentBorderContainer;
+        var side = kw.side;
+        var orientation = kw.orientation;
+        if(bc._splitters[side]){
+            genro.dom.setClass(bc._splitters[side],'tinySplitter',true);
+        }
+        var togglecb = function(){
+            var toClose = !dojo.hasClass(pane.widget.domNode,'closedSide');
+            genro.dom.setClass(pane,'closedSide','toggle');
+            if(bc._splitters[side]){
+                genro.dom.setClass(bc._splitters[side],'hiddenSplitter','toggle');
+            }
+            if(toClose){
+                pane.__currDimension = pane.widget.domNode.style.width;
+                dojo.style(pane.widget.domNode,orientation=='vertical'?'width':'height',null);
+            }else if(pane.__currDimension){
+                dojo.style(pane.widget.domNode,orientation=='vertical'?'width':'height',pane.__currDimension);
+            }
+            bc._layoutChildren(side);
+            bc.layout();
+        }
+        genro.dom.setClass(pane,'closableSide_'+orientation,true);
+        var closablePars = objectExtract(kw,'closable_*');
+        if('top' in closablePars){
+            closablePars['margin_top'] = closablePars['margin_top'] || 0;
+        }
+        if('left' in closablePars){
+            closablePars['margin_left'] = closablePars['margin_left'] || 0;
+        }
+        var splitter = objectPop(closablePars,'splitter');
+        if(kw.closable=='close'){
+            togglecb()
+        }
+        var _class = 'slotbarOpener'+' slotbarOpener_'+orientation+' slotbarOpener_'+side;
+        sourceNode._('div',objectUpdate({_class:_class,connect_onclick:togglecb},closablePars));
+    },
+    
     createContent:function(sourceNode, kw,children) {
+        if(kw.closable){
+            this.addClosableHandle(sourceNode,kw)
+        }
         var slots = objectPop(kw,'slots');
-        var result = this['createContent_'+objectPop(kw,'orientation')](sourceNode,kw,kw.slotbarCode,slots,children);
+        var orientation = objectPop(kw,'orientation');
+        var result = this['createContent_'+orientation](sourceNode,kw,kw.slotbarCode,slots,children);
         dojo.forEach(children._nodes,function(n){if(n.attr.tag=='slot'){children.popNode(n.label);}});
         return result;
     },
+    
+    
     createContent_horizontal:function(sourceNode,kw,slotbarCode,slots,children){
         var buildKw = objectPop(kw,'buildKw');
         var lblPos = objectPop(buildKw.lbl,'position') || 'N';

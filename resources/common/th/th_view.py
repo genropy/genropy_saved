@@ -47,7 +47,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if queryTool:
-            base_slots = ['queryMenu','queryfb','2','runbtn','|','queryTool','viewsMenu','10','export','|','10','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
+            base_slots = ['queryTool','queryfb','2','runbtn','|','viewsMenu','10','export','|','10','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
         else:
             base_slots = ['tools','5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
@@ -84,7 +84,7 @@ class TableHandlerView(BaseComponent):
         pane.div('^.title',font_size='.9')
 
     @struct_method
-    def th_slotbar_queryMenu(self,pane,**kwargs):
+    def th_slotbar_queryTool(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
@@ -96,8 +96,10 @@ class TableHandlerView(BaseComponent):
                                 SET .meta = new gnr.GnrBag($1);
                                 FIRE .#parent.runQuery;
                                 SET .where = new gnr.GnrBag();
+                                SET .editable = false;
                                 SET .caption = $1.description;
                           }
+                          FIRE .closepalette;
                           SET .extended=true;""")
         q = Bag()
         pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
@@ -108,24 +110,28 @@ class TableHandlerView(BaseComponent):
         pane.data('.query.pyqueries',q)
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
                         table=table,th_root=th_root,caption='Queries',cacheTime=10)
+        pane.dataController("TH(th_root).querybuilder.openPalette();",th_root=th_root,_fired="^.query.openpalette")
         pane.dataController("""
                                 SET .query.where = baseQuery.deepCopy(); 
                                 SET .query.querypkey = null;
                                 SET .query.selectmethod = null;
-                                SET .query.caption = baseCode;
+                                SET .query.caption = newQueryCaption;
+                                SET .editable = true;
                                 SET .query.meta = new gnr.GnrBag({code:baseCode});
                                 """,
-                            _fired="^.query.loadBaseQuery",baseQuery='=.baseQuery',baseCode='!!Search')
+                            _fired="^.query.loadBaseQuery",baseQuery='=.baseQuery',baseCode='!!Search',newQueryCaption='!!New Query')
         
  
         rpc = pane.dataRpc('dummy',self.th_loadUserObject,pkey='^.query.querypkey',table=table,_if='pkey')
         rpc.addCallback("""
             SET .query.meta = new gnr.GnrBag(result.attr);
             SET .query.caption = result.attr.description;
+            SET .query.editable = true;
             SET .query.where = result._value.deepCopy();
             FIRE .runQuery;
             return result;
         """)
+        pane.dataController("alert('pizza')",_fired="^.query.showfields")
 
     @struct_method
     def th_slotbar_viewsMenu(self,pane,**kwargs):
@@ -278,11 +284,6 @@ class TableHandlerView(BaseComponent):
                             _onStart=True,
                             runOnStart=querybase.get('runOnStart', False))
 
-    
-    #@struct_method
-    #def th_slotbar_queryfb(self, pane,**kwargs):
-    #    pane.borderContainer()
-    #    
     @struct_method
     def th_slotbar_runbtn(self,pane,**kwargs):
         pane.slotButton(label='!!Run query',publish='runbtn',
@@ -331,7 +332,6 @@ class TableHandlerView(BaseComponent):
                    dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
                    dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
                    FIRE .query.loadBaseQuery;
-                   qb.buildQueryPane();
         """,_onStart=True,th_root=th_root,baseQuery='=.baseQuery')        
         fb = pane.formbuilder(cols=3, datapath='.query.where', _class='query_form',width='600px',overflow='hidden',
                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
@@ -351,18 +351,16 @@ class TableHandlerView(BaseComponent):
                 action="TH('%s').querybuilder.onChangedQueryOp($2,$1);" %th_root,
                 _dtype='^.c_0?column_dtype',
                 _class='floatingPopup', display='inline-block', padding_left='2px')
-        
         value_textbox = fb.textbox(lbl='!!Value', value='^.c_0', width='12em', lbl_width='5em',
                                        _autoselect=True,
                                        row_class='^.c_0?css_class', position='relative',
                                        disabled='==(_op in TH("%s").querybuilder.helper_op_dict)'  %th_root, _op='^.c_0?op',
                                        connect_onclick="TH('%s').querybuilder.getHelper(this);" %th_root,
-                                       validate_onAccept='TH("%s").queryanalyzer.checkQueryLineValue(this,value);' %th_root,
                                        _class='st_conditionValue')
-
         value_textbox.div('^.c_0', hidden='==!(_op in  TH("%s").querybuilder.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
-        fb.div('^.#parent.caption',lbl='!!Search:',tdl_width='4em',colspan=3,row_hidden='^.#parent.extended?=!#v',width='99%', _class='fakeTextBox')
+        fb.div('^.#parent.caption',lbl='!!Search:',tdl_width='4em',colspan=3,
+                    row_hidden='^.#parent.extended?=!#v',width='99%', _class='fakeTextBox buttonIcon',connect_ondblclick='')
         
     def _th_viewController(self,pane,table=None,th_root=None):
         table = table or self.maintable
@@ -396,15 +394,7 @@ class TableHandlerView(BaseComponent):
 
 class THViewUtils(BaseComponent):
     js_requires='th/th_querytool'
-    @struct_method
-    def th_slotbar_queryTool(self,pane,**kwargs):
-        inattr = pane.getInheritedAttributes()
-        th_root = inattr['th_root']
-        table = inattr['table']
-        pane.slotButton(iconClass='icnBaseLens',action="""
-                                                        var qt= new gnr.AdvancedQueryTool(this,th_root);
-                                                        
-                                                        """,th_root=th_root)
+
         
    #@struct_method
    #def th_slotbar_queryTool(self,pane,**kwargs):
@@ -477,18 +467,23 @@ class THViewUtils(BaseComponent):
     @public_method
     def th_menuQueries(self,table=None,th_root=None,pyqueries=None,**kwargs):
         querymenu = Bag()
-        querymenu.setItem('r_0',None,caption='!!Search',action='FIRE .loadBaseQuery; SET .extended=false;')
+        querymenu.setItem('r_0',None,caption='!!Plain Query',action='FIRE .loadBaseQuery; SET .extended=false; FIRE .closepalette;')
+        querymenu.setItem('r_2',None,caption='!!Advanced Query',action='FIRE .loadBaseQuery; SET .extended=true; FIRE .openpalette;')
+
+        savedqueries = self.package.listUserObject(objtype='query', userid=self.user, tbl=table,authtags=self.userTags)
+        if pyqueries or savedqueries:
+            querymenu.setItem('r_3',None,caption='-')
         if pyqueries:
-            querymenu.setItem('r_1',None,caption='-')
             for n in pyqueries:
                 querymenu.setItem(n.label,n.value,_attributes=n.attr)
-                
-        savedqueries = self.package.listUserObject(objtype='query', userid=self.user, tbl=table,authtags=self.userTags)
         if savedqueries:
-            querymenu.setItem('r_2',None,caption='-')
             for i, r in enumerate(savedqueries.data):
                 attrs = dict([(str(k), v) for k, v in r.items()])
                 querymenu.setItem(r['code'] or 's_%i' % i, None,**attrs)
+        
+        querymenu.setItem('r_4',None,caption='-')
+        querymenu.setItem('r_5',None,caption='!!Show Fields',action='FIRE .showfields;')
+
         return querymenu
         
         

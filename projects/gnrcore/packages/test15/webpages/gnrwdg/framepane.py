@@ -14,7 +14,7 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return 'framePane'
          
-    def _test_0_slotbar_base(self,pane):
+    def test_0_slotbar_base(self,pane):
         """Design: headline"""
         frame = pane.framePane(frameCode='frame0',height='200px',width='300px',shadow='3px 3px 5px gray',
                                border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
@@ -24,7 +24,7 @@ class GnrCustomWebPage(object):
         bottom.btoh.slotButton(label='Ok',action='alert("Hello!")')
         bottom.bt2.slotButton(label='ciao ciao',action='alert("Hello again!")')
         
-    def _test_1_slotbar_sidebar(self,pane):
+    def test_1_slotbar_sidebar(self,pane):
         """Design: sidebar"""
         frame = pane.framePane(frameCode='frame1',height='200px',width='300px',shadow='3px 3px 5px gray',
                                border='1px solid #bbb',margin='10px',
@@ -35,7 +35,7 @@ class GnrCustomWebPage(object):
         bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px')
         bottom.foo.button('!!Save',iconClass="icnBaseOk",showLabel=False)
         
-    def _test_2_slotbar_headline(self,pane):
+    def test_2_slotbar_headline(self,pane):
         """rounded"""
         frame = pane.framePane(frameCode='frame3',height='200px',width='300px',shadow='3px 3px 5px gray',
                                border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
@@ -70,4 +70,28 @@ class GnrCustomWebPage(object):
                                      slotbar._('slotButton','cancel',{label:'Cancel',publish:'cancel'});
                                      slotbar._('slotButton','save',{label:'Save',publish:'save'});
                                      dlg.show_action();""")
-                                     
+
+    def test_5_regions(self,pane):
+        """Design: headline"""
+        frame = pane.framePane(height='200px',width='300px',shadow='3px 3px 5px gray',
+                               border='1px solid #bbb',margin='10px',design='sidebar')
+        top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px',closable='close',closable_backround='blue')
+        bottom = frame.bottom.slotBar(slots='btoh,*,|,bt2,30',height='30px',closable='close',border_top='1px solid gray')
+        bottom.btoh.slotButton(label='Ok',action='alert("Hello!")')
+        bottom.bt2.slotButton(label='ciao ciao',action='alert("Hello again!")')
+        
+        
+        left = frame.left
+        sidebar = left.slotBar(slots='*,mytree,*',border_right='1px solid gray',closable='close',
+                    closable_background='black',closable_transition='2s',splitter=True,
+                                        closable_top=0)
+        sidebar.mytree.button('Pippo')
+        
+        
+        
+        sidebar = frame.right.slotBar(slots='*,mytree,*',width='60px',border_left='1px solid gray',closable='close',splitter=True)
+        sidebar.mytree.div('aaa<br/>bbb')
+       #left.attributes.update(closable='close',width='0',background='silver',overflow='visible')
+       #left.div(background='red',position='absolute',height='30px',width='10px',top='30px',
+       #        right='-10px',z_index='20',opacity='.5',rounded_right=4,border='1px solid white')
+       #                             

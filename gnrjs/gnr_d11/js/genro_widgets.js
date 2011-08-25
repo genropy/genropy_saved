@@ -977,6 +977,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         dojo.connect(widget, 'startup', dojo.hitch(this, 'afterStartup', widget));
         if (dojo_version == '1.1') {
             dojo.connect(widget, 'addChild', dojo.hitch(this, 'onAddChild', widget));
+            dojo.connect(widget, 'removeChild', dojo.hitch(this, 'onRemoveChild', widget));
         }
     },
     afterStartup:function(widget) {
@@ -1007,13 +1008,17 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
 
     },
     
+    onRemoveChild:function(widget,child){
+        delete child.parentBorderContainer;
+    },
     
     onAddChild:function(widget,child){
-     var splitter=widget._splitters[child.region];
-     if(splitter){
-         if(child.domNode.style.display=='none'){
-             dojo.style(splitter, 'display','none');
-         }
+        child.parentBorderContainer=widget;
+        var splitter=widget._splitters[child.region];
+        if(splitter){
+            if(child.domNode.style.display=='none'){
+                dojo.style(splitter, 'display','none');
+        }
          //splitter=dijit.getEnclosingWidget(splitter);
          
          //dojo.connect(splitter,'_stopDrag',dojo.hitch(this,'onSplitterStopDrag',widget,splitter));
@@ -1087,6 +1092,9 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         }
         this._layoutChildren(region);
         this.layout();
+    },
+    mixin_isRegionVisible:function(region){
+        return this['_'+region].style.display!='none';
     }
 });
 

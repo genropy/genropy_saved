@@ -5,7 +5,9 @@ body.workInProgress{
 .workInProgress #mainWindow{
 	background: red;
 }
-
+.hiddenSplitter.dijitSplitter{
+	display: none;
+}
 
 .detatched_placeholder {
     background: gray url(icons/base128/no_entry.png) center center no-repeat;
@@ -385,6 +387,14 @@ label.ghostlabel span {
 }
 
 /* @end */
+
+.tinySplitter.dijitSplitter{
+    background: transparent;
+}
+.tinySplitter .dijitSplitterThumb{
+    visibility: hidden;
+}
+
 
 .hideSplitter >.dijitSplitter {
     background: transparent;
@@ -1105,6 +1115,19 @@ div.dojoxDock {
 .preview .tplfieldcaption {
     display: none;
 }
+.drawerLeftArrow{
+    width:16px;
+     height:24px;
+    background: url(icons/base24/drawerLeftArrow.png) no-repeat center center;
+
+}
+.drawerRightArrow{
+    width:16px;
+     height:24px;
+    background: url(icons/base24/drawerRightArrow.png) no-repeat center center;
+
+}
+
 
 /* @end */
 
@@ -1988,6 +2011,88 @@ border='1px solid gray',margin='2px', rounded=10,
 
 
 /* @group SlotBar */
+
+/* @group Opener */
+.closableSide_horizontal{
+	overflow: visible;
+}
+.closableSide_vertical{
+	overflow: visible;
+}
+
+/*.closedSide .slotbarOpener{
+	display: block;
+}
+*/
+
+.closedSide .slotbar{
+	display: none;
+}
+
+.slotbarOpener{
+	/*display: none;*/
+	position: absolute;
+	z-index: 10;
+	background: silver;
+	opacity: .3;
+	cursor: pointer;
+	border: 1px solid gray;
+}
+.slotbarOpener:hover{
+	opacity: .6;
+}
+
+.slotbarOpener_horizontal{
+	height: 10px;
+	width: 10px;
+}
+
+
+.slotbarOpener_top{
+	border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+	bottom: -9px;
+	border-top: 0;
+	left: 50%;
+	margin-left: -20px;
+	height: 8px;
+	width: 40px;
+}
+.slotbarOpener_bottom{
+	border-top-right-radius: 5px;
+	border-top-left-radius: 5px;
+	top: -9px;
+	left: 50%;
+	margin-left: -20px;
+	height: 8px;
+	width: 40px;
+	border-bottom: 0;
+
+}
+.slotbarOpener_left{
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+	right: -9px;
+	top: 50%;
+	margin-top: -20px;
+	border-left: 0;
+	width: 8px;
+	height: 40px;
+}
+
+.slotbarOpener_right{
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+	left: -9px;
+	top: 50%;
+	margin-top: -20px;
+	border-right: 0;
+	width: 8px;
+	height: 40px;
+}
+
+
+/* @end */
 .slotbar .dojoxDock{
     top:1px;
 }
