@@ -14,8 +14,9 @@ def check_imap(page=None, account=None, remote_mailbox='Inbox', local_mailbox='I
     password = account['password']
     account_id = account['id']
     last_uid = account['last_uid']
-    #db=page.db
-    static
+    db=page.db
+    messages_table = db.table('email.message')
+    attachments_table = db.table('email.attachment')
     if ssl:
         imap_class = imaplib.IMAP4_SSL
     else:
@@ -66,8 +67,14 @@ def check_imap(page=None, account=None, remote_mailbox='Inbox', local_mailbox='I
                         counter += 1
                     att_data = part.get_payload(decode=True)
                     new_attachment['filename'] = filename
-                    print att_data
-        print new_mail['uid']
+                    attachment_path=page.site.getStaticPath('site:mail', account['id'], new_mail['uid'], filename,
+                                                                   autocreate=-1)
+                    new_attachment['path'] = attachment_path
+                    with open(attachment_path,'wb') as attachment_file:
+                        attachment_file.write(att_data)
+                    attachments_table.insert(new_attachment)
+        messages_table.insert(new_mail)
+        db.commit()
 if __name__=='__main__':
     account = dict(host='imap.gmail.com',port=993,ssl=True,username='test@softwell.it',password='testotesto',last_uid = None, id=None)
     e=check_imap(account=account)
