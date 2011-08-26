@@ -65,23 +65,24 @@ class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
     @extract_kwargs(top=True,grid=True)
     @struct_method
-    def fgr_frameGrid(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,tools=None,**kwargs):
-        tools = tools or '5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,gridReload'
+    def fgr_frameGrid(self,pane,frameCode=None,struct=None,table=None,configurable=None,grid_kwargs=True,top_kwargs=None,**kwargs):
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
-        frame.left.leftBar(tools)
-        iv = frame.includedView(autoWidth=False,datapath='.grid',selectedId='.selectedId',
+        if table:
+            configurable = True if configurable is None else configurable
+        if configurable:
+            frame.left.leftBar(table)
+        iv = frame.includedView(autoWidth=False,
+                                datapath='.grid',selectedId='.selectedId',
                                 struct=struct,sortedBy='^.sorted',
                                 selfsubscribe_delrow='this.widget.deleteRows();',
+                                configurable=configurable,
                                  _newGrid=True,**grid_kwargs)
         return frame
 
     @struct_method
-    def fgr_leftBar(self,pane,slots):
-        pane.slotToolbar(slots,closable='close')
-        
-    def fgr_relationHandler(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,**kwargs):
-        pass
+    def fgr_leftBar(self,pane,table):
+        bar = pane.slotBar('fieldsTree,*',width='140px',closable='close',fieldsTree_table=table,fieldsTree_height='100%',splitter=True)
         

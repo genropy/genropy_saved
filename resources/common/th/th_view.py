@@ -56,11 +56,13 @@ class TableHandlerView(BaseComponent):
         else:
             top_kwargs['slots']= base_slots
         #leftTools = '5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,optionsMenu,gridReload'
-        leftTools = '15,gridConfigurator,5,gridTrashColumns,5,gridPalette,*,gridReload,5'
+        #leftTools = '15,gridConfigurator,5,gridTrashColumns,5,gridPalette,*,gridReload,5'
+        leftTools = '5,fieldsTree,*'
         top_kwargs['height'] = top_kwargs.get('height','20px')
-        frame = pane.frameGrid(frameCode=frameCode,childname='view',
+        frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct=self._th_hook('struct',mangler=frameCode),
-                               datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',tools=leftTools,**kwargs)        
+                               datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
+                               tools=leftTools,**kwargs)        
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs)
@@ -131,7 +133,7 @@ class TableHandlerView(BaseComponent):
             FIRE .runQuery;
             return result;
         """)
-        pane.dataController("alert('pizza')",_fired="^.query.showfields")
+        pane.dataController("genro.getFrameNode(frameCode).publish",_fired="^.query.showfields",frameCode=th_root)
 
     @struct_method
     def th_slotbar_viewsMenu(self,pane,**kwargs):

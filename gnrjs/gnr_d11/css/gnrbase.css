@@ -17,17 +17,78 @@ body.workInProgress{
 
 }
 
+/* @group FieldsTree */
+
+.fieldsTreeBox{
+	position: absolute;
+	top: 2px;
+	bottom: 2px;
+	left: 2px;
+	right: 0;
+	border: 1px solid silver;
+	color: #555;
+	border-radius:4px;
+	font-family: helvetica;
+	overflow: auto;
+	font-size: 9px;
+	background: white;
+}
+
 .fieldsTree .dijitTreeContent {
     cursor: move;
     min-height: 0;
     padding-bottom: 2px;
     padding-top: 0;
+    margin-left: 0px;
+}
+.fieldsTree.noIcon .dijitTreeExpando {
+    display: none;
 }
 
-.fieldsTree.dijitTreeIcon {
+
+.fieldsTree .dijitTreeIcon {
     padding-right: 0;
 }
+.fieldsTree.noIcon .dijitTreeIcon{
+	display: none;
+}
 
+.fieldsTree .dijitTreeNode {
+    background: none;
+    margin-left: 10px;
+}
+.fieldsTree .dijitTreeLabel{
+	padding-left: 10px;
+	white-space: nowrap;
+}
+.fieldsTree .dijitTreeIsRoot{
+	margin-left: 0px;
+}
+.fieldsTree_root{
+	text-decoration: underline;
+}
+.fieldsTree_group{
+	color: #777;
+}
+.fieldsTree_folder{
+	text-decoration: underline;
+	cursor: pointer;
+	font-weight: bold;
+	background: url(icons/base10/tinyCloseBranch.png) no-repeat left center;
+}
+.dijitTreeContentExpanded .fieldsTree_folder{
+	background: url(icons/base10/tinyOpenBranch.png) no-repeat left center;
+}
+.fieldsTree_RM {
+	color: navy;
+}
+.fieldsTree_RO{
+	color: green;
+}
+
+
+
+/* @end */
 .tpl_nocontent .tpl_content {
     visibility: hidden;
 }
@@ -2020,10 +2081,6 @@ border='1px solid gray',margin='2px', rounded=10,
 	overflow: visible;
 }
 
-/*.closedSide .slotbarOpener{
-	display: block;
-}
-*/
 
 .closedSide .slotbar{
 	display: none;
@@ -2031,15 +2088,20 @@ border='1px solid gray',margin='2px', rounded=10,
 
 .slotbarOpener{
 	/*display: none;*/
+	font-size: 9px;
+	color: white;
+	font-weight: bold;
+	font-family: helvetica;
 	position: absolute;
 	z-index: 10;
-	background: silver;
-	opacity: .3;
+	background: #555;
+	opacity: .2;
 	cursor: pointer;
 	border: 1px solid gray;
+	-moz-transition:all .5s;
 }
 .slotbarOpener:hover{
-	opacity: .6;
+	opacity: 1;
 }
 
 .slotbarOpener_horizontal{

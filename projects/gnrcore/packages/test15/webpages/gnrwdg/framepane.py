@@ -75,22 +75,17 @@ class GnrCustomWebPage(object):
         """Design: headline"""
         frame = pane.framePane(height='200px',width='300px',shadow='3px 3px 5px gray',
                                border='1px solid #bbb',margin='10px',design='sidebar')
-        top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px',closable='close',closable_backround='blue')
+        top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px',closable_label='test',closable='close',closable_backround='blue')
         bottom = frame.bottom.slotBar(slots='btoh,*,|,bt2,30',height='30px',closable='close',border_top='1px solid gray')
         bottom.btoh.slotButton(label='Ok',action='alert("Hello!")')
         bottom.bt2.slotButton(label='ciao ciao',action='alert("Hello again!")')
         
-        
-        left = frame.left
-        sidebar = left.slotBar(slots='*,mytree,*',border_right='1px solid gray',closable='close',
-                    closable_background='darkblue',closable_transition='2s',splitter=True)
-        sidebar.mytree.button('Pippo')
-        
-        
-        
-        sidebar = frame.right.slotBar(slots='*,mytree,*',width='60px',border_left='1px solid gray',closable='close',splitter=True)
-        sidebar.mytree.div('aaa<br/>bbb')
-       #left.attributes.update(closable='close',width='0',background='silver',overflow='visible')
-       #left.div(background='red',position='absolute',height='30px',width='10px',top='30px',
-       #        right='-10px',z_index='20',opacity='.5',rounded_right=4,border='1px solid white')
-       #                             
+    def test_6_regions(self,pane):
+        frame = pane.framePane(height='600px',width='800px',shadow='3px 3px 5px gray',
+                               border='1px solid #bbb',margin='10px',design='sidebar')
+        sidebar = frame.left.slotBar(slots='10,fieldsTree,foo',fieldsTree_table='base.staff',fieldsTree_height='100%',
+                                    fieldsTree_min_width='150px',border_right='1px solid gray',closable='close',
+                                    closable_tip='Fields',splitter=True)
+        sidebar.foo.div(height='40px',background='lime')
+                    
+                 

@@ -161,18 +161,36 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.src.getNode()._('div', '_relationExplorer_' + code);
         var node = genro.src.getNode('_relationExplorer_' + code).clearValue();
         node.freeze();
-        var path = 'gnr.relation_explorers.' + table;
-        genro.setData(path,
-                genro.rpc.remoteResolver('relationExplorer', {'table':table}));
         var fpane = node._('floatingPane', {title:title,top:rect.top,bottom:rect.bottom,
             left:rect.left,right:rect.right,
             height:rect.height,width:rect.width,
             resizable:true,dockable:false,_class:'shadow_4',
             closable:true});
-        var treeattr = {storepath:path,margin:'4px'};
+        this.fieldsTree(fpane,table);
+        node.unfreeze();
+        fpane.getParentNode().widget.bringToTop();
+    },
+    
+    fieldsTree:function(pane,table,kw){
+        var path = 'gnr.relation_explorers.' + table;
+        var code = table.replace('.', '_');
+        genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table}));
+        var treeattr = objectUpdate({storepath:path,margin:'4px'},kw || {});
         treeattr.labelAttribute = 'caption';
-        treeattr._class = 'fieldsTree';
+        treeattr._class = 'fieldsTree noIcon';
         treeattr.hideValues = true;
+        treeattr.autoCollapse=true;
+        treeattr.openOnClick = true;
+        treeattr.getLabelClass=function(item){
+            var dtype = item.attr.dtype;
+            var _class = [];
+            if(!dtype || dtype=='RM' || dtype=='RO'){
+                _class.push('fieldsTree_folder');
+            }
+            dtype = dtype || (item.attr.isRoot?'root':'group');
+            _class.push('fieldsTree_' +dtype);
+            return _class.join(' ');
+        };
         treeattr.onDrag = function(dragValues, dragInfo, treeItem) {
             if (!(treeItem.attr.dtype && treeItem.attr.dtype != 'RM' && treeItem.attr.dtype != 'RO')) {
                 return false;
@@ -183,10 +201,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
             dragValues['gnrdbfld_' + code] = fldinfo;
         };
         treeattr.draggable = true;
-        treeattr.getIconClass = 'if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}';
-        fpane._('tree', treeattr);
-        node.unfreeze();
-        fpane.getParentNode().widget.bringToTop();
+        //treeattr.getIconClass = 'if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}';
+        treeattr.getIconClass = 'return "treeNoIcon";';
+        pane._('tree', treeattr);
     },
     
     openInspector:function(){
