@@ -2021,7 +2021,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.widget.moveColumn(col, dropInfo.column);
         };
         sourceNode.attr['onDrop_selfdragcolumn_' + sourceNode._id] = onDropCall;
-        sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
+        if(sourceNode.attr.configurable){
+            sourceNode._showHideTrash=function(show){
+                genro.dom.setClass(genro.getFrameNode(this.attr.frameCode),'fieldsTreeShowTrash',show);
+            }
+            sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
+        }
+
     },
     selfDragRowsPrepare:function(sourceNode) {
         gnr.convertFuncAttribute(sourceNode, 'selfDragRows', 'info');
@@ -2746,6 +2752,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if (selfDragColumns) {
                 value['selfdragcolumn_' + dragInfo.sourceNode._id] = dragInfo.column;
                 if (selfDragColumns == 'trashable') {
+                    if(dragInfo.sourceNode._showHideTrash){
+                        dragInfo.sourceNode._showHideTrash(true);
+                    }
                     value['trashable'] = dragInfo.column;
                 }
             }

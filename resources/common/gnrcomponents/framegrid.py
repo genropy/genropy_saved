@@ -35,8 +35,8 @@ class FrameGridSlots(BaseComponent):
         return pane.slotButton(label='!!Delete',publish='updrow',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
 
     @struct_method
-    def fgr_slotbar_gridConfigurator(self,pane,_class='icnBaseTableEdit box24',frameCode=None,enable=None,parentForm=True,**kwargs):
-        pane.div(tip='!!Configure view', _class=_class,visible=enable,_gridConfigurator=True,**kwargs)
+    def fgr_slotbar_gridConfigurator(self,pane,_class='icnBaseTableEdit',frameCode=None,enable=None,parentForm=True,**kwargs):
+        pane.div(tip='!!Configure view', _class=_class,visible=enable,_gridConfigurator=True,height='18px',width='20px',**kwargs)
         
     @struct_method
     def fgr_slotbar_gridTrashColumns(self,pane,_class='icnBaseTrash box24',frameCode=None,enable=None,parentForm=True,**kwargs):
@@ -84,5 +84,9 @@ class FrameGrid(BaseComponent):
 
     @struct_method
     def fgr_leftBar(self,pane,table):
-        bar = pane.slotBar('fieldsTree,*',width='140px',closable='close',fieldsTree_table=table,fieldsTree_height='100%',splitter=True)
+        bar = pane.slotBar('leftTop,fieldsTree,*',width='140px',closable='close',fieldsTree_table=table,
+                            fieldsTree_height='100%',splitter=True)
+        bar.leftTop.slotToolbar('*,gridConfigurator',gradient_from='#fdfdfd',
+                                    gradient_to='#eaeaea',border_bottom='1px solid silver',
+                                    border_right='1px solid silver')
         

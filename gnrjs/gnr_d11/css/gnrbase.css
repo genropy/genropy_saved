@@ -33,6 +33,19 @@ body.workInProgress{
 	font-size: 9px;
 	background: white;
 }
+.fieldsTreeShowTrash .fieldsTreeTrash{
+    display:block;
+}
+.fieldsTreeTrash{
+    display:none;
+    position: absolute;
+	top: 2px;
+	bottom: 2px;
+	left: 2px;
+	right: 2px;
+	opacity: .5;
+	background: #e5e5e5 url(icons/base64/trash_64.png) no-repeat center center;
+}
 
 .fieldsTree .dijitTreeContent {
     cursor: move;

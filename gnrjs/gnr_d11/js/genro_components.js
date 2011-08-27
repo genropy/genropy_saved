@@ -712,7 +712,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                 
                 var css3Kw = {'left':[0,'right'],'top':[-90,'bottom'],
                             'right':[180,'left'],'bottom':[90,'top']};
-                attributes['border_'+css3Kw[side][1]] = '1px solid '+ attributes['gradient_from'];
+                attributes['border_'+css3Kw[side][1]] = attributes['border_'+css3Kw[side][1]] || '1px solid '+ attributes['gradient_from'];
                 attributes['gradient_deg'] = css3Kw[side][0];
             }
         }
@@ -952,7 +952,18 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         slotKw.text_align = 'left';
         slotKw.position = 'relative';
         var slot = pane._('div',slotKw);
-        var box = slot._('div',{_class:'fieldsTreeBox',detachable:true});
+        var boxKw = {_class:'fieldsTreeBox',detachable:true}
+        var box = slot._('div',boxKw);
+        var trashKw = {_class:'fieldsTreeTrash'};
+        trashKw.dropTarget=true;
+        trashKw.dropTypes='trashable';
+        trashKw.onDrop_trashable=function(dropInfo,data){
+            var sourceNode=genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
+            if(sourceNode&&sourceNode.attr.onTrashed){
+                funcCreate(sourceNode.attr.onTrashed,'dropInfo,data',sourceNode)(dropInfo,data);
+            }
+        };
+        var trashbox = slot._('div',trashKw);
         genro.dev.fieldsTree(box,table,treeKw);
     },
     
