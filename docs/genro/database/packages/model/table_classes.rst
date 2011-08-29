@@ -10,12 +10,10 @@ table classes
     
     In this page we discuss all the possible classes through which you can instantiate a :ref:`table`
     
-    add???
-    
-.. _classes_basic_table:
+.. _classes_table:
 
-basic Table
-===========
+Table (basic table)
+===================
 
     .. class:: class Table(object)
     

@@ -15,21 +15,20 @@
 introduction
 ============
     
-    You can build :ref:`relations <relation>` to create links between database tables.
+    You can build :ref:`relations` to create links between database tables.
     
-    Once you created a relation, you can use the :ref:`relation_path` or the
-    :ref:`inv_rel_path` to use data of a table in another related table.
+    The "at" character (``@``) is the character used in Genro to start:
     
-    The "at" character (``@``) is the character used in Genro to start a *relation path*
-    or an *inverse relation path*.
+    * a :ref:`relation`
+    * an :ref:`inverse_relation`
+    * a :ref:`relation_path`
     
 .. _at_usage:
 
 list objects
 ============
     
-    We list here all the elements (like some :ref:`form_widgets`) that supports the
-    "@" character:
+    We list here all the elements that support the "@" character:
     
     * div (html)
     * :ref:`field`

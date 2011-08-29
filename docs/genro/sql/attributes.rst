@@ -24,8 +24,8 @@ columns
     The ``columns`` attribute represents the :ref:`table_columns` to be returned
     by the "SELECT" clause in the traditional sql query.
     
-    It is a string of column names and :ref:`relation paths <relation_path>`
-    separated by comma (you can use a list or a tuple, too).
+    It is a string of column names and :ref:`relations` separated by comma (you can use a
+    list or a tuple, too).
     
     It is a standard sql column clause and may contain sql functions and the "AS" operator.
     In addition to sql expressions, a column can be called through the following syntaxes:
@@ -89,7 +89,7 @@ group_by
       where ``colname`` is the name a table column
     * ``@relname.colname``
       
-      where ``relname`` is a :ref:`relation_path`, ``colname`` is the name of the column.
+      where ``relname`` is a :ref:`relation <relations>`, ``colname`` is the name of the column.
       
     Use ``group_by='*'`` when all columns are aggregate (add???) functions in order to avoid
     the automatic insertion of the :ref:`pkey` field in the columns.
@@ -110,7 +110,7 @@ having
       where ``colname`` is the name a table column
     * ``@relname.colname``
       
-      where ``relname`` is a :ref:`relation_path`, ``colname`` is the name of the column.
+      where ``relname`` is a :ref:`relation <relations>`, ``colname`` is the name of the column.
       
 .. _sql_order_by:
 
@@ -127,7 +127,7 @@ order_by
       where ``colname`` is the name a table column
     * ``@relname.colname``
       
-      where ``relname`` is a :ref:`relation_path`, ``colname`` is the name of the column.
+      where ``relname`` is a :ref:`relation <relations>`, ``colname`` is the name of the column.
     
     Example::
     
@@ -148,7 +148,7 @@ where
       where ``colname`` is the name a table column
     * ``@relname.colname``
       
-      where ``relname`` is a :ref:`relation_path`, ``colname`` is the name of the column.
+      where ``relname`` is a :ref:`relation <relations>`, ``colname`` is the name of the column.
     
     Query parameters have to start with colon (``:``), like::
     

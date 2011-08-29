@@ -23,7 +23,7 @@ pkey
 relationDict
 ============
 
-    A dict to assign a symbolic name to a :ref:`relation_path`.
+    A dict to assign a symbolic name to a :ref:`relation <relations>`.
     
     Example::
     

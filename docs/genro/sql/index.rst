@@ -10,7 +10,7 @@ SQL
     :maxdepth: 1
     
     introduction
-    path
+    relation
     query
     attributes
     commons
