@@ -73,7 +73,7 @@ class TableHandlerView(BaseComponent):
     def th_viewConfigurator(self,pane,table,th_root):
         bar = pane.slotBar('confBar,fieldsTree,*',min_width='160px',closable='close',fieldsTree_table=table,
                             fieldsTree_height='100%',splitter=True)
-        confBar = bar.confBar.slotToolbar('viewsMenu,*,saveView,5,deleteView')
+        confBar = bar.confBar.slotToolbar('viewsMenu,*,saveView,5,deleteView',_class='retinaSlotbar')
         gridId = '%s_grid' %th_root
         confBar.saveView.slotButton('Save View',iconClass='save16',
                                         action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
@@ -116,6 +116,7 @@ class TableHandlerView(BaseComponent):
                           }
                           FIRE .closepalette;
                           SET .extended=true;""")
+        pane.dataController("",_fired="^.closepalette")
         q = Bag()
         pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
         for k,v in pyqueries.items():

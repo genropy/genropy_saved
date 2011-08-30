@@ -1219,17 +1219,20 @@ div.dojoxDock {
     background: url(icons/base24/trash_24.png) no-repeat center center;
 }
 
+.retinaSlotbar .dijitButtonHover{
+    background-color:#feffb4;
+}
 .save16{
     width:16px;
      height:16px;
-    background: url(icons/base16/save_16.png) no-repeat center center;
-
+    background: url(retina/hover/16/save.png) no-repeat center center;
 }
 .trash16{
     width:16px;
      height:16px;
-    background: url(icons/base16/trash_16.png) no-repeat center center;
+    background: url(retina/hover/16/trash.png) no-repeat center center;
 }
+
 /* @end */
 
 .box16{
