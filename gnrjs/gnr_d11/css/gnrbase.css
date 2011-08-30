@@ -36,6 +36,11 @@ body.workInProgress{
 .fieldsTreeShowTrash .fieldsTreeTrash{
     display:block;
 }
+.fieldsTreeTrash.canBeDropped{
+    background-color: #e5e5e5 !important;
+    opacity:.8;
+}
+
 .fieldsTreeTrash{
     display:none;
     position: absolute;
@@ -1202,7 +1207,29 @@ div.dojoxDock {
 
 }
 
+.save24{
+    width:24px;
+     height:24px;
+    background: url(icons/base24/save_24.png) no-repeat center center;
 
+}
+.trash24{
+    width:24px;
+     height:24px;
+    background: url(icons/base24/trash_24.png) no-repeat center center;
+}
+
+.save16{
+    width:16px;
+     height:16px;
+    background: url(icons/base16/save_16.png) no-repeat center center;
+
+}
+.trash16{
+    width:16px;
+     height:16px;
+    background: url(icons/base16/trash_16.png) no-repeat center center;
+}
 /* @end */
 
 .box16{
@@ -1255,7 +1282,11 @@ div.dojoxDock {
     width: 16px;
     height: 16px;
 }
-
+.queryMenu{
+    background: url(icons/base16/queryMenu16.png) no-repeat center center;
+    width: 16px;
+    height: 16px;
+}
 .icnBuddyChat {
     background: url(icons/base16/buddy_chat.png) no-repeat center center;
     width: 16px;

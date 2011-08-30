@@ -1443,6 +1443,9 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
             return 0;
         }
         var dataNode = data.getParentNode();
+        if(!dataNode){
+            return 0;
+        }
         var len = dataNode.attr['totalrows'] || 0;
         if(!filtered){
             len = dataNode.attr['totalRowCount']||len;

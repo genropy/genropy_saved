@@ -2022,8 +2022,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         };
         sourceNode.attr['onDrop_selfdragcolumn_' + sourceNode._id] = onDropCall;
         if(sourceNode.attr.configurable){
-            sourceNode._showHideTrash=function(show){
-                genro.dom.setClass(genro.getFrameNode(this.attr.frameCode),'fieldsTreeShowTrash',show);
+            var frameNode = genro.getFrameNode(sourceNode.attr.frameCode);
+            sourceNode.registerSubscription('endDrag',sourceNode,function(){
+                genro.dom.removeClass(frameNode,'fieldsTreeShowTrash');
+            });
+            sourceNode._showTrash=function(show){
+                genro.dom.addClass(frameNode,'fieldsTreeShowTrash');
             }
             sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
         }
@@ -2099,7 +2103,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             sourceNode.baseStructBag = structBag.deepCopy();
         }
         if (genro.grid_configurator) {
-            structBag = genro.grid_configurator.onStructCreating(sourceNode,structBag);
+            sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy());
+            var currViewPath = genro.getFromStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + sourceNode.attr.nodeId) || '__baseview__';
+            sourceNode.setRelativeData('.currViewPath',currViewPath);
         }
         attributes.structBag = structBag; 
         sourceNode.registerDynAttr('structpath');
@@ -2752,8 +2758,8 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if (selfDragColumns) {
                 value['selfdragcolumn_' + dragInfo.sourceNode._id] = dragInfo.column;
                 if (selfDragColumns == 'trashable') {
-                    if(dragInfo.sourceNode._showHideTrash){
-                        dragInfo.sourceNode._showHideTrash(true);
+                    if(dragInfo.sourceNode._showTrash){
+                        dragInfo.sourceNode._showTrash(true);
                     }
                     value['trashable'] = dragInfo.column;
                 }

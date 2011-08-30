@@ -41,8 +41,9 @@ class GridConfigurator(BaseComponent):
         if objectsel:
             for i, r in enumerate(objectsel.data):
                 attrs = dict([(str(k), v) for k, v in r.items()])
-                menu.setItem(r['code'] or 'r_%i' % i, None, label=attrs.get('description'), pkey=attrs['pkey'],
-                               checked=selectedViewPkey == attrs['pkey'],gridId=gridId,**kwargs);
+                menu.setItem(r['code'] or 'r_%i' % i, None, caption=attrs.get('description'), pkey=attrs['pkey'],
+                               #checked=selectedViewPkey == attrs['pkey'],
+                               gridId=gridId,**kwargs);
     
     @public_method
     def deleteViewGrid(self, pkey=None):

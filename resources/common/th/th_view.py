@@ -39,36 +39,49 @@ class TableHandlerView(BaseComponent):
     
     @extract_kwargs (top=True)
     @struct_method
-    def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,reloader=None,virtualStore=None,
-                       top_kwargs=None,condition=None,condition_kwargs=None,**kwargs):
-        queryTool = kwargs['queryTool'] if 'queryTool' in kwargs else virtualStore
+    def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,reloader=None,virtualStore=None,extendedQuery=None,
+                       top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,**kwargs):
+        extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
-        if queryTool:
-            base_slots = ['queryTool','queryfb','2','runbtn','|','viewsMenu','10','export','|','10','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
+        if virtualStore:
+            base_slots = ['queryfb','2','runbtn','|','queryMenu','|','10','export','5','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
         else:
-            base_slots = ['tools','5','vtitle','count','*','searchOn']
+            base_slots = ['vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
         else:
             top_kwargs['slots']= base_slots
-        #leftTools = '5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,optionsMenu,gridReload'
-        #leftTools = '15,gridConfigurator,5,gridTrashColumns,5,gridPalette,*,gridReload,5'
         leftTools = '5,fieldsTree,*'
         top_kwargs['height'] = top_kwargs.get('height','20px')
+        grid_kwargs['configurable'] = grid_kwargs.get('configurable',True)
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
-                               tools=leftTools,**kwargs)        
+                               tools=leftTools,grid_kwargs=grid_kwargs,**kwargs)   
+        if grid_kwargs['configurable']:
+            frame.left.viewConfigurator(table,frameCode)                         
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs)
         return frame
+        
+    @struct_method
+    def th_viewConfigurator(self,pane,table,th_root):
+        bar = pane.slotBar('confBar,fieldsTree,*',min_width='160px',closable='close',fieldsTree_table=table,
+                            fieldsTree_height='100%',splitter=True)
+        confBar = bar.confBar.slotToolbar('viewsMenu,*,saveView,5,deleteView')
+        gridId = '%s_grid' %th_root
+        confBar.saveView.slotButton('Save View',iconClass='save16',
+                                        action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
+        confBar.deleteView.slotButton('Delete View',iconClass='trash16',
+                                    action='genro.grid_configurator.deleteGridView(gridId);',
+                                    gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
 
-
+        
     @struct_method
     def th_slotbar_optionsMenu(self,pane,**kwargs):
         menu = pane.div(tip='!!Query options',_class='buttonIcon icnBaseAction').menu(_class='smallmenu',modifiers='*')
@@ -86,11 +99,11 @@ class TableHandlerView(BaseComponent):
         pane.div('^.title',font_size='.9')
 
     @struct_method
-    def th_slotbar_queryTool(self,pane,**kwargs):
+    def th_slotbar_queryMenu(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
-        pane.div(_class='icnBaseArrowDown buttonIcon',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*',
+        pane.div(_class='icnBaseLens buttonIcon',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*',
                  action="""if($1.pkey){
                                 SET .querypkey = $1.pkey;
                           }else if($1.selectmethod){
@@ -140,15 +153,22 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
-        pane.div(padding_left='5px',_class='buttonIcon vieselectorIcn',tip='!!Stored query',datapath='.grid').menu(storepath='.th_viewmenu',_class='smallmenu',modifiers='*')
+        gridId = '%s_grid' %th_root
+        pane.div('^.currViewAttrs.caption',_class='floatingPopup',font_size='.8em',padding_right='10px',padding_left='2px',
+                    margin='1px',rounded=4,width='10em',overflow='hidden',text_align='left',cursor='pointer',
+                    font_weight='bold',color='#555',datapath='.grid').menu(storepath='.structMenuBag',
+                _class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
+        pane.dataController("genro.grid_configurator.loadView(gridId, selpath);",selpath="^.grid.currViewPath",gridId=gridId,_onStart=True)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
         for k,v in pyviews.items():
             prefix,name=k.split('_struct_')
             q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
         pane.data('.grid.resource_structs',q)
-        pane.dataRemote('.grid.th_viewmenu',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),
-                        table=table,mangler=th_root,cacheTime=10)
+        
+
+        pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),
+                        table=table,th_root=th_root,cacheTime=5)
     @struct_method
     def th_slotbar_resourcePrints(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
@@ -305,8 +325,9 @@ class TableHandlerView(BaseComponent):
                , _init=True,table=table,th_root = th_root)
 
         pane.dataController("""var th=TH(th_root)
-                                if(selectmethod){
                                 var parslist=[];
+                                if(selectmethod){
+                                
                               }else if(querybag.getItem("#0?column")){
                                     th.querybuilder.cleanQueryPane(querybag); 
                                     SET .queryRunning = true;
@@ -455,14 +476,12 @@ class THViewUtils(BaseComponent):
     def th_menuViews(self,table=None,th_root=None,pyviews=None,**kwargs):
         result = Bag()
         gridId = '%s_grid' %th_root
-        result.setItem('_baseview_', None,
-                       action="genro.grid_configurator.loadGridBaseView(this.attr.gridId)",
-                       label='Base View',gridId=gridId)
+        result.setItem('__baseview__', None,caption='Base View',gridId=gridId)
         if pyviews:
             for k,caption in pyviews:
-                result.setItem(k.replace('_','.'),None,caption=caption,action="""genro.grid_configurator.loadGridBaseView(this.attr.gridId,this.attr.viewkey);""",viewkey=k,gridId=gridId)
+                result.setItem(k.replace('_','.'),None,caption=caption,viewkey=k,gridId=gridId)
         #result.setItem('r_1',None,caption='-')
-        self.grid_configurator_savedViewsMenu(result,gridId,action="genro.grid_configurator.loadCustomView(this.attr.gridId, this.attr.pkey);")
+        self.grid_configurator_savedViewsMenu(result,gridId)
         return result
         
     
@@ -471,7 +490,6 @@ class THViewUtils(BaseComponent):
         querymenu = Bag()
         querymenu.setItem('r_0',None,caption='!!Plain Query',action='FIRE .loadBaseQuery; SET .extended=false; FIRE .closepalette;')
         querymenu.setItem('r_2',None,caption='!!Advanced Query',action='FIRE .loadBaseQuery; SET .extended=true; FIRE .openpalette;')
-
         savedqueries = self.package.listUserObject(objtype='query', userid=self.user, tbl=table,authtags=self.userTags)
         if pyqueries or savedqueries:
             querymenu.setItem('r_3',None,caption='-')
@@ -482,10 +500,6 @@ class THViewUtils(BaseComponent):
             for i, r in enumerate(savedqueries.data):
                 attrs = dict([(str(k), v) for k, v in r.items()])
                 querymenu.setItem(r['code'] or 's_%i' % i, None,**attrs)
-        
-        querymenu.setItem('r_4',None,caption='-')
-        querymenu.setItem('r_5',None,caption='!!Show Fields',action='FIRE .showfields;')
-
         return querymenu
         
         

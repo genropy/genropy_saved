@@ -878,6 +878,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             genro.dom._dragLastOutlined = shape;
         } else {
             genro.dom.removeClass(dojo.body(), 'drag_started');
+            genro.publish('endDrag');
         }
     },
     onDetach:function(sourceNode, dropInfo) {
