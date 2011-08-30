@@ -22,7 +22,7 @@
 
 
 import warnings
-    
+
 def metadata(**kwargs):
     """add???
     
@@ -35,7 +35,6 @@ def metadata(**kwargs):
         
     return decore
     
-
 def public_method(func):
     """This is a decorator which can be used to mark functions as :ref:`datarpc`\s.
     
