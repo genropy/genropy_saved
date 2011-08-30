@@ -71,6 +71,16 @@ class GnrCustomWebPage(object):
                                      slotbar._('slotButton','save',{label:'Save',publish:'save'});
                                      dlg.show_action();""")
 
+
+    def test_6_retinaIcons(self,pane):
+        frame = pane.framePane(height='200px',width='800px',shadow='3px 3px 5px gray',
+                               border='1px solid #bbb',margin='10px',design='sidebar')
+        bar = frame.top.slotToolbar('5,first,prev,next,last,*')
+        bar.first.slotButton(iconClass='rbox24 first')
+        bar.prev.slotButton(iconClass='rbox24 prev')
+        bar.next.slotButton(iconClass='rbox24 next')
+        bar.last.slotButton(iconClass='rbox24 last')
+
     def test_5_regions(self,pane):
         """Design: headline"""
         frame = pane.framePane(height='200px',width='300px',shadow='3px 3px 5px gray',

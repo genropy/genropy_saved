@@ -117,15 +117,47 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         var node = genro._firingNode;
         node.setRelativeData('#helper_in.buffer', node.getRelativeData(node.attr._relpath));
     },
-    openPalette:function(){
+    queryEditor:function(open){
+        if(!open){
+            var palette = genro.wdgById(this.th_root+'_queryEditor_floating');
+            if(palette){
+                palette.close();
+            }
+            return;
+        }
         var datapath = this.sourceNode.absDatapath();
         genro.src.getNode()._('div', '_advancedquery_');
         var node = genro.src.getNode('_advancedquery_').clearValue();
         node.freeze();
-        var pane = node._('palettePane',{'title':'Query Tool',dockTo:false,datapath:datapath+'.query.where'});
+        var pane = node._('palettePane',{paletteCode:this.th_root+'_queryEditor','title':'Query Tool',dockTo:false,datapath:datapath+'.query.where'});
         this._buildQueryGroup(pane, this.sourceNode.getRelativeData('.query.where'), 0);
         node.unfreeze();
         //this.buildQueryPane(pane.getParentNode());
+    },
+    onChangedQuery: function(currentQuery){
+        var queryBag = this.sourceNode.getRelativeData('.query.menu');
+        var queryAttributes= queryBag.getNode(currentQuery).attr;
+        var sourceNode = this.sourceNode;
+        if(!('extended' in queryAttributes)){
+            queryAttributes.extended = true;
+        }
+        sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag(queryAttributes));
+        var finalize = function(where,run){
+            sourceNode.setRelativeData('.query.where',where);
+            if(run){
+                sourceNode.fireEvent('.runQuery'); //provvisorio
+            }
+        }
+        if(currentQuery=='__basequery__'){
+            finalize(this.sourceNode.getRelativeData('.baseQuery').deepCopy(),false);
+        }
+        else if(queryAttributes.pkey){
+            genro.serverCall('th_loadUserObject',{pkey:queryAttributes.pkey,table:this.maintable},function(result){
+                finalize(result._value.deepCopy(),true);
+            })
+        }else if(queryAttributes.selectmethod){
+            finalize(new gnr.GnrBag(),true);
+        }
     },
     
     buildQueryPane: function(startNode) {

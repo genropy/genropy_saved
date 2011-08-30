@@ -2863,3 +2863,54 @@ p {
 	text-decoration: underline;
 }
 /* @end */
+
+
+
+
+
+
+/*
+
+.rbox24{
+    width:24px;
+    height:24px;
+    opacity:.7;
+}
+.dijitButtonHover .rbox24{
+    opacity:1;
+}
+.r1{
+    background: url(retina/hover/24/save.png) no-repeat center center;
+}                   
+                    
+.r2{                
+    background: url(Retina2_2/24/save.png) no-repeat center center;
+}                   
+.r3{                
+    background: url(Retina2_3/24/save.png) no-repeat center center;
+}                   
+.r4{                
+    background: url(Retina2_4/24/save.png) no-repeat center center;
+}                   
+.r5{                
+    background: url(Retina2_5/24/save.png) no-repeat center center;
+}                   
+.r6{                
+    background: url(Retina2_6/24/save.png) no-repeat center center;
+}    
+
+
+.last{
+    background: url(Retina2_5/24/video_next.png) no-repeat center center;
+}                   
+                    
+.first{                
+    background: url(Retina2_5/24/video_previous.png) no-repeat center center;
+}                   
+.next{                
+    background: url(Retina2_5/24/video_forward.png) no-repeat center center;
+}                   
+.prev{                
+    background: url(Retina2_5/24/video_rewind.png) no-repeat center center;
+}                   
+*/

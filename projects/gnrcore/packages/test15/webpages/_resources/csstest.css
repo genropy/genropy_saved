@@ -19,3 +19,32 @@
     -webkit-box-shadow: 2px 2px 4px #403b3b;
     
 }
+
+.rbox24{
+    width:24px;
+    height:24px;
+    opacity:.7;
+}
+.dijitButtonOver .rbox24{
+    opacity:1;
+}
+.r1{
+    background: url(retina/hover/24/save.png) no-repeat center center;
+}                   
+                    
+.r2{                
+    background: url(Retina2_2/24/save.png) no-repeat center center;
+}                   
+.r3{                
+    background: url(Retina2_3/24/save.png) no-repeat center center;
+}                   
+.r4{                
+    background: url(Retina2_4/24/save.png) no-repeat center center;
+                    
+}                   
+.r5{                
+    background: url(Retina2_5/24/save.png) no-repeat center center;
+}                   
+.r6{                
+    background: url(Retina2_6/24/save.png) no-repeat center center;
+}                   
