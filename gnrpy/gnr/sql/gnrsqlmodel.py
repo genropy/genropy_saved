@@ -125,7 +125,7 @@ class DbModel(object):
                          :ref:`sql_deferred` section.
         :param eager_one: boolean. If ``True`` ('Y') the one_to_many relation is eager.
         :param eager_many: boolean. If ``True`` ('Y') the many_to_one relation is eager.
-        :param relation_name: string. It defines the :ref:`inv_rel_path`. For more information,
+        :param relation_name: string. It defines the :ref:`inverse_relation`. For more information,
                               check the :ref:`relation_name` documentation section
         :param one_name: the one_to_many relation's name. e.g: 'movies'. 
         :param many_name: the many_to_one relation's name. e.g: 'director'. 
@@ -453,7 +453,8 @@ class DbModelSrc(GnrStructData):
                  one_group=None, many_group=None, onUpdate=None, onUpdate_sql=None, onDelete=None,
                  onDelete_sql=None, deferred=None, relation_name=None, **kwargs):
         """Add a relation between two :ref:`tables <table>`. This relation can be traveled in the
-        direct direction (:ref:`relation_path`) or in the inverse direction (:ref:`inv_rel_path`)
+        direct direction (check the :ref:`relation` section) or in the inverse direction
+        (check the :ref:`inverse_relation` section)
         
         :param related_column: string. The path of the related column. Syntax:
                                ``packageName.tableName.pkeyColumnName``, where:
@@ -485,7 +486,7 @@ class DbModelSrc(GnrStructData):
         :param onDelete_sql: add???
         :param deferred: the same of the sql "DEFERRED". For more information, check the
                          :ref:`sql_deferred` section
-        :param relation_name: string. It defines the :ref:`inv_rel_path`. For more information,
+        :param relation_name: string. It defines the :ref:`inverse_relation`. For more information,
                               check the :ref:`relation_name` documentation section"""
         
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode,
@@ -1082,7 +1083,7 @@ class DbVirtualColumnObj(DbBaseColumnObj):
     sqlclass = 'virtual_column'
         
     def _get_relation_path(self):
-        """property. Returns the relation_path"""
+        """property. Returns the :ref:`relation_path`"""
         return self.attributes.get('relation_path')
         
     relation_path = property(_get_relation_path)

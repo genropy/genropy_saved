@@ -31,7 +31,7 @@ class Thermo(BaseComponent):
         d = pane.dialog(nodeId=dlgid, title=title, width='27em', datapath='_thermo.%s' % thermoId,
                         closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop',
                         close_cancel='Continue',
-                        close_action='genro.setInServer("thermo.%s.stop", true);' % thermoId)
+                        close_action='genro.setInServer("thermo_%s_stop", true);' % thermoId)
         for x in range(thermolines):
             tl = d.div(datapath='.t.t%i' % (x, ))
             tl.progressBar(width='25em', indeterminate='^.indeterminate', maximum='^.maximum',
@@ -51,9 +51,10 @@ class Thermo(BaseComponent):
         #Subsequent calls to setNewThermo in the next second are ignored
         end = (level == -1 or (level == 0 and progress >= maximum))
         if end:
-            self.setInClientData('_thermo.%s.c.end' % thermoId, True, fired=True, save=True)
-            if self.session.pagedata['thermo.%s.stop' % thermoId]:
-                self.session.modifyPageData('thermo.%s.stop' % thermoId, None)
+            self.setInClientData('_thermo.%s.c.end' % thermoId, True, fired=True)
+            with self.pageStore() as store:
+                if store.get('thermo_%s_stop' % thermoId):
+                    store.setItem('thermo_%s_stop' % thermoId, None)
             return
 
         now = time.time()
@@ -68,9 +69,9 @@ class Thermo(BaseComponent):
         self.lastThermoUpdLevel = level
 
         tbag = Bag(dict(progress=progress, maximum=maximum, message=message, indeterminate=indeterminate))
-        self.setInClientData('_thermo.%s.t.t%s' % (thermoId, level), tbag, save=True)
-
-        if self.session.pagedata['thermo.%s.stop' % thermoId]:
+        self.setInClientData('_thermo.%s.t.t%s' % (thermoId, level), tbag)
+        store=self.pageStore()
+        if store.get('thermo_%s_stop' % thermoId):
             return True
         else:
             return False

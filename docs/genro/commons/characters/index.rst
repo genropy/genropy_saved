@@ -1,8 +1,8 @@
-.. char_index:
+.. _char_index:
 
-==========
-characters
-==========
+==================
+special characters
+==================
 
     *Last page update*: |today|
     

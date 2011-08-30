@@ -37,12 +37,25 @@ Definition
 Creation of a table
 ===================
     
-    First write the following line for the utf-8 encoding::
+    First write something like the following line::
+    
+        #!/usr/bin/env python
+        
+    ``/usr/bin/env`` is the address of the location of python (most of the time! Put your
+    correct python location).
+    
+    Then write the following line for the utf-8 encoding::
     
         # encoding: utf-8
         
-    Now we have to introduce the right class for a table; there are many options (that we
-    discuss in the :ref:`table_classes` page). We use now the standard method::
+    Now we have to introduce the right class for a table.
+    
+    There are two options, that are:
+    
+    * :ref:`classes_table`
+    * :ref:`classes_htable`
+    
+    Here we describe the most common table, that is the ``Table`` class::
     
         class Table(object):
         
