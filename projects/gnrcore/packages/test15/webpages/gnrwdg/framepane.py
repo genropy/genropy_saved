@@ -113,9 +113,9 @@ class GnrCustomWebPage(object):
        #        right='-10px',z_index='20',opacity='.5',rounded_right=4,border='1px solid white')
        #                          
     def test_10_framepanebug(self,pane):
-        palette = pane.palettePane(paletteCode='xxx',heigth='300px',width='400px',dockTo=False)
+        palette = pane.palettePane(paletteCode='xxx',heigth='300px',width='400px',dockTo=False,palette_persistent=True)
         frame = palette.framePane(frameCode='yyy')
-        top = frame.contentPane(side='top').slotBar('*,aa',toolbar=True)
+        top = frame.top.slotBar('*,aa',toolbar=True)
         top.aa.div('aa')
         frame.div(height='13px',background='lime')
 

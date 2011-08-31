@@ -1142,10 +1142,12 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         }
     },
     patch_close:function(cb){
+        this.saveRect();
         this.sourceNode.getParentBag().popNode(this.sourceNode.label);
     },
     
     patch_show:function(cb){
+        this.restoreRect();
         this.onShowing();
         var that = this;
         this.show_replaced(cb);
@@ -1157,6 +1159,19 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
             this.autoSize();
         }     
     },
+    mixin_restoreRect:function(){
+        if(this.sourceNode.attr.nodeId){
+            var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
+            var rect = genro.getFromStorage("local", storeKey, dojo.coords(this.domNode));
+            this.resize(rect);
+        }     
+    },
+    mixin_saveRect:function(){
+        if(this.sourceNode.attr.nodeId){
+            var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
+            genro.setInStorage("local", storeKey, dojo.coords(this.domNode));
+        }     
+    },
     mixin_onShowing:function(){
         if(this.sourceNode.attr.autoSize!=false &&(this.sourceNode.attr._lazyBuild || this.sourceNode._value._nodes.length==0)){
             var domNode = this.domNode;
@@ -1166,6 +1181,7 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
             domNode.style.width='1px';
             domNode.style.height='1px';
         }
+        
     },
     
     mixin_autoSize:function(){
@@ -4684,7 +4700,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     this.applyFilter(v);
                 });
             }
-            var editBagBoxNode = genro.nodeById(nodeId+'_editbagbox');
+            var editBagBoxNode = genro.nodeById(nodeId+'_editbagbox_grid');
             if (editBagBoxNode){
                 dojo.connect(widget,'_updateSelect',function(item,node){
                     if(!(item instanceof gnr.GnrBagNode)){

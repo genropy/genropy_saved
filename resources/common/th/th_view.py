@@ -125,7 +125,8 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
                         table=table,th_root=th_root,caption='Queries',cacheTime=5)
 
-        pane.dataController("TH(th_root).querybuilder.queryEditor(open);",th_root=th_root,open="^.query.queryEditor")
+        pane.dataController("TH(th_root).querybuilder.queryEditor(open);",
+                        th_root=th_root,open="^.query.queryEditor")
 
 
 

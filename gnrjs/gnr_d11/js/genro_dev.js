@@ -240,26 +240,31 @@ dojo.declare("gnr.GnrDevHandler", null, {
         this.devUtilsPalette(pg);
         node.unfreeze();
     },
-    
+
+
     sqlDebugPalette:function(parent){
-        var pane = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql'});
-        var bc = pane._('borderContainer');
-        var top = bc._('contentPane',{'region':'top'})._('toolbar',{'height':'18px'});
+        var frame = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql',contentWidget:'framePane',frameCode:'devSqlDebug'});
+        var top = frame._('toolbar',{side:'top'});
         top._('checkbox',{'value':'^gnr.debugger.sqldebug','label':'Debug SQL'});
         top._('button',{'label':'Clear',action:'genro.setData("gnr.debugger.main",null)'});
-        var bc = bc._('borderContainer',{'region':'center'});
-        var right = bc._('contentPane',{'region':'right','splitter':true,width:'50%'});
-        var treeId='palette_debugger_tree';
+        var treeId='sql_debugger_tree';
         var storepath='gnr.debugger.main';
-        right._('BagNodeEditor',{'nodeId':treeId+'_editbagbox','datapath':'.grid','bagpath':storepath,
-                             'readOnly':true,'valuePath':'.bottomData','showBreadcrumb':false});
+        var bc = frame._('borderContainer',{side:'center'});
+        var right = bc._('contentPane',{'region':'right','splitter':true,width:'50%'});
         var bottom = bc._('contentPane',{'region':'bottom','splitter':true,height:'50%','overflow':'hidden'});
+        var center = bc._('contentPane',{'region':'center'});
+
         bottom._('div',{'innerHTML':'^.grid.bottomData',height:'100%',
                                     style:'white-space: pre;background:white;',overflow:'auto'});
-        var center = bc._('contentPane',{'region':'center'});
+      
+        
+
         center._('tree',{'storepath':storepath,fired:'^gnr.debugger.tree_redraw','margin':'6px','nodeId':treeId,
                         'getIconClass':"return 'treeNoIcon'",'_class':'fieldsTree', 'hideValues':true});
-
+                        
+        right._('BagNodeEditor',{'nodeId':treeId+'_editbagbox','datapath':'.grid','bagpath':storepath,
+                            'readOnly':true,'valuePath':'.bottomData','showBreadcrumb':false});
+                
         center._('dataController',{'script':"genro.debugopt=sqldebug?'sql':null",'sqldebug':'^gnr.debugger.sqldebug'});
         center._('dataController',{'script':"FIRE gnr.debugger.tree_redraw;", 'sqldebug':'^gnr.debugger.main', '_delay':1});
 
