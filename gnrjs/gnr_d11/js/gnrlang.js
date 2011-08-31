@@ -35,6 +35,9 @@ function _px(v){
     }
     return v;
 };
+function _T(str){
+  return str.replace('!!','');  
+};
 function isBag(value){
     return value &&(value.htraverse!=null);
 };

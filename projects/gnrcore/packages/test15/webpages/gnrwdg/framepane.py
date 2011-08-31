@@ -111,4 +111,47 @@ class GnrCustomWebPage(object):
        #left.attributes.update(closable='close',width='0',background='silver',overflow='visible')
        #left.div(background='red',position='absolute',height='30px',width='10px',top='30px',
        #        right='-10px',z_index='20',opacity='.5',rounded_right=4,border='1px solid white')
-       #                             
+       #                          
+    def test_10_framepanebug(self,pane):
+        palette = pane.palettePane(paletteCode='xxx',heigth='300px',width='400px',dockTo=False)
+        frame = palette.framePane(frameCode='yyy')
+        top = frame.contentPane(side='top').slotBar('*,aa',toolbar=True)
+        top.aa.div('aa')
+        frame.div(height='13px',background='lime')
+
+    def test_11_framepanebug(self,pane):
+        pane.dataController("""
+        datapath ='aa'
+        genro.src.getNode()._('div', 'kkk');
+        var node = genro.src.getNode('kkk').clearValue();
+        node.freeze();
+        var pane = node._('palettePane',{paletteCode:'aaa',dockTo:false});
+        var frame = pane._('framePane',{'frameCode':'bbb'});
+        var topbar = frame._('slotBar',{'side':'top','slots':'*,aa',toolbar:true});
+        topbar._('div','aa',{innerHTML:'aa'});
+        frame._('div',{'height':'13px',background:'red'});
+        node.unfreeze();
+
+        """,_onStart=True)
+
+    def test_12_framepanebug(self,pane):
+        pane.dataController("""
+        datapath ='aa'
+        genro.src.getNode()._('div', '_advancedquery_');
+        var node = genro.src.getNode('_advancedquery_').clearValue();
+        node.freeze();
+        var pane = node._('palettePane',{paletteCode:this.th_root+'_queryEditor',
+                                        'title':'Query Tool',dockTo:false,
+                                        datapath:datapath+'.query.where',height:'200px',width:'340px'});
+        var frame = pane._('borderContainer');
+        var topbar = frame._('ContentPane',{'region':'top',datapath:'.#parent',
+                                })._('slotBar',{'slots':'queryname,*,savebtn,deletebtn',toolbar:true});
+        topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',font_size:'.8em',color:'#555',font_weight:'bold'})
+        topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'save16'});
+        topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'trash16'});
+        frame._('ContentPane',{'region':'center',background:'lime'});
+        node.unfreeze();
+
+        """,_onStart=True)
+        
+        

@@ -129,8 +129,15 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         genro.src.getNode()._('div', '_advancedquery_');
         var node = genro.src.getNode('_advancedquery_').clearValue();
         node.freeze();
-        var pane = node._('palettePane',{paletteCode:this.th_root+'_queryEditor','title':'Query Tool',dockTo:false,datapath:datapath+'.query.where'});
-        this._buildQueryGroup(pane, this.sourceNode.getRelativeData('.query.where'), 0);
+        var pane = node._('palettePane',{paletteCode:this.th_root+'_queryEditor',
+                                        'title':'Query Tool',dockTo:false,
+                                        datapath:datapath+'.query.where',height:'200px',width:'340px'});
+        var frame = pane._('framePane',{'frameCode':'_innerframe_#'});
+        var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn',toolbar:true,'side':'top',datapath:'.#parent'});
+        topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',font_size:'.8em',color:'#555',font_weight:'bold'})
+        topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'save16'});
+        topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'trash16'});
+        this._buildQueryGroup(frame,this.sourceNode.getRelativeData('.query.where'), 0);
         node.unfreeze();
         //this.buildQueryPane(pane.getParentNode());
     },
