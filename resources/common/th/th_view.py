@@ -103,18 +103,18 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
-        pane.div(_class='icnBaseLens buttonIcon',datapath='.query').menu(storepath='.menu',_class='smallmenu',modifiers='*',
+        pane.div(_class='icnBaseLens buttonIcon').menu(storepath='.query.menu',_class='smallmenu',modifiers='*',
                     action="""
-                                SET .currentQuery = $1.fullpath;
+                                SET .query.currentQuery = $1.fullpath;
                                 if(!$1.pkey){
-                                    SET .queryEditor = false;
+                                    SET .query.queryEditor = false;
                                 }
-                                SET .menu.__queryeditor__?disabled=$1.selectmethod!=null;
+                                SET .query.menu.__queryeditor__?disabled=$1.selectmethod!=null;
                             """)
                     
         pane.dataController("""TH(th_root).querybuilder.onChangedQuery(currentQuery);
                                 
-                          """,currentQuery='^.query.currentQuery',queryMenu='=.query.menu',th_root=th_root)
+                          """,currentQuery='^.query.currentQuery',th_root=th_root)
         q = Bag()
         pyqueries = self._th_hook('query',mangler=th_root,asDict=True)
         for k,v in pyqueries.items():
@@ -124,10 +124,21 @@ class TableHandlerView(BaseComponent):
         pane.data('.query.pyqueries',q)
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
                         table=table,th_root=th_root,caption='Queries',cacheTime=5)
-
+        pane.dataRemote('.query.savedqueries',self.th_menuQueries,
+                        table=table,th_root=th_root,cacheTime=5,editor=False)
+                        
         pane.dataController("TH(th_root).querybuilder.queryEditor(open);",
                         th_root=th_root,open="^.query.queryEditor")
-
+        dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
+                                _pref='!!Save query: ',_code='^.query.queryAttributes.code',isModal=True,
+                                datapath='.query.queryAttributes')
+        pane.dataController("dialog.show();",_fired="^.query.savedlg",dialog=dialog.js_widget)
+        pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.queryAttributes.pkey',table=table,_fired='^.query.delete',
+                   _onResult='FIRE .query.currentQuery="__newquery__";')
+        pane.dataRpc('.queryAttributes.pkey',self.th_saveUserObject,objtype='query',table=table,id='=.queryAttributes.id',data='=.where',code='=.queryAttributes.code',
+                    description='=.queryAttributes.description', authtags='=.queryAttributes.authtags', private='=.queryAttributes.private', 
+                   _fired='^.save',_if='code',_onResult='FIRE .saved;',datapath='.query')
+        self.th_saveUserObjectDialog(dialog,table)
 
 
     @struct_method
@@ -469,25 +480,31 @@ class THViewUtils(BaseComponent):
         
     
     @public_method
-    def th_menuQueries(self,table=None,th_root=None,pyqueries=None,**kwargs):
+    def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,**kwargs):
         querymenu = Bag()
-        querymenu.setItem('__basequery__',None,caption='!!Plain Query',description='!!New query',
-                        extended=False)
-        savedqueries = self.package.listUserObject(objtype='query', userid=self.user, tbl=table,authtags=self.userTags)
-        if pyqueries or savedqueries:
+        if editor:
+            querymenu.setItem('__basequery__',None,caption='!!Plain Query',description='!!New query',
+                                extended=False)
             querymenu.setItem('r_1',None,caption='-')
-        if pyqueries:
-            for n in pyqueries:
-                querymenu.setItem(n.label,n.value,_attributes=n.attr)
+        savedqueries = self.package.listUserObject(objtype='query', userid=self.user, tbl=table,authtags=self.userTags)            
         if savedqueries:
             for i, r in enumerate(savedqueries.data):
                 attrs = dict([(str(k), v) for k, v in r.items()])
                 querymenu.setItem(r['code'] or 's_%i' % i, None,_attributes=attrs)
-        querymenu.setItem('r_2',None,caption='-')
-        querymenu.setItem('__queryeditor__',None,caption='!!Query editor',action="""
-                                                                var currentQuery = GET .currentQuery;
-                                                                SET .queryAttributes.extended=true; 
-                                                                SET .queryEditor=true;""")
+            querymenu.setItem('r_2',None,caption='-')
+        if pyqueries:
+            for n in pyqueries:
+                querymenu.setItem(n.label,n.value,_attributes=n.attr)
+            querymenu.setItem('r_3',None,caption='-')
+        
+        if editor:
+            querymenu.setItem('__queryeditor__',None,caption='!!Query editor',action="""
+                                                                var currentQuery = GET .query.currentQuery;
+                                                                SET .query.queryAttributes.extended=true; 
+                                                                SET .query.queryEditor=true;""")
+        else:
+            querymenu.setItem('__newquery__',None,caption='!!New query',description='!!New query',
+                                extended=True)
 
         return querymenu
         

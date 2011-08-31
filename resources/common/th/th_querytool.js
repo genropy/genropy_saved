@@ -122,41 +122,51 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         var pane = node._('palettePane',{paletteCode:this.th_root+'_queryEditor',
                                         'title':'Query Tool',dockTo:false,
                                         datapath:datapath+'.query',
-                                        height:'200px',width:'380px',
+                                        height:'300px',width:'450px',
                                         palette_connect_close:function(){
                                             that.sourceNode.setRelativeData('.query.queryEditor',false);
                                         }});
-        var frame = pane._('framePane',{'frameCode':'_innerframe_#'});
+        var frame = pane._('framePane',{'frameCode':'_innerframe_#',
+                                        gradient_from:'#FEFDE3',gradient_to:'#D5DDE5',gradient_deg:'-90'});
         var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn',toolbar:true,'side':'top'});
-        topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',font_size:'.8em',color:'#555',font_weight:'bold'})
-        topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'save16'});
-        topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'trash16'});
-        var editorRoot = frame._('div',{datapath:'.where'});
+        var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',
+                                                 padding_right:'10px',padding_left:'2px',
+                                    font_size:'.8em',color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'})
+        qtitle._('menu',{'_class':'smallmenu',storepath:'.savedqueries',modifiers:'*',action:'SET .currentQuery = $1.fullpath;'});
+        topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'save16',action:'FIRE .savedlg;'});
+        topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'trash16',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
+        var editorRoot = frame._('div',{datapath:'.where',margin:'2px'});
         this._buildQueryGroup(editorRoot,this.sourceNode.getRelativeData('.query.where'), 0);
         node.unfreeze();
         this._editorRoot = editorRoot.getParentNode();
         this.buildQueryPane(pane.getParentNode());
     },
     onChangedQuery: function(currentQuery){
-        var queryBag = this.sourceNode.getRelativeData('.query.menu');
-        var queryAttributes= queryBag.getNode(currentQuery).attr;
         var sourceNode = this.sourceNode;
-        if(!('extended' in queryAttributes)){
-            queryAttributes.extended = true;
-        }
-        sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag(queryAttributes));
         var finalize = function(where,run){
             sourceNode.setRelativeData('.query.where',where);
             if(run){
                 sourceNode.fireEvent('.runQuery'); //provvisorio
             }
         }
+        if (currentQuery=='__newquery__'){
+            sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag({extended:true,description:_T('!!New Query')}));
+            finalize(new gnr.GnrBag());
+            return
+        }
+        
+        var queryBag = this.sourceNode.getRelativeData('.query.menu');
+        var queryAttributes= queryBag.getNode(currentQuery).attr;
+        if(!('extended' in queryAttributes)){
+            queryAttributes.extended = true;
+        }
+        sourceNode.setRelativeData('.query.queryAttributes',new gnr.GnrBag(queryAttributes));
         if(currentQuery=='__basequery__'){
             finalize(this.sourceNode.getRelativeData('.baseQuery').deepCopy(),false);
         }
         else if(queryAttributes.pkey){
             genro.serverCall('th_loadUserObject',{pkey:queryAttributes.pkey,table:this.maintable},function(result){
-                finalize(result._value.deepCopy(),true);
+                finalize(result._value.deepCopy(),!sourceNode.getRelativeData('.query.queryEditor'));
             })
         }else if(queryAttributes.selectmethod){
             finalize(new gnr.GnrBag(),true);

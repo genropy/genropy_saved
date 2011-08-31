@@ -675,33 +675,39 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             }
         }
         if (dojo_version == '1.1') {
-            
+            var dlgtype = 'normal';
+            var zindex = 500;
+            if(sourceNode.attr.isModal){
+                dlgtype = 'modal';
+                zindex = 2000;
+            }
+            genro.dialogStacks[dlgtype] = genro.dialogStacks[dlgtype] || [];
             dojo.connect(widget, "show", widget,
                         function() {
-                            if (this != genro.dialogStack.slice(-1)[0]) {
-                                var ds=genro.dialogStack;
+                            if (this != genro.dialogStacks[dlgtype].slice(-1)[0]) {
+                                var ds=genro.dialogStacks[dlgtype];
                                 ds.push(this);
-                                var zIndex = widget.sourceNode.attr.z_index || (500 + ds.length*2);
+                                var zIndex = widget.sourceNode.attr.z_index || (zindex + ds.length*2);
 		                        dojo.style(this._underlay.domNode, 'zIndex', zIndex);
 		                        dojo.style(this.domNode, 'zIndex', zIndex + 1);
-		                         if (genro.dialogStack.length > 1) {
-		                            var parentDialog = genro.dialogStack.slice(-2)[0];
+		                         if (genro.dialogStacks[dlgtype].length > 1) {
+		                            var parentDialog = genro.dialogStacks[dlgtype].slice(-2)[0];
 		                            dojo.forEach(parentDialog._modalconnects, dojo.disconnect);
                                     parentDialog._modalconnects = [];
-                                   // genro.dialogStack.slice(-2)[0].hide();
+                                   // genro.dialogStacks[dlgtype].slice(-2)[0].hide();
                                 }
                             }
 
                         });
             dojo.connect(widget, "hide", widget,
                         function() {
-                            if (this == genro.dialogStack.slice(-1)[0]) {
-                                genro.dialogStack.pop();   
-                                if (genro.dialogStack.length > 0) {
-                                     var parentDialog = genro.dialogStack.slice(-1)[0];
+                            if (this == genro.dialogStacks[dlgtype].slice(-1)[0]) {
+                                genro.dialogStacks[dlgtype].pop();   
+                                if (genro.dialogStacks[dlgtype].length > 0) {
+                                     var parentDialog = genro.dialogStacks[dlgtype].slice(-1)[0];
 		                             parentDialog._modalconnects.push(dojo.connect(window, "onscroll", parentDialog, "layout"));
                                      parentDialog._modalconnects.push(dojo.connect(dojo.doc.documentElement, "onkeypress", parentDialog, "_onKey"));
-                                   // genro.dialogStack.slice(-1)[0].show();
+                                   // genro.dialogStacks[dlgtype].slice(-1)[0].show();
                                 }                   
                             }
                         });
@@ -1163,7 +1169,9 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         if(this.sourceNode.attr.nodeId){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
             var rect = genro.getFromStorage("local", storeKey, dojo.coords(this.domNode));
-            this.resize(rect);
+            if(rect){
+                this.resize(rect);
+            }
         }     
     },
     mixin_saveRect:function(){
@@ -1407,8 +1415,10 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     patch_destroy: function() {
         if (this._bindings) {
+            var menu = this;
             dojo.forEach(this._bindings, function(b) {
-                dojo.forEach(b, dojo.disconnect);
+                //dojo.forEach(b, dojo.disconnect);
+                dojo.forEach(b,function(n){menu.unBindDomNode(n)})
             });
             delete this._bindings;
         }
@@ -1447,8 +1457,8 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
             this._contextMouse_replaced.call(this, e);
         }
         else if (this.modifiers && genro.wdg.filterEvent(e, this.modifiers, this.validclass)) {
-            this._contextMouse_replaced.call(this, e);
             var wdg = sourceNode.widget;
+            wdg._contextMouse_replaced.call(wdg, e);
             wdg._openMyself_replaced.call(wdg, e);
 
         }
