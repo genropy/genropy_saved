@@ -1362,13 +1362,15 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     created: function(widget, savedAttrs, sourceNode) {
         if (savedAttrs.storepath) {
             var contentNode = genro.getDataNode(sourceNode.absDatapath(savedAttrs.storepath));
-            if (contentNode) {
+            if (contentNode ) {
                 var content = contentNode.getValue('static');
-                //var content=sourceNode.getRelativeData(savedAttrs.storepath);
                 if (content) {
                     var menubag = new gnr.GnrDomSource();
-                    gnr.menuFromBag(content, menubag, sourceNode.attr._class);
-                    sourceNode.setValue(menubag, false);
+                    if(!sourceNode._value || sourceNode._value.len()==0){
+                         gnr.menuFromBag(content, menubag, sourceNode.attr._class);
+                         sourceNode.setValue(menubag, false);
+                    }
+                   
                 } else if (contentNode.getResolver()) {
                     sourceNode.setResolver(contentNode.getResolver());
                 }
@@ -1417,13 +1419,13 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
         if (this._bindings) {
             var menu = this;
             dojo.forEach(this._bindings, function(b) {
-                //dojo.forEach(b, dojo.disconnect);
-                dojo.forEach(b,function(n){menu.unBindDomNode(n)})
+                dojo.forEach(b,function(n){menu.unBindDomNode(n[0])})
             });
             delete this._bindings;
         }
         this.destroy_replaced.call(this);
     },
+    
     versionpatch_11__contextMouse: function (e) {
         this.originalContextTarget = e.target;
         var sourceNode = this.sourceNode;
@@ -1453,11 +1455,12 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
                 }
             }
         }
-        if ((e.button == 2) && (!this.modifiers)) {
-            this._contextMouse_replaced.call(this, e);
+        var wdg = sourceNode.widget;
+        if ((e.button == 2) && (!wdg.modifiers)) {
+            wdg._contextMouse_replaced.call(wdg, e);
         }
-        else if (this.modifiers && genro.wdg.filterEvent(e, this.modifiers, this.validclass)) {
-            var wdg = sourceNode.widget;
+        else if (wdg.modifiers && genro.wdg.filterEvent(e, wdg.modifiers, wdg.validclass)) {
+            
             wdg._contextMouse_replaced.call(wdg, e);
             wdg._openMyself_replaced.call(wdg, e);
 

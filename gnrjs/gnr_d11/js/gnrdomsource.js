@@ -381,6 +381,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     hasDynamicAttr: function(attr) {
         return (this._dynattr && (attr in this._dynattr));
     },
+
     getRelativeData: function(path, autocreate, dflt) {
         var path = this.absDatapath(path);
         var value;
