@@ -14,8 +14,8 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder(cols=1, border_spacing='3px', datapath='test0')
         fb.data('.willbesetonserver', '', _serverpath='mytest0.mirror')
         fb.textbox(value='^.willbesetonserver', lbl='Set on server')
-        fb.button('Get Value from server', fire='.get')
-        fb.dataRpc('dummy', 'get_value_on_server', _fired='^.get', _onResult='alert(result)')
+        #fb.button('Get Value from server', fire='.get')
+        #fb.dataRpc('dummy', 'get_value_on_server', _fired='^.get', _onResult='alert(result)')
 
     def rpc_get_value_on_server(self):
         store = self.pageStore()
@@ -45,8 +45,14 @@ class GnrCustomWebPage(object):
         fb.div('^.mysync.answer.1.2.3', lbl='Answer')
         fb.dataRpc('dummy', 'setval', value='^.mydata',
                    serverpath='mytest3.mirror.answer.1.2.3')
-                           
         
+    def test_4_innerpath(self,pane):
+        pane.data('.mypath4','test',_serverpath='pierone')
+        pane.textbox(value='^.mypath4.pippero')
+        pane.div('^.mypath4.elio')
+        pane.textbox(value='^.tosend')
+        pane.button('Send')
+        pane.dataRpc('dummy','setval',serverpath='pierone.elio',value='^.tosend')
         
         
     def rpc_setval(self, serverpath=None, value=None):
