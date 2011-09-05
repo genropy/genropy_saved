@@ -182,15 +182,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         batchClass = self._batchFinder(batch)
         batch = batchClass(self.page)
         if forked:
-            try:
-                result = batch.run(**kwargs)
-                error = None
-                _cls = None
-            except Exception, err:
-                result = self.page._errorPage(err, batch, kwargs)
-                result._page = None
-                error = 'serverError'
-                _cls = 'domsource'
+            result = batch.run(**kwargs)
+            error = None
+            _cls = None
             self.page.setInClientData(resultpath, result, attributes=dict(_error=error, __cls=_cls))
         else:
             return batch.run(**kwargs)
@@ -343,13 +337,17 @@ class GnrWebAppHandler(GnrBaseProxy):
     def rpc_runSelectionBatch(self, table, selectionName=None, batchFactory=None, pkeys=None,
                               thermoId=None, thermofield=None,
                               stopOnError=False, forUpdate=False, onRow=None, **kwargs):
-        """ batchFactory: name of the Class, plugin of table, which executes the batch action
-            thermoId:
-            thermofield: the field of the main table to use for thermo display or * for record caption
-            stopOnError: at the first error stop execution
-            forUpdate: load records for update and commit at end (always use for writing batch)
-            onRow: optional method to execute on each record in selection, use if no batchFactory is given
-            """
+        """add???
+        
+        :param table: the :ref:`table` name
+        :param selectionName: add???
+        :param batchFactory: name of the Class, plugin of table, which executes the batch action
+        :param pkeys: add???
+        :param thermoId: add???
+        :param thermofield: the field of the main table to use for thermo display or * for record caption
+        :param stopOnError: at the first error stop execution
+        :param forUpdate: load records for update and commit at end (always use for writing batch)
+        :param onRow: optional method to execute on each record in selection, use if no batchFactory is given"""
         tblobj = self.db.table(table)
         if not pkeys:
             selection = self.page.unfreezeSelection(tblobj, selectionName)
@@ -668,15 +666,15 @@ class GnrWebAppHandler(GnrBaseProxy):
                             order_by=None, limit=None, offset=None, group_by=None, having=None,
                             relationDict=None, sqlparams=None, pkeys=None,
                             selectmethod=None, expressions=None, apply=None, sortedBy=None, **kwargs):
-        """Create a new selection and freezes 
-        @param table: tbale name
-        @param selectionName: the name of the selection, empty or '*' will default to a new uuid
-        @param pkeys: a json or comma separated list of pkey to find (overwrite the where parameter)
-        @param selectmethod: a page method with rpc_ prefix which receive all parameters and has to return a selection object
-        @param expressions: comma separated list of expr_ methods which returns the sql string for a column (probably a formula)
-        @param apply: a page method with rpc_ prefix which will be applied to the selection (see gnrsqldata.SqlSelection.apply)
-        @param sortedBy: sort the selection after apply, for sort in python with calculated columns available
-        """
+        """Create a new selection and freezes it
+        
+        :param table: table name
+        :param selectionName: the name of the selection, empty or '*' will default to a new uuid
+        :param pkeys: a json or comma separated list of pkey to find (overwrite the where parameter)
+        :param selectmethod: a page method with rpc_ prefix which receive all parameters and has to return a selection object
+        :param expressions: comma separated list of expr_ methods which returns the sql string for a column (probably a formula)
+        :param apply: a page method with rpc_ prefix which will be applied to the selection (see gnrsqldata.SqlSelection.apply)
+        :param sortedBy: sort the selection after apply, for sort in python with calculated columns available"""
         t = time.time()
         tblobj = self.db.table(table)
         if selectionName == '*' or not selectionName:
@@ -892,8 +890,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param columns: the :ref:`table_columns` that are involved into the query
         :param auxColumns: showed only as result, not involved in the search.
         :param hiddenColumns: data that is retrieved but is not showed.
-        :param rowcaption: what you see into the field. Often is different from what you set
-                           with dbselect
+        :param rowcaption: what you see into the field. Often is different
+                           from what you set with dbselect
         :param querystring: add???
         :param ignoreCase: add???
         :param exclude: add???

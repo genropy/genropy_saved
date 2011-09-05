@@ -47,7 +47,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if queryTool:
-            base_slots = ['tools','5','vtitle','5','queryfb','|','queryTool','queryMenu','viewsMenu','10','|','10','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
+            base_slots = ['tools','5','vtitle','5','queryfb','|','queryTool','queryMenu','viewsMenu','10','export','|','10','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
         else:
             base_slots = ['tools','5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
@@ -55,7 +55,8 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
         else:
             top_kwargs['slots']= base_slots
-        leftTools = '5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,optionsMenu,gridReload'
+        #leftTools = '5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,optionsMenu,gridReload'
+        leftTools = '15,gridConfigurator,5,gridTrashColumns,5,gridPalette,*,gridReload,5'
         top_kwargs['height'] = top_kwargs.get('height','20px')
         frame = pane.frameGrid(frameCode=frameCode,childname='view',
                                struct=self._th_hook('struct',mangler=frameCode),
@@ -120,8 +121,8 @@ class TableHandlerView(BaseComponent):
         table = inattr['table']
         pane.div(padding_left='5px',_class='buttonIcon vieselectorIcn',tip='!!Stored query',datapath='.grid').menu(storepath='.th_viewmenu',_class='smallmenu',modifiers='*')
         q = Bag()
-        pyqueries = self._th_hook('struct',mangler=mangler,asDict=True)
-        for k,v in pyqueries.items():
+        pyviews = self._th_hook('struct',mangler=mangler,asDict=True)
+        for k,v in pyviews.items():
             prefix,name=k.split('_struct_')
             q.setItem(name,self._prepareGridStruct(v,table=table),caption=v.__doc__)
         pane.data('.grid.resource_structs',q)
@@ -191,7 +192,6 @@ class TableHandlerView(BaseComponent):
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
         frame.dataFormula('.title','view_title || name_plural',name_plural='=.table?name_plural',view_title='=.title',_init=True)
-        frame.dataFormula('.query.where', 'q.deepCopy();',q='=.baseQuery',_onStart=True)
         condPars = {}
         if isinstance(condition,dict):
             condPars = condition
@@ -279,7 +279,7 @@ class TableHandlerView(BaseComponent):
                 , _init=True,table=table,nodeId='%s_queryscripts' %mangler)
         
         pane.dataController("""
-                               genro.querybuilder(mangler).cleanQueryPane(); 
+                               genro.querybuilder(mangler).cleanQueryPane(querybag); 
                                SET .queryRunning = true;
                                var parslist = genro.queryanalyzer(mangler).translateQueryPars();
                                if (parslist.length>0){
@@ -287,7 +287,7 @@ class TableHandlerView(BaseComponent):
                                }else{
                                   FIRE .runQueryDo = true;
                                }
-                            """,mangler=mangler,_fired="^.runQuery")
+                            """,mangler=mangler,_fired="^.runQuery",querybag='=.query.where',_if='querybag.getItem("#0?column")')
         pane.dataFormula('.currentQueryCountAsString', 'msg.replace("_rec_",cnt)',
                             cnt='^.currentQueryCount', _if='cnt', _else='',
                             msg='!!Current query will return _rec_ items')
@@ -301,9 +301,9 @@ class TableHandlerView(BaseComponent):
                     qb.createMenues();
                     dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
                     dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
+                    SET .query.where = baseQuery.deepCopy();
                     qb.buildQueryPane();
-        """,_onStart=True,mangler=mangler)
-        
+        """,_onStart=True,mangler=mangler,baseQuery='=.baseQuery')        
         fb = pane.formbuilder(cols=6, datapath='.query.where', _class='query_form',
                                    border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
         fb.div('^.c_0?column_caption', min_width='12em', _class='fakeTextBox floatingPopup',
@@ -319,7 +319,7 @@ class TableHandlerView(BaseComponent):
         optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %mangler, 
                  selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
                  connectedMenu='==genro.querybuilder("%s").getOpMenuId(_dtype);' %mangler,
-                 action="console.log(this,arguments);genro.querybuilder('%s').onChangedQueryOp($2,$1);" %mangler,
+                 action="genro.querybuilder('%s').onChangedQueryOp($2,$1);" %mangler,
                  _dtype='^.c_0?column_dtype',
                  _class='floatingPopup', display='inline-block', padding_left='2px')
                  

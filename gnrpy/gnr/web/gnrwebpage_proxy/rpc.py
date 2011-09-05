@@ -28,23 +28,8 @@ class GnrWebRpc(GnrBaseProxy):
             if method == 'main':
                 kwargs['_auth'] = _auth
             if handler:
-                if page.debug_mode:
-                    result = handler(**kwargs)
-                    error = None
-                else:
-                    if True:
-                    #                    try:
-                        result = handler(**kwargs)
-                        error = None
-                    #                    except GnrWebClientError, err:
-                    #                        result = err.args[0]
-                    #                        error = 'clientError'
-                    #                    except Exception, err:
-                    #                        raise err
-                    #                        result = page._errorPage(err,method,kwargs)
-                    #                        mode='bag'
-                    #                        error = 'serverError'
-
+                result = handler(**kwargs)
+                error = None
             else:
                 result = None
                 error = 'missing handler: %s' % method

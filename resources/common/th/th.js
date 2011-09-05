@@ -311,11 +311,12 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         var val = pars[optype];
         if (val) {
             if (optype == 'column') {
-                var tnode = this.treefield.getNode(val);
-                if (tnode) {
-                    return tnode.attr.fullcaption || tnode.column || '&nbsp;';
-                }
-                console.log('missing column while looking for caption:' + val);
+                //
+               //var tnode = this.treefield.getNode(val);
+               //if (tnode) {
+               //    return tnode.attr.fullcaption || tnode.column || '&nbsp;';
+               //}
+               //console.log('missing column while looking for caption:' + val);
                 return pars.column_caption || '&nbsp;';
             }
             else {
@@ -399,8 +400,8 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             column_caption:this.getCaption('column', pars)});
         this.buildQueryPane();
     },
-    cleanQueryPane:function() {
-        var querybag = this.sourceNode.getRelativeData('.query.where');
+    cleanQueryPane:function(querybag) {
+        //var querybag = this.sourceNode.getRelativeData('.query.where');
         var wrongLinesPathlist = [];
         var cb = function(node) {
             var attr = node.attr;
@@ -411,10 +412,12 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             }
         };
         querybag.walk(cb);
-        for (var i = 0; i < wrongLinesPathlist.length; i++) {
-            querybag.delItem(wrongLinesPathlist[i]);
+        if(wrongLinesPathlist.length>0){
+            for (var i = 0; i < wrongLinesPathlist.length; i++) {
+                querybag.delItem(wrongLinesPathlist[i]);
+            }
+            this.buildQueryPane();
         }
-        this.buildQueryPane();
     },
     
     getHelper:function(sourceNode){

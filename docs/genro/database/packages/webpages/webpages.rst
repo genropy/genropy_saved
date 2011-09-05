@@ -372,7 +372,8 @@ eagers
 ------
 
     * Description: a dict that allows to give a hierarchy to the :ref:`bag_resolver` calls of
-      a :ref:`relation_path`: the relations you put in the eagers are resolved before the other ones.
+      a :ref:`relation <relations>`: the relations you put in the eagers are resolved before
+      the other ones.
     * Syntax: 
         
         * *key*: ``packageName.tableName``, where:
@@ -381,7 +382,7 @@ eagers
               :ref:`packages_index` page)
             * ``tableName`` is the name of the :ref:`table`
             
-        * *value*: includes a :ref:`relation_path
+        * *value*: includes a :ref:`relation <relations>`
     * Default value: ``{}`` (an empty dict)
     * Example::
     
