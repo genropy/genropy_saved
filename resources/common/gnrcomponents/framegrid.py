@@ -72,7 +72,7 @@ class FrameGrid(BaseComponent):
             frame.top.slotToolbar(**top_kwargs)
         frame.includedView(autoWidth=False,
                                 datapath='.grid',selectedId='.selectedId',
-                                struct=struct,sortedBy='^.sorted',
+                                struct=struct,sortedBy='^.sorted',table=table,
                                 selfsubscribe_delrow='this.widget.deleteRows();',
                                  _newGrid=True,**grid_kwargs)
         return frame
