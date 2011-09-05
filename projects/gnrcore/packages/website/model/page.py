@@ -7,7 +7,7 @@ class Table(object):
         """website.page"""
         tbl =  pkg.table('page', name_plural = u'!!Pages', pkey='id',name_long=u'!!Page', rowcaption='$title')
         self.sysFields(tbl)
-        tbl.column('title', size=':20',name_long = '!!Title',base_view=True)
+        tbl.column('title', size=':30',name_long = '!!Title',base_view=True)
         tbl.column('extended_title', name_long = '!!Extended Title')
         tbl.column('permalink', size=':254',name_long = '!!Permalink')
         tbl.column('content',name_long = '!!Content')

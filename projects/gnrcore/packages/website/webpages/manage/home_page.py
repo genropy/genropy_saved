@@ -36,17 +36,18 @@ class GnrCustomWebPage(object):
                           where='$id IS NOT NULL')
                           
     def frameArticles(self,frame):
-        tb=frame.top.slotToolbar('*,searchOn')
+        tb=frame.top.slotToolbar('*,delrow,searchOn')
         def articleStruct(struct):
             r = struct.view().rows()
             r.cell('id', hidden=True)
-            r.cell('_row_counter', name='!!Pos',width='5%')
+            r.cell('_row_counter', name='!!Counter', counter=True,width='5%')
             r.cell('@page_id.@folder.child_code', name='!!Folder',width='30%')
             r.cell('@page_id.permalink', name='!!Permalink',width='70%')
             return struct
             
         iv = frame.includedView(struct=articleStruct,autoSelect=True,_newGrid=True,
                                 selfDragRows=True,
+                                del_action=True,
                                 onDrop_page='FIRE .dropped_page={"data":data,"page_id":this.widget.rowIdByIndex(dropInfo.row)};')
         iv.selectionStore(table='website.index_article',_onStart=True,externalChanges=True,order_by='$_row_counter',_fired='^.reload')        
         iv.dataController("""var pkeys = [];
@@ -64,7 +65,9 @@ class GnrCustomWebPage(object):
     def rpc_addArticle(self,pkeys=None,data=None,**kwargs):
         tblobj = self.db.table('website.index_article')
         for pkey in pkeys:
-            tblobj.insertOrUpdate(dict(page_id=pkey))
+            exist = tblobj.query(where='$page_id=:p_id',p_id=pkey).fetch()
+            if not exist:
+                tblobj.insertOrUpdate(dict(page_id=pkey))
         self.db.commit()
 
     def rpc_onViewCounterChange(self,table=None,changes=None,**kwargs):

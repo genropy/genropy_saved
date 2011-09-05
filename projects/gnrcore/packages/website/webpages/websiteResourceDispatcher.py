@@ -73,6 +73,9 @@ class GnrCustomWebPage(object):
     def getIndex(self,folder):
         pages=self.db.table('website.page').query(where='$folder=:folder_pkey AND $permalink=:permalink',
                                                             folder_pkey=folder['pkey'],permalink='index').fetch()
+        if not pages:
+            pages=self.db.table('website.page').query(where='$folder=:folder_pkey',
+                                                                folder_pkey=folder['pkey'],order_by='position').fetch()
         if pages:
             return pages[0] 
         return []
