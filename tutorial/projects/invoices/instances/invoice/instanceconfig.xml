@@ -8,6 +8,7 @@
         <gnrcore:sys/>
         <gnrsw:sw_base/>
     </packages>
+    <menu package='invoice'/>
     <authentication pkg='invoice'>
         <xml_auth defaultTags="users,xml">
             <invoice pwd="guest" tags="user"/>
