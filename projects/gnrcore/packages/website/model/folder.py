@@ -7,7 +7,7 @@ class Table(GnrHTable):
                       name_plural='!!Folders',rowcaption='$code')
         self.sysFields(tbl)
         self.htableFields(tbl)
-        tbl.column('title', size=':20',name_long = '!!Title', indexed=True)
+        tbl.column('title', size=':30',name_long = '!!Title', indexed=True)
         tbl.column('extended_title', size=':50',name_long = '!!Extended Title')
         tbl.column('position', dtype='I',name_long = '!!Position')
         tbl.column('publish',dtype='DH', name_long = '!!Published on')

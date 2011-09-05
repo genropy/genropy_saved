@@ -443,6 +443,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controllerData.setItem('loading',false,null,{lazySet:true});
         controllerData.fireItem('loaded');
         this.updateStatus();
+        if(this.status=='readOnly'){
+            this.setLocked(true);
+        }else if (this.store.parentStore){
+            this.setLocked(this.store.parentStore.locked);
+        }
         this.setOpStatus();
         this.currentFocused = null;
         if(this.store){

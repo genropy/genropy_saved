@@ -13,12 +13,11 @@ class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell('code',width='5em')
-        r.fieldcell('name',width='15em')
-        r.fieldcell('address',width='15em')
+        r.fieldcell('name',width='20em')
+        r.fieldcell('address',width='100%')
         r.fieldcell('zip',width='5em')
-        r.fieldcell('city',width='15em')
-        r.fieldcell('country',width='10em')
-        
+        r.fieldcell('city',width='20em')
+                
     def th_order(self):
         return 'name'
         
