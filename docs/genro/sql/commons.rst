@@ -31,6 +31,3 @@ relationDict
         
     ``myname`` can be used as ``$myname`` in all clauses to refer to the related column ``@relname.colname``.
     ``myname`` is also the name of the related column in the result of the select (relatedcol AS myname).
-    
-    RIMUOVO I TEXTMATE DA _BUILD...
-    METTO A POSTO IL PKEY...

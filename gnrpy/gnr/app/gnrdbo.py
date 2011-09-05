@@ -111,17 +111,19 @@ class TableBase(object):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the :ref:`table` object
-        :param id: boolean. If ``True``, create the ``id`` column. It is normally used as the primary key of a table
-        :param ins: boolean. If ``True``, create the ``__ins_ts`` column. Allow to know the time (date and hour)
-                    of the entry of a record
-        :param upd: boolean. If ``True``, create the ``__mod_ts`` column. Allow to know the time (date and hour)
-                    of a modify on a record
-        :param ldel: boolean. If ``True``, create the ``__del_ts`` column. Allow to know the time (date and hour)
-                     of the delete of a record
+        :param id: boolean. If ``True``, create automatically an ``id`` column. The ``id`` column is
+                            normally used as the primary key (:ref:`pkey`) of a table
+        :param ins: boolean. If ``True``, create the ``__ins_ts`` column.
+                    Allow to know the time (date and hour) of a record entry
+        :param upd: boolean. If ``True``, create the ``__mod_ts`` column.
+                    Allow to know the time (date and hour) of a record modify
+        :param ldel: boolean. If ``True``, create the ``__del_ts`` column.
+                     Allow to know the time (date and hour) of a record delete
         :param draftField: add???
         :param md5: boolean. add???
-        :param group: add???
-        :param group_name: add???"""
+        :param group: a hierarchical path of logical categories and subacategories the columns belong to.
+                      For more information, check the :ref:`group` section. Default value is ``zzz``
+        :param group_name: add???. Default value is ``System``"""
         if id:
             tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id',_sendback=True)
             pkey = tbl.attributes.get('pkey')
@@ -218,7 +220,8 @@ class TableBase(object):
         
         :param tbl: the :ref:`table` object
         :param name_long: the :ref:`name_long`
-        :param group: add???"""
+        :param group: a hierarchical path of logical categories and subacategories
+                      the columns belongs to. For more information, check the :ref:`group` section"""
         name_long = name_long or '!!Tag'
         tagtbl = tbl.parentNode.parentbag.parentNode.parentbag.table('recordtag_link')
         tblname = tbl.parentNode.label

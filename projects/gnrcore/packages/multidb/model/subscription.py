@@ -1,4 +1,5 @@
 # encoding: utf-8
+from gnr.core.gnrbag import Bag
 
 class Table(object):
     def config_db(self, pkg):
@@ -18,7 +19,7 @@ class Table(object):
         records = tblobj.query(addPkeyColumn=False,**queryargs).fetch()
         with self.db.tempEnv(storename=dbstore):
             for rec in records:
-                tblobj.insertOrUpdate(rec)
+                tblobj.insertOrUpdate(Bag(dict(rec)))
     
     def addSubscription(self,table=None,pkey=None,dbstore=None):
         pkeyname = self.db.table(table).pkey

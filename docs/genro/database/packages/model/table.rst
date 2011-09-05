@@ -8,6 +8,8 @@ table
     
     .. image:: ../../../_images/projects/packages/model_table.png
     
+    add??? rewrite the following index!!!
+    
     * :ref:`table_description`
     * :ref:`table_definition`
     * :ref:`table_creation`
@@ -17,7 +19,7 @@ table
     
 .. _table_description:
 
-Description
+description
 ===========
 
     A table is one of the most important part of your project. In relational databases and
@@ -27,14 +29,14 @@ Description
     
 .. _table_definition:
 
-Definition
+definition
 ==========
 
     .. automethod:: gnr.sql.gnrsqlmodel.DbModelSrc.table
     
 .. _table_creation:
     
-Creation of a table
+creation of a table
 ===================
     
     First write something like the following line::
@@ -146,7 +148,7 @@ column
         tbl.column('my_column',size=':15',name_long='!!My column')
         
     where ``tbl`` is the table object.
-        
+    
 .. _table_relation_column:
 
 relation column
@@ -166,13 +168,16 @@ relation method
 ---------------
 
     .. automethod:: gnr.sql.gnrsqlmodel.DbModelSrc.relation
-        
+    
+    For a full explanation of the relation method attributes, please check the
+    :ref:`relation_attrs` page.
+    
     **Example**::
     
         tbl.column('registry_id',size=':22',name_long='!!Registry id').relation('sw_base.registry.id',mode='foreignkey')
         
         add??? example explanation!
-            
+        
 .. _table_aliascolumn:
 
 aliasColumn
@@ -194,7 +199,7 @@ formulaColumn
     ``#THIS``: you can use ``#THIS`` (only in a formulaColumn) to refer to the table itself.
     
     Example: if you some fields called ``change_date``, ``vat_rate`` and ``vat_rate_new``, and you are in the
-    same table in which they are defined, you can make a formulColumn::
+    same table in which they are defined, you can make a formulaColumn::
     
         tbl.formulaColumn('current_vat_rate', """CASE WHEN
                                                  #THIS.change_date IS NULL
@@ -227,9 +232,23 @@ validations in a column
 
     add??? --> link to :ref:`validations`...
     
+.. _bla_bla:
+    
+paragraph to revise
+===================
+
+.. _set_tagcolumn:
+
+setTagColumn
+------------
+
+    add???
+    
+    .. automethod:: gnr.app.gnrdbo.TableBase.setTagColumn
+    
 .. _table_examples:
 
-Examples
+examples
 ========
 
     Let's see a first example::
