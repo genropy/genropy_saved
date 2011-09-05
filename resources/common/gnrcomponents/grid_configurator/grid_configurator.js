@@ -105,6 +105,9 @@ var genro_plugin_grid_configurator = {
         var loadedCustomViewId = genro.getFromStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + gridId);
         if (loadedCustomViewId) {
             var result = genro.serverCall('loadGridCustomView', {pkey:loadedCustomViewId,sync:true});
+            if(!result){
+                return;
+            }
             structBag = result.getValue();
             sourceNode.setRelativeData(sourceNode.attr.structpath, structBag);
             sourceNode.selectedView = result.attr;
