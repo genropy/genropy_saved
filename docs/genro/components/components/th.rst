@@ -21,7 +21,7 @@ TableHandler
                       
     **Introduction, paths, first steps**
     
-    * :ref:`th_introduction`
+    * :ref:`th_intro`
     * :ref:`th_map`:
     
         * :ref:`th_map_selectedpage`
@@ -88,15 +88,10 @@ TableHandler
     **GUI**
     
     * :ref:`th_gui_intro`
-    * :ref:`th_gui_view`:
+    * :ref:`th_gui_view`
+    * :ref:`th_gui_form`
     
-        * :ref:``
-        
-    * :ref:`th_gui_form`:
-    
-        * :ref:``
-    
-.. _th_introduction:
+.. _th_intro:
 
 Introduction
 ============
@@ -1445,15 +1440,14 @@ TableHandler GUI - introduction
 
     .. image:: ../../_images/components/th/gui.png
     
-    * The Tablehandler view class and form class take place into the point 2.
-    * Points 1, 3 and 4 belong to the :ref:`frameindex` component. In particular, point 1
-      is the view of the :ref:`packages_menu`
+    * The Tablehandler view class and form class take place into the central pane (point 2)
+    * Points 1, 3 and 4 belong to the :ref:`frameindex` component
     
     The combination of a TableHandler in a :ref:`project` with the frameindex component is a good
     solution for having a quick pre-defined gui.
     
-    However, in this page we talk about the view class and form class GUI (that is, the point
-    2). For more information on points 1, 3 and 4, please check the :ref:`frameindex` page.
+    However, in this page we'll talk about the view class and form class GUI, that is, the central
+    pane (point 2). For more information on points 1, 3 and 4, please check the :ref:`frameindex` page.
     
 .. _th_gui_view:
     
@@ -1471,7 +1465,7 @@ TableHandler GUI - view class page
     
     * the :ref:`th_gui_view_top_bar` (*red* box)
     * the :ref:`th_gui_view_action_bar` (*green* box)
-    * the :ref:`th_gui_view_view_box` (*blue* box)
+    * the :ref:`th_gui_central_pane` (*blue* box)
     * the :ref:`th_gui_view_bottom_bar` (*yellow* box)
     
     In the next sub sections we explain in all the details these parts.
@@ -1525,7 +1519,7 @@ search box
     
     In the search box user can select the :ref:`columns <table_column>` through which
     there will be made a query: a query allow to reduce the records visualized in the
-    :ref:`th_gui_view_view_box` in order to find the record one want to get.
+    :ref:`th_gui_central_pane` in order to find the record one want to get.
     
 .. _th_query_bar:
     
@@ -1645,14 +1639,20 @@ lock button
     The lock button allow to unlock the :ref:`th_add_delete_buttons`, in order to delete or modify
     records or create new ones.
               
-.. _th_gui_view_view_box:
+.. _th_gui_central_pane:
 
-columns view
+central pane
 ------------
 
+    The central pane contains all the stuff you define in the :ref:`th_view_class`.
+    
+    In particular, you can use the central pane as "columns view"
+    
+    **central pane - columns view**:
+    
     .. image:: ../../_images/components/th/columns_view.png
     
-    The columns view allows user to see all that records that satisfy his SQL query.
+    The columns pane allows user to see all that records that satisfy his SQL query.
     Every record doesn't show necessary all of its columns, but only the ones you have
     inserted in the :ref:`th_struct` method.
     
@@ -1740,17 +1740,21 @@ action bar
     
 .. _th_gui_form_box:
 
-form
-----
+form pane
+---------
 
-    In the form box you can find the :ref:`form` through which user can save its new records
-    (or modify the existing ones)
+    In the form pane you can find all the stuff defined in the :ref:`th_form_class`.
+    
+    In particular, you can define a :ref:`form` through which user can save its new records
+    (or modify the existing ones), joined to some :ref:`webpage elements <webpage_elements_index>`
+    or any other stuff.
     
     Let's see this image:
     
     .. image:: ../../_images/components/th/form_box.png
     
-    The image is an example with a :ref:`tabcontainer` including in the first tab a :ref:`formbuilder`.
+    The image is an example of a simple :ref:`form` with a :ref:`tabcontainer` including in
+    the first tab a :ref:`formbuilder`.
     
 .. _th_gui_form_bottom_bar:
 

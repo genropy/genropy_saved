@@ -1405,15 +1405,13 @@ class SqlSelection(object):
                  keep=None, key=None, captionCb=None, **kwargs):
         """add???
         
-        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
-                         
-        :param sum: add???. 
-        :param collect: add???. 
-        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". 
-        :param keep: add???. 
-        :param key: add???. 
-        :param captionCb: add???. 
-        """
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
+        :param sum: add???
+        :param collect: add???
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
+        :param keep: add???
+        :param key: add???
+        :param captionCb: add???"""
         if group_by is None:
             self.analyzeBag = None
         else:
