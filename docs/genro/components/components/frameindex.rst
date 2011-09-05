@@ -23,10 +23,11 @@ FrameIndex
                   
     * :ref:`fi_intro`
     * :ref:`fi_creation`
+    * :ref:`fi_webpages_variables`
     * :ref:`fi_gui`:
     
         * :ref:`fi_topbar`
-        * :ref:`fi_leftbar`: :ref:`fi_menu_frame`, :ref:`fi_batch_frame`, :ref:`fi_chat_frame`
+        * :ref:`fi_leftbar`: the :ref:`iframemenu_plugin`, the :ref:`batch_monitor`, the :ref:`chat_plugin`
         * :ref:`fi_iframe`
         * :ref:`fi_bottombar`
     
@@ -49,30 +50,59 @@ introduction
 creation of the FrameIndex page
 ===============================
 
-    a
+    Let's see the code to create a FrameIndex page:
+    
+    * Some introductory lines (more information in the :ref:`webpages_GnrCustomWebPage` section)::
+    
+        #!/usr/bin/env python
+        # encoding: utf-8
+        
+    * add???
+    
+    * Then you must define the :meth:`pageAuthTags <gnr.web._gnrbasewebpage.GnrBaseWebPage.windowTitle>` method::
+      
+          def pageAuthTags(self, method=None, **kwargs):
+              return 'user'
+    
+    * You can optionally define the :meth:`windowTitle <gnr.web._gnrbasewebpage.GnrBaseWebPage.windowTitle>`
+      method::
+      
+          def windowTitle(self):
+              return '!!Title of the window'
+              
+      If you don't specify it, the default is a string with the name of the page where you define
+      the FrameIndex.
+      
+.. _fi_webpages_variables:
+
+FrameIndex webpage variables
+============================
+
+    With the term ``webpages variables`` we mean that there are some defined variables
+    that you can use to customize your FrameIndex page.
+    
+    * *plugin_list*: string. Allow to define what tools you want to see in the
+      :ref:`fi_leftbar`. You can add:
+       
+        * the :ref:`iframemenu_plugin` (to add it type "*iframemenu_plugin*")
+        * the :ref:`batch_monitor` (to add it type "*batch_monitor*")
+        * the :ref:`chat_plugin` (to add it type "*chat_plugin*")
+        
+        If you don't specify anything, you will find all the three tools.
+        
+        The syntax is::
+        
+            plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin'
+            
+    * *custom_plugin_list* add???
+    * *index_url* = None
+    * *indexTab* = False; you can write a string in place of ``False`` to allow to see
+      your index page (defined through the ``index_url`` attribute) as a first button of the
+      ``pages buttons`` in the :ref:`fi_topbar` of the FrameIndex page
+    * *hideLeftPlugins* = False
+    * *preferenceTags* = 'admin'
     
     add??? plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin'
-    
-.. _iframemenu_plugin:
-
-menu plug-in
-------------
-
-    add???
-
-.. _batch_monitor:
-
-batch monitor
--------------
-
-    add???
-
-.. _chat_plugin:
-
-chat plug-in
-------------
-
-    add???
     
 .. _fi_gui:
 
@@ -106,9 +136,14 @@ top bar
         * batch button: open the :ref:`batch_monitor`
         * chat button: open the :ref:`chat_plugin`
         
-    * pages buttons (point 2) - it includes, from left to right:
+    * pages buttons (point 2): its a series of all the pages opened by the user. The
+      current page is highlighted through a different color. In the image there are
+      three opened pages (``customers.py``, ``products.py`` and ``invoices.py``) and
+      the current opened page is ``products.py``
+    * right buttons (point 3):
     
-    *  buttons (point 3) - it includes, from left to right:
+        * reload button: allow to reload the current page
+        * close button: allow to close the current page
     
 .. _fi_leftbar:
 
@@ -117,14 +152,14 @@ left pane
 
     The left pane includes an :ref:`iframe` with the following frames:
     
-    * the :ref:`fi_menu_frame`
-    * the :ref:`fi_batch_frame`
-    * the :ref:`fi_chat_frame`
+    * the :ref:`iframemenu_plugin`
+    * the :ref:`batch_monitor`
+    * the :ref:`chat_plugin`
     
-.. _fi_menu_frame:
+.. _iframemenu_plugin:
 
-menu iFrame
-^^^^^^^^^^^
+menu plug-in
+------------
 
     This frame includes the menu of the project. You can customize the menu
     through the :ref:`packages_menu` file of your :ref:`project`.
@@ -144,19 +179,19 @@ menu iFrame
     * ``Customers``, ``Products``, ``Products Type``, ``Invoices``, ``Single Record`` belong to
       the ``Invoices Tables`` folder and ``customers`` is the current opened page
       
-.. _fi_batch_frame:
+.. _batch_monitor:
 
-batch iFrame
-^^^^^^^^^^^^
+batch monitor
+-------------
 
     This frame includes the list of all the executed batch... add???
     
     .. image:: ../../_images/components/frameindex/fi_left_batch.png
     
-.. _fi_chat_frame:
+.. _chat_plugin:
 
-chat iFrame
-^^^^^^^^^^^
+chat plug-in
+------------
 
     This frame includes the chat... add???
     
