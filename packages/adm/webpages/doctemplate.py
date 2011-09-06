@@ -13,7 +13,7 @@ class GnrCustomWebPage(object):
 
     maintable = 'adm.doctemplate'
     css_requires = 'doctemplate'
-    py_requires = 'public:Public,standard_tables:TableHandler,foundation/macrowidgets:RichTextEditor'
+    py_requires = 'public:Public,standard_tables/tablehandler,foundation/macrowidgets:RichTextEditor'
 
     ######################## STANDARD TABLE OVERRIDDEN METHODS ###############
     def windowTitle(self):

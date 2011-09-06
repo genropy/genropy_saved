@@ -624,15 +624,22 @@ dojo.declare('gnr.GenroClient', null, {
     },
 
     dataTrigger:function(kw) {
-        if (kw.evt == 'upd') {
+        if (kw.evt == 'upd' && kw.reason != 'serverChange') {
             var dpath = kw.pathlist.slice(1).join('.');
-            if (dpath in genro._serverstore_paths && kw.reason != 'serverChange') {
-                genro._serverstore_changes = genro._serverstore_changes || {};
-                genro._serverstore_changes[genro._serverstore_paths[dpath]] = kw.value;
+            for (var registered_path in genro._serverstore_paths){
+                if(dpath.indexOf(registered_path)==0){
+                    var inner=dpath.slice(registered_path.length);
+                    if(!inner || inner[0]=='.'){
+                        genro._serverstore_changes = genro._serverstore_changes || {};
+                        genro._serverstore_changes[genro._serverstore_paths[registered_path]+inner] = kw.value;
+                        break;
+                    }
+                }
             }
         }
         dojo.publish('_trigger_data', [kw]);
     },
+    
     fireDataTrigger: function(path) {
         var node = genro.getDataNode(path);
         //var v=node.getValue();

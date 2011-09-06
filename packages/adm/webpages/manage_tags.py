@@ -13,7 +13,7 @@ from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
     maintable = 'adm.tag'
-    py_requires = 'public:Public,standard_tables:TableHandler'
+    py_requires = 'public:Public,standard_tables/tablehandler'
 
     def pageAuthTags(self, method=None, **kwargs):
         return 'admin'
