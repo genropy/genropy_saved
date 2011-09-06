@@ -229,7 +229,7 @@ class MailHandler(GnrBaseService):
             mime_family, mime_subtype = mime_type.split('/')
             attachment_file = open(attachment_path, 'rb')
             email_attachment = mime_mapping[mime_family](attachment_file.read(), mime_subtype)
-            msg.add_header('content-disposition', 'attachment', filename=os.path.basename(attachment_path))
+            email_attachment.add_header('content-disposition', 'attachment', filename=os.path.basename(attachment_path))
             msg.attach(email_attachment)
             attachment_file.close()
         if html:
