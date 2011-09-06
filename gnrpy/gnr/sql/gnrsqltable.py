@@ -160,9 +160,10 @@ class SqlTable(GnrObject):
     dbroot = db
         
     def column(self, name):
-        """Returns a column object.
+        """Returns a :ref:`table_column` object.
         
-        :param name: A column's name or a relation path starting from the current table. (eg. ``@director_id.name``)"""
+        :param name: A column's name or a :ref:`relation <relations>` starting from
+                     the current :ref:`table`. (eg. ``@director_id.name``)"""
         return self.model.column(name)
         
     def fullRelationPath(self, name):

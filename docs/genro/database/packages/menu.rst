@@ -16,6 +16,7 @@
         * :ref:`features_icons`
         
     * :ref:`menu_th`
+    * :ref:`menu_gui`
     
 .. _menu_intro:
 
@@ -251,6 +252,26 @@ menu lines for resource page of a TableHandler
                 Example::
                 
                     <staff label="Staff" table="office.staff"/>
+                    
+.. _menu_gui:
+
+GUI
+===
+
+    Let's see the image:
+    
+    .. image:: ../../_images/components/frameindex/fi_menu.png
+    
+    The current selected page is highlighted through a different color. Also, the menu
+    supports a folder-hierarchy; there will be visualized only the contents of a single folder
+    at a time.
+    
+    In the image:
+    
+    * the ``Invoices Tables`` and the ``Utility`` bars are the folders. In particular, the current
+      folder selected is the first one
+    * ``Customers``, ``Products``, ``Products Type``, ``Invoices``, ``Single Record`` belong to
+      the ``Invoices Tables`` folder and ``customers`` is the current opened page
                 
 **Footnotes**:
 

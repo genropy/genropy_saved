@@ -136,8 +136,7 @@ class Mixin(BaseComponent):
                                                 frame.src = src;
                                             },1);
                                             """
-        scattr['subscribe_closeFrame'] = """
-                                            var sc = this.widget;
+        scattr['subscribe_closeFrame'] = """var sc = this.widget;
                                             var selected = sc.getSelectedIndex();
                                             var node = genro._data.popNode('iframes.'+$1);
                                             var treeItem = genro.getDataNode(node.attr.fullpath);
@@ -150,7 +149,7 @@ class Mixin(BaseComponent):
                                             selected = selected>=sc.getChildren().length? selected-1:selected;
                                             PUT selectedFrame = null;
                                             sc.setSelected(selected);
-                                        """        
+                                         """        
         scattr['subscribe_destroyFrames'] = """
                         var sc = this.widget;
                         for (var k in $1){
@@ -164,63 +163,55 @@ class Mixin(BaseComponent):
             sc.contentPane(pageName='indexpage',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')            
         elif getattr(self,'index_dashboard'):
             self.index_dashboard(sc.contentPane(pageName='indexpage'))
-        page.dataController("""
-                            genro.publish('selectIframePage',_menutree__selected[0]);""",
-                            subscribe__menutree__selected=True)
+        page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
+                               subscribe__menutree__selected=True)
                         
 
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='200px',datapath='left',
                                     margin_right='-1px',overflow='hidden',_class='hiddenBcPane' if self.hideLeftPlugins else None))
         sc = pane.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',overflow='hidden')
-        sc.dataController("""
-                            if(!page){return;}
+        sc.dataController("""if(!page){return;}
                              genro.publish(page+'_'+(selected?'on':'off'));
                              genro.dom.setClass(genro.nodeById('plugin_block_'+page).getParentNode(),'iframetab_selected',selected);
-                            """,
-                          subscribe_gnr_main_left_center_selected=True)
-        sc.dataController(""" 
-                              var command= main_left_status[0]?'open':'close';
-                              genro.publish(page+'_'+(command=='open'?'on':'off'));
-                            """,subscribe_main_left_status=True,page='=.selected') 
+                             """,subscribe_gnr_main_left_center_selected=True)
+        sc.dataController("""var command= main_left_status[0]?'open':'close';
+                             genro.publish(page+'_'+(command=='open'?'on':'off'));
+                             """,subscribe_main_left_status=True,page='=.selected') 
         for plugin in self.plugin_list.split(','):
             cb = getattr(self, 'mainLeft_%s' % plugin)
             assert cb, 'Plugin %s not found' % plugin
             cb(sc.contentPane(pageName=plugin,overflow='hidden'))
-            sc.dataController("""
-                            PUBLISH main_left_set_status = true;
-                            SET .selected=plugin;
-                          """, **{'subscribe_%s_open' % plugin: True, 'plugin': plugin})
+            sc.dataController("""PUBLISH main_left_set_status = true;
+                                 SET .selected=plugin;
+                                 """, **{'subscribe_%s_open' % plugin: True, 'plugin': plugin})
     
     def btn_iframemenu_plugin(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='iframemenu_plugin_icon',
+        pane.div(_class='button_block iframetab').div(_class='iframemenu_plugin_icon',tooltip='!!Menu',
                  connect_onclick="""SET left.selected='iframemenu_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
                   nodeId='plugin_block_iframemenu_plugin')
                                             
     def btn_batch_monitor(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='batch_monitor_icon',
+        pane.div(_class='button_block iframetab').div(_class='batch_monitor_icon',tooltip='!!Batch monitor',
                  connect_onclick="""genro.publish('open_batch');""",
                   nodeId='plugin_block_batch_monitor')
         pane.dataController("SET left.selected='batch_monitor';genro.getFrameNode('standard_index').publish('showLeft')",subscribe_open_batch=True)
                   
     def btn_chat_plugin(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',
-                 connect_onclick="""SET left.selected='chat_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
-                  nodeId='plugin_block_chat_plugin')
+        pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',tooltip='!!Chat plug-in',
+                    connect_onclick="""SET left.selected='chat_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
+                    nodeId='plugin_block_chat_plugin')
                   
 
     def btn_menuToggle(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='application_menu',
-                    connect_onclick="""genro.getFrameNode('standard_index').publish('toggleLeft');""")
+        pane.div(_class='button_block iframetab').div(_class='application_menu',tooltip='!!Show/Hide the left pane',
+                                                      connect_onclick="""genro.getFrameNode('standard_index').publish('toggleLeft');""")
 
     def btn_refresh(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='icnFrameRefresh',
+        pane.div(_class='button_block iframetab').div(_class='icnFrameRefresh',tooltip='!!Refresh the current page',
                                                       connect_onclick="PUBLISH reloadFrame=GET selectedFrame;")               
 
     def btn_delete(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',
-                                                        connect_onclick='PUBLISH closeFrame= GET selectedFrame;')
-        
-
-  
-            
+        pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',tooltip='!!Close the current page',
+                                                      connect_onclick='PUBLISH closeFrame= GET selectedFrame;')
+                                                      
