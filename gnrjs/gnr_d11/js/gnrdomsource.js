@@ -1075,6 +1075,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
             }
             genro.dom.addClass(domnode, value);
         }
+        else if (attr=='placeholder'){
+            (this.widget? this.widget.focusNode:this.domNode).setAttribute('placeholder',value);
+        }
         else if (attr.indexOf('remote_') == 0) {
             this.updateRemoteContent(this);
         }

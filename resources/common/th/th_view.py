@@ -130,7 +130,7 @@ class TableHandlerView(BaseComponent):
         pane.dataController("TH(th_root).querybuilder.queryEditor(open);",
                         th_root=th_root,open="^.query.queryEditor")
         dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
-                                _pref='!!Save query: ',_code='^.query.queryAttributes.code',isModal=True,
+                                _pref='!!Save query: ',_code='^.query.queryAttributes.code',
                                 datapath='.query.queryAttributes')
         pane.dataController("dialog.show();",_fired="^.query.savedlg",dialog=dialog.js_widget)
         pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.queryAttributes.pkey',table=table,_fired='^.query.delete',

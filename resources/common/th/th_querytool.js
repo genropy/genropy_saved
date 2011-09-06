@@ -128,13 +128,17 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
                                         }});
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
                                         gradient_from:'#FEFDE3',gradient_to:'#D5DDE5',gradient_deg:'-90'});
-        var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn',toolbar:true,'side':'top'});
+        var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn,|,5,runbtn',toolbar:true,'side':'top'});
         var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',
                                                  padding_right:'10px',padding_left:'2px',
                                     font_size:'.8em',color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'})
         qtitle._('menu',{'_class':'smallmenu',storepath:'.savedqueries',modifiers:'*',action:'SET .currentQuery = $1.fullpath;'});
         topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'save16',action:'FIRE .savedlg;'});
         topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'trash16',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
+        topbar._('slotButton','runbtn',{'label':_T('!!Run Query'),action:'FIRE .#parent.runQuery;',
+                               baseClass:'no_background',
+                               iconClass:'tb_button db_query'});
+
         var editorRoot = frame._('div',{datapath:'.where',margin:'2px'});
         this._buildQueryGroup(editorRoot,this.sourceNode.getRelativeData('.query.where'), 0);
         node.unfreeze();
@@ -284,14 +288,8 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
 
             var input_attrs = {value:'^' + relpath, width:'10em',
                 _autoselect:true,_class:'st_conditionValue',validate_onAccept:curr_th+'.queryanalyzer.checkQueryLineValue(this,value);'};
-            if (attr.value_caption) {
-                var fld_id = node.getStringId() + '_value';
-                input_attrs['id'] = fld_id;
-                input_attrs['connect__onMouse'] = 'genro.dom.ghostOnEvent($1);';
-                valtd._('label', {_for:fld_id,_class:'ghostlabel','id':fld_id + '_label'})._('span', {innerHTML:val ? '' : attr.value_caption});
-            }
             input_attrs.position = 'relative';
-            input_attrs.padding_right = '10px';
+            input_attrs.placeholder = '^' + relpath + '?value_caption';
             that = this;
             input_attrs.connect_onclick = function(){
                 that.getHelper(this);

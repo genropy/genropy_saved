@@ -61,6 +61,7 @@ class FormHandler(BaseComponent):
                 formRoot.attributes[loadSubscriber] = 'this.widget.switchPage(1);'
                 formRoot.attributes[closeSubscriber] = 'this.widget.switchPage(0);'
         elif dialog_kwargs:
+            dialog_kwargs['noModal'] = dialog_kwargs.get('noModal',True)
             if 'height' in dialog_kwargs:
                 form_kwargs['height'] = dialog_kwargs.pop('height')
             if 'width' in dialog_kwargs:

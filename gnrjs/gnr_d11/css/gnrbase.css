@@ -1,7 +1,18 @@
+::-webkit-input-placeholder {
+   opacity: .5;
+   font-style:normal;
+   color:#bbb;
+}
+
+:-moz-placeholder {
+   opacity: .5;
+   font-style:normal;
+   color:#bbb;
+}
+
 body.workInProgress{
     border-left:2px solid red;
 }
-
 .workInProgress #mainWindow{
 	background: red;
 }
