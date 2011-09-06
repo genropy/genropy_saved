@@ -221,9 +221,24 @@ class MailHandler(GnrBaseService):
             return msg
         if html:
             msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg.attach(MIMEText(clean_and_unescape(body), 'text', charset))
+            if attachments:
+                multi_msg=MIMEMultipart()
+                multi_msg.attach(MIMEText(body, 'html', charset))
+                self._attachments(multi_msg, attachments)
+                msg.attach(multi_msg)
+            else:
+                msg.attach(MIMEText(body, 'html', charset))
+            return msg
         else:
             msg = MIMEMultipart()
-        msg['Subject'] = subject
+            self._attachments(multi_msg, attachments)
+            msg.attach(MIMEText(body, 'text', charset))
+            msg['Subject'] = subject
+            return msg
+        
+    def _attachments(self, msg, attachments):
         for attachment_path in attachments:
             mime_type = mimetypes.guess_type(attachment_path)[0]
             mime_family, mime_subtype = mime_type.split('/')
@@ -232,12 +247,6 @@ class MailHandler(GnrBaseService):
             email_attachment.add_header('content-disposition', 'attachment', filename=os.path.basename(attachment_path))
             msg.attach(email_attachment)
             attachment_file.close()
-        if html:
-            msg.attach(MIMEText(clean_and_unescape(body), 'text', charset))
-            msg.attach(MIMEText(body, 'html', charset))
-        else:
-            msg.attach(MIMEText(body, 'text', charset))
-        return msg
         
     def sendmail_template(self, datasource, to_address=None, cc_address=None, bcc_address=None, subject=None,
                           from_address=None, body=None, attachments=None, account=None,
