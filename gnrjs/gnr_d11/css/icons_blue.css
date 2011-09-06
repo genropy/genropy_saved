@@ -1,0 +1,2362 @@
+/* @group size16 */
+
+.icon16{
+	height:16px;
+	width: 16px;
+	opacity: .7;
+}
+
+
+.icon_alarm_16{
+	background-image: url(retina/blue/16/alarm.png) no-repeat center center;
+}
+
+.icon_alarm_check_16{
+	background-image: url(retina/blue/16/alarm_check.png) no-repeat center center;
+}
+
+.icon_alarm_off_16{
+	background-image: url(retina/blue/16/alarm_off.png) no-repeat center center;
+}
+
+.icon_alarm_on_16{
+	background-image: url(retina/blue/16/alarm_on.png) no-repeat center center;
+}
+
+.icon_app_16{
+	background-image: url(retina/blue/16/app.png) no-repeat center center;
+}
+
+.icon_app_globe_16{
+	background-image: url(retina/blue/16/app_globe.png) no-repeat center center;
+}
+
+.icon_app_lock_16{
+	background-image: url(retina/blue/16/app_lock.png) no-repeat center center;
+}
+
+.icon_app_remove_16{
+	background-image: url(retina/blue/16/app_remove.png) no-repeat center center;
+}
+
+.icon_arrow_16{
+	background-image: url(retina/blue/16/arrow.png) no-repeat center center;
+}
+
+.icon_arrow_circle_left_16{
+	background-image: url(retina/blue/16/arrow_circle_left.png) no-repeat center center;
+}
+
+.icon_arrow_circle_right_16{
+	background-image: url(retina/blue/16/arrow_circle_right.png) no-repeat center center;
+}
+
+.icon_arrow_down_16{
+	background-image: url(retina/blue/16/arrow_down.png) no-repeat center center;
+}
+
+.icon_arrow_left_16{
+	background-image: url(retina/blue/16/arrow_left.png) no-repeat center center;
+}
+
+.icon_arrow_right_16{
+	background-image: url(retina/blue/16/arrow_right.png) no-repeat center center;
+}
+
+.icon_arrow_up_16{
+	background-image: url(retina/blue/16/arrow_up.png) no-repeat center center;
+}
+
+.icon_attach_16{
+	background-image: url(retina/blue/16/attach.png) no-repeat center center;
+}
+
+.icon_auction_16{
+	background-image: url(retina/blue/16/auction.png) no-repeat center center;
+}
+
+.icon_book_16{
+	background-image: url(retina/blue/16/book.png) no-repeat center center;
+}
+
+.icon_book_bookmark_16{
+	background-image: url(retina/blue/16/book_bookmark.png) no-repeat center center;
+}
+
+.icon_bookmark_16{
+	background-image: url(retina/blue/16/bookmark.png) no-repeat center center;
+}
+
+.icon_bookmark_add_16{
+	background-image: url(retina/blue/16/bookmark_add.png) no-repeat center center;
+}
+
+.icon_brightness_16{
+	background-image: url(retina/blue/16/brightness.png) no-repeat center center;
+}
+
+.icon_brush_16{
+	background-image: url(retina/blue/16/brush.png) no-repeat center center;
+}
+
+.icon_bulb_off_16{
+	background-image: url(retina/blue/16/bulb_off.png) no-repeat center center;
+}
+
+.icon_bulb_on_16{
+	background-image: url(retina/blue/16/bulb_on.png) no-repeat center center;
+}
+
+.icon_calculator_16{
+	background-image: url(retina/blue/16/calculator.png) no-repeat center center;
+}
+
+.icon_calendar_16{
+	background-image: url(retina/blue/16/calendar.png) no-repeat center center;
+}
+
+.icon_cancel_16{
+	background-image: url(retina/blue/16/cancel.png) no-repeat center center;
+}
+
+.icon_cart_16{
+	background-image: url(retina/blue/16/cart.png) no-repeat center center;
+}
+
+.icon_case_16{
+	background-image: url(retina/blue/16/case.png) no-repeat center center;
+}
+
+.icon_chart_area_16{
+	background-image: url(retina/blue/16/chart_area.png) no-repeat center center;
+}
+
+.icon_chart_bar_16{
+	background-image: url(retina/blue/16/chart_bar.png) no-repeat center center;
+}
+
+.icon_chart_bar1_16{
+	background-image: url(retina/blue/16/chart_bar1.png) no-repeat center center;
+}
+
+.icon_chart_bar_down_16{
+	background-image: url(retina/blue/16/chart_bar_down.png) no-repeat center center;
+}
+
+.icon_chart_bar_up_16{
+	background-image: url(retina/blue/16/chart_bar_up.png) no-repeat center center;
+}
+
+.icon_chart_down_16{
+	background-image: url(retina/blue/16/chart_down.png) no-repeat center center;
+}
+
+.icon_chart_line_16{
+	background-image: url(retina/blue/16/chart_line.png) no-repeat center center;
+}
+
+.icon_chart_pie_16{
+	background-image: url(retina/blue/16/chart_pie.png) no-repeat center center;
+}
+
+.icon_chart_up_16{
+	background-image: url(retina/blue/16/chart_up.png) no-repeat center center;
+}
+
+.icon_checkmark_16{
+	background-image: url(retina/blue/16/checkmark.png) no-repeat center center;
+}
+
+.icon_clock_16{
+	background-image: url(retina/blue/16/clock.png) no-repeat center center;
+}
+
+.icon_comment_16{
+	background-image: url(retina/blue/16/comment.png) no-repeat center center;
+}
+
+.icon_comment_check_16{
+	background-image: url(retina/blue/16/comment_check.png) no-repeat center center;
+}
+
+.icon_comment_delete_16{
+	background-image: url(retina/blue/16/comment_delete.png) no-repeat center center;
+}
+
+.icon_comment_minus_16{
+	background-image: url(retina/blue/16/comment_minus.png) no-repeat center center;
+}
+
+.icon_comment_plus_16{
+	background-image: url(retina/blue/16/comment_plus.png) no-repeat center center;
+}
+
+.icon_concole_16{
+	background-image: url(retina/blue/16/concole.png) no-repeat center center;
+}
+
+.icon_contrast_16{
+	background-image: url(retina/blue/16/contrast.png) no-repeat center center;
+}
+
+.icon_copy_16{
+	background-image: url(retina/blue/16/copy.png) no-repeat center center;
+}
+
+.icon_credit_card_16{
+	background-image: url(retina/blue/16/credit_card.png) no-repeat center center;
+}
+
+.icon_cut_16{
+	background-image: url(retina/blue/16/cut.png) no-repeat center center;
+}
+
+.icon_delete_16{
+	background-image: url(retina/blue/16/delete.png) no-repeat center center;
+}
+
+.icon_disk_16{
+	background-image: url(retina/blue/16/disk.png) no-repeat center center;
+}
+
+.icon_display_off_16{
+	background-image: url(retina/blue/16/display_off.png) no-repeat center center;
+}
+
+.icon_display_on_16{
+	background-image: url(retina/blue/16/display_on.png) no-repeat center center;
+}
+
+.icon_document_16{
+	background-image: url(retina/blue/16/document.png) no-repeat center center;
+}
+
+.icon_document_empty_16{
+	background-image: url(retina/blue/16/document_empty.png) no-repeat center center;
+}
+
+.icon_favorites_add_16{
+	background-image: url(retina/blue/16/favorites_add.png) no-repeat center center;
+}
+
+.icon_favorites_remove_16{
+	background-image: url(retina/blue/16/favorites_remove.png) no-repeat center center;
+}
+
+.icon_film_16{
+	background-image: url(retina/blue/16/film.png) no-repeat center center;
+}
+
+.icon_flag_16{
+	background-image: url(retina/blue/16/flag.png) no-repeat center center;
+}
+
+.icon_flag1_16{
+	background-image: url(retina/blue/16/flag1.png) no-repeat center center;
+}
+
+.icon_flash_16{
+	background-image: url(retina/blue/16/flash.png) no-repeat center center;
+}
+
+.icon_folder_16{
+	background-image: url(retina/blue/16/folder.png) no-repeat center center;
+}
+
+.icon_folder_bookmark_16{
+	background-image: url(retina/blue/16/folder_bookmark.png) no-repeat center center;
+}
+
+.icon_folder_in_16{
+	background-image: url(retina/blue/16/folder_in.png) no-repeat center center;
+}
+
+.icon_font_16{
+	background-image: url(retina/blue/16/font.png) no-repeat center center;
+}
+
+.icon_font_case_16{
+	background-image: url(retina/blue/16/font_case.png) no-repeat center center;
+}
+
+.icon_font_down_16{
+	background-image: url(retina/blue/16/font_down.png) no-repeat center center;
+}
+
+.icon_font_italic_16{
+	background-image: url(retina/blue/16/font_italic.png) no-repeat center center;
+}
+
+.icon_font_p_16{
+	background-image: url(retina/blue/16/font_p.png) no-repeat center center;
+}
+
+.icon_font_underline_16{
+	background-image: url(retina/blue/16/font_underline.png) no-repeat center center;
+}
+
+.icon_font_up_16{
+	background-image: url(retina/blue/16/font_up.png) no-repeat center center;
+}
+
+.icon_frame_16{
+	background-image: url(retina/blue/16/frame.png) no-repeat center center;
+}
+
+.icon_gear_16{
+	background-image: url(retina/blue/16/gear.png) no-repeat center center;
+}
+
+.icon_globe_16{
+	background-image: url(retina/blue/16/globe.png) no-repeat center center;
+}
+
+.icon_hat_16{
+	background-image: url(retina/blue/16/hat.png) no-repeat center center;
+}
+
+.icon_heart_16{
+	background-image: url(retina/blue/16/heart.png) no-repeat center center;
+}
+
+.icon_help_16{
+	background-image: url(retina/blue/16/help.png) no-repeat center center;
+}
+
+.icon_home_16{
+	background-image: url(retina/blue/16/home.png) no-repeat center center;
+}
+
+.icon_inbox_16{
+	background-image: url(retina/blue/16/inbox.png) no-repeat center center;
+}
+
+.icon_info_16{
+	background-image: url(retina/blue/16/info.png) no-repeat center center;
+}
+
+.icon_key_16{
+	background-image: url(retina/blue/16/key.png) no-repeat center center;
+}
+
+.icon_keyboard_16{
+	background-image: url(retina/blue/16/keyboard.png) no-repeat center center;
+}
+
+.icon_laptop_16{
+	background-image: url(retina/blue/16/laptop.png) no-repeat center center;
+}
+
+.icon_link_16{
+	background-image: url(retina/blue/16/link.png) no-repeat center center;
+}
+
+.icon_lock_16{
+	background-image: url(retina/blue/16/lock.png) no-repeat center center;
+}
+
+.icon_magnifier_16{
+	background-image: url(retina/blue/16/magnifier.png) no-repeat center center;
+}
+
+.icon_mail_16{
+	background-image: url(retina/blue/16/mail.png) no-repeat center center;
+}
+
+.icon_man_16{
+	background-image: url(retina/blue/16/man.png) no-repeat center center;
+}
+
+.icon_med_16{
+	background-image: url(retina/blue/16/med.png) no-repeat center center;
+}
+
+.icon_mic_16{
+	background-image: url(retina/blue/16/mic.png) no-repeat center center;
+}
+
+.icon_minus_16{
+	background-image: url(retina/blue/16/minus.png) no-repeat center center;
+}
+
+.icon_money_16{
+	background-image: url(retina/blue/16/money.png) no-repeat center center;
+}
+
+.icon_moving_16{
+	background-image: url(retina/blue/16/moving.png) no-repeat center center;
+}
+
+.icon_note_16{
+	background-image: url(retina/blue/16/note.png) no-repeat center center;
+}
+
+.icon_on_off_16{
+	background-image: url(retina/blue/16/on_off.png) no-repeat center center;
+}
+
+.icon_outbox_16{
+	background-image: url(retina/blue/16/outbox.png) no-repeat center center;
+}
+
+.icon_paint_16{
+	background-image: url(retina/blue/16/paint.png) no-repeat center center;
+}
+
+.icon_paper_plane_16{
+	background-image: url(retina/blue/16/paper_plane.png) no-repeat center center;
+}
+
+.icon_pencil_16{
+	background-image: url(retina/blue/16/pencil.png) no-repeat center center;
+}
+
+.icon_phone_16{
+	background-image: url(retina/blue/16/phone.png) no-repeat center center;
+}
+
+.icon_photo_16{
+	background-image: url(retina/blue/16/photo.png) no-repeat center center;
+}
+
+.icon_plus_16{
+	background-image: url(retina/blue/16/plus.png) no-repeat center center;
+}
+
+.icon_reload_16{
+	background-image: url(retina/blue/16/reload.png) no-repeat center center;
+}
+
+.icon_resize_16{
+	background-image: url(retina/blue/16/resize.png) no-repeat center center;
+}
+
+.icon_rss_16{
+	background-image: url(retina/blue/16/rss.png) no-repeat center center;
+}
+
+.icon_ruler_16{
+	background-image: url(retina/blue/16/ruler.png) no-repeat center center;
+}
+
+.icon_safe_16{
+	background-image: url(retina/blue/16/safe.png) no-repeat center center;
+}
+
+.icon_save_16{
+	background-image: url(retina/blue/16/save.png) no-repeat center center;
+}
+
+.icon_shopping_bag_16{
+	background-image: url(retina/blue/16/shopping_bag.png) no-repeat center center;
+}
+
+.icon_smile_16{
+	background-image: url(retina/blue/16/smile.png) no-repeat center center;
+}
+
+.icon_smile_sad_16{
+	background-image: url(retina/blue/16/smile_sad.png) no-repeat center center;
+}
+
+.icon_sound_16{
+	background-image: url(retina/blue/16/sound.png) no-repeat center center;
+}
+
+.icon_spanner_16{
+	background-image: url(retina/blue/16/spanner.png) no-repeat center center;
+}
+
+.icon_speaker_16{
+	background-image: url(retina/blue/16/speaker.png) no-repeat center center;
+}
+
+.icon_star_16{
+	background-image: url(retina/blue/16/star.png) no-repeat center center;
+}
+
+.icon_stop_16{
+	background-image: url(retina/blue/16/stop.png) no-repeat center center;
+}
+
+.icon_storage_16{
+	background-image: url(retina/blue/16/storage.png) no-repeat center center;
+}
+
+.icon_sum_16{
+	background-image: url(retina/blue/16/sum.png) no-repeat center center;
+}
+
+.icon_tag_16{
+	background-image: url(retina/blue/16/tag.png) no-repeat center center;
+}
+
+.icon_tag_add_16{
+	background-image: url(retina/blue/16/tag_add.png) no-repeat center center;
+}
+
+.icon_tag_cancel_16{
+	background-image: url(retina/blue/16/tag_cancel.png) no-repeat center center;
+}
+
+.icon_tag_remove_16{
+	background-image: url(retina/blue/16/tag_remove.png) no-repeat center center;
+}
+
+.icon_trash_16{
+	background-image: url(retina/blue/16/trash.png) no-repeat center center;
+}
+
+.icon_trash_mac_16{
+	background-image: url(retina/blue/16/trash_mac.png) no-repeat center center;
+}
+
+.icon_tray_16{
+	background-image: url(retina/blue/16/tray.png) no-repeat center center;
+}
+
+.icon_tray_full_16{
+	background-image: url(retina/blue/16/tray_full.png) no-repeat center center;
+}
+
+.icon_tray_mail_16{
+	background-image: url(retina/blue/16/tray_mail.png) no-repeat center center;
+}
+
+.icon_twg_logo_16{
+	background-image: url(retina/blue/16/twg_logo.png) no-repeat center center;
+}
+
+.icon_video_16{
+	background-image: url(retina/blue/16/video.png) no-repeat center center;
+}
+
+.icon_video_forward_16{
+	background-image: url(retina/blue/16/video_forward.png) no-repeat center center;
+}
+
+.icon_video_next_16{
+	background-image: url(retina/blue/16/video_next.png) no-repeat center center;
+}
+
+.icon_video_pause_16{
+	background-image: url(retina/blue/16/video_pause.png) no-repeat center center;
+}
+
+.icon_video_play_16{
+	background-image: url(retina/blue/16/video_play.png) no-repeat center center;
+}
+
+.icon_video_previous_16{
+	background-image: url(retina/blue/16/video_previous.png) no-repeat center center;
+}
+
+.icon_video_rec_16{
+	background-image: url(retina/blue/16/video_rec.png) no-repeat center center;
+}
+
+.icon_volume_down_16{
+	background-image: url(retina/blue/16/volume_down.png) no-repeat center center;
+}
+
+.icon_volume_up_16{
+	background-image: url(retina/blue/16/volume_up.png) no-repeat center center;
+}
+
+.icon_wallet_16{
+	background-image: url(retina/blue/16/wallet.png) no-repeat center center;
+}
+
+.icon_warning_16{
+	background-image: url(retina/blue/16/warning.png) no-repeat center center;
+}
+
+.icon_warning1_16{
+	background-image: url(retina/blue/16/warning1.png) no-repeat center center;
+}
+
+.icon_wifi_16{
+	background-image: url(retina/blue/16/wifi.png) no-repeat center center;
+}
+
+.icon_zoom_in_16{
+	background-image: url(retina/blue/16/zoom_in.png) no-repeat center center;
+}
+
+.icon_zoom_out_16{
+	background-image: url(retina/blue/16/zoom_out.png) no-repeat center center;
+}
+/* @end */
+
+
+/* @group size24 */
+
+.icon24{
+	height:24px;
+	width: 24px;
+	opacity: .7;
+}
+
+
+.icon_alarm_24{
+	background-image: url(retina/blue/24/alarm.png) no-repeat center center;
+}
+
+.icon_alarm_check_24{
+	background-image: url(retina/blue/24/alarm_check.png) no-repeat center center;
+}
+
+.icon_alarm_off_24{
+	background-image: url(retina/blue/24/alarm_off.png) no-repeat center center;
+}
+
+.icon_alarm_on_24{
+	background-image: url(retina/blue/24/alarm_on.png) no-repeat center center;
+}
+
+.icon_app_24{
+	background-image: url(retina/blue/24/app.png) no-repeat center center;
+}
+
+.icon_app_globe_24{
+	background-image: url(retina/blue/24/app_globe.png) no-repeat center center;
+}
+
+.icon_app_lock_24{
+	background-image: url(retina/blue/24/app_lock.png) no-repeat center center;
+}
+
+.icon_app_remove_24{
+	background-image: url(retina/blue/24/app_remove.png) no-repeat center center;
+}
+
+.icon_arrow_24{
+	background-image: url(retina/blue/24/arrow.png) no-repeat center center;
+}
+
+.icon_arrow_circle_left_24{
+	background-image: url(retina/blue/24/arrow_circle_left.png) no-repeat center center;
+}
+
+.icon_arrow_circle_right_24{
+	background-image: url(retina/blue/24/arrow_circle_right.png) no-repeat center center;
+}
+
+.icon_arrow_down_24{
+	background-image: url(retina/blue/24/arrow_down.png) no-repeat center center;
+}
+
+.icon_arrow_left_24{
+	background-image: url(retina/blue/24/arrow_left.png) no-repeat center center;
+}
+
+.icon_arrow_right_24{
+	background-image: url(retina/blue/24/arrow_right.png) no-repeat center center;
+}
+
+.icon_arrow_up_24{
+	background-image: url(retina/blue/24/arrow_up.png) no-repeat center center;
+}
+
+.icon_attach_24{
+	background-image: url(retina/blue/24/attach.png) no-repeat center center;
+}
+
+.icon_auction_24{
+	background-image: url(retina/blue/24/auction.png) no-repeat center center;
+}
+
+.icon_book_24{
+	background-image: url(retina/blue/24/book.png) no-repeat center center;
+}
+
+.icon_book_bookmark_24{
+	background-image: url(retina/blue/24/book_bookmark.png) no-repeat center center;
+}
+
+.icon_bookmark_24{
+	background-image: url(retina/blue/24/bookmark.png) no-repeat center center;
+}
+
+.icon_bookmark_add_24{
+	background-image: url(retina/blue/24/bookmark_add.png) no-repeat center center;
+}
+
+.icon_brightness_24{
+	background-image: url(retina/blue/24/brightness.png) no-repeat center center;
+}
+
+.icon_brush_24{
+	background-image: url(retina/blue/24/brush.png) no-repeat center center;
+}
+
+.icon_bulb_off_24{
+	background-image: url(retina/blue/24/bulb_off.png) no-repeat center center;
+}
+
+.icon_bulb_on_24{
+	background-image: url(retina/blue/24/bulb_on.png) no-repeat center center;
+}
+
+.icon_calculator_24{
+	background-image: url(retina/blue/24/calculator.png) no-repeat center center;
+}
+
+.icon_calendar_24{
+	background-image: url(retina/blue/24/calendar.png) no-repeat center center;
+}
+
+.icon_cancel_24{
+	background-image: url(retina/blue/24/cancel.png) no-repeat center center;
+}
+
+.icon_cart_24{
+	background-image: url(retina/blue/24/cart.png) no-repeat center center;
+}
+
+.icon_case_24{
+	background-image: url(retina/blue/24/case.png) no-repeat center center;
+}
+
+.icon_chart_area_24{
+	background-image: url(retina/blue/24/chart_area.png) no-repeat center center;
+}
+
+.icon_chart_bar_24{
+	background-image: url(retina/blue/24/chart_bar.png) no-repeat center center;
+}
+
+.icon_chart_bar1_24{
+	background-image: url(retina/blue/24/chart_bar1.png) no-repeat center center;
+}
+
+.icon_chart_bar_down_24{
+	background-image: url(retina/blue/24/chart_bar_down.png) no-repeat center center;
+}
+
+.icon_chart_bar_up_24{
+	background-image: url(retina/blue/24/chart_bar_up.png) no-repeat center center;
+}
+
+.icon_chart_down_24{
+	background-image: url(retina/blue/24/chart_down.png) no-repeat center center;
+}
+
+.icon_chart_line_24{
+	background-image: url(retina/blue/24/chart_line.png) no-repeat center center;
+}
+
+.icon_chart_pie_24{
+	background-image: url(retina/blue/24/chart_pie.png) no-repeat center center;
+}
+
+.icon_chart_up_24{
+	background-image: url(retina/blue/24/chart_up.png) no-repeat center center;
+}
+
+.icon_checkmark_24{
+	background-image: url(retina/blue/24/checkmark.png) no-repeat center center;
+}
+
+.icon_clock_24{
+	background-image: url(retina/blue/24/clock.png) no-repeat center center;
+}
+
+.icon_comment_24{
+	background-image: url(retina/blue/24/comment.png) no-repeat center center;
+}
+
+.icon_comment_check_24{
+	background-image: url(retina/blue/24/comment_check.png) no-repeat center center;
+}
+
+.icon_comment_delete_24{
+	background-image: url(retina/blue/24/comment_delete.png) no-repeat center center;
+}
+
+.icon_comment_minus_24{
+	background-image: url(retina/blue/24/comment_minus.png) no-repeat center center;
+}
+
+.icon_comment_plus_24{
+	background-image: url(retina/blue/24/comment_plus.png) no-repeat center center;
+}
+
+.icon_concole_24{
+	background-image: url(retina/blue/24/concole.png) no-repeat center center;
+}
+
+.icon_contrast_24{
+	background-image: url(retina/blue/24/contrast.png) no-repeat center center;
+}
+
+.icon_copy_24{
+	background-image: url(retina/blue/24/copy.png) no-repeat center center;
+}
+
+.icon_credit_card_24{
+	background-image: url(retina/blue/24/credit_card.png) no-repeat center center;
+}
+
+.icon_cut_24{
+	background-image: url(retina/blue/24/cut.png) no-repeat center center;
+}
+
+.icon_delete_24{
+	background-image: url(retina/blue/24/delete.png) no-repeat center center;
+}
+
+.icon_disk_24{
+	background-image: url(retina/blue/24/disk.png) no-repeat center center;
+}
+
+.icon_display_off_24{
+	background-image: url(retina/blue/24/display_off.png) no-repeat center center;
+}
+
+.icon_display_on_24{
+	background-image: url(retina/blue/24/display_on.png) no-repeat center center;
+}
+
+.icon_document_24{
+	background-image: url(retina/blue/24/document.png) no-repeat center center;
+}
+
+.icon_document_empty_24{
+	background-image: url(retina/blue/24/document_empty.png) no-repeat center center;
+}
+
+.icon_favorites_add_24{
+	background-image: url(retina/blue/24/favorites_add.png) no-repeat center center;
+}
+
+.icon_favorites_remove_24{
+	background-image: url(retina/blue/24/favorites_remove.png) no-repeat center center;
+}
+
+.icon_film_24{
+	background-image: url(retina/blue/24/film.png) no-repeat center center;
+}
+
+.icon_flag_24{
+	background-image: url(retina/blue/24/flag.png) no-repeat center center;
+}
+
+.icon_flag1_24{
+	background-image: url(retina/blue/24/flag1.png) no-repeat center center;
+}
+
+.icon_flash_24{
+	background-image: url(retina/blue/24/flash.png) no-repeat center center;
+}
+
+.icon_folder_24{
+	background-image: url(retina/blue/24/folder.png) no-repeat center center;
+}
+
+.icon_folder_bookmark_24{
+	background-image: url(retina/blue/24/folder_bookmark.png) no-repeat center center;
+}
+
+.icon_folder_in_24{
+	background-image: url(retina/blue/24/folder_in.png) no-repeat center center;
+}
+
+.icon_font_24{
+	background-image: url(retina/blue/24/font.png) no-repeat center center;
+}
+
+.icon_font_case_24{
+	background-image: url(retina/blue/24/font_case.png) no-repeat center center;
+}
+
+.icon_font_down_24{
+	background-image: url(retina/blue/24/font_down.png) no-repeat center center;
+}
+
+.icon_font_italic_24{
+	background-image: url(retina/blue/24/font_italic.png) no-repeat center center;
+}
+
+.icon_font_p_24{
+	background-image: url(retina/blue/24/font_p.png) no-repeat center center;
+}
+
+.icon_font_underline_24{
+	background-image: url(retina/blue/24/font_underline.png) no-repeat center center;
+}
+
+.icon_font_up_24{
+	background-image: url(retina/blue/24/font_up.png) no-repeat center center;
+}
+
+.icon_frame_24{
+	background-image: url(retina/blue/24/frame.png) no-repeat center center;
+}
+
+.icon_gear_24{
+	background-image: url(retina/blue/24/gear.png) no-repeat center center;
+}
+
+.icon_globe_24{
+	background-image: url(retina/blue/24/globe.png) no-repeat center center;
+}
+
+.icon_hat_24{
+	background-image: url(retina/blue/24/hat.png) no-repeat center center;
+}
+
+.icon_heart_24{
+	background-image: url(retina/blue/24/heart.png) no-repeat center center;
+}
+
+.icon_help_24{
+	background-image: url(retina/blue/24/help.png) no-repeat center center;
+}
+
+.icon_home_24{
+	background-image: url(retina/blue/24/home.png) no-repeat center center;
+}
+
+.icon_inbox_24{
+	background-image: url(retina/blue/24/inbox.png) no-repeat center center;
+}
+
+.icon_info_24{
+	background-image: url(retina/blue/24/info.png) no-repeat center center;
+}
+
+.icon_key_24{
+	background-image: url(retina/blue/24/key.png) no-repeat center center;
+}
+
+.icon_keyboard_24{
+	background-image: url(retina/blue/24/keyboard.png) no-repeat center center;
+}
+
+.icon_laptop_24{
+	background-image: url(retina/blue/24/laptop.png) no-repeat center center;
+}
+
+.icon_link_24{
+	background-image: url(retina/blue/24/link.png) no-repeat center center;
+}
+
+.icon_lock_24{
+	background-image: url(retina/blue/24/lock.png) no-repeat center center;
+}
+
+.icon_magnifier_24{
+	background-image: url(retina/blue/24/magnifier.png) no-repeat center center;
+}
+
+.icon_mail_24{
+	background-image: url(retina/blue/24/mail.png) no-repeat center center;
+}
+
+.icon_man_24{
+	background-image: url(retina/blue/24/man.png) no-repeat center center;
+}
+
+.icon_med_24{
+	background-image: url(retina/blue/24/med.png) no-repeat center center;
+}
+
+.icon_mic_24{
+	background-image: url(retina/blue/24/mic.png) no-repeat center center;
+}
+
+.icon_minus_24{
+	background-image: url(retina/blue/24/minus.png) no-repeat center center;
+}
+
+.icon_money_24{
+	background-image: url(retina/blue/24/money.png) no-repeat center center;
+}
+
+.icon_moving_24{
+	background-image: url(retina/blue/24/moving.png) no-repeat center center;
+}
+
+.icon_note_24{
+	background-image: url(retina/blue/24/note.png) no-repeat center center;
+}
+
+.icon_on_off_24{
+	background-image: url(retina/blue/24/on_off.png) no-repeat center center;
+}
+
+.icon_outbox_24{
+	background-image: url(retina/blue/24/outbox.png) no-repeat center center;
+}
+
+.icon_paint_24{
+	background-image: url(retina/blue/24/paint.png) no-repeat center center;
+}
+
+.icon_paper_plane_24{
+	background-image: url(retina/blue/24/paper_plane.png) no-repeat center center;
+}
+
+.icon_pencil_24{
+	background-image: url(retina/blue/24/pencil.png) no-repeat center center;
+}
+
+.icon_phone_24{
+	background-image: url(retina/blue/24/phone.png) no-repeat center center;
+}
+
+.icon_photo_24{
+	background-image: url(retina/blue/24/photo.png) no-repeat center center;
+}
+
+.icon_plus_24{
+	background-image: url(retina/blue/24/plus.png) no-repeat center center;
+}
+
+.icon_reload_24{
+	background-image: url(retina/blue/24/reload.png) no-repeat center center;
+}
+
+.icon_resize_24{
+	background-image: url(retina/blue/24/resize.png) no-repeat center center;
+}
+
+.icon_rss_24{
+	background-image: url(retina/blue/24/rss.png) no-repeat center center;
+}
+
+.icon_ruler_24{
+	background-image: url(retina/blue/24/ruler.png) no-repeat center center;
+}
+
+.icon_safe_24{
+	background-image: url(retina/blue/24/safe.png) no-repeat center center;
+}
+
+.icon_save_24{
+	background-image: url(retina/blue/24/save.png) no-repeat center center;
+}
+
+.icon_shopping_bag_24{
+	background-image: url(retina/blue/24/shopping_bag.png) no-repeat center center;
+}
+
+.icon_smile_24{
+	background-image: url(retina/blue/24/smile.png) no-repeat center center;
+}
+
+.icon_smile_sad_24{
+	background-image: url(retina/blue/24/smile_sad.png) no-repeat center center;
+}
+
+.icon_sound_24{
+	background-image: url(retina/blue/24/sound.png) no-repeat center center;
+}
+
+.icon_spanner_24{
+	background-image: url(retina/blue/24/spanner.png) no-repeat center center;
+}
+
+.icon_speaker_24{
+	background-image: url(retina/blue/24/speaker.png) no-repeat center center;
+}
+
+.icon_star_24{
+	background-image: url(retina/blue/24/star.png) no-repeat center center;
+}
+
+.icon_stop_24{
+	background-image: url(retina/blue/24/stop.png) no-repeat center center;
+}
+
+.icon_storage_24{
+	background-image: url(retina/blue/24/storage.png) no-repeat center center;
+}
+
+.icon_sum_24{
+	background-image: url(retina/blue/24/sum.png) no-repeat center center;
+}
+
+.icon_tag_24{
+	background-image: url(retina/blue/24/tag.png) no-repeat center center;
+}
+
+.icon_tag_add_24{
+	background-image: url(retina/blue/24/tag_add.png) no-repeat center center;
+}
+
+.icon_tag_cancel_24{
+	background-image: url(retina/blue/24/tag_cancel.png) no-repeat center center;
+}
+
+.icon_tag_remove_24{
+	background-image: url(retina/blue/24/tag_remove.png) no-repeat center center;
+}
+
+.icon_trash_24{
+	background-image: url(retina/blue/24/trash.png) no-repeat center center;
+}
+
+.icon_trash_mac_24{
+	background-image: url(retina/blue/24/trash_mac.png) no-repeat center center;
+}
+
+.icon_tray_24{
+	background-image: url(retina/blue/24/tray.png) no-repeat center center;
+}
+
+.icon_tray_full_24{
+	background-image: url(retina/blue/24/tray_full.png) no-repeat center center;
+}
+
+.icon_tray_mail_24{
+	background-image: url(retina/blue/24/tray_mail.png) no-repeat center center;
+}
+
+.icon_twg_logo_24{
+	background-image: url(retina/blue/24/twg_logo.png) no-repeat center center;
+}
+
+.icon_video_24{
+	background-image: url(retina/blue/24/video.png) no-repeat center center;
+}
+
+.icon_video_forward_24{
+	background-image: url(retina/blue/24/video_forward.png) no-repeat center center;
+}
+
+.icon_video_next_24{
+	background-image: url(retina/blue/24/video_next.png) no-repeat center center;
+}
+
+.icon_video_pause_24{
+	background-image: url(retina/blue/24/video_pause.png) no-repeat center center;
+}
+
+.icon_video_play_24{
+	background-image: url(retina/blue/24/video_play.png) no-repeat center center;
+}
+
+.icon_video_previous_24{
+	background-image: url(retina/blue/24/video_previous.png) no-repeat center center;
+}
+
+.icon_video_rec_24{
+	background-image: url(retina/blue/24/video_rec.png) no-repeat center center;
+}
+
+.icon_volume_down_24{
+	background-image: url(retina/blue/24/volume_down.png) no-repeat center center;
+}
+
+.icon_volume_up_24{
+	background-image: url(retina/blue/24/volume_up.png) no-repeat center center;
+}
+
+.icon_wallet_24{
+	background-image: url(retina/blue/24/wallet.png) no-repeat center center;
+}
+
+.icon_warning_24{
+	background-image: url(retina/blue/24/warning.png) no-repeat center center;
+}
+
+.icon_warning1_24{
+	background-image: url(retina/blue/24/warning1.png) no-repeat center center;
+}
+
+.icon_wifi_24{
+	background-image: url(retina/blue/24/wifi.png) no-repeat center center;
+}
+
+.icon_zoom_in_24{
+	background-image: url(retina/blue/24/zoom_in.png) no-repeat center center;
+}
+
+.icon_zoom_out_24{
+	background-image: url(retina/blue/24/zoom_out.png) no-repeat center center;
+}
+/* @end */
+
+
+/* @group size48 */
+
+.icon48{
+	height:48px;
+	width: 48px;
+	opacity: .7;
+}
+
+
+.icon_alarm_48{
+	background-image: url(retina/blue/48/alarm.png) no-repeat center center;
+}
+
+.icon_alarm_check_48{
+	background-image: url(retina/blue/48/alarm_check.png) no-repeat center center;
+}
+
+.icon_alarm_off_48{
+	background-image: url(retina/blue/48/alarm_off.png) no-repeat center center;
+}
+
+.icon_alarm_on_48{
+	background-image: url(retina/blue/48/alarm_on.png) no-repeat center center;
+}
+
+.icon_app_48{
+	background-image: url(retina/blue/48/app.png) no-repeat center center;
+}
+
+.icon_app_globe_48{
+	background-image: url(retina/blue/48/app_globe.png) no-repeat center center;
+}
+
+.icon_app_lock_48{
+	background-image: url(retina/blue/48/app_lock.png) no-repeat center center;
+}
+
+.icon_app_remove_48{
+	background-image: url(retina/blue/48/app_remove.png) no-repeat center center;
+}
+
+.icon_arrow_48{
+	background-image: url(retina/blue/48/arrow.png) no-repeat center center;
+}
+
+.icon_arrow_circle_left_48{
+	background-image: url(retina/blue/48/arrow_circle_left.png) no-repeat center center;
+}
+
+.icon_arrow_circle_right_48{
+	background-image: url(retina/blue/48/arrow_circle_right.png) no-repeat center center;
+}
+
+.icon_arrow_down_48{
+	background-image: url(retina/blue/48/arrow_down.png) no-repeat center center;
+}
+
+.icon_arrow_left_48{
+	background-image: url(retina/blue/48/arrow_left.png) no-repeat center center;
+}
+
+.icon_arrow_right_48{
+	background-image: url(retina/blue/48/arrow_right.png) no-repeat center center;
+}
+
+.icon_arrow_up_48{
+	background-image: url(retina/blue/48/arrow_up.png) no-repeat center center;
+}
+
+.icon_attach_48{
+	background-image: url(retina/blue/48/attach.png) no-repeat center center;
+}
+
+.icon_auction_48{
+	background-image: url(retina/blue/48/auction.png) no-repeat center center;
+}
+
+.icon_book_48{
+	background-image: url(retina/blue/48/book.png) no-repeat center center;
+}
+
+.icon_book_bookmark_48{
+	background-image: url(retina/blue/48/book_bookmark.png) no-repeat center center;
+}
+
+.icon_bookmark_48{
+	background-image: url(retina/blue/48/bookmark.png) no-repeat center center;
+}
+
+.icon_bookmark_add_48{
+	background-image: url(retina/blue/48/bookmark_add.png) no-repeat center center;
+}
+
+.icon_brightness_48{
+	background-image: url(retina/blue/48/brightness.png) no-repeat center center;
+}
+
+.icon_brush_48{
+	background-image: url(retina/blue/48/brush.png) no-repeat center center;
+}
+
+.icon_bulb_off_48{
+	background-image: url(retina/blue/48/bulb_off.png) no-repeat center center;
+}
+
+.icon_bulb_on_48{
+	background-image: url(retina/blue/48/bulb_on.png) no-repeat center center;
+}
+
+.icon_calculator_48{
+	background-image: url(retina/blue/48/calculator.png) no-repeat center center;
+}
+
+.icon_calendar_48{
+	background-image: url(retina/blue/48/calendar.png) no-repeat center center;
+}
+
+.icon_cancel_48{
+	background-image: url(retina/blue/48/cancel.png) no-repeat center center;
+}
+
+.icon_cart_48{
+	background-image: url(retina/blue/48/cart.png) no-repeat center center;
+}
+
+.icon_case_48{
+	background-image: url(retina/blue/48/case.png) no-repeat center center;
+}
+
+.icon_chart_area_48{
+	background-image: url(retina/blue/48/chart_area.png) no-repeat center center;
+}
+
+.icon_chart_bar_48{
+	background-image: url(retina/blue/48/chart_bar.png) no-repeat center center;
+}
+
+.icon_chart_bar1_48{
+	background-image: url(retina/blue/48/chart_bar1.png) no-repeat center center;
+}
+
+.icon_chart_bar_down_48{
+	background-image: url(retina/blue/48/chart_bar_down.png) no-repeat center center;
+}
+
+.icon_chart_bar_up_48{
+	background-image: url(retina/blue/48/chart_bar_up.png) no-repeat center center;
+}
+
+.icon_chart_down_48{
+	background-image: url(retina/blue/48/chart_down.png) no-repeat center center;
+}
+
+.icon_chart_line_48{
+	background-image: url(retina/blue/48/chart_line.png) no-repeat center center;
+}
+
+.icon_chart_pie_48{
+	background-image: url(retina/blue/48/chart_pie.png) no-repeat center center;
+}
+
+.icon_chart_up_48{
+	background-image: url(retina/blue/48/chart_up.png) no-repeat center center;
+}
+
+.icon_checkmark_48{
+	background-image: url(retina/blue/48/checkmark.png) no-repeat center center;
+}
+
+.icon_clock_48{
+	background-image: url(retina/blue/48/clock.png) no-repeat center center;
+}
+
+.icon_comment_48{
+	background-image: url(retina/blue/48/comment.png) no-repeat center center;
+}
+
+.icon_comment_check_48{
+	background-image: url(retina/blue/48/comment_check.png) no-repeat center center;
+}
+
+.icon_comment_delete_48{
+	background-image: url(retina/blue/48/comment_delete.png) no-repeat center center;
+}
+
+.icon_comment_minus_48{
+	background-image: url(retina/blue/48/comment_minus.png) no-repeat center center;
+}
+
+.icon_comment_plus_48{
+	background-image: url(retina/blue/48/comment_plus.png) no-repeat center center;
+}
+
+.icon_concole_48{
+	background-image: url(retina/blue/48/concole.png) no-repeat center center;
+}
+
+.icon_contrast_48{
+	background-image: url(retina/blue/48/contrast.png) no-repeat center center;
+}
+
+.icon_copy_48{
+	background-image: url(retina/blue/48/copy.png) no-repeat center center;
+}
+
+.icon_credit_card_48{
+	background-image: url(retina/blue/48/credit_card.png) no-repeat center center;
+}
+
+.icon_cut_48{
+	background-image: url(retina/blue/48/cut.png) no-repeat center center;
+}
+
+.icon_delete_48{
+	background-image: url(retina/blue/48/delete.png) no-repeat center center;
+}
+
+.icon_disk_48{
+	background-image: url(retina/blue/48/disk.png) no-repeat center center;
+}
+
+.icon_display_off_48{
+	background-image: url(retina/blue/48/display_off.png) no-repeat center center;
+}
+
+.icon_display_on_48{
+	background-image: url(retina/blue/48/display_on.png) no-repeat center center;
+}
+
+.icon_document_48{
+	background-image: url(retina/blue/48/document.png) no-repeat center center;
+}
+
+.icon_document_empty_48{
+	background-image: url(retina/blue/48/document_empty.png) no-repeat center center;
+}
+
+.icon_favorites_add_48{
+	background-image: url(retina/blue/48/favorites_add.png) no-repeat center center;
+}
+
+.icon_favorites_remove_48{
+	background-image: url(retina/blue/48/favorites_remove.png) no-repeat center center;
+}
+
+.icon_film_48{
+	background-image: url(retina/blue/48/film.png) no-repeat center center;
+}
+
+.icon_flag_48{
+	background-image: url(retina/blue/48/flag.png) no-repeat center center;
+}
+
+.icon_flag1_48{
+	background-image: url(retina/blue/48/flag1.png) no-repeat center center;
+}
+
+.icon_flash_48{
+	background-image: url(retina/blue/48/flash.png) no-repeat center center;
+}
+
+.icon_folder_48{
+	background-image: url(retina/blue/48/folder.png) no-repeat center center;
+}
+
+.icon_folder_bookmark_48{
+	background-image: url(retina/blue/48/folder_bookmark.png) no-repeat center center;
+}
+
+.icon_folder_in_48{
+	background-image: url(retina/blue/48/folder_in.png) no-repeat center center;
+}
+
+.icon_font_48{
+	background-image: url(retina/blue/48/font.png) no-repeat center center;
+}
+
+.icon_font_case_48{
+	background-image: url(retina/blue/48/font_case.png) no-repeat center center;
+}
+
+.icon_font_down_48{
+	background-image: url(retina/blue/48/font_down.png) no-repeat center center;
+}
+
+.icon_font_italic_48{
+	background-image: url(retina/blue/48/font_italic.png) no-repeat center center;
+}
+
+.icon_font_p_48{
+	background-image: url(retina/blue/48/font_p.png) no-repeat center center;
+}
+
+.icon_font_underline_48{
+	background-image: url(retina/blue/48/font_underline.png) no-repeat center center;
+}
+
+.icon_font_up_48{
+	background-image: url(retina/blue/48/font_up.png) no-repeat center center;
+}
+
+.icon_frame_48{
+	background-image: url(retina/blue/48/frame.png) no-repeat center center;
+}
+
+.icon_gear_48{
+	background-image: url(retina/blue/48/gear.png) no-repeat center center;
+}
+
+.icon_globe_48{
+	background-image: url(retina/blue/48/globe.png) no-repeat center center;
+}
+
+.icon_hat_48{
+	background-image: url(retina/blue/48/hat.png) no-repeat center center;
+}
+
+.icon_heart_48{
+	background-image: url(retina/blue/48/heart.png) no-repeat center center;
+}
+
+.icon_help_48{
+	background-image: url(retina/blue/48/help.png) no-repeat center center;
+}
+
+.icon_home_48{
+	background-image: url(retina/blue/48/home.png) no-repeat center center;
+}
+
+.icon_inbox_48{
+	background-image: url(retina/blue/48/inbox.png) no-repeat center center;
+}
+
+.icon_info_48{
+	background-image: url(retina/blue/48/info.png) no-repeat center center;
+}
+
+.icon_key_48{
+	background-image: url(retina/blue/48/key.png) no-repeat center center;
+}
+
+.icon_keyboard_48{
+	background-image: url(retina/blue/48/keyboard.png) no-repeat center center;
+}
+
+.icon_laptop_48{
+	background-image: url(retina/blue/48/laptop.png) no-repeat center center;
+}
+
+.icon_link_48{
+	background-image: url(retina/blue/48/link.png) no-repeat center center;
+}
+
+.icon_lock_48{
+	background-image: url(retina/blue/48/lock.png) no-repeat center center;
+}
+
+.icon_magnifier_48{
+	background-image: url(retina/blue/48/magnifier.png) no-repeat center center;
+}
+
+.icon_mail_48{
+	background-image: url(retina/blue/48/mail.png) no-repeat center center;
+}
+
+.icon_man_48{
+	background-image: url(retina/blue/48/man.png) no-repeat center center;
+}
+
+.icon_med_48{
+	background-image: url(retina/blue/48/med.png) no-repeat center center;
+}
+
+.icon_mic_48{
+	background-image: url(retina/blue/48/mic.png) no-repeat center center;
+}
+
+.icon_minus_48{
+	background-image: url(retina/blue/48/minus.png) no-repeat center center;
+}
+
+.icon_money_48{
+	background-image: url(retina/blue/48/money.png) no-repeat center center;
+}
+
+.icon_moving_48{
+	background-image: url(retina/blue/48/moving.png) no-repeat center center;
+}
+
+.icon_note_48{
+	background-image: url(retina/blue/48/note.png) no-repeat center center;
+}
+
+.icon_on_off_48{
+	background-image: url(retina/blue/48/on_off.png) no-repeat center center;
+}
+
+.icon_outbox_48{
+	background-image: url(retina/blue/48/outbox.png) no-repeat center center;
+}
+
+.icon_paint_48{
+	background-image: url(retina/blue/48/paint.png) no-repeat center center;
+}
+
+.icon_paper_plane_48{
+	background-image: url(retina/blue/48/paper_plane.png) no-repeat center center;
+}
+
+.icon_pencil_48{
+	background-image: url(retina/blue/48/pencil.png) no-repeat center center;
+}
+
+.icon_phone_48{
+	background-image: url(retina/blue/48/phone.png) no-repeat center center;
+}
+
+.icon_photo_48{
+	background-image: url(retina/blue/48/photo.png) no-repeat center center;
+}
+
+.icon_plus_48{
+	background-image: url(retina/blue/48/plus.png) no-repeat center center;
+}
+
+.icon_reload_48{
+	background-image: url(retina/blue/48/reload.png) no-repeat center center;
+}
+
+.icon_resize_48{
+	background-image: url(retina/blue/48/resize.png) no-repeat center center;
+}
+
+.icon_rss_48{
+	background-image: url(retina/blue/48/rss.png) no-repeat center center;
+}
+
+.icon_ruler_48{
+	background-image: url(retina/blue/48/ruler.png) no-repeat center center;
+}
+
+.icon_safe_48{
+	background-image: url(retina/blue/48/safe.png) no-repeat center center;
+}
+
+.icon_save_48{
+	background-image: url(retina/blue/48/save.png) no-repeat center center;
+}
+
+.icon_shopping_bag_48{
+	background-image: url(retina/blue/48/shopping_bag.png) no-repeat center center;
+}
+
+.icon_smile_48{
+	background-image: url(retina/blue/48/smile.png) no-repeat center center;
+}
+
+.icon_smile_sad_48{
+	background-image: url(retina/blue/48/smile_sad.png) no-repeat center center;
+}
+
+.icon_sound_48{
+	background-image: url(retina/blue/48/sound.png) no-repeat center center;
+}
+
+.icon_spanner_48{
+	background-image: url(retina/blue/48/spanner.png) no-repeat center center;
+}
+
+.icon_speaker_48{
+	background-image: url(retina/blue/48/speaker.png) no-repeat center center;
+}
+
+.icon_star_48{
+	background-image: url(retina/blue/48/star.png) no-repeat center center;
+}
+
+.icon_stop_48{
+	background-image: url(retina/blue/48/stop.png) no-repeat center center;
+}
+
+.icon_storage_48{
+	background-image: url(retina/blue/48/storage.png) no-repeat center center;
+}
+
+.icon_sum_48{
+	background-image: url(retina/blue/48/sum.png) no-repeat center center;
+}
+
+.icon_tag_48{
+	background-image: url(retina/blue/48/tag.png) no-repeat center center;
+}
+
+.icon_tag_add_48{
+	background-image: url(retina/blue/48/tag_add.png) no-repeat center center;
+}
+
+.icon_tag_cancel_48{
+	background-image: url(retina/blue/48/tag_cancel.png) no-repeat center center;
+}
+
+.icon_tag_remove_48{
+	background-image: url(retina/blue/48/tag_remove.png) no-repeat center center;
+}
+
+.icon_trash_48{
+	background-image: url(retina/blue/48/trash.png) no-repeat center center;
+}
+
+.icon_trash_mac_48{
+	background-image: url(retina/blue/48/trash_mac.png) no-repeat center center;
+}
+
+.icon_tray_48{
+	background-image: url(retina/blue/48/tray.png) no-repeat center center;
+}
+
+.icon_tray_full_48{
+	background-image: url(retina/blue/48/tray_full.png) no-repeat center center;
+}
+
+.icon_tray_mail_48{
+	background-image: url(retina/blue/48/tray_mail.png) no-repeat center center;
+}
+
+.icon_twg_logo_48{
+	background-image: url(retina/blue/48/twg_logo.png) no-repeat center center;
+}
+
+.icon_video_48{
+	background-image: url(retina/blue/48/video.png) no-repeat center center;
+}
+
+.icon_video_forward_48{
+	background-image: url(retina/blue/48/video_forward.png) no-repeat center center;
+}
+
+.icon_video_next_48{
+	background-image: url(retina/blue/48/video_next.png) no-repeat center center;
+}
+
+.icon_video_pause_48{
+	background-image: url(retina/blue/48/video_pause.png) no-repeat center center;
+}
+
+.icon_video_play_48{
+	background-image: url(retina/blue/48/video_play.png) no-repeat center center;
+}
+
+.icon_video_previous_48{
+	background-image: url(retina/blue/48/video_previous.png) no-repeat center center;
+}
+
+.icon_video_rec_48{
+	background-image: url(retina/blue/48/video_rec.png) no-repeat center center;
+}
+
+.icon_volume_down_48{
+	background-image: url(retina/blue/48/volume_down.png) no-repeat center center;
+}
+
+.icon_volume_up_48{
+	background-image: url(retina/blue/48/volume_up.png) no-repeat center center;
+}
+
+.icon_wallet_48{
+	background-image: url(retina/blue/48/wallet.png) no-repeat center center;
+}
+
+.icon_warning_48{
+	background-image: url(retina/blue/48/warning.png) no-repeat center center;
+}
+
+.icon_warning1_48{
+	background-image: url(retina/blue/48/warning1.png) no-repeat center center;
+}
+
+.icon_wifi_48{
+	background-image: url(retina/blue/48/wifi.png) no-repeat center center;
+}
+
+.icon_zoom_in_48{
+	background-image: url(retina/blue/48/zoom_in.png) no-repeat center center;
+}
+
+.icon_zoom_out_48{
+	background-image: url(retina/blue/48/zoom_out.png) no-repeat center center;
+}
+/* @end */
+
+
+/* @group size64 */
+
+.icon64{
+	height:64px;
+	width: 64px;
+	opacity: .7;
+}
+
+
+.icon_alarm_64{
+	background-image: url(retina/blue/64/alarm.png) no-repeat center center;
+}
+
+.icon_alarm_check_64{
+	background-image: url(retina/blue/64/alarm_check.png) no-repeat center center;
+}
+
+.icon_alarm_off_64{
+	background-image: url(retina/blue/64/alarm_off.png) no-repeat center center;
+}
+
+.icon_alarm_on_64{
+	background-image: url(retina/blue/64/alarm_on.png) no-repeat center center;
+}
+
+.icon_app_64{
+	background-image: url(retina/blue/64/app.png) no-repeat center center;
+}
+
+.icon_app_globe_64{
+	background-image: url(retina/blue/64/app_globe.png) no-repeat center center;
+}
+
+.icon_app_lock_64{
+	background-image: url(retina/blue/64/app_lock.png) no-repeat center center;
+}
+
+.icon_app_remove_64{
+	background-image: url(retina/blue/64/app_remove.png) no-repeat center center;
+}
+
+.icon_arrow_64{
+	background-image: url(retina/blue/64/arrow.png) no-repeat center center;
+}
+
+.icon_arrow_circle_left_64{
+	background-image: url(retina/blue/64/arrow_circle_left.png) no-repeat center center;
+}
+
+.icon_arrow_circle_right_64{
+	background-image: url(retina/blue/64/arrow_circle_right.png) no-repeat center center;
+}
+
+.icon_arrow_down_64{
+	background-image: url(retina/blue/64/arrow_down.png) no-repeat center center;
+}
+
+.icon_arrow_left_64{
+	background-image: url(retina/blue/64/arrow_left.png) no-repeat center center;
+}
+
+.icon_arrow_right_64{
+	background-image: url(retina/blue/64/arrow_right.png) no-repeat center center;
+}
+
+.icon_arrow_up_64{
+	background-image: url(retina/blue/64/arrow_up.png) no-repeat center center;
+}
+
+.icon_attach_64{
+	background-image: url(retina/blue/64/attach.png) no-repeat center center;
+}
+
+.icon_auction_64{
+	background-image: url(retina/blue/64/auction.png) no-repeat center center;
+}
+
+.icon_book_64{
+	background-image: url(retina/blue/64/book.png) no-repeat center center;
+}
+
+.icon_book_bookmark_64{
+	background-image: url(retina/blue/64/book_bookmark.png) no-repeat center center;
+}
+
+.icon_bookmark_64{
+	background-image: url(retina/blue/64/bookmark.png) no-repeat center center;
+}
+
+.icon_bookmark_add_64{
+	background-image: url(retina/blue/64/bookmark_add.png) no-repeat center center;
+}
+
+.icon_brightness_64{
+	background-image: url(retina/blue/64/brightness.png) no-repeat center center;
+}
+
+.icon_brush_64{
+	background-image: url(retina/blue/64/brush.png) no-repeat center center;
+}
+
+.icon_bulb_off_64{
+	background-image: url(retina/blue/64/bulb_off.png) no-repeat center center;
+}
+
+.icon_bulb_on_64{
+	background-image: url(retina/blue/64/bulb_on.png) no-repeat center center;
+}
+
+.icon_calculator_64{
+	background-image: url(retina/blue/64/calculator.png) no-repeat center center;
+}
+
+.icon_calendar_64{
+	background-image: url(retina/blue/64/calendar.png) no-repeat center center;
+}
+
+.icon_cancel_64{
+	background-image: url(retina/blue/64/cancel.png) no-repeat center center;
+}
+
+.icon_cart_64{
+	background-image: url(retina/blue/64/cart.png) no-repeat center center;
+}
+
+.icon_case_64{
+	background-image: url(retina/blue/64/case.png) no-repeat center center;
+}
+
+.icon_chart_area_64{
+	background-image: url(retina/blue/64/chart_area.png) no-repeat center center;
+}
+
+.icon_chart_bar_64{
+	background-image: url(retina/blue/64/chart_bar.png) no-repeat center center;
+}
+
+.icon_chart_bar1_64{
+	background-image: url(retina/blue/64/chart_bar1.png) no-repeat center center;
+}
+
+.icon_chart_bar_down_64{
+	background-image: url(retina/blue/64/chart_bar_down.png) no-repeat center center;
+}
+
+.icon_chart_bar_up_64{
+	background-image: url(retina/blue/64/chart_bar_up.png) no-repeat center center;
+}
+
+.icon_chart_down_64{
+	background-image: url(retina/blue/64/chart_down.png) no-repeat center center;
+}
+
+.icon_chart_line_64{
+	background-image: url(retina/blue/64/chart_line.png) no-repeat center center;
+}
+
+.icon_chart_pie_64{
+	background-image: url(retina/blue/64/chart_pie.png) no-repeat center center;
+}
+
+.icon_chart_up_64{
+	background-image: url(retina/blue/64/chart_up.png) no-repeat center center;
+}
+
+.icon_checkmark_64{
+	background-image: url(retina/blue/64/checkmark.png) no-repeat center center;
+}
+
+.icon_clock_64{
+	background-image: url(retina/blue/64/clock.png) no-repeat center center;
+}
+
+.icon_comment_64{
+	background-image: url(retina/blue/64/comment.png) no-repeat center center;
+}
+
+.icon_comment_check_64{
+	background-image: url(retina/blue/64/comment_check.png) no-repeat center center;
+}
+
+.icon_comment_delete_64{
+	background-image: url(retina/blue/64/comment_delete.png) no-repeat center center;
+}
+
+.icon_comment_minus_64{
+	background-image: url(retina/blue/64/comment_minus.png) no-repeat center center;
+}
+
+.icon_comment_plus_64{
+	background-image: url(retina/blue/64/comment_plus.png) no-repeat center center;
+}
+
+.icon_concole_64{
+	background-image: url(retina/blue/64/concole.png) no-repeat center center;
+}
+
+.icon_contrast_64{
+	background-image: url(retina/blue/64/contrast.png) no-repeat center center;
+}
+
+.icon_copy_64{
+	background-image: url(retina/blue/64/copy.png) no-repeat center center;
+}
+
+.icon_credit_card_64{
+	background-image: url(retina/blue/64/credit_card.png) no-repeat center center;
+}
+
+.icon_cut_64{
+	background-image: url(retina/blue/64/cut.png) no-repeat center center;
+}
+
+.icon_delete_64{
+	background-image: url(retina/blue/64/delete.png) no-repeat center center;
+}
+
+.icon_disk_64{
+	background-image: url(retina/blue/64/disk.png) no-repeat center center;
+}
+
+.icon_display_off_64{
+	background-image: url(retina/blue/64/display_off.png) no-repeat center center;
+}
+
+.icon_display_on_64{
+	background-image: url(retina/blue/64/display_on.png) no-repeat center center;
+}
+
+.icon_document_64{
+	background-image: url(retina/blue/64/document.png) no-repeat center center;
+}
+
+.icon_document_empty_64{
+	background-image: url(retina/blue/64/document_empty.png) no-repeat center center;
+}
+
+.icon_favorites_add_64{
+	background-image: url(retina/blue/64/favorites_add.png) no-repeat center center;
+}
+
+.icon_favorites_remove_64{
+	background-image: url(retina/blue/64/favorites_remove.png) no-repeat center center;
+}
+
+.icon_film_64{
+	background-image: url(retina/blue/64/film.png) no-repeat center center;
+}
+
+.icon_flag_64{
+	background-image: url(retina/blue/64/flag.png) no-repeat center center;
+}
+
+.icon_flag1_64{
+	background-image: url(retina/blue/64/flag1.png) no-repeat center center;
+}
+
+.icon_flash_64{
+	background-image: url(retina/blue/64/flash.png) no-repeat center center;
+}
+
+.icon_folder_64{
+	background-image: url(retina/blue/64/folder.png) no-repeat center center;
+}
+
+.icon_folder_bookmark_64{
+	background-image: url(retina/blue/64/folder_bookmark.png) no-repeat center center;
+}
+
+.icon_folder_in_64{
+	background-image: url(retina/blue/64/folder_in.png) no-repeat center center;
+}
+
+.icon_font_64{
+	background-image: url(retina/blue/64/font.png) no-repeat center center;
+}
+
+.icon_font_case_64{
+	background-image: url(retina/blue/64/font_case.png) no-repeat center center;
+}
+
+.icon_font_down_64{
+	background-image: url(retina/blue/64/font_down.png) no-repeat center center;
+}
+
+.icon_font_italic_64{
+	background-image: url(retina/blue/64/font_italic.png) no-repeat center center;
+}
+
+.icon_font_p_64{
+	background-image: url(retina/blue/64/font_p.png) no-repeat center center;
+}
+
+.icon_font_underline_64{
+	background-image: url(retina/blue/64/font_underline.png) no-repeat center center;
+}
+
+.icon_font_up_64{
+	background-image: url(retina/blue/64/font_up.png) no-repeat center center;
+}
+
+.icon_frame_64{
+	background-image: url(retina/blue/64/frame.png) no-repeat center center;
+}
+
+.icon_gear_64{
+	background-image: url(retina/blue/64/gear.png) no-repeat center center;
+}
+
+.icon_globe_64{
+	background-image: url(retina/blue/64/globe.png) no-repeat center center;
+}
+
+.icon_hat_64{
+	background-image: url(retina/blue/64/hat.png) no-repeat center center;
+}
+
+.icon_heart_64{
+	background-image: url(retina/blue/64/heart.png) no-repeat center center;
+}
+
+.icon_help_64{
+	background-image: url(retina/blue/64/help.png) no-repeat center center;
+}
+
+.icon_home_64{
+	background-image: url(retina/blue/64/home.png) no-repeat center center;
+}
+
+.icon_inbox_64{
+	background-image: url(retina/blue/64/inbox.png) no-repeat center center;
+}
+
+.icon_info_64{
+	background-image: url(retina/blue/64/info.png) no-repeat center center;
+}
+
+.icon_key_64{
+	background-image: url(retina/blue/64/key.png) no-repeat center center;
+}
+
+.icon_keyboard_64{
+	background-image: url(retina/blue/64/keyboard.png) no-repeat center center;
+}
+
+.icon_laptop_64{
+	background-image: url(retina/blue/64/laptop.png) no-repeat center center;
+}
+
+.icon_link_64{
+	background-image: url(retina/blue/64/link.png) no-repeat center center;
+}
+
+.icon_lock_64{
+	background-image: url(retina/blue/64/lock.png) no-repeat center center;
+}
+
+.icon_magnifier_64{
+	background-image: url(retina/blue/64/magnifier.png) no-repeat center center;
+}
+
+.icon_mail_64{
+	background-image: url(retina/blue/64/mail.png) no-repeat center center;
+}
+
+.icon_man_64{
+	background-image: url(retina/blue/64/man.png) no-repeat center center;
+}
+
+.icon_med_64{
+	background-image: url(retina/blue/64/med.png) no-repeat center center;
+}
+
+.icon_mic_64{
+	background-image: url(retina/blue/64/mic.png) no-repeat center center;
+}
+
+.icon_minus_64{
+	background-image: url(retina/blue/64/minus.png) no-repeat center center;
+}
+
+.icon_money_64{
+	background-image: url(retina/blue/64/money.png) no-repeat center center;
+}
+
+.icon_moving_64{
+	background-image: url(retina/blue/64/moving.png) no-repeat center center;
+}
+
+.icon_note_64{
+	background-image: url(retina/blue/64/note.png) no-repeat center center;
+}
+
+.icon_on_off_64{
+	background-image: url(retina/blue/64/on_off.png) no-repeat center center;
+}
+
+.icon_outbox_64{
+	background-image: url(retina/blue/64/outbox.png) no-repeat center center;
+}
+
+.icon_paint_64{
+	background-image: url(retina/blue/64/paint.png) no-repeat center center;
+}
+
+.icon_paper_plane_64{
+	background-image: url(retina/blue/64/paper_plane.png) no-repeat center center;
+}
+
+.icon_pencil_64{
+	background-image: url(retina/blue/64/pencil.png) no-repeat center center;
+}
+
+.icon_phone_64{
+	background-image: url(retina/blue/64/phone.png) no-repeat center center;
+}
+
+.icon_photo_64{
+	background-image: url(retina/blue/64/photo.png) no-repeat center center;
+}
+
+.icon_plus_64{
+	background-image: url(retina/blue/64/plus.png) no-repeat center center;
+}
+
+.icon_reload_64{
+	background-image: url(retina/blue/64/reload.png) no-repeat center center;
+}
+
+.icon_resize_64{
+	background-image: url(retina/blue/64/resize.png) no-repeat center center;
+}
+
+.icon_rss_64{
+	background-image: url(retina/blue/64/rss.png) no-repeat center center;
+}
+
+.icon_ruler_64{
+	background-image: url(retina/blue/64/ruler.png) no-repeat center center;
+}
+
+.icon_safe_64{
+	background-image: url(retina/blue/64/safe.png) no-repeat center center;
+}
+
+.icon_save_64{
+	background-image: url(retina/blue/64/save.png) no-repeat center center;
+}
+
+.icon_shopping_bag_64{
+	background-image: url(retina/blue/64/shopping_bag.png) no-repeat center center;
+}
+
+.icon_smile_64{
+	background-image: url(retina/blue/64/smile.png) no-repeat center center;
+}
+
+.icon_smile_sad_64{
+	background-image: url(retina/blue/64/smile_sad.png) no-repeat center center;
+}
+
+.icon_sound_64{
+	background-image: url(retina/blue/64/sound.png) no-repeat center center;
+}
+
+.icon_spanner_64{
+	background-image: url(retina/blue/64/spanner.png) no-repeat center center;
+}
+
+.icon_speaker_64{
+	background-image: url(retina/blue/64/speaker.png) no-repeat center center;
+}
+
+.icon_star_64{
+	background-image: url(retina/blue/64/star.png) no-repeat center center;
+}
+
+.icon_stop_64{
+	background-image: url(retina/blue/64/stop.png) no-repeat center center;
+}
+
+.icon_storage_64{
+	background-image: url(retina/blue/64/storage.png) no-repeat center center;
+}
+
+.icon_sum_64{
+	background-image: url(retina/blue/64/sum.png) no-repeat center center;
+}
+
+.icon_tag_64{
+	background-image: url(retina/blue/64/tag.png) no-repeat center center;
+}
+
+.icon_tag_add_64{
+	background-image: url(retina/blue/64/tag_add.png) no-repeat center center;
+}
+
+.icon_tag_cancel_64{
+	background-image: url(retina/blue/64/tag_cancel.png) no-repeat center center;
+}
+
+.icon_tag_remove_64{
+	background-image: url(retina/blue/64/tag_remove.png) no-repeat center center;
+}
+
+.icon_trash_64{
+	background-image: url(retina/blue/64/trash.png) no-repeat center center;
+}
+
+.icon_trash_mac_64{
+	background-image: url(retina/blue/64/trash_mac.png) no-repeat center center;
+}
+
+.icon_tray_64{
+	background-image: url(retina/blue/64/tray.png) no-repeat center center;
+}
+
+.icon_tray_full_64{
+	background-image: url(retina/blue/64/tray_full.png) no-repeat center center;
+}
+
+.icon_tray_mail_64{
+	background-image: url(retina/blue/64/tray_mail.png) no-repeat center center;
+}
+
+.icon_twg_logo_64{
+	background-image: url(retina/blue/64/twg_logo.png) no-repeat center center;
+}
+
+.icon_video_64{
+	background-image: url(retina/blue/64/video.png) no-repeat center center;
+}
+
+.icon_video_forward_64{
+	background-image: url(retina/blue/64/video_forward.png) no-repeat center center;
+}
+
+.icon_video_next_64{
+	background-image: url(retina/blue/64/video_next.png) no-repeat center center;
+}
+
+.icon_video_pause_64{
+	background-image: url(retina/blue/64/video_pause.png) no-repeat center center;
+}
+
+.icon_video_play_64{
+	background-image: url(retina/blue/64/video_play.png) no-repeat center center;
+}
+
+.icon_video_previous_64{
+	background-image: url(retina/blue/64/video_previous.png) no-repeat center center;
+}
+
+.icon_video_rec_64{
+	background-image: url(retina/blue/64/video_rec.png) no-repeat center center;
+}
+
+.icon_volume_down_64{
+	background-image: url(retina/blue/64/volume_down.png) no-repeat center center;
+}
+
+.icon_volume_up_64{
+	background-image: url(retina/blue/64/volume_up.png) no-repeat center center;
+}
+
+.icon_wallet_64{
+	background-image: url(retina/blue/64/wallet.png) no-repeat center center;
+}
+
+.icon_warning_64{
+	background-image: url(retina/blue/64/warning.png) no-repeat center center;
+}
+
+.icon_warning1_64{
+	background-image: url(retina/blue/64/warning1.png) no-repeat center center;
+}
+
+.icon_wifi_64{
+	background-image: url(retina/blue/64/wifi.png) no-repeat center center;
+}
+
+.icon_zoom_in_64{
+	background-image: url(retina/blue/64/zoom_in.png) no-repeat center center;
+}
+
+.icon_zoom_out_64{
+	background-image: url(retina/blue/64/zoom_out.png) no-repeat center center;
+}
+/* @end */
