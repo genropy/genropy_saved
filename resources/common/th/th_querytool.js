@@ -128,16 +128,20 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
                                         }});
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
                                         gradient_from:'#FEFDE3',gradient_to:'#D5DDE5',gradient_deg:'-90'});
-        var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn,|,5,runbtn',toolbar:true,'side':'top'});
+        var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn,def,|,5,runbtn',toolbar:true,_class:'slotBar_16','side':'top'});
         var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',
                                                  padding_right:'10px',padding_left:'2px',
                                     font_size:'.8em',color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'})
         qtitle._('menu',{'_class':'smallmenu',storepath:'.savedqueries',modifiers:'*',action:'SET .currentQuery = $1.fullpath;'});
-        topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'save16',action:'FIRE .savedlg;'});
-        topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'trash16',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
+        topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'iconbox save',action:'FIRE .savedlg;'});
+        topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'iconbox trash',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
+        
+        topbar._('slotButton','def',{'label':_T('!!Default Query'),action:'console.log("default query");',
+                               iconClass:'iconbox star'});
+                               
         topbar._('slotButton','runbtn',{'label':_T('!!Run Query'),action:'FIRE .#parent.runQuery;',
-                               baseClass:'no_background',
-                               iconClass:'tb_button db_query'});
+                               iconClass:'iconbox arrow'});
+
 
         var editorRoot = frame._('div',{datapath:'.where',margin:'2px'});
         this._buildQueryGroup(editorRoot,this.sourceNode.getRelativeData('.query.where'), 0);
