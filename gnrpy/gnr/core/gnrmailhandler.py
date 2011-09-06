@@ -393,10 +393,10 @@ class MailHandler(GnrBaseService):
             msg['Cc'] = cc_address and ','.join(cc_address)
         else:
             msg['Cc'] = cc_address
-        if  type(bcc_address).__name__ in ['list', 'tuple']:
-            msg['Bcc'] = bcc_address and ','.join(bcc_address)
-        else:
-            msg['Bcc'] = bcc_address
+        #if  type(bcc_address).__name__ in ['list', 'tuple']:
+        #    msg['Bcc'] = bcc_address and ','.join(bcc_address)
+        #else:
+        #    msg['Bcc'] = bcc_address
         msg_string = msg.as_string()
         if not async:
             self._sendmail(account_params, from_address, to_address, cc_address, bcc_address, msg_string)
