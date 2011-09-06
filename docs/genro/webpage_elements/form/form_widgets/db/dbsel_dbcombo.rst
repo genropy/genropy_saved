@@ -15,8 +15,7 @@ dbSelect and dbCombobox: commons attributes
 Common attributes
 =================
 
-    Here we show the attributes that belong both to :ref:`dbselect` than
-    to :ref:`dbcombobox`:
+    Here we show the attributes that belong both to :ref:`dbselect` than to :ref:`dbcombobox`:
     
     ==================== =================================================== ========================== ======================================
        Attribute                   Description                                  Default                       Example                         
@@ -74,7 +73,7 @@ Examples
 
 .. _db_selected:
 
-Selected
+selected
 ========
 
     With the *selected* attribute you can draw multiple attributes to the :ref:`datastore`
@@ -126,18 +125,20 @@ Selected
         
     .. _db_condition:
 
-Condition
+condition
 =========
 
     With the *condition* attribute you can write a SQL query.
     
     **syntax**::
     
-        condition='$tableColumnName'=:'something'
+        condition='$tableColumnName=:something'
         
-    where 'something' is the SQL condition, expressed through::
+    where ':something' is the SQL condition, expressed through::
     
         condition_something='=PathOfValue'
+        
+    add??? Explain better the ":"!
         
     **Example:** let's start from the previous example (:ref:`db_selected`) where we had a
     list of actors included into a ``table`` called "person". Let's introduce a ``table``

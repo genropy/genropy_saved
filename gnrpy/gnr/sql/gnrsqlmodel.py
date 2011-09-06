@@ -114,25 +114,25 @@ class DbModel(object):
                        there is no referential integrity check
                      * 'foreignkey': the relation becomes a SQL relation
                      * 'insensitive': same features of the ``mode='relation'`` but the relation
-                        is *case-insensitive*
-                     
-        :param one_one: add???. 
-        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'. 
-        :param onDelete_sql: add???. 
-        :param onUpdate: add???. 
-        :param onUpdate_sql: add???. 
+                       is *case-insensitive*
+                       
+        :param one_one: add???
+        :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
+        :param onDelete_sql: add???
+        :param onUpdate: add???
+        :param onUpdate_sql: add???
         :param deferred: the same of the sql "DEFERRED". For more information, check the
-                         :ref:`sql_deferred` section.
-        :param eager_one: boolean. If ``True`` ('Y') the one_to_many relation is eager.
-        :param eager_many: boolean. If ``True`` ('Y') the many_to_one relation is eager.
-        :param relation_name: string. It defines the :ref:`inverse_relation`. For more information,
-                              check the :ref:`relation_name` documentation section
-        :param one_name: the one_to_many relation's name. e.g: 'movies'. 
-        :param many_name: the many_to_one relation's name. e.g: 'director'. 
-        :param one_group: add???. 
-        :param many_group: add???. 
-        :param many_order_by: add???. 
-        """
+                         :ref:`sql_deferred` section
+        :param eager_one: boolean. If ``True`` ('Y') the one_to_many relation is eager
+        :param eager_many: boolean. If ``True`` ('Y') the many_to_one relation is eager
+        :param relation_name: string. An attribute of the :ref:`table_relation`. It allows
+                              to estabilish an alternative string for the :ref:`inverse_relation`.
+                              For more information, check the :ref:`relation_name` section
+        :param one_name: the one_to_many relation's name. e.g: 'movies'
+        :param many_name: the many_to_one relation's name. e.g: 'director'
+        :param one_group: add???
+        :param many_group: add???
+        :param many_order_by: add???"""
         try:
             many_pkg, many_table, many_field = many_relation_tuple
             many_relation = '.'.join(many_relation_tuple)
@@ -347,8 +347,8 @@ class DbModelSrc(GnrStructData):
                **kwargs):
         """Insert a :ref:`table_column` into a table.
         
-        :param name: the column name. If you want to specify both the name and the :ref:`datatype`, use
-                     the following syntax: ``'name::datatype'``
+        :param name: the column name. You can specify both the name and the :ref:`datatype`
+                     using the following syntax: ``'name::datatype'``
         :param dtype: the :ref:`datatype`
         :param size: string. ``'min:max'`` or fixed lenght ``'len'``
         :param default: add???
@@ -378,14 +378,15 @@ class DbModelSrc(GnrStructData):
                           **kwargs)
                           
     def virtual_column(self, name, relation_path=None, sql_formula=None, py_method=None, **kwargs):
-        """Insert a related alias column into a table. The virtual_column is a child of the table
-        created with the :meth:`table` method
+        """Insert a related alias column into a :ref:`table`. The virtual_column is
+        a child of the table created with the :meth:`table` method
         
-        :param name: the column name
+        :param name: the column name. You can specify both the name and the :ref:`datatype`
+                     using the following syntax: ``'name::datatype'``
         :param relation_path: the column's related path. For more information,
                               check the :ref:`relation_path` section
-        :param sql_formula: add???. 
-        :param py_method: add???. """
+        :param sql_formula: add???
+        :param py_method: add???"""
         if '::' in name: name, dtype = name.split('::')
         if not 'virtual_columns' in self:
             self.child('virtual_columns_list', 'virtual_columns')
@@ -395,7 +396,7 @@ class DbModelSrc(GnrStructData):
                           virtual_column=True, **kwargs)
                           
     def aliasColumn(self, name, relation_path, **kwargs):
-        """Insert an aliasColumn into a table, that is a column with a relation path.
+        """Insert an aliasColumn into a :ref:`table`, that is a column with a relation path.
         The aliasColumn is a child of the table created with the :meth:`table` method
         
         :param name: the column name
@@ -430,7 +431,8 @@ class DbModelSrc(GnrStructData):
         """Insert a related table alias into a table. The aliasTable is a child of the table
         created with the :meth:`table` method
         
-        :param name: the aliasTable name
+        :param name: the aliasTable name. You can specify both the name and the :ref:`datatype`
+                     using the following syntax: ``'name::datatype'``
         :param relation_path: the column's related path. For more information,
                               check the :ref:`relation_path` section"""
         if '::' in name: name, dtype = name.split('::')
@@ -474,8 +476,8 @@ class DbModelSrc(GnrStructData):
                                
         :param mode: string. The method's mode. You can choose between:
                      
-                     * 'relation': default mode. It defines a purely logical and case-sensitive relation:
-                       there is no referential integrity check
+                     * 'relation': default mode. It defines a purely logical and case-sensitive
+                       relation: there is no referential integrity check
                      * 'foreignkey': the relation becomes a SQL relation
                      * 'insensitive': same features of the ``mode='relation'`` but the relation
                        is *case-insensitive*
@@ -494,8 +496,9 @@ class DbModelSrc(GnrStructData):
         :param onDelete_sql: add???
         :param deferred: the same of the sql "DEFERRED". For more information, check the
                          :ref:`sql_deferred` section
-        :param relation_name: string. It defines the :ref:`inverse_relation`. For more information,
-                              check the :ref:`relation_name` documentation section"""
+        :param relation_name: string. An attribute of the :ref:`table_relation`. It allows
+                              to estabilish an alternative string for the :ref:`inverse_relation`.
+                              For more information, check the :ref:`relation_name` section"""
         
         return self.setItem('relation', self.__class__(), related_column=related_column, mode=mode,
                             one_name=one_name, many_name=many_name, one_one=one_one, child=child,

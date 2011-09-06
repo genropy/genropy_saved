@@ -59,10 +59,7 @@ Access to the datastore from javascript
 inspector
 =========
 
-    You can access to its graphic interface from any Genro webpage by clicking ``ctrl+shift+D`` [#]_:
+    You can access to its graphic interface from any Genro webpage by clicking ``ctrl+shift+D``:
     
     .. image:: ../_images/datastore.png
-
-**Footnotes**
-
-.. [#] For Mac and Windows users. For Linux users, click ... ???
+    
