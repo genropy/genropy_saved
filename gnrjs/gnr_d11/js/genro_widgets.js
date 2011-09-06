@@ -2130,12 +2130,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         if (structBag) {
             sourceNode.baseStructBag = structBag.deepCopy();
+            if (genro.grid_configurator) {
+                sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy());
+                var currViewPath = genro.getFromStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + sourceNode.attr.nodeId) || '__baseview__';
+                sourceNode.setRelativeData('.currViewPath',currViewPath);
+            }
+        
         }
-        if (genro.grid_configurator) {
-            sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy());
-            var currViewPath = genro.getFromStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + sourceNode.attr.nodeId) || '__baseview__';
-            sourceNode.setRelativeData('.currViewPath',currViewPath);
-        }
+       
         attributes.structBag = structBag; 
         sourceNode.registerDynAttr('structpath');
         attributes.cellmap = {};
