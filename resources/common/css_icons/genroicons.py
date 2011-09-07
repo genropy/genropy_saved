@@ -2,17 +2,23 @@ from gnr.core.gnrbag import Bag
 b=Bag('/Users/fporcari/sviluppo/genro/resources/common/css_icons/retina/gray/16')
 pars={}
 r=[]
-pars['size']=16
+s = 16
+pars['size']=s
+pars['height']=s+2
+pars['width']=s+6
 r.append("/* @group size%(size)s */"%pars)
 r.append("""
 .iconbox{
-	height:16px;
-	width: 18px;
-	opacity:1;
+	height:18px;
+	width: 22px;
 	cursor: pointer;
-	padding:2px;
+	border-radius:2px;
+	background-color:#ddd !important;
+	margin-top:1px;
+	margin-bottom:1px;
+	border:1px solid silver;
 }
-.dijitButtonHover .iconbox, .iconbox:hover{
+.slotbar_toolbar .dijitButtonHover .iconbox, .slotbar_toolbar .iconbox:hover{
 	background-color:#bbb !important;	
 }""" %pars)
 r.append("")

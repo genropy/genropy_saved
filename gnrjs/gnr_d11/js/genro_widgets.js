@@ -1161,7 +1161,7 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         if(this.sourceNode.attr.nodeId){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
             var rect = genro.getFromStorage("local", storeKey, dojo.coords(this.domNode));
-            if(rect.w && rect.h){
+            if(rect && rect.w && rect.h){
                 this.resize(rect);
             }
         }     

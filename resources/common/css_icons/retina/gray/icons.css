@@ -1,19 +1,19 @@
 /* @group size16 */
 
 .iconbox{
-	height:16px;
-	width: 18px;
-	opacity:1;
+	height:18px;
+	width: 22px;
 	cursor: pointer;
-	padding:2px;
+	border-radius:2px;
+	background-color:#ddd !important;
+	margin-top:1px;
+	margin-bottom:1px;
+	border:1px solid silver;
 }
 .slotbar_toolbar .dijitButtonHover .iconbox, .slotbar_toolbar .iconbox:hover{
 	background-color:#bbb !important;
 }
 
-.slotBar_24 .alarm{
-	background: url(24/alarm.png) no-repeat center center;
-}
 
 .alarm{
 	background: url(16/alarm.png) no-repeat center center;
@@ -251,8 +251,8 @@
 	background: url(16/favorites_remove.png) no-repeat center center;
 }
 
-.film{
-	background: url(16/film.png) no-repeat center center;
+.first{
+	background: url(16/first.png) no-repeat center center;
 }
 
 .flag{
@@ -355,6 +355,10 @@
 	background: url(16/laptop.png) no-repeat center center;
 }
 
+.last{
+	background: url(16/last.png) no-repeat center center;
+}
+
 .link{
 	background: url(16/link.png) no-repeat center center;
 }
@@ -395,6 +399,10 @@
 	background: url(16/moving.png) no-repeat center center;
 }
 
+.next{
+	background: url(16/next.png) no-repeat center center;
+}
+
 .note{
 	background: url(16/note.png) no-repeat center center;
 }
@@ -429,6 +437,10 @@
 
 .plus{
 	background: url(16/plus.png) no-repeat center center;
+}
+
+.previous{
+	background: url(16/previous.png) no-repeat center center;
 }
 
 .reload{
@@ -537,34 +549,6 @@
 
 .unlock{
 	background: url(16/unlock.png) no-repeat center center;
-}
-
-.video{
-	background: url(16/video.png) no-repeat center center;
-}
-
-.video_forward{
-	background: url(16/video_forward.png) no-repeat center center;
-}
-
-.video_next{
-	background: url(16/video_next.png) no-repeat center center;
-}
-
-.video_pause{
-	background: url(16/video_pause.png) no-repeat center center;
-}
-
-.video_play{
-	background: url(16/video_play.png) no-repeat center center;
-}
-
-.video_previous{
-	background: url(16/video_previous.png) no-repeat center center;
-}
-
-.video_rec{
-	background: url(16/video_rec.png) no-repeat center center;
 }
 
 .volume_down{
