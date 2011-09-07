@@ -1,3 +1,7 @@
+*:focus, *:active {outline:none;}
+ 
+*::-moz-focus-inner {border:0;}
+
 ::-webkit-input-placeholder {
    opacity: .5;
    font-style:normal;
@@ -121,10 +125,6 @@ body.workInProgress{
 /* @end */
 .tpl_nocontent .tpl_content {
     visibility: hidden;
-}
-
-*:focus {
-    outline: none
 }
 
 .gnrdebugger {
