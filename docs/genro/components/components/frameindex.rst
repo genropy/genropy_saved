@@ -22,8 +22,16 @@ FrameIndex
                   py_requires='frameindex'
                   
     * :ref:`fi_intro`
-    * :ref:`fi_creation`
+    * :ref:`fi_creation`:
+    
+        * :ref:`fi_gnrwebpage_init`
+        * :ref:`fi_peculiarities`
+        
     * :ref:`fi_webpages_variables`
+    * :ref:`fi_examples`:
+    
+        * :ref:`fi_example_index_url`
+        
     * :ref:`fi_gui`:
     
         * :ref:`fi_topbar`
@@ -36,52 +44,102 @@ FrameIndex
 introduction
 ============
 
-    The FrameIndex allow to load the :ref:`webpages <webpage>` in an :ref:`iframe`.
+    The FrameIndex allow to load the :ref:`webpages <webpages_webpages>` in an :ref:`iframe`.
     
-    To use it you have to replace your index file with the syntax that we discuss later
-    in the :ref:`fi_creation` section.
+    Let's see an image of the FrameIndex GUI:
     
-    Remember also that, by default, the index page is called ``index.py``; however, you
-    can change the default name using the *homepage* attribute of the :ref:`siteconfig_wsgi`
-    tag of the :ref:`gnr_siteconfig` file
+    .. image:: ../../_images/components/frameindex/fi.png
+    
+    The webpages will take place in the :ref:`fi_iframe`. There are also other three parts (:ref:`fi_topbar`,
+    :ref:`fi_leftbar` and :ref:`fi_bottombar`) that allow to interact with the central pane.
+    
+    So, the FrameIndex GUI can be divided in 4 parts. We remind the description of these parts to
+    the :ref:`fi_gui` section. In the next section we start to learn about the creation of a FrameIndex
+    page.
     
 .. _fi_creation:
 
-creation of the FrameIndex page
-===============================
+creation of a FrameIndex page
+=============================
 
-    Let's see the code to create a FrameIndex page:
+    The FrameIndex component lives in a standard :ref:`webpages_webpages`. So, to use the
+    FrameIndex you have to create a standard webpage and then you have to personalize it with
+    the FrameIndex features. In this section we'll guide you in the creation of a FrameIndex.
     
-    * Some introductory lines (more information in the :ref:`webpages_GnrCustomWebPage` section)::
+    If you are creating a :ref:`project`, you have to write the FrameIndex page into your
+    index page.
     
-        #!/usr/bin/env python
-        # encoding: utf-8
+    We remember you that in Genro the default name for the index file is (guess what?)
+    ``index.py``. However, you can change the default name using the *homepage* attribute of
+    the :ref:`siteconfig_wsgi` tag of the :ref:`gnr_siteconfig` file.
+    
+    To create a FrameIndex page you have to:
+    
+    * :ref:`fi_gnrwebpage_init`
+    * :ref:`add the FrameIndex peculiarities <fi_peculiarities>`
+    
+.. _fi_gnrwebpage_init:
+
+create a standard GnrCustomWebpage
+----------------------------------
+    
+    Let's see the code to initiate a :ref:`webpages_GnrCustomWebPage` [#]_:
+    
+    #. First of all, you have to write some introductory lines::
+       
+         #!/usr/bin/env python
+         # encoding: utf-8
         
-    * add???
+    #. Then you have to instantiate a GnrCustomWebPage::
     
-    * Then you must define the :meth:`pageAuthTags <gnr.web._gnrbasewebpage.GnrBaseWebPage.windowTitle>` method::
-      
-          def pageAuthTags(self, method=None, **kwargs):
-              return 'user'
+        class GnrCustomWebPage(object):
+        
+.. _fi_peculiarities:
+
+inside the GnrCustomWebPage: the FrameIndex
+-------------------------------------------
     
-    * You can optionally define the :meth:`windowTitle <gnr.web._gnrbasewebpage.GnrBaseWebPage.windowTitle>`
-      method::
-      
-          def windowTitle(self):
-              return '!!Title of the window'
-              
-      If you don't specify it, the default is a string with the name of the page where you define
-      the FrameIndex.
-      
+    #. Now you may define inside the GnrCustomWebPage some :ref:`webpage variables
+       <fi_webpages_variables>`: they are python variables that allow to customize your
+       component. Two of them are mandatory, in particular:
+       
+       * the :ref:`webpages_py_requires`, that allows to use the FrameIndex component::
+       
+            py_requires = 'frameindex'
+            
+       * the ``index_url``, that allows to specify the url of your index page::
+       
+            index_url = 'a string with the url of the index page'
+            
+       For an example of the usage of the ``index_url``, check the :ref:`fi_example_index_url`
+            
+       For the complete list of all the webpage elements, check the :ref:`next <fi_webpages_variables>`
+       section.
+       
+    #. The last thing you must define is a method of the GnrCustomWebPage: the :meth:`pageAuthTags
+       <gnr.web._gnrbasewebpage.GnrBaseWebPage.pageAuthTags>` method::
+       
+           def pageAuthTags(self, method=None, **kwargs):
+               return 'user'
+               
+    #. You can optionally define the :meth:`windowTitle <gnr.web._gnrbasewebpage.GnrBaseWebPage.windowTitle>`
+       method::
+       
+           def windowTitle(self):
+               return '!!Title of the window'
+               
+       If you don't specify the ``windowTitle``, the default is a string with the name of
+       the page in which you define the FrameIndex.
+       
 .. _fi_webpages_variables:
 
 FrameIndex webpage variables
 ============================
 
     With the term ``webpages variables`` we mean that there are some defined variables
-    that you can use to customize your FrameIndex page.
+    that you can use to customize your FrameIndex page. Let's see all of them:
     
-    * *plugin_list*: string. Allow to define what tools you want to see in the
+    * *plugin_list*: string. Allow to define what frames you want to see in the
       :ref:`fi_leftbar`. You can add:
        
         * the :ref:`iframemenu_plugin` (to add it type "*iframemenu_plugin*")
@@ -94,16 +152,89 @@ FrameIndex webpage variables
         
             plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin'
             
-    * *custom_plugin_list* add???
-    * *index_url* = None
-    * *indexTab* = False; you can write a string in place of ``False`` to allow to see
-      your index page (defined through the ``index_url`` attribute) as a first button of the
-      ``pages buttons`` in the :ref:`fi_topbar` of the FrameIndex page
-    * *hideLeftPlugins* = False
-    * *preferenceTags* = 'admin'
+        To see only the menu plugin, write::
+        
+            plugin_list = 'iframemenu_plugin'
+            
+        The buttons that allow to pass from a 
+            
+    * *custom_plugin_list*: allow to personalize the set of buttons of the :ref:`fi_topbar`
+      that manage the :ref:`fi_leftbar`. They are: ``iframemenu_plugin``, ``batch_monitor``,
+      ``chat_plugin``, ``menuToggle``, ``refresh``, ``delete``. For a complete description
+      of these buttons, check the :ref:`fi_topbar` section
+        
+        Example:
+        
+        If you set the custom_plugin_list equal to::
+        
+            custom_plugin_list = 'refresh,delete'
+            
+        then the buttons relative to the the :ref:`fi_leftbar` will be the following ones:
+        
+        .. image:: ../../_images/components/frameindex/custom_plugin.png
+        
+        where the yellow highlighted buttons are the default buttons of the ``plugin_list``
+        webpage variable, while the other two buttons (the ones with the red edge in the
+        figure) are the "reload" and the "cancel" buttons (check the :ref:`fi_topbar`
+        section for more information)
+        
+    * *index_url*: string. Allow to specify the url of your index page. For more information
+      check the :ref:`fi_example_index_url`
+    * *indexTab*: by default it is set to ``False``; you can write a string in place of
+      ``False`` to allow to see your index page (defined through the ``index_url`` attribute)
+      as a first button of the ``pages buttons`` in the :ref:`fi_topbar` of the FrameIndex page
+    * *hideLeftPlugins*: boolean. If ``True``, allow to start a page with the :ref:`fi_leftbar`
+      hidden. By default it is ``False``
+    * *preferenceTags*: add??? By default it is ``admin``
     
-    add??? plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin'
+.. _fi_examples:
+
+examples
+========
+
+.. _fi_example_index_url:
+
+index_url example
+=================
+
+    Let's see this code, that is an example of a complete FrameIndex page::
     
+        #!/usr/bin/env python
+        # encoding: utf-8
+        
+        class GnrCustomWebPage(object):
+            py_requires = 'frameindex'
+            index_url = 'indexcontent.html'
+            
+            def windowTitle(self):
+                return '!!Invoice'
+                
+            def pageAuthTags(self, method=None, **kwargs):
+                return 'user'
+                
+    In particular, we set::
+    
+        index_url = 'indexcontent.html'
+        
+    because we want to use an html page as index page. (you could use a Python page, too)
+    
+    The ``indexcontent.html`` page must be placed into the resource folder of your package:
+    we call this folder ":ref:`public resource <public_resources>`" folder.
+    
+    The content of the ``indexcontent.html`` could be something like this::
+    
+        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <title>Invoice</title>
+        </head>
+        <body>
+            <img src='images/money.jpg' alt='Invoice image'/>
+        </body>
+        </html>
+        
 .. _fi_gui:
 
 FrameIndex GUI
@@ -201,8 +332,6 @@ chat plug-in
 
 central pane
 ------------
-
-    .. image:: ../../_images/components/frameindex/fi_iframe.png
     
     The central pane is used to display the content of your :ref:`webpages <webpages_webpages>`.
     
@@ -219,3 +348,6 @@ bottom bar
     
     You can customize it by ... add???
     
+**Footnotes**:
+
+.. [#] More information on points 1 and 2 in the :ref:`webpages_GnrCustomWebPage` section
