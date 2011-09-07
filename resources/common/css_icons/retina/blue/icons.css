@@ -6,6 +6,19 @@
 	opacity: .7;
 	cursor: pointer;
 }
+.iconbox{
+	height:16px;
+	width: 16px;
+	opacity: .7;
+	cursor: pointer;
+	padding:2px;
+	border-radius:2px;
+	border:1px solid gray;
+}
+.dijitButtonHover .iconbox, .iconbox:hover{
+    opacity:1;
+}
+
 .slotBar_16 .dijitButtonHover .iconbox , .dijitButtonHover .icon_16, .icon_16:hover{
     opacity:1;
 }

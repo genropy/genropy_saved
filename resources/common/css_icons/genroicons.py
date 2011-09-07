@@ -2,26 +2,26 @@ from gnr.core.gnrbag import Bag
 b=Bag('/Users/fporcari/sviluppo/genro/resources/common/css_icons/retina/gray/16')
 pars={}
 r=[]
-for size in ('16','24','48','64'):
-    pars['size']=size
-    r.append("/* @group size%(size)s */"%pars)
-    r.append("""
-.icon_%(size)s,.slotBar_%(size)s .iconbox{
-	height:%(size)spx;
-	width: %(size)spx;
-	opacity: .7;
+pars['size']=16
+r.append("/* @group size%(size)s */"%pars)
+r.append("""
+.iconbox{
+	height:16px;
+	width: 18px;
+	opacity:1;
 	cursor: pointer;
+	padding:2px;
 }
-.slotBar_%(size)s .dijitButtonHover .iconbox , .dijitButtonHover .icon_%(size)s, .icon_%(size)s:hover{
-    opacity:1;
+.dijitButtonHover .iconbox, .iconbox:hover{
+	background-color:#bbb !important;	
 }""" %pars)
-    r.append("")
-    for name in b['#0'].digest('#a.file_name'):
-        pars['name']=name
-        r.append("""
-.%(name)s_%(size)s, .slotBar_%(size)s .%(name)s{
+r.append("")
+for name in b['#0'].digest('#a.file_name'):
+    pars['name']=name
+    r.append("""
+.%(name)s{
 	background: url(%(size)s/%(name)s.png) no-repeat center center;
 }"""%pars)
-    r.append("/* @end */\n\n")
+r.append("/* @end */\n\n")
 
 print '\n'.join(r)

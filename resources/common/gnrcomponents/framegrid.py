@@ -69,8 +69,8 @@ class FrameGrid(BaseComponent):
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
-            if iconSize:
-                top_kwargs['_class'] = '%s slotBar_%i' %(top_kwargs.get('_class',''),iconSize)
+           #if iconSize:
+           #    top_kwargs['_class'] = '%s slotBar_%i' %(top_kwargs.get('_class',''),iconSize)
             frame.top.slotToolbar(**top_kwargs)
         frame.includedView(autoWidth=False,
                                 datapath='.grid',selectedId='.selectedId',

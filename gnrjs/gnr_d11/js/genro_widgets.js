@@ -3393,6 +3393,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if (n == null) {
             var n = this.storeRowCount();
         }
+        if(this.views.views[0]){
+            
+        }
         var scrollBox = this.views.views[0].scrollboxNode;
         var scrollLeft = scrollBox.scrollLeft;
         this.currRenderedRowIndex = null;

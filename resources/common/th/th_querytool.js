@@ -128,7 +128,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
                                         }});
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
                                         gradient_from:'#FEFDE3',gradient_to:'#D5DDE5',gradient_deg:'-90'});
-        var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn,def,|,5,runbtn',toolbar:true,_class:'slotBar_16','side':'top'});
+        var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn,def,|,5,runbtn',toolbar:true,'side':'top'});
         var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',
                                                  padding_right:'10px',padding_left:'2px',
                                     font_size:'.8em',color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'})
