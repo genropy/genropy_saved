@@ -1139,6 +1139,10 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         this.saveRect();
         this.sourceNode.getParentBag().popNode(this.sourceNode.label);
     },
+    patch_hide:function(cb){
+        this.saveRect();
+        this.hide_replaced(cb);
+    },
     
     patch_show:function(cb){
         this.restoreRect();
@@ -1157,13 +1161,13 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         if(this.sourceNode.attr.nodeId){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
             var rect = genro.getFromStorage("local", storeKey, dojo.coords(this.domNode));
-            if(rect){
+            if(rect.w && rect.h){
                 this.resize(rect);
             }
         }     
     },
     mixin_saveRect:function(){
-        if(this.sourceNode.attr.nodeId){
+        if(this.sourceNode.attr.nodeId && genro.dom.isVisible(this.domNode)){
             var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
             genro.setInStorage("local", storeKey, dojo.coords(this.domNode));
         }     
