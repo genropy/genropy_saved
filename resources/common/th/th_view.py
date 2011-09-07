@@ -47,7 +47,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if virtualStore:
-            base_slots = ['queryfb','2','runbtn','|','5','queryMenu','5','|','10','export','5','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
+            base_slots = ['queryfb','runbtn','|','queryMenu','|','10','export','5','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
         else:
             base_slots = ['vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
@@ -73,7 +73,7 @@ class TableHandlerView(BaseComponent):
     def th_viewConfigurator(self,pane,table,th_root):
         bar = pane.slotBar('confBar,fieldsTree,*',min_width='160px',closable='close',fieldsTree_table=table,
                             fieldsTree_height='100%',splitter=True)
-        confBar = bar.confBar.slotToolbar('viewsMenu,*,saveView,5,deleteView')
+        confBar = bar.confBar.slotToolbar('viewsMenu,*,saveView,deleteView',background='whitesmoke',border_right='1px solid gray')
         gridId = '%s_grid' %th_root
         confBar.saveView.slotButton('Save View',iconClass='iconbox save',
                                         action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
@@ -147,9 +147,9 @@ class TableHandlerView(BaseComponent):
         th_root = inattr['th_root']
         table = inattr['table']
         gridId = '%s_grid' %th_root
-        pane.div('^.currViewAttrs.caption',_class='floatingPopup',font_size='.8em',padding_right='10px',padding_left='2px',
+        pane.div('^.currViewAttrs.caption',_class='floatingPopup',padding_right='10px',padding_left='2px',font_size='.9em',
                     margin='1px',rounded=4,width='10em',overflow='hidden',text_align='left',cursor='pointer',
-                    font_weight='bold',color='#555',datapath='.grid').menu(storepath='.structMenuBag',
+                    color='#555',datapath='.grid').menu(storepath='.structMenuBag',
                 _class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
         pane.dataController("genro.grid_configurator.loadView(gridId, selpath);",selpath="^.grid.currViewPath",gridId=gridId,_onStart=True)
         q = Bag()

@@ -131,7 +131,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn,def,|,5,runbtn',toolbar:true,'side':'top'});
         var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',
                                                  padding_right:'10px',padding_left:'2px',
-                                    font_size:'.8em',color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'})
+                                    color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'})
         qtitle._('menu',{'_class':'smallmenu',storepath:'.savedqueries',modifiers:'*',action:'SET .currentQuery = $1.fullpath;'});
         topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'iconbox save',action:'FIRE .savedlg;'});
         topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'iconbox trash',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
@@ -290,10 +290,9 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
                 id:'_op_' + node.getStringId(),_fired:'^' + relpath + '?column_dtype',_qb:this});
             var valtd = tr._('td')._('div', {_class:'qb_div qb_value'});
 
-            var input_attrs = {value:'^' + relpath, width:'10em',
+            var input_attrs = {value:'^' + relpath + '?value_caption', width:'10em',relpath:relpath,
                 _autoselect:true,_class:'st_conditionValue',validate_onAccept:curr_th+'.queryanalyzer.checkQueryLineValue(this,value);'};
             input_attrs.position = 'relative';
-            input_attrs.placeholder = '^' + relpath + '?value_caption';
             that = this;
             input_attrs.connect_onclick = function(){
                 that.getHelper(this);
@@ -323,9 +322,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         }
         var container = sourceNode._('div', {_class:oddeven});
         var sourceNode = this.sourceNode;
-        var tbl = container._('table', {_class:'qb_table',onEnter:function(){
-            sourceNode.fireEvent('.runQuery');
-        }})._('tbody');
+        var tbl = container._('table', {_class:'qb_table'})._('tbody');
         for (var i = 0; i < bagnodes.length; i++) {
             node = bagnodes[i];
             this._buildQueryRow(tbl._('tr', {_class:'^.' + node.label + '?css_class'}), bagnodes[i], i, level);
@@ -341,25 +338,22 @@ dojo.declare("gnr.GnrQueryAnalyzer", null, {
         this.wherepath = this.sourceNode.absDatapath()+'.query.where';
     },
     checkQueryLineValue:function(sourceNode, value) {
+        var relpath = sourceNode.attr.relpath;
+    
         if (value.indexOf('?') == 0) {
-            var relpath = sourceNode.attr.value.slice(1);
-            if (value == '?') {
-                sourceNode.setRelativeData(relpath + '?css_class', null);
-                sourceNode.setRelativeData(relpath, null);
-                sourceNode.setRelativeData(relpath + '?value_caption', null);
-            } else {
-                sourceNode.setRelativeData(relpath, null);
-                sourceNode.setRelativeData(relpath + '?css_class', 'queryAsk');
-                sourceNode.setRelativeData(relpath + '?value_caption', value.slice(1));
-                sourceNode.setRelativeData(relpath + '?dtype', genro._('gnr.qb.fieldstree.' + sourceNode.attr.column + '?dtype'));
-            }
+            sourceNode.setRelativeData(relpath, null);
+            sourceNode.setRelativeData(relpath + '?css_class', 'queryAsk');
+            sourceNode.setRelativeData(relpath + '?dtype', genro._('gnr.qb.fieldstree.' + sourceNode.attr.column + '?dtype'));
+        }else{
+            sourceNode.setRelativeData(relpath,value);
+            sourceNode.setRelativeData(relpath + '?css_class', null);
         }
     },
     translateQueryPars: function() {
         var currwhere = genro._(this.wherepath);
         var parslist = [];
         var cb = function(node, parslist, idx) {
-            if (node.attr.value_caption) {
+            if (node.attr.value_caption && node.attr.value_caption[0]=='?') {
                 var relpath = node.getFullpath('static', currwhere);
                 var result = objectUpdate({}, node.attr);
                 result['relpath'] = relpath;
@@ -390,7 +384,17 @@ dojo.declare("gnr.GnrQueryAnalyzer", null, {
         var tr, attrs;
         for (var i = 0; i < parslist.length; i++) {
             attrs = parslist[i];
-            queryform.addField('textbox',{lbl:attrs['value_caption'],value:'^.' + attrs['relpath'], width:'12em',tabindex:i})
+            var lbl = attrs['value_caption'].slice(1);
+            var dflt;
+            if(lbl.indexOf('|')){
+                var l = lbl.split('|');
+                lbl=l[0];
+                dflt = l[1] ;
+            }
+            if(dflt){
+                sourceNode.setRelativeData(this.wherepath+'.'+attrs['relpath'],dflt);
+            }
+            queryform.addField('textbox',{lbl:lbl,value:'^.' + attrs['relpath'], width:'12em',tabindex:i})
         }
         bottom._('button', 'cancel',{label:'Cancel',baseClass:'bottom_btn',action:cancel});
         bottom._('button', 'confirm',{label:'Confirm',baseClass:'bottom_btn',action:confirm});
