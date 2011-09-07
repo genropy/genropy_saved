@@ -9,6 +9,7 @@
    font-style:normal;
    color:#bbb;
 }
+*:focus { outline:none; }
 
 body.workInProgress{
     border-left:2px solid red;

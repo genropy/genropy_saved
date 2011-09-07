@@ -664,7 +664,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
         }
         if (dojo_version == '1.1') {
             dlgtype = 'modal';
-            zindex = 2000;
+            zindex = 800;
             if(sourceNode.attr.noModal){
                 var dlgtype = 'nomodal';
                 var zindex = 500;

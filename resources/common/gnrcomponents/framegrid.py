@@ -28,7 +28,7 @@ class FrameGridSlots(BaseComponent):
     @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
        # kw['subscribe_%s_onLockChange' %storeId] = "this.widget.setIconClass($1.locked?'icnBaseLocked':'icnBaseUnlocked');"
-        pane.slotButton('!!Locker',width='20px',publish='viewlocker',iconClass='==_locked?"icnBaseLocked":"icnBaseUnlocked";',_locked='^.locked',**kwargs)
+        pane.slotButton('!!Locker',width='20px',publish='viewlocker',iconClass='==_locked?"iconbox lock":"iconbox unlock";',_locked='^.locked',**kwargs)
     
     @struct_method
     def fgr_slotbar_updrow(self,pane,_class='icnBaseEdit',enable=None,parentForm=True,**kwargs):
