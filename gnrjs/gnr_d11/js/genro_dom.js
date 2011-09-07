@@ -290,17 +290,6 @@ dojo.declare("gnr.GnrDomHandler", null, {
         anim.play();
         return anim;
     },
-    ghostOnEvent:function(evt) {
-        evt_type = evt.type;
-        if (evt_type == 'focus' || evt_type == 'blur') {
-            genro.dom[evt_type == 'focus' ? 'addClass' : 'removeClass'](evt.target.id + "_label", "ghostpartial");
-        }
-        else if (evt_type == 'keyup' || evt_type == 'keypress') {
-            genro.dom[evt.target.value.length > 0 ? 'addClass' : 'removeClass'](evt.target.id + "_label", "ghosthidden");
-        } else if (evt_type == 'setvalue') {
-            genro.dom[evt.value.length > 0 ? 'addClass' : 'removeClass'](evt.obj.id + "_label", "ghosthidden");
-        }
-    },
     html_maker:function(kw, bagnode) {
         kw = genro.evaluate(kw);
         return genro.dom['html_' + kw.widget](kw, bagnode);

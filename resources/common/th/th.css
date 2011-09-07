@@ -456,8 +456,7 @@
 }
 
 .queryAsk .st_conditionValue {
-    color: navy;
-    background: white url(../images/questionMark.png) no-repeat 95%;
+    font-style:italic;
 }
 
 /* @end */

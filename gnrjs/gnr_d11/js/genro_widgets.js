@@ -337,8 +337,6 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 });
             }
         }
-        ;
-
         if (savedAttrs.onEnter) {
             var callback = dojo.hitch(sourceNode, funcCreate(savedAttrs.onEnter));
             var kbhandler = function(evt) {
@@ -356,24 +354,14 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                genro.setCurrentFocused(newobj);
            });
         }
-        if (sourceNode.attr['hasGhost']) {
-            var _textbox = newobj.textbox;
-            dojo.connect(newobj.textbox, 'onfocus', function(e) {
-                genro.dom.ghostOnEvent(e);
-            });
-            dojo.connect(newobj.textbox, 'onblur', function(e) {
-                genro.dom.ghostOnEvent(e);
-            });
-            dojo.connect(newobj.textbox, 'onkeyup', function(e) {
-                genro.dom.ghostOnEvent(e);
-            });
-            dojo.connect(newobj, 'setValue', function(value) {
-                genro.dom.ghostOnEvent({type:'setvalue',value:value,obj:newobj});
-            });
-            dojo.connect(newobj, 'onChange', function(value) {
-                genro.dom.ghostOnEvent({type:'setvalue',value:value,obj:newobj});
-            });
-
+        if(sourceNode.attr.placeholder){
+            var placeholder = sourceNode.getAttributeFromDatasource('placeholder');
+            if(sourceNode.widget){
+                newobj.focusNode.setAttribute('placeholder',placeholder);
+            }else{
+                newobj.setAttribute('placeholder',placeholder);
+            }
+           
         }
         if(newobj.validate){
             newobj.validate_replaced = newobj.validate;
@@ -675,11 +663,11 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             }
         }
         if (dojo_version == '1.1') {
-            var dlgtype = 'normal';
-            var zindex = 500;
-            if(sourceNode.attr.isModal){
-                dlgtype = 'modal';
-                zindex = 2000;
+            dlgtype = 'modal';
+            zindex = 800;
+            if(sourceNode.attr.noModal){
+                var dlgtype = 'nomodal';
+                var zindex = 500;
             }
             genro.dialogStacks[dlgtype] = genro.dialogStacks[dlgtype] || [];
             dojo.connect(widget, "show", widget,
@@ -2130,12 +2118,14 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         if (structBag) {
             sourceNode.baseStructBag = structBag.deepCopy();
+            if (genro.grid_configurator) {
+                sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy());
+                var currViewPath = genro.getFromStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + sourceNode.attr.nodeId) || '__baseview__';
+                sourceNode.setRelativeData('.currViewPath',currViewPath);
+            }
+        
         }
-        if (genro.grid_configurator) {
-            sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy());
-            var currViewPath = genro.getFromStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + sourceNode.attr.nodeId) || '__baseview__';
-            sourceNode.setRelativeData('.currViewPath',currViewPath);
-        }
+       
         attributes.structBag = structBag; 
         sourceNode.registerDynAttr('structpath');
         attributes.cellmap = {};

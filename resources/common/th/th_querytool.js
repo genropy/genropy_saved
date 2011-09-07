@@ -128,13 +128,21 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
                                         }});
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
                                         gradient_from:'#FEFDE3',gradient_to:'#D5DDE5',gradient_deg:'-90'});
-        var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn',toolbar:true,'side':'top'});
+        var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn,def,|,5,runbtn',toolbar:true,_class:'slotBar_16','side':'top'});
         var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',
                                                  padding_right:'10px',padding_left:'2px',
                                     font_size:'.8em',color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'})
         qtitle._('menu',{'_class':'smallmenu',storepath:'.savedqueries',modifiers:'*',action:'SET .currentQuery = $1.fullpath;'});
-        topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'save16',action:'FIRE .savedlg;'});
-        topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'trash16',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
+        topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'iconbox save',action:'FIRE .savedlg;'});
+        topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'iconbox trash',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
+        
+        topbar._('slotButton','def',{'label':_T('!!Default Query'),action:'console.log("default query");',
+                               iconClass:'iconbox star'});
+                               
+        topbar._('slotButton','runbtn',{'label':_T('!!Run Query'),action:'FIRE .#parent.runQuery;',
+                               iconClass:'iconbox arrow'});
+
+
         var editorRoot = frame._('div',{datapath:'.where',margin:'2px'});
         this._buildQueryGroup(editorRoot,this.sourceNode.getRelativeData('.query.where'), 0);
         node.unfreeze();
@@ -284,14 +292,8 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
 
             var input_attrs = {value:'^' + relpath, width:'10em',
                 _autoselect:true,_class:'st_conditionValue',validate_onAccept:curr_th+'.queryanalyzer.checkQueryLineValue(this,value);'};
-            if (attr.value_caption) {
-                var fld_id = node.getStringId() + '_value';
-                input_attrs['id'] = fld_id;
-                input_attrs['connect__onMouse'] = 'genro.dom.ghostOnEvent($1);';
-                valtd._('label', {_for:fld_id,_class:'ghostlabel','id':fld_id + '_label'})._('span', {innerHTML:val ? '' : attr.value_caption});
-            }
             input_attrs.position = 'relative';
-            input_attrs.padding_right = '10px';
+            input_attrs.placeholder = '^' + relpath + '?value_caption';
             that = this;
             input_attrs.connect_onclick = function(){
                 that.getHelper(this);
@@ -320,7 +322,10 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             oddeven = 'qb_group qb_group_odd';
         }
         var container = sourceNode._('div', {_class:oddeven});
-        var tbl = container._('table', {_class:'qb_table'})._('tbody');
+        var sourceNode = this.sourceNode;
+        var tbl = container._('table', {_class:'qb_table',onEnter:function(){
+            sourceNode.fireEvent('.runQuery');
+        }})._('tbody');
         for (var i = 0; i < bagnodes.length; i++) {
             node = bagnodes[i];
             this._buildQueryRow(tbl._('tr', {_class:'^.' + node.label + '?css_class'}), bagnodes[i], i, level);
@@ -365,34 +370,31 @@ dojo.declare("gnr.GnrQueryAnalyzer", null, {
         return parslist;
     },
     buildParsDialog:function(parslist) {
-        genro.src.getNode()._('div', '_dlg_ask_querypars');
-        var buttons = buttons || {confirm:'Confirm',cancel:'Cancel'};
-        var action = "genro.wdgById('_dlg_ask_querypars').hide(); FIRE .#parent.#parent.runQueryDo;";
-        var node = genro.src.getNode('_dlg_ask_querypars').clearValue().freeze();
-        var dlg = node._('dialog', {nodeId:'_dlg_ask_querypars',title:'Complete query',datapath:this.wherepath});
+        var sourceNode = this.sourceNode;
+        var dlg = genro.dlg.quickDialog('Complete query',{datapath:this.wherepath});
+        var confirm = function(){
+            sourceNode.fireEvent('.runQueryDo');
+            dlg.close_action();
+        };
+        var cancel = function(){
+            sourceNode.setRelativeData('.queryRunning',false);
+            dlg.close_action();
+        };
+        var count = function(){
+            sourceNode.fireEvent('.showQueryCountDlg');
+        };
 
-        var bc = dlg._('borderContainer', {_class:'pbl_dialog_center',
-            height:parslist.length * 30 + 100 + 'px',
-            width:'350px'});
-        var center = bc._('contentPane', {'region':'center'});
-        var bottom = bc._('contentPane', {'region':'bottom',_class:'dialog_bottom'});
-        var queryform = center._('div', {padding:'10px',font_size:'.8'})._('table', {border_spacing:'8px',onEnter:action,margin_top:'10px'})._('tbody');
-
+        var center = dlg.center._('div',{padding:'10px'});
+        var bottom = dlg.bottom._('slotBar',{'slots':'cancel,*,confirm,countbtn'});
+        var queryform = genro.dev.formbuilder(center,1,{border_spacing:'8px',onEnter:confirm,margin_top:'10px'})
         var tr, attrs;
         for (var i = 0; i < parslist.length; i++) {
             attrs = parslist[i];
-            tr = queryform._('tr');
-            tr._('td')._('div', {'innerHTML':attrs['value_caption'] + ':',_class:'gnrfieldlabel',width:'10em'});
-            tr._('td')._('textBox', {'value':'^.' + attrs['relpath'], width:'12em', _class:'gnrfield',tabindex:i});
+            queryform.addField('textbox',{lbl:attrs['value_caption'],value:'^.' + attrs['relpath'], width:'12em',tabindex:i})
         }
-        ;
-        bottom._('button', {label:'Cancel',baseClass:'bottom_btn','float':'left',
-            action:"genro.wdgById('_dlg_ask_querypars').hide();SET .#parent.#parent.queryRunning = false;SET .#parent.#parent.gridpage = 0;"});
-        bottom._('button', {label:'Confirm',baseClass:'bottom_btn','float':'right',action:action});
-        bottom._('button', {label:'Count',baseClass:'bottom_btn','float':'right',action:'FIRE .#parent.#parent.showQueryCountDlg;'});
-
-        node.unfreeze();
-        genro.wdgById('_dlg_ask_querypars').show();
-
+        bottom._('button', 'cancel',{label:'Cancel',baseClass:'bottom_btn',action:cancel});
+        bottom._('button', 'confirm',{label:'Confirm',baseClass:'bottom_btn',action:confirm});
+        bottom._('button', 'countbtn',{label:'Count',baseClass:'bottom_btn',action:count});
+        dlg.show_action();
     }
 });

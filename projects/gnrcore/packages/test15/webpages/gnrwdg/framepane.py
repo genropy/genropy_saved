@@ -94,23 +94,16 @@ class GnrCustomWebPage(object):
         left = frame.left
         sidebar = left.slotBar(slots='*,mytree,*',border_right='1px solid gray',closable='close',
                     closable_background='darkblue',closable_transition='2s',splitter=True)
-        sidebar.mytree.button('Pippo')
-        
-        
-        
+        sidebar.mytree.button('Pippo')        
         sidebar = frame.right.slotBar(slots='*,mytree,*',width='60px',border_left='1px solid gray',closable='close',splitter=True)
-        #closable is the main attribute if == 'close' it starts closed
-        # closable_width or other attributes with closable_ namespace 
-        # modifies the appareance of the handle that you can presss for opening or closing the pane
-        # ok?
-        # yes
-        # do you like? I am getting used to it.  The icon at the top is not not used to open this pane, but is not used for search ?
-        # insde the tablehandler we are re-design some parts :
-        # from left to right men
+       
         sidebar.mytree.div('aaa<br/>bbb')
-       #left.attributes.update(closable='close',width='0',background='silver',overflow='visible')
-       #left.div(background='red',position='absolute',height='30px',width='10px',top='30px',
-       #        right='-10px',z_index='20',opacity='.5',rounded_right=4,border='1px solid white')
+        frame.textbox(value='^.placeholder',placeholder='puzza',margin='20px')
+        frame.textbox(value='^.aaa',placeholder='^.placeholder',margin='20px')
+        frame.input(value='^.ccc',placeholder='^.aaa',margin='20px')
+
+
+
        #                          
     def test_10_framepanebug(self,pane):
         palette = pane.palettePane(paletteCode='xxx',heigth='300px',width='400px',dockTo=False,palette_persistent=True)

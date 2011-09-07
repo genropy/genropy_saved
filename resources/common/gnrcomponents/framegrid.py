@@ -28,7 +28,7 @@ class FrameGridSlots(BaseComponent):
     @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
        # kw['subscribe_%s_onLockChange' %storeId] = "this.widget.setIconClass($1.locked?'icnBaseLocked':'icnBaseUnlocked');"
-        pane.slotButton('!!Locker',width='20px',publish='viewlocker',iconClass='==_locked?"icnBaseLocked":"icnBaseUnlocked";',_locked='^.locked',**kwargs)
+        pane.slotButton('!!Locker',width='20px',publish='viewlocker',iconClass='==_locked?"iconbox lock":"iconbox unlock";',_locked='^.locked',**kwargs)
     
     @struct_method
     def fgr_slotbar_updrow(self,pane,_class='icnBaseEdit',enable=None,parentForm=True,**kwargs):
@@ -65,14 +65,16 @@ class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
     @extract_kwargs(top=True,grid=True)
     @struct_method
-    def fgr_frameGrid(self,pane,frameCode=None,struct=None,table=None,grid_kwargs=True,top_kwargs=None,**kwargs):
+    def fgr_frameGrid(self,pane,frameCode=None,struct=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,**kwargs):
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
+            if iconSize:
+                top_kwargs['_class'] = '%s slotBar_%i' %(top_kwargs.get('_class',''),iconSize)
             frame.top.slotToolbar(**top_kwargs)
         frame.includedView(autoWidth=False,
                                 datapath='.grid',selectedId='.selectedId',
-                                struct=struct,sortedBy='^.sorted',
+                                struct=struct,sortedBy='^.sorted',table=table,
                                 selfsubscribe_delrow='this.widget.deleteRows();',
                                  _newGrid=True,**grid_kwargs)
         return frame

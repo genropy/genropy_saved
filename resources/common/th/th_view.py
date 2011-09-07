@@ -47,7 +47,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if virtualStore:
-            base_slots = ['queryfb','2','runbtn','|','queryMenu','|','10','export','5','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
+            base_slots = ['queryfb','2','runbtn','|','5','queryMenu','5','|','10','export','5','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
         else:
             base_slots = ['vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
@@ -61,7 +61,7 @@ class TableHandlerView(BaseComponent):
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
-                               tools=leftTools,grid_kwargs=grid_kwargs,**kwargs)   
+                               tools=leftTools,grid_kwargs=grid_kwargs,iconSize=16,**kwargs)   
         if grid_kwargs['configurable']:
             frame.left.viewConfigurator(table,frameCode)                         
         self._th_viewController(frame,table=table)
@@ -71,13 +71,13 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_viewConfigurator(self,pane,table,th_root):
-        bar = pane.slotBar('confBar,fieldsTree,*',min_width='160px',closable='close',fieldsTree_table=table,
+        bar = pane.slotBar('confBar,fieldsTree,*',min_width='160px',closable='close',_class='slotBar_16',fieldsTree_table=table,
                             fieldsTree_height='100%',splitter=True)
-        confBar = bar.confBar.slotToolbar('viewsMenu,*,saveView,5,deleteView',_class='retinaSlotbar')
+        confBar = bar.confBar.slotToolbar('viewsMenu,*,saveView,5,deleteView')
         gridId = '%s_grid' %th_root
-        confBar.saveView.slotButton('Save View',iconClass='save16',
+        confBar.saveView.slotButton('Save View',iconClass='iconbox save',
                                         action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
-        confBar.deleteView.slotButton('Delete View',iconClass='trash16',
+        confBar.deleteView.slotButton('Delete View',iconClass='iconbox trash',
                                     action='genro.grid_configurator.deleteGridView(gridId);',
                                     gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
 
@@ -103,7 +103,7 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
-        pane.div(_class='icnBaseLens buttonIcon').menu(storepath='.query.menu',_class='smallmenu',modifiers='*',
+        pane.div(_class='iconbox magnifier').menu(storepath='.query.menu',_class='smallmenu',modifiers='*',
                     action="""
                                 SET .query.currentQuery = $1.fullpath;
                                 if(!$1.pkey){
@@ -130,7 +130,7 @@ class TableHandlerView(BaseComponent):
         pane.dataController("TH(th_root).querybuilder.queryEditor(open);",
                         th_root=th_root,open="^.query.queryEditor")
         dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
-                                _pref='!!Save query: ',_code='^.query.queryAttributes.code',isModal=True,
+                                _pref='!!Save query: ',_code='^.query.queryAttributes.code',
                                 datapath='.query.queryAttributes')
         pane.dataController("dialog.show();",_fired="^.query.savedlg",dialog=dialog.js_widget)
         pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.queryAttributes.pkey',table=table,_fired='^.query.delete',
@@ -183,7 +183,7 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
         th_root = inattr['th_root']
-        pane.div(_class='buttonIcon icnBaseAction').menu(modifiers='*',storepath='.resources.action.menu',action="""
+        pane.div(_class='iconbox gear').menu(modifiers='*',storepath='.resources.action.menu',action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
                             kw['selectedRowidx'] = genro.wdgById(kw.gridId).getSelectedRowidx();
@@ -198,7 +198,7 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
         th_root = inattr['th_root']
-        pane.div(_class='buttonIcon icnBaseEmail').menu(modifiers='*',storepath='.resources.mail.menu',action="""
+        pane.div(_class='iconbox mail').menu(modifiers='*',storepath='.resources.mail.menu',action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
                             kw['selectedRowidx'] = genro.wdgById(kw.gridId).getSelectedRowidx();
@@ -302,8 +302,7 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_runbtn(self,pane,**kwargs):
         pane.slotButton(label='!!Run query',publish='runbtn',
-                               baseClass='no_background',
-                               iconClass='tb_button db_query')
+                               iconClass='iconbox arrow')
     
     @struct_method
     def th_slotbar_queryfb(self, pane,**kwargs):
