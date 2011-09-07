@@ -198,9 +198,8 @@ class GnrBaseWebPage(GnrObject):
     def pageAuthTags(self, method=None, **kwargs):
         """Allow to define users authorizations
         
-        :param method: add???. 
-        :returns: a string containing the users authorizations
-        """
+        :param method: add???.
+        :returns: a string containing the users authorizations"""
         return ""
         
     def pageLocalDocument(self, docname,page_id=None):
