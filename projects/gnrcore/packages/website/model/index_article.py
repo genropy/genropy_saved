@@ -9,4 +9,3 @@ class Table(object):
         self.sysFields(tbl)
         tbl.column('page_id', name_long='!!Page').relation('website.page.id',mode='foreignkey',onDelete='CASCADE')
         tbl.column('_row_counter','L',name_long='!!N')
-

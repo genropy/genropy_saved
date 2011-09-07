@@ -56,7 +56,7 @@ class SqlCompiledQuery(object):
         
         :param maintable: the name of the main table to query. For more information, check the
                           :ref:`webpages_maintable` section.
-        :param relationDict: a dict to assign a symbolic name to a :ref:`relation_path`. For more information
+        :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
                              check the :ref:`relationdict` documentation section"""
         self.maintable = maintable
         self.relationDict = relationDict or {}
@@ -385,7 +385,7 @@ class SqlQueryCompiler(object):
         :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
         :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
         :param for_update: boolean. If ``True``, lock the selected records of the main table (SELECT ... FOR UPDATE OF ...)
-        :param relationDict: a dict to assign a symbolic name to a :ref:`relation_path`. For more information
+        :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
                              check the :ref:`relationdict` documentation section
         :param bagFields: boolean. If ``True``, include fields of Bag type (``X``) when the ``columns``
                           parameter is ``*`` or contains ``*@relname.filter``
@@ -553,7 +553,7 @@ class SqlQueryCompiler(object):
                       
         :param bagFields: boolean, True to include fields of type Bag (``X``) when columns is * or contains *@relname.filter
         :param for_update: add???
-        :param relationDict: a dict to assign a symbolic name to a :ref:`relation_path`. For more information
+        :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
                              check the :ref:`relationdict` documentation section
         :param virtual_columns: add???."""
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
@@ -816,7 +816,7 @@ class SqlQuery(object):
     :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
     :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
     :param for_update: boolean. add???
-    :param relationDict: a dict to assign a symbolic name to a :ref:`relation_path`. For more information
+    :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
                          check the :ref:`relationdict` documentation section
     :param sqlparams: a dictionary which associates sqlparams to their values
     :param bagFields: boolean. If ``True`` include fields of type Bag (``X``) when columns is ``*`` or
@@ -1405,15 +1405,13 @@ class SqlSelection(object):
                  keep=None, key=None, captionCb=None, **kwargs):
         """add???
         
-        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
-                         
-        :param sum: add???. 
-        :param collect: add???. 
-        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". 
-        :param keep: add???. 
-        :param key: add???. 
-        :param captionCb: add???. 
-        """
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
+        :param sum: add???
+        :param collect: add???
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
+        :param keep: add???
+        :param key: add???
+        :param captionCb: add???"""
         if group_by is None:
             self.analyzeBag = None
         else:

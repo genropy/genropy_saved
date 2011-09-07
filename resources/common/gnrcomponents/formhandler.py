@@ -213,7 +213,8 @@ class FormHandler(BaseComponent):
     @struct_method 
     def fh_slotbar_form_locker(self,pane,**kwargs):
         pane.slotButton('!!Locker',width='20px',iconClass='icnBaseUnlocked',showLabel=False,
-                    action='this.form.publish("setLocked","toggle");',
+                    action='this.form.publish("setLocked","toggle");',disabled='==_pw||_pd',
+                    _pw='^#FORM.record?_protect_write',_pd='^#FORM.record?_protect_write',
                     formsubscribe_onLockChange="""var locked= $1.locked;
                                                   this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""",
                     **kwargs)
