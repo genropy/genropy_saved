@@ -65,14 +65,12 @@ class TableHandlerForm(BaseComponent):
             bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')    
         elif showtoolbar:
-            default_slots = '*,semaphore,10,formcommands,5,locker'
-            #if options.get('dialog_kwargs') or options.get('palette_kwargs'):
-            #    default_slots = '*,semaphore,10,formcommands,5,locker,5'
+            default_slots = '*,formcommands,semaphore,locker'
             slots = options.get('slots',default_slots)
             if readOnly:
                 slots = '*,dismiss,5'
             if options.get('linker'):
-                slots = '*,semaphore,5,form_revert,form_save'
+                slots = '*,form_revert,form_save,semaphore'
             if options.get('selector'):
                 slots = slots.replace('*','5,form_selectrecord,*')
             if options.get('lockable'):

@@ -845,25 +845,25 @@ table.formbuilder {
 }
 
 .greenLight {
-    background: url(icons/base14/greenLight.gif) no-repeat center center;
+    background: url(icons/base16/semaphore_green.png) no-repeat center center;
     width: 14px;
     height: 14px;
 }
 .grayLight {
-    background: url(icons/base14/grayLight.gif) no-repeat center center;
+    background: url(icons/base16/gray_yellow.png) no-repeat center center;
     width: 14px;
     height: 14px;
 }
 
 
 .redLight {
-    background: url(icons/base14/redLight.gif) no-repeat center center;
+    background: url(icons/base16/semaphore_red.png) no-repeat center center;
     width: 14px;
     height: 14px;
 }
 
 .yellowLight {
-    background: url(icons/base14/yellowLight.gif) no-repeat center center;
+    background: url(icons/base16/semaphore_yellow.png) no-repeat center center;
     width: 14px;
     height: 14px;
 }
@@ -2413,15 +2413,15 @@ border='1px solid gray',margin='2px', rounded=10,
 }
 
 .form_ok .fh_semaphore{
-    background: url(icons/base14/greenLight.gif) no-repeat center center;
+    background: url(icons/base16/semaphore_green.png) no-repeat center center;
 }
 
 .form_error .fh_semaphore{
-    background: url(icons/base14/redLight.gif) no-repeat center center;
+    background: url(icons/base16/semaphore_red.png) no-repeat center center;
 }
 
 .form_changed .fh_semaphore{
-    background: url(icons/base14/yellowLight.gif) no-repeat center center;
+    background: url(icons/base16/semaphore_yellow.png) no-repeat center center;
 }
 
 .form_readOnly .fh_semaphore{
@@ -2429,7 +2429,7 @@ border='1px solid gray',margin='2px', rounded=10,
 }
 
 .form_noItem .fh_semaphore{
-    background: url(icons/base14/grayLight.gif) no-repeat center center;
+    background: url(icons/base16/gray_yellow.png) no-repeat center center;
 }
 
 .fh_content{
