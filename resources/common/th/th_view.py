@@ -472,7 +472,7 @@ class THViewUtils(BaseComponent):
         result.setItem('__baseview__', None,caption='Base View',gridId=gridId)
         if pyviews:
             for k,caption in pyviews:
-                result.setItem(k.replace('_','.'),None,caption=caption,viewkey=k,gridId=gridId)
+                result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
         #result.setItem('r_1',None,caption='-')
         self.grid_configurator_savedViewsMenu(result,gridId)
         return result
