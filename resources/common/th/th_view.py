@@ -55,13 +55,12 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
         else:
             top_kwargs['slots']= base_slots
-        leftTools = '5,fieldsTree,*'
-        top_kwargs['height'] = top_kwargs.get('height','20px')
+        #top_kwargs['height'] = top_kwargs.get('height','20px')
         grid_kwargs['configurable'] = grid_kwargs.get('configurable',True)
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
-                               tools=leftTools,grid_kwargs=grid_kwargs,iconSize=16,**kwargs)   
+                               grid_kwargs=grid_kwargs,iconSize=16,**kwargs)   
         if grid_kwargs['configurable']:
             frame.left.viewConfigurator(table,frameCode)                         
         self._th_viewController(frame,table=table)
