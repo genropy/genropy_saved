@@ -487,6 +487,7 @@ class Table_userobject(TableBase):
         tbl.column('tbl', name_long='!!Table') # full table name: package.table
         tbl.column('userid', name_long='!!User ID', indexed='y')
         tbl.column('description', 'T', name_long='!!Description', indexed='y')
+        tbl.column('notes', 'T', name_long='!!Notes')
         tbl.column('data', 'X', name_long='!!Data')
         tbl.column('authtags', 'T', name_long='!!Auth tags')
         tbl.column('private', 'B', name_long='!!Private')

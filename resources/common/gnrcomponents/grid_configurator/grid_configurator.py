@@ -52,7 +52,7 @@ class GridConfigurator(BaseComponent):
     @public_method
     def saveGridCustomView(self, gridId=None, save_info=None, data=None):
         description = save_info['description']
-        code = description.replace('.', '_').lower()
+        code = save_info['code']
         objtype = 'iv_%s_%s' % (self.pagename, gridId)
         pkey = save_info.get('pkey')
         record = self.package.loadUserObject(id=pkey)[1]
@@ -61,6 +61,7 @@ class GridConfigurator(BaseComponent):
                 pkey = None
         record = self.package.saveUserObject(data, code=code,
                                              description=description,
+                                             notes=save_info['notes'],
                                              id=pkey,
                                              private=bool(save_info['private']),
                                              objtype=objtype)

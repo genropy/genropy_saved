@@ -5,15 +5,26 @@
 	width: 22px;
 	cursor: pointer;
 	border-radius:2px;
-	background-color:#ddd !important;
 	margin-top:1px;
 	margin-bottom:1px;
-	border:1px solid silver;
 }
-.slotbar_toolbar .dijitButtonHover .iconbox, .slotbar_toolbar .iconbox:hover{
-	background-color:#bbb !important;
+.bordered_icons .iconbox{
+	border:1px solid silver;
+	background-color:#ddd !important;
 }
 
+.slotbar_toolbar .dijitButtonHover .iconbox, .slotbar_toolbar .iconbox:hover{
+	background-color:#bbb !important;	
+}
+
+
+.add_record{
+	background: url(16/add_record.png) no-repeat center center;
+}
+
+.add_row{
+	background: url(16/add_row.png) no-repeat center center;
+}
 
 .alarm{
 	background: url(16/alarm.png) no-repeat center center;
@@ -223,6 +234,14 @@
 	background: url(16/delete.png) no-repeat center center;
 }
 
+.delete_record{
+	background: url(16/delete_record.png) no-repeat center center;
+}
+
+.delete_row{
+	background: url(16/delete_row.png) no-repeat center center;
+}
+
 .disk{
 	background: url(16/disk.png) no-repeat center center;
 }
@@ -241,6 +260,14 @@
 
 .document_empty{
 	background: url(16/document_empty.png) no-repeat center center;
+}
+
+.edit{
+	background: url(16/edit.png) no-repeat center center;
+}
+
+.export{
+	background: url(16/export.png) no-repeat center center;
 }
 
 .favorites_add{
@@ -307,6 +334,10 @@
 	background: url(16/font_up.png) no-repeat center center;
 }
 
+.forward{
+	background: url(16/forward.png) no-repeat center center;
+}
+
 .frame{
 	background: url(16/frame.png) no-repeat center center;
 }
@@ -361,6 +392,10 @@
 
 .link{
 	background: url(16/link.png) no-repeat center center;
+}
+
+.list{
+	background: url(16/list.png) no-repeat center center;
 }
 
 .lock{
@@ -443,6 +478,10 @@
 	background: url(16/previous.png) no-repeat center center;
 }
 
+.print{
+	background: url(16/print.png) no-repeat center center;
+}
+
 .reload{
 	background: url(16/reload.png) no-repeat center center;
 }
@@ -451,12 +490,20 @@
 	background: url(16/resize.png) no-repeat center center;
 }
 
+.revert{
+	background: url(16/revert.png) no-repeat center center;
+}
+
 .rss{
 	background: url(16/rss.png) no-repeat center center;
 }
 
 .ruler{
 	background: url(16/ruler.png) no-repeat center center;
+}
+
+.run{
+	background: url(16/run.png) no-repeat center center;
 }
 
 .safe{

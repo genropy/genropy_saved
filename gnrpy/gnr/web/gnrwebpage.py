@@ -1189,7 +1189,7 @@ class GnrWebPage(GnrBaseWebPage):
                     #page.script('genro.dom.windowTitle("%s")' % self.windowTitle())
                 dbselect_cache = None
                 if self.user:
-                    dbselect_cache = self.getUserPreference(path='cache.dbselect', pkg='sys')
+                    dbselect_cache = self.getUserPreference(path='cache.dbselect', pkg='sys')                        
                 if dbselect_cache is None:
                     dbselect_cache = self.site.config['client_cache?dbselect']
                 if dbselect_cache:
@@ -1208,6 +1208,8 @@ class GnrWebPage(GnrBaseWebPage):
                     page.dataRemote('gnr.user_preference', 'getUserPreference')
                 page.dataRemote('gnr.app_preference', 'getAppPreference')
                 page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
+                page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
+                            bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)
                 page.dataController("genro.getDataNode(nodePath).refresh(true);",
                                     nodePath="^gnr.serverEvent.refreshNode")
                                     

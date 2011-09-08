@@ -29,6 +29,11 @@ class UserPref(object):
         tc = tc.tabContainer(**kwargs)
         self.pref_cache(tc.contentPane(title='Caching', datapath='.cache'))
         self.pref_sound(tc.contentPane(title='Sounds', datapath='.sounds'))
+        self.pref_theme(tc.contentPane(title='Theme', datapath='.theme'))
+
+    def pref_theme(self, pane):
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.checkbox(value='^.bordered_icons',label='Bordered icons')
 
 
     def pref_sound(self, pane):

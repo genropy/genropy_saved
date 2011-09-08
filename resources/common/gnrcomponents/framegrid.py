@@ -12,27 +12,27 @@ from gnr.core.gnrlang import extract_kwargs
 class FrameGridSlots(BaseComponent):
     py_requires='gnrcomponents/grid_configurator/grid_configurator:GridConfigurator'
     @struct_method
-    def fgr_slotbar_export(self,pane,_class='icnBaseExport',mode='xls',enable=None,**kwargs):
+    def fgr_slotbar_export(self,pane,_class='iconbox export',mode='xls',enable=None,**kwargs):
         return pane.slotButton(label='!!Export',publish='serverAction',command='export',opt_export_mode=mode or 'xls',
                                 iconClass=_class,visible=enable,**kwargs) 
        
     @struct_method
-    def fgr_slotbar_addrow(self,pane,_class='icnBaseAdd',enable=None,delay=300,**kwargs):
+    def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',enable=None,delay=300,**kwargs):
         return pane.slotButton(label='!!Add',publish='addrow',iconClass=_class,visible=enable,disabled='^.locked',
                                 _delay=delay,**kwargs)
          
     @struct_method
-    def fgr_slotbar_delrow(self,pane,_class='icnBaseDelete',enable=None,**kwargs):
+    def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,**kwargs):
         return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,visible=enable,disabled='^.locked',**kwargs)
     
     @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
        # kw['subscribe_%s_onLockChange' %storeId] = "this.widget.setIconClass($1.locked?'icnBaseLocked':'icnBaseUnlocked');"
-        pane.slotButton('!!Locker',width='20px',publish='viewlocker',iconClass='==_locked?"iconbox lock":"iconbox unlock";',_locked='^.locked',**kwargs)
+        pane.slotButton('!!Locker',publish='viewlocker',iconClass='==_locked?"iconbox lock":"iconbox unlock";',_locked='^.locked',**kwargs)
     
     @struct_method
     def fgr_slotbar_updrow(self,pane,_class='icnBaseEdit',enable=None,parentForm=True,**kwargs):
-        return pane.slotButton(label='!!Delete',publish='updrow',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
+        return pane.slotButton(label='!!Update',publish='updrow',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
 
     @struct_method
     def fgr_slotbar_gridConfigurator(self,pane,_class='icnBaseTableEdit',frameCode=None,enable=None,parentForm=True,**kwargs):

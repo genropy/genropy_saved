@@ -13,10 +13,12 @@ r.append("""
 	width: 22px;
 	cursor: pointer;
 	border-radius:2px;
-	background-color:#ddd !important;
 	margin-top:1px;
 	margin-bottom:1px;
+}
+.bordered_icons .iconbox{
 	border:1px solid silver;
+	background-color:#ddd !important;
 }
 .slotbar_toolbar .dijitButtonHover .iconbox, .slotbar_toolbar .iconbox:hover{
 	background-color:#bbb !important;	
