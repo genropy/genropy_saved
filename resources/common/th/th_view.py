@@ -47,9 +47,9 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if virtualStore:
-            base_slots = ['queryfb','runbtn','|','queryMenu','|','10','export','5','resourcePrints','5','resourceActions','5','resourceMails','*','count','5']
+            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceActions','resourceMails','*','count','5']
         else:
-            base_slots = ['vtitle','count','*','searchOn']
+            base_slots = ['5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
@@ -170,7 +170,7 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
-        pane.div(_class='buttonIcon icnBasePrinter').menu(modifiers='*',storepath='.resources.print.menu',
+        pane.div(_class='iconbox print').menu(modifiers='*',storepath='.resources.print.menu',
                     action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
@@ -305,7 +305,7 @@ class TableHandlerView(BaseComponent):
     @struct_method
     def th_slotbar_runbtn(self,pane,**kwargs):
         pane.slotButton(label='!!Run query',publish='runbtn',
-                               iconClass='iconbox arrow')
+                               iconClass='iconbox run')
     
     @struct_method
     def th_slotbar_queryfb(self, pane,**kwargs):

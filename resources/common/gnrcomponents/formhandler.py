@@ -145,22 +145,22 @@ class FormHandler(BaseComponent):
         
     @struct_method          
     def fh_slotbar_form_dismiss(self,pane,caption=None,iconClass=None,**kwargs):
-        pane.formButton('!!Dismiss',iconClass="tb_button tb_listview",
+        pane.formButton('!!Dismiss',iconClass="iconbox list",
                     topic='navigationEvent',command='dismiss')
     
     @struct_method          
     def fh_slotbar_form_save(self,pane,always=False,**kwargs):
-        pane.formButton('!!Save',topic='save',iconClass="tb_button db_save",parentForm=True,command=always)
+        pane.formButton('!!Save',topic='save',iconClass="iconbox save",parentForm=True,command=always)
 
     @struct_method          
     def fh_slotbar_form_revert(self,pane,**kwargs):
-        pane.formButton('!!Revert',topic='reload',iconClass="tb_button db_revert", parentForm=True,
+        pane.formButton('!!Revert',topic='reload',iconClass="iconbox revert", parentForm=True,
                        disabled='^.controller.changed?=!#v')
     
     @struct_method          
     def fh_slotbar_form_delete(self,pane,parentForm=True,**kwargs):
         pane.formButton(topic='deleteItem',
-                        iconClass="tb_button db_del",parentForm=parentForm,
+                        iconClass="iconbox delete_record",parentForm=parentForm,
                         disabled='^.controller.protect_delete',tip='==disabled?_msg_protect_delete:_msg_delete',
                         _msg_protect_delete='!!This record cannot be deleted',_msg_delete='!!Delete current record',
                         **kwargs)
@@ -179,29 +179,29 @@ class FormHandler(BaseComponent):
     @struct_method          
     def fh_slotbar_form_add(self,pane,parentForm=True,**kwargs):
         pane.formButton('!!Add',topic='navigationEvent',command='add',
-                        iconClass="tb_button db_add",parentForm=parentForm,**kwargs)
+                        iconClass="iconbox add_record",parentForm=parentForm,**kwargs)
 
     @struct_method          
     def fh_slotbar_form_first(self,pane,**kwargs):
-        pane.formButton('!!First',iconClass="tb_button icnNavFirst",
+        pane.formButton('!!First',iconClass="iconbox first",
                     topic='navigationEvent',command='first',
                     formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
     
     @struct_method          
     def fh_slotbar_form_prev(self,pane,**kwargs):
-        pane.formButton('!!Prev',iconClass="tb_button icnNavPrev",
+        pane.formButton('!!Prev',iconClass="iconbox previous",
                     topic='navigationEvent',command='prev',
                     formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.first || false);")
     
     @struct_method          
     def fh_slotbar_form_next(self,pane,**kwargs):
-        pane.formButton('!!Next',iconClass="tb_button icnNavNext",
+        pane.formButton('!!Next',iconClass="iconbox next",
                     topic='navigationEvent',command='next',
                     formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
     
     @struct_method          
     def fh_slotbar_form_last(self,pane,**kwargs):
-        pane.formButton('!!Last',iconClass="tb_button icnNavLast",
+        pane.formButton('!!Last',iconClass="iconbox last",
                     topic='navigationEvent',command='last',
                     formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
 
@@ -213,10 +213,10 @@ class FormHandler(BaseComponent):
     
     @struct_method 
     def fh_slotbar_form_locker(self,pane,**kwargs):
-        pane.slotButton('!!Locker',width='20px',iconClass='icnBaseUnlocked',showLabel=False,
+        pane.slotButton('!!Locker',iconClass='iconbox lock',showLabel=False,
                     action='this.form.publish("setLocked","toggle");',disabled='==_pw||_pd',
                     _pw='^#FORM.record?_protect_write',_pd='^#FORM.record?_protect_write',
                     formsubscribe_onLockChange="""var locked= $1.locked;
-                                                  this.widget.setIconClass(locked?'icnBaseLocked':'icnBaseUnlocked');""",
+                                                  this.widget.setIconClass(locked?'iconbox lock':'iconbox unlock');""",
                     **kwargs)
         

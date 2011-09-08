@@ -145,12 +145,14 @@ dojo.declare("gnr.GnrDevHandler", null, {
                 this.curr_tr = this._('tr');
                 this.col_count = 1;
             }
+            var colspan = objectPop(kw,'colspan') || 1;
+            colspan = colspan==1?colspan:colspan*2;
             var lblpars = {innerHTML:objectPop(kw, 'lbl')};
             objectUpdate(lblpars, objectExtract(kw, 'lbl_*'));
             var tr = this.curr_tr;
             tr._('td', lblpars);
-            tr._('td')._(tag, kw);
-            this.col_count = this.col_count + 1;
+            tr._('td',{colspan:colspan})._(tag, kw);
+            this.col_count = this.col_count + colspan;
         };
         return tbl;
     },

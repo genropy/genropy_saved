@@ -128,7 +128,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
                                         }});
         var frame = pane._('framePane',{'frameCode':'_innerframe_#',
                                         gradient_from:'#FEFDE3',gradient_to:'#D5DDE5',gradient_deg:'-90'});
-        var topbar = frame._('slotBar',{'slots':'queryname,*,savebtn,deletebtn,def,|,5,runbtn',toolbar:true,'side':'top'});
+        var topbar = frame._('slotBar',{'slots':'queryname,*,favoritebtn,savebtn,deletebtn,|,5,runbtn',toolbar:true,'side':'top'});
         var qtitle = topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',
                                                  padding_right:'10px',padding_left:'2px',
                                     color:'#555',font_weight:'bold',_class:'floatingPopup',cursor:'pointer'})
@@ -136,11 +136,11 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'iconbox save',action:'FIRE .savedlg;'});
         topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'iconbox trash',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
         
-        topbar._('slotButton','def',{'label':_T('!!Default Query'),action:'console.log("default query");',
+        topbar._('slotButton','favoritebtn',{'label':_T('!!Default Query'),action:'console.log("default query");',
                                iconClass:'iconbox star'});
                                
         topbar._('slotButton','runbtn',{'label':_T('!!Run Query'),action:'FIRE .#parent.runQuery;',
-                               iconClass:'iconbox arrow'});
+                               iconClass:'iconbox run'});
 
 
         var editorRoot = frame._('div',{datapath:'.where',margin:'2px'});
