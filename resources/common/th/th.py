@@ -63,7 +63,7 @@ class TableHandler(BaseComponent):
                                 _fired='^#FORM.controller.loaded',_delay=1)                
         top_slots = '#,delrow,addrow'
         if lockable:
-            top_slots = '#,delrow,addrow,10,viewlocker,5'
+            top_slots = '#,delrow,addrow,10,viewlocker'
         if readOnly:
             top_slots = '#'
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,

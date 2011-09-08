@@ -1268,6 +1268,10 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
         if (attributes.checked) {
             attributes.iconClass = 'tick_icon10';
         }
+        if(attributes.favorite){
+            attributes.font_weight = 'bold';
+            attributes.background = 'lightyellow'
+        }
         return savedAttrs;
     },
 
@@ -2124,8 +2128,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             sourceNode.baseStructBag = structBag.deepCopy();
             if (genro.grid_configurator) {
                 sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy());
-                var currViewPath = genro.getFromStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + sourceNode.attr.nodeId) || '__baseview__';
-                sourceNode.setRelativeData('.currViewPath',currViewPath);
+                genro.grid_configurator.setFavorite(sourceNode.attr.nodeId);
             }
         
         }

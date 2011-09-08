@@ -74,11 +74,11 @@ class TableHandlerView(BaseComponent):
                             fieldsTree_height='100%',splitter=True)
         confBar = bar.confBar.slotToolbar('viewsMenu,*,defView,saveView,deleteView',background='whitesmoke',border_right='1px solid gray')
         gridId = '%s_grid' %th_root
-        confBar.defView.slotButton('Save View',iconClass='iconbox star',
+        confBar.defView.slotButton('!!Favorite View',iconClass='th_favoriteIcon iconbox star',
                                         action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
-        confBar.saveView.slotButton('Save View',iconClass='iconbox save',
+        confBar.saveView.slotButton('!!Save View',iconClass='iconbox save',
                                         action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
-        confBar.deleteView.slotButton('Delete View',iconClass='iconbox trash',
+        confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
                                     action='genro.grid_configurator.deleteGridView(gridId);',
                                     gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
         
@@ -153,7 +153,7 @@ class TableHandlerView(BaseComponent):
                     margin='1px',rounded=4,width='10em',overflow='hidden',text_align='left',cursor='pointer',
                     color='#555',datapath='.grid').menu(storepath='.structMenuBag',
                 _class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
-        pane.dataController("genro.grid_configurator.loadView(gridId, selpath);",selpath="^.grid.currViewPath",gridId=gridId,_onStart=True)
+        pane.dataController("genro.grid_configurator.loadView(gridId, selpath,th_root);",selpath="^.grid.currViewPath",gridId=gridId,th_root=th_root,_onStart=True)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
         for k,v in pyviews.items():
@@ -163,7 +163,7 @@ class TableHandlerView(BaseComponent):
         
 
         pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),
-                        table=table,th_root=th_root,cacheTime=5)
+                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=5)
     @struct_method
     def th_slotbar_resourcePrints(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
@@ -469,17 +469,22 @@ class THViewUtils(BaseComponent):
         return (data, metadata)
 
     @public_method
-    def th_menuViews(self,table=None,th_root=None,pyviews=None,**kwargs):
+    def th_menuViews(self,table=None,th_root=None,pyviews=None,favoriteViewPath=None,**kwargs):
         result = Bag()
         gridId = '%s_grid' %th_root
         result.setItem('__baseview__', None,caption='Base View',gridId=gridId)
         if pyviews:
             for k,caption in pyviews:
                 result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
-        #result.setItem('r_1',None,caption='-')
         self.grid_configurator_savedViewsMenu(result,gridId)
+        result.walk(self._th_checkFavoriteView,favoriteViewPath=favoriteViewPath)
         return result
-        
+    
+    def _th_checkFavoriteView(self,node,favoriteViewPath=None):
+        if node.attr.get('code') and node.attr['code'] == favoriteViewPath:
+            node.attr['favorite'] = True
+        else:
+            node.attr['favorite'] = None
     
     @public_method
     def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,**kwargs):

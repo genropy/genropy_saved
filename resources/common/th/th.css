@@ -110,6 +110,10 @@
     background: url(../icons/listview.gif) no-repeat center center;
 }
 
+.th_isFavoriteView .th_favoriteIcon{
+    background-color:lightyellow;
+}
+
 /* @end */
 
 .topmsgcontainer {
