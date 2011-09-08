@@ -53,7 +53,7 @@ Introduction
         **Example:**
         
         if you have a project with a package called ``office`` that includes three webpages
-        called ``companies.py``, ``staff.py`` and ``contacts.py``:
+        called ``companies_page.py``, ``staff_page.py`` and ``contacts_page.py``:
         
         .. image:: ../../_images/projects/menu_example_1.png
         
@@ -61,18 +61,18 @@ Introduction
         
             <?xml version="1.0" encoding="UTF-8"?>
             <GenRoBag>
-                <companies label="Companies" file="office/companies"/>
-                <staff label="Staff" file="office/staff"/>
-                <contacts label="Contacts" file="office/contacts"/>
+                <companies label="Companies" file="office/companies_page"/>
+                <staff label="Staff" file="office/staff_page"/>
+                <contacts label="Contacts" file="office/contacts_page"/>
             </GenRoBag>
             
         For what we have said in the previous note, you could also have written::
         
             <?xml version="1.0" encoding="UTF-8"?>
             <GenRoBag>
-                <companies label="Companies" file="companies"/>
-                <staff label="Staff" file="staff"/>
-                <contacts label="Contacts" file="contacts"/>
+                <companies label="Companies" file="companies_page"/>
+                <staff label="Staff" file="staff_page"/>
+                <contacts label="Contacts" file="contacts_page"/>
             </GenRoBag>
             
         omitting the package name (``office``).
@@ -114,27 +114,27 @@ basepath
     
     * A folder called ``agenda`` with three webpages:
     
-        * ``companies.py``
-        * ``staff.py``
-        * ``contacts.py``
+        * ``companies_page.py``
+        * ``staff_page.py``
+        * ``contacts_page.py``
         
     * A folder called ``calendar`` with two webpages:
     
-        * ``recurrences.py``
-        * ``admin.py``
+        * ``recurrences_page.py``
+        * ``management_page.py``
     
     Then you will have to write::
     
         <?xml version="1.0" encoding="UTF-8"?>
         <GenRoBag>
             <agenda label='Agenda' basepath="/office/agenda" >
-                <companies label="Companies" file="companies"/>
-                <staff label="Staff" file="staff"/>
-                <contacts label="Contacts" file="contacts"/>
+                <companies label="Companies" file="companies_page"/>
+                <staff label="Staff" file="staff_page"/>
+                <contacts label="Contacts" file="contacts_page"/>
             </agenda>
             <calendar label='Calendar' basepath="/office/calendar" >
-                <recurrences label='Recurrences' file="recurrences"/>
-                <management label='Management' file="management"/>
+                <recurrences label='Recurrences' file="recurrences_page"/>
+                <management label='Management' file="management_page"/>
             </calendar>
         </GenRoBag>
         
@@ -219,7 +219,7 @@ menu lines for resource page of a TableHandler
         and three webpages called ``companies_page.py``, ``contacts_page.py``
         and ``staff_page.py``:
         
-        .. image:: ../../_images/projects/menu_example_4.png
+        .. image:: ../../_images/projects/menu_example_1.png
         
         then your menu can be::
         
@@ -260,7 +260,7 @@ GUI
 
     Let's see the image:
     
-    .. image:: ../../_images/components/frameindex/fi_menu.png
+    .. image:: ../../_images/components/frameindex/fi_left_menu.png
     
     The current selected page is highlighted through a different color. Also, the menu
     supports a folder-hierarchy; there will be visualized only the contents of a single folder

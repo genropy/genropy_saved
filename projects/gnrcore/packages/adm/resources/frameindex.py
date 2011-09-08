@@ -16,7 +16,6 @@ class Mixin(BaseComponent):
     plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin'
     custom_plugin_list = None
     index_url = None
-    showTabs = True
     indexTab = False
     hideLeftPlugins = False
     preferenceTags = 'admin'

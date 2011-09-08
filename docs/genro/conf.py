@@ -38,7 +38,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'GenroPy'
-copyright = u'2010, The GenroPy Team'
+copyright = u'2011, The GenroPy Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -192,7 +192,3 @@ latex_documents = [
 
 # If false, no module index is generated.
 #latex_use_modindex = True
-
-rst_epilog = """
-.. |Bag| replace:: :class:`Bag <gnr.core.gnrbag.Bag>`
-"""

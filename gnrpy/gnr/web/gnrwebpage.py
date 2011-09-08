@@ -55,8 +55,6 @@ AUTH_NOT_LOGGED = 1
 AUTH_FORBIDDEN = -1
 PAGE_TIMEOUT = 60
 PAGE_REFRESH = 20
-
-
     
 class GnrWebPageException(GnrException):
     pass
