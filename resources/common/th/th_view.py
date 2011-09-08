@@ -73,13 +73,16 @@ class TableHandlerView(BaseComponent):
     def th_viewConfigurator(self,pane,table,th_root):
         bar = pane.slotBar('confBar,fieldsTree,*',min_width='160px',closable='close',fieldsTree_table=table,
                             fieldsTree_height='100%',splitter=True)
-        confBar = bar.confBar.slotToolbar('viewsMenu,*,saveView,deleteView',background='whitesmoke',border_right='1px solid gray')
+        confBar = bar.confBar.slotToolbar('viewsMenu,*,defView,saveView,deleteView',background='whitesmoke',border_right='1px solid gray')
         gridId = '%s_grid' %th_root
+        confBar.defView.slotButton('Save View',iconClass='iconbox star',
+                                        action='genro.grid_configurator.setCurrentAsDefault(gridId);',gridId=gridId)
         confBar.saveView.slotButton('Save View',iconClass='iconbox save',
                                         action='genro.grid_configurator.saveGridView(gridId);',gridId=gridId)
         confBar.deleteView.slotButton('Delete View',iconClass='iconbox trash',
                                     action='genro.grid_configurator.deleteGridView(gridId);',
                                     gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
+        
 
         
     @struct_method

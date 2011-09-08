@@ -54,7 +54,7 @@ class GridConfigurator(BaseComponent):
         description = save_info['description']
         code = description.replace('.', '_').lower()
         objtype = 'iv_%s_%s' % (self.pagename, gridId)
-        pkey = save_info.get('id')
+        pkey = save_info.get('pkey')
         record = self.package.loadUserObject(id=pkey)[1]
         if record:
             if record['code'] != code:

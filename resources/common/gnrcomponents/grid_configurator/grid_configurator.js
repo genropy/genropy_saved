@@ -2,11 +2,15 @@ var genro_plugin_grid_configurator = {
     deleteGridView:function(gridId) {
         var gridSourceNode = genro.nodeById(gridId);
         var currViewAttr = gridSourceNode.getRelativeData('.currViewAttrs');
-        genro.serverCall('deleteViewGrid', {pkey:currViewAttr.getItem('id')}, function() {
+        genro.serverCall('deleteViewGrid', {pkey:currViewAttr.getItem('pkey')}, function() {
             genro.grid_configurator.loadView(gridId);
         });
     },
-
+    setCurrentAsDefault:function(gridId){
+        var gridSourceNode = genro.nodeById(gridId);
+        var storeKey = 'iv_' + genro.getData('gnr.pagename') + '_' + gridId;
+        genro.setInStorage("local", storeKey, gridSourceNode.getRelativeData('.currViewPath'));
+    },
     saveGridView:function(gridId) {
         var gridSourceNode = genro.nodeById(gridId);
         var selectedView = gridSourceNode.getRelativeData('.currViewAttrs');
@@ -67,14 +71,13 @@ var genro_plugin_grid_configurator = {
             return;
         }
         var viewAttr = menubag.getNode(currPath).attr;
-        var storeKey = 'iv_' + genro.getData('gnr.pagename') + '_' + gridId
+        
         gridSourceNode.setRelativeData('.currViewAttrs',new gnr.GnrBag(viewAttr));
         var finalize = function(struct){
              gridSourceNode.setRelativeData(gridSourceNode.attr.structpath,struct);
              if(gridSourceNode.widget.storeRowCount()>0){
                  gridSourceNode.widget.reload();
              }
-             genro.setInStorage("local", storeKey, currPath);
         }
         if(viewAttr.pkey){
             var pkey = viewAttr.pkey;
