@@ -19,6 +19,7 @@ import cPickle
 from gnr.core.gnrstring import boolean
 from gnr.core.gnrprinthandler import PrintHandler
 from gnr.core.gnrmailhandler import MailHandler
+from gnr.core.gnrtaskhandler import TaskHandler
 from gnr.web.gnrwsgisite_proxy.gnrservicehandler import ServiceHandlerManager
 from gnr.app.gnrdeploy import PathResolver
 from gnr.web.gnrwsgisite_proxy.gnrresourceloader import ResourceLoader
@@ -301,6 +302,7 @@ class GnrWsgiSite(object):
         self.services = ServiceHandlerManager(self)
         self.print_handler = self.addService(PrintHandler, service_name='print')
         self.mail_handler = self.addService(MailHandler, service_name='mail')
+        self.task_handler = self.addService(TaskHandler, service_name='task')
         self.addSiteServices()
         self.register = SiteRegister(self)
         if counter == 0 and self.debug:
