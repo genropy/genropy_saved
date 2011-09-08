@@ -46,10 +46,6 @@ class FrameGridSlots(BaseComponent):
                                                 funcCreate(sourceNode.attr.onTrashed,'data,dropInfo',sourceNode)(data,dropInfo);
                                             }""",**kwargs)
 
-    @struct_method
-    def fgr_slotbar_gridPalette(self,pane,_class='icnBasePalette box24',frameCode=None,enable=None,parentForm=True,**kwargs):
-        pane.div(tip='!!Drop here a column to edit styles', _class=_class,visible=enable,
-        dropTarget_column='*', onDrop=""" alert ('edit it')""",**kwargs)
 
     @struct_method
     def fgr_slotbar_gridReload(self,pane,_class='icnFrameRefresh box16',enable=None,frameCode=None,**kwargs):

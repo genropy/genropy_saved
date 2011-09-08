@@ -125,6 +125,7 @@ class FormHandler(BaseComponent):
     @struct_method
     def fh_slotbar_form_navigation(self,pane,**kwargs):
         pane = pane.div(lbl='!!Navigation',_class='slotbar_group')
+        pane.slotbar_form_dismiss()
         pane.slotbar_form_first()
         pane.slotbar_form_prev()
         pane.slotbar_form_next()
@@ -145,7 +146,7 @@ class FormHandler(BaseComponent):
         
     @struct_method          
     def fh_slotbar_form_dismiss(self,pane,caption=None,iconClass=None,**kwargs):
-        pane.formButton('!!Dismiss',iconClass="iconbox list",
+        pane.formButton('!!Dismiss',iconClass="iconbox dismiss",
                     topic='navigationEvent',command='dismiss')
     
     @struct_method          

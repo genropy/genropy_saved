@@ -65,9 +65,9 @@ class TableHandlerForm(BaseComponent):
             bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')    
         elif showtoolbar:
-            default_slots = '*,semaphore,10,formcommands,5,dismiss,5,locker,5'
-            if options.get('dialog_kwargs') or options.get('palette_kwargs'):
-                default_slots = '*,semaphore,10,formcommands,5,locker,5'
+            default_slots = '*,semaphore,10,formcommands,5,locker,5'
+            #if options.get('dialog_kwargs') or options.get('palette_kwargs'):
+            #    default_slots = '*,semaphore,10,formcommands,5,locker,5'
             slots = options.get('slots',default_slots)
             if readOnly:
                 slots = '*,dismiss,5'

@@ -96,7 +96,7 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         var dockTo = objectPop(attributes, 'dockTo');
         var dockButton = objectPop(attributes,'dockButton') || objectExtract(attributes, 'dockButton_*');
         if(dockButton===true){
-            dockButton = {iconClass:'icnOpenPalette',_class:'slotButtonIconOnly',parentForm:true};
+            dockButton = {iconClass:'iconbox app',_class:'slotButtonIconOnly',parentForm:true};
         }
         if (objectNotEmpty(dockButton)){
             dockTo = 'dummyDock';

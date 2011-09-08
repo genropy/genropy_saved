@@ -105,7 +105,7 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
-        pane.div(_class='iconbox magnifier').menu(storepath='.query.menu',_class='smallmenu',modifiers='*',
+        pane.div(_class='iconbox menubox magnifier').menu(storepath='.query.menu',_class='smallmenu',modifiers='*',
                     action="""
                                 SET .query.currentQuery = $1.fullpath;
                                 if(!$1.pkey){
@@ -169,7 +169,7 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
-        pane.div(_class='iconbox print').menu(modifiers='*',storepath='.resources.print.menu',
+        pane.div(_class='iconbox menubox print').menu(modifiers='*',storepath='.resources.print.menu',
                     action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
@@ -369,9 +369,10 @@ class TableHandlerView(BaseComponent):
                 action="TH('%s').querybuilder.onChangedQueryOp($2,$1);" %th_root,
                 _dtype='^.c_0?column_dtype',
                 _class='floatingPopup', display='inline-block', padding_left='2px')
-        value_textbox = fb.textbox(lbl='!!Value', value='^.c_0', width='12em', lbl_width='5em',
-                                       _autoselect=True,
+        value_textbox = fb.textbox(lbl='!!Value', value='^.c_0?value_caption', width='12em', lbl_width='5em',
+                                       _autoselect=True,relpath='.c_0',
                                        row_class='^.c_0?css_class', position='relative',
+                                       validate_onAccept='TH("%s").queryanalyzer.checkQueryLineValue(this,value)' %th_root,
                                        disabled='==(_op in TH("%s").querybuilder.helper_op_dict)'  %th_root, _op='^.c_0?op',
                                        connect_onclick="TH('%s').querybuilder.getHelper(this);" %th_root,
                                        _class='st_conditionValue')

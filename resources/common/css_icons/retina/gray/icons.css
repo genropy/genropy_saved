@@ -245,6 +245,9 @@
 .disk{
 	background: url(16/disk.png) no-repeat center center;
 }
+.dismiss{
+	background: url(16/dismiss.png) no-repeat center center;
+}
 
 .display_off{
 	background: url(16/display_off.png) no-repeat center center;
@@ -405,6 +408,9 @@
 .magnifier{
 	background: url(16/magnifier.png) no-repeat center center;
 }
+/*.menubox.magnifier:hover{
+	background: url(16/magnifier_menu.png) no-repeat center center;
+}*/
 
 .mail{
 	background: url(16/mail.png) no-repeat center center;
@@ -481,6 +487,9 @@
 .print{
 	background: url(16/print.png) no-repeat center center;
 }
+/*.menubox.print:hover{
+	background: url(16/print_menu.png) no-repeat center center;
+}*/
 
 .reload{
 	background: url(16/reload.png) no-repeat center center;
