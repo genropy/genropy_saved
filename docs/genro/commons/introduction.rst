@@ -15,5 +15,7 @@ introduction
       :ref:`webpage elements <webpage_elements_index>`
     * the :ref:`datatypes <datatype>` (``dtypes``): they are used to define the typology
       of the :ref:`columns <table_column>` in a database :ref:`project` management
+    * the :ref:`macro`: these are javascript shortcuts to perform callbacks
     * the :ref:`commons_names`: these are the metadata through which you visualize records
       in a database :ref:`project` management
+    * some :ref:`char_index`: add???

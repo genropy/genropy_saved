@@ -10,7 +10,8 @@ SQL
     :maxdepth: 1
     
     introduction
-    relation
+    relations: direct relations, inverse relations, relation paths <relation>
+    relation_attrs
     query
     attributes
     commons

@@ -15,9 +15,10 @@ action
 definition and description
 ==========================
 
-    The *action* attribute is a javascript callback that receives all the ``**kwargs`` parameters.
-    It receives a string with javascript code. For more information of the usage of javascript in
-    Genro please check the :ref:`javascript` section.
+    The *action* attribute allows to write javascript code [#]_.
+    
+    For example, if you use the *action* attribute on a button, the javascript
+    code will be executed after user click the button
     
 .. _action_validity:
 
@@ -59,3 +60,7 @@ examples
                         font_size='.9em',text_align='justify')
                 fb.button('Calculate Res', action="SET .res = screen.width+' x '+screen.height;")
                 fb.textbox(lbl='res',value='^.res',width='6em')
+                
+**Footnotes**:
+
+.. [#] For more information of the usage of javascript in Genro please check the :ref:`javascript` section.

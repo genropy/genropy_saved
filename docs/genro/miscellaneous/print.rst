@@ -1,11 +1,24 @@
 .. _print:
 
 =====
-Print
+print
 =====
     
     *Last page update*: |today|
     
+    * :ref:`print_intro`
+    * :ref:`print_settings`:
+    
+        * :ref:`print_settings_location`
+        * :ref:`example <print_settings_example>`
+        
+    * :ref:`print_layout`: 
+    
+        * :ref:`print_layout_location`
+        * :ref:`example <print_layout_example>`
+        
+    * :ref:`print_webpage`
+        
 .. _print_intro:
 
 introduction
@@ -18,38 +31,57 @@ introduction
     
     The prints can be handled through two files:
     
-    * one file for the settings of the print (:ref:`print_settings`)
-    * one file for the layout properties of the print (:ref:`print_layout`)
+    * one file for the settings of the print (:ref:`print setting file <print_settings>`)
+    * one file for the layout properties of the print (:ref:`print layout file <print_layout>`)
+    
+    When you have created these two files, you have to create in a :ref:`webpages_webpages`
+    a GUI that allows the user to start a print. If you use the :ref:`th`, this process
+    is auto handled by the component. For more information on how to create a print in a
+    webpage, check the :ref:`print_webpage` section
     
 .. _print_settings:
 
-print settings file
-===================
+print settings files
+====================
 
-    **File location**
+.. _print_settings_webpage_variables:
+
+webpage variables
+-----------------
+
+    With the term ``webpages variables`` we mean that there are some defined variables
+    that you can use to customize your FrameIndex page. Let's see all of them:
     
-        The location of the print settings file must follow this path::
+    * 
+    
+.. _print_settings_location:
+
+file location
+-------------
+    
+    The location of the print settings file must follow this path::
+    
+        projectName/packages/packageName/resources/tables/tableName/print/fileName
         
-            projectName/packages/packageName/resources/tables/tableName/print/fileName
-            
-        where:
-        
-        * ``projectName`` is the name of the :ref:`project`
-        * ``packages`` is the :ref:`packages_index` folder
-        * ``packageName`` is the name of the package
-        * ``resources`` is the :ref:`public_resources` folder
-        * ``tables`` is the :ref:`resources_tables` folder
-        * ``tableName`` is the name of the :ref:`table` to which the print is linked
-        * ``fileName`` is the name of the print settings file: there is any convention about it
-        
-        This is a graphical map of the location of the print settings file into a :ref:`project`:
-        
-        .. image:: ../_images/print_settings_file.png
+    where:
+    
+    * ``projectName`` is the name of the :ref:`project`
+    * ``packages`` is the :ref:`packages_index` folder
+    * ``packageName`` is the name of the package
+    * ``resources`` is the :ref:`public_resources` folder
+    * ``tables`` is the :ref:`resources_tables` folder
+    * ``tableName`` is the name of the :ref:`table` to which the print is linked
+    * ``fileName`` is the name you choose for your print settings file:
+      there is any convention about it
+    
+    This is a graphical map of the location of the print settings file into a :ref:`project`:
+    
+    .. image:: ../_images/print_settings_file.png
         
 .. _print_settings_example:
 
-print settings file - example
------------------------------
+print settings files - example
+------------------------------
     
     ::
     
@@ -81,17 +113,65 @@ print settings file - example
     
 .. _print_layout:
     
-print layout file
-=================
+print layout files
+==================
+
+.. _print_layout_location:
+
+file location
+-------------
 
     add???
     
+.. _print_layout_example:
+    
+print layout files - example
+----------------------------
+
+    add???
+    
+.. _print_webpage:
+
+user GUI to start a print
+=========================
+
+    .. note:: if you use the :ref:`th` component you have also a print management system.
+              So, you don't need to create any GUI that allows user to start a print.
+              Continue the reading of this section if you are not using the TableHandler
+    
+    To let the user starts a print from a :ref:`webpages_webpages`, you have to create 
+    a :ref:`button` using the :ref:`action` attribute that performs a :ref:`publish`.
+    
+    Create your button remembering that:
+    
+    * the first attribute is the button label
+    * the *action* attribute must call a PUBLISH that follows this syntax::
+    
+        action = 'PUBLISH tablehandler_run_script="print", "fileName"'
+        
+    where:
+    
+    * "print" is the :ref:`tables_print` folder (so this is a default, you will have always
+      "print" as parameter)
+    * ``fileName`` is the name of your :ref:`print setting file <print_settings>` (without its extension)
+    
+    **Example**:
+    
+        If you created a print setting file called "printing_performance", then your button could be::
+        
+            class GnrCustomWebPage(object):
+                def main(self, root, **kwargs):
+                    pane = contentPane(height='300px', datapath='my_pane')
+                    pane.button('New print',action='PUBLISH tablehandler_run_script="print","printing_performance";')
+                
 .. _print_clipboard:
 
 clipboard
 =========
     
-    CLIPBOARD::
+    .. note:: my clipboard...
+    
+    ::
     
         Layout, righe e celle
         =====================

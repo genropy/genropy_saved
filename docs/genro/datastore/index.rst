@@ -10,4 +10,3 @@ datastore
     :maxdepth: 2
     
     introduction
-    macro
