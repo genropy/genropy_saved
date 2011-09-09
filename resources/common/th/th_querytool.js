@@ -366,7 +366,7 @@ dojo.declare("gnr.QueryManager", null, {
         var parslist=[];
         var sourceNode = this.sourceNode;
         if(selectmethod){
-                                
+            console.log('aaa')
         }else if(querybag.getItem("#0?column")){
             this.cleanQueryPane(querybag); 
             var parslist = this.translateQueryPars();
