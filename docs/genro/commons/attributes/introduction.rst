@@ -18,6 +18,7 @@ commons attributes
     * :ref:`nodeid`
     * :ref:`readonly`
     * :ref:`rowcaption`
+    * :ref:`tags`
     * :ref:`tooltip`
     * *value*: see :ref:`datapath`
     * :ref:`visible`

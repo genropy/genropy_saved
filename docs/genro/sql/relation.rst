@@ -9,7 +9,7 @@ relations
     * :ref:`paths_intro`
     * :ref:`creating_relation`:
     
-        * :ref:`relation`
+        * :ref:`relation (or direct relation) <relation>`
         * :ref:`inverse_relation`
         * :ref:`relation_path`
         
@@ -93,7 +93,7 @@ relation
 
     **Definition**:
     
-        A **relation** is a relation established between two tables that follows
+        A **relation** (or a **direct relation**) is a relation established between two tables that follows
         the direction from the table in which you have created the relation to the table related.
         
             *In the following image, the table A is linked through the relation method to the table B.*

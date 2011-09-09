@@ -59,7 +59,7 @@ class GnrHtmlPage(GnrWebPage):
         self.main(self.body, *args, **kwargs)
         return self.builder.toHtml()
         
-    def onIniting(self, request_args=None, request_kwargs=None):
+    def onPreIniting(self, request_args=None, request_kwargs=None):
         self.builder = GnrHtmlBuilder(srcfactory=self.srcfactory)
         
 class GnrHtmlDojoSrc(GnrHtmlSrc):

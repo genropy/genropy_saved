@@ -259,7 +259,7 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
                      value of the *locale* parameter
     :param locale: string. The current locale (e.g: en, en_us, it)
-    :param returnDate: add???. Default value is ``False``
+    :param returnDate: add???
     :param dtype: the :ref:`datatype`"""
     workdate = workdate or datetime.date.today()
     months = gnrlocale.getMonthNames(locale)

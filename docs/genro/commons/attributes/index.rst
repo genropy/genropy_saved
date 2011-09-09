@@ -17,7 +17,6 @@ common attributes
     label
     nodeId
     readonly
-    relation_attrs
     rowcaption
     tags
     tooltip
