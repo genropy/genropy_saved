@@ -51,7 +51,7 @@ GnrCustomWebPage
     #. You may insert some optional :ref:`webpages_variables`. Here we introduce
        the most commonly used:
        
-        * :ref:`webpages_maintable`: allow to create shortcuts for users query
+        * :ref:`webpages_maintable`: allow to link your webpage to a :ref:`table`
         * :ref:`webpages_py_requires`: allow to include some Genro
           :ref:`components <component>` to your webpage (or, more generally, Python modules)
         * :ref:`webpages_js_requires`: allow to include some javascript functionality

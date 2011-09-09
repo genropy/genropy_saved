@@ -1,8 +1,8 @@
 .. _commons:
 
-======================================
-common attributes, datatypes and names
-======================================
+=======
+commons
+=======
     
     *Last page update*: |today|
     
@@ -11,7 +11,7 @@ common attributes, datatypes and names
     
     introduction
     attributes/index
-    datatypes
-    names
     characters/index
-    
+    datatypes
+    macro
+    names

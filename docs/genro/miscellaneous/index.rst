@@ -9,6 +9,7 @@ Documents to revise
 .. toctree::
     :maxdepth: 1
     
+    batch
     clipboard
     ../commons/index
     ../datastore/index

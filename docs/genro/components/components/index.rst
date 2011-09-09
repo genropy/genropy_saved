@@ -12,4 +12,6 @@ index of components
     IncludedView <includedview>
     frameindex
     linkerField
+    periodcombo
+    selectionbrowser
     th

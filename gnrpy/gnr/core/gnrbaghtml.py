@@ -12,8 +12,7 @@ from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
 
 class BagToHtml(object):
-    """add???
-    """
+    """add???"""
     templates = ''
     print_button = None
     rows_path = 'rows'

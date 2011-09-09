@@ -53,8 +53,8 @@ list of HTML elements
 
     Here we list the HTML elements:
     
-    * *ghost='STRING'*: a modified version of the add??? html. Suggest to user
-      how he has to compile. The hint disappear on user writing.
-    * *tip='STRING'*: the HTML tip, where STRING is the tip that will be showned.
+    * *ghost*: the ghost attribute is deprecated. Use placeholder instead.
+    * *placeholder*: the html 5 placeholder
+    * *tip*: the HTML tip, where STRING is the tip that will be showned.
       You can use it on every object.
-    * *type*='password': allow to hide the written characters.
+    * *type*: allow to hide the written characters.

@@ -12,9 +12,9 @@
     :ref:`intro_resources` page for more information) and the ``tables`` folder.
     This folder is required to use some additional features, like:
     
-    * adding some batches
-    * adding some print features
-    * usage of the :ref:`th` component
+    * create a :ref:`batch`
+    * create a :ref:`print`
+    * use the :ref:`th` component
     
 .. toctree::
     :maxdepth: 2

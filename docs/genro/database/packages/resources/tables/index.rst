@@ -14,4 +14,5 @@
     introduction
     action
     mail
+    print
     th_webpages
