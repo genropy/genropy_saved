@@ -254,8 +254,6 @@ dojo.declare('gnr.GenroClient', null, {
         });
 
         genro.callAfter(function() {
-            genro.fireEvent('gnr.onStart');
-            genro.publish('onPageStart');
             var parentIframe = window.frameElement;
             if(parentIframe){
                 var parentGenroData = window.parent.genro._data;
@@ -273,6 +271,8 @@ dojo.declare('gnr.GenroClient', null, {
                 parentIframe.sourceNode._genro = this;
                 parentIframe.sourceNode.publish('pageStarted');
             }
+            genro.fireEvent('gnr.onStart');
+            genro.publish('onPageStart');
         }, 100);
         genro.dev.shortcut('f1', function(e) {
             genro.publish('SAVERECORD', e);
