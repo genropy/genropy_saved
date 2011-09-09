@@ -14,11 +14,11 @@ var genro_plugin_grid_configurator = {
         this.checkFavorite(gridId);
     },
     storeKey:function(gridId){
-        return 'iv_' + genro.getData('gnr.pagename') + '_' + gridId;
+        return 'view_' + genro.getData('gnr.pagename') + '_' + gridId +'_struct';
     },
-    setFavorite:function(gridId){
+    setFavoriteView:function(gridId){
         var gridSourceNode = genro.nodeById(gridId);
-        var favoritePath = genro.getFromStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + gridId) || '__baseview__';        
+        var favoritePath = genro.getFromStorage("local", this.storeKey(gridId)) || '__baseview__';        
         gridSourceNode.setRelativeData('.currViewPath',favoritePath);
         this.setCurrentAsDefault(gridId);
     },
@@ -109,7 +109,7 @@ var genro_plugin_grid_configurator = {
         if(!menubag){
             return;
         }
-        menubag.getParentNode().refresh(true);
+        menubag.getParentNode().getResolver().reset();
     },
     checkFavorite:function(gridId){
         var frame = genro.getFrameNode(gridId.replace('_grid',''));

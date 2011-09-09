@@ -212,11 +212,11 @@ dojo.declare("gnr.widgets.PalettePane", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.FramePane", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var node;
-        var frameCode = kw.frameCode;
-        if(frameCode.indexOf('#')>=0){
-            frameCode = frameCode.replace('#',sourceNode.getStringId());
-        }
+        var frameCode = objectPop(kw,'frameCode');
         genro.assert(frameCode,'Missing frameCode');
+        if(frameCode.indexOf('#')>=0){
+            kw.frameCode = frameCode = frameCode.replace('#',sourceNode.getStringId());
+        }
         var frameId = frameCode+'_frame';
         genro.assert(!genro.nodeById(frameId),'existing frame');
         sourceNode.attr.nodeId = frameId;

@@ -137,23 +137,25 @@ dojo.declare("gnr.QueryManager", null, {
         topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'iconbox save',action:'FIRE .savedlg;'});
         topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'iconbox trash',action:'FIRE .delete;',disabled:'^.queryAttributes.pkey?=!#v'});
         
-        topbar._('slotButton','favoritebtn',{'label':_T('!!Default Query'),action:'console.log("default query");',
-                               iconClass:'iconbox star'});
+        topbar._('slotButton','favoritebtn',{'label':_T('!!Default Query'),action:function(){that.setCurrentAsDefault()},
+                               iconClass:'th_favoriteIcon iconbox star'});
                                
         topbar._('slotButton','runbtn',{'label':_T('!!Run Query'),action:'FIRE .#parent.runQuery;',
                                iconClass:'iconbox run'});
 
 
         var editorRoot = frame._('div',{datapath:'.where',margin:'2px'});
-        this._buildQueryGroup(editorRoot,this.sourceNode.getRelativeData('.query.where'), 0);
         node.unfreeze();
         this._editorRoot = editorRoot.getParentNode();
-        this.buildQueryPane(pane.getParentNode());
+        this.buildQueryPane();
+        this.checkFavorite();
     },
     onChangedQuery: function(currentQuery){
         var sourceNode = this.sourceNode;
+        var that = this;
         var finalize = function(where,run){
             sourceNode.setRelativeData('.query.where',where);
+            that.checkFavorite();
             if(run){
                 sourceNode.fireEvent('.runQuery'); //provvisorio
             }
@@ -375,6 +377,38 @@ dojo.declare("gnr.QueryManager", null, {
             this.runQuery();
         }
     },
+    storeKey:function(){
+        return 'view_' + genro.getData('gnr.pagename') + '_' + this.th_root +'_query';
+    },
+    setCurrentAsDefault:function(){
+        genro.setInStorage("local", this.storeKey(), this.sourceNode.getRelativeData('.query.currentQuery'));
+        this.checkFavorite();
+    },
+    checkFavorite:function(){
+        var currPath = this.sourceNode.getRelativeData('.query.currentQuery');
+        var currfavorite = genro.getFromStorage("local", this.storeKey());
+        this.sourceNode.setRelativeData('.query.favoriteQueryPath',currfavorite);
+        this.refreshQueryMenues();
+        if(this._editorRoot){
+            genro.dom.setClass(this._editorRoot.attributeOwnerNode('frameCode'),
+                            'th_isFavoriteQuery',currfavorite==currPath);
+        }
+    },
+    refreshQueryMenues:function(){
+        this.sourceNode.getRelativeData('.query.menu').getParentNode().getResolver().reset();
+        //this.sourceNode.getRelativeData('.query.savedqueries').getParentNode().getResolver().reset();
+    },
+    
+    setFavoriteQuery:function(){
+        var favoritePath = genro.getFromStorage("local", this.storeKey());
+        if(favoritePath && !this.sourceNode.getRelativeData('.query.menu.'+favoritePath)){
+            favoritePath = null;
+        };
+        favoritePath = favoritePath || '__basequery__';
+        this.sourceNode.setRelativeData('.query.currentQuery',favoritePath);
+        this.setCurrentAsDefault();
+    },
+    
     runQuery:function(){
         var sourceNode = this.sourceNode;
         if(sourceNode.getRelativeData('.queryRunning')){

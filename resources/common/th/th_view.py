@@ -125,21 +125,26 @@ class TableHandlerView(BaseComponent):
             q.setItem(code,None,tip=pars.get('description'),selectmethod=v,**pars)
         pane.data('.query.pyqueries',q)
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
-                        table=table,th_root=th_root,caption='Queries',cacheTime=5)
+                        favoriteQueryPath='=.query.favoriteQueryPath',
+                        table=table,th_root=th_root,caption='Queries',cacheTime=15)
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
+                        favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,cacheTime=5,editor=False)
                         
         pane.dataController("TH(th_root).querymanager.queryEditor(open);",
                         th_root=th_root,open="^.query.queryEditor")
+        pane.dataController("TH(th_root).querymanager.refreshQueryMenues();",
+                        th_root=th_root,_fired="^.query.refreshMenues")
         dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
                                 _pref='!!Save query: ',_code='^.query.queryAttributes.code',
                                 datapath='.query.queryAttributes')
         pane.dataController("dialog.show();",_fired="^.query.savedlg",dialog=dialog.js_widget)
         pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.queryAttributes.pkey',table=table,_fired='^.query.delete',
-                   _onResult='FIRE .query.currentQuery="__newquery__";')
+                   _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
         pane.dataRpc('.queryAttributes.pkey',self.th_saveUserObject,objtype='query',table=table,id='=.queryAttributes.id',data='=.where',code='=.queryAttributes.code',
-                    description='=.queryAttributes.description', authtags='=.queryAttributes.authtags', private='=.queryAttributes.private', 
-                   _fired='^.save',_if='code',_onResult='FIRE .saved;',datapath='.query')
+                    description='=.queryAttributes.description', 
+                    authtags='=.queryAttributes.authtags', private='=.queryAttributes.private', 
+                   _fired='^.save',_if='code',_onResult='FIRE .refreshMenues;',datapath='.query')
         self.th_saveUserObjectDialog(dialog,table)
 
 
@@ -153,7 +158,8 @@ class TableHandlerView(BaseComponent):
                     margin='1px',rounded=4,width='10em',overflow='hidden',text_align='left',cursor='pointer',
                     color='#555',datapath='.grid').menu(storepath='.structMenuBag',
                 _class='smallmenu',modifiers='*',selected_fullpath='.currViewPath')
-        pane.dataController("genro.grid_configurator.loadView(gridId, selpath,th_root);",selpath="^.grid.currViewPath",gridId=gridId,th_root=th_root,_onStart=True)
+        pane.dataController("genro.grid_configurator.loadView(gridId, selpath,th_root);",selpath="^.grid.currViewPath",
+                            gridId=gridId,th_root=th_root,_onStart=True)
         q = Bag()
         pyviews = self._th_hook('struct',mangler=th_root,asDict=True)
         for k,v in pyviews.items():
@@ -163,7 +169,7 @@ class TableHandlerView(BaseComponent):
         
 
         pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),
-                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=5)
+                        table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
     @struct_method
     def th_slotbar_resourcePrints(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
@@ -333,11 +339,11 @@ class TableHandlerView(BaseComponent):
                                  """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
                               dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
         pane.dataController("""
-                   var qb = TH(th_root).querymanager;
-                   qb.createMenues();
-                   dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
-                   dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
-                   SET .query.currentQuery = '__basequery__';
+                   var qm = TH(th_root).querymanager;
+                   qm.createMenues();
+                   dijit.byId(qm.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryColumn')));
+                   dijit.byId(qm.relativeId('qb_not_menu')).bindDomNode(genro.domById(qm.relativeId('fastQueryNot')));
+                   qm.setFavoriteQuery();
         """,_onStart=True,th_root=th_root)        
         fb = pane.formbuilder(cols=3, datapath='.query.where', _class='query_form',width='600px',overflow='hidden',
                                   border_spacing='0', onEnter='genro.nodeById(this.getInheritedAttributes().target).publish("runbtn",{"modifiers":null});')
@@ -401,42 +407,6 @@ class TableHandlerView(BaseComponent):
 
 class THViewUtils(BaseComponent):
     js_requires='th/th_querytool'
-
-        
-   #@struct_method
-   #def th_slotbar_queryTool(self,pane,**kwargs):
-   #    inattr = pane.getInheritedAttributes()
-   #    mangler = inattr['th_root']
-   #    table = inattr['table']
-   #    pane.dataRpc('.querypkey',self.th_saveUserObject,objtype='query',table=table,id='=.queryAttributes.id',data='=.where',code='=.queryAttributes.code',
-   #                description='=.queryAttributes.description', authtags='=.queryAttributes.authtags', private='=.queryAttributes.private', 
-   #                _fired='^.save',_if='code',_onResult='FIRE .saved;',datapath='.query')
-   #    pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.querypkey',table=table,_fired='^.query.delete',
-   #                _onResult='FIRE .query.loadstandard="__basequery__";')
-   #    dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
-   #                            _pref='!!Save query: ',_code='^.code',datapath='.query.queryAttr')
-   #
-   #    self.th_saveUserObjectDialog(dialog,table)
-   #    palette = pane.palettePane('%s_queryTool' %mangler,title='!!Query tool',
-   #                    dockButton_iconClass='icnBaseLens',
-   #                    datapath='.query.where',
-   #                    dockButton_baseClass='no_background',
-   #                    height='150px',width='400px')
-   #    bar = palette.slotToolbar('cap,*,show_fields,editmenu',font_size='.8em',datapath='.#parent')
-   #    bar.cap.div(innerHTML='==pref+(code||"-");',pref="!!Query:",code='^.queryAttributes.code')
-   #    bar.show_fields.button('!!Show fields',
-   #                            palettetitle='!!Fields',
-   #                            table=table,
-   #                            action="genro.dev.relationExplorer(table,palettetitle,{'left':'20pxpx','top':'20px','height':'270px','width':'180px'})")
-   #    menu = bar.editmenu.div(_class='icnBaseEdit buttonIcon').menu(modifiers='*')
-   #    menu.menuline(label='!!Save Query',action='this.getAttributeFromDatasource("dialog").show();',dialog=dialog.js_widget)
-   #    menu.menuline(label='!!Save As...',action='SET .queryAttr = new gnr.GnrBag(); this.getAttributeFromDatasource("dialog").show();',
-   #                                dialog=dialog.js_widget,disabled='^.querypkey?=!#v')
-   #    menu.menuline(label='-')
-   #    menu.menuline(label='!!Delete Query',action='FIRE .delete;',disabled='^.querypkey?=!#v')
-   #
-   #    palette.div(nodeId='%s_query_root' %mangler)
-
     @public_method
     def th_listUserObject(self,table, objtype=None,namespace=None, **kwargs):
         result = Bag()
@@ -465,17 +435,17 @@ class THViewUtils(BaseComponent):
             for k,caption in pyviews:
                 result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
         self.grid_configurator_savedViewsMenu(result,gridId)
-        result.walk(self._th_checkFavoriteView,favoriteViewPath=favoriteViewPath)
+        result.walk(self._th_checkFavoriteLine,favPath=favoriteViewPath)
         return result
     
-    def _th_checkFavoriteView(self,node,favoriteViewPath=None):
-        if node.attr.get('code') and node.attr['code'] == favoriteViewPath:
+    def _th_checkFavoriteLine(self,node,favPath=None):
+        if node.attr.get('code') and node.attr['code'] == favPath:
             node.attr['favorite'] = True
         else:
             node.attr['favorite'] = None
     
     @public_method
-    def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,**kwargs):
+    def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,favoriteQueryPath=None,**kwargs):
         querymenu = Bag()
         if editor:
             querymenu.setItem('__basequery__',None,caption='!!Plain Query',description='!!New query',
@@ -500,7 +470,7 @@ class THViewUtils(BaseComponent):
         else:
             querymenu.setItem('__newquery__',None,caption='!!New query',description='!!New query',
                                 extended=True)
-
+        querymenu.walk(self._th_checkFavoriteLine,favPath=favoriteQueryPath)
         return querymenu
         
         
