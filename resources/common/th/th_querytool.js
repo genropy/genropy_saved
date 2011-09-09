@@ -395,13 +395,13 @@ dojo.declare("gnr.QueryManager", null, {
         }
     },
     refreshQueryMenues:function(){
-        this.sourceNode.getRelativeData('.query.menu').getParentNode().getResolver().reset();
+        this.sourceNode.getRelativeData('.query').getNode('menu').getResolver().reset();
         //this.sourceNode.getRelativeData('.query.savedqueries').getParentNode().getResolver().reset();
     },
     
     setFavoriteQuery:function(){
         var favoritePath = genro.getFromStorage("local", this.storeKey());
-        if(favoritePath && !this.sourceNode.getRelativeData('.query.menu.'+favoritePath)){
+        if(favoritePath && !this.sourceNode.getRelativeData('.query.menu').getNode(favoritePath)){
             favoritePath = null;
         };
         favoritePath = favoritePath || '__basequery__';
@@ -435,7 +435,7 @@ dojo.declare("gnr.QueryManager", null, {
         };
 
         var center = dlg.center._('div',{padding:'10px'});
-        var bottom = dlg.bottom._('slotBar',{'slots':'cancel,*,confirm,countbtn'});
+        var bottom = dlg.bottom._('slotBar',{'slots':'cancel,*,confirm'});
         var queryform = genro.dev.formbuilder(center,1,{border_spacing:'8px',onEnter:confirm,margin_top:'10px'})
         var tr, attrs;
         for (var i = 0; i < parslist.length; i++) {
@@ -454,7 +454,7 @@ dojo.declare("gnr.QueryManager", null, {
         }
         bottom._('button', 'cancel',{label:'Cancel',baseClass:'bottom_btn',action:cancel});
         bottom._('button', 'confirm',{label:'Confirm',baseClass:'bottom_btn',action:confirm});
-        bottom._('button', 'countbtn',{label:'Count',baseClass:'bottom_btn',action:count});
+        //bottom._('button', 'countbtn',{label:'Count',baseClass:'bottom_btn',action:count});
         dlg.show_action();
     }
 });
