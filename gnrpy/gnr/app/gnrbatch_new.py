@@ -199,8 +199,12 @@ class PrintDbData(GnrBatch):
             
     def process_chunk(self, chunk, **kwargs):
         html = self.htmlMaker(chunk['pkey'], rebuild=self.rebuild, **kwargs)
+        if self.htmlMaker.page_height<self.htmlMaker.page_width:
+            orientation='Landscape'
+        else:
+            orientation='Portrait'
         if html != False:
-            self.file_list.append(self.print_handler.htmlToPdf(self.htmlMaker.filepath, self.folder))
+            self.file_list.append(self.print_handler.htmlToPdf(self.htmlMaker.filepath, self.folder, orientation=orientation))
             
     def thermo_chunk_message(self, chunk):
         return self.data.dbtable.recordCaption(chunk)
