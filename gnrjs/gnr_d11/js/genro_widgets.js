@@ -337,8 +337,6 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                 });
             }
         }
-        ;
-
         if (savedAttrs.onEnter) {
             var callback = dojo.hitch(sourceNode, funcCreate(savedAttrs.onEnter));
             var kbhandler = function(evt) {
@@ -356,24 +354,14 @@ dojo.declare("gnr.widgets.baseHtml", null, {
                genro.setCurrentFocused(newobj);
            });
         }
-        if (sourceNode.attr['hasGhost']) {
-            var _textbox = newobj.textbox;
-            dojo.connect(newobj.textbox, 'onfocus', function(e) {
-                genro.dom.ghostOnEvent(e);
-            });
-            dojo.connect(newobj.textbox, 'onblur', function(e) {
-                genro.dom.ghostOnEvent(e);
-            });
-            dojo.connect(newobj.textbox, 'onkeyup', function(e) {
-                genro.dom.ghostOnEvent(e);
-            });
-            dojo.connect(newobj, 'setValue', function(value) {
-                genro.dom.ghostOnEvent({type:'setvalue',value:value,obj:newobj});
-            });
-            dojo.connect(newobj, 'onChange', function(value) {
-                genro.dom.ghostOnEvent({type:'setvalue',value:value,obj:newobj});
-            });
-
+        if(sourceNode.attr.placeholder){
+            var placeholder = sourceNode.getAttributeFromDatasource('placeholder');
+            if(sourceNode.widget){
+                newobj.focusNode.setAttribute('placeholder',placeholder);
+            }else{
+                newobj.setAttribute('placeholder',placeholder);
+            }
+           
         }
         if(newobj.validate){
             newobj.validate_replaced = newobj.validate;
@@ -675,33 +663,39 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             }
         }
         if (dojo_version == '1.1') {
-            
+            dlgtype = 'modal';
+            zindex = 800;
+            if(sourceNode.attr.noModal){
+                var dlgtype = 'nomodal';
+                var zindex = 500;
+            }
+            genro.dialogStacks[dlgtype] = genro.dialogStacks[dlgtype] || [];
             dojo.connect(widget, "show", widget,
                         function() {
-                            if (this != genro.dialogStack.slice(-1)[0]) {
-                                var ds=genro.dialogStack;
+                            if (this != genro.dialogStacks[dlgtype].slice(-1)[0]) {
+                                var ds=genro.dialogStacks[dlgtype];
                                 ds.push(this);
-                                var zIndex = widget.sourceNode.attr.z_index || (500 + ds.length*2);
+                                var zIndex = widget.sourceNode.attr.z_index || (zindex + ds.length*2);
 		                        dojo.style(this._underlay.domNode, 'zIndex', zIndex);
 		                        dojo.style(this.domNode, 'zIndex', zIndex + 1);
-		                         if (genro.dialogStack.length > 1) {
-		                            var parentDialog = genro.dialogStack.slice(-2)[0];
+		                         if (genro.dialogStacks[dlgtype].length > 1) {
+		                            var parentDialog = genro.dialogStacks[dlgtype].slice(-2)[0];
 		                            dojo.forEach(parentDialog._modalconnects, dojo.disconnect);
                                     parentDialog._modalconnects = [];
-                                   // genro.dialogStack.slice(-2)[0].hide();
+                                   // genro.dialogStacks[dlgtype].slice(-2)[0].hide();
                                 }
                             }
 
                         });
             dojo.connect(widget, "hide", widget,
                         function() {
-                            if (this == genro.dialogStack.slice(-1)[0]) {
-                                genro.dialogStack.pop();   
-                                if (genro.dialogStack.length > 0) {
-                                     var parentDialog = genro.dialogStack.slice(-1)[0];
+                            if (this == genro.dialogStacks[dlgtype].slice(-1)[0]) {
+                                genro.dialogStacks[dlgtype].pop();   
+                                if (genro.dialogStacks[dlgtype].length > 0) {
+                                     var parentDialog = genro.dialogStacks[dlgtype].slice(-1)[0];
 		                             parentDialog._modalconnects.push(dojo.connect(window, "onscroll", parentDialog, "layout"));
                                      parentDialog._modalconnects.push(dojo.connect(dojo.doc.documentElement, "onkeypress", parentDialog, "_onKey"));
-                                   // genro.dialogStack.slice(-1)[0].show();
+                                   // genro.dialogStacks[dlgtype].slice(-1)[0].show();
                                 }                   
                             }
                         });
@@ -977,6 +971,7 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         dojo.connect(widget, 'startup', dojo.hitch(this, 'afterStartup', widget));
         if (dojo_version == '1.1') {
             dojo.connect(widget, 'addChild', dojo.hitch(this, 'onAddChild', widget));
+            dojo.connect(widget, 'removeChild', dojo.hitch(this, 'onRemoveChild', widget));
         }
     },
     afterStartup:function(widget) {
@@ -1007,13 +1002,17 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
 
     },
     
+    onRemoveChild:function(widget,child){
+        delete child.parentBorderContainer;
+    },
     
     onAddChild:function(widget,child){
-     var splitter=widget._splitters[child.region];
-     if(splitter){
-         if(child.domNode.style.display=='none'){
-             dojo.style(splitter, 'display','none');
-         }
+        child.parentBorderContainer=widget;
+        var splitter=widget._splitters[child.region];
+        if(splitter){
+            if(child.domNode.style.display=='none'){
+                dojo.style(splitter, 'display','none');
+        }
          //splitter=dijit.getEnclosingWidget(splitter);
          
          //dojo.connect(splitter,'_stopDrag',dojo.hitch(this,'onSplitterStopDrag',widget,splitter));
@@ -1087,6 +1086,9 @@ dojo.declare("gnr.widgets.BorderContainer", gnr.widgets.baseDojo, {
         }
         this._layoutChildren(region);
         this.layout();
+    },
+    mixin_isRegionVisible:function(region){
+        return this['_'+region].style.display!='none';
     }
 });
 
@@ -1134,10 +1136,16 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
         }
     },
     patch_close:function(cb){
+        this.saveRect();
         this.sourceNode.getParentBag().popNode(this.sourceNode.label);
+    },
+    patch_hide:function(cb){
+        this.saveRect();
+        this.hide_replaced(cb);
     },
     
     patch_show:function(cb){
+        this.restoreRect();
         this.onShowing();
         var that = this;
         this.show_replaced(cb);
@@ -1149,6 +1157,21 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
             this.autoSize();
         }     
     },
+    mixin_restoreRect:function(){
+        if(this.sourceNode.attr.nodeId){
+            var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
+            var rect = genro.getFromStorage("local", storeKey, dojo.coords(this.domNode));
+            if(rect && rect.w && rect.h){
+                this.resize(rect);
+            }
+        }     
+    },
+    mixin_saveRect:function(){
+        if(this.sourceNode.attr.nodeId && genro.dom.isVisible(this.domNode)){
+            var storeKey = 'palette_rect_' + genro.getData('gnr.pagename') + '_' + this.sourceNode.attr.nodeId;
+            genro.setInStorage("local", storeKey, dojo.coords(this.domNode));
+        }     
+    },
     mixin_onShowing:function(){
         if(this.sourceNode.attr.autoSize!=false &&(this.sourceNode.attr._lazyBuild || this.sourceNode._value._nodes.length==0)){
             var domNode = this.domNode;
@@ -1158,6 +1181,7 @@ dojo.declare("gnr.widgets.FloatingPane", gnr.widgets.baseDojo, {
             domNode.style.width='1px';
             domNode.style.height='1px';
         }
+        
     },
     
     mixin_autoSize:function(){
@@ -1243,6 +1267,9 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
         }
         if (attributes.checked) {
             attributes.iconClass = 'tick_icon10';
+        }
+        if(attributes.favorite){
+            attributes.iconClass = 'box16 star';
         }
         return savedAttrs;
     },
@@ -1330,13 +1357,15 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     created: function(widget, savedAttrs, sourceNode) {
         if (savedAttrs.storepath) {
             var contentNode = genro.getDataNode(sourceNode.absDatapath(savedAttrs.storepath));
-            if (contentNode) {
+            if (contentNode ) {
                 var content = contentNode.getValue('static');
-                //var content=sourceNode.getRelativeData(savedAttrs.storepath);
                 if (content) {
                     var menubag = new gnr.GnrDomSource();
-                    gnr.menuFromBag(content, menubag, sourceNode.attr._class);
-                    sourceNode.setValue(menubag, false);
+                    if(!sourceNode._value || sourceNode._value.len()==0){
+                         gnr.menuFromBag(content, menubag, sourceNode.attr._class);
+                         sourceNode.setValue(menubag, false);
+                    }
+                   
                 } else if (contentNode.getResolver()) {
                     sourceNode.setResolver(contentNode.getResolver());
                 }
@@ -1383,13 +1412,15 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
     },
     patch_destroy: function() {
         if (this._bindings) {
+            var menu = this;
             dojo.forEach(this._bindings, function(b) {
-                dojo.forEach(b, dojo.disconnect);
+                dojo.forEach(b,function(n){menu.unBindDomNode(n[0])})
             });
             delete this._bindings;
         }
         this.destroy_replaced.call(this);
     },
+    
     versionpatch_11__contextMouse: function (e) {
         this.originalContextTarget = e.target;
         var sourceNode = this.sourceNode;
@@ -1419,12 +1450,13 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
                 }
             }
         }
-        if ((e.button == 2) && (!this.modifiers)) {
-            this._contextMouse_replaced.call(this, e);
+        var wdg = sourceNode.widget;
+        if ((e.button == 2) && (!wdg.modifiers)) {
+            wdg._contextMouse_replaced.call(wdg, e);
         }
-        else if (this.modifiers && genro.wdg.filterEvent(e, this.modifiers, this.validclass)) {
-            this._contextMouse_replaced.call(this, e);
-            var wdg = sourceNode.widget;
+        else if (wdg.modifiers && genro.wdg.filterEvent(e, wdg.modifiers, wdg.validclass)) {
+            
+            wdg._contextMouse_replaced.call(wdg, e);
             wdg._openMyself_replaced.call(wdg, e);
 
         }
@@ -2013,7 +2045,17 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             this.widget.moveColumn(col, dropInfo.column);
         };
         sourceNode.attr['onDrop_selfdragcolumn_' + sourceNode._id] = onDropCall;
-        sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
+        if(sourceNode.attr.configurable){
+            var frameNode = genro.getFrameNode(sourceNode.attr.frameCode);
+            sourceNode.registerSubscription('endDrag',sourceNode,function(){
+                genro.dom.removeClass(frameNode,'fieldsTreeShowTrash');
+            });
+            sourceNode._showTrash=function(show){
+                genro.dom.addClass(frameNode,'fieldsTreeShowTrash');
+            }
+            sourceNode.attr.onTrashed = sourceNode.attr.onTrashed || 'this.widget.deleteColumn(data);';
+        }
+
     },
     selfDragRowsPrepare:function(sourceNode) {
         gnr.convertFuncAttribute(sourceNode, 'selfDragRows', 'info');
@@ -2083,10 +2125,13 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         if (structBag) {
             sourceNode.baseStructBag = structBag.deepCopy();
+            if (genro.grid_configurator) {
+                sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy());
+                genro.grid_configurator.setFavoriteView(sourceNode.attr.nodeId);
+            }
+        
         }
-        if (genro.grid_configurator) {
-            structBag = genro.grid_configurator.onStructCreating(sourceNode,structBag);
-        }
+       
         attributes.structBag = structBag; 
         sourceNode.registerDynAttr('structpath');
         attributes.cellmap = {};
@@ -2738,6 +2783,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if (selfDragColumns) {
                 value['selfdragcolumn_' + dragInfo.sourceNode._id] = dragInfo.column;
                 if (selfDragColumns == 'trashable') {
+                    if(dragInfo.sourceNode._showTrash){
+                        dragInfo.sourceNode._showTrash(true);
+                    }
                     value['trashable'] = dragInfo.column;
                 }
             }
@@ -3350,6 +3398,9 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         if (n == null) {
             var n = this.storeRowCount();
+        }
+        if(this.views.views[0]){
+            
         }
         var scrollBox = this.views.views[0].scrollboxNode;
         var scrollLeft = scrollBox.scrollLeft;
@@ -4661,7 +4712,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     this.applyFilter(v);
                 });
             }
-            var editBagBoxNode = genro.nodeById(nodeId+'_editbagbox');
+            var editBagBoxNode = genro.nodeById(nodeId+'_editbagbox_grid');
             if (editBagBoxNode){
                 dojo.connect(widget,'_updateSelect',function(item,node){
                     if(!(item instanceof gnr.GnrBagNode)){

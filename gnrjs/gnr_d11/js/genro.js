@@ -62,12 +62,13 @@ dojo.declare('gnr.GenroClient', null, {
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
         this.theme = {};
         this.dojo = dojo;
+        this.ext={};
         setTimeout(dojo.hitch(this, 'genroInit'), 1);
     },
     genroInit:function() {
         this.startTime = new Date();
         this.lastTime = this.startTime;
-        this.dialogStack = [];
+        this.dialogStacks = {};
         this.sounds = {};
 
         this._serverstore_paths = {};
@@ -163,6 +164,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     onWindowUnload:function(e) {
         this.rpc.remoteCall('onClosePage', {sync:true});
+        genro.publish('onClosePage');
         if (genro._data) {
             genro.saveContextCookie();
         }
@@ -949,7 +951,7 @@ dojo.declare('gnr.GenroClient', null, {
     setInStorage:function(sessionType, key, value) {
         var sessionType = sessionType || 'session';
         var storage = (sessionType == 'local') ? localStorage : sessionStorage;
-        storage.setItem(key, value);
+        storage.setItem(key, asTypedTxt(value));
         console.log('Stored in ' + sessionType + 'Storage at key:' + key + '  value:' + value);
     },
     getFromStorage:function(sessionType, key) {
@@ -961,7 +963,7 @@ dojo.declare('gnr.GenroClient', null, {
         } else {
             //console.log('Not existing in '+sessionType+'Storage key:'+key);
         }*/
-        return value;
+        return convertFromText(value);
     },
 
 

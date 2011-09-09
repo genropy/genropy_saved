@@ -15,7 +15,7 @@ class GnrCustomWebPage(object):
     
     def test_1_provincia(self,pane):
         """First test description"""
-        sc = pane.stackTableHandler(height='400px',table='glbl.provincia',formInIframe=False)
+        sc = pane.stackTableHandler(height='400px',table='glbl.provincia',formInIframe=False,virtualStore=True)
         sc.view.store.attributes.update(_onStart=True)
         sc.form.store.handler('load',default_regione='LOM')
     

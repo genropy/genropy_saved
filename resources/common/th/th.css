@@ -110,6 +110,10 @@
     background: url(../icons/listview.gif) no-repeat center center;
 }
 
+.th_isFavoriteView .th_favoriteIcon, .th_isFavoriteQuery .th_favoriteIcon{
+    background-color:lightyellow;
+}
+
 /* @end */
 
 .topmsgcontainer {
@@ -197,6 +201,7 @@
     padding-top: 2px;
     padding-bottom: 2px;
     padding-left: 6px;
+    min-height:13px;
 }
 
 .qb_group {
@@ -455,8 +460,7 @@
 }
 
 .queryAsk .st_conditionValue {
-    color: navy;
-    background: white url(../images/questionMark.png) no-repeat 95%;
+    font-style:italic;
 }
 
 /* @end */

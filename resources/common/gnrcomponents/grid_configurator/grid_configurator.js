@@ -1,74 +1,57 @@
 var genro_plugin_grid_configurator = {
     deleteGridView:function(gridId) {
         var gridSourceNode = genro.nodeById(gridId);
-        genro.serverCall('deleteViewGrid', {pkey:gridSourceNode.selectedView['id']}, function() {
-            genro.grid_configurator.loadGridBaseView(gridId);
+        var that = this;
+        var currViewAttr = gridSourceNode.getRelativeData('.currViewAttrs');
+        genro.serverCall('deleteViewGrid', {pkey:currViewAttr.getItem('pkey')}, function() {
+            genro.grid_configurator.loadView(gridId);
+            that.refreshMenu(gridId);
         });
     },
-
+    setCurrentAsDefault:function(gridId){
+        var gridSourceNode = genro.nodeById(gridId);
+        genro.setInStorage("local", this.storeKey(gridId), gridSourceNode.getRelativeData('.currViewPath'));
+        this.checkFavorite(gridId);
+    },
+    storeKey:function(gridId){
+        return 'view_' + genro.getData('gnr.pagename') + '_' + gridId +'_struct';
+    },
+    setFavoriteView:function(gridId){
+        var gridSourceNode = genro.nodeById(gridId);
+        var favoritePath = genro.getFromStorage("local", this.storeKey(gridId)) || '__baseview__';        
+        gridSourceNode.setRelativeData('.currViewPath',favoritePath);
+        this.setCurrentAsDefault(gridId);
+    },
+    
     saveGridView:function(gridId) {
         var gridSourceNode = genro.nodeById(gridId);
-        var gridControllerPath = gridSourceNode.gridControllerPath;
-        var selectedView = gridSourceNode.selectedView;
-        var datapath = gridControllerPath + '.confMenu.save_dlg';
-        var dlg = genro.dlg.quickDialog(selectedView ? 'Save View ' + selectedView.description : 'Save New View');
-        genro.setData(datapath, new gnr.GnrBag(selectedView));
+        var selectedView = gridSourceNode.getRelativeData('.currViewAttrs');
+        var datapath =  gridSourceNode.absDatapath('.currViewAttrs');
+        var dlg = genro.dlg.quickDialog(selectedView ? 'Save View ' + selectedView.getItem('description') : 'Save New View');
         var center = dlg.center;
         var box = center._('div', {datapath:datapath,padding:'20px'});
-        var fb = genro.dev.formbuilder(box, 1, {border_spacing:'6px'});
-        fb.addField('textbox', {lbl:"Name",value:'^.description',width:'10em'});
-        fb.addField('checkbox', {label:"Private",value:'^.private'});
+        var fb = genro.dev.formbuilder(box, 2, {border_spacing:'6px'});
+        fb.addField('textbox', {lbl:_T("Code"),value:'^.code',width:'10em'});
+        fb.addField('checkbox', {label:_T("Private"),value:'^.private'});
+        fb.addField('textbox', {lbl:_T("Name"),value:'^.description',width:'100%',colspan:2});
+        fb.addField('simpleTextArea', {lbl:_T("Notes"),value:'^.notes',width:'100%',height:'5ex',colspan:2,lbl_vertical_align:'top'});
+
         var bottom = dlg.bottom._('div');
         var saveattr = {'float':'right',label:'Save'};
         var data = new gnr.GnrBag();
-
+        var that = this;
         saveattr.action = function() {
             genro.serverCall('saveGridCustomView',
             {'gridId':gridId,'save_info':genro.getData(datapath),'data':gridSourceNode.widget.structBag},
                             function(result) {
                                 dlg.close_action();
-                                gridSourceNode.setRelativeData(gridSourceNode.gridControllerPath + '.confMenu.selectedViewPkey', result.attr.id);
-                                genro.setInStorage("local", result.attr.objtype, result.attr.id);
-                                gridSourceNode.selectedView = result.attr;
-                                var node = genro.getDataNode(gridSourceNode.gridControllerPath + '.confMenu.data');
-                                node.getResolver().reset();
+                                gridSourceNode.setRelativeData('.currViewPath', result.attr.code);
+                                that.refreshMenu(gridId);
                             });
         };
         bottom._('button', saveattr);
         bottom._('button', {'float':'right',label:'Cancel',action:dlg.close_action});
         dlg.show_action();
-    },
-
-    gridConfiguratorMenu:function(gridId) {
-        var menuId = 'confMenu_' + gridId;
-        var menu_wdg = dijit.byId(menuId);
-        var gridSourceNode = genro.nodeById(gridId);
-        if (!menu_wdg) {
-            genro.src.getNode()._('div', '_confMenuBox_' + gridId);
-            var node = genro.src.getNode('_confMenuBox_' + gridId).clearValue();
-            node.freeze();
-            var menu_datapath = gridSourceNode.gridControllerPath + '.confMenu';
-            genro.setData(menu_datapath + '.data',
-                    genro.rpc.remoteResolver('gridConfigurationMenu',
-                    {'gridId':gridId,'table':gridSourceNode.attr.table,
-                        'selectedViewPkey':'=' + menu_datapath + '.selectedViewPkey',
-                        '_sourceNode':gridSourceNode},
-                    {'cacheTime':'5'}));
-            var menu = node._('menu', {storepath:'.data',id:menuId,
-                action:function() {
-                    genro.grid_configurator.loadCustomView(gridId, this.attr.pkey);
-                },
-                _class:'smallmenu',datapath:menu_datapath,modifiers:'*'});
-            node.unfreeze();
-            menu_wdg = dijit.byId(menuId);
-        }
-
-        var grid = gridSourceNode.widget;
-        var frameNode = genro.getFrameNode(gridSourceNode.attr.frameCode);
-        var confnode = frameNode.getValue().getNodeByAttr('_gridConfigurator',true);
-        if (confnode){
-            dijit.byId(menuId).bindDomNode(confnode.getDomNode());
-        }
     },
 
     addGridConfigurator:function(sourceNode){
@@ -91,57 +74,54 @@ var genro_plugin_grid_configurator = {
             };
             sourceNode.attr.dropTarget_column = sourceNode.attr.dropTarget_column ? sourceNode.attr.dropTarget_column + ',' + 'gnrdbfld_' + tablecode : 'gnrdbfld_' + tablecode;
             sourceNode.dropModes.column = sourceNode.attr.dropTarget_column;
-            var cb = function() {
-                genro.grid_configurator.gridConfiguratorMenu(sourceNode.attr.nodeId);
-            };
-            setTimeout(cb, 1);
-            
         }
         sourceNode._gridConfiguratorBuilt=true;
     },
     
-    onStructCreating:function(sourceNode,structBag) {
-        var gridId = sourceNode.attr.nodeId;
-        var loadedCustomViewId = genro.getFromStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + gridId);
-        if (loadedCustomViewId) {
-            var result = genro.serverCall('loadGridCustomView', {pkey:loadedCustomViewId,sync:true});
-            if(!result){
-                return;
-            }
-            structBag = result.getValue();
-            sourceNode.setRelativeData(sourceNode.attr.structpath, structBag);
-            sourceNode.selectedView = result.attr;
-            sourceNode.setRelativeData(sourceNode.gridControllerPath + '.confMenu.selectedViewPkey', sourceNode.selectedView ? sourceNode.selectedView.id : null);
-        }
-        return structBag;
-    },
-
-    loadGridBaseView:function(gridId,resView) {
+    loadView:function(gridId,currPath,frameCode){
+        currPath = currPath || '__baseview__';
         var gridSourceNode = genro.nodeById(gridId);
-        viewbag = gridSourceNode.baseStructBag;
-        if(resView){
-            viewbag = gridSourceNode.getRelativeData(gridSourceNode.gridControllerPath + '.resource_structs.'+resView);
+        var menubag = gridSourceNode.getRelativeData('.structMenuBag')
+        if(!menubag.getNode(currPath)){
+            gridSourceNode.setRelativeData('.currViewPath','__baseview__');
+            return;
         }
-        gridSourceNode.setRelativeData(gridSourceNode.attr.structpath, viewbag.deepCopy());
-        gridSourceNode.setRelativeData(gridSourceNode.gridControllerPath + '.confMenu.selectedViewPkey', null);
-        var node = genro.getDataNode(gridSourceNode.gridControllerPath + '.confMenu.data');
-        genro.setInStorage("local", 'iv_' + genro.getData('gnr.pagename') + '_' + gridId, null);
-        node.getResolver().reset();
-        gridSourceNode.selectedView = null;
-        gridSourceNode.widget.reload();
+        var viewAttr = menubag.getNode(currPath).attr;
+        
+        gridSourceNode.setRelativeData('.currViewAttrs',new gnr.GnrBag(viewAttr));
+        this.checkFavorite(gridId);
+        var finalize = function(struct){
+             gridSourceNode.setRelativeData(gridSourceNode.attr.structpath,struct);
+             if(gridSourceNode.widget.storeRowCount()>0){
+                 gridSourceNode.widget.reload();
+             }
+        }
+        if(viewAttr.pkey){
+            var pkey = viewAttr.pkey;
+            genro.serverCall('loadGridCustomView', {pkey:pkey}, function(result){finalize(result.getValue())});
+        }else{
+            finalize(gridSourceNode.getRelativeData('.resource_structs.'+currPath).deepCopy())
+        }
     },
-
-    loadCustomView:function(gridId, pkey) {
+    refreshMenu:function(gridId){
         var gridSourceNode = genro.nodeById(gridId);
-        genro.serverCall('loadGridCustomView', {pkey:pkey}, function(result) {
-            gridSourceNode.selectedView = result.attr;
-            gridSourceNode.setRelativeData(gridSourceNode.attr.structpath, result.getValue());
-            gridSourceNode.widget.reload();
-            gridSourceNode.setRelativeData(gridSourceNode.gridControllerPath + '.confMenu.selectedViewPkey', result.attr.id);
-            genro.setInStorage("local", result.attr.objtype, result.attr.id);
-            var node = genro.getDataNode(gridSourceNode.gridControllerPath + '.confMenu.data');
-            node.getResolver().reset();
-        });
+        var menubag = gridSourceNode.getRelativeData('.structMenuBag');
+        if(!menubag){
+            return;
+        }
+        menubag.getParentNode().getResolver().reset();
+    },
+    checkFavorite:function(gridId){
+        var frame = genro.getFrameNode(gridId.replace('_grid',''));
+        var gridSourceNode = genro.nodeById(gridId);
+        if(!frame){
+            return;
+        }
+        var currPath = gridSourceNode.getRelativeData('.currViewPath');
+        var currfavorite = genro.getFromStorage("local", this.storeKey(gridId));
+        gridSourceNode.setRelativeData('.favoriteViewPath',currfavorite);
+        this.refreshMenu(gridId);
+        genro.dom.setClass(frame,'th_isFavoriteView',currfavorite==currPath);
     }
 };
     

@@ -145,12 +145,14 @@ dojo.declare("gnr.GnrDevHandler", null, {
                 this.curr_tr = this._('tr');
                 this.col_count = 1;
             }
+            var colspan = objectPop(kw,'colspan') || 1;
+            colspan = colspan==1?colspan:colspan*2;
             var lblpars = {innerHTML:objectPop(kw, 'lbl')};
             objectUpdate(lblpars, objectExtract(kw, 'lbl_*'));
             var tr = this.curr_tr;
             tr._('td', lblpars);
-            tr._('td')._(tag, kw);
-            this.col_count = this.col_count + 1;
+            tr._('td',{colspan:colspan})._(tag, kw);
+            this.col_count = this.col_count + colspan;
         };
         return tbl;
     },
@@ -161,18 +163,36 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.src.getNode()._('div', '_relationExplorer_' + code);
         var node = genro.src.getNode('_relationExplorer_' + code).clearValue();
         node.freeze();
-        var path = 'gnr.relation_explorers.' + table;
-        genro.setData(path,
-                genro.rpc.remoteResolver('relationExplorer', {'table':table}));
         var fpane = node._('floatingPane', {title:title,top:rect.top,bottom:rect.bottom,
             left:rect.left,right:rect.right,
             height:rect.height,width:rect.width,
             resizable:true,dockable:false,_class:'shadow_4',
             closable:true});
-        var treeattr = {storepath:path,margin:'4px'};
+        this.fieldsTree(fpane,table);
+        node.unfreeze();
+        fpane.getParentNode().widget.bringToTop();
+    },
+    
+    fieldsTree:function(pane,table,kw){
+        var path = 'gnr.relation_explorers.' + table;
+        var code = table.replace('.', '_');
+        genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table}));
+        var treeattr = objectUpdate({storepath:path,margin:'4px'},kw || {});
         treeattr.labelAttribute = 'caption';
-        treeattr._class = 'fieldsTree';
+        treeattr._class = 'fieldsTree noIcon';
         treeattr.hideValues = true;
+        treeattr.autoCollapse=true;
+        treeattr.openOnClick = true;
+        treeattr.getLabelClass=function(item){
+            var dtype = item.attr.dtype;
+            var _class = [];
+            if(!dtype || dtype=='RM' || dtype=='RO'){
+                _class.push('fieldsTree_folder');
+            }
+            dtype = dtype || (item.attr.isRoot?'root':'group');
+            _class.push('fieldsTree_' +dtype);
+            return _class.join(' ');
+        };
         treeattr.onDrag = function(dragValues, dragInfo, treeItem) {
             if (!(treeItem.attr.dtype && treeItem.attr.dtype != 'RM' && treeItem.attr.dtype != 'RO')) {
                 return false;
@@ -183,10 +203,9 @@ dojo.declare("gnr.GnrDevHandler", null, {
             dragValues['gnrdbfld_' + code] = fldinfo;
         };
         treeattr.draggable = true;
-        treeattr.getIconClass = 'if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}';
-        fpane._('tree', treeattr);
-        node.unfreeze();
-        fpane.getParentNode().widget.bringToTop();
+        //treeattr.getIconClass = 'if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}';
+        treeattr.getIconClass = 'return "treeNoIcon";';
+        pane._('tree', treeattr);
     },
     
     openInspector:function(){
@@ -223,26 +242,31 @@ dojo.declare("gnr.GnrDevHandler", null, {
         this.devUtilsPalette(pg);
         node.unfreeze();
     },
-    
+
+
     sqlDebugPalette:function(parent){
-        var pane = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql'});
-        var bc = pane._('borderContainer');
-        var top = bc._('contentPane',{'region':'top'})._('toolbar',{'height':'18px'});
+        var frame = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql',contentWidget:'framePane',frameCode:'devSqlDebug'});
+        var top = frame._('toolbar',{side:'top'});
         top._('checkbox',{'value':'^gnr.debugger.sqldebug','label':'Debug SQL'});
         top._('button',{'label':'Clear',action:'genro.setData("gnr.debugger.main",null)'});
-        var bc = bc._('borderContainer',{'region':'center'});
-        var right = bc._('contentPane',{'region':'right','splitter':true,width:'50%'});
-        var treeId='palette_debugger_tree';
+        var treeId='sql_debugger_tree';
         var storepath='gnr.debugger.main';
-        right._('BagNodeEditor',{'nodeId':treeId+'_editbagbox','datapath':'.grid','bagpath':storepath,
-                             'readOnly':true,'valuePath':'.bottomData','showBreadcrumb':false});
+        var bc = frame._('borderContainer',{side:'center'});
+        var right = bc._('contentPane',{'region':'right','splitter':true,width:'50%'});
         var bottom = bc._('contentPane',{'region':'bottom','splitter':true,height:'50%','overflow':'hidden'});
+        var center = bc._('contentPane',{'region':'center'});
+
         bottom._('div',{'innerHTML':'^.grid.bottomData',height:'100%',
                                     style:'white-space: pre;background:white;',overflow:'auto'});
-        var center = bc._('contentPane',{'region':'center'});
+      
+        
+
         center._('tree',{'storepath':storepath,fired:'^gnr.debugger.tree_redraw','margin':'6px','nodeId':treeId,
                         'getIconClass':"return 'treeNoIcon'",'_class':'fieldsTree', 'hideValues':true});
-
+                        
+        right._('BagNodeEditor',{'nodeId':treeId+'_editbagbox','datapath':'.grid','bagpath':storepath,
+                            'readOnly':true,'valuePath':'.bottomData','showBreadcrumb':false});
+                
         center._('dataController',{'script':"genro.debugopt=sqldebug?'sql':null",'sqldebug':'^gnr.debugger.sqldebug'});
         center._('dataController',{'script':"FIRE gnr.debugger.tree_redraw;", 'sqldebug':'^gnr.debugger.main', '_delay':1});
 

@@ -449,7 +449,6 @@ class TableHandlerForm(BaseComponent):
                            excludeLogicalDeleted='^list.excludeLogicalDeleted',
                            applymethod='onLoadingSelection',
                            timeout=180000, selectmethod='=list.selectmethod',
-                           selectmethod_prefix='customQuery',
                            _onCalling=self.onQueryCalling(),
                            _onResult='FIRE list.queryEnd=true; SET list.selectmethod=null;',
                            **condPars)

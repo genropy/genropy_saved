@@ -475,7 +475,7 @@ class Bag(GnrObject):
             self._parentNode = None
 
     def _get_parentNode(self):
-        if self._parentNode != None:
+        if hasattr(self,'_parentNode'):
             return self._parentNode
             #return self._parentNode()
 
@@ -765,12 +765,16 @@ class Bag(GnrObject):
 
     def __len__(self):
         return len(self._nodes)
-
-    def __call__(self, what=None): #deprecated
+    
+ 
+    def __call__(self, what=None):
         if not what:
             return self.keys()
         return self[what]
-
+        
+    def __pow__(self,kwargs):
+        if self.parentNode:
+            self.parentNode.attr.update(kwargs)
     #-------------------- __str__ --------------------------------
     def __str__(self, exploredNodes=None, mode='static,weak'):
         """Return a formatted representation of the bag contents"""
@@ -2394,7 +2398,7 @@ class BagResolver(object):
             return False
 
     def _get_parentNode(self):
-        if self._parentNode:
+        if hasattr(self,'_parentNode'):
             return self._parentNode
             #return self._parentNode()
 
@@ -2789,7 +2793,7 @@ class BagResolverNew(object):
             return False
             
     def _get_parentNode(self):
-        if self._parentNode:
+        if hasattr(self,'_parentNode'):
             return self._parentNode
             #return self._parentNode()
             

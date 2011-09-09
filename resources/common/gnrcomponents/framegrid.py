@@ -12,31 +12,31 @@ from gnr.core.gnrlang import extract_kwargs
 class FrameGridSlots(BaseComponent):
     py_requires='gnrcomponents/grid_configurator/grid_configurator:GridConfigurator'
     @struct_method
-    def fgr_slotbar_export(self,pane,_class='icnBaseExport',mode='xls',enable=None,**kwargs):
+    def fgr_slotbar_export(self,pane,_class='iconbox export',mode='xls',enable=None,**kwargs):
         return pane.slotButton(label='!!Export',publish='serverAction',command='export',opt_export_mode=mode or 'xls',
                                 iconClass=_class,visible=enable,**kwargs) 
        
     @struct_method
-    def fgr_slotbar_addrow(self,pane,_class='icnBaseAdd',enable=None,delay=300,**kwargs):
+    def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',enable=None,delay=300,**kwargs):
         return pane.slotButton(label='!!Add',publish='addrow',iconClass=_class,visible=enable,disabled='^.locked',
                                 _delay=delay,**kwargs)
          
     @struct_method
-    def fgr_slotbar_delrow(self,pane,_class='icnBaseDelete',enable=None,**kwargs):
+    def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,**kwargs):
         return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,visible=enable,disabled='^.locked',**kwargs)
     
     @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
        # kw['subscribe_%s_onLockChange' %storeId] = "this.widget.setIconClass($1.locked?'icnBaseLocked':'icnBaseUnlocked');"
-        pane.slotButton('!!Locker',width='20px',publish='viewlocker',iconClass='==_locked?"icnBaseLocked":"icnBaseUnlocked";',_locked='^.locked',**kwargs)
+        pane.slotButton('!!Locker',publish='viewlocker',iconClass='==_locked?"iconbox lock":"iconbox unlock";',_locked='^.locked',**kwargs)
     
     @struct_method
     def fgr_slotbar_updrow(self,pane,_class='icnBaseEdit',enable=None,parentForm=True,**kwargs):
-        return pane.slotButton(label='!!Delete',publish='updrow',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
+        return pane.slotButton(label='!!Update',publish='updrow',iconClass=_class,visible=enable,parentForm=parentForm,**kwargs)
 
     @struct_method
-    def fgr_slotbar_gridConfigurator(self,pane,_class='icnBaseTableEdit box24',frameCode=None,enable=None,parentForm=True,**kwargs):
-        pane.div(tip='!!Configure view', _class=_class,visible=enable,_gridConfigurator=True,**kwargs)
+    def fgr_slotbar_gridConfigurator(self,pane,_class='icnBaseTableEdit',frameCode=None,enable=None,parentForm=True,**kwargs):
+        pane.div(tip='!!Configure view', _class=_class,visible=enable,_gridConfigurator=True,height='18px',width='20px',**kwargs)
         
     @struct_method
     def fgr_slotbar_gridTrashColumns(self,pane,_class='icnBaseTrash box24',frameCode=None,enable=None,parentForm=True,**kwargs):
@@ -46,10 +46,6 @@ class FrameGridSlots(BaseComponent):
                                                 funcCreate(sourceNode.attr.onTrashed,'data,dropInfo',sourceNode)(data,dropInfo);
                                             }""",**kwargs)
 
-    @struct_method
-    def fgr_slotbar_gridPalette(self,pane,_class='icnBasePalette box24',frameCode=None,enable=None,parentForm=True,**kwargs):
-        pane.div(tip='!!Drop here a column to edit styles', _class=_class,visible=enable,
-        dropTarget_column='*', onDrop=""" alert ('edit it')""",**kwargs)
 
     @struct_method
     def fgr_slotbar_gridReload(self,pane,_class='icnFrameRefresh box16',enable=None,frameCode=None,**kwargs):
@@ -65,28 +61,17 @@ class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
     @extract_kwargs(top=True,grid=True)
     @struct_method
-    def fgr_frameGrid(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,tools=None,**kwargs):
-        tools = tools or '5,gridConfigurator,5,gridTrashColumns,5,gridPalette,10,|,40,export,*,gridReload'
-        kwargs['selfsubscribe_tools'] = """ var bc = this.getWidget();
-                                            bc.setRegionVisible("left","toggle");
-                                            """
+    def fgr_frameGrid(self,pane,frameCode=None,struct=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,**kwargs):
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
+           #if iconSize:
+           #    top_kwargs['_class'] = '%s slotBar_%i' %(top_kwargs.get('_class',''),iconSize)
             frame.top.slotToolbar(**top_kwargs)
-        frame.left.leftBar(tools)
-        iv = frame.includedView(autoWidth=False,datapath='.grid',selectedId='.selectedId',
-                                struct=struct,sortedBy='^.sorted',
+        frame.includedView(autoWidth=False,
+                                datapath='.grid',selectedId='.selectedId',
+                                struct=struct,sortedBy='^.sorted',table=table,
                                 selfsubscribe_delrow='this.widget.deleteRows();',
                                  _newGrid=True,**grid_kwargs)
         return frame
-
-    @struct_method
-    def fgr_leftBar(self,pane,slots):
-        pane.attributes['overflow'] = 'hidden'
-        pane.attributes['hidden'] = True
-        pane.slotToolbar(slots)
-        
-    def fgr_relationHandler(self,pane,frameCode=None,struct=None,grid_kwargs=True,top_kwargs=None,**kwargs):
-        pass
         

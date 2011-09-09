@@ -14,7 +14,7 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return 'framePane'
          
-    def _test_0_slotbar_base(self,pane):
+    def test_0_slotbar_base(self,pane):
         """Design: headline"""
         frame = pane.framePane(frameCode='frame0',height='200px',width='300px',shadow='3px 3px 5px gray',
                                border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
@@ -24,7 +24,7 @@ class GnrCustomWebPage(object):
         bottom.btoh.slotButton(label='Ok',action='alert("Hello!")')
         bottom.bt2.slotButton(label='ciao ciao',action='alert("Hello again!")')
         
-    def _test_1_slotbar_sidebar(self,pane):
+    def test_1_slotbar_sidebar(self,pane):
         """Design: sidebar"""
         frame = pane.framePane(frameCode='frame1',height='200px',width='300px',shadow='3px 3px 5px gray',
                                border='1px solid #bbb',margin='10px',
@@ -35,7 +35,7 @@ class GnrCustomWebPage(object):
         bottom = frame.bottom.slotToolbar(slots='30,foo,*,bar,30',height='20px')
         bottom.foo.button('!!Save',iconClass="icnBaseOk",showLabel=False)
         
-    def _test_2_slotbar_headline(self,pane):
+    def test_2_slotbar_headline(self,pane):
         """rounded"""
         frame = pane.framePane(frameCode='frame3',height='200px',width='300px',shadow='3px 3px 5px gray',
                                border='1px solid #bbb',margin='10px',center_border='1px solid #bbb',
@@ -70,4 +70,81 @@ class GnrCustomWebPage(object):
                                      slotbar._('slotButton','cancel',{label:'Cancel',publish:'cancel'});
                                      slotbar._('slotButton','save',{label:'Save',publish:'save'});
                                      dlg.show_action();""")
-                                     
+
+
+    def test_6_retinaIcons(self,pane):
+        frame = pane.framePane(height='200px',width='800px',shadow='3px 3px 5px gray',
+                               border='1px solid #bbb',margin='10px',design='sidebar')
+        bar = frame.top.slotToolbar('5,first,prev,next,last,*')
+        bar.first.slotButton(iconClass='rbox24 first')
+        bar.prev.slotButton(iconClass='rbox24 prev')
+        bar.next.slotButton(iconClass='rbox24 next')
+        bar.last.slotButton(iconClass='rbox24 last')
+
+    def test_5_regions(self,pane):
+        """Design: headline"""
+        frame = pane.framePane(height='200px',width='300px',shadow='3px 3px 5px gray',
+                               border='1px solid #bbb',margin='10px',design='sidebar')
+        top = frame.top.slotToolbar(slots='30,foo,*,bar,30',height='20px',closable='close',closable_backround='blue')
+        bottom = frame.bottom.slotBar(slots='btoh,*,|,bt2,30',height='30px',closable='close',border_top='1px solid gray')
+        bottom.btoh.slotButton(label='Ok',action='alert("Hello!")')
+        bottom.bt2.slotButton(label='ciao ciao',action='alert("Hello again!")')
+        
+        
+        left = frame.left
+        sidebar = left.slotBar(slots='*,mytree,*',border_right='1px solid gray',closable='close',
+                    closable_background='darkblue',closable_transition='2s',splitter=True)
+        sidebar.mytree.button('Pippo')        
+        sidebar = frame.right.slotBar(slots='*,mytree,*',width='60px',border_left='1px solid gray',closable='close',splitter=True)
+       
+        sidebar.mytree.div('aaa<br/>bbb')
+        frame.textbox(value='^.placeholder',placeholder='puzza',margin='20px')
+        frame.textbox(value='^.aaa',placeholder='^.placeholder',margin='20px')
+        frame.input(value='^.ccc',placeholder='^.aaa',margin='20px')
+
+
+
+       #                          
+    def test_10_framepanebug(self,pane):
+        palette = pane.palettePane(paletteCode='xxx',heigth='300px',width='400px',dockTo=False,palette_persistent=True)
+        frame = palette.framePane(frameCode='yyy')
+        top = frame.top.slotBar('*,aa',toolbar=True)
+        top.aa.div('aa')
+        frame.div(height='13px',background='lime')
+
+    def test_11_framepanebug(self,pane):
+        pane.dataController("""
+        datapath ='aa'
+        genro.src.getNode()._('div', 'kkk');
+        var node = genro.src.getNode('kkk').clearValue();
+        node.freeze();
+        var pane = node._('palettePane',{paletteCode:'aaa',dockTo:false});
+        var frame = pane._('framePane',{'frameCode':'bbb'});
+        var topbar = frame._('slotBar',{'side':'top','slots':'*,aa',toolbar:true});
+        topbar._('div','aa',{innerHTML:'aa'});
+        frame._('div',{'height':'13px',background:'red'});
+        node.unfreeze();
+
+        """,_onStart=True)
+
+    def test_12_framepanebug(self,pane):
+        pane.dataController("""
+        datapath ='aa'
+        genro.src.getNode()._('div', '_advancedquery_');
+        var node = genro.src.getNode('_advancedquery_').clearValue();
+        node.freeze();
+        var pane = node._('palettePane',{paletteCode:this.th_root+'_queryEditor',
+                                        'title':'Query Tool',dockTo:false,
+                                        datapath:datapath+'.query.where',height:'200px',width:'340px'});
+        var frame = pane._('borderContainer');
+        var topbar = frame._('ContentPane',{'region':'top',datapath:'.#parent',
+                                })._('slotBar',{'slots':'queryname,*,savebtn,deletebtn',toolbar:true});
+        topbar._('div','queryname',{innerHTML:'^.queryAttributes.description',font_size:'.8em',color:'#555',font_weight:'bold'})
+        topbar._('slotButton','savebtn',{'label':_T('!!Save'),iconClass:'save16'});
+        topbar._('slotButton','deletebtn',{'label':_T('!!Delete'),iconClass:'trash16'});
+        frame._('ContentPane',{'region':'center',background:'lime'});
+        node.unfreeze();
+
+        """,_onStart=True)
+        
+        

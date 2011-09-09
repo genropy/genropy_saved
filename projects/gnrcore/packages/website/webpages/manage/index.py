@@ -10,7 +10,6 @@
 class GnrCustomWebPage(object):
     py_requires = 'frameindex'
     index_url='/manage/struttura.py'
-    #showTabs=True
     
     def windowTitle(self):
         return '!!Website'

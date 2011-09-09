@@ -505,7 +505,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                          relationDict=None, sqlparams=None, row_start='0', row_count='0',
                          recordResolver=True, selectionName='', structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
-                         selectmethod=None, selectmethod_prefix='rpc', expressions=None, sum_columns=None,
+                         selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,savedQuery=None,savedView=None, externalChanges=None,**kwargs):
         t = time.time()
         tblobj = self.db.table(table)
@@ -538,18 +538,19 @@ class GnrWebAppHandler(GnrBaseProxy):
             if savedView:
                 columns = tblobj.pkg.loadUserObject(code=savedView, objtype='view', tbl=tblobj.fullname)[0]
             if selectmethod:
-                selecthandler = self.page.getPublicMethod(selectmethod_prefix, selectmethod)
+                selecthandler = self.page.getPublicMethod('rpc', selectmethod)
             else:
                 selecthandler = self._default_getSelection
             columns = self._getSelection_columns(tblobj, columns, expressions=expressions)
+            if fromSelection:
+                fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
+                pkeys = fromSelection.output('pkeylist')
             selection = selecthandler(tblobj=tblobj, table=table, distinct=distinct, columns=columns, where=where,
                                       condition=condition,
                                       order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
-                                      relationDict=relationDict, sqlparams=sqlparams, row_start=row_start,
-                                      row_count=row_count,
+                                      relationDict=relationDict, sqlparams=sqlparams,
                                       recordResolver=recordResolver, selectionName=selectionName, 
-                                      pkeys=pkeys, fromSelection=fromSelection,
-                                      sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft, **kwargs)
+                                      pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft, **kwargs)
             if applymethod:
                 applyPars = self._getApplyMethodPars(kwargs)
                 self.page.getPublicMethod('rpc', applymethod)(selection, **applyPars)
@@ -619,16 +620,13 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def _default_getSelection(self, tblobj=None, table=None, distinct=None, columns=None, where=None, condition=None,
                               order_by=None, limit=None, offset=None, group_by=None, having=None,
-                              relationDict=None, sqlparams=None, row_start=None, row_count=None,
-                              recordResolver=None, selectionName=None, pkeys=None, fromSelection=None,
+                              relationDict=None, sqlparams=None,recordResolver=None, selectionName=None,
+                               pkeys=None, 
                               sortedBy=None, sqlContextName=None,
                               excludeLogicalDeleted=True,excludeDraft=True,**kwargs):
         sqlContextBag = None
         if sqlContextName:
             sqlContextBag = self._getSqlContextConditions(sqlContextName)
-        if fromSelection:
-            fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
-            pkeys = fromSelection.output('pkeylist')
         if pkeys:
             if isinstance(pkeys, basestring):
                 pkeys = pkeys.split(',')
