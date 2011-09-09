@@ -1,11 +1,12 @@
-dojo.declare("gnr.GnrQueryBuilder", null, {
-    constructor: function(th,sourceNode, maintable,rootId) {
+dojo.declare("gnr.QueryManager", null, {
+    constructor: function(th,sourceNode, maintable) {
         this.th = th;
         this.sourceNode = sourceNode;
-        this.rootId = rootId;
         this.maintable = maintable;
         this.tablecode = maintable.replace('.','_');
         this.th_root = this.th.th_root;
+        this.frameNode = genro.getFrameNode(this.th_root);
+        this.wherepath = this.sourceNode.absDatapath()+'.query.where';
         this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
             'D':'date','DH':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
@@ -43,7 +44,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.jc',id:this.relativeId('qb_jc_menu')});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.not',id:this.relativeId('qb_not_menu')});
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.'+this.tablecode+'.fieldsmenu',id:this.relativeId('qb_fields_menu'),
-            action:"TH('"+this.th_root+"').querybuilder.onChangedQueryColumn($2,$1,$2.attr.relpath);"});
+            action:"TH('"+this.th_root+"').querymanager.onChangedQueryColumn($2,$1,$2.attr.relpath);"});
 
         node._('menu', {modifiers:'*',_class:'smallmenu',storepath:'gnr.qb.sqlop.op',id:this.relativeId('qb_op_menu')});
 
@@ -281,7 +282,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             attr.op_caption = this.getCaption('op', attr);
             var tdattr = {_class:'qb_div qb_field floatingPopup',connectedMenu:this.relativeId('qb_fields_menu'),relpath:node.label,dropTarget:true,
                             innerHTML:'^' + relpath + '?column_caption'};
-            tdattr['onDrop_gnrdbfld_'+this.maintable.replace('.','_')]=curr_th+".querybuilder.onChangedQueryColumn(this,data,'" + node.label + "');"
+            tdattr['onDrop_gnrdbfld_'+this.maintable.replace('.','_')]=curr_th+".querymanager.onChangedQueryColumn(this,data,'" + node.label + "');"
             tr._('td')._('div', tdattr);
             tr._('td')._('div', {_class:'qb_div qb_op floatingPopup',
                 connectedMenu:'==_qb.getOpMenuId(_dtype);',
@@ -291,7 +292,7 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             var valtd = tr._('td')._('div', {_class:'qb_div qb_value'});
 
             var input_attrs = {value:'^' + relpath + '?value_caption', width:'10em',relpath:relpath,
-                _autoselect:true,_class:'st_conditionValue',validate_onAccept:curr_th+'.queryanalyzer.checkQueryLineValue(this,value);'};
+                _autoselect:true,_class:'st_conditionValue',validate_onAccept:curr_th+'.querymanager.checkQueryLineValue(this,value);'};
             input_attrs.position = 'relative';
             that = this;
             input_attrs.connect_onclick = function(){
@@ -327,16 +328,8 @@ dojo.declare("gnr.GnrQueryBuilder", null, {
             node = bagnodes[i];
             this._buildQueryRow(tbl._('tr', {_class:'^.' + node.label + '?css_class'}), bagnodes[i], i, level);
         }
-    }
-    
-});
-dojo.declare("gnr.GnrQueryAnalyzer", null, {
-    constructor: function(th,sourceNode, table) {
-        this.th_root = th.th_root;
-        this.maintable = table;
-        this.sourceNode = sourceNode;
-        this.wherepath = this.sourceNode.absDatapath()+'.query.where';
     },
+
     checkQueryLineValue:function(sourceNode, value) {
         var relpath = sourceNode.attr.relpath;
     
@@ -353,21 +346,50 @@ dojo.declare("gnr.GnrQueryAnalyzer", null, {
         var currwhere = genro._(this.wherepath);
         var parslist = [];
         var cb = function(node, parslist, idx) {
-            if (node.attr.value_caption && node.attr.value_caption[0]=='?') {
-                var relpath = node.getFullpath('static', currwhere);
-                var result = objectUpdate({}, node.attr);
-                result['relpath'] = relpath;
-                parslist.push(result);
+            if (node.attr.value_caption) {
+                if(node.attr.value_caption[0]=='?'){
+                     var relpath = node.getFullpath('static', currwhere);
+                     var result = objectUpdate({}, node.attr);
+                     result['relpath'] = relpath;
+                    parslist.push(result);
+                }else{
+                    node.setValue(node.attr.value_caption);
+                }
             }
         };
         currwhere.walk(cb, 'static', parslist);
         return parslist;
     },
+    onQueryCalling:function(querybag,selectmethod){
+        var parslist=[];
+        var sourceNode = this.sourceNode;
+        if(selectmethod){
+                                
+        }else if(querybag.getItem("#0?column")){
+            this.cleanQueryPane(querybag); 
+            var parslist = this.translateQueryPars();
+        }
+        if (parslist.length>0){
+            this.buildParsDialog(parslist);
+        }else{
+            this.runQuery();
+        }
+    },
+    runQuery:function(){
+        var sourceNode = this.sourceNode;
+        if(sourceNode.getRelativeData('.queryRunning')){
+            return;
+        }
+        sourceNode.setRelativeData('.queryRunning',true);
+        genro.fireAfter(sourceNode.absDatapath('.runQueryDo'),true,500);
+    },
+    
     buildParsDialog:function(parslist) {
         var sourceNode = this.sourceNode;
         var dlg = genro.dlg.quickDialog('Complete query',{datapath:this.wherepath});
+        var that = this;
         var confirm = function(){
-            sourceNode.fireEvent('.runQueryDo');
+            that.runQuery()
             dlg.close_action();
         };
         var cancel = function(){

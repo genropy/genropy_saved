@@ -114,7 +114,7 @@ class TableHandlerView(BaseComponent):
                                 SET .query.menu.__queryeditor__?disabled=$1.selectmethod!=null;
                             """)
                     
-        pane.dataController("""TH(th_root).querybuilder.onChangedQuery(currentQuery);
+        pane.dataController("""TH(th_root).querymanager.onChangedQuery(currentQuery);
                                 
                           """,currentQuery='^.query.currentQuery',th_root=th_root)
         q = Bag()
@@ -129,7 +129,7 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
                         table=table,th_root=th_root,cacheTime=5,editor=False)
                         
-        pane.dataController("TH(th_root).querybuilder.queryEditor(open);",
+        pane.dataController("TH(th_root).querymanager.queryEditor(open);",
                         th_root=th_root,open="^.query.queryEditor")
         dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
                                 _pref='!!Save query: ',_code='^.query.queryAttributes.code',
@@ -270,10 +270,12 @@ class TableHandlerView(BaseComponent):
             selectionName = None
         
         self.subscribeTable(table,True)
+        frame.dataController("f.setHiderLayer({message:msg},!hide);",f=frame,hide='^.queryRunning',msg='!!Loading')
         store = frame.grid.selectionStore(table=table, columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
                                pkeys='=.query.pkeys', _fired='^.runQueryDo',
+                               _onResult='SET .queryRunning=false;',
                                selectionName=selectionName, recordResolver=False, condition=condition,
                                sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
                                row_start='0', externalChanges=True,
@@ -313,25 +315,11 @@ class TableHandlerView(BaseComponent):
         th_root = inattr['th_root']
         pane.dataController(
                """var th = TH(th_root);
-                  th.querybuilder = new gnr.GnrQueryBuilder(th,this,table,"query_root");
-                  th.queryanalyzer = new gnr.GnrQueryAnalyzer(th,this,table);
+                  th.querymanager = new gnr.QueryManager(th,this,table);
                """ 
                , _init=True,table=table,th_root = th_root)
 
-        pane.dataController("""var th=TH(th_root)
-                                var parslist=[];
-                                if(selectmethod){
-                                
-                              }else if(querybag.getItem("#0?column")){
-                                    th.querybuilder.cleanQueryPane(querybag); 
-                                    SET .queryRunning = true;
-                                    var parslist = th.queryanalyzer.translateQueryPars();
-                              }
-                              if (parslist.length>0){
-                                    th.queryanalyzer.buildParsDialog(parslist);
-                                }else{
-                                    FIRE .runQueryDo = true;
-                              }
+        pane.dataController("""var th=TH(th_root).querymanager.onQueryCalling(querybag,selectmethod);
                               """,th_root=th_root,_fired="^.runQuery",
                            querybag='=.query.where',
                            selectmethod='=.query.queryAttributes.selectmethod')
@@ -345,7 +333,7 @@ class TableHandlerView(BaseComponent):
                                  """, _fired="^.showQueryCountDlg", waitmsg='!!Working.....',
                               dlgtitle='!!Current query record count',alertmsg='^.currentQueryCountAsString')
         pane.dataController("""
-                   var qb = TH(th_root).querybuilder;
+                   var qb = TH(th_root).querymanager;
                    qb.createMenues();
                    dijit.byId(qb.relativeId('qb_fields_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryColumn')));
                    dijit.byId(qb.relativeId('qb_not_menu')).bindDomNode(genro.domById(qb.relativeId('fastQueryNot')));
@@ -357,7 +345,7 @@ class TableHandlerView(BaseComponent):
                  nodeId='%s_fastQueryColumn' %th_root,
                   dropTarget=True,row_hidden='^.#parent.queryAttributes.extended',
                  lbl='!!Search:',tdl_width='4em',
-                 **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querybuilder.onChangedQueryColumn(this,data);" %th_root})
+                 **{str('onDrop_gnrdbfld_%s' %table.replace('.','_')):"TH('%s').querymanager.onChangedQueryColumn(this,data);" %th_root})
         optd = fb.div(_class='fakeTextBox', lbl='!!Op.', lbl_width='4em')
 
         optd.div('^.c_0?not_caption', selected_caption='.c_0?not_caption', selected_fullpath='.c_0?not',
@@ -365,18 +353,18 @@ class TableHandlerView(BaseComponent):
                 border_right='1px solid silver')
         optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %th_root, 
                 selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
-                connectedMenu='==TH("%s").querybuilder.getOpMenuId(_dtype);' %th_root,
-                action="TH('%s').querybuilder.onChangedQueryOp($2,$1);" %th_root,
+                connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
+                action="TH('%s').querymanager.onChangedQueryOp($2,$1);" %th_root,
                 _dtype='^.c_0?column_dtype',
                 _class='floatingPopup', display='inline-block', padding_left='2px')
         value_textbox = fb.textbox(lbl='!!Value', value='^.c_0?value_caption', width='12em', lbl_width='5em',
                                        _autoselect=True,relpath='.c_0',
                                        row_class='^.c_0?css_class', position='relative',
-                                       validate_onAccept='TH("%s").queryanalyzer.checkQueryLineValue(this,value)' %th_root,
-                                       disabled='==(_op in TH("%s").querybuilder.helper_op_dict)'  %th_root, _op='^.c_0?op',
-                                       connect_onclick="TH('%s').querybuilder.getHelper(this);" %th_root,
+                                       validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
+                                       disabled='==(_op in TH("%s").querymanager.helper_op_dict)'  %th_root, _op='^.c_0?op',
+                                       connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,
                                        _class='st_conditionValue')
-        value_textbox.div('^.c_0', hidden='==!(_op in  TH("%s").querybuilder.helper_op_dict)' %th_root,
+        value_textbox.div('^.c_0', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
         fb.div('^.#parent.queryAttributes.description',lbl='!!Search:',tdl_width='4em',colspan=3,
                     row_hidden='^.#parent.queryAttributes.extended?=!#v',width='99%', _class='fakeTextBox buttonIcon',connect_ondblclick='')
