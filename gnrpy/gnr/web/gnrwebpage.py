@@ -773,13 +773,13 @@ class GnrWebPage(GnrBaseWebPage):
             
     parentdirpath = property(_get_parentdirpath)
         
-    @property
-    def subscribedTablesDict(self):
-        """Return a dict of subscribed tables. Every element is a list
-           of *page_id*\'s that subscribe that page"""
-        if not hasattr(self, '_subscribedTablesDict'):
-            self._subscribedTablesDict = self.db.table('adm.served_page').subscribedTablesDict()
-        return self._subscribedTablesDict
+#    @property
+#    def subscribedTablesDict(self):
+#        """Return a dict of subscribed tables. Every element is a list
+#           of *page_id*\'s that subscribe that page"""
+#        if not hasattr(self, '_subscribedTablesDict'):
+#            self._subscribedTablesDict = self.db.table('adm.served_page').subscribedTablesDict()
+#        return self._subscribedTablesDict
         
     @property
     def application(self):
