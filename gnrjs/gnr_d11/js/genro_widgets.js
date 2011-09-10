@@ -3399,17 +3399,17 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         if (n == null) {
             var n = this.storeRowCount();
         }
-        if(this.views.views[0]){
-            
+        var view = this.views.views[0];
+        var scrollBox,scrollLeft;
+        if(view){
+            scrollBox = view.scrollboxNode;
+            scrollLeft = scrollBox.scrollLeft;
+            this.currRenderedRowIndex = null;
+            this.currRenderedRow = null;
+            this.updateRowCount_replaced(n);
+            this.updateTotalsCount(); 
+            scrollBox.scrollLeft = scrollLeft;
         }
-        var scrollBox = this.views.views[0].scrollboxNode;
-        var scrollLeft = scrollBox.scrollLeft;
-        this.currRenderedRowIndex = null;
-        this.currRenderedRow = null;
-        this.updateRowCount_replaced(n);
-
-        this.updateTotalsCount();
-        scrollBox.scrollLeft = scrollLeft;
     },
     mixin_setSortedBy:function(sortedBy) {
         this.sortedBy = sortedBy;
