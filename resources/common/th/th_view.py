@@ -289,7 +289,18 @@ class TableHandlerView(BaseComponent):
                                excludeDraft='=.excludeDraft',
                                applymethod='onLoadingSelection',
                                timeout=180000, selectmethod='=.query.queryAttributes.selectmethod',
-                               _onCalling=self._th_hook('onQueryCalling',mangler=th_root)(),
+                               _onCalling=""" 
+                               %s
+                               var newwhere = kwargs['where'].deepCopy();
+                               kwargs['where'].walk(function(n){
+                                    if(n.label.indexOf('parameter_')==0){
+                                        newwhere.popNode(n.label);
+                                        kwargs[n.label.replace('parameter_','')]=n._value;
+                                    }
+                               });
+                               kwargs['where'] = newwhere;
+                               """
+                               %self._th_hook('onQueryCalling',mangler=th_root,dflt='')(),
                                **condPars)
         store.addCallback('FIRE .queryEnd=true;return result;')        
         if virtualStore:

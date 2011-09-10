@@ -366,7 +366,12 @@ dojo.declare("gnr.QueryManager", null, {
         var parslist=[];
         var sourceNode = this.sourceNode;
         if(selectmethod){
-            console.log('aaa')
+            var currAttrs = this.sourceNode.getRelativeData('.query.queryAttributes').asDict();
+            var params = objectExtract(currAttrs,'parameter_*');
+            var dflt = objectExtract(currAttrs,'default_*');
+            for(var k in params){
+                parslist.push({value_caption:'?'+(k in dflt? params[k]+'|'+dflt[k] : params[k]), relpath:'parameter_'+k});
+            }
         }else if(querybag.getItem("#0?column")){
             this.cleanQueryPane(querybag); 
             var parslist = this.translateQueryPars();
