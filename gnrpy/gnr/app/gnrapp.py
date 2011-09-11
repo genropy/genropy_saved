@@ -414,14 +414,14 @@ class GnrApp(object):
     >>> testgarden.db.table('showcase.person').query().count()
     12
     """
-    def __init__(self, instanceFolder, custom_config=None, forTesting=False, debug=False, **kwargs):
+    def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, debug=False, **kwargs):
         self.aux_instances = {}
         self.gnr_config = self.load_gnr_config()
         self.debug=debug
         self.set_environment()
-        if not os.path.isdir(instanceFolder):
+        if instanceFolder and not os.path.isdir(instanceFolder):
             instanceFolder = self.instance_name_to_path(instanceFolder)
-        self.instanceFolder = instanceFolder
+        self.instanceFolder = instanceFolder or ''
         sys.path.append(os.path.join(self.instanceFolder, 'lib'))
         sys.path_hooks.append(self.get_modulefinder)
         self.pluginFolder = os.path.normpath(os.path.join(self.instanceFolder, 'plugin'))
@@ -485,6 +485,8 @@ class GnrApp(object):
         
     def load_instance_config(self):
         """add???"""
+        if not self.instanceFolder:
+            return Bag()
         instance_config_path = os.path.join(self.instanceFolder, 'instanceconfig.xml')
         base_instance_config = Bag(instance_config_path)
         instance_config = self.gnr_config['gnr.instanceconfig.default_xml'] or Bag()
@@ -522,7 +524,12 @@ class GnrApp(object):
             # We have to use a directory, because genro sqlite adapter will creare a sqlite file for each package
                 
             logging.info('Testing database dir: %s', tempdir)
-                
+            
+            @atexit.register
+            def printrim():
+                print 'rim'
+            
+            
             @atexit.register
             def removeTemporaryDirectory():
                 shutil.rmtree(tempdir)
