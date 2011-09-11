@@ -66,6 +66,7 @@ class Table(object):
         return htmlbuilder
     
     def sendMail(self,record_id=None,doctemplate=None,templates=None,locale=None,formats=None,**kwargs):
+        htmlBuilder = self.getTemplateBuilder(doctemplate=doctemplate,templates=templates)
         body = self.renderTemplate(htmlBuilder, record_id=record_id)
         datasource = htmlBuilder.record
         metadata = htmlBuilder.doctemplate_info.getItem('metadata')
