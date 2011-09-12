@@ -54,7 +54,7 @@ Attributes
         slots='firstParam,secondParam,...,lastParam'
         
       An important feature of the *slots* attribute is that the toolbars are coded with the help
-      of the :ref:`attributes_childname`. This fact implies that you can call any of the slots
+      of the :ref:`childname`. This fact implies that you can call any of the slots
       through their slot name::
       
         class GnrCustomWebPage(object):

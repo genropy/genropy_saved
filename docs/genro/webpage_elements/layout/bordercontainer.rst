@@ -6,6 +6,8 @@ borderContainer
     
     *Last page update*: |today|
     
+    **Type**: :ref:`layout widget <layout_index>`
+    
     .. note:: The Genro borderContainer has been taken from Dojo without adding any modifies.
               In this page you will find some interesting features that we want to point up. For more
               information, check the Dojo's borderContainer documentation.
@@ -22,7 +24,7 @@ borderContainer
 Definition
 ==========
     
-    .. method:: pane.borderContainer([**kwargs])
+    .. method:: layoutWidget.borderContainer([**kwargs])
     
     The borderContainer is a container partitioned into up to five regions: left (or leading),
     right (or trailing), top, and bottom with a mandatory center to fill in any remaining space.
@@ -31,9 +33,10 @@ Definition
     In order to define a borderContainer you have to define at least one :ref:`contentpane`
     as a borderContainer child. This contentPane must include the ``region='center'`` attribute::
     
-        bc = root.borderContainer(height='200px')
-        bc.contentPane(region='center')
-        
+        def GnrCustomWebPage(self, root, **kwargs):
+            bc = root.borderContainer(height='200px')
+            bc.contentPane(region='center')
+            
     Optionally, you can add other contentPanes with the other regions: left, right, top, bottom.
     
 .. _border_attributes:

@@ -6,6 +6,8 @@ stackContainer
     
     *Last page update*: |today|
     
+    **Type**: :ref:`layout widget <layout_index>`
+    
     .. note:: The Genro stackContainer has been taken from Dojo without adding any modifies. In this page
               you will find some interesting features that we want to point up. For more information, check
               the Dojo's stackContainer documentation.

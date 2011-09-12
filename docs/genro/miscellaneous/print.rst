@@ -13,8 +13,10 @@ print
         * :ref:`print_settings_main`
         * :ref:`print_settings_webpage_variables`
         * :ref:`print_settings_table_script_parameters_pane`
-        * :ref:`print_settings_location`
+        * :ref:`print_settings_webpage`
+        * :ref:`print_setting_dialog`
         * :ref:`example <print_settings_example>`
+        * :ref:`print_settings_location`
         
     * :ref:`print_layout`:
     
@@ -22,11 +24,6 @@ print
         * :ref:`print_layout_webpage_variables`
         * :ref:`print_layout_location`
         * :ref:`example <print_layout_example>`
-        
-    * :ref:`print_gui`:
-    
-        * :ref:`print_webpage`
-        * :ref:`print_setting_dialog`
         
 .. _print_intro:
 
@@ -46,7 +43,7 @@ introduction
     When you have created these two files, you have to create in a :ref:`webpages_webpages`
     a GUI that allows the user to start a print. If you use the :ref:`th`, this process
     is auto handled by the component. For more information on how to create a print in a
-    webpage, check the :ref:`print_webpage` section
+    webpage, check the :ref:`print_settings_webpage` section
     
 .. _print_settings:
 
@@ -63,8 +60,12 @@ print settings file
     In the Main class you have to:
     
     * add some :ref:`print_settings_webpage_variables`
-    * create the :ref:`print_settings_table_script_parameters_pane` method that handles the
-      :ref:`print_setting_dialog` GUI
+    * create the :ref:`print_settings_table_script_parameters_pane` (it handles the
+      :ref:`print_setting_dialog` GUI)
+      
+    When you created it, you have to:
+    
+    * create a GUI to let the user starts the print (:ref:`print_settings_webpage`)
       
 .. _print_settings_import:
 
@@ -130,10 +131,115 @@ webpage variables
     
 .. _print_settings_table_script_parameters_pane:
 
-table_script_parameters_pane
-----------------------------
+``table_script_parameters_pane`` method
+---------------------------------------
 
-    Through this mathod you can ... add???
+    .. method:: table_script_parameters_pane(self, pane, **kwargs)
+                
+                **Parameters: pane** - it represents a :ref:`contentpane` through
+                which you can attach your :ref:`webpage elements <webpage_elements_index>`
+    
+    Through this method you can add some additional parameters of your batch. In particular,
+    you can modify the "second region" of the :ref:`print_setting_dialog` (in the next image,
+    that region is pointed by the number 2). The print setting dialog is the dialog that
+    represents the :ref:`print setting file <print_settings>` in your :ref:`webpages_webpages`:
+    
+    *In the image, the print setting dialog. The point 2 is the pane handled by the*
+    *``table_script_parameters_pane`` method*
+        
+    .. image:: ../_images/print/print_settings_dialog.png
+    
+    **Example**::
+    
+        def table_script_parameters_pane(self, pane, **kwargs):
+            fb = pane.formbuilder(cols=2)
+            # other code lines here!
+            
+    In the example we wrote the definition line of the method and we attach a :ref:`formbuilder`
+    to the contentPane (``pane``)
+    
+.. _print_settings_webpage:
+
+webpage - start a print
+-----------------------
+
+    .. note:: if you use the :ref:`th` component you have also a print management system.
+              So, you don't need to create any GUI that allows user to start a print.
+              Continue the reading of this section if you are not using the TableHandler
+    
+    To let the user starts a print from a :ref:`webpages_webpages`, you have to create 
+    a :ref:`button` using the :ref:`action` attribute that performs a :ref:`publish`.
+    
+    Create your button remembering that:
+    
+    * the first attribute is the button label
+    * the *action* attribute must call a PUBLISH that follows this syntax::
+    
+        action = 'PUBLISH tablehandler_run_script="print", "fileName"'
+        
+    where:
+    
+    * "print" is the :ref:`tables_print` folder (so this is a default, you will have always
+      "print" as parameter)
+    * ``fileName`` is the name of your :ref:`print setting file <print_settings>` (without its extension)
+    
+    **Example**:
+    
+        If you created a print setting file called "printing_performance", then your button could be::
+        
+            class GnrCustomWebPage(object):
+                def main(self, root, **kwargs):
+                    pane = contentPane(height='300px', datapath='my_pane')
+                    pane.button('New print',action='PUBLISH tablehandler_run_script="print","printing_performance";')
+    
+.. _print_setting_dialog:
+
+print setting dialog
+--------------------
+
+    The print setting dialog is the dialog that represents the :ref:`print setting file <print_settings>`
+    in your :ref:`webpages_webpages`:
+    
+    .. image:: ../_images/print/print_settings_dialog.png
+    
+    It is divided in five regions:
+    
+    * *region 1*: it includes the window title, configurable through the ``batch_title`` :ref:`webpage variable
+      <print_settings_webpage_variables>`
+    * *region 2*: it includes a :ref:`print_settings_table_script_parameters_pane`
+    * *region 3*: it includes a :meth:`table_script_option_pane
+      <gnr.web.batch.btcprint.BaseResourcePrint.table_script_option_pane>` method
+    * *region 4*: it includes a :meth:`table_script_options_client_print
+      <gnr.web.batch.btcprint.BaseResourcePrint.table_script_options_client_print>` method
+    * *region 5*: it includes a bottom pane with the ``Cancel`` (cancels the dialog) and ``Confirm``
+      (starts the batch) buttons
+      
+.. _print_settings_example:
+
+print settings file - example
+-----------------------------
+    
+    Let's see an example page of a :ref:`print_settings`::
+    
+        # -*- coding: UTF-8 -*-
+        
+        from gnr.web.batch.btcprint import BaseResourcePrint
+        
+        class Main(BaseResourcePrint):
+            batch_prefix = 'st_prest'
+            batch_title = 'Performances Print'
+            batch_cancellable = True
+            batch_delay = 0.5
+            html_res = 'html_builder/performances_print'
+            
+            def table_script_parameters_pane(self, pane, **kwargs):
+                fb = pane.formbuilder(cols=2)
+                self.periodCombo(fb,lbl='!!Period',period_store='.period')
+                fb.div(value='^.period.period_string', font_size='.9em',font_style='italic')
+                fb.checkbox(value='^.hideTemplate',label='!!Hide headers')
+                
+    We used the periodCombo in the example; for more information about it
+    check the :ref:`periodcombo` page
     
 .. _print_settings_location:
 
@@ -157,40 +263,7 @@ file location
     
     This is a graphical map of the location of the print settings file into a :ref:`project`:
     
-    .. image:: ../_images/print_settings_file.png
-    
-.. _print_settings_example:
-
-print settings file - example
------------------------------
-    
-    ::
-    
-        # -*- coding: UTF-8 -*-
-        
-        from gnr.web.batch.btcprint import BaseResourcePrint
-        
-        caption = 'Performances Print'
-        tags = 'user' add??? correct???
-        description = 'Print performances of selected doctors'
-        
-        class Main(BaseResourcePrint):
-            batch_prefix = 'st_prest'
-            batch_title = 'Performances Print' # 'Stampa prestazioni'
-            batch_cancellable = True
-            batch_delay = 0.5
-            html_res = 'html_builder/medico_prestazioni'
-            #templates = 'base'
-            mail_address='@anagrafica_id.email'
-
-            def table_script_parameters_pane(self,pane,**kwargs):
-                fb = pane.formbuilder(cols=2)
-                self.periodCombo(fb,lbl='!!Periodo',period_store='.period')
-                fb.div(value='^.period.period_string', _class='period',font_size='.9em',font_style='italic')
-                fb.dataFormula(".period_input", "'questo mese'")
-                fb.checkbox(value='^.hideTemplate',label='!!Hide headers')
-                
-    For more information on the periodCombo check the :ref:`periodcombo` page
+    .. image:: ../_images/print/print_settings_file.png
     
 .. _print_layout:
     
@@ -224,55 +297,7 @@ print layout file - example
 ---------------------------
 
     add???
-    
-.. _print_gui:
-
-GUI
-===
-
-.. _print_webpage:
-
-user GUI to start a print
-=========================
-
-    .. note:: if you use the :ref:`th` component you have also a print management system.
-              So, you don't need to create any GUI that allows user to start a print.
-              Continue the reading of this section if you are not using the TableHandler
-    
-    To let the user starts a print from a :ref:`webpages_webpages`, you have to create 
-    a :ref:`button` using the :ref:`action` attribute that performs a :ref:`publish`.
-    
-    Create your button remembering that:
-    
-    * the first attribute is the button label
-    * the *action* attribute must call a PUBLISH that follows this syntax::
-    
-        action = 'PUBLISH tablehandler_run_script="print", "fileName"'
-        
-    where:
-    
-    * "print" is the :ref:`tables_print` folder (so this is a default, you will have always
-      "print" as parameter)
-    * ``fileName`` is the name of your :ref:`print setting file <print_settings>` (without its extension)
-    
-    **Example**:
-    
-        If you created a print setting file called "printing_performance", then your button could be::
-        
-            class GnrCustomWebPage(object):
-                def main(self, root, **kwargs):
-                    pane = contentPane(height='300px', datapath='my_pane')
-                    pane.button('New print',action='PUBLISH tablehandler_run_script="print","printing_performance";')
-                    
-.. _print_setting_dialog:
-
-print setting dialog
---------------------
-
-    This dialog is the GUI of the :ref:`print setting file <print_settings>`.
-    
-    add???
-    
+              
 .. _print_clipboard:
 
 clipboard

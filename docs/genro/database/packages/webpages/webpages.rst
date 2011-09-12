@@ -8,12 +8,12 @@ webpage
     
     .. image:: ../../../_images/projects/packages/webpage.png
     
-    * :ref:`The GnrCustomWebPage class <webpages_GnrCustomWebPage>`
+    * :ref:`The GnrCustomWebPage class <gnrcustomwebpage>`
     * :ref:`The main method <webpages_main>`
     * :ref:`webpages_methods`
     * :ref:`webpages_variables`
     
-.. _webpages_GnrCustomWebPage:
+.. _gnrcustomwebpage:
 
 GnrCustomWebPage
 ================

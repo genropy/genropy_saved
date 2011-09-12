@@ -6,6 +6,8 @@ framePane
     
     *Last page update*: |today|
     
+    **Type**: :ref:`layout widget <layout_index>`
+    
     * :ref:`frame_def`: :ref:`frame_sides`
     * :ref:`frame_attributes`
     * :ref:`frame_examples`: :ref:`frame_examples_simple` :ref:`toolbar_example`

@@ -1,4 +1,4 @@
-.. _wsgi_intro:
+.. _wsgi:
 
 ====
 WSGI

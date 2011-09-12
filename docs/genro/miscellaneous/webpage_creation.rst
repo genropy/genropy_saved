@@ -19,7 +19,7 @@ The build phase
     
     In practice, GenroPy behaves in this way:
     
-    #. The client makes the HTTP request page ``foo`` through :ref:`wsgi_intro` site::
+    #. The client makes the HTTP request page ``foo`` through :ref:`wsgi` site::
     
         client ----------- HTTP ----------> server (wsgisite)
         

@@ -9,7 +9,6 @@ from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrlang import gnrImport, objectExtract
 from gnr.core.gnrbag import Bag
 
-
 class BatchMonitor(BaseComponent):
     js_requires = 'gnrcomponents/batch_handler/batch_handler'
     css_requires = 'gnrcomponents/batch_handler/batch_handler'
@@ -32,6 +31,7 @@ class BatchMonitor(BaseComponent):
 class TableScriptHandler(BaseComponent):
     py_requires = 'foundation/dialogs,gnrcomponents/printer_option_dialog:PrinterOption'
     js_requires = 'gnrcomponents/batch_handler/batch_handler'
+    
     @public_method
     def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, **kwargs):
         pkgname, tblname = table.split('.')
@@ -75,6 +75,7 @@ class TableScriptHandler(BaseComponent):
                             }
                             """,
                            _fired="^.save", pars='=.data',immediate=batch_dict.get('immediate',False))
+                           
     @public_method
     def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectedPkeys=None,selectionFilterCb=None,
                              sortBy=None,
@@ -187,14 +188,12 @@ class TableScriptHandler(BaseComponent):
                                  title='=.title',
                                  table='=.table',
                                  _fired='^.build_pars_dialog')
-
-
-
+                                 
 class TableScriptRunner(TableScriptHandler):
     """Old"""
     py_requires = 'foundation/dialogs,gnrcomponents/printer_option_dialog:PrinterOption'
     js_requires = 'gnrcomponents/batch_handler/batch_handler'
-
+    
     def onMain_table_script_runner(self):
         page = self.pageSource()
         self.table_script_controllers(page)
@@ -216,3 +215,4 @@ class TableScriptRunner(TableScriptHandler):
                             PUBLISH table_script_run=pars;""",
                             _fired="^.run_table_script", selectionName=selectionName, table=table,
                             gridId=gridId, res_type=res_type, resource='=.resource')
+                            

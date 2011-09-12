@@ -41,7 +41,7 @@
     :meth:`catalog`                    :meth:`get_css_genro`       :meth:`onMainCalls`              :meth:`rpc_setInClientPage`     
     :meth:`checkPermission`            :meth:`get_css_icons`        :meth:`onPreIniting`            :meth:`rpc_setInServer`          
     :meth:`clientPage`                 :meth:`get_css_path`        :meth:`onSaved`                  :meth:`rpc_setStoreSubscription`
-    :meth:`collectClientDatachanges`   :meth:`get_css_theme`       :meth:`onSaving`                  :meth:`setInClientData`        
+    :meth:`collectClientDatachanges`   :meth:`get_css_theme`       :meth:`onSaving`                 :meth:`setInClientData`        
     :meth:`connectionDocument`         :meth:`homeUrl`             :meth:`onServingCss`             :meth:`setJoinCondition`        
     :meth:`connectionDocumentUrl`      :meth:`htmlHeaders`         :meth:`packageUrl`               :meth:`setPreference`           
     :meth:`connectionStore`            :meth:`importResource`      :meth:`pageFolderRemove`         :meth:`setUserPreference`       

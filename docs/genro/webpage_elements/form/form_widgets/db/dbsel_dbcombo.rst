@@ -84,7 +84,7 @@ selected
     **Example:**
 
     let's consider a simple Genro Project [#]_ including a database :ref:`table`
-    and a :ref:`webpages_GnrCustomWebPage`. 
+    and a :ref:`gnrcustomwebpage`. 
 
     The table includes a list of actors::
 
@@ -177,7 +177,7 @@ condition
                 tbl.column('prizes', name_short='Priz.',name_long='Prizes', size='40')
                 tbl.column('number','L',name_long='Number')
                 
-    Finally, let's introduce a :ref:`webpages_GnrCustomWebPage`::
+    Finally, let's introduce a :ref:`gnrcustomwebpage`::
     
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
