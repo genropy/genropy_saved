@@ -9,15 +9,21 @@ print
     * :ref:`print_intro`
     * :ref:`print_settings`:
     
+        * :ref:`print_settings_webpage_variables`
         * :ref:`print_settings_location`
         * :ref:`example <print_settings_example>`
         
-    * :ref:`print_layout`: 
+    * :ref:`print_layout`:
     
+        * :ref:`print_layout_webpage_variables`
         * :ref:`print_layout_location`
         * :ref:`example <print_layout_example>`
         
-    * :ref:`print_webpage`
+    * :ref:`print_gui`:
+    
+        * :ref:`print_webpage`
+        * :ref:`print_setting_dialog`
+        
         
 .. _print_intro:
 
@@ -31,8 +37,8 @@ introduction
     
     The prints can be handled through two files:
     
-    * one file for the settings of the print (:ref:`print setting file <print_settings>`)
-    * one file for the layout properties of the print (:ref:`print layout file <print_layout>`)
+    * one file for the settings of the print (:ref:`print_settings`)
+    * one file for the layout properties of the print (:ref:`print_layout`)
     
     When you have created these two files, you have to create in a :ref:`webpages_webpages`
     a GUI that allows the user to start a print. If you use the :ref:`th`, this process
@@ -41,8 +47,8 @@ introduction
     
 .. _print_settings:
 
-print settings files
-====================
+print settings file
+===================
 
 .. _print_settings_webpage_variables:
 
@@ -50,9 +56,41 @@ webpage variables
 -----------------
 
     With the term ``webpages variables`` we mean that there are some defined variables
-    that you can use to customize your FrameIndex page. Let's see all of them:
+    that you can use to customize your print setting page. Let's see all of them:
     
-    * 
+    * *html_res*: MANDATORY. Specify the location path of the :ref:`print_layout`.
+      The path you specify starts automatically from::
+      
+        projectName/packages/packageName/resources/tables/tableName/
+        
+      **Example**:
+      
+        if you write::
+        
+          html_res='html_builder/doctor_performances'
+          
+        then the location path of your print layout file must be::
+        
+           projectName/packages/packageName/resources/tables/tableName/html_builder/doctor_performances
+           
+        where ``html_builder`` is a folder created by you and ``doctor_performances`` is the name of
+        your print layout file.
+        
+    * *dialog_height*: specify the height of the :ref:`print_setting_dialog`
+    * *dialog_width*: specify the width of the :ref:`print_setting_dialog`
+    * *dialog_height_no_par*: add???
+    * *batch_prefix*: a string with a prefix for the name of the batch
+      
+      **Example**::
+      
+        batch_prefix = 'st_prest'
+        
+    batch_title = 'Performances Print' # 'Stampa prestazioni'
+    batch_cancellable = True
+    batch_delay = 0.5
+    html_res = 'html_builder/medico_prestazioni'
+    #templates = 'base'
+    mail_address='@anagrafica_id.email'
     
 .. _print_settings_location:
 
@@ -77,11 +115,11 @@ file location
     This is a graphical map of the location of the print settings file into a :ref:`project`:
     
     .. image:: ../_images/print_settings_file.png
-        
+    
 .. _print_settings_example:
 
-print settings files - example
-------------------------------
+print settings file - example
+-----------------------------
     
     ::
     
@@ -113,8 +151,15 @@ print settings files - example
     
 .. _print_layout:
     
-print layout files
-==================
+print layout file
+=================
+
+.. _print_layout_webpage_variables:
+
+webpage variables
+-----------------
+
+    add???
 
 .. _print_layout_location:
 
@@ -125,11 +170,16 @@ file location
     
 .. _print_layout_example:
     
-print layout files - example
-----------------------------
+print layout file - example
+---------------------------
 
     add???
     
+.. _print_gui:
+
+GUI
+===
+
 .. _print_webpage:
 
 user GUI to start a print
@@ -163,7 +213,16 @@ user GUI to start a print
                 def main(self, root, **kwargs):
                     pane = contentPane(height='300px', datapath='my_pane')
                     pane.button('New print',action='PUBLISH tablehandler_run_script="print","printing_performance";')
-                
+                    
+.. _print_setting_dialog:
+
+print setting dialog
+--------------------
+
+    This dialog is the GUI of the :ref:`print setting file <print_settings>`.
+    
+    add???
+    
 .. _print_clipboard:
 
 clipboard
