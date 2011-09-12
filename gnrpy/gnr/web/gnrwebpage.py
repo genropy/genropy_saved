@@ -845,14 +845,14 @@ class GnrWebPage(GnrBaseWebPage):
         return self.application.checkResourcePermission(self.auth_tags, self.userTags)
         
     def get_css_theme(self):
-        """Get the css_theme and return it. The css_theme get is the one defined the :ref:`siteconfig_gui` tag of
-        your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
+        """Get the css_theme and return it. The css_theme get is the one defined the :ref:`siteconfig_gui`
+        tag of your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
         :ref:`webpages_css_theme` webpage variable"""
         return self.css_theme
 
     def get_css_icons(self):
-        """Get the css_icons and return it. The css_icons get is the one defined the :ref:`siteconfig_gui` tag of
-        your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
+        """Get the css_icons and return it. The css_icons get is the one defined the :ref:`siteconfig_gui`
+        tag of your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
         :ref:`webpages_css_icons` webpage variable"""
         return self.css_icons
             

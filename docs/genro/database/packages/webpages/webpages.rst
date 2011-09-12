@@ -8,14 +8,9 @@ webpage
     
     .. image:: ../../../_images/projects/packages/webpage.png
     
-    * :ref:`webpages_GnrCustomWebPage`
-    * The :ref:`webpages_main` method
-    * :ref:`webpages_methods`:
-    
-        * :ref:`onloading_method`
-        * :ref:`onsaving_method`
-        * :ref:`onsaved_method`
-    
+    * :ref:`The GnrCustomWebPage class <webpages_GnrCustomWebPage>`
+    * :ref:`The main method <webpages_main>`
+    * :ref:`webpages_methods`
     * :ref:`webpages_variables`
     
 .. _webpages_GnrCustomWebPage:
@@ -25,8 +20,8 @@ GnrCustomWebPage
     
     .. module:: gnr.web.gnrwebpage
     
-    Genro provides the application GUI using webpages. A webpage is built through
-    an istance of a GnrCustomWebPage, that is a custom class of the :class:`GnrWebPage`.
+    Genro provides the application GUI using webpages. A webpage is built through an istance
+    of the GnrCustomWebPage class, that is a custom class of the :class:`GnrWebPage`.
     
     You can act on a Genro webpage through many webpage elements: please check the
     :ref:`introduction to webpage elements <webpage_elements_intro>` if you need
@@ -190,7 +185,7 @@ webpage variables
     Let's see a list of webpages variables divided by their features:
     
     * Components variables: :ref:`webpages_py_requires`
-    * CSS variables: :ref:`webpages_css_requires`, :ref:`webpages_css_theme`
+    * CSS variables: :ref:`webpages_css_requires`, :ref:`webpages_css_theme`, :ref:`webpages_css_icons`
     * Dojo variables: :ref:`webpages_dojo_source`, :ref:`webpages_dojo_theme`,
       :ref:`webpages_dojo_version`
     * javascript variables: :ref:`webpages_js_requires`
@@ -221,12 +216,24 @@ py_requires
     In this example you are calling the ``Public`` and the ``IncludedView`` classes of the
     ``public.py`` file and the ``TableHandler`` class of the ``standard_tables.py`` file.
     
+.. _webpages_css_icons:
+
+css_icons
+---------
+
+    * Description: a string that allows to change the Genro's page icons theme.
+      add???
+    * Default value: add???
+    * Example::
+    
+        add???
+    
     .. _webpages_css_requires:
 
 css_requires
 ------------
 
-    * Description: allow to import some css files.
+    * Description: allow to import css files
     * Default value: ``None``
     * Example::
     
