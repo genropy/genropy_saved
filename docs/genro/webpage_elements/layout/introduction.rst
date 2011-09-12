@@ -23,13 +23,9 @@ Introduction to the layout elements
     .. warning:: This is a Dojo rule that works in Genro, too. It is very important that you know it, so
                  we'll tell this rule to you:
                  
-                 a contentPane can include a BorderContainer or a TabContainer on any other layout
-                 element if and only if it is a UNIQUE child.
-    
-    Lastly, in Genro you can use the layout containers to put panes (or other containers) in specific
-    regions of your page. Every container has its children, that are :ref:`contentPanes <contentpane>`
-    (For example, the accordionContainer has the accordionPanes as its children)
-    
+                 * A contentPane can include a Container (BorderContainer, TabContainer etc)
+                   if and only if it is a UNIQUE child.
+                   
 .. _layout_common_attributes:
 
 Common attributes

@@ -2,7 +2,7 @@
 
 # grid_configurator.py
 # Created by Francesco Porcari on 2010-10-02.
-# Copyright (c) 2010 Softwell. All rights reserved.
+# Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag

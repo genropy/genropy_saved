@@ -26,4 +26,4 @@
             server=NewServer(__file__)
             server.run()
             
-    For more information on WSGI, please check the Genro :ref:`wsgi_intro` page.
+    For more information on WSGI, please check the Genro :ref:`wsgi` page.

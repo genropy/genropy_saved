@@ -99,7 +99,7 @@ Project Examples
         
     where ``instanceName`` is the name of the instance of your :ref:`project`.
     
-    To start the paste :ref:`wsgi_intro` development webserver, type::
+    To start the paste :ref:`wsgi` development webserver, type::
     
         gnrwsgiserve siteName
         

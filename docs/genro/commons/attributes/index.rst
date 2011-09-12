@@ -11,6 +11,7 @@ common attributes
     
     introduction to commons attributes <introduction>
     action
+    childname
     datapath
     dbtable
     hidden

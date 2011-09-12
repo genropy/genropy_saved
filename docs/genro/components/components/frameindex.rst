@@ -83,7 +83,7 @@ creation of a FrameIndex page
 create a standard GnrCustomWebpage
 ----------------------------------
     
-    Let's see the code to initiate a :ref:`webpages_GnrCustomWebPage` [#]_:
+    Let's see the code to initiate a :ref:`gnrcustomwebpage` [#]_:
     
     #. First of all, you have to write some introductory lines::
        
@@ -350,4 +350,4 @@ bottom bar
     
 **Footnotes**:
 
-.. [#] More information on points 1 and 2 in the :ref:`webpages_GnrCustomWebPage` section
+.. [#] More information on points 1 and 2 in the :ref:`gnrcustomwebpage` section

@@ -31,22 +31,23 @@
     .. module:: gnr.web.gnrwsgisite.GnrWsgiSite
     
     ============================= ============================= ============================ =============================
-    :meth:`adaptStaticArgs`       :meth:`failed_exception`      :meth:`load_gnr_config`      :meth:`pkg_page_url`         
-    :meth:`addService`            :meth:`find_gnrjs_and_dojo`   :meth:`load_site_config`     :meth:`resource_name_to_path`
-    :meth:`addSiteServices`       :meth:`forbidden_exception`   :meth:`load_webtool`         :meth:`sendMessageToClient`  
-    :meth:`addStatic`             :meth:`getPreference`         :meth:`lockRecord`           :meth:`serve_ping`           
-    :meth:`build_gnrapp`          :meth:`getService`            :meth:`log_print`            :meth:`serve_tool`           
-    :meth:`build_wsgiapp`         :meth:`getStatic`             :meth:`not_found_exception`  :meth:`setPreference`        
-    :meth:`callTableScript`       :meth:`getStaticPath`         :meth:`notifyDbEvent`        :meth:`setResultInResponse`  
-    :meth:`cleanup`               :meth:`getStaticUrl`          :meth:`onAuthenticated`      :meth:`setUserPreference`    
-    :meth:`clearRecordLocks`      :meth:`getUserPreference`     :meth:`onClosePage`          :meth:`set_environment`      
-    :meth:`client_exception`      :meth:`get_datachanges`       :meth:`onInited`             :meth:`shared_data`          
-    :meth:`connectionLog`         :meth:`get_path_list`         :meth:`onServedPage`         :meth:`siteLock`             
-    :meth:`currentPage`           :meth:`guest_counter`         :meth:`onServingPage`        :meth:`site_static_path`     
-    :meth:`debugger`              :meth:`handle_clientchanges`  :meth:`on_reloader_restart`  :meth:`site_static_url`      
-    :meth:`dispatcher`            :meth:`initializePackages`    :meth:`pageLog`              :meth:`unlockRecord`         
-    :meth:`dropConnectionFolder`  :meth:`loadResource`          :meth:`parse_kwargs`         :meth:`webtools_url`         
-    :meth:`exception`             :meth:`loadTableScript`       :meth:`parse_request_params` :meth:`zipFiles`             
+    :meth:`adaptStaticArgs`       :meth:`find_gnrjs_and_dojo`   :meth:`load_webtool`         :meth:`resource_name_to_path`
+    :meth:`addService`            :meth:`forbidden_exception`   :meth:`lockRecord`           :meth:`sendMessageToClient`  
+    :meth:`addSiteServices`       :meth:`getPreference`         :meth:`log_print`            :meth:`serve_ping`           
+    :meth:`addStatic`             :meth:`getService`            :meth:`not_found_exception`  :meth:`serve_tool`           
+    :meth:`build_gnrapp`          :meth:`getStatic`             :meth:`notifyDbEvent`        :meth:`setPreference`        
+    :meth:`build_wsgiapp`         :meth:`getStaticPath`         :meth:`onAuthenticated`      :meth:`setResultInResponse`  
+    :meth:`callTableScript`       :meth:`getStaticUrl`          :meth:`onClosePage`          :meth:`setUserPreference`    
+    :meth:`cleanup`               :meth:`getUserPreference`     :meth:`onDbCommitted`        :meth:`set_environment`      
+    :meth:`clearRecordLocks`      :meth:`get_datachanges`       :meth:`onInited`             :meth:`shared_data`          
+    :meth:`client_exception`      :meth:`get_path_list`         :meth:`onServedPage`         :meth:`siteLock`             
+    :meth:`connectionLog`         :meth:`guest_counter`         :meth:`onServingPage`        :meth:`site_static_path`     
+    :meth:`currentPage`           :meth:`handle_clientchanges`  :meth:`on_reloader_restart`  :meth:`site_static_url`      
+    :meth:`debugger`              :meth:`initializePackages`    :meth:`pageLog`              :meth:`unlockRecord`         
+    :meth:`dispatcher`            :meth:`loadResource`          :meth:`parse_kwargs`         :meth:`webtools_url`         
+    :meth:`dropConnectionFolder`  :meth:`loadTableScript`       :meth:`parse_request_params` :meth:`zipFiles`   
+    :meth:`exception`             :meth:`load_gnr_config`       :meth:`pkg_page_url`         
+    :meth:`failed_exception`      :meth:`load_site_config`                                   
     ============================= ============================= ============================ =============================
     
 .. _gnrwsgisite_sitelock:

@@ -15,6 +15,7 @@
         
         * :ref:`siteconfig_wsgi`
         * :ref:`siteconfig_jslib`
+        * :ref:`siteconfig_css_icons`
         * :ref:`siteconfig_gui`
         * :ref:`siteconfig_dojo`
         * :ref:`siteconfig_resources`
@@ -69,26 +70,26 @@ Tags
     Let's see its content:
     
     * The file begins and ends with a ``<GenRoBag>`` tag: that's because during the
-      execution of the project, this file is being converted in a :ref:`bag_intro`.
-    * *<connection_timeout>*: handle the connection timeout.
-    * *<connection_refresh>*: handle the connection refresh.
-    * *<wsgi>*: allow to define some connections properties used by the :ref:`wsgi_intro`.
-      For more information, check the :ref:`siteconfig_wsgi` section.
+      execution of the project, this file is being converted in a :ref:`bag_intro`
+    * *<connection_timeout>*: handle the connection timeout
+    * *<connection_refresh>*: handle the connection refresh
+    * *<wsgi>*: allow to define some connections properties used by the :ref:`wsgi`
+      For more information, check the :ref:`siteconfig_wsgi` section
     * *<jslib>*: allow to specify the dojo version used. For more information,
-      check the :ref:`siteconfig_jslib` section.
+      check the :ref:`siteconfig_jslib` section
     * *<gui>*: allow to specify the CSS theme. For more information,
-      check the :ref:`siteconfig_gui` section.
-    * *<dojo*: allow to specify the Dojo version. For more information, check the
-      :ref:`siteconfig_dojo` section.
+      check the :ref:`siteconfig_gui` section
+    * *<dojo>*: allow to specify the Dojo version. For more information, check the
+      :ref:`siteconfig_dojo` section
     * *<resources>*: allow to specify the path for common resources. For more
-      information, check the :ref:`siteconfig_resources` section.
+      information, check the :ref:`siteconfig_resources` section
       
 .. _siteconfig_wsgi:
 
 ``<wsgi>``
 ----------
 
-    Allow to define some connections properties used by the :ref:`wsgi_intro`:
+    Allow to define some connections properties used by the :ref:`wsgi`:
     
     * *homepage*: specify the first :ref:`webpages_webpages` opened on your application.
                   **syntax**:
@@ -153,6 +154,13 @@ Tags
     
         <jslib dojo_version="11" gnr_version='11' />
         
+.. _siteconfig_css_icons:
+
+``<css_icons>``
+---------------
+
+    add???
+    
 .. _siteconfig_gui:
 
 ``<gui>``

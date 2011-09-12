@@ -2,7 +2,7 @@
 
 # thermopane.py
 # Created by Francesco Porcari on 2010-08-13.
-# Copyright (c) 2010 Softwell. All rights reserved.
+# Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
 

@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-btcprint.py
-
-Created by Francesco Porcari on 2010-10-16.
-Copyright (c) 2010 Softwell. All rights reserved.
-"""
+#
+#btcprint.py
+#
+#Created by Francesco Porcari on 2010-10-16.
+#Copyright (c) 2010 Softwell. All rights reserved.
 
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
 
 class BaseResourcePrint(BaseResourceBatch):
+    """Base resource for :ref:`print`"""
     dialog_height = '300px'
     dialog_width = '460px'
     dialog_height_no_par = '245px'
@@ -126,6 +126,10 @@ class BaseResourcePrint(BaseResourceBatch):
                 self.page.setInClientData(path='gnr.downloadurl',value=self.fileurl,fired=True)
 
     def table_script_option_pane(self, pane, resource=None):
+        """add???
+        
+        :param pane: add???
+        :param resource: add???"""
         bc = pane.borderContainer(height='220px')
         top = bc.contentPane(region='top', padding='6px').div(_class='ts_printMode', padding='2px')
         bottom = bc.borderContainer(region='bottom', height='60px')
@@ -160,6 +164,9 @@ class BaseResourcePrint(BaseResourceBatch):
         
 
     def table_script_options_client_print(self, pane):
+        """add???
+        
+        :param pane: the add????????????????????????????"""
         fb = self.table_script_fboptions(pane, tdl_width='3em')
         fb.simpleTextArea(value='^.#parent.#parent.batch_note',
                           height='20ex', lbl='!!Notes',

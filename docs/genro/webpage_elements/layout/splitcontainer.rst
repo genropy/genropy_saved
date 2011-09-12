@@ -6,6 +6,8 @@ splitContainer
     
     *Last page update*: |today|
     
+    **Type**: :ref:`layout widget <layout_index>`
+    
     .. warning:: This page has to be completed!! add???
     
     .. note:: The Genro splitContainer has been taken from Dojo without adding any modifies.

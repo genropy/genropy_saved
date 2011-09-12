@@ -48,8 +48,6 @@ from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relie
 
 import datetime
 
-"""""" # MANDATORY for Sphinx autodoc!
-
 AUTH_OK = 0
 AUTH_NOT_LOGGED = 1
 AUTH_FORBIDDEN = -1
@@ -845,14 +843,14 @@ class GnrWebPage(GnrBaseWebPage):
         return self.application.checkResourcePermission(self.auth_tags, self.userTags)
         
     def get_css_theme(self):
-        """Get the css_theme and return it. The css_theme get is the one defined the :ref:`siteconfig_gui` tag of
-        your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
+        """Get the css_theme and return it. The css_theme get is the one defined the :ref:`siteconfig_gui`
+        tag of your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
         :ref:`webpages_css_theme` webpage variable"""
         return self.css_theme
 
     def get_css_icons(self):
-        """Get the css_icons and return it. The css_icons get is the one defined the :ref:`siteconfig_gui` tag of
-        your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
+        """Get the css_icons and return it. The css_icons get is the one defined the :ref:`siteconfig_gui`
+        tag of your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
         :ref:`webpages_css_icons` webpage variable"""
         return self.css_icons
             
@@ -1170,9 +1168,9 @@ class GnrWebPage(GnrBaseWebPage):
     package_folder = property(_get_package_folder)
     
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
-        """add???
+        """The first method loaded in a Genro application.
         
-        :param \_auth: add???
+        :param \_auth: the page authorizations. For more information, check the :ref:`auth` page
         :param debugger: add???"""
         page = self.domSrcFactory.makeRoot(self)
         self._root = page

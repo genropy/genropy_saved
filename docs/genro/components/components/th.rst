@@ -488,7 +488,7 @@ th_webpage
     When you build some complex tables, you need to use both a :ref:`th_resource_page`
     and a ``th_webpage``.
     
-    The ``th_webpage`` is a :ref:`webpages_GnrCustomWebPage` that allows you to create
+    The ``th_webpage`` is a :ref:`gnrcustomwebpage` that allows you to create
     a much complex :ref:`th_form_class` and that takes the :ref:`th_view_class` from
     its :ref:`th_resource_page` related.
     
