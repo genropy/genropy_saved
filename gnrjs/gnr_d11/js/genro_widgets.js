@@ -835,6 +835,7 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
         sourceNode.subscribe('switchPage',function(page){
             this.widget.switchPage(page);
         });
+        widget.gnrPageDict = {};
         dojo.connect(widget, 'addChild', dojo.hitch(this, 'onAddChild', widget));
         dojo.connect(widget, 'removeChild', dojo.hitch(this, 'onRemoveChild', widget));
         //dojo.connect(widget,'_transition',widget, 'onChildTransition');
