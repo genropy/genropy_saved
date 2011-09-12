@@ -4,4 +4,6 @@
 batch
 =====
 
+    *Last page update*: |today|
+    
     add???

@@ -9,12 +9,16 @@ print
     * :ref:`print_intro`
     * :ref:`print_settings`:
     
+        * :ref:`print_settings_import`
+        * :ref:`print_settings_main`
         * :ref:`print_settings_webpage_variables`
+        * :ref:`print_settings_table_script_parameters_pane`
         * :ref:`print_settings_location`
         * :ref:`example <print_settings_example>`
         
     * :ref:`print_layout`:
     
+        * :ref:`print_layout_import`
         * :ref:`print_layout_webpage_variables`
         * :ref:`print_layout_location`
         * :ref:`example <print_layout_example>`
@@ -24,7 +28,6 @@ print
         * :ref:`print_webpage`
         * :ref:`print_setting_dialog`
         
-        
 .. _print_intro:
 
 introduction
@@ -33,7 +36,7 @@ introduction
     In this page we learn about how to make a print in a :ref:`project`.
     
     In GenroPy a print is handled as a *resource script* of the :ref:`tables <table>`. So,
-    they can be easily personalized for every application.
+    it can be easily personalized for every application.
     
     The prints can be handled through two files:
     
@@ -50,13 +53,45 @@ introduction
 print settings file
 ===================
 
-.. _print_settings_webpage_variables:
+    The print settings file allows to specify the print settings.
+    
+    In order to use it, you have to:
+    
+    * :ref:`print_settings_import` the correct module
+    * create the :ref:`print_settings_main`
+    
+    In the Main class you have to:
+    
+    * add some :ref:`print_settings_webpage_variables`
+    * create the :ref:`print_settings_table_script_parameters_pane` method that handles the
+      :ref:`print_setting_dialog` GUI
+      
+.. _print_settings_import:
+
+import
+------
+
+    To use the print setting file you have to import::
+    
+        from gnr.web.batch.btcprint import BaseResourcePrint
+        
+    .. _print_settings_main:
+
+Main class
+----------
+
+    The Main class inherits from the :class:`BaseResourcePrint
+    <gnr.web.batch.btcprint.BaseResourcePrint>` class, so write::
+    
+        class Main(BaseResourcePrint):
+        
+    .. _print_settings_webpage_variables:
 
 webpage variables
 -----------------
 
     With the term ``webpages variables`` we mean that there are some defined variables
-    that you can use to customize your print setting page. Let's see all of them:
+    that you can use to customize your Main class. Let's see all of them:
     
     * *html_res*: MANDATORY. Specify the location path of the :ref:`print_layout`.
       The path you specify starts automatically from::
@@ -76,21 +111,29 @@ webpage variables
         where ``html_builder`` is a folder created by you and ``doctor_performances`` is the name of
         your print layout file.
         
-    * *dialog_height*: specify the height of the :ref:`print_setting_dialog`
-    * *dialog_width*: specify the width of the :ref:`print_setting_dialog`
-    * *dialog_height_no_par*: add???
-    * *batch_prefix*: a string with a prefix for the name of the batch
+    * *batch_cancellable*: add???
+    * *batch_delay*: a string with the time milliseconds start delay
+    * *batch_immediate*: add???. Default value is ``False``
+    * *batch_prefix*: a string with a prefix for the batch name
       
       **Example**::
       
         batch_prefix = 'st_prest'
         
-    batch_title = 'Performances Print' # 'Stampa prestazioni'
-    batch_cancellable = True
-    batch_delay = 0.5
-    html_res = 'html_builder/medico_prestazioni'
-    #templates = 'base'
-    mail_address='@anagrafica_id.email'
+    * *batch_title*: a string with the :ref:`print_setting_dialog` title
+    * *dialog_height*: a string with the :ref:`print_setting_dialog` height
+    * *dialog_height_no_par*: add???
+    * *dialog_width*: a string with the :ref:`print_setting_dialog` width
+    * *mail_address*: add???
+    * *mail_tags*: the permits of the mail. add???
+    * *templates*: add???
+    
+.. _print_settings_table_script_parameters_pane:
+
+table_script_parameters_pane
+----------------------------
+
+    Through this mathod you can ... add???
     
 .. _print_settings_location:
 
@@ -153,6 +196,13 @@ print settings file - example
     
 print layout file
 =================
+
+.. _print_layout_import:
+
+import
+------
+
+    add???
 
 .. _print_layout_webpage_variables:
 

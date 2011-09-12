@@ -222,12 +222,20 @@ css_icons
 ---------
 
     * Description: a string that allows to change the Genro's page icons theme.
-      add???
-    * Default value: add???
+      You can choose between different themes:
+      
+        * retina/blue
+        * retina/gray
+        * retina/lime
+        * retina/red
+        
+    * Default value: the value you specify in the :ref:`siteconfig_css_icons` tag of your
+      :ref:`sites_siteconfig`. If you didn't specify it, the default value is ``retina/gray``
+      
     * Example::
     
-        add???
-    
+        css_icons='retina/lime'
+        
     .. _webpages_css_requires:
 
 css_requires

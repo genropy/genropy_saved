@@ -11,6 +11,7 @@ commons attributes
     Nevertheless, we report those attributes even in the single widget, suggesting to take vision of this page for more details.
     
     * :ref:`action`
+    * :ref:`childname`
     * :ref:`datapath`
     * :ref:`dbtable`
     * :ref:`hidden`

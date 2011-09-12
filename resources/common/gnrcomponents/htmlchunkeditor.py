@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 # Created by Francesco Porcari on 2010-10-02.
-# Copyright (c) 2010 Softwell. All rights reserved.
+# Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method

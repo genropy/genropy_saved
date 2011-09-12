@@ -48,8 +48,6 @@ from gnr.web.gnrbaseclasses import BaseComponent # DO NOT REMOVE, old code relie
 
 import datetime
 
-"""""" # MANDATORY for Sphinx autodoc!
-
 AUTH_OK = 0
 AUTH_NOT_LOGGED = 1
 AUTH_FORBIDDEN = -1
@@ -1170,9 +1168,9 @@ class GnrWebPage(GnrBaseWebPage):
     package_folder = property(_get_package_folder)
     
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
-        """add???
+        """The first method loaded in a Genro application.
         
-        :param \_auth: add???
+        :param \_auth: the page authorizations. For more information, check the :ref:`auth` page
         :param debugger: add???"""
         page = self.domSrcFactory.makeRoot(self)
         self._root = page

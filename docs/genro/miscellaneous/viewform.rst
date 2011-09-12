@@ -49,7 +49,8 @@ data-entry window
     The ``data-entry window`` allow to:
     
     * modify, add or delete a single records (user must authenticate himself
-      with the right permits to perform these actions - check the add??? page for more information)
+      with the right permits to perform these actions - check the :ref:`auth` page for
+      more information)
     
     .. image:: ../_images/components/th/form.png
     

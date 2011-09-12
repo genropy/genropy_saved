@@ -16,13 +16,13 @@ class GnrCustomWebPage(object):
         pippo = pane.pippo()
         pippo.red.span('hello')
         pippo.lime.button('Click me', action='alert("hello!")')
-        pippo.bottone
-        pippo.bottone.div('36')
+        pippo.my_button
+        pippo.my_button.div('36')
         
     @struct_method
     def xx_pippo(self,pane):
         box = pane.div(background='teal')
         box.div(childname='red',background='red',height='25px')
         box.div(childname='lime',background='lime',height='40px')
-        box.button('ciao',childname='bottone',action='alert("Hello!")')
+        box.button('ciao',childname='my_button',action='alert("Hello!")')
         return box

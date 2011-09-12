@@ -9,12 +9,12 @@ Documents to revise
 .. toctree::
     :maxdepth: 1
     
-    batch
+    auth
+    batch/index
     clipboard
     ../commons/index
     ../datastore/index
     decorators
-    fine_syntax
     grid
     iframe
     languages

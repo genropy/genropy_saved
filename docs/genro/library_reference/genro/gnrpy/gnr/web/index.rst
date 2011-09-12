@@ -8,6 +8,7 @@
     :maxdepth: 1
     
     _gnrbasewebpage
+    batch/index
     gnrbaseclasses
     gnrcookie
     gnrwebpage
