@@ -122,12 +122,15 @@ class BaseResourceBatch(object):
         self.sortBy=sortBy
 
     def get_selection(self, columns=None):
-        selection = self.page.getUserSelection(selectionName=self.selectionName,
-                                               selectedRowidx=self.selectedRowidx, filterCb=self.selectionFilterCb,
-                                               table=self.tblobj,
-                                               sortBy=self.sortBy,
-                                               page_id=self.sourcepage_id,
-                                               columns=columns)
+        if hasattr(self,'selectionName'):
+            selection = self.page.getUserSelection(selectionName=self.selectionName,
+                                                    selectedRowidx=self.selectedRowidx, filterCb=self.selectionFilterCb,
+                                                    table=self.tblobj,
+                                                    sortBy=self.sortBy,
+                                                    page_id=self.sourcepage_id,
+                                                    columns=columns)
+        elif self.selectedPkeys:
+            selection = self.tblobj.query(where='$%s IN :selectedPkeys' %self.tblobj.pkey,selectedPkeys=self.selectedPkeys).selection()
         return selection
 
     def get_records(self):

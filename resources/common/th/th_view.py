@@ -179,10 +179,16 @@ class TableHandlerView(BaseComponent):
                     action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
-                            kw['selectedRowidx'] = genro.wdgById(kw.gridId).getSelectedRowidx();
+                            var grid = genro.wdgById(kw.gridId);
+                            if(grid.collectionStore().storeType=='VirtualSelection'){
+                                kw['selectionName'] = kw['th_root'];
+                            }else{
+                                kw['selectedPkeys'] = grid.getSelectedPkeys(true);
+                            }
+                            kw['selectedRowidx'] = grid.getSelectedRowidx();
                             genro.publish({topic:"table_script_run",parent:true},kw)
                             """,
-                    batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',
+                    batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',batch_th_root=th_root,
                     batch_sourcepage_id=self.page_id)
         pane.dataRemote('.resources.print.menu',self.table_script_resource_tree_data,res_type='print', table=table,cacheTime=5)
 

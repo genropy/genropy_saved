@@ -4150,7 +4150,18 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_resetFilter: function(value) {
         return this.collectionStore().resetFilter();
     },
-    
+    mixin_currentData:function(nodes){
+        var nodes = nodes || (this.getSelectedRowidx().length<1?'all':'selected');
+        var result = new gnr.GnrBag();
+        var nodes;
+        if(nodes=='all'){
+            nodes = this.collectionStore().getData().getNodes();
+        }else if(nodes=='selected'){
+            nodes = this.getSelectedNodes();
+        }
+        dojo.forEach(nodes,function(n){result.setItem(n.label,n);});
+        return result;
+    },
     mixin_serverAction:function(kw){
         var options = objectPop(kw,'opt');
         var method = objectPop(options,"method") || "app.includedViewAction";
@@ -4160,14 +4171,7 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             kwargs['selectionName'] = this.collectionStore().selectionName;
             kwargs['selectedRowidx'] = this.getSelectedRowidx();
         }else{
-            if(this.getSelectedRowidx().length<=1){
-                kwargs['data'] = this.collectionStore().getData();
-            }else{
-                var data = new gnr.GnrBag();
-                var nodes = this.getSelectedNodes();
-                dojo.forEach(nodes,function(n){data.setItem(n.label,n);});
-                kwargs['data'] = data;
-            }
+            kwargs['data'] = this.currentData();
         }
         kwargs['table'] =this.sourceNode.attr.table;
         kwargs['datamode'] = this.datamode;
