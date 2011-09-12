@@ -87,7 +87,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     getParentWidget:function() {
         var parentNode = this.getParentNode();
         if (parentNode) {
-            return parentNode.getWidget();
+            return parentNode.widget?parentNode.widget : parentNode.getParentWidget();
         }
     },
     destroy:function() {
@@ -381,6 +381,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     hasDynamicAttr: function(attr) {
         return (this._dynattr && (attr in this._dynattr));
     },
+
     getRelativeData: function(path, autocreate, dflt) {
         var path = this.absDatapath(path);
         var value;
@@ -1073,6 +1074,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 genro.dom.removeClass(domnode, old_class);
             }
             genro.dom.addClass(domnode, value);
+        }
+        else if (attr=='placeholder'){
+            (this.widget? this.widget.focusNode:this.domNode).setAttribute('placeholder',value);
         }
         else if (attr.indexOf('remote_') == 0) {
             this.updateRemoteContent(this);

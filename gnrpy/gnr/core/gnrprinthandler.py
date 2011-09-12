@@ -139,7 +139,7 @@ class PrintHandler(object):
             raise PrintHandlerError('wkhtmltopdf error')
         return destPath
         
-    def autoConvertFiles(self, files, storeFolder):
+    def autoConvertFiles(self, files, storeFolder, orientation=None):
         """add???
         
         :param files: add???
@@ -149,7 +149,7 @@ class PrintHandler(object):
         for filename in files:
             baseName, ext = os.path.splitext(os.path.basename(filename))
             if ext.lower() == '.html':
-                resultList.append(self.htmlToPdf(filename, storeFolder))
+                resultList.append(self.htmlToPdf(filename, storeFolder, orientation=orientation))
                 
                 #destPath=os.path.join(storeFolder, '%s.pdf' % baseName)
                 

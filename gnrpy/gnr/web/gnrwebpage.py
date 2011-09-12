@@ -96,8 +96,10 @@ class GnrWebPage(GnrBaseWebPage):
         self.private_kwargs = dict([(k[:2], v)for k, v in request_kwargs.items() if k.startswith('__')])
         self.pagetemplate = request_kwargs.pop('pagetemplate', None) or getattr(self, 'pagetemplate', None) or \
                             self.site.config['dojo?pagetemplate'] or 'standard.tpl'
-        self.css_theme = request_kwargs.pop('css_theme', None) or getattr(self, 'css_theme', None) or self.site.config[
-                                                                                                      'gui?css_theme']
+        self.css_theme = request_kwargs.pop('css_theme', None) or getattr(self, 'css_theme', None) \
+                        or self.site.config['gui?css_theme']
+        self.css_icons = request_kwargs.pop('css_icons', None) or getattr(self, 'css_icons', None)\
+                        or self.site.config['gui?css_icons'] or 'retina/gray'
         self.dojo_theme = request_kwargs.pop('dojo_theme', None) or getattr(self, 'dojo_theme', None)
         self.dojo_version = request_kwargs.pop('dojo_version', None) or getattr(self, 'dojo_version', None)
         self.dynamic_js_requires= {}
@@ -773,13 +775,13 @@ class GnrWebPage(GnrBaseWebPage):
             
     parentdirpath = property(_get_parentdirpath)
         
-    @property
-    def subscribedTablesDict(self):
-        """Return a dict of subscribed tables. Every element is a list
-           of *page_id*\'s that subscribe that page"""
-        if not hasattr(self, '_subscribedTablesDict'):
-            self._subscribedTablesDict = self.db.table('adm.served_page').subscribedTablesDict()
-        return self._subscribedTablesDict
+#    @property
+#    def subscribedTablesDict(self):
+#        """Return a dict of subscribed tables. Every element is a list
+#           of *page_id*\'s that subscribe that page"""
+#        if not hasattr(self, '_subscribedTablesDict'):
+#            self._subscribedTablesDict = self.db.table('adm.served_page').subscribedTablesDict()
+#        return self._subscribedTablesDict
         
     @property
     def application(self):
@@ -847,15 +849,24 @@ class GnrWebPage(GnrBaseWebPage):
         your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
         :ref:`webpages_css_theme` webpage variable"""
         return self.css_theme
-        
+
+    def get_css_icons(self):
+        """Get the css_icons and return it. The css_icons get is the one defined the :ref:`siteconfig_gui` tag of
+        your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
+        :ref:`webpages_css_icons` webpage variable"""
+        return self.css_icons
+            
     def get_css_path(self, requires=None):
         """Get the css path included in the :ref:`webpages_css_requires`.
         
         :param requires: If None, get the css_requires string included in a :ref:`webpages_webpages`"""
         requires = [r for r in (requires or self.css_requires) if r]
         css_theme = self.get_css_theme() or 'aqua'
+        css_icons = self.get_css_icons()
         if css_theme:
-            requires.append('themes/%s' % self.css_theme)
+            requires.append('themes/%s' %css_theme)
+        if css_icons:
+            requires.append('css_icons/%s/icons' %css_icons)
         self.onServingCss(requires)
         #requires.reverse()
         filepath = os.path.splitext(self.filepath)[0]
@@ -1176,7 +1187,7 @@ class GnrWebPage(GnrBaseWebPage):
                     #page.script('genro.dom.windowTitle("%s")' % self.windowTitle())
                 dbselect_cache = None
                 if self.user:
-                    dbselect_cache = self.getUserPreference(path='cache.dbselect', pkg='sys')
+                    dbselect_cache = self.getUserPreference(path='cache.dbselect', pkg='sys')                        
                 if dbselect_cache is None:
                     dbselect_cache = self.site.config['client_cache?dbselect']
                 if dbselect_cache:
@@ -1195,6 +1206,8 @@ class GnrWebPage(GnrBaseWebPage):
                     page.dataRemote('gnr.user_preference', 'getUserPreference')
                 page.dataRemote('gnr.app_preference', 'getAppPreference')
                 page.dataController('genro.dlg.serverMessage("gnr.servermsg");', _fired='^gnr.servermsg')
+                page.dataController("genro.dom.setClass(dojo.body(),'bordered_icons',bordered);",
+                            bordered="^gnr.user_preference.sys.theme.bordered_icons",_onStart=True)
                 page.dataController("genro.getDataNode(nodePath).refresh(true);",
                                     nodePath="^gnr.serverEvent.refreshNode")
                                     

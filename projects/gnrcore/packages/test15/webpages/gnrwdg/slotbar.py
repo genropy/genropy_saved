@@ -27,7 +27,7 @@ class GnrCustomWebPage(object):
         """CSS on slotbar"""
         frame = pane.framePane(frameCode='frameOne',height='100px',shadow='3px 3px 5px gray',
                                 border='1px solid #bbb',rounded_top=10,margin='10px')
-        top = frame.top.slotBar(slots='*,|,foo,bar,|,*',side='top',
+        top = frame.top.slotBar(slots='*,|,foo,bar,|,*',
                                 gradient_deg=90,gradient_from='#fff',gradient_to='#bbb',
                                 border_bottom='1px solid #bbb',rounded_top=10,lbl_position='T',lbl_color='red',
                                 lbl_font_size='7px')

@@ -34,7 +34,7 @@ class TableHandler(BaseComponent):
     
     @extract_kwargs(condition=True,grid=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
-                            formInIframe=False,reloader=None,virtualStore=False,condition=None,condition_kwargs=None,
+                            formInIframe=False,reloader=None,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
                             lockable=False,pbl_classes=False,**kwargs):
         if relation:
@@ -63,16 +63,16 @@ class TableHandler(BaseComponent):
                                 _fired='^#FORM.controller.loaded',_delay=1)                
         top_slots = '#,delrow,addrow'
         if lockable:
-            top_slots = '#,delrow,addrow,viewlocker'
+            top_slots = '#,delrow,addrow,10,viewlocker'
         if readOnly:
             top_slots = '#'
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
-                                reloader=reloader,virtualStore=virtualStore,top_slots=top_slots,lockable=lockable,
+                                reloader=reloader,virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,lockable=lockable,
                                 condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs)    
         if pbl_classes:
             wdg.view.attributes.update(_class='pbl_roundedGroup')
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
-            wdg.view.top.bar.replaceSlots('tools,5,vtitle','vtitle')
+            wdg.view.top.bar.replaceSlots('vtitle','vtitle')
             wdg.view.top.bar.replaceSlots('count','')
 
         return wdg

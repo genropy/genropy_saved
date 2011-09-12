@@ -167,6 +167,11 @@ class RecordToHtmlPage(TableScriptOnRecord):
         self.filepath = filepath or os.path.join(self.hmtlFolderPath(), self.outputDocName(ext='html'))
         #else:
         #    self.filepath = None
+        if self.page_height<self.page_width:
+            self.orientation='Landscape'
+        else:
+            self.orientation='Portrait'
+        
         if rebuild or not os.path.isfile(self.filepath):
             html = self.createHtml(filepath=self.filepath, **kwargs)
 
@@ -175,7 +180,7 @@ class RecordToHtmlPage(TableScriptOnRecord):
                 html = f.read()
         if pdf:
             temp = tempfile.NamedTemporaryFile(suffix='.pdf')
-            self.page.getService('print').htmlToPdf(self.filepath, temp.name)
+            self.page.getService('print').htmlToPdf(self.filepath, temp.name, orientation = self.orientation)
             with open(temp.name, 'rb') as f:
                 html = f.read()
         self.onRecordExit(self.getData('record'))
@@ -528,6 +533,11 @@ class RecordToHtml(TableScriptOnRecord):
         self.filepath = filepath or os.path.join(self.hmtlFolderPath(), self.outputDocName(ext='html'))
         #else:
         #    self.filepath = None
+        if self.page_height<self.page_width:
+            self.orientation='Landscape'
+        else:
+            self.orientation='Portrait'
+        
         if rebuild or not os.path.isfile(self.filepath):
             html = self.createHtml(filepath=self.filepath, **kwargs)
 
@@ -536,7 +546,7 @@ class RecordToHtml(TableScriptOnRecord):
                 html = f.read()
         if pdf:
             temp = tempfile.NamedTemporaryFile(suffix='.pdf')
-            self.page.getService('print').htmlToPdf(self.filepath, temp.name)
+            self.page.getService('print').htmlToPdf(self.filepath, temp.name, orientation=self.orientation)
             with open(temp.name, 'rb') as f:
                 html = f.read()
         return html

@@ -25,8 +25,9 @@ import warnings
 def metadata(**kwargs):
     """add???"""
     def decore(func):
+        prefix = kwargs.pop('prefix',None)
         for k, v in kwargs.items():
-            setattr(func, k, v)
+            setattr(func, '%s_%s' %(prefix,k) if prefix else k, v)
         return func
         
     return decore

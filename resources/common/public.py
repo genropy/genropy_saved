@@ -462,6 +462,7 @@ class TableHandlerMain(BaseComponent):
         insidePublic = th_options.get('public')
         th_options['lockable'] = th_options.get('lockable',True)
         kwargs.update(th_options)
+        kwargs['extendedQuery'] = kwargs.get('extendedQuery',True)
         if insidePublic:
             root = root.rootContentPane(title=self.tblobj.name_long)
         else:

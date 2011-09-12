@@ -698,7 +698,6 @@ class IncludedView(BaseComponent):
         assert not 'addOnCb' in kwargs, 'no longer supported'
         assert not 'hasToolbar' in kwargs, 'no longer supported'
         assert not 'zoom' in kwargs, 'no longer supported'
-        assert not 'configurable' in kwargs, 'no longer supported'
         assert not print_kwargs, 'provided by default'
         assert not export_kwargs, 'provided by default'
         assert (frameCode or nodeId), 'nodeId or frameCode must be provided'
@@ -711,7 +710,7 @@ class IncludedView(BaseComponent):
         if pbl_classes:
             kwargs['_class'] = kwargs.get('_class','') + ' pbl_roundedGroup'
         frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,
-                               grid_nodeId=nodeId,grid_datamode=datamode,grid_table=table,**kwargs)
+                               grid_nodeId=nodeId,grid_datamode=datamode,table=table,**kwargs)
         frame.dataFormula(".locked","locked",locked="^#FORM.controller.locked")
         if storepath.startswith('.'):
             storepath = '#FORM.record%s' %storepath

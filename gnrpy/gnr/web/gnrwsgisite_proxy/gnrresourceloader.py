@@ -173,7 +173,7 @@ class ResourceLoader(object):
             plugin_py_requires = splitAndStrip(getattr(plugin_webpage_class, 'py_requires', ''), ',')
             py_requires.extend(plugin_py_requires)
         page_class = cloneClass('GnrCustomWebPage', page_factory)
-        page_class.__module__ = page_module
+        page_class.__module__ = page_module.__name__
         self.page_class_base_mixin(page_class, pkg=pkg)
         page_class.dojo_version = getattr(custom_class, 'dojo_version', None) or self.site.config[
                                                                                  'dojo?version'] or '11'

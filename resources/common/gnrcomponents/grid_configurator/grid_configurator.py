@@ -41,8 +41,8 @@ class GridConfigurator(BaseComponent):
         if objectsel:
             for i, r in enumerate(objectsel.data):
                 attrs = dict([(str(k), v) for k, v in r.items()])
-                menu.setItem(r['code'] or 'r_%i' % i, None, label=attrs.get('description'), pkey=attrs['pkey'],
-                               checked=selectedViewPkey == attrs['pkey'],gridId=gridId,**kwargs);
+                menu.setItem(r['code'] or 'r_%i' % i, None, caption=attrs.get('description'),
+                               gridId=gridId,**attrs);
     
     @public_method
     def deleteViewGrid(self, pkey=None):
@@ -52,15 +52,16 @@ class GridConfigurator(BaseComponent):
     @public_method
     def saveGridCustomView(self, gridId=None, save_info=None, data=None):
         description = save_info['description']
-        code = description.replace('.', '_').lower()
+        code = save_info['code']
         objtype = 'iv_%s_%s' % (self.pagename, gridId)
-        pkey = save_info.get('id')
+        pkey = save_info.get('pkey')
         record = self.package.loadUserObject(id=pkey)[1]
         if record:
             if record['code'] != code:
                 pkey = None
         record = self.package.saveUserObject(data, code=code,
                                              description=description,
+                                             notes=save_info['notes'],
                                              id=pkey,
                                              private=bool(save_info['private']),
                                              objtype=objtype)

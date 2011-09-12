@@ -19,3 +19,13 @@
     -webkit-box-shadow: 2px 2px 4px #403b3b;
     
 }
+
+.rbox24{
+    width:24px;
+    height:24px;
+    opacity:.7;
+}
+.dijitButtonOver .rbox24{
+    opacity:1;
+}
+  
