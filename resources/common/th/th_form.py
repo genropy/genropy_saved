@@ -68,7 +68,7 @@ class TableHandlerForm(BaseComponent):
             default_slots = '*,formcommands,semaphore,locker'
             slots = options.get('slots',default_slots)
             if readOnly:
-                slots = '*,dismiss,5'
+                slots = '*'
             if options.get('linker'):
                 slots = '*,form_revert,form_save,semaphore'
             if options.get('selector'):
@@ -77,6 +77,6 @@ class TableHandlerForm(BaseComponent):
                 slots = slots.replace(slots,'%s,locker' %slots)
             elif navigation:
                 slots = 'navigation,%s' %slots
-            form.top.slotToolbar(slots,dismiss_iconClass='tb_button tb_listview')   
+            form.top.slotToolbar(slots)   
         if not options.get('showfooter',True):
             form.attributes['hasBottomMessage'] = False
