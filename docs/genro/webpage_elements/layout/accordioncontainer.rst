@@ -9,8 +9,8 @@ accordionContainer
     **Type**: :ref:`layout widget <layout_index>`
     
     .. note:: The Genro accordionContainer has been taken from Dojo without adding any modifies.
-    In this page you will find some interesting features that we want to point up. For more information,
-    check the Dojo's accordionContainer documentation.
+              In this page you will find some interesting features that we want to point up.
+              For more information, check the Dojo's accordionContainer documentation.
     
     * :ref:`accordion_def`
     * :ref:`accordion_attributes`
