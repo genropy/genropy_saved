@@ -399,7 +399,7 @@ class GnrAppSync4D(GnrApp):
             if k != 'data':
                 tbl = attr['from']
                 if not tbl:
-                    return
+                    continue
                 if not '.' in tbl:
                     if self.area_zz:
                         pkg = self.area_zz
