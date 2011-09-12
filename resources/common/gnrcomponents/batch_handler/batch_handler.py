@@ -76,15 +76,18 @@ class TableScriptHandler(BaseComponent):
                             """,
                            _fired="^.save", pars='=.data',immediate=batch_dict.get('immediate',False))
     @public_method
-    def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectionFilterCb=None,
+    def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectedPkeys=None,selectionFilterCb=None,
                              sortBy=None,
                              selectedRowidx=None,sourcepage_id=None,
                              parameters=None, printerOptions=None, **kwargs):
         tblobj = self.tblobj or self.db.table(table)
         res_obj = self.site.loadTableScript(self, tblobj, '%s/%s' % (res_type, resource), class_name='Main')
         res_obj.sourcepage_id = sourcepage_id or self.page_id
-        res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
-                                selectionFilterCb=selectionFilterCb, sortBy=sortBy)
+        if selectionName:
+            res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
+                                    selectionFilterCb=selectionFilterCb, sortBy=sortBy)
+        else:
+            res_obj.selectedPkeys = selectedPkeys
         parameters = parameters or {}
         parameters['_printerOptions'] = printerOptions
         res_obj(parameters=parameters, **kwargs)
@@ -154,6 +157,7 @@ class TableScriptHandler(BaseComponent):
                                        SET .paramspath = params['paramspath'];
                                        SET .onCalling = params['onCalling'];
                                        SET .sourcepage_id = params['sourcepage_id'];
+                                       SET .selectedPkeys = params['selectedPkeys'];
                                        FIRE .build_pars_dialog;
                                        FIRE #table_script_dlg_parameters.open;
                                     """, subscribe_table_script_run=True)
@@ -174,6 +178,7 @@ class TableScriptHandler(BaseComponent):
                             sourcepage_id='=.sourcepage_id',
                             selectedRowidx="=.selectedRowidx",
                             sortBy="=.sortBy",
+                            selectedPkeys='=.selectedPkeys',
                             _POST=True, timeout=0)
 
         plugin_main.div(width='0').remote(self.table_script_parameters,
