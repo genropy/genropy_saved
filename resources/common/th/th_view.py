@@ -291,14 +291,16 @@ class TableHandlerView(BaseComponent):
                                timeout=180000, selectmethod='=.query.queryAttributes.selectmethod',
                                _onCalling=""" 
                                %s
-                               var newwhere = kwargs['where'].deepCopy();
-                               kwargs['where'].walk(function(n){
-                                    if(n.label.indexOf('parameter_')==0){
-                                        newwhere.popNode(n.label);
-                                        kwargs[n.label.replace('parameter_','')]=n._value;
-                                    }
-                               });
-                               kwargs['where'] = newwhere;
+                               if(kwargs['where']){
+                                    var newwhere = kwargs['where'].deepCopy();
+                                    kwargs['where'].walk(function(n){
+                                        if(n.label.indexOf('parameter_')==0){
+                                            newwhere.popNode(n.label);
+                                            kwargs[n.label.replace('parameter_','')]=n._value;
+                                        }
+                                    });
+                                    kwargs['where'] = newwhere;
+                               }
                                """
                                %self._th_hook('onQueryCalling',mangler=th_root,dflt='')(),
                                **condPars)
