@@ -31,7 +31,6 @@ class BatchMonitor(BaseComponent):
 
 class TableScriptHandler(BaseComponent):
     py_requires = 'foundation/dialogs,gnrcomponents/printer_option_dialog:PrinterOption'
-    js_requires = 'gnrcomponents/batch_handler/batch_handler'
     @public_method
     def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, **kwargs):
         pkgname, tblname = table.split('.')
@@ -127,7 +126,34 @@ class TableScriptHandler(BaseComponent):
         for forbidden in forbiddenNodes:
             result.pop(forbidden)
         return result
+
+
+class TableScriptRunner(TableScriptHandler):
+    py_requires = 'foundation/dialogs,gnrcomponents/printer_option_dialog:PrinterOption'
+    js_requires = 'gnrcomponents/batch_handler/batch_handler'
+
+    def onMain_table_script_runner(self):
+        page = self.pageSource()
+        self.table_script_controllers(page)
         
+    def table_script_resource_tree(self, pane, table=None, res_type=None, selectionName=None, gridId=None, _class=None,
+                                   **kwargs):
+        pane.dataRemote('.tree.store', self.table_script_resource_tree_data, table=table, cacheTime=10, res_type=res_type)
+        pane.tree(storepath='.tree.store', persist=False,
+                  labelAttribute='caption', hideValues=True,
+                  _class=_class,
+                  selected_resource='.resource',
+                  connect_ondblclick='FIRE .run_table_script',
+                  tooltip_callback="return sourceNode.attr.description || sourceNode.label;",
+                  **kwargs)
+        pane.dataController("""
+                            var selectedRowidx = gridId?genro.wdgById(gridId).getSelectedRowidx():null;
+                            var pars = {table:table,res_type:res_type,selectionName:selectionName,selectedRowidx:selectedRowidx,resource:resource,gridId:gridId}
+                            console.log(pars);
+                            PUBLISH table_script_run=pars;""",
+                            _fired="^.run_table_script", selectionName=selectionName, table=table,
+                            gridId=gridId, res_type=res_type, resource='=.resource')
+                            
     def table_script_dialog_center(self, parentBc, hasParameters=None, resource=None, **kwargs):
         if hasattr(self, 'table_script_option_pane'):
             paramsBc = parentBc.borderContainer(pageName='params', datapath='.data', **kwargs)
@@ -188,31 +214,3 @@ class TableScriptHandler(BaseComponent):
                                  table='=.table',
                                  _fired='^.build_pars_dialog')
 
-
-
-class TableScriptRunner(TableScriptHandler):
-    """Old"""
-    py_requires = 'foundation/dialogs,gnrcomponents/printer_option_dialog:PrinterOption'
-    js_requires = 'gnrcomponents/batch_handler/batch_handler'
-
-    def onMain_table_script_runner(self):
-        page = self.pageSource()
-        self.table_script_controllers(page)
-        
-    def table_script_resource_tree(self, pane, table=None, res_type=None, selectionName=None, gridId=None, _class=None,
-                                   **kwargs):
-        pane.dataRemote('.tree.store', self.table_script_resource_tree_data, table=table, cacheTime=10, res_type=res_type)
-        pane.tree(storepath='.tree.store', persist=False,
-                  labelAttribute='caption', hideValues=True,
-                  _class=_class,
-                  selected_resource='.resource',
-                  connect_ondblclick='FIRE .run_table_script',
-                  tooltip_callback="return sourceNode.attr.description || sourceNode.label;",
-                  **kwargs)
-        pane.dataController("""
-                            var selectedRowidx = gridId?genro.wdgById(gridId).getSelectedRowidx():null;
-                            var pars = {table:table,res_type:res_type,selectionName:selectionName,selectedRowidx:selectedRowidx,resource:resource,gridId:gridId}
-                            console.log(pars);
-                            PUBLISH table_script_run=pars;""",
-                            _fired="^.run_table_script", selectionName=selectionName, table=table,
-                            gridId=gridId, res_type=res_type, resource='=.resource')
