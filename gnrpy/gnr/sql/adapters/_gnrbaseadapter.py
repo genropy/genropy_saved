@@ -63,6 +63,11 @@ class SqlDbAdapter(object):
         raise NotImplementedException()
 
     def cursor(self, connection, cursorname=None):
+        if isinstance(connection, list):
+            if cursorname:
+                return [c.cursor(cursorname) for c in connection]
+            else:
+                return [c.cursor() for c in connection]
         if cursorname:
             return connection.cursor(cursorname)
         else:

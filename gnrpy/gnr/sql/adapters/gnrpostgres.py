@@ -67,12 +67,12 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def defaultMainSchema(self):
         return 'public'
 
-    def connect(self):
+    def connect(self, storename=None):
         """Return a new connection object: provides cursors accessible by col number or col name
         
         :returns: a new connection object"""
         dbroot = self.dbroot
-        kwargs = self.dbroot.get_connection_params()
+        kwargs = self.dbroot.get_connection_params(storename=storename)
         #kwargs = dict(host=dbroot.host, database=dbroot.dbname, user=dbroot.user, password=dbroot.password, port=dbroot.port)
         kwargs = dict(
                 [(k, v) for k, v in kwargs.items() if v != None]) # remove None parameters, psycopg can't handle them

@@ -913,11 +913,18 @@ class SqlQuery(object):
                                                                   
     def cursor(self):
         """Get a cursor of the current selection."""
+        
         return self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname)
         
     def fetch(self):
         """Get a cursor of the current selection and fetch it"""
         cursor = self.cursor()
+        if isinstance(cursor, list):
+            result = []
+            for c in cursor:
+                result.extend(c.fetchall())
+                c.close()
+            return result
         result = cursor.fetchall()
         cursor.close()
         return result
@@ -978,6 +985,13 @@ class SqlQuery(object):
                 data.extend([r for r in rows if pyWhere(r)])
         else:
             cursor = self.cursor()
+            if isinstance(cursor, list):
+                data = []
+                for c in cursor:
+                    data.extend(cursor.fetchall() or [])
+                    index = cursor.index
+                    c.close()
+                return index, data            
             data = cursor.fetchall() or []
             index = cursor.index
         return index, data
@@ -1053,12 +1067,27 @@ class SqlQuery(object):
     def count(self):
         """Return rowcount. It does not save a selection"""
         compiledQuery = self.compileQuery(count=True)
-        cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname)
-        l = cursor.fetchall()
-        n = len(l) # for group or distinct query select -1 for each group 
-        if n == 1 and cursor.description[0][0] == 'gnr_row_count': # for plain query select count(*)
-            n = l[0][0]
-        cursor.close()
+        storename = self.sqlparams.get('storename', self.db.currentEnv.get('storename', '_main_db'))
+        if storename=='*':
+            n = 0
+            with self.db.tempEnv(storename='_main_db'):
+                dbstores = ['_main_db']+self.db.table('multidb.subscription').query('$dbstore' ,where='$tablename =:tablename', tablename=self.dbtable.name).fetch()
+            for dbstore in dbstores:
+                with self.db.tempEnv(storename=dbstore):
+                    cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname)
+                    l = cursor.fetchall()
+                    pn = len(l) # for group or distinct query select -1 for each group 
+                    if pn == 1 and cursor.description[0][0] == 'gnr_row_count': # for plain query select count(*)
+                        pn = l[0][0]
+                    n = n + pn
+                    cursor.close()
+        else:
+            cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname)
+            l = cursor.fetchall()
+            n = len(l) # for group or distinct query select -1 for each group 
+            if n == 1 and cursor.description[0][0] == 'gnr_row_count': # for plain query select count(*)
+                n = l[0][0]
+            cursor.close()
         return n
         
 class SqlSelection(object):
