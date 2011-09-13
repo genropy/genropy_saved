@@ -15,17 +15,9 @@ from gnr.core.gnrstring import boolean
 
 import os
 
-class Public(BaseComponent):
-    """docstring for Public for common_d11: a complete restyling of Public of common_d10"""
-    css_requires = 'public'
-    plugin_list = 'menu_plugin,batch_monitor,chat_plugin'
-    js_requires = 'public'
-    py_requires = """foundation/menu:MenuLink,
-                     foundation/dialogs,
-                     foundation/macrowidgets,
-                     public:PublicSlots,
-                     gnrcomponents/batch_handler/batch_handler:BatchMonitor,
-                     gnrcomponents/chat_component/chat_component:ChatComponent"""
+class PublicBase(BaseComponent):
+    #css_requires = 'public'
+    py_requires = """public:PublicSlots"""
                      
     def userRecord(self, path=None):
         if not hasattr(self, '_userRecord'):
@@ -332,6 +324,21 @@ class Public(BaseComponent):
             if images:
                 return images[0]
 
+    
+    
+class Public(PublicBase):
+    """docstring for Public for common_d11: a complete restyling of Public of common_d10"""
+    css_requires = 'public'
+    plugin_list = 'menu_plugin,batch_monitor,chat_plugin'
+    js_requires = 'public'
+    py_requires = """foundation/menu:MenuLink,
+                     foundation/dialogs,
+                     foundation/macrowidgets,
+                     public:PublicSlots,
+                     gnrcomponents/batch_handler/batch_handler:BatchMonitor,
+                     gnrcomponents/chat_component/chat_component:ChatComponent"""
+                     
+
 class PublicSlots(BaseComponent):
     @struct_method
     def public_slotbar_workdateBtn(self,pane,**kwargs):
@@ -433,7 +440,7 @@ class PublicSlots(BaseComponent):
 
 
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:Public,th/th:TableHandler"""
+    py_requires = """public:PublicBase,th/th:TableHandler"""
     plugin_list=''
     formResource = None
     viewResource = None
@@ -460,6 +467,7 @@ class TableHandlerMain(BaseComponent):
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = th_options.get('formInIframe')
         insidePublic = th_options.get('public')
+        tablecode = self.maintable.replace('.','_')
         th_options['lockable'] = th_options.get('lockable',True)
         kwargs.update(th_options)
         kwargs['extendedQuery'] = kwargs.get('extendedQuery',True)
@@ -467,8 +475,21 @@ class TableHandlerMain(BaseComponent):
             root = root.rootContentPane(title=self.tblobj.name_long)
         else:
             root.attributes.update(tag='ContentPane',_class=None)
+        if hasattr(self,'stats_main') or hasattr(self,'hv_main_form'):
+            tc = root.stackContainer(selectedPage='^%s.view.selectedPage' %tablecode)
+            root = tc.contentPane(title='!!Main View',pageName='th_main')
+            if hasattr(self,'stats_main'):
+                self.stats_main(tc,title='!!Statistical View',datapath='%s.view' %tablecode,pageName='th_stats')
+            if hasattr(self,'hv_main_form'):
+                self.stats_main(tc,title='!!Hierarchical View',datapath='%s.view' %tablecode,pageName='th_hview')
         thwidget = th_options.get('widget','stack')
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=self.maintable.replace('.','_'),**kwargs)
+        
+        if hasattr(self,'stats_main'):
+            viewbar = th.view.top.bar
+            viewbar.replaceSlots('resourceMails','resourceMails,5,statisticalHandler')
+            viewbar.statisticalHandler.slotButton('!!Statistical View',iconClass='iconbox sum',action = 'SET .selectedPage="th_stats";')
+            
         if insidePublic and hasattr(self,'th_customizePublicFrame'):
             self.th_customizePublicFrame(root)
         th.attributes.update(dict(border_left='1px solid gray'))

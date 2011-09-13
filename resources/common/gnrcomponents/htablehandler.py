@@ -235,7 +235,7 @@ class HTableHandler(HTableHandlerBase):
                               rootpath=rootpath, editMode=editMode, label=label)
                               
         if editMode == 'bc':
-            bc = parent.borderContainer(region='center', datapath=datapath, nodeId=nodeId, margin='2px')
+            bc = parent.borderContainer(region='center', datapath=datapath, nodeId=nodeId, margin='2px',design='sidebar')
             treepane = bc.borderContainer(region='left', width='220px', splitter=True, _class='pbl_roundedGroup')
             formPanePars['region'] = 'center'
             formBC = bc.borderContainer(region='center')
@@ -284,7 +284,7 @@ class HTableHandler(HTableHandlerBase):
         norecord = sc.contentPane(id='no_record_page', pageName='no_record').div('', _class=noRecordClass)
         bc = sc.borderContainer(pageName='record_selected')
         top = commonTop if editMode == 'bc' else bc.contentPane(region='top', overflow='hidden')
-        toolbar = top.toolbar(_class='standard_toolbar')
+        toolbar = top.slotToolbar('2,breadcrumb,*,hdelete,hadd,hsave,hrevert,hsemaphre,hlock')
         toolbar.dataFormula('.edit.status.locked', True, _onStart=True)
         toolbar.dataController("""
                             if(isLocked){
@@ -296,7 +296,7 @@ class HTableHandler(HTableHandlerBase):
                                _fired='^.edit.status.changelock',
                                isLocked='=.edit.status.locked')
         toolbar.dataController("""
-                             SET .edit.status.statusClass = isLocked?'tb_button icnBaseLocked':'tb_button icnBaseUnlocked';
+                             SET .edit.status.statusClass = isLocked?'iconbox lock':'iconbox unlock';
                              SET .edit.status.lockLabel = isLocked?unlockLabel:lockLabel;
                                """, isLocked="^.edit.status.locked", lockLabel='!!Lock',
                                unlockLabel='!!Unlock')
@@ -310,7 +310,7 @@ class HTableHandler(HTableHandlerBase):
                                 SET .edit.selectedPage='no_record';
                                 SET .edit.no_record = true;                                
                             }
-                            """, pkey="^.tree.pkey")
+                            """, pkey="^.tree.pkey",_onStart=True)
         bc.dataController("""
                             var destPkey = selPkey;
                             var cancelCb = function(){
@@ -389,71 +389,73 @@ class HTableHandler(HTableHandlerBase):
                 for k, v in childTypes.items():
                     childTypesMenu.setItem(k, None, caption=v)
                     pane.data(storepath, childTypesMenu)
-            ddb = pane.div(label='!!Add', float='left', hidden=disabled,
-                           margin='2px', _class='buttonIcon icnBaseAdd', showLabel=False,
+            ddb = pane.div(label='!!Add', hidden=disabled,
+                           margin='2px', _class='iconbox add_record', showLabel=False,
                            visible='==_tree_caption!=null',
                            _tree_caption='^.tree.caption', _storepath=storepath)
                            
             ddb.menu(storepath=storepath, modifiers='*', _class='smallmenu',
-                     action="SET .edit.childType = $1.fullpath; FIRE .edit.add_button;")
+                     action="SET .edit.childType = $1.fullpath; FIRE .edit.add_child;")
         else:
-            pane.button(label='!!Add', float='left', disabled=disabled,
-                        iconClass='icnBaseAdd', showLabel=False,
-                        fire='.edit.add_button', visible='==tree_caption!=null',
+            pane.slotButton(label='!!Add Sibling',  disabled=disabled,
+                        iconClass='iconbox add_record', showLabel=False,
+                        action='FIRE .edit.add_sibling;', visible='==tree_caption!=null',
                         tree_caption='^.tree.caption')
                         
     def ht_edit_toolbar(self, toolbar, nodeId=None, disabled=None, editMode=None, childTypes=None):
-        nav = toolbar.div(float='left').div(float='left', nodeId='%s_nav' % nodeId, font_size='.9em')
-        self._ht_add_button(toolbar.div(float='left'), childTypes=childTypes, disabled=disabled)
+        nav = toolbar.breadcrumb.div(nodeId='%s_nav' % nodeId)
+        self._ht_add_button(toolbar.hadd, childTypes=childTypes, disabled=disabled)
         toolbar.dataController("""
         
                             var pathlist = currpath.split('.');
                             var rootName = this.getRelativeData('.tree.store.#0?caption');
-                            var rootnode = genro.nodeById(labelNodeId).clearValue();
+                            var rootnode = genro.nodeById(labelNodeId)
+                            var nodeattr = this.getRelativeData('.tree.store').getNode(currpath).attr;
+                            rootnode.freeze().clearValue();
                             var label,path2set;
+                            var row = rootnode._('table',{'border_spacing':0})._('tbody')._('tr');
                             for(var i=0;i<pathlist.length-1;i++){
                                 label = pathlist[i];
                                 path2set = path2set?path2set+'.'+label:label;
                                 var action = "this.setRelativeData('.tree.path','"+path2set+"');";
                                 var showLabel = true;
                                 if(label=='_root_'){
-                                    label = rootName;
+                                    row._('td')._('div',{'connect_onclick':action,_class:'bread_root',tip:rootName});
                                 }else{
-                                    label = label;
+                                    row._('td',{'innerHTML':label,'connect_onclick':action,_class:'iconbox_text',tip:this.getRelativeData('.tree.store.'+path2set+'?description')});
                                 }
-                                rootnode._('button',{'label':label,'action':action,'float':'left',
-                                                    'iconClass':'breadcrumbIcn','showLabel':showLabel});
+                                row._('td')._('div',{'_class':'bread_middle'});
                                     
                             }
-                            rootnode._('button',{label:record_label,'float':'left',iconClass:'breadcrumbIcn',color:'red'});
+                            row._('td',{innerHTML:pathlist[pathlist.length-1],_class:'iconbox_text',tip:nodeattr.description});
+                            var add_action = "FIRE .edit.add_child;";
+                            row._('td')._('div',{'_class':'bread_middle'});
+                            row._('td')._('div',{'_class':'bread_add',connect_onclick:add_action});;
 
+                            rootnode.unfreeze();
 
                             """,
                                labelNodeId='%s_nav' % nodeId,
-                               currpath='=.tree.path',
-                               record_label='^.tree.caption',
-                               tree_code='=.tree.code',
+                               currpath='^.tree.path',
+                               #record_description='=.tree.description',
+                               #tree_code='=.tree.code',
                                add_label='!!Add')
                                
         toolbar.dataController("""
-                                  if(modifier=="Shift"){
-                                        SET .edit.defaults.parent_code = GET .edit.record.parent_code;
-                                        SET .tree.pkey = '*newrecord*';
-                                  }else{
-                                        SET .edit.defaults.parent_code = tree_code;
-                                        SET .tree.pkey ='*newrecord*';       
-                                  }                                  
-                                  
+                                SET .edit.defaults.parent_code = tree_code;
+                                SET .tree.pkey ='*newrecord*';                                         
                                 """, tree_code='=.tree.code',
-                               modifier="^.edit.add_button")
+                               modifier="^.edit.add_child")
                                
-        buttons = toolbar.div(float='right')
+        toolbar.dataController("""
+                                SET .edit.defaults.parent_code = GET .edit.record.parent_code;
+                                SET .tree.pkey = '*newrecord*';                                  
+                                """, tree_code='=.tree.code',
+                               modifier="^.edit.add_sibling")
         
-        spacer = buttons.div(float='right', _class='button_placeholder')
-        spacer.button(label='^.edit.status.lockLabel', fire='.edit.status.changelock',
+        toolbar.hlock.slotButton(label='^.edit.status.lockLabel', action='FIRE .edit.status.changelock;',
                       iconClass="^.edit.status.statusClass", showLabel=False)
-        spacer = toolbar.div(float='right', _class='button_placeholder')
-        spacer.dataController("""genro.dom.removeClass(semaphoreId,"greenLight redLight yellowLight");
+        toolbar.dataController("""genro.dom.removeClass(semaphoreId,"greenLight redLight yellowLight");
               if(isValid){
                  if(isChanged){
                      genro.dom.addClass(semaphoreId,"yellowLight");
@@ -465,20 +467,18 @@ class HTableHandler(HTableHandlerBase):
               }
               """, isChanged="^.edit.form.changed", semaphoreId='%s_semaphore' % nodeId,
                               isValid='^.edit.form.valid')
-        spacer.div(nodeId='%s_semaphore' % nodeId, _class='semaphore', margin_top='3px', hidden='^.edit.no_record')
-        toolbar.button('!!Save', fire=".edit.save", float='right',
-                       iconClass="tb_button db_save", showLabel=False,
+        toolbar.hsemaphre.div(nodeId='%s_semaphore' % nodeId, _class='semaphore', hidden='^.edit.no_record')
+        toolbar.hsave.slotButton('!!Save', action="FIRE .edit.save", float='right',
+                       iconClass="iconbox save", showLabel=False,
                        hidden='^.edit.no_record',
                        disabled=disabled)
-        toolbar.button('!!Revert', fire=".edit.load", iconClass="tb_button db_revert",
+        toolbar.hrevert.slotButton('!!Revert', action="FIRE .edit.load;", iconClass="iconbox revert",
                        hidden='^.edit.no_record',
-                       float='right',
                        showLabel=False, disabled=disabled)
-        toolbar.button('!!Delete', fire=".edit.delete", iconClass='db_del tb_button',
+        toolbar.hdelete.slotButton('!!Delete', action="FIRE .edit.delete;", iconClass='iconbox delete_record',
                        showLabel=False, disabled=disabled,
                        hidden='^.edit.no_record',
-                       visible='^.edit.enableDelete',
-                       float='right')
+                       visible='^.edit.enableDelete')
         toolbar.dataFormula('.edit.enableDelete', 'child_count==0', child_count='^.tree.child_count')
         
         if editMode == 'sc':
@@ -510,7 +510,7 @@ class HTableHandler(HTableHandlerBase):
             self._ht_add_button(top.div(float='left'), disabled=disabled, childTypes=childTypes)
             
         tblobj = self.db.table(table)
-        center = bc.contentPane(region='center')
+        center = bc.contentPane(region='center',gradient_from='white',gradient_to='#D5DDE5',gradient_deg='360')
         center.data('.tree.store', self.ht_treeDataStore(table=table, rootpath=rootpath, rootcaption=tblobj.name_plural)
                     ,
                     rootpath=rootpath)
