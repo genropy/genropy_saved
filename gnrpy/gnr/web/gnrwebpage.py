@@ -1213,6 +1213,7 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController("""if(url){
                                         genro.download(url,null,"print")
                                         };""", url='^gnr.printurl')
+                page.dataController("genro.openWindow(url,filename);",url='^gnr.clientprint',filename='!!Print')
                                         
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
                 page.dock(id='dummyDock',display='none')

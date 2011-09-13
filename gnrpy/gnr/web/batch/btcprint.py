@@ -76,7 +76,7 @@ class BaseResourcePrint(BaseResourceBatch):
     def result_handler(self):
         resultAttr = dict()
         result = getattr(self, 'result_handler_%s' % self.print_mode)(resultAttr)
-        result = result or 'Execution completed'
+        result = result or ''
         return result, resultAttr
 
     def result_handler_mail_deliver(self, resultAttr):
@@ -99,12 +99,7 @@ class BaseResourcePrint(BaseResourceBatch):
         mailpars['attachments'] = self.results.values()
         mailmanager.sendmail(**mailpars)
 
-    def result_handler_client_print(self, resultAttr):
-        pass
-        #self.page.setInClientData(path='#table_script_dlg_parameters.close',value=True,fired=True)
-        #
-        #for html in self.result_info.values():
-        #    self.page.setInClientData(path='gnr.printurl',value=html,fired=True)
+
 
     def result_handler_server_print(self, resultAttr):
         printer = self.print_handler.getPrinterConnection(self.server_print_options.pop('printer_name'),
@@ -122,8 +117,11 @@ class BaseResourcePrint(BaseResourceBatch):
             self.fileurl = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True, download=True)
             resultAttr['url'] = self.fileurl
             resultAttr['document_name'] = save_as
-            if self.batch_immediate:
-                self.page.setInClientData(path='gnr.downloadurl',value=self.fileurl,fired=True)
+            resultAttr['url_print'] = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True,target='_blank')
+            if self.batch_immediate=='print':
+                self.page.setInClientData(path='gnr.clientprint',value=self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),fired=True)
+            elif self.batch_immediate=='download':
+                self.page.setInClientData(path='gnr.downloadurl',value=self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),fired=True)
 
     def table_script_option_pane(self, pane, resource=None):
         """add???
@@ -140,12 +138,11 @@ class BaseResourcePrint(BaseResourceBatch):
                              action='SET .print_mode=$1.print_mode', field_group='print_mode', lbl_width='1.5em')
         fb.data('.print_mode', 'pdf')
         #fb.radiobutton(value='^.client_print',default_value=True,label='!!Client print',print_mode='client_print')
-        fb.radiobutton(value='^.pdf', label='!!Pdf download', lbl=' ', print_mode='pdf', default_value=True)
+        fb.radiobutton(value='^.pdf', label='!!Pdf', lbl=' ', print_mode='pdf', default_value=True)
         fb.radiobutton(value='^.server_print', label='!!Server print', lbl=' ', print_mode='server_print')
 
         center = bc.stackContainer(region='center', selectedPage='^.#parent.print_mode', datapath='.print_mode_option')
 
-        #self.table_script_options_client_print(center.contentPane(pageName='client_print'))
         self.table_script_options_pdf(center.contentPane(pageName='pdf'))
         self.server_print_option_pane(center.contentPane(pageName='server_print'), resource=resource)
         if self.current_batch.mail_tags and self.application.checkResourcePermission(self.current_batch.mail_tags,
@@ -155,22 +152,6 @@ class BaseResourcePrint(BaseResourceBatch):
             if hasattr(self.current_batch, 'mail_address'):
                 fb.radiobutton(value='^.mail_deliver', label='!!Deliver mails', print_mode='mail_deliver', lbl=' ')
                 self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver', datapath='.mail'))
-        #fb_orientation = top.formbuilder(cols=4, border_spacing='4px',margin_top='2px',font_size='.9em',
-        #                action='SET .print_mode_option.orientation=$1.orientation',group='orientation',lbl_width='1.5em')
-        #fb_orientation.data('.orientation', 'Portrait')
-        #fb_orientation.radiobutton(value='^.portrait',label='!!Portrait',lbl=' ',group='orientation',orientation='Portrait',colspan=2,default_value=True)
-        #fb_orientation.radiobutton(value='^.landscape',label='!!Landscape',lbl=' ',group='orientation',orientation='Landscape',colspan=2)
-
-        
-
-    def table_script_options_client_print(self, pane):
-        """add???
-        
-        :param pane: the add????????????????????????????"""
-        fb = self.table_script_fboptions(pane, tdl_width='3em')
-        fb.simpleTextArea(value='^.#parent.#parent.batch_note',
-                          height='20ex', lbl='!!Notes',
-                          lbl_vertical_align='top')
 
     def table_script_options_pdf(self, pane):
         fb = self.table_script_fboptions(pane, fld_width=None, tdl_width='5em')

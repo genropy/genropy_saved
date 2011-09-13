@@ -131,16 +131,21 @@ batch_monitor.btc_result = function(node, sourceNode) {
     ;
 
     var result = batch_value.getItem('result');
-    if (result) {
-        var url = batch_value.getItem('result?url');
+    var url = batch_value.getItem('result?url');
+    var url_print = batch_value.getItem('result?url_print');
+
+    if (url || url_print || result) {
+
         if (result) {
             resultpane._('div', {innerHTML:result});
         }
-        ;
+        resultpane._('div',{innerHTML:batch_value.getItem('result?document_name')});
         if (url) {
-            resultpane._('div')._('a', {href:url,innerHTML:batch_value.getItem('result?document_name') || 'download'});
+            resultpane._('a',{href:url,display:'inline-block'})._('div', {_class:'iconbox inbox'});
         }
-        ;
+        if(url_print){
+            resultpane._('a',{href:url_print,display:'inline-block'})._('div', {_class:'iconbox print'});
+        }
     }
     topright = sourceNode.toprightSourceNode.clearValue();
     topright._('div', {_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"' + batch_id + '","all_batches":$1.shiftKey})'});

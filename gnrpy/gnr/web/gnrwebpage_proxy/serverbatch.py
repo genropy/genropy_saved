@@ -210,6 +210,7 @@ class GnrWebBatch(GnrBaseProxy):
             store.set_datachange('%s.thermo.%s' % (self.batch_path, code), progress,
                                  attributes=dict(progress=progress, message=message, maximum=maximum), replace=True,
                                  reason='tl_upd')
+            store.setItem('lastBatchUpdate',curr_time)
 
     def thermo_wrapper(self, iterable=None, line_code=None, message=None, keep=True, **kwargs):
         """
