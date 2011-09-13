@@ -640,4 +640,41 @@
 }
 /* @end */
 
+/* @group _reserved */
 
+.iconbox_text{
+    background: #777;
+    color:whitesmoke;
+    cursor:pointer;
+    opacity:.7;
+    padding-left:2px;
+    padding-right:1px;
+    font-size:.9em;
+}
+.bread_middle {
+    background: url(16/_reserved/bread_middle.png) no-repeat center center;
+    height: 18px;
+    width: 18px;
+    opacity:.7;
+
+}
+.bread_add {
+    background: url(16/_reserved/bread_add.png) no-repeat center center;
+    height: 18px;
+    width: 18px;
+    cursor:pointer;
+    opacity:.7;
+
+}
+
+
+.bread_root {
+    background: url(16/_reserved/bread_root.png) no-repeat center center;
+    height: 18px;
+    width: 18px;
+    cursor:pointer;
+    opacity:.7;
+
+}
+
+/* @end */
