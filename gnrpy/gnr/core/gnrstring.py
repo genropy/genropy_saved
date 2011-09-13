@@ -662,7 +662,7 @@ def fromText(mystring, obj, locale=None):
     
     :param mystring: add???
     :param obj: add???
-    :param locale: string. The current locale (e.g: en, en_us, it)"""
+    :param locale: the current locale (e.g: en, en_us, it)"""
     #what?
     return parselocal(mystring, obj, locale=locale)
     
@@ -673,7 +673,7 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
     according to the given localization or format
     
     :param obj: the object to be transformed in a string
-    :param locale: string. The current locale (e.g: en, en_us, it)
+    :param locale: the current locale (e.g: en, en_us, it)
     :param format: add???
     :param mask: add???
     :param encoding: The multibyte character encoding you choose
@@ -695,7 +695,7 @@ def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
     """add???
     
     :param dtype: the :ref:`datatype`
-    :param locale: string. The current locale (e.g: en, en_us, it)
+    :param locale: the current locale (e.g: en, en_us, it)
     :param format: add???
     :param mask: add???
     :param encoding: The multibyte character encoding you choose"""

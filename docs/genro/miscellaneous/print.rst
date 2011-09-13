@@ -12,9 +12,11 @@ print
         * :ref:`print_settings_import`
         * :ref:`print_settings_main`
         * :ref:`print_settings_webpage_variables`
-        * :ref:`print_settings_table_script_parameters_pane`
+        * the :ref:`print_settings_table_script_parameters_pane` method
+        * :ref:`print_settings_onrecordexit`
         * :ref:`print_settings_webpage`
         * :ref:`print_setting_dialog`
+        * :ref:`print_setting_dialog_print_region`
         * :ref:`example <print_settings_example>`
         * :ref:`print_settings_location`
         
@@ -60,7 +62,7 @@ print settings file
     In the Main class you have to:
     
     * add some :ref:`print_settings_webpage_variables`
-    * create the :ref:`print_settings_table_script_parameters_pane` (it handles the
+    * create the :ref:`print_settings_table_script_parameters_pane` method (it handles the
       :ref:`print_setting_dialog` GUI)
       
     When you created it, you have to:
@@ -126,37 +128,49 @@ webpage variables
     * *dialog_height_no_par*: add???
     * *dialog_width*: a string with the :ref:`print_setting_dialog` width
     * *mail_address*: add???
-    * *mail_tags*: the permits of the mail. add???
+    * *mail_tags*: specify the authorization level to send mail. More information
+      on :ref:`print_setting_dialog_print_region` section
     * *templates*: add???
     
 .. _print_settings_table_script_parameters_pane:
 
-``table_script_parameters_pane`` method
----------------------------------------
+``table_script_parameters_pane``
+--------------------------------
 
     .. method:: table_script_parameters_pane(self, pane, **kwargs)
                 
                 **Parameters: pane** - it represents a :ref:`contentpane` through
                 which you can attach your :ref:`webpage elements <webpage_elements_index>`
     
+    This ``table_script_parameters_pane`` is an hook method.
+    
     Through this method you can add some additional parameters of your batch. In particular,
     you can modify the "second region" of the :ref:`print_setting_dialog` (in the next image,
-    that region is pointed by the number 2). The print setting dialog is the dialog that
+    the region is pointed by the number 2). The print setting dialog is the dialog that
     represents the :ref:`print setting file <print_settings>` in your :ref:`webpages_webpages`:
     
     *In the image, the print setting dialog. The point 2 is the pane handled by the*
     *``table_script_parameters_pane`` method*
         
-    .. image:: ../_images/print/print_settings_dialog.png
+    .. image:: ../_images/print/print_settings_dialog_2.png
     
-    **Example**::
+    **Example**: let's see the code relative to the previous image::
     
         def table_script_parameters_pane(self, pane, **kwargs):
             fb = pane.formbuilder(cols=2)
-            # other code lines here!
+            self.periodCombo(fb,lbl='!!Period',period_store='.period')
+            fb.div(value='^.period.period_string', font_size='.9em',font_style='italic')
+            fb.checkbox(value='^.hideTemplate',label='!!Hide headers')
             
-    In the example we wrote the definition line of the method and we attach a :ref:`formbuilder`
-    to the contentPane (``pane``)
+    We used the periodCombo in the example; for more information about it check the
+    :ref:`periodcombo` page
+    
+.. _print_settings_onrecordexit:
+
+onRecordExit
+------------
+
+    .. automethod:: gnr.web.batch.btcprint.BaseResourcePrint.onRecordExit
     
 .. _print_settings_webpage:
 
@@ -204,16 +218,60 @@ print setting dialog
     
     It is divided in five regions:
     
-    * *region 1*: it includes the window title, configurable through the ``batch_title`` :ref:`webpage variable
-      <print_settings_webpage_variables>`
-    * *region 2*: it includes a :ref:`print_settings_table_script_parameters_pane`
-    * *region 3*: it includes a :meth:`table_script_option_pane
+    * *region 1 - title region*: it includes the window title, configurable through the ``batch_title``
+      :ref:`webpage variable <print_settings_webpage_variables>`
+    * *region 2 - customizable region*: it includes a :ref:`print_settings_table_script_parameters_pane`
+      hook method
+    * *region 3 - print region*: it includes a :meth:`table_script_option_pane
       <gnr.web.batch.btcprint.BaseResourcePrint.table_script_option_pane>` method
-    * *region 4*: it includes a :meth:`table_script_options_client_print
+    * *region 4 - notes region*: it includes a :meth:`table_script_options_client_print
       <gnr.web.batch.btcprint.BaseResourcePrint.table_script_options_client_print>` method
-    * *region 5*: it includes a bottom pane with the ``Cancel`` (cancels the dialog) and ``Confirm``
-      (starts the batch) buttons
+    * *region 5 - bottom region*: it includes a bottom pane with the ``Cancel`` (cancels
+      the dialog) and ``Confirm`` (starts the batch) buttons
       
+    We have already described most of the regions (follow the relative links). The only one that needs more
+    explanations is the print region:
+    
+.. _print_setting_dialog_print_region:
+
+print setting dialog - print region
+-----------------------------------
+
+    In the print regions you can swap up to 4 frames through a :ref:`radiobutton group <radiobutton>`.
+    The 4 frames are:
+    
+    #. **PDF download**:
+    
+       .. image:: ../_images/print/print_pdf_download.png
+       
+       From this pane user can choose a name for the saved file and can choose through a :ref:`checkbox`
+       to save the file in a zip format.
+       
+    #. **Server print**:
+    
+       .. image:: ../_images/print/print_server_print.png
+       
+       From this pane user can choose the printer, the paper type and the tray.
+       
+    #. **PDF by mail**:
+    
+       .. image:: ../_images/print/print_pdf_by_mail.png
+       
+       .. note:: this pane is accessible only by users that have some administration privileges.
+                 By default only users with 'admin' privileges can access to this (more information
+                 on the :ref:`auth` page). You can change this default modifying the *mail_tags*
+                 :ref:`print_settings_webpage_variables`
+                 
+       From this pane user can send the PDF by email.
+       
+    #. **Deliver mails**:
+    
+       .. image:: ../_images/print/print_deliver_mails.png
+       
+       From this pane user can deliver emails.
+       
+       add???
+       
 .. _print_settings_example:
 
 print settings file - example
@@ -238,9 +296,9 @@ print settings file - example
                 fb.div(value='^.period.period_string', font_size='.9em',font_style='italic')
                 fb.checkbox(value='^.hideTemplate',label='!!Hide headers')
                 
-    We used the periodCombo in the example; for more information about it
-    check the :ref:`periodcombo` page
-    
+            def onRecordExit(self, record=None):
+                print record
+                
 .. _print_settings_location:
 
 file location

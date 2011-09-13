@@ -132,7 +132,7 @@ class GnrBaseWebPage(GnrObject):
         :param datestr: add???
         :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
                          value of the *locale* parameter
-        :param locale: string. The current locale (e.g: en, en_us, it)"""
+        :param locale: the current locale (e.g: en, en_us, it)"""
         workdate = workdate or self.workdate
         locale = locale or self.locale
         period = datestr
@@ -660,8 +660,8 @@ class GnrBaseWebPage(GnrObject):
             
     def rootWidget(self, root, **kwargs):
         """Return a :ref:`contentpane`. You can attach to it any :ref:`webpage_elements_index`.
-        You can override this method to receive a different :ref:`layout_index` widget respect to
-        the ``contentPane``.
+        You can override this method to receive a different :ref:`layout widget <layout>`
+        respect to the ``contentPane``.
         
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` documentation section."""

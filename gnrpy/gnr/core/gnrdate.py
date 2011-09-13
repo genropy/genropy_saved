@@ -58,7 +58,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
     :param months: names of months according to locale (just for caching)
     :param days: names of weekdays according to locale (just for caching)
     :param quarters: names of quarters according to locale (just for caching)
-    :param locale: string. The current locale (e.g: en, en_us, it)
+    :param locale: the current locale (e.g: en, en_us, it)
     :param isEndPeriod: if the string represents a period, return the end date (default return the start date)
     :returns: datetime.date or tuple(year,month) or None
     
@@ -220,7 +220,7 @@ def periodCaption(dateFrom=None, dateTo=None, locale=None):
     
     :param dateFrom: add???
     :param dateTo: add???
-    :param locale: string. The current locale (e.g: en, en_us, it)"""
+    :param locale: the current locale (e.g: en, en_us, it)"""
     localNoPeriod = gnrlocale.getDateKeywords('no period', locale)[0]
     localTo = gnrlocale.getDateKeywords('to', locale)[0]
     localFrom = gnrlocale.getDateKeywords('from', locale)[0]
@@ -258,7 +258,7 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     :param datestr: add???
     :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
                      value of the *locale* parameter
-    :param locale: string. The current locale (e.g: en, en_us, it)
+    :param locale: the current locale (e.g: en, en_us, it)
     :param returnDate: add???
     :param dtype: the :ref:`datatype`"""
     workdate = workdate or datetime.date.today()
@@ -400,7 +400,7 @@ def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
     
     :param period: add???
     :param wkdlist: add???
-    :param locale: string. The current locale (e.g: en, en_us, it)
+    :param locale: the current locale (e.g: en, en_us, it)
     :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
                      value of the *locale* parameter
     :param asDate: add???. Default value is ``True``"""

@@ -12,7 +12,7 @@ introduction
     
     You can act on a Genro :ref:`webpages_webpages` mainly through:
     
-    * :ref:`layout_index` elements - allow to create the webpage's layout
+    * :ref:`layout` - allow to create the webpage's layout
     * :ref:`html`
     * :ref:`css` elements
     * :ref:`javascript` elements

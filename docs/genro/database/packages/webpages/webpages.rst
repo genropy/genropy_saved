@@ -228,9 +228,10 @@ css_icons
         * retina/gray
         * retina/lime
         * retina/red
+        * retina/violet
         
     * Default value: the value you specify in the :ref:`siteconfig_css_icons` tag of your
-      :ref:`sites_siteconfig`. If you didn't specify it, the default value is ``retina/gray``
+      :ref:`sites_siteconfig`. Otherwise, the default value is ``retina/gray``
       
     * Example::
     

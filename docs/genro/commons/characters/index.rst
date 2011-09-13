@@ -14,3 +14,5 @@ special characters
     at
     caret
     equals
+    sharp
+    question_mark

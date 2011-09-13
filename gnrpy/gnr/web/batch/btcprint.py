@@ -10,7 +10,7 @@ from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
 
 class BaseResourcePrint(BaseResourceBatch):
-    """Base resource for :ref:`print`"""
+    """Base resource to make a :ref:`print`"""
     dialog_height = '300px'
     dialog_width = '460px'
     dialog_height_no_par = '245px'
@@ -21,7 +21,7 @@ class BaseResourcePrint(BaseResourceBatch):
     def __init__(self, *args, **kwargs):
         super(BaseResourcePrint, self).__init__(**kwargs)
         self.mail_preference = self.page.getUserPreference('mail', pkg='adm') or self.page.getPreference('mail',
-                                                                                                         pkg='adm') or Bag(
+                                                                                                          pkg='adm') or Bag(
                 self.page.application.config.getNode('mail').attr)
         self.htmlMaker = self.page.site.loadTableScript(page=self.page, table=self.maintable,
                                                         respath=self.html_res, class_name='Main')
@@ -62,35 +62,37 @@ class BaseResourcePrint(BaseResourceBatch):
             self.storeResult(storagekey, result, record, filepath=self.htmlMaker.filepath)
 
     def onRecordExit(self, record=None):
-        "override"
+        """Hook method.
+        
+        :param record: the records on which the batch acted"""
         pass
-
+        
     def do(self):
         self.print_selection()
-
+        
     def get_record_caption(self, item, progress, maximum, **kwargs):
         caption = '%s (%i/%i)' % (self.tblobj.recordCaption(item),
                                   progress, maximum)
         return caption
-
+        
     def result_handler(self):
         resultAttr = dict()
         result = getattr(self, 'result_handler_%s' % self.print_mode)(resultAttr)
         result = result or 'Execution completed'
         return result, resultAttr
-
+        
     def result_handler_mail_deliver(self, resultAttr):
         mailmanager = self.page.getService('mail')
         mailpars = dict()
         mailpars.update(self.mail_preference.asDict(True))
         mailpars.update(self.print_options.getItem('mail').asDict(True))
-
+        
         for pkey, result in self.results.items():
             record = self.records[pkey]
             mailpars['attachments'] = [result]
             mailpars['to_address'] = record[self.mail_address]
             mailmanager.sendmail(**mailpars)
-
+            
     def result_handler_mail_pdf(self, resultAttr):
         mailmanager = self.page.getService('mail')
         mailpars = dict()
@@ -98,20 +100,19 @@ class BaseResourcePrint(BaseResourceBatch):
         mailpars.update(self.print_options.getItem('mail').asDict(True))
         mailpars['attachments'] = self.results.values()
         mailmanager.sendmail(**mailpars)
-
+        
     def result_handler_client_print(self, resultAttr):
         pass
         #self.page.setInClientData(path='#table_script_dlg_parameters.close',value=True,fired=True)
         #
         #for html in self.result_info.values():
         #    self.page.setInClientData(path='gnr.printurl',value=html,fired=True)
-
+        
     def result_handler_server_print(self, resultAttr):
         printer = self.print_handler.getPrinterConnection(self.server_print_options.pop('printer_name'),
                                                           **self.server_print_options.asDict(True))
         return printer.printCups(self.results.values(), self.batch_title)
-
-
+        
     def result_handler_pdf(self, resultAttr):
         pdfprinter = self.print_handler.getPrinterConnection('PDF', self.print_options)
         save_as = self.print_options['save_as'] or self.batch_title
@@ -124,33 +125,36 @@ class BaseResourcePrint(BaseResourceBatch):
             resultAttr['document_name'] = save_as
             if self.batch_immediate:
                 self.page.setInClientData(path='gnr.downloadurl',value=self.fileurl,fired=True)
-
+                
     def table_script_option_pane(self, pane, resource=None):
-        """add???
+        """Define the *print region* of the :ref:`print_setting_dialog`
         
-        :param pane: add???
-        :param resource: add???"""
+        :param pane: a :ref:`contentpane` that works as the :ref:`layout widget <layout>`
+                     father of the method
+        :param resource: used to complete the :ref:`datapath` of the method that handle the
+                         server prints. In particular, the datapath syntax is
+                         ``gnr.server_print.printers`` followed by the string included in
+                         the *resource* attribute"""
         bc = pane.borderContainer(height='220px')
         top = bc.contentPane(region='top', padding='6px').div(_class='ts_printMode', padding='2px')
         bottom = bc.borderContainer(region='bottom', height='60px')
         bottom.contentPane(region='top').div('Notes', _class='bgcolor_darkest', color='white', padding_left='2px')
-        bottom.contentPane(region='center', overflow='hidden', margin='4px').simpleTextArea(
-                value='^.#parent.batch_note')
+        bottom.contentPane(region='center', overflow='hidden', margin='4px').simpleTextArea(value='^.#parent.batch_note')
         fb = top.formbuilder(cols=4, border_spacing='4px', margin_top='2px', font_size='.9em',
                              action='SET .print_mode=$1.print_mode', field_group='print_mode', lbl_width='1.5em')
         fb.data('.print_mode', 'pdf')
         #fb.radiobutton(value='^.client_print',default_value=True,label='!!Client print',print_mode='client_print')
-        fb.radiobutton(value='^.pdf', label='!!Pdf download', lbl=' ', print_mode='pdf', default_value=True)
+        fb.radiobutton(value='^.pdf', label='!!PDF download', lbl=' ', print_mode='pdf', default_value=True)
         fb.radiobutton(value='^.server_print', label='!!Server print', lbl=' ', print_mode='server_print')
-
+        
         center = bc.stackContainer(region='center', selectedPage='^.#parent.print_mode', datapath='.print_mode_option')
-
+        
         #self.table_script_options_client_print(center.contentPane(pageName='client_print'))
         self.table_script_options_pdf(center.contentPane(pageName='pdf'))
         self.server_print_option_pane(center.contentPane(pageName='server_print'), resource=resource)
         if self.current_batch.mail_tags and self.application.checkResourcePermission(self.current_batch.mail_tags,
                                                                                      self.userTags):
-            fb.radiobutton(value='^.mail_pdf', label='!!Pdf by mail', print_mode='mail_pdf', lbl=' ')
+            fb.radiobutton(value='^.mail_pdf', label='!!PDF by mail', print_mode='mail_pdf', lbl=' ')
             self.table_script_options_mail_pdf(center.contentPane(pageName='mail_pdf', datapath='.mail'))
             if hasattr(self.current_batch, 'mail_address'):
                 fb.radiobutton(value='^.mail_deliver', label='!!Deliver mails', print_mode='mail_deliver', lbl=' ')
@@ -160,13 +164,11 @@ class BaseResourcePrint(BaseResourceBatch):
         #fb_orientation.data('.orientation', 'Portrait')
         #fb_orientation.radiobutton(value='^.portrait',label='!!Portrait',lbl=' ',group='orientation',orientation='Portrait',colspan=2,default_value=True)
         #fb_orientation.radiobutton(value='^.landscape',label='!!Landscape',lbl=' ',group='orientation',orientation='Landscape',colspan=2)
-
         
-
     def table_script_options_client_print(self, pane):
-        """add???
+        """Define the *notes region* of the :ref:`print_setting_dialog`
         
-        :param pane: the add????????????????????????????"""
+        :param pane: a :ref:`contentpane` that works as the :ref:`layout widget <layout>` father of the method"""
         fb = self.table_script_fboptions(pane, tdl_width='3em')
         fb.simpleTextArea(value='^.#parent.#parent.batch_note',
                           height='20ex', lbl='!!Notes',
@@ -194,6 +196,4 @@ class BaseResourcePrint(BaseResourceBatch):
     def table_script_fboptions(self, pane, fld_width='100%', tdl_width='4em', **kwargs):
         return pane.div(margin_right='5px').formbuilder(cols=1, width='100%', tdl_width=tdl_width,
                                                         border_spacing='4px', fld_width=fld_width)
-
-
-
+                                                        

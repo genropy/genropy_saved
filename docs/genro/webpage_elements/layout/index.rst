@@ -1,8 +1,8 @@
-.. _layout_index:
+.. _layout:
 
-======
-layout
-======
+==============
+layout widgets
+==============
 
     *Last page update*: |today|
     

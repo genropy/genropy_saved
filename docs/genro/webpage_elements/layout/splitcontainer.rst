@@ -6,7 +6,7 @@ splitContainer
     
     *Last page update*: |today|
     
-    **Type**: :ref:`layout widget <layout_index>`
+    **Type**: :ref:`layout widget <layout>`
     
     .. warning:: This page has to be completed!! add???
     

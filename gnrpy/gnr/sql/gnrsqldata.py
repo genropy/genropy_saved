@@ -100,7 +100,7 @@ class SqlQueryCompiler(object):
                             (see the
                            :meth:`setJoinCondition() <gnr.web.gnrwebpage.GnrWebPage.setJoinCondition>` method)
     :param sqlparams: a dict of parameters used in "WHERE" clause
-    :param locale: string. The current locale (e.g: en, en_us, it)"""
+    :param locale: the current locale (e.g: en, en_us, it)"""
     def __init__(self, tblobj, joinConditions=None, sqlContextName=None, sqlparams=None, locale=None):
         self.tblobj = tblobj
         self.db = tblobj.db
@@ -830,7 +830,7 @@ class SqlQuery(object):
     :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
                                   "logical deleted"
     :param addPkeyColumn: boolean. If ``True``, add a column with the :ref:`pkey` attribute
-    :param locale: string. The current locale (e.g: en, en_us, it)"""
+    :param locale: the current locale (e.g: en, en_us, it)"""
     def __init__(self, dbtable, columns=None, where=None, order_by=None,
                  distinct=None, limit=None, offset=None,
                  group_by=None, having=None, for_update=False,
@@ -1166,7 +1166,7 @@ class SqlSelection(object):
         :param filterCb: add???
         :param subtotal_rows: add???
         :param formats: add???
-        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param locale: the current locale (e.g: en, en_us, it)
         :param dfltFormats: add???
         :param asIterator: boolean. add???
         :param asText: boolean. add???"""
@@ -1502,7 +1502,7 @@ class SqlSelection(object):
         
         :param outgen: add???
         :param formats: add???
-        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param locale: the current locale (e.g: en, en_us, it)
         :param dfltFormats: add???"""
         def _toText(cell):
             k, v = cell

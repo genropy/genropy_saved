@@ -35,7 +35,6 @@ class BagToHtml(object):
     doc_footer_height = 0 # eg 15
     grid_header_height = 0 # eg 6.2
     grid_footer_height = 0
-    grid_fixed_height = True
     grid_col_widths = [0, 0, 0]
     grid_row_height = 5
     copies_per_page = 1
@@ -136,7 +135,7 @@ class BagToHtml(object):
         """add???
         
         :param obj: add???
-        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param locale: the current locale (e.g: en, en_us, it)
         :param format: add???
         :param mask: add???
         :param encoding: The multibyte character encoding you choose. """
@@ -222,7 +221,7 @@ class BagToHtml(object):
         
         :param path: add???
         :param default: add???
-        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param locale: the current locale (e.g: en, en_us, it)
         :param format: add???
         :param mask: add???
         :param root: the root of the page. For more information, check the
@@ -360,7 +359,7 @@ class BagToHtml(object):
         :param field: add???
         :param value: add???
         :param default: add???
-        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param locale: the current locale (e.g: en, en_us, it)
         :param format: add???
         :param mask: add???
         :param currency: add???"""
@@ -415,8 +414,7 @@ class BagToHtml(object):
     def _closePage(self, lastPage=None):
         if lastPage:
             self.lastPage = True
-        if self.grid_fixed_height:
-            self.fillBodyGrid()
+        self.fillBodyGrid()
         footer_height = self.calcGridFooterHeight()
         if footer_height:
             row = self.copyValue('body_grid').row(height=footer_height)

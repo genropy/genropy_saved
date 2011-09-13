@@ -485,14 +485,14 @@ class GnrWebPage(GnrBaseWebPage):
     def rpc_changeLocale(self, locale):
         """add???
         
-        :param locale: string. The current locale (e.g: en, en_us, it)"""
+        :param locale: the current locale (e.g: en, en_us, it)"""
         self.connection.locale = locale.lower()
         
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, dtype=None):
         """add???
         
         :param obj: add???
-        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param locale: the current locale (e.g: en, en_us, it)
         :param format: add???
         :param mask: add???
         :param encoding: add???
