@@ -211,6 +211,10 @@ class GnrSqlDb(GnrObject):
         """
         return TempEnv(self, **kwargs)
         
+    def clearCurrentEnv(self):
+        """Clear the current env"""
+        self._currentEnv[thread.get_ident()] = {}
+    
     def _get_currentEnv(self):
         """property currentEnv - Return the env currently used in this thread"""
         return self._currentEnv.setdefault(thread.get_ident(), {})
