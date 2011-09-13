@@ -89,6 +89,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.response.add_header('Pragma', 'no-cache')
         self._htmlHeaders = []
         self._pendingContextToCreate = []
+        self.application.db.clearCurrentEnv()
         self.pagename = os.path.splitext(os.path.basename(self.filepath))[0].split(os.path.sep)[-1]
         self.pagepath = self.filepath.replace(self.folders['pages'], '')
         self.debug_mode = False
