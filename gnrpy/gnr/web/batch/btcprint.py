@@ -10,7 +10,7 @@ from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
 
 class BaseResourcePrint(BaseResourceBatch):
-    """Base resource for :ref:`print`"""
+    """Base resource to make a :ref:`print`"""
     dialog_height = '300px'
     dialog_width = '460px'
     dialog_height_no_par = '245px'
@@ -60,25 +60,27 @@ class BaseResourcePrint(BaseResourceBatch):
         self.onRecordExit(record)
         if result:
             self.storeResult(storagekey, result, record, filepath=self.htmlMaker.filepath)
-
+            
     def onRecordExit(self, record=None):
-        "override"
+        """Hook method.
+        
+        :param record: the result records of the executed batch"""
         pass
-
+        
     def do(self):
         self.print_selection()
-
+        
     def get_record_caption(self, item, progress, maximum, **kwargs):
         caption = '%s (%i/%i)' % (self.tblobj.recordCaption(item),
                                   progress, maximum)
         return caption
-
+        
     def result_handler(self):
         resultAttr = dict()
         result = getattr(self, 'result_handler_%s' % self.print_mode)(resultAttr)
         result = result or ''
         return result, resultAttr
-
+        
     def result_handler_mail_deliver(self, resultAttr):
         mailmanager = self.page.getService('mail')
         mailpars = dict()
@@ -122,12 +124,16 @@ class BaseResourcePrint(BaseResourceBatch):
                 self.page.setInClientData(path='gnr.clientprint',value=self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),fired=True)
             elif self.batch_immediate=='download':
                 self.page.setInClientData(path='gnr.downloadurl',value=self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),fired=True)
-
+                
     def table_script_option_pane(self, pane, resource=None):
-        """add???
+        """Define the *print region* of the :ref:`print_setting_dialog`
         
-        :param pane: add???
-        :param resource: add???"""
+        :param pane: a :ref:`contentpane` that works as the :ref:`layout widget <layout>`
+                     father of the method
+        :param resource: used to complete the :ref:`datapath` of the method that handle the
+                         server prints. In particular, the datapath syntax is
+                         ``gnr.server_print.printers`` followed by the string included in
+                         the *resource* attribute"""
         bc = pane.borderContainer(height='220px')
         top = bc.contentPane(region='top', padding='6px').div(_class='ts_printMode', padding='2px')
         bottom = bc.borderContainer(region='bottom', height='60px')

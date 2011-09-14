@@ -6,12 +6,14 @@ comboBox
     
     *Last page update*: |today|
     
-    .. note:: The Genro combobox has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's combobox documentation.
+    .. note:: The Genro combobox has been taken from Dojo without adding any modifies. In this page you
+    will find some interesting features that we want to point up. For more information, check the Dojo's
+    combobox documentation.
     
     * :ref:`combobox_def`
     * :ref:`combobox_description`
     * :ref:`combobox_attributes`
-    * :ref:`combobox_examples`: :ref:`bag_way`, :ref:`values-attribute`
+    * :ref:`cb_examples`: :ref:`cb_examples_bag`, :ref:`cb_example_values`
     
 .. _combobox_def:
 
@@ -27,7 +29,11 @@ Description
 
     Combobox is a graphical user widget that permits the user to select a value from multiple options.
     
-    In combobox you have to provide a list of acceptable values: to upload them, you can use a Bag_ or you can use the values_ attribute. As the user types, partially matched values will be shown in a pop-up menu below the input text box. Like an input text field, user can also type values that doesn't belong to the list of accetable ones.
+    In combobox you have to provide a list of acceptable values: to upload them, you can use a :ref:`bag`
+    or you can use the *values* attribute (more information in the :ref:`cb_examples_bag` and in the
+    :ref:`cb_examples_values` sections). As the user types, partially matched values will be shown in a
+    pop-up menu below the input text box. Like an input text field, user can also type values that
+    doesn't belong to the list of accetable ones.
     
     The combobox looks like a :ref:`filteringselect`: the only difference is that it doesn't support keys.
     
@@ -41,7 +47,8 @@ Attributes
     * *default* (or *default_value*): a default value for your combobox.
     * *hasDownArrow*: If True, create the selection arrow. Default value is ``True``.
     * *ignoreCase*: If True, user can write ignoring the case. Default value is ``True``.
-    * *values*: Set all the possible values for user choice. Default value is ``None``. For more information, check the :ref:`values-attribute` example
+    * *values*: Set all the possible values for user choice. Default value is ``None``. For more information,
+      check the :ref:`cb_example_values` example
     
     **Common attributes**:
     
@@ -50,14 +57,12 @@ Attributes
     * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath` page
     * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
     
-.. _combobox_examples:
+.. _cb_examples:
 
 Examples
 ========
 
-    .. _explanation:
-    .. _values:
-    .. _values-attribute:
+.. _cb_example_values:
 
 Fill comboBox through *values* attribute
 ==========================================
@@ -71,17 +76,8 @@ Fill comboBox through *values* attribute
 
     .. note:: Pay attention not to confuse *value* with *values*: *value* is used to allocate user
               data in a well determined :ref:`datapath`, while *values* is used to fill the comboBox.
-
-    .. _here:
-    
-    
-    
-    
-    ELIMINARE QUESTO!!!!! .. _Bag:
-    
-    
-    
-    .. _bag_way:
+              
+    .. _cb_examples_bag:
 
 Fill comboBox through a Bag
 ===========================
