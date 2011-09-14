@@ -259,26 +259,36 @@ class GnrSqlDb(GnrObject):
             return self.application.site.currentPage.localizer
             
     localizer = property(_get_localizer)
-        
-    def _get_connection(self):
-        """property .connection
-        
-        If there's not connection open and return connection to database"""
+    
+    def _get_store_connection(self, storename):
         thread_ident = thread.get_ident()
-        storename = self.currentEnv.get('storename') or '_main_db'
         thread_connections = self._connections.setdefault(thread_ident, {})
         connectionName = '%s_%s' % (storename, self.currentEnv.get('connectionName') or '_main_connection')
         connection = thread_connections.get(connectionName)
         if not connection:
-            connection = self.adapter.connect()
+            connection = self.adapter.connect(storename)
             thread_connections[connectionName] = connection
         return connection
+    
+    def _get_connection(self):
+        """property .connection
+        
+        If there's not connection open and return connection to database"""
+        storename = self.currentEnv.get('storename') or '_main_db'
+        
+        if storename=='*' or ',' in storename:
+            if storename=='*':
+                storenames = self.dbstores.keys()
+            else:
+                storenames = storename.split(',')
+            return [self._get_store_connection(s) for s in storenames]
+        else:
+            return self._get_store_connection(storename)
         #return thread_connections.setdefault(connectionName, self.adapter.connect()) 
             
     connection = property(_get_connection)
             
-    def get_connection_params(self):
-        storename = self.currentEnv.get('storename')
+    def get_connection_params(self, storename=None):
         if storename and storename != '_main_db':
             return self.dbstores[storename]
         else:
@@ -325,7 +335,11 @@ class GnrSqlDb(GnrObject):
                         cursor = self.adapter.cursor(self.connection, cursorname)
                     else:
                         cursor = self.adapter.cursor(self.connection)
-                cursor.execute(sql, sqlargs)
+                if isinstance(cursor, list):
+                    for c in cursor:
+                        c.execute(sql, sqlargs)
+                else:
+                    cursor.execute(sql, sqlargs)
                 if self.debugger:
                     self.debugger(debugtype='sql', sql=sql, sqlargs=sqlargs, dbtable=dbtable)
             except Exception, e:

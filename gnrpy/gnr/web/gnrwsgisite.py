@@ -9,6 +9,7 @@ import os
 import glob
 import logging
 from time import time
+from datetime import datetime
 from gnr.core.gnrlang import deprecated
 from gnr.core.gnrlang import GnrException
 from threading import RLock
@@ -1047,10 +1048,18 @@ class GnrWsgiSite(object):
             
         self.handle_clientchanges(page_id, kwargs)
         envelope = Bag(dict(result=None))
-        datachanges = self.get_datachanges(page_id, user=page_item['user'])
+        user=page_item['user']
+        datachanges = self.get_datachanges(page_id, user=user)
         if datachanges:
             envelope.setItem('dataChanges', datachanges)
         response.content_type = "text/xml"
+        lastBatchUpdate = self.register.userStore(user).getItem('lastBatchUpdate')
+        if lastBatchUpdate:
+            if (datetime.now()-lastBatchUpdate).seconds<5:
+                envelope.setItem('runningBatch',True)
+            else:
+                with self.register.userStore(user) as store:
+                    store.setItem('lastBatchUpdate',None)
         result = envelope.toXml(unresolved=True, omitUnknownTypes=True)
         return result
         
