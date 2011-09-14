@@ -126,8 +126,8 @@ class GnrDomSrc(GnrStructData):
         return self.js_sourceNode('f')
     
     def makeRoot(cls, page, source=None):
-        """Build the root through the :meth:`gnr.core.gnrstructures.GnrStructData.makeRoot`
-        method and return it
+        """Build the root through the :meth:`makeRoot()
+        <gnr.core.gnrstructures.GnrStructData.makeRoot>` method and return it
         
         :param cls: the structure class
         :param page: the webpage instance
@@ -192,7 +192,7 @@ class GnrDomSrc(GnrStructData):
         
     def child(self, tag, childname=None,childcontent=None, envelope=None, **kwargs):
         """Set a new item of the ``tag`` type into the current structure through
-        the :meth:`gnr.core.gnrstructures.GnrStructData.child` and return it
+        the :meth:`child() <gnr.core.gnrstructures.GnrStructData.child>` and return it
         
         :param tag: add???
         :param childname: add???. 

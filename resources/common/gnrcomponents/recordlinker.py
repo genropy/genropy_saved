@@ -28,8 +28,8 @@ class RecordLinker(BaseComponent):
     def recordLinker(self, *args, **kwargs):
         """.. deprecated:: 0.7
         
-        the recordLinker is deprecated, use the :meth:`linkerField` instead."""
-        warnings.warn("recordLinker is deprecated, use linkerField instead.", DeprecationWarning, stacklevel=2)
+        the recordLinker is deprecated, use the :meth:`linkerField()` instead."""
+        warnings.warn("recordLinker is deprecated, use linkerField() method instead.", DeprecationWarning, stacklevel=2)
         self.linkerField(*args, **kwargs)
         
     def linkerField(self, fb, table=None, field=None, dialogPars=None, record_template=None, record_path=None, lbl=None,

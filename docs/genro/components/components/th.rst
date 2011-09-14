@@ -1724,8 +1724,8 @@ action bar
         * yellow light: the record has unsaved changes (click on the "save" button when
           you want to save them)
         * red light: some condition for a correct save is not satisfied (for example,
-          a :ref:`validation` is not satisfied); correct the wrong field in order to save
-          the record
+          a :ref:`validation <validations>` is not satisfied); correct the wrong field
+          in order to save the record
           
     * the management buttons (point 3), that are in order from left to the right:
         

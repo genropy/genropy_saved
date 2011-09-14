@@ -68,11 +68,11 @@ Tags
     
     * The ``<packages>`` tag allows to include any other package from other projects; Genro will
       search it through its mixin tecnique. For more information, check the
-      :ref:`instanceconfig_packages` paragraph.
+      :ref:`instanceconfig_packages` section.
     * The ``<db>`` tag includes the name of your database. For more information, check the
-      :ref:`instanceconfig_db` paragraph.
+      :ref:`instanceconfig_db` section.
     * The ``<authentication>`` tag allow to handle all the access authorization to your project.
-      Check the :ref:`instanceconfig_authentication` paragraph for more information.
+      Check the :ref:`instanceconfig_authentication` section for more information.
     * The ``_T="NN"`` is a special attribute that allow to keep track of datatypes (for more
       information, check the :ref:`bag_from_to_XML` section).
     
@@ -244,4 +244,4 @@ Tags
 **Footnotes**:
 
 .. [#] Notice that for the package included in your project you may omit the name of the project in the syntax.
-.. [#] If you don't have a temporary user, please create it following the instructions of the :ref:`instanceconfig_xml_auth` paragraph
+.. [#] If you don't have a temporary user, please create it following the instructions of the :ref:`instanceconfig_xml_auth` section

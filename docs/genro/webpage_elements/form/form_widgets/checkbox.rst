@@ -6,13 +6,15 @@ checkbox
     
     *Last page update*: |today|
     
-    .. note:: The Genro checkbox has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's checkbox documentation.
+    .. note:: The Genro checkbox has been taken from Dojo without adding any modifies. In this page
+              you will find some interesting features that we want to point up. For more information,
+              check the Dojo's checkbox documentation.
 
     * :ref:`checkbox_def`
     * :ref:`checkbox_description`
     * :ref:`checkbox_attributes`
     * :ref:`checkboxtext`
-    * :ref:`cb_examples`: :ref:`cb_examples_simple`
+    * :ref:`check_examples`: :ref:`check_examples_simple`
     
 .. _checkbox_def:
 
@@ -26,9 +28,16 @@ Definition
 Description
 ===========
 
-    CheckBox widgets in dijit are very intuitive and easy to use. Markup constructs for check boxes resemble the same as HTML but dojo provides more control and styling options than a conventional check box.
+    CheckBox widgets in dijit are very intuitive and easy to use. Markup constructs for checkboxes
+    resemble the same as HTML but dojo provides more control and styling options than a conventional
+    checkbox.
 
-    Conceptually, native HTML checkboxes have 2 separate values; the first being the boolean checked state, and the second being the text value that is submitted with the containing FORM element if the checked state is true. To resolve this dichotomy, the value of a CheckBox widget is false when unchecked, but the text value when checked. Setting the value to true will check the box (but leave the submittable text string unchanged) while false will uncheck it. Setting the value to a text string will check the box and set the value to be submitted to the indicated text string.
+    Conceptually, native HTML checkboxes have 2 separate values; the first being the boolean checked
+    state, and the second being the text value that is submitted with the containing FORM element if
+    the checked state is true. To resolve this dichotomy, the value of a CheckBox widget is false when
+    unchecked, but the text value when checked. Setting the value to true will check the box (but leave
+    the submittable text string unchanged) while false will uncheck it. Setting the value to a text
+    string will check the box and set the value to be submitted to the indicated text string.
     
 .. _checkbox_attributes:
     
@@ -41,8 +50,10 @@ Attributes
         
     **commons attributes**:
     
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`hidden` page
-    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
+    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
+      check the :ref:`hidden` page
+    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check
+      the :ref:`lbl_formbuilder` example
     * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath` page
     * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
     
@@ -58,12 +69,12 @@ checkBoxText
         pane.checkBoxText('foo,bar,span',value='^.pluto',separator=' - ')
         pane.textbox(value='^.pluto')
     
-.. _examples:
+.. _check_examples:
 
 Examples
 ========
     
-.. _examples_simple:
+.. _check_examples_simple:
     
 simple example
 ==============

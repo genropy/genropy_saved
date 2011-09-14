@@ -404,7 +404,7 @@ class GnrApp(object):
     :param forTesting:  if ``False``, setup the application normally.
                         if ``True``, setup the application for testing with a temporary sqlite database.
                         if it's a bag, setup the application for testing and import test data from this bag.
-                        (see :meth:`loadTestingData`)
+                        (see :meth:`loadTestingData()`)
     
     If you want to interact with a Genro instance from your own python script, you can use this class directly.
     
@@ -935,7 +935,7 @@ class GnrApp(object):
         """add???
         
         :param resourceTags: add???
-        :param userTags: add???"""
+        :param userTags: the user's tag permissions. For more information, check the :ref:`auth` page"""
         if not resourceTags:
             return True
         if not userTags:

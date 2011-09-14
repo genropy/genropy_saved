@@ -319,8 +319,8 @@ class SqlQueryCompiler(object):
         """Internal method: search for columns or related columns in a string, add found columns to
         the relationDict (reldict) and replace related columns (``@rel.colname``) with a symbolic name
         like ``$_rel_colname``. Return a string containing only columns expressed in the form ``$colname``,
-        so the found relations can be converted in sql strings (see :meth:`getFieldAlias` method) and
-        replaced into the returned string with templateReplace (see :meth:`compiledQuery`).
+        so the found relations can be converted in sql strings (see :meth:`getFieldAlias()` method) and
+        replaced into the returned string with templateReplace (see :meth:`compiledQuery()`).
         
         :param teststring: add???
         :param reldict: a dict of custom names for db columns: {'asname':'@relation_name.colname'}.
@@ -795,11 +795,11 @@ class SqlQuery(object):
     """The SqlQuery class represents the way in which data can be extracted from a db.
     You can get data with these SqlQuery methods:
     
-    * the :meth:`count` method
-    * the :meth:`cursor` method
-    * the :meth:`fetch` method
-    * the :meth:`selection` method (return a :class:`SqlSelection` class)
-    * the :meth:`servercursor` method
+    * the :meth:`count()` method
+    * the :meth:`cursor()` method
+    * the :meth:`fetch()` method
+    * the :meth:`selection()` method (return a :class:`SqlSelection` class)
+    * the :meth:`servercursor()` method
     
     The ``__init__`` method passes:
     
@@ -930,7 +930,7 @@ class SqlQuery(object):
         return result
         
     def fetchAsDict(self, key=None, ordered=False):
-        """Return the :meth:`fetch` as a dict that has as a key the parameter key you gave (or the pkey if you
+        """Return the :meth:`fetch()` as a dict that has as a key the parameter key you gave (or the pkey if you
         don't specify any key) and as value the record you get from the query.
         
         :param key: the key you give (if ``None``, it takes the pkey). 
@@ -945,7 +945,7 @@ class SqlQuery(object):
         return factory([(r[key], r) for r in fetch])
         
     def fetchAsBag(self, key=None):
-        """Return the :meth:`fetch` as a Bag of the given key
+        """Return the :meth:`fetch()` as a Bag of the given key
         
         :param key: the key you give (if ``None``, it takes the pkey). """
         fetch = self.fetch()
@@ -953,7 +953,7 @@ class SqlQuery(object):
         return Bag(sorted([(r[key], None, dict(r)) for r in fetch]))
         
     def fetchGrouped(self, key=None, asBag=False):
-        """Return the :meth:`fetch` as a dict of the given key
+        """Return the :meth:`fetch()` as a dict of the given key
         
         :param key: the key you give (if ``None``, it takes the pkey). 
         :param asBag: boolean. If ``True``, return the result as a Bag. If False, return the
@@ -1040,7 +1040,7 @@ class SqlQuery(object):
         return self.db.execute(self.sqltext, self.sqlparams, cursorname='*')
         
     def serverfetch(self, arraysize=30):
-        """Get fetch of the :meth:`servercursor` method.
+        """Get fetch of the :meth:`servercursor()` method.
         
         :param arraysize: add???"""
         cursor = self.servercursor()
@@ -1092,8 +1092,8 @@ class SqlQuery(object):
         
 class SqlSelection(object):
     """It is the resulting data from the execution of an istance of the :class:`SqlQuery`. Through the
-    SqlSelection you can get data into differents modes: you can use the :meth:`output` method or you
-    can :meth:`freeze` it into a file. You can also use the :meth:`sort` and the :meth:`filter` methods
+    SqlSelection you can get data into differents modes: you can use the :meth:`output()` method or you
+    can :meth:`freeze()` it into a file. You can also use the :meth:`sort()` and the :meth:`filter()` methods
     on a SqlSelection."""
     def __init__(self, dbtable, data, index=None, colAttrs=None, key=None, sortedBy=None,
                  joinConditions=None, sqlContextName=None, explodingColumns=None, _aggregateRows=False):

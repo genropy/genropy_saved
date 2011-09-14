@@ -234,7 +234,7 @@ validations in a column
     
 .. _bla_bla:
     
-paragraph to revise
+section to revise
 ===================
 
 .. _set_tagcolumn:
