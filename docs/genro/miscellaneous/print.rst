@@ -12,7 +12,8 @@ print
         * :ref:`print_settings_import`
         * :ref:`print_settings_main`
         * :ref:`print_settings_webpage_variables`
-        * the :ref:`print_settings_table_script_parameters_pane` method
+        * :ref:`the table_script_parameters_pane method
+          <print_settings_table_script_parameters_pane>`
         * :ref:`print_settings_onrecordexit`
         * :ref:`print_settings_webpage`
         * :ref:`print_setting_dialog`
@@ -23,6 +24,7 @@ print
     * :ref:`print_layout`:
     
         * :ref:`print_layout_import`
+        * :ref:`print_layout_main`
         * :ref:`print_layout_webpage_variables`
         * :ref:`print_layout_location`
         * :ref:`example <print_layout_example>`
@@ -328,19 +330,57 @@ file location
 print layout file
 =================
 
+    The print layout file allows to specify the print layout.
+    
+    In order to use it, you have to:
+    
+    * :ref:`print_layout_import` the correct module
+    * create the :ref:`print_layout_main`
+    
+    ::
+    
+        In the Main class you have to:
+        
+        * add some :ref:`print_settings_webpage_variables`
+        * create the :ref:`print_settings_table_script_parameters_pane` method (it handles the
+          :ref:`print_setting_dialog` GUI)
+          
+        When you created it, you have to:
+        
+        * create a GUI to let the user starts the print (:ref:`print_settings_webpage`)
+        
 .. _print_layout_import:
 
 import
 ------
 
-    add???
+    To use the print layout file you have to import::
+    
+        from gnr.web.gnrbaseclasses import TableScriptToHtml
+        
+.. _print_layout_main:
 
-.. _print_layout_webpage_variables:
+Main class
+----------
+
+    The Main class inherits from the :class:`TableScriptToHtml
+    <gnr.web.gnrbaseclasses.TableScriptToHtml>` class, so write::
+    
+        class Main(TableScriptToHtml):
+        
+    .. _print_layout_webpage_variables:
 
 webpage variables
 -----------------
 
     add???
+    
+.. _print_layout_onrecordexit:
+
+onRecordExit
+------------
+
+    .. automethod:: gnr.web.batch.btcprint.BaseResourcePrint.onRecordExit
 
 .. _print_layout_location:
 
@@ -354,8 +394,112 @@ file location
 print layout file - example
 ---------------------------
 
-    add???
-              
+    Let's see an example page of a :ref:`print_layout`::
+    
+        #!/usr/bin/env pythonw
+        # -*- coding: UTF-8 -*-
+        
+        from gnr.web.gnrbaseclasses import TableScriptToHtml
+        
+        class Main(TableScriptToHtml):
+            maintable = 'polimed.medico'
+            rows_table = 'polimed.prestazione'
+            rows_path = 'rows'
+            row_mode='attribute'
+            page_header_height = 0
+            page_footer_height = 0
+            doc_header_height = 10
+            doc_footer_height = 10
+            grid_header_height = 6.2
+            grid_footer_height = 0
+            grid_col_widths=[17,12,0,0,20,15,15,20]
+            grid_col_headers = 'Data,Ora,Paziente,Prestazione,Convenzione,Importo,Costo,Fattura'
+            grid_row_height=5.3
+            
+            def docHeader(self,header):
+                layout = header.layout(name='header',um='mm',
+                                       lbl_class='smallCaption',
+                                       top=1,bottom=1,left=1,right=1,
+                                       lbl_height=3,
+                                       border_width=.3,
+                                       border_color='gray',
+                                       style='line-height:6mm;text-align:left;text-indent:2mm;')        
+                row=layout.row(height=10)
+                row.cell("%s %s" %(self.field('@anagrafica_id.nome'), self.field('@anagrafica_id.cognome')),lbl='Prestazioni di')
+                row.cell(self.toText(self.getData('period.from')), lbl='Dal',width=30,content_class='aligned_right')
+                row.cell(self.toText(self.getData('period.to')), lbl='al', width=30,content_class='aligned_right')
+                row.cell(self.pageCounter(), lbl='Pagina', width=12,content_class='aligned_right')
+                
+            def docFooter(self, footer,lastPage=None):
+                if not lastPage:
+                    return
+                layout = footer.layout(name='footerL',um='mm',border_color='gray',
+                                           lbl_class='smallCaption',
+                                          top=1,bottom=1,left=80,right=1,
+                                          lbl_height=3,border_width=0.3,
+                                          content_class='aligned_right')
+                row=layout.row(height=0)
+                lastPage = lastPage or False
+                if lastPage:
+                    totals_dict = {}
+                    totals_dict['importo'],totals_dict['costo'] = self.getData('rows').sum('#a.importo,#a.costo')
+
+                    row.cell(self.toText(totals_dict['importo'],format=self.currencyFormat),lbl='Totale importo')
+                    row.cell(self.toText(totals_dict['costo'],format=self.currencyFormat),lbl='Totale costo')
+                else:
+                    row.cell()
+                    
+            def gridLayout(self,body):
+                return body.layout(name='rowsL',um='mm',border_color='gray',
+                                    top=1,bottom=1,left=1,right=1,
+                                    border_width=.3,lbl_class='caption',
+                                    style='line-height:5mm;text-align:left;font-size:7.5pt')
+                                    
+            def mainLayout(self,page):
+                style = """font-family:"Lucida Grande", Lucida, Verdana, sans-serif;
+                            text-align:left;
+                            line-height:5mm;
+                            font-size:9pt;
+                            """
+                return page.layout(name='pageLayout',width=190,
+                                    height=self.page_height,
+                                    um='mm',top=0,
+                                    left=5,border_width=0,
+                                    lbl_height=4,lbl_class='caption',
+                                    style=style)
+                                    
+            def prepareRow(self,row):
+                # this callback prepare the row of the maingrid
+                style_cell = 'text-indent:2mm;border-bottom-style:dotted;'
+                self.rowCell('data',style=style_cell)
+                self.rowCell('ora',format='HH:mm', style=style_cell)
+                self.rowCell('paziente', style=style_cell)
+                self.rowCell('prestazione', style=style_cell)
+                self.rowCell('convenzione_codice', style=style_cell)
+                self.rowCell('importo',format=self.currencyFormat, style=style_cell,content_class='aligned_right')
+                self.rowCell('costo',format=self.currencyFormat, style=style_cell,content_class='aligned_right')
+                self.rowCell('fattura', style=style_cell,content_class='aligned_right')
+                
+            def onRecordLoaded(self):
+                where = '$data >= :data_inizio AND $data<= :data_fine AND medico_id=:m_id'
+                columns ="""$medico,$data,$ora,$paziente,$prestazione,
+                            @convenzione_id.codice AS convenzione_codice,
+                            $importo,$costo,@fattura_id.numero AS fattura"""
+                query = self.db.table(self.rows_table).query(columns=columns, where=where, 
+                                                                     data_inizio=self.getData('period.from'),
+                                                                     data_fine=self.getData('period.to'),
+                                                                     m_id=self.record['id'])
+                selection = query.selection()
+                if not selection:
+                    return False
+                self.setData('rows',selection.output('grid'))
+                
+            def outputDocName(self, ext=''):
+                medico = self.getData('record.@anagrafica_id.ragione_sociale')
+                mlist = medico.split(' ')
+                medico = ''.join(mlist)
+                return '%s.%s' %(medico.lower(),ext)
+                
 .. _print_clipboard:
 
 clipboard
@@ -376,8 +520,8 @@ clipboard
             * **celle**. Possono contenere layout. Le celle hanno la larghezza. Due celle attaccate
             autocollassano i bordi (rimane un bordo solo).
             
-        Le lunghezze sono sempre specificate in millimetri (mm). Vedi :mod:`gnr.core.gnrhtml`
-        per ulteriori dettagli.
+        Le lunghezze sono sempre specificate in millimetri (mm). Vedi :mod:`gnr.core.gnrhtml` per
+        ulteriori dettagli.
         
         Attributi e callbacks
         =====================
@@ -385,7 +529,6 @@ clipboard
         Il foglio è diviso in varie parti che hanno corrispondenti callbacks:
         
         (attributo, callback)
-        
         attributo page_header, callback pageHeader -- header della pagina (es. per carta intestata)
         page_footer, callback pageFooter -- footer della pagina (es. per carta intestata)
         callback docHeader -- intestazione del documento
@@ -399,20 +542,5 @@ clipboard
         ``prepareRow`` viene chiamata in automatico per ogni riga. Ha una sintassi tipo field.
         
         Il componente prende i dati da una tabella, ma se invece si vogliono passare dati con altro
-        sistema si può ridefinire il metodo ``loadRecord``. 
-        
-        Invocazione della stampa
-        ========================
-        
-        La stampa può essere invocata in vari modi: si può mettere un bottone in una standardtable
-        (c'è un callback apposta), stampa tutte le righe selezionate. Il componente ``serverPrint()``
-        mostra una finestra di dialogo per la stampa (in cui è possibile aggiungere ulteriori parametri,
-        con un callback) e poi prepara il batch di stampa.
-        
-        Esempio::
-        
-            def bottomPane_stampaPrestazioni(self,pane):
-                pane.button(fire="#stampaprestazione.open",label='Stampa prestazioni')
-                self.serverPrint(pane,name='stampaprestazione',table_resource='html_res/medico_prestazioni',
-                                parameters_cb=self.cb_period,docName='prestazioni_medici',thermoParams=True)
+        sistema si può ridefinire il metodo ``loadRecord``
         

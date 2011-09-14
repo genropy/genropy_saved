@@ -11,6 +11,8 @@ checkbox
     * :ref:`checkbox_def`
     * :ref:`checkbox_description`
     * :ref:`checkbox_attributes`
+    * :ref:`checkboxtext`
+    * :ref:`cb_examples`: :ref:`cb_examples_simple`
     
 .. _checkbox_def:
 
@@ -44,13 +46,6 @@ Attributes
     * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath` page
     * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
     
-simple example
-==============
-
-    ::
-    
-        pane.checkbox(value='^name',label='Name')
-        
 .. _checkboxtext:
         
 checkBoxText
@@ -62,3 +57,18 @@ checkBoxText
     
         pane.checkBoxText('foo,bar,span',value='^.pluto',separator=' - ')
         pane.textbox(value='^.pluto')
+    
+.. _examples:
+
+Examples
+========
+    
+.. _examples_simple:
+    
+simple example
+==============
+
+    ::
+    
+        pane.checkbox(value='^name',label='Name')
+        

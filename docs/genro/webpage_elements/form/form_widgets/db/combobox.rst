@@ -73,7 +73,14 @@ Fill comboBox through *values* attribute
               data in a well determined :ref:`datapath`, while *values* is used to fill the comboBox.
 
     .. _here:
-    .. _Bag:
+    
+    
+    
+    
+    ELIMINARE QUESTO!!!!! .. _Bag:
+    
+    
+    
     .. _bag_way:
 
 Fill comboBox through a Bag
