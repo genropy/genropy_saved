@@ -124,7 +124,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 });
             }
             genro.src.afterBuildCalls.push(function(){
-                setTimeout(function(){that.setLocked(that.locked);},1);
+                setTimeout(function(){that.setLocked(that.locked);that.updateStatus()},1);
             });
         }
     },
@@ -860,6 +860,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this.publish('onStatusChange',{'status':this.status});
             var formDomNode = this.formDomNode;
             dojo.forEach(this._status_list,function(st){
+                console.log(status)
                 genro.dom.setClass(formDomNode,'form_'+st,st==status);
             });
         }

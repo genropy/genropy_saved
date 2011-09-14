@@ -117,7 +117,7 @@ class TableHandler(BaseComponent):
                                         default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)
         wdg.tableEditor(frameCode=wdg.attributes['thform_root'],formRoot=wdg,formResource=formResource,
                         store_startKey=th_pkey,table=table,loadEvent=loadEvent,form_locked=True,
-                        default_kwargs=default_kwargs,formInIframe=formInIframe,readOnly=readOnly)
+                        default_kwargs=default_kwargs,formInIframe=formInIframe,readOnly=readOnly,navigation=False,linker=True)
         formtop = wdg.form.top  
         if formtop and formtop.bar:
             formtop.bar.replaceSlots('|,dismiss','') 
