@@ -36,20 +36,17 @@ REGEX_XML_ILLEGAL = re.compile(r'<|>|&')
 
 class _BagXmlException(Exception): pass
 
-
 class BagFromXml(object):
-    """add???
-    """
+    """The class that handles the conversion from the XML format to the
+    :class:`Bag <gnr.core.gnrbag.Bag>` class"""
     def build(self, source, fromFile, catalog=None, bagcls=Bag, empty=None):
         """add???
         
         :param source: add???
         :param fromFile: add???
-        :param catalog: add???. 
-        :param bagcls: add???. Default value is ``Bag``
-        :param empty: add???. 
-        :returns: add???
-        """
+        :param catalog: add???
+        :param bagcls: add???
+        :param empty: add???"""
         if not bagcls: bagcls = Bag
         done = False
         testmode = False
@@ -92,9 +89,7 @@ class BagFromXml(object):
         :param catalog: add???. 
         :param bagcls: add???. Default value is ``Bag``
         :param empty: add???. 
-        :param testmode: add???. Default value is ``False``
-        :returns: add???
-        """
+        :param testmode: add???. Default value is ``False``"""
         if not testmode:
             bagImport = _SaxImporter()
         else:
@@ -122,13 +117,13 @@ class BagFromXml(object):
 class _SaxImporterError(sax.handler.ErrorHandler):
     def error(self, error):
         pass
-
+        
     def fatalError(self, error):
         pass
-
+        
     def warning(self, error):
         pass
-
+        
 class _SaxImporter(sax.handler.ContentHandler):
     def startDocument(self):
         self.bags = [[Bag(), None]]
@@ -172,7 +167,7 @@ class _SaxImporter(sax.handler.ContentHandler):
                 self.bags.append((self.bagcls(), attributes))
         self.valueList = []
 
-    def characters (self, s):
+    def characters(self, s):
         if s == '\n': self.valueList.append(s)
         #s=s.strip()
         if not self.valueList or self.valueList[-1] == '\n':
@@ -225,18 +220,15 @@ class _SaxImporter(sax.handler.ContentHandler):
             dest.nodes.append(BagNode(dest, tagLabel, curr, attributes, _removeNullAttributes=False))
         else:
             dest.nodes.append(BagNode(dest, tagLabel, curr))
-
-
+            
 class BagToXml(object):
-    """add???
-    """
+    """The class that handles the conversion from the :class:`Bag <gnr.core.gnrbag.Bag>`
+    class to the XML format"""
     def nodeToXmlBlock(self, node):
         """Handle all the different node types, call the method build tag and return its result.
         
-        :param node: add???
-        :returns: the XML tag that represent self BagNode.
-        """
-
+        :param node: the :meth:`BagNode <gnr.core.gnrbag.BagNode>`
+        :returns: the XML tag that represent the BagNode"""
         nodeattr = dict(node.attr)
         if '__forbidden__' in nodeattr:
             return ''
@@ -298,28 +290,26 @@ class BagToXml(object):
         Is also possible to write the result on a file, passing the path of the file as the ``filename`` parameter.
         
         :param bag: the Bag to transform in a XML block version
-        :param filename: the path of the output file. 
+        :param filename: the path of the output file
         :param encoding: allow to set the XML encoding. Default value is ``UTF-8``
-        :param catalog: add???. 
-        :param typeattrs: add???. Default value is ``True``
-        :param typevalue: add???. Default value is ``True``
-        :param addBagTypeAttr: add???. Default value is ``True``
-        :param onBuildTag: add???. 
-        :param unresolved: add???. Default value is ``False``
-        :param autocreate: add???. Default value is ``False``
-        :param docHeader: add???. 
-        :param self_closed_tags: add???. 
-        :param translate_cb: add???. 
-        :param omitUnknownTypes: add???. Default value is ``False``
-        :param omitRoot: add???. Default value is ``False``
-        :param forceTagAttr: add???. 
-        :returns: an XML version of the bag.
+        :param catalog: add???
+        :param typeattrs: add???
+        :param typevalue: add???
+        :param addBagTypeAttr: add???
+        :param onBuildTag: add???
+        :param unresolved: add???
+        :param autocreate: add???
+        :param docHeader: add???
+        :param self_closed_tags: add???
+        :param translate_cb: add???
+        :param omitUnknownTypes: add???
+        :param omitRoot: add???
+        :param forceTagAttr: add???
         
         >>> mybag = Bag()
         >>> mybag['aa.bb'] = 4567
         >>> mybag.toXml()
-        '<?xml version=\'1.0\' encoding=\'iso-8859-15\'?><GenRoBag><aa><bb T="L">4567</bb></aa></GenRoBag>'
-        """
+        '<?xml version=\'1.0\' encoding=\'iso-8859-15\'?><GenRoBag><aa><bb T="L">4567</bb></aa></GenRoBag>'"""
         result = docHeader or "<?xml version='1.0' encoding='" + encoding + "'?>\n"
         if not catalog:
             catalog = gnrclasses.GnrClassCatalog()
@@ -357,11 +347,10 @@ class BagToXml(object):
         
         :param tagName: add???
         :param value: add???
-        :param attributes: add???. 
-        :param cls: add???. Default value is `` ``
-        :param xmlMode: add???. Default value is ``False``
-        :returns: the XML tag that represent self BagNode.
-        """
+        :param attributes: add???
+        :param cls: add???
+        :param xmlMode: add???
+        :returns: the XML tag that represent self BagNode"""
         #if value == None:
         #    value = ''
         if self.onBuildTag:

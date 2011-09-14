@@ -218,12 +218,12 @@ print setting dialog - print region
     In the print regions you can swap up to 4 frames through a :ref:`radiobutton group <radiobutton>`.
     The 4 frames are:
     
-    #. **PDF download**:
+    #. **PDF (download)**:
     
-       .. image:: ../_images/print/print_pdf_download.png
+       .. image:: ../_images/print/print_pdf.png
        
-       From this pane user can choose a name for the saved file and can choose through a :ref:`checkbox`
-       to save the file in a zip format.
+       From this pane user can choose a name for the saved file and can choose through
+       a :ref:`checkbox` to save the file in a zip format.
        
     #. **Server print**:
     
@@ -246,9 +246,9 @@ print setting dialog - print region
     
        .. image:: ../_images/print/print_deliver_mails.png
        
-       From this pane user can deliver emails.
-       
-       add???
+       From this pane you can send emails to the same fields of the query used to get data in the
+       database. This is made automatically (for this reason the ``TO`` field is hidden: the ``TO``
+       recipient is filled with the emails of the query fields (add??? Explain how, explain better...)
        
 .. _print_settings_location:
 
