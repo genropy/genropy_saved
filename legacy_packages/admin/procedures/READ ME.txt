@@ -1,1 +1,5 @@
+ENG:
+This folder includes the batch procedures that can be called for the maintenance and the management of the package
+
+ITA:
 Questa cartella contiene le procedure batch che possono essere invocate per la manutenzione e gestione del package.

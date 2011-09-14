@@ -6,22 +6,24 @@ WSGI
     
     *Last page update*: |today|
     
-    WSGI (*Web Server Gateway Interface*) is a standard for interfacing with Python web frameworks webservers. It also allows you to compose various web components together through a system of middlewares (similar concept, but not compatible with similar components in Django). A WSGI_ site contains links to many useful resources (frameworks, middlewares, servers).
+    WSGI (*Web Server Gateway Interface*) is a standard for interfacing with Python web frameworks webservers.
+    It also allows you to compose various web components together through a system of middlewares (similar
+    concept, but not compatible with similar components in Django). A WSGI site (http://wsgi.org/wsgi)
+    contains links to many useful resources (frameworks, middlewares, servers).
     
-    .. _WSGI: http://wsgi.org/wsgi
+    WSGI application defines a function that takes a Web request and returns the answer. WSGI middleware
+    is simply an application that calls another, as in the pattern Decorator
+    (http://en.wikipedia.org/wiki/Decorator_pattern). WSGI standard defines a standard format for the
+    request (which can be decorated with additional information when processing the various middlewares)
+    and response (which can also be asynchronous).
     
-    WSGI application defines a function that takes a Web request and returns the answer. WSGI middleware is simply an application that calls another, as in the pattern Decorator_.
-    WSGI standard defines a standard format for the request (which can be decorated with additional information when processing the various middlewares) and response (which can also be asynchronous).
-
-    .. _Decorator: http://en.wikipedia.org/wiki/Decorator_pattern
+    GenroPy Beaker (http://beaker.groovie.org/) using middleware for session management and weberror
+    management Traceback (including the useful ability to open a python interpreter at the point where
+    the error occurs). GenroPy uses Paste (http://pythonpaste.org/) WebOb
+    (http://pythonpaste.org/webob/reference.html) during development and with standalone servers.
     
-    GenroPy Beaker_ using middleware for session management and weberror management Traceback (including the useful ability to open a python interpreter at the point where the error occurs). GenroPy uses Paste_ WebOb_ during development and with standalone servers.
-
-    .. _Beaker: http://beaker.groovie.org/
-    .. _Paste: http://pythonpaste.org/
-    .. _WebOb: http://pythonpaste.org/webob/reference.html
-    
-    We report here the WSGI declaration (you can find it in the :ref:`sites_root` file, within the :ref:`sites_index` folder of every Genro :ref:`project`)::
+    We report here the WSGI declaration (you can find it in the :ref:`sites_root` file, within the
+    :ref:`sites_index` folder of every Genro :ref:`project`)::
     
         import sys
         sys.stdout = sys.stderr

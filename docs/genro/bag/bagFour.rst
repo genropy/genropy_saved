@@ -14,9 +14,7 @@ Resolver and dynamic bags
     * :ref:`bag_shortcuts`
     * :ref:`bag_formula`
     * :ref:`bag_symbol_formula`
-
-.. module:: gnr.core.gnrbag
-
+    
 .. _bag_four_introduction:
 
 Introduction
@@ -42,16 +40,27 @@ Introduction
 resolver
 ========
 
-    The basic idea of a dynamic Bag is to hide all the function calls treating their results as they were Bag static items (so, a likely-static value can be the result of a realtime elaboration or a remote call). The BagResolver class (:class:`gnr.core.gnrbag.BagResolver`) is an interface that allow to define objects that implement this process.
+    The basic idea of a dynamic Bag is to hide all the function calls treating their results as
+    they were Bag static items (so, a likely-static value can be the result of a realtime
+    elaboration or a remote call). The BagResolver class (:class:`BagResolver <gnr.core.gnrbag.BagResolver>`)
+    is an interface that allow to define objects that implement this process.
 
-    A resolver overrides the primitive ``__call__``, which is the one that intercepts any round-brackets call and implements the load() method. When a resolver is called my_resolver(), it calls its load() method. A resolver may have a cache, if the cacheTime is specified in the args, else it's considered 0. The cache stores the retrieved value and keeps it for a lapse of time called cacheTime. Each resolver implements the load() method that reads the result from cache, if cacheTime isn't elapsed, or takes it from its remote source. The my_resolver call can receive some kwargs. A resolver is set in a node by the :meth:`Bag.setResolver` method.
+    A resolver overrides the primitive ``__call__``, which is the one that intercepts any
+    round-brackets call and implements the load() method. When a resolver is called my_resolver(),
+    it calls its load() method. A resolver may have a cache, if the cacheTime is specified in the
+    args, else it's considered 0. The cache stores the retrieved value and keeps it for a lapse of
+    time called cacheTime. Each resolver implements the load() method that reads the result from
+    cache, if cacheTime isn't elapsed, or takes it from its remote source. The my_resolver call
+    can receive some kwargs. A resolver is set in a node by the :meth:`setResolver()
+    <gnr.core.gnrbag.Bag.setResolver>` method.
 
 .. _bag_resolver_example1:
 
 Resolver Example 1: the TimeResolver
 ====================================
 
-    There are several ways to create a Bag with an item that returns the current time. Let's define the TimeResolver class that inherits from BagResolver::
+    There are several ways to create a Bag with an item that returns the current time. Let's define
+    the TimeResolver class that inherits from BagResolver::
 
         from datetime import datetime
         from gnr.core.gnrbag import Bag, BagResolver
@@ -184,7 +193,9 @@ Resolver Example 3: RssFeedResolver
 Shortcuts: the BagCbResolver
 ============================
 
-    If a dynamic value is simply a function call, you can avoid a new resolver definition by using an instance of the :class:`gnr.core.gnrbag.BagCbResolver` class, that is a generic BagResolver for callback functions:
+    If a dynamic value is simply a function call, you can avoid a new resolver definition
+    by using an instance of the :class:`BagCbResolver <gnr.core.gnrbag.BagCbResolver>` class,
+    that is a generic BagResolver for callback functions:
     
         >>> from gnr.core.gnrbag import Bag, BagCbResolver
         >>> from datetime import datetime
@@ -204,7 +215,7 @@ Shortcuts: the BagCbResolver
         >>> print mybag['hello']
         Hello World!
         
-    As alternative syntax you can use the :meth:`Bag.setCallBackItem` method:
+    As alternative syntax you can use the :meth:`setCallBackItem() <gnr.core.gnrbag.Bag.setCallBackItem>` method:
     
         >>> mybag.setCallBackItem('hello', sayHello)
 
@@ -213,9 +224,13 @@ Shortcuts: the BagCbResolver
 Bag Formula
 ===========
 
-    We now introduce the :class:`gnr.core.gnrbag.BagFormula` class: it is a resolver method who allows to define some particular expressions among the Bag's items, as if they were cells of a spreadsheet. The ``formula()`` method takes a formula as first parameter.
+    We now introduce the :class:`BagFormula <gnr.core.gnrbag.BagFormula>` class: it is a resolver method
+    who allows to define some particular expressions among the Bag's items, as if they were cells of a
+    spreadsheet. The ``formula()`` method takes a formula as first parameter.
     
-    **Formula definition:** a formula is a string who represents an expression in which all the variables are marked with the char ``$``. The ``formula()`` method may also take some kwargs that specify the path of each variable:
+    **Formula definition:** a formula is a string who represents an expression in which all the variables
+    are marked with the char ``$``. The ``formula()`` method may also take some kwargs that specify the
+    path of each variable:
 
     >>> mybag=Bag({'rect': Bag(), 'polygon': Bag()})
     >>> mybag['rect.params.base'] = 20
@@ -229,11 +244,14 @@ Bag Formula
 Bag Formula: ``the defineSymbol()`` and the ``defineFormula()`` methods
 =======================================================================
 
-    Bag has a register for every defined formula and symbols. So if you plan to use them in several situations, it is better using the following two methods:
+    Bag has a register for every defined formula and symbols. So if you plan to use them in several
+    situations, it is better using the following two methods:
     
-    * :meth:`Bag.defineSymbol`: define a variable and link it to a BagFormula Resolver at the specified path.
+    * :meth:`defineSymbol() <gnr.core.gnrbag.Bag.defineSymbol>`: define a variable and link it to a
+      BagFormula Resolver at the specified path.
     
-    * :meth:`Bag.defineFormula`: define a formula that uses defined symbols.
+    * :meth:`defineFormula() <gnr.core.gnrbag.Bag.defineFormula>`: define a formula that uses defined
+      symbols.
     
     >>> mybag.defineFormula(calculate_perimeter='2*($base + $height)' )
     >>> mybag.defineSymbol(base ='params.base',  height='params.height')
@@ -241,7 +259,8 @@ Bag Formula: ``the defineSymbol()`` and the ``defineFormula()`` methods
     >>> print mybag['rect.perimeter']
     60
     
-    In the following examples we use a previously defined formula in which its variables are directly bound to a Bag's element and kwargs are bound to the ``formula()`` method.
+    In the following examples we use a previously defined formula in which its variables are directly
+    bound to a Bag's element and kwargs are bound to the ``formula()`` method.
     
     >>> mybag.defineFormula(calculate_hypotenuse='(($side1**2)+ ($side2**2))**0.5')
     >>> mybag.triangle = Bag()
@@ -255,7 +274,8 @@ Bag Formula: ``the defineSymbol()`` and the ``defineFormula()`` methods
     
     **Relative path example:**
     
-    As perimeter is within the bag calculated, the relative paths to reach side_number and side_length must include a backward step until polygon level.
+    As perimeter is within the bag calculated, the relative paths to reach side_number and side_length
+    must include a backward step until polygon level.
     
     >>> mybag.setBackRef()
     >>> mybag['polygon.side_number']=5

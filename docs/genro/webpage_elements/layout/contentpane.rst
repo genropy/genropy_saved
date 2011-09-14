@@ -87,8 +87,8 @@ form example
                 left = bc.contentPane(region='left',_class='pbl_roundedGroup',margin='1px',width='50%')
                 left.div('!!Staff records',_class='pbl_roundedGroupLabel')
                 fb = left.formbuilder(margin_left='10px',margin_top='1em',width='370px')
-                fb.textbox(lbl='Internal number',ghost='example: 202')
-                fb.textbox(lbl='Notes',ghost='example: 202')
+                fb.textbox(lbl='Internal number',placeholder='example: 202')
+                fb.textbox(lbl='Notes',placeholder='Write your notes here')
                 
                 right = bc.contentPane(region='center',_class='pbl_roundedGroup',margin='1px',width='50%')
                 right.div('!User records',_class='pbl_roundedGroupLabel')

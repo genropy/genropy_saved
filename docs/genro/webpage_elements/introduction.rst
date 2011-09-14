@@ -6,7 +6,7 @@ introduction
     
     *Last page update*: |today|
     
-    .. note:: We recommend you to read the :ref:`datapath` paragraph before reading this section
+    .. note:: We recommend you to read the :ref:`datapath` section before reading this section
               and learn the behavior of *datapath* and *value* attributes, because every webpage element
               is able to save its values through these two attributes.
     

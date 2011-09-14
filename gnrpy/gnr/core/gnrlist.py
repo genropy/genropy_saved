@@ -136,7 +136,7 @@ def merge(*args):
 def readTab(doc):
     """Read a "tab delimited" file.
     
-    The :meth:`readCSV` method was misnamed (read not only CSV files) but must be left for legacy
+    The :meth:`readCSV()` method was misnamed (read not only CSV files) but must be left for legacy
     
     :param doc: the file to read
     """

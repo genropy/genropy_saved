@@ -379,7 +379,7 @@ class DbModelSrc(GnrStructData):
                           
     def virtual_column(self, name, relation_path=None, sql_formula=None, py_method=None, **kwargs):
         """Insert a related alias column into a :ref:`table`. The virtual_column is
-        a child of the table created with the :meth:`table` method
+        a child of the table created with the :meth:`table()` method
         
         :param name: the column name. You can specify both the name and the :ref:`datatype`
                      using the following syntax: ``'name::datatype'``
@@ -397,7 +397,7 @@ class DbModelSrc(GnrStructData):
                           
     def aliasColumn(self, name, relation_path, **kwargs):
         """Insert an aliasColumn into a :ref:`table`, that is a column with a relation path.
-        The aliasColumn is a child of the table created with the :meth:`table` method
+        The aliasColumn is a child of the table created with the :meth:`table()` method
         
         :param name: the column name
         :param relation_path: the column's related path. For more information,
@@ -408,7 +408,7 @@ class DbModelSrc(GnrStructData):
         
     def formulaColumn(self, name, sql_formula, dtype='A', **kwargs):
         """Insert a formulaColumn into a table, that is add???. The aliasColumn is a child of the table
-        created with the :meth:`table` method
+        created with the :meth:`table()` method
         
         :param name: the column name
         :param sql_formula: add???
@@ -419,7 +419,7 @@ class DbModelSrc(GnrStructData):
         
     def pyColumn(self, name, py_method, **kwargs):
         """Insert a pyColumn into a table, that is add???. The aliasColumn is a child of the table
-        created with the :meth:`table` method
+        created with the :meth:`table()` method
         
         :param name: the column name
         :param sql_formula: add???
@@ -429,7 +429,7 @@ class DbModelSrc(GnrStructData):
         
     def aliasTable(self, name, relation_path, **kwargs):
         """Insert a related table alias into a table. The aliasTable is a child of the table
-        created with the :meth:`table` method
+        created with the :meth:`table()` method
         
         :param name: the aliasTable name. You can specify both the name and the :ref:`datatype`
                      using the following syntax: ``'name::datatype'``

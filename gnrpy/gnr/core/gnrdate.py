@@ -237,7 +237,7 @@ def periodCaption(dateFrom=None, dateTo=None, locale=None):
         
 def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtype='D'):
     """Parse a string representing a date or a period and returns a string of one or two dates in iso format separated by ``;``.
-    See doc of :meth:`decodeOneDate` for details on possible formats of a single date
+    See doc of :meth:`decodeOneDate()` for details on possible formats of a single date
     
     The input string can be:
     

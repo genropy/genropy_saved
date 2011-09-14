@@ -13,23 +13,25 @@ Basic functions (part two)
     * :ref:`bag_getting_values_advanced`
     * :ref:`bag_digest`
     
-.. module:: gnr.core.gnrbag
-
 .. _bag_hierarchical:
 
 Bag as a hierarchical container
 ===============================
 
-    We can define every Bag as a hierarchical Bag. In the introduction to a Bag [#]_ we saw how a Bag works *in breadth*. Now we'll see how they can be used to store data *in depth*.
+    We can define every Bag as a hierarchical Bag. In the introduction to a Bag [#]_ we saw
+    how a Bag works *in breadth*. Now we'll see how they can be used to store data *in depth*.
 
-    Bags aren't just another traversable tree structure. Infact a Bag supports a direct access to any value contained in any of its nested bags, using a complex path. So every Bag contains all the information to get every other value in every other related "Hierarchical Bag".
+    Bags aren't just another traversable tree structure. Infact a Bag supports a direct access
+    to any value contained in any of its nested bags, using a complex path. So every Bag contains
+    all the information to get every other value in every other related "Hierarchical Bag".
 
 .. _bag_path:
 
 Bag's path
 ==========
 
-    We define "path" as a concatenation of nested bag labels ending with the innermost value's label. The separator character of a path is the "." char [#]_. Let's check out this example:
+    We define "path" as a concatenation of nested bag labels ending with the innermost value's label.
+    The separator character of a path is the "." char [#]_. Let's check out this example:
         
         >>> new_card= Bag()
         
@@ -45,9 +47,12 @@ Bag's path
         >>> new_card.setItem('phone.home',555345670)
         >>> new_card.setItem('phone.mobile', 555230450)
         
-    A hierarchical bag ("new_card") can be nested within a larger one ("address_book"). In the following line we set the "new_card" Bag into the  "friends" Bag that is included into the "address_book" Bag.
+    A hierarchical bag ("new_card") can be nested within a larger one ("address_book"). In the following
+    line we set the "new_card" Bag into the  "friends" Bag that is included into the "address_book" Bag.
     
-    Now you might be thinking that the "friends" Bag was not instantiated and that it wasn't set into the "address_book". But, when :meth:`Bag.setItem` method receives a path, creates every Bag included in the path, even if you haven't create them:
+    Now you might be thinking that the "friends" Bag was not instantiated and that it wasn't set into the
+    "address_book". But, when :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` method receives a path,
+    creates every Bag included in the path, even if you haven't create them:
 
         >>> address_book=Bag()
         
@@ -55,7 +60,8 @@ Bag's path
         
         >>> address_book.setItem('friends.johnny',new_card)
         
-    If we want to take Johnny's mobile we have to call the :meth:`Bag.getItem` method on the ``friends.johnny.phone.mobile`` path:
+    If we want to take Johnny's mobile we have to call the :meth:`getItem()
+    <gnr.core.gnrbag.Bag.getItem>` method on the ``friends.johnny.phone.mobile`` path:
         
         >>> john_mobile= address_book.getItem('friends.johnny.phone.mobile')
         >>> print john_mobile
@@ -81,12 +87,16 @@ Bag's path
 Setting item on a hierarchical Bag
 ==================================
 
-    In the previous examples we saw two equivalent ways to create a nested value; we report them here with the same label and value, so in these following lines we report two different ways to create the same nested Bag path:
+    In the previous examples we saw two equivalent ways to create a nested value; we report them here
+    with the same label and value, so in these following lines we report two different ways to create
+    the same nested Bag path:
     
         >>> new_card['phone'].setItem('office',555450210)
         >>> new_card.setItem('phone.office',555450210)
     
-    So you can create a nested path with the square-brackets syntax or with the :meth:`Bag.setItem` method, just remember that every folder of Bag path is introduced by a dot (``.``).
+    So you can create a nested path with the square-brackets syntax or with the
+    :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` method, just remember that every folder of Bag
+    path is introduced by a dot (``.``).
 
 .. _bag_printing_advanced:
 
@@ -110,12 +120,13 @@ Printing Bag (advanced)
 Getting Values (advanced)
 =========================
 
-    We can access to a value using a label made by ``#`` followed by a numeric ``index``. A Bag can be traversed using a path that includes either common labels or a numeric label.
+    We can access to a value using a label made by ``#`` followed by a numeric ``index``. A Bag can
+    be traversed using a path that includes either common labels or a numeric label.
         
         >>> print address_book['friends.johnny.#2.office']
         555450210
         
-    Or, with the :meth:`Bag.getItem` method:
+    Or, with the :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` method:
         
         >>> officenumber = address_book.getItem('friends.johnny.#2.office')
         >>> print officenumber
@@ -123,9 +134,11 @@ Getting Values (advanced)
     
     We show now other properties:
     
-    * If a path ends with ``.?``, the :meth:`Bag.getItem` method return the item's keys.
+    * If a path ends with ``.?``, the :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` method returns
+      the item's keys.
     
-    * If the last path-level contains ``#``, what follows the '#' is considered the key of an item's attribute and the function will return that attribute's value.
+    * If the last path-level contains ``#``, what follows the '#' is considered the key of an item's
+      attribute and the function will return that attribute's value.
     
     * If a path starts with ``?`` then the path is interpreted as a call to the :meth:`Bag.digest` method.
     * A path can also ba a list of keys.
@@ -135,9 +148,9 @@ Getting Values (advanced)
 The digest method
 =================
 
-    Let's introduce a very useful method: the :meth:`Bag.digest` method. It returns a list of ``n`` tuples including keys and/or values and/or attributes of all the Bag's elements.
-
-    ``n`` is the number of expressions called in the method.
+    Let's introduce a very useful method: the :meth:`digest() <gnr.core.gnrbag.Bag.digest>` method. It
+    returns a list of ``n`` tuples including keys and/or values and/or attributes of all the Bag's
+    elements (``n`` is the number of expressions called in the method)
     
     +------------------------+----------------------------------------------------------------------+
     |  *Expressions*         |  Description                                                         |
@@ -162,7 +175,8 @@ The digest method
     * the Bag's attribute createdOn, with ``#a.createdOn``
     * the Bag's attribute createdBy, with ``#a.createdBy``
     
-    **Square-brackets notations:** you have to use the special char ``?`` followed by ``d:`` followed by one or more expressions:
+    **Square-brackets notations:** you have to use the special char ``?`` followed by ``d:``
+    followed by one or more expressions:
     
     >>> print b['documents.letters.?d:#k,#a.createdOn,#a.createdBy']
     [('letter_to_sheila', '12-4-2003', 'Walter'), ('letter_to_mark', '10-7-2003', 'Jack'), ('letter_to_john', '11-5-2003', 'Mark')]

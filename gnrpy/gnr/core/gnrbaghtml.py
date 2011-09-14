@@ -157,7 +157,7 @@ class BagToHtml(object):
         self.showTemplateContent = value
         
     def setTemplates(self, templates):
-        """add???
+        """Set a template.
         
         :param templates: add???"""
         self.templates = templates
