@@ -298,8 +298,9 @@ class HTableHandler(HTableHandlerBase):
         toolbar.dataController("""
                              SET .edit.status.statusClass = isLocked?'iconbox lock':'iconbox unlock';
                              SET .edit.status.lockLabel = isLocked?unlockLabel:lockLabel;
+                             genro.dom.setClass(toolbar,'lockedToolbar',isLocked);
                                """, isLocked="^.edit.status.locked", lockLabel='!!Lock',
-                               unlockLabel='!!Unlock')
+                               unlockLabel='!!Unlock',toolbar=toolbar)
                                
         self.ht_edit_toolbar(toolbar, nodeId=nodeId, disabled=disabled, editMode=editMode, childTypes=childTypes)
         bc.dataController("""
@@ -407,38 +408,31 @@ class HTableHandler(HTableHandlerBase):
         self._ht_add_button(toolbar.hadd, childTypes=childTypes, disabled=disabled)
         toolbar.dataController("""
         
-                            var pathlist = currpath.split('.');
+                            var pathlist = currpath.split('.').slice(1);
                             var rootName = this.getRelativeData('.tree.store.#0?caption');
                             var rootnode = genro.nodeById(labelNodeId)
                             var nodeattr = this.getRelativeData('.tree.store').getNode(currpath).attr;
                             rootnode.freeze().clearValue();
-                            var label,path2set;
+                            var label;
+                            var path2set = '_root_';
                             var row = rootnode._('table',{'border_spacing':0})._('tbody')._('tr');
-                            for(var i=0;i<pathlist.length-1;i++){
+                            row._('td')._('div',{'connect_onclick':"this.setRelativeData('.tree.path','_root_');",
+                                                 _class:'bread_root',tip:rootName});
+                            for(var i=0;i<pathlist.length;i++){
+                                
                                 label = pathlist[i];
-                                path2set = path2set?path2set+'.'+label:label;
-                                var action = "this.setRelativeData('.tree.path','"+path2set+"');";
-                                var showLabel = true;
-                                if(label=='_root_'){
-                                    row._('td')._('div',{'connect_onclick':action,_class:'bread_root',tip:rootName});
-                                }else{
-                                    row._('td',{'innerHTML':label,'connect_onclick':action,_class:'iconbox_text',tip:this.getRelativeData('.tree.store.'+path2set+'?description')});
-                                }
+                                path2set = path2set+'.'+label;
                                 row._('td')._('div',{'_class':'bread_middle'});
-                                    
+                                var action = "this.setRelativeData('.tree.path','"+path2set+"');";
+                                row._('td',{'innerHTML':label,'connect_onclick':action,_class:'iconbox_text',tip:this.getRelativeData('.tree.store.'+path2set+'?description')});
                             }
-                            row._('td',{innerHTML:pathlist[pathlist.length-1],_class:'iconbox_text',tip:nodeattr.description});
+                            row._('td')._('div',{'_class':'last_bread_middle bread_middle'});
                             var add_action = "FIRE .edit.add_child;";
-                            row._('td')._('div',{'_class':'bread_middle'});
-                            row._('td')._('div',{'_class':'bread_add',connect_onclick:add_action});;
-
+                            row._('td')._('div',{'_class':'bread_add',connect_onclick:add_action});
                             rootnode.unfreeze();
-
                             """,
                                labelNodeId='%s_nav' % nodeId,
                                currpath='^.tree.path',
-                               #record_description='=.tree.description',
-                               #tree_code='=.tree.code',
                                add_label='!!Add')
                                
         toolbar.dataController("""
