@@ -412,15 +412,9 @@ class BagToXml(object):
                         ['%s=%s' % (lbl, saxutils.quoteattr(self.catalog.asText(val, translate_cb=self.translate_cb)))
                          for lbl, val in attributes.items() if val is not False])
         originalTag = tagName
-        ns = None
-        if ':' in tagName:
-            ns,tagName = tagName.split(':')
-            
-        tagName = re.sub(r'[^\w]', '_', tagName).replace('__', '_')
-        if tagName[0].isdigit(): 
-            tagName = '_' + tagName
-        if ns:
-            tagName = '%s:%s' %(ns,tagName)
+        tagName = re.sub(r'[^\w:]', '_', originalTag).replace('__', '_')
+        if tagName[0].isdigit(): tagName = '_' + tagName
+        
         if tagName != originalTag:
             result = '<%s _tag=%s' % (tagName, saxutils.quoteattr(saxutils.escape(originalTag)))
         else:
