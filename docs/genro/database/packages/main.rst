@@ -178,7 +178,7 @@ custom_type
                 
         (the ``dtype='N'`` means that the type is numerical, the ``size='12,2'`` means a field
         of 12 characters with two decimals [#]_, the ``default=0`` means that if user don't specify
-        the custom_type value, then it is ``0``).
+        the custom_type value, then it is ``0``)
                 
         This allows to create in a :ref:`table` a :ref:`table_column` like this one::
         

@@ -29,11 +29,8 @@ class GnrHtmlElem(object):
         return child
         
 class GnrHtmlSrc(GnrStructData):
-    """Structure used to build server-side HTML pages.
+    """Structure used to build server-side HTML pages. :ref:`Prints <print>` are based on this class"""
     
-    Prints and reports are based on this class.
-    """
-        
     html_base_NS = ['a', 'abbr', 'acronym', 'address', 'area', 'base', 'bdo', 'big', 'blockquote',
                     'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
                     'dfn', 'dl', 'dt', 'em', 'fieldset', 'form', 'frame', 'frameset', 'head', 'hr', 'html',
@@ -63,41 +60,34 @@ class GnrHtmlSrc(GnrStructData):
             raise AttributeError, func_name
             
     def style(self, style='', **kwargs):
-        """Creates a ``<style>`` tag.
-        """
+        """Creates a ``<style>`` tag"""
         self.root.builder.head.child('style', content=style, **kwargs)
         
     def comment(self, content=None):
-        """Creates an HTML comment.
-        """
+        """Creates an HTML comment tag (``<!-- -->``)"""
         self.child(tag='__flatten__', content='<!--%s-->' % content)
         
     def script(self, script='', _type="text/javascript", **kwargs):
-        """Creates a ``<script>`` tag.
-        """
+        """Creates a ``<script>`` tag"""
         self.root.builder.head.child('script', content=script, _type=_type, **kwargs)
         
     def link(self, href='', **kwargs ):
-        """Creates a ``<link>`` tag.
-        """
+        """Creates a ``<link>`` tag"""
         self.root.builder.head.child('link', href=href, **kwargs)
         
     def csslink(self, href='', media='screen', **kwargs ):
-        """Shortcut to create a ``<link rel="stylesheet" type="text/css"">`` tag.
-        """
+        """Shortcut to create a ``<link rel="stylesheet" type="text/css"">`` tag"""
         self.root.builder.head.child('link', href=href, rel="stylesheet", _type="text/css", media=media, **kwargs)
         
     def meta(self, name=None, content=None, http_equiv=None, **kwargs):
-        """Creates a ``<meta>`` tag.
-        """
+        """Creates a ``<meta>`` tag"""
         _attributes = dict()
         if http_equiv:
             _attributes['http-equiv'] = http_equiv
         self.root.builder.head.child('meta', name=name, _content=content, _attributes=_attributes, **kwargs)
         
     def child(self, tag, *args, **kwargs):
-        """Creates a tag.
-        """
+        """add???"""
         for lbl in ['_class', 'class_', '_type', 'type_', '_for', 'for_']:
             if lbl in kwargs:
                 kwargs[lbl.replace('_', '')] = kwargs.pop(lbl)
@@ -111,28 +101,28 @@ class GnrHtmlSrc(GnrStructData):
                lbl_height=3, lbl_class='lbl_base', content_class='content_base',
                hasBorderTop=None, hasBorderLeft=None, hasBorderRight=None, hasBorderBottom=None,
                **kwargs):
-        """Build the layout and return it.
+        """Build a :ref:`print_layout_element` and return it
         
-        :param name: the layout name.
-        :param um: the layout's unit of measurement.
-        :param top: the height of the top region.
-        :param left: the width of the left region.
-        :param bottom: the height of the bottom region.
-        :param right: the width of the right region.
-        :param width: layout's width.
-        :param height: layout's height.
-        :param border_width: add the border width.
-        :param border_color: add the border color.
-        :param border_style: add the border style.
-        :param row_border: add the row border.
-        :param cell_border: add the cell border.
-        :param lbl_height: add the label height.
-        :param lbl_class: add the label class.
-        :param content_class: add the content class.
-        :param hasBorderTop: add the top border.
-        :param hasBorderLeft: add the left border.
-        :param hasBorderRight: add the right border.
-        :param hasBorderBottom: add the bottom border."""
+        :param name: the layout name
+        :param um: the layout's unit of measurement
+        :param top: the height of the top region
+        :param left: the width of the left region
+        :param bottom: the height of the bottom region
+        :param right: the width of the right region
+        :param width: layout's width
+        :param height: layout's height
+        :param border_width: add the border width
+        :param border_color: add the border color
+        :param border_style: add the border style
+        :param row_border: add the row border
+        :param cell_border: add the cell border
+        :param lbl_height: add the label height
+        :param lbl_class: add the label class
+        :param content_class: add the content class
+        :param hasBorderTop: add the top border
+        :param hasBorderLeft: add the left border
+        :param hasBorderRight: add the right border
+        :param hasBorderBottom: add the bottom border"""
         self.style(".%s_layout{border:%s%s %s %s;position:absolute;}" % (
         name, border_width, um, border_style, border_color))
             
@@ -164,16 +154,14 @@ class GnrHtmlSrc(GnrStructData):
             
     def row(self, height=0, row_border=None, cell_border=None, lbl_height=None, lbl_class=None, content_class=None,
             **kwargs):
-        """Construct a row.
+        """Build a :ref:`print_row_element` and return it
         
-        :param height: the row's height. Default value is ``0``
-        :param row_border: the row's border. 
-        :param cell_border: the border of the row's cell. 
-        :param lbl_height: the height of the row's label. 
-        :param lbl_class: the class of the row's label. 
-        :param content_class: the class of the row's content. 
-        :returns: the row
-        """
+        :param height: the row's height
+        :param row_border: the row's border
+        :param cell_border: the border of the row's cell
+        :param lbl_height: the height of the row's label
+        :param lbl_class: the class of the row's label
+        :param content_class: the class of the row's content"""
         assert self.parentNode.getAttr('tag') == 'layout'
         layout = self
         row = self.child(tag='row', **kwargs)
@@ -200,17 +188,15 @@ class GnrHtmlSrc(GnrStructData):
             
     def cell(self, content=None, width=0, content_class=None, lbl=None, lbl_class=None, lbl_height=None,
              cell_border=None, **kwargs):
-        """Construct a cell.
+        """Build a :ref:`print_cell_element` and return it
         
-        :param content: the row's content. 
-        :param width: the row's width.
-        :param content_class: the row's content class. 
-        :param lbl: the cell's lbl. 
-        :param lbl_class: the class of the row's label. 
-        :param lbl_height: the height of the row's label. 
-        :param lbl_height: the border of the row's label. 
-        :returns: the cell
-        """
+        :param content: the row's content
+        :param width: the row's width
+        :param content_class: the row's content class
+        :param lbl: the cell's lbl
+        :param lbl_class: the class of the row's label
+        :param lbl_height: the height of the row's label
+        :param lbl_height: the border of the row's label"""
         assert self.parentNode.getAttr('tag') == 'row'
         row = self
         cell = row.child(tag='cell', **kwargs)
@@ -257,8 +243,7 @@ class GnrHtmlBuilder(object):
         self.showTemplateContent = showTemplateContent
             
     def initializeSrc(self, **bodyAttributes):
-        """add???
-        """
+        """add???"""
         bodyAttributes = bodyAttributes or {}
         self.root = self.srcfactory.makeRoot()
         self.root.builder = self
@@ -288,11 +273,9 @@ class GnrHtmlBuilder(object):
                         """)
                             
     def prepareTplLayout(self, tpl):
-        """add???
+        """Prepare the layout template
         
-        :param tpl: add???
-        :returns: add???
-        """
+        :param tpl: the template"""
         layout = tpl.layout(top=0, height=self.page_height - self.page_margin_top - self.page_margin_bottom,
                             left=0, width=self.page_width - self.page_margin_left - self.page_margin_right,
                             border=0)
@@ -330,10 +313,7 @@ class GnrHtmlBuilder(object):
         return regions['center_center']
             
     def newPage(self):
-        """add???
-        
-        :returns: add???
-        """
+        """Create a new page"""
         firstpage = (len(self.body) == 0)
         border_color = 'red' if self.page_debug else 'white'
         page_break = '' if firstpage else 'page-break-before:always;'
@@ -379,9 +359,7 @@ class GnrHtmlBuilder(object):
     def toHtml(self, filepath=None):
         """add???
         
-        :param filepath: add???. 
-        :returns: add???
-        """
+        :param filepath: add???"""
         if filepath:
             filepath = expandpath(filepath)
         self.finalize(self.body)
@@ -396,8 +374,7 @@ class GnrHtmlBuilder(object):
     def toPdf(self, filename):
         """add???
         
-        :param filename: the PDF name
-        """
+        :param filename: add???"""
         from subprocess import call
         if self.page_height<self.page_width:
             self.orientation='Landscape'
@@ -412,7 +389,7 @@ class GnrHtmlBuilder(object):
         """add???
         
         :param attr: add???
-        :param um: the unit of measurement."""
+        :param um: the unit of measurement"""
         style = attr.pop('style', '')
         style = style.replace('\n', '')
         style_dict = dict([(splitAndStrip(x, ':')) for x in style.split(';') if ':' in x])

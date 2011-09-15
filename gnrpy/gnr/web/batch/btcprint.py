@@ -100,9 +100,7 @@ class BaseResourcePrint(BaseResourceBatch):
         mailpars.update(self.print_options.getItem('mail').asDict(True))
         mailpars['attachments'] = self.results.values()
         mailmanager.sendmail(**mailpars)
-
-
-
+        
     def result_handler_server_print(self, resultAttr):
         printer = self.print_handler.getPrinterConnection(self.server_print_options.pop('printer_name'),
                                                           **self.server_print_options.asDict(True))
@@ -144,7 +142,7 @@ class BaseResourcePrint(BaseResourceBatch):
                              action='SET .print_mode=$1.print_mode', field_group='print_mode', lbl_width='1.5em')
         fb.data('.print_mode', 'pdf')
         #fb.radiobutton(value='^.client_print',default_value=True,label='!!Client print',print_mode='client_print')
-        fb.radiobutton(value='^.pdf', label='!!Pdf', lbl=' ', print_mode='pdf', default_value=True)
+        fb.radiobutton(value='^.pdf', label='!!PDF', lbl=' ', print_mode='pdf', default_value=True)
         fb.radiobutton(value='^.server_print', label='!!Server print', lbl=' ', print_mode='server_print')
 
         center = bc.stackContainer(region='center', selectedPage='^.#parent.print_mode', datapath='.print_mode_option')
@@ -153,7 +151,7 @@ class BaseResourcePrint(BaseResourceBatch):
         self.server_print_option_pane(center.contentPane(pageName='server_print'), resource=resource)
         if self.current_batch.mail_tags and self.application.checkResourcePermission(self.current_batch.mail_tags,
                                                                                      self.userTags):
-            fb.radiobutton(value='^.mail_pdf', label='!!Pdf by mail', print_mode='mail_pdf', lbl=' ')
+            fb.radiobutton(value='^.mail_pdf', label='!!PDF by mail', print_mode='mail_pdf', lbl=' ')
             self.table_script_options_mail_pdf(center.contentPane(pageName='mail_pdf', datapath='.mail'))
             if hasattr(self.current_batch, 'mail_address'):
                 fb.radiobutton(value='^.mail_deliver', label='!!Deliver mails', print_mode='mail_deliver', lbl=' ')
@@ -181,6 +179,4 @@ class BaseResourcePrint(BaseResourceBatch):
     def table_script_fboptions(self, pane, fld_width='100%', tdl_width='4em', **kwargs):
         return pane.div(margin_right='5px').formbuilder(cols=1, width='100%', tdl_width=tdl_width,
                                                         border_spacing='4px', fld_width=fld_width)
-
-
-
+                                                        

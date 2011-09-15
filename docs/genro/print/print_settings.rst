@@ -23,8 +23,11 @@ print settings file
     
 introduction
 ============
-    
-    The print settings file allows to specify the print settings.
+
+    The print settings file allows to specify the print settings. In particular,
+    if you need to create some defined zone for your print, you have to use the
+    :ref:`htmltemplate` (explained in the next page) that you can set in the
+    print settings file through the :ref:`print_templates` webpage variable.
     
     In order to use it, you have to:
     
@@ -72,43 +75,137 @@ webpage variables
 =================
 
     With the term ``webpages variables`` we mean that there are some defined variables
-    that you can use to customize your Main class. Let's see all of them:
+    that you can use to customize your Main class. They are:
     
-    * *html_res*: MANDATORY. Specify the location path of the :ref:`print_layout`.
-      The path you specify starts automatically from::
-      
+    * :ref:`print_html_res` (this is the only mandatory variable)
+    * :ref:`print_batch_cancellable`
+    * :ref:`print_batch_delay`
+    * :ref:`print_batch_immediate`
+    * :ref:`print_batch_prefix`
+    * :ref:`print_batch_title`
+    * :ref:`print_dialog_height`
+    * :ref:`print_dialog_height_no_par`
+    * :ref:`print_dialog_width`
+    * :ref:`print_mail_address`
+    * :ref:`print_mail_tags`
+    * :ref:`print_templates`
+    
+.. _print_html_res:
+    
+html_res
+--------
+    
+    MANDATORY. Specify the location path of the :ref:`print_layout`.
+    The path you specify starts automatically from::
+    
         projectName/packages/packageName/resources/tables/tableName/
         
-      **Example**:
+    **Example**:
+    
+      if you write::
       
-        if you write::
+        html_res='html_builder/doctor_performances'
         
-          html_res='html_builder/doctor_performances'
-          
-        then the location path of your print layout file must be::
-        
-           projectName/packages/packageName/resources/tables/tableName/html_builder/doctor_performances
-           
-        where ``html_builder`` is a folder created by you and ``doctor_performances`` is the name of
-        your print layout file.
-        
-    * *batch_cancellable*: add???
-    * *batch_delay*: a string with the time milliseconds start delay
-    * *batch_immediate*: add???. Default value is ``False``
-    * *batch_prefix*: a string with a prefix for the batch name
+      then the location path of your print layout file must be::
+      
+         projectName/packages/packageName/resources/tables/tableName/html_builder/doctor_performances
+         
+      where ``html_builder`` is a folder created by you and ``doctor_performances``
+      is the name of your print layout file.
+      
+.. _print_batch_cancellable:
+
+batch_cancellable
+-----------------
+
+    add???
+    
+.. _print_batch_delay:
+
+batch_delay
+-----------
+    
+    A string with the time milliseconds start delay
+    
+.. _print_batch_immediate:
+
+batch_immediate
+---------------
+
+    add???. Default value is ``False``
+    
+.. _print_batch_prefix:
+
+batch_prefix
+------------
+    
+    A string with a prefix for the batch name
       
       **Example**::
       
         batch_prefix = 'st_prest'
         
-    * *batch_title*: a string with the :ref:`print_setting_dialog` title
-    * *dialog_height*: a string with the :ref:`print_setting_dialog` height
-    * *dialog_height_no_par*: add???
-    * *dialog_width*: a string with the :ref:`print_setting_dialog` width
-    * *mail_address*: add???
-    * *mail_tags*: specify the authorization level to send mail. More information
-      on :ref:`print_setting_dialog_print_region` section
-    * *templates*: add???
+.. _print_batch_title:
+
+batch_title
+-----------
+        
+    A string with the :ref:`print_setting_dialog` title
+    
+.. _print_dialog_height:
+
+dialog_height
+-------------
+
+    A string with the :ref:`print_setting_dialog` height
+    
+.. _print_dialog_height_no_par:
+
+dialog_height_no_par
+--------------------
+    
+    add???
+    
+.. _print_dialog_width:
+
+dialog_width
+------------
+
+    A string with the :ref:`print_setting_dialog` width
+    
+.. _print_mail_address:
+
+mail_address
+------------
+    
+    Allow to send emails to the corresponding people that owns the data you want to
+    print. For example, if you create a print with all the invoices of 10 doctors,
+    you can choose to send an email to them with their relative invoices.
+    
+    The syntax is::
+    
+        mail_address = 'fieldName'
+        
+    where `fieldName` is the name of the field that contains the emails
+    in the model :ref:`table`
+    
+.. _print_mail_tags:
+
+mail_tags
+---------
+
+    Specify the authorization level to send emails. If the user has the same authorization
+    level of the *mail_tags*, then he can use the :ref:`print_pdf_by_mail` and the
+    :ref:`print_deliver_mails` panes in the :ref:`print_setting_dialog` : more information
+    on :ref:`print_setting_dialog_print_region` section
+    
+.. _print_templates:
+
+templates
+---------
+    
+    A string with the names of the :ref:`html templates <htmltemplate>` separated by a comma.
+    More information in the :ref:`add???` section of the :ref:`htmltemplate` page
     
 .. _print_settings_table_script_parameters_pane:
 
@@ -207,49 +304,78 @@ print setting dialog
     * *region 5 - bottom region*: it includes a bottom pane with the ``Cancel`` (cancels
       the dialog) and ``Confirm`` (starts the batch) buttons
       
-    We have already described most of the regions (follow the relative links). The only one that needs more
-    explanations is the print region:
+    We have already described most of the regions (follow the relative links).
+    The only one that needs more explanations is the print region:
     
 .. _print_setting_dialog_print_region:
 
 print setting dialog - print region
------------------------------------
+===================================
 
-    In the print regions you can swap up to 4 frames through a :ref:`radiobutton group <radiobutton>`.
+    In the print regions you can swap up to 4 frames through a :ref:`radiobutton group
+    <radiobutton>`:
+    
+    .. image:: ../_images/print/print_dialog_radiobuttons.png
+    
     The 4 frames are:
     
-    #. **PDF (download)**:
+    * :ref:`print_pdf`
+    * :ref:`print_server_print`
+    * :ref:`print_pdf_by_mail`
+    * :ref:`print_deliver_mails`
     
-       .. image:: ../_images/print/print_pdf.png
-       
-       From this pane user can choose a name for the saved file and can choose through
-       a :ref:`checkbox` to save the file in a zip format.
-       
-    #. **Server print**:
+    In particular, the third and the fourth frame can be used if the user has the same
+    :ref:`authorization level <auth>` defined in the :ref:`print_mail_tags` webpage variable.
     
-       .. image:: ../_images/print/print_server_print.png
-       
-       From this pane user can choose the printer, the paper type and the tray.
-       
-    #. **PDF by mail**:
+.. _print_pdf:
     
-       .. image:: ../_images/print/print_pdf_by_mail.png
-       
-       .. note:: this pane is accessible only by users that have some administration privileges.
-                 By default only users with 'admin' privileges can access to this (more information
-                 on the :ref:`auth` page). You can change this default modifying the *mail_tags*
-                 :ref:`print_settings_webpage_variables`
-                 
-       From this pane user can send the PDF by email.
-       
-    #. **Deliver mails**:
+PDF
+---
+
+    .. image:: ../_images/print/print_pdf.png
     
-       .. image:: ../_images/print/print_deliver_mails.png
-       
-       From this pane you can send emails to the same fields of the query used to get data in the
-       database. This is made automatically (for this reason the ``TO`` field is hidden: the ``TO``
-       recipient is filled with the emails of the query fields (add??? Explain how, explain better...)
-       
+    From this pane user can choose a name for the saved file and can choose through
+    a :ref:`checkbox` to save the file in a zip format.
+    
+.. _print_server_print:
+
+Server print
+------------
+
+    .. image:: ../_images/print/print_server_print.png
+    
+    From this pane user can choose the printer, the paper type and the tray.
+    
+.. _print_pdf_by_mail:
+
+PDF by mail
+-----------
+
+    .. image:: ../_images/print/print_pdf_by_mail.png
+    
+    .. note:: this pane is accessible only by users that have required administration privileges.
+              By default only users with 'admin' privileges can access to this (more information
+              on authorizations management in the :ref:`auth` page). You can change the mail
+              authorization level modifying the :ref:`mail_tags webpage variable <print_mail_tags>`.
+              
+    From this pane user can send the PDF by email.
+    
+.. _print_deliver_mails:
+
+Deliver mails
+-------------
+    
+    .. image:: ../_images/print/print_deliver_mails.png
+    
+    .. note:: this pane is accessible only by users that have required administration privileges.
+              By default only users with 'admin' privileges can access to this (more information
+              on authorizations management in the :ref:`auth` page). You can change the mail
+              authorization level modifying the :ref:`mail_tags webpage variable <print_mail_tags>`.
+              
+    From this pane you can send emails to the same fields of the query used to get data in the
+    database. This is made automatically (for this reason the ``TO`` field is hidden: the ``TO``
+    recipient is filled with the emails of the query fields (add??? Explain how, explain better...)
+    
 .. _print_settings_location:
 
 file location
