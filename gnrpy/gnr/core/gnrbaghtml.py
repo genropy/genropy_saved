@@ -475,27 +475,27 @@ class BagToHtml(object):
         pass
         
     def docFooter(self, footer, lastPage=None):
-        """add???
+        """Hook method. Define the document footer of the :ref:`layout print <print_layout>`
         
         :param footer: add???
         :param lastPage: add???"""
         pass
         
     def pageFooter(self, footer, lastPage=None):
-        """add???
+        """Hook method. Define the page footer of the :ref:`layout print <print_layout>`
         
         :param footer: add???
         :param lastPage: add???"""
         pass
         
     def pageHeader(self, header):
-        """add???
+        """Hook method. Define the page header of the :ref:`layout print <print_layout>`
         
         :param header: add???"""
         pass
         
     def docHeader(self, header):
-        """add???
+        """Hook method. Define the doc header of the :ref:`layout print <print_layout>`
         
         :param header: add???"""
         pass
