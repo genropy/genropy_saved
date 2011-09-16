@@ -1067,22 +1067,17 @@ class SqlQuery(object):
     def count(self):
         """Return rowcount. It does not save a selection"""
         compiledQuery = self.compileQuery(count=True)
-        storename = self.sqlparams.get('storename', self.db.currentEnv.get('storename', '_main_db'))
-        if storename=='*':
+        cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname)
+        if isinstance(cursor, list):
             n = 0
-            with self.db.tempEnv(storename='_main_db'):
-                dbstores = ['_main_db']+self.db.table('multidb.subscription').query('$dbstore' ,where='$tablename =:tablename', tablename=self.dbtable.name).fetch()
-            for dbstore in dbstores:
-                with self.db.tempEnv(storename=dbstore):
-                    cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname)
-                    l = cursor.fetchall()
-                    pn = len(l) # for group or distinct query select -1 for each group 
-                    if pn == 1 and cursor.description[0][0] == 'gnr_row_count': # for plain query select count(*)
-                        pn = l[0][0]
-                    n = n + pn
-                    cursor.close()
+            for c in cursor:
+                l = c.fetchall()
+                partial = len(l) # for group or distinct query select -1 for each group 
+                if partial == 1 and c.description[0][0] == 'gnr_row_count': # for plain query select count(*)
+                    partial = l[0][0]
+                c.close()
+                n+=partial
         else:
-            cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname)
             l = cursor.fetchall()
             n = len(l) # for group or distinct query select -1 for each group 
             if n == 1 and cursor.description[0][0] == 'gnr_row_count': # for plain query select count(*)
