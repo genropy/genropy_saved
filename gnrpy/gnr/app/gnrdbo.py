@@ -211,7 +211,8 @@ class TableBase(object):
         pkgName = tbl.parent.parentNode.label
         rel = '%s.%s.%s' % (pkg,tblname, pkey)
         fkey = rel.replace('.', '_')
-        subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
+        if subscriptiontbl:
+            subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
                               size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
                                                                                  many_group='_', one_group='_')
                                                                                  
