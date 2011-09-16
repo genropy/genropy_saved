@@ -45,6 +45,9 @@ class Table(object):
 
 if __name__=='__main__':
     options, args = parser.parse_args()
+    if not args:
+        parser.print_help()
+        exit(0)
     debug = options.debug==True
     xmlPath=args[0]
     struct = Bag(xmlPath)
