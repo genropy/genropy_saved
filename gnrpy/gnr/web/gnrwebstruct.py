@@ -126,8 +126,8 @@ class GnrDomSrc(GnrStructData):
         return self.js_sourceNode('f')
     
     def makeRoot(cls, page, source=None):
-        """Build the root through the :meth:`gnr.core.gnrstructures.GnrStructData.makeRoot`
-        method and return it
+        """Build the root through the :meth:`makeRoot()
+        <gnr.core.gnrstructures.GnrStructData.makeRoot>` method and return it
         
         :param cls: the structure class
         :param page: the webpage instance
@@ -192,7 +192,7 @@ class GnrDomSrc(GnrStructData):
         
     def child(self, tag, childname=None,childcontent=None, envelope=None, **kwargs):
         """Set a new item of the ``tag`` type into the current structure through
-        the :meth:`gnr.core.gnrstructures.GnrStructData.child` and return it
+        the :meth:`child() <gnr.core.gnrstructures.GnrStructData.child>` and return it
         
         :param tag: add???
         :param childname: add???. 
@@ -592,8 +592,9 @@ class GnrDomSrc(GnrStructData):
                     lblalign=None, lblvalign='middle',
                     fldalign=None, fldvalign='middle', disabled=False,
                     rowdatapath=None, head_rows=None, **kwargs):
-        """In formbuilder you can put dom and widget elements; its most classic usage is to create a form made by fields and layers,
-        and that's because formbuilder can manage automatically fields and their positioning.
+        """In formbuilder you can put dom and widget elements; its most classic usage is to create
+        a form made by fields and layers, and that's because formbuilder can manage automatically
+        fields and their positioning.
         
         :param cols: set the number of columns.
         :param table: set the database :ref:`table`.
@@ -611,25 +612,7 @@ class GnrDomSrc(GnrStructData):
         :param disabled: If ``True``, user can't act on the object (write, drag...).
         :param rowdatapath: add???
         :param head_rows: add???
-        :param \*\*kwargs: *border_spacing*: define the space between form fields. Default value is ``6px``
-        
-                           *datapath*: set the root's path of formbuilder's fields. For more details,
-                           check the :ref:`datapath` documentation page.
-                           
-                           *width*: define the formbuilder width. You can use only percent (e.g: ``width='60%'``)
-                           and the formbuilder must be child of a pane or a div with a defined width and height.
-                           
-                           *fld_ + CSSexpression*: set a CSS expression to every formbuilder's field.
-                           (e.g: fld_color='red', fld_width='100%')
-                           
-                           *lbl_ + CSSexpression*: set a CSS expression to every lbl's field.
-                           (e.g: lbl_width='10em')
-                           
-                           *row_*: add???
-                           
-                           *tdf_*: add???
-                           
-                           *tdl_*: add???"""
+        :param \*\*kwargs: for the complete list of the ``**kwargs``, check the :ref:`fb_kwargs` section"""
         commonPrefix = ('lbl_', 'fld_', 'row_', 'tdf_', 'tdl_')
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')

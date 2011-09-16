@@ -12,10 +12,11 @@ from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
 
 class BagToHtml(object):
-    """add???"""
+    """A class that transforms a :ref:`bag` into HTML. It can be used to
+    make a :ref:`print`"""
+    css_requires = ''
     templates = ''
-    print_button = None
-    rows_path = 'rows'
+    currencyFormat = u'#,###.00'
     encoding = 'utf-8'
     page_debug = False
     page_width = 200
@@ -24,24 +25,22 @@ class BagToHtml(object):
     page_margin_left = 0
     page_margin_right = 0
     page_margin_bottom = 0
-    currencyFormat = u'#,###.00'
-    #override these lines
-    row_mode = 'value'
-    page_header_height = 0 #
+    page_header_height = 0
     page_footer_height = 0
     page_leftbar_width = 0
     page_rightbar_width = 0
-    doc_header_height = 0 # eg 10
-    doc_footer_height = 0 # eg 15
-    grid_header_height = 0 # eg 6.2
+    print_button = None
+    row_mode = 'value'
+    rows_path = 'rows'
+    doc_header_height = 0 # e.g. 10
+    doc_footer_height = 0 # e.g. 15
+    grid_header_height = 0 # e.g. 6.2
     grid_footer_height = 0
-    grid_fixed_height = True
     grid_col_widths = [0, 0, 0]
     grid_row_height = 5
     copies_per_page = 1
     copy_extra_height = 0
     starting_page_number = 0
-    css_requires = ''
     
     def __init__(self, locale='en', encoding='utf-8', templates=None, templateLoader=None, **kwargs):
         self.locale = locale
@@ -60,17 +59,15 @@ class BagToHtml(object):
     def outputDocName(self, ext=''):
         """add???
         
-        :param ext: add???. Default value is `` ``
-        """
+        :param ext: add???"""
         return 'temp.%s' % ext
         
     def onRecordLoaded(self):
-        """override this"""
+        """Hook method"""
         pass
         
     def orientation(self):
-        """add???
-        """
+        """add???"""
         if self.page_width>self.page_height:
             return 'Landscape'
         else:
@@ -79,8 +76,7 @@ class BagToHtml(object):
     def __call__(self, record=None, filepath=None, folder=None, filename=None, hideTemplate=False, rebuild=True,
                  htmlContent=None, **kwargs):
         """Return the html corresponding to a given record.
-        The html can be loaded from a cached document or created if still doesn't exist.
-        """
+        The html can be loaded from a cached document or created if still doesn't exist"""
         if record is None:
             record = Bag()
         self.htmlContent = htmlContent
@@ -113,20 +109,20 @@ class BagToHtml(object):
                                       showTemplateContent=self.showTemplateContent)
         result = self.createHtml(filepath=self.filepath)
         return result
-
+        
     def get_css_requires(self):
         return self.css_requires.split(',')
-
+        
     def prepareTemplates(self):
         """add???"""
         if not self.htmlTemplate:
             self.htmlTemplate = self.templateLoader(self.templates)
         self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
         self.page_width = self.page_width or self.htmlTemplate['main.page.width'] or 200
-        self.page_header_height = self.page_header_height or  self.htmlTemplate['layout.top?height'] or 0
-        self.page_footer_height = self.page_footer_height or  self.htmlTemplate['layout.bottom?height'] or 0
-        self.page_leftbar_width = self.page_leftbar_width or  self.htmlTemplate['layout.left?width'] or 0
-        self.page_rightbar_width = self.page_leftbar_width or  self.htmlTemplate['layout.right?width'] or 0
+        self.page_header_height = self.page_header_height or self.htmlTemplate['layout.top?height'] or 0
+        self.page_footer_height = self.page_footer_height or self.htmlTemplate['layout.bottom?height'] or 0
+        self.page_leftbar_width = self.page_leftbar_width or self.htmlTemplate['layout.left?width'] or 0
+        self.page_rightbar_width = self.page_leftbar_width or self.htmlTemplate['layout.right?width'] or 0
         self.page_margin_top = self.page_margin_top or self.htmlTemplate['main.page.top'] or 0
         self.page_margin_left = self.page_margin_left or self.htmlTemplate['main.page.left'] or 0
         self.page_margin_right = self.page_margin_right or self.htmlTemplate['main.page.right'] or 0
@@ -136,10 +132,10 @@ class BagToHtml(object):
         """add???
         
         :param obj: add???
-        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param locale: the current locale (e.g: en, en_us, it)
         :param format: add???
         :param mask: add???
-        :param encoding: The multibyte character encoding you choose. """
+        :param encoding: The multibyte character encoding you choose"""
         locale = locale or self.locale
         encoding = locale or self.encoding
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding, **kwargs)
@@ -147,9 +143,7 @@ class BagToHtml(object):
     def createHtml(self, filepath=None):
         """add???
         
-        :param filepath: add???. 
-        :returns: add???
-        """
+        :param filepath: add???"""
         #filepath = filepath or self.filepath
         self.initializeBuilder()
         self.main()
@@ -159,25 +153,19 @@ class BagToHtml(object):
     def showTemplate(self, value):
         """add???
         
-        :param value: add???
-        :returns: add???
-        """
+        :param value: add???"""
         self.showTemplateContent = value
         
     def setTemplates(self, templates):
-        """add???
+        """Set a template.
         
-        :param templates: add???
-        :returns: add???
-        """
+        :param templates: add???"""
         self.templates = templates
         
     def getTemplates(self, templates):
         """add???
         
-        :param templates: add???
-        :returns: add???
-        """
+        :param templates: add???"""
         return self.templates
         
     def initializeBuilder(self):
@@ -191,9 +179,7 @@ class BagToHtml(object):
         """add???
         
         :param path: add???
-        :param default: add???. 
-        :returns: add???
-        """
+        :param default: add???"""
         wildchars = []
         if path[0] in wildchars:
             value = 'not yet implemented'
@@ -205,15 +191,13 @@ class BagToHtml(object):
         """add???
         
         :param path: add???
-        :param value: add???
-        """
+        :param value: add???"""
         self._data.setItem(path, value, **kwargs)
         
     def onRecordExit(self, recordBag):
-        """add???
+        """Hook method.
         
-        :param recordBag: add???
-        """
+        :param recordBag: a :ref:`bag` that contains the result of the batch"""
         return
         
     def field(self, path, default=None, locale=None,
@@ -222,7 +206,7 @@ class BagToHtml(object):
         
         :param path: add???
         :param default: add???
-        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param locale: the current locale (e.g: en, en_us, it)
         :param format: add???
         :param mask: add???
         :param root: the root of the page. For more information, check the
@@ -259,8 +243,7 @@ class BagToHtml(object):
     def pageCounter(self, mask=None):
         """add???
         
-        :param mask: add???. 
-        """
+        :param mask: add???"""
         mask = mask or '%s/%s'
         
         def getPage(currPage=0):
@@ -344,9 +327,7 @@ class BagToHtml(object):
     def rowField(self, path=None, **kwargs):
         """add???
         
-        :param path: add???. 
-        :returns: add???
-        """
+        :param path: add???"""
         #if self.row_mode=='attribute':
         #    data = self.currRowDataNode.attr
         #else:
@@ -360,7 +341,7 @@ class BagToHtml(object):
         :param field: add???
         :param value: add???
         :param default: add???
-        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param locale: the current locale (e.g: en, en_us, it)
         :param format: add???
         :param mask: add???
         :param currency: add???"""
@@ -401,9 +382,8 @@ class BagToHtml(object):
     def mainLayout(self, page):
         """must be overridden
         
-        :param page: add???
-        """
-        pass
+        :param page: add???"""
+        print 'mainLayout must be overridden'
         
     def _openPage(self):
         #if self.page_header_height:
@@ -415,8 +395,7 @@ class BagToHtml(object):
     def _closePage(self, lastPage=None):
         if lastPage:
             self.lastPage = True
-        if self.grid_fixed_height:
-            self.fillBodyGrid()
+        self.fillBodyGrid()
         footer_height = self.calcGridFooterHeight()
         if footer_height:
             row = self.copyValue('body_grid').row(height=footer_height)
@@ -438,15 +417,13 @@ class BagToHtml(object):
     def gridLayout(self, grid):
         """It must be overridden
         
-        :param grid: add???
-        """
+        :param grid: add???"""
         print 'gridLayout must be overridden'
         
     def gridHeader(self, row):
         """It can be overridden
         
-        :param row: add???
-        """
+        :param row: add???"""
         lbl_height = 4
         headers = self.grid_col_headers
         if ':' in headers:
@@ -460,15 +437,13 @@ class BagToHtml(object):
             row.cell(lbl=lbl, lbl_height=lbl_height, width=self.grid_col_widths[k], style=style)
             
     def gridFooter(self, row):
-        """It can be overridden
+        """It must be overridden
         
-        :param row: add???
-        """
+        :param row: add???"""
         print 'gridFooter must be overridden'
         
     def fillBodyGrid(self):
-        """add???
-        """
+        """add???"""
         row = self.copyValue('body_grid').row()
         for w in self.grid_col_widths:
             row.cell(width=w)
@@ -476,78 +451,57 @@ class BagToHtml(object):
     def copyValue(self, valuename):
         """add???
         
-        :param valuename: add???
-        """
+        :param valuename: add???"""
         return self.copies[self.copy][valuename]
         
     def calcRowHeight(self):
-        """override for special needs
-        
-        :returns: add???
-        """
+        """override for special needs"""
         return self.grid_row_height
         
     def calcGridHeaderHeight(self):
-        """override for special needs
-        
-        :returns: add???
-        """
+        """override for special needs"""
         return self.grid_header_height
         
     def calcGridFooterHeight(self):
-        """override for special needs
-        
-        :returns: add???
-        """
+        """override for special needs"""
         return self.grid_footer_height
         
     def calcDocHeaderHeight(self):
-        """override for special needs
-        
-        :returns: add???
-        """
+        """override for special needs"""
         return self.doc_header_height
         
     def defineCustomStyles(self):
-        """override this for custom styles
-        
-        :returns: add???
-        """
+        """override this for custom styles"""
         pass
         
     def docFooter(self, footer, lastPage=None):
-        """add???
+        """Hook method. Define the document footer of the :ref:`layout print <print_layout>`
         
         :param footer: add???
-        :param lastPage: add???. 
-        """
+        :param lastPage: add???"""
         pass
         
     def pageFooter(self, footer, lastPage=None):
-        """add???
+        """Hook method. Define the page footer of the :ref:`layout print <print_layout>`
         
         :param footer: add???
-        :param lastPage: add???. 
-        """
+        :param lastPage: add???"""
         pass
         
     def pageHeader(self, header):
-        """add???
+        """Hook method. Define the page header of the :ref:`layout print <print_layout>`
         
-        :param header: add???
-        """
+        :param header: add???"""
         pass
         
     def docHeader(self, header):
-        """add???
+        """Hook method. Define the doc header of the :ref:`layout print <print_layout>`
         
-        :param header: add???
-        """
+        :param header: add???"""
         pass
         
     def defineStandardStyles(self):
-        """add???
-        """
+        """add???"""
         self.body.style("""
                         .caption{text-align:center;
                                  color:gray;

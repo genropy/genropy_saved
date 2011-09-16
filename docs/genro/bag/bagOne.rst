@@ -15,8 +15,6 @@ Basic functions
     * :ref:`bag_setting_value_position`
     * :ref:`bag_dictionary_methods`
     
-.. module:: gnr.core.gnrbag
-
 .. _bag_instance:
 
 How to instantiate a Bag
@@ -40,18 +38,21 @@ How to instantiate a Bag
     * parsing a text string
     * converting a dictionary into a Bag 
     * passing a list or a tuple just like for the builtin ``dict()`` command
-.. add??? insert the following two Bag initialization methods in the previous list!
-.. * using the instructions from the python module ``gnr.core.gnrbag``, in this case the code is similar to the construction of a dictionary
-.. * using module ``gnr.core.gnrstructures``  In this case, the code consists of a set of python method calls. This subsequently supports the definition of the database model, in addition to the construction of webpages.
+    * using the instructions from the :meth:`gnr.core.gnrbag` module; in this case the code is
+      similar to the construction of a dictionary (add???)
+    * using the :meth:`gnr.core.gnrstructures` module; in this case, the code consists of a set of
+      python method calls. This subsequently supports the definition of the database model,
+      in addition to the construction of webpages.
     
-    For more information, check the :ref:`bag_from_to` paragraph.
+    For more information, check the :ref:`bag_from_to` section.
     
 .. _bag_set_get:
 
 Set and get values from a Bag
 =============================
 
-    You can read from a Bag's value using the :meth:`Bag.getItem` method; for writing on a Bag, you can use the :meth:`Bag.setItem` method.
+    You can read from a Bag's value using the :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` method;
+    to write on a Bag, you can use the :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` method.
     
         >>> mybag = Bag()
         >>> mybag.setItem('a',1)
@@ -64,7 +65,9 @@ Set and get values from a Bag
         0 - (int) a: 1
         1 - (int) b: 2
         
-    .. note:: Any value inserted into a Bag through the :meth:`Bag.setItem` method is inserted as the last element of a chain: every BagNode has its own position at the appropriate hierarchical level.
+    .. note:: Any value inserted into a Bag through the :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>`
+              method is inserted as the last element of a chain: every BagNode has its own position
+              at the appropriate hierarchical level
 
     You can write on a Bag through a more compact notation:
     
@@ -78,10 +81,11 @@ Set and get values from a Bag
         >>> second = mybag['b']
         >>> print second
         2
-
-    You can use Bag as a hierarchical container, so you can create nested Bag with complex path: check :ref:`bag_path` paragraph for more explanation.
-
-    For advanced information, check the :ref:`bag_getting_values_advanced` paragraph.
+        
+    You can use Bag as a hierarchical container, so you can create nested Bag with complex path:
+    check :ref:`bag_path` section for more explanation.
+    
+    For advanced information, check the :ref:`bag_getting_values_advanced` section.
 
 .. _bag_printing:
 
@@ -94,7 +98,8 @@ Printing a Bag
     0 - (int) a: 1
     1 - (int) b: 2
     
-    We don't introduced the :ref:`bag_attributes` yet; however, if you print a Bag with attributes, you will get them included between angle brackets and separated by a single space, like::
+    We don't introduced the :ref:`bag_attributes` yet; however, if you print a Bag with attributes,
+    you will get them included between angle brackets and separated by a single space, like::
     
         <createdOn='11-10-2010' createdBy='Niso'>.
     
@@ -102,16 +107,17 @@ Printing a Bag
     
         numericIndex - (type) label: value <firstAttributeName='firstAttributeValue' secondAttributeName='secondAttributeValue' >
     
-    Check the :ref:`bag_attributes_setItem` paragraph for a complete example on printing a Bag with attributes.
+    Check the :ref:`bag_attributes_setItem` section for a complete example on printing a Bag with attributes.
     
-    You have to know that when you use the built-in function ``print`` you call the :meth:`Bag.asString` method:
+    You have to know that when you use the built-in function ``print`` you call the
+    :meth:`asString() <gnr.core.gnrbag.Bag.asString>` method:
     
         >>> mybag = Bag({'a':1,'b':2,'c':3,'d':4})
         >>> string = mybag.asString()
         >>> string
         '0 - (int) a: 1  \n1 - (int) c: 3  \n2 - (int) b: 2  \n3 - (int) d: 4  '
     
-    For advanced information, check the :ref:`bag_printing_advanced` paragraph.
+    For advanced information, check the :ref:`bag_printing_advanced` section.
 
 .. _bag_lists_dictionaries:
 
@@ -128,22 +134,25 @@ Flat bags VS lists and dictionaries
 Duplicated labels
 =================
 
-    Let's check this example, in which we suppose that you want to insert some values with THE SAME label; if you follow this way:
+    Let's check this example, in which we suppose that you want to insert some values with THE SAME label;
+    if you follow this way:
     
-            >>> beatles = Bag()
-            >>> beatles.setItem('member','John')
-            >>> beatles.setItem('member','Paul')
-            >>> beatles.setItem('member','George')
-            >>> beatles.setItem('member','Ringo')
-    
+        >>> beatles = Bag()
+        >>> beatles.setItem('member','John')
+        >>> beatles.setItem('member','Paul')
+        >>> beatles.setItem('member','George')
+        >>> beatles.setItem('member','Ringo')
+        
     And check your Bag:
     
         >>> print beatles
         0 - (str) member: Ringo
+        
+    you will notice that with :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` method you would set the
+    new values on the existing one.
     
-    you will notice that with :meth:`Bag.setItem` method you would set the new values on the existing one.
-    
-    So, if you want to add different values with the same label you have to use the :meth:`Bag.addItem` method:
+    So, if you want to add different values with the same label you have to use the
+    :meth:`addItem() <gnr.core.gnrbag.Bag.addItem>` method:
         
         >>> beatles = Bag()
         >>> beatles.setItem('member','John')    # alternatively, you could write beatles.addItem('member','John')
@@ -161,7 +170,10 @@ Duplicated labels
 Access to values: the "#" label
 ===============================
 
-    A Bag is an ordered container: it remembers the order of its children insertion [#]_ and allows the Bag to get its values with a numeric index representing an element's position. So, if you want to access data by its position, you have to use a particular label composed by ``#`` followed by the value's index:
+    A Bag is an ordered container: it remembers the order of its children insertion [#]_ and allows the
+    Bag to get its values with a numeric index representing an element's position. So, if you want to
+    access data by its position, you have to use a particular label composed by ``#`` followed by the
+    value's index:
 
         >>> first = beatles.getItem('#0')
         >>> print first
@@ -170,7 +182,9 @@ Access to values: the "#" label
         >>> print second
         Paul
 
-    This feature is very useful when a Bag has several values with the same label, because the :meth:`Bag.getItem` method returns only the first value tagged with the argument label. This means that the only way to access values with a duplicated label is by index:
+    This feature is very useful when a Bag has several values with the same label, because the
+    :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` method returns only the first value tagged with the
+    argument label. This means that the only way to access values with a duplicated label is by index:
 
         >>> print beatles.getItem('member')
         John
@@ -188,7 +202,11 @@ Access to values: the "#" label
 Setting value's position
 ========================
 
-    It is possible to set a new value at a particular position among its brothers, using the optional argument ``_position`` of the :meth:`Bag.setItem` method. The default behavior of setItem is to add the new value as the last element of a list, but the ``_position`` argument provides a compact syntax to insert any value in any place you want. ``_position`` must be a string containing one of the following types:
+    It is possible to set a new value at a particular position among its brothers, using the optional
+    argument ``_position`` of the :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` method. The default
+    behavior of setItem is to add the new value as the last element of a list, but the ``_position``
+    argument provides a compact syntax to insert any value in any place you want. ``_position`` must
+    be a string containing one of the following types:
     
     +---------------+----------------------------------------------------------------------+
     |  Attribute    |  Description                                                         |
@@ -248,11 +266,11 @@ Dictionary methods implemented by Bag and other related methods
 
     We report here a list of the Bag methods inherited from a Python Dictionary:
     
-    * :meth:`Bag.keys`
-    * :meth:`Bag.items`
-    * :meth:`Bag.values`
-    * :meth:`Bag.has_key`
-    * :meth:`Bag.update`
+    * :meth:`keys() <gnr.core.gnrbag.Bag.keys>`
+    * :meth:`items() <gnr.core.gnrbag.Bag.items>`
+    * :meth:`values() <gnr.core.gnrbag.Bag.values>`
+    * :meth:`has_key() <gnr.core.gnrbag.Bag.has_key>`
+    * :meth:`update() <gnr.core.gnrbag.Bag.update>`
     
     * Bag also supports the operator ``in`` exactly like a dictionary:
     
@@ -261,7 +279,8 @@ Dictionary methods implemented by Bag and other related methods
         >>> 'a' in mybag
         True
         
-    * Finally, you can transform a Bag into a dict with the :meth:`Bag.asDict` method: check the :ref:`from_bag_to_dict` paragraph for further details.
+    * Finally, you can transform a Bag into a dict with the :meth:`asDict() <gnr.core.gnrbag.Bag.asDict>`
+      method: check the :ref:`from_bag_to_dict` section for further details.
 
 **Footnotes:**
 

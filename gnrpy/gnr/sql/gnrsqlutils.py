@@ -16,7 +16,8 @@ class ModelExtractor(object):
         self.dbroot = dbroot
         
     def extractModelSrc(self, root):
-        """Call the :meth:`buildSchemata` and :meth:`buildRelations` methods. Return the root
+        """Call the :meth:`buildSchemata()` and :meth:`buildRelations()` methods.
+        Return the root
         
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` documentation section."""
@@ -25,7 +26,7 @@ class ModelExtractor(object):
         return root
         
     def buildSchemata(self, root):
-        """add???. Call the :meth:`buildTables` method
+        """add???. Call the :meth:`buildTables()` method
         
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` documentation section."""
@@ -124,7 +125,7 @@ class SqlModelChecker(object):
         
     def checkDb(self):
         """Prepare self.actual_tables, self.actual_schemata, self.actual_views and call the
-        :meth:`_checkPackage` method for each package. Return a list of instructions for the database building
+        :meth:`_checkPackage()` method for each package. Return a list of instructions for the database building
         
         :returns: a list of instructions for the database building"""
         create_db = False
@@ -158,7 +159,7 @@ class SqlModelChecker(object):
         
     def _checkPackage(self, pkg):
         """Check if the current package is contained by a not defined schema and then call the
-        :meth:`_checkTable` method for each table. Return a list containing sql statements
+        :meth:`_checkTable()` method for each table. Return a list containing sql statements
         
         :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
@@ -200,7 +201,7 @@ class SqlModelChecker(object):
             
     def _checkTable(self, tbl):
         """Check if any column has been changed and then build the sql statements for
-        adding/deleting/editing table's columns calling the :meth:`_buildColumn` method.
+        adding/deleting/editing table's columns calling the :meth:`_buildColumn()` method.
         
         :param tbl: the :ref:`table` object"""
         tablechanges = []

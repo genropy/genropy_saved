@@ -485,14 +485,14 @@ class GnrWebPage(GnrBaseWebPage):
     def rpc_changeLocale(self, locale):
         """add???
         
-        :param locale: string. The current locale (e.g: en, en_us, it)"""
+        :param locale: the current locale (e.g: en, en_us, it)"""
         self.connection.locale = locale.lower()
         
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, dtype=None):
         """add???
         
         :param obj: add???
-        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param locale: the current locale (e.g: en, en_us, it)
         :param format: add???
         :param mask: add???
         :param encoding: add???
@@ -1213,6 +1213,7 @@ class GnrWebPage(GnrBaseWebPage):
                 page.dataController("""if(url){
                                         genro.download(url,null,"print")
                                         };""", url='^gnr.printurl')
+                page.dataController("genro.openWindow(url,filename);",url='^gnr.clientprint',filename='!!Print')
                                         
                 page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
                 page.dock(id='dummyDock',display='none')

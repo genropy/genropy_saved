@@ -5,12 +5,10 @@ childname
 
     *Last page update*: |today|
     
-    .. module:: gnr.web.gnrwebstruct.GnrDomSrc
-    
     The *childname* attribute allow to give an alternative name to a :ref:`webpage_elements_index`.
     
-    You have to define the *childname* as an attribute of one of your elements, then
-    you have to use the :meth:`getAttach`(add???) method to append it to its layout father.
+    You have to define the *childname* as an attribute of one of your elements, then you
+    can attach any element to the element with the *childname* attribute (add??? explain better...)
     
     This attribute is thought to speed up your programming work and...??? (explain of the chain of the
     nodeId that you can call through the "/")

@@ -58,20 +58,17 @@ class TableScriptHandler(BaseComponent):
                                 hasParameters=hasParameters, dialog_height_no_par=dialog_height_no_par,
                                 resource=resource)
         dlg.dataController("""
-                            var modifier = _node.attr.modifier;
-                            if (modifier=='Shift' || immediate){
-                                FIRE .close;
-                                SET #table_script_runner.parameters=pars;
-                                FIRE #table_script_runner.run;
-                                genro.publish({parent:true,topic:'open_batch'});
-                                
+                            FIRE .close;
+                            SET #table_script_runner.parameters=pars;
+                            if (immediate){
+                                genro.dom.setClass(dojo.body(),'runningBatch',true);
                             }else{
-                                FIRE .close;
-                                batch_monitor.create_local_root();
-                                SET #table_script_runner.parameters=pars;
-                                PUBLISH batch_monitor_on;
-                                FIRE #table_script_runner.run;
+                                var modifier = _node.attr.modifier;
+                                if(modifier!='Shift'){
+                                    genro.publish({parent:true,topic:'open_batch'});
+                                }                                
                             }
+                            FIRE #table_script_runner.run;
                             """,
                            _fired="^.save", pars='=.data',immediate=batch_dict.get('immediate',False))
     @public_method
@@ -191,7 +188,7 @@ class TableScriptRunner(TableScriptHandler):
         plugin_main.dataRpc('dummy', self.table_script_run,
                             _fired='^.run',
                             _onCalling='=.onCalling',
-                            _onResult='if(kwargs._publishOnResult){genro.publish(kwargs._publishOnResult);}',
+                            _onResult="""if(kwargs._publishOnResult){genro.publish(kwargs._publishOnResult);}""",
                             parameters='=.parameters',
                             resource='=.resource',
                             res_type='=.res_type',

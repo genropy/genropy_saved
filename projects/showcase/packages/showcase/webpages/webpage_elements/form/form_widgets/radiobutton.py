@@ -17,7 +17,7 @@ class GnrCustomWebPage(object):
                   the "group" attribute).""", font_size='.9em', text_align='justify')
         fb.radiobutton(value='^.radio.jazz', group='genre1', label='Jazz')
         fb.radiobutton(value='^.radio.rock', group='genre1', label='Rock')
-        fb.radiobutton(value='^.radio.blues', group='genre1', label='Blues')
+        fb.radiobutton(value='^.radio.blues', group='genre1', label='Blues', default_value=True)
         
         fb.div("""Here we show you an other radio buttons set.""",
                font_size='.9em', text_align='justify')

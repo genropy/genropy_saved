@@ -15,9 +15,7 @@ Advanced functions
         * :ref:`bag_validators`
         * :ref:`bag_validator_attributes` (with a :ref:`validator_list_parameter`)
         * :ref:`bag_validator_methods`
-
-.. module:: gnr.core.gnrbag
-
+        
 .. _bag_backward_path:
 
 Backward path
@@ -28,11 +26,17 @@ Backward path
     * each item is enveloped into a BagNode.
     * each item can be included in other Bags.
     
-    This means that a Bag knows its children but not its father (infact a Bag may have more than one father). We could set some stricter hypotesis about a Bag's structure, making it more similar to a tree-leaf model: this would happen if a Bag had a back reference to its Bag father.
+    This means that a Bag knows its children but not its father (infact a Bag may have more
+    than one father). We could set some stricter hypotesis about a Bag's structure, making
+    it more similar to a tree-leaf model: this would happen if a Bag had a back reference
+    to its Bag father.
     
     .. image:: ../_images/bag/bag-backward-path.png
     
-    This feature is implemented by the :meth:`Bag.setBackRef()` method. If we call it on a Bag instance, that Bag becomes the root of a tree structure in which each leaf (BagNode) knows its father. This means that we can traverse a Bag backward using the ``parent`` property of Bag's nodes:
+    This feature is implemented by the :meth:`setBackRef() <gnr.core.gnrbag.Bag.setBackRef()>`
+    method. If we call it on a Bag instance, that Bag becomes the root of a tree structure in
+    which each leaf (BagNode) knows its father. This means that we can traverse a Bag backward
+    using the ``parent`` property of Bag's nodes:
 
         >>> family = Bag()
         >>> family['grandpa'] = Bag() 
@@ -48,7 +52,9 @@ Backward path
         >>> nephew.parent == son
         True
         
-    A Bag with back reference can be traversed with special back-paths that use a new syntax. The ``../`` symbol in a path is equivalent to the ``parent`` property: when the backreference is set, it is possible to get from the Bag its own BagNode:
+    A Bag with back reference can be traversed with special back-paths that use a new syntax.
+    The ``../`` symbol in a path is equivalent to the ``parent`` property: when the backreference
+    is set, it is possible to get from the Bag its own BagNode:
 
         >>> nephew['../../'] == father
         True
@@ -60,24 +66,33 @@ Trigger
 
     Bag provides a trigger system.
     
-    This means that a Bag may be notified when its data changes. Bag triggers are based on the concept of *subscription*, that is a link between an event (update, insert, delete) with its eventhandler callback functions. The subscribe method defines new subscriptions for update, insert and delete events.
+    This means that a Bag may be notified when its data changes. Bag triggers are based on the
+    concept of *subscription*, that is a link between an event (update, insert, delete) with its
+    eventhandler callback functions. The subscribe method defines new subscriptions for update,
+    insert and delete events.
 
-    Triggers may be defined either on Bags or BagNodes; to do so, you have to use the :meth:`Bag.subscribe` method and the :meth:`BagNode.subscribe`::
+    Triggers may be defined either on Bags or BagNodes; to do so, you have to use the
+    :meth:`Bag.subscribe() <gnr.core.gnrbag.Bag.subscribe>` method and the :meth:`BagNode.subscribe()
+    <gnr.core.gnrbag.BagNode.subscribe>`::
 
         Bag.subscribe(update=callback1, insert=callback2, delete=callback3, any=callback4)
         BagNode.subscribe(updval=callback1, updattr=callback2)
         
     Where
     
-    * "update", "insert", "delete" and "any" are the parameters for the Bag's subscribe method that allow to trigger their relative callback.
-    * "updval" and "updattr" are the parameters for the BagNode's subscribe method that allow to trigger their relative callback.
+    * "update", "insert", "delete" and "any" are the parameters for the Bag's subscribe method
+      that allow to trigger their relative callback.
+    * "updval" and "updattr" are the parameters for the BagNode's subscribe method that allow
+      to trigger their relative callback.
 
 .. _bag_trigger_on_a_bag:
 
 Trigger on a Bag: the subscribe method
 ======================================
 
-    Subscribing an event on a Bag means that every time that the event is triggered, it is propagated along the Bag hierarchy and is triggered by its eventhandler. A subscription can be seen as an event-function couple, so you can define many eventhandlers for the same event.
+    Subscribing an event on a Bag means that every time that the event is triggered, it is
+    propagated along the Bag hierarchy and is triggered by its eventhandler. A subscription
+    can be seen as an event-function couple, so you can define many eventhandlers for the same event.
 
     Let's consider a Bag like the one shown below:
     
@@ -121,7 +136,8 @@ Trigger on a Bag: the subscribe method
     |   `evt`            | ``string``       |  Event type: insert, delete, upd_value, upd_attrs               |
     +--------------------+------------------+-----------------------------------------------------------------+
     
-    To allow the "family" Bag to trigger on an insert, on an update and on a delete events, we have to add the :meth:`Bag.subscribe` method to the "family" Bag:
+    To allow the "family" Bag to trigger on an insert, on an update and on a delete events, we have to
+    add the :meth:`Bag.subscribe() <gnr.core.gnrbag.Bag.subscribe>` method to the "family" Bag:
     
     >>> family.subscribe(update=onUpdate, insert=onInsert, delete=onDelete)
     >>> walt['children.Mickey.weight']=36
@@ -137,14 +153,17 @@ Trigger on a Bag: the subscribe method
     
     .. image:: ../_images/bag/bag-trigger.png
     
-    We can add on a Bag many subscriptions for the same event; for example we'll add a generic trigger that handles any event::
+    We can add on a Bag many subscriptions for the same event; for example we'll add a generic
+    trigger that handles any event::
     
         def onBagEvent(node=None, evt=None, pathlist=None, **kwargs):
             print '%s on node %s at path %s'%(evt, node.getLabel(),('.'.join(pathlist) or 'nullpath'))
 
     >>> family.subscribe(any=onBagEvent) 
     
-    Using the "any" parameter is equivalent to set the same callback function for insert, update and delete events. The new subscripstion doesn't overwrite the existing one, so update events are triggered by both functions.
+    Using the "any" parameter is equivalent to set the same callback function for insert,
+    update and delete events. The new subscripstion doesn't overwrite the existing one, so update
+    events are triggered by both functions.
 
     >>> walt['children.Mickey.weight']=37
     My node at path: Walt.children.Mickey.weight 
@@ -153,7 +172,8 @@ Trigger on a Bag: the subscribe method
     
     .. image:: ../_images/bag/bag-trigger2.png
 
-    Since an event is propagated along the Bag's hierarchy, it can be triggered by any Bag on the path. In this case there's an insert trigger subscribed by the Bag children ::
+    Since an event is propagated along the Bag's hierarchy, it can be triggered by any Bag on the
+    path. In this case there's an insert trigger subscribed by the Bag children ::
 
         def onNewChild(node=None, ind=None, **kwargs):
             print 'Greetings for %s, your son number %i \n' %(node.getLabel(), ind+1)
@@ -173,7 +193,8 @@ Trigger on a Bag: the subscribe method
 Unsubscribe a Bag
 =================
 
-    It is possible to unsubscribe a bag from a previously subscribed trigger with the :meth:`Bag.unsubscribe` method.
+    It is possible to unsubscribe a bag from a previously subscribed trigger with the
+    :meth:`Bag.unsubscribe() <gnr.core.gnrbag.Bag.unsubscribe>` method.
     
     Let's unsubscribe some of the triggers of our example:
     
@@ -187,7 +208,11 @@ Unsubscribe a Bag
 Trigger on a BagNode
 ====================
 
-    Sometimes triggering updates of a generic node is not enought: infact a node may need a specific event handling. Trigger on bags assumes that each node is similar to others, that's why we provide a more accurate way to manage update triggers. A BagNode may define its own triggers, by the method subscribe. Since by node's update, we mean either value change or attributes change, subscribe method allows two kinds of trigger: upd_value and upd_attrs::
+    Sometimes triggering updates of a generic node is not enought: infact a node may need a specific
+    event handling. Trigger on bags assumes that each node is similar to others, that's why we provide
+    a more accurate way to manage update triggers. A BagNode may define its own triggers, by the method
+    subscribe. Since by node's update, we mean either value change or attributes change, subscribe method
+    allows two kinds of trigger: upd_value and upd_attrs::
 
         def onValueChange(node, info=None, evt=None):
             if evt == 'upd_value':
@@ -265,7 +290,8 @@ Values' list for the ``validate_`` parameter
 Setting a validator using Bag's methods
 =======================================
 
-    To set a validator through the :meth:`Bag.addValidator` method you have to give a path, a validator and a parameterString, where:
+    To set a validator through the :meth:`addValidator() <gnr.core.gnrbag.Bag.addValidator>` method
+    you have to give a path, a validator and a parameterString, where:
     
     * `path`: node's path.
     * `validator`: validation's type.
@@ -279,8 +305,9 @@ Setting a validator using Bag's methods
         0 - (Bag) user: 
             0 - (str) name: Abcd efgh ij klm
             
-    The :meth:`Bag.removeValidator` method allow to remove a validator (parameters: `path` and `validator`).
+    The :meth:`removeValidator() <gnr.core.gnrbag.Bag.removeValidator>` method allow to remove a
+    validator (parameters: `path` and `validator`).
 
 **Footnotes:**
 
-.. [#] The Bag trigger is made by the ``onUpdate`` function that has been previously defined in the :ref:`bag_trigger_on_a_bag` paragraph.
+.. [#] The Bag trigger is made by the ``onUpdate`` function that has been previously defined in the :ref:`bag_trigger_on_a_bag` section.

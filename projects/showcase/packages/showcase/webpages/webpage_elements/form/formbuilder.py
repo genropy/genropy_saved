@@ -90,7 +90,7 @@ class GnrCustomWebPage(object):
         bc.div("visible: if False, user can't see the formbuilder and its form fields",
                 font_size='.9em', text_align='justify')
         fb = bc.formbuilder()
-        fb.checkbox(value='^.disabled', label='Disable form')
+        fb.checkbox(value='^.disabled', label='Disable form') #NISO: it doesn't work!
         fb.checkbox(value='^.hidden', label='Hidden form')
         fb.checkbox(value='^.visible', label='Visible form')
         

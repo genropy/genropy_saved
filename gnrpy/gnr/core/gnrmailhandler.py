@@ -119,7 +119,7 @@ class MailHandler(GnrBaseService):
                            user=None, password=None, ssl=False, tls=False, **kwargs):
         """Set the account parameters
         
-        :param account: if an account has been defined previously with :meth:`set_smtp_account`
+        :param account: if an account has been defined previously with :meth:`set_smtp_account()`
                         then this account can be used instead of having to repeat all the mail
                         parameters contained. 
         :param from_address: the address that will appear in the recipients from field.
@@ -149,7 +149,7 @@ class MailHandler(GnrBaseService):
                             user=None, password=None, ssl=False, tls=False, **kwargs):
         """Get the smtp connection
         
-        :param account: if an account has been defined previously with :meth:`set_smtp_account`
+        :param account: if an account has been defined previously with :meth:`set_smtp_account()`
                         then this account can be used instead of having to repeat all the mail
                         parameters contained. 
         :param smtp_host: the smtp host to send this email. 
@@ -263,7 +263,7 @@ class MailHandler(GnrBaseService):
         :param body: body of the email. If you pass ``html=True`` attribute,
                      then you can pass in the body the html tags. 
         :param attachments: path of the attachment to be sent with the email.
-        :param account: if an account has been defined previously with :meth:`set_smtp_account`
+        :param account: if an account has been defined previously with :meth:`set_smtp_account()`
                         then this account can be used instead of having to repeat all the mail
                         parameters contained. 
         :param smtp_host: the smtp host to send this email. 
@@ -318,7 +318,7 @@ class MailHandler(GnrBaseService):
         :param cc_address: can be a comma deliminated str of email addresses or a list or tuple.
         :param bcc_address: can be a comma deliminated str of email addresses or a list or tuple.
         :param attachments: path of the attachment to be sent with the email.
-        :param account: if an account has been defined previously with :meth:`set_smtp_account`
+        :param account: if an account has been defined previously with :meth:`set_smtp_account()`
                         then this account can be used instead of having to repeat all the mail
                         parameters contained. 
         :param from_address: the address that will appear in the recipients from field.
@@ -379,7 +379,7 @@ class MailHandler(GnrBaseService):
         :param body: body of the email. If you pass ``html=True`` attribute,
                      then you can pass in the body the html tags
         :param attachments: path of the attachment to be sent with the email.
-        :param account: if an account has been defined previously with :meth:`set_smtp_account`
+        :param account: if an account has been defined previously with :meth:`set_smtp_account()`
                         then this account can be used instead of having to repeat all the mail
                         parameters contained. 
         :param from_address: the address that will appear in the recipients from field.

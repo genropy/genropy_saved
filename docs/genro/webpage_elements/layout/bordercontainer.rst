@@ -6,7 +6,7 @@ borderContainer
     
     *Last page update*: |today|
     
-    **Type**: :ref:`layout widget <layout_index>`
+    **Type**: :ref:`layout widget <layout>`
     
     .. note:: The Genro borderContainer has been taken from Dojo without adding any modifies.
               In this page you will find some interesting features that we want to point up. For more

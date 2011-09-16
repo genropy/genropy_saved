@@ -124,7 +124,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 });
             }
             genro.src.afterBuildCalls.push(function(){
-                setTimeout(function(){that.setLocked(that.locked);},1);
+                setTimeout(function(){that.setLocked(that.locked);that.updateStatus()},1);
             });
         }
     },

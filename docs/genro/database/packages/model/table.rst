@@ -10,24 +10,24 @@ table
     
     add??? rewrite the following index!!!
     
-    * :ref:`table_description`
-    * :ref:`table_definition`
+    * :ref:`table_intro`
+    * :ref:`table_def`
     * :ref:`table_creation`
     * :ref:`table_config_db`
     * :ref:`table_columns`, :ref:`table_validations`
     * :ref:`table_examples`
     
-.. _table_description:
+.. _table_intro:
 
-description
-===========
+introduction
+============
 
     A table is one of the most important part of your project. In relational databases and
     flat file databases, a table is a set of data elements that is organized using a model
     of vertical :ref:`table_columns` (which are identified by their name) and horizontal
     rows. Each row is identified by the table's primary key (:ref:`pkey`).
     
-.. _table_definition:
+.. _table_def:
 
 definition
 ==========
@@ -38,7 +38,7 @@ definition
     
 creation of a table
 ===================
-    
+
     First write something like the following line::
     
         #!/usr/bin/env python
@@ -54,8 +54,8 @@ creation of a table
     
     There are two options, that are:
     
-    * :ref:`classes_table`
-    * :ref:`classes_htable`
+    * :ref:`classes_table`: a standard table
+    * :ref:`classes_htable`: a hierarchic table
     
     Here we describe the most common table, that is the ``Table`` class::
     
@@ -78,29 +78,129 @@ config_db
             
     Inside the ``config_db`` method you can create a table:
     
+.. _table_table:
+
+table method
+============
+
     * introduce a table::
         
         tbl = pkg.table('company', pkey='id', rowcaption='@registry_id.name',
                          name_long='Company', name_plural='Companies')
                          
     add??? automethod of table method!
-                         
-    * table attributes:
     
-        * pkey
-        * rowcaption
-        * name_long
-        * name_plural
-        * audit='lazy' --> consente di visualizzare (DOVE??? Mi sembra una cosa di adm) le modifiche
-                           ad un record. Non fa niente quando si crea un nuovo record.
-        * _sendback: boolean. If ``True``, the value of the column is passed during the form save, even
-          if it is not change.
-          
-          It is useful when you have to check a column value even if it doesn't change (using for
-          example the :ref:`onloading_method` or the :ref:`onsaving_method` method).
-          
-        * indexed: boolan. If ``True``, create an SQL index.
-          
+    Here we list the table methods attributes:
+    
+    * :ref:`table_audit`
+    * :ref:`table_group`
+    * :ref:`table_format`
+    * :ref:`table_indexed`
+    * names: :ref:`table_name_full`, :ref:`table_name_long`, :ref:`table_name_plural`
+      :ref:`table_name_short`
+    * :ref:`table_pkey`
+    * :ref:`table_rowcaption`
+    * :ref:`table_sendback`
+    
+.. _table_audit:
+
+audit
+-----
+
+    add???
+    
+    ::
+    
+        consente di visualizzare (DOVE??? Mi sembra una cosa di adm) le modifiche
+        ad un record. Non fa niente quando si crea un nuovo record.
+        
+.. _table_group:
+
+group
+-----
+
+    add???
+    
+.. _table_format:
+
+format
+------
+
+    Specify the punctuation of a numerical column. For example you can specify the character that
+    specifies the separation between integers and the decimals.
+    
+    Syntax::
+    
+        format='#.###,00'
+        
+    you have to use ``#`` for the integers and ``0`` for the decimals.
+      
+      **Example**::
+        
+        format='#.###,00'
+        
+    add??? I'm not sure of the meaning of ``#`` and ``0``...
+    
+.. _table_indexed:
+
+indexed
+-------
+
+    boolan. If ``True``, create an SQL index of the relative column
+    
+.. _table_name_full:
+
+name_full
+---------
+
+    The full name of the column. More information :ref:`here <name_full>`
+    
+.. _table_name_long:
+
+name_long
+---------
+
+    The long name of the column. More information :ref:`here <name_long>`
+    
+.. _table_name_plural:
+
+name_plural
+-----------
+
+    The name plural of the column. More information :ref:`here <name_plural>`
+    
+.. _table_name_short:
+
+name_short
+----------
+
+    The short name of the column. More information :ref:`here <name_short>`
+    
+.. _table_pkey:
+
+pkey
+----
+
+    add???
+    
+.. _table_rowcaption:
+
+rowcaption
+----------
+
+    add???
+        
+.. _table_sendback:
+
+_sendback
+---------
+
+    boolean. If ``True``, the value of the column is passed during the form save, even
+    if it is not change.
+    
+    It is useful when you have to check a column value even if it doesn't change (using for
+    example the :ref:`onloading_method` or the :ref:`onsaving_method` method).
+    
 .. _sysfields:
 
 sysFields
@@ -234,7 +334,7 @@ validations in a column
     
 .. _bla_bla:
     
-paragraph to revise
+section to revise
 ===================
 
 .. _set_tagcolumn:

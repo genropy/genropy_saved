@@ -133,19 +133,21 @@ class TableHandlerView(BaseComponent):
                         
         pane.dataController("TH(th_root).querymanager.queryEditor(open);",
                         th_root=th_root,open="^.query.queryEditor")
-        pane.dataController("TH(th_root).querymanager.refreshQueryMenues();",
-                        th_root=th_root,_fired="^.query.refreshMenues")
-        dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
-                                _pref='!!Save query: ',_code='^.query.queryAttributes.code',
-                                datapath='.query.queryAttributes')
-        pane.dataController("dialog.show();",_fired="^.query.savedlg",dialog=dialog.js_widget)
+       #pane.dataController("TH(th_root).querymanager.refreshQueryMenues();",
+       #                th_root=th_root,_fired="^.query.refreshMenues")
+       #dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
+       #                        _pref='!!Save query: ',_code='^.query.queryAttributes.code',
+       #                        datapath='.query.queryAttributes')
+       # pane.dataController("dialog.show();",_fired="^.query.savedlg",dialog=dialog.js_widget)
         pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.queryAttributes.pkey',table=table,_fired='^.query.delete',
                    _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
-        pane.dataRpc('.queryAttributes.pkey',self.th_saveUserObject,objtype='query',table=table,id='=.queryAttributes.id',data='=.where',code='=.queryAttributes.code',
-                    description='=.queryAttributes.description', 
-                    authtags='=.queryAttributes.authtags', private='=.queryAttributes.private', 
-                   _fired='^.save',_if='code',_onResult='FIRE .refreshMenues;',datapath='.query')
-        self.th_saveUserObjectDialog(dialog,table)
+       #pane.dataRpc('.queryAttributes.pkey',self.th_saveUserObject,objtype='query',table=table,
+       #            id='=.queryAttributes.id',data='=.where',
+       #            code='=.queryAttributes.code',
+       #            description='=.queryAttributes.description', 
+       #            authtags='=.queryAttributes.authtags', private='=.queryAttributes.private', 
+       #           _fired='^.save',_if='code',_onResult='FIRE .refreshMenues;',datapath='.query')
+       # self.th_saveUserObjectDialog(dialog,table)
 
 
     @struct_method
@@ -391,7 +393,7 @@ class TableHandlerView(BaseComponent):
                                        _class='st_conditionValue')
         value_textbox.div('^.c_0', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
-        fb.div('^.#parent.queryAttributes.description',lbl='!!Search:',tdl_width='4em',colspan=3,
+        fb.div('^.#parent.queryAttributes.caption',lbl='!!Search:',tdl_width='4em',colspan=3,
                     row_hidden='^.#parent.queryAttributes.extended?=!#v',width='99%', _class='fakeTextBox buttonIcon',connect_ondblclick='')
         
     def _th_viewController(self,pane,table=None,th_root=None):
@@ -467,18 +469,18 @@ class THViewUtils(BaseComponent):
     def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,favoriteQueryPath=None,**kwargs):
         querymenu = Bag()
         if editor:
-            querymenu.setItem('__basequery__',None,caption='!!Plain Query',description='!!New query',
+            querymenu.setItem('__basequery__',None,caption='!!Plain Query',description='',
                                 extended=False)
             querymenu.setItem('r_1',None,caption='-')
         savedqueries = self.package.listUserObject(objtype='query', userid=self.user, tbl=table,authtags=self.userTags)            
         if savedqueries:
             for i, r in enumerate(savedqueries.data):
                 attrs = dict([(str(k), v) for k, v in r.items()])
-                querymenu.setItem(r['code'] or 's_%i' % i, None,_attributes=attrs)
+                querymenu.setItem(r['code'] or 's_%i' % i, None,caption=attrs.get('description'),_attributes=attrs)
             querymenu.setItem('r_2',None,caption='-')
         if pyqueries:
             for n in pyqueries:
-                querymenu.setItem(n.label,n.value,_attributes=n.attr)
+                querymenu.setItem(n.label,n.value,caption=attrs.get('description'),_attributes=n.attr)
             querymenu.setItem('r_3',None,caption='-')
         
         if editor:
@@ -487,21 +489,22 @@ class THViewUtils(BaseComponent):
                                                                 SET .query.queryAttributes.extended=true; 
                                                                 SET .query.queryEditor=true;""")
         else:
-            querymenu.setItem('__newquery__',None,caption='!!New query',description='!!New query',
+            querymenu.setItem('__newquery__',None,caption='!!New query',description='',
                                 extended=True)
         querymenu.walk(self._th_checkFavoriteLine,favPath=favoriteQueryPath)
         return querymenu
         
         
     @public_method
-    def th_saveUserObject(self, table=None,objtype=None,namespace=None,pkey=None,data=None,code=None,  userid=None,
-                       description=None, authtags=None, private=False, inside_shortlist=None,quicklist=False,**kwargs):
+    def th_saveUserObject(self, table=None,objtype=None,data=None,metadata=None,**kwargs):
         pkg,tbl = table.split('.')
         package = self.db.package(pkg)
-        record = dict(data=data,objtype=objtype,namespace=namespace,
-                    pkg=pkg,tbl=table,userid=self.user,quicklist=quicklist or False,
-                    code=code,table=table,authtags=authtags,id=pkey,
-                    description=description,private=private or False)
+        if not metadata:
+            return
+        record = dict(data=data,objtype=objtype,
+                    pkg=pkg,tbl=table,userid=self.user,table=table,id=metadata['pkey'],
+                    code= metadata['code'],description=metadata['description'],private=metadata['private'] or False,
+                    notes=metadata['notes'])
         package.dbtable('userobject').insertOrUpdate(record)
         self.db.commit()
         return record['id']

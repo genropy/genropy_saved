@@ -171,7 +171,7 @@ class PrintHandler(object):
             cups_connection = cups.Connection()
             for printer_name, printer in cups_connection.getPrinters().items():
                 printer.update(dict(name=printer_name))
-                printersBag.setItem('%s.%s' % (printer['printer-location'], printer_name), None, printer)
+                printersBag.setItem('%s.%s' % (printer['printer-location'], printer_name.replace(':','_')), None, printer)
         else:
             print 'pyCups is not installed'
         return printersBag

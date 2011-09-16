@@ -596,8 +596,8 @@ th_form
 ``center`` path
 ---------------
 
-    If you need to use some :ref:`layout_index` elements in your page, like a
-    :ref:`tabcontainer`, you have to pass from the ``form.center`` path.
+    If you need to use some :ref:`layout` in your page, like a :ref:`tabcontainer`, you have
+    to pass from the ``form.center`` path.
     
     **Example**:
     
@@ -645,7 +645,7 @@ TableHandler common attributes
       
       .. note:: we suggest you to link a TableHandler to a :ref:`contentpane`;
                 avoid a :ref:`bordercontainer`, a :ref:`tabcontainer` or
-                other :ref:`layout elements <layout_index>` (if you use them, pay
+                other :ref:`layout elements <layout>` (if you use them, pay
                 attention to use the correct attributes of the layout elements)
       
     * *nodeId*: the id of the TableHandler type. If you don't need a specific nodeId, the component
@@ -1724,8 +1724,8 @@ action bar
         * yellow light: the record has unsaved changes (click on the "save" button when
           you want to save them)
         * red light: some condition for a correct save is not satisfied (for example,
-          a :ref:`validation` is not satisfied); correct the wrong field in order to save
-          the record
+          a :ref:`validation <validations>` is not satisfied); correct the wrong field
+          in order to save the record
           
     * the management buttons (point 3), that are in order from left to the right:
         

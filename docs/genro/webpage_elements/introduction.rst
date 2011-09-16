@@ -6,13 +6,13 @@ introduction
     
     *Last page update*: |today|
     
-    .. note:: We recommend you to read the :ref:`datapath` paragraph before reading this section
+    .. note:: We recommend you to read the :ref:`datapath` section before reading this section
               and learn the behavior of *datapath* and *value* attributes, because every webpage element
               is able to save its values through these two attributes.
     
     You can act on a Genro :ref:`webpages_webpages` mainly through:
     
-    * :ref:`layout_index` elements - allow to create the webpage's layout
+    * :ref:`layout` - allow to create the webpage's layout
     * :ref:`html`
     * :ref:`css` elements
     * :ref:`javascript` elements

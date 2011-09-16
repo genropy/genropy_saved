@@ -14,6 +14,7 @@ Genropy v0.7dev documentation
     sql/index
     components <components/index>
     database/index
+    print/index
     miscellaneous/index
     library_reference/index
     

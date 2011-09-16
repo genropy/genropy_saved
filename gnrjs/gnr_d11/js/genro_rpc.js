@@ -416,6 +416,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (datachanges) {
             genro.rpc.setDatachangesInData(datachanges);
         }
+        var runningBatch = envelope.getItem('runningBatch');
+        genro.dom.setClass(dojo.body(),'runningBatch',runningBatch);
         var error = envelope.getItem('error');
         if (!error) {
             var locStatus = envelope.getItem('_localizerStatus');

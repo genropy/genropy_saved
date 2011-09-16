@@ -469,7 +469,7 @@ class SqlTable(GnrObject):
                                       "logical deleted"
         :param excludeDraft: add???
         :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute
-        :param locale: string. The current locale (e.g: en, en_us, it)
+        :param locale: the current locale (e.g: en, en_us, it)
         :param mode: add???
         :param \*\*kwargs: another way to pass sql query parameters"""
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,

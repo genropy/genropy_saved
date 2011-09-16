@@ -10,8 +10,12 @@ datapath
     * :ref:`datapath_syntax`
     * :ref:`datapath_validity`
     * :ref:`datapath_symbolic`
-    * :ref:`form_path`
+    * :ref:`datapath_specials`:
     
+        * :ref:`attributes_path`
+        * :ref:`form_path`
+        * :ref:`parent_path`
+        
 .. _datapath_def:
 
 definition and description
@@ -64,7 +68,7 @@ validity
 symbolic datapath
 =================
 
-    A symbolic datapath is a path that allow assign to an object the same path of another object.
+    A symbolic datapath is a path that allows to assign to an object the same path of another object.
     
     Let's suppose to have two objects (called ``A`` and ``B``): the ``A`` object is the one you want
     to assign the path of the ``B`` object. To create a symbolic datapath, you have to give to the
@@ -75,12 +79,45 @@ symbolic datapath
     
             add???
             
+.. _datapath_specials:
+
+special paths
+=============
+
+    There are some special syntaxes that allows you to move through the values' path;
+    they are:
+    
+    * :ref:`attributes_path`: allow to access to an attribute
+    * :ref:`form_path`: allow to access to the ... add???
+    * :ref:`parent_path`: allow to access to the superior path level
+    
+.. _attributes_path:
+
+attributes path
+---------------
+
+    In order to access to an attribute (of a :ref:`bagnode`), you can ...add???
+    
 .. _form_path:
 
-the #FORM path
---------------
+#FORM path
+----------
     
     add???
     
     ``#FORM.pkey`` is the current pkey of the record
-        
+    
+.. _parent_path:
+
+parent path
+-----------
+
+    add???
+    
+    You can access to the parent path through the ``#parent`` syntax.
+    
+    Example::
+    
+    add??? explanation!
+    
+        value='^.#parent.batch_note'

@@ -20,7 +20,6 @@ Documents to revise
     languages
     login
     palette
-    print
     struct
     trigger
     user_interface
