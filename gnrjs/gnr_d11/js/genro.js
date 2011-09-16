@@ -237,6 +237,11 @@ dojo.declare('gnr.GenroClient', null, {
         genro.dom.removeClass('mainWindow', 'waiting');
         genro.dom.removeClass('_gnrRoot', 'notvisible');
         genro.dom.effect('_gnrRoot', 'fadein', {duration:400});
+        dojo.connect(dojo.doc, 'onkeypress', function(event) {
+              if ((event.keyCode == dojo.keys.BACKSPACE ) &&(event.target.size === undefined ) && (event.target.rows === undefined )){
+                 event.preventDefault();
+              }
+        })
         genro.dragDropConnect();
         genro.standardEventConnection();
         if(genro.isDeveloper){
