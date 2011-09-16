@@ -553,7 +553,27 @@ dojo.declare("gnr.GnrDevHandler", null, {
         if (ele.addEventListener) ele.addEventListener(opt['type'], func, false);
         else if (ele.attachEvent) ele.attachEvent('on' + opt['type'], func);
         else ele['on' + opt['type']] = func;
+    },
+    userObjectDialog:function(title,datapath,saveCb){
+        var dlg = genro.dlg.quickDialog(title);
+        var center = dlg.center;
+        var box = center._('div', {datapath:datapath,padding:'20px'});
+        var fb = genro.dev.formbuilder(box, 2, {border_spacing:'6px'});
+        fb.addField('textbox', {lbl:_T("Code"),value:'^.code',width:'10em'});
+        fb.addField('checkbox', {label:_T("Private"),value:'^.private'});
+        fb.addField('textbox', {lbl:_T("Name"),value:'^.description',width:'100%',colspan:2});
+        fb.addField('simpleTextArea', {lbl:_T("Notes"),value:'^.notes',width:'100%',height:'5ex',colspan:2,lbl_vertical_align:'top'});
+        var bottom = dlg.bottom._('div');
+        var saveattr = {'float':'right',label:_T('Save')};
+        var data = new gnr.GnrBag();
+        saveattr.action = function(){
+            saveCb(dlg);
+        }
+        bottom._('button', saveattr);
+        bottom._('button', {'float':'right',label:_T('Cancel'),action:dlg.close_action});
+        dlg.show_action();
     }
+
 });
 //dojo.declare("gnr.GnrViewEditor",null,{
 //      constructor: function(widget){
