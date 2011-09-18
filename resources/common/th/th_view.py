@@ -83,7 +83,6 @@ class TableHandlerView(BaseComponent):
                                     gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
         
 
-        
     @struct_method
     def th_slotbar_optionsMenu(self,pane,**kwargs):
         menu = pane.div(tip='!!Query options',_class='buttonIcon icnBaseAction').menu(_class='smallmenu',modifiers='*')
@@ -130,24 +129,14 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
                         favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,cacheTime=5,editor=False)
+        
+        pane.dataRemote('.query.helper.in.savedsets',self.th_menuSets,
+                        objtype='list_in',table=table,cacheTime=5)
                         
         pane.dataController("TH(th_root).querymanager.queryEditor(open);",
                         th_root=th_root,open="^.query.queryEditor")
-       #pane.dataController("TH(th_root).querymanager.refreshQueryMenues();",
-       #                th_root=th_root,_fired="^.query.refreshMenues")
-       #dialog = pane.dialog(title='==_code?_pref+_code:_newtitle;',_newtitle='!!Save new query',
-       #                        _pref='!!Save query: ',_code='^.query.queryAttributes.code',
-       #                        datapath='.query.queryAttributes')
-       # pane.dataController("dialog.show();",_fired="^.query.savedlg",dialog=dialog.js_widget)
         pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.queryAttributes.pkey',table=table,_fired='^.query.delete',
                    _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
-       #pane.dataRpc('.queryAttributes.pkey',self.th_saveUserObject,objtype='query',table=table,
-       #            id='=.queryAttributes.id',data='=.where',
-       #            code='=.queryAttributes.code',
-       #            description='=.queryAttributes.description', 
-       #            authtags='=.queryAttributes.authtags', private='=.queryAttributes.private', 
-       #           _fired='^.save',_if='code',_onResult='FIRE .refreshMenues;',datapath='.query')
-       # self.th_saveUserObjectDialog(dialog,table)
 
 
     @struct_method
@@ -305,6 +294,8 @@ class TableHandlerView(BaseComponent):
                                         if(n.label.indexOf('parameter_')==0){
                                             newwhere.popNode(n.label);
                                             kwargs[n.label.replace('parameter_','')]=n._value;
+                                        }else{
+                                            objectPop(newwhere.getNode(n.label).attr,'value_caption');
                                         }
                                     });
                                     kwargs['where'] = newwhere;
@@ -381,7 +372,6 @@ class TableHandlerView(BaseComponent):
         optd.div('^.c_0?op_caption', min_width='7em', nodeId='%s_fastQueryOp' %th_root, 
                 selected_fullpath='.c_0?op', selected_caption='.c_0?op_caption',
                 connectedMenu='==TH("%s").querymanager.getOpMenuId(_dtype);' %th_root,
-                action="TH('%s').querymanager.onChangedQueryOp($2,$1);" %th_root,
                 _dtype='^.c_0?column_dtype',
                 _class='floatingPopup', display='inline-block', padding_left='2px')
         value_textbox = fb.textbox(lbl='!!Value', value='^.c_0?value_caption', width='12em', lbl_width='5em',
@@ -391,7 +381,7 @@ class TableHandlerView(BaseComponent):
                                        disabled='==(_op in TH("%s").querymanager.helper_op_dict)'  %th_root, _op='^.c_0?op',
                                        connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,
                                        _class='st_conditionValue')
-        value_textbox.div('^.c_0', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
+        value_textbox.div('^.c_0?value_caption', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
         fb.div('^.#parent.queryAttributes.caption',lbl='!!Search:',tdl_width='4em',colspan=3,
                     row_hidden='^.#parent.queryAttributes.extended?=!#v',width='99%', _class='fakeTextBox buttonIcon',connect_ondblclick='')
@@ -429,10 +419,18 @@ class TableHandlerView(BaseComponent):
 class THViewUtils(BaseComponent):
     js_requires='th/th_querytool'
     @public_method
-    def th_listUserObject(self,table, objtype=None,namespace=None, **kwargs):
+    def th_menuSets(self,table=None,**kwargs):
+        menu =self.th_listUserObject(table=table,**kwargs)
+        if len(menu)>0:
+            menu.setItem('r_0',None,caption='-')
+        menu.setItem('__newset__',None,caption='!!New Set')
+        return menu
+    
+    @public_method
+    def th_listUserObject(self,table, objtype=None,**kwargs):
         result = Bag()
         if hasattr(self.package, 'listUserObject'):
-            objectsel = self.package.listUserObject(objtype=objtype,namespace=namespace, userid=self.user, tbl=table,
+            objectsel = self.package.listUserObject(objtype=objtype,userid=self.user, tbl=table,
                                                     authtags=self.userTags)
             if objectsel:
                 for i, r in enumerate(objectsel.data):
@@ -476,11 +474,11 @@ class THViewUtils(BaseComponent):
         if savedqueries:
             for i, r in enumerate(savedqueries.data):
                 attrs = dict([(str(k), v) for k, v in r.items()])
-                querymenu.setItem(r['code'] or 's_%i' % i, None,caption=attrs.get('description'),_attributes=attrs)
+                querymenu.setItem(r['code'] or 's_%i' % i, None,caption=attrs.get('description',r['code']),_attributes=attrs)
             querymenu.setItem('r_2',None,caption='-')
         if pyqueries:
             for n in pyqueries:
-                querymenu.setItem(n.label,n.value,caption=attrs.get('description'),_attributes=n.attr)
+                querymenu.setItem(n.label,n.value,caption=n.attr.get('description'),_attributes=n.attr)
             querymenu.setItem('r_3',None,caption='-')
         
         if editor:
@@ -507,7 +505,7 @@ class THViewUtils(BaseComponent):
                     notes=metadata['notes'])
         package.dbtable('userobject').insertOrUpdate(record)
         self.db.commit()
-        return record['id']
+        return record['id'],record
 
     @public_method
     def th_deleteUserObject(self,table=None,pkey=None):
@@ -551,17 +549,3 @@ class THViewUtils(BaseComponent):
         result.setItem('not.yes', None, caption='&nbsp;')
         result.setItem('not.not', None, caption='!!NOT')
         return result
-
-    def th_saveUserObjectDialog(self,dialog,table):
-        frame = dialog.framePane(width='350px',height='200px')
-        fb = frame.formbuilder(cols=3, width='320px', border_spacing='5px',margin='10px',margin_top='10px')
-        fb.div(lbl='Flags:', colspan=1)
-        fb.checkbox(value='^.private', lbl='', label='!!Private',tooltip='!!Only for me.',colspan=2)
-        fb.textbox(value='^.code', colspan=3, tooltip='Dotted path and name',lbl='!!Code')
-        fb.textbox(value='^.authtags', colspan=3, lbl='!!Permissions', tooltip='!!Comma separated list of auth tags.')
-        fb.simpleTextarea(lbl='!!Description', value='^.description', height='3.75em',
-                          width='100%', border='1px solid gray', lbl_vertical_align='top', colspan=3)
-        jsdlg = dialog.js_widget
-        footer = frame.bottom.slotBar('*,cancel,confirm')
-        footer.cancel.button('!!Cancel',action='dialog.hide();',dialog=jsdlg)
-        footer.confirm.button('!!Confirm',action='FIRE .#parent.save; dialog.hide();',dialog=jsdlg)
