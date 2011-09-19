@@ -22,6 +22,7 @@ introduction
     
     There are other webpage elements:
     
+    * :ref:`iframe`
     * :ref:`cells` - add???
     * :ref:`menu` - add???
     * :ref:`toolbar` - add???

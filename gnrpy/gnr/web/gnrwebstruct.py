@@ -195,10 +195,8 @@ class GnrDomSrc(GnrStructData):
         the :meth:`child() <gnr.core.gnrstructures.GnrStructData.child>` and return it
         
         :param tag: add???
-        :param childname: add???. 
-        :param envelope: add???. 
-        :returns: a child
-        """
+        :param childname: the :ref:`childname`
+        :param envelope: add???"""
         if '_tags' in kwargs and not self.page.application.checkResourcePermission(kwargs['_tags'], self.page.userTags):
             kwargs['__forbidden__'] = True
         if 'fld' in kwargs:
@@ -235,9 +233,7 @@ class GnrDomSrc(GnrStructData):
         
         :param tag: the html tag
         :param childcontent: the html content
-        :param value: add???. 
-        :returns: the child
-        """
+        :param value: add???"""
         if childcontent :
             kwargs['innerHTML'] = childcontent
             childcontent = None
@@ -249,18 +245,16 @@ class GnrDomSrc(GnrStructData):
     def nodeById(self, id):
         """add???
         
-        :param id: the node Id
-        :returns: 
-        """
+        :param id: the node Id"""
         return self.findNodeByAttr('nodeId', id)
         
-    def framepane(self,frameCode=None,centerCb=None,**kwargs):
-        """Create a framepane.
+    def framepane(self, frameCode=None, centerCb=None, **kwargs):
+        """Create a :ref:`framepane` and return it. A framePane is a :ref:`bordercontainer`
+        with :ref:`frame_sides` attribute added: these sides follow the Dojo borderContainer
+        suddivision: there is indeed the *top*, *bottom*, *left*, *right* and *center* regions
         
-        :param frameCode: the framepane code. 
-        :param centerCb: add???. 
-        :returns: the framepane
-        """
+        :param frameCode: the framepane code
+        :param centerCb: add???"""
         frameCode = frameCode or 'frame_#'
         if '#' in frameCode:
             frameCode = frameCode.replace('#',self.page.getUuid())
@@ -279,13 +273,13 @@ class GnrDomSrc(GnrStructData):
     def frameform(self,formId=None,frameCode=None,store=None,storeCode=None,slots=None,table=None,store_kwargs=None,**kwargs):
         """A decorator - :ref:`extract_kwargs`. add???
         
-        :param formId: add???. 
-        :param frameCode: add???. 
-        :param store: add???. 
-        :param storeCode: add???. 
-        :param slots: add???. 
-        :param table: the :ref:`table` name. 
-        :param store_kwargs: add???. """
+        :param formId: add???
+        :param frameCode: add???
+        :param store: add???
+        :param storeCode: add???
+        :param slots: add???
+        :param table: the :ref:`table` name
+        :param store_kwargs: add???"""
         formId = formId or '%s_form' %frameCode
         if not storeCode:
             storeCode = formId
@@ -309,15 +303,14 @@ class GnrDomSrc(GnrStructData):
     def formstore(self,handler='recordCluster',nodeId=None,table=None,storeType=None,parentStore=None,**kwargs):
         """add???
         
-        :param storepath: add???. 
+        :param storepath: add???
         :param handler: add???. Default value is ``recordCluster``
         :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
-                       documentation page. 
-        :param table: the :ref:`table` name. 
-        :param storeType: add???. 
-        :param parentStore: add???. 
-        :returns: the formstore
-        """
+                       documentation page
+        :param table: the :ref:`table` name
+        :param storeType: add???
+        :param parentStore: add???
+        :returns: the formstore"""
         assert self.attributes.get('tag','').lower()=='frameform', 'formstore can be created only inside a FrameForm'
         storeCode = self.attributes['frameCode']
         self.attributes['storeCode'] = storeCode
@@ -356,19 +349,23 @@ class GnrDomSrc(GnrStructData):
         self.child('callBack',childcontent=cb,**kwargs)
         return self
 
-    def iframe(self, childcontent=None,main=None, **kwargs):
+    def iframe(self, childcontent=None, main=None, **kwargs):
+        """Create an :ref:`iframe` and returns it
+        
+        :param childcontent: the html content
+        :param main: add???"""
         if main:
             self.attributes.update(dict(overflow='hidden'))
             kwargs['height'] = '100%'
             kwargs['width'] = '100%'
             kwargs['border'] = 0
-        return self.htmlChild('iframe',  childcontent=childcontent,main=main ,**kwargs)
+        return self.htmlChild('iframe', childcontent=childcontent, main=main, **kwargs)
     
     def htmlform(self,childcontent=None,**kwargs):
-        return self.htmlChild('form',  childcontent=childcontent, **kwargs)
+        return self.htmlChild('form', childcontent=childcontent, **kwargs)
 
     def h1(self, childcontent=None, **kwargs):
-        return self.htmlChild('h1',  childcontent=childcontent, **kwargs)
+        return self.htmlChild('h1', childcontent=childcontent, **kwargs)
         
     def h2(self, childcontent=None, **kwargs):
         return self.htmlChild('h2', childcontent=childcontent, **kwargs)
@@ -736,59 +733,57 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     #    self.child('FramePane',slots='top,left,bottom,right',**kwargs)
         
     def dataFormula(self, path, formula, **kwargs):
-        """Allow to insert a value into a specific address of the :ref:`datastore` calculated through a formula
+        """Create a :ref:`dataformula` and returns it. dataFormula allows to calculate
+        a value through a formula.
         
         :param path: the dataFormula's path
         :param formula: the dataFormula's formula
-        :param \*\*kwargs: formula parameters and other ones
-        :returns: the dataFormula
-        """
+        :param \*\*kwargs: formula parameters and other ones (:ref:`css`, etc)"""
         return self.child('dataFormula', path=path, formula=formula, **kwargs)
         
     def dataScript(self, path, script, **kwargs):
-        """
+        """.. deprecated:: 0.7
+
+        .. warning:: The :ref:`datascript` has been substituted by :ref:`datacontroller`
+                     and :ref:`dataformula`
+                     
         :param path: the dataScript's path
-        :param script: the dataScript's formula
-        :returns: the dataScript
-        """
+        :param script: the dataScript's formula"""
         return self.child('dataScript', path=path, script=script, **kwargs)
         
     def dataController(self, script=None, **kwargs):
-        """Allow to execute a Javascript code
+        """Create a :ref:`datacontroller` and returns it. dataController allows to
+        execute Javascript code
         
         :param script: the Javascript code that ``datacontroller`` has to execute. 
         :param \*\*kwargs: *_init*, *_onStart*, *_timing*. For more information,
-                       check the controllers' :ref:`controllers_attributes` section
-        :returns: the dataController
-        """
+                       check the controllers' :ref:`controllers_attributes` section"""
         return self.child('dataController', script=script, **kwargs)
         
     def dataRpc(self, path, method, **kwargs):
-        """Allow the client to make a call to the server to perform an action.
+        """Create a :ref:`datarpc` and returns it. dataRpc allows the client to make a call
+        to the server to perform an action and returns it.
         
         :param path: MANDATORY - it contains the folder path of the result of the ``dataRpc`` action;
                      you have to write it even if you don't return any value in the ``dataRpc``
                      (in this situation it will become a "mandatory but dummy" parameter)
         :param method: the name of your ``dataRpc`` method
         :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
-                       check the :ref:`rpc_attributes` section"""
+                           check the :ref:`rpc_attributes` section"""
         return self.child('dataRpc', path=path, method=method, **kwargs)
         
     def selectionstore_addcallback(self,*args,**kwargs):
         """add???
         
         :param args: add???
-        :param \*\*kwargs: add???
-        """
+        :param \*\*kwargs: add???"""
         self.datarpc_addcallback(*args,**kwargs)
         
     def datarpc_addcallback(self,cb,**kwargs):
         """add???
         
         :param cb: add???
-        :param \*\*kwargs: add???
-        :returns: add???
-        """
+        :param \*\*kwargs: add???"""
         self.child('callBack',childcontent=cb,**kwargs)
         return self
         
@@ -796,24 +791,23 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param cb: add???
-        :param \*\*kwargs: add???
-        :returns: add???
-        """
+        :param \*\*kwargs: add???"""
         self.child('callBack',childcontent=cb,_isErrBack=True,**kwargs)
         return self
         
     def slotButton(self,label=None,**kwargs):
+        """add???"""
         return self.child(tag='SlotButton',label=label,**kwargs)
         
     def virtualSelectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
         """add???
         
-        :param storeCode: add???. 
-        :param table: the :ref:`table` name. 
-        :param storepath: add???. 
+        :param storeCode: add???
+        :param table: the :ref:`table` name
+        :param storepath: add???
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. """
+                        :ref:`sql_columns` section"""
         self.selectionStore(storeCode=storeCode,table=table, storepath=storepath,columns=columns,**kwargs)
         
     def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
@@ -825,8 +819,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section. 
-        :returns: the selectionStore
-        """
+        :returns: the selectionStore"""
         attr = self.attributes
         parentTag = attr.get('tag')
         #columns = columns or '==gnr.getGridColumns(this);'
@@ -856,33 +849,30 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
     
     def onDbChanges(self,action=None,table=None,**kwargs):
+        """add???"""
         self.page.subscribeTable(table,True)
         self.dataController(action,dbChanges="^gnr.dbchanges.%s" %table.replace('.','_'),**kwargs)
     
     def dataSelection(self, path, table=None, method='app.getSelection', columns=None, distinct=None,
                       where=None, order_by=None, group_by=None, having=None, columnsFromView=None, **kwargs):
-        """add???
+        """Create a :ref:`dataselection` and returns it. dataSelection allows... add???
         
         :param path: add???
-        :param table: the :ref:`table` name. 
+        :param table: the :ref:`table` name
         :param method: add???. Default value is ``app.getSelection``
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. 
-        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT". 
+                        :ref:`sql_columns` section
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-                      
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
                          :ref:`sql_order_by` section. 
-        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
-                         
-        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`.
-                       
-        :param columnsFromView: add???. 
+        :param group_by: the sql "GROUP BY" clause. For more information check the
+                         :ref:`sql_group_by` section.
+        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
+        :param columnsFromView: add???
         :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
-                       check the :ref:`rpc_attributes` section
-        :returns: add???
-        """
+                           check the :ref:`rpc_attributes` section"""
         if 'name' in kwargs:
             kwargs['_name'] = kwargs.pop('name')
         if 'content' in kwargs:
@@ -900,9 +890,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                           
     def directoryStore(self, rootpath=None, storepath='.store', **kwargs):
         """add???
-        :param rootpath: add???. 
-        :param storepath: add???. Default value is ``.store``
-        """
+        :param rootpath: add???
+        :param storepath: add???. Default value is ``.store``"""
         store = DirectoryResolver(rootpath or '/', **kwargs)()
         self.data(storepath, store)
     
@@ -911,13 +900,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param pane: add???
-        :param table: the :ref:`table` name. 
-        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-                      
-        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section.
-                         
-        :param storepath: add???. Default value is ``.store``
-        """
+        :param table: the :ref:`table` name
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where`
+                      section
+        :param group_by: the sql "GROUP BY" clause. For more information check the
+                         :ref:`sql_group_by` section
+        :param storepath: add???. Default value is ``.store``"""
         t0 = time()
         tblobj = self.db.table(table)
         columns = [x for x in group_by if not callable(x)]
@@ -932,40 +920,44 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         self.data(storepath, store, query_time=t1 - t0, totalize_time=t2 - t1, resolver_load_time=t3 - t2)
         
     def dataRecord(self, path, table, pkey=None, method='app.getRecord', **kwargs):
-        """add???
+        """Create a :ref:`datarecord` and returns it. dataRecord allows... add???
         
         :param path: add???
         :param table: the :ref:`table` name
         :param pkey: the record primary key. 
         :param method: add???. Default value is ``app.getRecord``
         :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
-                       check the :ref:`rpc_attributes` section
-        :returns: a dataRecord
-        """
+                           check the :ref:`rpc_attributes` section
+        :returns: a dataRecord"""
         return self.child('dataRpc', path=path, table=table, pkey=pkey, method=method, **kwargs)
         
     def dataRemote(self, path, method, **kwargs):
-        """A synchronous rpc. Call a (specified) rpc as a resolver. When ``dataRemote`` is brought
-        to the client, it will be changed in a Javascript resolver that at the desired path perform
+        """Create a :ref:`dataremote` and returns it. dataRemote is a synchronous :ref:`datarpc`:
+        it calls a (specified) dataRspc as its resolver. When ``dataRemote`` is brought to the
+        client, it will be changed in a Javascript resolver that at the desired path perform
         the rpc (indicated with the ``remote`` attribute).
         
         :param path: the path where the dataRemote will save the result of the rpc
         :param method: the rpc name that has to be executed
         :param \*\*kwargs: *cacheTime=NUMBER*: The cache stores the retrieved value and keeps
-                       it for a number of seconds equal to ``NUMBER``
-        :returns: a dataRemote
-        """
+                           it for a number of seconds equal to ``NUMBER``"""
         return self.child('dataRemote', path=path, method=method, **kwargs)
         
-    def dataResource(self,path,resource=None, ext=None, pkg=None):
+    def dataResource(self, path, resource=None, ext=None, pkg=None):
+        """Create a :ref:`dataresource` and returns it. dataResource is a :ref:`dataRemote`
+        that allows... add???
+        
+        :param path: add???
+        :param resource: add???
+        :param ext: add???
+        :param pkg: add???"""
         self.dataRemote(path,'getResourceContent',resource=resource,ext=ext, pkg=pkg)
         
     def paletteGroup(self, groupCode, **kwargs):
         """add???
         
         :param groupCode: add???
-        :returns: a paletteGroup
-        """
+        :returns: a paletteGroup"""
         return self.child('PaletteGroup',groupCode=groupCode,**kwargs)
         
     def palettePane(self, paletteCode, datapath=None, **kwargs):
@@ -981,8 +973,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
         :param datapath: the path of data. For more information, check the :ref:`datapath` section
-        :returns: a paletteTree
-        """
+        :returns: a paletteTree"""
         datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         palette = self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,
                              autoslots='top,left,right,bottom',**kwargs)
@@ -1028,8 +1019,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param args: add???
         :param \*\*kwargs: add???
-        :returns: add???
-        """
+        :returns: add???"""
         frameCode = kwargs.get('parentFrame') or self.attributes.get('frameCode')
         if frameCode:
             kwargs['frameCode'] = frameCode
@@ -1041,21 +1031,18 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                              datapath=None, nodeId=None, configurable=True, _newGrid=False,childname=None,**kwargs):
         """add???
         
-        :param frameCode: add???. 
-        :param struct: add???. 
+        :param frameCode: add???
+        :param struct: add???
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. 
-        :param storepath: add???. 
-        :param structpath: add???. 
-        :param datapath: the path of data. .
-                         For more information, check the :ref:`datapath` section
+                        :ref:`sql_columns` section
+        :param storepath: add???
+        :param structpath: add???
+        :param datapath: the path of data. For more information, check the :ref:`datapath` section
         :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
-                       documentation page. 
-        :param configurable: boolean. add???. Default value is ``True``
-        :param _newGrid: boolean. add???. Default value is ``False``
-        :returns: add???
-        """
+                       documentation page
+        :param configurable: boolean. add???
+        :param _newGrid: boolean. add???"""
         nodeId = nodeId or '%s_grid' %frameCode
         if datapath is False:
             datapath = None
@@ -1083,17 +1070,16 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                             nodeId=None, relativeWorkspace=None, **kwargs):
         """add???
         
-        :param storepath: add???. 
-        :param structpath: add???. 
-        :param struct: add???. 
+        :param storepath: add???
+        :param structpath: add???
+        :param struct: add???
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. 
-        :param table: the :ref:`table` name. 
+                        :ref:`sql_columns` section
+        :param table: the :ref:`table` name
         :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
-                       documentation page. 
-        :param relativeWorkspace: add???. 
-        :returns: add???"""
+                       documentation page
+        :param relativeWorkspace: add???"""
         nodeId = nodeId or self.page.getUuid()
         prefix = 'grids.%s' %nodeId if not relativeWorkspace else ''
         structpath = structpath or '%s.struct' % prefix
@@ -1107,10 +1093,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def gridStruct(self, struct=None, columns=None):
         """add???
         
-        :param struct: add???. 
+        :param struct: add???
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. """
+                        :ref:`sql_columns` section"""
         gridattr=self.attributes
         structpath = gridattr.get('structpath')
         table = gridattr.get('table')
@@ -1137,11 +1123,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             self.data(structpath, struct)
         
     def slotToolbar(self,*args,**kwargs):
-        """add???
+        """Create a :ref:`slotToolbar <toolbar>` and returns it.
         
-        :param \*args: add???
-        :param \*\*kwargs: add???
-        """
+        .. note:: a slotToolbar is a :meth:`slotBar` with some css preset. For more
+                  information, check the :ref:`slotToolbar <toolbar>` page"""
         kwargs['toolbar'] = True
         return self.slotBar(*args,**kwargs)
         
@@ -1149,8 +1134,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param \*args: add???
-        :param \*\*kwargs: add???
-        """
+        :param \*\*kwargs: add???"""
         kwargs['_class'] = 'frame_footer'
         return self.slotBar(*args,**kwargs)
         
@@ -1171,11 +1155,15 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             slothandle(**kw)
             
     def slotBar(self,slots=None,slotbarCode=None,namespace=None,childname='bar',**kwargs):
-        """Return a :ref:``
+        """Create a :ref:`slotBar <toolbar>` and returns it
         
-        :param slots: add???. 
-        :param slotbarCode: add???. 
-        :param namespace: add???. """
+        :param slots: create a configurable UI inside the div or pane in which the
+                      slotToolbar is defined. For more information, check the
+                      :ref:`toolbar_slots` section
+        :param slotbarCode: autocreate a :ref:`nodeid` for the slotToolbar AND autocreate
+                            hierarchic nodeIds for every slotToolbar child
+        :param namespace: add???
+        :param childname: the slotBar :ref:`childname`"""
         namespace = namespace or self.parent.attributes.get('namespace')
         tb = self.child('slotBar',slotbarCode=slotbarCode,slots=slots,childname=childname,**kwargs)
         toolbarArgs = tb.attributes
@@ -1190,7 +1178,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         #se ritorni la toolbar hai una toolbar vuota 
     
-    def slotbar_replaceslots(self,toReplace,replaceStr):
+    def slotbar_replaceslots(self, toReplace, replaceStr):
+        """The :ref:`replaceslots` allows to redefine the preset bars of the :ref:`slotBars <toolbar>`
+        and the :ref:`slotToolbars <toolbar>`
+        
+        :param toReplace: MANDATORY. A string with the list of the slots to be replaced.
+                          Use ``#`` to replace all the slots
+        :param replaceStr: MANDATORY. A string with the list of the slots to add"""
         toolbarArgs = self.attributes
         slotstr = toolbarArgs['slots']
         slotbarCode= toolbarArgs.get('slotbarCode')
@@ -1209,8 +1203,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             if slot!='*' and slot!='|' and not slot.isdigit():
                 if not self.getNode(slot):
                     self._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,**toolbarArgs)
-
-        
+                    
     def button(self, label=None, **kwargs):
         return self.child('button', label=label, **kwargs)
         

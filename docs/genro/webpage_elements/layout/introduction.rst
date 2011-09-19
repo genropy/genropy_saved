@@ -1,37 +1,46 @@
 .. _layout_introduction:
 
-===================================
-Introduction to the layout elements
-===================================
+============
+Introduction
+============
     
     *Last page update*: |today|
     
-    Genro inherits some of its forms (containers and panes) directly from Dojo: we call
-    them **Dojo layout elements**; they are:
+    Genro inherits some of its forms (containers and panes) directly from Dojo: the :ref:`dojo_layout`
+    There are also some layout elements built directly through GenroPy: the :ref:`genro_layout`
     
+    .. warning:: (Dojo rule): a :ref:`contentpane` can include a Container (:ref:`bordercontainer`,
+                 :ref:`tabcontainer`, etc) if and only if the Container will be a UNIQUE child.
+                 
+.. _dojo_layout:
+
+Dojo layout elements
+====================
+    
+    The Dojo layout elements are:
+    
+    * the :ref:`accordioncontainer`
     * the :ref:`bordercontainer`
     * the :ref:`contentpane`
-    * the :ref:`accordioncontainer`
     * the :ref:`splitcontainer`
     * the :ref:`stackcontainer`
     * the :ref:`tabcontainer`
     
-    There are also some layout elements built directly through GenroPy - the **Genro layout elements**:
+.. _genro_layout:
+
+Genro layout elements
+=====================
+    
+    The Genro layout elements are:
     
     * the :ref:`framepane`
     
-    .. warning:: This is a Dojo rule that works in Genro, too. It is very important that you know it, so
-                 we'll tell this rule to you:
-                 
-                 * A contentPane can include a Container (BorderContainer, TabContainer etc)
-                   if and only if it is a UNIQUE child.
-                   
 .. _layout_common_attributes:
 
-Common attributes
+common attributes
 =================
 
-    There are some commons attributes that you can use with all the containers and panes:
+    There are some commons attributes that you can use with both Dojo and Genro containers:
     
     * *datapath*: set the root's path of data. Default value is ``None``. For more details, check
       the :ref:`datapath` page

@@ -17,6 +17,7 @@ webpage element
     controller/index
     form/index
     cells/index
+    iframe
     menu
     toolbar
     tree
