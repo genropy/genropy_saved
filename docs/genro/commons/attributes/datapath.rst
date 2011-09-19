@@ -6,9 +6,19 @@ datapath
     
     *Last page update*: |today|
     
-    * :ref:`datapath_def`
-    * :ref:`datapath_syntax`
-    * :ref:`datapath_validity`
+    .. note:: **validity** - the *datapath* attribute is supported by:
+              
+              * the :ref:`formbuilder`
+              * every :ref:`layout widget <layout>`
+              * it works also on :ref:`iframe`, :ref:`menu`, :ref:`slotBar <toolbar>`,
+                :ref:`slotToolbar <toolbar>`, :ref:`tree`
+                
+              Indeed, you can give the *datapath* attribute to more objects of the previous list,
+              but it is useful give this attribute only to the objects that may contain other objects.
+              
+              So, it is reasonable to give it to a container object (like a :ref:`bordercontainer`) but
+              (usually!) it is not reasonable use it on a :ref:`button`
+              
     * :ref:`datapath_symbolic`
     * :ref:`datapath_specials`:
     
@@ -16,24 +26,14 @@ datapath
         * :ref:`form_path`
         * :ref:`parent_path`
         
-.. _datapath_def:
-
-definition and description
-==========================
-
-    The *datapath* is an attribute used to create a hierarchy of your data's addresses into
-    the :ref:`datastore`.
+    The *datapath* is an attribute used to create a hierarchy in your data
     
-    The element on which you apply this attribute will be able to become the father of other
-    elements.
+    The element on which you apply this attribute will become the father of his children elements.
     
-    In the child elements we can specify through the *value* attribute either to set a relative
-    path to the father, or an absolute path.
+    A child element can support both a *relative path* (relative to its father) or an *absolute
+    path*: in every case, to define the path of a child you have to use the *value* attribute
     
-.. _datapath_syntax:
-
-syntax
-======
+    **Syntax**:
     
     * ``absolutePathInDatastore``: your data will be saved in its absolute path.
     * ``.relativePathInDatastore``: your path will be relative. Pay attention that you can use
@@ -51,17 +51,7 @@ syntax
                 
     The first numberTextbox will have the following path: ``test1/number1`` (this is a relative path).
     The second one will have the following path: ``number2`` (that is an absolute path!). The third
-    one will have the following path: ``test1/number/number3``.
-    
-.. _datapath_validity:
-
-validity
-========
-
-    You can give the *datapath* attribute to each object, but it is useful give this attribute only
-    to the objects that contain other objects. For example, you can give it to the container objects,
-    that are :ref:`accordioncontainer`, :ref:`bordercontainer`, :ref:`stackcontainer`,
-    :ref:`tabcontainer`, or if you create a :ref:`form` you can give it to a :ref:`formbuilder`.
+    one will have the following path: ``test1/number/number3``
     
 .. _datapath_symbolic:
 
@@ -121,3 +111,4 @@ parent path
     add??? explanation!
     
         value='^.#parent.batch_note'
+        
