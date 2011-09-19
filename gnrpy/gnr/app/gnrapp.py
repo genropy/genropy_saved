@@ -512,7 +512,7 @@ class GnrApp(object):
         self.catalog = GnrClassCatalog()
         self.localization = {}
         if not forTesting:
-            dbattrs = self.config.getAttr('db')
+            dbattrs = self.config.getAttr('db') or {}
             if dbattrs and dbattrs.get('implementation') == 'sqlite':
                 dbattrs['dbname'] = self.realPath(dbattrs.pop('filename'))
         else:
@@ -524,11 +524,6 @@ class GnrApp(object):
             # We have to use a directory, because genro sqlite adapter will creare a sqlite file for each package
                 
             logging.info('Testing database dir: %s', tempdir)
-            
-            @atexit.register
-            def printrim():
-                print 'rim'
-            
             
             @atexit.register
             def removeTemporaryDirectory():

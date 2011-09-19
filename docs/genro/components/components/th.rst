@@ -145,7 +145,7 @@ TableHandler: paths
     .. image:: ../../_images/components/th/th_map.png
         
     As any other object in Genro, the TableHandler gathers all the informations through
-    a :ref:`bag` structure, that looks like a hierarchiacal and nested structure.
+    a :ref:`bag` structure, that looks like a hierarchical and nested structure.
     
     You can access to every level of the structure.
     
@@ -279,13 +279,23 @@ view
     * **grid**: add???
     * **query**: it contains the parameters of the user queries.
     * **store**: it contains all the records that satisfy the current query.
-    * **table**: string. It includes the name of the package and the name of the table
+    * **table**: it includes the name of the package and the name of the table
       following this syntax::
         
             packageName.tableName
             
-    * **title**: string. It contains the name of the record title in the :ref:`view_data`
-    
+    * **title**: it contains the name of the record title in the :ref:`view_data`
+    * **top**: it includes the a ``bar`` sublevel: this sublevel contains
+      the :ref:`th_gui_form_action_bar`. If you need to add/replace/delete some buttons,
+      use the :ref:`replaceslots` method.
+      
+      add???
+      
+      ::
+      
+        th.view.top.bar.replaceSlots('#','#,bottone')
+        th.view.top.bar.bottone.button('Stampa nuova',action='PUBLISH tablehandler_run_script="print","print_prestazioni";')
+        
 .. _th_firststeps:
 
 TableHandler: first steps

@@ -11,10 +11,10 @@ print layout file
     * :ref:`print_layout_webpage_variables`
     * :ref:`layout_building`:
     
-        * hook methods: :ref:`print_docheader`, :ref:`print_docfooter`,
-          :ref:`print_pageheader`, :ref:`print_pagefooter`
-        * layout elements: :ref:`print_layout_element`, :ref:`print_row_element`,
-          :ref:`print_cell_element`
+        * hook methods: :ref:`layout_docheader`, :ref:`layout_docfooter`,
+          :ref:`layout_pageheader`, :ref:`layout_pagefooter`
+        * layout elements: :ref:`layout_element`, :ref:`layout_row`,
+          :ref:`layout_cell`
           
     * :ref:`print_layout_location`
     * :ref:`example <print_layout_example>`
@@ -43,10 +43,6 @@ introduction
     
     * :ref:`print_layout_location`
     
-    .. warning:: every integer corresponds to millimeters
-                 
-                 **example**: "200" corresponds to "200 millimeters".
-                 
 .. _print_layout_features:
 
 layout page - features
@@ -85,12 +81,12 @@ Main class
 webpage variables
 =================
 
-    .. note:: we remember you that every number defined in the following variables
-              has in millimeters. Example: "250" means 250 millimeters
-    
+    .. note:: the unit of measurement of all these variables are in millimeters
+              (e.g: ``print_width = 200`` means 200 millimeters)
+              
     With the term ``webpages variables`` we mean that there are some defined variables
-    that you can use to customize your Main class. In particular you can set the layout
-    features. Let's see all of them:
+    that you can use to customize the layout. They belong to the :ref:`print_layout_main`.
+    Let's see all of them:
     
     * :ref:`layout_copies_per_page`
     * :ref:`layout_copy_extra_height`
@@ -316,18 +312,28 @@ build the layout
     
     They are:
     
-    * :ref:`print_docheader`
-    * :ref:`print_docfooter`
-    * :ref:`print_pageheader`
-    * :ref:`print_pagefooter`
+    * :ref:`layout_definestandardstyles`: allow to add???
+    * :ref:`layout_docheader`: allow to add???
+    * :ref:`layout_docfooter`: allow to add???
+    * :ref:`layout_pageheader`: allow to add???
+    * :ref:`layout_pagefooter`: allow to add???
     
     Inside these methods, you can create the layout through the following three methods:
     
-    * the :ref:`print_layout_element`
-    * the :ref:`print_row_element`
-    * the :ref:`print_cell_element`
+    * the :ref:`layout_element`: allow to add???
+    * the :ref:`layout_row`: allow to add???
+    * the :ref:`layout_cell`: allow to add???
     
-.. _print_docheader:
+.. _layout_definestandardstyles:
+
+defineStandardStyles
+--------------------
+
+    .. automethod:: gnr.core.gnrbaghtml.BagToHtml.defineStandardStyles
+    
+    add???
+    
+.. _layout_docheader:
 
 docHeader
 ---------
@@ -336,7 +342,7 @@ docHeader
     
     add???
     
-.. _print_docfooter:
+.. _layout_docfooter:
 
 docFooter
 ---------
@@ -345,7 +351,7 @@ docFooter
     
     add???
     
-.. _print_pageheader:
+.. _layout_pageheader:
 
 pageHeader
 ----------
@@ -354,7 +360,7 @@ pageHeader
     
     add???
     
-.. _print_pagefooter:
+.. _layout_pagefooter:
 
 pageFooter
 ----------
@@ -363,7 +369,7 @@ pageFooter
     
     add???
     
-.. _print_layout_element:
+.. _layout_element:
     
 layout element
 --------------
@@ -372,7 +378,7 @@ layout element
     
     add???
     
-.. _print_row_element:
+.. _layout_row:
     
 row element
 -----------
@@ -381,7 +387,7 @@ row element
     
     add???
     
-.. _print_cell_element:
+.. _layout_cell:
     
 cell element
 ------------

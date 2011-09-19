@@ -8,6 +8,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 class GnrCustomWebPage(object):
     maintable = 'invoice.invoice'
     py_requires = 'public:TableHandlerMain'
+    css_icons = 'retina/violet'
     
     def th_form(self, form):
         bc = form.center.borderContainer()

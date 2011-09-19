@@ -7,21 +7,31 @@ slotBar (and slotToolbar)
     *Last page update*: |today|
     
     * :ref:`toolbar_def`
-    * :ref:`toolbar_attributes`
+    * :ref:`toolbar_attributes`:
+    
+        * :ref:`toolbar_childname`
+        * :ref:`toolbar_namespace`
+        * :ref:`toolbar_slotbarcode`
+        * :ref:`toolbar_slots`
+        
     * :ref:`toolbar_examples`: :ref:`toolbar_examples_simple`
     
 .. _toolbar_def:
 
-Definition
-==========
+definition and description
+==========================
 
-    They are the Genro way to easily create a toolbar. With toolbar we mean
-    a set of icons, buttons, widgets and more over objects.
+    The slotBar and the slotToolbar are the Genro way to easily create a toolbar.
+    With toolbar we mean a set of icons, buttons, widgets and more over objects.
     
     The only differences between the slotToolbar and slotBar are some CSS
     features (like transparency), so since their main features are common,
     we'll describe them speaking only of the slotToolbar. We'll describe
     their differences when we meet within the explanation.
+    
+    Let's see the definition:
+    
+    .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.slotBar
     
     The slotToolbar can be attached to any div::
     
@@ -41,121 +51,153 @@ Definition
                 
 .. _toolbar_attributes:
 
-Attributes
+attributes
 ==========
 
-    * *slotbarCode*: MANDATORY - autocreate a :ref:`nodeid` for the slotToolbar AND autocreate
-      hierarchic nodeIds for every slotToolbar child. Default value is ``None``.
-    * *slots*: MANDATORY - create a configurable UI inside the div or pane in which the
-      slotToolbar is defined.
+    We describe here all the slotBar attributes. They are:
+    
+    * :ref:`toolbar_childname`
+    * :ref:`toolbar_namespace`
+    * :ref:`toolbar_slotbarcode`
+    * :ref:`toolbar_slots`
+    
+.. _toolbar_childname:
+
+childname
+---------
+
+    add???
+    
+.. _toolbar_namespace:
+
+namespace
+---------
+
+    add???
+    
+.. _toolbar_slotbarcode:
+
+slotbarCode
+-----------
+
+    MANDATORY - autocreate a :ref:`nodeid` for the slotToolbar AND autocreate hierarchic
+    nodeIds for every slotToolbar child
+    
+.. _toolbar_slots:
+
+slots
+-----
+    
+    MANDATORY - create a configurable UI inside the div or pane in which the
+    slotToolbar is defined.
+    
+    **syntax**::
+    
+      slots='firstParam,secondParam,...,lastParam'
       
-      **syntax**::
+    An important feature of the *slots* attribute is that the toolbars are coded with the help
+    of the :ref:`childname`. This fact implies that you can call any of the slots
+    through their slot name::
+    
+      class GnrCustomWebPage(object):
+          def main(self,root,**kwargs):
+              top = root.div().slotToolbar(slotbarCode='top',slots='test,foo,dummy')
+              top.test.div('Hello!')
+              top.foo.div('MyTitle',font_size='14pt',color='^.color')
+              top.dummy.button(label='add',iconClass='icnBaseAdd',action="alert('Added!')")
+              
+    **parameters**:
+    
+    * A vertical bar (``|``) creates a splitter bar
+    * A NUMBER creates a white space equal to NUMBER pixels
+    * A star (``*``) creates a white space, occupying the free space of the slotToolbar, that is the space
+      that is not filled by slots parameter. If you use more than one star, then they take all the
+      free space dividing it in equal parts::
       
-        slots='firstParam,secondParam,...,lastParam'
-        
-      An important feature of the *slots* attribute is that the toolbars are coded with the help
-      of the :ref:`childname`. This fact implies that you can call any of the slots
-      through their slot name::
+          slotToolbar(slots='20,*,|,*')
+          
+      In this example we have an empty space of 20 pixels followed by two empty star spaces
+      separated by a vertical bar. The two stars occupied all the space that "20" and "|"
+      didn't take.
       
-        class GnrCustomWebPage(object):
-            def main(self,root,**kwargs):
-                top = root.div().slotToolbar(slotbarCode='top',slots='test,foo,dummy')
-                top.test.div('Hello!')
-                top.foo.div('MyTitle',font_size='14pt',color='^.color')
-                top.dummy.button(label='add',iconClass='icnBaseAdd',action="alert('Added!')")
-                
-      **parameters**:
-      
-      * A vertical bar (``|``) creates a splitter bar
-      * A NUMBER creates a white space equal to NUMBER pixels
-      * A star (``*``) creates a white space, occupying the free space of the slotToolbar, that is the space
-        that is not filled by slots parameter. If you use more than one star, then they take all the
-        free space dividing it in equal parts::
-        
-            slotToolbar(slots='20,*,|,*')
-            
-        In this example we have an empty space of 20 pixels followed by two empty star spaces
-        separated by a vertical bar. The two stars occupied all the space that "20" and "|"
-        didn't take.
-        
-      * *orientation* add??? V (vertical), H (horizontal) default???
-      * You can add color nuances with the following attributes:
-
-          * *gradient_from*: the starting color
-          * *gradient_to*: the ending color
-          * *gradient_deg*: the inclination angle of the color nuances. It can be any of the
-            value between 0 and 360. To understand the numerical convention, think to a
-            cartesian plane. So:
-
-              * 0   --> the color nuance follows the x axis towards the positive numbers
-              * 90  --> the color nuance follows the y axis towards the positive numbers
-              * 180 --> the color nuance follows the x axis towards the negative numbers
-              * 270 --> the color nuance follows the y axis towards the negative numbers
-              * 360 --> same meaning of the 0 value
-
-          * *gradient_color_NUMBER*: you can specify more than two colors in place of the
-            colors defined through the *gradient_from* and the *gradient_to* attributes::
-
-              gradient_color_0='pink,15',gradient_color_1='yellow,50',gradient_color_2='red,100'
-
-            For more information, check the CSS :ref:`css_gradient_color` section.
-
-            Pay attention: if you use the slotToolbar you CAN'T modify the *gradient_deg* attribute.
-            You can only modify the *gradient_from* and the *gradient_to* attributes::
-
-                class GnrCustomWebPage(object):
-                    def main(self,root,**kwargs):
-                        root.div().slotToolbar(slotbarCode='top',slots='hello,foo,dummy',
-                                               gradient_from='red',gradient_to='white')
-
-            If you use the slotBar, remember that by default it is transparent, but you
-            can use all gradient color features (*gradient_from*, *gradient_to* and *gradient_deg*)::
-
-                class GnrCustomWebPage(object):
-                    def main(self,root,**kwargs):
-                        root.div().slotBar(slotbarCode='yeah',slots='hello,*,hello2',
-                                           gradient_from='red',gradient_to='white',
-                                           gradient_degree='36')
-
-            Here is another example::
-
-              class GnrCustomWebPage:
+    * *orientation* add??? V (vertical), H (horizontal) default???
+    * You can add color nuances with the following attributes:
+    
+        * *gradient_from*: the starting color
+        * *gradient_to*: the ending color
+        * *gradient_deg*: the inclination angle of the color nuances. It can be any of the
+          value between 0 and 360. To understand the numerical convention, think to a
+          cartesian plane. So:
+    
+            * 0   --> the color nuance follows the x axis towards the positive numbers
+            * 90  --> the color nuance follows the y axis towards the positive numbers
+            * 180 --> the color nuance follows the x axis towards the negative numbers
+            * 270 --> the color nuance follows the y axis towards the negative numbers
+            * 360 --> same meaning of the 0 value
+    
+        * *gradient_color_NUMBER*: you can specify more than two colors in place of the
+          colors defined through the *gradient_from* and the *gradient_to* attributes::
+    
+            gradient_color_0='pink,15',gradient_color_1='yellow,50',gradient_color_2='red,100'
+    
+          For more information, check the CSS :ref:`css_gradient_color` section.
+    
+          Pay attention: if you use the slotToolbar you CAN'T modify the *gradient_deg* attribute.
+          You can only modify the *gradient_from* and the *gradient_to* attributes::
+    
+              class GnrCustomWebPage(object):
                   def main(self,root,**kwargs):
-                      sl = root.slotBar('deg,fld,*,test,*,test1,*',lbl_position='B',lbl_font_size='8px')
-
-                      sl.deg.verticalSlider(value='^.deg',minimum=0,maximum=360,
-                                            intermediateChanges=True,height='100px',lbl='Deg')
-                      fb = sl.fld.formbuilder(cols=6, border_spacing='2px')
-                      fb.numbertextbox(value='^.deg',lbl='deg',width='4em')
-                      sl.test.div(margin='5px', display='inline-block',
-                                  border='1px solid gray', width='100px', height='80px',
-                                  gradient_from='white',gradient_to='navy',gradient_deg='^.deg')
-
-                      sl.test1.div(margin='5px', display='inline-block',
-                                   border='1px solid gray', width='100px', height='80px',
-                                   gradient_color_0='pink,15',gradient_color_1='yellow,50',
-                                   gradient_color_2='red,100',gradient_deg='^.deg')
-
-        * You can specify the position of slots label. Pay attention that, as the toolbars are built
-          on the :ref:`formbuilder`, to modify the labels you have to use the *lbl* attribute,
-          not the *label* attribute::
-
-              lbl_position='T' # possible values: 'T' (top), 'B' (bottom), 'L' (left), 'R' (right)
-              lbl_font_size='7px' # possible values: px, em, ex
-              lbl_color='red' # possible values: any of the RGB color
-              lbl_width='12px' # possible values: px, em, ex
-              lbl_transform_rotate='-90' # a value from 0 to 360 (or from -360 to 0)
-
-        * You can also add :ref:`iv_searchbox`, :ref:`iv_searchon` or :ref:`iv_messageBox`
-          (add??? Other features!! addrow...), attributes of the includedView component::
-
-              slots='20,messageBox,*,searchOn'
-
-          For more information, check the :ref:`includedview` page
+                      root.div().slotToolbar(slotbarCode='top',slots='hello,foo,dummy',
+                                             gradient_from='red',gradient_to='white')
+    
+          If you use the slotBar, remember that by default it is transparent, but you
+          can use all gradient color features (*gradient_from*, *gradient_to* and *gradient_deg*)::
+    
+              class GnrCustomWebPage(object):
+                  def main(self,root,**kwargs):
+                      root.div().slotBar(slotbarCode='yeah',slots='hello,*,hello2',
+                                         gradient_from='red',gradient_to='white',
+                                         gradient_degree='36')
+    
+          Here is another example::
+    
+            class GnrCustomWebPage:
+                def main(self,root,**kwargs):
+                    sl = root.slotBar('deg,fld,*,test,*,test1,*',lbl_position='B',lbl_font_size='8px')
+    
+                    sl.deg.verticalSlider(value='^.deg',minimum=0,maximum=360,
+                                          intermediateChanges=True,height='100px',lbl='Deg')
+                    fb = sl.fld.formbuilder(cols=6, border_spacing='2px')
+                    fb.numbertextbox(value='^.deg',lbl='deg',width='4em')
+                    sl.test.div(margin='5px', display='inline-block',
+                                border='1px solid gray', width='100px', height='80px',
+                                gradient_from='white',gradient_to='navy',gradient_deg='^.deg')
+    
+                    sl.test1.div(margin='5px', display='inline-block',
+                                 border='1px solid gray', width='100px', height='80px',
+                                 gradient_color_0='pink,15',gradient_color_1='yellow,50',
+                                 gradient_color_2='red,100',gradient_deg='^.deg')
+    
+    * You can specify the position of slots label. Pay attention that, as the toolbars are built
+      on the :ref:`formbuilder`, to modify the labels you have to use the *lbl* attribute,
+      not the *label* attribute::
+    
+          lbl_position='T' # possible values: 'T' (top), 'B' (bottom), 'L' (left), 'R' (right)
+          lbl_font_size='7px' # possible values: px, em, ex
+          lbl_color='red' # possible values: any of the RGB color
+          lbl_width='12px' # possible values: px, em, ex
+          lbl_transform_rotate='-90' # a value from 0 to 360 (or from -360 to 0)
+    
+    * You can also add :ref:`iv_searchbox`, :ref:`iv_searchon` or :ref:`iv_messageBox`
+      (add??? Other features!! addrow...), attributes of the includedView component::
+    
+          slots='20,messageBox,*,searchOn'
+    
+      For more information, check the :ref:`includedview` page (add??? old!)
         
 .. _toolbar_examples:
 
-Examples
+examples
 ========
 
 .. _toolbar_examples_simple:
@@ -226,7 +268,8 @@ simple example
                 
                 sb = frame.div('Remember: a slotToolbar (or a slotBar) can be attached to any div!',
                                 margin='20px',color='black').slotToolbar(slotbarCode='top',slots='10,hello,*,dummy',
-                                                                         height='25px',gradient_from='^.from',gradient_to='^.to')
+                                                                         height='25px',gradient_from='^.from',
+                                                                         gradient_to='^.to')
                 sb.hello.button('Click me!',action='alert("Hello!!!")')
                 sb.dummy.button(label='',iconClass='icnBasePref',showLabel=False,
                                 action="alert('A wonderful action!')")

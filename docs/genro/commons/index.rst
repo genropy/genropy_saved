@@ -12,6 +12,7 @@ commons
     introduction
     attributes/index
     characters/index
+    methods/index
     datatypes
     macro
     names

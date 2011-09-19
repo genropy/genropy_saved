@@ -16,7 +16,6 @@ Documents to revise
     ../datastore/index
     decorators
     grid
-    iframe
     languages
     login
     palette

@@ -205,9 +205,10 @@ class GnrAppSync4D(GnrApp):
     def onInited(self):
         self._startLog()
         gnrpkg = self.db.package('gnr')
-        self.sync4d_timing = int(gnrpkg.getAttr('sync4d_timing', 0)) or 4
-        self.area_zz = self.config.getAttr('packages', 'area_zz')
-        self.transaction4d = TransactionManager4D(self, 'gnr')
+        if not self.rebuild:
+            self.sync4d_timing = int(gnrpkg.getAttr('sync4d_timing', 0)) or 4
+            self.area_zz = self.config.getAttr('packages', 'area_zz')
+            self.transaction4d = TransactionManager4D(self, 'gnr')
 
     def _startLog(self):
         logdir = os.path.join(self.instanceFolder, 'logs')
