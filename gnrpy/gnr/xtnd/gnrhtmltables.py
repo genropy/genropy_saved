@@ -112,7 +112,7 @@ class TableBuilder(object):
             rownum = rownum + len(rows)
             if result:
                 yield '\n'.join(result)
-        cursor.close() ## MIKI
+        cursor.close()
         
     def buildTableRow(self, row, totals=False):
         return self.templateReplaceRow(self.prepareTableRow(row), totals=totals)
@@ -156,7 +156,7 @@ class StringTableBuilder(TableBuilder):
         html.append(openpage)
         
         if hasattr(self.source, 'serverfetch'):
-            rowsource = self.fromServerCursor(50)
+            rowsource = self.fromServerCursor(500)
         else:
             rowsource = self.fromList()
             
@@ -174,11 +174,18 @@ class PageTableBuilder(TableBuilder):
         self.response.content_type = 'text/html'
         self.requestWrite(self.openPage())
         if hasattr(self.source, 'serverfetch'):
-            rowsource = self.fromServerCursor(5)
+            rowsource = self.fromServerCursor(500)
         else:
             rowsource = self.fromList()
-        for html in rowsource:
-            self.requestWrite(html)
+        #for html in rowsource:
+        #    self.requestWrite(html)
+        buff = ''
+        for i,html in enumerate(rowsource):
+            buff +=html
+            if i%100==0:
+                self.requestWrite(buff)
+                buff = ''
+        self.requestWrite(buff)
         self.requestWrite('</tbody>')
         if self.tot_cb:
             self.requestWrite(self.buildTableRow(self.tot_cb(), totals=True))
@@ -246,7 +253,7 @@ class PageTableBuilder(TableBuilder):
 class ExcelTableBuilder(TableBuilder):
     def doTable(self):
         if hasattr(self.source, 'serverfetch'):
-            rowsource = self.fromServerCursor(50)
+            rowsource = self.fromServerCursor(500)
         else:
             rowsource = self.fromList()
         result = list(rowsource)

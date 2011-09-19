@@ -51,11 +51,10 @@ class Thermo(BaseComponent):
         #Subsequent calls to setNewThermo in the next second are ignored
         end = (level == -1 or (level == 0 and progress >= maximum))
         if end:
-            self.setInClientData('_thermo.%s.c.end' % thermoId, True, fired=True)
+            self.setInClientData('_thermo.%s.c.end' % thermoId, True, fired=True, page_id=self.page_id, public=True)
             with self.pageStore() as store:
                 if store.get('thermo_%s_stop' % thermoId):
                     store.setItem('thermo_%s_stop' % thermoId, None)
-            return
 
         now = time.time()
 
@@ -69,7 +68,7 @@ class Thermo(BaseComponent):
         self.lastThermoUpdLevel = level
 
         tbag = Bag(dict(progress=progress, maximum=maximum, message=message, indeterminate=indeterminate))
-        self.setInClientData('_thermo.%s.t.t%s' % (thermoId, level), tbag)
+        self.setInClientData('_thermo.%s.t.t%s' % (thermoId, level), tbag, page_id=self.page_id, public=True)
         store=self.pageStore()
         if store.get('thermo_%s_stop' % thermoId):
             return True
