@@ -6,7 +6,7 @@ dojo.declare("gnr.QueryManager", null, {
         this.tablecode = maintable.replace('.','_');
         this.th_root = this.th.th_root;
         this.frameNode = genro.getFrameNode(this.th_root);
-        this.wherepath = this.sourceNode.absDatapath()+'.query.where';
+        this.wherepath = this.sourceNode.absDatapath('.query.where');
         this.dtypes_dict = {'A':'alpha','T':'alpha','C':'alpha',
             'D':'date','DH':'date','I':'number',
             'L':'number','N':'number','R':'number','B':'boolean','TAG':'tagged'};
@@ -92,18 +92,12 @@ dojo.declare("gnr.QueryManager", null, {
                 contextNode.setRelativeData(relpath + '?op_caption',
                         genro.getDataNode('gnr.qb.sqlop.op.' + default_op).attr.caption);
             }
-
         }
         contextNode.setRelativeData(relpath, '');
+        contextNode.setRelativeData(relpath+'?value_caption', '');
     },
-    onChangedQueryOp: function(contextNode, op_attr, label) {
-        var label = label || 'c_0';
-        var relpath = '.' + label;
-    },
-    onHelperOpen:function() {
-        var node = genro._firingNode;
-        node.setRelativeData('#helper_in.buffer', node.getRelativeData(node.attr._relpath));
-    },
+
+
     queryEditor:function(open){
         var that = this;
         if(!open){
@@ -161,6 +155,7 @@ dojo.declare("gnr.QueryManager", null, {
             {'objtype':'query','table':that.maintable,'data':data,metadata:genro.getData(datapath)},
             function(result) {
                 dlg.close_action();
+                that.sourceNode.setRelativeData('.query.currentQuery',result.attr.code);
                 that.refreshQueryMenues();
             });
         };
@@ -267,14 +262,84 @@ dojo.declare("gnr.QueryManager", null, {
     },
     
     getHelper:function(sourceNode){
-        var op = sourceNode.getRelativeData(sourceNode.attr.value+'?op');
+        var op = sourceNode.getRelativeData(sourceNode.attr.relpath+'?op');
         if(op in this.helper_op_dict){
             this['helper_'+op](sourceNode)
         }
     },
     
-    helper_in:function(sourceNode){
-        console.log(sourceNode);
+    helper_in:function(rowNode){
+        var dlg = genro.dlg.quickDialog(_T('Helper in'));
+        var center = dlg.center;
+        var relpath = rowNode.attr.relpath;
+        var val = rowNode.getRelativeData(relpath);
+        var caption = rowNode.getRelativeData(relpath+'?value_caption') ||'';
+        var currentSetCaption =_T('New Set');
+        if(caption.indexOf('set:')==0){
+            currentSetCaption = caption.replace('set:','');
+        }
+        var that = this;
+        var datapath = this.sourceNode.absDatapath('.query.helper.in');
+        var helperBag = this.sourceNode.getRelativeData('.query.helper.in');
+        helperBag.setItem('items',val?val.replace(/,+/g,'\n'):null);
+        helperBag.setItem('currentsetAttr',new gnr.GnrBag({caption:currentSetCaption}))
+        var toolbar = center._('slotBar',{slots:'menuset,*,saveset,delset',toolbar:true,datapath:datapath});
+        var setTitle = toolbar._('div','menuset',{innerHTML:'^.currentsetAttr.caption',cursor:'pointer'});
+        var resetSet = function(){
+            helperBag.setItem('currentsetAttr',new gnr.GnrBag({caption:_T('New Set')}));
+            helperBag.setItem('items','')
+            rowNode.setRelativeData(relpath+'?value_caption','');
+        }
+        setTitle._('menu',{'_class':'smallmenu',storepath:'.savedsets',modifiers:'*',
+                            action:function(item){
+                                var code = item.fullpath;
+                                if(code!='__newset__'){
+                                    genro.serverCall('th_loadUserObject',{pkey:item.pkey,table:that.maintable},
+                                    function(result){
+                                        helperBag.setItem('items',result._value);
+                                        result.attr.caption = result.attr.description;
+                                        helperBag.setItem('currentsetAttr',new gnr.GnrBag(result.attr));
+                                    });
+                                }else{
+                                    resetSet();
+                                }
+                            }});
+        var saveAction = function(){
+            var savepath = datapath+'.currentsetAttr';
+            var kw = {'objtype':'list_in','table':that.maintable,
+                     'data':helperBag.getItem('items'),
+                     metadata:genro.getData(savepath)}
+            genro.dev.userObjectDialog(_T('Save set'),savepath,function(dialog) {
+                genro.serverCall('th_saveUserObject',kw,function(result) {
+                    helperBag.setItem('currentsetAttr',new gnr.GnrBag(result.attr));
+                    dialog.close_action();
+                });
+            });
+        };
+        toolbar._('slotButton','saveset',{iconClass:'iconbox save',action:saveAction});
+        toolbar._('slotButton','delset',{iconClass:'iconbox trash',disabled:'^.currentsetAttr.id?=!#v',
+                    action:function(){
+                        genro.serverCall('th_deleteUserObject',{pkey:helperBag.getItem('currentsetAttr.id'),
+                                                                table:that.maintable},resetSet);
+                    }});
+        var box = center._('div', {datapath:datapath,padding:'5px'});
+        var fb = genro.dev.formbuilder(box, 1, {border_spacing:'6px'});
+        fb.addField('simpleTextArea', {lbl:_T("IN"),value:'^.items',
+                                        width:'20em',height:'15ex',colspan:2,lbl_vertical_align:'top'});
+        var footer = dlg.bottom._('slotBar',{slots:'*,cancel,confirm'});
+        footer._('button','cancel',{label:_T('Cancel'),'action':dlg.close_action});
+        footer._('button','confirm',{label:_T('Confirm'),action:function(){
+            var items = helperBag.getItem('items');
+            var splitPattern=/\s*[\n\,]+\s*/g;
+            var cleanPattern=/(^\s*[\n\,]*\s*|\s*[\n\,]*\s*$)/g;
+            items=items.replace(cleanPattern,'').split(splitPattern).join(',');
+            var desc =helperBag.getItem('currentsetAttr.description');
+            rowNode.setRelativeData(relpath+'?value_caption',desc?'set:'+desc:items);
+            rowNode.setRelativeData(relpath,items);
+            dlg.close_action();
+        }});
+        dlg.show_action();
+        
     },
 
     _buildQueryRow: function(tr, node, i, level) {
@@ -355,7 +420,9 @@ dojo.declare("gnr.QueryManager", null, {
 
     checkQueryLineValue:function(sourceNode, value) {
         var relpath = sourceNode.attr.relpath;
-    
+        if (value.indexOf('set:')==0){
+            return;
+        }
         if (value.indexOf('?') == 0) {
             sourceNode.setRelativeData(relpath, null);
             sourceNode.setRelativeData(relpath + '?css_class', 'queryAsk');
@@ -375,6 +442,8 @@ dojo.declare("gnr.QueryManager", null, {
                      var result = objectUpdate({}, node.attr);
                      result['relpath'] = relpath;
                     parslist.push(result);
+                }else if(node.attr.value_caption && node.attr.value_caption.indexOf('set:')==0){
+                    return;
                 }else{
                     node.setValue(node.attr.value_caption);
                 }

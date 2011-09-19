@@ -2085,19 +2085,7 @@ border='1px solid gray',margin='2px', rounded=10,
     background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);}
 /* @end */
 /* @group PatchDojox */
-.tundra .smallbox{
-    width: 350px;
-    height: 200px;
-    margin: auto;
-    background-color: #B4CCDF;
-    background-image:-webkit-gradient(linear, 40% 0%,60% 100% ,from(white), to(#CDCDCD));
-    background-image: -moz-linear-gradient(-90deg, transparent, #CDCDCD);
-    border: 1px solid #E3E3E3;
-    -moz-border-radius:6px;
-    -webkit-border-radius:6px;
-    -moz-box-shadow:#A7A7A7 4px 4px 4px;
-    -webkit-box-shadow:#A7A7A7 4px 4px 4px;
-}
+
 /* @end */
 
 /* @end */

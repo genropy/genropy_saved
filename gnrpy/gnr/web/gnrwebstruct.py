@@ -1870,12 +1870,14 @@ class GnrGridStruct(GnrStructData):
                                                                     if (blocked){
                                                                         return;
                                                                     }
+                                                                    console.log(valuepath);
                                                                     var checked = storebag.getItem(valuepath);
                                                                     if(threestate){
                                                                         checked = checked===false?true:checked===true?null:false;
                                                                     }else{
                                                                         checked = !checked;
                                                                     }
+                                                                    console.log(storebag,checked);
                                                                     storebag.setItem(valuepath, checked);
                                                                     this.publish('checked_%(field)s',{row:this.widget.rowByIndex(kw.rowIndex),
                                                                                                       pkey:this.widget.rowIdByIndex(kw.rowIndex),
