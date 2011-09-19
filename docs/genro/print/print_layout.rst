@@ -43,10 +43,6 @@ introduction
     
     * :ref:`print_layout_location`
     
-    .. warning:: every integer corresponds to millimeters
-                 
-                 **example**: "200" corresponds to "200 millimeters".
-                 
 .. _print_layout_features:
 
 layout page - features
@@ -85,12 +81,12 @@ Main class
 webpage variables
 =================
 
-    .. note:: we remember you that every number defined in the following variables
-              has in millimeters. Example: "250" means 250 millimeters
-    
+    .. note:: the unit of measurement of all these variables are in millimeters
+              (e.g: ``print_width = 200`` means 200 millimeters)
+              
     With the term ``webpages variables`` we mean that there are some defined variables
-    that you can use to customize your Main class. In particular you can set the layout
-    features. Let's see all of them:
+    that you can use to customize the layout. They belong to the :ref:`print_layout_main`.
+    Let's see all of them:
     
     * :ref:`layout_copies_per_page`
     * :ref:`layout_copy_extra_height`
