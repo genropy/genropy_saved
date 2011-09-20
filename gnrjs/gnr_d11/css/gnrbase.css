@@ -1849,6 +1849,7 @@ textarea:disabled {
     cursor: default;
     font-variant: small-caps;
     visibility: hidden;
+	border-collapse: collapse;
 }
 
 .countBoxVisible {
@@ -1862,7 +1863,7 @@ textarea:disabled {
     -webkit-border-top-left-radius: 12px;
     -webkit-border-bottom-left-radius: 12px;
     text-align: right;
-    padding-right: 2px;
+    padding-right: 3px;
     padding-left: 5px;
     background: #D5E5F6;
     color: #7791AB;
@@ -1878,7 +1879,7 @@ textarea:disabled {
     -webkit-border-top-right-radius: 12px;
     -webkit-border-bottom-right-radius: 12px;
     text-align: left;
-    padding-left: 2px;
+    padding-left: 4px;
     padding-right: 5px;
     background: #F2ECD4;
     color: #9C9474;
@@ -1889,7 +1890,7 @@ textarea:disabled {
     -webkit-border-top-left-radius: 12px;
     -webkit-border-bottom-left-radius: 12px;
     text-align: center;
-    padding-right: 2px;
+    padding-right: 5px;
 }
 .searchInputBox {
     -moz-border-radius: 12px;
