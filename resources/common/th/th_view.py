@@ -238,22 +238,11 @@ class TableHandlerView(BaseComponent):
         elif condition:
             condPars = condition[1] or {}
             condition = condition[0]
-        frame.dataController("""
-        var columns = gnr.columnsFromStruct(struct);
-        if(hiddencolumns){
-            var hiddencolumns = hiddencolumns.split(',');
-            columns = columns+','+hiddencolumns;
-        }
-        
-        SET .grid.columns = columns;
-        """, hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
-                            struct='^.grid.struct', _init=True)
-
         gridattr = frame.grid.attributes
-        
         gridattr.update(rowsPerPage=self.rowsPerPage(),
                         dropTypes=None,dropTarget=True,
                         draggable=True, draggable_row=True,
+                        hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
                         dragClass='draggedItem',
                         onDrop=""" for (var k in data){
                                         this.setRelativeData('.#parent.external_drag.'+k,new gnr.GnrBag(data[k]));
