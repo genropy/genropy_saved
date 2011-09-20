@@ -327,6 +327,14 @@ class ResourceLoader(object):
             fpath = os.path.join(pagesPath, '_resources')
             if os.path.isdir(fpath):
                 result.append(fpath) # we add a resource folder for common package
+            rsrc_path = os.path.join(pkg.packageFolder, 'resources')
+            if os.path.isdir(rsrc_path):
+                result.append(rsrc_path)
+            plugins = [p for p in pkg.getPlugins() if p.resources_path]
+            for plugin in plugins:
+                if os.path.isdir(plugin.resources_path):
+                    result.append(plugin.resources_path)
+            
             result.extend(self.site.resources_dirs)
             pkg._resourceDirs = result
             # so we return a list of any possible resource folder starting from
