@@ -676,12 +676,18 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                                 var ds=genro.dialogStacks[dlgtype];
                                 ds.push(this);
                                 var zIndex = widget.sourceNode.attr.z_index || (zindex + ds.length*2);
-		                        dojo.style(this._underlay.domNode, 'zIndex', zIndex);
-		                        dojo.style(this.domNode, 'zIndex', zIndex + 1);
-		                         if (genro.dialogStacks[dlgtype].length > 1) {
-		                            var parentDialog = genro.dialogStacks[dlgtype].slice(-2)[0];
-		                            dojo.forEach(parentDialog._modalconnects, dojo.disconnect);
+                                dojo.style(this._underlay.domNode, 'zIndex', zIndex);
+                                dojo.style(this.domNode, 'zIndex', zIndex + 1);
+                                 if (genro.dialogStacks[dlgtype].length > 1) {
+                                    var parentDialog = genro.dialogStacks[dlgtype].slice(-2)[0];
+                                    dojo.forEach(parentDialog._modalconnects, dojo.disconnect);
                                     parentDialog._modalconnects = [];
+                                    if (sourceNode.attr.stacked){
+                                        var parentNodeStyle = parentDialog.domNode.style;
+                                        dojo.style(this.domNode,'top',(parseInt(parentNodeStyle.top)+16)+'px');
+                                        dojo.style(this.domNode,'left',(parseInt(parentNodeStyle.left)+16)+'px');
+                                    }
+                                    
                                    // genro.dialogStacks[dlgtype].slice(-2)[0].hide();
                                 }
                             }

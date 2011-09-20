@@ -896,7 +896,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         self.data(storepath, store)
     
         
-    def tableAnalyzeStore(self, pane, table=None, where=None, group_by=None, storepath='.store', **kwargs):
+    def tableAnalyzeStore(self, table=None, where=None, group_by=None, storepath='.store', **kwargs):
         """add???
         
         :param pane: add???
@@ -907,15 +907,16 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                          :ref:`sql_group_by` section
         :param storepath: add???. Default value is ``.store``"""
         t0 = time()
-        tblobj = self.db.table(table)
+        page = self.page
+        tblobj = page.db.table(table)
         columns = [x for x in group_by if not callable(x)]
         selection = tblobj.query(where=where, columns=','.join(columns), **kwargs).selection()
-        explorer_id = self.getUuid()
-        freeze_path = self.site.getStaticPath('page:explorers', explorer_id)
+        explorer_id = page.getUuid()
+        freeze_path = page.site.getStaticPath('page:explorers', explorer_id)
         t1 = time()
         totalizeBag = selection.totalize(group_by=group_by, collectIdx=False)
         t2 = time()
-        store = self.lazyBag(totalizeBag, name=explorer_id, location='page:explorer')()
+        store = page.lazyBag(totalizeBag, name=explorer_id, location='page:explorer')()
         t3 = time()
         self.data(storepath, store, query_time=t1 - t0, totalize_time=t2 - t1, resolver_load_time=t3 - t2)
         
