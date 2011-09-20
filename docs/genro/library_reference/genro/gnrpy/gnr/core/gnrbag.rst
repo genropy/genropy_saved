@@ -37,7 +37,7 @@
 
     .. module:: gnr.core.gnrbag.Bag
 
-    The Genro :ref:`bag_intro` has a consistent number of methods. They are listed here in alphabetical order.
+    The Genro :ref:`bag` has a consistent number of methods. They are listed here in alphabetical order.
 
     ======================== ======================== ============================= =====================
     :meth:`addItem`          :meth:`fillFrom`         :meth:`has_key`               :meth:`setItem`      

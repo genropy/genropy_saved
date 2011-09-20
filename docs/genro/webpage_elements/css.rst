@@ -9,6 +9,7 @@ CSS
     * :ref:`css_introduction`
     * :ref:`css_dojo_themes`
     * :ref:`css_themes`
+    * :ref:`css_icons`
     * :ref:`css_names`
 
 .. _css_introduction:
@@ -21,22 +22,17 @@ Introduction
     There are two ways of adding CSS style in Genro:
     
     #. The first way is the nearest to the standard way to use CSS. You have to create a CSS
-       file, put it into your :ref:`intro_resources` and call it into your page.
+       file with the *standard CSS syntax*, put it into your :ref:`intro_resources` folder of
+       your :ref:`project` and call it into your page.
        
-       .. warning:: you probably know the following syntax::
-                    
-                        <link href="stile/name_of_CSS_file.css" rel="stylesheet" type="text/css" />
-                        
-                    This syntax WON'T work.
-                    
-       In Genro you have to write in your :ref:`webpages_webpages` the following line::
+       To call the CSS file in your python webpage, you obviously can't use the standard HTML
+       syntax (``<link href="stile/name_of_CSS_file.css" rel="stylesheet" type="text/css" />``)
+       but you have to add the following :ref:`webpage variable <webpages_variables>`::
        
-        css_requires = 'name_of_CSS_file'
-        
-       (write the CSS filename without its ``.css`` extension).
-       
-       The ``css_requires`` is a :ref:`webpage variable <webpages_variables>`. For more information
-       on it, check the :ref:`webpages_css_requires` section.
+           css_requires = 'name_of_CSS_file' # write the CSS filename without its ``.css`` extension!
+           
+       For more information on ``css_requires`` please check the :ref:`css_requires section
+       <webpages_css_requires>`
        
     #. The second way is to use CSS style directly in your Genro :ref:`webpages_webpages`.
        When you do this, please pay attention that the CSS syntax is a little different
@@ -53,12 +49,12 @@ Introduction
         font-size:'20pt';
         background-color:'teal';
         
-       While the same CSS style in a Genro webpage looks like this::
-        
+       While the same CSS style in a Genro webpage has to be written in this way::
+       
         font_size='20pt',
         background_color='teal',
         
-       When you write them on a single element the effect will be::
+       When you write CSS on a single element the effect will be::
        
         root.textbox(font_size='20pt',background_color='teal',value='^hello')
         
@@ -68,8 +64,12 @@ Introduction
        
     You should also know that:
     
-    * Genro allows to use some CSS preset style: the :ref:`css_dojo_themes` and the Genro
-      :ref:`css_themes`
+    * Genro allows to use some CSS preset style:
+    
+        * :ref:`css_dojo_themes`
+        * Genro :ref:`css_themes`
+        * :ref:`css_icons`
+        
     * When you use CSS style directly in a Genro webpage there are some CSS attributes that
       have a different name respect to their standard CSS name: check the
       :ref:`css_names` section for the complete list
@@ -102,7 +102,28 @@ CSS themes
     * *blue*
     * *elephant*
     * *pro*
+    
+.. _css_icons:
 
+CSS icons
+=========
+
+    To use a set of CSS icons you need to type one of the following :ref:`css_icons webpage
+    variable <webpages_css_icons>` in your webpage:
+    
+    * retina/blue
+    * retina/gray
+    * retina/lime
+    * retina/red
+    * retina/violet
+    
+    The default value is the value you specify in the :ref:`siteconfig_css_icons` tag of your
+    :ref:`sites_siteconfig`. Otherwise, the default value is ``retina/gray``
+    
+    **Example**::
+    
+      css_icons='retina/lime'
+    
 .. _css_names:
 
 Genro CSS names

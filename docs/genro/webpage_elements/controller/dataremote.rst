@@ -6,6 +6,8 @@ dataRemote
     
     *Last page update*: |today|
     
+    **Type**: :ref:`server-side controller <controllers_server>`
+    
     * :ref:`dataremote_def`
     * :ref:`dataremote_examples`
 

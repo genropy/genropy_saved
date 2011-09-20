@@ -15,7 +15,7 @@ resources
     * javascript and CSS files: you probably know everything about javascript and css.
       What you don't know is how they interact with Genro. For more information, check
       the :ref:`css` and the :ref:`javascript` pages
-    * :ref:`components <component>`, or, more generally, other Python modules
+    * :ref:`components`, or, more generally, other Python modules
     
     You can define your resources as *public resources* or *private resources*:
     
@@ -104,7 +104,7 @@ public resource
     #. call the resource you need in the :ref:`webpages_webpages` in which you will use
        it through a ``webpages variable``:
        
-        * :ref:`webpages_py_requires` for Genro :ref:`components <component>` and other Python modules
+        * :ref:`webpages_py_requires` for Genro :ref:`components` and other Python modules
         * :ref:`webpages_js_requires` for the javascript files
         * :ref:`webpages_css_requires` for the CSS files
         
@@ -163,4 +163,4 @@ private resource
 **Footnotes**:
 
 .. [#] For more information on how to use CSS in Genro, check the :ref:`css` page
-.. [#] For more information on Genro components, check the :ref:`components <component>` page
+.. [#] For more information on Genro components, check the :ref:`components` page

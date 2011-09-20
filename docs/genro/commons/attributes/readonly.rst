@@ -6,30 +6,19 @@ readOnly
     
     *Last page update*: |today|
     
+    .. note:: **validity** - the *nodeId* attribute is supported by every :ref:`webpage element
+              <webpage_elements_index>`
+    
     * :ref:`readonly_def`
-    * :ref:`readonly_validity`
     * :ref:`readonly_examples`
     
 .. _readonly_def:
 
-definition and description
-==========================
+description
+===========
 
-    ::
-    
-        readOnly = BOOLEAN
-        
-    where BOOLEAN is ``True`` or ``False``.
-    
     Boolean. If ``True``, the element that carries the readOnly attribute is
     in read-only mode.
-    
-.. _readonly_validity:
-
-validity
-========
-
-    It works on every object.
     
 .. _readonly_examples:
 

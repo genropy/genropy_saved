@@ -6,6 +6,8 @@ dataController
     
     *Last page update*: |today|
     
+    **type**: :ref:`client-side controller <controllers_client>`
+    
     The ``dataController`` belongs to :ref:`controllers_client` family.
 
     * :ref:`datacontroller_def`

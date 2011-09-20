@@ -12,11 +12,24 @@ action
               * :ref:`checkboxcell`
               * :ref:`menu`
               
+    * :ref:`action_def`
+    * :ref:`action_examples`
+              
+.. _action_def:
+
+description
+===========
+
     The *action* attribute allows to write javascript code [#]_.
     
     For example, if you use the *action* attribute on a button, the javascript
     code will be executed after user click the button
     
+.. _action_examples:
+
+examples
+========
+
     **Example**:
     
         To create an alert message you have to write this line::

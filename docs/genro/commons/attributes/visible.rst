@@ -6,37 +6,28 @@ visible
     
     *Last page update*: |today|
     
+    .. note:: **validity** - the *hidden* attribute is supported by every :ref:`webpage element
+              <webpage_elements_index>`
+    
     * :ref:`visible_def`
-    * :ref:`visible_validity`
     * :ref:`visible_examples`
     
 .. _visible_def:
 
-definition and description
-==========================
-
-    ::
+description
+===========
     
-        visible = BOOLEAN
-        
-    where BOOLEAN is ``True`` or ``False``.
+    Boolean. If ``True``, make visible an object. If ``False``, hide the boxes but keep
+    the boxes content. Also, the physical space occupied from the object in the webpage
+    is kept (empty).
     
-    If ``True``, make visible an object. If ``False``, hide the boxes but keep the boxes content.
-    Also, the physical space occupied from the object in the webpage is kept (empty).
-    
-.. _visible_validity:
-
-validity
-========
-    
-    It works on every object.
-
 .. _visible_examples:
 
 examples
 ========
 
-    **Differences between "hidden" and "visible"**::
+    Let's see an example with the differences between the :ref:`hidden` and the :ref:`visible`
+    attribute::
     
         class GnrCustomWebPage(object):
             def test_4_test(self, pane):

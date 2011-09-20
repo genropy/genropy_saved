@@ -22,4 +22,4 @@ introduction
     When you have created these two files, you have to create in a :ref:`webpages_webpages`
     a GUI that allows the user to start a print. If you use the :ref:`th`, this process
     is auto handled by the component. For more information on how to create a print in a
-    webpage, check the :ref:`this section <print_settings_webpage>`.
+    webpage, check the :ref:`this section <print_settings_webpage>`

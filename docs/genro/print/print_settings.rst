@@ -215,7 +215,7 @@ templates
     .. method:: table_script_parameters_pane(self, pane, **kwargs)
                 
                 **Parameters: pane** - it represents a :ref:`contentpane` through
-                which you can attach your :ref:`webpage elements <webpage_elements_index>`
+                which you can attach your :ref:`webpage_elements_index`
     
     This ``table_script_parameters_pane`` is an hook method.
     

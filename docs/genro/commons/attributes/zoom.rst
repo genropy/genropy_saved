@@ -6,8 +6,13 @@ zoom
     
     *Last page update*: |today|
     
+    .. note:: **validity** - the *zoom* attribute is supported by:
+              
+              * :ref:`field`
+              * :ref:`fieldcell`
+              * :ref:`linkerfield`
+              
     * :ref:`zoom_def`
-    * :ref:`zoom_validity`
     * :ref:`zoom_examples`
     
 .. _zoom_def:
@@ -15,25 +20,8 @@ zoom
 definition and description
 ==========================
 
-    ::
-    
-        zoom = BOOLEAN
-        
-    where BOOLEAN is ``True`` or ``False``.
-
     Boolean. If ``True``, allow the user to open in a different tab (or window) a page
-    including the object the zoom refers to.
-
-.. _zoom_validity:
-
-validity
-========
-
-    You can give *zoom* attribute to the following objects:
-    
-    * :ref:`field`
-    * :ref:`fieldcell`
-    * :ref:`linkerfield`
+    the relative data of the :ref:`database table <table>` the zoom refers to
     
 .. _zoom_examples:
 
@@ -41,4 +29,3 @@ examples
 ========
 
     add???
-                  

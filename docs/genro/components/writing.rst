@@ -10,7 +10,7 @@ writing a component
     * :ref:`component_tutorial`
     
     Writing a component with GenroPy is easy: the framework allow to create a component
-    in a simple way and allow to extract it from a page for an external usage.
+    in a simple way and allow to extract it from a page for an external usage
 
 .. _writing_good_component:
 

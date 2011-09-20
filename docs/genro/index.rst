@@ -5,7 +5,7 @@ Genropy v0.7dev documentation
 =============================
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
     :numbered:
     
     getting_started/index

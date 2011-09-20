@@ -20,8 +20,8 @@ formbuilder
     
 .. _formbuilder_def:
 
-definition
-==========
+definition and attributes
+=========================
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc.formbuilder
     
@@ -99,10 +99,9 @@ kwargs list
     * *border_spacing*: define the space between form fields. Default value is ``6px``
     * *datapath*: set the root's path of formbuilder's fields. For more details,
       check the :ref:`datapath` documentation page.
-      
-    * *width*: define the formbuilder width. You can use a width in pixel, em, ex or a
-      percentage (e.g: ``width='60%'``) and the formbuilder must be child of a
-      :ref:`contentpane` or a div with a defined width and height.
+    * *width*: define the formbuilder width. You can use a width in pixel, em, ex.
+      You can use a percentage, too (e.g: ``width='60%'``), if the formbuilder is a child of a
+      :ref:`contentpane` or a div with a defined width and height
       
     There also 5 prefixes that allow to define the dimensions of every formbuilder part.
     They can be used in combo with any :ref:`css` expression.

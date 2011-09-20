@@ -15,13 +15,27 @@ childname
               * it works also on :ref:`iframe`, :ref:`menu`, :ref:`slotBar <toolbar>`,
                 :ref:`slotToolbar <toolbar>`, :ref:`tree`
                 
-    The *childname* attribute allow to give an alternative name to a :ref:`webpage_elements_index`.
+    * :ref:`childname_def`
+    * :ref:`childname_examples`
+    
+.. _childname_def:
+
+description
+===========
+    
+    The *childname* attribute allow to give an alternative name to a :ref:`webpage element
+    <webpage_elements_index>`.
     
     You have to define the *childname* as an attribute of one of your elements, then you
     can attach any element to the element with the *childname* attribute (add??? explain better...)
     
     This attribute is thought to speed up your programming work and...??? (explain of the chain of the
     nodeId that you can call through the "/")
+    
+.. _childname_examples:
+
+examples
+========
     
     **Example**::
     

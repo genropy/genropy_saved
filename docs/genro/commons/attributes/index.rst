@@ -14,8 +14,9 @@ common attributes
 introduction
 ============
     
-    In this section we report all those attributes that are common to many Genro :ref:`webpage elements
-    <webpage_elements_index>`
+    In this section we report all those attributes that are common to many Genro
+    :ref:`webpage_elements_index`. At the beginning of every page you can find a
+    note that explains on which object you can use the relative attribute
     
 .. _attributes_section_index:
 
