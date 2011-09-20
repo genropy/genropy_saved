@@ -799,7 +799,7 @@ genropatches.tree = function() {
             dojo.addClass(this.domNode, itemattr.node_class);
         }
         if (itemattr.tip){
-            this.domNode.setAttribute('title',itemattr.tip);
+            this.domNode.setAttribute('title',itemattry.tip);
         }
         var sourceNode = this.tree.sourceNode;
         var draggable = sourceNode.attr.draggable;
