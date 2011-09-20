@@ -461,8 +461,8 @@ class TableHandlerMain(BaseComponent):
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         th_options.update(self.th_options())
         th_options.update(th_kwargs)
-        th = self._th_main(root,th_options=th_options,**kwargs)
-        return th
+        self.root_tablehandler = self._th_main(root,th_options=th_options,**kwargs)
+        return self.root_tablehandler
         
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = th_options.get('formInIframe')

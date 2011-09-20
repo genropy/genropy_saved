@@ -79,7 +79,7 @@ var genro_plugin_grid_configurator = {
         this.checkFavorite(gridId);
         var finalize = function(struct){
              gridSourceNode.setRelativeData(gridSourceNode.attr.structpath,struct);
-             if(gridSourceNode.widget.storeRowCount()>0){
+             if(gridSourceNode.widget && gridSourceNode.widget.storeRowCount()>0){
                  gridSourceNode.widget.reload();
              }
         }

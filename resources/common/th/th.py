@@ -53,13 +53,13 @@ class TableHandler(BaseComponent):
                         **kwargs)
         wdg.dataController("""
                             var currform = this.getFormHandler();
-                            message = message || msg_prefix+' '+ (currform?currform.getRecordCaption():"main record");
+                            message = message || msg_prefix+' '+ (currform?currform.getRecordCaption():"main record") +' '+ msg_suffix;
                             if(pkey=='*newrecord*'){
                                 sourceNode.setHiderLayer({message:message,button:'this.getFormHandler().save();'});
                             }else{
                                 sourceNode.setHiderLayer(null,true);
                             }
-                            """,pkey='=#FORM.pkey',sourceNode=wdg,message=hiderMessage or False,msg_prefix='!!Save',
+                            """,pkey='=#FORM.pkey',sourceNode=wdg,message=hiderMessage or False,msg_prefix='!!Save',msg_suffix='',
                                 _fired='^#FORM.controller.loaded',_delay=1)                
         top_slots = '#,delrow,addrow'
         if lockable:
