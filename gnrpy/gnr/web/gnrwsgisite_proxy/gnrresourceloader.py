@@ -304,7 +304,7 @@ class ResourceLoader(object):
         result.extend(resources_list)
         return result
         
-    def package_resourceDirs(self, pkg):
+    def package_resourceDirs(self, pkg, omitSiteResources=False):
         """add???
         
         :param pkg: the package object. For more information on a package, check the
@@ -330,16 +330,15 @@ class ResourceLoader(object):
             rsrc_path = os.path.join(pkg.packageFolder, 'resources')
             if os.path.isdir(rsrc_path):
                 result.append(rsrc_path)
-            plugins = [p for p in pkg.getPlugins() if p.resources_path]
-            for plugin in plugins:
-                if os.path.isdir(plugin.resources_path):
-                    result.append(plugin.resources_path)
-            
-            result.extend(self.site.resources_dirs)
+            pkg._siteResourceDirs = self.site.resources_dirs
             pkg._resourceDirs = result
+            
+        result = list(pkg._resourceDirs)
+        if not omitSiteResources:
+            result.extend(pkg._siteResourceDirs)
             # so we return a list of any possible resource folder starting from
         # most customized and ending with most generic ones
-        return pkg._resourceDirs
+        return result
         
     def site_resources(self):
         """add???"""
@@ -469,13 +468,14 @@ class ResourceLoader(object):
                     result.append(fpath)
         return result
         
-    def loadResource(self, pkg, *path):
+    def loadResource(self, pkg, *path, **kwargs):
         """add???
         
         :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param \* path: add???"""
-        resourceDirs = self.package_resourceDirs(pkg)
+        pkgOnly=kwargs.pop('pkgOnly',False)
+        resourceDirs = self.package_resourceDirs(pkg, omitSiteResources=pkgOnly)
         resource_class = cloneClass('CustomResource', BaseResource)
         resource_class.resourceDirs = resourceDirs
         self.mixinResource(resource_class, resourceDirs, *path)
@@ -489,7 +489,7 @@ class ResourceLoader(object):
                     :ref:`packages_index` documentation page
         :param \* path: add???
         """
-        component=self.loadResource(pkg,*path)
+        component=self.loadResource(pkg,*path, pkgOnly=kwargs.pop('pkgOnly',False))
         setattr(component,'__mixin_pkg', pkg)
         setattr(component, '__mixin_path' ,'/'.join(path))
         css_requires = getattr(component,'css_requires',[])

@@ -994,7 +994,7 @@ class GnrWebPage(GnrBaseWebPage):
                 return getattr(m,classname)
             return m
             
-    def importTableResource(self,table,path,pkg=None):
+    def importTableResource(self,table,path):
         """add???
         
         :param table: add???
