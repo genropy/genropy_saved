@@ -472,24 +472,24 @@ class TableHandlerMain(BaseComponent):
         kwargs.update(th_options)
         kwargs['extendedQuery'] = kwargs.get('extendedQuery',True)
         if insidePublic:
-            root = root.rootContentPane(title=self.tblobj.name_long)
+            root = root.rootContentPane(title=self.tblobj.name_long,datapath=tablecode)
         else:
-            root.attributes.update(tag='ContentPane',_class=None)
-        if hasattr(self,'stats_main') or hasattr(self,'hv_main_form'):
-            tc = root.stackContainer(selectedPage='^%s.view.selectedPage' %tablecode)
+            root.attributes.update(tag='ContentPane',_class=None,datapath=tablecode)
+        extras = []
+        if hasattr(self,'stats_main') or hasattr(self,'hv_main'):
+            tc = root.stackContainer(selectedPage='^.view.selectedPage')
             root = tc.contentPane(title='!!Main View',pageName='th_main')
             if hasattr(self,'stats_main'):
-                self.stats_main(tc,title='!!Statistical View',datapath='%s.view' %tablecode,pageName='th_stats')
-            if hasattr(self,'hv_main_form'):
-                self.stats_main(tc,title='!!Hierarchical View',datapath='%s.view' %tablecode,pageName='th_hview')
+                extras.append('statisticalHandler')
+                self.stats_main(tc,title='!!Statistical View')
+            if hasattr(self,'hv_main'):
+                extras.append('hierarchicalHandler')
+                self.hv_main(tc)
         thwidget = th_options.get('widget','stack')
-        th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=self.maintable.replace('.','_'),**kwargs)
-        
-        if hasattr(self,'stats_main'):
+        th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,**kwargs)
+        if len(extras)>0:
             viewbar = th.view.top.bar
-            viewbar.replaceSlots('resourceMails','resourceMails,5,statisticalHandler')
-            viewbar.statisticalHandler.slotButton('!!Statistical View',iconClass='iconbox sum',action = 'SET .selectedPage="th_stats";')
-            
+            viewbar.replaceSlots('resourceMails','resourceMails,5,%s' %','.join(extras))            
         if insidePublic and hasattr(self,'th_customizePublicFrame'):
             self.th_customizePublicFrame(root)
         th.attributes.update(dict(border_left='1px solid gray'))
