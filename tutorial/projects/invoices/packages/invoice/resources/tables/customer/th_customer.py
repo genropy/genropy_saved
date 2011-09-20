@@ -25,8 +25,8 @@ class View(BaseComponent):
         return dict(column='name',op='contains',val='%',runOnStart=True)
         
     def th_top_a(self,top):
-        top.bar.replaceSlots('#','#,bottone')
-        top.bar.bottone.button('!!Print',action='PUBLISH tablehandler_run_script="print","customer_print";')
+        top.bar.replaceSlots('#','#,my_button')
+        top.bar.my_button.button('!!Print',action='PUBLISH tablehandler_run_script="print","customer_print";')
         
 class Form(BaseComponent):
     def th_form(self, form):
