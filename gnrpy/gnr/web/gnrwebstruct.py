@@ -425,21 +425,18 @@ class GnrDomSrc(GnrStructData):
    #    columns.setItem(name, None, label=label, field=field, expr=expr, **kwargs)
         
     def tooltip(self, label='', **kwargs):
-        """Handle a tooltip
+        """Create a :ref:`tooltip` and return it
         
-        :param label: the tooltip text. Default value is ``''``
-        :returns: the tooltip
-        """
+        :param label: the tooltip text"""
         return self.child('tooltip', label=label, **kwargs)
         
     def data(self, *args, **kwargs):
-        """A server-side Genro controller that allows to define variables from server to client.
+        """Create a :ref:`data` and returns it. ``data`` allows to define variables from server
+        to client
         
         :param \*args: args[0] includes the path of the value, args[1] includes the value
-        :param \*\*kwargs: in the kwargs you can insert the ``_serverpath`` attribute. For more information,
-                           check the :ref:`data_serverpath` example.
-        :returns: a data
-        """
+        :param \*\*kwargs: in the kwargs you can insert the ``_serverpath`` attribute. For more
+                           information, check the :ref:`data_serverpath` example"""
         value = None
         className = None
         path = None

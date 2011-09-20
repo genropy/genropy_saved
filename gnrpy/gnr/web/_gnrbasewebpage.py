@@ -640,6 +640,9 @@ class GnrBaseWebPage(GnrObject):
                 }""" % (cb, self._(msg)))
                 
     def mainLeftContent(self, parentBC, **kwargs):
+        """the main left content of the page
+        
+        :param parentBC: the root parent :ref:`bordercontainer`"""
         pass
         
     def pageController(self, **kwargs):
@@ -659,12 +662,12 @@ class GnrBaseWebPage(GnrObject):
             return self._root
             
     def rootWidget(self, root, **kwargs):
-        """Return a :ref:`contentpane`. You can attach to it any :ref:`webpage_elements_index`.
-        You can override this method to receive a different :ref:`layout widget <layout>`
-        respect to the ``contentPane``.
+        """Return a :ref:`contentpane`. You can attach to it any :ref:`webpage element
+        <webpage_elements_index>`. You can override this method to receive a different
+        :ref:`layout widget <layout>` respect to the ``contentPane``
         
         :param root: the root of the page. For more information, check the
-                     :ref:`webpages_main` documentation section."""
+                     :ref:`webpages_main` section."""
         return root.contentPane(**kwargs)
         
     def main(self, root, **kwargs):
@@ -673,14 +676,14 @@ class GnrBaseWebPage(GnrObject):
         documentation section.
         
         :param root: the root of the page. For more information, check the
-                     :ref:`webpages_main` documentation section"""
+                     :ref:`webpages_main` section"""
         root.h1('You MUST override this main method !!!')
         
     def forbiddenPage(self, root, **kwargs):
         """add???
         
         :param root: the root of the page. For more information, check the
-                     :ref:`webpages_main` documentation section."""
+                     :ref:`webpages_main` section."""
         dlg = root.dialog(toggle="fade", toggleDuration=250, onCreated='widget.show();')
         f = dlg.form()
         f.div(content='Forbidden Page', text_align="center", font_size='24pt')
