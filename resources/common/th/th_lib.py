@@ -39,9 +39,9 @@ class TableHandlerCommon(BaseComponent):
         defaultModule = 'th_%s' %tablename
         resourceName = self._th_getResourceName(resourceName,defaultModule,defaultClass)
         try:
-            self.mixinComponent(self.package.name,'tables','_packages',pkg,tablename,resourceName,mangling_th=rootCode)
+            self.mixinComponent(self.package.name,'tables','_packages',pkg,tablename,resourceName,mangling_th=rootCode, pkgOnly=True)
         except GnrMixinError:
-            self.mixinComponent(pkg,'tables',tablename,resourceName,mangling_th=rootCode)
+            self.mixinComponent(pkg,'tables',tablename,resourceName,mangling_th=rootCode, pkgOnly=True)
         return resourceName
             
     
@@ -49,7 +49,7 @@ class TableHandlerCommon(BaseComponent):
         pkg,tablename = table.split('.')
         defaultModule = 'th_%s' %tablename
         resourceName = self._th_getResourceName(resourceName,defaultModule,defaultClass)
-        return self.importTableResource(table,resourceName,pkg=pkg)
+        return self.importTableResource(table,resourceName)
         
             
     def _th_hook(self,method,mangler=None,asDict=False,dflt=None):
