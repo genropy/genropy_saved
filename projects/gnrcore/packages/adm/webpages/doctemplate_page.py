@@ -7,7 +7,7 @@
 from gnr.core.gnrbag import Bag
 
 class GnrCustomWebPage(object):
-    py_requires='public:TableHandlerMain,foundation/macrowidgets:RichTextEditor'
+    py_requires='public:TableHandlerMain,foundation/macrowidgets:RichTextEditor,foundation/includedview:IncludedView'
     maintable='adm.doctemplate'
 
     def pageAuthTags(self, method=None, **kwargs):
