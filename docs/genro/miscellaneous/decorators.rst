@@ -22,14 +22,18 @@ decorators
     
     To use it, import in your file::
     
-        from gnr.core.gnrdecorator import public_method
-    
+        from gnr.core.gnrdecorator import deprecated
+        
 .. _extract_kwargs:
 
 @extract_kwargs
 ===============
 
-    .. automethod:: gnr.core.gnrlang.extract_kwargs
+    .. automethod:: gnr.core.gnrdecorator.extract_kwargs
+    
+    To use it, import in your file::
+    
+        from gnr.core.gnrdecorator import extract_kwargs
     
 .. _public_method:
 
@@ -48,4 +52,8 @@ decorators
 ==============
 
     .. automethod:: gnr.web.gnrwebstruct.struct_method
+    
+    To use it, import in your file::
+    
+        from gnr.web.gnrwebstruct import struct_method
     

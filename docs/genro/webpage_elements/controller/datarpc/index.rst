@@ -45,6 +45,7 @@ section index
 .. toctree::
     :maxdepth: 1
     
+    attributes
     datarpc
     datarecord
     dataselection
