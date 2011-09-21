@@ -8,7 +8,6 @@ Copyright (c) 2008 Softwell. All rights reserved.
 class GnrCustomWebPage(object):
     maintable = 'invoice.customer'
     py_requires = 'public:TableHandlerMain'
-    css_icons = 'retina/red'
     
     def th_form(self, form, **kwargs):
         tc = form.center.tabContainer(margin='5px',**kwargs)
@@ -22,6 +21,7 @@ class GnrCustomWebPage(object):
         fb.field('address')
         fb.field('zip')
         fb.field('city',validate_case='t')
+        
         #NISO: non va la dbSelect...
         #fb.field('country',name='!!Country',tag='dbSelect',dbtable='glbl.nazione',value='.country',
         #          columns='$code,$name',hasDownArrow=True)        
@@ -30,7 +30,7 @@ class GnrCustomWebPage(object):
         th = pane.plainTableHandler(relation='@invoices',
                                     viewResource=':ViewFromCustomer')
                                     
-    def onLoading(self, record, newrecord, loadingParameters, recInfo):
-        if newrecord:
-            country = self.site.config('defaults?country')
-            record['country'] = country
+    #def onLoading(self, record, newrecord, loadingParameters, recInfo):
+    #    if newrecord:
+    #        country = self.site.config('defaults?country')
+    #        record['country'] = country

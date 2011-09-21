@@ -8,6 +8,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 class GnrCustomWebPage(object):
     maintable = 'invoice.product_type'
     py_requires = 'public:TableHandlerMain'
+    css_icons = 'retina/blue'
     
     def th_form(self, form):
         pane = form.record.contentPane()

@@ -1246,21 +1246,7 @@ dojo.declare("gnr.GnrDomHandler", null, {
             var button = objectPop(kw,'button');
             if(button){
                 messageArgs['connect_onclick'] = button;
-                messageArgs['rounded'] = '6';
-                messageArgs['top'] = null;
-                messageArgs['bottom'] = '5px';
-                messageArgs['right'] = '5px';
-                messageArgs['font_size'] = '14pt';
-                messageArgs['position'] = 'absolute';
-                messageArgs['margin'] = 'auto';
                 messageArgs['cursor'] = 'pointer';
-                messageArgs['gradient_from'] = 'silver';
-                messageArgs['gradient_to'] = 'whitesmoke';
-                messageArgs['gradient_deg'] = 90;
-                messageArgs['display'] = 'inline-block';
-                messageArgs['padding-left'] = '5px';
-                messageArgs['padding-right'] = '5px';
-                messageArgs['color'] = 'gray';
             }
             messageArgs.innerHTML = message;
             var messagePane = hider._('div',messageArgs);

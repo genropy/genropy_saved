@@ -12,14 +12,13 @@ Documents to revise
     auth
     batch/index
     clipboard
-    ../commons/index
     ../datastore/index
     decorators
     grid
-    iframe
     languages
     login
     palette
+    replaceslots
     struct
     trigger
     user_interface

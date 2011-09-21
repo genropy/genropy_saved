@@ -15,6 +15,7 @@ Genropy v0.7dev documentation
     components <components/index>
     database/index
     print/index
+    commons/index
     miscellaneous/index
     library_reference/index
     

@@ -73,7 +73,7 @@ def createResourceFile(app, package, table, option_name, option_output, option_f
     name = option_name or 'th_%s.py'%table
     path = os.path.join(resourceFolder, name) if not option_output else option_output
     if os.path.exists(path) and not option_force:
-        print '%s exist: will be skipped, use -f/--force to force replace'
+        print '%s exist: will be skipped, use -f/--force to force replace' % name
         return
     columns = []
     max_size = 35
@@ -82,8 +82,15 @@ def createResourceFile(app, package, table, option_name, option_output, option_f
         if col_name=='id' or col_name.startswith('__'):
             continue
         column = tbl_obj.columns[col_name]
+
         if column.dtype=='A':
-            size = column.attributes.get('size','').lstrip(':') or max_size
+            size = column.attributes.get('size','')
+            if size:
+                if ':' in size:
+                    size =size.split(':')[1]
+            else:
+                size=max_size
+            print col_name,'  ',size
             size = max(int(size),max_size)
         else:
             size = 7
@@ -93,7 +100,8 @@ def createResourceFile(app, package, table, option_name, option_output, option_f
         writeImports(out_file)
         writeViewClass(out_file, columns)
         writeFormClass(out_file, columns)
-    
+        print '%s created' % name
+        
 
 if __name__ == '__main__':
     usage = """

@@ -15,6 +15,6 @@ class GnrCustomWebPage(object):
         "simple"
         pane = pane.framePane(frameCode='provFrame')
         iv = pane.dialogTableHandler(table='glbl.provincia',
-                                    dialog_height='280px',
-                                    dialog_width='340px',
-                                    dialog_title=u'Provincia')
+                                     dialog_height='280px',
+                                     dialog_width='340px',
+                                     dialog_title=u'Provincia')

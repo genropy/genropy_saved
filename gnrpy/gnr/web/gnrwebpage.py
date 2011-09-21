@@ -980,7 +980,7 @@ class GnrWebPage(GnrBaseWebPage):
             
     getResourcePath = getResource
             
-    def importResource(self,path,classname=None,pkg=None):
+    def importResource(self, path, classname=None, pkg=None):
         """add???
         
         :param path: add???
@@ -994,13 +994,11 @@ class GnrWebPage(GnrBaseWebPage):
                 return getattr(m,classname)
             return m
             
-    def importTableResource(self,table,path,pkg=None):
+    def importTableResource(self, table, path):
         """add???
         
         :param table: add???
-        :param path: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param path: add???"""
         pkg,table = table.split('.')
         path,classname= path.split(':')
         resource = self.importResource('tables/_packages/%s/%s/%s' %(pkg,table,path),classname=classname,pkg=self.package.name)

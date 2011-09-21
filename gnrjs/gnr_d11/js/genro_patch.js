@@ -786,6 +786,7 @@ genropatches.tree = function() {
     dojo.require('dijit.Tree');
     dijit._TreeNode.prototype.setLabelNode = function(label) {
         this.labelNode.innerHTML = "";
+        var itemattr = this.item.attr || {};
         if ((typeof(label) == 'string') && (label.indexOf('innerHTML:') >= 0)) {
             this.labelNode.innerHTML = label.replace('innerHTML:', '');
             this.htmlLabel = true;
@@ -794,8 +795,11 @@ genropatches.tree = function() {
             this.labelNode.appendChild(dojo.doc.createTextNode(label));
         }
         ;
-        if (this.item.attr && 'node_class' in this.item.attr) {
-            dojo.addClass(this.domNode, this.item.attr.node_class);
+        if ('node_class' in itemattr) {
+            dojo.addClass(this.domNode, itemattr.node_class);
+        }
+        if (itemattr.tip){
+            this.domNode.setAttribute('title',itemattry.tip);
         }
         var sourceNode = this.tree.sourceNode;
         var draggable = sourceNode.attr.draggable;

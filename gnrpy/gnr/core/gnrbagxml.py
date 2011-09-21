@@ -31,7 +31,7 @@ from decimal import Decimal
 
 from gnr.core import gnrstring
 from gnr.core import gnrclasses
-
+import time
 REGEX_XML_ILLEGAL = re.compile(r'<|>|&')
 
 class _BagXmlException(Exception): pass
@@ -76,7 +76,8 @@ class BagFromXml(object):
                     source = ''.join(source)
                     testmode = True
                 else:
-                    raise _BagXmlException(source, l[1].args[0])
+                    raise
+                    #raise _BagXmlException(source, l[1].args[0])
         if testmode:
             result = self.do_build(source, fromFile, catalog=catalog, bagcls=bagcls, empty=empty)
         return result
@@ -101,13 +102,16 @@ class BagFromXml(object):
         bagImport.empty = empty
         bagImportError = _SaxImporterError()
         if fromFile:
-            sax.parse(source, bagImport)
-        else:
-            if isinstance(source, unicode):
-                if source.startswith('<?xml'):
-                    source = source[source.index('?>'):]
-                source = "<?xml version='1.0' encoding='UTF-8'?>%s" % source.encode('UTF-8')
-            sax.parseString(source, bagImport)
+            infile =  open(source)
+            source = infile.read()
+            infile.close()
+                
+        if isinstance(source, unicode):
+            if source.startswith('<?xml'):
+                source = source[source.index('?>'):]
+            source = "<?xml version='1.0' encoding='UTF-8'?>%s" % source.encode('UTF-8')
+        source = re.sub("&(?!amp;|quot;|apos;|lt;|gt;)", "&amp;", source)
+        sax.parseString(source, bagImport)
         if not testmode:
             result = bagImport.bags[0][0]
             if bagImport.format == 'GenRoBag': result = result['GenRoBag']

@@ -25,17 +25,18 @@
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc
     
     ===================================== ==================== ===================
-    :meth:`child`                         :meth:`framepane`    :meth:`makeRoot`   
-    :meth:`connect`                       :meth:`func`         :meth:`nodeById`   
-    :meth:`css`                           :meth:`getAttach`    :meth:`place`      
-    :meth:`cssrule`                       :meth:`getField`     :meth:`record`     
-    :meth:`data`                          :meth:`htmlChild`    :meth:`remote`     
+    :meth:`child`                         :meth:`func`         :meth:`makeRoot`   
+    :meth:`connect`                       :meth:`getAttach`    :meth:`nodeById`   
+    :meth:`css`                           :meth:`getField`     :meth:`place`      
+    :meth:`cssrule`                       :meth:`htmlChild`    :meth:`record`     
+    :meth:`data`                          :meth:`iframe`       :meth:`remote`     
     :meth:`formbuilder`                   :meth:`js_domNode`   :meth:`script`     
     :meth:`formstore`                     :meth:`js_form`      :meth:`styleSheet` 
     :meth:`formstore_handler`             :meth:`js_widget`    :meth:`subscribe`  
     :meth:`formstore_handler_addcallback` :meth:`macro`        :meth:`tooltip`    
+    :meth:`framepane`
     ===================================== ==================== ===================
-
+    
 .. _gnrwebstruct_gnrdomsrcdojo11:
 
 :class:`GnrDomSrc_dojo_11`
@@ -44,15 +45,16 @@
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11
     
     =========================== ============================= ===================================
-    :meth:`dataController`      :meth:`directoryStore`        :meth:`selectionStore`             
-    :meth:`dataFormula`         :meth:`gridStruct`            :meth:`selectionstore_addcallback` 
-    :meth:`dataRecord`          :meth:`includedview`          :meth:`slotBar`                    
-    :meth:`dataRemote`          :meth:`includedview_inframe`  :meth:`slotFooter`                 
-    :meth:`dataRpc`             :meth:`includedview_legacy`   :meth:`slotToolbar`                
-    :meth:`dataScript`          :meth:`paletteGrid`           :meth:`tableAnalyzeStore`          
-    :meth:`dataSelection`       :meth:`paletteGroup`          :meth:`virtualSelectionStore`      
-    :meth:`datarpc_addcallback` :meth:`palettePane`           :meth:`wdgAttributesFromColumn`    
-    :meth:`datarpc_adderrback`  :meth:`paletteTree`                                              
+    :meth:`dataController`      :meth:`directoryStore`        :meth:`slotbar_replaceslots`             
+    :meth:`dataFormula`         :meth:`gridStruct`            :meth:`selectionStore`             
+    :meth:`dataRecord`          :meth:`includedview`          :meth:`selectionstore_addcallback` 
+    :meth:`dataRemote`          :meth:`includedview_inframe`  :meth:`slotBar`                    
+    :meth:`dataRpc`             :meth:`includedview_legacy`   :meth:`slotButton`                 
+    :meth:`dataScript`          :meth:`onDbChanges`           :meth:`slotFooter`                 
+    :meth:`dataSelection`       :meth:`paletteGrid`           :meth:`slotToolbar`                
+    :meth:`datarpc_addcallback` :meth:`paletteGroup`          :meth:`tableAnalyzeStore`          
+    :meth:`datarpc_adderrback`  :meth:`palettePane`           :meth:`virtualSelectionStore`      
+    :meth:`directoryStore`      :meth:`paletteTree`           :meth:`wdgAttributesFromColumn`    
     =========================== ============================= ===================================
 
 .. _gnrwebstruct_gnrformbuilder:

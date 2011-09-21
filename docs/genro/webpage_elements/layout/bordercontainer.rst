@@ -46,17 +46,15 @@ Attributes
     
     **borderContainer's attributes**:
     
-    * *design (Dojo attribute)*: BorderContainer operates in a choice of two layout modes: the design attribute may be set to
-      ``headline`` or ``sidebar``. With the ``headline`` layout, the top and bottom sections extend the entire
-      width of the box and the remaining regions are placed in the middle. With the ``sidebar`` layout, the
-      side panels take priority, extending the full height of the box. Default value is ``headline``.
+    * *design (Dojo attribute)*: define the layout of the element. For more information,
+      check the :ref:`design` page. Default value is ``headline``
     * *regions (Genro attribute)*: allow to act on the borderContainer's regions. For more information, check
       the :ref:`border_regions` example
     
     **attributes of the borderContainer's children (paneContainers)**:
     
-    * *splitter (Dojo attribute)*: If true, user can modify the width of the paneContainer. For more information,
-      check :ref:`border_splitter` example
+    * *splitter (Dojo attribute)*: If true, user can modify the width of the paneContainer.
+      For more information, check :ref:`border_splitter` example
     
     **Common attributes**:
     

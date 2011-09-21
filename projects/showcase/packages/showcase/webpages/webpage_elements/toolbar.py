@@ -26,23 +26,23 @@ class GnrCustomWebPage(object):
                               border='1px solid #bbb',margin='10px',
                               center_background='#E1E9E9')
         top = pane.top.slotToolbar(slots='10,hello,*,foo,*,dummy,export,searchOn',
-                                    height='25px',gradient_from='^.from',gradient_to='^.to')
-        view = pane.includedView(_newGrid=True)
-        struct = view.gridStruct('name')
-        view.selectionStore(table='showcase.person',order_by='$name',_onStart=True,storeCode='mystore_2')
-        
-        top.hello.div(workdate,color='^.color')
-        top.foo.div('Schedule',font_size='14pt',color='^.color')
-        top.dummy.button(label='add',iconClass='icnBaseAdd',showLabel=False,
-                         action="alert('Added a row in your grid')")
-        top.dummy.button(label='del',iconClass='icnBaseDelete',showLabel=False,
-                         action="alert('Deleted a row in your grid')")
-        top.dummy.button(label='email',iconClass='icnBaseEmail',showLabel=False,
-                         action="alert('Sended your schedule by email')")
-        top.dummy.button(label='pdf',iconClass='icnBasePdf',showLabel=False,
-                         action="alert('PDF created')")
-        top.dummy.button(label='print',iconClass='icnBasePrinter',showLabel=False,
-                         action="alert('Printed')")
+                                   height='25px',gradient_from='^.from',gradient_to='^.to')
+        #view = pane.includedView(_newGrid=True)
+        #struct = view.gridStruct('name')
+        #view.selectionStore(table='showcase.person',order_by='$name',
+        #                    _onStart=True,storeCode='mystore')
+        #top.hello.div(workdate,color='^.color')
+        #top.foo.div('Schedule',font_size='14pt',color='^.color')
+        #top.dummy.button(label='add',iconClass='icnBaseAdd',showLabel=False,
+        #                 action="alert('Added a row in your grid')")
+        #top.dummy.button(label='del',iconClass='icnBaseDelete',showLabel=False,
+        #                 action="alert('Deleted a row in your grid')")
+        #top.dummy.button(label='email',iconClass='icnBaseEmail',showLabel=False,
+        #                 action="alert('Sended your schedule by email')")
+        #top.dummy.button(label='pdf',iconClass='icnBasePdf',showLabel=False,
+        #                 action="alert('PDF created')")
+        #top.dummy.button(label='print',iconClass='icnBasePrinter',showLabel=False,
+        #                 action="alert('Printed')")
         
         left = pane.left.slotBar(slotbarCode='left',slots='10,foo,*',width='40px',
                                  gradient_from='^.from',gradient_to='^.to',gradient_deg='0')
@@ -51,7 +51,7 @@ class GnrCustomWebPage(object):
         left.foo.button('load grid',action="alert('Loaded')")
         left.foo.button('exit', action="alert('Exited')")
         
-        right = pane.right.slotBar(slotbarCode='left',slots='20,dummy,*',width='130px',
+        right = pane.right.slotBar(slotbarCode='right',slots='20,dummy,*',width='130px',
                                    gradient_from='^.from',gradient_to='^.to',gradient_deg='^.deg')
         fb = right.dummy.formbuilder(lbl_color='^.color',cols=2)
         fb.div('Settings',font_size='12pt',color='^.color',colspan=2)

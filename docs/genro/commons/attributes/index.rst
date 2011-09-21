@@ -1,10 +1,26 @@
-.. _common_index:
+.. _attributes_index:
 
 =================
 common attributes
 =================
     
     *Last page update*: |today|
+    
+    * :ref:`attributes_intro`
+    * :ref:`attributes_section_index`
+    
+.. _attributes_intro:
+
+introduction
+============
+    
+    In this section we report all those attributes that are common to many Genro :ref:`webpage elements
+    <webpage_elements_index>`
+    
+.. _attributes_section_index:
+
+section index
+=============
     
 .. toctree::
     :maxdepth: 1
@@ -14,6 +30,7 @@ common attributes
     childname
     datapath
     dbtable
+    design
     hidden
     label
     nodeId

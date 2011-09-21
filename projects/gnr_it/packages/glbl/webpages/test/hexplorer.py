@@ -6,7 +6,7 @@
 
 "HEXPLORER"
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/palette_manager:PaletteManager"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull"
     
     def windowTitle(self):
         return ''
@@ -25,11 +25,11 @@ class GnrCustomWebPage(object):
                         configurable=True,struct='regione',
                         table='glbl.provincia',searchOn='*A,T,D').selectionStore(gridId='province_grid')
                         
-   #def test_2_analyze(self,pane):
-   #    """Test hexplorer"""
-   #    pane.paletteTree('localita',title='!!Localita Geo',searchOn=True).tableAnalyzeStore(table='glbl.localita',#where="$nome ILIKE :chunk",chunk='%%u%%',
-   #                    group_by=['@provincia.@regione.zona','@provincia.@regione.nome','@provincia.nome',self.iniziale,'$nome'],
-   #                    order_by='@provincia.@regione.ordine,$nome')
-        
+    def test_2_analyze(self,pane):
+        """Test hexplorer"""
+        pane.paletteTree('localita',title='!!Localita Geo',searchOn=True,dockTo=False).tableAnalyzeStore(table='glbl.localita',#where="$nome ILIKE :chunk",chunk='%%u%%',
+                        group_by=['@provincia.@regione.zona','@provincia.@regione.nome','@provincia.nome',self.iniziale,'$nome'],
+                        order_by='@provincia.@regione.ordine,$nome')
+         
     def iniziale(self,value):
         return value['nome'][0]

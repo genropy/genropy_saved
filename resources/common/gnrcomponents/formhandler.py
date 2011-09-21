@@ -94,7 +94,11 @@ class FormHandler(BaseComponent):
         gridattr['selfsubscribe_addrow'] = """this.publish('editrow',{pkey:"*newrecord*"});"""
         gridattr['selfsubscribe_editrow'] = """
                                     var topic = 'form_'+this.attr._linkedFormId+'_load';
-                                    genro.publish(topic,{destPkey:$1.pkey});
+                                    var kw = {destPkey:$1.pkey};
+                                    if($1.default_kw){
+                                        kw.default_kw = $1.default_kw;
+                                    }
+                                    genro.publish(topic,kw);
                                     """
         gridattr['selfsubscribe_viewlocker'] = 'this.widget.collectionStore().setLocked("toggle");'
         gridattr['subscribe_form_%s_onLoaded' %formId] ="""if($1.pkey!='*newrecord*' || $1.pkey!='*norecord*'){
