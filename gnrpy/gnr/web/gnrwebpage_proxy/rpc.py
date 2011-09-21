@@ -135,7 +135,7 @@ class GnrWebRpc(GnrBaseProxy):
                 action_results[action_name] = action_runner(file_url=file_url, file_path=file_path, file_ext=file_ext,
                                                             action_name=action_name, **action_params)
         if uploaderId:
-            handler = getattr(self.page, 'onUploading_%s' % uploaderId)
+            handler = getattr(self.page, 'onUploading_%s' % uploaderId,None)
             if handler:
                 return handler(file_url=file_url, file_path=file_path, file_ext=file_ext, action_results=action_results,
                                **kwargs)

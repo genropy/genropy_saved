@@ -44,7 +44,7 @@ def writeViewClass(out_file, columns):
     write(out_file, "return '%s'"%columns[0][0], indent=2)
     write(out_file)
     write(out_file, "def th_query(self):", indent=1)
-    write(out_file, "return dict(column='%s',op='contains', val='%%',runOnStart=True)"%columns[0][0], indent=2)
+    write(out_file, "return dict(column='%s',op='contains', val='%%',runOnStart=False)"%columns[0][0], indent=2)
     write(out_file)
     write(out_file, "def th_dialog(self):", indent=1)
     write(out_file, "return dict(height='400px',width='600px')", indent=2)
@@ -82,7 +82,6 @@ def createResourceFile(app, package, table, option_name, option_output, option_f
         if col_name=='id' or col_name.startswith('__'):
             continue
         column = tbl_obj.columns[col_name]
-
         if column.dtype=='A':
             size = column.attributes.get('size','')
             if size:
@@ -90,7 +89,6 @@ def createResourceFile(app, package, table, option_name, option_output, option_f
                     size =size.split(':')[1]
             else:
                 size=max_size
-            print col_name,'  ',size
             size = max(int(size),max_size)
         else:
             size = 7

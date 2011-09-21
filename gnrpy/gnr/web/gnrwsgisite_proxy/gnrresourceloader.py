@@ -475,10 +475,10 @@ class ResourceLoader(object):
                     :ref:`packages_index` documentation page
         :param \* path: add???"""
         pkgOnly=kwargs.pop('pkgOnly',False)
-        resourceDirs = self.package_resourceDirs(pkg, omitSiteResources=pkgOnly)
+        resourceDirs = self.package_resourceDirs(pkg)
         resource_class = cloneClass('CustomResource', BaseResource)
         resource_class.resourceDirs = resourceDirs
-        self.mixinResource(resource_class, resourceDirs, *path)
+        self.mixinResource(resource_class, self.package_resourceDirs(pkg, omitSiteResources=pkgOnly), *path)
         return resource_class()
         
     def mixinPageComponent(self, page, pkg, *path,**kwargs):
@@ -489,7 +489,7 @@ class ResourceLoader(object):
                     :ref:`packages_index` documentation page
         :param \* path: add???
         """
-        component=self.loadResource(pkg,*path, pkgOnly=kwargs.pop('pkgOnly',False))
+        component=self.loadResource(pkg, *path, pkgOnly=kwargs.pop('pkgOnly',False))
         setattr(component,'__mixin_pkg', pkg)
         setattr(component, '__mixin_path' ,'/'.join(path))
         css_requires = getattr(component,'css_requires',[])
