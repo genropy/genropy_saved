@@ -28,7 +28,7 @@ from gnr.core.gnrbag import Bag,BagCbResolver,DirectoryResolver
 from gnr.core.gnrstructures import GnrStructData
 from gnr.core import gnrstring
 from gnr.core.gnrdict import dictExtract
-from gnr.core.gnrlang import extract_kwargs,deprecated
+from gnr.core.gnrdecorator import extract_kwargs,deprecated
 
 from time import time
 from copy import copy

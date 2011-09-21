@@ -28,11 +28,10 @@ import thread
 import warnings
 
 from gnr.core import gnrstring
-from gnr.core.gnrdict import dictExtract
 import uuid
 import base64
 import time
-from gnr.core.gnrdecorator import deprecated  # keep for compatibility
+from gnr.core.gnrdecorator import deprecated,extract_kwargs # keep for compatibility
 thread_ws = dict()
 
 class BaseProxy(object):
@@ -47,35 +46,6 @@ class FilterList(list):
 def thlocal():
     """add???"""
     return thread_ws.setdefault(thread.get_ident(), {})
-    
-def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
-    """A decorator. add???
-    
-    :param _adapter: add???
-    :param _dictkwargs: add???
-    :param \*\*extract_kwargs: add???"""
-    if _dictkwargs:
-        extract_kwargs = _dictkwargs
-    def decore(func):
-        def newFunc(self,*args, **kwargs):
-            if _adapter:
-                adapter=getattr(self,_adapter)
-                if adapter:
-                    adapter(kwargs)
-            for extract_key,extract_value in extract_kwargs.items():
-                grp_key='%s_kwargs' %extract_key
-                curr=kwargs.pop(grp_key,dict())
-                dfltExtract=dict(slice_prefix=True,pop=False)
-                if extract_value is True:
-                    dfltExtract['pop']=True
-                elif isinstance(extract_value,dict):
-                    dfltExtract.update(extract_value)
-                curr.update(dictExtract(kwargs,'%s_' %extract_key,**dfltExtract))
-                kwargs[grp_key] = curr
-            return func(self,*args,**kwargs)
-        newFunc.__doc__=func.__doc__
-        return newFunc
-    return decore
     
 def boolean(x):
     """add???

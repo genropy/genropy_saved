@@ -6,7 +6,7 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrlang import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs
 
     
 class FrameGridSlots(BaseComponent):
@@ -23,7 +23,7 @@ class FrameGridSlots(BaseComponent):
          
     @struct_method
     def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,**kwargs):
-        return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,visible=enable,disabled='^.locked',**kwargs)
+        return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,visible=enable,disabled=kwargs.pop('disabled','^.locked'),**kwargs)
     
     @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):

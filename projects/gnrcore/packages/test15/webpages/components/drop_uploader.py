@@ -12,6 +12,7 @@ from gnr.core.gnrbag import Bag, DirectoryResolver
 class GnrCustomWebPage(object):
     py_requires = """gnrcomponents/testhandler:TestHandlerFull,
                    gnrcomponents/drop_uploader:DropUploader"""
+    css_requires='public'
 
     def test_0_img_uploader(self, pane):
         #pane.img(src='^.avatar_url')
@@ -108,6 +109,10 @@ class GnrCustomWebPage(object):
         print result
         return result
         
+
+    def test_4_newUploader(self,pane):
+        pane.dropFileFrame(height='300px',rounded=6,border='1px solid gray',preview=True,
+                            metacol_description=dict(name='!!Description', width='10em'))
     
         
         

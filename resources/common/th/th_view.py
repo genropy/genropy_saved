@@ -5,9 +5,8 @@
 # Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 
-from gnr.core.gnrlang import extract_kwargs
 from gnr.core.gnrdict import dictExtract
 from gnr.core.gnrbag import Bag
 
@@ -489,7 +488,7 @@ class THViewUtils(BaseComponent):
         if not metadata:
             return
         record = dict(data=data,objtype=objtype,
-                    pkg=pkg,tbl=table,userid=self.user,table=table,id=metadata['pkey'],
+                    pkg=pkg,tbl=table,userid=self.user,id=metadata['pkey'],
                     code= metadata['code'],description=metadata['description'],private=metadata['private'] or False,
                     notes=metadata['notes'])
         package.dbtable('userobject').insertOrUpdate(record)

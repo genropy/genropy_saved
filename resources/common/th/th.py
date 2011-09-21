@@ -20,7 +20,7 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrlang import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs
 
 class TableHandler(BaseComponent):
     js_requires = 'th/th'

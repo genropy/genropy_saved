@@ -38,7 +38,8 @@ gnrlogger = logging.getLogger(__name__)
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrlist
 
-from gnr.core.gnrlang import getUuid, extract_kwargs,uniquify
+from gnr.core.gnrlang import getUuid,uniquify
+from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
