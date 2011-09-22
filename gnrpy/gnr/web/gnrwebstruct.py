@@ -1835,7 +1835,7 @@ class GnrGridStruct(GnrStructData):
                           specify through the **threestate** parameter
         :param classes: add???. Default value is ``row_checker``
         :param action: allow to execute a javascript callback. For more information, check the
-                       :ref:`action` documentation page
+                       :ref:`action_attr` documentation page
         :param name: add???. Default value is ``' '``
         :param calculated: boolean. add???.
         :param radioButton: boolean. add???.

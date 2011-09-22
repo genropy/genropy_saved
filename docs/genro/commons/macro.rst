@@ -20,7 +20,7 @@ introduction
 
     We list here the Genro macros: these operations can be specified in the javascript events
     associated with an interface (for example you can use them in a :ref:`button` through the
-    :ref:`action` attribute), and the framework deals gnrjs to the expansion of these macros.
+    :ref:`action_attr` attribute), and the framework deals gnrjs to the expansion of these macros.
     It can be accessed from its datastore javascript code (ie from code written in .JS file and
     then read without macro-expansion) using simple javascript functions.
     

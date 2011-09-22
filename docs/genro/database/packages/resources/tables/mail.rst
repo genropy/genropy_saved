@@ -8,4 +8,5 @@
     
     .. image:: ../../../../_images/projects/packages/tables_mail.png
     
-    add???
+    The mail folder is used to handle the :ref:`emails <mail>`: follow the link for more
+    information on sending emails through Genropy

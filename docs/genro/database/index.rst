@@ -81,7 +81,7 @@ section_index
 .. toctree::
     :maxdepth: 2
     
-    project_structures
+    project_structure
     introduction to the resources <intro_resources>
     the ``.gnr`` folder <gnr/index>
     the ``instances`` folder <instances/index>

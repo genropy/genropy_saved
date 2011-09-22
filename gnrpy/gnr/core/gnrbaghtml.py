@@ -4,7 +4,7 @@
 # gnrbaghtml.py
 #
 # Created by Francesco Porcari on 2010-10-16.
-# Copyright (c) 2010 Softwell. All rights reserved.
+# Copyright (c) 2011 Softwell. All rights reserved.
 
 import os
 from gnr.core.gnrstring import toText

@@ -263,4 +263,4 @@ hasDownArrow
                           
 **Footnotes:**
 
-.. [#] For more information on a creation of a project, check the :ref:`simple_introduction` page.
+.. [#] For more information on a creation of a project, check the :ref:`tutorial_intro` page.

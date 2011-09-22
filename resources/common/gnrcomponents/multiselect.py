@@ -22,7 +22,7 @@
 multiselect.py
 
 Created by Saverio Porcari on 2010-01-25.
-Copyright (c) 2010 Softwell. All rights reserved.
+Copyright (c) 2011 Softwell. All rights reserved.
 """
 
 from gnr.core.gnrbag import Bag

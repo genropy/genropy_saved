@@ -8,4 +8,5 @@
     
     .. image:: ../../../../_images/projects/packages/tables_action.png
     
-    add???
+    The action folder is used to handle the :ref:`batch actions <action>`: follow the link
+    for more information on batch actions

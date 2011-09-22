@@ -59,10 +59,9 @@ section index
 .. toctree::
     :maxdepth: 1
     
-    attributes
     data
     datacontroller
     dataformula
     dataremote
-    datarpc/index
+    dataRpcs: dataRecord, dataRpc, dataSelection <datarpc/index>
     datascript

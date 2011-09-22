@@ -16,7 +16,7 @@
     :meth:`getResourceList` :meth:`mixinResource`         :meth:`page_class_resourceDirs` :meth:`resourcesAtPath`
     :meth:`get_page_class`  :meth:`package_resourceDirs`  :meth:`page_pyrequires_mixin`   :meth:`site_resources`
     :meth:`get_page_node`   :meth:`page_class_base_mixin` :meth:`plugin_webpage_classes`  :meth:`sitemap`
-    :meth:`loadResource`
+    :meth:`loadResource`    
     ======================= ============================= =============================== ============================== 
     
 .. _gnrresourceloader_classes:

@@ -1,4 +1,4 @@
-.. _action:
+.. _action_attr:
 
 ======
 action

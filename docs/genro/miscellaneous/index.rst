@@ -10,7 +10,6 @@ Documents to revise
     :maxdepth: 1
     
     auth
-    batch/index
     clipboard
     datastore/index
     decorators

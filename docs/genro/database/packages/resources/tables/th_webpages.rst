@@ -8,4 +8,5 @@ TableHandler resource webpages
     
     .. image:: ../../../../_images/projects/packages/tables_th.png
     
-    add??? link to th component! (:ref:`th`)
+    The tables folder is used to keep the webpages that handle the :ref:`th` component:
+    follow the link for more information on the TableHandler component

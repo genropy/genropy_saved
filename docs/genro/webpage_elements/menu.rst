@@ -31,7 +31,7 @@ definition and description
     
         .. method:: menu.menuline(label=None[,**kwargs])
         
-    in the ``**kwargs`` lies the :ref:`action` attribute::
+    in the ``**kwargs`` lies the :ref:`action_attr` attribute::
     
         menuline('Open...',action="alert('Opening...')")
         
@@ -46,7 +46,7 @@ attributes
     
     **menu attributes**:
     
-    * *action*: allow to execute a javascript callback. For more information, check the :ref:`action` page
+    * *action*: allow to execute a javascript callback. For more information, check the :ref:`action_attr` page
           
     **commons attributes**:
     

@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-gnrserverbatch.py
-
-Created by Francesco Porcari on 2010-10-16.
-Copyright (c) 2010 Softwell. All rights reserved.
-"""
+#
+#btcbase.py
+#
+#Created by Francesco Porcari on 2010-10-16
+#Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.core.gnrbag import Bag
 
 class BaseResourceBatch(object):
+    """Base resource class to create a :ref:`batch`"""
     batch_prefix = 'BB'
     batch_thermo_lines = 'batch_steps,batch_main,ts_loop'
     batch_title = 'My Batch Title'

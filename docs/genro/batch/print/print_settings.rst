@@ -6,57 +6,123 @@ print settings file
 
     *Last page update*: |today|
     
+    **First steps**:
+    
     * :ref:`print_settings_intro`
-    * :ref:`print_settings_import`
-    * :ref:`print_settings_main`
-    * :ref:`print_settings_webpage_variables`
-    * :ref:`the table_script_parameters_pane method
-      <print_settings_table_script_parameters_pane>`
-    * :ref:`print_settings_onrecordexit`
-    * :ref:`print_settings_webpage`
-    * :ref:`print_setting_dialog`
-    * :ref:`print_setting_dialog_print_region`
     * :ref:`print_settings_location`
-    * :ref:`example <print_settings_example>`
+    
+    **Creation of the file**:
+    
+    * :ref:`print_settings_import`
+    * :ref:`print_settings_main`:
+    
+        * :ref:`print_settings_webpage_variables`
+        
+            * :ref:`print_html_res`
+            * :ref:`print_batch_cancellable`
+            * :ref:`print_batch_delay`
+            * :ref:`print_batch_immediate`
+            * :ref:`print_batch_note`
+            * :ref:`print_batch_prefix`
+            * :ref:`print_batch_title`
+            * :ref:`print_dialog_height`
+            * :ref:`print_dialog_height_no_par`
+            * :ref:`print_dialog_width`
+            * :ref:`print_mail_address`
+            * :ref:`print_mail_tags`
+            * :ref:`print_templates`
+            
+        * :ref:`main_class_methods`:
+        
+            * :ref:`print_settings_table_script_parameters_pane`
+            * :ref:`print_settings_onrecordexit`
+            
+    **GUI**:
+    
+    * :ref:`print_settings_webpage`
+    * :ref:`print_setting_dialog`:
+    
+        * :ref:`print_setting_dialog_title`
+        * :ref:`print_setting_dialog_custom`
+        * :ref:`print_setting_dialog_print`
+        * :ref:`print_setting_dialog_notes`
+        * :ref:`print_setting_dialog_bottom`
+        
+    **Examples**:
+    
+    * :ref:`print_settings_example`
+    
+    **Print library reference**:
+    
+    * :ref:`print_library`
     
 .. _print_settings_intro:
     
 introduction
 ============
 
-    The print settings file allows to specify the print settings. In particular,
-    if you need to create some defined zone for your print, you have to use the
-    :ref:`htmltemplate` (explained in the next page) that you can set in the
-    print settings file through the :ref:`print_templates` webpage variable.
+    The print settings file allows to specify the print settings.
     
-    In order to use it, you have to:
-    
-    * :ref:`print_settings_import` the correct module
-    * create the :ref:`print_settings_main`
-    
-    In the Main class you have to:
-    
-    * add some :ref:`print_settings_webpage_variables`
-    * create the :ref:`print_settings_table_script_parameters_pane` method (it handles the
-      :ref:`print_setting_dialog` GUI)
+    * In the :ref:`file location section <print_settings_location>` we describe
+      the specific location of the print settings file
       
-    There is a specific location for the print settings file:
+    Once you created the file you have to:
     
-    * :ref:`print_settings_location`
+    * import the correct module - :ref:`print_settings_import` section
+    * create the Main class - :ref:`print_settings_main` section
     
-    When you created it, you have to:
+    Inside the Main class you may customize your print through:
     
-    * create a GUI to let the user starts the print (:ref:`print_settings_webpage`)
+    * some variables - :ref:`print_settings_webpage_variables` section
+    * some methods - :ref:`print_settings_table_script_parameters_pane` and
+      :ref:`print_settings_onrecordexit` sections
+      
+    At last you have to:
+    
+    * create a GUI to let the user starts the print - :ref:`print_settings_webpage`
+      section
+      
+    .. note:: if you need to create a letterhead in your print, you have to use also
+              the :ref:`htmltemplate`. You can set it through the :ref:`"templates"
+              webpage variable <print_templates>` of the print settings file.
+              
+.. _print_settings_location:
+
+file location
+=============
+    
+    The location of the print settings file must follow this path::
+    
+        projectName/packages/packageName/resources/tables/tableName/print/fileName
+        
+    where:
+    
+    * ``projectName`` is the name of the :ref:`project`
+    * ``packages`` is the :ref:`packages_index` folder
+    * ``packageName`` is the name of the package
+    * ``resources`` is the :ref:`public_resources` folder
+    * ``tables`` is the :ref:`resources_tables` folder
+    * ``tableName`` is the name of the :ref:`table` to which the print is linked
+    * ``fileName`` is the name you choose for your print settings file
+      (there is any convention about it)
+    
+    This is a graphical map of the location of the print settings file into a :ref:`project`:
+    
+    .. image:: ../../_images/print/print_settings_file.png
     
 .. _print_settings_import:
 
 import
 ======
 
-    To use the print setting file you have to import::
+    To use all the features of the print setting file you have to import in your print
+    settings file the :class:`BaseResourcePrint <gnr.web.batch.btcprint.BaseResourcePrint>`
+    class::
     
         from gnr.web.batch.btcprint import BaseResourcePrint
         
+    Then we have to create the Main class:
+    
     .. _print_settings_main:
 
 Main class
@@ -67,20 +133,22 @@ Main class
     
         class Main(BaseResourcePrint):
         
-    In the Main class you have to add some webpage variables:
+    In the Main class you have to add some webpage variables and some methods:
     
 .. _print_settings_webpage_variables:
 
-webpage variables
-=================
+Main class webpage variables
+============================
 
     With the term ``webpages variables`` we mean that there are some defined variables
-    that you can use to customize your Main class. They are:
+    that you can use to customize the class to which they belong (in this case, the
+    Main class). They are:
     
     * :ref:`print_html_res` (this is the only mandatory variable)
     * :ref:`print_batch_cancellable`
     * :ref:`print_batch_delay`
     * :ref:`print_batch_immediate`
+    * :ref:`batch_note`
     * :ref:`print_batch_prefix`
     * :ref:`print_batch_title`
     * :ref:`print_dialog_height`
@@ -96,7 +164,7 @@ html_res
 --------
     
     MANDATORY. Specify the location path of the :ref:`print_layout`.
-    The path you specify starts automatically from::
+    The root of the path you specify is::
     
         projectName/packages/packageName/resources/tables/tableName/
         
@@ -110,8 +178,8 @@ html_res
       
          projectName/packages/packageName/resources/tables/tableName/html_builder/doctor_performances
          
-      where ``html_builder`` is a folder created by you and ``doctor_performances``
-      is the name of your print layout file.
+      where ``html_builder`` is a folder you created and ``doctor_performances`` is the name of your
+      print layout file
       
 .. _print_batch_cancellable:
 
@@ -133,6 +201,14 @@ batch_immediate
 ---------------
 
     add???. Default value is ``False``
+    
+.. _print_batch_note:
+
+batch_note
+----------
+
+    Allow to add a default note to the :ref:`print_setting_dialog_notes` of the
+    :ref:`print_setting_dialog`
     
 .. _print_batch_prefix:
 
@@ -179,25 +255,29 @@ mail_address
 ------------
     
     Allow to send emails to the corresponding people that owns the data you want to
-    print. For example, if you create a print with all the invoices of 10 doctors,
+    print. It is mandatory that exists a column specified for the emails.
+    
+    For example, if you create a print with the invoices of 10 doctors,
     you can choose to send an email to them with their relative invoices.
     
     The syntax is::
     
         mail_address = 'fieldName'
         
-    where `fieldName` is the name of the field that contains the emails
-    in the model :ref:`table`
+    where `fieldName` is the name of the field that contains the doctors' emails
+    in the database model :ref:`table`
     
 .. _print_mail_tags:
 
 mail_tags
 ---------
 
-    Specify the authorization level to send emails. If the user has the same authorization
-    level of the *mail_tags*, then he can use the :ref:`print_pdf_by_mail` and the
-    :ref:`print_deliver_mails` panes in the :ref:`print_setting_dialog` : more information
-    on :ref:`print_setting_dialog_print_region` section
+    Specify the authorization level to send emails.
+    
+    If the user has the same authorization level of the *mail_tags* level, then he can use
+    some additional options of the :ref:`print_setting_dialog` (the :ref:`print_pdf_by_mail`
+    and the :ref:`print_deliver_mails`) For more information, check the
+    :ref:`print_setting_dialog_print` section
     
 .. _print_templates:
 
@@ -207,27 +287,31 @@ templates
     A string with the names of the :ref:`html templates <htmltemplate>` separated by a comma.
     More information in the :ref:`add???` section of the :ref:`htmltemplate` page
     
+.. _main_class_methods:
+
+Main class methods
+==================
+
 .. _print_settings_table_script_parameters_pane:
 
-``table_script_parameters_pane``
-================================
+table script parameters pane
+----------------------------
 
     .. method:: table_script_parameters_pane(self, pane, **kwargs)
                 
+                Hook method. Allow to add some user customizable parameters
+                
+                In particular, allow to modify the :ref:`print_setting_dialog_custom` of
+                the :ref:`print_setting_dialog` (in the following image, the region pointed
+                with number "2")
+                
                 **Parameters: pane** - it represents a :ref:`contentpane` through
                 which you can attach your :ref:`webpage_elements_index`
-    
-    This ``table_script_parameters_pane`` is an hook method.
-    
-    Through this method you can add some additional parameters of your batch. In particular,
-    you can modify the "second region" of the :ref:`print_setting_dialog` (in the next image,
-    the region is pointed by the number 2). The print setting dialog is the dialog that
-    represents the :ref:`print setting file <print_settings>` in your :ref:`webpages_webpages`:
-    
-    *In the image, the print setting dialog. The point 2 is the pane handled by the*
-    *``table_script_parameters_pane`` method*
+                
+    *In the image, the print setting dialog. The point 2 is the "custom region",*
+    *handled by the ``table_script_parameters_pane`` method*
         
-    .. image:: ../_images/print/print_settings_dialog_2.png
+    .. image:: ../../_images/print/print_settings_dialog_2.png
     
     **Example**: let's see the code relative to the previous image::
     
@@ -243,21 +327,21 @@ templates
 .. _print_settings_onrecordexit:
 
 onRecordExit
-============
+------------
 
     .. automethod:: gnr.web.batch.btcprint.BaseResourcePrint.onRecordExit
     
 .. _print_settings_webpage:
 
-webpage - start a print
-=======================
+print GUI
+=========
 
     .. note:: if you use the :ref:`th` component you have also a print management system.
               So, you don't need to create any GUI that allows user to start a print.
               Continue the reading of this section if you are not using the TableHandler
     
     To let the user starts a print from a :ref:`webpages_webpages`, you have to create 
-    a :ref:`button` using the :ref:`action` attribute that performs a :ref:`publish`.
+    a :ref:`button` using the :ref:`action_attr` attribute that performs a :ref:`publish`.
     
     Create your button remembering that:
     
@@ -274,7 +358,7 @@ webpage - start a print
     
     **Example**:
     
-        If you created a print setting file called "printing_performance", then your button could be::
+        If you created a print setting file called "printing_performance", then your button would be::
         
             class GnrCustomWebPage(object):
                 def main(self, root, **kwargs):
@@ -286,36 +370,47 @@ webpage - start a print
 print setting dialog
 ====================
 
-    The print setting dialog is the dialog that represents the :ref:`print setting file <print_settings>`
-    in your :ref:`webpages_webpages`:
+    The print setting dialog is the dialog that represents the :ref:`print setting file
+    <print_settings>` in the :ref:`webpages_webpages`:
     
-    .. image:: ../_images/print/print_settings_dialog.png
+    .. image:: ../../_images/print/print_settings_dialog.png
     
-    It is divided in five regions:
+    It is divided in five regions (the numbers follow the image numbering):
     
-    * *region 1 - title region*: it includes the window title, configurable through the ``batch_title``
-      :ref:`webpage variable <print_settings_webpage_variables>`
-    * *region 2 - customizable region*: it includes a :ref:`print_settings_table_script_parameters_pane`
-      hook method
-    * *region 3 - print region*: it includes a :meth:`table_script_option_pane
-      <gnr.web.batch.btcprint.BaseResourcePrint.table_script_option_pane>` method
-    * *region 4 - notes region*: it includes a :meth:`table_script_options_client_print
-      <gnr.web.batch.btcprint.BaseResourcePrint.table_script_options_client_print>` method
-    * *region 5 - bottom region*: it includes a bottom pane with the ``Cancel`` (cancels
-      the dialog) and ``Confirm`` (starts the batch) buttons
-      
-    We have already described most of the regions (follow the relative links).
-    The only one that needs more explanations is the print region:
+    * (n.1): :ref:`print_setting_dialog_title`
+    * (n.2): :ref:`print_setting_dialog_custom`
+    * (n.3): :ref:`print_setting_dialog_print`
+    * (n.4): :ref:`print_setting_dialog_notes`
+    * (n.5): :ref:`print_setting_dialog_bottom`
     
-.. _print_setting_dialog_print_region:
+.. _print_setting_dialog_title:
 
-print setting dialog - print region
-===================================
+title region
+------------
+    
+    It includes the window title, configurable through the :ref:`"batch_title" webpage
+    variable <print_batch_title>`
+    
+.. _print_setting_dialog_custom:
 
+custom region
+-------------
+    
+    It can be configured through the :ref:`print_settings_table_script_parameters_pane`
+    hook method
+    
+.. _print_setting_dialog_print:
+
+print region
+------------
+
+    It can be configured thorugh the :meth:`table_script_option_pane
+    <gnr.web.batch.btcprint.BaseResourcePrint.table_script_option_pane>` method
+    
     In the print regions you can swap up to 4 frames through a :ref:`radiobutton group
     <radiobutton>`:
     
-    .. image:: ../_images/print/print_dialog_radiobuttons.png
+    .. image:: ../../_images/print/print_dialog_radiobuttons.png
     
     The 4 frames are:
     
@@ -332,7 +427,7 @@ print setting dialog - print region
 PDF
 ---
 
-    .. image:: ../_images/print/print_pdf.png
+    .. image:: ../../_images/print/print_pdf.png
     
     From this pane user can choose a name for the saved file and can choose through
     a :ref:`checkbox` to save the file in a zip format.
@@ -342,7 +437,7 @@ PDF
 Server print
 ------------
 
-    .. image:: ../_images/print/print_server_print.png
+    .. image:: ../../_images/print/print_server_print.png
     
     From this pane user can choose the printer, the paper type and the tray.
     
@@ -351,7 +446,7 @@ Server print
 PDF by mail
 -----------
 
-    .. image:: ../_images/print/print_pdf_by_mail.png
+    .. image:: ../../_images/print/print_pdf_by_mail.png
     
     .. note:: this pane is accessible only by users that have required administration privileges.
               By default only users with 'admin' privileges can access to this (more information
@@ -365,7 +460,7 @@ PDF by mail
 Deliver mails
 -------------
     
-    .. image:: ../_images/print/print_deliver_mails.png
+    .. image:: ../../_images/print/print_deliver_mails.png
     
     .. note:: this pane is accessible only by users that have required administration privileges.
               By default only users with 'admin' privileges can access to this (more information
@@ -376,34 +471,29 @@ Deliver mails
     database. This is made automatically (for this reason the ``TO`` field is hidden: the ``TO``
     recipient is filled with the emails of the query fields (add??? Explain how, explain better...)
     
-.. _print_settings_location:
+.. _print_setting_dialog_notes:
 
-file location
-=============
+notes region
+------------
+
+    It includes some notes of the print. You can set a defualt value through the
+    :ref:`"batch_note" webpage variable <print_batch_note>`
     
-    The location of the print settings file must follow this path::
+.. _print_setting_dialog_bottom:
+
+bottom region
+-------------
+
+    It includes a bottom pane with the ``Cancel`` and ``Confirm`` buttons: they respectively
+    allow to:
     
-        projectName/packages/packageName/resources/tables/tableName/print/fileName
-        
-    where:
-    
-    * ``projectName`` is the name of the :ref:`project`
-    * ``packages`` is the :ref:`packages_index` folder
-    * ``packageName`` is the name of the package
-    * ``resources`` is the :ref:`public_resources` folder
-    * ``tables`` is the :ref:`resources_tables` folder
-    * ``tableName`` is the name of the :ref:`table` to which the print is linked
-    * ``fileName`` is the name you choose for your print settings file:
-      there is any convention about it
-    
-    This is a graphical map of the location of the print settings file into a :ref:`project`:
-    
-    .. image:: ../_images/print/print_settings_file.png
+    * cancel the print
+    * execute the print
     
 .. _print_settings_example:
 
-print settings file - example
-=============================
+a simple example
+================
     
     Let's see an example page of a :ref:`print_settings`::
     
@@ -427,3 +517,12 @@ print settings file - example
             def onRecordExit(self, record=None):
                 print record
                 
+.. _print_library:
+                
+print library reference
+=======================
+
+    For the complete print library reference, check:
+    
+    * the :ref:`library_btcbase` page
+    * the :ref:`library_btcprint` page

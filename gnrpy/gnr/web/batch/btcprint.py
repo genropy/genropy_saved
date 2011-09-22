@@ -4,7 +4,7 @@
 #btcprint.py
 #
 #Created by Francesco Porcari on 2010-10-16.
-#Copyright (c) 2010 Softwell. All rights reserved.
+#Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
@@ -158,12 +158,23 @@ class BaseResourcePrint(BaseResourceBatch):
                 self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver', datapath='.mail'))
 
     def table_script_options_pdf(self, pane):
+        """Define the "File Name" textbox and the "Zip folder" checkbox in the
+        :ref:`print_setting_dialog_print` of the :ref:`print_setting_dialog`
+        
+        :param pane: the :ref:`contentpane` received by the method"""
         fb = self.table_script_fboptions(pane, fld_width=None, tdl_width='5em')
         fb.data('.zipped', False)
         fb.textbox(value='^.save_as', lbl='!!File Name', width='100%')
         fb.checkbox(value='^.zipped', label='!!Zip folder')
 
     def table_script_options_mail_pdf(self, pane):
+        """Define the mail fields of the :ref:`print_pdf_by_mail` pane of the
+        :ref:`print_setting_dialog_print` of the :ref:`print_setting_dialog`
+        
+        :param pane: the :ref:`contentpane` received by the method
+        
+        CREO LA LIBRARY REFERENCE DEI BATCH/BTCPRINT!!!
+        """
         fb = self.table_script_fboptions(pane)
         fb.textbox(value='^.to_address', lbl='!!To')
         fb.textbox(value='^.cc_address', lbl='!!CC')

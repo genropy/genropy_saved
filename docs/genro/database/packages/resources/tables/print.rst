@@ -8,5 +8,6 @@
     
     .. image:: ../../../../_images/projects/packages/tables_print.png
     
-    In the print folder you have to put your print settings files: for more information, check the
-    :ref:`print_settings` section.
+    The print folder is used to handle the :ref:`prints <print>`; in particular, it is
+    used to keep the :ref:`print settings files <print_settings>`: follow the links for
+    more information on printing in Genropy
