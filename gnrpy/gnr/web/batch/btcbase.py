@@ -58,9 +58,11 @@ class BaseResourceBatch(object):
         self.pre_process()
 
     def pre_process(self):
+        """Hook method on initing of the batch execution"""
         pass
 
     def run(self):
+        """add???"""
         self.btc.batch_create(batch_id='%s_%s' % (self.batch_prefix, self.page.getUuid()),
                               title=self.batch_title,
                               cancellable=self.batch_cancellable,
@@ -78,11 +80,25 @@ class BaseResourceBatch(object):
             self.do()
 
     def storeResult(self, key, result, record=None, **info):
+        """add???
+        
+        :param key: add???
+        :param result: add???
+        :param record: add???
+        :param \*\* info: add???"""
         self.results[key] = result
         self.records[key] = record
         self.result_info[key] = info
 
-    def batchUpdate(self, updater=None, table=None, where=None, line_code=None, message=None, **kwargs ):
+    def batchUpdate(self, updater=None, table=None, where=None, line_code=None, message=None, **kwargs):
+        """add???
+        
+        :param updater: add???
+        :param table: the :ref:`database table <table>` you specify or the
+                      :ref:`maintable webpage variable <webpages_maintable>`
+        :param where: add???
+        :param line_code: add???
+        :param message: add???"""
         table = table or self.page.maintable
         tblobj = self.db.table(table)
 
@@ -97,13 +113,25 @@ class BaseResourceBatch(object):
                                                tblobj=tblobj), **kwargs)
 
     def result_handler(self):
+        """add???"""
         return 'Execution completed', dict()
 
     def get_step_caption(self, item, progress, maximum, **kwargs):
+        """add???
+        
+        :param item: add???
+        :param progress: add???
+        :param maximum: add???"""
         step_handler = getattr(self, 'step_%s' % item)
         return step_handler.__doc__
 
     def get_record_caption(self, item, progress, maximum, tblobj=None, **kwargs):
+        """add???
+        
+        :param item: add???
+        :param progress: add???
+        :param maximum: add???
+        :param tblobj: add???"""
         tblobj = tblobj or self.tblobj
         if tblobj:
             caption = '%s (%i/%i)' % (tblobj.recordCaption(item), progress, maximum)
@@ -112,16 +140,26 @@ class BaseResourceBatch(object):
         return caption
 
     def do(self, **kwargs):
-        """override me"""
+        """Hook method. It starts on :meth:`run() <run>` method execution if you have defined
+        the :ref:`batch_steps` webpage variable"""
         pass
 
     def defineSelection(self, selectionName=None, selectedRowidx=None, selectionFilterCb=None, sortBy=None):
+        """add???
+        
+        :param selectionName: add???
+        :param selectedRowidx: add???
+        :param selectionFilterCb: add???
+        :param sortBy: add???"""
         self.selectionName = selectionName
         self.selectedRowidx = selectedRowidx
         self.selectionFilterCb = selectionFilterCb
         self.sortBy=sortBy
 
     def get_selection(self, columns=None):
+        """add???
+        
+        :param columns: add???"""
         if hasattr(self,'selectionName'):
             selection = self.page.getUserSelection(selectionName=self.selectionName,
                                                     selectedRowidx=self.selectedRowidx, filterCb=self.selectionFilterCb,
@@ -134,14 +172,20 @@ class BaseResourceBatch(object):
         return selection
 
     def get_records(self):
+        """add???"""
         pkeys = self.get_selection_pkeys()
         for pkey in pkeys:
             yield self.get_record(pkey)
 
     def get_record(self, pkey, virtual_columns=None):
+        """add???
+        
+        :param pkey: add???
+        :param virtual_columns: the :ref:`virtual_columns` webpage variable"""
         return self.tblobj.record(pkey=pkey, virtual_columns=self.virtual_columns).output('bag')
 
     def get_selection_pkeys(self):
+        """add???"""
         if self._pkeys is None:
             self._pkeys = self.get_selection().output('pkeylist')
         return self._pkeys
@@ -151,6 +195,9 @@ class BaseResourceBatch(object):
     #    return True
 
     def parameters_pane(self, pane, **kwargs):
-        """Pass a ContentPane for adding forms to allow you to ask parameters to the clients"""
+        """Hook method. This method receives a :ref:`contentpane` through which you can build a
+        :ref:`form` to get parameters from client
+        
+        :param pane: the contentPane"""
         pass
         

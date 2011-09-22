@@ -19,12 +19,7 @@ print settings file
         * :ref:`print_settings_webpage_variables`
         
             * :ref:`print_html_res`
-            * :ref:`print_batch_cancellable`
-            * :ref:`print_batch_delay`
             * :ref:`print_batch_immediate`
-            * :ref:`print_batch_note`
-            * :ref:`print_batch_prefix`
-            * :ref:`print_batch_title`
             * :ref:`print_dialog_height`
             * :ref:`print_dialog_height_no_par`
             * :ref:`print_dialog_width`
@@ -145,18 +140,18 @@ Main class webpage variables
     Main class). They are:
     
     * :ref:`print_html_res` (this is the only mandatory variable)
-    * :ref:`print_batch_cancellable`
-    * :ref:`print_batch_delay`
     * :ref:`print_batch_immediate`
-    * :ref:`batch_note`
-    * :ref:`print_batch_prefix`
-    * :ref:`print_batch_title`
-    * :ref:`print_dialog_height`
+    * :ref:`print_dialog_height` (properly this webpage variable belongs to
+      the :ref:`webpage variables of the base batch <btcbase_webpage_variables>`)
     * :ref:`print_dialog_height_no_par`
-    * :ref:`print_dialog_width`
+    * :ref:`print_dialog_width` (properly this webpage variable belongs to
+      the :ref:`webpage variables of the base batch <btcbase_webpage_variables>`)
     * :ref:`print_mail_address`
     * :ref:`print_mail_tags`
     * :ref:`print_templates`
+    
+    The Main class inherits from the :ref:`btcbase_base` class other webpage variables.
+    For a complete list check the :ref:`btcbase_webpage_variables` section
     
 .. _print_html_res:
     
@@ -181,52 +176,12 @@ html_res
       where ``html_builder`` is a folder you created and ``doctor_performances`` is the name of your
       print layout file
       
-.. _print_batch_cancellable:
-
-batch_cancellable
------------------
-
-    add???
-    
-.. _print_batch_delay:
-
-batch_delay
------------
-    
-    A string with the time milliseconds start delay
-    
 .. _print_batch_immediate:
 
 batch_immediate
 ---------------
 
     add???. Default value is ``False``
-    
-.. _print_batch_note:
-
-batch_note
-----------
-
-    Allow to add a default note to the :ref:`print_setting_dialog_notes` of the
-    :ref:`print_setting_dialog`
-    
-.. _print_batch_prefix:
-
-batch_prefix
-------------
-    
-    A string with a prefix for the batch name
-      
-      **Example**::
-      
-        batch_prefix = 'st_prest'
-        
-.. _print_batch_title:
-
-batch_title
------------
-        
-    A string with the :ref:`print_setting_dialog` title
     
 .. _print_dialog_height:
 
@@ -389,7 +344,7 @@ title region
 ------------
     
     It includes the window title, configurable through the :ref:`"batch_title" webpage
-    variable <print_batch_title>`
+    variable <batch_title>`
     
 .. _print_setting_dialog_custom:
 
@@ -477,7 +432,7 @@ notes region
 ------------
 
     It includes some notes of the print. You can set a defualt value through the
-    :ref:`"batch_note" webpage variable <print_batch_note>`
+    :ref:`"batch_note" webpage variable <batch_note>`
     
 .. _print_setting_dialog_bottom:
 

@@ -14,6 +14,7 @@ formbuilder
         * :ref:`formbuilder_children_attributes`
         * :ref:`formbuilder_commons_attributes`
         * :ref:`fb_kwargs`
+        * :ref:`formbuilder_prefixes`
         
     * :ref:`label_and_lbl`
     * :ref:`fb_examples`
@@ -102,6 +103,11 @@ kwargs list
     * *width*: define the formbuilder width. You can use a width in pixel, em, ex.
       You can use a percentage, too (e.g: ``width='60%'``), if the formbuilder is a child of a
       :ref:`contentpane` or a div with a defined width and height
+      
+.. _formbuilder_prefixes:
+
+CSS attributes
+--------------
       
     There also 5 prefixes that allow to define the dimensions of every formbuilder part.
     They can be used in combo with any :ref:`css` expression.

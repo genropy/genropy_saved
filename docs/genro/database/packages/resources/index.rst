@@ -18,7 +18,7 @@ introduction
 
     This folder includes all your :ref:`public resources <public_resource>` (check the
     :ref:`intro_resources` page for more information) and the ``tables`` folder.
-    This folder is required to use some additional features, like:
+    The ``tables`` folder is required to use some additional features, like:
     
     * create a :ref:`batch`
     * create a :ref:`print`

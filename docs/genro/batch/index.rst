@@ -24,6 +24,8 @@ introduction
     * send :ref:`emails <mail>`
     * create a :ref:`print`
     
+    All these batches takes theirs base actions by the :ref:`btcbase`
+    
 .. _batch_section_index:
 
 section index
@@ -32,6 +34,7 @@ section index
 .. toctree::
     :maxdepth: 1
     
+    btcbase
     action/index
     mail/index
     print/index
