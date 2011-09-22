@@ -277,7 +277,8 @@ class TableHandlerView(BaseComponent):
                                timeout=180000, selectmethod='=.query.queryAttributes.selectmethod',
                                _onCalling=""" 
                                %s
-                               if(kwargs['where']){
+                              
+                               if(kwargs['where'] && kwargs['where'] instanceof gnr.GnrBag){
                                     var newwhere = kwargs['where'].deepCopy();
                                     kwargs['where'].walk(function(n){
                                         if(n.label.indexOf('parameter_')==0){

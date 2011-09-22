@@ -540,7 +540,7 @@ class GnrWebPage(GnrBaseWebPage):
             mixin_info, method = method.split(';')
             __mixin_pkg, __mixin_path = mixin_info.split('|')
             __mixin_path_list = __mixin_path.split('/')
-            self.mixinComponent(__mixin_pkg, *__mixin_path_list)
+            self.mixinComponent(*__mixin_path_list, pkg=__mixin_pkg)
         if '.' in method:
             proxy_name, submethod = method.split('.', 1)
             if proxy_name=='_table':
