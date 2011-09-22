@@ -73,7 +73,7 @@ def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
 def deprecated(func):
     """This is a decorator which can be used to mark functions
     as deprecated. It will result in a warning being emitted
-    when the function is used.
+    when the function is used
 
     :param func: the function to deprecate"""
     def newFunc(*args, **kwargs):

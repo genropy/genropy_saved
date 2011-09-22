@@ -27,8 +27,7 @@ def dictExtract(mydict, prefix, pop=False, slice_prefix=True):
     :param prefix: the prefix of the items you need to extract
     :param pop: removes the items from the sourcedict
     :param slice_prefix: shortens the keys of the output dict removing the prefix
-    :returns: a dict of the items with keys starting with prefix
-    """
+    :returns: a dict of the items with keys starting with prefix"""
     lprefix = len(prefix) if slice_prefix else 0
     
     cb = mydict.pop if pop else mydict.get
@@ -70,8 +69,7 @@ class GnrDict(dict):
         """add???
         
         :param label: add???
-        :param default: add???. 
-        """
+        :param default: add???"""
         return dict.get(self, self._label_convert(label), default)
         
     def __getitem__(self, label):
@@ -87,33 +85,24 @@ class GnrDict(dict):
         return [(k, self[k]) for k in self._list]
         
     def keys(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return list(self._list)
         
     def index(self, value):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         if value in self._list:
             return self._list.index(value)
         return -1
         
     def values(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return [self[k] for k in self._list]
         
     def pop(self, key, dflt=None):
         """add???
         
-        :returns: add???
-        """
+        :param key: add???
+        :param dflt: add???"""
         key = self._label_convert(key)
         if key in self._list:
             self._list.remove(key)
@@ -129,10 +118,7 @@ class GnrDict(dict):
     #return "%s ordered on %s" % (dict.__repr__(self), str(self._list))
         
     def clear(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         self._list[:] = []
         dict.clear(self)
         
@@ -140,61 +126,42 @@ class GnrDict(dict):
         """add???
         
         :param o: add???
-        :param removeNone: add???. Default value is ``False``
-        :returns: add???
-        """
+        :param removeNone: add???"""
         [self.__setitem__(k, v) for k, v in o.items()]
         if removeNone:
             [self.__delitem__(k) for k, v in o.items() if v == None]
             
     def copy(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return GnrDict(self)
         
-    def setdefault(self,key, d=None):
+    def setdefault(self, key, d=None):
         """add???
         
         :param key: add???
-        :param d: add???. 
-        :returns: add???
-        """
+        :param d: add???"""
         key = self._label_convert(key)
         if not key in self:
             self.__setitem__(key, d)
         return self[key]
         
     def popitem(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         k = self._list.pop()
         return (k, dict.pop(self, k))
         
     def iteritems(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         for k in self._list:
             yield (k, self[k])
             
     def iterkeys(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         for k in self._list:
             yield k
             
     def itervalues(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         for k in self._list:
             yield self[k]
             
@@ -218,18 +185,13 @@ class GnrDict(dict):
         dict.update(self, val)
         
     def reverse(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         self._list.reverse()
         
     def sort(self, cmpfunc=None):
         """add???
         
-        :param cmpfunc: add???. 
-        :returns: add???
-        """
+        :param cmpfunc: add???"""
         self._list.sort(cmpfunc)
         
 class GnrNumericDict(GnrDict):

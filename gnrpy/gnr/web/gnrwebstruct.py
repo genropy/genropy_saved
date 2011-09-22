@@ -64,8 +64,7 @@ def struct_method(func_or_name):
             pass
             
         def somewhereElse(self, bc):
-            bc.bar(...)
-    """
+            bc.bar(...)"""
     def register(name, func):
         func_name = func.__name__
         existing_name = GnrDomSrc._external_methods.get(name, None)
