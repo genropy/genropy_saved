@@ -511,7 +511,10 @@ class ResourceLoader(object):
                     :ref:`packages_index` documentation page
         :param \* path: component path
         """
-        path = os.path.join(*path)
+        if len(path)>1:
+            path = os.path.join(*path)
+        else:
+            path = path[0]
         splitted_paths = path.split(',')
         for component_path in splitted_paths:
             self._mixinComponent(page, path, **kwargs)
