@@ -617,7 +617,7 @@ class IncludedView(BaseComponent):
             onOpen = 'genro.wdgById("' + pickerId + '").applyFilter();%s' % onOpen
         dlgBC = self.hiddenTooltipDialog(mainPane, dlgId=dialogId, title=title,
                                          width=width, height=height, fired='^%s.showPicker' % controllerPath,
-                                         datapath=controllerPath, close_action="FIRE .close",
+                                         datapath=controllerPath, close_action="FIRE .close;",
                                          bottom_left='!!Add', bottom_left_action='FIRE .pickerAdd;',
                                          bottom_right='!!Add and Close',
                                          bottom_right_action='FIRE .close;FIRE_AFTER .pickerAdd;',

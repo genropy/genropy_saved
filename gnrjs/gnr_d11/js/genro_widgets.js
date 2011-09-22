@@ -3129,7 +3129,10 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             this.filterColumn = filterColumn;
         }
         this.currentFilterValue = (filterValue == true) ? this.currentFilterValue : filterValue;
-        var colType = (this.filterColumn.indexOf('+') > 0) ? 'T':(this.cellmap[this.filterColumn]['dtype'] || 'A');
+        var colType;
+        if (this.filterColumn){
+            var colType = (this.filterColumn.indexOf('+') > 0) ? 'T':(this.cellmap[this.filterColumn]['dtype'] || 'A');
+            }
         this.createFiltered(this.currentFilterValue,this.filterColumn,colType);
         if (!rendering) {
             this.updateRowCount('*');
@@ -4040,7 +4043,8 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
     },
     mixin_setEditorEnabled: function(enabled) {
         this.editorEnabled = enabled;
-    }
+    },
+
    //mixin_rpcViewColumns: function() {
    //    if ((this.relation_path) && (this.relation_path.indexOf('@') == 0)) {
    //        genro.rpc.remoteCall('setViewColumns', {query_columns:this.query_columns,
