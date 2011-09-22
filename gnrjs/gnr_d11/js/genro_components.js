@@ -1460,6 +1460,9 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         if(!_isFiredNode){
             this.externalChangedKeys = null;
         }
+        if(result.error){
+            return;
+        }
         this.clearBagCache();
         var selection = result.getValue(); 
         var data = new gnr.GnrBag();

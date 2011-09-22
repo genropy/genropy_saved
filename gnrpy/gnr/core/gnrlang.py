@@ -27,7 +27,6 @@ import os.path
 import thread
 import warnings
 
-from gnr.core import gnrstring
 import uuid
 import base64
 import time
@@ -956,7 +955,8 @@ def errorTxt():
     locals_list = []
     for k, v in e.tb_frame.f_locals.items():
         try:
-            strvalue = gnrstring.toText(v)
+            from gnr.core.gnrstring import toText
+            strvalue = toText(v)
         except:
             strvalue = 'unicode error'
         locals_list.append('%s: %s' % (k, strvalue))

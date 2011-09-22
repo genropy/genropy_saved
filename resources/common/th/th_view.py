@@ -267,6 +267,7 @@ class TableHandlerView(BaseComponent):
                                where='=.query.where', sortedBy='=.grid.sorted',
                                pkeys='=.query.pkeys', _fired='^.runQueryDo',
                                _onResult='SET .queryRunning=false;',
+                               _onError='genro.publish("pbl_bottomMsg", {message:error,sound:"Basso",color:"red"});SET .queryRunning=false;return error;',
                                selectionName=selectionName, recordResolver=False, condition=condition,
                                sqlContextName='standard_list', totalRowCount='=.tableRecordCount',
                                row_start='0', externalChanges=True,

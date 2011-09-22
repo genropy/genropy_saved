@@ -1,11 +1,9 @@
 import datetime
 
-try:
-    from decimal import Decimal
-    import pytz
-    from babel import numbers, dates, Locale
-except:
-    pass
+from decimal import Decimal
+import pytz
+from babel import numbers, dates, Locale
+from gnr.core.gnrlang import GnrException
 
 DEFAULT_LOCALE = 'en_US'
 
@@ -133,7 +131,11 @@ def parselocal_date(txt, locale):
             txt = txt[w:]
         return datetime.date(result['Y'], result['M'], result['D'])
     else:
-        return dates.parse_date(txt, locale)
+        try:
+            date = dates.parse_date(txt, locale)
+        except:
+            raise GnrException('Invalid date')
+        return date
         
 def parselocal_datetime(txt, locale):
     """add???
