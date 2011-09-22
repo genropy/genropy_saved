@@ -30,5 +30,6 @@ section index
     at
     caret
     equals
+    exclamation_point
     sharp
     question_mark

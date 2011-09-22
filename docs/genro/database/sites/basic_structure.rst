@@ -17,15 +17,12 @@ basic structure
 =============================
 
     If you follow the steps of the :ref:`project_autocreation` section, inside your
-    ``sites`` folder you will find a ``site`` folder including ``pages`` folder, a
-    ``root`` file and a ``siteconfig`` file.
+    ``sites`` folder you will find a ``site`` folder including a :ref:`sites_pages`
+    folder, a :ref:`sites_root` file and a :ref:`sites_siteconfig` file.
     
-    Click on the following links for information about them:
+    During the execution of the :ref:`gnrwsgisite` script there will be created the :ref:`data_folder`
+    folder and the :ref:`automap` file
     
-    * :ref:`sites_pages`
-    * :ref:`sites_root`
-    * :ref:`sites_siteconfig`
-        
 .. _sites_autofill:
 
 autocreation of the ``sites`` folder

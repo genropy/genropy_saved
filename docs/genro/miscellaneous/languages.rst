@@ -1,7 +1,7 @@
 .. _languages:
 
 =========
-Languages
+languages
 =========
     
     *Last page update*: |today|
