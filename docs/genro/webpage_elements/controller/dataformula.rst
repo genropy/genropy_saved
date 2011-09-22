@@ -6,6 +6,8 @@ dataFormula
     
     *Last page update*: |today|
     
+    **type**: :ref:`client-side controller <controllers_client>`
+    
     The ``dataFormula`` belongs to :ref:`controllers_client` family.
     
     * :ref:`dataformula_def`

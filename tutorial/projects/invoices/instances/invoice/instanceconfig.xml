@@ -6,6 +6,7 @@
         <gnr_it:glbl/>
         <gnrcore:adm/>
         <gnrcore:sys/>
+        <gnrcore:test15/>
         <gnrsw:sw_base/>
     </packages>
     <menu package='invoice'/>

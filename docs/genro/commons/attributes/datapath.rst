@@ -10,15 +10,15 @@ datapath
               
               * the :ref:`formbuilder`
               * every :ref:`layout widget <layout>`
-              * it works also on :ref:`iframe`, :ref:`menu`, :ref:`slotBar <toolbar>`,
-                :ref:`slotToolbar <toolbar>`, :ref:`tree`
-                
-              Indeed, you can give the *datapath* attribute to more objects of the previous list,
+              
+              Indeed, you can give the *datapath* attribute to more objects respect to the list,
               but it is useful give this attribute only to the objects that may contain other objects.
               
               So, it is reasonable to give it to a container object (like a :ref:`bordercontainer`) but
               (usually!) it is not reasonable use it on a :ref:`button`
               
+    * :ref:`datapath_intro`
+    * :ref:`datapath_syntax`
     * :ref:`datapath_symbolic`
     * :ref:`datapath_specials`:
     
@@ -26,6 +26,11 @@ datapath
         * :ref:`form_path`
         * :ref:`parent_path`
         
+.. _datapath_intro:
+
+introduction
+============
+
     The *datapath* is an attribute used to create a hierarchy in your data
     
     The element on which you apply this attribute will become the father of his children elements.
@@ -33,8 +38,11 @@ datapath
     A child element can support both a *relative path* (relative to its father) or an *absolute
     path*: in every case, to define the path of a child you have to use the *value* attribute
     
-    **Syntax**:
-    
+.. _datapath_syntax:
+
+syntax
+======
+
     * ``absolutePathInDatastore``: your data will be saved in its absolute path.
     * ``.relativePathInDatastore``: your path will be relative. Pay attention that you can use
       this attribute only for a child object linked to a father on which the *datapath*

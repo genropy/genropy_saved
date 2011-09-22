@@ -12,7 +12,7 @@ Documents to revise
     auth
     batch/index
     clipboard
-    ../datastore/index
+    datastore/index
     decorators
     grid
     languages

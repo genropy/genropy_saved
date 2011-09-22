@@ -70,7 +70,7 @@ Tags
     Let's see its content:
     
     * The file begins and ends with a ``<GenRoBag>`` tag: that's because during the
-      execution of the project, this file is being converted in a :ref:`bag_intro`
+      execution of the project, this file is being converted in a :ref:`bag`
     * *<connection_timeout>*: handle the connection timeout
     * *<connection_refresh>*: handle the connection refresh
     * *<wsgi>*: allow to define some connections properties used by the :ref:`wsgi`
@@ -207,7 +207,7 @@ Tags
     
     * The ``<common/>`` tag: write it to be able to use a lot of Genro tools:
         
-        * Genro :ref:`components <component>`
+        * Genro :ref:`components`
         * Genro :ref:`css_themes`
         
       .. note:: It is strongly recommended to insert this tag.

@@ -6,6 +6,8 @@ dataRecord
     
     *Last page update*: |today|
     
+    **Type**: :ref:`server-side controller <controllers_server>`
+    
     .. warning:: to be written!
     
     The ``dataRecord`` belongs to :ref:`datarpc` family, so it is a

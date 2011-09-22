@@ -6,9 +6,15 @@ dbtable
     
     *Last page update*: |today|
     
+    .. note:: **validity** - the *dbtable* attribute is supported by the following :ref:`form_widgets`:
+              
+              * :ref:`dbcombobox`
+              * :ref:`dbselect`
+              * :ref:`field`
+              * :ref:`formbuilder`
+              
     * :ref:`dbtable_def`
     * :ref:`dbtable_syntax`
-    * :ref:`dbtable_validity`
     * :ref:`dbtable_examples`
 
 .. _dbtable_def:
@@ -16,24 +22,18 @@ dbtable
 definition and description
 ==========================
 
-    ::
+    The *dbtable* attribute is used to specify the database :ref:`table` to which
+    the object including the *dbtable* attribute belongs to.
     
-        dbtable = 'STRING'
-        
-    The *dbtable* attribute belongs to many :ref:`webpage_elements_intro` and
-    it is used to specify the :ref:`table` to which the webpage elements is
-    linked.
-    
-    If you have defined in your :ref:`webpages_webpages` a :ref:`webpages_maintable`,
-    then you have a default ``dbtable`` value for all the elements of your page.
-    Obviously, if you have a maintable AND a dbtable value, the dbtable value will
-    prevail on the maintable value.
-    
+    * To define a default ``dbtable`` value for all the elements of your page that supports
+      it you can use the :ref:`webpage variable <webpages_variables>` called :ref:`webpages_maintable`.
+      Clearly, if you define a *dbtable* attribute in a object, it prevails on the *maintable*
+      
 .. _dbtable_syntax:
 
 syntax
 ======
-    
+
     ::
     
         dbtable='packageName.tableName.columnName'
@@ -46,19 +46,7 @@ syntax
     
     .. note:: you can omit the ``packageName`` if the dbtable is used on a :ref:`webpages_webpages` that
               belongs to the package you should specify.
-        
-.. _dbtable_validity:
-
-validity
-========
-    
-    the *dbtable* attribute works on:
-    
-    * :ref:`dbcombobox`
-    * :ref:`dbselect`
-    * :ref:`field`
-    * :ref:`formbuilder`
-    
+              
 .. _dbtable_examples:
 
 examples

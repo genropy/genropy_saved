@@ -35,12 +35,12 @@ def metadata(**kwargs):
     return decore
     
 def public_method(func):
-    """This is a decorator which can be used to mark functions as :ref:`datarpc`\s.
+    """A decorator. It can be used to mark methods/functions as :ref:`datarpc`\s
     
     :param func: the function to set as public method"""
     func.is_rpc = True
     return func
-
+    
 def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
     """A decorator. add???
     

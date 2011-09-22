@@ -6,36 +6,33 @@ nodeId
     
     *Last page update*: |today|
     
-    * :ref:`nodeId_def`
-    * :ref:`nodeId_validity`
-    * :ref:`nodeId_examples`
+    .. note:: **validity** - the *nodeId* attribute is supported by every :ref:`webpage element
+              <webpage_elements_index>`
+    
+    * :ref:`nodeid_def`
+    * :ref:`nodeid_examples`
+    
+.. _nodeid_def:
 
-.. _nodeId_def:
-
-definition and description
-==========================
+description
+===========
 
     The *nodeId* is an attribute used to specify the ID of a :ref:`bagnode`.
     
-    * Every object in Genro is a** :ref:`bag`
-    * Every Bag is a collection of :ref:`BagNodes <bagnode>`
-    * Every BagNode is unique because of its *nodeId*
+    .. warning:: remember that:
+                 
+                 * Every object in Genro is a :ref:`bag`
+                 * Every Bag is a collection of :ref:`BagNodes <bagnode>`
+                 * Every BagNode is unique because of its *nodeId*
+                 
+    Some object supports an attribute that creates automatically the *nodeId* for the object
+    itself and for its children. In particular:
     
-    Some object supports the *Code* attribute. For example, the :ref:`framepane` has got the
-    *frameCode* and :ref:`toolbar` have got the slotbarCode.
-    Through the *Code* attribute, the *nodeId* is automatically created in the object to which you
-    give the code and in every child of this object.
-    
-.. _nodeId_validity:
-
-validity
-========
-
-    **Validity:** you can give ``nodeId`` attribute to the following objects:
-    
-    * add???
-    
-.. _nodeId_examples:
+    * the :ref:`framepane` has got the :ref:`frame_framecode` attribute
+    * the :ref:`slotBar <toolbar>` and the :ref:`slotToolbar <toolbar>` have got the
+      :ref:`toolbar_slotbarcode`
+      
+.. _nodeid_examples:
 
 examples
 ========

@@ -6,7 +6,7 @@ Library reference
 
     *Last page update*: |today|
     
-    In this section you can find all the class and methods of the Genro core.
+    In this section you can find all the classes and methods of Genro
 
 .. toctree::
     :maxdepth: 3

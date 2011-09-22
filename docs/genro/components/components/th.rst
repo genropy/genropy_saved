@@ -553,11 +553,10 @@ th_webpage
         
     This line it is not mandatory, because a :ref:`webpages_webpages` (or a ``th_webpage``)
     is related to a table through its :ref:`webpages_maintable` (a :ref:`webpages_variables`)
-    or through the :ref:`dbtable` attribute (defined inside one of the
-    :ref:`webpage elements <webpage_elements_index>`). If you define the ``maintable``, then you have
-    defined the standard value for all the :ref:`dbtable` attributes of your
-    :ref:`webpage elements <webpage_elements_index>` that support it. Check for more information the
-    :ref:`webpages_maintable` and the :ref:`dbtable` pages.
+    or through the :ref:`dbtable` attribute (defined inside one of the :ref:`webpage_elements_index`).
+    If you define the ``maintable``, then you have defined the standard value for all the
+    :ref:`dbtable` attributes of your :ref:`webpage_elements_index` that support it. Check for more
+    information the :ref:`webpages_maintable` and the :ref:`dbtable` pages.
     
 .. _th_webpage_methods:
     
@@ -1756,8 +1755,8 @@ form pane
     In the form pane you can find all the stuff defined in the :ref:`th_form_class`.
     
     In particular, you can define a :ref:`form` through which user can save its new records
-    (or modify the existing ones), joined to some :ref:`webpage elements <webpage_elements_index>`
-    or any other stuff.
+    (or modify the existing ones), joined to some :ref:`webpage_elements_index` or any other
+    stuff.
     
     Let's see this image:
     

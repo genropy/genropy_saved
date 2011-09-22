@@ -20,8 +20,6 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import gnrclasses
-
 def dictExtract(mydict, prefix, pop=False, slice_prefix=True):
     """Return a dict of the items with keys starting with prefix.
     
@@ -156,7 +154,7 @@ class GnrDict(dict):
         """
         return GnrDict(self)
         
-    def setdefault(key, d=None):
+    def setdefault(self,key, d=None):
         """add???
         
         :param key: add???

@@ -6,31 +6,20 @@ hidden
     
     *Last page update*: |today|
     
+    .. note:: **validity** - the *hidden* attribute is supported by every :ref:`webpage element
+              <webpage_elements_index>`
+    
     * :ref:`hidden_def`
-    * :ref:`hidden_validity`
     * :ref:`hidden_examples`
-
+    
 .. _hidden_def:
 
-definition and description
-==========================
+description
+===========
 
-    ::
+    Boolean. If ``True``, allow to hide the webpage element to which it belongs.
+    The physical space occupied from the object in the page is freed
     
-        hidden = BOOLEAN
-        
-    where BOOLEAN is ``True`` or ``False``.
-
-    If ``True``, allow to hide its object: every object's content disappear. Also, the
-    physical space occupied from the object in the webpage is released.
-
-.. _hidden_validity:
-
-validity
-========
-
-    It works on every object.
-
 .. _hidden_examples:
 
 examples

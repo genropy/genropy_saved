@@ -48,7 +48,7 @@ GnrCustomWebPage
        
         * :ref:`webpages_maintable`: allow to link your webpage to a :ref:`table`
         * :ref:`webpages_py_requires`: allow to include some Genro
-          :ref:`components <component>` to your webpage (or, more generally, Python modules)
+          :ref:`components` to your webpage (or, more generally, Python modules)
         * :ref:`webpages_js_requires`: allow to include some javascript functionality
           to your webpage
         * :ref:`webpages_css_requires`: allow to include some :ref:`css`
@@ -85,8 +85,8 @@ main
     where:
     
     * the ``root`` is a :ref:`bag` that passes a :ref:`contentpane`. To this contentPane
-      you can append every :ref:`webpage_elements_index` you need, like a div, a
-      :ref:`button` or a more complex object like a :ref:`form` and so on.
+      you can append every :ref:`webpage element <webpage_elements_index>` you need, like
+      a div, a :ref:`button` or a more complex object like a :ref:`form` and so on.
       
       If you import the ``public.py`` :ref:`webpages_py_requires` in your GnrCustomWebPage::
       
@@ -100,7 +100,7 @@ main
     .. note:: Usually the ``main`` method is MANDATORY. But, if you use an :ref:`components_active`,
               you may avoid to define it because the ``main`` method is defined within the
               component itself. For more information check the :ref:`introduction to components
-              <components_introduction>` page.
+              <components_intro>` page
               
 .. _webpages_methods:
               
@@ -204,7 +204,7 @@ py_requires
               for more information on the ``py_requires`` syntax and for more
               information on the place-folder where the components have to lay.
               
-    * Description: a string that allows to include some :ref:`components <component>`
+    * Description: a string that allows to include some :ref:`components`
       to your project
     * Default value: ``None``
     * Example::
@@ -222,21 +222,9 @@ css_icons
 ---------
 
     * Description: a string that allows to change the Genro's page icons theme.
-      You can choose between different themes:
       
-        * retina/blue
-        * retina/gray
-        * retina/lime
-        * retina/red
-        * retina/violet
-        
-    * Default value: the value you specify in the :ref:`siteconfig_css_icons` tag of your
-      :ref:`sites_siteconfig`. Otherwise, the default value is ``retina/gray``
-      
-    * Example::
+    For more information check the :ref:`relative section on CSS page <css_icons>`
     
-        css_icons='retina/lime'
-        
     .. _webpages_css_requires:
 
 css_requires
