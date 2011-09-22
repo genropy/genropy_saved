@@ -327,14 +327,14 @@ class GnrWebPage(GnrBaseWebPage):
             return AUTH_FORBIDDEN
         return AUTH_OK
         
-    def mixinComponent(self, pkg, *path,**kwargs):
+    def mixinComponent(self, *path,**kwargs):
         """add???
         
         :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param \*path: add???
         :param \*\*kwargs: add???"""
-        self.site.resource_loader.mixinPageComponent(self, pkg, *path,**kwargs)
+        self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
         
     def tableTemplate(self,table=None,tplname=None,ext='html'):
         result = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=ext)

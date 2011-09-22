@@ -39,9 +39,9 @@ class TableHandlerCommon(BaseComponent):
         defaultModule = 'th_%s' %tablename
         resourceName = self._th_getResourceName(resourceName,defaultModule,defaultClass)
         try:
-            self.mixinComponent(self.package.name,'tables','_packages',pkg,tablename,resourceName,mangling_th=rootCode, pkgOnly=True)
+            self.mixinComponent('tables','_packages',pkg,tablename,resourceName,pkg=self.package.name,mangling_th=rootCode, pkgOnly=True)
         except GnrMixinError:
-            self.mixinComponent(pkg,'tables',tablename,resourceName,mangling_th=rootCode, pkgOnly=True)
+            self.mixinComponent('tables',tablename,resourceName,pkg=pkg,mangling_th=rootCode, pkgOnly=True)
         return resourceName
             
     

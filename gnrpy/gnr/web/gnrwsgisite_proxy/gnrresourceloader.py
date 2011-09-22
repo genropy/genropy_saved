@@ -468,28 +468,29 @@ class ResourceLoader(object):
                     result.append(fpath)
         return result
         
-    def loadResource(self, pkg, *path, **kwargs):
+    def loadResource(self, *path, **kwargs):
         """add???
         
         :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param \* path: add???"""
-        pkgOnly=kwargs.pop('pkgOnly',False)
-        resourceDirs = self.package_resourceDirs(pkg)
         resource_class = cloneClass('CustomResource', BaseResource)
+        pkg=kwargs.pop('pkg', None)
+        page=kwargs.pop('page', None)
+        pkgOnly=kwargs.pop('pkgOnly', False)
+        if pkg:
+            resourceDirs = self.package_resourceDirs(pkg)
+            lookupDirs = self.package_resourceDirs(pkg, omitSiteResources=pkgOnly)
+        else:
+            resourceDirs = lookupDirs = page.resourceDirs
         resource_class.resourceDirs = resourceDirs
-        self.mixinResource(resource_class, self.package_resourceDirs(pkg, omitSiteResources=pkgOnly), *path)
+        self.mixinResource(resource_class, lookupDirs, *path)
         return resource_class()
         
-    def mixinPageComponent(self, page, pkg, *path,**kwargs):
-        """add???
-        
-        :param page: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
-        :param \* path: add???
-        """
-        component=self.loadResource(pkg, *path, pkgOnly=kwargs.pop('pkgOnly',False))
+    def _mixinComponent(self, page, path, **kwargs):
+        pkg=kwargs.pop('pkg', None)
+        pkgOnly=kwargs.pop('pkgOnly', False)
+        component=self.loadResource(path, page=page, pkg=pkg, pkgOnly=pkgOnly)
         setattr(component,'__mixin_pkg', pkg)
         setattr(component, '__mixin_path' ,'/'.join(path))
         css_requires = getattr(component,'css_requires',[])
@@ -501,6 +502,19 @@ class ResourceLoader(object):
             if js and not js in page.dynamic_js_requires and not js in page.js_requires:
                 page.dynamic_js_requires[js] = page.getResourceUri(js,'js',add_mtime=True,pkg=pkg)
         page.mixin(component,**kwargs)
+
+    def mixinPageComponent(self, page, *path,**kwargs):
+        """This method is used to mixin a component to a page at any time
+        
+        :param page: the target page
+        :param pkg: the optional package name. For more information on a package, check the
+                    :ref:`packages_index` documentation page
+        :param \* path: component path
+        """
+        path = os.path.join(*path)
+        splitted_paths = path.split(',')
+        for component_path in splitted_paths:
+            self._mixinComponent(page, path, **kwargs)
         
     def loadTableScript(self, page, table=None, respath=None, class_name=None):
         """add???
