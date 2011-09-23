@@ -22,10 +22,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
-
-    
 class ResourceLoader(object):
-    """add???"""
+    """Base class to load :ref:`intro_resources`"""
     def __init__(self, site=None):
         self.site = site
         self.site_path = self.site.site_path
@@ -68,7 +66,7 @@ class ResourceLoader(object):
         return tools
         
     def build_automap(self):
-        """add???"""
+        """Build the :ref:`automap` file"""
         def handleNode(node, pkg=None):
             attr = node.attr
             file_name = attr['file_name']
@@ -95,7 +93,7 @@ class ResourceLoader(object):
         
     @property
     def sitemap(self):
-        """Return the sitemap Bag (if there is no sitemap, creates it)."""
+        """Return the sitemap Bag (if there is no sitemap, creates it)"""
         if not hasattr(self, '_sitemap'):
             sitemap_path = os.path.join(self.site_path, 'sitemap.xml')
             if not os.path.isfile(sitemap_path):
@@ -106,7 +104,7 @@ class ResourceLoader(object):
         return self._sitemap
         
     def get_page_node(self, path_list, default=False):
-        """Get the deepest node in the sitemap bag associated with the given url
+        """Get the deepest :ref:`bagnode` in the sitemap :ref:`bag` associated with the given url
         
         :param path_list: add???
         :param default: add???. Default value is ``False``"""
@@ -153,9 +151,9 @@ class ResourceLoader(object):
     def get_page_class(self, path=None, pkg=None):
         """add???
         
-        :param path: add???. 
+        :param path: add???
         :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page. """
+                    :ref:`packages_index` documentation page"""
         if pkg == '*':
             module_path = os.path.join(self.site_path, path)
             pkg = self.site.config['packages?default']
@@ -207,9 +205,9 @@ class ResourceLoader(object):
     def page_class_base_mixin(self, page_class, pkg=None):
         """Look for custom classes in the package
         
-        :param page_classe: add???
+        :param page_class: add???
         :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page. """
+                    :ref:`packages_index` documentation page"""
         if pkg:
             package = self.gnrapp.packages[pkg]
         if package and package.webPageMixin:
@@ -224,7 +222,7 @@ class ResourceLoader(object):
         
         :param path: add???
         :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page. """
+                    :ref:`packages_index` documentation page"""
         plugin_webpage_classes = []
         path = path.split(os.path.sep)
         pkg = pkg and self.site.gnrapp.packages[pkg]
@@ -243,8 +241,7 @@ class ResourceLoader(object):
         """Mixin the current class with the *plugin_webpage_classes* attribute
         
         :param page_class: add???
-        :param plugin_webpage_classes: add???
-        """
+        :param plugin_webpage_classes: add???"""
         for plugin_webpage_class in plugin_webpage_classes:
             classMixin(page_class, plugin_webpage_class, only_callables=False)
             
@@ -254,7 +251,7 @@ class ResourceLoader(object):
         :param page_class: add???
         :param path: add???
         :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page. """
+                    :ref:`packages_index` documentation page"""
         path = path.split(os.path.sep)
         if pkg:
             customPagePath = os.path.join(self.gnrapp.customFolder, pkg, 'webpages', *path)
@@ -270,7 +267,7 @@ class ResourceLoader(object):
         :param page_class: add???
         :param path: add???
         :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page. """
+                    :ref:`packages_index` documentation page"""
         if pkg:
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
         else:
@@ -371,8 +368,7 @@ class ResourceLoader(object):
         """add???
         
         :param res_id: add???
-        :param safe: add???. Default value is ``True``
-        """
+        :param safe: add???. Default value is ``True``"""
         project_resource_path = os.path.normpath(os.path.join(self.site_path, '..', '..', 'resources', res_id))
         if os.path.isdir(project_resource_path):
             log.debug('resource_name_to_path(%s) -> %s (project)' % (repr(res_id),repr(project_resource_path)))
@@ -388,11 +384,10 @@ class ResourceLoader(object):
             raise Exception('Error: resource %s not found' % res_id)
             
     def page_pyrequires_mixin(self, page_class, py_requires):
-        """add???
+        """Allow to mixin the :ref:`webpage python requirements <webpages_py_requires>`
         
         :param page_class: add???
-        :param py_requires: add???
-        """
+        :param py_requires: add???"""
         for mix in py_requires:
             if mix:
                 self.mixinResource(page_class, page_class.resourceDirs, mix)
@@ -402,8 +397,7 @@ class ResourceLoader(object):
         
         :param kls: add???
         :param resourceDirs: add???
-        :param \*path: add???
-        """
+        :param \*path: add???"""
         path = os.path.join(*path)
         if ':' in path:
             modName, clsName = path.split(':')
@@ -421,8 +415,7 @@ class ResourceLoader(object):
         """add???
         
         :param source_class: add???
-        :param target_class: add???
-        """
+        :param target_class: add???"""
         resourceDirs = target_class.resourceDirs
         py_requires = [x for x in splitAndStrip(getattr(source_class, 'py_requires', ''), ',') if x] or []
         for path in py_requires:
@@ -444,8 +437,7 @@ class ResourceLoader(object):
         
         :param resourceDirs: add???
         :param path: add???
-        :param ext: add???. 
-        """
+        :param ext: add???"""
         result = []
         if ext == 'css' or ext == 'js':
             locations = resourceDirs[:]
@@ -488,13 +480,12 @@ class ResourceLoader(object):
         return resource_class()
                  
     def mixinPageComponent(self, page, *path,**kwargs):
-        """This method is used to mixin a component to a page at any time
+        """This method is used to mixin a component to a :ref:`webpages_webpages` at any time
         
-        :param page: the target page
+        :param page: the target webpage
         :param pkg: the optional package name. For more information on a package, check the
                     :ref:`packages_index` documentation page
-        :param \* path: component path
-        """
+        :param \* path: the path of the :ref:`component <components>`"""
         pkg=kwargs.pop('pkg', None)
         pkgOnly=kwargs.pop('pkgOnly', False)
         component=self.loadResource(*path, page=page, pkg=pkg, pkgOnly=pkgOnly)
@@ -509,17 +500,15 @@ class ResourceLoader(object):
             if js and not js in page.dynamic_js_requires and not js in page.js_requires:
                 page.dynamic_js_requires[js] = page.getResourceUri(js,'js',add_mtime=True,pkg=pkg)
         page.mixin(component,**kwargs)
-
         
     def loadTableScript(self, page, table=None, respath=None, class_name=None):
         """add???
         
         :param page: add???
-        :param table: the :ref:`table` name. 
-        :param respath: add???. 
-        :param class_name: add???. 
-        :param _onDefault: add???. 
-        """
+        :param table: the :ref:`table` name
+        :param respath: add???
+        :param class_name: add???
+        :param _onDefault: add???"""
         class_name = class_name or 'Main'
         application = self.gnrapp
         if ':' in respath:

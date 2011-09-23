@@ -2928,7 +2928,8 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
             }
             return grid.currRenderedRow[this.field];
         };
-        attributes.canSort = function() {
+        attributes.canSort = function(info) {
+            console.log(info)
             return true;
         };
     },
@@ -3109,9 +3110,15 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         return this.currRenderedRow;
     },
 
-    attributes_mixin_canSort: function() {
-        return ('canSort' in this.sourceNode.attr ) ? this.sourceNode.attr.canSort : true;
+    attributes_mixin_canSort: function(colindex) {
+        var cellattr = this.getCell(colindex-1);
+        var canSort = 'canSort' in this.sourceNode.attr?this.sourceNode.attr.canSort:true; 
+        if(typeof(canSort)=='string'){
+            canSort= funcCreate(canSort);
+        }
+        return typeof(canSort)=='function'? funcCreate(canSort.call(this,colindex)):'sortable' in cellattr?cellattr.sortable:canSort;
     },
+    
     mixin_filterToRebuild:function(value){
         if (this._filtered){
             this._filterToRebuild=value;

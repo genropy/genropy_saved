@@ -16,7 +16,7 @@ introduction
 
     In this chapter we learn about how to make a print in a :ref:`project`.
     
-    In GenroPy a print is handled as a *resource script* of the :ref:`tables <table>`.
+    In GenroPy a print is handled as a *resource script* of the :ref:`database tables <table>`.
     So, it can be easily personalized for every application.
     
     The prints can be handled through two files:
@@ -27,10 +27,9 @@ introduction
     There is also the possibility to create a letterhead in your print: to do this
     you can use the :ref:`htmltemplate`
     
-    When you have created these two files, you have to create in a :ref:`webpages_webpages`
-    a GUI that allows the user to start a print. If you use the :ref:`th`, this process
-    is auto handled by the component. For more information on how to create a print in a
-    webpage, check the :ref:`this section <print_settings_webpage>`
+    When you have created these two files, you have to create a GUI that allows the user to
+    start a print. If you use the :ref:`th`, this process is auto handled by the component.
+    For more information check the :ref:`print_settings_webpage` section
     
 .. _print_section_index:
 

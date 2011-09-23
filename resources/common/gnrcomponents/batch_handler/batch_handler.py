@@ -2,7 +2,7 @@
 
 # chat_component.py
 # Created by Francesco Porcari on 2010-09-08.
-# Copyright (c) 2010 Softwell. All rights reserved.
+# Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrdecorator import public_method

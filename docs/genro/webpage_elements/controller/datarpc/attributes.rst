@@ -6,7 +6,7 @@ common attributes
 
     *Last page update*: |today|
     
-    Let's see all the controllers' commons attributes:
+    Let's see all the rpcs' commons attributes:
     
     * *_init*: Boolean; if True, the controller is executed when the line containing *_init* is read.
       Default value is ``False``

@@ -1,27 +1,12 @@
-.. _gnr_introduction:
+.. _gnr_basic_structure:
 
-============
-Introduction
-============
+===============
+basic structure
+===============
     
     *Last page update*: |today|
     
     .. image:: ../../_images/projects/gnr/gnr.png
-    
-    The ``.gnr`` folder is a hidden folder that includes all the general customization
-    of your Genropy application. All the modifies made on this file will influence
-    all your :ref:`project`\s.
-    
-    On Mac/Linux you can find your ``.gnr`` folder in your user home's folder::
-    
-        /Users/yourName/.gnr
-    
-    On Windows, add???
-    
-.. _gnr_basic_structure:
-
-basic structure
----------------
     
     In the ``.gnr`` folder, you have:
     

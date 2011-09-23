@@ -5,6 +5,7 @@ print layout file
 =================
 
     * :ref:`print_layout_intro`
+    * :ref:`print_layout_location`
     * :ref:`print_layout_features`
     * :ref:`print_layout_import`
     * :ref:`print_layout_main`
@@ -16,7 +17,6 @@ print layout file
         * layout elements: :ref:`layout_element`, :ref:`layout_row`,
           :ref:`layout_cell`
           
-    * :ref:`print_layout_location`
     * :ref:`example <print_layout_example>`
     
 .. _print_layout_intro:
@@ -24,9 +24,12 @@ print layout file
 introduction
 ============
 
-    The print layout file allows to specify the print layout.
+    The print layout file allows to specify the print layout
     
-    In order to use it, you have to:
+    * In the :ref:`file location section <print_layout_location>` we describe
+      the specific location of the print settings file
+    
+    Once you created the file you have to:
     
     * :ref:`print_layout_import` the correct module
     * create the :ref:`print_layout_main`
@@ -39,9 +42,42 @@ introduction
     
         * create the BOH methods (they handle the print)
         
-    Remember that there is a specific location for the file:
+.. _print_layout_location:
+
+file location
+=============
+
+    The location of the print layout file must follow a standard path followed by a
+    path you define in the *html_res* :ref:`print_settings_webpage_variables`::
     
-    * :ref:`print_layout_location`
+        projectName/packages/packageName/resources/tables/tableName/customPath
+        
+    where:
+    
+    * ``projectName`` is the name of the :ref:`project`
+    * ``packages`` is the :ref:`packages_index` folder
+    * ``packageName`` is the name of the package
+    * ``resources`` is the :ref:`public_resources` folder
+    * ``tables`` is the :ref:`resources_tables` folder
+    * ``tableName`` is the name of the :ref:`table` to which the print is linked
+    * ``customPath`` is the path you choose for your print layout file through the
+      :ref:`"html_res" webpage variable <print_html_res>` of the :ref:`print_settings_main`
+      of the :ref:`print_settings` (there is any convention about it)
+      
+        **Example**: if you have a project called ``base``, a package called ``invoice``,
+        a ``doctor`` table and in your :ref:`print_settings`
+        ``html_res = 'html_builder/my_layout'``, then the path of the print layout file is::
+        
+            base/packages/invoice/resources/tables/doctor/html_builder/my_layout
+            
+        where "html_builder" is a folder, "my_layout" is the file name of the print layout file.
+        
+    This is a graphical map of the location of the print layout file into a :ref:`project`:
+    
+        *In this image the print layout file is called "custom_file";*
+        *"html_res = 'custom_folder/custom_file'"*
+    
+    .. image:: ../../_images/print/print_layout_file.png
     
 .. _print_layout_features:
 
@@ -402,42 +438,6 @@ onRecordExit
 ============
 
     .. automethod:: gnr.web.batch.btcprint.BaseResourcePrint.onRecordExit
-
-.. _print_layout_location:
-
-file location
-=============
-
-    The location of the print layout file must follow a standard path followed by a
-    path you define in the *html_res* :ref:`print_settings_webpage_variables`::
-    
-        projectName/packages/packageName/resources/tables/tableName/customPath
-        
-    where:
-    
-    * ``projectName`` is the name of the :ref:`project`
-    * ``packages`` is the :ref:`packages_index` folder
-    * ``packageName`` is the name of the package
-    * ``resources`` is the :ref:`public_resources` folder
-    * ``tables`` is the :ref:`resources_tables` folder
-    * ``tableName`` is the name of the :ref:`table` to which the print is linked
-    * ``customPath`` is the path you choose for your print layout file through the
-      *html_res* :ref:`print_settings_webpage_variables` (there is any convention about it)
-      
-        **Example**: if you have a project called ``base``, a package called ``invoice``,
-        a ``doctor`` table and in your :ref:`print_settings`
-        ``html_res = 'html_builder/my_layout'``, then the path of the print layout file is::
-        
-            base/packages/invoice/resources/tables/doctor/html_builder/my_layout
-            
-        where "html_builder" is a folder, "my_layout" is the file name of the print layout file.
-        
-    This is a graphical map of the location of the print layout file into a :ref:`project`:
-    
-        *In this image the print layout file is called "custom_file";*
-        *"html_res = 'custom_folder/custom_file'"*
-    
-    .. image:: ../_images/print/print_layout_file.png
     
 .. _print_layout_example:
     

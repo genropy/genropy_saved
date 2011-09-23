@@ -4,7 +4,7 @@
 #btcprint.py
 #
 #Created by Francesco Porcari on 2010-10-16.
-#Copyright (c) 2010 Softwell. All rights reserved.
+#Copyright (c) 2011 Softwell. All rights reserved.
 
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrbag import Bag
@@ -38,6 +38,10 @@ class BaseResourcePrint(BaseResourceBatch):
         self.pdf_make = self.print_mode != 'client_print'
 
     def print_selection(self, thermo_selection=None, thermo_record=None):
+        """add???
+        
+        :param thermo_selection: add???
+        :param thermo_record: add???"""
         thermo_s = dict(line_code='selection', message='get_record_caption', tblobj=self.tblobj)
         thermo_s.update(thermo_selection or {})
         thermo_r = dict(line_code='record', message='get_record_caption')
@@ -55,6 +59,11 @@ class BaseResourcePrint(BaseResourceBatch):
             self.print_record(record=record, thermo=thermo_r, storagekey=record[pkeyfield])
 
     def print_record(self, record=None, thermo=None, storagekey=None):
+        """add???
+        
+        :param record: add???
+        :param thermo: add???
+        :param storagekey: add???"""
         result = self.htmlMaker(record=record, thermo=thermo, pdf=self.pdf_make,
                                 **self.batch_parameters)
         self.onRecordExit(record)
@@ -68,20 +77,30 @@ class BaseResourcePrint(BaseResourceBatch):
         pass
         
     def do(self):
+        """add???"""
         self.print_selection()
         
     def get_record_caption(self, item, progress, maximum, **kwargs):
+        """add???
+        
+        :param item: add???
+        :param progress: add???
+        :param maximum: add???"""
         caption = '%s (%i/%i)' % (self.tblobj.recordCaption(item),
                                   progress, maximum)
         return caption
         
     def result_handler(self):
+        """add???"""
         resultAttr = dict()
         result = getattr(self, 'result_handler_%s' % self.print_mode)(resultAttr)
         result = result or ''
         return result, resultAttr
         
     def result_handler_mail_deliver(self, resultAttr):
+        """add???
+        
+        :param resultAttr: add???"""
         mailmanager = self.page.getService('mail')
         mailpars = dict()
         mailpars.update(self.mail_preference.asDict(True))
@@ -94,6 +113,9 @@ class BaseResourcePrint(BaseResourceBatch):
             mailmanager.sendmail(**mailpars)
 
     def result_handler_mail_pdf(self, resultAttr):
+        """add???
+        
+        :param resultAttr: add???"""
         mailmanager = self.page.getService('mail')
         mailpars = dict()
         mailpars.update(self.mail_preference.asDict(True))
@@ -102,12 +124,18 @@ class BaseResourcePrint(BaseResourceBatch):
         mailmanager.sendmail(**mailpars)
         
     def result_handler_server_print(self, resultAttr):
+        """add???
+        
+        :param resultAttr: add???"""
         printer = self.print_handler.getPrinterConnection(self.server_print_options.pop('printer_name'),
                                                           **self.server_print_options.asDict(True))
         return printer.printCups(self.results.values(), self.batch_title)
 
 
     def result_handler_pdf(self, resultAttr):
+        """add???
+        
+        :param resultAttr: add???"""
         pdfprinter = self.print_handler.getPrinterConnection('PDF', self.print_options)
         save_as = self.print_options['save_as'] or self.batch_title
         filename = pdfprinter.printPdf(self.results.values(), self.batch_title,
@@ -158,25 +186,46 @@ class BaseResourcePrint(BaseResourceBatch):
                 self.table_script_options_mail_deliver(center.contentPane(pageName='mail_deliver', datapath='.mail'))
 
     def table_script_options_pdf(self, pane):
+        """Define the "File Name" textbox and the "Zip folder" checkbox in the
+        :ref:`print_setting_dialog_print` of the :ref:`print_setting_dialog`
+        
+        :param pane: the :ref:`contentpane` received by the method"""
         fb = self.table_script_fboptions(pane, fld_width=None, tdl_width='5em')
         fb.data('.zipped', False)
         fb.textbox(value='^.save_as', lbl='!!File Name', width='100%')
         fb.checkbox(value='^.zipped', label='!!Zip folder')
 
     def table_script_options_mail_pdf(self, pane):
+        """Define the mail fields of the :ref:`print_pdf_by_mail` pane of the
+        :ref:`print_setting_dialog_print` of the :ref:`print_setting_dialog`
+        
+        :param pane: the :ref:`contentpane` received by the method"""
         fb = self.table_script_fboptions(pane)
         fb.textbox(value='^.to_address', lbl='!!To')
         fb.textbox(value='^.cc_address', lbl='!!CC')
         fb.textbox(value='^.subject', lbl='!!Subject')
         fb.simpleTextArea(value='^.body', lbl='!!Body', height='5ex', lbl_vertical_align='top')
-
+        
     def table_script_options_mail_deliver(self, pane):
+        """Define the mail fields of the :ref:`print_deliver_mails` pane of the
+        :ref:`print_setting_dialog_print` of the :ref:`print_setting_dialog`
+        
+        :param pane: the :ref:`contentpane` received by the method"""
         fb = self.table_script_fboptions(pane)
         fb.textbox(value='^.cc_address', lbl='!!CC', width='100%')
         fb.textbox(value='^.subject', lbl='!!Subject', width='100%')
         fb.simpleTextArea(value='^.body', lbl='!!Body', height='8ex', lbl_vertical_align='top')
 
     def table_script_fboptions(self, pane, fld_width='100%', tdl_width='4em', **kwargs):
+        """The :ref:`formbuilder` with default styles for the following methods:
+        
+        * :meth:`table_script_options_pdf`
+        * :meth:`table_script_options_mail_pdf`
+        * :meth:`table_script_options_mail_deliver`
+        
+        :param pane: the :ref:`contentpane` received by the method
+        :param fld_width: a :ref:`formbuilder attribute <formbuilder_prefixes>`
+        :param tdl_width: a :ref:`formbuilder attribute <formbuilder_prefixes>`"""
         return pane.div(margin_right='5px').formbuilder(cols=1, width='100%', tdl_width=tdl_width,
                                                         border_spacing='4px', fld_width=fld_width)
                                                         

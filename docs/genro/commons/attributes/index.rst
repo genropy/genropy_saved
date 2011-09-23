@@ -26,7 +26,6 @@ section index
 .. toctree::
     :maxdepth: 1
     
-    introduction to commons attributes <introduction>
     action
     childname
     datapath

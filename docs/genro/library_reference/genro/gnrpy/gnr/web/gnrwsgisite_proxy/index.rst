@@ -5,7 +5,7 @@
     *Last page update*: |today|
     
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     
     gnrobjectregister
     gnrresourceloader <gnrresourceloader>

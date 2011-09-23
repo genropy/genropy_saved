@@ -1,23 +1,15 @@
-.. _instances_introduction:
+.. _instances_basic_structure:
 
-============
-Introduction
-============
-    
+===============
+basic structure
+===============
+
     *Last page update*: |today|
     
     .. image:: ../../_images/projects/instances/project_instances.png
     
     * :ref:`instances_map`
     * :ref:`instances_autofill`
-    
-    .. module:: gnr.app.gnrdeploy
-    
-    The ``instances`` folder:
-    
-    * contains customizations for the particular customer
-    * usually contains parameters for database access
-    * has a :ref:`instances_data` subfolder that you can use to store data in filesystems
     
 .. _instances_map:
 

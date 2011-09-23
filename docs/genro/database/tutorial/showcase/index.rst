@@ -4,11 +4,20 @@
 showcase
 ========
 
-    *Last page update*: |today|
-    
     .. warning:: chapter to be written completely!
     
-.. toctree::
-    :maxdepth: 2
+    *Last page update*: |today|
     
-    introduction
+.. _showcase_intro:
+
+introduction
+============
+
+    add???
+    
+.. _showcase_section_index:
+
+section index
+=============
+
+    add???

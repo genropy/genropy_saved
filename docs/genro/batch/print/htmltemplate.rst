@@ -1,8 +1,8 @@
 .. _htmltemplate:
 
-============
-htmltemplate
-============
+=============
+html template
+=============
 
     *Last page update*: |today|
     

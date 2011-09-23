@@ -1,8 +1,8 @@
 .. _datarpc_index:
 
-=================================================
-the dataRpc: dataRpc, dataRecord, dataSelection
-=================================================
+============
+the dataRpcs
+============
     
     *Last page update*: |today|
     
@@ -17,7 +17,7 @@ definition
 
     A Genro rpc is an inter-process communication that allows a client-server interaction.
     
-    The ``rpc`` family is composed by:
+    The ``dataRpc`` family is composed by:
     
     * :ref:`datarecord`
     * :ref:`datarpc`

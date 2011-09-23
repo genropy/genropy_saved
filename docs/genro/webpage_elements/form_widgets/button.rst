@@ -38,7 +38,7 @@ attributes
 
     **button attributes**:
     
-    * *action*: allow to execute a javascript callback. For more information, check the :ref:`action` section
+    * *action*: allow to execute a javascript callback. For more information, check the :ref:`action_attr` section
     * *iconClass*: the button icon. Default value is ``None``. For more information, check the
       :ref:`button_icon` section
     * *showLabel*: (boolean). If ``True``, show the button label. Default value is ``True``

@@ -1,30 +1,20 @@
 .. _packages_introduction:
 
-============
-introduction
-============
+===============
+basic structure
+===============
     
     *Last page update*: |today|
     
     .. image:: ../../_images/projects/packages/project_packages.png
     
+    * :ref:`about_schema`
     * :ref:`packages_autofill`
-    
-    .. module:: gnr.app.gnrdeploy
-    
-    The ``packages`` folder includes the packages for your application. A package
-    is composed principally by some database :ref:`tables <table>` and by some
-    :ref:`webpages <webpages_webpages>`.
-    
-    .. note:: The Genro packages are not Python packages (so they are not a set of
-              linked modules, containing a file ``__init__.py``), and Genro packages
-              can't be imported with the statement ``import`` *module* or with ``from``
-              *module* ``import``.
     
 .. _about_schema:
 
 about a schema
---------------
+==============
     
     Every Genro package has got a corresponding sql schema. We suggest you to call both the
     package and the schema with the **same name** - this simplifies your work. Otherwise,
