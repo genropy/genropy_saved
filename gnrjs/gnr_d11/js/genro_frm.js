@@ -122,6 +122,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                 parentStore.storeNode.subscribe('onLockChange',function(kw){
                     that.setLocked(kw.locked);
                 });
+                this.locked = parentStore.locked;
             }
             genro.src.afterBuildCalls.push(function(){
                 setTimeout(function(){that.setLocked(that.locked);that.updateStatus()},1);
@@ -449,9 +450,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             //modalita nuova
             if(this.status=='readOnly'){
                 this.setLocked(true);
-            }else if (this.store.parentStore){
-                this.setLocked(this.store.parentStore.locked);
             }
+           //else if (this.store.parentStore){
+           //    this.setLocked(this.store.parentStore.locked);
+           //}
             this.applyDisabledStatus();
             this.focus();
         }
