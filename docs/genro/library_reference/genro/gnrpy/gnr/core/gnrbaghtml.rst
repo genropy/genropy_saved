@@ -16,19 +16,19 @@
 ===================
 
     .. module:: gnr.core.gnrbaghtml.BagToHtml
-
-    ============================= ===================== ========================== ========================
-    :meth:`calcDocHeaderHeight`   :meth:`docFooter`     :meth:`initializeBuilder`  :meth:`pageFooter`      
-    :meth:`calcGridFooterHeight`  :meth:`docHeader`     :meth:`main`               :meth:`pageHeader`      
-    :meth:`calcGridHeaderHeight`  :meth:`field`         :meth:`mainLayout`         :meth:`prepareTemplates`
-    :meth:`calcRowHeight`         :meth:`fillBodyGrid`  :meth:`mainLoop`           :meth:`rowCell`         
-    :meth:`copyHeight`            :meth:`getData`       :meth:`onRecordExit`       :meth:`rowField`        
-    :meth:`copyValue`             :meth:`getTemplates`  :meth:`onRecordLoaded`     :meth:`setData`         
-    :meth:`copyWidth`             :meth:`gridFooter`    :meth:`orientation`        :meth:`setTemplates`    
-    :meth:`createHtml`            :meth:`gridHeader`    :meth:`outputDocName`      :meth:`showTemplate`    
-    :meth:`defineCustomStyles`    :meth:`gridLayout`    :meth:`pageCounter`        :meth:`toText`          
-    :meth:`defineStandardStyles`  :meth:`init`                                                             
-    ============================= ===================== ========================== ========================
+    
+    ============================= ======================== ========================== ========================
+    :meth:`calcDocHeaderHeight`   :meth:`docFooter`        :meth:`init`               :meth:`pageFooter`      
+    :meth:`calcGridFooterHeight`  :meth:`docHeader`        :meth:`initializeBuilder`  :meth:`pageHeader`      
+    :meth:`calcGridHeaderHeight`  :meth:`field`            :meth:`main`               :meth:`prepareTemplates`
+    :meth:`calcRowHeight`         :meth:`fillBodyGrid`     :meth:`mainLayout`         :meth:`rowCell`         
+    :meth:`copyHeight`            :meth:`get_css_requires` :meth:`mainLoop`           :meth:`rowField`        
+    :meth:`copyValue`             :meth:`getData`          :meth:`onRecordExit`       :meth:`setData`         
+    :meth:`copyWidth`             :meth:`getTemplates`     :meth:`onRecordLoaded`     :meth:`setTemplates`    
+    :meth:`createHtml`            :meth:`gridFooter`       :meth:`orientation`        :meth:`showTemplate`    
+    :meth:`defineCustomStyles`    :meth:`gridHeader`       :meth:`outputDocName`      :meth:`toText`          
+    :meth:`defineStandardStyles`  :meth:`gridLayout`       :meth:`pageCounter`                                
+    ============================= ======================== ========================== ========================
 
 .. _gnrbaghtml_classes:
 

@@ -32,8 +32,7 @@ from gnr.core.gnrbag import Bag
 def page_mixin(func):
     """add???
     
-    :returns: add???
-    """
+    :param func: add???"""
     def decore(self, obj, *args, **kwargs):
         setattr(func, '_mixin_type', 'page')
         result = func(self, obj, *args, **kwargs)
@@ -69,9 +68,12 @@ def zzzcomponent_hook(func_or_name):
             pass
             
         def somewhereElse(self, bc):
-            bc.bar(...)
-    """
+            bc.bar(...)"""
+            
     def register(name, func):
+        """add???
+        
+        :param func:"""
         func_name = func.__name__
         existing_name = GnrDomSrc._external_methods.get(name, None)
         if existing_name and (existing_name != func_name):
@@ -152,13 +154,14 @@ class BaseResource(GnrObject):
                 setattr(self, k, v)
                 
 class BaseProxy(object):
-    """Base class for a webpage proxy."""
+    """Base class for a webpage proxy"""
         
     def __init__(self, **kwargs):
         for argname, argvalue in kwargs.items():
             setattr(self, argname, argvalue)
             
 class BaseWebtool(object):
+    """add???"""
     pass
         
 class TableScriptToHtml(BagToHtml):
@@ -205,6 +208,7 @@ class TableScriptToHtml(BagToHtml):
             #    result=f.read()
 
     def get_css_requires(self):
+        """add???"""
         css_requires = []
         for css_require in self.css_requires.split(','):
             if not css_require.startswith('http'):
@@ -212,14 +216,13 @@ class TableScriptToHtml(BagToHtml):
             else:
                 css_requires.append(css_require)
         return css_requires
+        
     def get_record_caption(self, item, progress, maximum, **kwargs):
         """add???
         
         :param item: add???
         :param progress: add???
-        :param maximum: add???
-        :returns: add???
-        """
+        :param maximum: add???"""
         if self.rows_table:
             tblobj = self.db.table(self.rows_table)
             caption = '%s (%i/%i)' % (tblobj.recordCaption(item.value), progress, maximum)
@@ -228,39 +231,25 @@ class TableScriptToHtml(BagToHtml):
         return caption
         
     def getHtmlPath(self, *args, **kwargs):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return self.page.site.getStaticPath('page:html', *args, **kwargs)
         
     def getPdfPath(self, *args, **kwargs):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return self.page.site.getStaticPath('page:pdf', *args, **kwargs)
         
     def getHtmlUrl(self, *args, **kwargs):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return self.page.site.getStaticUrl('page:html', *args, **kwargs)
         
     def getPdfUrl(self, *args, **kwargs):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return self.page.site.getStaticUrl('page:pdf', *args, **kwargs)
         
     def outputDocName(self, ext=''):
         """add???
         
-        :param ext: add???. Default value is ``''``
-        :returns: add???
-        """
+        :param ext: add???"""
         if ext and not ext[0] == '.':
             ext = '.%s' % ext
         caption = ''

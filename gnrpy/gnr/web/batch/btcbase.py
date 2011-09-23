@@ -21,7 +21,7 @@ class BaseResourceBatch(object):
     dialog_width = '300px'
     virtual_columns = None
 
-    def __init__(self, page=None, resource_table=None,sourcepage_id=None):
+    def __init__(self, page=None, resource_table=None, sourcepage_id=None):
         self.page = page
         self.db = self.page.db
         self.tblobj = resource_table

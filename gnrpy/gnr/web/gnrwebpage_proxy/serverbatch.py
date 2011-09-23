@@ -82,7 +82,7 @@ class GnrWebBatch(GnrBaseProxy):
 
 
     #@debug_call
-    def batch_create(self, batch_id=None, title=None, thermo_lines=None, note=None, cancellable=True, delay=1,userBatch=True):
+    def batch_create(self, batch_id=None, title=None, thermo_lines=None, note=None, cancellable=True, delay=1, userBatch=True):
         self.batch_id = batch_id or self.page.getUuid()
         self.title = title
         self.line_codes = []
@@ -213,18 +213,16 @@ class GnrWebBatch(GnrBaseProxy):
             store.setItem('lastBatchUpdate',curr_time)
 
     def thermo_wrapper(self, iterable=None, line_code=None, message=None, keep=True, **kwargs):
-        """
-        this method will return an iterator that wraps
-        the give iterable and update the related thermo
+        """Return an iterator that wraps the given iterable and update the related thermo
         
-        Params:
-        * `iterable`:  it can be an iterable or a callable. If callable: it's called before iteration.
-        * `line_code`: the code for the thermoline: if it's not existing it's created before iteration and removed at the end.
-        * `message`:  it can be a callable: in this case it's called for any iteration with item, progress an maximum. If it's a string
-                     it's used to create a standard message that adds progress/maximum. If it's omitted the line_code is used for message
-        * `kwargs`: any given kwargs is passed to the iterable method
-    
-        """
+        :param iterable:  it can be an iterable or a callable. If callable: it's called before iteration
+        :param line_code: the code for the thermoline: if it's not existing it's created before iteration
+                          and removed at the end
+        :param message: it can be a callable: in this case it's called for any iteration with item, progress
+                        an maximum. If it's a string it's used to create a standard message that adds
+                        progress/maximum. If it's omitted the line_code is used for message
+        :param keep: boolean. add???
+        :param kwargs: any given kwargs is passed to the iterable method"""
         if isinstance(iterable, basestring):
             iterable = iterable.split(',')
         if callable(iterable):

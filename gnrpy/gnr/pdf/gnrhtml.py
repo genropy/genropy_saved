@@ -71,17 +71,14 @@ class GnrHtmlSrc(GnrStructData):
             raise AttributeError, fname
             
     def toHtml(self):
-        """add???
-        """
+        """add???"""
         result = self._toHtmlInner()
         return result
         
     def style(self, style=''):
         """add???
         
-        :param style: add???. Default value is ``' '``
-        :reutrns: add???
-        """
+        :param style: add???"""
         self.root.head.child('style', content=style)
         
     def _toHtmlInner(self):
@@ -111,8 +108,7 @@ class GnrHtmlSrc(GnrStructData):
     def content(self, content):
         """add???
         
-        :param content: add???
-        """
+        :param content: add???"""
         if not (isinstance(content, list) or isinstance(content, tuple) ):
             content = [content]
         for single_content in content:
@@ -127,7 +123,7 @@ class GnrHtmlSrc(GnrStructData):
         """add???
         
         :param value: add???
-        :param um: the unit of measurement."""
+        :param um: the unit of measurement"""
         try:
             value = float(value)
             i_value = int(value)
@@ -140,9 +136,7 @@ class GnrHtmlSrc(GnrStructData):
     def child_(self, tag, *args, **kwargs):
         """add???
         
-        :param tag: add???
-        :returns: add???
-        """
+        :param tag: add???"""
         width = kwargs.pop('width', None)
         height = kwargs.pop('height', None)
         position = kwargs.pop('position', None)
@@ -176,7 +170,7 @@ class GnrHtmlSrc(GnrStructData):
                border_size=0.1, border_color='red', lbl_height=3,
                lbl_class='lbl_base', content_class='content_base',
                border_style='solid', **kwargs):
-        """Allow to personalize the layout and return it
+        """Build a :ref:`layout_element` and return it
         
         :param width: the layout's width.
         :param height: the layout's height.
@@ -213,11 +207,9 @@ class GnrHtmlSrc(GnrStructData):
         return container
         
     def row(self, height=0, **kwargs):
-        """Build the height
+        """Build the height and return it
         
-        :param height: the row's height. Default value is ``0``
-        :returns: the row
-        """
+        :param height: the row's height. Default value is ``0``"""
         container = self
         row = container.child(tag='row', height=height,
                               width=container.width,

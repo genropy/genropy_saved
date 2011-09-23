@@ -101,7 +101,7 @@ class GnrHtmlSrc(GnrStructData):
                lbl_height=3, lbl_class='lbl_base', content_class='content_base',
                hasBorderTop=None, hasBorderLeft=None, hasBorderRight=None, hasBorderBottom=None,
                **kwargs):
-        """Build a :ref:`print_layout_element` and return it
+        """Build a :ref:`layout_element` and return it
         
         :param name: the layout name
         :param um: the layout's unit of measurement
@@ -411,8 +411,7 @@ class GnrHtmlBuilder(object):
     def styleMaker(self, attr):
         """add???
         
-        :param attr: add???
-        """
+        :param attr: add???"""
         style = attr.pop('style', '')
         style = style.replace('\n', '')
         style_dict = dict([(splitAndStrip(x, ':')) for x in style.split(';') if ':' in x])
@@ -424,8 +423,7 @@ class GnrHtmlBuilder(object):
     def finalize(self, src):
         """add???
         
-        :param src: add???
-        """
+        :param src: add???"""
         for node in src:
             node_tag = node.getAttr('tag')
             node_value = node.value
@@ -441,8 +439,7 @@ class GnrHtmlBuilder(object):
         
         :param parent: add???
         :param attr: add???
-        :param layout: add???
-        """
+        :param layout: add???"""
         borders = '%s%s' % (layout.border_width, layout.um)
         if layout.nested:
             layout.has_topBorder = layout.hasBorderTop if layout.hasBorderTop is not None else bool(
@@ -492,8 +489,7 @@ class GnrHtmlBuilder(object):
         
         :param layout: add???
         :param attr: add???
-        :param row: add???
-        """
+        :param row: add???"""
         if row.elastic_cells:
             if layout.width:
                 elastic_width = (layout.width - sum(
@@ -519,8 +515,7 @@ class GnrHtmlBuilder(object):
         
         :param row: add???
         :param attr: add???
-        :param cell: add???
-        """
+        :param cell: add???"""
         cell.height = row.height
         width = cell.width
         if cell.lbl:
@@ -545,8 +540,7 @@ class GnrHtmlBuilder(object):
         """add???
         
         :param cell: add???
-        :param attr: add???
-        """
+        :param attr: add???"""
         row = cell.row
         layout = row.layout
         um = row.layout.um
@@ -574,15 +568,19 @@ class GnrHtmlBuilder(object):
             cell.child('div', content=cur_content_value, **content_attr)
                     
     def finalize_pass(self, src, attr, value):
+        """add???
+        
+        :param src: add???
+        :param attr: add???
+        :param value: add???"""
         pass
         
 def test0(pane):
     d = 180
-    layout = pane.layout(width=d, height=d, um='mm', top=10, left=10, border_width=3,
-                         lbl_height=4, lbl_class='z1', content_class='content', _class='mmm')
+    layout = pane.layout(width=d, height=d, um='mm', top=10, left=10, border_width=3, lbl_height=4,
+                         lbl_class='z1', content_class='content', _class='mmm')
                          
     layout.style(".z1{font-size:7pt;background-color:silver;text-align:center}")
-    layout.style(".z2{font-size:9pt;background-color:pink;text-align:right;}")
     layout.style(".content{font-size:12pt;text-align:center;}")
     layout.style(".myclass{font-size:18pt;text-align:center;background-color:green;}")
     layout.style(".uuu{color:red;}")
@@ -665,7 +663,7 @@ def testRows(pane):
                          lbl_class='z1')
                          
     layout.style(".z1{font-size:7pt;background-color:silver;text-align:center}")
-                    
+    
     for h in [20, 0, 0, 20]:
         row = layout.row(height=h)
         #row.cell('hhh',lbl='foo', width=60)
@@ -677,5 +675,5 @@ if __name__ == '__main__':
     builder = GnrHtmlBuilder()
     builder.initializeSrc()
     builder.styleForLayout()
-    testRows(builder.body)
-    builder.toHtml('testhtml/test0.html')
+    test1(builder.body)
+    builder.toHtml('../../../../_testhtml/test1.html')

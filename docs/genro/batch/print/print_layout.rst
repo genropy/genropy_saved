@@ -567,11 +567,11 @@ clipboard
             * **layout**. Possono contenere soltanto righe.
             * **row**. Possono contenere soltanto celle. Le righe hanno l'altezza, se non viene
             specificata (o se è zero) la riga è elastica.
-            * **celle**. Possono contenere layout. Le celle hanno la larghezza. Due celle attaccate
-            autocollassano i bordi (rimane un bordo solo).
+            * **celle**. Possono contenere UN SOLO layout. Le celle hanno la larghezza.
+            Due celle attaccate autocollassano i bordi (rimane un bordo solo).
             
         Le lunghezze sono sempre specificate in millimetri (mm). Vedi :mod:`gnr.core.gnrhtml` per
-        ulteriori dettagli.
+        ulteriori dettagli
         
         Attributi e callbacks
         =====================

@@ -12,8 +12,10 @@ base batch
 introduction
 ============
 
-    We have previously said that every batch import from a base batch class called
-    :ref:`btcbase_base` class.
+    We have previously said that every batch makes an import from a base batch
+    class called :ref:`btcbase_base` class::
+    
+        from add???
     
     For the complete library reference, check the :ref:`library_btcbase` section.
     
