@@ -271,7 +271,7 @@ class BagToHtml(object):
         self.defineStandardStyles()
         self.defineCustomStyles()
         self.doc_height = self.copyHeight() #- self.page_header_height - self.page_footer_height
-        self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.doc_footer_height
+        self.grid_height = self.doc_height - self.calcDocHeaderHeight() - self.calcDocFooterHeight()
         self.grid_body_height = self.grid_height - self.grid_header_height - self.grid_footer_height
         for copy in range(self.copies_per_page):
             self.copies.append(dict(grid_body_used=self.grid_height, currPage=-1))
@@ -369,11 +369,11 @@ class BagToHtml(object):
         self.page_layout = self.mainLayout(self.paperPage)
         #if self.page_header_height:
         #    curr_copy['page_header'] = self.page_layout.row(height=self.page_header_height,lbl_height=4,lbl_class='caption').cell()
-        if self.doc_header_height:
+        if self.calcDocHeaderHeight():
             curr_copy['doc_header'] = self.page_layout.row(height=self.calcDocHeaderHeight(), lbl_height=4,
                                                            lbl_class='caption').cell()
         curr_copy['doc_body'] = self.page_layout.row(height=0, lbl_height=4, lbl_class='caption').cell()
-        if self.doc_footer_height:
+        if self.calcDocFooterHeight():
             curr_copy['doc_footer'] = self.page_layout.row(height=self.doc_footer_height, lbl_height=4,
                                                            lbl_class='caption').cell()
             #if self.page_footer_height:
@@ -402,7 +402,7 @@ class BagToHtml(object):
             self.currColumn = 0
             self.currRow = row
             self.gridFooter(row)
-        if self.doc_footer_height:
+        if self.calcDocFooterHeight():
             self.docFooter(self.copyValue('doc_footer'), lastPage=lastPage)
             #if self.page_footer_height:
             #    self.pageFooter(self.copyValue('page_footer'),lastPage=lastPage)
@@ -469,6 +469,11 @@ class BagToHtml(object):
     def calcDocHeaderHeight(self):
         """override for special needs"""
         return self.doc_header_height
+
+    def calcDocFooterHeight(self):
+        """override for special needs"""
+        return self.doc_footer_height
+
         
     def defineCustomStyles(self):
         """override this for custom styles"""
