@@ -34,7 +34,7 @@ class GnrCustomWebPage(object):
                           metacol_description=dict(name='!!Descripton', width='15em'),
                           process_thumb32=True,
                           external_categories='=selected_categories', preview=True,
-                          footer=footer)
+                          footer=footer,margin='2px',rounded=6,border='1px solid gray')
 
 
     def process_thumb32(self):

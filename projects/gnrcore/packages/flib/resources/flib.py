@@ -23,7 +23,8 @@ class FlibBase(BaseComponent):
             storePars['limit'] = 100
             storePars['_if'] = None
             storePars['checked_categories'] = '^.checked_categories'
-        th = pane.plainTableHandler(table='flib.item',pbl_classes=True,viewResource=':LoadedFilesView')
+        th = pane.plainTableHandler(table='flib.item',viewResource=':LoadedFilesView')
+        th.view.attributes.update(margin='2px',rounded=6,border='1px solid gray')
         if checked_categories:
             th.view.dataFormula('.checked_categories','checked_categories?checked_categories.split(","):[]',
                                 checked_categories=checked_categories)
