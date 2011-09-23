@@ -6,54 +6,45 @@
 
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
-
+from gnr.web.gnrwebstruct import struct_method
 class FlibBase(BaseComponent):
-    py_requires = 'foundation/includedview:IncludedView'
+    py_requires = 'th/th:TableHandler'
     css_requires = 'public'
-        
-    def flibSavedFilesGrid(self, pane, gridId, checked_categories=None, reloader=None, label=None):
-        selectionPars = dict(where="@flib_item_category_item_id.@category_id.code LIKE :cat_code || '%%'",
-                             cat_code='=.#parent.tree.code',
+    
+    @struct_method
+    def flib_flibSavedFilesGrid(self, pane, checked_categories=None, reloader=None, label=None):
+        storePars = dict(where="@categories.@category_id.code LIKE :cat_code || '%%'",
+                             cat_code='^.#parent.tree.code',
                              applymethod='flibPickerThumb',
                              order_by='$title', _if='cat_code', _else='null')
         if checked_categories:
-            selectionPars['where'] = '@flib_item_category_item_id.category_id IN :checked_categories'
-            selectionPars['checked_categories'] = '==_checked_categories?_checked_categories.split(","):[];'
-            selectionPars['_if'] = '_checked_categories'
-            selectionPars['_checked_categories'] = checked_categories
-            selectionPars['order_by'] = '$__ins_ts'
-            selectionPars['limit'] = 100
-
-        bc = pane.borderContainer()
-
-        def saved_files_struct(struct):
-            r = struct.view().rows()
-            r.fieldcell("title", width='10em', zoom=True)
-            r.fieldcell("description", width='15em', zoom=True)
-            r.cell("_thumb", width='5em', name='!!Thumb', calculated=True)
-
-        self.includedViewBox(bc.borderContainer(region='top', height='50%', splitter=True), label=label or '!!Items',
-                             datapath='.item_grid',
-                             nodeId=gridId, table='flib.item', autoWidth=True,
-                             struct=saved_files_struct,
-                             hiddencolumns='$__ins_ts,$thumb_url,ext,metadata',
-                             reloader=reloader,
+            storePars['where'] = '@categories.category_id IN :checked_categories'
+            storePars['order_by'] = '$__ins_ts'
+            storePars['limit'] = 100
+            storePars['_if'] = None
+            storePars['checked_categories'] = '^.checked_categories'
+        th = pane.plainTableHandler(table='flib.item',pbl_classes=True,viewResource=':LoadedFilesView')
+        if checked_categories:
+            th.view.dataFormula('.checked_categories','checked_categories?checked_categories.split(","):[]',
+                                checked_categories=checked_categories)
+        storePars['startLocked'] = False
+        th.view.store.attributes.update(storePars)
+        th.view.grid.attributes.update(hiddencolumns='$__ins_ts,$thumb_url,$url,$ext,$metadata',
                              draggable_row=True,
-                             #draggable=True,
                              onDrag="""
                                     var row = dragValues.gridrow.rowdata;
                                     dragValues['flib_element'] = row._pkey;                                
-                             """,
-                             filterOn='title,description',
-                             selectionPars=selectionPars)
-
-        sc = bc.stackContainer(region='center', selectedPage='^.preview_type')
+                             """)
+        footer = th.view.bottom.slotBar('preview',closable='close',closable_tip='!!Preview',splitter=True)
+        th.view.top.bar.replaceSlots('#','#,delrow')
+        ppane = footer.preview.contentPane(height='200px',width='100%',_lazyBuild=True)
+        sc = ppane.stackContainer(selectedPage='^.preview_type',margin='2px',)
         sc.dataController("""
                             var imageExt = ['.png','.jpg','.jpeg']
-                            SET .preview_type = dojo.indexOf(ext,imageExt)>=0?'image':'no_prev';
-                            """, ext=".item_grid.selectedId?ext")
-        sc.contentPane(overflow='hidden', pageName='image').img(height='100%', src='^.item_grid.selectedId?url')
-        sc.contentPane(pageName='no_prev').div(innerHTML='^.item_grid.selectedId?_thumb')
+                            SET .preview_type = dojo.indexOf(imageExt,ext.toLowerCase())>=0?'image':'no_prev';
+                            """, ext="^.grid.selectedId?ext")
+        sc.contentPane(overflow='hidden', pageName='image',_class='pbl_roundedGroup').img(height='100%', src='^.grid.selectedId?url')
+        sc.contentPane(pageName='no_prev',_class='pbl_roundedGroup').div(innerHTML='^.grid.selectedId?_thumb')
 
 
     def rpc_flibPickerThumb(self, selection):
@@ -97,8 +88,7 @@ class FlibPicker(FlibBase):
                   inspect='shift',
                   selected_child_count='.tree.child_count')
 
-        self.flibSavedFilesGrid(bc.contentPane(region='center', margin='2px'), reloader='^.#parent.tree.code',
-                                gridId='%s_grid' % pickerId)
+        bc.contentPane(region='center', margin='2px').flibSavedFilesGrid()
         
         
         

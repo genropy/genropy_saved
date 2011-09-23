@@ -7,7 +7,6 @@ from gnr.core.gnrdecorator import public_method
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        
         r.fieldcell('title', name='!!Title')
         r.fieldcell('description', name='!!Description')
         r.fieldcell('url', name='!!Url')
@@ -24,20 +23,13 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='description',op='contains',val='',runOnStart=True)
     
-    @public_method
-    def th_applymethod(self,selection=None,**kwargs):
-        print x
-        
 class LoadedFilesView(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        
         r.fieldcell("title", width='10em', zoom=True)
-        r.fieldcell("description", width='15em', zoom=True)
+        r.fieldcell("description", width='100%', zoom=True)
         r.cell("_thumb", width='5em', name='!!Thumb', calculated=True)
-        
-
-        
+                
         
 class Form(BaseComponent):
     def th_form(self, form):
@@ -45,12 +37,12 @@ class Form(BaseComponent):
         return
         fb = pane.formbuilder(cols=1, margin_left='2em',border_spacing='7px',
                               margin_top='1em')
-        r.field('title', lbl='!!Title')
-        r.field('description', lbl='!!Description')
-        r.field('url', lbl='!!Url')
-        r.field('path', lbl='!!Path')
-        r.field('thumb_url', lbl='!!Url')
-        r.field('thumb_path', lbl='!!Path')
-        r.field('file_type', lbl='!!File type')
-        r.field('ext', lbl='!!Extension')
-        r.field('username', lbl='!!User')
+        fb.field('title', lbl='!!Title')
+        fb.field('description', lbl='!!Description')
+        fb.field('url', lbl='!!Url')
+        fb.field('path', lbl='!!Path')
+        fb.field('thumb_url', lbl='!!Url')
+        fb.field('thumb_path', lbl='!!Path')
+        fb.field('file_type', lbl='!!File type')
+        fb.field('ext', lbl='!!Extension')
+        fb.field('username', lbl='!!User')
