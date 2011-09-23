@@ -47,7 +47,7 @@ class GnrCustomWebPage(object):
     def test_5_provincia_view(self,pane):
         """First test description"""
         bc = pane.borderContainer(height='400px')
-        th = bc.plainTableHandler(region='center',table='glbl.provincia',virtualStore=True)
+        th = bc.plainTableHandler(region='center',table='glbl.provincia',virtualStore=True,grid_canSort='function(k){console.log(this,k);}')
         th.view.top.attributes['detachable'] = True
         th.view.bottom.slotBar('*,label,count',label='Totali:')
 
