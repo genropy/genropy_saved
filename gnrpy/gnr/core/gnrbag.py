@@ -1774,7 +1774,7 @@ class Bag(GnrObject):
               autocreate=False, translate_cb=None, self_closed_tags=None,
               omitUnknownTypes=False, catalog=None, omitRoot=False, forcedTagAttr=None, docHeader=None):
         """Return a complete standard XML version of the Bag, including the encoding
-        tag <?xml version=\'1.0\' encoding=\'UTF-8\'?>
+        tag <?xml version=\'1.0\' encoding=\'UTF-8\'?> (the *docHeader* default value)
         
         The content of the Bag is hierarchically represented as an XML block
         sub-element of the node <GenRoBag> (see the toXmlBlock() documentation
@@ -1782,20 +1782,20 @@ class Bag(GnrObject):
         Is also possible to write the result on a file, passing the path of the file
         as the 'filename' parameter.
         
-        :param filename: it's the path of the output file. .
-        :param encoding: set the XML encoding. Default value is ``UTF-8``.
-        :param typeattrs: boolean. If ``True``, keep the attribute's types. Default value is ``True``.
-        :param typevalue: boolean. If ``True``, keep the value's type. Default value is ``True``.
-        :param unresolved: boolean. add??? Default value is ``False``.
-        :param addBagTypeAttr: boolean. add??? Default value is ``True``.
-        :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist. Default value is ``False``.
-        :param translate_cb: add??? .
-        :param self_closed_tags: add??? .
-        :param omitUnknownTypes: boolean. add??? Default value is ``False``.
-        :param catalog: add??? .
-        :param omitRoot: boolean. If ``False``, add a tag root called ``<GenRoBag>``. Default value is ``False``.
-        :param forcedTagAttr: add??? .
-        :param docHeader: set an header string, out of the ``<GenRoBag>`` tag. .
+        :param filename: the output file path
+        :param encoding: set the XML encoding
+        :param typeattrs: boolean. If ``True``, keep the attribute's types
+        :param typevalue: boolean. If ``True``, keep the value's type
+        :param unresolved: boolean. add???
+        :param addBagTypeAttr: boolean. add???
+        :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist
+        :param translate_cb: add???
+        :param self_closed_tags: add???
+        :param omitUnknownTypes: boolean. add??? Default value is ``False``
+        :param catalog: add???
+        :param omitRoot: boolean. If ``False``, add a tag root called ``<GenRoBag>``
+        :param forcedTagAttr: add???
+        :param docHeader: set an header tag external the ``<GenRoBag>`` tag
         
         >>> mybag=Bag()
         >>> mybag['aa.bb']=4567

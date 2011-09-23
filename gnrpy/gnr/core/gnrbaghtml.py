@@ -12,8 +12,7 @@ from gnr.core.gnrhtml import GnrHtmlBuilder
 from gnr.core.gnrbag import Bag, BagCbResolver
 
 class BagToHtml(object):
-    """A class that transforms a :ref:`bag` into HTML. It can be used to
-    make a :ref:`print`"""
+    """A class that transforms a :ref:`bag` into HTML. It can be used to make a :ref:`print`"""
     css_requires = ''
     templates = ''
     currencyFormat = u'#,###.00'
@@ -111,10 +110,11 @@ class BagToHtml(object):
         return result
         
     def get_css_requires(self):
+        """Get the :ref:`webpages_css_requires` and return it"""
         return self.css_requires.split(',')
         
     def prepareTemplates(self):
-        """add???"""
+        """Prepare the template (page width, page height, margins, etc)"""
         if not self.htmlTemplate:
             self.htmlTemplate = self.templateLoader(self.templates)
         self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
@@ -135,7 +135,7 @@ class BagToHtml(object):
         :param locale: the current locale (e.g: en, en_us, it)
         :param format: add???
         :param mask: add???
-        :param encoding: The multibyte character encoding you choose"""
+        :param encoding: the multibyte character encoding you choose"""
         locale = locale or self.locale
         encoding = locale or self.encoding
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding, **kwargs)
@@ -143,7 +143,7 @@ class BagToHtml(object):
     def createHtml(self, filepath=None):
         """add???
         
-        :param filepath: add???"""
+        :param filepath: the path where html will be saved"""
         #filepath = filepath or self.filepath
         self.initializeBuilder()
         self.main()
@@ -473,7 +473,6 @@ class BagToHtml(object):
     def calcDocFooterHeight(self):
         """override for special needs"""
         return self.doc_footer_height
-
         
     def defineCustomStyles(self):
         """override this for custom styles"""

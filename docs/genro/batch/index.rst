@@ -24,7 +24,12 @@ introduction
     * send :ref:`emails <mail>`
     * create a :ref:`print`
     
-    All these batches takes theirs base actions by the :ref:`btcbase`
+    The base class of every batch is the :class:`BaseResourceBatch
+    <gnr.web.batch.btcbase.BaseResourceBatch>` class (check the link for the complete
+    methods reference)
+    
+    Check also the :ref:`btcbase_webpage_variables`, that belong to every batch
+    (:ref:`action`, :ref:`mail` and :ref:`print`)
     
 .. _batch_section_index:
 
@@ -34,7 +39,6 @@ section index
 .. toctree::
     :maxdepth: 1
     
-    btcbase
     action/index
     mail/index
     print/index

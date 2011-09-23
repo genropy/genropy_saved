@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-export.py
+#
+#btcexport.py
+#
+#Created by Francesco Porcari on 2010-10-16.
+#Copyright (c) 2011 Softwell. All rights reserved.
 
-Created by Francesco Porcari on 2010-10-16.
-Copyright (c) 2011 Softwell. All rights reserved.
-"""
 from gnr.web.batch.btcbase import BaseResourceBatch
 from gnr.core.gnrxls import XlsWriter
 from gnr.core.gnrstring import toText
