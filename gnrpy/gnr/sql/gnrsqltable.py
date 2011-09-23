@@ -930,7 +930,7 @@ class SqlTable(GnrObject):
         :param newrecord: boolean. add???
         :param rowcaption: add???"""
         if newrecord:
-            return '!!New %s' % self.name_long.replace('!!', '')
+            return self.name_long
         else:
             fields, mask = self.rowcaptionDecode(rowcaption)
             if not fields:
