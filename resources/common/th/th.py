@@ -50,7 +50,16 @@ class TableHandler(BaseComponent):
                         thform_root=formCode,
                         nodeId=nodeId,
                         table=table,
-                        **kwargs)
+                        **kwargs)               
+        top_slots = '#,delrow,addrow'
+        if lockable:
+            top_slots = '#,delrow,addrow,10,viewlocker'
+        if readOnly:
+            top_slots = '#'
+        wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
+                                reloader=reloader,virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,lockable=lockable,
+                                condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs) 
+        hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
         wdg.dataController("""
                             var currform = this.getFormHandler();
                             message = message || msg_prefix+' '+ (currform?currform.getRecordCaption():"main record") +' '+ msg_suffix;
@@ -59,16 +68,8 @@ class TableHandler(BaseComponent):
                             }else{
                                 sourceNode.setHiderLayer(null,true);
                             }
-                            """,pkey='=#FORM.pkey',sourceNode=wdg,message=hiderMessage or False,msg_prefix='!!Save',msg_suffix='',
-                                _fired='^#FORM.controller.loaded',_delay=1)                
-        top_slots = '#,delrow,addrow'
-        if lockable:
-            top_slots = '#,delrow,addrow,10,viewlocker'
-        if readOnly:
-            top_slots = '#'
-        wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
-                                reloader=reloader,virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,lockable=lockable,
-                                condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs)    
+                            """,pkey='=#FORM.pkey',sourceNode=hiderRoot,message=hiderMessage or False,msg_prefix='!!Save',msg_suffix='',
+                                _fired='^#FORM.controller.loaded',_delay=1)    
         if pbl_classes:
             wdg.view.attributes.update(_class='pbl_roundedGroup')
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
