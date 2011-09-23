@@ -193,7 +193,7 @@ class GnrHtmlSrc(GnrStructData):
         :param content: the row's content
         :param width: the row's width
         :param content_class: the row's content class
-        :param lbl: the cell's lbl
+        :param lbl: the cell's label
         :param lbl_class: the class of the row's label
         :param lbl_height: the height of the row's label
         :param lbl_height: the border of the row's label"""
@@ -627,7 +627,7 @@ def test1(pane):
     r.cell('foo', width=40, lbl='name')
     r.cell()
     r.cell('bar', width=22)
-    r.cell('<b>spam</b>', width=18)
+    r.cell('<b>spam</b>::HTML', width=18)
     r.cell()
     r.cell('eggs', width=30)
     sublayout = layout.row().cell()

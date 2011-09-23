@@ -473,7 +473,6 @@ class BagToHtml(object):
     def calcDocFooterHeight(self):
         """override for special needs"""
         return self.doc_footer_height
-
         
     def defineCustomStyles(self):
         """override this for custom styles"""
