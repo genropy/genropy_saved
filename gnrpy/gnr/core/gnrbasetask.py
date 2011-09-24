@@ -18,4 +18,6 @@ def testTask(site_name=None, table_name=None, command=None, parameters=None):
     request = Request.blank('/task/heartbeat')
     response = Response()
     page = site.resource_loader(['task','heartbeat'], request, response)
+    site.currentPage = page
     site.db.table('task.task').runTask(dict(table_name=table_name, command=command, parameters=parameters,log_result=None), page=page)
+    site.currentPage = None
