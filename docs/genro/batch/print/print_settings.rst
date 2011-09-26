@@ -47,16 +47,16 @@ print settings file
     
     * :ref:`print_settings_example`
     
-    **Print library reference**:
+    **Library reference**:
     
-    * :ref:`print_library`
+    * :ref:`settings_library`
     
 .. _print_settings_intro:
     
 introduction
 ============
 
-    The print settings file allows to specify the print settings.
+    The print settings file allows to specify the settings of your print.
     
     * In the :ref:`file location section <print_settings_location>` we describe
       the specific location of the print settings file
@@ -69,9 +69,8 @@ introduction
     Inside the Main class you may customize your print through:
     
     * some variables - :ref:`print_settings_webpage_variables` section
-    * some methods - :ref:`print_settings_table_script_parameters_pane` and
-      :ref:`print_settings_onrecordexit` sections
-      
+    * some methods - :ref:`main_class_methods` section
+    
     At last you have to:
     
     * create a GUI to let the user starts the print - :ref:`print_settings_webpage`
@@ -472,12 +471,13 @@ a simple example
             def onRecordExit(self, record=None):
                 print record
                 
-.. _print_library:
+.. _settings_library:
                 
-print library reference
-=======================
+print settings file - library reference
+=======================================
 
-    For the complete print library reference, check:
+    For the complete library reference, check:
     
-    * the :ref:`library_btcbase` page
-    * the :ref:`library_btcprint` page
+    * the :class:`BaseResourceBatch <gnr.web.batch.btcbase.BaseResourceBatch>` class and
+      its :ref:`webpage variables <btcbase_webpage_variables>`
+    * the :class:`BaseResourcePrint <gnr.web.batch.btcprint.BaseResourcePrint>` class

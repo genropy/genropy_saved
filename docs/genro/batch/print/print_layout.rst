@@ -4,44 +4,77 @@
 print layout file
 =================
 
+    **First steps**:
+    
     * :ref:`print_layout_intro`
     * :ref:`print_layout_location`
+    
+    **Creation of the file**:
+    
     * :ref:`print_layout_features`
     * :ref:`print_layout_import`
-    * :ref:`print_layout_main`
-    * :ref:`print_layout_webpage_variables`
-    * :ref:`layout_building`:
+    * :ref:`print_layout_main`:
     
-        * hook methods: :ref:`layout_docheader`, :ref:`layout_docfooter`,
-          :ref:`layout_pageheader`, :ref:`layout_pagefooter`
-        * layout elements: :ref:`layout_element`, :ref:`layout_row`,
-          :ref:`layout_cell`
+        * :ref:`print_layout_main_webpages_variables`:
+        
+            * :ref:`layout_copies_per_page`
+            * :ref:`layout_copy_extra_height`
+            * CSS style: :ref:`layout_css_requires`
+            * debug tools: :ref:`layout_page_debug`
+            * encoding and numerical formats: :ref:`layout_encoding`, :ref:`layout_currencyformat`
+            * header and footer heights: :ref:`layout_doc_header_height`, :ref:`layout_doc_footer_height`,
+              :ref:`layout_grid_header_height`, :ref:`layout_grid_footer_height`,
+              :ref:`layout_page_header_height`, :ref:`layout_page_footer_height`
+
+            * grid: :ref:`layout_grid_col_widths`, :ref:`layout_grid_row_height`
+            * page bars: :ref:`layout_page_leftbar_width`, :ref:`layout_page_rightbar_width`
+            * page dimensions: :ref:`layout_page_height`, :ref:`layout_page_width`
+            * page margins: :ref:`layout_page_margin_top`, :ref:`layout_page_margin_left`,
+              :ref:`layout_page_margin_right`, :ref:`layout_page_margin_bottom`
+            * :ref:`layout_print_button`
+            * rows: :ref:`layout_row_mode`, :ref:`layout_rows_path`
+            * :ref:`layout_starting_page_number`
+            * :ref:`layout_templates`
+            
+        * :ref:`print_layout_main_methods`
+        
+            * hook methods: :ref:`layout_docheader`, :ref:`layout_docfooter`,
+              :ref:`layout_pageheader`, :ref:`layout_pagefooter`
+            * layout elements: :ref:`layout_element`, :ref:`layout_row`,
+              :ref:`layout_cell`
           
+    **GUI**:
+    
+    add???
+    
+    **Examples**:
+    
     * :ref:`example <print_layout_example>`
+    
+    **Library reference**:
+    
+    * :ref:`layout_library`
     
 .. _print_layout_intro:
 
 introduction
 ============
 
-    The print layout file allows to specify the print layout
+    The print layout file allows to specify the layout of a print
     
     * In the :ref:`file location section <print_layout_location>` we describe
-      the specific location of the print settings file
-    
+      the specific location of the print layout file
+      
     Once you created the file you have to:
     
-    * :ref:`print_layout_import` the correct module
-    * create the :ref:`print_layout_main`
+    * import the correct module - :ref:`print_layout_import` section
+    * create the Main class - :ref:`print_layout_main` section
     
-    In the Main class you have to:
+    Inside the Main class you may customize your layout through:
     
-    * add some :ref:`print_layout_webpage_variables`
+    * some variables - :ref:`print_layout_main_webpages_variables` section
+    * some methods - :ref:`Main class methods <print_layout_main_methods>` section
     
-    ::
-    
-        * create the BOH methods (they handle the print)
-        
 .. _print_layout_location:
 
 file location
@@ -112,10 +145,10 @@ Main class
         
     In the Main class you have to add some webpage variables:
     
-.. _print_layout_webpage_variables:
+.. _print_layout_main_webpages_variables:
 
-webpage variables
-=================
+Main class webpage variables
+============================
 
     .. note:: the unit of measurement of all these variables are in millimeters
               (e.g: ``print_width = 200`` means 200 millimeters)
@@ -338,10 +371,10 @@ templates
     A string with the names of the :ref:`html templates <htmltemplate>` separated by a comma.
     More information in the :ref:`add???` section of the :ref:`htmltemplate` page
     
-.. _layout_building:
+.. _print_layout_main_methods:
     
-build the layout
-================
+build the layout - Main class methods
+=====================================
 
     In this section we describe all the layout hook methods and all the elements that allow
     you to personalize the print.
@@ -591,5 +624,16 @@ clipboard
         
         ``prepareRow`` viene chiamata in automatico per ogni riga. Ha una sintassi tipo field.
         
-        Il componente prende i dati da una tabella, ma se invece si vogliono passare dati con altro
-        sistema si può ridefinire il metodo ``loadRecord``
+        Il componente prende i dati da una tabella, ma se invece si vogliono passare dati con
+        un altro sistema si può ridefinire il metodo ``loadRecord``
+        
+.. _layout_library:
+                
+print layout file - library reference
+=====================================
+
+    For the complete library reference, check:
+    
+    * the :class:`TableScriptToHtml <gnr.web.gnrbaseclasses.TableScriptToHtml>` class
+    * the :class:`BagToHtml <gnr.core.gnrbaghtml.BagToHtml>` class
+    
