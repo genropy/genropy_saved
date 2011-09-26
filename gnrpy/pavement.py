@@ -46,7 +46,7 @@ setup(
         license='LGPL',
         scripts=['../scripts/gnrdbsetup', '../scripts/gnrmkinstance', '../scripts/gnrmkthresource','../scripts/gnrmksite','../scripts/gnrxml2py', '../scripts/gnrheartbeat', '../scripts/gnrmkpackage',
                  '../scripts/gnrwsgiserve',
-                 '../scripts/gnrsendmail', '../scripts/gnrsitelocalize', '../scripts/gnrtrdeamon', '../scripts/gnrsync4d', '../scripts/gnrmkproject', '../scripts/gnrdbstruct', '../scripts/gnrdbgraph',
+                 '../scripts/gnrsendmail', '../scripts/gnrsitelocalize', '../scripts/gnrtrdaemon', '../scripts/gnrsync4d', '../scripts/gnrmkproject', '../scripts/gnrdbstruct', '../scripts/gnrdbgraph',
                  '../scripts/gnr'],
         packages=['gnr', 'gnr.core', 'gnr.app', 'gnr.web', 'gnr.sql', 'gnr.devel'],
         #packages=find_packages(exclude=['ez_setup', 'examples', 'packages']),
