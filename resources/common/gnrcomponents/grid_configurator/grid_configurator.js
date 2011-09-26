@@ -20,7 +20,7 @@ var genro_plugin_grid_configurator = {
         var gridSourceNode = genro.nodeById(gridId);
         var favoritePath = genro.getFromStorage("local", this.storeKey(gridId)) || '__baseview__';        
         gridSourceNode.setRelativeData('.currViewPath',favoritePath);
-        this.setCurrentAsDefault(gridId);
+        //this.setCurrentAsDefault(gridId);
     },
     
     saveGridView:function(gridId) {
