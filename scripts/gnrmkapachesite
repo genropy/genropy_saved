@@ -103,7 +103,16 @@ def build_apache_site(site_name, apache_path='/etc/apache2/sites-available/',
 
 if __name__ == '__main__':
     usage = """
-    gnrmkapachesite is used to create an apache site from site name
+    gnrmkapachesite <site_name> <domain_name> will output an apache site configuration file.
+    example usage:
+    gnrmkapachesite genro www.genro.org > genro_site
+    will write the correct apache configuration for 'genro' site in genro_site
+    then copy genro_site to /etc/apache2/sites-available:
+    sudo cp genro_site /etc/apache2/sites-available
+    then enable it:
+    sudo a2ensite genro_site
+    and finally restart apache:
+    sudo apache2ctl restart
     """
     current_user = os.getlogin()
     gid = os.getgid()
@@ -112,10 +121,6 @@ if __name__ == '__main__':
     parser = OptionParser(usage)
     parser.add_option("-f", "--force", dest="force", action='store_true', default=False,
                       help="force the resource creation also if destination file exists")
-    parser.add_option("-n", "--name", dest="name", 
-                      help="output file name, the file will be, will work only if single table is passed")
-    parser.add_option("-o", "--output", dest="output",
-                      help="""output file name""")
     parser.add_option("-u", "--user", dest="user",default=current_user,
                        help="user for wsgi process execution")
     parser.add_option("-g", "--group", dest="group",default=current_group,
