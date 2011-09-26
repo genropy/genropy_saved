@@ -588,7 +588,6 @@ class GnrWebAppHandler(GnrBaseProxy):
             for col in sum_columns.split(','):
                 col = col.strip()
                 resultAttributes['sum_%s' % col] = data.sum('#a.%s' % col)
-
         return (result, resultAttributes)
 
 

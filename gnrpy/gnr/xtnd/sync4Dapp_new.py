@@ -336,6 +336,7 @@ class GnrAppSync4D(GnrApp):
         names.sort()
         for fname in names:
             fullname = os.path.join(folderpath, fname)
+            print 'Reading: %s'%fullname
             self.importFile(fullname)
             dataOutPath = os.path.join(self.folder4dDataOut, folder)
             if not os.path.exists(dataOutPath):

@@ -447,18 +447,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.setOpStatus();
         this.currentFocused = null;
         if(this.store){
-            //modalita nuova
             if(this.status=='readOnly'){
                 this.setLocked(true);
             }
-           //else if (this.store.parentStore){
-           //    this.setLocked(this.store.parentStore.locked);
-           //}
             this.applyDisabledStatus();
             this.focus();
         }
-        
-        
     },
     
     getRecordCaption:function(){

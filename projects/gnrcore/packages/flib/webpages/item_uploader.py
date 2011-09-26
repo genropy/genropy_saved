@@ -8,22 +8,19 @@ from gnr.core.gnrbag import Bag
 
 
 class GnrCustomWebPage(object):
-    py_requires = """public:Public,public:IncludedView,gnrcomponents/htablehandler:HTablePicker,
+    py_requires = """public:Public,gnrcomponents/htablehandler:HTablePicker,
                     gnrcomponents/drop_uploader,flib:FlibBase"""
-    pageOptions = {'enableZoom': False, 'openMenu': False}
 
     def main(self, root, **kwargs):
-        bc, top, bottom = self.pbl_rootBorderContainer(root, title='!!Upload file', datapath='uploader')
-        left = bc.contentPane(region='left', width='150px', _class='pbl_roundedGroup', margin='2px', splitter=True)
+        frame = root.rootBorderContainer(title='!!Upload file', datapath='main')
+        left = frame.contentPane(region='left', width='150px', _class='pbl_roundedGroup', margin='2px', splitter=True)
         left.div('!!Categories', _class='pbl_roundedGroupLabel')
         self.htablePicker(left, nodeId='category_picker',
                           table='flib.category', datapath='category_picker',
                           output_pkeys='selected_categories', editMode='bc')
-        left.dataController("FIRE reload_saved_files", _fired="^selected_categories")
-        self.flibSavedFilesGrid(
-                bc.contentPane(region='right', margin='2px', width='30%', _class='pbl_roundedGroup', splitter=True),
-                gridId='saved_files_grid', checked_categories='=selected_categories', reloader='^reload_saved_files')
-        self.uploader_pane(bc.contentPane(region='center', margin='2px'))
+        frame.contentPane(region='right', margin='2px',
+                            splitter=True,width='300px').flibSavedFilesGrid(checked_categories='^selected_categories')
+        self.uploader_pane(frame.contentPane(region='center', margin='2px'))
 
     def uploader_pane(self, pane):
         def footer(footer, **kwargs):
@@ -31,15 +28,13 @@ class GnrCustomWebPage(object):
                           disabled='==!_selected_categories',
                           _selected_categories='^selected_categories')
 
-        self.dropFileGrid(pane, uploaderId='flib_uploader', datapath='.drop_filegrid',
+        pane.dropFileFrame(uploaderId='flib_uploader', datapath='.drop_filegrid',
                           label='!!Upload files', uploadPath='site:flib/items',
                           metacol_title=dict(name='!!Title', width='10em'),
                           metacol_description=dict(name='!!Descripton', width='15em'),
                           process_thumb32=True,
                           external_categories='=selected_categories', preview=True,
-                          footer=footer, onResult='FIRE reload_saved_files;',
-                          )
-       # pane.dataController("console.log('fatto');", subscribe_flib_uploader_done=True)
+                          footer=footer,margin='2px',rounded=6,border='1px solid gray')
 
 
     def process_thumb32(self):
@@ -61,7 +56,6 @@ class GnrCustomWebPage(object):
             versions['thumb32_url'] = thumb_url
             versions['thumb32_path'] = thumb_path
         item_record['versions'] = versions
-
         existing_record = item_table.query(where='path=:p', p=file_path, for_update=True, addPkeyColumn=False).fetch()
         if existing_record:
             r = item_record
