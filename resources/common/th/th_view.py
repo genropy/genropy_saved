@@ -45,7 +45,7 @@ class TableHandlerView(BaseComponent):
         if condition:
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
-        if virtualStore:
+        if extendedQuery:
             base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceActions','resourceMails','*','count','5']
         else:
             base_slots = ['5','vtitle','count','*','searchOn']

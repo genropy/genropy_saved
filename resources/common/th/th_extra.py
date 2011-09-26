@@ -230,12 +230,37 @@ class THHierarchical(BaseComponent):
         return dict(parent_code='parent_code', code='code', child_code='child_code')
 
     def hv_main(self, parent):
-        bc = parent.borderContainer(datapath='.view',title='!!Hierarchical View',pageName='th_hview')
-        self.hv_tree_view(bc.contentPane(region='left', overflow='auto', width='300px', splitter=True))
-        self.hv_right_view(bc.contentPane(region='center',datapath='.hv'))
+        frame = parent.framePane(datapath='.view',pageName='th_hview',center_widget='BorderContainer')
+        bar = frame.top.slotToolbar('back,*,hv_lock')
+        bar.back.slotButton('!!Main view',action='SET .selectedPage="th_main";',iconClass='iconbox dismiss')
+        self.hv_tree_view(frame.contentPane(region='left', overflow='auto', width='300px', splitter=True))
+        form = frame.frameForm(frameCode='hv_center',table=self.maintable,region='center',
+                        form_locked=True,datapath='.hv.form',store=True)
+        form.dataController("""
+                            console.log(currPkey)
+                            var currPkey = currPkey || "*norecord*";
+                            console.log(currPkey)
+                            frm.load({destPkey:currPkey});""",
+                            currPkey='^.#parent.selected_id',frm=form.js_form)
+        self.hv_form(form)
+        bar.hv_lock.slotButton('!!Locker',iconClass='iconbox lock',showLabel=False,
+                    action='frm.publish("setLocked","toggle");',
+                    frm=form.js_form,
+                    subscribe_form_hv_center_form_onLockChange="""var locked= $1.locked;
+                                                  this.widget.setIconClass(locked?'iconbox lock':'iconbox unlock');"""
+                    )
+        
+        
+        self.hv_frame(frame)
+    
+    def hv_frame(self,frame):
+        return
 
+    def hv_form(self,form):
+        pass
+        
     def hv_tree_view(self, pane):
-        pane.dataRecord('.hv.current_record', self.maintable, pkey='^.selected_id')
+        pane.dataRecord('.hv.current_record', self.maintable, pkey='^.hv.selected_id')
         pane.dataRemote('.hv.tree', self.hv_selectionAsTree, selectionName='^.store?selectionName', _if='selectionName')
         tree_kwargs = self.hv_tree_kwargs()
         pane.tree(storepath='.hv.tree',
@@ -253,53 +278,7 @@ class THHierarchical(BaseComponent):
     def hv_tree_kwargs(self):
         return dict()
 
-    def hv_right_view(self, pane):
-        return
-        infocontainer = pane.borderContainer()
-        infocontainer.data('.conf', self.hierarchicalViewConf())
-        infopane_top = infocontainer.contentPane(region='top', height='50%',
-                                                 splitter=True, _class='infoGrid', padding='6px')
-        infopane_top.dataController(
-                """var current_rec_type= current_record.getItem('rec_type');
-                var result = new gnr.GnrBag();
-                var fields = info_fields.getNodes()
-                for (var i=0; i<fields.length; i++){
-                    var fld_rec_types = fields[i].getAttr('rec_types',null);
-                    var fld_label = fields[i].getAttr('label');
-                    if (fld_rec_types){
-                        fld_rec_types=fld_rec_types.split(',');
-                    }
-                    var fld_val_path = fields[i].getAttr('val_path');
-                    var fld_show_path = fields[i].getAttr('show_path');
-
-                    var fld_value = current_record.getItem(fld_val_path);
-                    var fld_show = current_record.getItem(fld_show_path);
-                    if (!fld_rec_types || dojo.indexOf(fld_rec_types, current_rec_type)!=-1){
-                        result.setItem('R_'+i,
-                                        null,
-                                       {'lbl':fld_label, 'val':fld_value,'show':fld_show})
-                    }
-                }
-                SET .info_table = result
-                """,
-                info_fields='=.conf',
-                current_record='=.current_record',
-                fired='^.current_record.id')
-        infopane_top.includedView(storepath='.info_table', struct=self.__infoGridStruct())
-        infoStackContainer = infocontainer.stackContainer(region='center',
-                                                          selectedPage='^list.hv.stack.selectedPage')
-        infoStackContainer.contentPane()
-        callbacks = [(x.split('_')[1], x) for x in dir(self) if x.startswith('hv_info_')]
-        infoStackContainer.data('.rec_types', ','.join([x[0] for x in callbacks]))
-        infoStackContainer.dataController("""SET list.hv.stack.selectedPage='hv_info_'+rec_type;""",
-                                          rec_type='^.current_rec_type',
-                                          _if='rec_type')
-        for cb in callbacks:
-            print cb
-            getattr(self, cb[1])(infoStackContainer.contentPane(padding='6px',
-                                                                pageName=cb[1],
-                                                                _class='pbl_roundedGroup',
-                                                                datapath='.current_record'))
+   
     @public_method
     def hv_selectionAsTree(self, selectionName=None, **kwargs):
         selection = self.getUserSelection(selectionName=selectionName, columns=self.hv_columns())
