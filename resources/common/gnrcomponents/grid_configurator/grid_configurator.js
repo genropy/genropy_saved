@@ -107,7 +107,7 @@ var genro_plugin_grid_configurator = {
         var currPath = gridSourceNode.getRelativeData('.currViewPath');
         var currfavorite = genro.getFromStorage("local", this.storeKey(gridId));
         gridSourceNode.setRelativeData('.favoriteViewPath',currfavorite);
-        this.refreshMenu(gridId);
+        //this.refreshMenu(gridId);
         genro.dom.setClass(frame,'th_isFavoriteView',currfavorite==currPath);
     }
 };
