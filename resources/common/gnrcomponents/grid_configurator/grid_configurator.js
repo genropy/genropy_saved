@@ -68,21 +68,32 @@ var genro_plugin_grid_configurator = {
     loadView:function(gridId,currPath,frameCode){
         currPath = currPath || '__baseview__';
         var gridSourceNode = genro.nodeById(gridId);
-        var menubag = gridSourceNode.getRelativeData('.structMenuBag')
-        if(!menubag.getNode(currPath)){
-            gridSourceNode.setRelativeData('.currViewPath','__baseview__');
-            return;
-        }
-        var viewAttr = menubag.getNode(currPath).attr;
-        
-        gridSourceNode.setRelativeData('.currViewAttrs',new gnr.GnrBag(viewAttr));
-        this.checkFavorite(gridId);
+        var resource_structs = gridSourceNode.getRelativeData('.resource_structs');
+        var structbag,structnode,viewAttr;
         var finalize = function(struct){
              gridSourceNode.setRelativeData(gridSourceNode.attr.structpath,struct);
              if(gridSourceNode.widget && gridSourceNode.widget.storeRowCount()>0){
                  gridSourceNode.widget.reload();
              }
         }
+        
+        if(resource_structs){
+            structnode = resource_structs.getNode(currPath);
+            if(structnode){
+                viewAttr = structnode.attr;
+                structbag = structnode._value;
+            }
+        }
+        if(!structbag){
+            var menubag = gridSourceNode.getRelativeData('.structMenuBag')
+            if(!menubag.getNode(currPath)){
+                gridSourceNode.setRelativeData('.currViewPath','__baseview__');
+                return;
+            }
+            viewAttr = menubag.getNode(currPath).attr;
+        }        
+        gridSourceNode.setRelativeData('.currViewAttrs',new gnr.GnrBag(viewAttr));
+        this.checkFavorite(gridId);
         if(viewAttr.pkey){
             var pkey = viewAttr.pkey;
             genro.serverCall('loadGridCustomView', {pkey:pkey}, function(result){finalize(result.getValue())});
@@ -107,7 +118,7 @@ var genro_plugin_grid_configurator = {
         var currPath = gridSourceNode.getRelativeData('.currViewPath');
         var currfavorite = genro.getFromStorage("local", this.storeKey(gridId));
         gridSourceNode.setRelativeData('.favoriteViewPath',currfavorite);
-        this.refreshMenu(gridId);
+        //this.refreshMenu(gridId);
         genro.dom.setClass(frame,'th_isFavoriteView',currfavorite==currPath);
     }
 };

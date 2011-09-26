@@ -2133,7 +2133,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if (structBag) {
             sourceNode.baseStructBag = structBag.deepCopy();
             if (genro.grid_configurator) {
-                sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy());
+                sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy(),{caption:_T('Base View')});
                 genro.grid_configurator.setFavoriteView(sourceNode.attr.nodeId);
             }
         
