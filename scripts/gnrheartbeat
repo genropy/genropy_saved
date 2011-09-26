@@ -106,6 +106,8 @@ if __name__ == '__main__':
     site_name = options.site or args[0]
     if not site_name.startswith('http://'):
         site_url=get_site_url(site_name)
+    else:
+        site_url=site_name
     url = "%s/task/heartbeat"%site_url
     while True:
         if options.verbose:
