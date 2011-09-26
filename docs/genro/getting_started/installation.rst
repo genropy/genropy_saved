@@ -6,13 +6,13 @@ GenroPy Installation
 
     *Last page update*: |today|
     
-    * :ref:`installationRequirements`
-    * :ref:`obtainingGenropy`
-    * :ref:`installingGenropy`
-    * :ref:`configuringGenropy`
-    * :ref:`projectsExamples`
+    * :ref:`requirements`
+    * :ref:`obtaining`
+    * :ref:`installing`
+    * :ref:`configuring`
+    * :ref:`inst_tutorials`
 
-.. _installationRequirements:
+.. _requirements:
 
 Requirements
 ============
@@ -43,7 +43,7 @@ Requirements
     
     (``-U`` = upgrade, ``-Z`` = always unzip)
 
-.. _obtainingGenropy:
+.. _obtaining:
 
 How to obtain GenroPy
 =====================
@@ -52,7 +52,7 @@ How to obtain GenroPy
     
         add???
         
-    .. _installingGenropy:
+.. _installing:
 
 Installing GenroPy
 ==================
@@ -63,7 +63,7 @@ Installing GenroPy
         cd gnrpy
         sudo paver develop
         
-.. _configuringGenropy:
+.. _configuring:
 
 Configuring GenroPy
 ===================
@@ -77,37 +77,17 @@ Configuring GenroPy
     and the "instanceconfig\/:ref:`gnr_instanceconfig_default`\" as needed.
     More information on relative links.
 
-.. _projectsExamples:
+.. _inst_tutorials:
 
-Project Examples
-================
+Tutorials
+=========
 
-    GenroPy includes some tutorial projects:
+    Now you can put your hands in dough:
     
-    * **agenda**: an application to manage phone calls
-      (package, application and site: **agenda**)
+    * learning how to create a Genro project: check the :ref:`tutorial <tutorial_index>`
+      section
+    * checking some project examples in the :ref:`tts_index` section
       
-    * **fatture1**: add???change to invoice! - it is a simple invoice application
-      (package: **invoices**, application and site: **fatture1**)
-      
-    * **showcase**: it is an incomplete but useful collection of examples.
-      (package, application and site: **showcase**)
-      
-    To create the database in postgres type::
-    
-        gnrdbsetup instanceName
-        
-    where ``instanceName`` is the name of the instance of your :ref:`project`.
-    
-    To start the paste :ref:`wsgi` development webserver, type::
-    
-        gnrwsgiserve siteName
-        
-    where ``siteName`` is the name of the site folder of your :ref:`project`.
-    
-   .. note:: We suggest you to begin with the **showcase** tutorial: follow the instructions
-             of the :ref:`showcase_index` section to start with it.
-             
 **Footnotes**
 
 .. [#] Windows is supported but it is not preferred and (until now) it is not yet documented

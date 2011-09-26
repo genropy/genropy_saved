@@ -1,0 +1,7 @@
+.. _gnrtrdaemon:
+
+===========
+gnrtrdaemon
+===========
+
+    add???

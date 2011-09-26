@@ -6,13 +6,6 @@ Getting started
     
     *Last page update*: |today|
     
-    * :ref:`getting_started_intro`
-    
-.. _getting_started_intro:
-
-introduction
-============
-
     Welcome to the Genro online documentation!
     
     GenroPy (or Genro) is a Framework for business applications.

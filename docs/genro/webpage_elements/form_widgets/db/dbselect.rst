@@ -67,5 +67,5 @@ condition example
                             
 **Footnotes**
 
-.. [#] It should have been called "dbFilteringSelect", but it has been shortened in "dbSelect".
-.. [#] To use dbSelect there must exist a database. For having information on a database creation, please check :ref:`tutorial_intro`.
+.. [#] It should have been called "dbFilteringSelect", but it has been shortened in "dbSelect"
+.. [#] To use dbSelect there must exist a database. For having information on a database creation, please check :ref:`tutorial_index`

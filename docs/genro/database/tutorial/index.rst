@@ -8,44 +8,31 @@ Tutorial: creation of a project
     
     *Last page update*: |today|
     
-    * :ref:`tutorial_intro`
-    * :ref:`tutorial_section_index`
+    * :ref:`tt_intro`
+    * :ref:`tt_section_index`
     
-.. _tutorial_intro:
+.. _tt_intro:
 
 introduction
 ============
 
     We want now help you on a creation of a simple project for database management
     
-    To create a project you have to launch the ``gnrmkproject`` script (GeNRo MaKe PROJECT)::
+    To create a project you have to do the following steps:
+    
+    * :ref:`tt_project`
+    * :ref:`tt_instance`
+    * :ref:`tt_site`
+    * :ref:`tt_package`:
         
-        gnrmkproject projectname
+        * :ref:`tt_model`
+        * :ref:`tt_webpages`
         
-    This will create a folder with the project name you have chosen, and 4 empties subfolders called:
-    ``instances``, ``packages``, ``resources``, ``sites``
+    * :ref:`tt_database`
     
-    In the following image you can see the project folder with its relative subfolders (we choose
-    ``myproject`` as project name):
+    The chapter is divided in more sections, so you can skip the passages you already know
     
-    add??? image...
-    
-    .. note:: the Genro Team prefers to call their projects using only lowercase letters
-    
-    However, if you want to create a project with both site and instance default features
-    (that we will explain later in the following sections), you have to write::
-    
-        gnrmkproject projectname -a
-        
-    You can see the result in this image:
-    
-    add??? image...
-    
-    Now type the command line ``gnrmkproject projectname -a`` and check the tree structure you
-    have created (the 4 subfolders and the contents of the ``instances`` and ``sites`` folders).
-    In the next sections we'll begin to explain all the details of the project's subfolders.
-    
-.. _tutorial_section_index:
+.. _tt_section_index:
 
 section index
 =============
@@ -53,6 +40,12 @@ section index
 .. toctree::
     :maxdepth: 1
     
-    firststeps
-    showcase/index
+    project
+    instance
+    site
+    package
+    model
+    webpages
+    database
+    project_tutorials/index
     
