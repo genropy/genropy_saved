@@ -231,15 +231,14 @@ class THHierarchical(BaseComponent):
 
     def hv_main(self, parent):
         frame = parent.framePane(datapath='.view',pageName='th_hview',center_widget='BorderContainer')
-        bar = frame.top.slotToolbar('back,*,hv_lock')
+        bar = frame.top.slotToolbar('back,*,hvtitle,*,hv_lock')
         bar.back.slotButton('!!Main view',action='SET .selectedPage="th_main";',iconClass='iconbox dismiss')
+        bar.hvtitle.div('^.hv.form.record?caption',font_weight='bold',color='gray')
         self.hv_tree_view(frame.contentPane(region='left', overflow='auto', width='300px', splitter=True))
         form = frame.frameForm(frameCode='hv_center',table=self.maintable,region='center',
                         form_locked=True,datapath='.hv.form',store=True)
         form.dataController("""
-                            console.log(currPkey)
                             var currPkey = currPkey || "*norecord*";
-                            console.log(currPkey)
                             frm.load({destPkey:currPkey});""",
                             currPkey='^.#parent.selected_id',frm=form.js_form)
         self.hv_form(form)
@@ -260,7 +259,6 @@ class THHierarchical(BaseComponent):
         pass
         
     def hv_tree_view(self, pane):
-        pane.dataRecord('.hv.current_record', self.maintable, pkey='^.hv.selected_id')
         pane.dataRemote('.hv.tree', self.hv_selectionAsTree, selectionName='^.store?selectionName', _if='selectionName')
         tree_kwargs = self.hv_tree_kwargs()
         pane.tree(storepath='.hv.tree',

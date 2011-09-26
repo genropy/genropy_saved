@@ -273,7 +273,7 @@ class TableHandlerView(BaseComponent):
                                row_start='0', externalChanges=True,
                                excludeLogicalDeleted='=.excludeLogicalDeleted',
                                excludeDraft='=.excludeDraft',
-                               applymethod='onLoadingSelection',
+                               applymethod=self._th_hook('applymethod',dflt=None,mangler=frame),
                                timeout=180000, selectmethod='=.query.queryAttributes.selectmethod',
                                _onCalling=""" 
                                %s
