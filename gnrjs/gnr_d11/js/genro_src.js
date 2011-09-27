@@ -327,9 +327,13 @@ dojo.declare("gnr.GnrSrcHandler", null, {
     },
     refreshSourceIndexAndSubscribers:function() {
         var oldSubscribedNodes = this._subscribedNodes;
+        var oldIndex = this._index;
         this._index = {};
         this._subscribedNodes = {};
         var refresher = dojo.hitch(this, function(n) {
+            if(n.attr._lazyBuild){
+                return true;
+            }
             var id = n.getStringId();
             var oldSubscriber = oldSubscribedNodes[id];
             if (oldSubscriber) {
@@ -337,6 +341,10 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 oldSubscribedNodes[id] = null;
             }
             if (n.attr.nodeId) {
+                if (!(n.attr.nodeId in oldIndex)){
+                    console.log('ignorato',n.attr.nodeId);
+                    return;
+                }
                 genro.src._index[n.attr.nodeId] = n;
             }
         });
@@ -419,7 +427,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 node.setTiming(timing);
             }
             var onStart = objectPop(attributes, '_onStart');
-            objectPop(attributes, '_onBuilt');
+            var onBuilt = objectPop(attributes, '_onBuilt');
             var subscriptions = objectExtract(attributes, 'subscribe_*');
             var selfsubscriptions = objectExtract(attributes, 'selfsubscribe_*');
             var formsubscriptions = objectExtract(attributes, 'formsubscribe_*');
@@ -451,6 +459,11 @@ dojo.declare("gnr.GnrSrcHandler", null, {
                 if (typeof(onStart) == "number" && !node.attr._delay) {
                     node.attr._delay = onStart;
                 }
+            }
+            if(onBuilt){
+                this.onBuiltCall(function(){
+                    node.setDataNodeValue();
+                })
             }
         }
         node._setDynAttributes();
