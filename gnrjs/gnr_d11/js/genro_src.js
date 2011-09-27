@@ -331,9 +331,9 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         this._index = {};
         this._subscribedNodes = {};
         var refresher = dojo.hitch(this, function(n) {
-            if(n.attr._lazyBuild){
-                return true;
-            }
+           //if(n.attr._lazyBuild){
+           //    return true;
+           //}
             var id = n.getStringId();
             var oldSubscriber = oldSubscribedNodes[id];
             if (oldSubscriber) {
@@ -342,7 +342,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
             }
             if (n.attr.nodeId) {
                 if (!(n.attr.nodeId in oldIndex)){
-                    console.log('ignorato',n.attr.nodeId);
+                    //console.log('ignorato',n.attr.nodeId);
                     return;
                 }
                 genro.src._index[n.attr.nodeId] = n;
