@@ -92,8 +92,8 @@ class GnrHtmlSrc(GnrStructData):
             if lbl in kwargs:
                 kwargs[lbl.replace('_', '')] = kwargs.pop(lbl)
                 
-        if 'name' in kwargs:
-            kwargs['_name'] = kwargs.pop('name')
+        #if 'name' in kwargs:
+        #    kwargs['_name'] = kwargs.pop('name')
         return super(GnrHtmlSrc, self).child(tag, *args, **kwargs)
         
     def layout(self, name='l1', um='mm', top=0, left=0, bottom=0, right=0, width=0, height=0,
@@ -380,10 +380,7 @@ class GnrHtmlBuilder(object):
             self.orientation='Landscape'
         else:
             self.orientation='Portrait'
-        if sys.platform.startswith('linux'):
-            res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '%s.%s'%(filename, 'html'), filename])
-        else:
-            res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '%s.%s'%(filename, 'html'), filename])
+        res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '%s.%s'%(filename, 'html'), filename])
             
     def calculate_style(self, attr, um, **kwargs):
         """add???
