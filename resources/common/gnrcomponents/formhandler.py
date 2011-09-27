@@ -105,7 +105,7 @@ class FormHandler(BaseComponent):
                                                                 this.widget.selectByRowAttr('_pkey',$1.pkey);
                                                             }
                                                               """
-    @extract_kwargs(store=True,dialog=True,palette=True,main=dict(slice_prefix=False))
+    @extract_kwargs(store=True,dialog=True,palette=True,main=dict(slice_prefix=False),default=dict(slice_prefix=False))
     @struct_method
     def fh_formInIframe(self,pane,table=None,
                        formId=None,default_kwargs=None,src=None,
