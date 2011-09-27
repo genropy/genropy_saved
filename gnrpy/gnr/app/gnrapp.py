@@ -744,12 +744,10 @@ class GnrApp(object):
     def getAvatar(self, user, password=None, authenticate=False, page=None, **kwargs):
         """add???
 
-        :param user: add???
-        :param password: add???. 
-        :param authenticate: add???. Default value is ``False``
-        :param page: add???. 
-        :returns: add???
-        """
+        :param user: the username
+        :param password: the username's password
+        :param authenticate: add???
+        :param page: add???"""
         if user:
             authmethods = self.config['authentication']
             if authmethods:
@@ -861,7 +859,7 @@ class GnrApp(object):
                    authenticate=False, defaultTags=None, pwd=None, tags='', **kwargs):
         """add???
         
-        :param user: add???
+        :param user: the username
         :param user_name: add???. 
         :param user_id: add???. 
         :param login_pwd: add???. 
@@ -882,8 +880,8 @@ class GnrApp(object):
         """add???
 
         :param login_pwd: add???
-        :param pwd: add???. 
-        :param user: add???. """
+        :param pwd: add???
+        :param user: the username"""
         if not pwd:
             if not user:
                 return False
@@ -1004,10 +1002,11 @@ class GnrApp(object):
     def sendmail(self, from_address, to_address, subject, body):
         """Allow to send an email
         
-        :param from_address: the address that sends the mail
-        :param to_address: the address that receives the mail
-        :param subject: the mail subject
-        :param body: the body mail"""
+        :param from_address: the email sender
+        :param to_address: the email receiver
+        :param subject: the email subject
+        :param body: the email body. If you pass ``html=True`` attribute,
+                     then you can pass in the body the html tags"""
         if isinstance(body, unicode):
             body = body.encode('utf-8', 'ignore')
         msg = MIMEText(body, _charset='utf-8')

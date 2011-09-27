@@ -4,18 +4,22 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.core.gnrsys`` classes:
-
+    **Classes**:
+    
     There is no class defined
     
-* :ref:`gnrsys_others`
+    **External methods**:
     
-* :ref:`gnrsys_classes`
-
+    * :ref:`gnrsys_others`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrsys_classes`
+    
 .. _gnrsys_others:
 
-Other methods
-=============
+External methods
+================
 
     These methods don't belong to any class.
     

@@ -1,8 +1,8 @@
 .. _web_gnrresourceloader:
 
-====================
-:mod:`gnrshareddata`
-====================
+==============================================
+:mod:`gnr.web.gnrwsgisite_proxy.gnrshareddata`
+==============================================
 
     *Last page update*: |today|
     

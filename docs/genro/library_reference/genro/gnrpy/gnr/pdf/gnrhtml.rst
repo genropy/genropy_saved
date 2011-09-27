@@ -4,12 +4,14 @@
 
     *Last page update*: |today|
     
-* Index of ``gnr.pdf.gnrhtml`` classes:
-
+    **Classes**:
+    
     * :ref:`gnrhtml_gnrhtmlpdf`
     * :ref:`gnrhtml_gnrhtmlsrc`
     
-* :ref:`gnrhtml_classes`
+    **Complete reference**:
+    
+    * :ref:`gnrhtml_classes`
 
 .. _gnrhtml_gnrhtmlpdf:
 

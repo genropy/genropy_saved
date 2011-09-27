@@ -80,17 +80,17 @@ class GnrSqlDb(GnrObject):
                  allow_eager_many=False, allow_eager_one=False):
         """This is the constructor method of the GnrSqlDb class.
         
-        :param implementation: 'sqlite', 'postgres' or other sql implementations.
-        :param dbname: the name for your db.
+        :param implementation: 'sqlite', 'postgres' or other sql implementations
+        :param dbname: the name for your database
         :param host: the database server host (for sqlite is None)
-        :param user: a database user's name (for sqlite is None)
-        :param password: the user's password (for sqlite is None)
+        :param user: the username (for sqlite is None)
+        :param password: the username's password (for sqlite is None)
         :param port: the connection port (for sqlite is None)
-        :param main_schema: the database main schema. 
-        :param debugger: add???. 
-        :param application: add???. 
-        :param allow_eager_many: add???. Default value is ``False``
-        :param allow_eager_one: add???. Default value is ``False``"""
+        :param main_schema: the database main schema
+        :param debugger: add???
+        :param application: add???
+        :param allow_eager_many: add???
+        :param allow_eager_one: add???"""
         self.implementation = implementation
         self.dbname = dbname
         self.host = host
@@ -660,12 +660,12 @@ class DbStoresHandler(object):
         """add???
         
         :param storename: add???
-        :param dbname: add???. 
-        :param host: add???. 
-        :param user: add???. 
-        :param password: add???. 
-        :param port: add???. 
-        :param save: add???. Default value is ``True``"""
+        :param dbname: the database name
+        :param host: the database server host
+        :param user: the username
+        :param password: the username's password
+        :param port: add???
+        :param save: add???"""
         self.config.setItem('%s_xml' % storename, None, file_name=storename)
         self.config.setItem('%s_xml.db' % storename, None, dbname=dbname, host=host, user=user, password=password,
                             port=port)

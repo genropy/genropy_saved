@@ -4,17 +4,17 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.utils.ssmtplib`` classes:
-    
-    Main class:
+    **Main class:**
     
     * :ref:`ssmtplib_smtp_ssl`
     
-    Exceptions classes:
+    **Exceptions classes:**
     
     * :ref:`ssmtplib_smtpsslexception`
     
-* :ref:`ssmtplib_classes`
+    **Complete reference:**
+    
+    * :ref:`ssmtplib_classes`
 
 .. _ssmtplib_smtp_ssl:
 

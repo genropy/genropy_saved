@@ -5,14 +5,18 @@
 ==========================
 
     *Last page update*: |today|
-
-* Index of ``gnr.web.gnrwebutils`` classes:
+    
+    **Classes:**
     
     * :ref:`gnrwebutils_gnrwebpdf`
     
-* :ref:`gnrwebutils_others`
+    **External methods:**
     
-* :ref:`gnrwebutils_classes`
+    * :ref:`gnrwebutils_others`
+    
+    **Complete reference:**
+    
+    * :ref:`gnrwebutils_classes`
 
 .. _gnrwebutils_gnrwebpdf:
 
@@ -25,8 +29,8 @@
 
 .. _gnrwebutils_others:
 
-other methods
-=============
+External methods
+================
     
     These methods don't belong to any class.
     

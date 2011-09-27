@@ -4,12 +4,14 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.core.gnrprinthandler`` classes:
+    **Classes**:
     
     * :ref:`gnrprinthandler_printhandler`
     * :ref:`gnrprinthandler_printerconnection`
     
-* :ref:`gnrprinthandler_classes`
+    **Complete reference**:
+    
+    * :ref:`gnrprinthandler_classes`
 
 .. _gnrprinthandler_printhandler:
 

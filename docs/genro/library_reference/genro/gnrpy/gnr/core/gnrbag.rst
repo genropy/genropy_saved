@@ -11,15 +11,13 @@
         It is better to have 100 functions operate on one data structure
         than 10 functions on 10 data structures.
         – Alan J. Perlis, Epigrams on Programming
-
-* Index of ``gnr.core.gnrbag`` classes:
-
-    Main classes:
+        
+    **Main classes:**
     
     * :ref:`gnrbags_bag`
     * :ref:`gnrbags_bagnode`
     
-    Other classes:
+    **Other classes:**
     
     * :ref:`gnrbags_bagcbresolver`
     * :ref:`gnrbags_bagformula`
@@ -27,8 +25,10 @@
     * :ref:`gnrbags_bagvalidationlist`
     * :ref:`gnrbags_directoryresolver`
     * :ref:`gnrbags_urlresolver`
-
-* :ref:`gnrbags_classes`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrbags_classes`
 
 .. _gnrbags_bag:
 

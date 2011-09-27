@@ -6,15 +6,19 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.web.gnrcookie`` classes:
-
+    **Classes**:
+    
     * :ref:`gnrcookie_cookie`
     * :ref:`gnrcookie_marshalcookie`
     * :ref:`gnrcookie_signedcookie`
     
-* :ref:`gnrcookie_others`
-
-* :ref:`gnrcookie_classes`
+    **External methods**:
+    
+    * :ref:`gnrcookie_others`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrcookie_classes`
 
 .. _gnrcookie_cookie:
 
@@ -48,8 +52,8 @@
     
 .. _gnrcookie_others:
 
-Other methods
-=============
+External methods
+================
 
     These methods don't belong to any class.
     

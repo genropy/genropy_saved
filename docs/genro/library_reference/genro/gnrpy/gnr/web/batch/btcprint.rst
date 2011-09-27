@@ -6,6 +6,14 @@
     
     *Last page update*: |today|
     
+    **Classes:**
+    
+    * :ref:`btcprint_base`
+    
+    **Complete reference:**
+    
+    * :ref:`btcprint_classes`
+    
 .. _btcprint_base:
 
 :class:`BaseResourcePrint`
@@ -21,5 +29,10 @@
     :meth:`print_selection`     :meth:`result_handler_server_print` :meth:`table_script_options_pdf`         
     ========================== ==================================== =========================================
     
+.. _btcprint_classes:
+
+:mod:`gnr.web.batch.btcprint` - The complete reference list
+===========================================================
+
 .. automodule:: gnr.web.batch.btcprint
     :members:

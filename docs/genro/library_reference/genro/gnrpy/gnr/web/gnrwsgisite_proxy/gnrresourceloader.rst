@@ -1,13 +1,24 @@
 .. _web_gnrresourceloader:
 
-========================
-:mod:`gnrresourceloader`
-========================
+==================================================
+:mod:`gnr.web.gnrwsgisite_proxy.gnrresourceloader`
+==================================================
 
     *Last page update*: |today|
     
-    * Index of ``gnr.web.gnrwsgisite_proxy.gnrresourceloader`` class:
+    **Classes:**
+    
+    * :ref:`gnrresourceloader_resourceloader`
+    
+    **Complete reference:**
+    
+    * :ref:`gnrresourceloader_classes`
+    
+.. _gnrresourceloader_resourceloader:
 
+ResourceLoader
+==============
+    
     .. module:: gnr.web.gnrwsgisite_proxy.gnrresourceloader.ResourceLoader
     
     ======================= ============================= =============================== ============================== 
@@ -26,4 +37,3 @@
 
 .. automodule:: gnr.web.gnrwsgisite_proxy.gnrresourceloader
     :members:
-    

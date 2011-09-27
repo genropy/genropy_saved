@@ -4,13 +4,15 @@ The :mod:`gnr.core.gnrstructures` structures
     
     *Last page update*: |today|
     
-* Index of ``gnr.core.gnrstructures`` classes:
+    **Classes**:
     
     * :ref:`gnrstructures_gnrstructdata`
     * :ref:`gnrstructures_gnrstructobj`
     * :ref:`gnrstructures_teststructmodule`
     
-* :ref:`gnrstructures_classes`
+    **Complete reference**:
+    
+    * :ref:`gnrstructures_classes`
 
 .. _gnrstructures_gnrstructdata:
 

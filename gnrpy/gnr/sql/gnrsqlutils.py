@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-gnrsqlutils.py
-
-Created by Saverio Porcari on 2007-09-20.
-Copyright (c) 2007 Softwell. All rights reserved.
-"""
+#
+# gnrsqlutils.py
+#
+# Created by Saverio Porcari on 2007-09-20.
+# Copyright (c) 2007 Softwell. All rights reserved.
 
 from gnr.core import gnrlist
 from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException
 
 class ModelExtractor(object):
+    """add???"""
     def __init__(self, dbroot):
         self.dbroot = dbroot
         
@@ -26,7 +26,7 @@ class ModelExtractor(object):
         return root
         
     def buildSchemata(self, root):
-        """add???. Call the :meth:`buildTables()` method
+        """add???
         
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` documentation section."""
@@ -124,10 +124,7 @@ class SqlModelChecker(object):
         self.db = db
         
     def checkDb(self):
-        """Prepare self.actual_tables, self.actual_schemata, self.actual_views and call the
-        :meth:`_checkPackage()` method for each package. Return a list of instructions for the database building
-        
-        :returns: a list of instructions for the database building"""
+        """Return a list of instructions for the database building"""
         create_db = False
         self.changes = []
         self.bagChanges = Bag()
@@ -162,8 +159,7 @@ class SqlModelChecker(object):
         :meth:`_checkTable()` method for each table. Return a list containing sql statements
         
         :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
-        :returns: a list containing sql statements"""
+                    :ref:`packages_index` documentation page"""
         self._checkSqlSchema(pkg)
         if pkg.tables:
             for tbl in pkg.tables.values():
@@ -188,10 +184,8 @@ class SqlModelChecker(object):
                     
     def _checkSqlSchema(self, obj):
         """If the package/table/view is defined in a new schema that's not in the actual_schemata
-        the new schema is created and its name is appended to self.actual_schemata.
-        
-        :returns: the schema name.
-        """
+        the new schema is created and its name is appended to self.actual_schemata. Return the
+        schema name"""
         sqlschema = obj.sqlschema
         if sqlschema and not (sqlschema in self.actual_schemata) and not (sqlschema == self.db.main_schema):
             change = self.db.adapter.createSchemaSql(sqlschema)

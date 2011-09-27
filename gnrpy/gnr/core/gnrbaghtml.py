@@ -66,7 +66,8 @@ class BagToHtml(object):
         pass
         
     def orientation(self):
-        """add???"""
+        """Set the page orientation to 'Landscape' if the :ref:`gnrbaghtml_page_width` is greater
+        than the :ref:`gnrbaghtml_page_height`, else set the orientation to 'Portrait'"""
         if self.page_width>self.page_height:
             return 'Landscape'
         else:
@@ -114,7 +115,7 @@ class BagToHtml(object):
         return self.css_requires.split(',')
         
     def prepareTemplates(self):
-        """Prepare the template (page width, page height, margins, etc)"""
+        """Set the correct value of every measure of the page: height, width, header, footer, margins"""
         if not self.htmlTemplate:
             self.htmlTemplate = self.templateLoader(self.templates)
         self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280

@@ -6,13 +6,11 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.web.gnrwebpage`` classes:
-    
-    Main class:
+    **Main class:**
     
     * :ref:`gnrwebpage_gnrwebpage`
     
-    Other classes:
+    **Other classes:**
     
     * :ref:`gnrwebpage_clientdatachange`
     * :ref:`gnrwebpage_clientpagehandler`
@@ -20,7 +18,9 @@
     * :ref:`gnrwebpage_gnrmakopage`
     * :ref:`gnrwebpage_lazybagresolver`
     
-* :ref:`gnrwebpage_classes`
+    **Complete reference:**
+    
+    * :ref:`gnrwebpage_classes`
 
 .. _gnrwebpage_gnrwebpage:
 

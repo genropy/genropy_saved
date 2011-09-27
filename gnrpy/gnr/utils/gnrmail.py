@@ -25,16 +25,16 @@ import smtplib
 from email.MIMEText import MIMEText
 
 def sendmail(host, from_address, to_address, subject, body, user='', password=''):
-    """add???
+    """Send an email
     
-    :param host: add???
-    :param from_address: add???
-    :param to_address: add???
-    :param subject: add???
-    :param body: add???
-    :param user: add???. Default value is ``''``
-    :param password: add???. Default value is ``''``
-    """
+    :param host: the database server host
+    :param from_address: the email sender
+    :param to_address: the email receiver
+    :param subject: the email subject
+    :param body: the email body. If you pass ``html=True`` attribute,
+                 then you can pass in the body the html tags
+    :param user: the username
+    :param password: the username's password"""
     msg = MIMEText(body)
     
     if isinstance(to_address, basestring):

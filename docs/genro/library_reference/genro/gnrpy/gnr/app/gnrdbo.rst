@@ -4,8 +4,8 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.app.gnrdbo`` classes:
-
+    **Classes**:
+    
     * :ref:`gnrapp_gnrdbopkg`
     * :ref:`gnrapp_gnrdbotbl`
     * :ref:`gnrapp_gnrhtbl`
@@ -15,7 +15,9 @@
     * :ref:`gnrapp_tblrecordtaglink`
     * :ref:`gnrapp_tableuserobject`
     
-* :ref:`gnrdbo_classes`
+    **Complete reference**:
+    
+    * :ref:`gnrdbo_classes`
 
 .. _gnrapp_gnrdbopkg:
 

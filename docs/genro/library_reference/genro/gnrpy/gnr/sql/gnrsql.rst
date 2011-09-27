@@ -4,24 +4,24 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.sql.gnrsql`` classes:
-
-    Main classes:
+    **Main classes**:
     
     * :ref:`gnrsql_gnrsqldb`
     
-    Other classes:
+    **Other classes:**
     
     * :ref:`gnrsql_dbstoreshandler`
     * :ref:`gnrsql_tempenv`
     
-    Exceptions classes:
+    **Exceptions classes:**
     
     * :ref:`gnrsql_gnrsqlexception`
     * :ref:`gnrsql_gnrsqlexecexception`
     
-* :ref:`gnrsql_classes`
-
+    **Complete reference**:
+    
+    * :ref:`gnrsql_classes`
+    
 .. _gnrsql_gnrsqldb:
 
 :class:`GnrSqlDb`

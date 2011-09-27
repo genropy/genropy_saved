@@ -4,12 +4,14 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.core.gnrxls`` classes:
+    **Classes**:
     
     * :ref:`gnrxls_xlsreader`
     * :ref:`gnrxls_xlswriter`
     
-* :ref:`gnrxls_classes`
+    **Complete reference**:
+    
+    * :ref:`gnrxls_classes`
 
 .. _gnrxls_xlsreader:
 

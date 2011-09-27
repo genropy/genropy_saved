@@ -142,7 +142,7 @@ config_db
 ---------
     
     .. warning:: this method is not used anymore in the ``main.py``, but it is used only as the
-                 main method of a database :ref:`table`.
+                 main method of a database :ref:`table`
                  
 .. _methods_custom_type:
 

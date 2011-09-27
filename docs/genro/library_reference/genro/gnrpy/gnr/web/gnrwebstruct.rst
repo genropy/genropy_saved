@@ -6,16 +6,20 @@
 
     *Last page update*: |today|
     
-* Index of ``gnr.web.gnrwebstruct`` classes:
+    **Classes:**
     
     * :ref:`gnrwebstruct_gnrdomsrc`
     * :ref:`gnrwebstruct_gnrdomsrcdojo11`
     * :ref:`gnrwebstruct_gnrformbuilder`
     * :ref:`gnrwebstruct_gnrgridstruct`
     
-* :ref:`gnrwebstruct_others`
+    **External methods**:
     
-* :ref:`gnrwebstruct_classes`
+    * :ref:`gnrwebstruct_others`
+    
+    **Complete reference:**
+    
+    * :ref:`gnrwebstruct_classes`
 
 .. _gnrwebstruct_gnrdomsrc:
 
@@ -90,8 +94,8 @@
     
 .. _gnrwebstruct_others:
 
-other methods
-=============
+External methods
+================
     
     These methods don't belong to any class.
     

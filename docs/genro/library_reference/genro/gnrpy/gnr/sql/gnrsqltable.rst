@@ -4,13 +4,11 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.sql.gnrsqltable`` classes:
-    
-    Main class:
+    **Main class:**
     
     * :ref:`gnrsqltable_sqltable`
     
-    Exceptions classes:
+    **Exceptions classes:**
     
     * :ref:`gnrsqltable_gnrsqlsaveexception`
     * :ref:`gnrsqltable_gnrsqldeleteexception`
@@ -18,8 +16,10 @@
     * :ref:`gnrsqltable_gnrsqlprotectdeleteexception`
     * :ref:`gnrsqltable_gnrsqlprotectvalidateexception`
     
-* :ref:`gnrsqltable_classes`
-
+    **Complete reference**:
+    
+    * :ref:`gnrsqltable_classes`
+    
 .. _gnrsqltable_sqltable:
 
 :class:`SqlTable`
