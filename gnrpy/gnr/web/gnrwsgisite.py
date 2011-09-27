@@ -1067,7 +1067,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param page_id: add???
-        :param user: add???
+        :param user: the username
         :param local_datachanges: add???"""
         result = Bag()
         local_datachanges = local_datachanges or []

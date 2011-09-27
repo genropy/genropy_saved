@@ -1,7 +1,7 @@
-.. _gnrsitelocalize:
+.. _gnrmkapachesite:
 
 ===============
-gnrsitelocalize
+gnrmkapachesite
 ===============
 
     *Last page update*: |today|

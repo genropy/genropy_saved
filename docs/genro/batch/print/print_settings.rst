@@ -58,8 +58,8 @@ introduction
 
     The print settings file allows to specify the settings of your print.
     
-    * In the :ref:`file location section <print_settings_location>` we describe
-      the specific location of the print settings file
+    * In the :ref:`print_settings_location` section we describe the specific location
+      of the print settings file
       
     Once you created the file you have to:
     
@@ -109,9 +109,8 @@ file location
 import
 ======
 
-    To use all the features of the print setting file you have to import in your print
-    settings file the :class:`BaseResourcePrint <gnr.web.batch.btcprint.BaseResourcePrint>`
-    class::
+    In order to use the settings functionalities you have to import in your print settings
+    file the :class:`BaseResourcePrint <gnr.web.batch.btcprint.BaseResourcePrint>` class::
     
         from gnr.web.batch.btcprint import BaseResourcePrint
         

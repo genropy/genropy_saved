@@ -6,8 +6,14 @@
     
     *Last page update*: |today|
     
+    **Classes:**
+    
     * :ref:`btcbase_base`
     * :ref:`btcbase_webpage_variables`
+    
+    **Complete reference:**
+    
+    * :ref:`btcbase_classes`
     
 .. _btcbase_base:
 
@@ -23,9 +29,6 @@ BaseResourceBatch
     :meth:`get_record`         :meth:`get_step_caption`     :meth:`storeResult`         
     :meth:`get_record_caption` :meth:`parameters_pane`                                  
     ========================== =========================== =============================
-
-.. automodule:: gnr.web.batch.btcbase
-    :members:
     
 .. _btcbase_webpage_variables:
 
@@ -125,3 +128,11 @@ virtual_columns
 ---------------
 
     add???
+    
+.. _btcbase_classes:
+
+:mod:`gnr.web.batch.btcbase` - The complete reference list
+==========================================================
+
+.. automodule:: gnr.web.batch.btcbase
+    :members:

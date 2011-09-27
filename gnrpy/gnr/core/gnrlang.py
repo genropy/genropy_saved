@@ -963,16 +963,14 @@ def errorTxt():
     return u'%s\n\nLOCALS:\n\n%s' % (tb_text, '\n'.join(locals_list))
         
 def errorLog(proc_name, host=None, from_address='', to_address=None, user=None, password=''):
-    """add???
+    """Report the error log
     
-    :param proc_name: add???
-    :param host: add???. 
-    :param from_address: add???. Default value is `` ``
-    :param to_address: add???. 
-    :param user: add???. 
-    :param password: add???. Default value is `` ``
-    :returns: add???
-    """
+    :param proc_name: the name of the wrong process
+    :param host: the database server host
+    :param from_address: the email sender
+    :param to_address: the email receiver
+    :param user: the username
+    :param password: the username's password"""
     from gnr.utils.gnrmail import sendmail
         
     ts = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S: ')

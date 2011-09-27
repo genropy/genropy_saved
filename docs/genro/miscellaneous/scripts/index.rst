@@ -23,6 +23,7 @@ introduction
     * :ref:`gnrdbsetup`: it allows to initialize the database
     * :ref:`gnrdbstruct`: add???
     * :ref:`gnrheartbeat`: add???
+    * :ref:`gnrmkapachesite`: add???
     * :ref:`gnrmkinstance`: add???
     * :ref:`gnrmkpackage`: add???
     * :ref:`gnrmkproject`: add???
@@ -51,6 +52,7 @@ section index
     gnrdbsetup
     gnrdbstruct
     gnrheartbeat
+    gnrmkapachesite
     gnrmkinstance
     gnrmkpackage
     gnrmkproject

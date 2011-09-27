@@ -4,6 +4,8 @@
 gnrmkthresource
 ===============
 
+    *Last page update*: |today|
+    
     gnrmkthresource is used to create the :ref:`th` resources automatically from :ref:`packages_model`
     
     * the first parameter is a :ref:`table` name; use the following syntax::

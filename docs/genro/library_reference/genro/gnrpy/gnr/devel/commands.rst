@@ -4,15 +4,19 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.devel.commands`` classes:
-
+    **Classes**:
+    
     * :ref:`commands_cmdrunner`
     * :ref:`commands_gnrcommand`
-
-* :ref:`commands_others`
     
-* :ref:`commands_classes`
-
+    **External methods**:
+    
+    * :ref:`commands_others`
+    
+    **Complete reference**:
+    
+    * :ref:`commands_classes`
+    
 .. _commands_cmdrunner:
 
 :class:`CmdRunner`
@@ -40,8 +44,8 @@
 
 .. _commands_others:
 
-other methods
-=============
+External methods
+================
     
     These methods don't belong to any class.
     

@@ -3,19 +3,23 @@
 ============================================================
 
     *Last page update*: |today|
-
-* Index of ``gnr.core.gnrlocale`` classes:
-
+    
+    **Classes**:
+    
     There is no class defined
     
-* :ref:`gnrlocale_others`
+    **External methods**:
     
-* :ref:`gnrlocale_classes`
+    * :ref:`gnrlocale_others`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrlocale_classes`
 
 .. _gnrlocale_others:
 
-Other methods
-=============
+External methods
+================
 
     These methods don't belong to any class.
 

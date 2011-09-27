@@ -4,15 +4,19 @@
 
     *Last page update*: |today|
     
-* Index of ``gnr.core.gnrdict`` classes:
-
+    **Classes**:
+    
     * :ref:`gnrdict_gnrdict`
     * :ref:`gnrdict_gnrnumericdict`
-
-* :ref:`gnrdict_others`
     
-* :ref:`gnrdict_classes`
-
+    **External methods**:
+    
+    * :ref:`gnrdict_others`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrdict_classes`
+    
 .. _gnrdict_gnrdict:
 
 :class:`GnrDict`
@@ -40,8 +44,8 @@
 
 .. _gnrdict_others:
 
-Other methods
-=============
+External methods
+================
     
     These methods don't belong to any class.
     

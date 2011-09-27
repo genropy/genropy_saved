@@ -4,20 +4,20 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.sql.SteadyDB`` classes:
-    
-    Classes:
+    **Classes:**
     
     * :ref:`gnrsqlsteadydb_steadydbconnection`
     * :ref:`gnrsqlsteadydb_steadydbcursor`
     * :ref:`gnrsqlsteadydb_connect`
     
-    Exceptions classes:
+    **Exceptions classes:**
     
     * :ref:`gnrsqlsteadydb_invalidcursor`
     * :ref:`gnrsqlsteadydb_steadydberror`
     
-* :ref:`gnrsqlsteadydb_classes`
+    **Complete reference:**
+    
+    * :ref:`gnrsqlsteadydb_classes`
 
 .. _gnrsqlsteadydb_steadydbconnection:
 

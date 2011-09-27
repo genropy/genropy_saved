@@ -147,7 +147,7 @@ class BaseComponent(object):
         return loader.py_requires_iterator(cls, target_class)
         
 class BaseResource(GnrObject):
-    """Base class for a webpage resource."""
+    """Base class for a webpage resource"""
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             if v:

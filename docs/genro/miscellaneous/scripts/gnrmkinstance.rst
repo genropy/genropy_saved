@@ -4,4 +4,6 @@
 gnrmkinstance
 =============
 
+    *Last page update*: |today|
+    
     add???

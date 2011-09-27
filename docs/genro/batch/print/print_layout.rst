@@ -9,44 +9,24 @@ print layout file
     * :ref:`print_layout_intro`
     * :ref:`print_layout_location`
     
-    **Creation of the file**:
+    **Features**:
     
     * :ref:`print_layout_features`
+    * :ref:`print_layout_zones`
+    
+    **Creation of the file**:
+    
     * :ref:`print_layout_import`
     * :ref:`print_layout_main`:
     
-        * :ref:`print_layout_main_webpages_variables`:
-        
-            * :ref:`layout_copies_per_page`
-            * :ref:`layout_copy_extra_height`
-            * CSS style: :ref:`layout_css_requires`
-            * debug tools: :ref:`layout_page_debug`
-            * encoding and numerical formats: :ref:`layout_encoding`, :ref:`layout_currencyformat`
-            * header and footer heights: :ref:`layout_doc_header_height`, :ref:`layout_doc_footer_height`,
-              :ref:`layout_grid_header_height`, :ref:`layout_grid_footer_height`,
-              :ref:`layout_page_header_height`, :ref:`layout_page_footer_height`
-
-            * grid: :ref:`layout_grid_col_widths`, :ref:`layout_grid_row_height`
-            * page bars: :ref:`layout_page_leftbar_width`, :ref:`layout_page_rightbar_width`
-            * page dimensions: :ref:`layout_page_height`, :ref:`layout_page_width`
-            * page margins: :ref:`layout_page_margin_top`, :ref:`layout_page_margin_left`,
-              :ref:`layout_page_margin_right`, :ref:`layout_page_margin_bottom`
-            * :ref:`layout_print_button`
-            * rows: :ref:`layout_row_mode`, :ref:`layout_rows_path`
-            * :ref:`layout_starting_page_number`
-            * :ref:`layout_templates`
-            
-        * :ref:`print_layout_main_methods`
+        * :ref:`print_layout_main_webpages_variables`
+        * :ref:`print_layout_main_methods`:
         
             * hook methods: :ref:`layout_docheader`, :ref:`layout_docfooter`,
               :ref:`layout_pageheader`, :ref:`layout_pagefooter`
             * layout elements: :ref:`layout_element`, :ref:`layout_row`,
               :ref:`layout_cell`
-          
-    **GUI**:
-    
-    add???
-    
+              
     **Examples**:
     
     * :ref:`example <print_layout_example>`
@@ -62,8 +42,8 @@ introduction
 
     The print layout file allows to specify the layout of a print
     
-    * In the :ref:`file location section <print_layout_location>` we describe
-      the specific location of the print layout file
+    * In the :ref:`print_layout_location` section we describe the specific location
+      of the print layout file
       
     Once you created the file you have to:
     
@@ -80,8 +60,8 @@ introduction
 file location
 =============
 
-    The location of the print layout file must follow a standard path followed by a
-    path you define in the *html_res* :ref:`print_settings_webpage_variables`::
+    The location of the print layout file must follow a standard path followed
+    by a custom path::
     
         projectName/packages/packageName/resources/tables/tableName/customPath
         
@@ -92,12 +72,18 @@ file location
     * ``packageName`` is the name of the package
     * ``resources`` is the :ref:`public_resources` folder
     * ``tables`` is the :ref:`resources_tables` folder
-    * ``tableName`` is the name of the :ref:`table` to which the print is linked
+    * ``tableName`` is the name of the :ref:`table` related to the print
     * ``customPath`` is the path you choose for your print layout file through the
       :ref:`"html_res" webpage variable <print_html_res>` of the :ref:`print_settings_main`
-      of the :ref:`print_settings` (there is any convention about it)
+      of the :ref:`print_settings` (there is any convention about the name you have to use)
       
-        **Example**: if you have a project called ``base``, a package called ``invoice``,
+        **customPath syntax**::
+        
+            anyFolderYouWant/fileNameOfThePrintSettingsFile
+            
+        **Example**:
+        
+        if you have a project called ``base``, a package called ``invoice``,
         a ``doctor`` table and in your :ref:`print_settings`
         ``html_res = 'html_builder/my_layout'``, then the path of the print layout file is::
         
@@ -108,7 +94,7 @@ file location
     This is a graphical map of the location of the print layout file into a :ref:`project`:
     
         *In this image the print layout file is called "custom_file";*
-        *"html_res = 'custom_folder/custom_file'"*
+        *html_res = 'custom_folder/custom_file'*
     
     .. image:: ../../_images/print/print_layout_file.png
     
@@ -122,16 +108,68 @@ layout page - features
     LE STAMPE SI POSSONO FARE O IN MODALITA' SINGOLO RECORD, O IN MODALITA'
     TESTATA RIGHE (la TESTATA è chiamata DOC): documentare con immagini
     
-    .. image:: BOH add??? an image with the graphical differences between doc - page - grid
+.. _print_layout_zones:
+    
+layout print zones
+==================
 
+    add???
+    
+.. _print_layout_pagedocgrid:
+
+page, doc, grid
+===============
+    
+    add???
+    
+    add??? an image with the graphical differences between doc - page - grid
+    
+.. _print_layout_page:
+
+page
+----
+
+    add???
+    
+.. _print_layout_doc:
+
+doc
+---
+
+    add???
+    
+.. _print_layout_grid:
+
+grid
+----
+
+    add???
+    
+.. _print_layout_footer_height:
+    
+footer height
+-------------
+
+    add???
+    
+.. _print_layout_header_height:
+
+header height
+-------------
+
+    add???
+    
 .. _print_layout_import:
 
 import
 ======
 
-    To use the print layout file you have to import::
+    In order to use the layout functionalities you have to import in your print layout file
+    the :class:`TableScriptToHtml <gnr.web.gnrbaseclasses.TableScriptToHtml>` class::
     
         from gnr.web.gnrbaseclasses import TableScriptToHtml
+        
+    Then we have to create the Main class:
         
 .. _print_layout_main:
 
@@ -150,226 +188,57 @@ Main class
 Main class webpage variables
 ============================
 
-    .. note:: the unit of measurement of all these variables are in millimeters
+    .. note:: the unit of measurement of all the numerical variables are in millimeters
               (e.g: ``print_width = 200`` means 200 millimeters)
               
     With the term ``webpages variables`` we mean that there are some defined variables
-    that you can use to customize the layout. They belong to the :ref:`print_layout_main`.
-    Let's see all of them:
+    belonging to the two parent classes (the ``BagToHtml`` class and the ``TableScriptToHtml``
+    class) of the Main class that allow you to customize your print layout.
     
-    * :ref:`layout_copies_per_page`
-    * :ref:`layout_copy_extra_height`
-    * CSS style: :ref:`layout_css_requires`
-    * debug tools: :ref:`layout_page_debug`
-    * encoding and numerical formats: :ref:`layout_encoding`, :ref:`layout_currencyformat`
-    * header and footer heights:
+    We list here all these variables, specifying their parent class; if you need
+    informations about them, click on their name to go on their description section.
     
-        * document: :ref:`layout_doc_header_height`, :ref:`layout_doc_footer_height`
-        * grid: :ref:`layout_grid_header_height`, :ref:`layout_grid_footer_height`
-        * page: :ref:`layout_page_header_height`, :ref:`layout_page_footer_height`
-        
-    * grid: :ref:`layout_grid_col_widths`, :ref:`layout_grid_row_height`
-    * page bars: :ref:`layout_page_leftbar_width`, :ref:`layout_page_rightbar_width`
-    * page dimensions: :ref:`layout_page_height`, :ref:`layout_page_width`
-    * page margins: :ref:`layout_page_margin_top`, :ref:`layout_page_margin_left`,
-      :ref:`layout_page_margin_right`, :ref:`layout_page_margin_bottom`
-    * :ref:`layout_print_button`
-    * rows: :ref:`layout_row_mode`, :ref:`layout_rows_path`
-    * :ref:`layout_starting_page_number`
-    * :ref:`layout_templates`
+    List of the webpage variables of the :class:`BagToHtml <gnr.core.gnrbaghtml.BagToHtml>` class:
     
-.. _layout_copies_per_page:
-
-copies_per_page
----------------
-
-    add???
+    * :ref:`bagtohtml_copies_per_page`
+    * :ref:`bagtohtml_copy_extra_height`
+    * :ref:`bagtohtml_css_requires`
+    * :ref:`bagtohtml_currencyformat`
+    * :ref:`bagtohtml_doc_header_height`
+    * :ref:`bagtohtml_doc_footer_height`
+    * :ref:`bagtohtml_encoding`
+    * :ref:`bagtohtml_grid_header_height`
+    * :ref:`bagtohtml_grid_footer_height`
+    * :ref:`bagtohtml_grid_col_widths`
+    * :ref:`bagtohtml_grid_row_height`
+    * :ref:`bagtohtml_page_debug`
+    * :ref:`bagtohtml_page_footer_height`
+    * :ref:`bagtohtml_page_header_height`
+    * :ref:`bagtohtml_page_height`
+    * :ref:`bagtohtml_page_leftbar_width`
+    * :ref:`bagtohtml_page_rightbar_width`
+    * :ref:`bagtohtml_page_margin_bottom`
+    * :ref:`bagtohtml_page_margin_left`
+    * :ref:`bagtohtml_page_margin_right`
+    * :ref:`bagtohtml_page_margin_top`
+    * :ref:`bagtohtml_page_width`
+    * :ref:`bagtohtml_print_button`
+    * :ref:`bagtohtml_row_mode`
+    * :ref:`bagtohtml_rows_path`
+    * :ref:`bagtohtml_starting_page_number`
+    * :ref:`bagtohtml_templates`
     
-.. _layout_copy_extra_height:
-
-copy_extra_height
------------------
-
-    add???
+    List of the webpage variables of the :class:`TableScriptToHtml
+    <gnr.web.gnrbaseclasses.TableScriptToHtml>` class:
     
-.. _layout_css_requires:
-
+    * :ref:`tablescripttohtml_rows_table`
+    * :ref:`tablescripttohtml_virtual_columns`
+    
 css_requires
 ------------
     
     Allow to import :ref:`css` files. For more information, check the
     :ref:`webpages_css_requires` section
-    
-.. _layout_currencyformat:
-
-currencyFormat
---------------
-
-    Allow to specify the :ref:`table_format` of the numerical columns of the print
-    
-.. _layout_doc_footer_height:
-
-doc_footer_height
------------------
-
-    add???
-    
-.. _layout_doc_header_height:
-
-doc_header_height
------------------
-
-    add???
-    
-.. _layout_encoding:
-
-encoding
---------
-
-    Specify the encoding. By default it is::
-    
-        encoding = 'utf-8'
-        
-.. _layout_grid_col_widths:
-
-grid_col_widths
----------------
-
-    add???
-    
-.. _layout_grid_footer_height:
-
-grid_footer_height
-------------------
-
-    add???
-    
-.. _layout_grid_header_height:
-
-grid_header_height
-------------------
-
-    add???
-    
-.. _layout_grid_row_height:
-
-grid_row_height
----------------
-
-    add???
-    
-.. _layout_page_debug:
-
-page_debug
-----------
-
-    add???
-    
-.. _layout_page_footer_height:
-
-page_footer_height
-------------------
-
-    add???
-    
-.. _layout_page_header_height:
-
-page_header_height
-------------------
-
-    add???
-    
-.. _layout_page_height:
-
-page_height
------------
-
-    Set the print page height
-    
-.. _layout_page_leftbar_width:
-
-page_leftbar_width
-------------------
-
-    add???
-    
-.. _layout_page_rightbar_width:
-
-page_rightbar_width
--------------------
-
-    add???
-    
-.. _layout_page_margin_bottom:
-
-page_margin_bottom
-------------------
-
-    add???
-    
-.. _layout_page_margin_left:
-
-page_margin_left
-----------------
-
-    add???
-    
-.. _layout_page_margin_right:
-
-page_margin_right
------------------
-
-    add???
-    
-.. _layout_page_margin_top:
-
-page_margin_top
----------------
-
-    add???
-    
-.. _layout_page_width:
-
-page_width
-----------
-
-    Set the print page width
-    
-.. _layout_print_button:
-
-print_button
-------------
-
-    add???
-    
-.. _layout_row_mode:
-
-row_mode
---------
-
-    add???
-    
-.. _layout_rows_path:
-
-rows_path
----------
-
-    add???
-    
-.. _layout_starting_page_number:
-
-starting_page_number
---------------------
-
-    Define the starting page number
-    
-.. _layout_templates:
-
-templates
----------
-
-    A string with the names of the :ref:`html templates <htmltemplate>` separated by a comma.
-    More information in the :ref:`add???` section of the :ref:`htmltemplate` page
     
 .. _print_layout_main_methods:
     
@@ -389,9 +258,9 @@ build the layout - Main class methods
     
     Inside these methods, you can create the layout through the following three methods:
     
-    * the :ref:`layout_element`: allow to add???
-    * the :ref:`layout_row`: allow to add???
-    * the :ref:`layout_cell`: allow to add???
+    * the :ref:`layout method <layout_element>`: allow to return a layout element
+    * the :ref:`row method <layout_row>`: allow to return a row element 
+    * the :ref:`cell method <layout_cell>`: allow to return a cell element
     
 .. _layout_definestandardstyles:
 
@@ -440,8 +309,8 @@ pageFooter
     
 .. _layout_element:
     
-layout element
---------------
+layout
+------
 
     .. automethod:: gnr.core.gnrhtml.GnrHtmlSrc.layout
     
@@ -449,8 +318,8 @@ layout element
     
 .. _layout_row:
     
-row element
------------
+row
+---
 
     .. automethod:: gnr.core.gnrhtml.GnrHtmlSrc.row
     
@@ -458,19 +327,12 @@ row element
     
 .. _layout_cell:
     
-cell element
-------------
+cell
+----
 
     .. automethod:: gnr.core.gnrhtml.GnrHtmlSrc.cell
     
     add???
-    
-.. _print_layout_onrecordexit:
-
-onRecordExit
-============
-
-    .. automethod:: gnr.web.batch.btcprint.BaseResourcePrint.onRecordExit
     
 .. _print_layout_example:
     

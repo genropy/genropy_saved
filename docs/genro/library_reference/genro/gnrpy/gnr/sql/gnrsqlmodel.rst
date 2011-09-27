@@ -4,22 +4,22 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.sql.gnrsqlmodel`` classes:
-
-    Main classes:
+    **Main classes:**
     
     * :ref:`gnrsqlmodel_dbmodel`
     * :ref:`gnrsqlmodel_dbmodelsrc`
     * :ref:`gnrsqlmodel_dbtableobj`
     
-    Other classes:
+    **Other classes:**
     
     * :ref:`gnrsqlmodel_dbcolumnobj`
     * :ref:`gnrsqlmodel_dbmodelobj`
     * :ref:`gnrsqlmodel_dbpackageobj`
     * :ref:`gnrsqlmodel_modelsrcresolver`
     
-* :ref:`gnrsqlmodel_classes`
+    **Complete reference**:
+    
+    * :ref:`gnrsqlmodel_classes`
 
 .. _gnrsqlmodel_dbmodel:
 

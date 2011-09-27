@@ -4,12 +4,14 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.core.gnrclasses`` classes:
-
+    **Classes**:
+    
     * :ref:`gnrclasses_gnrclasscatalog`
-
-* :ref:`gnrclasses_classes`
-
+    
+    **Complete reference**:
+    
+    * :ref:`gnrclasses_classes`
+    
 .. _gnrclasses_gnrclasscatalog:
 
 :class:`GnrClassCatalog`

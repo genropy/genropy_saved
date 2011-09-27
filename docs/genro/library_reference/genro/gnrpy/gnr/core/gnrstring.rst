@@ -4,11 +4,27 @@
     
     *Last page update*: |today|
     
-List index of :mod:`gnr.core.gnrstring` methods
-===============================================
+    **Classes**:
+    
+    There is no class defined
+    
+    **External methods**:
+    
+    * :ref:`gnrstring_others`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrstring_classes`
+    
+.. _gnrstring_others:
+
+External methods
+================
+
+    These methods don't belong to any class.
 
     .. module:: gnr.core.gnrstring
-
+    
     ======================== ======================== ============================= =============================
     :meth:`anyWordIn`        :meth:`getBetween`       :meth:`pickleObject`          :meth:`toJson`               
     :meth:`asDict`           :meth:`getFrom`          :meth:`regexDelete`           :meth:`toJsonJS`             
@@ -21,6 +37,11 @@ List index of :mod:`gnr.core.gnrstring` methods
     :meth:`fromJson`         :meth:`like`             :meth:`stringDict`            :meth:`wordSplit`            
     :meth:`fromText`         :meth:`makeSet`          :meth:`templateReplace`       :meth:`zipString`            
     ======================== ======================== ============================= =============================
+    
+.. _gnrstring_classes:
+
+:mod:`gnr.core.gnrstring` - The complete reference list
+=======================================================
 
 .. automodule:: gnr.core.gnrstring
     :members:

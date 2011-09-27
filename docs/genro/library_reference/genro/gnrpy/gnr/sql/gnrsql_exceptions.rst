@@ -4,15 +4,17 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.sql.gnrsql_exceptions`` classes:
-
+    **Classes**:
+    
     * :ref:`gnrsqldeleeteexception`
     * :ref:`gnrsql_exceptions_gnrsqlexception`
     * :ref:`gnrsqlexecutionexception`
     * :ref:`gnrsqlsaveexception`
     
-* :ref:`gnrsql_exceptions_classes`
-
+    **Complete reference**:
+    
+    * :ref:`gnrsql_exceptions_classes`
+    
 .. _gnrsqldeleeteexception:
 
 :class:`GnrSqlDeleteException`

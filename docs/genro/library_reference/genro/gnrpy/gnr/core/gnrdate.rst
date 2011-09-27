@@ -4,14 +4,18 @@
 
     *Last page update*: |today|
     
-* Index of ``gnr.core.gnrdate`` classes:
-
+    **Classes**:
+    
     * :ref:`gnrdate_timeinterval`
     * :ref:`gnrdate_timeperiod`
     
-* :ref:`gnrdate_others`
+    **External methods**:
     
-* :ref:`gnrdate_classes`
+    * :ref:`gnrdate_others`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrdate_classes`
 
 .. _gnrdate_timeinterval:
 
@@ -38,8 +42,8 @@
 
 .. _gnrdate_others:
 
-Other methods
-=============
+External methods
+================
     
     These methods don't belong to any class.
     

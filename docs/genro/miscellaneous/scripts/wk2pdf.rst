@@ -4,4 +4,6 @@
 wk2pdf
 ======
 
+    *Last page update*: |today|
+    
     add???

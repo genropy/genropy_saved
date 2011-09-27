@@ -4,4 +4,6 @@
 gnrxml2py
 =========
 
+    *Last page update*: |today|
+    
     add???

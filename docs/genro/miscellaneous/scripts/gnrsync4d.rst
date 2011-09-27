@@ -4,4 +4,6 @@
 gnrsync4d
 =========
 
+    *Last page update*: |today|
+    
     add???

@@ -4,12 +4,14 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.core.gnrbagxml`` classes:
-
+    **Classes**:
+    
     * :ref:`gnrbagxml_bagfromxml`
     * :ref:`gnrbagxml_bagtoxml`
-
-* :ref:`gnrbagxml_classes`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrbagxml_classes`
 
 .. _gnrbagxml_bagfromxml:
 

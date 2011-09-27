@@ -4,4 +4,6 @@
 gnrmkpackage
 ============
 
+    *Last page update*: |today|
+    
     add???

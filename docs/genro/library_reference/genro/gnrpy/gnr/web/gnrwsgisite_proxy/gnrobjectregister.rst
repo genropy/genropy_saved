@@ -1,8 +1,8 @@
 .. _web_gnrobjectregister:
 
-========================
-:mod:`gnrobjectregister`
-========================
+==================================================
+:mod:`gnr.web.gnrwsgisite_proxy.gnrobjectregister`
+==================================================
     
     *Last page update*: |today|
     
