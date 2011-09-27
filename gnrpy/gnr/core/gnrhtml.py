@@ -102,8 +102,8 @@ class GnrHtmlSrc(GnrStructData):
             if lbl in kwargs:
                 kwargs[lbl.replace('_', '')] = kwargs.pop(lbl)
                 
-        if 'name' in kwargs:
-            kwargs['_name'] = kwargs.pop('name')
+        #if 'name' in kwargs:
+        #    kwargs['_name'] = kwargs.pop('name')
         return super(GnrHtmlSrc, self).child(tag, *args, **kwargs)
         
     def layout(self, name='l1', um='mm', top=0, left=0, bottom=0, right=0, width=0, height=0,
