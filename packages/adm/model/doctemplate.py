@@ -2,7 +2,7 @@
 import re
 from gnr.core.gnrbaghtml import BagToHtml
 from gnr.core.gnrbag import Bag
-
+from gnr.core.gnrlang import extract_kwargs
 from gnr.core.gnrstring import templateReplace
 
 class Table(object):
@@ -64,10 +64,12 @@ class Table(object):
         htmlbuilder.doctemplate_info = doctemplate_info
         htmlbuilder.locale = doctemplate_info['locale']
         return htmlbuilder
-    
-    def sendMail(self,record_id=None,doctemplate=None,templates=None,locale=None,formats=None,**kwargs):
+        
+        
+    @extract_kwargs(extra=True)
+    def sendMail(self, record_id=None,doctemplate=None,templates=None,locale=None,formats=None,extra_kwargs=None, **kwargs):
         htmlBuilder = self.getTemplateBuilder(doctemplate=doctemplate,templates=templates)
-        body = self.renderTemplate(htmlBuilder, record_id=record_id)
+        body = self.renderTemplate(htmlBuilder, record_id=record_id, extraData=extra_kwargs)
         datasource = htmlBuilder.record
         metadata = htmlBuilder.doctemplate_info.getItem('metadata')
         datasource['_meta_'] = metadata
