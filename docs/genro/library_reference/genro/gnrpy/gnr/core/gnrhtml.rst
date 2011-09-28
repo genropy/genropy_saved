@@ -4,12 +4,14 @@
 
     *Last page update*: |today|
 
-* Index of ``gnr.core.gnrhtml`` classes:
+    **Classes**:
     
     * :ref:`gnrhtml_gnrhtmlbuilder`
     * :ref:`gnrhtml_gnrhtmlsrc`
     
-* :ref:`gnrhtml_classes`
+    **Complete reference**:
+    
+    * :ref:`gnrhtml_classes`
 
 Introduction
 ============

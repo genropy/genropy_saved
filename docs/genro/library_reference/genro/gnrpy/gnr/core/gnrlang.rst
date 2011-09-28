@@ -4,7 +4,7 @@
 
     *Last page update*: |today|
     
-* Index of ``gnr.core.gnrlang`` classes:
+    **Classes**:
     
     * :ref:`gnrlang_filterlist`
     * :ref:`gnrlang_addon`
@@ -14,9 +14,13 @@
     * :ref:`gnrlang_gnrobject`
     * :ref:`gnrlang_gnrrememberable`
     
-* :ref:`gnrlang_others`
+    **External methods**:
     
-* :ref:`gnrlang_classes`
+    * :ref:`gnrlang_others`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrlang_classes`
 
 .. _gnrlang_filterlist:
 
@@ -120,8 +124,8 @@
 
 .. _gnrlang_others:
 
-Other methods
-=============
+External methods
+================
 
     These methods don't belong to any class.
     

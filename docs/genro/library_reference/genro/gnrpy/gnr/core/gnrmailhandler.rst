@@ -4,13 +4,17 @@
 
     *Last page update*: |today|
 
-* Index of ``gnr.core.gnrmailhandler`` classes:
+    **Classes**:
     
     * :ref:`gnrmailhandler_mailhandler`
-
-* :ref:`gnrmailhandler_others`
     
-* :ref:`gnrmailhandler_classes`
+    **External methods**:
+    
+    * :ref:`gnrmailhandler_others`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrmailhandler_classes`
 
 .. _gnrmailhandler_mailhandler:
 
@@ -30,8 +34,8 @@
 
 .. _gnrmailhandler_others:
 
-other methods
-=============
+External methods
+================
 
     These methods don't belong to any class.
 

@@ -4,12 +4,14 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.pdf.gnrplatypus`` classes:
-
+    **Classes**:
+    
     * :ref:`gnrplatypus_`
     
-* :ref:`gnrplatypus_classes`
-
+    **Complete reference**:
+    
+    * :ref:`gnrplatypus_classes`
+    
 .. _gnrplatypus_:
 
 :class:`GnrPdf`

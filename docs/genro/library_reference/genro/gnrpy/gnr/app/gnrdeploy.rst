@@ -4,17 +4,19 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.app.gnrdeploy`` classes:
-
+    **Classes**:
+    
     * :ref:`gnrapp_gnrdeploy`
     * :ref:`gnrapp_modwsgimaker`
     * :ref:`gnrapp_packagemaker`
     * :ref:`gnrapp_pathresolver`
     * :ref:`gnrapp_projectmaker`
     * :ref:`gnrapp_resourcemaker`
-
-* :ref:`gnrdeploy_classes`
-
+    
+    **Complete reference**:
+    
+    * :ref:`gnrdeploy_classes`
+    
 .. _gnrapp_gnrdeploy:
 
 :class:`InstanceMaker`

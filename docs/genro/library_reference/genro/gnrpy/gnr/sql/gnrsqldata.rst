@@ -4,14 +4,12 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.sql.gnrsql`` classes:
-
-    Main classes:
+    **Main classes:**
     
     * :ref:`gnrsqldata_sqlquery`
     * :ref:`gnrsqldata_sqlselection`
     
-    Other classes:
+    **Other classes:**
     
     * :ref:`gnrsqldata_sqlcompiledquery`
     * :ref:`gnrsqldata_sqldataresolver`
@@ -21,7 +19,9 @@
     * :ref:`gnrsqldata_sqlrelatedrecordresolver`
     * :ref:`gnrsqldata_sqlrelatedselectionresolver`
     
-* :ref:`gnrsqldata_classes`
+    **Complete reference**:
+    
+    * :ref:`gnrsqldata_classes`
 
 .. _gnrsqldata_sqlselection:
 

@@ -4,14 +4,18 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.core.gnrlist`` classes:
+    **Classes**:
     
     * :ref:`gnrlist_gnrclasscatalog`
     * :ref:`gnrlist_xlsreader`
     
-* :ref:`gnrlist_others`
-
-* :ref:`gnrlist_classes`
+    **External methods**:
+    
+    * :ref:`gnrlist_others`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrlist_classes`
 
 .. _gnrlist_gnrclasscatalog:
 
@@ -39,8 +43,8 @@
 
 .. _gnrlist_others:
 
-other methods
-=============
+External methods
+================
 
     These methods don't belong to any class.
 

@@ -6,19 +6,13 @@ Getting started
     
     *Last page update*: |today|
     
-    * :ref:`getting_started_intro`
-    
-.. _getting_started_intro:
-
 introduction
 ============
-
+    
     Welcome to the Genro online documentation!
     
-    GenroPy (or Genro) is a Framework for business applications.
+    GenroPy (or Genro) is a Framework for business applications
     
-.. _getting_started_section_index:
-
 section index
 =============
     
@@ -26,4 +20,6 @@ section index
     :maxdepth: 2
     
     installation
+    configuring
     clipboard
+    tutorials

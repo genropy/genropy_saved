@@ -720,7 +720,7 @@ class GnrWebPage(GnrBaseWebPage):
     def userStore(self, user=None, triggered=True):
         """add???
         
-        :param user: add???
+        :param user: the username
         :param triggered: boolean. add???"""
         user = user or self.user
         return self.site.register.userStore(user, triggered=triggered)

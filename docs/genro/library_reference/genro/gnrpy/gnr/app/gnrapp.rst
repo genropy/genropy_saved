@@ -4,7 +4,7 @@
     
     *Last page update*: |today|
     
-* Index of ``gnr.app.gnrapp`` classes:
+    **Classes**:
     
     * :ref:`gnrapp_gnrapp`
     * :ref:`gnrapp_gnravatar`
@@ -14,8 +14,10 @@
     * :ref:`gnrapp_gnrsqlappdb`
     * :ref:`gnrapp_reservedtable_error`
     
-* :ref:`gnrapp_classes`
-
+    **Complete reference**:
+    
+    * :ref:`gnrapp_classes`
+    
 .. _gnrapp_gnrapp:
 
 :class:`GnrApp`

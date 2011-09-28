@@ -926,7 +926,7 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         //    widget.onLazyContentCreated();
         //}
         if(this.attr._onLazyBuilt){
-            funcApply(this.attr._onLazyBuilt,this);
+            funcApply(this.attr._onLazyBuilt,null,this);
         }
     },
 

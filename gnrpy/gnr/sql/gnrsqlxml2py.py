@@ -3,11 +3,6 @@ import shutil
 import os
 
 def structToPy(tables, path):
-    """add???
-    
-    :param tables: add???
-    :param path: add???
-    """
     #shutil.rmtree(path,True)
     #os.makedirs(path)
     header = """# encoding: utf-8

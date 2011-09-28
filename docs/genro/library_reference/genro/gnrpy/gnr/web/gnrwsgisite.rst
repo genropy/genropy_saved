@@ -5,23 +5,23 @@
 ==========================
 
     *Last page update*: |today|
-
-* Index of ``gnr.web.gnrwsgisite`` classes:
     
-    Main class:
+    **Main class:**
     
     * :ref:`gnrwsgisite_gnrwsgisite`
     
-    Other classes:
+    **Other classes:**
     
     * :ref:`gnrwsgisite_sitelock`
     * :ref:`gnrwsgisite_memoize`
     
-    Exceptions classes:
+    **Exceptions classes:**
     
     * :ref:`gnrwsgisite_gnrsiteexception`
     
-* :ref:`gnrwsgisite_classes`
+    **Complete reference:**
+    
+    * :ref:`gnrwsgisite_classes`
 
 .. _gnrwsgisite_gnrwsgisite:
 

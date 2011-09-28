@@ -3,14 +3,18 @@
 ======================
 
     *Last page update*: |today|
-
-* Index of ``gnr.core.gnrlist`` classes:
+    
+    **Classes**:
     
     * :ref:`gnrlog_coloredformatter`
     
-* :ref:`gnrlog_others`
+    **External methods**:
     
-* :ref:`gnrlog_classes`
+    * :ref:`gnrlog_others`
+    
+    **Complete reference**:
+    
+    * :ref:`gnrlog_classes`
 
 .. _gnrlog_coloredformatter:
 
@@ -23,8 +27,8 @@
 
 .. _gnrlog_others:
 
-other methods
-=============
+External methods
+================
 
     These methods don't belong to any class.
 

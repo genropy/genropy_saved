@@ -4,18 +4,18 @@
 
     *Last page update*: |today|
     
-* Index of ``gnr.sql.PersistentDB`` classes:
-    
-    Main class:
+    **Main class:**
     
     * :ref:`persistentdb_persistentdb`
     
-    Exceptions classes:
+    **Exceptions classes:**
     
     * :ref:`persistentdb_persistentdberror`
     * :ref:`persistentdb_notsupportederror`
     
-* :ref:`persistendb_classes`
+    **Complete reference:**
+    
+    * :ref:`persistendb_classes`
 
 .. _persistentdb_persistentdb:
 

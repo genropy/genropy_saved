@@ -1,20 +1,11 @@
-.. _simple_firststeps:
+.. _tt_package:
 
-===========
-first steps
-===========
-    
-    *Last page update*: |today|
-    
-    .. warning:: chapter to be rewritten completely!
-    
-    * :ref:`simple_build_package`
-
-.. _simple_build_package:
-
+=====================
 creation of a package
 =====================
 
+    *Last page update*: |today|
+    
     You have to create a package for your database management. We suggest you to create your package with
     the same name of your project (it isn't mandatory).
     

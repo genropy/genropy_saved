@@ -16,8 +16,6 @@ introduction
 
     In this chapter we learn about batches.
     
-    A batch is ... add???
-    
     In Genropy you can use a batch to:
     
     * perform an :ref:`action`
@@ -28,7 +26,8 @@ introduction
     <gnr.web.batch.btcbase.BaseResourceBatch>` class (check the link for the complete
     methods reference)
     
-    Check also the :ref:`btcbase_webpage_variables`, that belong to every batch
+    Check also the :ref:`btcbase_webpage_variables`: they are some vaariables through which you
+    can set some basic actions for your batch (like: the batch name, the dimensions of dialogs) that belong to every batch
     (:ref:`action`, :ref:`mail` and :ref:`print`)
     
 .. _batch_section_index:

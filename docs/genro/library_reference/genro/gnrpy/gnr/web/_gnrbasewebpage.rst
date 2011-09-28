@@ -6,10 +6,18 @@
     
     *Last page update*: |today|
     
+    **Classes:**
+    
+    * :ref:`gnrbasewebpage1_gnrbasewebpage`
+    
+    **Complete reference:**
+    
+    * :ref:`gnrbasewebpage1_classes`
+    
 .. _gnrbasewebpage1_gnrbasewebpage:
 
-Index of :class:`GnrBaseWebPage` methods
-========================================
+:class:`GnrBaseWebPage`
+=======================
 
     .. module:: gnr.web._gnrbasewebpage.GnrBaseWebPage
     
