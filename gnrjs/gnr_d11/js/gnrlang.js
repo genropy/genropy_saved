@@ -76,6 +76,14 @@ function arrayContains(arr, item) {
     }
     return false;
 }
+function copyArray(arraylike){
+    if (!arraylike){
+        return [];
+    }
+    var result = [];
+    dojo.forEach(arraylike,function(n){result.push(n);});
+    return result;
+};
 
 function arrayIndexOf(arr, item) {
     for (var i = 0; i < arr.length; i++) {

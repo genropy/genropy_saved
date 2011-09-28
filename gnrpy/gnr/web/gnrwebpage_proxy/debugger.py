@@ -30,7 +30,7 @@ class GnrWebDebugger(GnrBaseProxy):
         value = sql
         if error:
             kwargs['sqlerror'] = str(error)
-        self._debug_calls.addItem('%03i Table:%s' % (len(self._debug_calls), dbtable.replace('.', '_')), value,
+        self._debug_calls.addItem('%03i Table %s' % (len(self._debug_calls), dbtable.replace('.', '_')), value,
                                   **kwargs)
 
     def event_onCollectDatachanges(self):
