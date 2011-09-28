@@ -2863,6 +2863,9 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
         }
         dropInfo.widget = widget;
+        if(dropInfo.widget && dropInfo.row!==null){
+            dropInfo.targetRowData = dropInfo.widget.rowByIndex(dropInfo.row);
+        }
         dropInfo.sourceNode = widget.sourceNode;
 
     },
