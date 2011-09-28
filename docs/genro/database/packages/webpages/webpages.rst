@@ -51,7 +51,7 @@ GnrCustomWebPage
           :ref:`components` to your webpage (or, more generally, Python modules)
         * :ref:`webpages_js_requires`: allow to include some javascript functionality
           to your webpage
-        * :ref:`webpages_css_requires`: allow to include some :ref:`css`
+        * :ref:`css_requires`: allow to include some :ref:`css`
           to your webpage
     
     #. You have to define the :ref:`webpages_main` method (unless you're using an active
@@ -185,7 +185,7 @@ webpage variables
     Let's see a list of webpages variables divided by their features:
     
     * Components variables: :ref:`webpages_py_requires`
-    * CSS variables: :ref:`webpages_css_requires`, :ref:`webpages_css_theme`, :ref:`webpages_css_icons`
+    * CSS variables: :ref:`css_requires`, :ref:`webpages_css_theme`, :ref:`webpages_css_icons`
     * Dojo variables: :ref:`webpages_dojo_source`, :ref:`webpages_dojo_theme`,
       :ref:`webpages_dojo_version`
     * javascript variables: :ref:`webpages_js_requires`
@@ -225,7 +225,7 @@ css_icons
       
     For more information check the :ref:`relative section on CSS page <css_icons>`
     
-    .. _webpages_css_requires:
+    .. _css_requires:
 
 css_requires
 ------------

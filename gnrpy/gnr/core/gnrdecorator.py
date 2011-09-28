@@ -42,11 +42,56 @@ def public_method(func):
     return func
     
 def extract_kwargs(_adapter=None,_dictkwargs=None,**extract_kwargs):
-    """A decorator. add???
+    """A decorator. Allow to extract some **kwargs creating some kwargs sub-families
     
-    :param _adapter: add???
-    :param _dictkwargs: add???
-    :param \*\*extract_kwargs: add???"""
+    :param _adapter: the adapter names for extracted attributes (prefixes for sub-families)
+                     every adapter name defines a single extract kwargs sub-family
+    :param _dictkwargs: a dict with the extracted kwargs
+    :param \*\*extract_kwargs: others kwargs
+    
+    In the "extract_kwargs" definition line you have to follow this syntax::
+    
+        @extract_kwargs(adapterName=True)
+        
+    where:
+    
+    * ``adapterName`` is one or more prefixes that identify the kwargs sub-families
+    
+    In the method definition the method's attributes syntax is::
+    
+        adapterName_kwargs
+        
+    where:
+    
+    * ``adapterName`` is the name of the ``_adapter`` parameter you choose
+    * ``_kwargs`` is a mandatory string
+    
+    When you call the decorated method, to specify the extracted kwargs you have to use the following syntax::
+    
+        methodName(adapterName_attributeName=value,adapterName_otherAttributeName=otherValue,...)
+        
+    where:
+    
+    * ``adapterName`` is the name of the ``_adapter`` parameter you choose
+    * ``attributeName`` is the name of the attribute extracted
+    * ``value`` is the value of the attribute
+    
+    **Example:**
+    
+        Let's define a method called ``my_method``::
+        
+            @extract_kwargs(palette=True,dialog=True,default=True)                    # in this line we define three families of kwargs,
+                                                                                      #     indentified by the prefixes:
+                                                                                      #     "palette", "dialog", "default"
+            def my_method(self,pane,table=None,                                       # "standard" parameters
+                          palette_kwargs=None,dialog_kwargs=None,default_kwargs=None, # extracted parameters from kwargs
+                          **kwargs):                                                  # other kwargs
+                          
+        Now, if you call the ``my_method`` method you will have to use::
+        
+            pane.another_method(palette_height='200px',palette_width='300px',dialog_height='250px')
+            
+        where "pane" is a :ref:`contentPane` to which you have attached your method"""
     if _dictkwargs:
         extract_kwargs = _dictkwargs
     def decore(func):

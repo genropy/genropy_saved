@@ -57,7 +57,7 @@ how to create a good component
         attach its data). Deal the ``user_data`` content as a type-less content.
         
     * **Test your component in a blank page.** In this way you can verify if all the dependencies (like
-      :ref:`webpages_py_requires`, :ref:`webpages_css_requires`, etc.) are correctly declared and you can
+      :ref:`webpages_py_requires`, :ref:`css_requires`, etc.) are correctly declared and you can
       verify the correct management of a lack of callbacks.
       
 .. _component_tutorial:

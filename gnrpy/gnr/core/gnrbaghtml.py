@@ -35,6 +35,7 @@ class BagToHtml(object):
     doc_footer_height = 0 # e.g. 15
     grid_header_height = 0 # e.g. 6.2
     grid_footer_height = 0
+    grid_col_headers = None
     grid_col_widths = [0, 0, 0]
     grid_row_height = 5
     copies_per_page = 1
@@ -52,13 +53,13 @@ class BagToHtml(object):
             self.templateLoader = templateLoader
             
     def init(self, *args, **kwargs):
-        """add???"""
+        """A ``init`` hook method"""
         pass
         
     def outputDocName(self, ext=''):
-        """add???
+        """Set the filename extension and return it
         
-        :param ext: add???"""
+        :param ext: the filename extension"""
         return 'temp.%s' % ext
         
     def onRecordLoaded(self):
@@ -66,8 +67,8 @@ class BagToHtml(object):
         pass
         
     def orientation(self):
-        """Set the page orientation to 'Landscape' if the :ref:`gnrbaghtml_page_width` is greater
-        than the :ref:`gnrbaghtml_page_height`, else set the orientation to 'Portrait'"""
+        """Set the page orientation to 'Landscape' if the :ref:`bagtohtml_page_width` is greater
+        than the :ref:`bagtohtml_page_height`, else set the orientation to 'Portrait'"""
         if self.page_width>self.page_height:
             return 'Landscape'
         else:
@@ -111,7 +112,7 @@ class BagToHtml(object):
         return result
         
     def get_css_requires(self):
-        """Get the :ref:`webpages_css_requires` and return it"""
+        """Get the :ref:`css_requires` and return it"""
         return self.css_requires.split(',')
         
     def prepareTemplates(self):
@@ -381,7 +382,8 @@ class BagToHtml(object):
             #    curr_copy['page_footer'] = self.page_layout.row(height=self.page_footer_height,lbl_height=4,lbl_class='caption').cell()
             
     def mainLayout(self, page):
-        """must be overridden
+        """Hook method that must be overridden. It returns the :ref:`print_layout_page`
+        object ... add???
         
         :param page: add???"""
         print 'mainLayout must be overridden'
@@ -480,29 +482,45 @@ class BagToHtml(object):
         pass
         
     def docFooter(self, footer, lastPage=None):
-        """Hook method. Define the document footer of the :ref:`layout print <print_layout>`
+        """Hook method. Define the document footer of the :ref:`print_layout`
         
         :param footer: the footer object
-        :param lastPage: add???"""
+        :param lastPage: add???
+        
+        .. note:: the method is called only if the :ref:`bagtohtml_doc_footer_height`
+                  has a value different from ``0``"""
         pass
         
     def pageFooter(self, footer, lastPage=None):
-        """Hook method. Define the page footer of the :ref:`layout print <print_layout>`
+        """Hook method. Define the page footer of the :ref:`print_layout`
         
         :param footer: the footer object
-        :param lastPage: add???"""
+        :param lastPage: add???
+        
+        .. note:: the method is called only if the :ref:`bagtohtml_page_footer_height`
+                  has a value different from ``0``"""
         pass
         
     def pageHeader(self, header):
-        """Hook method. Define the page header of the :ref:`layout print <print_layout>`
+        """Hook method. Define the page header of the :ref:`print_layout`
         
-        :param header: the header object"""
+        :param header: the header object
+        
+        .. note:: the method is called only if the :ref:`bagtohtml_page_header_height`
+                  has a value different from ``0``"""
         pass
         
     def docHeader(self, header):
-        """Hook method. Define the doc header of the :ref:`layout print <print_layout>`
+        """Hook method. Define the doc header of the :ref:`print_layout`
         
-        :param header: the header object"""
+        :param header: the header object
+        
+        The docHeader() method allows to receive an object called header to which you
+        can append a layout structure made by :ref:`layouts <layout_element>`, :ref:`rows <layout_row>`
+        and :ref:`cells <layout_cell>`
+        
+        .. note:: the method is called only if the :ref:`bagtohtml_doc_header_height`
+                  has a value different from ``0``"""
         pass
         
     def defineStandardStyles(self):

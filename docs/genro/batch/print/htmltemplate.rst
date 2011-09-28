@@ -8,6 +8,6 @@ html template
     
     add???
     
-    --> you can use it through the :ref:`templates webpage variable <print_templates>`
+    --> you can use it through the :ref:`templates webpage variable <baseresourceprint_templates>`
     of the :ref:`print_settings` or through the :ref:`templates webpage variable <bagtohtml_templates>`
     of the :ref:`print_layout`

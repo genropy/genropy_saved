@@ -9,7 +9,7 @@ childname
     .. note:: **validity** - the *childname* attribute is supported by:
               
               * every :ref:`cell <cells>`
-              * every :ref:`controller <datacontroller_index>`
+              * every :ref:`controller <controllers>`
               * every :ref:`form widget <form_widgets>`
               * every :ref:`layout widget <layout>`
               * it works also on :ref:`iframe`, :ref:`menu`, :ref:`slotBar <toolbar>`,

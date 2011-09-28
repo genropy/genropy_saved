@@ -32,7 +32,7 @@ Introduction
            css_requires = 'name_of_CSS_file' # write the CSS filename without its ``.css`` extension!
            
        For more information on ``css_requires`` please check the :ref:`css_requires section
-       <webpages_css_requires>`
+       <css_requires>`
        
     #. The second way is to use CSS style directly in your Genro :ref:`webpages_webpages`.
        When you do this, please pay attention that the CSS syntax is a little different
@@ -59,7 +59,7 @@ Introduction
         root.textbox(font_size='20pt',background_color='teal',value='^hello')
         
     .. note:: you can use both the ways we just explained to you in a single file: you can
-              import a CSS file with the :ref:`webpages_css_requires` and at the same time
+              import a CSS file with the :ref:`css_requires` and at the same time
               you can write additional style on some webpage elements.
        
     You should also know that:

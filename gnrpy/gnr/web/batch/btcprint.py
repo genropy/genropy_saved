@@ -11,13 +11,15 @@ from gnr.core.gnrbag import Bag
 
 class BaseResourcePrint(BaseResourceBatch):
     """Base resource to make a :ref:`print`"""
+    batch_immediate = False
     dialog_height = '300px'
     dialog_width = '460px'
     dialog_height_no_par = '245px'
-    templates = '' #CONTROLLARE
+    html_res = ''
+    mail_address = ''
     mail_tags = 'admin'
-    batch_immediate = False
-
+    templates = '' #CONTROLLARE
+    
     def __init__(self, *args, **kwargs):
         super(BaseResourcePrint, self).__init__(**kwargs)
         self.mail_preference = self.page.getUserPreference('mail', pkg='adm') or self.page.getPreference('mail',

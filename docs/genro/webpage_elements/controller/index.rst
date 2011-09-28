@@ -1,4 +1,4 @@
-.. _datacontroller_index:
+.. _controllers:
 
 ===========
 controllers
@@ -48,6 +48,7 @@ server-side controllers
     * :ref:`data`: used to define variables from server to client
     * :ref:`datarecord`: add???
     * :ref:`dataremote`: synchronous rpc
+    * :ref:`dataresource`: add???
     * :ref:`datarpc`: allow the client to make a call to the server to perform an action.
     * :ref:`dataselection`: add???
     
@@ -63,5 +64,6 @@ section index
     datacontroller
     dataformula
     dataremote
+    dataresource
     dataRpcs: dataRecord, dataRpc, dataSelection <datarpc/index>
     datascript

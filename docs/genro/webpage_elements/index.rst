@@ -28,7 +28,7 @@ introduction
     * :ref:`css` elements
     * :ref:`javascript` elements
     * :ref:`forms <form>` - the standard way to let the user enter data
-    * :ref:`datacontroller_index` - receive input and initiate a response by making calls on model objects
+    * :ref:`controllers` - receive input and initiate a response by making calls on model objects
     
     There are other webpage elements:
     
