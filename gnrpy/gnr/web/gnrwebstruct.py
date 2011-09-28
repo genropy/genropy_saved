@@ -1860,7 +1860,7 @@ class GnrGridStruct(GnrStructData):
                                                                     if (blocked){
                                                                         return;
                                                                     }
-                                                                    console.log(valuepath);
+                                                                    console.log('noblocked',blocked,this.form.locked,this.form.isDisabled(),this.form.isProtectWrite());
                                                                     var checked = storebag.getItem(valuepath);
                                                                     if(threestate){
                                                                         checked = checked===false?true:checked===true?null:false;
