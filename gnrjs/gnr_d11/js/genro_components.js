@@ -1066,7 +1066,10 @@ dojo.declare("gnr.stores._Collection",null,{
             value = !this.locked;
         }
         this.locked = value;
+        var parentForm = this.storeNode.getFormHandler();
+        var parentProtect = parentForm?parentForm.isProtectWrite():false;
         this.storeNode.setRelativeData('.locked',value);
+        this.storeNode.setRelativeData('.disabledButton',value || parentProtect);
         this.storeNode.publish('onLockChange',{'locked':this.locked});
     },
     

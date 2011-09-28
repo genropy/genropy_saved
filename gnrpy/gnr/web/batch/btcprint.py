@@ -56,7 +56,6 @@ class BaseResourcePrint(BaseResourceBatch):
             self.batch_parameters['templates'] = self.templates  #CONTROLLARE
         records = self.get_records()
         pkeyfield = self.tblobj.pkey
-
         for record in self.btc.thermo_wrapper(records, maximum=len(self.get_selection()), **thermo_s):
             self.print_record(record=record, thermo=thermo_r, storagekey=record[pkeyfield])
 

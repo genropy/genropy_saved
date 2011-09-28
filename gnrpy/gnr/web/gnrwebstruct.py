@@ -1005,7 +1005,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     dropCode, mode = dropCode.split(':')
                 dropmode = 'dropTarget_%s' % mode
                 ivattr[dropmode] = '%s,%s' % (ivattr[dropmode], dropCode) if dropmode in ivattr else dropCode
-                ivattr['onDrop_%s' % dropCode] = 'FIRE .dropped_%s = data' % dropCode
+                ivattr['onDrop_%s' % dropCode] = 'data._dropInfo = dropInfo; FIRE .dropped_%s = data' % dropCode
                 ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
                 
     def newincludedview_draganddrop(self,dropCodes=None,**kwargs):
@@ -1856,18 +1856,16 @@ class GnrGridStruct(GnrStructData):
                                                                     var sep = this.widget.gridEditor? '.':'?';
                                                                     var valuepath=rowpath+sep+'%(field)s';
                                                                     var storebag = this.widget.storebag();
-                                                                    var blocked = this.form? this.form.locked: !this.widget.editorEnabled;
+                                                                    var blocked = this.form? this.form.isDisabled() : !this.widget.editorEnabled;
                                                                     if (blocked){
                                                                         return;
                                                                     }
-                                                                    console.log(valuepath);
                                                                     var checked = storebag.getItem(valuepath);
                                                                     if(threestate){
                                                                         checked = checked===false?true:checked===true?null:false;
                                                                     }else{
                                                                         checked = !checked;
                                                                     }
-                                                                    console.log(storebag,checked);
                                                                     storebag.setItem(valuepath, checked);
                                                                     this.publish('checked_%(field)s',{row:this.widget.rowByIndex(kw.rowIndex),
                                                                                                       pkey:this.widget.rowIdByIndex(kw.rowIndex),

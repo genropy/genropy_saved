@@ -262,7 +262,7 @@ class TableHandlerView(BaseComponent):
         
         self.subscribeTable(table,True)
         frame.dataController("f.setHiderLayer({message:''},!hide);",f=frame,hide='^.queryRunning',msg='!!Loading')
-        store = frame.grid.selectionStore(table=table, columns='=.grid.columns',
+        store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
                                pkeys='=.query.pkeys', _fired='^.runQueryDo',
