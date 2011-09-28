@@ -1856,11 +1856,10 @@ class GnrGridStruct(GnrStructData):
                                                                     var sep = this.widget.gridEditor? '.':'?';
                                                                     var valuepath=rowpath+sep+'%(field)s';
                                                                     var storebag = this.widget.storebag();
-                                                                    var blocked = this.form? this.form.locked: !this.widget.editorEnabled;
+                                                                    var blocked = this.form? this.form.isDisabled(): !this.widget.editorEnabled;
                                                                     if (blocked){
                                                                         return;
                                                                     }
-                                                                    console.log(valuepath);
                                                                     var checked = storebag.getItem(valuepath);
                                                                     if(threestate){
                                                                         checked = checked===false?true:checked===true?null:false;
