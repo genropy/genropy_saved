@@ -971,6 +971,9 @@ dojo.declare('gnr.GenroClient', null, {
 
 
     addParamsToUrl: function(url, params) {
+        if(!objectNotEmpty(params)){
+            return url;
+        }
         var parameters = [];
         for (var key in params) {
             if(params[key]!==null){

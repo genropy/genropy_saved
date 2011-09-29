@@ -220,7 +220,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
         };
         var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':false,id:'gnr_devTools',
-                                        title:'Developer tools',style:"font-family:monaco;"});
+                                        title:'Developer tools ['+genro._('gnr.pagename')+']',style:"font-family:monaco;"});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
                            storepath:'*D',searchOn:true,tree_inspect:'shift',
                            'tree_connect_onclick':cbLog,
