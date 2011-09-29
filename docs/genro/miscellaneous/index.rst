@@ -33,7 +33,6 @@ section index
     languages
     login
     palette
-    replaceslots
     scripts/index
     struct
     trigger

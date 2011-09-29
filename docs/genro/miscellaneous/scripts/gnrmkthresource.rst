@@ -14,8 +14,8 @@ gnrmkthresource
         
     where:
     
-    * ``package_name`` is the name of the :ref:`package <packages_index>` and may be
-      in the form::
+    * ``package_name`` is the name of the :ref:`package <packages_index>`
+      and may be in the form::
       
         project_name:package_name
         
@@ -23,7 +23,7 @@ gnrmkthresource
     
     **Optional suffixes:**
     
-    * add???::
+    CLIPBOARD::
     
         "-f", "--force", dest="force", action='store_true', default=False,
         help="force the resource creation also if destination file exists"
@@ -36,8 +36,10 @@ gnrmkthresource
         "-i", "--indent", dest="indent", default=4,
          help="output file name, the file will be, will work only if single table is passed"
          
-    **Examples:**
-         
-    MyBook:packages niso$ cd genrotit
-    NisoBook:genrotit niso$ gnrmkthresource genrotit.banca -n banca
+    **Examples**
+    
+        add???::
+        
+            MyBook:packages niso$ cd packageName
+            packageName niso$ gnrmkthresource packageName.modelName -n th_modelName
     
