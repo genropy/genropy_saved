@@ -326,6 +326,37 @@ dojo.declare('gnr.GenroClient', null, {
         parentIframeSourceNode.publish('pageStarted');
     },
     
+    getChildFramePage:function(page_id){
+        var result;
+        var cb = function(f,r){
+            if (f.genro){ 
+                if(f.genro.page_id==page_id){
+                    return f;
+                }
+                return f.genro.getChildFramePage(page_id);
+            }
+        }
+        for (var i=0;i<window.frames.length; i++){
+            result = cb(window.frames[i]);
+            if(result){
+                break;
+            }
+        }
+        return result;
+    },
+    
+    getChildrenInfo:function(result){
+        var result = result ||  {};
+        var cb = function(f,r){
+            if (f.genro){ 
+                r[f.genro.page_id] = f.genro._serverstore_changes;
+                f.genro._serverstore_changes = null;
+                f.genro.getChildrenInfo(r)
+            }
+        }
+        dojo.forEach(window.frames,function(f){cb(f,result)});
+        return result;
+    },
     
     dragDropConnect:function(pane) {
         var pane = pane || genro.domById('mainWindow');
