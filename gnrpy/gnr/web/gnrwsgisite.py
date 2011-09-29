@@ -564,7 +564,6 @@ class GnrWsgiSite(object):
             path_list = ['_site', 'favicon.ico']
             self.log_print('', code='FAVICON')
             # return response(environ, start_response)
-            
         request_kwargs = self.parse_request_params(request.params)
         request_kwargs.pop('_no_cache_', None)
         storename = None

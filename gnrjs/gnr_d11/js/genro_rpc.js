@@ -207,6 +207,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         callKwargs = this.serializeParameters(genro.src.dynamicParameters(callKwargs));
         objectPop(callKwargs, '_destFullpath');
         callKwargs._lastUserEventTs = asTypedTxt(genro._lastUserEventTs, 'DH');
+        if(genro.root_page_id){
+            callKwargs._root_page_id = genro.root_page_id;
+        }
         if (genro.auto_polling > 0) {
             this._call_auto_polling();
         }
@@ -550,7 +553,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     
     
     ping:function(kw) {
-        if (genro.pollingRunning || genro._polling==false) {
+        if (genro.pollingRunning || !genro.polling_enabled) {
             return;
         }
         var kw = kw || {reason:null};

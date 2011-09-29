@@ -58,7 +58,9 @@ dojo.declare('gnr.GenroClient', null, {
         this.baseUrl = kwargs.baseUrl;
         this.lockingElements = {};
         this.debugRpc = false;
-        this._polling = true;
+        this.polling_enabled = false;
+        this.auto_polling = -1;
+        this.user_polling = -1;
         this.isDeveloper = objectPop(this.startArgs,'isDeveloper');
         this.theme = {};
         this.dojo = dojo;
@@ -123,10 +125,6 @@ dojo.declare('gnr.GenroClient', null, {
         this.prefs = {'recordpath':'tables.$dbtable.record',
             'selectionpath':'tables.$dbtable.selection',
             'limit':'50'};
-        this._starter();
-
-    },
-    _starter:function() {
         var mainWindow = dojo.byId('mainWindow');
         if (mainWindow && mainWindow.clientHeight==0){
             genro._startDelayer = setInterval(function(){
@@ -138,6 +136,7 @@ dojo.declare('gnr.GenroClient', null, {
         }else{
             dojo.addOnLoad(genro, 'start');
         }
+
     },
 
     compare: function(op, a, b) {
@@ -184,12 +183,8 @@ dojo.declare('gnr.GenroClient', null, {
         console.warn(msg);
         genro.dlg.message(msg);
     },
-    polling:function(v){
-        genro._polling =v;
-    },
+
     _registerUserEvents:function() {
-        this.auto_polling = -1;
-        this.user_polling = -1;
         genro._lastUserEventTs = new Date();
         var cb = function(e) {
             if (genro.user_polling > 0) {
@@ -223,7 +218,13 @@ dojo.declare('gnr.GenroClient', null, {
 
         
         //genro.timeIt('** getting main **');
-        var mainBagPage = this.rpc.remoteCall('main', this.startArgs, 'bag');
+        this.mainGenroWindow = window;
+        this.root_page_id = null;
+        if (window.frameElement && window.parent.genro){
+            this.mainGenroWindow = window.parent.genro.mainGenroWindow;
+            this.root_page_id = this.mainGenroWindow.genro.page_id;
+        }
+        var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
         //genro.timeIt('**  main received  **');
         if (mainBagPage && mainBagPage.attr.redirect) {
             var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':this.absoluteUrl()});
@@ -251,49 +252,13 @@ dojo.declare('gnr.GenroClient', null, {
         if(this.startArgs.workInProgress){
             genro.dom.addClass(dojo.body(),'workInProgress');
         }
-        
         var _this = this;
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
         genro.dev.shortcut("Ctrl+Shift+D", function() {
             genro.dev.showDebugger();
         });
-
-        genro.callAfter(function() {
-            var parentIframe = window.frameElement;
-            if(parentIframe){
-                var parentGenroData = window.parent.genro._data;
-                genro._data.setCallBackItem('_frames._parent',
-                    function(){
-                        return parentGenroData;
-                    },null,{isGetter:true});
-                var frameName = parentIframe.sourceNode.attr.frameName;
-                if(frameName){
-                    var currentData = genro._data;
-                    parentGenroData.setCallBackItem('_frames.'+frameName,function(){
-                        return currentData;
-                    });
-                }                
-                parentIframe.sourceNode._genro = this;
-                parentIframe.sourceNode.publish('pageStarted');
-            }
-            genro.fireEvent('gnr.onStart');
-            genro.publish('onPageStart');
-        }, 100);
-        genro.dev.shortcut('f1', function(e) {
-            genro.publish('SAVERECORD', e);
-        });
-        genro.dev.shortcut('f3', function(e) {
-            genro.publish('PRINTRECORD', e);
-        });
-        /* if (dojo.isSafari && genro.wdgById('pbl_root')){
-         setTimeout(genro.forceResize,1);
-         }*/
-        //dojo.publish('onPageStart', []);
+        genro.setDefaultShortcut();
         dojo.subscribe("setWindowTitle",function(title){genro.dom.windowTitle(title);});
-        //var windowTitle = this.getData('gnr.windowTitle');
-        //if (windowTitle) {
-        //    genro.dom.windowTitle(windowTitle);
-        //}
         if (this.debugopt) {
             genro.setData('gnr.debugger.sqldebug', this.debugopt.indexOf('sql') >= 0);
         }
@@ -301,14 +266,46 @@ dojo.declare('gnr.GenroClient', null, {
         this.isTouchDevice = ( (navigator.appVersion.indexOf('iPad') >= 0 ) || (navigator.appVersion.indexOf('iPhone') >= 0));
         this.isChrome = ( (navigator.appVersion.indexOf('Chrome') >= 0 ));
         this._registerUserEvents();
-
         if (this.isTouchDevice) {
             genro.dom.startTouchDevice();
         }
-
+        genro.callAfter(function() {
+            if(genro.root_page_id){
+                genro._connectToParentIframe(window.frameElement);
+            }
+            genro.fireEvent('gnr.onStart');
+            genro.publish('onPageStart');
+        }, 100);
     },
     
-
+    setDefaultShortcut:function(){
+        genro.dev.shortcut('f1', function(e) {
+            genro.publish('SAVERECORD', e);
+        });
+        genro.dev.shortcut('f3', function(e) {
+            genro.publish('PRINTRECORD', e);
+        });
+    },
+    
+    _connectToParentIframe:function(parentIframe){
+        var parentGenroData = window.parent.genro._data;
+        genro._data.setCallBackItem('_frames._parent',
+            function(){
+                return parentGenroData;
+            },null,{isGetter:true});
+        var parentIframeSourceNode = parentIframe.sourceNode;
+        var frameName = parentIframeSourceNode.attr.frameName;
+        if(frameName){
+            var currentData = genro._data;
+            parentGenroData.setCallBackItem('_frames.'+frameName,function(){
+                return currentData;
+            });
+        }                
+        parentIframeSourceNode._genro = this;
+        parentIframeSourceNode.publish('pageStarted');
+    },
+    
+    
     dragDropConnect:function(pane) {
         var pane = pane || genro.domById('mainWindow');
         dojo.connect(pane, 'dragstart', genro.dom, 'onDragStart');
@@ -316,6 +313,7 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(pane, 'dragover', genro.dom, 'onDragOver');
         dojo.connect(pane, 'drop', genro.dom, 'onDrop');
     },
+    
     setActiveForm:function(destform){
         if(destform!=genro.activeForm){
             if(genro.activeForm){

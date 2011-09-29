@@ -291,7 +291,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
          pane._('dataRpc',{'path':'.applyChangesToDb',method:'applyChangesToDb',
                             subscribe_devUtils_dbsetup:true,
                             _onResult:'genro.log("DB Change applied","applyChangesToDb")'});
-        sb._('checkbox','pollingSwitch',{'label':'Polling switch',value:'^gnr.polling.enabled'});
+        sb._('checkbox','pollingSwitch',{'label':'Polling switch',value:'^gnr.polling.polling_enabled'});
         sb._('button','checkDb',{'label':'CheckDb',publish:'devUtils_checkDb'});
         sb._('button','DbSetup',{'label':'DbSetup',publish:'devUtils_dbsetup'});
         sb._('button','ClearLog',{'label':'Clear log',action:'genro.clearlog()'});
