@@ -210,9 +210,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if(genro.root_page_id){
             callKwargs._root_page_id = genro.root_page_id;
         }
-        if (genro.auto_polling > 0) {
-            this._call_auto_polling();
-        }
+        //if (genro.auto_polling > 0) {
+        //    this._call_auto_polling();
+        //}
         var content = objectUpdate({}, callKwargs);
         content.page_id = this.application.page_id;
         var kw = objectUpdate({}, xhrKwargs);
@@ -263,21 +263,21 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         }
         return xhrResult;
     },
-    _call_auto_polling:function() {
-        if (this._auto_polling_handler) {
-            clearTimeout(this._auto_polling_handler);
-        }
-        this._auto_polling_handler = setTimeout(function() {
-            genro.rpc.ping({reason:'auto'});
-        }, genro.auto_polling * 1000);
-    },
+    //_call_auto_polling:function() {
+    //    if (this._auto_polling_handler) {
+    //        clearTimeout(this._auto_polling_handler);
+    //    }
+    //    this._auto_polling_handler = setTimeout(function() {
+    //        genro.rpc.ping({reason:'auto'});
+    //    }, genro.auto_polling * 1000);
+    //},
     setPolling:function(auto_polling, user_polling) {
         genro.user_polling = user_polling == null ? genro._('gnr.polling.user_polling') : user_polling;
         auto_polling = auto_polling == null ? genro._('gnr.polling.auto_polling') : auto_polling;
-        if (auto_polling != genro.auto_polling) {
-            genro.auto_polling = auto_polling;
-            this._call_auto_polling();
-        }
+        //if (auto_polling != genro.auto_polling) {
+        //    genro.auto_polling = auto_polling;
+        //    this._call_auto_polling();
+        //}
         ;
     },
     debugRpc:function(kw) {

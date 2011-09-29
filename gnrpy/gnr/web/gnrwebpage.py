@@ -1271,7 +1271,7 @@ class GnrWebPage(GnrBaseWebPage):
                                     user_polling="^gnr.polling.user_polling",
                                     auto_polling="^gnr.polling.auto_polling",
                                     polling_enabled="^gnr.polling.polling_enabled",
-                                    _onStart=True)
+                                    _init=True)
                 if self.dynamic_css_requires:
                     for v in self.dynamic_css_requires.values():
                         if v:

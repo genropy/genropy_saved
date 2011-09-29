@@ -183,20 +183,41 @@ dojo.declare('gnr.GenroClient', null, {
         console.warn(msg);
         genro.dlg.message(msg);
     },
-
-    _registerUserEvents:function() {
+    childUserEvent:function(childgenro,e){
+        if(!e){
+            console.log('aaaaa')
+        }
         genro._lastUserEventTs = new Date();
-        var cb = function(e) {
-            if (genro.user_polling > 0) {
-                genro._lastUserEventTs = new Date();
-                if ((genro._lastUserEventTs - genro.lastRpc) / 1000 > genro.user_polling) {
-                    genro.rpc.ping({'reason':'user'});
-                }
+        genro.onUserEvent(e);
+    },
+    
+    _registerUserEvents:function() {
+        var cb;
+        genro._lastUserEventTs = new Date();
+        if(this.root_page_id){
+            var rootgenro = this.mainGenroWindow.genro;
+            that = this;
+            cb = function(e){
+                rootgenro.childUserEvent(that,e);
             }
-        };
+            
+        }else{
+            setTimeout(function(){genro.onUserEvent()},genro.auto_polling * 1000);
+            cb = genro.onUserEvent;
+        }
         dojo.connect(window, 'onmousemove', cb);
         dojo.connect(window, 'onkeypress', cb);
     },
+    
+    onUserEvent:function(e) {
+        if (genro.user_polling > 0) {
+            genro._lastUserEventTs = new Date();
+            if ((genro._lastUserEventTs - genro.lastRpc) / 1000 > genro.user_polling) {
+                genro.rpc.ping({'reason':e?'user':'auto'});
+            }
+        }
+    },
+    
     start: function() {
         /*
          Here starts the application on page loading.
