@@ -447,7 +447,7 @@ th_webpage
                 
     because you will handle the Form class in the th_webpage.
     
-    How are the ``th_webpage`` and the :ref:`th_resource_page` related? Through their
+    How are the ``th_webpage`` and the :ref:`th_resource_page` related through their
     filename. Let's see this fact through an example:
     
         **Example:** let's suppose that you have a project called ``my_project``
@@ -456,7 +456,10 @@ th_webpage
         ``staff.py``), a :ref:`th_resource_page` (``th_staff.py``) and some
         ``th_webpages`` (``auth_page.py``, ``invoice_page.py`` and ``staff_page.py``):
         
-        .. image:: ../../_images/components/th/th_webpages.png
+            *In the image, the database tables are yellow, the resource webpage*
+            *is red and the th_webpages are orange*
+            
+            .. image:: ../../_images/components/th/th_webpages.png
         
         * "staff" is "ok", because we created the table (``staff.py``) in the correct place
           (``base/model``), the :ref:`th_resource_page` in the correct place
