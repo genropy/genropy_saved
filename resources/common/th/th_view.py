@@ -20,7 +20,7 @@ class TableHandlerView(BaseComponent):
     @extract_kwargs(condition=True)
     @struct_method
     def th_tableViewer(self,pane,frameCode=None,table=None,relation=None,th_pkey=None,viewResource=None,
-                       reloader=None,virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
+                       virtualStore=None,condition=None,condition_kwargs=None,**kwargs):
         self._th_mixinResource(frameCode,table=table,resourceName=viewResource,defaultClass='View')
         resourceCondition = self._th_hook('condition',mangler=frameCode,dflt=dict())()
         condition = condition or resourceCondition.pop('condition',None)
@@ -28,7 +28,7 @@ class TableHandlerView(BaseComponent):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,condition_kwargs=condition_kwargs,**kwargs)             
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
-                                 reloader=reloader,virtualStore=virtualStore,
+                                 virtualStore=virtualStore,
                                  condition=condition,condition_kwargs=condition_kwargs,**kwargs)
         for side in ('top','bottom','left','right'):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
@@ -38,7 +38,7 @@ class TableHandlerView(BaseComponent):
     
     @extract_kwargs (top=True)
     @struct_method
-    def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,reloader=None,virtualStore=None,extendedQuery=None,
+    def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
                        top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
@@ -63,7 +63,7 @@ class TableHandlerView(BaseComponent):
         if grid_kwargs['configurable']:
             frame.left.viewConfigurator(table,frameCode)                         
         self._th_viewController(frame,table=table)
-        frame.gridPane(table=table,reloader=reloader,th_pkey=th_pkey,virtualStore=virtualStore,
+        frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
                         condition=condition_kwargs)
         return frame
         
@@ -214,7 +214,7 @@ class TableHandlerView(BaseComponent):
 
 
     @struct_method
-    def th_gridPane(self, frame,table=None,reloader=None,th_pkey=None,
+    def th_gridPane(self, frame,table=None,th_pkey=None,
                         virtualStore=None,condition=None):
         table = table or self.maintable
         th_root = frame.getInheritedAttributes()['th_root']
