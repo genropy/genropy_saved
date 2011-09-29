@@ -106,7 +106,7 @@ public resource
        
         * :ref:`webpages_py_requires` for Genro :ref:`components` and other Python modules
         * :ref:`webpages_js_requires` for the javascript files
-        * :ref:`webpages_css_requires` for the CSS files
+        * :ref:`css_requires` for the CSS files
         
         For more information (and examples) on ``webpages variables``, check the
         :ref:`webpages_variables` section.
@@ -156,7 +156,7 @@ private resource
        
         * :ref:`webpages_py_requires` for the Python files
         * :ref:`webpages_js_requires` for the javascript files
-        * :ref:`webpages_css_requires` for the CSS files
+        * :ref:`css_requires` for the CSS files
         
         For more information, check the :ref:`webpages_variables` section.
         

@@ -855,7 +855,7 @@ class GnrWebPage(GnrBaseWebPage):
         return self.css_icons
             
     def get_css_path(self, requires=None):
-        """Get the css path included in the :ref:`webpages_css_requires`.
+        """Get the css path included in the :ref:`css_requires`.
         
         :param requires: If None, get the css_requires string included in a :ref:`webpages_webpages`"""
         requires = [r for r in (requires or self.css_requires) if r]

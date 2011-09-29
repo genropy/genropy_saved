@@ -28,9 +28,8 @@ autocreation of a package
 =========================
 
     If you follow the steps of the :ref:`project_autocreation` section, inside your
-    project you have the 4 subfolders we spoke in the
-    :ref:`project introduction <project_introduction>` in which a project is commonly
-    structured.
+    project you have the 4 subfolders we spoke in the :ref:`project introduction <project_intro>`
+    in which a project is commonly structured
     
     To create a project inside the ``packages`` subfolder, you can type in your terminal::
     

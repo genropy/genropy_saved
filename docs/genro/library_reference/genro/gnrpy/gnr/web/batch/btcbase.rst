@@ -17,8 +17,8 @@
     
 .. _btcbase_base:
 
-BaseResourceBatch
-=================
+:class:`BaseResourceBatch`
+==========================
 
     .. module:: gnr.web.batch.btcbase.BaseResourceBatch
     
@@ -55,14 +55,14 @@ BaseResourceBatch - webpage variables
 batch_cancellable
 -----------------
 
-    add???
+    add???. Default value is ``True``
     
 .. _batch_delay:
 
 batch_delay
 -----------
     
-    A string with the time milliseconds start delay
+    A string with the time milliseconds start delay. Default value is ``0.5``
     
 .. _batch_note:
 
@@ -74,12 +74,14 @@ batch_note
     In the :ref:`prints <print>` the "batch_title" adds a default note to the
     :ref:`print_setting_dialog_notes` of the :ref:`print_setting_dialog`
     
+    Default value is ``None``
+    
 .. _batch_prefix:
 
 batch_prefix
 ------------
     
-    A string with a prefix for the batch name
+    A string with a prefix for the batch name. Default value is ``BB``
       
       **Example**::
       
@@ -90,14 +92,14 @@ batch_prefix
 batch_steps
 -----------
 
-    add???
+    add???. Default value is ``None``
     
 .. _batch_thermo_lines:
 
 batch_thermo_lines
 ------------------
 
-    add???
+    add???. Default value is ``'batch_steps,batch_main,ts_loop'``
     
 .. _batch_title:
 
@@ -108,26 +110,28 @@ batch_title
     
     In the :ref:`prints <print>` the "batch_title" is the title of the :ref:`print_setting_dialog`
     
+    Default value is ``My Batch Title``
+    
 .. _base_dialog_height:
 
 dialog_height
 -------------
 
-    Define the height of the batch dialog
+    Define the height of the batch dialog. Default value is ``200px``
     
 .. _base_dialog_width:
 
 dialog_width
 ------------
 
-    Define the width of the batch dialog
+    Define the width of the batch dialog. Default value is ``300px``
     
 .. _virtual_columns:
 
 virtual_columns
 ---------------
 
-    add???
+    add???. Default value is ``None``
     
 .. _btcbase_classes:
 

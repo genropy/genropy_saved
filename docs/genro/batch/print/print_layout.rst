@@ -3,7 +3,9 @@
 =================
 print layout file
 =================
-
+    
+    *Last page update*: |today|
+    
     **First steps**:
     
     * :ref:`print_layout_intro`
@@ -12,24 +14,25 @@ print layout file
     **Features**:
     
     * :ref:`print_layout_features`
-    * :ref:`print_layout_zones`
+    * :ref:`print_layout_pagedocgrid`:
     
-    **Creation of the file**:
+        * :ref:`print_layout_page`
+        * :ref:`print_layout_doc`
+        * :ref:`print_layout_grid`
+        
+    **File creation**:
+        
+    :ref:`print_layout_creation`:
     
     * :ref:`print_layout_import`
     * :ref:`print_layout_main`:
     
         * :ref:`print_layout_main_webpages_variables`
-        * :ref:`print_layout_main_methods`:
+        * :ref:`print_layout_main_methods`
         
-            * hook methods: :ref:`layout_docheader`, :ref:`layout_docfooter`,
-              :ref:`layout_pageheader`, :ref:`layout_pagefooter`
-            * layout elements: :ref:`layout_element`, :ref:`layout_row`,
-              :ref:`layout_cell`
-              
     **Examples**:
-    
-    * :ref:`example <print_layout_example>`
+              
+    * :ref:`print_layout_example`
     
     **Library reference**:
     
@@ -37,13 +40,15 @@ print layout file
     
 .. _print_layout_intro:
 
-introduction
+Introduction
 ============
 
     The print layout file allows to specify the layout of a print
     
     * In the :ref:`print_layout_location` section we describe the specific location
       of the print layout file
+      
+    * In the ... add??? :ref:`print_layout_features`, :ref:`print_layout_pagedocgrid`
       
     Once you created the file you have to:
     
@@ -57,7 +62,7 @@ introduction
     
 .. _print_layout_location:
 
-file location
+File location
 =============
 
     The location of the print layout file must follow a standard path followed
@@ -74,7 +79,7 @@ file location
     * ``tables`` is the :ref:`resources_tables` folder
     * ``tableName`` is the name of the :ref:`table` related to the print
     * ``customPath`` is the path you choose for your print layout file through the
-      :ref:`"html_res" webpage variable <print_html_res>` of the :ref:`print_settings_main`
+      :ref:`"html_res" webpage variable <baseresourceprint_html_res>` of the :ref:`print_settings_main`
       of the :ref:`print_settings` (there is any convention about the name you have to use)
       
         **customPath syntax**::
@@ -100,7 +105,7 @@ file location
     
 .. _print_layout_features:
 
-layout page - features
+Layout page - features
 ======================
 
     add???
@@ -108,17 +113,10 @@ layout page - features
     LE STAMPE SI POSSONO FARE O IN MODALITA' SINGOLO RECORD, O IN MODALITA'
     TESTATA RIGHE (la TESTATA è chiamata DOC): documentare con immagini
     
-.. _print_layout_zones:
-    
-layout print zones
-==================
-
-    add???
-    
 .. _print_layout_pagedocgrid:
 
-page, doc, grid
-===============
+Layout print regions
+====================
     
     add???
     
@@ -145,24 +143,15 @@ grid
 
     add???
     
-.. _print_layout_footer_height:
-    
-footer height
--------------
+.. _print_layout_creation:
 
-    add???
-    
-.. _print_layout_header_height:
+Creation of the file
+====================
 
-header height
--------------
-
-    add???
-    
 .. _print_layout_import:
 
 import
-======
+------
 
     In order to use the layout functionalities you have to import in your print layout file
     the :class:`TableScriptToHtml <gnr.web.gnrbaseclasses.TableScriptToHtml>` class::
@@ -174,19 +163,20 @@ import
 .. _print_layout_main:
 
 Main class
-==========
+----------
 
     The Main class inherits from the :class:`TableScriptToHtml
     <gnr.web.gnrbaseclasses.TableScriptToHtml>` class, so write::
     
         class Main(TableScriptToHtml):
         
-    In the Main class you have to add some webpage variables:
+    In the Main class you have to add some webpage variables and some methods
+    that allow to customize the settings file:
     
 .. _print_layout_main_webpages_variables:
 
 Main class webpage variables
-============================
+----------------------------
 
     .. note:: the unit of measurement of all the numerical variables are in millimeters
               (e.g: ``print_width = 200`` means 200 millimeters)
@@ -195,77 +185,119 @@ Main class webpage variables
     belonging to the two parent classes (the ``BagToHtml`` class and the ``TableScriptToHtml``
     class) of the Main class that allow you to customize your print layout.
     
-    We list here all these variables, specifying their parent class; if you need
-    informations about them, click on their name to go on their description section.
+    We list here all these variables with a *short description about them*, specifying
+    their parent class; if you need a more complete description, click on their name to
+    go on their description section.
     
-    List of the webpage variables of the :class:`BagToHtml <gnr.core.gnrbaghtml.BagToHtml>` class:
+    List of the webpage variables of the :class:`BagToHtml
+    <gnr.core.gnrbaghtml.BagToHtml>` class:
     
-    * :ref:`bagtohtml_copies_per_page`
-    * :ref:`bagtohtml_copy_extra_height`
-    * :ref:`bagtohtml_css_requires`
-    * :ref:`bagtohtml_currencyformat`
-    * :ref:`bagtohtml_doc_header_height`
-    * :ref:`bagtohtml_doc_footer_height`
-    * :ref:`bagtohtml_encoding`
-    * :ref:`bagtohtml_grid_header_height`
-    * :ref:`bagtohtml_grid_footer_height`
-    * :ref:`bagtohtml_grid_col_widths`
-    * :ref:`bagtohtml_grid_row_height`
-    * :ref:`bagtohtml_page_debug`
-    * :ref:`bagtohtml_page_footer_height`
-    * :ref:`bagtohtml_page_header_height`
-    * :ref:`bagtohtml_page_height`
-    * :ref:`bagtohtml_page_leftbar_width`
-    * :ref:`bagtohtml_page_rightbar_width`
-    * :ref:`bagtohtml_page_margin_bottom`
-    * :ref:`bagtohtml_page_margin_left`
-    * :ref:`bagtohtml_page_margin_right`
-    * :ref:`bagtohtml_page_margin_top`
-    * :ref:`bagtohtml_page_width`
-    * :ref:`bagtohtml_print_button`
-    * :ref:`bagtohtml_row_mode`
-    * :ref:`bagtohtml_rows_path`
-    * :ref:`bagtohtml_starting_page_number`
-    * :ref:`bagtohtml_templates`
+    +------------------------------------------+---------------------------------------------------------+
+    |  Name                                    |     Description                                         |
+    +==========================================+=========================================================+
+    | :ref:`bagtohtml_copies_per_page`         |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_copy_extra_height`       |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_css_requires`            |  allow to import css files                              |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_currencyformat`          |  set the numerical format for the print columns         |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_doc_header_height`       |  set the :ref:`print_layout_doc` header height          |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_doc_footer_height`       |  set the :ref:`print_layout_doc` footer height          |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_encoding`                |  set the data encoding                                  |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_grid_header_height`      |  set the :ref:`print_layout_grid` header height         |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_grid_footer_height`      |  set the :ref:`print_layout_grid` footer height         |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_grid_col_headers`        |  Set the :ref:`print_layout_grid` header names of the   |
+    |                                          |  print columns                                          |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_grid_col_widths`         |  list. Set the :ref:`print_layout_grid` columns width   |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_grid_row_height`         |  set the :ref:`print_layout_grid` rows height           |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_page_debug`              |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_page_footer_height`      |  set the :ref:`print_layout_page` footer height         |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_page_header_height`      |  set the :ref:`print_layout_page` header height         |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_page_height`             |  set the :ref:`print_layout_page` height                |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_page_width`              |  set the :ref:`print_layout_page` width                 |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_page_leftbar_width`      |  set the :ref:`print_layout_page` left bar width        |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_page_rightbar_width`     |  set the :ref:`print_layout_page` right bar width       |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_page_margin_bottom`      |  set the :ref:`print_layout_page` bottom margin         |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_page_margin_left`        |  set the :ref:`print_layout_page` left margin           |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_page_margin_right`       |  set the :ref:`print_layout_page` right margin          |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_page_margin_top`         |  set the :ref:`print_layout_page` top margin            |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_print_button`            |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_row_mode`                |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_rows_path`               |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_starting_page_number`    |  set the starting :ref:`print_layout_page` number       |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`bagtohtml_templates`               |  specify the :ref:`html templates <htmltemplate>` names |
+    +------------------------------------------+---------------------------------------------------------+
     
     List of the webpage variables of the :class:`TableScriptToHtml
     <gnr.web.gnrbaseclasses.TableScriptToHtml>` class:
     
-    * :ref:`tablescripttohtml_rows_table`
-    * :ref:`tablescripttohtml_virtual_columns`
-    
-css_requires
-------------
-    
-    Allow to import :ref:`css` files. For more information, check the
-    :ref:`webpages_css_requires` section
+    +------------------------------------------+---------------------------------------------------------+
+    |  Name                                    |     Description                                         |
+    +==========================================+=========================================================+
+    | :ref:`tablescripttohtml_rows_table`      |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`tablescripttohtml_virtual_columns` |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
     
 .. _print_layout_main_methods:
     
-build the layout - Main class methods
-=====================================
+Main class methods
+==================
 
-    In this section we describe all the layout hook methods and all the elements that allow
-    you to personalize the print.
+    In this section we describe all the layout hook methods and all the
+    elements that allow you to personalize the print
     
     They are:
     
-    * :ref:`layout_definestandardstyles`: allow to add???
-    * :ref:`layout_docheader`: allow to add???
-    * :ref:`layout_docfooter`: allow to add???
-    * :ref:`layout_pageheader`: allow to add???
-    * :ref:`layout_pagefooter`: allow to add???
+    * :ref:`layout_mainlayout`: MANDATORY - add???
+    * :ref:`layout_definestandardstyles`: add???
+    * :ref:`layout_docheader`: add???
+    * :ref:`layout_docfooter`: add???
+    * :ref:`layout_pageheader`: add???
+    * :ref:`layout_pagefooter`: add???
     
     Inside these methods, you can create the layout through the following three methods:
     
-    * the :ref:`layout method <layout_element>`: allow to return a layout element
-    * the :ref:`row method <layout_row>`: allow to return a row element 
-    * the :ref:`cell method <layout_cell>`: allow to return a cell element
+    * the :ref:`layout() method <layout_element>`: allow to return a layout element
+    * the :ref:`row() method <layout_row>`: allow to return a row element 
+    * the :ref:`cell() method <layout_cell>`: allow to return a cell element
+    
+.. _layout_mainlayout:
+
+mainLayout()
+------------
+
+    .. automethod:: gnr.core.gnrbaghtml.BagToHtml.mainLayout
     
 .. _layout_definestandardstyles:
 
-defineStandardStyles
---------------------
+defineStandardStyles()
+----------------------
 
     .. automethod:: gnr.core.gnrbaghtml.BagToHtml.defineStandardStyles
     
@@ -273,17 +305,15 @@ defineStandardStyles
     
 .. _layout_docheader:
 
-docHeader
----------
+docHeader()
+-----------
 
     .. automethod:: gnr.core.gnrbaghtml.BagToHtml.docHeader
     
-    add???
-    
 .. _layout_docfooter:
 
-docFooter
----------
+docFooter()
+-----------
 
     .. automethod:: gnr.core.gnrbaghtml.BagToHtml.docFooter
     
@@ -291,8 +321,8 @@ docFooter
     
 .. _layout_pageheader:
 
-pageHeader
-----------
+pageHeader()
+------------
 
     .. automethod:: gnr.core.gnrbaghtml.BagToHtml.pageHeader
     
@@ -300,8 +330,8 @@ pageHeader
     
 .. _layout_pagefooter:
 
-pageFooter
-----------
+pageFooter()
+------------
 
     .. automethod:: gnr.core.gnrbaghtml.BagToHtml.pageFooter
     
@@ -336,8 +366,8 @@ cell
     
 .. _print_layout_example:
     
-print layout file - example
-===========================
+a simple example
+================
 
     Let's see an example page of a :ref:`print_layout`::
     
@@ -491,8 +521,8 @@ clipboard
         
 .. _layout_library:
                 
-print layout file - library reference
-=====================================
+Library reference
+=================
 
     For the complete library reference, check:
     

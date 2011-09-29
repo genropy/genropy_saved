@@ -20,8 +20,8 @@ basic structure
     ``sites`` folder you will find a ``site`` folder including a :ref:`sites_pages`
     folder, a :ref:`sites_root` file and a :ref:`sites_siteconfig` file.
     
-    During the execution of the :ref:`gnrwsgisite` script there will be created the :ref:`data_folder`
-    folder and the :ref:`automap` file
+    During the execution of the :ref:`gnrwsgiserve` script there will be created
+    the :ref:`data_folder` folder and the :ref:`automap` file
     
 .. _sites_autofill:
 
