@@ -27,7 +27,7 @@ section index
     
     auth
     clipboard
-    datastore/index
+    datastore
     decorators
     grid
     languages

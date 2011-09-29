@@ -91,7 +91,7 @@ Tags
 
     Allow to define some connections properties used by the :ref:`wsgi`:
     
-    * *homepage*: specify the first :ref:`webpages_webpages` opened on your application.
+    * *homepage*: specify the first :ref:`webpage` opened on your application.
                   **syntax**:
                   
                   ::
@@ -119,7 +119,7 @@ Tags
     * *port*: specify the port number for your applications
     * *reload*: boolean. If ``True``, ... ???
     * *debug*: boolean. If ``True`` and if a programming error is revealed during the execution
-               of a :ref:`webpages_webpages`, it allows to send a traceback of the error through
+               of a :ref:`webpage`, it allows to send a traceback of the error through
                a WebError Traceback [#]_
                
     This is an example of the ``<wsgi>`` tag::

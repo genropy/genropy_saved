@@ -96,48 +96,46 @@ TableHandler
 Introduction
 ============
 
-    The TableHandler is the Genro way to handle data visualization and data entry.
+    1. The TableHandler is the Genro way to handle data visualization and data entry
     
-    The TableHandler is structured in two main classes:
-    
-    * the View class, that allows to manage data visualization
-    * the Form class, that allows to manage data entry
-    
-    These two classes will be visualized respectively into a *view-data window*:
-    
-    .. image:: ../../_images/components/th/view.png
-    
-    and into a *data-entry window*:
-    
-    .. image:: ../../_images/components/th/form.png
-    
-    For more information of the GUI of these two pages, please check the
-    :ref:`view_data` and the :ref:`data_entry` pages.
-    
-    The TableHandler carries many features:
-    
-    * You can create your TableHandlers into the ``resources`` folder of your
-      :ref:`projects <project>`. This fact allows to reuse the TableHandlers
-      you created in more than a webpage.
-      
-      Example: if you have to create a table with the registry (in italian , the
-      *anagrafica*) of a society, a registry of the staff, a registry of society
-      clients (and so on) you can create a single resource that you can reuse every
-      time you need it.
-      
-    * You can choose the GUI of your *data-entry window* from a set of options
-      (e.g: dialog, palette, stackcontainer...). Please check the :ref:`th_types`
-      section for more information.
-      
-    In the following sections we try to explain all the info you need to make the new
-    TableHandlers works.
-    
+    2. The TableHandler is structured in two main classes:
+       
+       * the :ref:`th_view_class` to manage data visualization
+       * the :ref:`th_form_class` to manage data entry
+       
+       These two classes will be visualized respectively into a *view-data window*:
+       
+       .. image:: ../../_images/components/th/view.png
+       
+       and into a *data-entry window*:
+       
+       .. image:: ../../_images/components/th/form.png
+       
+       We talk about the *view-data window* and the *data-entry window* further
+       in this page (in particular in the :ref:`view_data` and the :ref:`data_entry`
+       sections)
+       
+    3. The TableHandler carries many features:
+       
+       * The TableHandler automatically handles the management of data recording
+       * You can create your TableHandlers into the :ref:`intro_resources` folder
+         of your :ref:`projects <project>`. So you can reuse the TableHandlers
+         you have created in more than a webpage (and in more than a package)
+       * The TableHandler is fully customizable:
+       
+         * manipulating the main structure of View and Form classes: more information
+           in the :ref:`th_map` section
+         * choosing the CSS icons set: more information in the :ref:`css_icons` section
+         * choosing the GUI of your *data-entry window* from a set of options
+           (e.g: dialog, palette, stackcontainer...): more information in the
+           :ref:`th_types` section
+           
 .. _th_map:
 
 TableHandler: paths
 ===================
 
-    In this section you will learn about the path structure of the TableHandler.
+    In this section you will learn about the path structure of the TableHandler
     
     .. note:: you can inspect the path of your data in a webpage directly on your
               browser opening the :ref:`datastore_debugger`.
@@ -551,7 +549,7 @@ th_webpage
     
         maintable = 'packageName.tableName'
         
-    This line it is not mandatory, because a :ref:`webpages_webpages` (or a ``th_webpage``)
+    This line it is not mandatory, because a :ref:`webpage` (or a ``th_webpage``)
     is related to a table through its :ref:`webpages_maintable` (a :ref:`webpages_variables`)
     or through the :ref:`dbtable` attribute (defined inside one of the :ref:`webpage_elements_index`).
     If you define the ``maintable``, then you have defined the standard value for all the
@@ -1328,7 +1326,7 @@ formResource attribute
        the Form class called ``Form``, the formResource will be::
        
         formResource='th_staff:Form'
-    
+        
     .. _th_viewresource:
 
 viewResource attribute
