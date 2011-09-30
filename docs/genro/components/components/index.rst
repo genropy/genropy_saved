@@ -14,4 +14,4 @@ index of components
     linkerField
     periodcombo
     selectionbrowser
-    th
+    th/index
