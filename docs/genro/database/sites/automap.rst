@@ -19,7 +19,7 @@
         <GenRoBag></GenRoBag>
         
     Inside the ``<GenRoBag>`` tag you will find all the packages of your projects (even the
-    :ref:`imported packages <instanceconfig_packages>`) and their :ref:`webpages <webpages_webpages>`;
+    :ref:`imported packages <instanceconfig_packages>`) and their :ref:`webpages <webpage>`;
     
     the syntax used is::
     

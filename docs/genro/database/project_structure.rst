@@ -35,7 +35,7 @@ basic structure
           * a :ref:`packages_model` folder
           * a :ref:`public_resources` folder
           * a :ref:`packages_webpages` folder
-              * one or more :ref:`webpages <webpages_webpages>`
+              * one or more :ref:`webpages <webpage>`
                     
         * :ref:`private_resources` folder (for all your project :ref:`private resources <private_resource>`)
         * :ref:`sites_index` folder - here lies all your sites folder.

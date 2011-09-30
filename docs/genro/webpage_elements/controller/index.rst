@@ -17,9 +17,7 @@ introduction
 
     The Genro controllers receive inputs and initiate a response by making calls on model objects.
     
-    We emphasize that all the controllers can be attached to every Genro object.
-    
-    .. note:: we recommend you to read :ref:`webpage` before reading this section.
+    We emphasize that all the controllers can be attached to every Genro object
     
     The controllers can be divided in two groups:
     

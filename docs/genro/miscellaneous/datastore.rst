@@ -13,14 +13,14 @@ datastore
 
 .. _datastore_description:
 
-Description
+description
 ===========
     
     The datastore is a Genro :ref:`bag` used to keep track of data.
 
 .. _datastore_syntax:
 
-Datastore syntax
+datastore syntax
 ================
     
     The path followed by the syntax in the datastore:
@@ -41,25 +41,25 @@ Datastore syntax
 
 .. _datastore_access:
 
-Access to the datastore from javascript
-=======================================
+javascript datastore access
+===========================
 
-    The possible operations on the datastore include some macros, that are:
+    The possible operations on the datastore include some :ref:`macro` (like :ref:`set` and :ref:`get`)
     
-    * :ref:`set`
-    * :ref:`put`
-    * :ref:`get`
-    * :ref:`fire`
+    They can be specified in the javascript events associated with an interface, and the framework
+    deals gnrjs to the expansion of these macros
     
-    They can be specified in the javascript events associated with an interface, and the framework deals
-    gnrjs to the expansion of these macros. Check the :ref:`macro` page for further details.
-
 .. _datastore_debugger:
 
 inspector
 =========
 
-    You can access to its graphic interface from any Genro webpage by clicking ``ctrl+shift+D``:
+    We call "inspector" the graphic interface of the :ref:`datastore`.
     
-    .. image:: ../../_images/datastore.png
+    You can access it directly from your browser when you are in a :ref:`webpage`
+    by clicking ``ctrl+shift+D``:
     
+        *The inspector*
+        
+        .. image:: ../_images/datastore.png
+        
