@@ -2860,12 +2860,12 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 dropInfo.outline = event.cellNode;
             } else if (dropmode == 'row') {
                 dropInfo.outline = event.rowNode;
+                if(widget && dropInfo.row!==null){
+                    dropInfo.targetRowData = widget.rowByIndex(dropInfo.row);
+                }
             }
         }
         dropInfo.widget = widget;
-        if(dropInfo.widget && dropInfo.row!==null){
-            dropInfo.targetRowData = dropInfo.widget.rowByIndex(dropInfo.row);
-        }
         dropInfo.sourceNode = widget.sourceNode;
 
     },
@@ -2905,7 +2905,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             trash.style.top = Math.floor(vp.y + vp.h + 1) + "px";
             return true;
         }
-
     }
 });
 // **************** Virtual Grid ****************
