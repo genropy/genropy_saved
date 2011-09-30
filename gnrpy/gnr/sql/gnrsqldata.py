@@ -61,7 +61,7 @@ class SqlCompiledQuery(object):
         self.maintable = maintable
         self.relationDict = relationDict or {}
         self.aliasDict = {}
-        self.template = Bag()
+        self.resultmap = Bag()
         self.distinct = ''
         self.columns = ''
         self.joins = []
@@ -558,12 +558,15 @@ class SqlQueryCompiler(object):
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
         for fieldname, value, attrs in self.relations.digest('#k,#v,#a'):
+            xattrs = dict(attrs)
             if not (bagFields or (attrs.get('dtype') != 'X')):
                 continue
             if 'joiner' in attrs:
-                attrs['_relmode'] = self._getRelationMode(attrs['joiner'])
+                xattrs['_relmode'] = self._getRelationMode(attrs['joiner'])
             else:
                 self.fieldlist.append('t0.%s AS t0_%s' % (fieldname, fieldname))
+                xattrs['as'] = 't0_%s' %fieldname
+            self.cpl.resultmap.setItem(fieldname,None,xattrs)
 
         if virtual_columns:
             self._handle_virtual_columns(virtual_columns)
@@ -606,7 +609,7 @@ class SqlQueryCompiler(object):
                 pass
             xattrs['as'] = as_name
             self.fieldlist.append('%s AS %s' % (field, as_name))
-            #self.cpl.template.setItem(path_name, None, xattrs)
+            self.cpl.resultmap.setItem(path_name, None, xattrs)
             #self.cpl.dicttemplate[path_name] = as_name
             
     def expandPeriod(self, m):
@@ -1933,10 +1936,10 @@ class SqlRecord(object):
             where = '$pkey = :pkey'
         else:
             where = ' AND '.join(['t0.%s=:%s' % (k, k) for k in self.sqlparams.keys()])
-        self.compiler = SqlQueryCompiler(self.dbtable.model, sqlparams=self.sqlparams,
+        compiler = SqlQueryCompiler(self.dbtable.model, sqlparams=self.sqlparams,
                                   joinConditions=self.joinConditions,
                                   sqlContextName=self.sqlContextName)
-        return self.compiler.compiledRecordQuery(where=where,relationDict=self.relationDict,bagFields=self.bagFields,
+        return compiler.compiledRecordQuery(where=where,relationDict=self.relationDict,bagFields=self.bagFields,
                                                 for_update=self.for_update,virtual_columns=self.virtual_columns,
                                                 **self.relmodes)
         
@@ -2015,13 +2018,12 @@ class SqlRecord(object):
         
     def out_dict(self):
         """add???"""
-        return 'TO FIX'
-        #return dict([(str(k), self.result[v]) for k, v in self.compiled.dicttemplate.items()])
+        return dict([(str(k)[3:], self.result[k]) for k in self.result.keys()])
     
 
     def loadRecord(self,result,resolver_one=None,resolver_many=None):
         if self.result is not None:
-            self._loadRecord(result,self.result,self.compiler.relations,resolver_one=resolver_one,resolver_many=resolver_many)
+            self._loadRecord(result,self.result,self.compiled.resultmap,resolver_one=resolver_one,resolver_many=resolver_many)
    
 
     def _loadRecord_DynItemMany(self,fieldname,joiner,info,sqlresult,resolver_one,resolver_many):
