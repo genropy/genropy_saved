@@ -23,7 +23,7 @@
 Introduction
 ============
     
-    This XML file allows to create a menu for your project's :ref:`webpages <webpages_webpages>`.
+    This XML file allows to create a menu for your project's :ref:`webpages <webpage>`.
     
     If you have autocreated it (following the instructions of the :ref:`packages_autofill`
     section) you will find this code::
@@ -33,7 +33,7 @@ Introduction
         </GenRoBag>
     
     All you have to do is to fill the :ref:`bag_intro` called ``<GenRoBag>`` with tags.
-    Every :ref:`webpages_webpages` of your project has to fill a single tag. The syntax is::
+    Every :ref:`webpage` of your project has to fill a single tag. The syntax is::
     
         <tagName label='labelName' file='packageName/fileName' />
         
@@ -42,7 +42,7 @@ Introduction
     * ``tagName`` is the name of the tag (it doesn't appear on menu view)
     * ``label=''`` includes a string with the name of the menu voice
     * ``file=''`` includes a string with the name of the package in which the webpage is defined
-      followed by the name of the related :ref:`webpages_webpages` file (without its ``.py``
+      followed by the name of the related :ref:`webpage` file (without its ``.py``
       extension)
     
     .. note:: you can omit the ``packageName`` if the ``menu.xml`` is included in the same
@@ -143,7 +143,7 @@ basepath
 tags
 ----
 
-    If you have defined the permits [#]_ of your :ref:`webpages_webpages`, you can keep private
+    If you have defined the permits [#]_ of your :ref:`webpage`, you can keep private
     some webpages according to the type of authorization. For example, you can create some pages
     visible only to developers and some pages visible only to the administrator.
     

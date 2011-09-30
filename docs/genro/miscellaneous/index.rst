@@ -27,13 +27,12 @@ section index
     
     auth
     clipboard
-    datastore/index
+    datastore
     decorators
     grid
     languages
     login
     palette
-    replaceslots
     scripts/index
     struct
     trigger

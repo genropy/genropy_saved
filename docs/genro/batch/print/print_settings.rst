@@ -260,7 +260,7 @@ print GUI
               So, you don't need to create any GUI that allows user to start a print.
               Continue the reading of this section if you are not using the TableHandler
     
-    To let the user starts a print from a :ref:`webpages_webpages`, you have to create 
+    To let the user starts a print from a :ref:`webpage`, you have to create 
     a :ref:`button` using the :ref:`action_attr` attribute that performs a :ref:`publish`.
     
     Create your button remembering that:
@@ -291,7 +291,7 @@ print setting dialog
 ====================
 
     The print setting dialog is the dialog that represents the :ref:`print setting file
-    <print_settings>` in the :ref:`webpages_webpages`:
+    <print_settings>` in the :ref:`webpage`:
     
     .. image:: ../../_images/print/print_settings_dialog.png
     

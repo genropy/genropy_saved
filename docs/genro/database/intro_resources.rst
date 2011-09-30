@@ -101,7 +101,7 @@ public resource
               <!-- Here lies other instanceconfig tags... -->
           </GenRoBag>
           
-    #. call the resource you need in the :ref:`webpages_webpages` in which you will use
+    #. call the resource you need in the :ref:`webpage` in which you will use
        it through a ``webpages variable``:
        
         * :ref:`webpages_py_requires` for Genro :ref:`components` and other Python modules
@@ -151,7 +151,7 @@ private resource
                   
     **Usage**: in order to use the *private* resources, you have to:
     
-    #. call the resource you need in the :ref:`webpages_webpages` in which you will use
+    #. call the resource you need in the :ref:`webpage` in which you will use
        it through a ``webpages variable``:
        
         * :ref:`webpages_py_requires` for the Python files

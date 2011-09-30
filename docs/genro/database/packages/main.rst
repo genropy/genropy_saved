@@ -204,7 +204,7 @@ loginUrl()
     
     * ``packageName`` is the name of the :ref:`package <packages_index>` that contains
       the login authorization page.
-    * ``loginName`` is the name of the :ref:`webpages_webpages` (without its ``.py`` extensions)
+    * ``loginName`` is the name of the :ref:`webpage` (without its ``.py`` extensions)
       in which you define the login authorization.
       
         **Example:** if you have a package called ``staff`` and your login webpage is called

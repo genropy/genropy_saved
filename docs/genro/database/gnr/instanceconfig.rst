@@ -82,7 +82,7 @@ Tags
 ^^^^^^^^^^^^^^
     
     The ``<packages>`` tag allow to include any other package from other projects: this allow
-    you to use every file (:ref:`tables <table>`, :ref:`webpages <webpages_webpages>`,
+    you to use every file (:ref:`tables <table>`, :ref:`webpages <webpage>`,
     :ref:`intro_resources`) of the packages you've imported. If you want to import one
     package, you have to:
     
