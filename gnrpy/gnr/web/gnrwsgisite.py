@@ -509,7 +509,7 @@ class GnrWsgiSite(object):
         :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param \*path: add???"""
-        return self.resource_loader.loadResource(pkg, *path)
+        return self.resource_loader.loadResource(*path, pkg=pkg)
         
     def get_path_list(self, path_info):
         """add???
