@@ -20,7 +20,7 @@ introduction
               and learn the behavior of *datapath* and *value* attributes, because every webpage element
               is able to save its values through these two attributes.
     
-    You can act on a Genro :ref:`webpages_webpages` mainly through:
+    You can act on a Genro :ref:`webpage` mainly through:
     
     * :ref:`layout` - allow to create the webpage's layout
     * :ref:`form_widgets` - The primary UI

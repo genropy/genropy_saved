@@ -597,7 +597,7 @@ class GnrBaseWebPage(GnrObject):
                                       :ref:`webpages_maintable` :ref:`webpage variable <webpages_variables>`
                                     
                                           **Example:** if you have a package called ``agenda`` and a :ref:`table`
-                                          called ``staff`` and write in your :ref:`webpages_webpages`::
+                                          called ``staff`` and write in your :ref:`webpage`::
                                           
                                               maintable='staff'
                                               self.setLoadingParameters(table='maintable',price='10000')
@@ -611,7 +611,7 @@ class GnrBaseWebPage(GnrObject):
                                       ``PARAMETERNAME`` is the name you gave to the parameter.
                                       
                                           **Example:** if you have a package called ``agenda`` and a :ref:`table`
-                                          called ``staff`` and write in your :ref:`webpages_webpages`::
+                                          called ``staff`` and write in your :ref:`webpage`::
                                           
                                               self.setLoadingParameters(table='agenda.staff',price='10000')
                                               

@@ -32,7 +32,7 @@ description
     
     * directly into a :ref:`database table <table>`: check the :ref:`rowcaption_table` example
     * in a query field (in a :ref:`field`, in a :ref:`dbselect` or in a :ref:`dbcombobox`)
-      placed into a :ref:`webpages_webpages`: check the :ref:`rowcaption_webpage` example
+      placed into a :ref:`webpage`: check the :ref:`rowcaption_webpage` example
       
 .. _rowcaption_examples:
     

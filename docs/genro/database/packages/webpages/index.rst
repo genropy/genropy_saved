@@ -16,7 +16,7 @@
 introduction
 ============
 
-    In the ``webpages`` folder you can keep all your :ref:`webpages <webpages_webpages>`.
+    In the ``webpages`` folder you can keep all your :ref:`webpages <webpage>`.
     
     In Genropy, a webpage is written as a Python file; in particular, the class that
     handles all the stuff you need for a webpage is the :ref:`gnrcustomwebpage`

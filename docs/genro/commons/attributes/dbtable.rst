@@ -44,7 +44,7 @@ syntax
     * ``tableName`` is the name of the :ref:`table` on which is executed the user query;
     * ``columnName`` is the name of the database :ref:`table_column`.
     
-    .. note:: you can omit the ``packageName`` if the dbtable is used on a :ref:`webpages_webpages` that
+    .. note:: you can omit the ``packageName`` if the dbtable is used on a :ref:`webpage` that
               belongs to the package you should specify.
               
 .. _dbtable_examples:

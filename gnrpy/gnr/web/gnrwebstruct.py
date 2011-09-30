@@ -771,7 +771,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def selectionstore_addcallback(self,*args,**kwargs):
         """add???
         
-        :param args: add???
+        :param \*args: add???
         :param \*\*kwargs: add???"""
         self.datarpc_addcallback(*args,**kwargs)
         
@@ -798,8 +798,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def virtualSelectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
         """add???
         
-        :param storeCode: add???
         :param table: the :ref:`table` name
+        :param storeCode: add???
         :param storepath: add???
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
@@ -809,13 +809,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
         """add???
         
-        :param storeCode: add???. 
-        :param table: the :ref:`table` name. 
-        :param storepath: add???. 
+        :param table: the :ref:`table` name
+        :param storeCode: add???
+        :param storepath: add???
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. 
-        :returns: the selectionStore"""
+                        :ref:`sql_columns` section"""
         attr = self.attributes
         parentTag = attr.get('tag')
         #columns = columns or '==gnr.getGridColumns(this);'
@@ -862,9 +861,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
-                         :ref:`sql_order_by` section. 
+                         :ref:`sql_order_by` section
         :param group_by: the sql "GROUP BY" clause. For more information check the
-                         :ref:`sql_group_by` section.
+                         :ref:`sql_group_by` section
         :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
         :param columnsFromView: add???
         :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
@@ -924,8 +923,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param pkey: the record primary key. 
         :param method: add???. Default value is ``app.getRecord``
         :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
-                           check the :ref:`rpc_attributes` section
-        :returns: a dataRecord"""
+                           check the :ref:`rpc_attributes` section"""
         return self.child('dataRpc', path=path, table=table, pkey=pkey, method=method, **kwargs)
         
     def dataRemote(self, path, method, **kwargs):
@@ -953,8 +951,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def paletteGroup(self, groupCode, **kwargs):
         """add???
         
-        :param groupCode: add???
-        :returns: a paletteGroup"""
+        :param groupCode: add???"""
         return self.child('PaletteGroup',groupCode=groupCode,**kwargs)
         
     def palettePane(self, paletteCode, datapath=None, **kwargs):
@@ -969,8 +966,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
-        :param datapath: the path of data. For more information, check the :ref:`datapath` section
-        :returns: a paletteTree"""
+        :param datapath: the path of data. For more information, check the :ref:`datapath` section"""
         datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         palette = self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,
                              autoslots='top,left,right,bottom',**kwargs)
@@ -979,12 +975,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def paletteGrid(self, paletteCode=None, struct=None, columns=None, structpath=None, datapath=None, **kwargs):
         """add???
         
-        :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
-        :param struct: add???. 
+        :param paletteCode: add???. If no *datapath* is specified, the *paletteCode*
+                            will be used as *datapath*
+        :param struct: add???
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. 
-        :param structpath: add???. 
+                        :ref:`sql_columns` section
+        :param structpath: add???
         :param datapath: the path of data. For more information, check the :ref:`datapath` section"""
         datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         structpath = structpath or '.grid.struct'
@@ -1015,8 +1012,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param args: add???
-        :param \*\*kwargs: add???
-        :returns: add???"""
+        :param \*\*kwargs: add???"""
         frameCode = kwargs.get('parentFrame') or self.attributes.get('frameCode')
         if frameCode:
             kwargs['frameCode'] = frameCode
@@ -1039,7 +1035,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
                        documentation page
         :param configurable: boolean. add???
-        :param _newGrid: boolean. add???"""
+        :param _newGrid: boolean. add???
+        :param childname: add???"""
         nodeId = nodeId or '%s_grid' %frameCode
         if datapath is False:
             datapath = None
@@ -1128,10 +1125,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self.slotBar(*args,**kwargs)
         
     def slotFooter(self,*args,**kwargs):
-        """add???
-        
-        :param \*args: add???
-        :param \*\*kwargs: add???"""
+        """add???"""
         kwargs['_class'] = 'frame_footer'
         return self.slotBar(*args,**kwargs)
         
@@ -1176,8 +1170,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #se ritorni la toolbar hai una toolbar vuota 
     
     def slotbar_replaceslots(self, toReplace, replaceStr):
-        """The :ref:`replaceslots` allows to redefine the preset bars of the :ref:`slotBars <toolbar>`
-        and the :ref:`slotToolbars <toolbar>`
+        """Allow to redefine the preset bars of the :ref:`slotBars <toolbar>` and the
+        :ref:`slotToolbars <toolbar>`
         
         :param toReplace: MANDATORY. A string with the list of the slots to be replaced.
                           Use ``#`` to replace all the slots

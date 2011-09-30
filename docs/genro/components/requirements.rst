@@ -25,7 +25,7 @@ introduction
        .. note:: this step is optionally if the component you want to import is a
                  :ref:`components_standard`
                  
-    #. set in your :ref:`webpages <webpages_webpages>` a requirement: every component
+    #. set in your :ref:`webpages <webpage>` a requirement: every component
        has to be called through the correct :ref:`webpages_py_requires` webpage variable.
        
        .. note:: In every component's documentation page you fill find the correct syntax for
@@ -121,4 +121,4 @@ passive component
 -----------------
     
     The passive component is a component that doesn't have its own main method, so you
-    have to define your own *main* method in your :ref:`webpages_webpages`.
+    have to define your own *main* method in your :ref:`webpage`.

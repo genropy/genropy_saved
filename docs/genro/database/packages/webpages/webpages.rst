@@ -1,9 +1,9 @@
-.. _webpages_webpages:
+.. _webpage:
 
 =======
 webpage
 =======
-    
+
     *Last page update*: |today|
     
     .. image:: ../../../_images/projects/packages/webpage.png
