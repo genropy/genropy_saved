@@ -32,9 +32,9 @@ Introduction
            css_requires = 'name_of_CSS_file' # write the CSS filename without its ``.css`` extension!
            
        For more information on ``css_requires`` please check the :ref:`css_requires section
-       <webpages_css_requires>`
+       <css_requires>`
        
-    #. The second way is to use CSS style directly in your Genro :ref:`webpages_webpages`.
+    #. The second way is to use CSS style directly in your Genro :ref:`webpage`.
        When you do this, please pay attention that the CSS syntax is a little different
        from the standard CSS syntax; infact, you have to:
        
@@ -59,7 +59,7 @@ Introduction
         root.textbox(font_size='20pt',background_color='teal',value='^hello')
         
     .. note:: you can use both the ways we just explained to you in a single file: you can
-              import a CSS file with the :ref:`webpages_css_requires` and at the same time
+              import a CSS file with the :ref:`css_requires` and at the same time
               you can write additional style on some webpage elements.
        
     You should also know that:
@@ -79,7 +79,7 @@ Introduction
 Dojo themes
 ===========
 
-    The default Dojo theme for all the :ref:`webpages <webpages_webpages>` is 'tundra'.
+    The default Dojo theme for all the :ref:`webpages <webpage>` is 'tundra'.
     
     You can change a Dojo theme in your webpage: check the :ref:`webpages_dojo_theme` section
     for the correct syntax, the complete reference list of compatible Dojo themes and more.
@@ -93,7 +93,7 @@ CSS themes
     deleting some of their features.
     
     You can define your default CSS theme for all your pages in the :ref:`siteconfig_gui` tag
-    of your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
+    of your :ref:`sites_siteconfig` or in a single :ref:`webpage` through the
     :ref:`webpages_css_theme` webpage variable.
     
     We list here the main Genro themes currently available:
@@ -130,7 +130,7 @@ Genro CSS names
 ===============
 
     In the first section of this page (:ref:`css_introduction` section) we explain that you can
-    use CSS style directly in your Genro :ref:`webpages_webpages`. In this section we list all
+    use CSS style directly in your Genro :ref:`webpage`. In this section we list all
     the CSS attributes that have a different name respect to the standard CSS name.
     
     Click on the standard CSS name to go to the documentation line on the corresponding Genro CSS attribute:

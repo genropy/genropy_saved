@@ -175,12 +175,12 @@ class TableScriptRunner(TableScriptHandler):
                                        SET .publishOnResult = params['publishOnResult'];
                                        SET .selectionFilterCb =  params['selectionFilterCb'];
                                        SET .gridId = params['gridId'];
-                                       SET .selectedRowidx =  params['selectedRowidx'];
+                                       SET .selectedRowidx =  copyArray(params['selectedRowidx']);
                                        SET .sortBy =  params['sortBy'];
                                        SET .paramspath = params['paramspath'];
                                        SET .onCalling = params['onCalling'];
                                        SET .sourcepage_id = params['sourcepage_id'];
-                                       SET .selectedPkeys = params['selectedPkeys'];
+                                       SET .selectedPkeys = copyArray(params['selectedPkeys']);
                                        FIRE .build_pars_dialog;
                                        FIRE #table_script_dlg_parameters.open;
                                     """, subscribe_table_script_run=True)

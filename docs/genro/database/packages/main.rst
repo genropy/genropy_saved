@@ -108,8 +108,8 @@ Package class
 
 .. _methods_config_attributes:
 
-config_attributes
------------------
+config_attributes()
+-------------------
 
     **config_attributes** (*self*)
     
@@ -132,22 +132,22 @@ config_attributes
         def config_attributes(self):
             return dict(sqlschema='agenda',
                         comment='an useful comment',
-                        name_short='agenda',
+                        name_short='ag.',
                         name_long='agenda',
                         name_full='agenda')
                         
 .. _methods_config_db:
 
-config_db
----------
+config_db()
+-----------
     
     .. warning:: this method is not used anymore in the ``main.py``, but it is used only as the
-                 main method of a database :ref:`table`
+                 primary method of a database :ref:`table`
                  
 .. _methods_custom_type:
 
-custom_type
------------
+custom_type()
+-------------
 
     **custom_type_CUSTOMNAME** (*self*)
     
@@ -188,8 +188,8 @@ custom_type
         
 .. _methods_loginUrl:
 
-loginUrl
---------
+loginUrl()
+----------
 
     **loginUrl** (*self*)
     
@@ -204,7 +204,7 @@ loginUrl
     
     * ``packageName`` is the name of the :ref:`package <packages_index>` that contains
       the login authorization page.
-    * ``loginName`` is the name of the :ref:`webpages_webpages` (without its ``.py`` extensions)
+    * ``loginName`` is the name of the :ref:`webpage` (without its ``.py`` extensions)
       in which you define the login authorization.
       
         **Example:** if you have a package called ``staff`` and your login webpage is called

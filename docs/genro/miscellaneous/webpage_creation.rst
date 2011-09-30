@@ -1,17 +1,12 @@
-.. _webpage:
-
-=====================
-Creation of a webpage
-=====================
-    
-    *Last page update*: |today|
-    
 .. _webpage_build_phase:
 
-The build phase
-===============
+============================
+The build phase of a webpage
+============================
 
-    In the construction of the pages, first GenroPy loads the browser (client) with its JavaScript engine
+    *Last page update*: |today|
+    
+    In the construction of the pages, first GenroPy loads the browser (client) with its Javascript engine
     (the Genro engine). Then the javascript engine immediately requests the server to build the recipe for
     the DOM. This recipe is returned to the client in a :ref:`bag`. This is the page description
     and content of the original datastore form of bags. At this point, the JS can make calls to the python

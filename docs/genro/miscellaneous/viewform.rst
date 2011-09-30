@@ -20,7 +20,7 @@ introduction
     * the :ref:`view_data`
     * the :ref:`data_entry`
     
-    These two windows can live in a single :ref:`webpages_webpages`, or in two
+    These two windows can live in a single :ref:`webpage`, or in two
     :ref:`stackContainers <stackcontainer>`, or one in a page and one in a
     dialog, and so on.
     

@@ -58,7 +58,7 @@ class GnrWebPageException(GnrException):
     pass
     
 class GnrWebPage(GnrBaseWebPage):
-    """Standard class to create :ref:`webpages_webpages`\s."""
+    """Standard class to create :ref:`webpages <webpage>`"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, basename=None, environ=None):
         self.site = site
@@ -844,20 +844,20 @@ class GnrWebPage(GnrBaseWebPage):
         
     def get_css_theme(self):
         """Get the css_theme and return it. The css_theme get is the one defined the :ref:`siteconfig_gui`
-        tag of your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
+        tag of your :ref:`sites_siteconfig` or in a single :ref:`webpage` through the
         :ref:`webpages_css_theme` webpage variable"""
         return self.css_theme
 
     def get_css_icons(self):
         """Get the css_icons and return it. The css_icons get is the one defined the :ref:`siteconfig_gui`
-        tag of your :ref:`sites_siteconfig` or in a single :ref:`webpages_webpages` through the
+        tag of your :ref:`sites_siteconfig` or in a single :ref:`webpage` through the
         :ref:`webpages_css_icons` webpage variable"""
         return self.css_icons
             
     def get_css_path(self, requires=None):
-        """Get the css path included in the :ref:`webpages_css_requires`.
+        """Get the css path included in the :ref:`css_requires`.
         
-        :param requires: If None, get the css_requires string included in a :ref:`webpages_webpages`"""
+        :param requires: If None, get the css_requires string included in a :ref:`webpage`"""
         requires = [r for r in (requires or self.css_requires) if r]
         css_theme = self.get_css_theme() or 'aqua'
         css_icons = self.get_css_icons()

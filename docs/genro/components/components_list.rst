@@ -18,7 +18,7 @@ components list
     
     **Index pages**: management of the index page of your project
     
-    * :ref:`frameindex`: it allows to handle your :ref:`webpages_webpages` as iframes of the main
+    * :ref:`frameindex`: it allows to handle your :ref:`webpage` as iframes of the main
       page (for more information on the login page, check the :ref:`methods_loginUrl` section)
       
     **View/Form handler**: a preconceived interface with a View class for the view of the inserted

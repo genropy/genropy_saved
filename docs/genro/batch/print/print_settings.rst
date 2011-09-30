@@ -11,26 +11,18 @@ print settings file
     * :ref:`print_settings_intro`
     * :ref:`print_settings_location`
     
-    **Creation of the file**:
+    **File creation**:
+    
+    :ref:`print_settings_creation`:
     
     * :ref:`print_settings_import`
     * :ref:`print_settings_main`:
     
         * :ref:`print_settings_webpage_variables`
-        
-            * :ref:`print_html_res`
-            * :ref:`print_batch_immediate`
-            * :ref:`print_dialog_height`
-            * :ref:`print_dialog_height_no_par`
-            * :ref:`print_dialog_width`
-            * :ref:`print_mail_address`
-            * :ref:`print_mail_tags`
-            * :ref:`print_templates`
-            
         * :ref:`main_class_methods`:
         
-            * :ref:`print_settings_table_script_parameters_pane`
-            * :ref:`print_settings_onrecordexit`
+            * :ref:`table_script_parameters_pane() <print_settings_table_script_parameters_pane>`
+            * :ref:`onRecordExit() <print_settings_onrecordexit>`
             
     **GUI**:
     
@@ -78,7 +70,7 @@ introduction
       
     .. note:: if you need to create a letterhead in your print, you have to use also
               the :ref:`htmltemplate`. You can set it through the :ref:`"templates"
-              webpage variable <print_templates>` of the print settings file.
+              webpage variable <baseresourceprint_templates>` of the print settings file
               
 .. _print_settings_location:
 
@@ -104,10 +96,15 @@ file location
     
     .. image:: ../../_images/print/print_settings_file.png
     
+.. _print_settings_creation:
+    
+Creation of the file
+====================
+    
 .. _print_settings_import:
 
 import
-======
+------
 
     In order to use the settings functionalities you have to import in your print settings
     file the :class:`BaseResourcePrint <gnr.web.batch.btcprint.BaseResourcePrint>` class::
@@ -116,139 +113,109 @@ import
         
     Then we have to create the Main class:
     
-    .. _print_settings_main:
+.. _print_settings_main:
 
 Main class
-==========
+----------
 
     The Main class inherits from the :class:`BaseResourcePrint
     <gnr.web.batch.btcprint.BaseResourcePrint>` class, so write::
     
         class Main(BaseResourcePrint):
         
-    In the Main class you have to add some webpage variables and some methods:
+    In the Main class you have to add some webpage variables and some methods
+    that allow to customize the settings file:
     
 .. _print_settings_webpage_variables:
 
 Main class webpage variables
-============================
+----------------------------
 
+    .. note:: the unit of measurement of all the numerical variables are in millimeters
+              (e.g: ``print_width = 200`` means 200 millimeters)
+              
     With the term ``webpages variables`` we mean that there are some defined variables
-    that you can use to customize the class to which they belong (in this case, the
-    Main class). They are:
+    belonging to the two parent classes (the ``BaseResourcePrint`` class and the
+    ``BaseResourceBatch`` class) of the Main class that allow you to customize your
+    print settings.
     
-    * :ref:`print_html_res` (this is the only mandatory variable)
-    * :ref:`print_batch_immediate`
-    * :ref:`print_dialog_height` (properly this webpage variable belongs to
-      the :ref:`webpage variables of the base batch <btcbase_webpage_variables>`)
-    * :ref:`print_dialog_height_no_par`
-    * :ref:`print_dialog_width` (properly this webpage variable belongs to
-      the :ref:`webpage variables of the base batch <btcbase_webpage_variables>`)
-    * :ref:`print_mail_address`
-    * :ref:`print_mail_tags`
-    * :ref:`print_templates`
+    We list here all these variables with a *short description about them*, specifying
+    their parent class; if you need a more complete description, click on their name to
+    go on their description section.
     
-    The Main class inherits from the :ref:`btcbase_base` class other webpage variables.
-    For a complete list check the :ref:`btcbase_webpage_variables` section
+    List of the webpage variables of the :class:`BaseResourceBatch
+    <gnr.web.batch.btcbase.BaseResourceBatch>` class:
     
-.. _print_html_res:
+    +------------------------------------------+---------------------------------------------------------+
+    |  Name                                    |     Description                                         |
+    +==========================================+=========================================================+
+    | :ref:`batch_cancellable`                 |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`batch_delay`                       |  the time milliseconds start delay batch                |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`batch_note`                        |  add a note to the batch                                |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`batch_prefix`                      |  the batch prefix                                       |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`batch_steps`                       |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`batch_thermo_lines`                |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`batch_title`                       |  the batch title                                        |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`base_dialog_height`                |  the dialog height. Its value is overridden by the      |
+    |                                          |  "dialog_height" of the ``BaseResourcePrint`` class     |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`base_dialog_width`                 |  the dialog width. Its value is overridden by the       |
+    |                                          |  "dialog_width" of the ``BaseResourcePrint`` class      |
+    +------------------------------------------+---------------------------------------------------------+
+    | :ref:`virtual_columns`                   |  add???                                                 |
+    +------------------------------------------+---------------------------------------------------------+
     
-html_res
---------
+    List of the webpage variables of the :class:`BaseResourcePrint
+    <gnr.web.batch.btcprint.BaseResourcePrint>` class:
     
-    MANDATORY. Specify the location path of the :ref:`print_layout`.
-    The root of the path you specify is::
-    
-        projectName/packages/packageName/resources/tables/tableName/
-        
-    **Example**:
-    
-      if you write::
-      
-        html_res='html_builder/doctor_performances'
-        
-      then the location path of your print layout file must be::
-      
-         projectName/packages/packageName/resources/tables/tableName/html_builder/doctor_performances
-         
-      where ``html_builder`` is a folder you created and ``doctor_performances`` is the name of your
-      print layout file
-      
-.. _print_batch_immediate:
-
-batch_immediate
----------------
-
-    add???. Default value is ``False``
-    
-.. _print_dialog_height:
-
-dialog_height
--------------
-
-    A string with the :ref:`print_setting_dialog` height
-    
-.. _print_dialog_height_no_par:
-
-dialog_height_no_par
---------------------
-    
-    add???
-    
-.. _print_dialog_width:
-
-dialog_width
-------------
-
-    A string with the :ref:`print_setting_dialog` width
-    
-.. _print_mail_address:
-
-mail_address
-------------
-    
-    Allow to send emails to the corresponding people that owns the data you want to
-    print. It is mandatory that exists a column specified for the emails.
-    
-    For example, if you create a print with the invoices of 10 doctors,
-    you can choose to send an email to them with their relative invoices.
-    
-    The syntax is::
-    
-        mail_address = 'fieldName'
-        
-    where `fieldName` is the name of the field that contains the doctors' emails
-    in the database model :ref:`table`
-    
-.. _print_mail_tags:
-
-mail_tags
----------
-
-    Specify the authorization level to send emails.
-    
-    If the user has the same authorization level of the *mail_tags* level, then he can use
-    some additional options of the :ref:`print_setting_dialog` (the :ref:`print_pdf_by_mail`
-    and the :ref:`print_deliver_mails`) For more information, check the
-    :ref:`print_setting_dialog_print` section
-    
-.. _print_templates:
-
-templates
----------
-    
-    A string with the names of the :ref:`html templates <htmltemplate>` separated by a comma.
-    More information in the :ref:`add???` section of the :ref:`htmltemplate` page
+    +-----------------------------------------------+---------------------------------------------------------+
+    |  Name                                         |     Description                                         |
+    +===============================================+=========================================================+
+    | :ref:`baseresourceprint_html_res`             |  MANDATORY. Specify the path of the :ref:`print_layout` |
+    +-----------------------------------------------+---------------------------------------------------------+
+    | :ref:`baseresourceprint_batch_immediate`      |  add???                                                 |
+    +-----------------------------------------------+---------------------------------------------------------+
+    | :ref:`baseresourceprint_dialog_height`        |  the dialog height                                      |
+    +-----------------------------------------------+---------------------------------------------------------+
+    | :ref:`baseresourceprint_dialog_height_no_par` |  add???                                                 |
+    +-----------------------------------------------+---------------------------------------------------------+
+    | :ref:`baseresourceprint_dialog_width`         |  the dialog width                                       |
+    +-----------------------------------------------+---------------------------------------------------------+
+    | :ref:`baseresourceprint_mail_address`         |  allow to send emails to the corresponding people       |
+    |                                               |  that owns the data you want to print                   |
+    +-----------------------------------------------+---------------------------------------------------------+
+    | :ref:`baseresourceprint_mail_tags`            |  specify the authorization level needed by the customer |          
+    |                                               |  to send emails                                         |
+    +-----------------------------------------------+---------------------------------------------------------+
+    | :ref:`baseresourceprint_templates`            |  specify the :ref:`html templates <htmltemplate>` names |
+    +-----------------------------------------------+---------------------------------------------------------+
     
 .. _main_class_methods:
 
 Main class methods
-==================
+------------------
 
+    There are many methods you can use in the Main class. For a complete list, check
+    the :ref:`settings_library`
+    
+    We describe here only the most relevant methods to perform a correct functioning
+    of the print settings file:
+    
+    * the :ref:`table script parameters pane <print_settings_table_script_parameters_pane>`
+      method
+    * the :ref:`onRecordExit <print_settings_onrecordexit>` method
+    
 .. _print_settings_table_script_parameters_pane:
 
-table script parameters pane
-----------------------------
+Main class method: table script parameters pane
+-----------------------------------------------
 
     .. method:: table_script_parameters_pane(self, pane, **kwargs)
                 
@@ -279,8 +246,8 @@ table script parameters pane
     
 .. _print_settings_onrecordexit:
 
-onRecordExit
-------------
+Main class method: onRecordExit
+-------------------------------
 
     .. automethod:: gnr.web.batch.btcprint.BaseResourcePrint.onRecordExit
     
@@ -293,7 +260,7 @@ print GUI
               So, you don't need to create any GUI that allows user to start a print.
               Continue the reading of this section if you are not using the TableHandler
     
-    To let the user starts a print from a :ref:`webpages_webpages`, you have to create 
+    To let the user starts a print from a :ref:`webpage`, you have to create 
     a :ref:`button` using the :ref:`action_attr` attribute that performs a :ref:`publish`.
     
     Create your button remembering that:
@@ -324,7 +291,7 @@ print setting dialog
 ====================
 
     The print setting dialog is the dialog that represents the :ref:`print setting file
-    <print_settings>` in the :ref:`webpages_webpages`:
+    <print_settings>` in the :ref:`webpage`:
     
     .. image:: ../../_images/print/print_settings_dialog.png
     
@@ -349,8 +316,8 @@ title region
 custom region
 -------------
     
-    It can be configured through the :ref:`print_settings_table_script_parameters_pane`
-    hook method
+    It can be configured through the :ref:`table script parameters pane
+    <print_settings_table_script_parameters_pane>` hook method
     
 .. _print_setting_dialog_print:
 
@@ -373,7 +340,8 @@ print region
     * :ref:`print_deliver_mails`
     
     In particular, the third and the fourth frame can be used if the user has the same
-    :ref:`authorization level <auth>` defined in the :ref:`print_mail_tags` webpage variable.
+    :ref:`authorization level <auth>` defined in the :ref:`baseresourceprint_mail_tags`
+    webpage variable
     
 .. _print_pdf:
     
@@ -404,7 +372,8 @@ PDF by mail
     .. note:: this pane is accessible only by users that have required administration privileges.
               By default only users with 'admin' privileges can access to this (more information
               on authorizations management in the :ref:`auth` page). You can change the mail
-              authorization level modifying the :ref:`mail_tags webpage variable <print_mail_tags>`.
+              authorization level modifying the :ref:`mail_tags webpage variable
+              <baseresourceprint_mail_tags>`
               
     From this pane user can send the PDF by email.
     
@@ -418,7 +387,8 @@ Deliver mails
     .. note:: this pane is accessible only by users that have required administration privileges.
               By default only users with 'admin' privileges can access to this (more information
               on authorizations management in the :ref:`auth` page). You can change the mail
-              authorization level modifying the :ref:`mail_tags webpage variable <print_mail_tags>`.
+              authorization level modifying the :ref:`mail_tags webpage variable
+              <baseresourceprint_mail_tags>`
               
     From this pane you can send emails to the same fields of the query used to get data in the
     database. This is made automatically (for this reason the ``TO`` field is hidden: the ``TO``

@@ -32,9 +32,9 @@ introduction
     
     * The form can be saved only if all the validation requirements are satisfied.
     * You can use the validations on every single form's element of your
-      :ref:`webpages_webpages` or in a :ref:`table_column` of a :ref:`table`
+      :ref:`webpage` or in a :ref:`table_column` of a :ref:`table`
       of your :ref:`packages_model` folder, because the validations have been
-      thought to use them in :ref:`webpages_webpages` but work great also in your
+      thought to use them in :ref:`webpage` but work great also in your
       :ref:`tables <table>`.
     * For every validation, you have a list of suffixes (explained in the
       :ref:`validations_common` section) through which you can add some features
@@ -132,7 +132,7 @@ validate_call
             # ... The .js file continue...
         
     Remember to use the :ref:`webpages_js_requires` to specify your js file that you use
-    in your :ref:`webpages_webpages`.
+    in your :ref:`webpage`.
     
 .. _validate_dbselect:
     

@@ -24,21 +24,36 @@ TableHandler
     * :ref:`th_intro`
     * :ref:`th_map`:
     
+        * :ref:`th_map_structure`
+        * :ref:`th_map_data`
+        
         * :ref:`th_map_selectedpage`
-        * :ref:`th_map_form` (:ref:`th_map_form_layout`, :ref:`th_map_form_data`)
+        * :ref:`th_map_form`
         * :ref:`th_map_view`
         
     * :ref:`th_firststeps`
     
     **Creation of a webpage: the "resource webpage" and the "th_webpage"**
     
-    * :ref:`th_resource_page`:
+    * :ref:`th_resource_page`
+    * :ref:`th_webpage`
     
-        * the :ref:`th_view_class` (methods: :ref:`th_struct`, :ref:`th_order` and :ref:`th_query`)
-        * the :ref:`th_form_class` (:ref:`th_rpc`)
+        * :ref:`th_resource_page_creation`
+        * the :ref:`th_view_class`:
         
-    * :ref:`th_webpage`:
-    
+            View class methods:
+            
+            * :ref:`th_condition`
+            * :ref:`th_order`
+            * :ref:`th_query`
+            * :ref:`th_struct`
+            
+            * the :ref:`th_form_class`:
+            
+            Form class methods:
+            
+            * :ref:`th_rpc`
+        
         * :ref:`th_webpage_methods`
         * :ref:`th_webpage_th_form`
         * :ref:`th_form_center_path`
@@ -96,96 +111,122 @@ TableHandler
 Introduction
 ============
 
-    The TableHandler is the Genro way to handle data visualization and data entry.
+    1. The TableHandler is the Genro way to handle data visualization and data entry
     
-    The TableHandler is structured in two main classes:
-    
-    * the View class, that allows to manage data visualization
-    * the Form class, that allows to manage data entry
-    
-    These two classes will be visualized respectively into a *view-data window*:
-    
-    .. image:: ../../_images/components/th/view.png
-    
-    and into a *data-entry window*:
-    
-    .. image:: ../../_images/components/th/form.png
-    
-    For more information of the GUI of these two pages, please check the
-    :ref:`view_data` and the :ref:`data_entry` pages.
-    
-    The TableHandler carries many features:
-    
-    * You can create your TableHandlers into the ``resources`` folder of your
-      :ref:`projects <project>`. This fact allows to reuse the TableHandlers
-      you created in more than a webpage.
-      
-      Example: if you have to create a table with the registry (in italian , the
-      *anagrafica*) of a society, a registry of the staff, a registry of society
-      clients (and so on) you can create a single resource that you can reuse every
-      time you need it.
-      
-    * You can choose the GUI of your *data-entry window* from a set of options
-      (e.g: dialog, palette, stackcontainer...). Please check the :ref:`th_types`
-      section for more information.
-      
-    In the following sections we try to explain all the info you need to make the new
-    TableHandlers works.
-    
+    2. The TableHandler is structured in two main classes:
+       
+       * the :ref:`th_view_class` to manage data visualization
+       * the :ref:`th_form_class` to manage data entry
+       
+       These two classes will be visualized respectively into a *view-data window*:
+       
+       .. image:: ../../_images/components/th/view.png
+       
+       and into a *data-entry window*:
+       
+       .. image:: ../../_images/components/th/form.png
+       
+       We talk about the *view-data window* and the *data-entry window* further
+       in this page (in particular in the :ref:`view_data` and the :ref:`data_entry`
+       sections)
+       
+    3. The TableHandler carries many features:
+       
+       * The TableHandler automatically handles the management of data recording
+       * You can create your TableHandlers into the :ref:`intro_resources` folder
+         of your :ref:`projects <project>`. So you can reuse the TableHandlers
+         you have created in more than a webpage (and in more than a package)
+       * The TableHandler is fully customizable:
+       
+         * manipulating the main structure of View and Form classes: more information
+           in the :ref:`th_map` section
+         * choosing the CSS icons set: more information in the :ref:`css_icons` section
+         * choosing the GUI of your *data-entry window* from a set of options
+           (e.g: dialog, palette, stackcontainer...): more information in the
+           :ref:`th_types` section
+           
+    4. You can build the TableHandler inside a :ref:`webpage` or externally as a
+       :ref:`th_resource_page`
+       
 .. _th_map:
 
 TableHandler: paths
 ===================
 
-    In this section you will learn about the path structure of the TableHandler.
+    In this section you will learn about the path structure of the TableHandler
     
-    .. note:: you can inspect the path of your data in a webpage directly on your
-              browser opening the :ref:`datastore_debugger`.
-              
-    .. image:: ../../_images/components/th/th_map.png
-        
     As any other object in Genro, the TableHandler gathers all the informations through
-    a :ref:`bag` structure, that looks like a hierarchical and nested structure.
+    a :ref:`bag` structure, that looks like a hierarchical and nested structure. Also,
+    every TableHandler is a macrocomponent including different logical entities. So,
+    after you defined it you can (and often it is recommended!) modify some parts of
+    the TableHandler. To access to its parts, you have to use the TableHandler paths
     
-    You can access to every level of the structure.
+    What you should know is a complete map of the TableHandler path levels: in particular
+    we can divide them in:
     
-    .. warning:: This is important. The root path for the TableHandler data is::
-                 
-                    packageName_tableName
-                    
-                 where ``packageName`` is the name of your package and ``tableName`` is
-                 the name of your :ref:`table`.
-                 
-    For example, if the package name is called ``base`` and the table is ``registry.py``,
-    the path will be ``.base_registry``.
+    * :ref:`th_map_structure`
+    * :ref:`th_map_data`
     
-    Nested to it there are the :ref:`th_map_form` level and the :ref:`th_map_view` level
-    that handle respectively the path of the data of the :ref:`th_form_class` and
-    :ref:`th_view_class`.
-    Depending on which :ref:`TableHandler type <th_types>` you will use, there can be also
-    the :ref:`th_map_selectedpage` level, that specifies if the selected page is the
-    view-data window or the data-entry window.
-    
-.. _th_map_selectedpage:
+.. _th_map_structure:
 
-selectedPage
-------------
+TableHandler structure levels
+=============================
 
-    The selectedPage path exists only if you use the :ref:`th_stack`.
+    Let's see the TableHandler structure levels:
     
-    The selectedPage contains:
+    * the base level is the ``th`` level
+    * inside the th level there are two (or three) main levels that are:
     
-    * *form*, if the selected page is the :ref:`view_data`.
-    * *view*, if the selected page is the :ref:`data_entry`.
+        * the :ref:`th_map_form` (``.form``) that handles the :ref:`th_form_class` content
+        * the :ref:`th_map_view` (``.view``) that handles the :ref:`th_view_class` content
+        * eventually the :ref:`th_map_selectedpage` (this level exists only if you use the :ref:`th_stack`)
+        
+    Inside the form level and the view level there are other sublevels that we describe later.
+    For now just check the following image to have a overview of the TableHandler structure:
+      
+    .. image:: ../../_images/components/th/path.png
     
+    Examples of TableHandler paths:
+    
+    * to reach the top level of the view level, you have to use this string::
+    
+        th.view.top
+        
+    * to reach the bar level of the bottom level of the form level, you have to use
+      this string::
+    
+        th.form.bottom.bar
+        
+.. _th_map_data:
+
+TableHandler data levels
+========================
+    
+    To access to data you have to know that the root level of TableHandler data is::
+    
+        packageName_tableName
+        
+    where:
+    
+    * ``packageName`` is the name of your :ref:`package <packages_index>`
+    * ``tableName`` is the name of your :ref:`table`
+    
+    .. image:: ../../_images/components/th/path_data.png
+    
+    In particular:
+    
+    * at the path ``packageName_tableName.form.record`` you can find the data handled
+      by the :ref:`th_form_class`
+      
+    .. note:: Remember that you can inspect the path of data directly on your browser
+              by opening the :ref:`datastore_debugger`
+              
 .. _th_map_form:
 
-form
-----
+form level
+==========
 
-    This level handles all the data of the :ref:`th_form_class`.
-    
-    .. image:: ../../_images/components/th/th_map_form.png
+    This level handles all the data of the :ref:`th_form_class`
     
     It has got two level categories:
     
@@ -194,11 +235,9 @@ form
     
 .. _th_map_form_layout:
 
-form - layout levels
-^^^^^^^^^^^^^^^^^^^^
-    
-    .. image:: ../../_images/components/th/th_map_form_layout.png
-    
+form - structure levels
+-----------------------
+
     At the ``th/form`` level, the path of the data is::
     
         .packageName_tableName.form
@@ -224,10 +263,8 @@ form - layout levels
 .. _th_map_form_data:
 
 form - data levels
-^^^^^^^^^^^^^^^^^^
-    
-    .. image:: ../../_images/components/th/th_map_form_data.png
-    
+------------------
+
     In the form level you can find four data levels:
     
     * **controller**: it contains many levels that allow to control the save/load management,
@@ -242,60 +279,68 @@ form - data levels
               packageName_tableName_form_record_columnName
               
           where ``packageName`` is the name of the package, ``tableName`` is the name of the table
-          and ``columnName`` is the name of the uncorrect column.
+          and ``columnName`` is the name of the uncorrect column
           
       * **table**: string. It includes the name of the package and the name of the table following
         this syntax::
         
             packageName.tableName
             
-      * **title**: string. It includes the name of the record title in the :ref:`data_entry`.
-      * **valid**: boolean, string. True if every :ref:`validation <validations>` is satisfied.
+      * **title**: string. It includes the name of the record title in the :ref:`data_entry`
+      * **valid**: boolean, string. True if every :ref:`validation <validations>` is satisfied
       
     * **handler**: add???
-    * **record**: this level contains all the :ref:`columns <table_column>` of your :ref:`table`.
+    * **record**: this level contains all the :ref:`columns <table_column>` of your :ref:`table`
       
       At the ``th/form/record`` level, the path of the data is::
         
         .packageName_tableName.form.record
         
       .. warning:: at this path level you find the records data, so remember that when you
-                   have to interact with data you have to go to the ``form.record`` path.
+                   have to interact with data you have to go to the ``form.record`` path
                    
     * **pkey**: this level contains:
     
-        * the ``*newrecord*`` string - if no record is selected;
-        * the string with the primary key of the selected record - if a record is selected.
+        * the ``*newrecord*`` string - if no record is selected
+        * the string with the primary key of the selected record - if a record is selected
         
 .. _th_map_view:
 
-view
-----
+view level
+==========
 
-    .. image:: ../../_images/components/th/th_map_view.png
-    
     The view level contains many levels. We point up the following ones:
     
     * **grid**: add???
-    * **query**: it contains the parameters of the user queries.
-    * **store**: it contains all the records that satisfy the current query.
+    * **query**: it contains the parameters of the user queries
+    * **store**: it contains all the records that satisfy the current query
     * **table**: it includes the name of the package and the name of the table
       following this syntax::
         
             packageName.tableName
             
     * **title**: it contains the name of the record title in the :ref:`view_data`
-    * **top**: it includes the a ``bar`` sublevel: this sublevel contains
-      the :ref:`th_gui_form_action_bar`. If you need to add/replace/delete some buttons,
-      use the :ref:`replaceslots` method.
-      
-      add???
+    * **top**: it includes a ``bar`` sublevel: this sublevel contains the
+      :ref:`th_gui_form_action_bar`. If you need to add/replace/delete some buttons, use the
+      :meth:`replaceSlots() <gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.slotbar_replaceslots>` method
       
       ::
       
-        th.view.top.bar.replaceSlots('#','#,bottone')
-        th.view.top.bar.bottone.button('Stampa nuova',action='PUBLISH tablehandler_run_script="print","print_prestazioni";')
+        th.view.top.bar.replaceSlots('#','#,my_button')
+        th.view.top.bar.my_button.button('New print',action='PUBLISH tablehandler_run_script="print","performances_print";')
         
+.. _th_map_selectedpage:
+
+selectedPage level
+==================
+
+    The selectedPage path exists only if you use the :ref:`th_stack`.
+    
+    The selectedPage contains:
+    
+    * *form*, if the selected page is the :ref:`view_data`
+    * *view*, if the selected page is the :ref:`data_entry`
+    
 .. _th_firststeps:
 
 TableHandler: first steps
@@ -308,26 +353,48 @@ TableHandler: first steps
     surname, email, and so on).
     
     Now, if we have to reuse a lot of time this table - that is, there are a lot of webpages
-    that will use this table - we have to create a resource webpage
+    that will use this table - we have to create a :ref:`th_resource_page`
     
 .. _th_resource_page:
 
 resource webpage
 ================
 
+    A "resource webpage" is a TableHandler page built as a :ref:`resource <intro_resources>`
+    
+    Tha alternative is to build a TableHandler into a :ref:`webpage` - in this case we speak
+    of :ref:`th_webpage`
+    
+.. _th_resource_page_creation:
+
+resource webpage - file creation
+================================
+
+    .. note:: to create a resource page (and all the necessaries folders) automatically you
+              can use the :ref:`gnrmkthresource` script. If you want to create all manually,
+              continue to read this section
+    
     To create a resource webpage you have to:
     
-    #. create a folder called ``resources`` inside the package we are using (in this example
-       the package is called ``base``).
-    #. Inside the ``resources`` folder just created, we have to create a folder called ``tables``.
-    #. Inside the ``tables`` folder, you have to create another folder with the SAME name of the
-       table file name: in this example the folder is called ``registry``
-    #. Inside the ``registry`` folder you have to create a Python file called ``th_`` +
-       ``tableFileName``: in this example the file is called ``th_registry``
+    #. create a folder called ``resources`` inside the package you are using (in this example
+       the package is called ``base``)
+    #. Inside the ``resources`` folder just created, create a folder called ``tables``
+    #. Inside the ``tables`` folder, create another folder with the SAME name of the
+       :ref:`database table <table>` file name: in this example the folder is called
+       ``registry``
+    #. Inside the ``registry`` folder you have to create a Python file called ``th_``
+       + ``tableFileName``: in this example the file is called ``th_registry``
        
     Let's check out this figure that sum up all the creation of new folders and files:
     
-    .. image:: ../../_images/components/th/th.png
+        *You should have created all the folders and files highlighted in yellow;*
+        *pay attention to call with the same name:*
+        
+            * *the database table name*
+            * *the folder name inside the "tables" folder*
+            * *the name of the resource webpage (with the ``th_`` prefix)*
+            
+        .. image:: ../../_images/components/th/th.png
     
     Pay attention that for every TableHandler you want to create, you have to repeat
     the point 3 and 4 of the previous list; for example, if you have three tables called
@@ -335,162 +402,20 @@ resource webpage
     ``tables`` folder with a ``th_`` file in each folder, as you can see in the following
     image:
     
-    .. image:: ../../_images/components/th/th2.png
+        .. image:: ../../_images/components/th/th2.png
     
-    .. note:: by default the View and the Form classes will be showned in two different pages
-              of a single stack container. In other words, the default TableHandler type used
-              will be the :ref:`th_stack`. If you need any other TableHandler type, you have
-              to use the :ref:`th_options` method to change this default behavior.
-    
-    Let's check now the code inside a resource page.
-    
-    We have to create a :ref:`th_view_class` and a :ref:`th_form_class`. For doing this
-    you have to import the ``BaseComponent`` class::
+    .. note:: by default the View and the Form classes will be showned in two different
+              pages of a single stack container. In other words, the default TableHandler
+              type used will be the :ref:`th_stack`. If you need any other TableHandler
+              type, you have to use the :ref:`th_options` method to change this default
+              behavior
+              
+    After you have created the file, you have to insert the :ref:`th_view_class` and a
+    :ref:`th_form_class`. For doing this you have to import the ``BaseComponent`` class::
     
         from gnr.web.gnrbaseclasses import BaseComponent
         
-    We introduce now the View class and the Form class.
-    
-.. _th_view_class:
-
-View class
-----------
-    
-    The ``View`` class is used to let the user visualize some fields of its saved records.
-    You don't have to insert ALL the fields of your table, but only the fields that you
-    want that user could see in the View.
-    
-    The first line define the class::
-    
-        class View(BaseComponent):
-    
-    The methods you may insert are:
-    
-    * the :ref:`th_struct`
-    * the :ref:`th_order`
-    * the :ref:`th_query`.
-    
-.. _th_struct:
-
-th_struct
----------
-
-    A method of the :ref:`th_view_class`.
-    
-    ::
-    
-        def th_struct(self,struct):
-            r = struct.view().rows()
-            r.fieldcell('name', width='12em')
-            r.fieldcell('surname', width='12em')
-            r.fieldcell('email', width='15em')
-            
-    This method allow to create the :ref:`struct` with its rows (usually you
-    will use some :ref:`fieldcell`); in the example above, ``name``, ``surname``
-    and ``email`` are three rows of a :ref:`table`.
-    
-.. _th_order:
-
-th_order
---------
-    
-    A method of the :ref:`th_view_class`.
-    
-    ::
-    
-        def th_order(self):
-            return 'surname'
-            
-    * The ``th_order`` allows to order the View class alphabetically in relation
-      to the field you wrote.
-      
-    * You can write more than a field; if you do this, the order will follow hierarchically
-      the sequence of fields you choose.
-      
-        **Example**::
-        
-            def th_order(self):
-                return 'date,hour'
-                
-        In this case the records will be ordered following the date order and inside
-        the same date following the hour order.
-    
-    * You can optionally specify if the order follows the ascending or the descending way:
-        
-        * ``:a``: ascending. The records will be showned according to ascending order.
-        * ``:d``: descending. The records will be showned according to descending order.
-    
-        By default, the ``th_order()`` follows the ascending way (``:a``)
-    
-        **Example**::
-        
-            def th_order(self):
-                return 'name:d'
-            
-.. _th_query:
-
-th_query
---------
-
-    A method of the :ref:`th_view_class`.
-    
-    ::
-    
-        def th_query(self):
-            return dict(column='surname', op='contains', val='', runOnStart=True)
-            
-    The ``th_query`` defines the standard query of your page. In particular:
-    
-    * the ``column`` attribute includes the field of your table through which will be done
-      the query
-    * the ``op`` attribute is the SQL operator for SQL queries
-    * the ``val`` attribute is the string to be queried
-    * the ``runOnStart=True`` (by default is ``False``) allow to start a query on page loading
-      (if you don't write it user have to click the query button to make the query start)
-    
-.. _th_form_class:
-
-Form class
-----------
-    
-    The first two lines define the class and the method::
-    
-        class Form(BaseComponent):
-            def th_form(self, form):
-            
-    Now write the following line::
-    
-        pane = form.record
-        
-    (Remember? We explained this line in the :ref:`th_map` section)
-    
-    The next line can be the :ref:`formbuilder` definition [#]_::
-    
-        fb = pane.formbuilder(cols=2,border_spacing='2px')
-        
-    In this example we define a formbuilder with two columns (cols=2, default value: 1 column)
-    and a margin space between the fields (border_spacing='2px', default value: 6px).
-    
-    Then you have to add ALL the rows of your table that the user have to compile.
-    For example::
-    
-        fb.field('name')
-        fb.field('surname')
-        fb.field('email',colspan=2)
-        
-    .. note:: in the :ref:`packages_menu`, a resource page needs a different syntax respect
-              to a normal webpage; for more information, check the :ref:`menu_th` section.
-              
-    .. _th_rpc:
-
-usage of a dataRpc in a resource webpage
-----------------------------------------
-
-    In a :ref:`th_resource_page` you can't use a :ref:`datarpc` unless you pass it as a
-    callable. For more information, check the :ref:`datarpc_callable` section of the
-    :ref:`datarpc` page.
-    
-.. _th_webpage:
+    .. _th_webpage:
 
 th_webpage
 ==========
@@ -522,7 +447,7 @@ th_webpage
                 
     because you will handle the Form class in the th_webpage.
     
-    How are the ``th_webpage`` and the :ref:`th_resource_page` related? Through their
+    How are the ``th_webpage`` and the :ref:`th_resource_page` related through their
     filename. Let's see this fact through an example:
     
         **Example:** let's suppose that you have a project called ``my_project``
@@ -531,7 +456,10 @@ th_webpage
         ``staff.py``), a :ref:`th_resource_page` (``th_staff.py``) and some
         ``th_webpages`` (``auth_page.py``, ``invoice_page.py`` and ``staff_page.py``):
         
-        .. image:: ../../_images/components/th/th_webpages.png
+            *In the image, the database tables are yellow, the resource webpage*
+            *is red and the th_webpages are orange*
+            
+            .. image:: ../../_images/components/th/th_webpages.png
         
         * "staff" is "ok", because we created the table (``staff.py``) in the correct place
           (``base/model``), the :ref:`th_resource_page` in the correct place
@@ -551,12 +479,12 @@ th_webpage
     
         maintable = 'packageName.tableName'
         
-    This line it is not mandatory, because a :ref:`webpages_webpages` (or a ``th_webpage``)
+    This line it is not mandatory, because a :ref:`webpage` (or a ``th_webpage``)
     is related to a table through its :ref:`webpages_maintable` (a :ref:`webpages_variables`)
     or through the :ref:`dbtable` attribute (defined inside one of the :ref:`webpage_elements_index`).
     If you define the ``maintable``, then you have defined the standard value for all the
     :ref:`dbtable` attributes of your :ref:`webpage_elements_index` that support it. Check for more
-    information the :ref:`webpages_maintable` and the :ref:`dbtable` pages.
+    information the :ref:`webpages_maintable` and the :ref:`dbtable` pages
     
 .. _th_webpage_methods:
     
@@ -564,13 +492,13 @@ th_webpage methods
 ------------------
     
     Remember to define the :ref:`webpages_main` method if you are using the
-    TableHandler as a :ref:`components_passive`.
+    TableHandler as a :ref:`components_passive`
     
     After that, you have to define the ``th_form`` method; it replaces the ``th_form``
-    method we wrote in the :ref:`th_resource_page`.
+    method we wrote in the :ref:`th_resource_page`
     
 .. _th_webpage_th_form:
-    
+
 th_form
 -------
     
@@ -622,7 +550,156 @@ th_form
         top.div('!!Record di anagrafica',_class='pbl_roundedGroupLabel')
         fb = top.formbuilder(dbtable='sw_base.anagrafica',margin_left='10px',margin_top='1em',
                              width='370px',datapath='.@anagrafica_id',cols=2)
-                             
+    
+    
+.. _th_view_class:
+
+View class
+==========
+    
+    The ``View`` class is used to let the user visualize some fields of its saved records.
+    You don't have to insert ALL the fields of your table, but only the fields that you
+    want that user could see in the View.
+    
+    The first line define the class::
+    
+        class View(BaseComponent):
+    
+    The methods you may insert are:
+    
+    * the :ref:`th_condition`
+    * the :ref:`th_options`
+    * the :ref:`th_order`
+    * the :ref:`th_query`
+    * the :ref:`th_struct`
+    
+.. _th_condition:
+
+th_condition
+------------
+
+    add???
+    
+.. _th_order:
+
+th_order
+--------
+    
+    A method of the :ref:`th_view_class`
+    
+    ::
+    
+        def th_order(self):
+            return 'surname'
+            
+    * The ``th_order`` allows to order the View class alphabetically in relation
+      to the field you wrote.
+      
+    * You can write more than a field; if you do this, the order will follow hierarchically
+      the sequence of fields you choose.
+      
+        **Example**::
+        
+            def th_order(self):
+                return 'date,hour'
+                
+        In this case the records will be ordered following the date order and inside
+        the same date following the hour order.
+    
+    * You can optionally specify if the order follows the ascending or the descending way:
+        
+        * ``:a``: ascending. The records will be showned according to ascending order.
+        * ``:d``: descending. The records will be showned according to descending order.
+    
+        By default, the ``th_order()`` follows the ascending way (``:a``)
+    
+        **Example**::
+        
+            def th_order(self):
+                return 'name:d'
+                
+.. _th_query:
+
+th_query
+--------
+
+    A method of the :ref:`th_view_class`.
+    
+    ::
+    
+        def th_query(self):
+            return dict(column='surname', op='contains', val='', runOnStart=True)
+            
+    The ``th_query`` defines the standard query of your page. In particular:
+    
+    * the ``column`` attribute includes the field of your table through which will be done
+      the query
+    * the ``op`` attribute is the SQL operator for SQL queries
+    * the ``val`` attribute is the string to be queried
+    * the ``runOnStart=True`` (by default is ``False``) allow to start a query on page loading
+      (if you don't write it user have to click the query button to make the query start)
+      
+.. _th_struct:
+
+th_struct
+---------
+
+    A method of the :ref:`th_view_class`.
+    
+    ::
+    
+        def th_struct(self,struct):
+            r = struct.view().rows()
+            r.fieldcell('name', width='12em')
+            r.fieldcell('surname', width='12em')
+            r.fieldcell('email', width='15em')
+            
+    This method allow to create the :ref:`struct` with its rows (usually you
+    will use some :ref:`fieldcell`); in the example above, ``name``, ``surname``
+    and ``email`` are three rows of a :ref:`table`
+    
+.. _th_form_class:
+
+Form class
+==========
+    
+    The first two lines define the class and the method::
+    
+        class Form(BaseComponent):
+            def th_form(self, form):
+            
+    Now write the following line::
+    
+        pane = form.record
+        
+    (Remember? We explained this line in the :ref:`th_map` section)
+    
+    The next line can be the :ref:`formbuilder` definition [#]_::
+    
+        fb = pane.formbuilder(cols=2,border_spacing='2px')
+        
+    In this example we define a formbuilder with two columns (cols=2, default value: 1 column)
+    and a margin space between the fields (border_spacing='2px', default value: 6px).
+    
+    Then you have to add ALL the rows of your table that the user have to compile.
+    For example::
+    
+        fb.field('name')
+        fb.field('surname')
+        fb.field('email',colspan=2)
+        
+    .. note:: in the :ref:`packages_menu`, a resource page needs a different syntax respect
+              to a normal webpage; for more information, check the :ref:`menu_th` section.
+              
+    .. _th_rpc:
+
+usage of a dataRpc in a resource webpage
+----------------------------------------
+
+    In a :ref:`th_resource_page` you can't use a :ref:`datarpc` unless you pass it as a
+    callable. For more information, check the :ref:`datarpc_callable` section of the
+    :ref:`datarpc` page.
+    
     .. _th_types:
 
 TableHandler types
@@ -657,27 +734,45 @@ TableHandler common attributes
                 other :ref:`layout elements <layout>` (if you use them, pay
                 attention to use the correct attributes of the layout elements)
       
-    * *nodeId*: the id of the TableHandler type. If you don't need a specific nodeId, the component
-                handles it automatically. For more information on the meaning of the nodeId, check
-                the :ref:`nodeid` page.
+    * *nodeId*: the TableHandler id. If you don't need a specific nodeId
+      it is handled automatically
+                
+      .. warning:: if you have more than a TableHandler in the same page related to the
+                   same :ref:`table` you must define MANDATORY a different nodeId for
+                   every TableHandler of that page that comes into conflict
+                   
+      For more information on nodeId, check the :ref:`nodeid` page
+      
     * *table*: the path of the :ref:`table` linked to your TableHandler. It is MANDATORY
       unless you use the relation attribute. For more information, check the
       :ref:`th_relation_condition` example.
-      The syntax is ``table = 'packageName.tableName'``.
-    
+      The syntax is::
+      
+        table = 'packageName.tableName'
+        
       Example::
       
         table='base.staff'
         
-    * *th_pkey*: add???.
-    * *datapath*: the path of your data. For more information, check the
-      :ref:`datapath` page.
+    * *th_pkey*: add???
+    * *datapath*: the path of your data. If you don't need a specific datapath
+      it is handled automatically
+      
+      .. warning:: if you have more than a TableHandler in the same page related to the
+                   same :ref:`table` AND they have the same path level, then you must
+                   define MANDATORY a different datapath for every TableHandler of that
+                   page that comes into conflict
+                   
+      For more information:
+      
+        * on "datapath" attribute, check the :ref:`datapath` page
+        * on TableHandler path levels, check the :ref:`th_map` page
+      
     * *formResource*: allow to change the default :ref:`th_form_class`.
-      Check the :ref:`th_formresource` section for more information.
+      Check the :ref:`th_formresource` section for more information
     * *viewResource*: allow to change the default :ref:`th_view_class`.
       Check the :ref:`th_viewresource` section for more information.
-    * *formInIframe*: add???.
-    * *reloader*: add???.
+    * *formInIframe*: add???
     * *readOnly*: boolean. If ``True``, the TableHandler is in read-only mode,
       so user can visualize records and open the :ref:`th_form_class`, but
       he can't add/delete/modify records. Default value is ``True`` or ``False``
@@ -710,7 +805,7 @@ th_options
 ----------
     
     It returns a dict to customize your Tablehandler. You can use it both as a method of the
-    :ref:`th_view_class` or as a method of the :ref:`th_form_class`.
+    :ref:`th_view_class` or as a method of the :ref:`th_form_class`
     
     * *DIALOG_KWARGS* add???
     
@@ -1220,16 +1315,18 @@ includedGrid
 
     .. method:: add???
     
-    lavora come se fosse la visualizzazione di una Bag; nella rappresentazione griglia
-    vedi tutte le righe di una Bag, quando editi (dialog oppure inline) (l'editing inline
-    è solo della includedGrid). gridEditor serve a modificare la includedGrid.
+    CLIPBOARD::
     
-    il "datapath" dell'includedGrid serve solo come retrocompatibilità con l'includedView, quindi come
-    path per i dati nell'includedGrid bisogna usare lo "storepath"
-
-    lo storepath può puntare alla Bag (aggiungere anche il datamode='bag'), oppure si può puntare 	ad un path chiocciolinato
-    
-    
+        lavora come se fosse la visualizzazione di una Bag; nella rappresentazione griglia
+        vedi tutte le righe di una Bag, quando editi (dialog oppure inline) (l'editing inline
+        è solo della includedGrid). gridEditor serve a modificare la includedGrid.
+        
+        il "datapath" dell'includedGrid serve solo come retrocompatibilità con l'includedView,
+        quindi come path per i dati nell'includedGrid bisogna usare lo "storepath"
+        
+        lo storepath può puntare alla Bag (aggiungere anche il datamode='bag'), oppure si può
+        puntare ad un path chiocciolinato
+        
 .. _ig_attributes:
 
 includedGrid attributes
@@ -1328,7 +1425,7 @@ formResource attribute
        the Form class called ``Form``, the formResource will be::
        
         formResource='th_staff:Form'
-    
+        
     .. _th_viewresource:
 
 viewResource attribute

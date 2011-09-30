@@ -16,9 +16,10 @@
 introduction
 ============
 
-    The ``packages`` folder includes the packages for your application. A package
-    is composed principally by some database :ref:`tables <table>` and by some
-    :ref:`webpages <webpages_webpages>`
+    The ``packages`` folder includes the packages for your application.
+    
+    A package is composed principally by some database :ref:`tables <table>` and by some
+    :ref:`webpages <webpage>`
     
     .. note:: The Genro packages are not Python packages (so they are not a set of
               linked modules, containing a file ``__init__.py``), and Genro packages

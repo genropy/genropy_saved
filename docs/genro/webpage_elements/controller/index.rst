@@ -1,4 +1,4 @@
-.. _datacontroller_index:
+.. _controllers:
 
 ===========
 controllers
@@ -17,9 +17,7 @@ introduction
 
     The Genro controllers receive inputs and initiate a response by making calls on model objects.
     
-    We emphasize that all the controllers can be attached to every Genro object.
-    
-    .. note:: we recommend you to read :ref:`webpage` before reading this section.
+    We emphasize that all the controllers can be attached to every Genro object
     
     The controllers can be divided in two groups:
     
@@ -48,6 +46,7 @@ server-side controllers
     * :ref:`data`: used to define variables from server to client
     * :ref:`datarecord`: add???
     * :ref:`dataremote`: synchronous rpc
+    * :ref:`dataresource`: add???
     * :ref:`datarpc`: allow the client to make a call to the server to perform an action.
     * :ref:`dataselection`: add???
     
@@ -63,5 +62,6 @@ section index
     datacontroller
     dataformula
     dataremote
+    dataresource
     dataRpcs: dataRecord, dataRpc, dataSelection <datarpc/index>
     datascript
