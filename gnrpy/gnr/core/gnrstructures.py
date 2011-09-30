@@ -26,6 +26,7 @@ from gnr.core.gnrbag import Bag, BagResolver
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrdict import GnrDict
 from gnr.core import gnrstring
+from gnr.core.gnrdecorator import deprecated
 
 class GnrStructData(Bag):
     """This is a subclass of the :class:`Bag <gnr.core.gnrbag.Bag>` class that implements
@@ -66,7 +67,8 @@ class GnrStructData(Bag):
             return self
         else:
             return self.parent
-            
+    
+    @deprecated
     def _get_joiner(self):
         if self.parent == None:
             return self

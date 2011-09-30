@@ -132,7 +132,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 attributes.update(elem.getAttr())
                 if 'joiner' in attributes:
                     joiner = attributes.pop('joiner')
-                    attributes.update(joiner[0] or {})
+                    attributes.update(joiner or {})
                 label = elem.label
                 attributes['caption'] = attributes.get('name_long')
                 if elem.resolver != None:

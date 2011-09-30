@@ -207,8 +207,8 @@ class SqlQueryCompiler(object):
         """Internal method: called by getFieldAlias to get the alias (t1, t2...) for the join table.
         It is recursive to resolve paths like ``@rel.@rel2.@rel3.column``"""
         p = pathlist.pop(0)
-        steps = curr['%s?joiner' % p]
-        if steps == None:
+        joiner = curr['%s?joiner' % p]
+        if joiner == None:
             tblalias = self.db.table(curr.tbl_name, pkg=curr.pkg_name).model.table_aliases[p]
             if tblalias == None:
                 #DUBBIO: non esiste più GnrSqlBadRequest
@@ -220,9 +220,8 @@ class SqlQueryCompiler(object):
                 pathlist = tblalias.relation_path.split(
                         '.') + pathlist # set the alias table relation_path in the current path
         else:                                                           # then call _findRelationAlias recursively
-            for step in steps:
-                alias, newpath = self.getAlias(step, newpath, basealias)
-                basealias = alias
+            alias, newpath = self.getAlias(joiner, newpath, basealias)
+            basealias = alias
             curr = curr[p]
         if pathlist:
             alias, curr = self._findRelationAlias(pathlist, curr, basealias, newpath)
@@ -658,13 +657,13 @@ class SqlQueryCompiler(object):
                           attribute is ``*`` or contains ``*@relname.filter``"""
         for field, value, attrs in fields.digest('#k,#v,#a'):
             #alias = None
-            joinlist = attrs.get('joiner', None)
+            joiner = attrs.get('joiner', None)
             dtype = attrs.get('dtype', None)
             attrs = dict([(k, v) for k, v in attrs.items() if not k in ['tag', 'comment', 'table', 'pkg']])
             newbase = basealias
             newpath = list(path)
             if (dtype != 'X') or bagFields:
-                if not joinlist:
+                if not joiner:
                     self.fieldlist.append('%s.%s AS %s_%s' % (basealias, field, basealias, field))
                     as_name = '%s_%s' % (basealias, field)
                     path_name = '.'.join(bagpath + [field])
@@ -673,48 +672,34 @@ class SqlQueryCompiler(object):
                     self.cpl.template.setItem(path_name, None, xattrs)
                     self.cpl.dicttemplate[path_name] = as_name
                 else:
-                    joinlist = list(joinlist)
-                    attrs = joinlist.pop()
                     extra_one_one = None
                     if self.joinConditions:
-                        from_fld, target_fld = self._tablesFromRelation(attrs)
+                        from_fld, target_fld = self._tablesFromRelation(joiner)
                         extracnd, extra_one_one = self.getJoinCondition(target_fld, from_fld, basealias)
-                        
                     else:
                         joinExtra = {}
-                    if attrs['mode'] == 'O' or attrs.get('one_one') or extra_one_one:
-                        for at in joinlist: # solo se joinlist ha piu di 1 elemento: ramo morto?
-                            raise
-                            #newbase, newpath = self.getAlias(at, newpath, newbase)
+                    if joiner['mode'] == 'O' or joiner.get('one_one') or extra_one_one:
                         if isinstance(value, Bag): #  è un relation one, perché non dovrebbe essere una bag?
                             fieldpath = '.'.join(bagpath + [field])
                             testallpath = '.'.join(bagpath + ['*'])
                             # if joinExtra.get('one_one') we had to eager load the relation in order to use the joinExtra conditions
-                            is_eager_one = attrs.get('eager_one') and self.db.allow_eager_one and attrs.get('mode') == 'O'
+                            is_eager_one = joiner.get('eager_one') and self.db.allow_eager_one and joiner.get('mode') == 'O'
                             if False and (extra_one_one \
                                or (fieldpath in self.eager)\
                                or (testallpath in self.eager)\
                             or (is_eager_one and not fieldpath in self.lazy)):
                                 #call recordFields recoursively for related records to be loaded in one query                                
-                                alias, newpath = self.getAlias(attrs, newpath, newbase)
-                                self.cpl.template.setItem('.'.join(bagpath + [field]), None, _attributes=attrs,
+                                alias, newpath = self.getAlias(joiner, newpath, newbase)
+                                self.cpl.template.setItem('.'.join(bagpath + [field]), None, _attributes=joiner,
                                                           basealias=newbase)
                                 self.recordFields(value, newpath, bagpath + [field], alias, bagFields)
-                            elif attrs['mode'] == 'M': # a one to many relation with one_one attribute
-                                self.cpl.template.setItem(fieldpath, 'DynItemOneOne', _attributes=attrs,
+                            elif joiner['mode'] == 'M': # a one to many relation with one_one attribute
+                                self.cpl.template.setItem(fieldpath, 'DynItemOneOne', _attributes=joiner,
                                                           basealias=newbase)
                             else: # a simple many to one relation 
-                                self.cpl.template.setItem(fieldpath, 'DynItemOne', _attributes=attrs, basealias=newbase)
-                        else: #  ramo morto?
-                            raise
-                            #alias, newpath = self.getAlias(attrs, newpath, newbase)
-                            #self.fieldlist.append('%s.%s AS %s_%s' % (alias, field, alias, field))                        
-                            #as_name = '%s_%s' % (alias, field)
-                            #path_name = '.'.join(bagpath + [field])
-                            #self.cpl.template.setItem(path_name, None, as=as_name)
-                            #self.cpl.dicttemplate[path_name] = as_name
+                                self.cpl.template.setItem(fieldpath, 'DynItemOne', _attributes=joiner, basealias=newbase)
                     else:
-                        self.cpl.template.setItem('.'.join(bagpath + [field]), 'DynItemMany', _attributes=attrs,
+                        self.cpl.template.setItem('.'.join(bagpath + [field]), 'DynItemMany', _attributes=joiner,
                                                   basealias=newbase)
                                                   
 class SqlDataResolver(BagResolver):
@@ -1480,11 +1465,6 @@ class SqlSelection(object):
             tbag.sort(pars)
         else:
             tbag.sort()
-            
-    def outputTEST(self, mode, columns=None, offset=0, limit=None,
-                   filterCb=None, subtotal_rows=None, formats=None, locale=None, dfltFormats=None, recordResolver=None,
-                   asIterator=False):
-        pass
         
     def totals(self, path=None, columns=None):
         """add???

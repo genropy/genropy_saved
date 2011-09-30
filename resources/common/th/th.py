@@ -225,7 +225,7 @@ class ThLinker(BaseComponent):
         tblobj = self.db.table(table)
         related_tblobj = tblobj.column(field).relatedColumn().table    
         related_table = related_tblobj.fullname
-        joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')[0]
+        joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')
         if 'one_one' in joiner:
             one_one = joiner['one_one']
             manyrelfld = joiner['relation_name']
