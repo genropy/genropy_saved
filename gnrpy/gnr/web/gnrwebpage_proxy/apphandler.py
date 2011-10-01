@@ -234,7 +234,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                              sqlContextName=None, one_one=None, virtual_columns=None, **kwargs):
         if one_one is not None:
             raise 'error'
-
+        print x
         pkg, tbl, related_field = target_fld.split('.')
         table = '%s.%s' % (pkg, tbl)
         if pkey is None:
@@ -871,8 +871,18 @@ class GnrWebAppHandler(GnrBaseProxy):
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
         recInfo['table'] = dbtable
+        self._handleEagerRelations(record,pkey=record[tblobj.pkey],sqlContextName=sqlContextName,virtual_columns=virtual_columns)
         return (record, recInfo)
-
+        
+    def _handleEagerRelations(self,record,pkey,sqlContextName=None,virtual_columns=None):
+        for n in record.nodes:
+            if n.attr.get('_eager_one'):
+                attr=n.attr
+                relatedRecord = self.rpc_getRelatedRecord(from_fld=attr['_from_fld'], target_fld=attr['_target_fld'], pkey=pkey, 
+                             sqlContextName=sqlContextName, one_one=None, virtual_columns=virtual_columns)
+               
+                             
+                                
     def setRecordDefaults(self, record, defaults):
         for k, v in defaults.items():
             if k in record:
