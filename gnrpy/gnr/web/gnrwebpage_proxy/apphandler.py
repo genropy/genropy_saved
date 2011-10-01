@@ -881,7 +881,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 kwargs={}
                 kwargs[target_fld.split('.')[2]]=record[attr['_auto_relation_value']]
                 relatedRecord,relatedInfo = self.rpc_getRelatedRecord(from_fld=attr['_from_fld'], target_fld=target_fld, 
-                                                                        sqlContextName=attr.get('_sqlContextName'), one_one=None, virtual_columns=attr['_virtual_columns'],**kwargs)
+                                                                        sqlContextName=attr.get('_sqlContextName'), one_one=None, virtual_columns=attr.get('_virtual_columns'),**kwargs)
                 n.value = relatedRecord
                 n.attr['_resolvedInfo'] = relatedInfo
                              
