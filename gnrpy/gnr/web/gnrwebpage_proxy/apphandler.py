@@ -224,7 +224,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True,
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                             sqlContextName=None, virtual_columns=None, **kwargs):
+                             sqlContextName=None, virtual_columns=None,_eager_level=None, **kwargs):
         pkg, tbl, related_field = target_fld.split('.')
         table = '%s.%s' % (pkg, tbl)
         if pkey is None:
@@ -236,7 +236,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         record, recInfo = self.getRecord(table=table, from_fld=from_fld, target_fld=target_fld, pkey=pkey,
                                              ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
                                              js_resolver_one=js_resolver_one, js_resolver_many=js_resolver_many,
-                                             sqlContextName=sqlContextName, virtual_columns=virtual_columns, **kwargs)
+                                             sqlContextName=sqlContextName, virtual_columns=virtual_columns, 
+                                             _eager_level=_eager_level,**kwargs)
 
         if sqlContextName:
             joinBag = self._getSqlContextConditions(sqlContextName, target_fld=target_fld, from_fld=from_fld)
@@ -741,7 +742,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                       ignoreMissing=True, ignoreDuplicate=True, lock=False, readOnly=False,
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                      loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None, **kwargs):
+                      loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None,
+                      _eager_level=0, **kwargs):
         """A decorator - :ref:`extract_kwargs`"""
         t = time.time()
         dbtable = dbtable or table
@@ -812,19 +814,23 @@ class GnrWebAppHandler(GnrBaseProxy):
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
         recInfo['table'] = dbtable
-        self._handleEagerRelations(record)
+        self._handleEagerRelations(record,_eager_level)
         return (record, recInfo)
         
-    def _handleEagerRelations(self,record):
+    def _handleEagerRelations(self,record,_eager_level):
         for n in record.nodes:
-            if n.attr.get('_eager_one'):
+            _eager_one = n.attr.get('_eager_one')
+            if _eager_one is True or (_eager_one=='weak' and _eager_level==0):
                 attr=n.attr
                 target_fld=attr['_target_fld']
                 kwargs={}
                 kwargs[target_fld.split('.')[2]]=record[attr['_auto_relation_value']]
+                print n.label,_eager_level,_eager_one
                 relatedRecord,relatedInfo = self.getRelatedRecord(from_fld=attr['_from_fld'], target_fld=target_fld, 
                                                                         sqlContextName=attr.get('_sqlContextName'),
-                                                                        virtual_columns=attr.get('_virtual_columns'),**kwargs)
+                                                                        virtual_columns=attr.get('_virtual_columns'),
+                                                                        _eager_level= _eager_level+1,
+                                                                        **kwargs)
                 n.value = relatedRecord
                 n.attr['_resolvedInfo'] = relatedInfo
                              

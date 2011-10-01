@@ -2074,7 +2074,7 @@ class SqlRecord(object):
 
     def _loadRecord_DynItemOne(self,fieldname,joiner,info,sqlresult,resolver_one,resolver_many):
         if joiner.get('eager_one'):
-            info['_eager_one']=True
+            info['_eager_one']=joiner['eager_one']
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
         info['_from_fld'] = joiner['many_relation']
         info['_target_fld'] = joiner['one_relation']
