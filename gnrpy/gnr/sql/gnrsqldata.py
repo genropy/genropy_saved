@@ -1974,7 +1974,10 @@ class SqlRecord(object):
                                                                                                     self.db), params))
         return self._result
         
-    result = property(_get_result)
+    def _set_result(self,result):
+        self._result = Bag()
+
+    result = property(_get_result,_set_result)
     
     def out_newrecord(self, resolver_one=True, resolver_many=True):
         """add???
@@ -2070,6 +2073,8 @@ class SqlRecord(object):
                          
 
     def _loadRecord_DynItemOne(self,fieldname,joiner,info,sqlresult,resolver_one,resolver_many):
+        if joiner.get('eager_one'):
+            info['_eager_one']=True
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
         info['_from_fld'] = joiner['many_relation']
         info['_target_fld'] = joiner['one_relation']
