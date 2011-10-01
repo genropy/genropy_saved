@@ -558,7 +558,7 @@ class SqlQueryCompiler(object):
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
         for fieldname, value, attrs in self.relations.digest('#k,#v,#a'):
-            xattrs = dict(attrs)
+            xattrs = dict([(k, v) for k, v in attrs.items() if not k in ['tag', 'comment', 'table', 'pkg']])
             if not (bagFields or (attrs.get('dtype') != 'X')):
                 continue
             if 'joiner' in attrs:
