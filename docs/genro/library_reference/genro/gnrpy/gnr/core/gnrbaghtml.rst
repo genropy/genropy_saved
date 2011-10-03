@@ -341,7 +341,9 @@ rows_path
 starting_page_number
 --------------------
 
-    Set the starting :ref:`print_layout_page` number. Default value is ``0``
+    Set the starting :ref:`print_layout_page` number. Default value is ``0``. It is
+    used in the :meth:`pageCounter() <gnr.core.gnrbaghtml.BagToHtml.pageCounter>` method
+    to choose the starting number for the page enumeration
     
 .. _bagtohtml_templates:
 

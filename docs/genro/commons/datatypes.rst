@@ -8,6 +8,7 @@ dtype
     
     * :ref:`datatype_format`:
     
+        * :ref:`datatype_a`
         * :ref:`datatype_c`
         * :ref:`datatype_d`
         * :ref:`datatype_dh`
@@ -27,7 +28,14 @@ dtype
 
 dtypes format
 =============
-    
+
+.. _datatype_a:
+
+A dtype
+-------
+
+    add???
+
 .. _datatype_c:
 
 C dtype
@@ -42,55 +50,63 @@ C dtype
 D dtype
 -------
 
-    add???
+    Date type. Use the ``datetime.date()`` Python module syntax
     
-..    #   D       date
-
+    Example::
+    
+        datetime.date(2011, 10, 10)
+        
 .. _datatype_dh:
 
 DH dtype
 --------
 
-    add???
-    
-..    #   DH      datetime
+    DateHour type. Use the ``datetime.datetime.now()`` Python module syntax
     
 .. _datatype_h:
 
 H dtype
 -------
 
-    add???
+    Hour type. Use the ``datetime.time()`` Python module syntax
     
-..    #   H       time
+    Example::
     
+        datetime.time(4, 5)
+        
 .. _datatype_i:
 
 I dtype
 -------
 
-    add???
+    Integer type.
     
-..    #   I       integer
+    Example::
     
+        1223
+        
 .. _datatype_l:
 
 L dtype
 -------
 
-    add???
+    Long integer type
     
-..    #   L       long integer
+    Example::
     
+        48205294
+        
 .. _datatype_r:
 
 R dtype
 -------
 
-    add???
+    Float number type.
     
-..    #   R       float
+    Example::
     
+        34567.67
+        
 .. _datatype_t:
 
 T dtype
@@ -126,6 +142,6 @@ DT dtype
 custom type
 ===========
 
-    You can build your own datatype. For more information, check the :ref:`methods_custom_type`
-    section of the ``custom_type`` method.
+    You can build your own datatype. For more information, check the
+    :ref:`methods_custom_type` method
     

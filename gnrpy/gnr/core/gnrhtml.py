@@ -122,7 +122,10 @@ class GnrHtmlSrc(GnrStructData):
         :param hasBorderTop: add the top border
         :param hasBorderLeft: add the left border
         :param hasBorderRight: add the right border
-        :param hasBorderBottom: add the bottom border"""
+        :param hasBorderBottom: add the bottom border
+        :param \*\*kwargs: you can pass:
+        
+            * *style*: a string with css style"""
         self.style(".%s_layout{border:%s%s %s %s;position:absolute;}" % (
         name, border_width, um, border_style, border_color))
             

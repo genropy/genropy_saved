@@ -24,10 +24,14 @@ class View(BaseComponent):
     def th_query(self):
         return dict(column='name',op='contains',val='%',runOnStart=True)
         
-    def th_top_a(self,top):
-        top.bar.replaceSlots('#','#,my_button')
+    def th_top_a(self, top):
+        top.bar.replaceSlots('#','my_button,#')
         top.bar.my_button.button('!!Print',action='PUBLISH tablehandler_run_script="print","customer_print";')
         
 class Form(BaseComponent):
     def th_form(self, form):
         pass
+        
+    def th_top_b(self, top):
+        top.bar.replaceSlots('#','my_button,#')
+        top.bar.my_button.button('!!Print',action='PUBLISH tablehandler_run_script="print","customer_print";')
