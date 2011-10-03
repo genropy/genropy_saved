@@ -66,6 +66,8 @@ class GnrCustomWebPage(object):
                                                    validate_parentCode='=.parent_code')
             fb.field('extended_title',tag='textarea',height='100px')
             fb.field('position')
+            fb.field('publish')
+            fb.field('path',readOnly=True)
             self.RichTextEditor(editorPane, value='^.content', height='70%',
                                 toolbar=self.rte_toolbar_standard(),config_resize_enabled='false')
             self.media(formBc.borderContainer(region='center',title='Media'))

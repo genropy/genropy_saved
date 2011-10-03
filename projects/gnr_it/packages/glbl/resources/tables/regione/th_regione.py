@@ -1,8 +1,6 @@
 # -*- coding: UTF-8 -*-
+# th_regione.py
 
-# th_localita.py
-# Created by Francesco Porcari on 2011-03-31.
-# Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class Form(BaseComponent):
@@ -14,7 +12,7 @@ class Form(BaseComponent):
         fb.field('nome', width='20em')
         fb.field('sigla',width='3em')
         fb.field('codice_istat',width='7em')
-        fb.field('regione')
+        fb.field('zona')
         
     def th_dialog(self):
         return dict(height='300px',width='500px')
@@ -27,11 +25,10 @@ class View(BaseComponent):
         r.fieldcell('nome', width='20em')
         r.fieldcell('sigla',width='3em')
         r.fieldcell('codice_istat',width='7em',sortable=False)
-        r.fieldcell('regione',width='100%')
+        r.fieldcell('zona',width='100%')
 
     def th_order(self):
         return 'nome'
 
     def th_query(self):
         return dict(column='nome',op='contains', val='')
-        

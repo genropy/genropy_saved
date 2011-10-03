@@ -19,4 +19,4 @@ def testTask(site_name=None, table_name=None, command=None, parameters=None):
     response = Response()
     page = site.resource_loader(['task','heartbeat'], request, response)
     site.db.table('task.task').runTask(dict(table_name=table_name, command=command, parameters=parameters,log_result=None), page=page)
-    
+    site.cleanup()
