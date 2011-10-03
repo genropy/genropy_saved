@@ -390,10 +390,22 @@ class BagToHtml(object):
             #    curr_copy['page_footer'] = self.page_layout.row(height=self.page_footer_height,lbl_height=4,lbl_class='caption').cell()
             
     def mainLayout(self, page):
-        """Hook method that must be overridden. It gives the
-        :ref:`print_layout_page` object through which you ... add???
+        """Hook method that must be overridden. It gives the :ref:`print_layout_page`
+        object to which you have to append a :ref:`layout_element`
         
-        :param page: the page object"""
+        :param page: the page object
+        
+        **Example**::
+
+            def mainLayout(self, page):
+                style = '''font-family:"Lucida Grande",Lucida,Verdana,sans-serif;
+                        text-align:left;line-height:5mm;font-size:9pt;'''
+                return page.layout(width=190,
+                                   height=self.page_height,
+                                   um='mm',top=0,
+                                   left=5,border_width=0,
+                                   lbl_height=4,lbl_class='caption',
+                                   style=style)"""
         print 'mainLayout must be overridden'
         
     def _openPage(self):
@@ -490,7 +502,7 @@ class BagToHtml(object):
         pass
         
     def docFooter(self, footer, lastPage=None):
-        """Hook method. Define the document footer of the :ref:`print_layout`
+        """Hook method. Define the footer of the :ref:`print_layout_doc` in the :ref:`print_layout`
         
         :param footer: the footer object
         :param lastPage: add???
@@ -500,7 +512,7 @@ class BagToHtml(object):
         pass
         
     def pageFooter(self, footer, lastPage=None):
-        """Hook method. Define the page footer of the :ref:`print_layout`
+        """Hook method. Define the footer of the :ref:`print_layout_page` in the :ref:`print_layout`
         
         :param footer: the footer object
         :param lastPage: add???
@@ -510,7 +522,7 @@ class BagToHtml(object):
         pass
         
     def pageHeader(self, header):
-        """Hook method. Define the page header of the :ref:`print_layout`
+        """Hook method. Define the header of the :ref:`print_layout_page` in the :ref:`print_layout`
         
         :param header: the header object
         
@@ -519,7 +531,7 @@ class BagToHtml(object):
         pass
         
     def docHeader(self, header):
-        """Hook method. Define the doc header of the :ref:`print_layout`
+        """Hook method. Define the header of the :ref:`print_layout_doc` in the :ref:`print_layout`
         
         :param header: the header object
         

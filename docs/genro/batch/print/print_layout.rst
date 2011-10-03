@@ -291,8 +291,8 @@ Main class methods
     
     * :ref:`layout_mainlayout`: MANDATORY - add???
     * :ref:`layout_definestandardstyles`: add???
-    * :ref:`layout_docheader`: add???
-    * :ref:`layout_docfooter`: add???
+    * :ref:`layout_docheader`: define the header of the :ref:`print_layout_doc`
+    * :ref:`layout_docfooter`: define the footer of the :ref:`print_layout_doc`
     * :ref:`layout_pageheader`: add???
     * :ref:`layout_pagefooter`: add???
     
@@ -358,8 +358,6 @@ layout
 ------
 
     .. automethod:: gnr.core.gnrhtml.GnrHtmlSrc.layout
-    
-    add???
     
 .. _layout_row:
     
