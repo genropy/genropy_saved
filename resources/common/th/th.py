@@ -197,7 +197,7 @@ class TableHandler(BaseComponent):
                             main_pkey='=#FORM.pkey',src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
         return iframe
-         
+    
     def rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,table=None,**kwargs):
         rootattr = root.attributes
         rootattr['datapath'] = 'main'
