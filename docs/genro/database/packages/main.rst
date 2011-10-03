@@ -151,9 +151,12 @@ custom_type()
 
     **custom_type_CUSTOMNAME** (*self*)
     
-    With this method you can create your own :ref:`datatype`.
+    A method of the :class:`DbColumnObj <gnr.sql.gnrsqlmodel.DbColumnObj>` class performed
+    during the execution of the :meth:`doInit() <gnr.sql.gnrsqlmodel.DbColumnObj.doInit>`
+    method.
     
-    ``CUSTOMNAME`` is the name you choose for your custom type.
+    With this method you can create your own :ref:`datatype`; ``CUSTOMNAME`` is the name
+    you choose for your custom type.
     
     This method returns a ``dict`` through which you can modify the features of
     your custom type. In particular:
@@ -193,13 +196,11 @@ loginUrl()
 
     **loginUrl** (*self*)
     
-    Define the location of your login authorization page.
+    Define the location of your login authorization page::
     
-    ::
-    
-            def loginUrl(self):
-                return 'packageName/loginName'
-                
+        def loginUrl(self):
+            return 'packageName/loginName'
+            
     where:
     
     * ``packageName`` is the name of the :ref:`package <packages_index>` that contains
@@ -207,12 +208,12 @@ loginUrl()
     * ``loginName`` is the name of the :ref:`webpage` (without its ``.py`` extensions)
       in which you define the login authorization.
       
-        **Example:** if you have a package called ``staff`` and your login webpage is called
-        ``my_great_login.py``, then your ``loginUrl`` method should be::
-        
-            def loginUrl(self):
-                return 'staff/my_great_login'
-                
+    **Example:** if you have a package called ``staff`` and your login webpage is called
+    ``my_great_login.py``, then your ``loginUrl`` method should be::
+    
+        def loginUrl(self):
+            return 'staff/my_great_login'
+            
     .. note:: We suggest you to use ``login.py`` as default name for the login page; if you do so,
               your ``loginUrl`` should be::
               
@@ -222,25 +223,6 @@ loginUrl()
               where ``packageName`` is the name of your package.
     
     For more information on how to build a login page, please check the :ref:`login_auth` page.
-    
-.. add??? Understand if the following methods are old or new...
-.. 
-.. def newUserUrl(self):
-..     return 'adm/new_user'
-.. 
-.. def modifyUserUrl(self):
-..     return 'adm/modify_user'
-.. 
-.. def onApplicationInited(self):
-..     pass
-..     
-.. def onSiteInited(self):
-..     db=self.application.db
-..     db.table('sys.locked_record').clearExistingLocks()
-..     db.closeConnection()
-..
-.. def mailLog(self, subject):
-..     (...)
 
 .. _main_table_class:
 
@@ -257,6 +239,6 @@ Table class
     
 **Footnotes**:
 
-.. [#] Check the complete list of dtypes format in the :ref:`datatype_format` section.
+.. [#] Check the complete list of dtypes format in the :ref:`datatype` page
 .. [#] If you have ``size='12,2'`` and write two decimals, you can use only 10 integers. If you have one decimal you can write 11 integers.
     

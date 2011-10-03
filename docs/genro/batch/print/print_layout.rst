@@ -122,6 +122,20 @@ Layout print regions
     
     add??? an image with the graphical differences between doc - page - grid
     
+    CLIPBOARD::
+    
+        here you define the main constants:
+        maintable ,some heights page header/footer doc header/footer grid header/footer
+        for page we mean the sheet itself so logo or page numbers can fill that header
+        or footer doc header/footer should contains the proper record info
+        grid are the rows (the invoice rows for example) a selection that is related to
+        the primary record or entity you need to print
+        it can have a header (tipically the name of the columns themself)
+        and a footer that we can use for the totals (you can put them inside the doc footer)
+        so these are the main areas so grid_col_widths is the standard widths for the main
+        grid's columns if you put a height to 0 the hook does not being called grid_col_headers
+        is similar to the columns of a standard table
+        
 .. _print_layout_page:
 
 page
@@ -153,19 +167,20 @@ Creation of the file
 import
 ------
 
-    In order to use the layout functionalities you have to import in your print layout file
-    the :class:`TableScriptToHtml <gnr.web.gnrbaseclasses.TableScriptToHtml>` class::
+    In order to use the layout functionalities you have to import
+    in your print layout file the :class:`TableScriptToHtml
+    <gnr.web.gnrbaseclasses.TableScriptToHtml>` class::
     
         from gnr.web.gnrbaseclasses import TableScriptToHtml
         
     Then we have to create the Main class:
-        
+    
 .. _print_layout_main:
 
 Main class
 ----------
 
-    The Main class inherits from the :class:`TableScriptToHtml
+    The Main class inherits directly from the :class:`TableScriptToHtml
     <gnr.web.gnrbaseclasses.TableScriptToHtml>` class, so write::
     
         class Main(TableScriptToHtml):
@@ -363,6 +378,8 @@ cell
     .. automethod:: gnr.core.gnrhtml.GnrHtmlSrc.cell
     
     add???
+    
+    * if you don't define the cell width, then it takes all the remaining space
     
 .. _print_layout_example:
     
