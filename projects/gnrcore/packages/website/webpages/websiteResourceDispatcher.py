@@ -26,23 +26,31 @@ class GnrCustomWebPage(object):
         pass
 
     def getWebResource(self):
+        preview=False
         folder_tbl=self.db.table('website.folder')
         page_tbl=self.db.table('website.page')
         resource_path=self._call_args
         resource_permalink = resource_path[-1]
+        if len(resource_path)>=1:
+            if resource_path[0]=='preview':
+                preview=True
+                resource_path=resource_path[1:]
         if '.' in resource_permalink:
             resource_permalink=resource_permalink.split('.')[0]
         code='.'.join(resource_path)
         folder=folder_tbl.query(where='$code=:code',code=code).fetch()
         if folder:
-            return dict(page=self.getIndex(folder[0]),folder=folder[0],path=self.codeToPath(folder[0]))
+            return dict(page=self.getIndex(folder[0],preview=preview),folder=folder[0],path=self.codeToPath(folder[0]))
         else:
             code='.'.join(resource_path[:-1])
             folder=folder_tbl.query(where='$code=:code',code=code).fetch()
             if folder:
-                page=page_tbl.query(where='$folder=:folder_pkey AND $permalink=:resource_permalink',
+                where='$folder=:folder_pkey AND $permalink=:resource_permalink AND $publish>=:date'
+                if preview:
+                    where='$folder=:folder_pkey AND $permalink=:resource_permalink'
+                page=page_tbl.query(where=where,
                                     folder_pkey=folder[0]['pkey'],
-                                    resource_permalink=resource_permalink).fetch()
+                                    resource_permalink=resource_permalink,date=self.workdate).fetch()
                 if page:
                     return dict(page=page[0],folder=folder[0],path=self.codeToPath(folder[0]))
         raise httpexceptions.HTTPNotFound(comment='Page not found.')
@@ -56,7 +64,7 @@ class GnrCustomWebPage(object):
         return menu
 
     def getPagesByFolder(self,folder):
-        return self.db.table('website.page').query(where='$folder=:folder_pkey',folder_pkey=folder['pkey'],order_by='position').fetch()
+        return self.db.table('website.page').query(where='$folder=:folder_pkey AND $publish>=:date',date=self.workdate,folder_pkey=folder['pkey'],order_by='position').fetch()
 
     def getSubFoldersByFolder(self,folder):
         return self.db.table('website.folder').query(where='$parent_code=:code',code=folder['code'],order_by='$position asc').fetch()
@@ -70,12 +78,16 @@ class GnrCustomWebPage(object):
         #exclude da implementare esclusione folder dinamici
         return mainpage.db.table('website.folder').query().fetch()
         
-    def getIndex(self,folder):
-        pages=self.db.table('website.page').query(where='$folder=:folder_pkey AND $permalink=:permalink',
-                                                            folder_pkey=folder['pkey'],permalink='index').fetch()
+    def getIndex(self,folder,preview=False):
+        where='$folder=:folder_pkey AND $permalink=:permalink AND $publish>=:date'
+        if preview:
+            where='$folder=:folder_pkey AND $permalink=:permalink'
+        pages=self.db.table('website.page').query(where=where,folder_pkey=folder['pkey'],permalink='index',date=self.workdate).fetch()
         if not pages:
-            pages=self.db.table('website.page').query(where='$folder=:folder_pkey',
-                                                                folder_pkey=folder['pkey'],order_by='position').fetch()
+            where='$folder=:folder_pkey AND $publish>=:date'
+            if preview:
+                where='$folder=:folder_pkey'
+            pages=self.db.table('website.page').query(where=where,folder_pkey=folder['pkey'],date=self.workdate,order_by='position').fetch()
         if pages:
             return pages[0] 
         return []
