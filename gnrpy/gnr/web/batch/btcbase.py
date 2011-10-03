@@ -140,8 +140,8 @@ class BaseResourceBatch(object):
         return caption
 
     def do(self, **kwargs):
-        """Hook method. It starts on :meth:`run() <run>` method execution if you have defined
-        the :ref:`batch_steps` webpage variable"""
+        """Hook method. It starts during the :meth:`run() <run>` method execution if you
+        have defined the :ref:`batch_steps` webpage variable"""
         pass
 
     def defineSelection(self, selectionName=None, selectedRowidx=None, selectionFilterCb=None, sortBy=None):

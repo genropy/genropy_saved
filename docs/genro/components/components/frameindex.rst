@@ -44,7 +44,7 @@ FrameIndex
 introduction
 ============
 
-    The FrameIndex allow to load the :ref:`webpages <webpages_webpages>` in an :ref:`iframe`.
+    The FrameIndex allow to load the :ref:`webpages <webpage>` in an :ref:`iframe`.
     
     Let's see an image of the FrameIndex GUI:
     
@@ -62,7 +62,7 @@ introduction
 creation of a FrameIndex page
 =============================
 
-    The FrameIndex component lives in a standard :ref:`webpages_webpages`. So, to use the
+    The FrameIndex component lives in a standard :ref:`webpage`. So, to use the
     FrameIndex you have to create a standard webpage and then you have to personalize it with
     the FrameIndex features. In this section we'll guide you in the creation of a FrameIndex.
     
@@ -333,7 +333,7 @@ chat plug-in
 central pane
 ------------
     
-    The central pane is used to display the content of your :ref:`webpages <webpages_webpages>`.
+    The central pane is used to display the content of your :ref:`webpages <webpage>`.
     
 .. _fi_bottombar:
 

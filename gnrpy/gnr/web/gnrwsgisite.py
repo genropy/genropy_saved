@@ -509,7 +509,7 @@ class GnrWsgiSite(object):
         :param pkg: the package object. For more information on a package, check the
                     :ref:`packages_index` documentation page
         :param \*path: add???"""
-        return self.resource_loader.loadResource(pkg, *path)
+        return self.resource_loader.loadResource(*path, pkg=pkg)
         
     def get_path_list(self, path_info):
         """add???
@@ -904,8 +904,9 @@ class GnrWsgiSite(object):
             return self.gnrapp.db.table('sys.locked_record').clearExistingLocks(**kwargs)
             
     def onClosePage(self, page):
-        """A method called on when a page is closed on the client.
-        :param page: the :ref:`webpages_webpages` being closed"""
+        """A method called on when a page is closed on the client
+        
+        :param page: the :ref:`webpage` being closed"""
         page_id = page.page_id
         self.register.drop_page(page_id)
         self.pageLog('close', page_id=page_id)

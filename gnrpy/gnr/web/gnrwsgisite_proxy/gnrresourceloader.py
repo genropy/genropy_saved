@@ -480,7 +480,7 @@ class ResourceLoader(object):
         return resource_class()
                  
     def mixinPageComponent(self, page, *path,**kwargs):
-        """This method is used to mixin a component to a :ref:`webpages_webpages` at any time
+        """This method is used to mixin a component to a :ref:`webpage` at any time
         
         :param page: the target webpage
         :param pkg: the optional package name. For more information on a package, check the

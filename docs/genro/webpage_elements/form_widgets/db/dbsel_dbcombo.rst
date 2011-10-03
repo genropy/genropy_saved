@@ -99,7 +99,7 @@ selected
                 tbl.column('nationality',name_short='Ntl',name_long='Nationality')
                 tbl.column('number','L',name_long='Number')
 
-    here we show the :ref:`webpages_webpages`::
+    here we show the :ref:`webpage`::
 
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):

@@ -597,7 +597,7 @@ class GnrBaseWebPage(GnrObject):
                                       :ref:`webpages_maintable` :ref:`webpage variable <webpages_variables>`
                                     
                                           **Example:** if you have a package called ``agenda`` and a :ref:`table`
-                                          called ``staff`` and write in your :ref:`webpages_webpages`::
+                                          called ``staff`` and write in your :ref:`webpage`::
                                           
                                               maintable='staff'
                                               self.setLoadingParameters(table='maintable',price='10000')
@@ -611,7 +611,7 @@ class GnrBaseWebPage(GnrObject):
                                       ``PARAMETERNAME`` is the name you gave to the parameter.
                                       
                                           **Example:** if you have a package called ``agenda`` and a :ref:`table`
-                                          called ``staff`` and write in your :ref:`webpages_webpages`::
+                                          called ``staff`` and write in your :ref:`webpage`::
                                           
                                               self.setLoadingParameters(table='agenda.staff',price='10000')
                                               
@@ -685,9 +685,9 @@ class GnrBaseWebPage(GnrObject):
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` section."""
         dlg = root.dialog(toggle="fade", toggleDuration=250, onCreated='widget.show();')
-        f = dlg.form()
-        f.div(content='Forbidden Page', text_align="center", font_size='24pt')
-        tbl = f.contentPane(_class='dojoDialogInner').table()
+        #f = dlg.form()
+        #f.div(content='Forbidden Page', text_align="center", font_size='24pt')
+        tbl = dlg.contentPane(_class='dojoDialogInner').table()
         row = tbl.tr()
         row.td(content='Sorry. You are not allowed to use this page.', align="center", font_size='16pt',
                color='#c90031')

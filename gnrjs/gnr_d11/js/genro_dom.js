@@ -1233,9 +1233,8 @@ dojo.declare("gnr.GnrDomHandler", null, {
             rootNode = parentId;
             parentId = rootNode.getStringId();
         }
-        
         var default_kw = {'position':'absolute',top:'0',left:'0',right:'0','bottom':0,
-            z_index:1000,background_color:'rgba(255,255,255,0.5)',id:parentId + '_hider'};
+            z_index:800,background_color:'rgba(255,255,255,0.5)',id:parentId + '_hider'};
         var kw = objectUpdate(default_kw, kw);
         var hider = rootNode._('div','hiderNode', kw).getParentNode();
         if(message){
