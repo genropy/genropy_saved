@@ -135,7 +135,7 @@ class SqlTable(GnrObject):
                 rowcaption = 'Current Record'
         e = exception(tablename=self.fullname,rowcaption=rowcaption,msg=msg, **kwargs)
         
-        if self.db.application and self.db.application.site and self.db.application.site.currentPage:
+        if self.db.application and hasattr(self.db.application,'site') and self.db.application.site.currentPage:
             e.setLocalizer(self.db.application.site.currentPage.localizer)
         return e
         
