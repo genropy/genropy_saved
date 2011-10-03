@@ -11,6 +11,7 @@ class View(BaseComponent):
         r.fieldcell('permalink', width='15%')
         r.fieldcell('title', width='35%',name='Title')
         r.fieldcell('@folder.title', width='50%',name='Folder')
+        r.fieldcell('path')
         return struct
         
     def th_order(self):
