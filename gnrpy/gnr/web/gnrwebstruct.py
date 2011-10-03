@@ -1002,7 +1002,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     dropCode, mode = dropCode.split(':')
                 dropmode = 'dropTarget_%s' % mode
                 ivattr[dropmode] = '%s,%s' % (ivattr[dropmode], dropCode) if dropmode in ivattr else dropCode
-                ivattr['onDrop_%s' % dropCode] = 'data._dropInfo = dropInfo; FIRE .dropped_%s = data' % dropCode
+                ivattr['onDrop_%s' % dropCode] = 'SET .droppedInfo_%s = dropInfo; FIRE .dropped_%s = data' % (dropCode,dropCode)
                 ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
                 
     def newincludedview_draganddrop(self,dropCodes=None,**kwargs):
