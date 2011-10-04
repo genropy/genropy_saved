@@ -61,7 +61,8 @@ class SqlCompiledQuery(object):
         self.maintable = maintable
         self.relationDict = relationDict or {}
         self.aliasDict = {}
-        self.resultmap = Bag()
+        self.template = Bag()
+        self.dicttemplate = {}
         self.distinct = ''
         self.columns = ''
         self.joins = []
@@ -206,8 +207,8 @@ class SqlQueryCompiler(object):
         """Internal method: called by getFieldAlias to get the alias (t1, t2...) for the join table.
         It is recursive to resolve paths like ``@rel.@rel2.@rel3.column``"""
         p = pathlist.pop(0)
-        joiner = curr['%s?joiner' % p]
-        if joiner == None:
+        steps = curr['%s?joiner' % p]
+        if steps == None:
             tblalias = self.db.table(curr.tbl_name, pkg=curr.pkg_name).model.table_aliases[p]
             if tblalias == None:
                 #DUBBIO: non esiste più GnrSqlBadRequest
@@ -219,8 +220,9 @@ class SqlQueryCompiler(object):
                 pathlist = tblalias.relation_path.split(
                         '.') + pathlist # set the alias table relation_path in the current path
         else:                                                           # then call _findRelationAlias recursively
-            alias, newpath = self.getAlias(joiner, newpath, basealias)
-            basealias = alias
+            for step in steps:
+                alias, newpath = self.getAlias(step, newpath, basealias)
+                basealias = alias
             curr = curr[p]
         if pathlist:
             alias, curr = self._findRelationAlias(pathlist, curr, basealias, newpath)
@@ -260,6 +262,7 @@ class SqlQueryCompiler(object):
         target_sqlschema = target_tbl.sqlschema
         target_sqltable = target_tbl.sqlname
         target_sqlcolumn = target_tbl.sqlnamemapper[target_column]
+        from_sqltable = from_tbl.sqlname
         from_sqlcolumn = from_tbl.sqlnamemapper[from_column]
         
         if (attrs.get('case_insensitive', False) == 'Y'):
@@ -557,17 +560,7 @@ class SqlQueryCompiler(object):
         if not 'pkey' in self.cpl.relationDict:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
         self.init(lazy=lazy, eager=eager)
-        for fieldname, value, attrs in self.relations.digest('#k,#v,#a'):
-            xattrs = dict([(k, v) for k, v in attrs.items() if not k in ['tag', 'comment', 'table', 'pkg']])
-            if not (bagFields or (attrs.get('dtype') != 'X')):
-                continue
-            if 'joiner' in attrs:
-                xattrs['_relmode'] = self._getRelationMode(attrs['joiner'])
-            else:
-                self.fieldlist.append('t0.%s AS t0_%s' % (fieldname, fieldname))
-                xattrs['as'] = 't0_%s' %fieldname
-            self.cpl.resultmap.setItem(fieldname,None,xattrs)
-
+        self.recordFields(self.relations, [], [], 't0', bagFields)
         if virtual_columns:
             self._handle_virtual_columns(virtual_columns)
         self.cpl.where = self._recordWhere(where=where)
@@ -576,18 +569,7 @@ class SqlQueryCompiler(object):
         self.cpl.limit = 2
         self.cpl.for_update = for_update
         return self.cpl
-            
-    
-    def _getRelationMode(self,joiner):
-        if joiner['mode'] == 'O':
-            return 'DynItemOne'
-        isOneOne=joiner.get('one_one')
-        if not isOneOne and self.joinConditions:
-            from_fld, target_fld = self._tablesFromRelation(joiner)
-            extracnd, isOneOne = self.getJoinCondition(target_fld, from_fld, 't0')
-        return 'DynItemOneOne' if isOneOne else 'DynItemMany'
-
-    
+        
     def _handle_virtual_columns(self, virtual_columns):
         if isinstance(virtual_columns, basestring):
             virtual_columns = gnrstring.splitAndStrip(virtual_columns, ',')
@@ -609,8 +591,8 @@ class SqlQueryCompiler(object):
                 pass
             xattrs['as'] = as_name
             self.fieldlist.append('%s AS %s' % (field, as_name))
-            self.cpl.resultmap.setItem(path_name, None, xattrs)
-            #self.cpl.dicttemplate[path_name] = as_name
+            self.cpl.template.setItem(path_name, None, xattrs)
+            self.cpl.dicttemplate[path_name] = as_name
             
     def expandPeriod(self, m):
         """add???
@@ -648,7 +630,11 @@ class SqlQueryCompiler(object):
             self.updateFieldDict(where)
             colPars = {}
             for key, value in self.cpl.relationDict.items():
-                colPars[key] = self.getFieldAlias(value)
+                as_ = self.cpl.template['%s#as' % value]
+                if as_:
+                    colPars[key] = '.'.join(as_.split('_', 1))
+                else:
+                    colPars[key] = self.getFieldAlias(value)
             where = gnrstring.templateReplace(where, colPars)
         return where
         
@@ -660,9 +646,77 @@ class SqlQueryCompiler(object):
             target_fld = attrs['many_relation']
             from_fld = attrs['one_relation']
         return from_fld, target_fld
-
-
-
+        
+    def recordFields(self, fields, path, bagpath, basealias, bagFields): # used by recordBuilder #NISO: but there is not recordBuilder!! deprecated?
+        """add???
+        
+        :param fields: add???
+        :param path: add???
+        :param bagpath: add???
+        :param basealias: add???
+        :param bagFields: boolean. If ``True`` include fields of type Bag (``X``) when the columns
+                          attribute is ``*`` or contains ``*@relname.filter``"""
+        for field, value, attrs in fields.digest('#k,#v,#a'):
+            #alias = None
+            joinlist = attrs.get('joiner', None)
+            dtype = attrs.get('dtype', None)
+            attrs = dict([(k, v) for k, v in attrs.items() if not k in ['tag', 'comment', 'table', 'pkg']])
+            newbase = basealias
+            newpath = list(path)
+            if (dtype != 'X') or bagFields:
+                if not joinlist:
+                    self.fieldlist.append('%s.%s AS %s_%s' % (basealias, field, basealias, field))
+                    as_name = '%s_%s' % (basealias, field)
+                    path_name = '.'.join(bagpath + [field])
+                    xattrs = dict(attrs)
+                    xattrs['as'] = as_name
+                    self.cpl.template.setItem(path_name, None, xattrs)
+                    self.cpl.dicttemplate[path_name] = as_name
+                else:
+                    joinlist = list(joinlist)
+                    attrs = joinlist.pop()
+                    extra_one_one = None
+                    if self.joinConditions:
+                        from_fld, target_fld = self._tablesFromRelation(attrs)
+                        extracnd, extra_one_one = self.getJoinCondition(target_fld, from_fld, basealias)
+                        
+                    else:
+                        joinExtra = {}
+                    if attrs['mode'] == 'O' or attrs.get('one_one') or extra_one_one:
+                        for at in joinlist: # solo se joinlist ha piu di 1 elemento: ramo morto?
+                            raise
+                            #newbase, newpath = self.getAlias(at, newpath, newbase)
+                        if isinstance(value, Bag): #  è un relation one, perché non dovrebbe essere una bag?
+                            fieldpath = '.'.join(bagpath + [field])
+                            testallpath = '.'.join(bagpath + ['*'])
+                            # if joinExtra.get('one_one') we had to eager load the relation in order to use the joinExtra conditions
+                            is_eager_one = attrs.get('eager_one') and self.db.allow_eager_one and attrs.get('mode') == 'O'
+                            if False and (extra_one_one \
+                               or (fieldpath in self.eager)\
+                               or (testallpath in self.eager)\
+                            or (is_eager_one and not fieldpath in self.lazy)):
+                                #call recordFields recoursively for related records to be loaded in one query                                
+                                alias, newpath = self.getAlias(attrs, newpath, newbase)
+                                self.cpl.template.setItem('.'.join(bagpath + [field]), None, _attributes=attrs,
+                                                          basealias=newbase)
+                                self.recordFields(value, newpath, bagpath + [field], alias, bagFields)
+                            elif attrs['mode'] == 'M': # a one to many relation with one_one attribute
+                                self.cpl.template.setItem(fieldpath, 'DynItemOneOne', _attributes=attrs,
+                                                          basealias=newbase)
+                            else: # a simple many to one relation 
+                                self.cpl.template.setItem(fieldpath, 'DynItemOne', _attributes=attrs, basealias=newbase)
+                        else: #  ramo morto?
+                            raise
+                            #alias, newpath = self.getAlias(attrs, newpath, newbase)
+                            #self.fieldlist.append('%s.%s AS %s_%s' % (alias, field, alias, field))                        
+                            #as_name = '%s_%s' % (alias, field)
+                            #path_name = '.'.join(bagpath + [field])
+                            #self.cpl.template.setItem(path_name, None, as=as_name)
+                            #self.cpl.dicttemplate[path_name] = as_name
+                    else:
+                        self.cpl.template.setItem('.'.join(bagpath + [field]), 'DynItemMany', _attributes=attrs,
+                                                  basealias=newbase)
+                                                  
 class SqlDataResolver(BagResolver):
     """add???"""
     classKwargs = {'cacheTime': 0,
@@ -1281,6 +1335,7 @@ class SqlSelection(object):
             args = gnrstring.splitAndStrip(args[0], ',')
         if args != self.sortedBy:
             if self.explodingColumns:
+                newargs = []
                 for k, arg in enumerate(args):
                     if arg.split(':')[0] in self.explodingColumns:
                         args[k] = arg.replace('*', '')
@@ -1425,6 +1480,11 @@ class SqlSelection(object):
             tbag.sort(pars)
         else:
             tbag.sort()
+            
+    def outputTEST(self, mode, columns=None, offset=0, limit=None,
+                   filterCb=None, subtotal_rows=None, formats=None, locale=None, dfltFormats=None, recordResolver=None,
+                   asIterator=False):
+        pass
         
     def totals(self, path=None, columns=None):
         """add???
@@ -1936,12 +1996,18 @@ class SqlRecord(object):
             where = '$pkey = :pkey'
         else:
             where = ' AND '.join(['t0.%s=:%s' % (k, k) for k in self.sqlparams.keys()])
-        compiler = SqlQueryCompiler(self.dbtable.model, sqlparams=self.sqlparams,
+            
+        result = SqlQueryCompiler(self.dbtable.model, sqlparams=self.sqlparams,
                                   joinConditions=self.joinConditions,
-                                  sqlContextName=self.sqlContextName)
-        return compiler.compiledRecordQuery(where=where,relationDict=self.relationDict,bagFields=self.bagFields,
-                                                for_update=self.for_update,virtual_columns=self.virtual_columns,
-                                                **self.relmodes)
+                                  sqlContextName=self.sqlContextName).compiledRecordQuery(where=where,
+                                                                                          relationDict=self.relationDict
+                                                                                          ,
+                                                                                          bagFields=self.bagFields,
+                                                                                          for_update=self.for_update,
+                                                                                          virtual_columns=self.virtual_columns
+                                                                                          ,
+                                                                                          **self.relmodes)
+        return result
         
     def _get_result(self):
         if self._result is None:
@@ -1974,10 +2040,7 @@ class SqlRecord(object):
                                                                                                     self.db), params))
         return self._result
         
-    def _set_result(self,result):
-        self._result = Bag()
-
-    result = property(_get_result,_set_result)
+    result = property(_get_result)
     
     def out_newrecord(self, resolver_one=True, resolver_many=True):
         """add???
@@ -1985,8 +2048,8 @@ class SqlRecord(object):
         :param resolver_one: boolean. add???
         :param resolver_many: boolean. add???"""
         result = SqlRecordBag(self.db, self.dbtable.fullname)
-        self.result = Bag()
-        self.loadRecord(result, resolver_many=resolver_many, resolver_one=resolver_one)
+        record = Bag()
+        self._loadRecord(result, record, self.compiled.template, resolver_many=resolver_many, resolver_one=resolver_one)
         
         newdefaults = self.dbtable.defaultValues()
         for k, v in newdefaults.items():
@@ -2000,19 +2063,24 @@ class SqlRecord(object):
         :param resolver_one: boolean. add???
         :param resolver_many: boolean. add???"""
         result = SqlRecordBag(self.db, self.dbtable.fullname)
-        self.loadRecord(result, resolver_many=resolver_many,resolver_one=resolver_one)
+        record = self.result
+        if record != None:
+            self._loadRecord(result, self.result, self.compiled.template, resolver_many=resolver_many,
+                             resolver_one=resolver_one)
         return result
         
     
     def out_template(self,recordtemplate=None):
         record=Bag()
-        self.loadRecord(record,resolver_many=True, resolver_one=True)
+        self._loadRecord(record, self.result, self.compiled.template, resolver_many=True, resolver_one=True)
         return gnrstring.templateReplace(recordtemplate,record,safeMode=True)
         
     def out_record(self):
         """add???"""
         result = Bag()
-        self.loadRecord(result,resolver_many=False, resolver_one=False)
+        record = self.result
+        if record:
+            self._loadRecord(result, record, self.compiled.template, resolver_many=False, resolver_one=False)
         return result
         
     def out_json(self):
@@ -2021,111 +2089,114 @@ class SqlRecord(object):
         
     def out_dict(self):
         """add???"""
-        return dict([(str(k)[3:], self.result[k]) for k in self.result.keys()])
-    
-
-    def loadRecord(self,result,resolver_one=None,resolver_many=None):
-        if self.result is not None:
-            self._loadRecord(result,self.result,self.compiled.resultmap,resolver_one=resolver_one,resolver_many=resolver_many)
-   
-
-    def _loadRecord_DynItemMany(self,fieldname,joiner,info,sqlresult,resolver_one,resolver_many):
-        opkg, otbl, ofld = joiner['one_relation'].split('.')
-
-        info['_from_fld'] = joiner['one_relation']
-        info['_target_fld'] = joiner['many_relation']
-        info['_relation_value'] = sqlresult['t0_%s' %ofld]
-
-        if resolver_many is True:
-            value = SqlRelatedSelectionResolver(
-                    columns='*', db=self.db, cacheTime=-1,
-                    target_fld=info['_target_fld'],
-                    relation_value=info['_relation_value'],
-                    mode='grid', joinConditions=self.joinConditions,
-                    sqlContextName=self.sqlContextName
-                    )
-        else:
-            value = None
-            info['_sqlContextName'] = self.sqlContextName
-            info['_resolver_name'] = resolver_many
-        return value,info
-
-    def _loadRecord_DynItemOneOne(self,fieldname,joiner,info,sqlresult,resolver_one,resolver_many):
-        opkg, otbl, ofld = joiner['one_relation'].split('.')
-        info['_from_fld'] = joiner['one_relation']
-        info['_target_fld'] = joiner['many_relation']
-        relation_value = sqlresult['t0_%s' %ofld]
-        if resolver_one is True:
-            value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
-                                             target_fld=info['_target_fld'],
-                                             relation_value=relation_value,
-                                             mode='bag',
-                                             bagFields=True,
-                                             ignoreMissing=True,
-                                             joinConditions=self.joinConditions,
-                                             sqlContextName=self.sqlContextName)
-        else:
-            value = None
-            info['_resolver_name'] = resolver_one
-            info['_sqlContextName'] = self.sqlContextName
-            info['_relation_value'] = relation_value
-        return value,info
-                         
-
-    def _loadRecord_DynItemOne(self,fieldname,joiner,info,sqlresult,resolver_one,resolver_many):
-        if joiner.get('eager_one'):
-            info['_eager_one']=joiner['eager_one']
-        mpkg, mtbl, mfld = joiner['many_relation'].split('.')
-        info['_from_fld'] = joiner['many_relation']
-        info['_target_fld'] = joiner['one_relation']
-        relation_value = sqlresult['t0_%s' %mfld]
-        rel_vc = None
-        if self.virtual_columns:
-            rel_vc = ','.join(
-                    [vc.split('.', 1)[1] for vc in self.virtual_columns.split(',') if vc.startswith(fieldname)])
-        if resolver_one is True:
-            value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
-                                             target_fld=info['_target_fld'],
-                                             relation_value=relation_value,
-                                             mode='bag', virtual_columns=rel_vc,
-                                             bagFields=True,
-                                             ignoreMissing=True,
-                                             joinConditions=self.joinConditions,
-                                             sqlContextName=self.sqlContextName
-                                             )
-        else:
-            value = None
-            info['_resolver_name'] = resolver_one
-            info['_sqlContextName'] = self.sqlContextName
-            info['_auto_relation_value'] = mfld
-            info['_virtual_columns'] = rel_vc
-        return value,info
-
-    def _loadRecord(self, result, sqlresult,fields, resolver_one=None, resolver_many=None):
-        for fieldname, args in fields.digest('#k,#a'):
+        return dict([(str(k), self.result[v]) for k, v in self.compiled.dicttemplate.items()])
+        
+    def _loadRecord(self, result, sqlresult, template, resolver_one=None, resolver_many=None):
+        for k, v, args in template.digest('#k,#v,#a'):
             dtype = args.get('dtype')
             info = dict(args)
-            joiner = info.pop('joiner',None)
-            relmode = info.pop('_relmode',None)
-            if relmode:
-                if (relmode=='DynItemMany' and resolver_many) or (resolver_one and relmode in ('DynItemOneOne','DynItemOne')):
-                    value, info = getattr(self,'_loadRecord_%s' %relmode)(fieldname,joiner,info,sqlresult,resolver_one,resolver_many)
-                    result.setItem(fieldname, value, info)                    
+            for lbl in ('as', 'foreignkey', 'default', 'basealias', 'case_insensitive', 'many_rel_name', 'one_rel_name',
+                        'many_relation', 'one_relation'):
+                info.pop(lbl, None)
+            if isinstance(v, Bag):
+                value = Bag()
+                self._loadRecord(value, sqlresult, v, resolver_one=resolver_one, resolver_many=resolver_many)
+                reltbl = self.db.table(args['one_relation'])
+                nodecaption = self.dbtable.recordCaption(value)
+                result.setItem(k, value, nodecaption=nodecaption, pkey=value[reltbl.pkey])
+            elif v == 'DynItemMany':
+                if resolver_many:
+                    opkg, otbl, ofld = args['one_relation'].split('.')
+
+                    info['_from_fld'] = args['one_relation']
+                    info['_target_fld'] = args['many_relation']
+                    info['_relation_value'] = sqlresult['%s_%s' % (args['basealias'], ofld)]
+
+                    if resolver_many is True:
+                        value = SqlRelatedSelectionResolver(
+                                columns='*', db=self.db, cacheTime=-1,
+                                target_fld=info['_target_fld'],
+                                relation_value=info['_relation_value'],
+                                mode='grid', joinConditions=self.joinConditions,
+                                sqlContextName=self.sqlContextName
+                                )
+                    else:
+                        value = None
+                        info['_sqlContextName'] = self.sqlContextName
+                        info['_resolver_name'] = resolver_many
+                    result.setItem(k, value, info)
+
+            elif v == 'DynItemOneOne':
+                if resolver_one:
+                    opkg, otbl, ofld = args['one_relation'].split('.')
+                    info.pop('many_relation', None)
+                    info['_from_fld'] = args['one_relation']
+                    info['_target_fld'] = args['many_relation']
+                    relation_value = sqlresult['%s_%s' % (args['basealias'], ofld)]
+
+                    if resolver_one is True:
+                        value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
+                                                         target_fld=info['_target_fld'],
+                                                         relation_value=relation_value,
+                                                         mode='bag',
+                                                         bagFields=True,
+                                                         ignoreMissing=True,
+                                                         joinConditions=self.joinConditions,
+                                                         sqlContextName=self.sqlContextName)
+                    else:
+                        value = None
+                        info['_resolver_name'] = resolver_one
+                        info['_sqlContextName'] = self.sqlContextName
+                        info['_relation_value'] = relation_value
+                    result.setItem(k, value, info)
+
+            elif v == 'DynItemOne':
+                if resolver_one:
+                    mpkg, mtbl, mfld = args['many_relation'].split('.')
+
+                    info.pop('many_relation', None)
+                    info['_from_fld'] = args['many_relation']
+                    info['_target_fld'] = args['one_relation']
+                    relation_value = sqlresult['%s_%s' % (args['basealias'], mfld)]
+                    rel_vc = None
+                    if self.virtual_columns:
+                        rel_vc = ','.join(
+                                [vc.split('.', 1)[1] for vc in self.virtual_columns.split(',') if vc.startswith(k)])
+                    if resolver_one is True:
+                        value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
+                                                         target_fld=info['_target_fld'],
+                                                         relation_value=relation_value,
+                                                         mode='bag', virtual_columns=rel_vc,
+                                                         bagFields=True,
+                                                         ignoreMissing=True,
+                                                         joinConditions=self.joinConditions,
+                                                         sqlContextName=self.sqlContextName
+                                                         )
+                    else:
+                        value = None
+                        info['_resolver_name'] = resolver_one
+                        info['_sqlContextName'] = self.sqlContextName
+                        info['_auto_relation_value'] = mfld
+                        info['_virtual_columns'] = rel_vc
+                    result.setItem(k, value, info)
             else:
-                if dtype == 'X' and not self.bagFields:
-                    continue
-                value = sqlresult['t0_%s' %fieldname]
-                if dtype == 'X':
+                if args.get('as'):
+                #if args.get('as').startswith('t1'):
+                #raise '%s \n\n%s' % (str(args), str(sqlresult))
+                    value = sqlresult[args.get('as')]
+                else:
+                    value = v
+                if dtype == 'X' and self.bagFields == True:
                     try:
                         md5value = value or ''
                         md5value = md5value.encode('utf8')
                         info['_bag_md5'] = hashlib.md5(md5value).hexdigest()
                         value = Bag(value)
+
                     except:
                         pass
-                result.setItem(fieldname, value, info)
+                result.setItem(k, value, info)
 
-    
 class SqlRecordBag(Bag):
     """add???"""
     def __init__(self, db=None, tablename=None):

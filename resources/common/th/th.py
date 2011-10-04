@@ -197,7 +197,7 @@ class TableHandler(BaseComponent):
                             main_pkey='=#FORM.pkey',src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
         return iframe
-    
+         
     def rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,table=None,**kwargs):
         rootattr = root.attributes
         rootattr['datapath'] = 'main'
@@ -225,7 +225,7 @@ class ThLinker(BaseComponent):
         tblobj = self.db.table(table)
         related_tblobj = tblobj.column(field).relatedColumn().table    
         related_table = related_tblobj.fullname
-        joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')
+        joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')[0]
         if 'one_one' in joiner:
             one_one = joiner['one_one']
             manyrelfld = joiner['relation_name']

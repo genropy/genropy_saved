@@ -564,6 +564,7 @@ class GnrWsgiSite(object):
             path_list = ['_site', 'favicon.ico']
             self.log_print('', code='FAVICON')
             # return response(environ, start_response)
+            
         request_kwargs = self.parse_request_params(request.params)
         request_kwargs.pop('_no_cache_', None)
         storename = None
@@ -1041,26 +1042,17 @@ class GnrWsgiSite(object):
         :param page_id: add???
         :param reason: add???"""
         kwargs = self.parse_kwargs(kwargs)
-        _children_pages_info= kwargs.get('_children_pages_info')
         _lastUserEventTs = kwargs.get('_lastUserEventTs')
         page_item = self.register.refresh(page_id, _lastUserEventTs)
         if not page_item:
             return self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
             
         self.handle_clientchanges(page_id, kwargs)
-        if _children_pages_info:
-            for k,v in _children_pages_info.items():
-                self.handle_clientchanges(k, {'_serverstore_changes':v})
         envelope = Bag(dict(result=None))
         user=page_item['user']
-        datachanges = self.get_datachanges(page_id, user=user)            
+        datachanges = self.get_datachanges(page_id, user=user)
         if datachanges:
             envelope.setItem('dataChanges', datachanges)
-        if _children_pages_info:
-            for k in _children_pages_info.keys():
-                datachanges = self.get_datachanges(k, user=user)
-                if datachanges:
-                    envelope.setItem('childDataChanges.%s' %k, datachanges)
         response.content_type = "text/xml"
         lastBatchUpdate = self.register.userStore(user).getItem('lastBatchUpdate')
         if lastBatchUpdate:

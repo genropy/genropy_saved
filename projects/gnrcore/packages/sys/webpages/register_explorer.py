@@ -20,6 +20,7 @@ class GnrCustomWebPage(object):
         return '!!Register explorer'
 
     def main(self, rootBC, **kwargs):
+        rootBC.data('gnr.polling', 3)
         tc, top, bottom = self.pbl_rootTabContainer(rootBC, '!!Connections')
         self.dlg_cleanup(tc)
         #bottom['left'].button('refresh',fire='refresh_all')

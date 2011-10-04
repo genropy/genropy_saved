@@ -38,8 +38,8 @@ gnrlogger = logging.getLogger(__name__)
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrlist
 
-from gnr.core.gnrlang import uniquify
-from gnr.core.gnrdecorator import extract_kwargs,public_method
+from gnr.core.gnrlang import getUuid,uniquify
+from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
@@ -132,7 +132,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 attributes.update(elem.getAttr())
                 if 'joiner' in attributes:
                     joiner = attributes.pop('joiner')
-                    attributes.update(joiner or {})
+                    attributes.update(joiner[0] or {})
                 label = elem.label
                 attributes['caption'] = attributes.get('name_long')
                 if elem.resolver != None:
@@ -219,12 +219,22 @@ class GnrWebAppHandler(GnrBaseProxy):
         return tblobj.query(columns=columns, distinct=distinct, where=where,
                             relationDict=relationDict, sqlparams=sqlparams, **kwargs).count()
 
-    
-    @public_method
-    def getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True,
+    def rpc_selectionCall(self, table, selectionName, method, freeze=False, **kwargs):
+        tblobj = self.db.table(table)
+        selection = self.page.unfreezeSelection(tblobj, selectionName)
+        if hasattr(selection, method):
+            result = getattr(selection, method)(**kwargs)
+            if freeze:
+                selection.freezeUpdate()
+            return result
+
+    def rpc_getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True,
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                             sqlContextName=None, virtual_columns=None,_eager_level=None, **kwargs):
+                             sqlContextName=None, one_one=None, virtual_columns=None, **kwargs):
+        if one_one is not None:
+            raise 'error'
+
         pkg, tbl, related_field = target_fld.split('.')
         table = '%s.%s' % (pkg, tbl)
         if pkey is None:
@@ -233,11 +243,10 @@ class GnrWebAppHandler(GnrBaseProxy):
         if pkey in (None,
                     '') and not related_field in kwargs: # and (not kwargs): # related record from a newrecord or record without link
             pkey = '*newrecord*'
-        record, recInfo = self.getRecord(table=table, from_fld=from_fld, target_fld=target_fld, pkey=pkey,
+        record, recInfo = self.rpc_getRecord(table=table, from_fld=from_fld, target_fld=target_fld, pkey=pkey,
                                              ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
                                              js_resolver_one=js_resolver_one, js_resolver_many=js_resolver_many,
-                                             sqlContextName=sqlContextName, virtual_columns=virtual_columns, 
-                                             _eager_level=_eager_level,**kwargs)
+                                             sqlContextName=sqlContextName, virtual_columns=virtual_columns, **kwargs)
 
         if sqlContextName:
             joinBag = self._getSqlContextConditions(sqlContextName, target_fld=target_fld, from_fld=from_fld)
@@ -246,9 +255,26 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self.page.getPublicMethod('rpc', joinBag['applymethod'])(record, **applyPars)
         return (record, recInfo)
 
+  #def setContextJoinColumns(self, table, contextName='', reason=None, path=None, columns=None):
+  #    tblobj = self.db.table(table)
+  #    relation = tblobj.model.getRelation(path)
+  #    if not relation:
+  #        return
+  #    target_fld = relation['many'].replace('.', '_')
+  #    from_fld = relation['one'].replace('.', '_')
+  #    ctxpath = '_sqlctx.columns.%s.%s_%s' % (contextName, target_fld, from_fld)
+  #    with self.page.pageStore() as store:
+  #        reasons = store.getItem('%s._reasons' % ctxpath)
+  #        if reasons is None:
+  #            reasons = Bag()
+  #            store.setItem('%s._reasons' % ctxpath, reasons)
+  #        reasons.setItem(reason or '*', columns)
+  #        query_set = set()
+  #        for columns in reasons.values():
+  #            query_set.update(columns.split(','))
+  #        store.setItem(ctxpath, ','.join(query_set))
 
-    @public_method
-    def getRelatedSelection(self, from_fld, target_fld, relation_value=None,
+    def rpc_getRelatedSelection(self, from_fld, target_fld, relation_value=None,
                                 columns='', query_columns=None,
                                 condition=None, js_resolver_one='relOneResolver',
                                 sqlContextName=None, **kwargs):
@@ -308,9 +334,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                                  })
 
         return (result, resultAttributes)
-        
-    @public_method
-    def runSelectionBatch(self, table, selectionName=None, batchFactory=None, pkeys=None,
+
+    def rpc_runSelectionBatch(self, table, selectionName=None, batchFactory=None, pkeys=None,
                               thermoId=None, thermofield=None,
                               stopOnError=False, forUpdate=False, onRow=None, **kwargs):
         """add???
@@ -450,9 +475,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         if optkwargs:
             result.update(optkwargs)
         return result
-    
-    @public_method
-    def checkFreezedSelection(self,changelist=None,selectionName=None,where=None,table=None,**kwargs):
+
+    def rpc_checkFreezedSelection(self,changelist=None,selectionName=None,where=None,table=None,**kwargs):
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
         needUpdate = False
         if selection is not None:
@@ -476,9 +500,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                 needUpdate = True
                 break
         return needUpdate
-    
-    @public_method               
-    def getSelection(self, table='', distinct=False, columns='', where='', condition=None,
+                             
+    def rpc_getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
                          relationDict=None, sqlparams=None, row_start='0', row_count='0',
                          recordResolver=True, selectionName='', structure=False, numberedRows=True,
@@ -637,7 +660,44 @@ class GnrWebAppHandler(GnrBaseProxy):
         #
         return selection
 
- 
+    def rpc_createSelection(self, table='', selectionName='', distinct=False, columns='', where='', condition=None,
+                            order_by=None, limit=None, offset=None, group_by=None, having=None,
+                            relationDict=None, sqlparams=None, pkeys=None,
+                            selectmethod=None, expressions=None, apply=None, sortedBy=None, **kwargs):
+        """Create a new selection and freezes it
+        
+        :param table: table name
+        :param selectionName: the name of the selection, empty or '*' will default to a new uuid
+        :param pkeys: a json or comma separated list of pkey to find (overwrite the where parameter)
+        :param selectmethod: a page method with rpc_ prefix which receive all parameters and has to return a selection object
+        :param expressions: comma separated list of expr_ methods which returns the sql string for a column (probably a formula)
+        :param apply: a page method with rpc_ prefix which will be applied to the selection (see gnrsqldata.SqlSelection.apply)
+        :param sortedBy: sort the selection after apply, for sort in python with calculated columns available"""
+        t = time.time()
+        tblobj = self.db.table(table)
+        if selectionName == '*' or not selectionName:
+            selectionName = getUuid()
+
+        if selectmethod:
+            selectmethod = getattr(self.page, 'rpc_%s' % selectmethod)
+        else:
+            selectmethod = self._default_getSelection
+        selection = selectmethod(tblobj=tblobj, table=table, distinct=distinct, columns=columns, where=where,
+                                 condition=condition,
+                                 order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
+                                 relationDict=relationDict, sqlparams=sqlparams,
+                                 pkeys=pkeys, expressions=expressions, **kwargs)
+
+        if apply:
+            selection.apply(getattr(self.page, 'rpc_%s' % apply))
+        if sortedBy:
+            selection.sort(sortedBy)
+        self.page.freezeSelection(selection, selectionName)
+        resultAttributes = dict(table=table, selectionName=selectionName,
+                                servertime=int((time.time() - t) * 1000),
+                                newproc=getattr(self, 'self.newprocess', 'no'))
+        return (len(selection), resultAttributes)
+
     def _decodeWhereBag(self, tblobj, where, kwargs):
         if hasattr(self.page, 'getSelection_filters'):
             selection_filters = self.page.getSelection_filters()
@@ -735,15 +795,12 @@ class GnrWebAppHandler(GnrBaseProxy):
             return
         for f in aux:
             recInfo['locking_%s' % f] = aux[f]
-            
-    @public_method
     @extract_kwargs(default=True)
-    def getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,
+    def rpc_getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,
                       ignoreMissing=True, ignoreDuplicate=True, lock=False, readOnly=False,
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                      loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None,
-                      _eager_level=0, **kwargs):
+                      loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None, **kwargs):
         """A decorator - :ref:`extract_kwargs`"""
         t = time.time()
         dbtable = dbtable or table
@@ -814,35 +871,15 @@ class GnrWebAppHandler(GnrBaseProxy):
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
         recInfo['table'] = dbtable
-        self._handleEagerRelations(record,_eager_level)
         return (record, recInfo)
-        
-    def _handleEagerRelations(self,record,_eager_level):
-        for n in record.nodes:
-            _eager_one = n.attr.get('_eager_one')
-            if _eager_one is True or (_eager_one=='weak' and _eager_level==0):
-                attr=n.attr
-                target_fld=attr['_target_fld']
-                kwargs={}
-                kwargs[target_fld.split('.')[2]]=record[attr['_auto_relation_value']]
-                print n.label,_eager_level,_eager_one
-                relatedRecord,relatedInfo = self.getRelatedRecord(from_fld=attr['_from_fld'], target_fld=target_fld, 
-                                                                        sqlContextName=attr.get('_sqlContextName'),
-                                                                        virtual_columns=attr.get('_virtual_columns'),
-                                                                        _eager_level= _eager_level+1,
-                                                                        **kwargs)
-                n.value = relatedRecord
-                n.attr['_resolvedInfo'] = relatedInfo
-                             
-                                
+
     def setRecordDefaults(self, record, defaults):
         for k, v in defaults.items():
             if k in record:
                 record[k] = v
                 #pass
-    
-    @public_method
-    def dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
+
+    def rpc_dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
                      _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None, excludeDraft=True,
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
                      notnull=None, weakCondition=False, **kwargs):
@@ -903,7 +940,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if selectmethod:
                 selectHandler = self.page.getPublicMethod('rpc', selectmethod)
             else:
-                selectHandler = self.dbSelect_default
+                selectHandler = self.rpc_dbSelect_default
             selection = selectHandler(tblobj=tblobj, querycolumns=querycolumns, querystring=querystring,
                                       resultcolumns=resultcolumns, condition=condition, exclude=exclude,
                                       limit=limit, order_by=order_by,
@@ -931,19 +968,18 @@ class GnrWebAppHandler(GnrBaseProxy):
         resultAttrs['resultClass'] = resultClass
         resultAttrs['dbselect_time'] = time.time() - t0
         return (result, resultAttrs)
-    
-    @public_method
-    def dbSelect_selection(self, tblobj, querystring, columns=None, auxColumns=None, **kwargs):
+
+    def rpc_dbSelect_selection(self, tblobj, querystring, columns=None, auxColumns=None, **kwargs):
         querycolumns = tblobj.getQueryFields(columns)
         showcolumns = gnrlist.merge(querycolumns, tblobj.columnsFromString(auxColumns))
         captioncolumns = tblobj.rowcaptionDecode()[0]
         resultcolumns = gnrlist.merge(showcolumns, captioncolumns)
         querystring = querystring or ''
         querystring = querystring.strip('*')
-        return self.dbSelect_default(tblobj, querycolumns, querystring, resultcolumns, **kwargs)
+        return self.rpc_dbSelect_default(tblobj, querycolumns, querystring, resultcolumns, **kwargs)
 
 
-    def dbSelect_default(self, tblobj, querycolumns, querystring, resultcolumns,
+    def rpc_dbSelect_default(self, tblobj, querycolumns, querystring, resultcolumns,
                              condition=None, exclude=None, limit=None, order_by=None,
                              identifier=None, ignoreCase=None, **kwargs):
         def getSelection(where, **searchargs):

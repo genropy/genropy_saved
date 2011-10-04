@@ -220,7 +220,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
         };
         var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':false,id:'gnr_devTools',
-                                        title:'Developer tools ['+genro._('gnr.pagename')+']',style:"font-family:monaco;"});
+                                        title:'Developer tools',style:"font-family:monaco;"});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
                            storepath:'*D',searchOn:true,tree_inspect:'shift',
                            'tree_connect_onclick':cbLog,
@@ -291,7 +291,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
          pane._('dataRpc',{'path':'.applyChangesToDb',method:'applyChangesToDb',
                             subscribe_devUtils_dbsetup:true,
                             _onResult:'genro.log("DB Change applied","applyChangesToDb")'});
-        sb._('checkbox','pollingSwitch',{'label':'Polling switch',value:'^gnr.polling.polling_enabled'});
+        sb._('checkbox','pollingSwitch',{'label':'Polling switch',value:'^gnr.polling.enabled'});
         sb._('button','checkDb',{'label':'CheckDb',publish:'devUtils_checkDb'});
         sb._('button','DbSetup',{'label':'DbSetup',publish:'devUtils_dbsetup'});
         sb._('button','ClearLog',{'label':'Clear log',action:'genro.clearlog()'});

@@ -36,7 +36,7 @@ class PublicBase(BaseComponent):
         if not self.isGuest and userTable:
             pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
         pane.data('gnr.workdate', self.workdate)
-        if self.root_page_id:
+        if 'inframe' in self.pageArgs:
             return
             
         self._pbl_dialogs(pane)
@@ -103,7 +103,7 @@ class PublicBase(BaseComponent):
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
         pane.attributes.update(dict(_class='pbl_root_top'))
         baseslots = 'menuBtn,workdate,*,caption,*,user,logout,5'
-        if self.root_page_id:
+        if 'inframe' in self.pageArgs:
             baseslots = '10,caption,*,workdate,10'
             kwargs['margin_top'] ='2px'
         slots = slots or self.public_frameTopBarSlots(baseslots)
@@ -378,7 +378,7 @@ class PublicSlots(BaseComponent):
                                 }else{
                                     PUBLISH main_left_set_status= 'toggle';
                                 }
-                                """,_inframe=self.root_page_id)
+                                """,_inframe='inframe' in self.pageArgs)
             
     @struct_method
     def public_publicRoot_caption(self,pane,title='',**kwargs):   

@@ -858,7 +858,7 @@ class DbTableObj(DbModelObj):
                         '.') + relpath # set the alias table relation_path in the current path
                 reltbl = self
         else:
-            joiner = attrs['joiner']
+            joiner = attrs['joiner'][0]
             if joiner['mode'] == 'O':
                 relpkg, reltbl, relfld = joiner['one_relation'].split('.')
             else:
@@ -911,7 +911,7 @@ class DbTableObj(DbModelObj):
                         '.') + relpath # set the alias table relation_path in the current path
                 return self.resolveRelationPath('.'.join(relpath))
         else:
-            joiner = attrs['joiner']
+            joiner = attrs['joiner'][0]
             if joiner['mode'] == 'O':
                 relpkg, reltbl, relfld = joiner['one_relation'].split('.')
             else:
@@ -923,8 +923,9 @@ class DbTableObj(DbModelObj):
         """This method returns a bag containing all the ManyToOne relations that point to the current table"""
         result = Bag()
         for k, joiner in self.relations.digest('#k,#a.joiner'):
-            if joiner and joiner['mode'] == 'O':
-                result[joiner['many_relation'].split('.')[-1]] = joiner['one_relation']
+            if joiner and joiner[0]['mode'] == 'O':
+                r = joiner[0]
+                result[r['many_relation'].split('.')[-1]] = r['one_relation']
         return result
         
     relations_one = property(_get_relations_one)
@@ -933,8 +934,9 @@ class DbTableObj(DbModelObj):
         """This method returns a bag containing all the OneToMany relations that starts from to the current table"""
         result = Bag()
         for k, joiner in self.relations.digest('#k,#a.joiner'):
-            if joiner and joiner['mode'] == 'M':
-                result.setItem(joiner['many_relation'].replace('.', '_'), joiner['one_relation'].split('.')[-1], joiner)
+            if joiner and joiner[0]['mode'] == 'M':
+                rel = joiner[0]
+                result.setItem(rel['many_relation'].replace('.', '_'), rel['one_relation'].split('.')[-1], rel)
         return result
         
     relations_many = property(_get_relations_many)
@@ -953,6 +955,7 @@ class DbTableObj(DbModelObj):
         """
         joiner = self.relations.getAttr(relpath, 'joiner')
         if joiner:
+            joiner = joiner[0]
             return {'many': joiner['many_relation'], 'one': joiner['one_relation']}
             
     def getRelationBlock(self, relpath):
@@ -961,7 +964,7 @@ class DbTableObj(DbModelObj):
         :param relpath: add???
         :returns: add???
         """
-        joiner = self.relations.getAttr(relpath, 'joiner')
+        joiner = self.relations.getAttr(relpath, 'joiner')[0]
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
         opkg, otbl, ofld = joiner['one_relation'].split('.')
         return dict(mode=joiner['mode'], mpkg=mpkg, mtbl=mtbl, mfld=mfld, opkg=opkg, otbl=otbl, ofld=ofld)
@@ -1069,19 +1072,21 @@ class DbColumnObj(DbBaseColumnObj):
         """Get the SqlTable that is related by the current column"""
         r = self.table.relations.getAttr('@%s' % self.name)
         if r:
-            return self.dbroot.model.table(r['joiner']['one_relation'])
+            r = r['joiner'][0]
+            return self.dbroot.model.table(r['one_relation'])
             
     def relatedColumn(self):
         """Get the SqlColumn that is related by the current column"""
         r = self.table.relations.getAttr('@%s' % self.name)
         if r:
-            return self.dbroot.model.column(r['joiner']['one_relation'])
+            r = r['joiner'][0]
+            return self.dbroot.model.column(r['one_relation'])
             
     def relatedColumnJoiner(self):
         """Get the SqlTable that is related by the current column"""
         r = self.table.relations.getAttr('@%s' % self.name)
         if r:
-            return r['joiner']
+            return r['joiner'][0]
             
 class DbVirtualColumnObj(DbBaseColumnObj):
     sqlclass = 'virtual_column'
@@ -1259,7 +1264,7 @@ class RelationTreeResolver(BagResolver):
                 child = RelationTreeResolver(**child_kwargs)
                 child.setDbroot(self.dbroot)
                 result.setItem(lbl, child, col.attributes,
-                               joiner=relpars) #relpars deve essere una lista???? gardare in getalias sqldata
+                               joiner=[relpars]) #relpars deve essere una lista???? gardare in getalias sqldata
                                
         for label, relpars, relcol in manyrels:
             sch, tbl, col = relpars['many_relation'].split('.')
@@ -1276,7 +1281,7 @@ class RelationTreeResolver(BagResolver):
                             'cacheTime': self.cacheTime}
             child = RelationTreeResolver(**child_kwargs)
             child.setDbroot(self.dbroot)
-            result.setItem(label, child, joiner=relpars)
+            result.setItem(label, child, joiner=[relpars])
         return result
         
 class ModelSrcResolver(BagResolver):

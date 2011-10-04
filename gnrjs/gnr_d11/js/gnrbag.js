@@ -1438,17 +1438,16 @@ dojo.declare("gnr.GnrBag", null, {
                         _doTrigger = kwargs.doTrigger;
                     }
                     node.setAttr(auxattr, _doTrigger, true, attr);
-                    return node;
                 }
                 else {
-                    return obj.set(label, value, _attributes, kwargs);
+                    obj.set(label, value, _attributes, kwargs);
                 }
             };
             if (mynode instanceof dojo.Deferred) {
                 mynode.addCallback(cb, value);
             }
             else {
-                return cb(mynode, value);
+                cb(mynode, value);
             }
 
         }
@@ -1485,10 +1484,9 @@ dojo.declare("gnr.GnrBag", null, {
                 return null;
             }
             else {
-                var nodeToInsert = this.newNode(this, label, value, _attributes, resolver);
-                kwargs._new_position = this._insertNode(nodeToInsert, kwargs._position, _doTrigger);
-                kwargs._new_label = nodeToInsert.label;
-                return nodeToInsert;
+                var toInsert = this.newNode(this, label, value, _attributes, resolver);
+                kwargs._new_position = this._insertNode(toInsert, kwargs._position, _doTrigger);
+                kwargs._new_label = toInsert.label;
             }
         }
         else {
@@ -1498,11 +1496,10 @@ dojo.declare("gnr.GnrBag", null, {
             }
             if(kwargs.lazySet){
                 if((node._value===value) || ((node._value==null) && (value==undefined))){
-                    return node;
+                    return;
                 }
             }
             node.setValue(value, _doTrigger, _attributes, _updattr);
-            return node;
         }
     },
 
@@ -1689,7 +1686,6 @@ dojo.declare("gnr.GnrBag", null, {
         var childnode, istxtnode, convertAs;
         var resolverPars = null;
         var js_resolver = null;
-        var js_resolvedInfo= null;
         var root = source;
         if (root.nodeType == 9) {
             root = root.lastChild;
@@ -1702,14 +1698,10 @@ dojo.declare("gnr.GnrBag", null, {
                 attributes = {};
                 resolverPars = null;
                 js_resolver = null;
-                js_resolvedInfo= null;
                 for (j = 0; j < node.attributes.length; j++) {
                     attrname = node.attributes[j].name;
                     attrvalue = node.attributes[j].value;
-                    if(attrname=='_resolvedInfo'){
-                        js_resolvedInfo = node.attributes[j].value;
-                    }
-                    else if (attrname == '_resolver') {
+                    if (attrname == '_resolver') {
                         resolverPars = node.attributes[j].value;
                     }
                     else if (attrname == '_resolver_name') {
@@ -1767,7 +1759,7 @@ dojo.declare("gnr.GnrBag", null, {
                     this.addItem(tagName, itemValue, attributes);
                 }
                 else {
-                    var resolver =null;
+
                     var clsproto = this;
                     if (clsdict != null) {
                         if (newcls) {
@@ -1778,14 +1770,7 @@ dojo.declare("gnr.GnrBag", null, {
                         }
                     }
                     var newBag = new clsproto.constructor();
-                    var newBagNode = this.addItem(tagName, newBag, attributes);
-                    if(js_resolver){
-                        var resolver = genro.getRelationResolver(attributes, js_resolver, this);
-                        newBagNode.setResolver(resolver);
-                        newBagNode._status = 'loaded';
-                        resolver.lastUpdate = new Date();
-                        objectUpdate(newBagNode.attr,js_resolvedInfo);
-                    }
+                    this.addItem(tagName, newBag, attributes);
                     newBag.fromXmlDoc(node, clsdict);
                 }
             }

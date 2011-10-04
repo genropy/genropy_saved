@@ -271,7 +271,7 @@ class SqlModelChecker(object):
         if tbl.relations:
             tbl_actual_rels = self.actual_relations.get(tbl.sqlfullname, [])[
                               :] #get all db foreignkey of the current table
-            relations = [rel for rel in tbl.relations.digest('#a.joiner') if rel]
+            relations = [rel[0] for rel in tbl.relations.digest('#a.joiner') if rel]
             for rel in relations:
                 if rel.get('foreignkey'): # link has foreignkey constraint
                     o_pkg_sql, o_tbl_sql, o_fld_sql, m_pkg_sql, m_tbl_sql, m_fld_sql = self._relationToSqlNames(rel)
