@@ -52,7 +52,7 @@ class GnrCustomWebPage(object):
     #    pane = parentContainer.contentPane()
     #    self.invoice_head(pane, disabled, table)
     #
-    #def invoice_head (self, pane, disabled, table):
+    #def invoice_head(self, pane, disabled, table):
     #    fb = pane.formbuilder(dbtable=table, cols=2, width='600px', border_spacing='4px', disabled=disabled)
     #    fb.field('number', readOnly=True, width='100%')
     #    fb.field('date', readOnly=True, width='100%')

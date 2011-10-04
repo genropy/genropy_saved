@@ -97,7 +97,7 @@ batch_monitor.batch_sourceNode_create = function(container_node, batch_id, batch
     titlediv._('div', {innerHTML:'^.title', _class:'bm_batchtitle'});
     var topright = titlediv._('div', {_class:'bm_label_action_link'});
     topright._('a', {innerHTML:'Stop',visible:'^.cancellable',
-        href:'javascript:genro.dlg.ask("Stopping batch","Do you want really stop batch"+"' + batch_data.getItem('title') + '"+"?",null,{confirm:function(){genro.serverCall("btc.abort_batch",{"batch_id":"' + batch_id + '"})}})'});
+        href:'javascript:genro.dlg.ask("Stopping batch","Do you really want to stop the \'\'"+"' + batch_data.getItem('title') + '"+"\'\' batch?",null,{confirm:function(){genro.serverCall("btc.abort_batch",{"batch_id":"' + batch_id + '"})}})'});
     var thermopane = batchpane._('div', {_class:'bm_contentpane',datapath:'.thermo'});
     var bottompane = batchpane._('div', {_class:'bm_batchbottom'});
     sourceNode = genro.nodeById(batch_sourceNode_id);

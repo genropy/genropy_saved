@@ -528,24 +528,25 @@ class Bag(GnrObject):
 
     #-------------------- getItem --------------------------------
     def getItem(self, path, default=None, mode=None):
-        """Return the value of the given item if it is in the Bag, else it returns ``None``, so that this method never raises a ``KeyError``:
+        """Return the value of the given item if it is in the Bag, else it returns ``None``,
+        so that this method never raises a ``KeyError``
         
-        This method reimplements the list's __getitem__() method. Usually a path is a string formed by the labels of the nested items,
-        joined by the char '.', but several different path notations have been implemented to offer some useful features:
+        This method reimplements the list's __getitem__() method. Usually a path is a string
+        formed by the labels of the nested items, joined by the char '.', but several different
+        path notations have been implemented to offer some useful features:
         
         * if a path segment who starts with '#' is followed by a number, the item will by identified
-        by its index position, as a list element.
+          by its index position, as a list element.
         * if a path ends with '.?', it returns the item's keys.
-        * if at the last path-level the label contains '#', what follows the '#' is considered the key of an item's attribute and this
-        method will return that attribute's value.
-        * if a path starts with '?' the path is interpreted as a digest method.
+        * if at the last path-level the label contains '#', what follows the '#' is considered the
+          key of an item's attribute and this method will return that attribute's value
+        * if a path starts with '?', then it is interpreted as a digest method
         
-        A path can also be a list of keys.
+        A path can also be a list of keys
         
-        :param path: the item's path.
-        :param default: the default return value for a not found item. .
-        :param mode='static': with this attribute the getItem doesn't solve the Bag :ref:`bag_resolver`.
-        .
+        :param path: the item's path
+        :param default: the default return value for a not found item
+        :param mode='static': with this attribute the getItem doesn't solve the Bag :ref:`bag_resolver`
         
         >>> mybag = Bag()
         >>> mybag.setItem('a',1)
@@ -564,8 +565,7 @@ class Bag(GnrObject):
         >>> mybag = Bag({'a':1,'b':2})
         >>> second = mybag['b']
         >>> print second
-        2
-        """
+        2"""
         if not path:
             return self
         if isinstance(path, basestring):

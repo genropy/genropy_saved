@@ -1311,7 +1311,6 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         var data = this.getData();
         var result = [];
         data.forEach(function(n){result.push(n.attr._pkey)});
-        console.log(result)
         return result;
     },
     
@@ -1352,11 +1351,32 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         }
 
     },
+    linkedGrids:function(){
+        var result = [];
+        var storeCode;
+        var storeNodeId = this.storeNode.attr.nodeId;
+        genro.src._main.walk(function(n){
+            if(n.widget && n.widget.selectionKeeper){
+                storeCode = n.attr.store || n.attr.nodeId;
+                if(storeCode+'_store'==storeNodeId){
+                    result.push(n.widget);
+                }
+            }
+        },'static');
+        return result;
+    },
+    
+    
     checkExternalChange:function(delKeys,insOrUpdKeys,willBeInSelection){
+        var linkedGrids = this.linkedGrids();
+        dojo.forEach(linkedGrids,function(grid){
+            grid.batchUpdating(true);
+        });
         var wasInSelection;
         var changed = false;
         var data = this.getData();
         var that = this;
+        var toUpdate = false;
         var pkeys,wasInSelection,wasInSelectionNode,willBeInSelectionNode,pkey;
         this.externalChangedKeys = this.externalChangedKeys || {};
         var wasInSelectionCb = function(pkeys){
@@ -1380,23 +1400,30 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                     wasInSelectionNode = wasInSelection[pkey];
                     willBeInSelectionNode = willBeInSelection[pkey];
                     if(wasInSelectionNode){
+                        toUpdate=true;
                         if (willBeInSelectionNode) {
                             that.externalChangedKeys[pkey] = true;
                             data.getNodeByAttr('_pkey',willBeInSelectionNode.attr._pkey).updAttributes(willBeInSelectionNode.attr,true);
-                            changed = true;
                         }else{
                             data.popNode(wasInSelectionNode.label);
                         }
                     }else if(willBeInSelectionNode){
+                        toUpdate = true;
                         that.externalChangedKeys[pkey] = true;
                         data.setItem('#id',willBeInSelectionNode);
                     }
                 });
         }
-        if(this.sortedBy){
+        if(toUpdate && this.sortedBy){
             this.sort();
-            this.storeNode.publish('updateRows');
-        }
+        } 
+        dojo.forEach(linkedGrids,function(grid){
+            grid.batchUpdating(false);   
+            if(toUpdate){
+                grid.updateRowCount();
+            }
+        });
+
     },
 
     
