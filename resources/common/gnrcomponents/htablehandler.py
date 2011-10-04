@@ -209,6 +209,7 @@ class HTableHandler(HTableHandlerBase):
                     those related to the childs nodes
         """
         disabled = '^#%s.edit.status.locked' % nodeId
+        parent.attributes.update(table=table)
         if childsCodes:
             childsCodesDiv = parent.div(datapath=datapath)
             if isinstance(childsCodes, tuple):

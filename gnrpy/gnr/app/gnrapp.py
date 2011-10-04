@@ -530,8 +530,6 @@ class GnrApp(object):
                 shutil.rmtree(tempdir)
                 
         dbattrs['application'] = self
-        dbattrs['allow_eager_one'] = ((self.config['eager?one'] or '').lower() == "true")
-        dbattrs['allow_eager_many'] = ((self.config['eager?many'] or '').lower() == "true")
         self.db = GnrSqlAppDb(debugger=getattr(self, 'debugger', None), **dbattrs)
         
         pkgMenus = self.config['menu?package'] or []

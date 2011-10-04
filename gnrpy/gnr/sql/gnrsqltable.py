@@ -135,7 +135,7 @@ class SqlTable(GnrObject):
                 rowcaption = 'Current Record'
         e = exception(tablename=self.fullname,rowcaption=rowcaption,msg=msg, **kwargs)
         
-        if self.db.application and self.db.application.site and self.db.application.site.currentPage:
+        if self.db.application and hasattr(self.db.application,'site') and self.db.application.site.currentPage:
             e.setLocalizer(self.db.application.site.currentPage.localizer)
         return e
         
@@ -308,7 +308,7 @@ class SqlTable(GnrObject):
             fld = fld_node.label
             if fld.startswith('@'):
                 info = dict(fld_node.getAttr())
-                attrs = info.pop('joiner')[0]
+                attrs = info.pop('joiner')
                 if attrs['mode'] == 'O': # or extra_one_one:
                     #print 'many_one: %s'%str(attrs)
                     if resolver_one:
@@ -957,7 +957,7 @@ class SqlTable(GnrObject):
         :param relpath: add???"""
         relpath = self.model.resolveRelationPath(relpath)
         attributes = self.model.relations.getAttr(relpath)
-        joiner = attributes['joiner'][0]
+        joiner = attributes['joiner']
         if joiner['mode'] == 'M':
             relpkg, reltbl, relfld = joiner['many_relation'].split('.')
             targettbl = '%s.%s' % (relpkg, reltbl)
@@ -1103,7 +1103,7 @@ class SqlTable(GnrObject):
             attributes['fieldpath'] = gnrstring.concat(prevRelation, relnode.label)
             if 'joiner' in attributes:
                 joiner = attributes.pop('joiner')
-                attributes.update(joiner[0])
+                attributes.update(joiner)
                 attributes['name_long'] = self.relationName(relnode.label)
                 if attributes['mode'] == 'M':
                     attributes['group'] = attributes.get('many_group') or 'zz'
@@ -1137,7 +1137,7 @@ class SqlTable(GnrObject):
             attributes['group'] = aliastbl.attributes.get('group')
             attributes['fieldpath'] = gnrstring.concat(prevRelation, aliastbl.name)
             joiner = attributes.pop('joiner')
-            attributes.update(joiner[0])
+            attributes.update(joiner)
             mode = attributes.get('mode')
             if mode == 'O':
                 attributes['dtype'] = 'RO'

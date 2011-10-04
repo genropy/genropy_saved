@@ -45,7 +45,7 @@ dojo.declare("gnr.FramedIndexManager", null, {
     getPageUrl:function(kw){
         var url = kw.file;
         var table = kw.table;
-        var urlPars = {inframe:true};
+        var urlPars = {};
         if(kw.unique){
             urlPars.ts = new Date().getMilliseconds()
         }
