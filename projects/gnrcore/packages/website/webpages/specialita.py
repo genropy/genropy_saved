@@ -1,7 +1,7 @@
 #!/usr/bin/env pythonw
 # -*- coding: UTF-8 -*-
 
-""" galleria.py """
+""" specialita.py """
 # --------------------------- GnrWebPage subclass ---------------------------
 from gnr.web.gnrwebpage import GnrGenshiPage as page_factory
 from gnr.web.gnrwsgisite import httpexceptions
@@ -16,17 +16,8 @@ class GnrCustomWebPage(object):
            return 'user'
     
     def genshi_template(self):
-        return 'galleria.html'
+        return 'specialita.html'
     
     def main(self, rootBC, **kwargs):
         pass
-        
-    def getGallery(self):
-        immagini=self.db.table('flib.item_category').query(columns='@item_id.url AS url', where='@category_id.code=:codice', codice='galleria').fetch()
-        chunks =list(self.chunks(immagini, 4))
-        return chunks
-
-    def chunks(self,l,n):
-        for i in xrange(0, len(l), n):
-            yield l[i:i+n]
 
