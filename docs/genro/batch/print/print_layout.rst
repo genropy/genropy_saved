@@ -13,7 +13,11 @@ print layout file
     
     **Features**:
     
-    * :ref:`print_layout_features`
+    * :ref:`print_layout_features`:
+    
+        * :ref:`layout_letterhead`
+        * :ref:`layout_gridrows`
+        
     * :ref:`print_layout_pagedocgrid`:
     
         * :ref:`print_layout_page`
@@ -31,9 +35,10 @@ print layout file
         * :ref:`print_layout_main_methods`
         * :ref:`print_layout_attributes`
         
-    :ref:`print_layout_examples`
-              
-    * :ref:`print_layout_example`
+    **Examples**:
+    
+    * :ref:`print_layout_example_headrows`
+    * :ref:`print_layout_example_letterhead`
     
     **Library reference**:
     
@@ -109,10 +114,38 @@ File location
 Layout page - features
 ======================
 
+    There are two different layout for a print:
+    
+    #. the :ref:`layout_letterhead` - a print of the data of a single record
+       
+       .. note:: this layout can be useful for example to print the employee
+                 cards of a company, the personal card of a doctor, and so on
+                 
+    #. the :ref:`layout_gridrows` - a print of a set of many data taken from various
+       :ref:`database tables <table>`
+       
+       .. note:: this layout can be useful for example to print the monthly
+                 sales of a company
+       
+    In the next two sections we describe these two different layout modes
+    
+.. _layout_letterhead:
+
+"letterhead" layout print
+-------------------------
+
     add???
     
-    LE STAMPE SI POSSONO FARE O IN MODALITA' SINGOLO RECORD, O IN MODALITA'
-    TESTATA RIGHE (la TESTATA è chiamata DOC): documentare con immagini
+    For a complete example, check the :ref:`print_layout_example_letterhead` example
+    
+.. _layout_gridrows:
+
+"grid" layout print
+-------------------
+
+    add???
+    
+    For a complete example, check the :ref:`print_layout_example_headrows` example
     
 .. _print_layout_pagedocgrid:
 
@@ -121,12 +154,12 @@ Layout print regions
     
     add???
     
-    add??? an image with the graphical differences between doc - page - grid
+    add??? an image with the graphical differences between page - doc - grid
     
     CLIPBOARD::
     
         here you define the main constants:
-        maintable ,some heights page header/footer doc header/footer grid header/footer
+        maintable, some heights page header/footer doc header/footer grid header/footer
         for page we mean the sheet itself so logo or page numbers can fill that header
         or footer doc header/footer should contains the proper record info
         grid are the rows (the invoice rows for example) a selection that is related to
@@ -384,15 +417,24 @@ lastPage
        
 .. _print_layout_examples:
 
-examples
+Examples
 ========
 
-.. _print_layout_example:
-    
-a simple example
-================
+.. _print_layout_example_headrows:
 
-    Let's see an example page of a :ref:`print_layout`; read the comments that explain the code
+"grid" print layout - example
+=============================
+
+    Let's see an example page of a :ref:`layout_gridrows`; read the comments that explain the code
+    
+    add???
+    
+.. _print_layout_example_letterhead:
+    
+"letterhead" layout print - example
+===================================
+
+    Let's see an example page of a :ref:`layout_letterhead`; read the comments that explain the code
     
     add??? translate the code and add comments!
     

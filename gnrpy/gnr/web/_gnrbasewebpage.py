@@ -363,6 +363,7 @@ class GnrBaseWebPage(GnrObject):
     
     @property
     def package(self):
+        """add???"""
         pkgId = self.packageId
         if pkgId:
             return self.db.package(pkgId)

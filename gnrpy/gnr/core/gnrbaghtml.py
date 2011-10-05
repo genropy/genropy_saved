@@ -92,8 +92,8 @@ class BagToHtml(object):
         
     def __call__(self, record=None, filepath=None, folder=None, filename=None, hideTemplate=False, rebuild=True,
                  htmlContent=None, **kwargs):
-        """Return the html corresponding to a given record.
-        The html can be loaded from a cached document or created if still doesn't exist"""
+        """Return the html corresponding to a given record. The html can be loaded from
+        a cached document or created as new if still doesn't exist"""
         if record is None:
             record = Bag()
         self.htmlContent = htmlContent
