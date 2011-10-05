@@ -10,7 +10,7 @@
     app/index
     core/index
     devel/index
-    pdf/index
+    pdf
     sql/index
     utils/index
     web/index

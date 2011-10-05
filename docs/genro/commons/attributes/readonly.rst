@@ -6,7 +6,7 @@ readOnly
     
     *Last page update*: |today|
     
-    .. note:: **validity** - the *nodeId* attribute is supported by every :ref:`webpage element
+    .. note:: **validity** - the *readOnly* attribute is supported by every :ref:`webpage element
               <webpage_elements_index>`
     
     * :ref:`readonly_def`

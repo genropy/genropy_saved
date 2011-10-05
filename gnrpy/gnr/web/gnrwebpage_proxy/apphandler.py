@@ -801,7 +801,29 @@ class GnrWebAppHandler(GnrBaseProxy):
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                       loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None, **kwargs):
-        """A decorator - :ref:`extract_kwargs`"""
+        """add???
+        
+        ``rpc_getRecord()`` method is decorated with the :meth:`extract_kwargs
+        s<gnr.core.gnrdecorator.extract_kwargs>` decorator
+        
+        :param table: the :ref:`database table <table>`
+        :param dbtable: the :ref:`database table <table>`
+        :param pkg: the :ref:`package <packages_index>` object
+        :param pkey: the :ref:`primary key <pkey>`
+        :param ignoreMissing: boolean. add???
+        :param ignoreDuplicate: boolean. add???
+        :param lock: boolean. add???
+        :param readOnly: boolean. The :ref:`readonly` attribute
+        :param from_fld: add???
+        :param target_fld: add???
+        :param sqlContextName: add???
+        :param applymethod: add???
+        :param js_resolver_one: add???
+        :param js_resolver_many: add???
+        :param loadingParameters: add???
+        :param default_kwargs: add???
+        :param eager: add???
+        :param virtual_columns: add???"""
         t = time.time()
         dbtable = dbtable or table
         if pkg:
@@ -883,7 +905,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                      _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None, excludeDraft=True,
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
                      notnull=None, weakCondition=False, **kwargs):
-        """
+        """add???
+        
         :param dbtable: database :ref:`table` source for the query
         :param columns: the :ref:`table_columns` that are involved into the query
         :param auxColumns: showed only as result, not involved in the search.

@@ -1,3 +1,5 @@
+.. _library_gnrbaghtml:
+
 ==========================
 :mod:`gnr.core.gnrbaghtml`
 ==========================
@@ -124,30 +126,27 @@ css_requires
 currencyFormat
 --------------
 
-    Set the :ref:`table_format` of the numerical columns of the print.
-    Default value is ``u'#,###.00'``
+    Set the :ref:`table_format` of the numerical columns of the print. Default value is ``u'#,###.00'``
     
 .. _bagtohtml_doc_header_height:
 
 doc_header_height
 -----------------
 
-    Set the height of the :ref:`print_layout_doc` header in millimeters.
-    Default value is ``0``.
+    Set the height of the :ref:`print_layout_doc` header in millimeters. Default value is ``0``.
     
-    .. note:: you can call the :ref:`layout_docheader` method only if you
-              give a different dimension respect to ``0`` to this attribute
+    .. note:: you can call the :meth:`docHeader() <gnr.core.gnrbaghtml.BagToHtml.docHeader>`
+              method only if you give a different dimension respect to ``0`` to this attribute
               
 .. _bagtohtml_doc_footer_height:
 
 doc_footer_height
 -----------------
 
-    Set the footer of the :ref:`print_layout_doc` footer in millimeters.
-    Default value is ``0``
+    Set the footer of the :ref:`print_layout_doc` footer in millimeters. Default value is ``0``
     
-    .. note:: you can call the :ref:`layout_docfooter` method only if you
-              give a different dimension respect to ``0`` to this attribute
+    .. note:: you can call the :meth:`docFooter() <gnr.core.gnrbaghtml.BagToHtml.docFooter>`
+              method only if you give a different dimension respect to ``0`` to this attribute
               
 .. _bagtohtml_encoding:
 
@@ -231,22 +230,20 @@ page_debug
 page_footer_height
 ------------------
 
-    Set the :ref:`print_layout_page` footer height in millimeters.
-    Default value is ``0``
+    Set the :ref:`print_layout_page` footer height in millimeters. Default value is ``0``
     
-    .. note:: you can call the :ref:`layout_pagefooter` method only if you
-              give a different dimension respect to ``0`` to this attribute
+    .. note:: you can call the :meth:`pageFooter() <gnr.core.gnrbaghtml.BagToHtml.pageFooter>`
+              method only if you give a different dimension respect to ``0`` to this attribute
               
 .. _bagtohtml_page_header_height:
 
 page_header_height
 ------------------
 
-    Set the :ref:`print_layout_page` header height in millimeters.
-    Default value is ``0``
+    Set the :ref:`print_layout_page` header height in millimeters. Default value is ``0``
     
-    .. note:: you can call the :ref:`layout_pageheader` method only if you
-              give a different dimension respect to ``0`` to this attribute
+    .. note:: you can call the :meth:`pageHeader() <gnr.core.gnrbaghtml.BagToHtml.pageHeader>`
+              method only if you give a different dimension respect to ``0`` to this attribute
               
 .. _bagtohtml_page_height:
 

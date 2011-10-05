@@ -506,8 +506,7 @@ class GnrWsgiSite(object):
     def loadResource(self, pkg, *path):
         """add???
         
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
+        :param pkg: the :ref:`package <packages_index>` object
         :param \*path: add???"""
         return self.resource_loader.loadResource(*path, pkg=pkg)
         
@@ -821,8 +820,7 @@ class GnrWsgiSite(object):
         
         :param path: add???
         :param data: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
             self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
@@ -831,8 +829,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param path: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
+        :param pkg: the :ref:`package <packages_index>` object
         :param dflt: add???"""
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
@@ -842,8 +839,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param path: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
+        :param pkg: the :ref:`package <packages_index>` object
         :param dflt: add???
         :param username: add???"""
         if self.db.package('adm'):
@@ -856,8 +852,7 @@ class GnrWsgiSite(object):
         
         :param path: add???
         :param data: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
+        :param pkg: the :ref:`package <packages_index>` object
         :param username: add???"""
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
@@ -1022,8 +1017,7 @@ class GnrWsgiSite(object):
     def pkg_page_url(self, pkg, *args):
         """add???
         
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         return ('%s%s/%s' % (self.home_uri, pkg, '/'.join(args))).replace('//', '/')
         
     def webtools_url(self, tool, **kwargs):

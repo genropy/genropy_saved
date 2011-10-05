@@ -16,7 +16,10 @@ pkey
 
     The primary key of a :ref:`table`.
     
-    add??? parlare del fatto che si può usare l'id come una qualsiasi altra colonna + sysFields
+    CLIPBOARD::
+    
+        add??? parlare del fatto che si può usare l'id come una qualsiasi altra
+        colonna attraverso il sysFields...
 
 .. _relationdict:
 

@@ -148,7 +148,7 @@ class ServerStore(object):
 
     @property
     def data(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         if self.register_item:
             return self.register_item['data']
         else:
@@ -156,7 +156,7 @@ class ServerStore(object):
 
     @property
     def register_item(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         if self._register_item != '*':
             return self._register_item
         self._register_item = register_item = self.parent.read(self.register_item_id)
@@ -175,7 +175,7 @@ class ServerStore(object):
 
     @property
     def datachanges(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         datachanges = []
         if self.register_item:
             datachanges = self.register_item.setdefault('datachanges', [])
@@ -183,7 +183,7 @@ class ServerStore(object):
 
     @property
     def subscribed_paths(self):
-        """A decorator - :ref:`property`. add???"""
+        """add???"""
         if self.register_item:
             return self.register_item['subscribed_paths']
 

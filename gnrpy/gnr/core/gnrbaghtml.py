@@ -63,7 +63,23 @@ class BagToHtml(object):
         return 'temp.%s' % ext
         
     def onRecordLoaded(self):
-        """Hook method"""
+        """Hook method. Allow to define the query to be executed for the :ref:`print`
+        
+        Example::
+        
+            def onRecordLoaded(self):
+                where = '$date >= :begin_date AND $date <= :end_date AND doctor_id=:d_id'
+                columns ='''$doctor,$date,$hour,$patient,$performance,
+                            @convention_id.code AS convention_code,
+                            $amount,$cost,@invoice_id.number AS invoice'''
+                query = self.db.table(self.rows_table).query(columns=columns, where=where, 
+                                                             begin_data = self.getData('period.from'),
+                                                             end_data = self.getData('period.to'),
+                                                             d_id=self.record['id'])
+                selection = query.selection()
+                if not selection:
+                    return False
+                self.setData('rows',selection.output('grid'))"""
         pass
         
     def orientation(self):
@@ -346,9 +362,9 @@ class BagToHtml(object):
         
     def rowCell(self, field=None, value=None, default=None, locale=None,
                 format=None, mask=None, currency=None, **kwargs):
-        """add???
+        """Allow to get data from record. You can use it in the :meth:`prepareRow` method
         
-        :param field: add???
+        :param field: the name of the table :ref:`table_column`
         :param value: add???
         :param default: add???
         :param locale: the current locale (e.g: en, en_us, it)
@@ -391,7 +407,7 @@ class BagToHtml(object):
             
     def mainLayout(self, page):
         """Hook method that must be overridden. It gives the :ref:`print_layout_page`
-        object to which you have to append a :ref:`layout_element`
+        object to which you have to append a :meth:`layout <gnr.core.gnrhtml.GnrHtmlSrc.layout>`
         
         :param page: the page object"""
         print 'mainLayout must be overridden'
@@ -450,10 +466,10 @@ class BagToHtml(object):
             row.cell(lbl=lbl, lbl_height=lbl_height, width=self.grid_col_widths[k], style=style)
             
     def gridFooter(self, row):
-        """It must be overridden
+        """It can be overridden
         
         :param row: the grid row"""
-        print 'gridFooter must be overridden'
+        return
         
     def fillBodyGrid(self):
         """add???"""
@@ -526,8 +542,8 @@ class BagToHtml(object):
         :param header: the header object
         
         The docHeader() method allows to receive an object called header to which you
-        can append a layout structure made by :ref:`layouts <layout_element>`, :ref:`rows <layout_row>`
-        and :ref:`cells <layout_cell>`
+        can append a layout structure made by :meth:`layouts <gnr.core.gnrhtml.GnrHtmlSrc.layout>`,
+        :meth:`rows <gnr.core.gnrhtml.GnrHtmlSrc.row>`, and :meth:`cells <gnr.core.gnrhtml.GnrHtmlSrc.cell>`
         
         .. note:: the method is called only if the :ref:`bagtohtml_doc_header_height`
                   has a value different from ``0``"""

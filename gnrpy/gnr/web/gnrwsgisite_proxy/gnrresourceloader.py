@@ -152,8 +152,7 @@ class ResourceLoader(object):
         """add???
         
         :param path: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         if pkg == '*':
             module_path = os.path.join(self.site_path, path)
             pkg = self.site.config['packages?default']
@@ -206,8 +205,7 @@ class ResourceLoader(object):
         """Look for custom classes in the package
         
         :param page_class: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         if pkg:
             package = self.gnrapp.packages[pkg]
         if package and package.webPageMixin:
@@ -221,8 +219,7 @@ class ResourceLoader(object):
         """Look in the plugins folders for a file named as the current webpage and get all classes
         
         :param path: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         plugin_webpage_classes = []
         path = path.split(os.path.sep)
         pkg = pkg and self.site.gnrapp.packages[pkg]
@@ -250,8 +247,7 @@ class ResourceLoader(object):
         
         :param page_class: add???
         :param path: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         path = path.split(os.path.sep)
         if pkg:
             customPagePath = os.path.join(self.gnrapp.customFolder, pkg, 'webpages', *path)
@@ -266,8 +262,7 @@ class ResourceLoader(object):
         
         :param page_class: add???
         :param path: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         if pkg:
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
         else:
@@ -304,8 +299,8 @@ class ResourceLoader(object):
     def package_resourceDirs(self, pkg, omitSiteResources=False):
         """add???
         
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object
+        :param omitSiteResources: boolean. add???"""
         pkg = self.gnrapp.packages[pkg]
         if not hasattr(pkg, '_resourceDirs'):
             pagesPath = os.path.join(pkg.packageFolder, 'webpages')
@@ -461,11 +456,7 @@ class ResourceLoader(object):
         return result
         
     def loadResource(self, *path, **kwargs):
-        """add???
-        
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
-        :param \* path: add???"""
+        """add???"""
         resource_class = cloneClass('CustomResource', BaseResource)
         pkg=kwargs.pop('pkg', None)
         page=kwargs.pop('page', None)
@@ -482,9 +473,7 @@ class ResourceLoader(object):
     def mixinPageComponent(self, page, *path,**kwargs):
         """This method is used to mixin a component to a :ref:`webpage` at any time
         
-        :param page: the target webpage
-        :param pkg: the optional package name. For more information on a package, check the
-                    :ref:`packages_index` documentation page
+        :param page: the target :ref:`webpage`
         :param \* path: the path of the :ref:`component <components>`"""
         pkg=kwargs.pop('pkg', None)
         pkgOnly=kwargs.pop('pkgOnly', False)
@@ -553,8 +542,7 @@ class ResourceLoader(object):
     def resourcesAtPath(self, pkg, path, ext):
         """add???
         
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
+        :param pkg: the :ref:`package <packages_index>` object
         :param path: add???
         :param ext: add???"""
         result = Bag()

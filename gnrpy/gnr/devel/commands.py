@@ -50,12 +50,11 @@ _COMMAND_ARGUMENTS = "__gnrcmd__arguments__"
 def command(name=None, description=None, *args, **kwargs):
     """A decorator to define new 'gnr' commands.
     
-    See ``ArgumentParser`` constructor in the ``argparse`` module for help on args.
+    See ``ArgumentParser`` constructor in the ``argparse`` module for help on args
     
     :param name: add???. 
-    :param description: add???. 
-    :returns: the new command
-    """
+    :param description: add???
+    :returns: the new command"""
     
     def decorator(cmd):
         global command_registry
