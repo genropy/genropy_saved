@@ -1391,6 +1391,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         if(delKeys.length>0){
             wasInSelection = wasInSelectionCb(delKeys);
              for(pkey in wasInSelection){
+                 toUpdate = true;
                  data.popNode(wasInSelection[pkey].label);
             }
         }
