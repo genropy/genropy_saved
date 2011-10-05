@@ -360,13 +360,13 @@ class GnrBaseWebPage(GnrObject):
         return self.db.packages
         
     packages = property(_get_packages)
-        
-    def _get_package(self):
+    
+    @property
+    def package(self):
         pkgId = self.packageId
         if pkgId:
             return self.db.package(pkgId)
             
-    package = property(_get_package)
         
     def _get_tblobj(self):
         if self.maintable:

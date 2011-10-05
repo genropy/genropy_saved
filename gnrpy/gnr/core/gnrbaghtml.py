@@ -352,15 +352,15 @@ class BagToHtml(object):
         :param value: add???
         :param default: add???
         :param locale: the current locale (e.g: en, en_us, it)
-        :param format: add???
+        :param format: the format of the cell (e.g: use ``HH:mm``)
         :param mask: add???
         :param currency: add???"""
         if field:
             if callable(field):
                 value = field()
             else:
-                value = self.rowField(field, default=default, locale=locale, format=format, mask=mask,
-                                      currency=currency)
+                value = self.rowField(field, default=default, locale=locale, format=format,
+                                      mask=mask, currency=currency)
         if value is not None:
             #if self.lastPage:
             #    print 'last page'
@@ -393,19 +393,7 @@ class BagToHtml(object):
         """Hook method that must be overridden. It gives the :ref:`print_layout_page`
         object to which you have to append a :ref:`layout_element`
         
-        :param page: the page object
-        
-        **Example**::
-
-            def mainLayout(self, page):
-                style = '''font-family:"Lucida Grande",Lucida,Verdana,sans-serif;
-                        text-align:left;line-height:5mm;font-size:9pt;'''
-                return page.layout(width=190,
-                                   height=self.page_height,
-                                   um='mm',top=0,
-                                   left=5,border_width=0,
-                                   lbl_height=4,lbl_class='caption',
-                                   style=style)"""
+        :param page: the page object"""
         print 'mainLayout must be overridden'
         
     def _openPage(self):
@@ -438,15 +426,17 @@ class BagToHtml(object):
         self.copies[self.copy]['body_grid'] = grid
         
     def gridLayout(self, grid):
-        """It must be overridden
+        """Hook method. MANDATORY if you define a :ref:`print_layout_grid` in
+        your :ref:`print`. Through this method you receive the center of the page and you can
+        define the layout of the grid
         
-        :param grid: add???"""
+        :param grid: the :ref:`print_layout_grid`"""
         print 'gridLayout must be overridden'
         
     def gridHeader(self, row):
         """It can be overridden
         
-        :param row: add???"""
+        :param row: the grid row"""
         lbl_height = 4
         headers = self.grid_col_headers
         if ':' in headers:
@@ -462,7 +452,7 @@ class BagToHtml(object):
     def gridFooter(self, row):
         """It must be overridden
         
-        :param row: add???"""
+        :param row: the grid row"""
         print 'gridFooter must be overridden'
         
     def fillBodyGrid(self):
@@ -505,7 +495,7 @@ class BagToHtml(object):
         """Hook method. Define the footer of the :ref:`print_layout_doc` in the :ref:`print_layout`
         
         :param footer: the footer object
-        :param lastPage: add???
+        :param lastPage: boolean. More information in the :ref:`lastpage` section
         
         .. note:: the method is called only if the :ref:`bagtohtml_doc_footer_height`
                   has a value different from ``0``"""
@@ -515,7 +505,7 @@ class BagToHtml(object):
         """Hook method. Define the footer of the :ref:`print_layout_page` in the :ref:`print_layout`
         
         :param footer: the footer object
-        :param lastPage: add???
+        :param lastPage: boolean. More information in the :ref:`lastpage` section
         
         .. note:: the method is called only if the :ref:`bagtohtml_page_footer_height`
                   has a value different from ``0``"""

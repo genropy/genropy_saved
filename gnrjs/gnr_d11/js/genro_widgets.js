@@ -1368,11 +1368,12 @@ dojo.declare("gnr.widgets.Menu", gnr.widgets.baseDojo, {
                 var content = contentNode.getValue('static');
                 if (content) {
                     var menubag = new gnr.GnrDomSource();
-                    if(!sourceNode._value || sourceNode._value.len()==0){
-                         gnr.menuFromBag(content, menubag, sourceNode.attr._class);
-                         sourceNode.setValue(menubag, false);
-                    }
-                   
+                    //if(!sourceNode._value || sourceNode._value.len()==0){
+                    //     gnr.menuFromBag(content, menubag, sourceNode.attr._class);
+                    //     sourceNode.setValue(menubag, false);
+                    //}
+                    gnr.menuFromBag(content, menubag, sourceNode.attr._class);
+                    sourceNode.setValue(menubag, false);
                 } else if (contentNode.getResolver()) {
                     sourceNode.setResolver(contentNode.getResolver());
                 }

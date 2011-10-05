@@ -11,12 +11,19 @@ class GnrCustomWebPage(object):
     py_requires='public:TableHandlerMain'
     def __prepareKwargs(self,mainKwargs=None):
         callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')    
-        pkg = callArgs.pop('th_pkg',None)
-        table = callArgs.pop('th_table',None)
-        pkey = callArgs.pop('th_pkey',None)
-        self.maintable = '%s.%s' %(pkg,table)
         self.th_iframeContainerId = mainKwargs.pop('th_iframeContainerId',None)
-        return pkey
+        return callArgs.pop('th_pkey',None)
+    
+    @property
+    def package(self):
+        pkgId,tbl = self.maintable.split('.')
+        if pkgId:
+            return self.db.package(pkgId)
+    
+    @property
+    def maintable(self):
+        callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')
+        return '%(th_pkg)s.%(th_table)s' %callArgs
 
     def resizeIframeContainer(self,th,th_options=None,mainKwargs=None):
         dialog_pars = self._th_hook('dialog',mangler=th.form)()
