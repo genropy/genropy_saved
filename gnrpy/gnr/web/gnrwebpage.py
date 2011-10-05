@@ -1181,13 +1181,6 @@ class GnrWebPage(GnrBaseWebPage):
                     self.main_root(page, **kwargs)
                     return (page, pageattr)
                     #page.script('genro.dom.windowTitle("%s")' % self.windowTitle())
-                dbselect_cache = None
-                if self.user:
-                    dbselect_cache = self.getUserPreference(path='cache.dbselect', pkg='sys')                        
-                if dbselect_cache is None:
-                    dbselect_cache = self.site.config['client_cache?dbselect']
-                if dbselect_cache:
-                    page.script('genro.cache_dbselect = true')
                 page.data('gnr.windowTitle', self.windowTitle())
                 page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
                 page.dataRemote('gnr._pageStore','getPageStoreData',cacheTime=1)

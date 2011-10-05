@@ -1707,7 +1707,7 @@ dojo.declare("gnr.GnrBag", null, {
                     attrname = node.attributes[j].name;
                     attrvalue = node.attributes[j].value;
                     if(attrname=='_resolvedInfo'){
-                        js_resolvedInfo = node.attributes[j].value;
+                        js_resolvedInfo = convertFromText(node.attributes[j].value);
                     }
                     else if (attrname == '_resolver') {
                         resolverPars = node.attributes[j].value;

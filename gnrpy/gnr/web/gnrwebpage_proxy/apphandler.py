@@ -224,7 +224,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True,
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                             sqlContextName=None, virtual_columns=None,_eager_level=None, **kwargs):
+                             sqlContextName=None, virtual_columns=None,_eager_level=0, **kwargs):
         pkg, tbl, related_field = target_fld.split('.')
         table = '%s.%s' % (pkg, tbl)
         if pkey is None:
@@ -825,7 +825,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                 target_fld=attr['_target_fld']
                 kwargs={}
                 kwargs[target_fld.split('.')[2]]=record[attr['_auto_relation_value']]
-                print n.label,_eager_level,_eager_one
                 relatedRecord,relatedInfo = self.getRelatedRecord(from_fld=attr['_from_fld'], target_fld=target_fld, 
                                                                         sqlContextName=attr.get('_sqlContextName'),
                                                                         virtual_columns=attr.get('_virtual_columns'),

@@ -47,7 +47,6 @@ class UserPref(object):
 
     def pref_cache(self, pane):
         fb = pane.formbuilder(cols=1, border_spacing='4px')
-        fb.checkbox(value='^.dbselect', label='Dbselect enable')
         fb.button('Reset session storage', action='if(sessionStorage){sessionStorage.clear();}')
         fb.button('Reset local storage', action='if(localStorage){localStorage.clear();}')
 

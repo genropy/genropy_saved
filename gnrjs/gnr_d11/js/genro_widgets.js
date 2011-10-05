@@ -4329,7 +4329,6 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
             resolverAttrs['hiddenColumns'] = hiddenColumns.join(',');
         }
         resolverAttrs['method'] = resolverAttrs['method'] || 'app.dbSelect';
-        var clientCache = objectPop(attributes, 'clientCache', genro.cache_dbselect); //to set default true after testing
         resolverAttrs['notnull'] = attributes['validate_notnull'];
         savedAttrs['dbtable'] = resolverAttrs['dbtable'];
         savedAttrs['auxColumns'] = resolverAttrs['auxColumns'];
@@ -4346,13 +4345,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         store = new gnr.GnrStoreQuery({'searchAttr':attributes.searchAttr});
 
         store._identifier = resolverAttrs['alternatePkey'] || storeAttrs['id'] || '_pkey';
-        if (clientCache) {
-            var storageMode = 'sessionStorage' in window ? 'session' : 'localStorage' in window ? 'local' : null;
-            if (storageMode) {
-                store.storageMode = storageMode;
-                store.cachePrefix = 'DBSEL_' + savedAttrs['dbtable'] + '_';
-            }
-        }
+        store._parentSourceNode = sourceNode;
         resolverAttrs._sourceNode = sourceNode;
         //resolverAttrs.sync = true
         var resolver = new gnr.GnrRemoteResolver(resolverAttrs, true, 0);
