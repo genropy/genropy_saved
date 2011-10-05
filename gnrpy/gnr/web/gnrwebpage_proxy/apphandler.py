@@ -756,12 +756,13 @@ class GnrWebAppHandler(GnrBaseProxy):
             lock = False
         if lock:
             kwargs['for_update'] = True
-        tbl_virtual_columns = tblobj.attributes.get('virtual_columns')
-        if tbl_virtual_columns:
-            virtual_columns = (virtual_columns or '').split(',')
-            virtual_columns.extend(tbl_virtual_columns.split(','))
-            virtual_columns = ','.join(uniquify(virtual_columns))        
-        
+        captioncolumns = tblobj.rowcaptionDecode()[0]
+        if captioncolumns:
+            captioncolumns = [caption.replace('$','') for caption in captioncolumns]
+            virtual_columns = virtual_columns.split(',') if virtual_columns else []
+            vlist = tblobj.model.virtual_columns.items()
+            virtual_columns.extend([k for k,v in vlist if v.attributes.get('always') or k in captioncolumns])
+            virtual_columns = ','.join(uniquify(virtual_columns or [])) 
         rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
                             sqlContextName=sqlContextName, virtual_columns=virtual_columns, **kwargs)
