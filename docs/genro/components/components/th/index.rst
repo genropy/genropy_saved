@@ -56,7 +56,7 @@ introduction
            
     4. You can build the TableHandler:
        
-       * inside a :ref:`webpage`
+       * inside a webpage - :ref:`th_webpage`
        * externally as a :ref:`th_resource_page`
        
        add???

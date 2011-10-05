@@ -13,13 +13,14 @@ print layout file
     
     **Features**:
     
-    * :ref:`print_layout_features`
     * :ref:`print_layout_pagedocgrid`:
     
         * :ref:`print_layout_page`
         * :ref:`print_layout_doc`
         * :ref:`print_layout_grid`
         
+    * :ref:`print_layout_features`
+    
     **File creation**:
         
     :ref:`print_layout_creation`:
@@ -29,8 +30,9 @@ print layout file
     
         * :ref:`print_layout_main_webpages_variables`
         * :ref:`print_layout_main_methods`
+        * :ref:`print_layout_attributes`
         
-    **Examples**:
+    :ref:`print_layout_examples`
               
     * :ref:`print_layout_example`
     
@@ -103,16 +105,6 @@ File location
     
     .. image:: ../../_images/print/print_layout_file.png
     
-.. _print_layout_features:
-
-Layout page - features
-======================
-
-    add???
-    
-    LE STAMPE SI POSSONO FARE O IN MODALITA' SINGOLO RECORD, O IN MODALITA'
-    TESTATA RIGHE (la TESTATA è chiamata DOC): documentare con immagini
-    
 .. _print_layout_pagedocgrid:
 
 Layout print regions
@@ -136,6 +128,16 @@ Layout print regions
         grid's columns if you put a height to 0 the hook does not being called grid_col_headers
         is similar to the columns of a standard table
         
+.. _print_layout_features:
+
+Layout page - features
+======================
+
+    add???
+    
+    LE STAMPE SI POSSONO FARE O IN MODALITA' SINGOLO RECORD, O IN MODALITA'
+    TESTATA RIGHE (la TESTATA è chiamata DOC): documentare con immagini
+    
 .. _print_layout_page:
 
 page
@@ -284,23 +286,36 @@ Main class webpage variables
 Main class methods
 ==================
 
-    In this section we describe all the layout hook methods and all the
-    elements that allow you to personalize the print
+    In this section we describe all the layout hook methods and all the elements that allow
+    you to personalize the print
+    
+    .. warning:: some of these methods can be used if and only if there is a :ref:`webpage variable
+                 <print_layout_main_webpages_variables>` defined with a different value with respect
+                 to ``0``. For those methods we point up the related webpage variable
     
     They are:
     
-    * :ref:`layout_mainlayout`: MANDATORY - add???
+    * :ref:`layout_mainlayout`: MANDATORY - it gives the :ref:`print_layout_page` object through which
+      you create the print
     * :ref:`layout_definestandardstyles`: add???
-    * :ref:`layout_docheader`: define the header of the :ref:`print_layout_doc`
-    * :ref:`layout_docfooter`: define the footer of the :ref:`print_layout_doc`
-    * :ref:`layout_pageheader`: add???
-    * :ref:`layout_pagefooter`: add???
-    
+    * :ref:`layout_docheader`: define the header of the :ref:`print_layout_doc`. To use it give a
+      different value to the :ref:`bagtohtml_doc_header_height` webpage variable with respect to ``0``                         
+    * :ref:`layout_docfooter`: define the footer of the :ref:`print_layout_doc`. To use it give a
+      different value to the :ref:`bagtohtml_doc_footer_height` webpage variable with respect to ``0``
+    * :ref:`layout_pageheader`: define the header of the :ref:`print_layout_page`. To use it give a
+      different value to the :ref:`bagtohtml_page_header_height` webpage variable with respect to ``0``
+    * :ref:`layout_pagefooter`: define the footer of the :ref:`print_layout_page`. To use it give a
+      different value to the :ref:`bagtohtml_page_header_height` webpage variable with respect to ``0``
+      
     Inside these methods, you can create the layout through the following three methods:
     
     * the :ref:`layout() method <layout_element>`: allow to return a layout element
     * the :ref:`row() method <layout_row>`: allow to return a row element 
     * the :ref:`cell() method <layout_cell>`: allow to return a cell element
+    
+    There is also other mehods:
+    
+    * the :ref:`layout_preparerow`
     
 .. _layout_mainlayout:
 
@@ -332,16 +347,12 @@ docFooter()
 
     .. automethod:: gnr.core.gnrbaghtml.BagToHtml.docFooter
     
-    add???
-    
 .. _layout_pageheader:
 
 pageHeader()
 ------------
 
     .. automethod:: gnr.core.gnrbaghtml.BagToHtml.pageHeader
-    
-    add???
     
 .. _layout_pagefooter:
 
@@ -379,6 +390,62 @@ cell
     
     * if you don't define the cell width, then it takes all the remaining space
     
+.. _layout_preparerow:
+
+prepareRow()
+------------
+
+    .. method:: prepareRow(self, row)
+    
+    This method allow to define all the rows of the :ref:`print_layout_grid`
+    
+.. _print_layout_attributes:
+
+Attributes explanation
+======================
+
+.. _lastpage:
+
+lastPage
+--------
+
+    The *lastPage* attribute belongs to the :ref:`layout_pagefooter` and the
+    :ref:`layout_docfooter` methods
+    
+    #. **usage of lastPage in the docFooter() method**:
+       
+       In some cases you need that the docFooter is used only in the last page
+       (for example, when you print an extract of the monthly doctor invoices
+       and you want in the last page the total sum of doctor's operations)
+       
+       To use the docFooter() in this way, write at the beginning of the method
+       these two lines::
+       
+           if not lastPage:
+               return
+               
+       *lastPage* is automatically passes as ``True`` when the print batch is going
+       to create the last page
+       
+    #. **usage of lastPage in the pageFooter() method**:
+       
+       If you need to modify the footer of the :ref:`print_layout_page`, you can
+       use the pageFooter method. If you need to create a different pageFooter in
+       the last page, you can use the *lastPage* attribute.
+       
+       Just write at the beginning of the method these two lines::
+       
+           if not lastPage:
+               return
+               
+       *lastPage* is automatically passes as ``True`` when the print batch is going
+       to create the last page
+       
+.. _print_layout_examples:
+
+examples
+========
+
 .. _print_layout_example:
     
 a simple example
@@ -386,121 +453,18 @@ a simple example
 
     Let's see an example page of a :ref:`print_layout`::
     
-        #!/usr/bin/env pythonw
-        # -*- coding: UTF-8 -*-
+        add???
         
-        from gnr.web.gnrbaseclasses import TableScriptToHtml
-        
-        class Main(TableScriptToHtml):
-            maintable = 'polimed.medico'
-            rows_table = 'polimed.prestazione'
-            rows_path = 'rows'
-            row_mode='attribute'
-            page_header_height = 0
-            page_footer_height = 0
-            doc_header_height = 10
-            doc_footer_height = 10
-            grid_header_height = 6.2
-            grid_footer_height = 0
-            grid_col_widths=[17,12,0,0,20,15,15,20]
-            grid_col_headers = 'Data,Ora,Paziente,Prestazione,Convenzione,Importo,Costo,Fattura'
-            grid_row_height=5.3
-            
-            def docHeader(self,header):
-                layout = header.layout(name='header',um='mm',
-                                       lbl_class='smallCaption',
-                                       top=1,bottom=1,left=1,right=1,
-                                       lbl_height=3,
-                                       border_width=.3,
-                                       border_color='gray',
-                                       style='line-height:6mm;text-align:left;text-indent:2mm;')        
-                row=layout.row(height=10)
-                row.cell("%s %s" %(self.field('@anagrafica_id.nome'), self.field('@anagrafica_id.cognome')),lbl='Prestazioni di')
-                row.cell(self.toText(self.getData('period.from')), lbl='Dal',width=30,content_class='aligned_right')
-                row.cell(self.toText(self.getData('period.to')), lbl='al', width=30,content_class='aligned_right')
-                row.cell(self.pageCounter(), lbl='Pagina', width=12,content_class='aligned_right')
-                
-            def docFooter(self, footer,lastPage=None):
-                if not lastPage:
-                    return
-                layout = footer.layout(name='footerL',um='mm',border_color='gray',
-                                           lbl_class='smallCaption',
-                                          top=1,bottom=1,left=80,right=1,
-                                          lbl_height=3,border_width=0.3,
-                                          content_class='aligned_right')
-                row=layout.row(height=0)
-                lastPage = lastPage or False
-                if lastPage:
-                    totals_dict = {}
-                    totals_dict['importo'],totals_dict['costo'] = self.getData('rows').sum('#a.importo,#a.costo')
-
-                    row.cell(self.toText(totals_dict['importo'],format=self.currencyFormat),lbl='Totale importo')
-                    row.cell(self.toText(totals_dict['costo'],format=self.currencyFormat),lbl='Totale costo')
-                else:
-                    row.cell()
-                    
-            def gridLayout(self,body):
-                return body.layout(name='rowsL',um='mm',border_color='gray',
-                                    top=1,bottom=1,left=1,right=1,
-                                    border_width=.3,lbl_class='caption',
-                                    style='line-height:5mm;text-align:left;font-size:7.5pt')
-                                    
-            def mainLayout(self,page):
-                style = """font-family:"Lucida Grande", Lucida, Verdana, sans-serif;
-                            text-align:left;
-                            line-height:5mm;
-                            font-size:9pt;
-                            """
-                return page.layout(name='pageLayout',width=190,
-                                    height=self.page_height,
-                                    um='mm',top=0,
-                                    left=5,border_width=0,
-                                    lbl_height=4,lbl_class='caption',
-                                    style=style)
-                                    
-            def prepareRow(self,row):
-                # this callback prepare the row of the maingrid
-                style_cell = 'text-indent:2mm;border-bottom-style:dotted;'
-                self.rowCell('data',style=style_cell)
-                self.rowCell('ora',format='HH:mm', style=style_cell)
-                self.rowCell('paziente', style=style_cell)
-                self.rowCell('prestazione', style=style_cell)
-                self.rowCell('convenzione_codice', style=style_cell)
-                self.rowCell('importo',format=self.currencyFormat, style=style_cell,content_class='aligned_right')
-                self.rowCell('costo',format=self.currencyFormat, style=style_cell,content_class='aligned_right')
-                self.rowCell('fattura', style=style_cell,content_class='aligned_right')
-                
-            def onRecordLoaded(self):
-                where = '$data >= :data_inizio AND $data<= :data_fine AND medico_id=:m_id'
-                columns ="""$medico,$data,$ora,$paziente,$prestazione,
-                            @convenzione_id.codice AS convenzione_codice,
-                            $importo,$costo,@fattura_id.numero AS fattura"""
-                query = self.db.table(self.rows_table).query(columns=columns, where=where, 
-                                                                     data_inizio=self.getData('period.from'),
-                                                                     data_fine=self.getData('period.to'),
-                                                                     m_id=self.record['id'])
-                selection = query.selection()
-                if not selection:
-                    return False
-                self.setData('rows',selection.output('grid'))
-                
-            def outputDocName(self, ext=''):
-                medico = self.getData('record.@anagrafica_id.ragione_sociale')
-                mlist = medico.split(' ')
-                medico = ''.join(mlist)
-                return '%s.%s' %(medico.lower(),ext)
-                
 .. _print_clipboard:
 
 clipboard
 =========
-    
+
     .. note:: my clipboard...
     
     ::
     
-        Layout, righe e celle
-        =====================
+        --Layout, righe e celle--
         
         Per posizionare le cose, abbiamo a disposizione tre oggetti:
         
@@ -510,11 +474,7 @@ clipboard
             * **celle**. Possono contenere UN SOLO layout. Le celle hanno la larghezza.
             Due celle attaccate autocollassano i bordi (rimane un bordo solo).
             
-        Le lunghezze sono sempre specificate in millimetri (mm). Vedi :mod:`gnr.core.gnrhtml` per
-        ulteriori dettagli
-        
-        Attributi e callbacks
-        =====================
+        --Attributi e callbacks--
         
         Il foglio è diviso in varie parti che hanno corrispondenti callbacks:
         
