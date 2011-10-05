@@ -18,3 +18,16 @@ class Table(GnrHTable):
         
     def treeRowCaption(self):
         return '$description'
+        
+    def getFolderByCode(self,code=None):
+        return self.query(where='$code=:code',code=code).fetch()
+        
+    def addRootFolder(self,code=None):
+        if code and '.' in code:
+            code=code.split('.')[-1].strip()
+        if code and not self.getFolderByCode(code=code):
+            record=dict(title=code,permalink=code.replace(' ','-'),code=code,child_code=code)
+            self.insert(record)
+            return record
+        return None
+        

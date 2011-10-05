@@ -44,11 +44,18 @@ class Table(object):
 
     def trigger_onInserting(self, record):
         if record['content']:
-            record['content'] = record['content'].replace('../_site','/_site')
+            contenuto=record['content']
+            if contenuto:
+                record['content'] = str(contenuto).replace('../_site','/_site')
 
     def trigger_onUpdating(self, record,old_record):
         if record['content']:
             record['content'] = record['content'].replace('../_site','/_site')
+            
+    def getPageByPermalink(self,permalink=None,**kwargs):
+        if not permalink:
+            return []
+        return self.query(where='$permalink=:perma',perma=permalink,**kwargs).fetch()
         
     def folder_view(self,struct):
         r = struct.view().rows()

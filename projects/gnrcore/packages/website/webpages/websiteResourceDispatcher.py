@@ -45,7 +45,7 @@ class GnrCustomWebPage(object):
             code='.'.join(resource_path[:-1])
             folder=folder_tbl.query(where='$code=:code',code=code).fetch()
             if folder:
-                where='$folder=:folder_pkey AND $permalink=:resource_permalink AND $publish>=:date'
+                where='$folder=:folder_pkey AND $permalink=:resource_permalink AND $publish<=:date'
                 if preview:
                     where='$folder=:folder_pkey AND $permalink=:resource_permalink'
                 page=page_tbl.query(where=where,
@@ -64,7 +64,7 @@ class GnrCustomWebPage(object):
         return menu
 
     def getPagesByFolder(self,folder):
-        return self.db.table('website.page').query(where='$folder=:folder_pkey AND $publish>=:date',date=self.workdate,folder_pkey=folder['pkey'],order_by='position').fetch()
+        return self.db.table('website.page').query(where='$folder=:folder_pkey AND $publish<=:date',date=self.workdate,folder_pkey=folder['pkey'],order_by='position').fetch()
 
     def getSubFoldersByFolder(self,folder):
         return self.db.table('website.folder').query(where='$parent_code=:code',code=folder['code'],order_by='$position asc').fetch()
@@ -73,18 +73,19 @@ class GnrCustomWebPage(object):
         return self.db.table('website.folder').query(where='$parent_code=:code AND $child_code!=:child_code',code=parentFolder['code'],child_code=folder['child_code'],order_by='$position asc').fetch()
 
     def getFolderByCode(self,code):
-        return self.db.table('website.folder').query(where='$code=:code',code=code).fetch()
+        return self.db.table('website.folder').getFolderByCode(code)
+        #return self.db.table('website.folder').query(where='$code=:code',code=code).fetch()
     def getFolders(self,exclude=None):
         #exclude da implementare esclusione folder dinamici
         return mainpage.db.table('website.folder').query().fetch()
         
     def getIndex(self,folder,preview=False):
-        where='$folder=:folder_pkey AND $permalink=:permalink AND $publish>=:date'
+        where='$folder=:folder_pkey AND $permalink=:permalink AND $publish<=:date'
         if preview:
             where='$folder=:folder_pkey AND $permalink=:permalink'
         pages=self.db.table('website.page').query(where=where,folder_pkey=folder['pkey'],permalink='index',date=self.workdate).fetch()
         if not pages:
-            where='$folder=:folder_pkey AND $publish>=:date'
+            where='$folder=:folder_pkey AND $publish<=:date'
             if preview:
                 where='$folder=:folder_pkey'
             pages=self.db.table('website.page').query(where=where,folder_pkey=folder['pkey'],date=self.workdate,order_by='position').fetch()
