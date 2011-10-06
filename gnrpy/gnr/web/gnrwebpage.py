@@ -331,8 +331,7 @@ class GnrWebPage(GnrBaseWebPage):
     def mixinComponent(self, *path,**kwargs):
         """add???
         
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
+        :param pkg: the :ref:`package <packages_index>` object
         :param \*path: add???
         :param \*\*kwargs: add???"""
         self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
@@ -927,8 +926,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: MANDATORY. A string with the path of the uri
         :param ext: add???. 
         :param add_mtime: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
             return
@@ -939,8 +937,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param fpath: add???
         :param add_mtime: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         url = None 
         packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
         pkg = pkg or self.packageId
@@ -969,8 +966,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param ext: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         resourceDirs = self.resourceDirs
         if pkg:
             resourceDirs = self.site.resource_loader.package_resourceDirs(pkg)
@@ -985,8 +981,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param classname: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         res = self.getResource(path,pkg=pkg,ext='py')
         if res:
             m = gnrImport(res)
@@ -1005,16 +1000,16 @@ class GnrWebPage(GnrBaseWebPage):
         if not resource:
             resource = self.importResource('tables/%s/%s' %(table,path),classname=classname,pkg=pkg)
         return resource
-
         
     @public_method
     def getResourceContent(self, resource=None, ext=None, pkg=None):
-        """A decorator - :ref:`public_method`. add???
+        """add???
+        
+        ``getResourceContent()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
         
         :param resource: add???
         :param ext: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         path = self.getResource(path=resource,ext=ext,pkg=pkg)
         if path:
             with open(path) as f:
@@ -1072,16 +1067,14 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param data: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         self.site.setPreference(path, data, pkg=pkg)
         
     def getPreference(self, path, pkg='', dflt=''):
         """add???
         
         :param path: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
+        :param pkg: the :ref:`package <packages_index>` object
         :param dflt: add???"""
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
         
@@ -1089,8 +1082,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page``
+        :param pkg: the :ref:`package <packages_index>` object
         :param dflt: add???
         :param username: add???"""
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
@@ -1112,8 +1104,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param data: add???
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
+        :param pkg: the :ref:`package <packages_index>` object
         :param username: add???"""
         self.site.setUserPreference(path, data, pkg=pkg, username=username)
         
@@ -1642,10 +1633,13 @@ class GnrWebPage(GnrBaseWebPage):
         
     @public_method
     def callTableMethod(self,table=None,methodname=None,**kwargs):
-        """A decorator - :ref:`public_method`. add???
+        """add???
         
-        :param table: the :ref:`table` name. 
-        :param methodname: the method name of the :ref:`datarpc`."""
+        ``callTableMethod()`` method is decorated with the :meth:`public_method
+        s<gnr.core.gnrdecorator.public_method>` decorator
+        
+        :param table: the :ref:`table` name
+        :param methodname: the method name of the :ref:`datarpc`"""
         handler = getattr(self.db.table(table), methodname, None)
         if not handler or not getattr(handler, 'is_rpc', False):
             handler = getattr(self.db.table(table),'rpc_%s' %methodname)

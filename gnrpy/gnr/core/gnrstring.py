@@ -632,9 +632,7 @@ def encode(number, base='/16', nChars=None):
        
     :param number: number to encode
     :param base: base of encoding. Default value is ``/16``
-    :param nChar: number of characters of the result. 
-    :returns: encoded number as string
-    """
+    :param nChar: number of characters of the result. """
     import math
     
     if base in BASE_ENCODE: base = BASE_ENCODE[base]
@@ -718,43 +716,36 @@ def boolean(obj):
     
     (the ``obj`` is lowered before comparing it)
     
-    :param obj: The given list
-    """
+    :param obj: The given object"""
     if obj and isinstance(obj, basestring):
         if obj.lower() in ('n', 'no', 'f', 'false', '0'):
             obj = False
     return bool(obj)
     
 def pickleObject(obj, zipfilename=None):
-    """Return the Pickle string for the given object.
+    """Return the Pickle string for the given object
         
     :param obj: The given object
-    :param zipfilename: add???. 
-    :returns: the Pickle string for the given object
-    """
+    :param zipfilename: add???"""
     objstr = cPickle.dumps(obj)
     if zipfilename:
         objstr = zipString(objstr, zipfilename)
     return objstr
     
 def unpickleObject(objstr, zipfilename=None):
-    """Load an object from a pickle string.
+    """Load an object from a pickle string and return it
         
     :param objstr: The given object string
-    :param zipfilename: add???. 
-    :returns: the object loaded from the pickle string
-    """
+    :param zipfilename: add???"""
     if zipfilename:
         objstr = unzipString(objstr, zipfilename)
     return cPickle.loads(objstr)
     
 def zipString(mystring, filename):
-    """Return a zip compressed version of mystring
+    """Return a zip compressed version of the *mystring* string
         
     :param mystring: The given string
-    :param filename: add???
-    :returns: a zip compressed version of ``mystring``
-    """
+    :param filename: name of the zipped file"""
     zipresult = StringIO.StringIO()
     zip = zipfile.ZipFile(zipresult, mode='w', compression=zipfile.ZIP_DEFLATED)
     zip.writestr(filename, mystring)
@@ -764,12 +755,10 @@ def zipString(mystring, filename):
     return mystring
     
 def unzipString(mystring, filename):
-    """Extract a zip compressed string
+    """Extract a zip compressed string and return it
         
     :param mystring: the compressed string to decompress
-    :param filename: add???
-    :returns: the decompressed string 
-    """
+    :param filename: the name of the unzipped file"""
     zipresult = StringIO.StringIO(mystring)
     zip = zipfile.ZipFile(zipresult, mode='r', compression=zipfile.ZIP_DEFLATED)
     result = zip.read(filename)
@@ -780,27 +769,21 @@ def unzipString(mystring, filename):
 def toJson(obj):
     """add???
         
-    :param obj: add???
-    :returns: add???
-    """
+    :param obj: add???"""
     #non so come testare
     return json.dumps(obj, cls=JsonEncoder)
     
 def toJsonJS(obj):
     """add???
         
-    :param obj: add???
-    :returns: add???
-    """
+    :param obj: add???"""
     return json.dumps(obj, cls=JsonEncoderJS)
     
 def toSecureJsonJS(obj, key=None):
     """add???
         
     :param obj: add???
-    :param key: add???. 
-    :returns: add???
-    """
+    :param key: add???"""
     result = json.dumps(obj, cls=JsonEncoderJS)
     if key:
         n = 0
@@ -819,9 +802,7 @@ def toSecureJsonJS(obj, key=None):
 def slugify(value):
     """add???
         
-    :param value: add???
-    :returns: add???
-    """
+    :param value: add???"""
     import unicodedata
     
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
@@ -831,9 +812,7 @@ def slugify(value):
 def fromJson(obj):
     """add???
         
-    :param obj: add???
-    :returns: add???
-    """
+    :param obj: add???"""
     #non so come testare
     return json.loads(obj)
     
@@ -841,9 +820,7 @@ def anyWordIn(wordlist, mystring):
     """Return a list of all the elements included both in ``wordlist`` and in ``mystring``
         
     :param wordlist: the list of words to be searched in ``mystring``
-    :param mystring: the string on which there will be executed the search
-    :returns: a list of all the elements included both in ``wordlist`` and in ``mystring``
-    """
+    :param mystring: the string on which there will be executed the search"""
     return [k for k in wordlist if k in mystring]
     
 def jsquote(str_or_unicode):
@@ -855,8 +832,7 @@ def jsquote(str_or_unicode):
     >>> print jsquote('pippo')
     'pippo'
     >>> print jsquote(u'pippo')
-    'pippo'
-    """
+    'pippo'"""
     if isinstance(str_or_unicode, str):
         return repr(str_or_unicode)
     elif isinstance(str_or_unicode, unicode):
@@ -869,4 +845,4 @@ if __name__ == '__main__':
     result = [x for x in lst if filter(x, include=incl, exclude=excl)]
     print toJson([1, 2, 4])
     print result
-   
+    

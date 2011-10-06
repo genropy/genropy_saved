@@ -29,16 +29,16 @@
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc
     
     ===================================== ==================== ===================
-    :meth:`child`                         :meth:`func`         :meth:`makeRoot`   
-    :meth:`connect`                       :meth:`getAttach`    :meth:`nodeById`   
-    :meth:`css`                           :meth:`getField`     :meth:`place`      
-    :meth:`cssrule`                       :meth:`htmlChild`    :meth:`record`     
-    :meth:`data`                          :meth:`iframe`       :meth:`remote`     
-    :meth:`formbuilder`                   :meth:`js_domNode`   :meth:`script`     
-    :meth:`formstore`                     :meth:`js_form`      :meth:`styleSheet` 
-    :meth:`formstore_handler`             :meth:`js_widget`    :meth:`subscribe`  
-    :meth:`formstore_handler_addcallback` :meth:`macro`        :meth:`tooltip`    
-    :meth:`framepane`
+    :meth:`child`                         :meth:`framepane`    :meth:`makeRoot`   
+    :meth:`connect`                       :meth:`func`         :meth:`nodeById`   
+    :meth:`css`                           :meth:`getAttach`    :meth:`place`      
+    :meth:`cssrule`                       :meth:`getField`     :meth:`record`     
+    :meth:`data`                          :meth:`htmlChild`    :meth:`remote`     
+    :meth:`formbuilder`                   :meth:`iframe`       :meth:`script`     
+    :meth:`formstore`                     :meth:`js_domNode`   :meth:`styleSheet` 
+    :meth:`formstore_handler`             :meth:`js_form`      :meth:`subscribe`  
+    :meth:`formstore_handler_addcallback` :meth:`js_widget`    :meth:`tooltip`    
+    :meth:`frameform`                     :meth:`macro`       
     ===================================== ==================== ===================
     
 .. _gnrwebstruct_gnrdomsrcdojo11:

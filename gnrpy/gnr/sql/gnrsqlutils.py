@@ -38,10 +38,8 @@ class ModelExtractor(object):
     def buildTables(self, pkg, pkg_name):
         """add???
         
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page
-        :param pkg_name: the name of the package. For more information, check the
-                         :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg_name: the:ref:`package <packages_index>` name"""
         elements = self.dbroot.adapter.listElements('tables', schema=pkg_name)
         for tbl_name in elements:
             tbl = pkg.table(tbl_name)
@@ -158,8 +156,7 @@ class SqlModelChecker(object):
         """Check if the current package is contained by a not defined schema and then call the
         :meth:`_checkTable()` method for each table. Return a list containing sql statements
         
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         self._checkSqlSchema(pkg)
         if pkg.tables:
             for tbl in pkg.tables.values():

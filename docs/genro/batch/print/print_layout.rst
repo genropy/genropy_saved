@@ -13,14 +13,17 @@ print layout file
     
     **Features**:
     
+    * :ref:`print_layout_features`:
+    
+        * :ref:`layout_letterhead`
+        * :ref:`layout_gridrows`
+        
     * :ref:`print_layout_pagedocgrid`:
     
         * :ref:`print_layout_page`
         * :ref:`print_layout_doc`
         * :ref:`print_layout_grid`
         
-    * :ref:`print_layout_features`
-    
     **File creation**:
         
     :ref:`print_layout_creation`:
@@ -32,9 +35,10 @@ print layout file
         * :ref:`print_layout_main_methods`
         * :ref:`print_layout_attributes`
         
-    :ref:`print_layout_examples`
-              
-    * :ref:`print_layout_example`
+    **Examples**:
+    
+    * :ref:`print_layout_example_headrows`
+    * :ref:`print_layout_example_letterhead`
     
     **Library reference**:
     
@@ -105,6 +109,44 @@ File location
     
     .. image:: ../../_images/print/print_layout_file.png
     
+.. _print_layout_features:
+
+Layout page - features
+======================
+
+    There are two different layout for a print:
+    
+    #. the :ref:`layout_letterhead` - a print of the data of a single record
+       
+       .. note:: this layout can be useful for example to print the employee
+                 cards of a company, the personal card of a doctor, and so on
+                 
+    #. the :ref:`layout_gridrows` - a print of a set of many data taken from various
+       :ref:`database tables <table>`
+       
+       .. note:: this layout can be useful for example to print the monthly
+                 sales of a company
+       
+    In the next two sections we describe these two different layout modes
+    
+.. _layout_letterhead:
+
+"letterhead" layout print
+-------------------------
+
+    add???
+    
+    For a complete example, check the :ref:`print_layout_example_letterhead` example
+    
+.. _layout_gridrows:
+
+"grid" layout print
+-------------------
+
+    add???
+    
+    For a complete example, check the :ref:`print_layout_example_headrows` example
+    
 .. _print_layout_pagedocgrid:
 
 Layout print regions
@@ -112,12 +154,12 @@ Layout print regions
     
     add???
     
-    add??? an image with the graphical differences between doc - page - grid
+    add??? an image with the graphical differences between page - doc - grid
     
     CLIPBOARD::
     
         here you define the main constants:
-        maintable ,some heights page header/footer doc header/footer grid header/footer
+        maintable, some heights page header/footer doc header/footer grid header/footer
         for page we mean the sheet itself so logo or page numbers can fill that header
         or footer doc header/footer should contains the proper record info
         grid are the rows (the invoice rows for example) a selection that is related to
@@ -128,16 +170,6 @@ Layout print regions
         grid's columns if you put a height to 0 the hook does not being called grid_col_headers
         is similar to the columns of a standard table
         
-.. _print_layout_features:
-
-Layout page - features
-======================
-
-    add???
-    
-    LE STAMPE SI POSSONO FARE O IN MODALITA' SINGOLO RECORD, O IN MODALITA'
-    TESTATA RIGHE (la TESTATA è chiamata DOC): documentare con immagini
-    
 .. _print_layout_page:
 
 page
@@ -286,109 +318,43 @@ Main class webpage variables
 Main class methods
 ==================
 
-    In this section we describe all the layout hook methods and all the elements that allow
-    you to personalize the print
-    
-    .. warning:: some of these methods can be used if and only if there is a :ref:`webpage variable
-                 <print_layout_main_webpages_variables>` defined with a different value with respect
-                 to ``0``. For those methods we point up the related webpage variable
+    In this section we introduce most of the important layout hook methods that allow you to personalize
+    the print. For more information, click on the relative links
     
     They are:
     
-    * :ref:`layout_mainlayout`: MANDATORY - it gives the :ref:`print_layout_page` object through which
-      you create the print
-    * :ref:`layout_definestandardstyles`: add???
-    * :ref:`layout_docheader`: define the header of the :ref:`print_layout_doc`. To use it give a
-      different value to the :ref:`bagtohtml_doc_header_height` webpage variable with respect to ``0``                         
-    * :ref:`layout_docfooter`: define the footer of the :ref:`print_layout_doc`. To use it give a
-      different value to the :ref:`bagtohtml_doc_footer_height` webpage variable with respect to ``0``
-    * :ref:`layout_pageheader`: define the header of the :ref:`print_layout_page`. To use it give a
-      different value to the :ref:`bagtohtml_page_header_height` webpage variable with respect to ``0``
-    * :ref:`layout_pagefooter`: define the footer of the :ref:`print_layout_page`. To use it give a
-      different value to the :ref:`bagtohtml_page_header_height` webpage variable with respect to ``0``
+    * :meth:`mainLayout() <gnr.core.gnrbaghtml.BagToHtml.mainLayout>`: MANDATORY - it gives the
+      :ref:`print_layout_page` object through which you create the print
+    * :meth:`gridLayout() <gnr.core.gnrbaghtml.BagToHtml.gridLayout>`: if you have a
+      :ref:`print_layout_grid` then this method is mandatory - it gives the :ref:`print_layout_grid`
+      object through which you create the grid layout
+    * :meth:`defineStandardStyles() <gnr.core.gnrbaghtml.BagToHtml.defineStandardStyles>`: add???
+    * :ref:`layout_preparerow`: add???
+    * :meth:`onRecordLoaded() <gnr.core.gnrbaghtml.BagToHtml.onRecordLoaded>`: add???
+    
+    .. warning:: the following four methods can be used if and only if there is a :ref:`webpage variable
+                 <print_layout_main_webpages_variables>` defined with a different value with respect
+                 to ``0``. For those methods we point up the related webpage variable
+    
+    * :meth:`docHeader() <gnr.core.gnrbaghtml.BagToHtml.docHeader>` define the header of the
+      :ref:`print_layout_doc`. To use it give a different value to the :ref:`bagtohtml_doc_header_height`
+      webpage variable with respect to ``0``
+    * :meth:`docFooter() <gnr.core.gnrbaghtml.BagToHtml.docFooter>`: define the footer of the
+      :ref:`print_layout_doc`. To use it give a different value to the :ref:`bagtohtml_doc_footer_height`
+      webpage variable with respect to ``0``
+    * :meth:`pageHeader() <gnr.core.gnrbaghtml.BagToHtml.pageHeader>`: define the header of the
+      :ref:`print_layout_page`. To use it give a different value to the :ref:`bagtohtml_page_header_height`
+      webpage variable with respect to ``0``
+    * :meth:`pageFooter() <gnr.core.gnrbaghtml.BagToHtml.pageFooter>`: define the footer of the
+      :ref:`print_layout_page`. To use it give a different value to the :ref:`bagtohtml_page_header_height`
+      webpage variable with respect to ``0``
       
-    Inside these methods, you can create the layout through the following three methods:
+    Inside the Main class methods, you can create the layout through the following four methods:
     
-    * the :ref:`layout() method <layout_element>`: allow to return a layout element
-    * the :ref:`row() method <layout_row>`: allow to return a row element 
-    * the :ref:`cell() method <layout_cell>`: allow to return a cell element
-    
-    There is also other mehods:
-    
-    * the :ref:`layout_preparerow`
-    
-.. _layout_mainlayout:
-
-mainLayout()
-------------
-
-    .. automethod:: gnr.core.gnrbaghtml.BagToHtml.mainLayout
-    
-.. _layout_definestandardstyles:
-
-defineStandardStyles()
-----------------------
-
-    .. automethod:: gnr.core.gnrbaghtml.BagToHtml.defineStandardStyles
-    
-    add???
-    
-.. _layout_docheader:
-
-docHeader()
------------
-
-    .. automethod:: gnr.core.gnrbaghtml.BagToHtml.docHeader
-    
-.. _layout_docfooter:
-
-docFooter()
------------
-
-    .. automethod:: gnr.core.gnrbaghtml.BagToHtml.docFooter
-    
-.. _layout_pageheader:
-
-pageHeader()
-------------
-
-    .. automethod:: gnr.core.gnrbaghtml.BagToHtml.pageHeader
-    
-.. _layout_pagefooter:
-
-pageFooter()
-------------
-
-    .. automethod:: gnr.core.gnrbaghtml.BagToHtml.pageFooter
-    
-    add???
-    
-.. _layout_element:
-    
-layout
-------
-
-    .. automethod:: gnr.core.gnrhtml.GnrHtmlSrc.layout
-    
-.. _layout_row:
-    
-row
----
-
-    .. automethod:: gnr.core.gnrhtml.GnrHtmlSrc.row
-    
-    add???
-    
-.. _layout_cell:
-    
-cell
-----
-
-    .. automethod:: gnr.core.gnrhtml.GnrHtmlSrc.cell
-    
-    add???
-    
-    * if you don't define the cell width, then it takes all the remaining space
+    * the :meth:`layout <gnr.core.gnrhtml.GnrHtmlSrc.layout>`: allow to return a layout element
+    * the :meth:`row <gnr.core.gnrhtml.GnrHtmlSrc.row>`: allow to return a row element 
+    * the :meth:`cell <gnr.core.gnrhtml.GnrHtmlSrc.cell>`: allow to return a cell element
+    * the :meth:`rowCell <gnr.core.gnrbaghtml.BagToHtml.rowCell>`: allow to return a rowCell
     
 .. _layout_preparerow:
 
@@ -399,6 +365,13 @@ prepareRow()
     
     This method allow to define all the rows of the :ref:`print_layout_grid`
     
+    .. note:: to select data from a :ref:`database table <table>`, you have to use the :meth:`rowCell
+              <gnr.core.gnrhtml.GnrHtmlSrc.rowCell>`, not the normal :meth:`cell <gnr.core.gnrhtml.GnrHtmlSrc.cell>`::
+              
+                def prepareRow(self, row):
+                    style_cell = 'text-indent:2mm;border-bottom-style:dotted;'
+                    self.rowCell('data', style=style_cell)
+                    
 .. _print_layout_attributes:
 
 Attributes explanation
@@ -409,8 +382,9 @@ Attributes explanation
 lastPage
 --------
 
-    The *lastPage* attribute belongs to the :ref:`layout_pagefooter` and the
-    :ref:`layout_docfooter` methods
+    The *lastPage* attribute belongs to the :meth:`pageFooter()
+    <gnr.core.gnrbaghtml.BagToHtml.pageFooter>` and the :meth:`docFooter()
+    <gnr.core.gnrbaghtml.BagToHtml.docFooter>` methods
     
     #. **usage of lastPage in the docFooter() method**:
        
@@ -443,18 +417,119 @@ lastPage
        
 .. _print_layout_examples:
 
-examples
+Examples
 ========
 
-.. _print_layout_example:
-    
-a simple example
-================
+.. _print_layout_example_headrows:
 
-    Let's see an example page of a :ref:`print_layout`::
+"grid" print layout - example
+=============================
+
+    Let's see an example page of a :ref:`layout_gridrows`; read the comments that explain the code
     
-        add???
+    add???
+    
+.. _print_layout_example_letterhead:
+    
+"letterhead" layout print - example
+===================================
+
+    Let's see an example page of a :ref:`layout_letterhead`; read the comments that explain the code
+    
+    add??? translate the code and add comments!
+    
+    ::
+    
+        #!/usr/bin/env pythonw
+        # -*- coding: UTF-8 -*-
         
+        from gnr.web.gnrbaseclasses import TableScriptToHtml
+        from gnr.core.gnrbag import Bag
+
+        class Main(TableScriptToHtml):    
+            maintable = 'polimed.medico'              # 
+            rows_table = 'polimed.prestazione'
+            doc_header_height = 10                    # docHeader is the callback
+            doc_footer_height = 10                    # docFooter is the callback
+            grid_header_height = 6.2                  # bodyHeaderHeight
+            grid_col_widths = [17,12,0,0,20,15,15,20] # rowColWidth
+            grid_col_headers = 'Date,Hour,Patient,Performance,Convention,Amount,Cost,Invoice'
+            grid_row_height = 5.3
+            row_mode = 'attribute'
+            rows_path = 'rows'
+            
+            def mainLayout(self, page):
+                style = """font-family:"Lucida Grande", Lucida, Verdana, sans-serif;
+                           text-align:left;
+                           line-height:5mm;
+                           font-size:9pt;"""
+                return page.layout(width=190,
+                                   height=self.page_height,
+                                   um='mm',top=0,
+                                   left=5,border_width=0,
+                                   lbl_height=4,lbl_class='caption',
+                                   style=style)
+
+            def docHeader(self, header):
+                layout = header.layout(um='mm',
+                                       lbl_class='smallCaption',
+                                       top=1,bottom=1,left=1,right=1,
+                                       lbl_height=3,
+                                       border_width=.3,
+                                       border_color='gray',
+                                       style='line-height:6mm;text-align:left;text-indent:2mm;')        
+                row=layout.row(height=10)
+                row.cell("%s %s" % (self.field('@anagrafica_id.cognome'), self.field('@anagrafica_id.nome')),
+                         lbl='Performances of')
+                row.cell(self.toText(self.getData('period.from')), lbl='From',width=30,content_class='aligned_right')
+                row.cell(self.toText(self.getData('period.to')), lbl='To', width=30,content_class='aligned_right')
+                row.cell(self.pageCounter(mask='%s of %s'), lbl='Page', width=12, content_class='aligned_right')
+
+            def docFooter(self, footer, lastPage=None):
+                if not lastPage:
+                    return
+                layout = footer.layout(name='footerL',um='mm',border_color='gray',
+                                       lbl_class='smallCaption',
+                                       top=1,bottom=1,left=80,right=1,
+                                       lbl_height=3,border_width=0.3,
+                                       content_class='aligned_right')
+                row=layout.row(height=0)
+                totals_dict = {}
+                totals_dict['importo'],totals_dict['costo'] = self.getData('rows').sum('#a.importo,#a.costo')
+                row.cell(self.toText(totals_dict['importo'],format=self.currencyFormat), lbl='Total amount')
+                row.cell(self.toText(totals_dict['costo'],format=self.currencyFormat), lbl='Total cost')
+
+            def gridLayout(self, grid):
+                return grid.layout(name='rowsL',um='mm',border_color='gray',
+                                   top=1,bottom=1,left=1,right=1,
+                                   border_width=0.3,lbl_class='caption',
+                                   style='line-height:5mm;text-align:left;font-size:7.5pt')
+
+            def prepareRow(self, row):
+                style_cell = 'text-indent:2mm;border-bottom-style:dotted;'
+                self.rowCell('data', style=style_cell)
+                self.rowCell('ora', format='HH:mm', style=style_cell)
+                self.rowCell('paziente', style=style_cell)
+                self.rowCell('prestazione', style=style_cell)
+                self.rowCell('convenzione_codice', style=style_cell)
+                self.rowCell('importo', format=self.currencyFormat, style=style_cell,content_class='aligned_right')
+                self.rowCell('costo', format=self.currencyFormat, style=style_cell,content_class='aligned_right')
+                self.rowCell('fattura', style=style_cell, content_class='aligned_right')
+                
+            def onRecordLoaded(self):
+                where = '$date >= :begin_date AND $date <= :end_date AND doctor_id=:d_id'
+                columns ='''$doctor,$date,$hour,$patient,$performance,
+                            @convention_id.code AS convention_code,
+                            $amount,$cost,@invoice_id.number AS invoice'''
+                query = self.db.table(self.rows_table).query(columns=columns, where=where, 
+                                                             begin_data = self.getData('period.from'),
+                                                             end_data = self.getData('period.to'),
+                                                             d_id=self.record['id'])
+                selection = query.selection()
+                if not selection:
+                    return False
+                self.setData('rows',selection.output('grid'))"""
+                
 .. _print_clipboard:
 
 clipboard

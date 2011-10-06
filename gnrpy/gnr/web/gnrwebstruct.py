@@ -270,7 +270,9 @@ class GnrDomSrc(GnrStructData):
         
     @extract_kwargs(store=True)
     def frameform(self,formId=None,frameCode=None,store=None,storeCode=None,slots=None,table=None,store_kwargs=None,**kwargs):
-        """A decorator - :ref:`extract_kwargs`. add???
+        """add???
+        
+        ``frameform()`` method is decorated with the :meth:`extract_kwargs <gnr.core.gnrdecorator.extract_kwargs>` decorator
         
         :param formId: add???
         :param frameCode: add???
@@ -945,7 +947,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param path: add???
         :param resource: add???
         :param ext: add???
-        :param pkg: add???"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         self.dataRemote(path,'getResourceContent',resource=resource,ext=ext, pkg=pkg)
         
     def paletteGroup(self, groupCode, **kwargs):
@@ -1002,7 +1004,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     dropCode, mode = dropCode.split(':')
                 dropmode = 'dropTarget_%s' % mode
                 ivattr[dropmode] = '%s,%s' % (ivattr[dropmode], dropCode) if dropmode in ivattr else dropCode
-                ivattr['onDrop_%s' % dropCode] = 'SET .droppedInfo_%s = dropInfo; FIRE .dropped_%s = data' % (dropCode,dropCode)
+                ivattr['onDrop_%s' % dropCode] = 'data._dropInfo = dropInfo; FIRE .dropped_%s = data' % dropCode
                 ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
                 
     def newincludedview_draganddrop(self,dropCodes=None,**kwargs):

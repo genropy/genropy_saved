@@ -44,8 +44,7 @@ class GnrHtmlElem(object):
         return child
         
 class GnrHtmlSrc(GnrStructData):
-    """add???
-    """
+    """add???"""
     htmlNS = ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'base', 'bdo', 'big', 'blockquote',
               'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
               'div', 'dfn', 'dl', 'dt', 'em', 'fieldset', 'form', 'frame', 'frameset',
@@ -170,7 +169,7 @@ class GnrHtmlSrc(GnrStructData):
                border_size=0.1, border_color='red', lbl_height=3,
                lbl_class='lbl_base', content_class='content_base',
                border_style='solid', **kwargs):
-        """Build a :ref:`layout_element` and return it
+        """Build a layout element and return it
         
         :param width: the layout's width.
         :param height: the layout's height.
@@ -238,16 +237,14 @@ class GnrHtmlSrc(GnrStructData):
             return 'border-width:%s;' % ' '.join([('%spx') % int(x) for x in borders])
             
     def cell(self, content=None, width=0, lbl=None, lbl_class=None, lbl_height=None, content_class=None, **kwargs):
-        """Define a cell
+        """Define a cell and return it
         
-        :param content: the cell's content. 
-        :param width: the cell's width.
-        :param lbl: the cell's lbl. 
-        :param lbl_class: the cell's lbl_class. 
-        :param lbl_height: the cell's lbl_height. 
-        :param content_class: the cell's content_class. 
-        :returns: the cell
-        """
+        :param content: the cell's content
+        :param width: the cell's width
+        :param lbl: the cell's lbl
+        :param lbl_class: the cell's lbl_class
+        :param lbl_height: the cell's lbl_height
+        :param content_class: the cell's content_class"""
         row = self
         width = float(width)
         um = row.container.um
@@ -273,8 +270,7 @@ class GnrHtmlSrc(GnrStructData):
         :param cell: the cell
         :param tag: a list of the cell's tag
         :param attr: a dict of the cell's attributes
-        :returns: ``tag`` and ``attr`` attributes
-        """
+        :returns: ``tag`` and ``attr`` attributes"""
         bs = self.border_size
         dbs = min(bs / 2., .2)
         tag = 'div'
@@ -302,8 +298,7 @@ class GnrHtmlSrc(GnrStructData):
         :param row: the row
         :param tag: a list of the row's tag
         :param attr: a dict of the row's attributes
-        :returns: ``tag`` and ``attr`` attributes
-        """
+        :returns: ``tag`` and ``attr`` attributes"""
         tag = 'div'
         attr['top'] = row.container.height_calc
         self.height_calc = self.height_calc + float(row.height)

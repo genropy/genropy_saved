@@ -179,10 +179,9 @@ class DbModel(object):
     def checkRelationIndex(self, pkg, table, column):
         """add???
         
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page.
+        :param pkg: the :ref:`package <packages_index>` object
         :param table: the :ref:`table` name
-        :param column: add???"""
+        :param column: the table :ref:`table_column`"""
         tblobj = self.table(table, pkg=pkg)
         indexname = '%s_%s_key' % (table, column)
         if column != tblobj.pkey and not indexname in tblobj.indexes:
@@ -236,8 +235,7 @@ class DbModel(object):
     def packageMixin(self, pkg, obj):
         """add???
         
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page.
+        :param pkg: the :ref:`package <packages_index>` object
         :param obj: add???"""
         self._doMixin('pkg.%s' % pkg, obj)
         
@@ -247,16 +245,14 @@ class DbModel(object):
     def package(self, pkg):
         """Return a package object
         
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page."""
+        :param pkg: the :ref:`package <packages_index>` object"""
         return self.obj[pkg]
         
     def table(self, tblname, pkg=None):
         """Return a table object
         
-        :param tblname: the table name
-        :param pkg: the package object. For more information on a package, check the
-                    :ref:`packages_index` documentation page. """
+        :param tblname: the :ref:`database table <table>` name
+        :param pkg: the :ref:`package <packages_index>` object"""
         if '.' in tblname:
             pkg, tblname = tblname.split('.')[:2]
         if pkg is None:

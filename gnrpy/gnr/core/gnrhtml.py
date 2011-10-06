@@ -101,7 +101,7 @@ class GnrHtmlSrc(GnrStructData):
                lbl_height=3, lbl_class='lbl_base', content_class='content_base',
                hasBorderTop=None, hasBorderLeft=None, hasBorderRight=None, hasBorderBottom=None,
                **kwargs):
-        """Build a :ref:`layout element <layout_element>` and return it
+        """Build a layout element and return it
         
         :param name: the layout name
         :param um: the layout's unit of measurement
@@ -199,7 +199,9 @@ class GnrHtmlSrc(GnrStructData):
         :param lbl: the cell's label
         :param lbl_class: the class of the row's label
         :param lbl_height: the height of the row's label
-        :param lbl_height: the border of the row's label"""
+        :param lbl_height: the border of the row's label
+        
+        * if you don't define the cell width, then it takes all the remaining space"""
         assert self.parentNode.getAttr('tag') == 'row'
         row = self
         cell = row.child(tag='cell', **kwargs)
