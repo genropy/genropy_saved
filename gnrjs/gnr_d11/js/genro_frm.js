@@ -578,7 +578,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.fireControllerData('saved');
         this.setOpStatus('saved');
         var savedPkey = result;
-        if(this.store){
+        if(this.store && result){
             savedPkey = result.savedPkey;
         }
         this.publish('onSaved',{pkey:savedPkey,saveResult:result});
