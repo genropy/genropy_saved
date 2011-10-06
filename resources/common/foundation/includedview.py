@@ -713,7 +713,7 @@ class IncludedView(BaseComponent):
         if storepath.startswith('.'):
             storepath = '#FORM.record%s' %storepath
         frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,
-                               grid_nodeId=nodeId,grid_datamode=datamode,table=table,
+                               grid_nodeId=nodeId,datamode=datamode,table=table,
                                storepath=storepath,**kwargs)
         frame.dataFormula(".locked","locked",locked="^#FORM.controller.locked")
         
