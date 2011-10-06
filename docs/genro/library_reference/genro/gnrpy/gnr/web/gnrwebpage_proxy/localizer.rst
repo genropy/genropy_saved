@@ -1,8 +1,8 @@
 .. _library_localizer:
 
-=====================================================================
-:mod:`gnr.web.gnrwebpage_proxy.localizer` - Utilities for translation
-=====================================================================
+=========================================================================
+:mod:`gnr.web.gnrwebpage_proxy.localizer` - Website translation utilities
+=========================================================================
     
     *Last page update*: |today|
     
@@ -29,8 +29,8 @@
     
 .. _localizer_classes:
 
-:mod:`gnr.web.gnrwebpage_proxy` - The complete reference list
-=============================================================
+:mod:`gnr.web.gnrwebpage_proxy.localizer` - The complete reference list
+=======================================================================
 
 .. automodule:: gnr.web.gnrwebpage_proxy.localizer
     :members:

@@ -46,24 +46,30 @@ from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 ESCAPE_SPECIAL = re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
 
 class GnrWebAppHandler(GnrBaseProxy):
+    """add???"""
     def init(self, **kwargs):
+        """add???"""
         self.gnrapp = self.page.site.gnrapp
         siteStatus = self.page.siteStatus
         if siteStatus['resetLocalizationTime'] and self.gnrapp.localizationTime < siteStatus['resetLocalizationTime']:
             self.gnrapp.buildLocalization()
-
+            
     def event_onEnd(self):
+        """add???"""
         self._finalize(self)
-
+        
     def _finalize(self, page):
         self.db.closeConnection()
-
+        
     @property
     def db(self):
         """add???"""
         return self.page.db
-
+        
     def getDb(self, dbId=None):
+        """add???
+        
+        :param dbId: the database id"""
         return self.db # TODO: is a __getitem__ for back compatibility: see gnrsqldata DataResolver
 
     __getitem__ = getDb
@@ -82,19 +88,28 @@ class GnrWebAppHandler(GnrBaseProxy):
     appId = property(_getAppId)
 
     def getPackages(self):
+        """add???"""
         return [[pkgobj.name_full, pkg] for pkg, pkgobj in self.db.packages.items()]
-
+        
     rpc_getPackages = getPackages
-
+    
     def getTables(self, pkg=None):
+        """Extract a couple with the istance names and the name of the
+        :ref:`database tables <table>` from a :ref:`package <packages_index>` you specify
+        with the *pkg* attribute. Return the extracted couples as a list of lists. If no
+        tables are in the package then the method returns an empty list
+        
+        :param pkg: MANDATORY. The :ref:`package <packages_index>` from which
+                    the tables are extracted"""
         tables = self.db.package(pkg).tables
         if tables:
             return [[tblobj.name_full.capitalize(), tbl] for tbl, tblobj in tables.items()]
         return []
-
+        
     rpc_getTables = getTables
-
+    
     def getTablesTree(self):
+        """add???"""
         result = Bag()
         for pkg, pkgobj in self.db.packages.items():
             if pkgobj.attributes.get('reserved', 'n').upper() != 'Y':
@@ -109,6 +124,10 @@ class GnrWebAppHandler(GnrBaseProxy):
     rpc_getTablesTree = getTablesTree
 
     def getTableFields(self, pkg='', table='', **kwargs):
+        """add???
+        
+        :param pkg: add???
+        :param table: add???"""
         if not pkg:
             pkg, table = table.split('.')
         return self.dbStructure(path='%s.tables.%s.relations' % (pkg, table))
@@ -116,6 +135,9 @@ class GnrWebAppHandler(GnrBaseProxy):
     rpc_getTableFields = getTableFields
 
     def dbStructure(self, path='', **kwargs):
+        """add???
+        
+        :param path: add???"""
         curr = self.db.packages
         if path:
             curr = curr[path]
@@ -167,9 +189,13 @@ class GnrWebAppHandler(GnrBaseProxy):
             else:
                 result.setItem(elem, None)
         return result
-
-
+        
     def rpc_batchDo(self, batch, resultpath, forked=False, **kwargs):
+        """add???
+        
+        :param batch: add???
+        :param resultpath: add???
+        :param forked: boolean. add???"""
         if forked:
             from processing import Process
 
@@ -204,6 +230,17 @@ class GnrWebAppHandler(GnrBaseProxy):
                            table='', distinct=False, columns='', where='',
                            relationDict=None, sqlparams=None, condition=None,
                            **kwargs):
+        """add???
+        
+        :param field: add???
+        :param value: add???
+        :param table: add???
+        :param distinct: boolean. add???
+        :param columns: add???
+        :param where: add???
+        :param relationDict: add???
+        :param sqlparams: add???
+        :param condition: add???"""
         #sqlargs = dict(kwargs)
         if field:
             if not table:
@@ -220,6 +257,12 @@ class GnrWebAppHandler(GnrBaseProxy):
                             relationDict=relationDict, sqlparams=sqlparams, **kwargs).count()
 
     def rpc_selectionCall(self, table, selectionName, method, freeze=False, **kwargs):
+        """add???
+        
+        :param table: add???
+        :param selectionName: add???
+        :param method: add???
+        :param freeze: boolean. add???"""
         tblobj = self.db.table(table)
         selection = self.page.unfreezeSelection(tblobj, selectionName)
         if hasattr(selection, method):
@@ -232,6 +275,17 @@ class GnrWebAppHandler(GnrBaseProxy):
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                              sqlContextName=None, one_one=None, virtual_columns=None, **kwargs):
+        """add???
+        
+        :param from_fld: add???
+        :param target_fld: add???
+        :param pkg: add???
+        :param pkey: add???
+        :param ignoreMissing: add???
+        :param ignoreDuplicate: add???
+        :param js_resolver_one: add???
+        :param js_resolver_many: add???
+        :param sqlContextName: add???"""
         if one_one is not None:
             raise 'error'
 
@@ -278,6 +332,16 @@ class GnrWebAppHandler(GnrBaseProxy):
                                 columns='', query_columns=None,
                                 condition=None, js_resolver_one='relOneResolver',
                                 sqlContextName=None, **kwargs):
+        """add???
+        
+        :param from_fld: add???
+        :param target_fld: add???
+        :param relation_value: add???
+        :param columns: add???
+        :param query_columns: add???
+        :param condition: add???
+        :param js_resolver_one: add???
+        :param sqlContextName: add???"""
         if query_columns:
             print 'QUERY COLUMNS PARAMETER NOT EXPECTED!!'
         columns = columns or query_columns
@@ -361,6 +425,13 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def setThermo(self, thermoId, progress_1=None, message_1=None,
                   maximum_1=None, command=None, **kwargs):
+        """add???
+        
+        :param thermoId: add???
+        :param progress_1: add???
+        :param message_1: add???
+        :param maximum_1: add???
+        :param command: add???"""
         with self.page.pageStore() as store:
             if command == 'init':
                 thermoBag = Bag()
@@ -388,6 +459,10 @@ class GnrWebAppHandler(GnrBaseProxy):
             return 'stop'
 
     def rpc_getThermo(self, thermoId, flag=None):
+        """add???
+        
+        :param thermoId: add???
+        :param flag: add???"""
         with self.page.pageStore() as store:
             if flag == 'stop':
                 thermoBag = store.getItem('thermo_%s' % thermoId) or Bag()
@@ -399,6 +474,14 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def rpc_onSelectionDo(self, table, selectionName, command, callmethod=None, selectedRowidx=None, recordcall=False,
                           **kwargs):
+        """add???
+        
+        :param table: add???
+        :param selectionName: add???
+        :param command: add???
+        :param callmethod: add???
+        :param selectedRowidx: add???
+        :param recordcall: add???"""
         result = None
         tblobj = self.db.table(table)
         selection = self.page.getUserSelection(table=tblobj, selectionName=selectionName, selectedRowidx=selectedRowidx)
@@ -419,11 +502,21 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
 
     def export_standard(self, selection, locale=None, columns=None, filename=None, **kwargs):
+        """add???
+        
+        :param selection: add???
+        :param locale: add???
+        :param columns: add???
+        :param filename: add???"""
         filename = filename or self.maintable or  self.request.uri.split('/')[-1]
         content = selection.output('tabtext', columns=columns, locale=locale)
         self.page.utils.sendFile(content, filename, 'xls')
 
     def print_standard(self, selection, locale=None, **kwargs):
+        """add???
+        
+        :param selection: add???
+        :param locale: add???"""
         columns = None # get columns from current view on client !
         if not columns:
             columns = [c for c in selection.allColumns if not c in ('pkey', 'rowidx')]
@@ -434,6 +527,10 @@ class GnrWebAppHandler(GnrBaseProxy):
                                                           title='Print List', header='Print List', columns=columns)
 
     def pdf_standard(self, selection, locale=None, **kwargs):
+        """add???
+        
+        :param selection: add???
+        :param locale: add???"""
         columns = None # get columns from current view on client !
         if not columns:
             columns = [c for c in selection.allColumns if not c in ('pkey', 'rowidx')]
@@ -476,7 +573,13 @@ class GnrWebAppHandler(GnrBaseProxy):
             result.update(optkwargs)
         return result
 
-    def rpc_checkFreezedSelection(self,changelist=None,selectionName=None,where=None,table=None,**kwargs):
+    def rpc_checkFreezedSelection(self, changelist=None, selectionName=None, where=None, table=None, **kwargs):
+        """add???
+        
+        :param changelist: add???
+        :param selectionName: add???
+        :param where: add???
+        :param table: add???"""
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
         needUpdate = False
         if selection is not None:
@@ -507,7 +610,41 @@ class GnrWebAppHandler(GnrBaseProxy):
                          recordResolver=True, selectionName='', structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
-                         sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,savedQuery=None,savedView=None, externalChanges=None,**kwargs):
+                         sortedBy=None, excludeLogicalDeleted=True, excludeDraft=True,
+                         savedQuery=None, savedView=None, externalChanges=None,**kwargs):
+        """add???
+        
+        :param table: add???
+        :param distinct: boolean. add???
+        :param columns: add???
+        :param where: add???
+        :param condition: add???
+        :param order_by: add???
+        :param limit: add???
+        :param offset: add???
+        :param group_by: add???
+        :param having: add???
+        :param relationDict: add???
+        :param sqlparams: add???
+        :param row_start: add???
+        :param row_count: add???
+        :param recordResolver: add???
+        :param selectionName: add???
+        :param structure: add???
+        :param numberedRows: add???
+        :param pkeys: add???
+        :param fromSelection: add???
+        :param applymethod: add???
+        :param totalRowCount: add???
+        :param selectmethod: add???
+        :param expressions: add???
+        :param sum_columns: add???
+        :param sortedBy: add???
+        :param excludeLogicalDeleted: add???
+        :param excludeDraft: add???
+        :param savedQuery: add???
+        :param savedView: add???
+        :param externalChanges: add???"""
         t = time.time()
         tblobj = self.db.table(table)
         row_start = int(row_start)
@@ -668,6 +805,17 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         :param table: table name
         :param selectionName: the name of the selection, empty or '*' will default to a new uuid
+        :param distinct: add???
+        :param columns: add???
+        :param where: add???
+        :param condition: add???
+        :param order_by: add???
+        :param limit: add???
+        :param offset: add???
+        :param group_by: add???
+        :param having: add???
+        :param relationDict: add???
+        :param sqlparams: add???
         :param pkeys: a json or comma separated list of pkey to find (overwrite the where parameter)
         :param selectmethod: a page method with rpc_ prefix which receive all parameters and has to return a selection object
         :param expressions: comma separated list of expr_ methods which returns the sql string for a column (probably a formula)
@@ -728,6 +876,14 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def gridSelectionData(self, selection, outsource, recordResolver, numberedRows, logicalDeletionField,
                           _addClassesDict=None):
+        """add???
+        
+        :param selection: add???
+        :param outsource: add???
+        :param recordResolver: add???
+        :param numberedRows: add???
+        :param logicalDeletionField: add???
+        :param _addClassesDict: add???"""
         result = Bag()
         for j, row in enumerate(outsource):
             row = dict(row)
@@ -753,6 +909,9 @@ class GnrWebAppHandler(GnrBaseProxy):
 
 
     def gridSelectionStruct(self, selection):
+        """add???
+        
+        :param selection: add???"""
         structure = Bag()
         r = structure.child('view').child('row')
         for colname in selection.columns:
@@ -782,9 +941,9 @@ class GnrWebAppHandler(GnrBaseProxy):
                     kwargs['width'] = '%iem' % (1 + int(int(width) * .7))
                 r.child('cell', childname=colname, field=colname, **kwargs)
         return structure
-
+        
         #@timer_call()
-
+        
     #
     def _getRecord_locked(self, tblobj, record, recInfo):
         #locked,aux=self.page.site.lockRecord(self.page,tblobj.fullname,record[tblobj.pkey])
@@ -800,7 +959,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                       ignoreMissing=True, ignoreDuplicate=True, lock=False, readOnly=False,
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                      loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None, **kwargs):
+                      loadingParameters=None, default_kwargs=None, eager=None, virtual_columns=None, **kwargs):
         """add???
         
         ``rpc_getRecord()`` method is decorated with the :meth:`extract_kwargs
@@ -809,7 +968,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param table: the :ref:`database table <table>`
         :param dbtable: the :ref:`database table <table>`
         :param pkg: the :ref:`package <packages_index>` object
-        :param pkey: the :ref:`primary key <pkey>`
+        :param pkey: the record :ref:`primary key <pkey>`
         :param ignoreMissing: boolean. add???
         :param ignoreDuplicate: boolean. add???
         :param lock: boolean. add???
@@ -896,6 +1055,10 @@ class GnrWebAppHandler(GnrBaseProxy):
         return (record, recInfo)
 
     def setRecordDefaults(self, record, defaults):
+        """add???
+        
+        :param record: add???
+        :param defaults: add???"""
         for k, v in defaults.items():
             if k in record:
                 record[k] = v
@@ -907,12 +1070,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                      notnull=None, weakCondition=False, **kwargs):
         """add???
         
-        :param dbtable: database :ref:`table` source for the query
+        :param dbtable: the :ref:`database table <table>` for the query
         :param columns: the :ref:`table_columns` that are involved into the query
         :param auxColumns: showed only as result, not involved in the search.
         :param hiddenColumns: data that is retrieved but is not showed.
-        :param rowcaption: what you see into the field. Often is different
-                           from what you set with dbselect
+        :param rowcaption: what you see into the field. Often is different from what you set with dbselect
         :param querystring: add???
         :param ignoreCase: add???
         :param exclude: add???
@@ -993,6 +1155,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         return (result, resultAttrs)
 
     def rpc_dbSelect_selection(self, tblobj, querystring, columns=None, auxColumns=None, **kwargs):
+        """add???
+        
+        :param tblobj: add???
+        :param querystring: add???
+        :param columns: add???
+        :param auxColumns: add???"""
         querycolumns = tblobj.getQueryFields(columns)
         showcolumns = gnrlist.merge(querycolumns, tblobj.columnsFromString(auxColumns))
         captioncolumns = tblobj.rowcaptionDecode()[0]
@@ -1005,6 +1173,18 @@ class GnrWebAppHandler(GnrBaseProxy):
     def rpc_dbSelect_default(self, tblobj, querycolumns, querystring, resultcolumns,
                              condition=None, exclude=None, limit=None, order_by=None,
                              identifier=None, ignoreCase=None, **kwargs):
+        """add???
+        
+        :param tblobj: add???
+        :param querycolumns: add???
+        :param querystring: add???
+        :param resultcolumns: add???
+        :param condition: add???
+        :param exclude: add???
+        :param limit: add???
+        :param order_by: add???
+        :param identifier: add???
+        :param ignoreCase: add???"""
         def getSelection(where, **searchargs):
             whereargs = {}
             whereargs.update(kwargs)
@@ -1065,9 +1245,19 @@ class GnrWebAppHandler(GnrBaseProxy):
         return ':'.join(fullcaption)
 
     def rpc_getRecordForm(self, dbtable=None, fields=None, **kwargs):
+        """add???
+        
+        :param dbtable: add???
+        :param fields: add???"""
         self.getRecordForm(self.newSourceRoot(), dbtable=dbtable, fields=fields, **kwargs)
 
     def formAuto(self, pane, table, columns='', cols=2):
+        """add???
+        
+        :param pane: add???
+        :param table: add???
+        :param columns: add???
+        :param cols: add???"""
         fb = pane.formbuilder(cols=cols)
         tblobj = self.db.table(table)
         if not columns:
@@ -1078,12 +1268,20 @@ class GnrWebAppHandler(GnrBaseProxy):
         fb.placeFields(','.join(columns))
 
     def rpc_pdfmaker(self, pdfmode, txt, **kwargs):
+        """add???
+        
+        :param pdfmode: add???
+        :param txt: add???"""
         filename = '%s.pdf' % self.page.getUuid()
         fpath = self.page.pageLocalDocument(filename)
         getattr(self.page, 'pdf_%s' % pdfmode)(fpath, txt, **kwargs)
         return filename
 
     def rpc_downloadPDF(self, filename, forcedownload=False, **kwargs):
+        """add???
+        
+        :param filename: add???
+        :param forcedownload: boolean. add???"""
         response = self.page.response
         response.content_type = "application/pdf"
         if forcedownload:
@@ -1132,6 +1330,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         return style
 
     def rpc_printStaticGrid(self, structbag, storebag, filename=None, makotemplate='standard_print.tpl', **kwargs):
+        """add???
+        
+        :param structbag: add???
+        :param filename: add???
+        :param makotemplate: add???"""
         filename = self._exportFileNameClean(filename)
         if not filename.lower().endswith('.html') or filename.lower().endswith('.htm'):
             filename += '.html'
@@ -1169,6 +1372,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         #return filename
 
     def rpc_printStaticGridDownload(self, filename, **kwargs):
+        """add???
+        
+        :param filename: add???"""
         fpath = self.page.pageLocalDocument(filename)
         f = open(fpath, 'r')
         result = f.read()
@@ -1177,12 +1383,29 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result.decode('utf-8')
 
     def rpc_recordToPDF(self, table, pkey, template, **kwargs):
+        """add???
+        
+        :param table: add???
+        :param pkey: add???
+        :param template: add???"""
         record = self.db.table(table).record(pkey).output('bag')
         return self.page.rmlTemplate(path=template, record=record)
 
     def rpc_includedViewAction(self, action=None, export_mode=None, respath=None, table=None, data=None,
                                selectionName=None, struct=None,datamode=None, downloadAs=None,
                                selectedRowidx=None, **kwargs):
+        """add???
+        
+        :param action: add???
+        :param export_mode: add???
+        :param respath: add???
+        :param table: add???
+        :param data: add???
+        :param selectionName: add???
+        :param struct: add???
+        :param datamode: add???
+        :param downloadAs: add???
+        :param selectedRowidx: add???"""
         page = self.page
         if downloadAs:
             import mimetypes

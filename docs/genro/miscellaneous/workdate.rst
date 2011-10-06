@@ -16,6 +16,8 @@ introduction
     
     The working date.
     
+    add??? self.workdate...
+    
     * The complete string is formed by...
     
         Example::

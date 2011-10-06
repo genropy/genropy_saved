@@ -785,7 +785,7 @@ class Bag(GnrObject):
     def asString(self, encoding='UTF-8', mode='weak'):
         """Call the __str__ method, and return an ascii encoded formatted representation of the Bag
         
-        :param encoding: it is the type of encoding
+        :param encoding: the encoding type
         :param mode: add???"""
         return self.__str__(mode=mode).encode(encoding, 'ignore')
 

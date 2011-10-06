@@ -13,7 +13,7 @@ from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 import time
 
 class GnrWebLocalizer(GnrBaseProxy):
-    """A class for add??? """
+    """A class for handle the site localization and the translation for :ref:`languages`"""
     def init(self, **kwargs):
         """add???"""
         self.locale = self.page.locale

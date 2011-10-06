@@ -154,4 +154,4 @@
 .. automodule:: gnr.core.gnrbag
     :members:
     
-    :synopsis: the foundamental data structure in GenroPy.
+    :synopsis: the foundamental data structure in GenroPy

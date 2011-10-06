@@ -295,16 +295,15 @@ class GnrSqlDb(GnrObject):
             return dict(host=self.host, database=self.dbname, user=self.user, password=self.password, port=self.port)
             
     def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False, dbtable=None):
-        """Execute the sql statement using given kwargs
+        """Execute the sql statement using given kwargs. Return the sql cursor
         
-        :param sql: the sql statement.
-        :param sqlargs: optional sql arguments. 
-        :param cursor: an sql cursor. 
-        :param cursorname: the name of the cursor. 
+        :param sql: the sql statement
+        :param sqlargs: optional sql arguments
+        :param cursor: an sql cursor
+        :param cursorname: the name of the cursor
         :param autocommit: if ``True``, at the end of the execution runs the :meth:`commit()` method.
                            Default value is ``False``
-        :param dbtable: the :ref:`table`...add??? . 
-        :returns: the sql cursor"""
+        :param dbtable: the :ref:`database table <table>`"""
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
         envargs = dict([('env_%s' % k, v) for k, v in self.currentEnv.items()])
@@ -356,10 +355,10 @@ class GnrSqlDb(GnrObject):
         return cursor
         
     def insert(self, tblobj, record, **kwargs):
-        """Insert a record in a table.
+        """Insert a record in a :ref:`table`
         
         :param tblobj: the table object
-        :param record: an object implementing dict interface as colname, colvalue."""
+        :param record: an object implementing dict interface as colname, colvalue"""
         tblobj.checkPkey(record)
         tblobj.protect_validate(record)
         tblobj._doFieldTriggers('onInserting', record)
@@ -373,12 +372,12 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_onInserted(record)
         
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
-        """Update a table's record.
+        """Update a :ref:`table`'s record
         
         :param tblobj: the table object
         :param record: an object implementing dict interface as colname, colvalue
-        :param old_record: the record to be overwritten. 
-        :param pkey: the record primary key. """
+        :param old_record: the record to be overwritten
+        :param pkey: the record :ref:`primary key <pkey>`"""
         tblobj.protect_update(record, old_record=old_record)
         tblobj.protect_validate(record, old_record=old_record)
         tblobj._doFieldTriggers('onUpdating', record)
@@ -392,7 +391,7 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_onUpdated(record, old_record=old_record)
         
     def delete(self, tblobj, record, **kwargs):
-        """Delete a record from the table
+        """Delete a record from the :ref:`table`
         
         :param tblobj: the table object
         :param record: an object implementing dict interface as colname, colvalue"""

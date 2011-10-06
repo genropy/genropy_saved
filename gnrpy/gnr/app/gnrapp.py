@@ -172,8 +172,8 @@ class GnrSqlAppDb(GnrSqlDb):
         
         :param tblobj: the table object
         :param record: add???
-        :param old_record: add???. 
-        :param pkey: the record primary key. """
+        :param old_record: add???
+        :param pkey: the record :ref:`primary key <pkey>`"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.update(self, tblobj, record, old_record=old_record, pkey=pkey,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'U', old_record)
@@ -181,10 +181,8 @@ class GnrSqlAppDb(GnrSqlDb):
     def insert(self, tblobj, record, **kwargs):
         """add???
 
-        :param tblobj: the table object
-        :param record: add???
-        :returns: add???
-        """
+        :param tblobj: the :ref:`table` object
+        :param record: add???"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.insert(self, tblobj, record,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'I')
@@ -192,10 +190,8 @@ class GnrSqlAppDb(GnrSqlDb):
     def getResource(self, tblobj, path):
         """add???
 
-        :param tblobj: the table object
-        :param path: add???
-        :returns: add???
-        """
+        :param tblobj: the :ref:`table` object
+        :param path: add???"""
         app = self.application
         resource = app.site.loadResource(tblobj.pkg.name, 'tables', tblobj.name, path)
         resource.site = app.site

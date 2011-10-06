@@ -499,7 +499,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param locale: the current locale (e.g: en, en_us, it)
         :param format: add???
         :param mask: add???
-        :param encoding: add???
+        :param encoding: the encoding type
         :param dtype: the :ref:`datatype`"""
         locale = locale or self.locale
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)

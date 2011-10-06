@@ -7,4 +7,6 @@
 .. toctree::
     :maxdepth: 1
     
+    apphandler
+    gnrbaseproxy
     localizer
