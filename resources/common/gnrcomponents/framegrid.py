@@ -70,6 +70,6 @@ class FrameGrid(BaseComponent):
                                 datapath='.grid',selectedId='.selectedId',
                                 struct=struct,sortedBy='^.sorted',table=table,
                                 selfsubscribe_delrow='this.widget.deleteRows();',
-                                 _newGrid=True,**grid_kwargs)
+                                 **grid_kwargs)
         return frame
         
