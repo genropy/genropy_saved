@@ -29,7 +29,7 @@ class Thermo(BaseComponent):
     def thermoNewDialog(self, pane, thermoId='thermo', title='', thermolines=1, fired=None, pollingFreq=1):
         dlgid = 'dlg_%s' % thermoId
         d = pane.dialog(nodeId=dlgid, title=title, width='27em', datapath='_thermo.%s' % thermoId,
-                        closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop',
+                        closable='ask', close_msg='!!Stop the batch execution?', close_confirm='Stop',
                         close_cancel='Continue',
                         close_action='genro.setInServer("thermo_%s_stop", true);' % thermoId)
         for x in range(thermolines):

@@ -103,11 +103,10 @@ class ThermoUtils(BaseComponent):
     def OLD_thermoDialog(self, pane, thermoId='thermo', title='', thermolines=1, fired=None, alertResult=False):
         dlgid = 'dlg_%s' % thermoId
         dlg = pane.dialog(nodeId=dlgid, title=title, datapath='_thermo.%s.result' % thermoId,
-                          closable='ask', close_msg='!!Stop the batch execution ?', close_confirm='Stop',
+                          closable='ask', close_msg='!!Stop the batch execution?', close_confirm='Stop',
                           close_cancel='Continue',
                           close_action='FIRE ^_thermo.%s.flag = "stop"' % thermoId,
-                          connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.flag")}, 500)' % thermoId
-                          ,
+                          connect_show='this.intervalRef = setInterval(function(){genro.fireEvent("_thermo.%s.flag")}, 500)' % thermoId,
                           connect_hide='clearInterval(this.intervalRef);')
         #onAskCancel
         bc = dlg.borderContainer(width='330px', height='%ipx' % (100 + thermolines * 40))
