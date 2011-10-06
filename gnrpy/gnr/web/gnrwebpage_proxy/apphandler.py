@@ -823,7 +823,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             _eager_one = n.attr.get('_eager_one')
             if _eager_one is True or (_eager_one=='weak' and _eager_level==0):
                 attr=n.attr
-                target_fld=attr['_target_fld']
+                target_fld=str(attr['_target_fld'])
                 kwargs={}
                 kwargs[target_fld.split('.')[2]]=record[attr['_auto_relation_value']]
                 relatedRecord,relatedInfo = self.getRelatedRecord(from_fld=attr['_from_fld'], target_fld=target_fld, 
