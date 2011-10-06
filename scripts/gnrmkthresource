@@ -44,10 +44,8 @@ def writeViewClass(out_file, columns):
     write(out_file, "return '%s'"%columns[0][0], indent=2)
     write(out_file)
     write(out_file, "def th_query(self):", indent=1)
-    write(out_file, "return dict(column='%s',op='contains', val='%%',runOnStart=False)"%columns[0][0], indent=2)
+    write(out_file, "return dict(column='%s',op='contains', val='%%')"%columns[0][0], indent=2)
     write(out_file)
-    write(out_file, "def th_dialog(self):", indent=1)
-    write(out_file, "return dict(height='400px',width='600px')", indent=2)
     write(out_file)
     write(out_file)
     
@@ -61,7 +59,8 @@ def writeFormClass(out_file, columns):
         write(out_file, "fb.field('%s')"%column, indent=2)
     write(out_file)
     write(out_file)
-    
+    write(out_file, "def th_options(self):", indent=1)
+    write(out_file, "return dict(dialog_height='400px',dialog_width='600px')", indent=2)
     
 def createResourceFile(app, package, table, option_name, option_output, option_force):
     packageFolder = app.packages(package).packageFolder
