@@ -61,15 +61,16 @@ class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
     @extract_kwargs(top=True,grid=True)
     @struct_method
-    def fgr_frameGrid(self,pane,frameCode=None,struct=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,**kwargs):
+    def fgr_frameGrid(self,pane,frameCode=None,struct=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,storepath=None,**kwargs):
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
         frame.includedView(autoWidth=False,
-                                datapath='.grid',selectedId='.selectedId',
-                                struct=struct,sortedBy='^.sorted',table=table,
-                                selfsubscribe_delrow='this.widget.deleteRows();',
-                                 **grid_kwargs)
+                          storepath=storepath,
+                          datapath='.grid',selectedId='.selectedId',
+                          struct=struct,sortedBy='^.sorted',table=table,
+                          selfsubscribe_delrow='this.widget.deleteRows();',
+                          **grid_kwargs)
         return frame
         
