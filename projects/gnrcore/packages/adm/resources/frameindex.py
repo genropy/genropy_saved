@@ -100,9 +100,9 @@ class Mixin(BaseComponent):
         sb = pane.slotBar('5,appName,*,frameurl,*,user,logout,5',_class='framefooter',margin_top='1px')
         appPref = sb.appName.div('^gnr.app_preference.adm.instance_data.owner_name',_class='footer_block',
                                 connect_onclick='PUBLISH app_preference',zoomUrl='adm/app_preference',pkey='Application preference')
-        userPref = sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',
-                            connect_onclick='PUBLISH user_preference',zoomUrl='adm/user_preference',pkey='User preference')
-        sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px')
+        userPref = sb.user.div(self.user if not self.isGuest else 'guest', _class='footer_block',tip='!!%s preference' % (self.user if not self.isGuest else 'guest'),
+                               connect_onclick='PUBLISH user_preference',zoomUrl='adm/user_preference',pkey='User preference')
+        sb.logout.div(connect_onclick="genro.logout()",_class='application_logout',height='16px',width='20px',tip='!!Logout')
         formula = '==(_iframes && _iframes.len()>0)?_iframes.getNode(_selectedFrame).attr.url:"";'
         sb.frameurl.div().a(innerHTML=formula,_tags='_DEV_',href=formula,_iframes='=iframes',_selectedFrame='^selectedFrame')
         appPref.dataController("""genro.dlg.zoomPalette(pane,null,{top:'10px',left:'10px',

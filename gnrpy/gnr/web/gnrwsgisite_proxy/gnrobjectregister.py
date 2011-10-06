@@ -113,7 +113,9 @@ class ServerStore(object):
 
 
     def set_datachange(self, path, value=None, attributes=None, fired=False, reason=None, replace=False, delete=False):
-        datachanges = self.datachanges;
+        if not self.register_item:
+            return
+        datachanges = self.datachanges
         self.register_item['datachanges_idx'] = self.register_item.get('datachanges_idx', 0)
         self.register_item['datachanges_idx'] += 1
         datachange = ClientDataChange(path, value, attributes=attributes, fired=fired,
