@@ -46,7 +46,7 @@ GnrCustomWebPage
     #. You may insert some optional :ref:`webpages_variables`. Here we introduce
        the most commonly used:
        
-        * :ref:`webpages_maintable`: allow to link your webpage to a :ref:`table`
+        * :ref:`maintable`: allow to link your webpage to a :ref:`table`
         * :ref:`webpages_py_requires`: allow to include some Genro
           :ref:`components` to your webpage (or, more generally, Python modules)
         * :ref:`webpages_js_requires`: allow to include some javascript functionality
@@ -193,7 +193,7 @@ webpage variables
     * Polling variables: :ref:`webpages_auto_polling`, :ref:`webpages_user_polling`
     * Other variables: :ref:`webpages_auth_tags`, :ref:`webpages_eagers`,
       :ref:`webpages_gnrjsversion`,
-      :ref:`webpages_maintable`, :ref:`webpages_recordlock`
+      :ref:`maintable`, :ref:`webpages_recordlock`
       
     .. _webpages_py_requires:
     
@@ -404,7 +404,7 @@ gnrjsversion
     
         gnrjsversion = '11'
         
-    .. _webpages_maintable:
+    .. _maintable:
 
 maintable
 ---------

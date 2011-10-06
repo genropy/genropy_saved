@@ -169,11 +169,11 @@ th_webpage
         maintable = 'packageName.tableName'
         
     This line it is not mandatory, because a :ref:`webpage` (or a ``th_webpage``)
-    is related to a table through its :ref:`webpages_maintable` (a :ref:`webpages_variables`)
+    is related to a table through its :ref:`maintable` (a :ref:`webpages_variables`)
     or through the :ref:`dbtable` attribute (defined inside one of the :ref:`webpage_elements_index`).
     If you define the ``maintable``, then you have defined the standard value for all the
     :ref:`dbtable` attributes of your :ref:`webpage_elements_index` that support it. Check for more
-    information the :ref:`webpages_maintable` and the :ref:`dbtable` pages
+    information the :ref:`maintable` and the :ref:`dbtable` pages
     
 .. _th_webpage_methods:
     

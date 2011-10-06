@@ -1121,8 +1121,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param kwargs: the kw arguments
-        :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
-                         value of the *locale* parameter"""
+        :param workdate: the :ref:`workdate`"""
         catalog = self.gnrapp.catalog
         result = dict(kwargs)
         for k, v in kwargs.items():

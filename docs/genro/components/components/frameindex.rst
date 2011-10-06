@@ -82,8 +82,9 @@ creation of a FrameIndex page
 
 create a standard GnrCustomWebpage
 ----------------------------------
-    
-    Let's see the code to initiate a :ref:`gnrcustomwebpage` [#]_:
+
+    Let's see the code to initiate a GnrCustomWebpage (you can find more information on the
+    following two points in the :ref:`gnrcustomwebpage` page):
     
     #. First of all, you have to write some introductory lines::
        
@@ -315,7 +316,7 @@ menu plug-in
 batch monitor
 -------------
 
-    This frame includes the list of all the executed batch... add???
+    This frame includes the list of all the :ref:`batches <batch>` in execution or executed
     
     .. image:: ../../_images/components/frameindex/fi_left_batch.png
     
@@ -324,7 +325,7 @@ batch monitor
 chat plug-in
 ------------
 
-    This frame includes the chat... add???
+    This frame includes the GUI of the :ref:`chat` component
     
     .. image:: ../../_images/components/frameindex/fi_left_chat.png
     
@@ -333,7 +334,7 @@ chat plug-in
 central pane
 ------------
     
-    The central pane is used to display the content of your :ref:`webpages <webpage>`.
+    The central pane is used to display the content of your :ref:`webpages <webpage>`
     
 .. _fi_bottombar:
 
@@ -342,12 +343,20 @@ bottom bar
 
     .. image:: ../../_images/components/frameindex/fi_bottom.png
     
-    The bottom bar has got a link that allow the user to disconnect himself from the
-    application (point 1). This link is represented by a word with the :ref:`package
-    <packages_index>` name (in the image the package name is ``invoice``).
+    The bottom bar has got:
     
-    You can customize it by ... add???
-    
-**Footnotes**:
+    * (point 1) A link that opens the :ref:`fi_userpreference` dialog; the link is
+      represented by the name of the logged people or by the :ref:`package <packages_index>`
+      name (in the image ``invoice`` is the package name)
+    * (point 2) A link that allow the user to disconnect himself from the application (in the
+      image the open door with the green arrow)
+      
+.. _fi_userpreference:
 
-.. [#] More information on points 1 and 2 in the :ref:`gnrcustomwebpage` section
+user preference
+---------------
+
+    .. image:: ../../_images/components/frameindex/userpreference.png
+    
+    add???
+    

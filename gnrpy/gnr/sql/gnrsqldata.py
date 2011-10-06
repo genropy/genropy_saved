@@ -55,7 +55,7 @@ class SqlCompiledQuery(object):
         """Initialize the SqlCompiledQuery class
         
         :param maintable: the name of the main table to query. For more information, check the
-                          :ref:`webpages_maintable` section.
+                          :ref:`maintable` section.
         :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
                              check the :ref:`relationdict` documentation section"""
         self.maintable = maintable

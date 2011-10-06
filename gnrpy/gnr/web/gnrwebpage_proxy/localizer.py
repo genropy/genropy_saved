@@ -13,7 +13,9 @@ from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 import time
 
 class GnrWebLocalizer(GnrBaseProxy):
+    """A class for handle the site localization and the translation for :ref:`languages`"""
     def init(self, **kwargs):
+        """add???"""
         self.locale = self.page.locale
         if '-' in self.locale:
             self.locale = self.locale.split('-')[0]
@@ -21,6 +23,7 @@ class GnrWebLocalizer(GnrBaseProxy):
         self.missingLoc = False
 
     def event_onEnd(self):
+        """add???"""
         with self.page.pageStore() as store:
             localization = {}
             localization.update(store.getItem('localization') or {})
@@ -28,6 +31,9 @@ class GnrWebLocalizer(GnrBaseProxy):
             store.setItem('localization', localization)
 
     def translateText(self, txt):
+        """add???
+        
+        :param txt: add???"""
         application = self.page.application
         key = '%s|%s' % (self.page.packageId, txt.lower())
         localelang = self.locale
@@ -48,8 +54,7 @@ class GnrWebLocalizer(GnrBaseProxy):
             self.localizer_dict[key] = application.localization[key]
             self.missingLoc = self.missingLoc or missingLoc
         return txt
-
-
+        
     def _translateMissing(self, txt):
         if not self.page.packageId: return
         missingpath = os.path.join(self.page.siteFolder, 'data', '_missingloc', self.page.packageId)
@@ -78,11 +83,15 @@ class GnrWebLocalizer(GnrBaseProxy):
     #### BEGIN: RPC Section ##########
 
     def rpc_pageLocalizationSave(self, data, **kwargs):
+        """add???
+        
+        :param data: add???"""
         self.page.application.updateLocalization(self.page.packageId, data, self.locale)
         self.page.siteStatus['resetLocalizationTime'] = time.time()
         self.page.siteStatusSave()
 
     def rpc_pageLocalizationLoad(self):
+        """add???"""
         loc = self.page.pageStore().getItem('localization')
         b = Bag()
         loc_items = loc.items()
@@ -94,4 +103,4 @@ class GnrWebLocalizer(GnrBaseProxy):
             b['r_%i.key' % j] = k
             b['r_%i.txt' % j] = v.get(self.locale)
         return b
-        #### BEGIN: RPC Section ##########
+        
