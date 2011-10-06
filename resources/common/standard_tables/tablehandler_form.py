@@ -217,7 +217,7 @@ class TableHandlerForm(BaseComponent):
     def formToolbar(self, pane):
         tb = pane.toolbar(_class='th_toolbar')
         self.confirm(pane, title='!!Confirm record deletion', width='50em',
-                     msg='!!Are you sure to delete ?',
+                     msg='!!Are you sure to delete?',
                      btn_ok='!!Delete', btn_cancel='!!Cancel',
                      action_ok='FIRE form.doDeleteRecord',
                      fired='^form.deleteRecord')

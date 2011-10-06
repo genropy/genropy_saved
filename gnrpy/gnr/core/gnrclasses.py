@@ -331,8 +331,7 @@ class GnrClassCatalog(object):
         """Add???
             
         :param txt: add???
-        :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
-                         value of the *locale* parameter"""
+        :param workdate: the :ref:`workdate`"""
         splitted = gnrstring.wordSplit(txt)
         result = datetime.datetime(*[int(el) for el in splitted])
         return result
@@ -341,8 +340,7 @@ class GnrClassCatalog(object):
         """Add???
             
         :param txt: add???
-        :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
-                         value of the *locale* parameter"""
+        :param workdate: the :ref:`workdate`"""
         if txt != '0000-00-00':
             if txt and ISO_MATCH.match(txt):
                 return datetime.date(*[int(el) for el in gnrstring.wordSplit(txt)[0:3]])

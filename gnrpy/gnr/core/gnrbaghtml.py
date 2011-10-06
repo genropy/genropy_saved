@@ -89,7 +89,7 @@ class BagToHtml(object):
             return 'Landscape'
         else:
             return 'Portrait'
-        
+            
     def __call__(self, record=None, filepath=None, folder=None, filename=None, hideTemplate=False, rebuild=True,
                  htmlContent=None, **kwargs):
         """Return the html corresponding to a given record. The html can be loaded from
@@ -128,7 +128,8 @@ class BagToHtml(object):
         return result
         
     def get_css_requires(self):
-        """Get the :ref:`css_requires` and return it"""
+        """Get the :ref:`"css_requires" webpage variable <css_requires>` in its string format
+        and return it as a list"""
         return self.css_requires.split(',')
         
     def prepareTemplates(self):

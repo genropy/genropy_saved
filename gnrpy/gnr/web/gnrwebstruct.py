@@ -1754,7 +1754,7 @@ class GnrGridStruct(GnrStructData):
         :param cls: add???
         :param page: add???
         :param maintable: the table to which the struct refers to. For more information,
-                          check the :ref:`webpages_maintable` section.
+                          check the :ref:`maintable` section.
         :param source: add???. 
         :returns: add???
         """

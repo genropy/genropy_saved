@@ -9,6 +9,7 @@ index of components
 .. toctree::
     :maxdepth: 1
     
+    chat
     IncludedView <includedview>
     frameindex
     linkerField

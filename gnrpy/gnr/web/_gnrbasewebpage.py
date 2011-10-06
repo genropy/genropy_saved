@@ -64,9 +64,7 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param name: add???
-        :param value: add???
-        :returns: add???
-        """
+        :param value: add???"""
         return self.request.newCookie(name, value, **kw)
         
     def newMarshalCookie(self, name, value, secret=None, **kw):
@@ -74,9 +72,7 @@ class GnrBaseWebPage(GnrObject):
         
         :param name: add???
         :param value: add???
-        :param secret: add???. 
-        :returns: add???
-        """
+        :param secret: add???"""
         return self.request.newMarshalCookie(name, value, secret=secret, **kw)
         
     def get_cookie(self, cookieName, cookieType, secret=None, path=None):
@@ -84,17 +80,14 @@ class GnrBaseWebPage(GnrObject):
         
         :param cookieName: add???
         :param cookieType: add???
-        :param secret: add???. 
-        :param path: add???. 
-        :returns: add???
-        """
+        :param secret: add???
+        :param path: add???"""
         return self.request.get_cookie(cookieName, cookieType, secret=secret, path=path)
         
     def add_cookie(self, cookie):
         """add???
         
-        :param cookie: add???
-        """
+        :param cookie: add???"""
         self.response.add_cookie(cookie)
         
     def _get_clientContext(self):
@@ -130,8 +123,7 @@ class GnrBaseWebPage(GnrObject):
         """A :ref:`datarpc`. add???
         
         :param datestr: add???
-        :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
-                         value of the *locale* parameter
+        :param workdate: the :ref:`workdate`
         :param locale: the current locale (e.g: en, en_us, it)"""
         workdate = workdate or self.workdate
         locale = locale or self.locale
@@ -595,7 +587,7 @@ class GnrBaseWebPage(GnrObject):
                       :param table: MANDATORY - string. You can put the following strings:
                       
                                     * *maintable*: set a parameter value of a column of the table you define in the
-                                      :ref:`webpages_maintable` :ref:`webpage variable <webpages_variables>`
+                                      :ref:`maintable` :ref:`webpage variable <webpages_variables>`
                                     
                                           **Example:** if you have a package called ``agenda`` and a :ref:`table`
                                           called ``staff`` and write in your :ref:`webpage`::

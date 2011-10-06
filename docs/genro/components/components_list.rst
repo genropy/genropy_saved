@@ -18,12 +18,13 @@ components list
     
     **Index pages**: management of the index page of your project
     
-    * :ref:`frameindex`: it allows to handle your :ref:`webpage` as iframes of the main
+    * :ref:`frameindex`: it allows to handle your :ref:`webpages <webpage>` as iframes of the main
       page (for more information on the login page, check the :ref:`methods_loginUrl` section)
       
     **View/Form handler**: a preconceived interface with a View class for the view of the inserted
     records and a Form class for the records insertion.
     
+    * the :ref:`chat` component
     * :ref:`includedview`: **deprecated** since version *0.7* and replaced by the :ref:`th`
     * the :ref:`th`: add???
     

@@ -276,6 +276,11 @@ class GnrWebPage(GnrBaseWebPage):
 
     @public_method
     def setWorkdate(self,workdate=None):
+        """Set the :ref:`workdate` and return it
+        
+        ``setWorkdate()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
+        
+        :param workdate: the :ref:`workdate`"""
         if workdate:
             self.workdate = workdate
         return self.workdate
@@ -330,12 +335,15 @@ class GnrWebPage(GnrBaseWebPage):
     def mixinComponent(self, *path,**kwargs):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object
-        :param \*path: add???
-        :param \*\*kwargs: add???"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
         
-    def tableTemplate(self,table=None,tplname=None,ext='html'):
+    def tableTemplate(self, table=None, tplname=None, ext='html'):
+        """add???
+        
+        :param table: the :ref:`table` name
+        :param tplname: add???
+        :param ext: add???"""
         result = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=ext)
         if ext=='xml':
             result = Bag(result)['#0']
@@ -352,8 +360,8 @@ class GnrWebPage(GnrBaseWebPage):
         * The user exists and his password is correct.
         * The user is a guest
         
-        :param login: add???. 
-        :param guestName: add???. """
+        :param login: add???
+        :param guestName: add???"""
         loginPars = {}
         if guestName:
             avatar = self.application.getAvatar(guestName)
@@ -376,8 +384,7 @@ class GnrWebPage(GnrBaseWebPage):
         return (login, loginPars)
         
     def onInit(self):
-        """add???"""
-        # subclass hook
+        """Hook method. add???"""
         pass
         
     def onIniting(self, request_args, request_kwargs):
@@ -392,14 +399,14 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param recordCluster: add???
         :param recordClusterAttr: add???
-        :param resultAttr: add???. """
+        :param resultAttr: add???"""
         pass
         
     def onSaved(self, record, resultAttr=None, **kwargs):
         """add???
         
         :param record: add???
-        :param resultAttr: add???. """
+        :param resultAttr: add???"""
         pass
         
     def onDeleting(self, recordCluster, recordClusterAttr):
@@ -438,9 +445,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.onEnd()
         
     def collectClientDatachanges(self):
-        """add???
-        
-        :returns: add???"""
+        """add???"""
         self._publish_event('onCollectDatachanges')
         result = self.site.get_datachanges(self.page_id, user=self.user,
                                            local_datachanges=self.local_datachanges)
@@ -528,12 +533,12 @@ class GnrWebPage(GnrBaseWebPage):
     def getPublicMethod(self, prefix, method):
         """add???
         
-        :param prefix: a string. The prefix of the method. It can be:
+        :param prefix: The method prefix. It can be:
                        
                        * 'remote': this prefix is used for the :ref:`dataremote`\s
                        * 'rpc': this prefix is used for the :ref:`datarpc`\s
                        
-        :param method: a string. add???"""
+        :param method: add???"""
         handler = None
         if ';' in method:
             mixin_info, method = method.split(';')
@@ -678,7 +683,7 @@ class GnrWebPage(GnrBaseWebPage):
         """Create a Grid Struct and return it.
         
         :param maintable: the table to which the struct refers to. For more information,
-                          check the :ref:`webpages_maintable` section."""
+                          check the :ref:`maintable` section"""
         return GnrGridStruct.makeRoot(self, maintable=maintable)
         
     def _get_folders(self):
@@ -703,8 +708,8 @@ class GnrWebPage(GnrBaseWebPage):
     def pageStore(self, page_id=None, triggered=True):
         """add???
         
-        :param page_id: add???. Deafult value is ``None``
-        :param triggered: boolean. add???. Deafult value is ``True``"""
+        :param page_id: add???
+        :param triggered: boolean. add???"""
         page_id = page_id or self.page_id
         return self.site.register.pageStore(page_id, triggered=triggered)
         
@@ -729,8 +734,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param storename: add???
         :param client_path: add???
-        :param active: boolean. add???
-        """
+        :param active: boolean. add???"""
         with self.pageStore() as store:
             subscriptions = store.getItem('_subscriptions')
             if subscriptions is None:
@@ -743,7 +747,7 @@ class GnrWebPage(GnrBaseWebPage):
     def clientPage(self, page_id=None):
         """add???
         
-        :param page_id: add???. """
+        :param page_id: add???"""
         return ClientPageHandler(self, page_id or self.page_id)
         
     def _get_pkgapp(self):
@@ -854,9 +858,13 @@ class GnrWebPage(GnrBaseWebPage):
         return self.css_icons
             
     def get_css_path(self, requires=None):
-        """Get the css path included in the :ref:`css_requires`.
+        """Get the path of the css resources, that are:
         
-        :param requires: If None, get the css_requires string included in a :ref:`webpage`"""
+        * the :ref:`css_icons <css_icons>`
+        * the :ref:`css_requires`
+        * the :ref:`css_theme <css_themes>`
+        
+        :param requires: add??? If None, get the css_requires string included in a :ref:`webpage`"""
         requires = [r for r in (requires or self.css_requires) if r]
         css_theme = self.get_css_theme() or 'aqua'
         css_icons = self.get_css_icons()
@@ -892,9 +900,8 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param ext: add???. """
+        :param ext: add???"""
         return self.site.resource_loader.getResourceList(self.resourceDirs, path, ext=ext)
-        
         
     def getResourceUriList(self, path, ext=None, add_mtime=False):
         """add???
@@ -917,14 +924,14 @@ class GnrWebPage(GnrBaseWebPage):
     def onServingCss(self, css_requires):
         """add???
         
-        :param css_requires: add???"""
+        :param css_requires: the :ref:`"css_requires" webpage variable <css_requires>`"""
         pass
         
     def getResourceUri(self, path, ext=None, add_mtime=False, pkg=None):
         """add???
         
         :param path: MANDATORY. A string with the path of the uri
-        :param ext: add???. 
+        :param ext: add???
         :param add_mtime: add???
         :param pkg: the :ref:`package <packages_index>` object"""
         fpath = self.getResource(path, ext=ext,pkg=pkg)
@@ -1017,6 +1024,12 @@ class GnrWebPage(GnrBaseWebPage):
             return result
 
     def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
+        """add???
+        
+        :param table: the :ref:`table` name
+        :param path: add???
+        :param value: add???
+        :param ext: add???"""
         pkg,table = table.split('.')    
         resourceContent = self.getResourceContent(resource='tables/_packages/%s/%s/%s' %(pkg,table,path),pkg=self.package.name,ext=ext)
         if not resourceContent:
@@ -1024,6 +1037,12 @@ class GnrWebPage(GnrBaseWebPage):
         return resourceContent
         
     def setTableResourceContent(self,table=None,path=None,value=None,ext=None):
+        """add???
+        
+        :param table: the :ref:`table` name
+        :param path: add???
+        :param value: add???
+        :param ext: add???"""
         pkg,table = table.split('.')
         path = self.site.getStatic('pkg').path(pkg,'tables',table,path,folder='resources')
         path = '%s.%s' %(path,ext)
@@ -1055,13 +1074,9 @@ class GnrWebPage(GnrBaseWebPage):
 
         :param table: the :ref:`table` name
         :param respath: add???
-        :param class_name: add???
-        :returns: add???
-        """
+        :param class_name: add???"""
         return self.site.loadTableScript(self, table=table, respath=respath, class_name=class_name)
-
-
-
+        
     def setPreference(self, path, data, pkg=''):
         """add???
         
@@ -1145,9 +1160,9 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param message: add???
-        :param page_id: add???. 
-        :param filters: add???. 
-        :param msg_path: add???. """
+        :param page_id: add???
+        :param filters: add???
+        :param msg_path: add???"""
         self.site.sendMessageToClient(message, pageId=pageId, filters=filters, origin=self, msg_path=msg_path)
         
     def _get_package_folder(self):
@@ -1157,7 +1172,7 @@ class GnrWebPage(GnrBaseWebPage):
     package_folder = property(_get_package_folder)
     
     def rpc_main(self, _auth=AUTH_OK, debugger=None, **kwargs):
-        """The first method loaded in a Genro application.
+        """The first method loaded in a Genro application
         
         :param \_auth: the page authorizations. For more information, check the :ref:`auth` page
         :param debugger: add???"""
@@ -1293,13 +1308,13 @@ class GnrWebPage(GnrBaseWebPage):
         return self.pageStore().getItem('')
         
     def mainLeftTop(self, pane):
-        """The main left top of the page.
+        """The main left top of the page
         
         :param pane: a :ref:`contentpane`"""
         pass
             
     def mainLeftContent(self, parentBC, **kwargs):
-        """the main left content of the page.
+        """The main left content of the page
         
         :param parentBC: the root parent :ref:`bordercontainer`"""
         plugin_list = getattr(self, 'plugin_list', None)
@@ -1350,6 +1365,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.site.onClosePage(self)
         
     def onClosePage(self):
+        """add???"""
         pass
         
     def pageFolderRemove(self):
@@ -1376,7 +1392,7 @@ class GnrWebPage(GnrBaseWebPage):
     def rpc_remoteBuilder(self, handler=None, **kwargs):
         """add???
         
-        :param handler: add???. """
+        :param handler: add???"""
         handler = self.getPublicMethod('remote', handler)
         if handler:
             pane = self.newSourceRoot()
@@ -1523,6 +1539,12 @@ class GnrWebPage(GnrBaseWebPage):
    
     @public_method
     def getSiteDocument(self,path,defaultContent=None,**kwargs):
+        """add???
+        
+        ``getSiteDocument()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
+        
+        :param path: add???
+        :param defaultContent: add???"""
         ext = os.path.splitext(path)[1]
         result = Bag()
         if not os.path.exists(path):
@@ -1547,10 +1569,9 @@ class GnrWebPage(GnrBaseWebPage):
     def addToContext(self, value=None, serverpath=None, clientpath=None):
         """add???
         
-        :param value: add???. 
-        :param serverpath: add???. 
-        :param clientpath: add???. 
-        """
+        :param value: add???
+        :param serverpath: add???
+        :param clientpath: add???"""
         self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
         
     def _createContext(self, root, pendingContext):
@@ -1650,8 +1671,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param bag: a :ref:`bag`
         :param name: add???
-        :param location: add???
-        :returns: add???"""
+        :param location: add???"""
         freeze_path = self.site.getStaticPath(location, name, autocreate=-1)
         bag.makePicklable()
         bag.pickle('%s.pik' % freeze_path)
@@ -1741,7 +1761,6 @@ class GnrGenshiPage(GnrWebPage):
         
 class ClientPageHandler(object):
     """proxi to make actions on a client page"""
-        
     def __init__(self, parent_page, page_id=None):
         self.parent_page = parent_page
         self.page_id = page_id or parent_page.page_id
@@ -1765,6 +1784,10 @@ class ClientPageHandler(object):
         
     def copyData(self, srcpath, dstpath=None, page_id=None):
         """add???
+        
+        :param srcpath: add???
+        :param dstpath: add???
+        :param page_id: add???
         
         Let's see some examples::
         

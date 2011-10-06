@@ -95,7 +95,7 @@ class BaseResourceBatch(object):
         
         :param updater: add???
         :param table: the :ref:`database table <table>` you specify or the
-                      :ref:`maintable webpage variable <webpages_maintable>`
+                      :ref:`maintable webpage variable <maintable>`
         :param where: add???
         :param line_code: add???
         :param message: add???"""

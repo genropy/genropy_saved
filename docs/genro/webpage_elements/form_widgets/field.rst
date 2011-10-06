@@ -51,7 +51,7 @@ attributes
     
     * *field*: MANDATORY - the field's query path; the complete syntax is ``packageName.tableName.tableAttributeName``.
       It can be used in a combo with *dbtable* attribute (a ``formbuilder`` attribute) and with the ``maintable``.
-      For more information, check the :ref:`webpages_maintable` section.
+      For more information, check the :ref:`maintable` section.
     * *limit*: The max number of rows displayed in a field as response to user request.
       The last line is always a line with no characters, so user can choose it to not perform his request
     * *lbl*: Set the Field label. Properly, "lbl" is a formbuilder's child attribute, so if you don't specify

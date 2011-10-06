@@ -12,6 +12,7 @@
     gnrbaseclasses
     gnrcookie
     gnrwebpage
+    gnrwebpage_proxy/index
     gnrwebstruct
     gnrwebutils
     gnrwsgisite
