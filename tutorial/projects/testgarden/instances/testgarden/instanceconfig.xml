@@ -6,6 +6,7 @@
         <gnrcore:test15/>
         <gnrcore:adm/>
         <gnrcore:task/>
+        <gnrcore:email/>
     </packages>
     <authentication pkg='adm'>
         <py_auth defaultTags="user" pkg="adm" method="authenticate"/>
