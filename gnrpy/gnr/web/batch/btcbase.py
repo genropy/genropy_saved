@@ -95,7 +95,7 @@ class BaseResourceBatch(object):
         
         :param updater: add???
         :param table: the :ref:`database table <table>` you specify or the
-                      :ref:`maintable webpage variable <webpages_maintable>`
+                      :ref:`maintable webpage variable <maintable>`
         :param where: add???
         :param line_code: add???
         :param message: add???"""
@@ -180,7 +180,7 @@ class BaseResourceBatch(object):
     def get_record(self, pkey, virtual_columns=None):
         """add???
         
-        :param pkey: add???
+        :param pkey: the record :ref:`primary key <pkey>`
         :param virtual_columns: the :ref:`virtual_columns` webpage variable"""
         return self.tblobj.record(pkey=pkey, virtual_columns=self.virtual_columns).output('bag')
 

@@ -54,7 +54,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
     """Parse a string representing a date or a period.
     
     :param datestr: the string to be interpreted
-    :param workdate: a date of reference to calculate relative periods (e.g: tomorrow; e.g: this week)
+    :param workdate: the :ref:`workdate`
     :param months: names of months according to locale (just for caching)
     :param days: names of weekdays according to locale (just for caching)
     :param quarters: names of quarters according to locale (just for caching)
@@ -256,8 +256,7 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     * a single expression representing a single date: e.g. today returns ``'2008-04-28'``
     
     :param datestr: add???
-    :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
-                     value of the *locale* parameter
+    :param workdate: the :ref:`workdate`
     :param locale: the current locale (e.g: en, en_us, it)
     :param returnDate: add???
     :param dtype: the :ref:`datatype`"""
@@ -401,8 +400,7 @@ def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
     :param period: add???
     :param wkdlist: add???
     :param locale: the current locale (e.g: en, en_us, it)
-    :param workdate: the working date. (e.g: ``MM/DD/YYYY``). The date format depends on the
-                     value of the *locale* parameter
+    :param workdate: the :ref:`workdate`
     :param asDate: add???. Default value is ``True``"""
     dstart, dstop = decodeDatePeriod(period, returnDate=True, locale=locale, workdate=workdate)
     itr = rrule.rrule(rrule.DAILY, dtstart=dstart, until=dstop, byweekday=wkdlist)

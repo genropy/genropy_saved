@@ -310,11 +310,10 @@ class DbModelSrc(GnrStructData):
               comment=None,
               name_short=None, name_long=None, name_full=None,
               **kwargs):
-        """Add a database table to the structure and returns it. To get information on the creation
-        of a table and all its methods, check the :ref:`table` page.
+        """Add a :ref:`database table <table>` to the structure and returns it
         
-        :param name: the table name
-        :param pkey: the record primary key. For more information, check the :ref:`pkey` section
+        :param name: the :ref:`table` name
+        :param pkey: the record :ref:`primary key <pkey>`
         :param lastTS: the date of the last modification (TS = timestamp)
         :param rowcaption: add???
         :param sqlname: add???
@@ -341,7 +340,7 @@ class DbModelSrc(GnrStructData):
                name_short=None, name_long=None, name_full=None,
                group=None, onInserting=None, onUpdating=None, onDeleting=None,
                **kwargs):
-        """Insert a :ref:`table_column` into a table.
+        """Insert a :ref:`table_column` into a :ref:`table`
         
         :param name: the column name. You can specify both the name and the :ref:`datatype`
                      using the following syntax: ``'name::datatype'``

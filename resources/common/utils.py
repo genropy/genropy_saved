@@ -20,9 +20,7 @@
 # 
 import os
 from gnr.core.gnrbag import Bag
-
 from gnr.core.gnrstring import templateReplace
-
 
 class SendMail(object):
     def sendMailTemplate(self, tpl, mailto, params, locale=None, **kwargs):

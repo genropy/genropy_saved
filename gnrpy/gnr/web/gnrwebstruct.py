@@ -922,7 +922,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param path: add???
         :param table: the :ref:`table` name
-        :param pkey: the record primary key. 
+        :param pkey: the record :ref:`primary key <pkey>`
         :param method: add???. Default value is ``app.getRecord``
         :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                            check the :ref:`rpc_attributes` section"""
@@ -1754,7 +1754,7 @@ class GnrGridStruct(GnrStructData):
         :param cls: add???
         :param page: add???
         :param maintable: the table to which the struct refers to. For more information,
-                          check the :ref:`webpages_maintable` section.
+                          check the :ref:`maintable` section.
         :param source: add???. 
         :returns: add???
         """

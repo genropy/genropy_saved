@@ -175,7 +175,7 @@ class Dialogs(BaseComponent):
         center = container.borderContainer(region='center')
         return center
 
-    def confirm(self, pane, dlgId=None, title='!!Confirm', msg='!!Are you sure ?',
+    def confirm(self, pane, dlgId=None, title='!!Confirm', msg='!!Are you sure?',
                 width='30em', height='20ex', fired=None,
                 btn_ok='!!Confirm', action_ok=None, btn_cancel='!!Cancel', action_cancel=None, **kwargs):
         """@old

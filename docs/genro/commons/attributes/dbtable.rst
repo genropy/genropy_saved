@@ -26,7 +26,7 @@ definition and description
     the object including the *dbtable* attribute belongs to.
     
     * To define a default ``dbtable`` value for all the elements of your page that supports
-      it you can use the :ref:`webpage variable <webpages_variables>` called :ref:`webpages_maintable`.
+      it you can use the :ref:`webpage variable <webpages_variables>` called :ref:`maintable`.
       Clearly, if you define a *dbtable* attribute in a object, it prevails on the *maintable*
       
 .. _dbtable_syntax:

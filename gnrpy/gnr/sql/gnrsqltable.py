@@ -384,11 +384,11 @@ class SqlTable(GnrObject):
         * one or more conditions passed as kwargs (e.g. username='foo')
         * a "where" condition
          
-        :param pkey: the record primary key. 
-        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
-        :param lazy: add???. 
-        :param eager: add???. 
-        :param mode: bag, dict, json. 
+        :param pkey: the record :ref:`primary key <pkey>`
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
+        :param lazy: add???
+        :param eager: add???
+        :param mode: bag, dict, json
         :param relationDict: a dict to assign a symbolic name to a :ref:`relation_path`. For more information
                              check the :ref:`relationdict` documentation section
         :param ignoreMissing: add???
@@ -501,7 +501,7 @@ class SqlTable(GnrObject):
     def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
         """add???
         
-        :param pkey: the record primary key
+        :param pkey: the record :ref:`primary key <pkey>`
         :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
@@ -668,7 +668,7 @@ class SqlTable(GnrObject):
         
         :param record: add???
         :param old_record: add???
-        :param pkey: the record primary key"""
+        :param pkey: the record :ref:`primary key <pkey>`"""
         self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
         
     def writeRecordCluster(self, recordCluster, recordClusterAttr, debugPath=None):
@@ -1026,7 +1026,7 @@ class SqlTable(GnrObject):
     def copyToDbstore(self,pkey=None,dbstore=None,bagFields=True,**kwargs):
         """add???
         
-        :param pkey: add???
+        :param pkey: the record :ref:`primary key <pkey>`
         :param dbstore: add???
         :param bagFields: add???"""
         queryargs = kwargs
