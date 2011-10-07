@@ -75,7 +75,7 @@ TableHandler data levels
         
     where:
     
-    * ``packageName`` is the name of your :ref:`package <packages_index>`
+    * ``packageName`` is the name of your :ref:`package <packages>`
     * ``tableName`` is the name of your :ref:`table`
     
     .. image:: ../../../_images/components/th/path_data.png
@@ -157,7 +157,7 @@ form - data levels
       * **valid**: boolean, string. True if every :ref:`validation <validations>` is satisfied
       
     * **handler**: add???
-    * **record**: this level contains all the :ref:`columns <table_column>` of your :ref:`table`
+    * **record**: this level contains all the :ref:`columns <column>` of your :ref:`table`
       
       At the ``th/form/record`` level, the path of the data is::
         

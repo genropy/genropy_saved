@@ -98,7 +98,7 @@ search box
 
     .. image:: ../../../_images/components/th/search_box.png
     
-    In the search box user can select the :ref:`columns <table_column>` through which
+    In the search box user can select the :ref:`columns <column>` through which
     there will be made a query: a query allow to reduce the records visualized in the
     :ref:`th_gui_central_pane` in order to find the record one want to get.
     

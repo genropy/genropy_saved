@@ -38,8 +38,8 @@ class ModelExtractor(object):
     def buildTables(self, pkg, pkg_name):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object
-        :param pkg_name: the:ref:`package <packages_index>` name"""
+        :param pkg: the :ref:`package <packages>` object
+        :param pkg_name: the:ref:`package <packages>` name"""
         elements = self.dbroot.adapter.listElements('tables', schema=pkg_name)
         for tbl_name in elements:
             tbl = pkg.table(tbl_name)
@@ -51,7 +51,7 @@ class ModelExtractor(object):
         
         :param tbl: the :ref:`table` object
         :param pkg_name: the name of the package. For more information, check the
-                         :ref:`packages_index` documentation page
+                         :ref:`packages` documentation page
         :param tbl_name: the name of the database :ref:`table`"""
         columns = list(self.dbroot.adapter.getColInfo(schema=pkg_name, table=tbl_name))
         gnrlist.sortByItem(columns, 'position')
@@ -82,7 +82,7 @@ class ModelExtractor(object):
         
         :param tbl: the :ref:`table` object
         :param pkg_name: the name of the package. For more information, check the
-                         :ref:`packages_index` documentation page
+                         :ref:`packages` documentation page
         :param tbl_name: the name of the database :ref:`table`"""
         for ind in self.dbroot.adapter.getIndexesForTable(schema=pkg_name, table=tbl_name):
             if not ind['primary']:
@@ -156,7 +156,7 @@ class SqlModelChecker(object):
         """Check if the current package is contained by a not defined schema and then call the
         :meth:`_checkTable()` method for each table. Return a list containing sql statements
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         self._checkSqlSchema(pkg)
         if pkg.tables:
             for tbl in pkg.tables.values():

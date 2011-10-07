@@ -14,7 +14,7 @@ table
     * :ref:`table_def`
     * :ref:`table_creation`
     * :ref:`table_config_db`
-    * :ref:`table_columns`, :ref:`table_validations`
+    * :ref:`columns`, :ref:`table_validations`
     * :ref:`table_examples`
     
 .. _table_intro:
@@ -24,7 +24,7 @@ introduction
 
     A table is one of the most important part of your project. In relational databases and
     flat file databases, a table is a set of data elements that is organized using a model
-    of vertical :ref:`table_columns` (which are identified by their name) and horizontal
+    of vertical :ref:`columns` (which are identified by their name) and horizontal
     rows. Each row is identified by the table's primary key (:ref:`pkey`).
     
 .. _table_def:
@@ -223,20 +223,20 @@ htableFields
     
         self.htableFields(tbl)
     
-.. _table_columns:
+.. _columns:
 
 columns
 =======
 
     There are a lot of columns type you can use:
     
-    * the simple :ref:`table_column`
+    * the simple :ref:`column`
     * the :ref:`table_relation_column` (and the :ref:`table_relation`)
     * the :ref:`table_aliascolumn`
     * the :ref:`table_formulacolumn`
     * the :ref:`table_virtualcolumn`
 
-.. _table_column:
+.. _column:
 
 column
 ------
@@ -256,7 +256,7 @@ relation column
 
     The relation column is a column that allows to build relations between tables.
 
-    To create a relation column, you have to attach the :ref:`table_relation` to a :ref:`table_column`::
+    To create a relation column, you have to attach the :ref:`table_relation` to a :ref:`column`::
     
         tbl.column('my_column',size=':15',name_long='!!My column').relation(...)
         
@@ -335,7 +335,7 @@ validations in a column
 .. _bla_bla:
     
 section to revise
-===================
+=================
 
 .. _set_tagcolumn:
 

@@ -19,14 +19,14 @@ basic structure
     main project subfolders:
     
     * ``project`` folder
-        * :ref:`instances_index` folder - here lies all your instance folder.
+        * :ref:`instances` folder - here lies all your instance folder.
           Every instance folder has got:
           
           * a :ref:`instances_custom` folder
           * a :ref:`instances_data` folder
           * an :ref:`instances_instanceconfig` file
           
-        * :ref:`packages_index` folder - here lies all your package folder.
+        * :ref:`packages` folder - here lies all your package folder.
           Every package folder has got:
           
           * a :ref:`packages_lib` folder
@@ -34,11 +34,11 @@ basic structure
           * a :ref:`packages_menu` file
           * a :ref:`packages_model` folder
           * a :ref:`public_resources` folder
-          * a :ref:`packages_webpages` folder
+          * a :ref:`webpages` folder
               * one or more :ref:`webpages <webpage>`
                     
         * :ref:`private_resources` folder (for all your project :ref:`private resources <private_resource>`)
-        * :ref:`sites_index` folder - here lies all your sites folder.
+        * :ref:`sites` folder - here lies all your sites folder.
           Every site folder has got:
           
           * a :ref:`sites_pages` folder

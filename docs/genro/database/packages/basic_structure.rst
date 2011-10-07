@@ -44,7 +44,7 @@ autocreation of a package
     * a :ref:`packages_menu` file
     * a :ref:`packages_model` folder
     * a :ref:`public_resources` folder (for :ref:`public resources <public_resource>`)
-    * a :ref:`packages_webpages` folder
+    * a :ref:`webpages` folder
     
     In the following image you see the structure of a project called ``my_project`` with
     a package called ``base``:

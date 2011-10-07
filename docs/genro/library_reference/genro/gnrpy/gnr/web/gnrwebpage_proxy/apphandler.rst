@@ -1,8 +1,8 @@
 .. _library_apphandler:
 
-==========================================================================
-:mod:`gnr.web.gnrwebpage_proxy.apphandler` - Application handler utilities
-==========================================================================
+===============================================================================
+:mod:`gnr.web.gnrwebpage_proxy.apphandler` - Web applications handler utilities
+===============================================================================
     
     *Last page update*: |today|
     

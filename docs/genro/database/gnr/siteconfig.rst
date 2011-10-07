@@ -100,7 +100,7 @@ Tags
                     
                   Where:
                   
-                  * ``packageName`` is the name of the :ref:`package <packages_index>`
+                  * ``packageName`` is the name of the :ref:`package <packages>`
                     to which the page belongs to
                   * ``pageName`` is the name of the webpage (without the ``.py`` extension)
                   
@@ -132,7 +132,7 @@ Tags
     .. _mainpackage:
     
     * *mainpackage*: a string including the name of your main
-      :ref:`package <packages_index>`
+      :ref:`package <packages>`
       
     ::
     

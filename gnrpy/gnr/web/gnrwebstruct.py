@@ -803,7 +803,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param table: the :ref:`table` name
         :param storeCode: add???
         :param storepath: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section"""
         self.selectionStore(storeCode=storeCode,table=table, storepath=storepath,columns=columns,**kwargs)
@@ -814,7 +814,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param table: the :ref:`table` name
         :param storeCode: add???
         :param storepath: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section"""
         attr = self.attributes
@@ -857,7 +857,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param path: add???
         :param table: the :ref:`table` name
         :param method: add???. Default value is ``app.getSelection``
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
@@ -947,7 +947,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param path: add???
         :param resource: add???
         :param ext: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         self.dataRemote(path,'getResourceContent',resource=resource,ext=ext, pkg=pkg)
         
     def paletteGroup(self, groupCode, **kwargs):
@@ -980,7 +980,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode*
                             will be used as *datapath*
         :param struct: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param structpath: add???
@@ -1028,7 +1028,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param frameCode: add???
         :param struct: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param storepath: add???
@@ -1069,7 +1069,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param storepath: add???
         :param structpath: add???
         :param struct: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param table: the :ref:`table` name
@@ -1090,7 +1090,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param struct: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section"""
         gridattr=self.attributes
@@ -1922,7 +1922,7 @@ class GnrGridStruct(GnrStructData):
     def fields(self, columns, unit='em', totalWidth=None):
         """add???
         
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section.
         :param unit: the field unit. Default value is ``em``
@@ -1979,7 +1979,7 @@ class GnrGridStruct(GnrStructData):
     def getFieldNames(self, columns=None):
         """add???
         
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section. """
         if columns is None:

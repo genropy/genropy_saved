@@ -35,7 +35,7 @@ public resource
     
         projectName/packages/packageName/resources
         
-    where ``projectName`` is the name of your project, :ref:`packages_index` is
+    where ``projectName`` is the name of your project, :ref:`packages` is
     the folder that contains the packages, ``packageName`` is the name of your package,
     ``resources`` is the folder where you have to put your resources files.
     

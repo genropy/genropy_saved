@@ -160,7 +160,7 @@ class SqlTable(GnrObject):
     dbroot = db
         
     def column(self, name):
-        """Returns a :ref:`table_column` object.
+        """Returns a :ref:`column` object.
         
         :param name: A column's name or a :ref:`relation <relations>` starting from
                      the current :ref:`table`. (eg. ``@director_id.name``)"""
@@ -450,7 +450,7 @@ class SqlTable(GnrObject):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
         
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
@@ -502,7 +502,7 @@ class SqlTable(GnrObject):
         """add???
         
         :param pkey: the record :ref:`primary key <pkey>`
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
@@ -880,7 +880,7 @@ class SqlTable(GnrObject):
     def columnsFromString(self, columns=None):
         """add???
         
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section"""
         result = []
@@ -898,7 +898,7 @@ class SqlTable(GnrObject):
     def getQueryFields(self, columns=None, captioncolumns=None):
         """add???
         
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param captioncolumns: add???"""

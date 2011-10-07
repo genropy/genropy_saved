@@ -698,7 +698,7 @@ class GnrApp(object):
     def updateLocalization(self, pkg, data, locale):
         """add???
 
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param data: add???
         :param locale: the current locale (e.g: en, en_us, it)"""
         pkgobj = self.packages[pkg]
@@ -715,7 +715,7 @@ class GnrApp(object):
         """add???
 
         :param path: add???
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param locale: the current locale (e.g: en, en_us, it)"""
         if not pkg:
             pkg = self.config.getAttr('packages', 'default')

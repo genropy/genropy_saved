@@ -1,4 +1,4 @@
-.. _instances_index:
+.. _instances:
 
 =============
 ``instances``

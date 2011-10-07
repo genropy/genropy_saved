@@ -10,7 +10,7 @@
     
     The ``automap.xml`` file is automatically created on execution of the :ref:`gnrwsgiserve` script.
     
-    This XML file contains tags with all the :ref:`packages_index` of the :ref:`project` to which this
+    This XML file contains tags with all the :ref:`packages` of the :ref:`project` to which this
     file belongs to.
     
     In particular, the external file structure is::
@@ -27,7 +27,7 @@
         
     where:
     
-    * ``packageName`` is the name of the :ref:`package <packages_index>`
+    * ``packageName`` is the name of the :ref:`package <packages>`
     * ``fullPackageName`` is the name of the full package; the ``!!`` character allows to define
       multiple languages: for more information, check the :ref:`languages` section
       

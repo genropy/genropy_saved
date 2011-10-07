@@ -1,4 +1,4 @@
-.. _packages_webpages:
+.. _webpages:
 
 ============
 ``webpages``

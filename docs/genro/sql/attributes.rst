@@ -21,7 +21,7 @@ columns
 
     .. module:: gnr.sql.gnrsqldata.SqlQueryCompiler
     
-    The ``columns`` attribute represents the :ref:`table_columns` to be returned
+    The ``columns`` attribute represents the :ref:`columns` to be returned
     by the "SELECT" clause in the traditional sql query.
     
     It is a string of column names and :ref:`relations` separated by comma (you can use a
@@ -138,7 +138,7 @@ order_by
 where
 -----
 
-    The ``where`` attribute represents the table :ref:`table_columns` to be returned by the
+    The ``where`` attribute represents the table :ref:`columns` to be returned by the
     "SELECT" clause in the traditional sql query.
     
     Database columns can use one of the following syntaxes:

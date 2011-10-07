@@ -79,7 +79,7 @@ File location
     where:
     
     * ``projectName`` is the name of the :ref:`project`
-    * ``packages`` is the :ref:`packages_index` folder
+    * ``packages`` is the :ref:`packages` folder
     * ``packageName`` is the name of the package
     * ``resources`` is the :ref:`public_resources` folder
     * ``tables`` is the :ref:`resources_tables` folder

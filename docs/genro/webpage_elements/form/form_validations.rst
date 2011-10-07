@@ -32,7 +32,7 @@ introduction
     
     * The form can be saved only if all the validation requirements are satisfied.
     * You can use the validations on every single form's element of your
-      :ref:`webpage` or in a :ref:`table_column` of a :ref:`table`
+      :ref:`webpage` or in a :ref:`column` of a :ref:`table`
       of your :ref:`packages_model` folder, because the validations have been
       thought to use them in :ref:`webpage` but work great also in your
       :ref:`tables <table>`.

@@ -445,7 +445,7 @@ class GnrSqlDb(GnrObject):
     def package(self, pkg):
         """Return a package object
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         return self.model.package(pkg)
             
     def _get_packages(self):
@@ -481,7 +481,7 @@ class GnrSqlDb(GnrObject):
         """Return a table object
         
         :param tblname: the :ref:`database table <table>` name
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         return self.model.table(tblname, pkg=pkg).dbtable
             
     def query(self, table, **kwargs):

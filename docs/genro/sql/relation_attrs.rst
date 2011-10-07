@@ -24,7 +24,7 @@ group
 
     **definition and description**:
 
-    The *group* attribute allow to order the :ref:`columns <table_column>` in the Search Box of the
+    The *group* attribute allow to order the :ref:`columns <column>` in the Search Box of the
     action bar of the :ref:`th` component. For more information on the location of the Search Box,
     please check the :ref:`th_search_box` section.
     
@@ -81,7 +81,7 @@ group
 
     The *group* attribute works on:
 
-    * table :ref:`columns <table_column>`
+    * table :ref:`columns <column>`
     * the :ref:`sysfields` and the :ref:`set_tagcolumn` methods (a method of the
       :class:`gnr.app.gnrdbo.TableBase` class)
 

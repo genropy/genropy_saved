@@ -373,7 +373,7 @@ class SqlQueryCompiler(object):
                       addPkeyColumn=True):
         """Prepare the SqlCompiledQuery to get the sql query for a selection.
         
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
@@ -804,7 +804,7 @@ class SqlQuery(object):
     The ``__init__`` method passes:
     
     :param dbtable: the :ref:`table` on which the query will be focused on
-    :param columns: it represents the :ref:`table columns <table_columns>` to be returned by the "SELECT"
+    :param columns: it represents the :ref:`table columns <columns>` to be returned by the "SELECT"
                     clause in the traditional sql query. For more information, check the
                     :ref:`sql_columns` section
     :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
@@ -1182,7 +1182,7 @@ class SqlSelection(object):
                      * `mode='records'`: add???
                      * `mode='data'`: add???
                      * `mode='tabtext'`: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param offset: the same of the sql "OFFSET"
@@ -1490,7 +1490,7 @@ class SqlSelection(object):
         """add???
            
         :param path: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section. """
         if isinstance(columns, basestring):

@@ -1,4 +1,4 @@
-.. _packages_index:
+.. _packages:
 
 ============
 ``packages``

@@ -179,9 +179,9 @@ class DbModel(object):
     def checkRelationIndex(self, pkg, table, column):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param table: the :ref:`table` name
-        :param column: the table :ref:`table_column`"""
+        :param column: the table :ref:`column`"""
         tblobj = self.table(table, pkg=pkg)
         indexname = '%s_%s_key' % (table, column)
         if column != tblobj.pkey and not indexname in tblobj.indexes:
@@ -235,7 +235,7 @@ class DbModel(object):
     def packageMixin(self, pkg, obj):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param obj: add???"""
         self._doMixin('pkg.%s' % pkg, obj)
         
@@ -245,14 +245,14 @@ class DbModel(object):
     def package(self, pkg):
         """Return a package object
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         return self.obj[pkg]
         
     def table(self, tblname, pkg=None):
         """Return a table object
         
         :param tblname: the :ref:`database table <table>` name
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         if '.' in tblname:
             pkg, tblname = tblname.split('.')[:2]
         if pkg is None:
@@ -340,7 +340,7 @@ class DbModelSrc(GnrStructData):
                name_short=None, name_long=None, name_full=None,
                group=None, onInserting=None, onUpdating=None, onDeleting=None,
                **kwargs):
-        """Insert a :ref:`table_column` into a :ref:`table`
+        """Insert a :ref:`column` into a :ref:`table`
         
         :param name: the column name. You can specify both the name and the :ref:`datatype`
                      using the following syntax: ``'name::datatype'``
@@ -464,7 +464,7 @@ class DbModelSrc(GnrStructData):
         :param related_column: string. The path of the related column. Syntax:
                                ``packageName.tableName.pkeyColumnName``, where:
                                
-                               * ``packageName`` is the name of the :ref:`package <packages_index>` folder
+                               * ``packageName`` is the name of the :ref:`package <packages>` folder
                                  (you can omit it if the tables to link live in the same package folder)
                                * ``tableName`` is the name of the :ref:`table` to be related
                                * ``pkeyColumnName`` is the name of the :ref:`pkey` of the table to be related

@@ -383,7 +383,7 @@ eagers
         * *key*: ``packageName.tableName``, where:
         
             * ``packageName`` is the name of your package (for more information check the
-              :ref:`packages_index` page)
+              :ref:`packages` page)
             * ``tableName`` is the name of the :ref:`table`
             
         * *value*: includes a :ref:`relation <relations>`
@@ -415,7 +415,7 @@ maintable
     * Syntax: ``maintable = 'packageName.tableName'``, where:
     
         * ``packageName`` is the name of your package (for more information, check the
-          :ref:`packages_index` page)
+          :ref:`packages` page)
         * ``tableName`` is the name of the :ref:`table`
     
     * Default value: ``None``

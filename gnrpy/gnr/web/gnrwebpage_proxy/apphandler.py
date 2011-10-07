@@ -46,7 +46,7 @@ from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 ESCAPE_SPECIAL = re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
 
 class GnrWebAppHandler(GnrBaseProxy):
-    """add???"""
+    """A class for web applications handlement"""
     def init(self, **kwargs):
         """add???"""
         self.gnrapp = self.page.site.gnrapp
@@ -95,11 +95,11 @@ class GnrWebAppHandler(GnrBaseProxy):
     
     def getTables(self, pkg=None):
         """Extract a couple with the istance names and the name of the
-        :ref:`database tables <table>` from a :ref:`package <packages_index>` you specify
+        :ref:`database tables <table>` from a :ref:`package <packages>` you specify
         with the *pkg* attribute. Return the extracted couples as a list of lists. If no
         tables are in the package then the method returns an empty list
         
-        :param pkg: MANDATORY. The :ref:`package <packages_index>` from which
+        :param pkg: MANDATORY. The :ref:`package <packages>` from which
                     the tables are extracted"""
         tables = self.db.package(pkg).tables
         if tables:
@@ -109,7 +109,8 @@ class GnrWebAppHandler(GnrBaseProxy):
     rpc_getTables = getTables
     
     def getTablesTree(self):
-        """add???"""
+        """Set a :class:`Bag <gnr.core.gnrbag.Bag>` with the tree of the :ref:`database tables
+        <table>` of a :ref:`package <packages>`"""
         result = Bag()
         for pkg, pkgobj in self.db.packages.items():
             if pkgobj.attributes.get('reserved', 'n').upper() != 'Y':
@@ -120,9 +121,9 @@ class GnrWebAppHandler(GnrBaseProxy):
                     label = tblobj.name_full.capitalize()
                     tblbag.setItem(tbl, None, label=label, tableid='%s.%s' % (pkg, tbl))
         return result
-
+        
     rpc_getTablesTree = getTablesTree
-
+    
     def getTableFields(self, pkg='', table='', **kwargs):
         """add???
         
@@ -954,6 +955,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             return
         for f in aux:
             recInfo['locking_%s' % f] = aux[f]
+            
     @extract_kwargs(default=True)
     def rpc_getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,
                       ignoreMissing=True, ignoreDuplicate=True, lock=False, readOnly=False,
@@ -963,11 +965,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         """add???
         
         ``rpc_getRecord()`` method is decorated with the :meth:`extract_kwargs
-        s<gnr.core.gnrdecorator.extract_kwargs>` decorator
+        <gnr.core.gnrdecorator.extract_kwargs>` decorator
         
         :param table: the :ref:`database table <table>`
         :param dbtable: the :ref:`database table <table>`
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param pkey: the record :ref:`primary key <pkey>`
         :param ignoreMissing: boolean. add???
         :param ignoreDuplicate: boolean. add???
@@ -1071,7 +1073,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         """add???
         
         :param dbtable: the :ref:`database table <table>` for the query
-        :param columns: the :ref:`table_columns` that are involved into the query
+        :param columns: the :ref:`columns` that are involved into the query
         :param auxColumns: showed only as result, not involved in the search.
         :param hiddenColumns: data that is retrieved but is not showed.
         :param rowcaption: what you see into the field. Often is different from what you set with dbselect

@@ -14,7 +14,7 @@ gnrmkthresource
         
     where:
     
-    * ``package_name`` is the name of the :ref:`package <packages_index>`
+    * ``package_name`` is the name of the :ref:`package <packages>`
       and may be in the form::
       
         project_name:package_name

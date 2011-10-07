@@ -1383,17 +1383,17 @@ class Bag(GnrObject):
     #-------------------- setItem --------------------------------
     def setItem(self, item_path, item_value, _attributes=None, _position=None, _duplicate=False,
                 _updattr=False, _validators=None, _removeNullAttributes=True, **kwargs):
-        """Add values (or attributes) to your Bag and return the Bag. The default behaviour of ``setItem`` is to add the new value
-        as the last element of a list. You can change this trend with the `_position` argument, who provides a compact
-        syntax to insert any item in the desired place.
+        """Set an item (values and eventually attributes) to your Bag using a path in the form
+        ``label1.label2...labelN``. If path already exists, it overwrites the value at the given path.
+        Return the Bag.
         
-        This method sets an item in the Bag using a path
-        in the form "label1.label2...labelN".It returns the current bag.
-        If the path already exists, it overwrites the value at the given path
+        The default behaviour of ``setItem()`` is to add the new value as the last element.
+        You can change this trend with the *_position* argument, who provides a compact
+        syntax to insert the element in the desired place
         
         :param item_path: the path of the given item
         :param item_value: the value to set
-        :param _attributes:  it specified the value's attributes to set
+        :param _attributes:  it specified, the value's attributes to set
         :param _position: it is possible to set a new value at a particular position among its brothers.
                           
                           *expression* must be a string of the following types:
@@ -1416,10 +1416,11 @@ class Bag(GnrObject):
                           | ``'#index'``               | Set the value in a determined position indicated by ``index`` number |
                           +----------------------------+----------------------------------------------------------------------+
                           
-        :param _duplicate: specifies if a node with an existing path overwrite the value or append to it the new one
-        :param _updattr: add???
-        :param _validators:  it specifies the value's validators to set
-        :param _removeNullAttributes: if ``True``, remove the null attributes
+        :param _duplicate: boolean. Specify if a node with an existing path overwrite the value or
+                           append to it the new one
+        :param _updattr: boolean. add???
+        :param _validators: specify the value's validators to set
+        :param _removeNullAttributes: boolean. If ``True``, remove the null attributes
         :param \*\*kwargs: attributes AND/OR validators
         
         Example:

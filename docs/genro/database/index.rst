@@ -40,7 +40,7 @@ introduction
             from gnr.app.gnrapp import GnrApp
             instance = GnrApp('name_of_project')
           
-        More information in the :ref:`instances_index` section.
+        More information in the :ref:`instances` section.
         
     * The ``packages`` folder:
     
@@ -50,7 +50,7 @@ introduction
                     containing a file ``__init__.py``), and Genro packages can't be imported
                     with the statement ``import`` *module* or with ``from`` *module* ``import``
                     
-        More information in the :ref:`packages_index` section.
+        More information in the :ref:`packages` section.
         
     * The ``resources`` folder:
     
@@ -71,7 +71,7 @@ introduction
           
           .. _WingIDE: http://www.wingware.com/
           
-        More information in the :ref:`sites_index` section
+        More information in the :ref:`sites` section
         
 .. _project_section_index:
 

@@ -152,7 +152,7 @@ class ResourceLoader(object):
         """add???
         
         :param path: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         if pkg == '*':
             module_path = os.path.join(self.site_path, path)
             pkg = self.site.config['packages?default']
@@ -205,7 +205,7 @@ class ResourceLoader(object):
         """Look for custom classes in the package
         
         :param page_class: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         if pkg:
             package = self.gnrapp.packages[pkg]
         if package and package.webPageMixin:
@@ -219,7 +219,7 @@ class ResourceLoader(object):
         """Look in the plugins folders for a file named as the current webpage and get all classes
         
         :param path: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         plugin_webpage_classes = []
         path = path.split(os.path.sep)
         pkg = pkg and self.site.gnrapp.packages[pkg]
@@ -247,7 +247,7 @@ class ResourceLoader(object):
         
         :param page_class: add???
         :param path: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         path = path.split(os.path.sep)
         if pkg:
             customPagePath = os.path.join(self.gnrapp.customFolder, pkg, 'webpages', *path)
@@ -262,7 +262,7 @@ class ResourceLoader(object):
         
         :param page_class: add???
         :param path: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         if pkg:
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
         else:
@@ -299,7 +299,7 @@ class ResourceLoader(object):
     def package_resourceDirs(self, pkg, omitSiteResources=False):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param omitSiteResources: boolean. add???"""
         pkg = self.gnrapp.packages[pkg]
         if not hasattr(pkg, '_resourceDirs'):
@@ -542,7 +542,7 @@ class ResourceLoader(object):
     def resourcesAtPath(self, pkg, path, ext):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param path: add???
         :param ext: add???"""
         result = Bag()

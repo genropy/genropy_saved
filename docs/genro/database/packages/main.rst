@@ -183,7 +183,7 @@ custom_type()
         of 12 characters with two decimals [#]_, the ``default=0`` means that if user don't specify
         the custom_type value, then it is ``0``)
                 
-        This allows to create in a :ref:`table` a :ref:`table_column` like this one::
+        This allows to create in a :ref:`table` a :ref:`column` like this one::
         
             tbl.column('partners_income',dtype='money',name_long='Partners Income')
             
@@ -203,7 +203,7 @@ loginUrl()
             
     where:
     
-    * ``packageName`` is the name of the :ref:`package <packages_index>` that contains
+    * ``packageName`` is the name of the :ref:`package <packages>` that contains
       the login authorization page.
     * ``loginName`` is the name of the :ref:`webpage` (without its ``.py`` extensions)
       in which you define the login authorization.

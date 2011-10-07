@@ -1,4 +1,4 @@
-.. _sites_index:
+.. _sites:
 
 =========
 ``sites``

@@ -335,7 +335,7 @@ class GnrWebPage(GnrBaseWebPage):
     def mixinComponent(self, *path,**kwargs):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
         
     def tableTemplate(self, table=None, tplname=None, ext='html'):
@@ -933,7 +933,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: MANDATORY. A string with the path of the uri
         :param ext: add???
         :param add_mtime: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
             return
@@ -944,7 +944,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param fpath: add???
         :param add_mtime: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         url = None 
         packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
         pkg = pkg or self.packageId
@@ -973,7 +973,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param ext: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         resourceDirs = self.resourceDirs
         if pkg:
             resourceDirs = self.site.resource_loader.package_resourceDirs(pkg)
@@ -988,7 +988,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param classname: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         res = self.getResource(path,pkg=pkg,ext='py')
         if res:
             m = gnrImport(res)
@@ -1016,7 +1016,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param resource: add???
         :param ext: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         path = self.getResource(path=resource,ext=ext,pkg=pkg)
         if path:
             with open(path) as f:
@@ -1082,14 +1082,14 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param data: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         self.site.setPreference(path, data, pkg=pkg)
         
     def getPreference(self, path, pkg='', dflt=''):
         """add???
         
         :param path: add???
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param dflt: add???"""
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
         
@@ -1097,7 +1097,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param dflt: add???
         :param username: add???"""
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
@@ -1119,7 +1119,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param data: add???
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param username: add???"""
         self.site.setUserPreference(path, data, pkg=pkg, username=username)
         

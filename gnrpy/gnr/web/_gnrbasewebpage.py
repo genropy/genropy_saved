@@ -232,7 +232,7 @@ class GnrBaseWebPage(GnrObject):
         :param selectionName: add???
         :param selectedRowidx: add???
         :param filterCb: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param condition: add???

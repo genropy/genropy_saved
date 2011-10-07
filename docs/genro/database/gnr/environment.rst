@@ -12,7 +12,7 @@
     * The :ref:`environment_instances` tag
     * The :ref:`environment_packages` tag:
     
-        * :ref:`packages`
+        * :ref:`genro_packages`
         
     * The :ref:`environment_resources` tag:
     
@@ -30,10 +30,10 @@ Introduction
     
     We remind you that every project folder includes the following four subfolders:
     
-    * the :ref:`instances_index` folder
-    * the :ref:`packages_index` folder
+    * the :ref:`instances` folder
+    * the :ref:`packages` folder
     * the :ref:`private_resources` folder
-    * the :ref:`sites_index` folder
+    * the :ref:`sites` folder
     
     You have to define the path of the genro project's folders and the path for the
     dojo's contents. Optionally, you can specify the path of your projects (and theirs
@@ -66,7 +66,7 @@ Introduction
         
     where ``yourRootPathForGenro`` is your root path of your Genro application.
     
-.. _packages:
+.. _genro_packages:
     
 standard Genro packages
 -----------------------

@@ -116,7 +116,7 @@ Tags
                 <mypackage />
               
               With main package we mean the package where you put your :ref:`packages_model`
-              and :ref:`packages_webpages` folders.
+              and :ref:`webpages` folders.
               
     .. note:: Remeber also to import the ``sys`` package::
               

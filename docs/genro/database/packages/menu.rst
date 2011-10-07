@@ -110,7 +110,7 @@ basepath
     
     .. image:: ../../_images/projects/menu_example_2.png
     
-    so, in the :ref:`packages_webpages` folder you have:
+    so, in the :ref:`webpages` folder you have:
     
     * A folder called ``agenda`` with three webpages:
     
