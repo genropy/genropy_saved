@@ -25,7 +25,7 @@ class BaseRpc(BaseComponent):
         if 'pagetemplate' in kwargs:
             kwargs.pop('pagetemplate')
         if args:
-            method = getattr(self, 'rpc_%s' % args[0], None)
+            method = self.getPublicMethod('rpc',args[0])
             if not method:
                 return self.rpc_error(*args, **kwargs)
             args = list(args)
