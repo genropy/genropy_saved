@@ -61,8 +61,9 @@ def writeFormClass(out_file, columns):
     write(out_file)
     write(out_file, "def th_options(self):", indent=1)
     write(out_file, "return dict(dialog_height='400px',dialog_width='600px')", indent=2)
-    
-def createResourceFile(app, package, table, option_name, option_output, option_force):
+
+
+def createResourceFile(app, package, table, option_name, option_output, option_force,option_menu,menuBag):
     packageFolder = app.packages(package).packageFolder
     resourceFolder = os.path.join(packageFolder,'resources', 'tables', table)
     if not os.path.exists(resourceFolder) and not option_output:
@@ -98,7 +99,8 @@ def createResourceFile(app, package, table, option_name, option_output, option_f
         writeViewClass(out_file, columns)
         writeFormClass(out_file, columns)
         print '%s created' % name
-        
+    if option_menu:
+        menuBag.setItem('auto.%s' %table,None,label='!!%s' %table.capitalize(),table='%s.%s' %(package,table))
 
 if __name__ == '__main__':
     usage = """
@@ -111,6 +113,8 @@ if __name__ == '__main__':
     parser = OptionParser(usage)
     parser.add_option("-f", "--force", dest="force", action='store_true', default=False,
                       help="force the resource creation also if destination file exists")
+    parser.add_option("-m", "--menu", dest="menu", action='store_true', default=False,
+                      help="create the menu for the th pages")
     parser.add_option("-n", "--name", dest="name", 
                       help="output file name, the file will be, will work only if single table is passed")
     
@@ -123,6 +127,7 @@ if __name__ == '__main__':
     
     (options, args) = parser.parse_args()
     option_force = getattr(options, 'force', False)
+    option_menu = getattr(options, 'menu', False)
     option_name = getattr(options, 'name', None)
     option_output = getattr(options, 'create_instance', None)
     option_indent = getattr(options, 'indent', 4)
@@ -151,6 +156,7 @@ if __name__ == '__main__':
             config['packages.%s'%pkg]=None
         app=GnrApp(custom_config=config)
         tables=[]
+        
         for pkg, tbl_names in pkg_tables.items():
             for tbl_name in tbl_names:
                 if tbl_name=='*':
@@ -165,7 +171,16 @@ if __name__ == '__main__':
             if option_name:
                 print '-o/--output option is incompatible with multiple table mode'
             exit(-1)
+        packageMenues = dict()
+        for pkg in pkg_tables.keys():
+            packageFolder = app.packages(pkg).packageFolder
+            path = os.path.join(packageFolder,'menu.xml')
+            packageMenues[pkg] = Bag(path) if os.path.exists(path) else Bag()
         for package,table in tables:
-            createResourceFile(app, pkg, table, option_name, option_output, option_force)
+            createResourceFile(app, pkg, table, option_name, option_output, option_force,option_menu,packageMenues[package])
+        if option_menu:
+            for pkg in pkg_tables.keys():
+                packageFolder = app.packages(pkg).packageFolder
+                packageMenues[pkg].toXml(os.path.join(packageFolder,'menu.xml'))
         
     
