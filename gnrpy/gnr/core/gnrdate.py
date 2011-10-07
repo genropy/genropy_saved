@@ -104,9 +104,7 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         
         :param datestr: add???
         :param date: add???
-        :param addmonth: add???. Default value is ``0``
-        :returns: add???
-        """
+        :param addmonth: add???"""
         if '+' in datestr:
             addmonth = int(datestr.split('+')[1].strip())
         if '-' in datestr:
@@ -401,7 +399,7 @@ def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
     :param wkdlist: add???
     :param locale: the current locale (e.g: en, en_us, it)
     :param workdate: the :ref:`workdate`
-    :param asDate: add???. Default value is ``True``"""
+    :param asDate: add???"""
     dstart, dstop = decodeDatePeriod(period, returnDate=True, locale=locale, workdate=workdate)
     itr = rrule.rrule(rrule.DAILY, dtstart=dstart, until=dstop, byweekday=wkdlist)
     for d in itr:

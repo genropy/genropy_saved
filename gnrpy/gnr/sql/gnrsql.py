@@ -184,7 +184,7 @@ class GnrSqlDb(GnrObject):
     def checkDb(self, applyChanges=False):
         """Check if the database structure is compatible with the current model
         
-        :param applyChanges: boolean. If ``True``, all the changes are executed and committed. Default value is ``False``"""
+        :param applyChanges: boolean. If ``True``, all the changes are executed and committed"""
         return self.model.check(applyChanges=applyChanges)
         
     def closeConnection(self):
@@ -301,8 +301,7 @@ class GnrSqlDb(GnrObject):
         :param sqlargs: optional sql arguments
         :param cursor: an sql cursor
         :param cursorname: the name of the cursor
-        :param autocommit: if ``True``, at the end of the execution runs the :meth:`commit()` method.
-                           Default value is ``False``
+        :param autocommit: if ``True``, at the end of the execution runs the :meth:`commit()` method
         :param dbtable: the :ref:`database table <table>`"""
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
@@ -504,9 +503,9 @@ class GnrSqlDb(GnrObject):
         """add???
         
         :param table: the :ref:`table` name
-        :param prevCaption: add???. Default value is ``''``
-        :param prevRelation: add???. Default value is ``''``
-        :param translator: add???. """
+        :param prevCaption: add???
+        :param prevRelation: add???
+        :param translator: add???"""
         return self.table(table).relationExplorer(prevCaption=prevCaption,
                                                   prevRelation=prevRelation,
                                                   translator=translator, **kwargs)
@@ -515,7 +514,7 @@ class GnrSqlDb(GnrObject):
         """Create a db with a given name and an encoding
         
         :param name: the database's name
-        :param encoding: The multibyte character encoding you choose. Default value is ``unicode``"""
+        :param encoding: The multibyte character encoding you choose"""
         self.adapter.createDb(name, encoding=encoding)
             
     def dropDb(self, name):
@@ -638,7 +637,7 @@ class DbStoresHandler(object):
         """add???
         
         :param storename: add???
-        :param check: add???. Default value is ``False``"""
+        :param check: add???"""
         attr = self.config.getAttr('%s_xml.db' % storename)
         self.dbstores[storename] = dict(database=attr.get('dbname', storename),
                                         host=attr.get('host', self.db.host), user=attr.get('user', self.db.user),
@@ -675,7 +674,7 @@ class DbStoresHandler(object):
         """checks if dbstore exists and if it needs to be aligned
         
         :param storename: add???
-        :param verbose: add???. Default value is ``False``"""
+        :param verbose: add???"""
         with self.db.tempEnv(storename=storename):
             self.db.use_store(storename)
             changes = self.db.model.check()

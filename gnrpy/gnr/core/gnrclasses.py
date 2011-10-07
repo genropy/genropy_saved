@@ -59,13 +59,10 @@ class GnrClassCatalog(object):
             
         :param cls: the class itself by reference
         :param key: a string, is a short name of the class, as found in textual values to parse or write
-        :param aliases: other keys to parse using this class. 
-        :param altcls: other classes to write in the same way. All values will be parsed with the main class.
-                       
-        :param align: add???. Default value is ``L``
-        :param empty: the class or value to be used for empty parsed values (example ``''`` for strings).
-                      
-        """
+        :param aliases: other keys to parse using this class
+        :param altcls: other classes to write in the same way. All values will be parsed with the main class
+        :param align: add???
+        :param empty: the class or value to be used for empty parsed values (example ``''`` for strings)"""
         self.classes[key] = cls
         self.align[key] = align
         self.empty[key] = empty
@@ -151,10 +148,8 @@ class GnrClassCatalog(object):
         """Add???
             
         :param o: add???
-        :param quoted: add???. Default value is ``False``
-        :param translate_cb: add???. 
-        :returns: add???
-        """
+        :param quoted: add???
+        :param translate_cb: add???"""
         if isinstance(o, basestring):
             result = o
             if translate_cb and result.startswith(
@@ -223,10 +218,8 @@ class GnrClassCatalog(object):
         """Add???
             
         :param o: add???
-        :param quoted: add???. Default value is ``False``
-        :param translate_cb: add???. 
-        :returns: add???
-        """
+        :param quoted: add???
+        :param translate_cb: add???"""
         t = self.names.get(type(o), 'T')
         if t == 'T':
             result = self.asText(o, translate_cb=translate_cb)
@@ -240,9 +233,7 @@ class GnrClassCatalog(object):
         """Add???
             
         :param o: add???
-        :param translate_cb: add???. 
-        :returns: add???
-        """
+        :param translate_cb: add???"""
         c = self.names.get(type(o))
         if c:
             return (self.asText(o, translate_cb=translate_cb), c)

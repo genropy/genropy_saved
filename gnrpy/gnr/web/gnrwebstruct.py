@@ -305,13 +305,12 @@ class GnrDomSrc(GnrStructData):
         """add???
         
         :param storepath: add???
-        :param handler: add???. Default value is ``recordCluster``
+        :param handler: add???
         :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
                        documentation page
         :param table: the :ref:`table` name
         :param storeType: add???
-        :param parentStore: add???
-        :returns: the formstore"""
+        :param parentStore: add???"""
         assert self.attributes.get('tag','').lower()=='frameform', 'formstore can be created only inside a FrameForm'
         storeCode = self.attributes['frameCode']
         self.attributes['storeCode'] = storeCode
@@ -476,8 +475,7 @@ class GnrDomSrc(GnrStructData):
         """add???
         
         :param method: add???
-        :param lazy: boolean. add???. Default value is ``True``
-        """
+        :param lazy: boolean. add???"""
         if callable(method):
             handler = method
         else:
@@ -502,10 +500,8 @@ class GnrDomSrc(GnrStructData):
         """add???
         
         :param name: add???
-        :param pars: add???. Default value is ``''``
-        :param funcbody: add???. 
-        :returns: add???
-        """
+        :param pars: add???
+        :param funcbody: add???"""
         if not funcbody:
             funcbody = pars
             pars = ''
@@ -514,11 +510,9 @@ class GnrDomSrc(GnrStructData):
     def connect(self, event='', pars='', funcbody=None, **kwargs):
         """add???
         
-        :param event: add???. Default value is ``''``
-        :param pars: add???. Default value is ``''``
-        :param funcbody: add???. 
-        :returns: add???
-        """
+        :param event: add???
+        :param pars: add???
+        :param funcbody: add???"""
         if not (funcbody and pars):
             funcbody = event
             event = ''
@@ -546,9 +540,7 @@ class GnrDomSrc(GnrStructData):
         """Handle the CSS rules. add???
         
         :param rule: dict or list of CSS rules
-        :param styleRule: add???. Default value is ``''``
-        :returns: add???
-        """
+        :param styleRule: add???"""
         if ('{' in rule):
             styleRule = rule
             rule = styleRule.split('{')[0]
@@ -577,9 +569,8 @@ class GnrDomSrc(GnrStructData):
     def macro(self, name='', source='', **kwargs):
         """add???
         
-        :param name: add???. Default value is ``''``
-        :param source: add???. Default value is ``''``
-        :returns: add???"""
+        :param name: add???
+        :param source: add???"""
         return self.child('macro', childname=name, childcontent=source, **kwargs)
         
     def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
@@ -593,18 +584,18 @@ class GnrDomSrc(GnrStructData):
         
         :param cols: set the number of columns.
         :param table: set the database :ref:`table`.
-        :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'``
-                         (actually it is the unique defined class).
+        :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'``,
+                         that actually it is the unique defined class
         :param lblclass: set label style.
         :param lblpos: set label position: ``L``: set label on the left side of text field.
-                       ``T``: set label on top of text field. Default value is ``'L'``.
-        :param _class: for CSS style.
-        :param fieldclass: CSS class appended to every formbuilder's child.
+                       ``T``: set label on top of text field
+        :param _class: for CSS style
+        :param fieldclass: CSS class appended to every formbuilder's child
         :param lblalign: Set horizontal label alignment (It seems broken... add???)
-        :param lblvalign: set vertical label alignment.
-        :param fldalign: set field horizontal align.
-        :param fldvalign: set field vertical align. Default value is ``'middle'``.
-        :param disabled: If ``True``, user can't act on the object (write, drag...).
+        :param lblvalign: set vertical label alignment
+        :param fldalign: set field horizontal align
+        :param fldvalign: set field vertical align
+        :param disabled: If ``True``, user can't act on the object (write, drag...)
         :param rowdatapath: add???
         :param head_rows: add???
         :param \*\*kwargs: for the complete list of the ``**kwargs``, check the :ref:`fb_kwargs` section"""
@@ -856,7 +847,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param path: add???
         :param table: the :ref:`table` name
-        :param method: add???. Default value is ``app.getSelection``
+        :param method: add???
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
@@ -888,7 +879,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def directoryStore(self, rootpath=None, storepath='.store', **kwargs):
         """add???
         :param rootpath: add???
-        :param storepath: add???. Default value is ``.store``"""
+        :param storepath: add???"""
         store = DirectoryResolver(rootpath or '/', **kwargs)()
         self.data(storepath, store)
     
@@ -902,7 +893,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                       section
         :param group_by: the sql "GROUP BY" clause. For more information check the
                          :ref:`sql_group_by` section
-        :param storepath: add???. Default value is ``.store``"""
+        :param storepath: add???"""
         t0 = time()
         page = self.page
         tblobj = page.db.table(table)
@@ -923,7 +914,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param path: add???
         :param table: the :ref:`table` name
         :param pkey: the record :ref:`primary key <pkey>`
-        :param method: add???. Default value is ``app.getRecord``
+        :param method: add???
         :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
                            check the :ref:`rpc_attributes` section"""
         return self.child('dataRpc', path=path, table=table, pkey=pkey, method=method, **kwargs)
@@ -1829,14 +1820,14 @@ class GnrGridStruct(GnrStructData):
         :param trueclass: the css class for the true state.
         :param nullclass: the css class for the null state, the optional third state that you can
                           specify through the **threestate** parameter
-        :param classes: add???. Default value is ``row_checker``
+        :param classes: add???
         :param action: allow to execute a javascript callback. For more information, check the
                        :ref:`action_attr` documentation page
-        :param name: add???. Default value is ``' '``
-        :param calculated: boolean. add???.
-        :param radioButton: boolean. add???.
+        :param name: add???
+        :param calculated: boolean. add???
+        :param radioButton: boolean. add???
         :param threestate: boolean. If ``True``, create a third state (the "null" state) besides the ``True``
-                           and the ``False`` state."""
+                           and the ``False`` state"""
         if not field:
             field = '_checked'
             calculated = True
@@ -1925,8 +1916,8 @@ class GnrGridStruct(GnrStructData):
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section.
-        :param unit: the field unit. Default value is ``em``
-        :param totalWidth: add???. 
+        :param unit: the field unit
+        :param totalWidth: add???
         
         r.fields('name/Name:20,address/My Addr:130px....')"""
         tableobj = self.tblobj

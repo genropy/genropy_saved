@@ -28,8 +28,7 @@ Argument parsing inspired by Michele Simionato's plac.
     In the Land of GenroPy where the Commands lie.
     One Script to rule them all, One Script to find them,
     One Script to bring them all and in the darkness bind them
-    In the Land of GenroPy where the Commands lie.
-"""
+    In the Land of GenroPy where the Commands lie"""
 
 import sys
 import os.path
@@ -48,14 +47,11 @@ command_registry = {}
 _COMMAND_ARGUMENTS = "__gnrcmd__arguments__"
 
 def command(name=None, description=None, *args, **kwargs):
-    """A decorator to define new 'gnr' commands.
+    """A decorator to define new 'gnr' commands. Return the new command. See ``ArgumentParser``
+    constructor in the ``argparse`` module for help on args
     
-    See ``ArgumentParser`` constructor in the ``argparse`` module for help on args
-    
-    :param name: add???. 
-    :param description: add???
-    :returns: the new command"""
-    
+    :param name: add???
+    :param description: add???"""
     def decorator(cmd):
         global command_registry
         if command_registry.get(name, None) is not None:
@@ -69,13 +65,11 @@ def command(name=None, description=None, *args, **kwargs):
     return decorator
         
 def argument(dest, *args, **kwargs):
-    """A decorator to describe arguments to a 'gnr' command.
+    """A decorator to describe arguments to a 'gnr' command. Return the command
         
-    See ``add_argument`` in the ``argparse`` module for help on args.
+    See ``add_argument`` in the ``argparse`` module for help on args
     
-    :param dest: add???
-    :returns: the command
-    """
+    :param dest: add???"""
     args = list(args)
         
     def decorator(cmd):
@@ -127,10 +121,7 @@ class GnrCommand(object):
         
     @property
     def filename(self):
-        """File where main is implemented
-        
-        :returns: add???
-        """
+        """File where main is implemented"""
         try:
             return self.main.func_code.co_filename
         except:
@@ -138,10 +129,7 @@ class GnrCommand(object):
             
     @property
     def lineno(self):
-        """Line where main is implemented
-        
-        :returns: add???
-        """
+        """Line where main is implemented"""
         try:
             return self.main.func_code.co_firstlineno
         except:
@@ -149,17 +137,11 @@ class GnrCommand(object):
             
     @property
     def description(self):
-        """Return the command description
-        
-        :returns: the command description
-        """
+        """Return the command description"""
         return self.parser_kwargs.get('description', '')
         
     def run(self, *args, **kwargs):
-        """Run this command.
-        
-        :returns: add???
-        """
+        """Run this command"""
         parser = self.init_parser()
         if kwargs:
             parser.set_defaults(**kwargs)
@@ -167,8 +149,7 @@ class GnrCommand(object):
         return self.main(**vars(arguments))
         
     def main(self):
-        """add???
-        """
+        """add???"""
         raise NotImplementedError("Do not use GnrCommand directly, apply @command to a callable.")
         
     def __call__(self, *args, **kwargs):
@@ -177,8 +158,7 @@ class GnrCommand(object):
     def init_parser(self, subparsers=None):
         """Initialize this command's arguments.
         
-        :returns: add???
-        """
+        :param subparsers: add???"""
         if not subparsers:
             parser = argparse.ArgumentParser(*self.parser_args, **self.parser_kwargs)
         else:
@@ -194,10 +174,7 @@ class GnrCommand(object):
         return parser
         
     def auto_arguments(self):
-        """Auto-generate a standard argument configuration from __call__'s python arguments
-        
-        :returns: add???
-        """
+        """Auto-generate a standard argument configuration from __call__'s python arguments"""
         args, _, _, defaults = inspect.getargspec(self.main)
         if not defaults:
             defaults = ()
@@ -224,8 +201,7 @@ class GnrCommand(object):
 class CmdRunner(object):
     """Run GenroPy commands.
     
-    This class implements the 'gnr' command.
-    """
+    This class implements the 'gnr' command"""
         
     def __init__(self):
         self._discover_commands()
@@ -247,8 +223,7 @@ class CmdRunner(object):
         main(**vars(args))
         
     def setup_parser(self):
-        """add???
-        """
+        """add???"""
         global command_registry
         parser = argparse.ArgumentParser(description="Run Genro commands")
         subparsers = parser.add_subparsers(title="commands")
@@ -261,8 +236,7 @@ class CmdRunner(object):
 def commands(verbose=False):
     """add???
     
-    :param verbose: add???. Default value is ``False``
-    """
+    :param verbose: add???"""
     global command_registry
     for name, cmd in command_registry.items():
         print "%(name)-20s %(filename)s:%(lineno)s" % dict(name=name, filename=cmd.filename, lineno=cmd.lineno)
@@ -274,8 +248,7 @@ def commands(verbose=False):
 def info(full=False):
     """add???
     
-    :param full: add???. Default value is ``False``
-    """
+    :param full: add???"""
     ad = AutoDiscovery()
     ad.report(full)
         
@@ -284,8 +257,7 @@ def info(full=False):
 def info(dirs=False):
     """add???
     
-    :param dirs: add???. Default value is ``False``
-    """
+    :param dirs: add???"""
     ad = AutoDiscovery()
     print "CURRENT_PROJECT=%s" % (ad.current_project.name if ad.current_project else '')
     print "CURRENT_INSTANCE=%s" % (ad.current_instance.name if ad.current_instance else '')

@@ -83,16 +83,17 @@ class GnrStructData(Bag):
             
     root = property(_get_root)
         
-    def child(self, tag, childname='*_#', childcontent=None, content=None,_parentTag=None, _attributes=None, _returnStruct=True, _position=None, **kwargs):
-        """Set a new item of the ``tag`` type into the current structure
+    def child(self, tag, childname='*_#', childcontent=None, content=None,_parentTag=None, _attributes=None,
+              _returnStruct=True, _position=None, **kwargs):
+        """Set a new item of the ``tag`` type into the current structure. Return the new structure
+        if content is ``None``, else the parent
         
         :param tag: structure type
-        :param name: structure name. Default value is formed by ``tag_position``
-        :param content: optional structure content. 
-        :param _parentTag: add???. 
-        :param _attributes: add???. 
-        :param childname: the :ref:`childname`
-        :returns: the new structure if content is ``None``, else the parent"""
+        :param name: structure name
+        :param content: optional structure content
+        :param _parentTag: add???
+        :param _attributes: add???
+        :param childname: the :ref:`childname`"""
         where = self
         if childname and childname != '*_#':
             kwargs['_childname'] = childname
@@ -292,7 +293,7 @@ class GnrStructObj(GnrObject):
         
         :param path: add???
         :param default: add???
-        :param static: add???. Default value is ``False``"""
+        :param static: add???"""
         if path.startswith('.'):
             return self.root[path[1:]]
         if path.startswith('!'):

@@ -24,13 +24,10 @@ from gnr.core.gnrbag import Bag
 ########################################################################
 
 def expandpath(path, full=False):
-    """Expand user home directory (~) and environment variables.
+    """Expand user home directory (~) and environment variables. Return the expanded path
     
     :param path: the path to expand
-    :param full: boolean. If ``True``, returns a normalized path (see ``os.path.normpath``).
-                 Default value is ``False``
-    :returns: the path expanded
-    """
+    :param full: boolean. If ``True``, returns a normalized path (see ``os.path.normpath``)"""
     result = expanduser(expandvars(path))
     if full:
         result = normpath(result)
@@ -164,13 +161,10 @@ class AutoDiscovery(object):
         self._auto_discovery()
         
     def report(self, all=False):
-        """Print a summary of what :class:`AutoDiscovery` class found.
+        """Print a summary of what :class:`AutoDiscovery` class found
         
         :param all: if ``False``, print only the current project, instance, packages and site.
-                    if ``True``, print a full report including all available items in this GenroPy installation.
-                    Default value is ``False``
-        :returns: a print of a summary
-        """
+                    if ``True``, print a full report including all available items in this GenroPy installation"""
         print "Current Project:", repr(self.current_project)
         print "Current Instance:", repr(self.current_instance)
         print "Current Package:", repr(self.current_package)

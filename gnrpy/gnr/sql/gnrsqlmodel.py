@@ -208,9 +208,9 @@ class DbModel(object):
     def check(self, applyChanges=False):
         """Verify the compatibility between the database and the model.
         
-        Save the sql statements that makes the database compatible with the model.
+        Save the sql statements that makes the database compatible with the model
         
-        :param applyChanges: boolean. If ``True``, apply the changes. Default value is ``False``"""
+        :param applyChanges: boolean. If ``True``, apply the changes"""
         checker = SqlModelChecker(self.db)
         self.modelChanges = checker.checkDb()
         self.modelBagChanges = checker.bagChanges
@@ -403,23 +403,18 @@ class DbModelSrc(GnrStructData):
         
     def formulaColumn(self, name, sql_formula, dtype='A', **kwargs):
         """Insert a formulaColumn into a table, that is add???. The aliasColumn is a child of the table
-        created with the :meth:`table()` method
+        created with the :meth:`table()` method. Return a formulaColumn
         
         :param name: the column name
         :param sql_formula: add???
-        :param dtype: the :ref:`datatype`. Default value is ``A``
-        :returns: a formulaColumn
-        """
+        :param dtype: the :ref:`datatype`"""
         return self.virtual_column(name, sql_formula=sql_formula, dtype=dtype, **kwargs)
         
     def pyColumn(self, name, py_method, **kwargs):
-        """Insert a pyColumn into a table, that is add???. The aliasColumn is a child of the table
-        created with the :meth:`table()` method
+        """add???
         
         :param name: the column name
-        :param sql_formula: add???
-        :param dtype: the :ref:`datatype`. Default value is ``A``
-        :returns: a formulaColumn"""
+        :param py_method: add???"""
         return self.virtual_column(name, py_method=py_method, **kwargs)
         
     def aliasTable(self, name, relation_path, **kwargs):

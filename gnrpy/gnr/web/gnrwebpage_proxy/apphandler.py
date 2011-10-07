@@ -109,7 +109,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     rpc_getTables = getTables
     
     def getTablesTree(self):
-        """Set a :class:`Bag <gnr.core.gnrbag.Bag>` with the tree of the :ref:`database tables
+        """Set a :class:`Bag <gnr.core.gnrbag.Bag>` with the structure of the :ref:`database tables
         <table>` of a :ref:`package <packages>`"""
         result = Bag()
         for pkg, pkgobj in self.db.packages.items():
@@ -127,18 +127,18 @@ class GnrWebAppHandler(GnrBaseProxy):
     def getTableFields(self, pkg='', table='', **kwargs):
         """add???
         
-        :param pkg: add???
-        :param table: add???"""
+        :param pkg: the :ref:`package <packages>`
+        :param table: the :ref:`database table <table>`"""
         if not pkg:
             pkg, table = table.split('.')
         return self.dbStructure(path='%s.tables.%s.relations' % (pkg, table))
-
+        
     rpc_getTableFields = getTableFields
-
+    
     def dbStructure(self, path='', **kwargs):
         """add???
         
-        :param path: add???"""
+        :param path: the path of the database structure"""
         curr = self.db.packages
         if path:
             curr = curr[path]
@@ -192,20 +192,20 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
         
     def rpc_batchDo(self, batch, resultpath, forked=False, **kwargs):
-        """add???
+        """Execute a :ref:`batch`
         
-        :param batch: add???
+        :param batch: the :ref:`batch` to be executed
         :param resultpath: add???
         :param forked: boolean. add???"""
         if forked:
             from processing import Process
-
+            
             p = Process(target=self._batchExecutor, args=(batch, resultpath, forked), kwargs=kwargs)
             p.start()
             return None
         else:
             return self._batchExecutor(batch, resultpath, forked, **kwargs)
-
+            
     def _batchExecutor(self, batch, resultpath, forked, **kwargs):
         batchClass = self._batchFinder(batch)
         batch = batchClass(self.page)
@@ -225,8 +225,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             return getattr(m, clsName)
         else:
             raise Exception('Cannot import component %s' % modName)
-
-
+            
     def rpc_getRecordCount(self, field=None, value=None,
                            table='', distinct=False, columns='', where='',
                            relationDict=None, sqlparams=None, condition=None,
@@ -245,7 +244,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         #sqlargs = dict(kwargs)
         if field:
             if not table:
-                pkg, table, field = splitAndStrip(field, '.', fixed=-3)
+                pkg, table, field = splitAndStrip(field, sep='.', fixed=-3)
                 table = '%s.%s' % (pkg, table)
             where = '$%s = :value' % field
             kwargs['value'] = value

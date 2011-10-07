@@ -686,7 +686,7 @@ class Bag(GnrObject):
         
         :param pathlist: list of nodes' labels
         :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist
-        :param returnLastMatch: boolean. add??? Default value is ``False``"""
+        :param returnLastMatch: boolean. add???"""
         curr = self
         if isinstance(pathlist, basestring):
             orpa=pathlist
@@ -849,7 +849,7 @@ class Bag(GnrObject):
             +------------------------+----------------------------------------------------------------------+
             
         :param condition: set a condition for digest process
-        :param asColumns: add??? Default value is ``False``
+        :param asColumns: add???
             
             >>> b=Bag()
             >>> b.setItem('documents.letters.letter_to_mark','file0',createdOn='10-7-2003',createdBy= 'Jack')
@@ -1723,7 +1723,7 @@ class Bag(GnrObject):
         
         :param name: add???
         :param argstring: add???
-        :param func: add??? Default value is ``pass``"""
+        :param func: add???"""
         setCallable(self, name, argstring=argstring, func=func)
         
     #-------------------- toXml --------------------------------
@@ -2076,7 +2076,7 @@ class Bag(GnrObject):
         """Calls a function for each node of the Bag
         
         :param callback: the function which is called
-        :param _mode: add??? Default value is ``static``"""
+        :param _mode: add???"""
         result = None
         for node in self.nodes:
             result = callback(node, **kwargs)

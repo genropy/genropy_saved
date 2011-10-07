@@ -208,7 +208,7 @@ class GnrHtmlSrc(GnrStructData):
     def row(self, height=0, **kwargs):
         """Build the height and return it
         
-        :param height: the row's height. Default value is ``0``"""
+        :param height: the row's height"""
         container = self
         row = container.child(tag='row', height=height,
                               width=container.width,
@@ -365,12 +365,11 @@ class GnrHtmlPdf(object):
         self.body = html.body()
         
     def toXml(self, filename=None, encoding='UTF-8'):
-        """Transform the HTML into a XML, using the ``toXml`` method of the ``gnr.core.gnrbag``
+        """Transform the HTML into a XML through the :meth:`toXml <gnr.core.gnrbag.Bag.toXml>`
+        method. Return the XML file
         
-        :param filename: the name of the output file. 
-        :param encoding: The multibyte character encoding you choose. Default value is ``UTF-8``
-        :returns: the XML file
-        """
+        :param filename: the name of the output file
+        :param encoding: The multibyte character encoding you choose"""
         return self.root.toXml(filename=filename, encoding=encoding, typeattrs=False, autocreate=True,
                                omitUnknownTypes=True, omitRoot=True, forcedTagAttr='tag', addBagTypeAttr=False)
                                
@@ -387,8 +386,7 @@ class GnrHtmlPdf(object):
     def toPdf(self, filename=None):
         """Call the PDF webkit generator
         
-        :param filename: add???. 
-        """
+        :param filename: add???"""
         pass
         
 def test0(body):

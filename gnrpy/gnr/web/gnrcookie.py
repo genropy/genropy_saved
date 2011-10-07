@@ -362,8 +362,7 @@ def add_cookie(res, cookie, value="", **kw):
     
     :param res: add???
     :param cookie: add???
-    :param value: add???. Default value is ``""``
-    """
+    :param value: add???"""
     # is this a cookie?
     if not isinstance(cookie, Cookie):
         # make a cookie
@@ -380,9 +379,7 @@ def get_cookies(req, Class=Cookie, **kw):
     this module.
     
     :param req: add???
-    :param Class: add???. Default value is ``Cookie``
-    :returns: add???
-    """
+    :param Class: add???"""
     if not req.headers.has_key("cookie"):
         return {}
         

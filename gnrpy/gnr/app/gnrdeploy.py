@@ -42,14 +42,11 @@ class PathResolver(object):
                 os.environ[var] = str(value)
                 
     def js_path(self, lib_type='gnr', version='11'):
-        """add???
+        """add??? Return the configuration static js path, with *lib_type* and *version* specified
         
-        :param lib_type: Genro Javascript library == gnr. Default value is ``gnr``
+        :param lib_type: Genro Javascript library == gnr
         :param version: the Genro Javascript library version related to the Dojo one. The number of Dojo
-                        version is written without any dot. E.g: '11' is in place of '1.1'.
-                        Default value is '11'
-        :returns: the configuration static js path, with *lib_type* and *version* specified
-        """
+                        version is written without any dot. E.g: '11' is in place of '1.1'"""
         path = self.gnr_config['gnr.environment_xml.static.js.%s_%s?path' % (lib_type, version)]
         if path:
             path = os.path.join(expandpath(path), 'js')
@@ -60,9 +57,7 @@ class PathResolver(object):
         
         :param entity_name: add???
         :param entity_type: add???
-        :param look_in_projects: add???. Default value is ``True``
-        :returns: add???
-        """
+        :param look_in_projects: add???"""
         entity = self.entities.get(entity_type)
         if not entity:
             raise Exception('Error: entity type %s not known' % entity_type)
@@ -127,9 +122,7 @@ class PathResolver(object):
         """add???
         
         :param project_repository_name: add???
-        :param strict: add???. Default value is ``True``
-        :returns: add???
-        """
+        :param strict: add???"""
         if not strict or 'gnr.environment_xml.projects.%s' % project_repository_name in self.gnr_config:
             path = self.gnr_config['gnr.environment_xml.projects.%s?path' % project_repository_name]
             if path:

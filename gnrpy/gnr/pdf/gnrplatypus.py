@@ -74,9 +74,8 @@ class GnrPdf(object):
     def page(self, x=0, y=0):
         """add???
         
-        :param x: add???. Default value is ``0``
-        :param y: add???. Default value is ``0``
-        """
+        :param x: add???
+        :param y: add???"""
         if self._pendingDraw:
             self.canvas.showPage()
             self._pendingDraw = False

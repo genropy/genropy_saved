@@ -81,9 +81,7 @@ class XlsWriter(object):
         """Try to autofit Arial 10
         
         :param data: add???
-        :param bold: add???. Default value is ``False``
-        :returns: add???
-        """
+        :param bold: add???"""
         charwidths = {
             '0': 262.637, '1': 262.637, '2': 262.637, '3': 262.637, '4': 262.637, '5': 262.637, '6': 262.637,
             '7': 262.637, '8': 262.637, '9': 262.637, 'a': 262.637, 'b': 262.637, 'c': 262.637, 'd': 262.637,

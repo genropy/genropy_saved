@@ -107,7 +107,7 @@ class ResourceLoader(object):
         """Get the deepest :ref:`bagnode` in the sitemap :ref:`bag` associated with the given url
         
         :param path_list: add???
-        :param default: add???. Default value is ``False``"""
+        :param default: add???"""
         def escape_path_list(path_list):
             return [p.replace('.','\\.') for p in path_list]
         def unescape_path_list(path_list):
@@ -363,7 +363,7 @@ class ResourceLoader(object):
         """add???
         
         :param res_id: add???
-        :param safe: add???. Default value is ``True``"""
+        :param safe: add???"""
         project_resource_path = os.path.normpath(os.path.join(self.site_path, '..', '..', 'resources', res_id))
         if os.path.isdir(project_resource_path):
             log.debug('resource_name_to_path(%s) -> %s (project)' % (repr(res_id),repr(project_resource_path)))

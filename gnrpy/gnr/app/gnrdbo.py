@@ -118,8 +118,8 @@ class TableBase(object):
         :param draftField: add???
         :param md5: boolean. add???
         :param group: a hierarchical path of logical categories and subacategories the columns belong to.
-                      For more information, check the :ref:`group` section. Default value is ``zzz``
-        :param group_name: add???. Default value is ``System``"""
+                      For more information, check the :ref:`group` section
+        :param group_name: add???"""
         if id:
             tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id',_sendback=True)
             pkey = tbl.attributes.get('pkey')

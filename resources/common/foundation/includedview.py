@@ -101,8 +101,7 @@ class IncludedView(BaseComponent):
                         addOnCb=None, zoom=True, hasToolbar=False,
                         canSort=True, configurable=None, dropCodes=None,
                         **kwargs):
-        """\
-        This method returns a grid (includedView) for viewing and selecting rows from a many
+        """This method returns a grid (includedView) for viewing and selecting rows from a many
         to many table related to the main table, and it returns the widget that allows to edit data.
         You can edit data of a single row (record) using a form (formPars), or picking some rows
         from another table with the picker widget (pickerPars).
@@ -112,16 +111,14 @@ class IncludedView(BaseComponent):
         :param parentBC: MANDATORY - parentBC is a :ref:`bordercontainer`
                          
                          .. note:: The includedViewBox and its sons can only accept the borderContainer
-                                   layout container.
-        :param nodeId: the includedViewbox's Id. For more information, check :ref:`nodeid` page.
-                       .
-        :param table: the includedViewbox's reference :ref:`table`.
-                      .
+                                   layout container
+                                   
+        :param nodeId: the includedViewbox's Id. For more information, check :ref:`nodeid` page
+        :param table: the includedViewbox's reference :ref:`table`
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
-                         . For more information, check the :ref:`datapath` and the
-                         :ref:`datastore` pages.
-        :param storepath: the path of the data of the includedViewBox. .
-        :param selectionPars: add???. .
+                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages
+        :param storepath: the path of the data of the includedViewBox
+        :param selectionPars: add???
                               
                               **selectionPars parameters**:
                               
@@ -133,54 +130,53 @@ class IncludedView(BaseComponent):
                          
                             **formPars parameters:**
                             
-                            * mode: `dialog` / `pane`. Default value is `dialog`.
-                            * height: the dialog's height.
-                            * width: the dialog's width.
-                            * formCb: MANDATORY - callback method used to create the form.
+                            * mode: `dialog` / `pane`
+                            * height: the dialog's height
+                            * width: the dialog's width
+                            * formCb: MANDATORY - callback method used to create the form
                             
                              **formCb parameters:**
                              
                              * formBorderCont: a :ref:`bordercontainer` used as root for the formCb's construction.
                              * datapath: allow to create a hierarchy of your data’s addresses into the datastore.
                                For more information, check the :ref:`datapath` and the :ref:`datastore` pages.
-                             * region: 'center' of the pane/borderContainer where you place it into.
-                             * toolbarHandler: OPTIONAL - a callback for the form toolbar.
-                             * title: MANDATORY - for dialog mode.
-                             * pane: OPTIONAL - pane of the form input.
+                             * region: 'center' of the pane/borderContainer where you place it into
+                             * toolbarHandler: OPTIONAL - a callback for the form toolbar
+                             * title: MANDATORY - for dialog mode
+                             * pane: OPTIONAL - pane of the form input
             
-        :param label: (string) allow to create a label for the includedView. .
-        :param caption: add???. .
-        :param footer: add???. .
-        :param add_action: (boolean) allow the insertion of a row in the includedView. .
-        :param add_class: the css class of the add button. Default value is ``buttonIcon icnBaseAdd``.
-        :param add_enable: a path to enable/disable add action. Default value is ``^form.canWrite``.
-        :param del_action: (boolean) allow the deleting of a row in the includedView. .
-        :param del_class: the css class of the delete button. Default value is ``buttonIcon icnBaseDelete``.
-        :param del_enable: a path to enable/disable del action. Default value is ``^form.canWrite``.
-        :param upd_action: add???. .
-        :param upd_class: add???. Default value is ``buttonIcon icnBaseEdit``.
-        :param upd_enable: add???. Default value is ``^form.canWrite``.
-        :param close_action: (boolean) adding closing button in tooltipDialog. .
-        :param close_class: css class of close button. .
-        :param print_action: add???. .
-        :param print_class: add???. .
-        :param pdf_action: add???. .
-        :param pdf_class: add???. .
-        :param pdf_name: add???. .
-        :param export_action: add???. .
-        :param export_class: add???. .
-        :param tools_action: add???. .
-        :param tools_class: add???. .
-        :param tools_enable: add???. .
-        :param tools_lbl: add???. .
-        :param lock_action: an optional parameter; add???. Default value is ``False``.
-        :param tools_menu: add???. .
+        :param label: (string) allow to create a label for the includedView
+        :param caption: add???
+        :param footer: add???
+        :param add_action: (boolean) allow the insertion of a row in the includedView
+        :param add_class: the css class of the add button
+        :param add_enable: a path to enable/disable add action
+        :param del_action: (boolean) allow the deleting of a row in the includedView
+        :param del_class: the css class of the delete button
+        :param del_enable: a path to enable/disable del action
+        :param upd_action: add???
+        :param upd_class: add???
+        :param upd_enable: add???
+        :param close_action: (boolean) adding closing button in tooltipDialog
+        :param close_class: css class of close button
+        :param print_action: add???
+        :param print_class: add???
+        :param pdf_action: add???
+        :param pdf_class: add???
+        :param pdf_name: add???
+        :param export_action: add???
+        :param export_class: add???
+        :param tools_action: add???
+        :param tools_class: add???
+        :param tools_enable: add???
+        :param tools_lbl: add???
+        :param lock_action: an optional parameter; add???
+        :param tools_menu: add???
         :param _onStart: an optional parameter; (Boolean) if True, the controller is executed only
-                         after that all the line codes are read. Default value is ``False``.
-        :param filterOn: (boolean, only for picker) allow the filter into the picker grid.
-                         .
+                         after that all the line codes are read
+        :param filterOn: (boolean, only for picker) allow the filter into the picker grid
         :param pickerPars: (dict) it contains all the params of the tooltip dialog which host the
-                           picker grid. .
+                           picker grid
                            
                            **Parameters:**
                            
@@ -189,24 +185,25 @@ class IncludedView(BaseComponent):
                            * label: label of the tooltipdialog.
                            * table: MANDATORY - the table of the picker grid. From this table you can pick a row
                                     for the many to many table you handle.
-                           * columns: MANDATORY - columns of the picker grid.
-                           * nodeId: MANDATORY - id for the picker.
-                           * filterOn: the columns on which to apply filter.
+                           * columns: MANDATORY - columns of the picker grid
+                           * nodeId: MANDATORY - id for the picker
+                           * filterOn: the columns on which to apply filter
                            
-        :param centerPaneCb: add???. .
-        :param editorEnabled: add???. .
-        :param parentLock: add???. .
-        :param reloader: add???. .
-        :param externalChanges: add???. .
-        :param addOnCb: add???. .
+        :param centerPaneCb: add???
+        :param editorEnabled: add???
+        :param parentLock: add???
+        :param reloader: add???
+        :param externalChanges: add???
+        :param addOnCb: add???
         :param zoom: It allows to open the linked record in a :ref:`dialog`.
-                     For further details, check the :ref:`zoom` documentation page.
-                     Default value is ``True``.
-        :param hasToolbar: add???. Default value is ``False``.
-        :param canSort: add???. Default value is ``True``.
-        :param fromPicker_target_fields: allow to bind the picker's table. columns to the includedView columns of the many to many table.
-        :param fromPicker_nodup_field: if this column value is present in the includedView it allows to replace that row instead of adding a duplicate row.
-        :param \*\*kwargs: **autowidth**, **storepath**, etc."""
+                     For further details, check the :ref:`zoom` documentation page
+        :param hasToolbar: add???
+        :param canSort: add???
+        :param fromPicker_target_fields: allow to bind the picker's table. columns to the includedView
+                                         columns of the many to many table.
+        :param fromPicker_nodup_field: if this column value is present in the includedView it allows to
+                                       replace that row instead of adding a duplicate row
+        :param \*\*kwargs: **autowidth**, **storepath**, etc"""
         if storepath:
             assert not storepath.startswith('^') and not storepath.startswith('='),\
             "storepath should be a plain datapath, no ^ or ="

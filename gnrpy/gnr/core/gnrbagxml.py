@@ -87,10 +87,10 @@ class BagFromXml(object):
         
         :param source: add???
         :param fromFile: add???
-        :param catalog: add???. 
-        :param bagcls: add???. Default value is ``Bag``
-        :param empty: add???. 
-        :param testmode: add???. Default value is ``False``"""
+        :param catalog: add???
+        :param bagcls: add???
+        :param empty: add???
+        :param testmode: add???"""
         if not testmode:
             bagImport = _SaxImporter()
         else:
@@ -295,7 +295,7 @@ class BagToXml(object):
         
         :param bag: the Bag to transform in a XML block version
         :param filename: the path of the output file
-        :param encoding: allow to set the XML encoding. Default value is ``UTF-8``
+        :param encoding: allow to set the XML encoding
         :param catalog: add???
         :param typeattrs: add???
         :param typevalue: add???

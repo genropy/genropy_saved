@@ -306,7 +306,7 @@ class GnrPackage(object):
         
         :param module: add???
         :param folder: add???
-        :param model_prefix: add???. Default value is `` ``"""
+        :param model_prefix: add???"""
         tbldict = {}
         if module:
             tbldict = dict([(x[6:], getattr(module, x)) for x in dir(module) if x.startswith('Table_')])
@@ -500,9 +500,7 @@ class GnrApp(object):
     def init(self, forTesting=False):
         """add???
         
-        :param forTesting: add???. Default value is ``False``
-        :returns: add???
-        """
+        :param forTesting: add???"""
         self.onIniting()
         self.base_lang = self.config['i18n?base_lang'] or 'en'
         self.catalog = GnrClassCatalog()
@@ -854,13 +852,13 @@ class GnrApp(object):
         """add???
         
         :param user: the username
-        :param user_name: add???. 
-        :param user_id: add???. 
-        :param login_pwd: add???. 
-        :param authenticate: add???. Default value is ``False``
-        :param defaultTags: add???. 
+        :param user_name: add???
+        :param user_id: add???
+        :param login_pwd: add???
+        :param authenticate: add???
+        :param defaultTags: add???
         :param pwd: add???. 
-        :param tags: add???. Default value is `` ``"""
+        :param tags: add???"""
         if defaultTags:
             tags = ','.join(makeSet(defaultTags, tags or ''))
         if authenticate:

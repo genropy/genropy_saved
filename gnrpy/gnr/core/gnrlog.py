@@ -57,9 +57,8 @@ root_logger = None
 def enable_colored_logging(stream=sys.stderr, level=None):
     """Enable colored logging
     
-    :param stream: add???. Default value is ``sys.stderr``
-    :param level: add???. 
-    """
+    :param stream: add???
+    :param level: add???"""
     global root_logger
     if not root_logger:
         root_logger = logging.getLogger()

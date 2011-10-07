@@ -430,7 +430,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param res_id: add???
-        :param safe: boolean. add???. Default value is ``True``"""
+        :param safe: boolean. add???"""
         project_resource_path = os.path.join(self.site_path, '..', '..', 'resources', res_id)
         if os.path.isdir(project_resource_path):
             return project_resource_path

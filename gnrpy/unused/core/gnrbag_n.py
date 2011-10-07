@@ -1893,12 +1893,13 @@ class Bag(GnrObject):
         return self.setItem(childname, None, _pkey=_pkey, _attributes=kwargs)
 
     def child(self, tag, childname='*_#', childcontent=None, _parentTag=None, **kwargs):
-        """This method sets a new item of the type tag into the current structure
-        * `tag`: structure type
-        * `name`: structure name. Default value is formed by 'tag_position'
-        * `content`: optional structure content
-        * `kwargs`: other parameters
-        @return : the new structure if content is none else the parent"""
+        """This method sets a new item of the type tag into the current structure.
+        Return the new structure if content is ``None``, else the parent
+        
+        :param tag: structure type
+        :param name: structure name
+        :param content: optional structure content
+        :param kwargs: other parameters"""
         where = self
         if not childname:
             childname = '*_#'
@@ -1937,12 +1938,10 @@ class Bag(GnrObject):
         return result
 
 class BagValidationList(object):
-    """
-    This class provides the validation system for a BagNode. This is a list
+    """This class provides the validation system for a BagNode. This is a list
     of validators related to a BagNode. This class is used only from a the Bag's
     and BagNode's accessor methods addValidator and removeValidator.
-    All the methods of this class must be considered private.
-    """
+    All the methods of this class must be considered private"""
 
     def __init__(self, parentNode):
         self.parentNode = parentNode
@@ -1952,9 +1951,7 @@ class BagValidationList(object):
         self.errMsg = None
 
     def getdata(self, validator, label=None, dflt=None):
-        """
-        This method get the validatorsdata of a validator.
-        """
+        """This method get the validatorsdata of a validator"""
         if validator in self.validatorsdata:
             data = self.validatorsdata[validator]
             if label is None:
@@ -1977,12 +1974,10 @@ class BagValidationList(object):
     node = property(_get_node, _set_node)
 
     def add(self, validator, parameterString):
-        """
-        This method add a new validator to the BagValidationList.
-        * `validator`: type of validator
-        * `parameterString`: the string that contains the parameters for
-        the validators.
-        """
+        """Add a new validator to the BagValidationList
+        
+        :param validator: type of validator
+        :param parameterString: the string that contains the parameters for validators"""
         if isinstance(validator, basestring):
             validator = getattr(self, 'validate_%s' % validator, self.defaultExt)
         if not validator in self.validators:
@@ -1990,29 +1985,21 @@ class BagValidationList(object):
             self.validatorsdata[validator] = parameterString
 
     def remove(self, validator):
-        """
-        This method remove a validator
-        """
+        """Remove a validator"""
         if validator in self.validators:
             self.validators.remove(validator)
 
 
     def __call__(self, value, oldvalue):
-        """
-        This method apply the validation to a BagNode value.
-        """
+        """Apply the validation to a BagNode value"""
         for validator in self.validators:
             value = validator(value, oldvalue, self.validatorsdata[validator])
         return value
 
     def validate_case(self, value, oldvalue, parameterString):
-        """
-        This method is set a validation for the case of a string value.
-        * `parameterString`: this can be
-        'upper'
-        'lower'
-        'capitalize'
-        """
+        """Set a validation for the case of a string value
+        
+        :param parameterString: it can be ``upper``, ``lower``, ``capitalize``"""
         mode = parameterString
         if not isinstance(value, basestring):
             raise BagValidationError('not a string value', value, 'The value is not a string')
@@ -2033,9 +2020,7 @@ class BagValidationList(object):
             return value
 
     def validate_hostaddr (self, value, oldvalue):
-        """
-        This method provides a validaton for Host address value
-        """
+        """Provide a validaton for Host address value"""
         import socket
 
         try:
@@ -2049,9 +2034,7 @@ class BagValidationList(object):
             raise BagValidationError('Unknown host', value, 'The host is not valid')
 
     def validate_length(self, value, oldvalue, parameterString):
-        """
-        This method provides a validaton for the length of a string value
-        """
+        """Provide a validaton for the length of a string value"""
         minmax = parameterString.split(',')
         min = minmax[0]
         max = minmax[1]
@@ -2073,11 +2056,9 @@ class BagValidationList(object):
         print 'manca il  validatore'
 
 class BagResolver(object):
-    """
-    BagResolver is an abstract class, that defines the interface
+    """BagResolver is an abstract class, that defines the interface
     for a new kind of dynamic objects. By "Dynamic" we mean, properties
-    that are calculated in real-time but looks like static ones.
-    """
+    that are calculated in real-time but looks like static ones"""
     classKwargs = {'cacheTime': 0, 'readOnly': True}
     classArgs = []
 
@@ -2703,8 +2684,4 @@ if __name__ == '__main__':
     b = Bag()
     b.setItem('aa', 4, _attributes={'aa': 4, 'bb': None}, _removeNullAttributes=False)
     print b.toXml()
-    
-    
-    
-    
     
