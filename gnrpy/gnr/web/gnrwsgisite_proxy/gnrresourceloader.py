@@ -494,7 +494,7 @@ class ResourceLoader(object):
         """add???
         
         :param page: add???
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param respath: add???
         :param class_name: add???
         :param _onDefault: add???"""

@@ -16,10 +16,7 @@ class PathResolver(object):
         self.gnr_config = gnr_config or self.load_gnr_config()
         
     def load_gnr_config(self):
-        """Load the gnr configuration.
-        
-        :returns: a Bag with the gnr configuration path
-        """
+        """Load the gnr configuration. Return a Bag with the gnr configuration path"""
         home_config_path = expandpath('~/.gnr')
         global_config_path = expandpath(os.path.join('/etc/gnr'))
         if os.path.isdir(home_config_path):
@@ -34,8 +31,7 @@ class PathResolver(object):
     def set_environment(self, config):
         """add???
         
-        :param config: a Bag with the gnr configuration path
-        """
+        :param config: a Bag with the gnr configuration path"""
         for var, value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
             var = var.upper()
             if not os.getenv(var):
@@ -81,41 +77,31 @@ class PathResolver(object):
     def site_name_to_path(self, site_name):
         """add???
         
-        :param site_name: add???
-        :returns: add???
-        """
+        :param site_name: add???"""
         return self.entity_name_to_path(site_name, 'site')
         
     def instance_name_to_path(self, instance_name):
         """add???
         
-        :param instance_name: add???
-        :returns: add???
-        """
+        :param instance_name: add???"""
         return self.entity_name_to_path(instance_name, 'instance')
         
     def package_name_to_path(self, package_name):
         """add???
         
-        :param package_name: add???
-        :returns: add???
-        """
+        :param package_name: add???"""
         return self.entity_name_to_path(package_name, 'package')
         
     def resource_name_to_path(self, resource_name):
         """add???
         
-        :param resource_name: add???
-        :returns: add???
-        """
+        :param resource_name: add???"""
         return self.entity_name_to_path(resource_name, 'resource')
         
     def project_name_to_path(self, project_name):
         """add???
         
-        :param project_name: add???
-        :returns: add???
-        """
+        :param project_name: add???"""
         return self.entity_name_to_path(project_name, 'project', look_in_projects=False)
         
     def project_repository_name_to_path(self, project_repository_name, strict=True):

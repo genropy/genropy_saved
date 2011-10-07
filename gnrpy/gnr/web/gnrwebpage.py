@@ -341,7 +341,7 @@ class GnrWebPage(GnrBaseWebPage):
     def tableTemplate(self, table=None, tplname=None, ext='html'):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param tplname: add???
         :param ext: add???"""
         result = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=ext)
@@ -694,7 +694,7 @@ class GnrWebPage(GnrBaseWebPage):
     def subscribeTable(self,table,subscribe=True):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param subscribe: add???"""
         with self.pageStore() as store:
             subscribed_tables = store.register_item['subscribed_tables']
@@ -1026,7 +1026,7 @@ class GnrWebPage(GnrBaseWebPage):
     def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param path: add???
         :param value: add???
         :param ext: add???"""
@@ -1039,7 +1039,7 @@ class GnrWebPage(GnrBaseWebPage):
     def setTableResourceContent(self,table=None,path=None,value=None,ext=None):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param path: add???
         :param value: add???
         :param ext: add???"""
@@ -1058,7 +1058,7 @@ class GnrWebPage(GnrBaseWebPage):
 
         This is typically used to customize prints and batch jobs for a particular installation
 
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param respath: add???
         :param class_name: add???
         :param runKwargs: add???"""
@@ -1072,7 +1072,7 @@ class GnrWebPage(GnrBaseWebPage):
     def loadTableScript(self, table=None, respath=None, class_name=None):
         """add???
 
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param respath: add???
         :param class_name: add???"""
         return self.site.loadTableScript(self, table=table, respath=respath, class_name=class_name)
@@ -1377,7 +1377,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         This is typically used to customize prints and batch jobs for a particular installation.
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param respath: add???
         :param class_name: add???
         :param downloadAs: add???"""
@@ -1440,7 +1440,7 @@ class GnrWebPage(GnrBaseWebPage):
                              omit='', **kwargs):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param prevRelation: add???
         :param prevCaption: add???
         :param omit: add???"""
@@ -1619,7 +1619,7 @@ class GnrWebPage(GnrBaseWebPage):
    #    clientpath = 'gnr.sqlctx.columns.%s' % path
    #    self.addToContext(value=joincolumns, serverpath=serverpath, clientpath=clientpath)
         
-    def _prepareGridStruct(self,source=None,table=None,gridId=None):
+    def _prepareGridStruct(self, source=None, table=None, gridId=None):
         struct = None
         if isinstance(source, Bag):
             return source
@@ -1643,22 +1643,21 @@ class GnrWebPage(GnrBaseWebPage):
             rows.fields(columns)
         return struct
         
-    def rpc_getGridStruct(self,struct,table):
-        """add???
+    def rpc_getGridStruct(self, struct, table):
+        """Prepare the :ref:`grid` struct
         
         :param struct: add???
-        :param table: the :ref:`table` name
-        :returns: add???"""
-        return self._prepareGridStruct(struct,table)
+        :param table: the :ref:`database table <table>` name"""
+        return self._prepareGridStruct(struct, table)
         
     @public_method
-    def callTableMethod(self,table=None,methodname=None,**kwargs):
+    def callTableMethod(self, table=None, methodname=None, **kwargs):
         """add???
         
         ``callTableMethod()`` method is decorated with the :meth:`public_method
         s<gnr.core.gnrdecorator.public_method>` decorator
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param methodname: the method name of the :ref:`datarpc`"""
         handler = getattr(self.db.table(table), methodname, None)
         if not handler or not getattr(handler, 'is_rpc', False):

@@ -159,7 +159,9 @@ class BaseResourceBatch(object):
     def get_selection(self, columns=None):
         """add???
         
-        :param columns: add???"""
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section"""
         if hasattr(self,'selectionName'):
             selection = self.page.getUserSelection(selectionName=self.selectionName,
                                                     selectedRowidx=self.selectedRowidx, filterCb=self.selectionFilterCb,

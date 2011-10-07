@@ -140,16 +140,20 @@ class GnrDomSrc(GnrStructData):
         return self.root._page
     page = property(_get_page)
     
-    def checkNodeId(self,nodeId):
+    def checkNodeId(self, nodeId):
+        """Check if the :ref:`nodeid` is already existing or not
+        
+        :param nodeId: the :ref:`nodeid`"""
         assert not nodeId in self.register_nodeId,'%s is duplicated' %nodeId
         self.page._register_nodeId[nodeId] = self
-            
+        
     @property
     def register_nodeId(self):
+        """add???"""
         if not hasattr(self.page,'_register_nodeId'):
             register = dict()
             self.page._register_nodeId = register
-        return  self.page._register_nodeId
+        return self.page._register_nodeId
         
     def _get_parentfb(self):
         if hasattr(self, 'fbuilder'):
@@ -189,12 +193,13 @@ class GnrDomSrc(GnrStructData):
         if childnode:
             return childnode._value
         
-    def child(self, tag, childname=None,childcontent=None, envelope=None, **kwargs):
+    def child(self, tag, childname=None, childcontent=None, envelope=None, **kwargs):
         """Set a new item of the ``tag`` type into the current structure through
         the :meth:`child() <gnr.core.gnrstructures.GnrStructData.child>` and return it
         
         :param tag: add???
         :param childname: the :ref:`childname`
+        :param childcontent: the html content
         :param envelope: add???"""
         if '_tags' in kwargs and not self.page.application.checkResourcePermission(kwargs['_tags'], self.page.userTags):
             kwargs['__forbidden__'] = True
@@ -225,7 +230,6 @@ class GnrDomSrc(GnrStructData):
         if kwargs.get('nodeId'):
             self.checkNodeId(kwargs['nodeId'])
         return GnrStructData.child(obj, tag, childname=childname, childcontent=childcontent,**kwargs)
-
         
     def htmlChild(self, tag, childcontent, value=None, **kwargs):
         """Create an html child and return it
@@ -244,7 +248,7 @@ class GnrDomSrc(GnrStructData):
     def nodeById(self, id):
         """add???
         
-        :param id: the node Id"""
+        :param id: the :ref:`nodeid`"""
         return self.findNodeByAttr('nodeId', id)
         
     def framepane(self, frameCode=None, centerCb=None, **kwargs):
@@ -269,7 +273,8 @@ class GnrDomSrc(GnrStructData):
         return self.center.contentPane(datapath='.record')
         
     @extract_kwargs(store=True)
-    def frameform(self,formId=None,frameCode=None,store=None,storeCode=None,slots=None,table=None,store_kwargs=None,**kwargs):
+    def frameform(self, formId=None, frameCode=None, store=None, storeCode=None,
+                  slots=None, table=None, store_kwargs=None, **kwargs):
         """add???
         
         ``frameform()`` method is decorated with the :meth:`extract_kwargs <gnr.core.gnrdecorator.extract_kwargs>` decorator
@@ -279,7 +284,7 @@ class GnrDomSrc(GnrStructData):
         :param store: add???
         :param storeCode: add???
         :param slots: add???
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param store_kwargs: add???"""
         formId = formId or '%s_form' %frameCode
         if not storeCode:
@@ -301,14 +306,15 @@ class GnrDomSrc(GnrStructData):
             centerCb(frame)
         return frame
         
-    def formstore(self,handler='recordCluster',nodeId=None,table=None,storeType=None,parentStore=None,**kwargs):
+    def formstore(self, handler='recordCluster', nodeId=None, table=None,
+                  storeType=None, parentStore=None, **kwargs):
         """add???
         
         :param storepath: add???
         :param handler: add???
         :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
                        documentation page
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param storeType: add???
         :param parentStore: add???"""
         assert self.attributes.get('tag','').lower()=='frameform', 'formstore can be created only inside a FrameForm'
@@ -331,21 +337,17 @@ class GnrDomSrc(GnrStructData):
                             nodeId = nodeId or '%s_store' %storeCode,storeType=storeType,
                             parentStore=parentStore,handler=handler,**kwargs)
                             
-    def formstore_handler(self,action,handler_type=None,**kwargs):
-        """add???
+    def formstore_handler(self, action, handler_type=None, **kwargs):
+        """add??? Return the formstore handler
         
         :param action: add???
-        :param handler_type: add???. 
-        :returns: the formstore handler
-        """
+        :param handler_type: add???"""
         return self.child('formstore_handler',childname=action,action=action,handler_type=handler_type,**kwargs)
         
-    def formstore_handler_addcallback(self,cb,**kwargs):
+    def formstore_handler_addcallback(self, cb, **kwargs):
         """add???
         
-        :param cb: add???
-        :returns: add???
-        """
+        :param cb: add???"""
         self.child('callBack',childcontent=cb,**kwargs)
         return self
 
@@ -431,8 +433,8 @@ class GnrDomSrc(GnrStructData):
         return self.child('tooltip', label=label, **kwargs)
         
     def data(self, *args, **kwargs):
-        """Create a :ref:`data` and returns it. ``data`` allows to define variables from server
-        to client
+        """Create a :ref:`data` and returns it. ``data`` allows to define
+        variables from server to client
         
         :param \*args: args[0] includes the path of the value, args[1] includes the value
         :param \*\*kwargs: in the kwargs you can insert the ``_serverpath`` attribute. For more
@@ -464,11 +466,9 @@ class GnrDomSrc(GnrStructData):
         return self.child('data', __cls=className,childcontent=value,_returnStruct=False, path=path, **kwargs)
         
     def script(self, content='', **kwargs):
-        """Handle the <script> html tag
+        """Handle the <script> html tag and return it
         
-        :param content: the <script> content. 
-        :returns: the <script> html tag
-        """
+        :param content: the <script> content"""
         return self.child('script', childcontent=content, **kwargs)
         
     def remote(self, method, lazy=True, **kwargs):
@@ -527,9 +527,7 @@ class GnrDomSrc(GnrStructData):
         
         :param what: add???
         :param event: add???
-        :param func: add???. 
-        :returns: add???
-        """
+        :param func: add???"""
         objPath = None
         if not isinstance(what, basestring):
             objPath = what.fullpath
@@ -537,7 +535,7 @@ class GnrDomSrc(GnrStructData):
         return self.child('subscribe', obj=what, objPath=objPath, event=event, childcontent=func, **kwargs)
         
     def css(self, rule, styleRule=''):
-        """Handle the CSS rules. add???
+        """Handle the CSS rules
         
         :param rule: dict or list of CSS rules
         :param styleRule: add???"""
@@ -554,11 +552,9 @@ class GnrDomSrc(GnrStructData):
     def styleSheet(self, cssText=None, cssTitle=None, href=None):
         """Create the styleSheet
         
-        :param cssText: add???. 
-        :param cssTitle: add???. 
-        :param href: add???. 
-        :returns: add???
-        """
+        :param cssText: add???
+        :param cssTitle: add???
+        :param href: add???"""
         self.child('stylesheet',childname=None, childcontent=cssText, href=href, cssTitle=cssTitle)
         
     def cssrule(self, selector=None, **kwargs):
@@ -791,7 +787,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def virtualSelectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param storeCode: add???
         :param storepath: add???
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
@@ -802,7 +798,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def selectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param storeCode: add???
         :param storepath: add???
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
@@ -846,7 +842,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """Create a :ref:`dataselection` and returns it. dataSelection allows... add???
         
         :param path: add???
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param method: add???
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
@@ -888,7 +884,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param pane: add???
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where`
                       section
         :param group_by: the sql "GROUP BY" clause. For more information check the
@@ -912,7 +908,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """Create a :ref:`datarecord` and returns it. dataRecord allows... add???
         
         :param path: add???
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param pkey: the record :ref:`primary key <pkey>`
         :param method: add???
         :param \*\*kwargs: *_onCalling*, *_onResult*, *sync*. For more information,
@@ -1063,7 +1059,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
                        documentation page
         :param relativeWorkspace: add???"""
@@ -1230,7 +1226,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             else:
                 pane.radioButton(label, group=group)
                 
-    def checkboxtext(self, labels,value=None,separator=',',**kwargs):
+    def checkboxtext(self, labels, value=None, separator=',', **kwargs):
         """A group of checkboxes that allow to compose a string with checkbox labels.
                 
         :param labels: a string separated by comma set of words. For every words there will be
@@ -1305,9 +1301,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def wdgAttributesFromColumn(self, fieldobj, **kwargs):
         """add???
         
-        :param fieldobj: add???
-        :returns: add???
-        """
+        :param fieldobj: add???"""
         result = {'lbl': fieldobj.name_long, 'dbfield': fieldobj.fullname}
         dtype = result['dtype'] = fieldobj.dtype
         if dtype in ('A', 'C'):
@@ -1457,10 +1451,8 @@ class GnrFormBuilder(object):
         """add???
         
         :param field: add???
-        :param row: add???. 
-        :param col: add???. 
-        :returns: add???
-        """
+        :param row: add???
+        :param col: add???"""
         field = dict(field)
         if 'pos' in field:
             rc = ('%s,0' % field.pop('pos')).split(',')
@@ -1486,8 +1478,8 @@ class GnrFormBuilder(object):
         """add???
         
         :param fields: add???
-        :param rowstart: add???.
-        :param colstart: add???."""
+        :param rowstart: add???
+        :param colstart: add???"""
         for field in fields:
             self.setField(field)
                 
@@ -1499,10 +1491,8 @@ class GnrFormBuilder(object):
     def setRowAttr(self, r, attrs):
         """add???
         
-        :param r: add???
-        :param attrs: add???
-        :returns: add???
-        """
+        :param r: the row to set
+        :param attrs: add???"""
         self._fillRows(r)
         if self.lblpos == 'L':
             return self.tbl.setAttr('r_%i' % r, attrs)
@@ -1512,9 +1502,7 @@ class GnrFormBuilder(object):
     def getRowNode(self, r):
         """add???
         
-        :param r: add???
-        :returns: add???
-        """
+        :param r: the row from which to get node"""
         self._fillRows(r)
         if self.lblpos == 'L':
             return self.tbl.getNode('r_%i' % r)
@@ -1524,9 +1512,7 @@ class GnrFormBuilder(object):
     def getRow(self, r):
         """add???
         
-        :param r: add???
-        :returns: add???
-        """
+        :param r: the row to get"""
         self._fillRows(r)
         if self.lblpos == 'L':
             return self.tbl['r_%i' % r]
@@ -1534,12 +1520,11 @@ class GnrFormBuilder(object):
             return (self.tbl['r_%i_l' % r], self.tbl['r_%i_f' % r])
                 
     def nextCell(self, r, c):
-        """add???
+        """Get the current row (*r* attribute) and the current cell (*c* attribute)
+        of the :ref:`struct` and return the correct next row and cell
         
-        :param r: add???
-        :param c: add???
-        :returns: add???
-        """
+        :param r: a row
+        :param c: a cell"""
         def nc(row, r, c):
             c = c + 1
             if c >= self.colmax:
@@ -1562,8 +1547,7 @@ class GnrFormBuilder(object):
         """add???
         
         :param fields: add???
-        :param row: add???. 
-        """
+        :param row: add???"""
         colcurr = -1
         if row is None:
             row = self.rowcurr = self.rowcurr + 1
@@ -1732,8 +1716,6 @@ class GnrDomSrc_dojo_16(GnrDomSrc_dojo_11):
 class GnrGridStruct(GnrStructData):
     """This class handles the creation of a :ref:`struct`
     
-    add??? (introduce the example)
-    
     ::
     
         r = struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
@@ -1744,11 +1726,9 @@ class GnrGridStruct(GnrStructData):
         
         :param cls: add???
         :param page: add???
-        :param maintable: the table to which the struct refers to. For more information,
+        :param maintable: the :ref:`table` to which the struct refers to. For more information,
                           check the :ref:`maintable` section.
-        :param source: add???. 
-        :returns: add???
-        """
+        :param source: add???"""
         root = GnrStructData.makeRoot(source=source, protocls=cls)
         #root._page = weakref.ref(page)
         root._page = page
@@ -1780,49 +1760,45 @@ class GnrGridStruct(GnrStructData):
     def view(self, tableobj=None, **kwargs):
         """add???
         
-        :param tableobj: add???. 
-        :returns: add???
-        """
+        :param tableobj: add???"""
         self.tableobj = tableobj
         return self.child('view', **kwargs)
         
     def rows(self, classes=None, cellClasses=None, headerClasses=None, **kwargs):
         """add???
         
-        :param classes: add???. 
-        :param cellClasses: add???. 
-        :param headerClasses: add???. 
-        :returns: add???
-        """
+        :param classes: add???
+        :param cellClasses: add???
+        :param headerClasses: add???"""
         return self.child('rows', classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
         
     def cell(self, field=None, name=None, width=None, dtype=None, classes=None, cellClasses=None, headerClasses=None,
              **kwargs):
-        """Return a :ref:`cell`.
+        """Return a :ref:`cell`
         
-        :param field: add???.
-        :param name: add???.
+        :param field: add???
+        :param name: add???
         :param width: the width of the cell
-        :param dtype: the :ref:`datatype`.
-        :param classes: add???.
-        :param cellClasses: add???.
-        :param headerClasses: add???."""
+        :param dtype: the :ref:`datatype`
+        :param classes: add???
+        :param cellClasses: add???
+        :param headerClasses: add???"""
         return self.child('cell', childcontent='', field=field, name=name or field, width=width, dtype=dtype,
                           classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
                           
     def checkboxcell(self, field=None, falseclass=None,
                      trueclass=None,nullclass=None, classes='row_checker', action=None, name=' ',
                      calculated=False, radioButton=False,threestate=False, **kwargs):
-        """Return a boolean checkbox :ref:`cell`. add???
+        """Return a :ref:`checkboxcell`
         
-        :param field: add???.
-        :param falseclass: the css class for the false state.
-        :param trueclass: the css class for the true state.
+        :param field: add???
+        :param falseclass: the css class for the false state
+        :param trueclass: the css class for the true state
         :param nullclass: the css class for the null state, the optional third state that you can
                           specify through the **threestate** parameter
         :param classes: add???
         :param action: allow to execute a javascript callback. For more information, check the
-                       :ref:`action_attr` documentation page
+                       :ref:`action_attr` page
         :param name: add???
         :param calculated: boolean. add???
         :param radioButton: boolean. add???
@@ -1915,7 +1891,7 @@ class GnrGridStruct(GnrStructData):
         
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section.
+                        :ref:`sql_columns` section
         :param unit: the field unit
         :param totalWidth: add???
         
@@ -1972,7 +1948,7 @@ class GnrGridStruct(GnrStructData):
         
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section. """
+                        :ref:`sql_columns` section"""
         if columns is None:
             columns = []
         for v, fld in self.digest('#v,#a.field'):

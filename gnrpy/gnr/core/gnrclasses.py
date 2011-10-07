@@ -79,9 +79,7 @@ class GnrClassCatalog(object):
     def getEmpty(self, key):
         """Add???
             
-        :param key: add???
-        :returns: add???
-        """
+        :param key: add???"""
         if isinstance(key, basestring):
             key = self.classes.get(key.upper())
         if key in self.names:
@@ -95,9 +93,7 @@ class GnrClassCatalog(object):
     def getAlign(self, key):
         """Add???
             
-        :param key: add???
-        :returns: add???
-        """
+        :param key: add???"""
         if isinstance(key, basestring):
             key = self.classes.get(key.upper())
         if key in self.names:
@@ -131,17 +127,13 @@ class GnrClassCatalog(object):
     def getClassKey(self, o):
         """Add???
             
-        :param o: add???
-        :returns: add???
-        """
+        :param o: add???"""
         return self.names[type(o)]
 
     def getClass(self, name):
         """Add???
             
-        :param name: add???
-        :returns: add???
-        """
+        :param name: add???"""
         return self.classes[name]
 
     def asText(self, o, quoted=False, translate_cb=None):
@@ -168,9 +160,7 @@ class GnrClassCatalog(object):
     def quoted(self, s):
         """Add???
             
-        :param s: add???
-        :returns: add???
-        """
+        :param s: add???"""
         if '"' in s:
             s = "'%s'" % s
         else:
@@ -181,9 +171,7 @@ class GnrClassCatalog(object):
         """Add???
             
         :param txt: add???
-        :param clsname: add???
-        :returns: add???
-        """
+        :param clsname: add???"""
         if not clsname:
             return txt
         if not txt:
@@ -203,9 +191,7 @@ class GnrClassCatalog(object):
     def fromTypedText(self, txt, **kwargs):
         """Add???
             
-        :param txt: add???
-        :returns: add???
-        """
+        :param txt: add???"""
         result = re.split('::(\w*)$', txt)
         if len(result) == 1:
             return txt
@@ -242,14 +228,11 @@ class GnrClassCatalog(object):
     def getType(self, o):
         """Add???
             
-        :param o: add???
-        :returns: add???
-        """
+        :param o: add???"""
         return self.names.get(type(o))
         
     def standardClasses(self):
-        """add???
-        """
+        """add???"""
         from gnr.core.gnrbag import Bag
         
         self.addClass(cls=unicode, key='T', aliases=['TEXT', 'P', 'A'], altcls=[basestring, str], empty='')
@@ -312,9 +295,7 @@ class GnrClassCatalog(object):
     def parse_float(self, txt):
         """Add???
             
-        :param txt: add???
-        :returns: add???
-        """
+        :param txt: add???"""
         if txt.lower() != 'inf':
             return float(txt)
             
@@ -341,26 +322,20 @@ class GnrClassCatalog(object):
     def parse_time(self, txt):
         """Add???
             
-        :param txt: add???
-        :returns: add???
-        """
+        :param txt: add???"""
         if txt and txt != '00:00:00':
             return datetime.time(*[int(el) for el in gnrstring.wordSplit(txt)])
             
     def toJson(self, data):
         """Add???
             
-        :param data: add???
-        :returns: add???
-        """
+        :param data: add???"""
         return gnrstring.toJson(data)
         
     def fromJson(self, data):
         """Add???
             
-        :param data: add???
-        :returns: add???
-        """
+        :param data: add???"""
         return gnrstring.fromJson(data)
         
     #def getItaCatalog():

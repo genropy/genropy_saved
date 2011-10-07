@@ -55,9 +55,7 @@ def plain_redirect (page, params):
     and in the second ``%s`` goes the *params* parameter.
     
     :param page: add???
-    :param params: add???
-    :returns: a string
-    """
+    :param params: add???"""
     return """<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
     <html lang="en">

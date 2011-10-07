@@ -38,7 +38,7 @@
 .. _apphandler_classes:
 
 :mod:`gnr.web.gnrwebpage_proxy.apphandler` - The complete reference list
-=======================================================================
+========================================================================
 
 .. automodule:: gnr.web.gnrwebpage_proxy.apphandler
     :members:

@@ -494,10 +494,10 @@ class Bag(GnrObject):
     #-------------------- __contains__ --------------------------------
     def __contains__(self, what):
         """The "in" operator can be used to test the existence of a key in a
-        bag. Also nested keys are allowed
+        bag. Also nested keys are allowed. Return ``True`` if the key exists
+        in the Bag, ``False`` otherwise
         
-        :param what: the key path to test
-        :returns: a boolean value, True if the key exists in the bag, False otherwise"""
+        :param what: the key path to test"""
         if isinstance(what, basestring):
             return bool(self.getNode(what))
         elif isinstance(what, BagNode):
@@ -914,8 +914,7 @@ class Bag(GnrObject):
         """add???
         
         :param cols: add???
-        :param attrMode: add???
-        :returns: add???"""
+        :param attrMode: boolean. add???"""
         if isinstance(cols, basestring):
             cols = cols.split(',')
         mode = ''
@@ -1172,9 +1171,9 @@ class Bag(GnrObject):
     #-------------------- getNode --------------------------------
     def getNode(self, path=None, asTuple=False, autocreate=False, default=None):
         """Return the BagNode stored at the relative path
-            
+        
         :param path: path of the given node
-        :param asTuple: boolean. add???
+        :param asTuple: boolean. If ``True``, return a tuple with the object and the node
         :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist
         :param default: the default return value for a not found node"""
         if not path:
@@ -2110,11 +2109,11 @@ class Bag(GnrObject):
         return self.setItem(childname, None, _pkey=_pkey, _attributes=kwargs)
 
     def child(self, tag, childname='*_#', childcontent=None, _parentTag=None, **kwargs):
-        """Set a new item of a tag type into the current structure or return the parent.
+        """Set a new item of a tag type into the current structure or return the parent
         
         :param tag: structure type
         :param name: structure name
-        :param childcontent: add??? 
+        :param childcontent: the html content
         :param _parentTag: add???"""
         where = self
         if not childname:

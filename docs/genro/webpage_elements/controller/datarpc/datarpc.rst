@@ -78,8 +78,8 @@ passing a dataRpc as a callable
         def check_rate(self,**kwargs):
             return something # Here goes the code for the validate remote...
             
-    As you can see, to pass the method as a callable you have to use the :ref:`public_method`
-    decorator; so, you have to import::
+    As you can see, to pass the method as a callable you have to use the :meth:`public_method
+    <gnr.core.gnrdecorator.public_method>` decorator; so, you have to import::
     
-        from gnr.web.gnrwebpage import public_method
+        from gnr.core.gnrdecorator import public_method
         

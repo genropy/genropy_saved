@@ -296,7 +296,8 @@ validate_remote
     
         validate_remote = self.RpcName
         
-    where ``RpcName`` is the name of the dataRpc defined through the :ref:`public_method`.
+    where ``RpcName`` is the name of the dataRpc defined through the
+    :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator.
     For more information, check the :ref:`datarpc_callable` section.
         
 .. _validations_common:

@@ -11,6 +11,7 @@ Genropy v0.7dev documentation
     getting_started/index
     bag/index
     webpage_elements/index
+    grid/index
     sql/index
     components <components/index>
     database/index

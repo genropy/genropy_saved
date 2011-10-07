@@ -856,9 +856,7 @@ class GnrExpandible(object):
 def instanceOf(obj, *args, **kwargs):
     """add???
     
-    :param obj: add???
-    :returns: the object
-    """
+    :param obj: add???"""
     if isinstance(obj, basestring):
         modulename, clsname = obj.split(':')
         m = gnrImport(modulename)
@@ -869,10 +867,7 @@ def instanceOf(obj, *args, **kwargs):
         return obj
         
 def errorTxt():
-    """add???
-    
-    :returns: add???
-    """
+    """add???"""
     el = sys.exc_info()
     tb_text = traceback.format_exc()
     e = el[2]

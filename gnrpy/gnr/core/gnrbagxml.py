@@ -229,10 +229,10 @@ class BagToXml(object):
     """The class that handles the conversion from the :class:`Bag <gnr.core.gnrbag.Bag>`
     class to the XML format"""
     def nodeToXmlBlock(self, node):
-        """Handle all the different node types, call the method build tag and return its result.
+        """Handle all the different node types, call the method build tag. Return
+        the XML tag that represent the BagNode
         
-        :param node: the :meth:`BagNode <gnr.core.gnrbag.BagNode>`
-        :returns: the XML tag that represent the BagNode"""
+        :param node: the :meth:`BagNode <gnr.core.gnrbag.BagNode>`"""
         nodeattr = dict(node.attr)
         if '__forbidden__' in nodeattr:
             return ''
@@ -272,14 +272,11 @@ class BagToXml(object):
         otherwise a 'T' attribute is set to the node and the value of 'T' changes in function of the type 
         (value of 'T' is 'B' for boolean, 'L' for integer, 'R' for float, 'D' for date, 'H' for time).
         
-        :returns: the Bag represented as XML block in a List.
-        
         >>> mybag=Bag()
         >>> mybag['aa.bb']=4567
         >>> mybag['aa.cc']='test'
         >>> mybag.toXmlBlock()
-        ['<aa>', u'<cc>test</cc>', u'<bb T="L">4567</bb>', '</aa>']
-        """
+        ['<aa>', u'<cc>test</cc>', u'<bb T="L">4567</bb>', '</aa>']"""
         return '\n'.join([self.nodeToXmlBlock(node) for node in bag.nodes])
         
     #-------------------- toXml --------------------------------
@@ -347,14 +344,13 @@ class BagToXml(object):
         return result
         
     def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False):
-        """add???
+        """add??? Return the XML tag that represent self BagNode
         
         :param tagName: add???
         :param value: add???
         :param attributes: add???
         :param cls: add???
-        :param xmlMode: add???
-        :returns: the XML tag that represent self BagNode"""
+        :param xmlMode: add???"""
         #if value == None:
         #    value = ''
         if self.onBuildTag:

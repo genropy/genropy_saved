@@ -28,7 +28,6 @@ section index
     auth
     clipboard
     datastore
-    grid
     languages
     login
     palette

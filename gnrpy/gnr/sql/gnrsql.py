@@ -122,15 +122,11 @@ class GnrSqlDb(GnrObject):
         
     @property
     def dbstores(self):
-        """add???
-        
-        :returns: add???"""
+        """add???"""
         return self.stores_handler.dbstores
         
     def createModel(self):
-        """add???
-        
-        :returns: add???"""
+        """add???"""
         from gnr.sql.gnrsqlmodel import DbModel
         
         return DbModel(self)
@@ -143,8 +139,7 @@ class GnrSqlDb(GnrObject):
     def packageSrc(self, name):
         """Return a DbModelSrc corresponding to the required package
         
-        :param name: the package name
-        :returns: add???"""
+        :param name: the :ref:`package <packages>` name"""
         return self.model.src.package(name)
         
     def packageMixin(self, name, obj):
@@ -158,8 +153,7 @@ class GnrSqlDb(GnrObject):
         """Register an object or a class to mixin to a table.
         
         :param tblpath: the path of the table
-        :param obj: a class or an object to mixin
-        """
+        :param obj: a class or an object to mixin"""
         self.model.tableMixin(tblpath, obj)
         
     def loadModel(self, source=None):
@@ -455,10 +449,9 @@ class GnrSqlDb(GnrObject):
     def tableTreeBag(self, packages=None, omit=None, tabletype=None):
         """add???
         
-        :param packages: add???. 
-        :param omit: add???. 
-        :param tabletype: add???. 
-        :returns: add???"""
+        :param packages: add???
+        :param omit: add???
+        :param tabletype: add???"""
         result = Bag()
         for pkg, pkgobj in self.packages.items():
             if (pkg in packages and omit) or (not pkg in packages and not omit):
@@ -502,7 +495,7 @@ class GnrSqlDb(GnrObject):
                          translator=None, **kwargs):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param prevCaption: add???
         :param prevRelation: add???
         :param translator: add???"""

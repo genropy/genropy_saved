@@ -147,9 +147,8 @@ class GnrBaseWebPage(GnrObject):
         
     def mixins(self):
         """Implement this method in your page for mixin the page with methods from the
-        public :ref:`public_resources` folder
-        
-        :returns: a list of mixin names with the following syntax: ``moduleName:className``"""
+        public :ref:`public_resources` folder. Return a list of mixin names with the
+        following syntax: ``moduleName:className``"""
         return []
         
     def requestWrite(self, txt, encoding='utf-8'):
@@ -185,10 +184,10 @@ class GnrBaseWebPage(GnrObject):
             self._siteStatus.toXml(path)
             
     def pageAuthTags(self, method=None, **kwargs):
-        """Hook method. Allow to define users :ref:`auth`
+        """Hook method. Allow to define users :ref:`auth`. Return a string containing
+        the users authorizations
         
-        :param method: add???
-        :returns: a string containing the users authorizations"""
+        :param method: add???"""
         return ""
         
     def pageLocalDocument(self, docname, page_id=None):
@@ -236,7 +235,7 @@ class GnrBaseWebPage(GnrObject):
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param condition: add???
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param condition_args: the arguments of the *condition* parameter. Their syntax
                                is ``condition_`` followed by the name of the argument"""
         # table is for checking if the selection belong to the table
@@ -432,7 +431,7 @@ class GnrBaseWebPage(GnrObject):
     def rpc_loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param pkey: the record :ref:`primary key <pkey>`
         :param recordGetter: add???"""
         table = table or self.maintable
@@ -444,7 +443,7 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param data: add???
-        :param table: the :ref:`table` name. 
+        :param table: the :ref:`database table <table>` name. 
         :param _nocommit: boolean. add???
         :param rowcaption: add???
         :param _autoreload: boolean. add???"""
@@ -493,7 +492,7 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param data: add???
-        :param table: the :ref:`table` name"""
+        :param table: the :ref:`database table <table>` name"""
         maintable = getattr(self, 'maintable')
         table = table or maintable
         tblobj = self.db.table(table)
@@ -511,12 +510,12 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def rpc_deleteDbRow(self, table, pkey=None, **kwargs):
-        """Method for deleting a single record from a given table
+        """Method for deleting a single record from a given table. If it works, returns
+        the primary key and the deleted attribute. Else, return an exception
         
-        :param table: the :ref:`table` from which you want to delete a single record
-        :param pkey: the record :ref:`primary key <pkey>`
-        :returns: if it works, returns the primary key and the deleted attribute.
-                  Else, return an exception"""
+        :param table: the :ref:`database table <table>` from which you want to delete
+                      a single record
+        :param pkey: the record :ref:`primary key <pkey>`"""
         try:
             tblobj = self.db.table(table)
             record = tblobj.record(pkey, for_update=True, mode='bag')
@@ -530,12 +529,11 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def rpc_deleteDbRows(self, table, pkeys=None, **kwargs):
-        """Method for deleting many records from a given table.
+        """Method for deleting many records from a given table. If it works, returns
+        the primary key and the deleted attribute. Else, return an exception
         
         :param table: the :ref:`table` from which you want to delete a single record
-        :param pkeys: add???
-        :returns: if it works, returns the primary key and the deleted attribute.
-                  Else, return an exception"""
+        :param pkeys: add???"""
         try:
             tblobj = self.db.table(table)
             rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
@@ -618,9 +616,7 @@ class GnrBaseWebPage(GnrObject):
         pass
         
     def pageController(self, **kwargs):
-        """add???
-        
-        :returns: add???"""
+        """add???"""
         return self.pageSource().dataController(**kwargs)
         
     def pageSource(self, nodeId=None):

@@ -28,18 +28,19 @@
 
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc
     
-    ===================================== ==================== ===================
-    :meth:`child`                         :meth:`framepane`    :meth:`makeRoot`   
-    :meth:`connect`                       :meth:`func`         :meth:`nodeById`   
-    :meth:`css`                           :meth:`getAttach`    :meth:`place`      
-    :meth:`cssrule`                       :meth:`getField`     :meth:`record`     
-    :meth:`data`                          :meth:`htmlChild`    :meth:`remote`     
-    :meth:`formbuilder`                   :meth:`iframe`       :meth:`script`     
-    :meth:`formstore`                     :meth:`js_domNode`   :meth:`styleSheet` 
-    :meth:`formstore_handler`             :meth:`js_form`      :meth:`subscribe`  
-    :meth:`formstore_handler_addcallback` :meth:`js_widget`    :meth:`tooltip`    
-    :meth:`frameform`                     :meth:`macro`       
-    ===================================== ==================== ===================
+    ===================================== ==================== =======================
+    :meth:`checkNodeId`                   :meth:`framepane`    :meth:`nodeById`       
+    :meth:`child`                         :meth:`func`         :meth:`place`          
+    :meth:`connect`                       :meth:`getAttach`    :meth:`record`         
+    :meth:`css`                           :meth:`getField`     :meth:`register_nodeId`
+    :meth:`cssrule`                       :meth:`htmlChild`    :meth:`remote`         
+    :meth:`data`                          :meth:`iframe`       :meth:`script`         
+    :meth:`formbuilder`                   :meth:`js_domNode`   :meth:`styleSheet`     
+    :meth:`formstore`                     :meth:`js_form`      :meth:`subscribe`      
+    :meth:`formstore_handler`             :meth:`js_widget`    :meth:`tooltip`        
+    :meth:`formstore_handler_addcallback` :meth:`macro`                               
+    :meth:`frameform`                     :meth:`makeRoot`                            
+    ===================================== ==================== =======================
     
 .. _gnrwebstruct_gnrdomsrcdojo11:
 

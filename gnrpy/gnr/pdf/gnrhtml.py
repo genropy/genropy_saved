@@ -226,11 +226,9 @@ class GnrHtmlSrc(GnrStructData):
         return row
         
     def borderWidths(self, b):
-        """Define the border's width
+        """Define the border's width and retutn it
         
-        :param b: the border
-        :returns: the border's width
-        """
+        :param b: the border"""
         b = b.upper()
         borders = ['T' in b, 'R' in b, 'B' in b, 'L' in b]
         if True in borders:
@@ -265,12 +263,11 @@ class GnrHtmlSrc(GnrStructData):
         return cell
         
     def compile_cell(self, cell, tag, attr):
-        """Compile a cell
+        """Compile a cell. Return ``tag`` and ``attr`` attributes
         
         :param cell: the cell
         :param tag: a list of the cell's tag
-        :param attr: a dict of the cell's attributes
-        :returns: ``tag`` and ``attr`` attributes"""
+        :param attr: a dict of the cell's attributes"""
         bs = self.border_size
         dbs = min(bs / 2., .2)
         tag = 'div'
@@ -293,12 +290,11 @@ class GnrHtmlSrc(GnrStructData):
         return tag, attr
         
     def compile_row(self, row, tag, attr):
-        """Compile a row
+        """Compile a row. Return ``tag`` and ``attr`` attributes
         
         :param row: the row
         :param tag: a list of the row's tag
-        :param attr: a dict of the row's attributes
-        :returns: ``tag`` and ``attr`` attributes"""
+        :param attr: a dict of the row's attributes"""
         tag = 'div'
         attr['top'] = row.container.height_calc
         self.height_calc = self.height_calc + float(row.height)
@@ -306,13 +302,11 @@ class GnrHtmlSrc(GnrStructData):
         return tag, attr
         
     def compile_layout(self, layout, tag, attr):
-        """Compile the layout
+        """Compile the layout. Return ``tag`` and ``attr`` attributes
         
         :param layout: the layout
         :param tag: a list of the layout's tag
-        :param attr: a dict of the layout's attributes
-        :returns: ``tag`` and ``attr`` attributes
-        """
+        :param attr: a dict of the layout's attributes"""
         tag = 'div'
         attr['height'] = layout.height_calc - .2
         attr['class'] = '%s_tl' % layout.layout_name
@@ -323,7 +317,7 @@ class GnrHtmlSrc(GnrStructData):
         """add???
         
         :param attr: ???
-        :param um: the unit of measurement."""
+        :param um: the unit of measurement"""
         style = attr.pop('style', '')
         style_dict = dict([(x.split(':')) for x in style.split(';') if x])
         style_dict.update(kwargs)

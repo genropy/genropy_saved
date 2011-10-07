@@ -79,10 +79,7 @@ class SiteLock(object):
         self.release()
         
     def acquire(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         page = self.site.currentPage
         lockinfo = dict(user=page.user,
                         page_id=page.page_id,
@@ -460,9 +457,7 @@ class GnrWsgiSite(object):
                 os.environ[var] = str(value)
                 
     def load_gnr_config(self):
-        """add???
-        
-        :returns: add???"""
+        """add???"""
         config_path = expandpath('~/.gnr')
         if os.path.isdir(config_path):
             return Bag(config_path)
@@ -979,7 +974,7 @@ class GnrWsgiSite(object):
         This is typically used to customize prints and batch jobs for a particular installation
         
         :param page: add???
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param respath: add???
         :param class_name: add???
         :param runKwargs: add???"""
@@ -994,7 +989,7 @@ class GnrWsgiSite(object):
         """add???
         
         :param page: add???
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param respath: add???
         :param class_name: add???"""
         return self.resource_loader.loadTableScript(page=page, table=table, respath=respath, class_name=class_name)

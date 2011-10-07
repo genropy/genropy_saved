@@ -142,9 +142,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
     def dump(self, filename):
         """Dump an existing database
         
-        :param filename: db name
-        :returns: add???
-        """
+        :param filename: db name"""
         from subprocess import call
         
         return call(['pg_dump', self.dbroot.dbname, '-U', self.dbroot.user, '-f', filename])
@@ -153,9 +151,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """-- IMPLEMENT THIS --
         Drop an existing database
         
-        :param filename: db name
-        :returns: add???
-        """
+        :param filename: db name"""
         from subprocess import call
         
         return call(['psql', self.dbroot.dbname, '-U', self.dbroot.user, '-f', filename])
@@ -212,7 +208,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
             self.dbroot.commit()
             
     def listElements(self, elType, **kwargs):
-        """Get a list of element names.
+        """Get a list of element names
         
         :param elType: one of the following: schemata, tables, columns, views.
         :param kwargs: schema, table
@@ -306,7 +302,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         return ref_dict.values()
 
     def getPkey(self, table, schema):
-        """:param table: the :ref:`table` name
+        """:param table: the :ref:`database table <table>` name
         :param schema: schema name
         :return: list of columns wich are the primary key for the table"""
         sql = """SELECT k.column_name        AS col
@@ -325,7 +321,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         """Get a (list of) dict containing details about all the indexes of a table.
         Each dict has those info: name, primary (bool), unique (bool), columns (comma separated string)
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param schema: schema name
         :returns: list of index infos"""
         sql = """SELECT indcls.relname AS name, indisunique AS unique, indisprimary AS primary, indkey AS columns

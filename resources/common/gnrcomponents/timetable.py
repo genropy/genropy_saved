@@ -18,9 +18,7 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-"""
-Component for thermo:
-"""
+"""Component for thermo"""
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrstring import toText
 from gnr.core.gnrdate import dayIterator
@@ -72,7 +70,7 @@ class Timetable(BaseComponent):
     def timetable_dh(self, parent, nodeId=None, datapath=None, tstart=None,
                      tstop=None, period=None, wkdlist=None, series=None, fired=None, **kwargs):
         """Builds a timetable, that shows appointments/events in a given range eventually from multiple series
-        (e.g. multiple calendars or operators).
+        (e.g. multiple calendars or operators)
         
         :param parent: a parent pane
         :param nodeId: nodeId (mandatory)
@@ -84,8 +82,7 @@ class Timetable(BaseComponent):
         :param series: series (a list of strings)
         :param kwargs: additional parameters will go in self.tt_pars in your callbacks
         
-        See :cls:`TimeTableHook` below for callbacks that you can define.
-        """
+        See :cls:`TimeTableHook` below for callbacks that you can define"""
         assert nodeId, 'nodeId is mandatory'
         assert datapath, 'datapath is mandatory'
         assert hasattr(self, 'tt_%s_dataProvider' % nodeId), 'you must define your own loop'
@@ -283,13 +280,10 @@ class Timetable(BaseComponent):
         .serierow_n4{}
         .serierow_n5{}
         .serierow_n6{}
-        .serierow_n6{}
-        
-        """
+        .serierow_n6{}"""
 
 class TimeTableHooks(object):
-    """Hooks for TimeTable component.
-    """
+    """Hooks for TimeTable component"""
 
     def tt_NODEID_onstart(self):
         """Called before the timetable is drawn.
@@ -300,23 +294,22 @@ class TimeTableHooks(object):
         """
 
     def tt_NODEID_dataProvider(self, day=None, serie=None):
-        """Returns appointments/events for the specified day in the specified serie.
+        """Returns appointments/events for the specified day in the specified serie
+        
         :param day: a datetime
         :param serie: a string
-        :returns: a list of appointments (e.g. nametuples)
         
-        You can also set self.tt_pars['slot_type'] to your slot type.
-        """
+        You can also set self.tt_pars['slot_type'] to your slot type"""
 
     def tt_NODEID_slot_SLOTTYPE(self, pane=None, slot=None, width=None, height=None):
         """Callback to draw your slot.
-        You should add your content as a child of pane.
-        :param pane: a pane where you should put your content.
+        You should add your content as a child of pane
+        
+        :param pane: a pane where you should put your content
         :param slot: your data (from tt_NODEID_dataProvider)
         :param width: avaiable horizontal space
         :param height: avaiable vertical space
         
         If your content is larger than (width x height), the layout may look bad.
         
-        It will be called once with all parameters set to None, to get the height for this slot type.
-        """
+        It will be called once with all parameters set to None, to get the height for this slot type."""

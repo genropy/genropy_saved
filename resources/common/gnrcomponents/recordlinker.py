@@ -37,9 +37,9 @@ class RecordLinker(BaseComponent):
                     zoom=False, record_reloader=None, **kwargs):
         """Creates a linker inside a :ref:`formbuilder`.
         
-        :param fb: (mandatory) the formbuilder
-        :param table: (mandatory) string. The :ref:`table`
-        :param field: string. Field name
+        :param fb: (mandatory) the :ref:`formbuilder`
+        :param table: (mandatory) string. The :ref:`database table <table>`
+        :param field: field name
         :param dialogPars: (mandatory) dict. Dialog parameters
                            
                            dialogPars accepts:
@@ -47,11 +47,11 @@ class RecordLinker(BaseComponent):
                            * dlgId
                            * onSaved
                            
-        :param record_template: string. Template for the record summary
+        :param record_template: template for the record summary
         :param record_path: datapath
-        :param lbl: the linkerField's label
-                    (a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`)
-        :param value: string. Where to store the selected ID
+        :param lbl: the linkerField's label (a :ref:`formbuilder's fields attribute
+                    <formbuilder_children_attributes>`)
+        :param value: where to store the selected ID
         :param width: the linkerField's width
         :param height: the linkerField's height
         :param colspan: a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`

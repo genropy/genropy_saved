@@ -155,9 +155,9 @@ class GnrHtmlSrc(GnrStructData):
         layout.nested = self.parentNode.getAttr('tag') == 'cell'
         return layout
             
-    def row(self, height=0, row_border=None, cell_border=None, lbl_height=None, lbl_class=None, content_class=None,
-            **kwargs):
-        """Build a :ref:`row element <layout_row>` and return it
+    def row(self, height=0, row_border=None, cell_border=None,
+            lbl_height=None, lbl_class=None, content_class=None, **kwargs):
+        """Build a :meth:`row <gnr.core.gnrhtml.GnrHtmlSrc.row>` and return it
         
         :param height: the row's height
         :param row_border: the row's border
@@ -189,9 +189,9 @@ class GnrHtmlSrc(GnrStructData):
             layout.elastic_rows.append(row)
         return row
             
-    def cell(self, content=None, width=0, content_class=None, lbl=None, lbl_class=None, lbl_height=None,
-             cell_border=None, **kwargs):
-        """Build a :ref:`layout element <layout_cell>` and return it
+    def cell(self, content=None, width=0, content_class=None,
+             lbl=None, lbl_class=None, lbl_height=None, cell_border=None, **kwargs):
+        """Build a :meth:`cell` and return it
         
         :param content: the row's content
         :param width: the row's width

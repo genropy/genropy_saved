@@ -222,21 +222,16 @@ class GnrPackagePlugin(object):
         config_path = os.path.join(path,'config.xml')
         self.config = Bag(config_path) if os.path.isfile(config_path) else Bag()
         self.application.config['package_plugins.%s.%s'%(pkg.id,self.id)]=self.config
-
-    
-
+        
 class GnrPackage(object):
-    """add???
-    """
+    """add???"""
     def __init__(self, pkg_id, application, path=None, filename=None, **pkgattrs):
         """add???
 
         :param pkg_id: add???
         :param application: add???
         :param path: add???. 
-        :param filename: add???. 
-        :returns: add???
-        """
+        :param filename: add???"""
         self.id = pkg_id
         filename = filename or pkg_id
         self.application = application
@@ -598,16 +593,11 @@ class GnrApp(object):
     def instance_name_to_path(self, instance_name):
         """add???
 
-        :param instance_name: add???
-        :returns: add???
-        """
+        :param instance_name: add???"""
         return PathResolver(gnr_config=self.gnr_config).instance_name_to_path(instance_name)
 
     def build_package_path(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         self.package_path = {}
         path_list = []
         project_packages_path = os.path.normpath(os.path.join(self.instanceFolder, '..', '..', 'packages'))
@@ -625,9 +615,7 @@ class GnrApp(object):
     def pkg_name_to_path(self, pkgid, project=None):
         """add???
 
-        :param pkgid: add???
-        :returns: add???
-        """
+        :param pkgid: add???"""
         path = None
         if project:
             project_path = self.project_path(project)
@@ -665,10 +653,7 @@ class GnrApp(object):
 
 
     def buildLocalization(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         self.localization = {}
         for pkg in self.packages.values():
             try:
@@ -720,17 +705,11 @@ class GnrApp(object):
         return self.packages[pkg].getResource(path, locale=locale)
         
     def guestLogin(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return self.config.getAttr('authentication', 'guestName')
         
     def authPackage(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return self.packages[self.config.getAttr('authentication', 'pkg')]
         
     def getAvatar(self, user, password=None, authenticate=False, page=None, **kwargs):

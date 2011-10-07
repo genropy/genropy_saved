@@ -131,28 +131,28 @@ class SqlDbAdapter(object):
     def listElements(self, elType, **kwargs):
         """-- IMPLEMENT THIS --
         Get a list of element names: elements can be any kind of structure supported by a specific db.
-        Usually an adapter accept as elType the following: schemata, tables, columns, views
+        Usually an adapter accept as elType the following: schemata, tables, columns, views. Return
+        the list of object names
 
         :param elType: type of structure element to list
-        :param kwargs: optional parameters, eg. for elType "columns" kwargs could be {'schema':'public', 'table':'mytable'}
-        :returns: list of object names
-        """
+        :param kwargs: optional parameters, eg. for elType "columns" kwargs
+                       could be {'schema':'public', 'table':'mytable'}"""
         raise NotImplementedException()
-
+        
     def relations(self):
         """-- IMPLEMENT THIS --
-        Get a list of all relations in the db. 
+        Get a list of all relations in the db and return it. 
         Each element of the list is a list (or tuple) with this elements:
-        [foreign_constraint_name, many_schema, many_tbl, [many_col, ...], unique_constraint_name, one_schema, one_tbl, [one_col, ...]]
-        @return: list of relation's details
-        """
+        [foreign_constraint_name, many_schema, many_tbl, [many_col, ...],
+        unique_constraint_name, one_schema, one_tbl, [one_col, ...]]"""
         raise NotImplementedException()
 
     def getPkey(self, table, schema):
         """-- IMPLEMENT THIS --
-        @param table: table name
-        @param schema: schema name
-        @return: list of columns wich are the primary key for the table"""
+        
+        :param table: the :ref:`database table <table>` name
+        :param schema: schema name
+        :returns: list of columns wich are the primary key for the table"""
         raise NotImplementedException()
 
     def getColInfo(self, table, schema, column):
@@ -165,9 +165,10 @@ class SqlDbAdapter(object):
     def _filterColInfo(self, colinfo, prefix):
         """Utility method to be used by getColInfo implementations.
         Prepend each non-standard key in the colinfo dict with prefix.
-        @param colinfo: dict of column infos
-        @param prefix: adapter specific prefix
-        @return: a new colinfo dict"""
+        
+        :param colinfo: dict of column infos
+        :param prefix: adapter specific prefix
+        :returns: a new colinfo dict"""
         d = dict([(k, v) for k, v in colinfo.items() if
                   k in ('name', 'default', 'notnull', 'dtype', 'position', 'length')])
         d.update(dict([(prefix + k, v) for k, v in colinfo.items() if
@@ -178,9 +179,10 @@ class SqlDbAdapter(object):
         """-- IMPLEMENT THIS --
         Get a (list of) dict containing details about all the indexes of a table.
         Each dict has those info: name, primary (bool), unique (bool), columns (comma separated string)
-        @param table: table name
-        @param schema: schema name
-        @return: list of index infos"""
+        
+        :param table: the :ref:`database table <table>` name
+        :param schema: the schema name
+        :returns: list of index infos"""
         raise NotImplementedException()
         
     def getTableContraints(self, table=None, schema=None):
@@ -196,8 +198,7 @@ class SqlDbAdapter(object):
         
         :param sql: the sql string to execute.
         :param \*\*kwargs: the params dict
-        :returns: tuple (sql, kwargs)
-        """
+        :returns: tuple (sql, kwargs)"""
         return sql, kwargs
 
     def existsRecord(self, dbtable, record_data):
@@ -277,8 +278,8 @@ class SqlDbAdapter(object):
         Delete items which name starts with '@': eager loaded relations don't have to be written as fields.
         Convert Bag values to xml, to be stored in text or blob fields.
         [Convert all fields names to lowercase ascii characters.] REMOVED
-        @param record_data: a dict compatible object
-        """
+        
+        :param record_data: a dict compatible object"""
         data_out = {}
         for k in record_data.keys():
             if not k.startswith('@'):
@@ -292,17 +293,18 @@ class SqlDbAdapter(object):
     def lockTable(self, dbtable, mode, nowait):
         """-- IMPLEMENT THIS --
         Lock a table
-        @param name: db name
-        @param encoding: database text encoding
-        """
+        
+        :param dbtable: the :ref:`database table <table>` name
+        :param mode: add???
+        :param nowait: add???"""
         raise NotImplementedException()
-
-
+        
     def insert(self, dbtable, record_data,**kwargs):
-        """Insert a record in the db. 
+        """Insert a record in the db
         All fields in record_data will be added: all keys must correspond to a column in the db.
-        @param dbtable: an SqlTable object
-        @param record_data: a dict compatible object"""
+        
+        :param dbtable: the :ref:`database table <table>` name
+        :param record_data: a dict compatible object"""
         tblobj = dbtable.model
         record_data = self.prepareRecordData(record_data,**kwargs)
         sql_flds = []
@@ -317,9 +319,10 @@ class SqlDbAdapter(object):
     def update(self, dbtable, record_data, pkey=None,**kwargs):
         """Update a record in the db. 
         All fields in record_data will be updated: all keys must correspond to a column in the db.
-        @param dbtable: a SqlTable object
-        @param record_data: a dict compatible object"""
-
+        
+        :param dbtable: the :ref:`database table <table>` name
+        :param record_data: a dict compatible object
+        :param pkey: the :ref:`primary key <pkey>`"""
         tblobj = dbtable.model
         record_data = self.prepareRecordData(record_data,**kwargs)
         sql_flds = []
@@ -334,10 +337,11 @@ class SqlDbAdapter(object):
         return self.dbroot.execute(sql, record_data, dbtable=dbtable.fullname)
 
     def delete(self, dbtable, record_data,**kwargs):
-        """Delete a record from the db. 
-        All fields in record_data will be added: all keys must correspond to a column in the db.
-        @param dbtable: a SqlTable object
-        @param record_data: a dict compatible object containing at least one entry for the pkey column of the table."""
+        """Delete a record from the db
+        All fields in record_data will be added: all keys must correspond to a column in the db
+        
+        :param dbtable: the :ref:`database table <table>` name
+        :param record_data: a dict compatible object containing at least one entry for the pkey column of the table."""
         tblobj = dbtable.model
         record_data = self.prepareRecordData(record_data,**kwargs)
         pkey = tblobj.pkey
@@ -345,18 +349,18 @@ class SqlDbAdapter(object):
         return self.dbroot.execute(sql, record_data, dbtable=dbtable.fullname)
 
     def sql_deleteSelection(self, dbtable, pkeyList):
-        """Delete a selection from the table. It works only in SQL so
-        no python trigger is executed.
-        @param dbtable: the table object
-        @param pkeyList: records to delete
-        """
+        """Delete a selection from the table. It works only in SQL so no python trigger is executed
+        
+        :param dbtable: the :ref:`database table <table>` name
+        :param pkeyList: records to delete"""
         tblobj = dbtable.model
         sql = 'DELETE FROM %s WHERE %s IN :pkeyList;' % (tblobj.sqlfullname, tblobj.sqlnamemapper[tblobj.pkey])
         return self.dbroot.execute(sql, sqlargs=dict(pkeyList=pkeyList), dbtable=dbtable.fullname)
 
     def emptyTable(self, dbtable):
-        """Delete all table rows
-        @param dbtable: a SqlTable object"""
+        """Delete all table rows of the specified *dbtable* table
+        
+        :param dbtable: the :ref:`database table <table>` name"""
         tblobj = dbtable.model
         sql = 'DELETE FROM %s;' % (tblobj.sqlfullname)
         return self.dbroot.execute(sql, dbtable=dbtable.fullname)
@@ -366,7 +370,10 @@ class SqlDbAdapter(object):
         self.dbroot.execute('ANALYZE;')
 
     def vacuum(self, table='', full=False):
-        """Perform analyze routines on the db"""
+        """Perform analyze routines on the database
+        
+        :param table: the :ref:`database table <table>` name
+        :param full: boolean. add???"""
         self.dbroot.execute('VACUUM ANALYZE %s;' % table)
 
     def addForeignKeySql(self, c_name, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):

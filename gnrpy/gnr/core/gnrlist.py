@@ -26,11 +26,10 @@ Some useful operations on lists.
 """
 
 def findByAttr(l, **kwargs):
-    """Find elements in the ``l`` list having attributes with names and values as kwargs items
+    """Find elements in the ``l`` list having attributes with names and values as
+    kwargs items. Return the list's attributes
     
-    :param l: the list
-    :returns: the list's attributes
-    """
+    :param l: the list"""
     result = list(l)
     for k, v in kwargs.items():
         result = [x for x in result if getattr(x, k, None) == v]
@@ -38,13 +37,12 @@ def findByAttr(l, **kwargs):
     
 def sortByItem(l, *args, **kwargs):
     """Sort the list ``l``, filled of objects with dict interface by items with key in ``*args``.
+    Return the list
     
     :param l: the list
     :param args: a list of keys to sort for. Each key can be reverse sorted by adding ``:d`` to the key.
     :param hkeys: if ``True`` and a key contains ``.``, then it is interpreted as a hierarchical
-                  path and sub dict are looked for
-    :returns: the list
-    """
+                  path and sub dict are looked for"""
     def safeCmp(a, b):
         if a is None:
             if b is None:
@@ -95,10 +93,7 @@ def sortByItem(l, *args, **kwargs):
 def sortByAttr(l, *args):
     """add???
     
-    :param l: the list
-    :param args: add???
-    :returns: the list
-    """
+    :param l: the list"""
     # da verificare
     def hGetAttr(obj, attr):
         if obj is None: return None
@@ -122,10 +117,7 @@ def sortByAttr(l, *args):
     return l
 
 def merge(*args):
-    """add???
-    
-    :returns: add???
-    """
+    """add???"""
     result = list(args[0])
     for l in args[1:]:
         for el in l:
@@ -337,20 +329,17 @@ class GnrNamedList(list):
         """Same of ``get`` method's dict
         
         :param x: add???
-        :param default: the value returned if ``self[x]`` is ``None``. 
-        :returns: add???
-        """
+        :param default: the value returned if ``self[x]`` is ``None``"""
         try:
             return self[x]
         except:
             return default
             
     def has_key(self, x):
-        """Same of ``has_key`` method's dict
+        """Same of ``has_key`` method's dict. Return ``True`` if the key is in the dict,
+        ``False`` otherwise
         
-        :param x: the key to test
-        :returns: ``True`` if the key is in the dict (``False`` otherwise)
-        """
+        :param x: the key to test"""
         return self._index.has_key(x)
         
     def items(self):
@@ -380,8 +369,7 @@ class GnrNamedList(list):
         """Same of ``pop`` method's dict
         
         :param x: add???
-        :returns: add???
-        """
+        :param dflt: add???"""
         if type(x) != int:
             x = self._index[x]
         try:
@@ -399,10 +387,7 @@ class GnrNamedList(list):
             self[k] = v
             
     def values(self):
-        """Same of ``values`` method's dict
-        
-        :returns: add???
-        """
+        """Same of ``values`` method's dict"""
         return tuple(self[:] + [None] * (len(self._index) - len(self)))
         
     def extractItems(self, columns):

@@ -59,9 +59,7 @@ class DbModel(object):
         """Database startup operations:
         
         * prepare the GnrStructObj root
-        * load all relations from Db structure
-        """
-        
+        * load all relations from Db structure"""
         def _doObjMixinConfig(objmix, pkgsrc):
             if hasattr(objmix, 'config_db'):
                 objmix.config_db(pkgsrc)
@@ -92,9 +90,7 @@ class DbModel(object):
     def resolveAlias(self, name):
         """add???
         
-        :param name: add???
-        :returns: add???
-        """
+        :param name: add???"""
         pkg, tbl, col = name.split('.')
         pkg = self.obj[pkg]
         tbl = pkg.table(tbl)
@@ -180,7 +176,7 @@ class DbModel(object):
         """add???
         
         :param pkg: the :ref:`package <packages>` object
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param column: the table :ref:`column`"""
         tblobj = self.table(table, pkg=pkg)
         indexname = '%s_%s_key' % (table, column)
@@ -391,14 +387,13 @@ class DbModelSrc(GnrStructData):
                           virtual_column=True, **kwargs)
                           
     def aliasColumn(self, name, relation_path, **kwargs):
-        """Insert an aliasColumn into a :ref:`table`, that is a column with a relation path.
-        The aliasColumn is a child of the table created with the :meth:`table()` method
+        """Insert an aliasColumn into a :ref:`table` and return it. An aliasColumn
+        is a :ref:`column` with a relation path. The aliasColumn is a child of the table
+        created with the:meth:`table()` method
         
         :param name: the column name
         :param relation_path: the column's related path. For more information,
-                              check the :ref:`relation_path` section
-        :returns: an aliasColumn
-        """
+                              check the :ref:`relation_path` section"""
         return self.virtual_column(name, relation_path=relation_path, **kwargs)
         
     def formulaColumn(self, name, sql_formula, dtype='A', **kwargs):
@@ -569,10 +564,10 @@ class DbModelObj(GnrStructObj):
         return self.sqlclass or self._sqlclass
         
     def getAttr(self, attr=None, dflt=None):
-        """
-        :param attr: the attribute. 
-        :param dflt: the default. 
-        """
+        """add???
+        
+        :param attr: the attribute
+        :param dflt: the default"""
         if attr:
             return self.attributes.get(attr, dflt)
         else:
@@ -592,18 +587,15 @@ class DbPackageObj(DbModelObj):
     tables = property(_get_tables)
         
     def dbtable(self, name):
-        """Return a table
+        """Return a :ref:`database table <table>`
         
-        :param name: the database table's name
-        :returns: a database table"""
+        :param name: the database table's name"""
         return self.table(name).dbtable
             
     def table(self, name):
-        """Return a table
+        """Return a :ref:`database table <table>`
         
-        :param name: the table's name
-        :returns: a table
-        """
+        :param name: the table's name"""
         table = self['tables.%s' % name]
         if table is None:
             raise GnrSqlMissingTable("Table '%s' undefined in package: '%s'" % (name, self.name))
@@ -612,9 +604,7 @@ class DbPackageObj(DbModelObj):
     def tableSqlName(self, tblobj):
         """Return the name of the given SqlTable
         
-        :param tblobj: an instance of SqlTable
-        :returns: the name of the given SqlTable
-        """
+        :param tblobj: an instance of SqlTable"""
         sqlprefix = self.attributes.get('sqlprefix')
         if sqlprefix == '':
             return tblobj.name
@@ -940,9 +930,7 @@ class DbTableObj(DbModelObj):
     def getRelation(self, relpath):
         """add???
         
-        :param relpath: add???
-        :returns: add???
-        """
+        :param relpath: add???"""
         joiner = self.relations.getAttr(relpath, 'joiner')
         if joiner:
             joiner = joiner[0]
@@ -951,9 +939,7 @@ class DbTableObj(DbModelObj):
     def getRelationBlock(self, relpath):
         """add???
         
-        :param relpath: add???
-        :returns: add???
-        """
+        :param relpath: add???"""
         joiner = self.relations.getAttr(relpath, 'joiner')[0]
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
         opkg, otbl, ofld = joiner['one_relation'].split('.')

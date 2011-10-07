@@ -86,11 +86,11 @@ class GnrDboPackage(object):
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
         
     def getPreference(self, path, dflt=None):
-        """Get a preference for the current package.
+        """Get a preference for the current package. Return the value of the specified
+        preference, or *dflt* if it is missing
         
         :param path: a dotted name of the preference item
-        :param dflt: the default value
-        :returns: value of the specified preference, or *dflt* if it is missing"""
+        :param dflt: the default value"""
         return self.db.table('adm.preference').getPreference(path, pkg=self.name, dflt=dflt)
         
     def setPreference(self, path, value):
@@ -460,10 +460,7 @@ class Table_counter(TableBase):
 class Table_userobject(TableBase):
     """add???"""
     def use_dbstores(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return False
         
     def config_db(self, pkg):
@@ -680,7 +677,7 @@ class Table_recordtag_link(TableBase):
     def getTagLinks(self, table, record_id):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param record_id: the record id"""
         where = '$%s=:record_id' % self.tagForeignKey(table)
         return self.query(columns='@tag_id.tag,@tag_id.description',
@@ -693,7 +690,7 @@ class Table_recordtag_link(TableBase):
     def getTagDict(self, table):
         """add???
         
-        :param table: the :ref:`table` name"""
+        :param table: the :ref:`database table <table>` name"""
         currentEnv = self.db.currentEnv
         cachename = '_tagDict_%s' % table.replace('.', '_')
         tagDict = currentEnv.get(cachename)
@@ -705,7 +702,7 @@ class Table_recordtag_link(TableBase):
     def assignTagLink(self, table, record_id, tag, value):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param record_id: the record id
         :param tag: add???
         :param value: add???"""
@@ -737,7 +734,7 @@ class Table_recordtag_link(TableBase):
     def getTagLinksBag(self, table, record_id):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param record_id: the record id"""
         result = Bag()
         taglinks = self.query(columns='@tag_id.maintag AS maintag, @tag_id.subtag AS subtag, @tag_id.tag AS tag',
@@ -753,7 +750,7 @@ class Table_recordtag_link(TableBase):
     def getCountLinkDict(self, table, pkeys):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param pkeys: add???"""
         return self.query(columns='@tag_id.tag as tag,count(*) as howmany', group_by='@tag_id.tag',
                           where='$%s IN :pkeys' % self.tagForeignKey(table), pkeys=pkeys).fetchAsDict(key='tag')
@@ -761,6 +758,6 @@ class Table_recordtag_link(TableBase):
     def tagForeignKey(self, table):
         """add???
         
-        :param table: the :ref:`table` name"""
+        :param table: the :ref:`database table <table>` name"""
         tblobj = self.db.table(table)
         return '%s_%s' % (tblobj.name, tblobj.pkey)

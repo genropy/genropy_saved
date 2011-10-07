@@ -3,7 +3,7 @@ import os
 from gnr.core.gnrstring import toText
 
 class XlsWriter(object):
-    """docstring for XlsWriter"""
+    """add???"""
     def __init__(self, columns=None, coltypes=None, headers=None, filepath=None,
                  font='Times New Roman', format_float='#,##0.00', format_int='#,##0', locale=None):
         self.headers = headers
@@ -39,29 +39,24 @@ class XlsWriter(object):
     def rowGetter(self, item):
         """add???
         
-        :param item: add???
-        :returns: add???
-        """
+        :param item: add???"""
         return dict(item)
         
     def writeHeaders(self):
-        """add???
-        """
+        """add???"""
         for c, header in enumerate(self.headers):
             self.sheet.write(0, c, header, self.hstyle)
             self.colsizes[c] = max(self.colsizes.get(c, 0), self.fitwidth(header))
         self.current_row = 0
         
     def workbookSave(self):
-        """add???
-        """
+        """add???"""
         self.workbook.save(self.filepath)
         
     def writeRow(self, row):
         """add???
         
-        :param row: add???
-        """
+        :param row: add???"""
         self.current_row += 1
         for c, col in enumerate(self.columns):
             value = row.get(col)

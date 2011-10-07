@@ -234,9 +234,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         :param field: add???
         :param value: add???
-        :param table: add???
-        :param distinct: boolean. add???
-        :param columns: add???
+        :param table: the :ref:`database table <table>` name
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
         :param where: add???
         :param relationDict: add???
         :param sqlparams: add???
@@ -259,7 +261,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def rpc_selectionCall(self, table, selectionName, method, freeze=False, **kwargs):
         """add???
         
-        :param table: add???
+        :param table: the :ref:`database table <table>` name
         :param selectionName: add???
         :param method: add???
         :param freeze: boolean. add???"""
@@ -337,7 +339,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param from_fld: add???
         :param target_fld: add???
         :param relation_value: add???
-        :param columns: add???
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
         :param query_columns: add???
         :param condition: add???
         :param js_resolver_one: add???
@@ -404,7 +408,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                               stopOnError=False, forUpdate=False, onRow=None, **kwargs):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name
         :param selectionName: add???
         :param batchFactory: name of the Class, plugin of table, which executes the batch action
         :param pkeys: add???
@@ -476,7 +480,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                           **kwargs):
         """add???
         
-        :param table: add???
+        :param table: the :ref:`database table <table>` name
         :param selectionName: add???
         :param command: add???
         :param callmethod: add???
@@ -506,7 +510,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         :param selection: add???
         :param locale: add???
-        :param columns: add???
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
         :param filename: add???"""
         filename = filename or self.maintable or  self.request.uri.split('/')[-1]
         content = selection.output('tabtext', columns=columns, locale=locale)
@@ -579,7 +585,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param changelist: add???
         :param selectionName: add???
         :param where: add???
-        :param table: add???"""
+        :param table: the :ref:`database table <table>` name"""
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
         needUpdate = False
         if selection is not None:
@@ -614,9 +620,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                          savedQuery=None, savedView=None, externalChanges=None,**kwargs):
         """add???
         
-        :param table: add???
-        :param distinct: boolean. add???
-        :param columns: add???
+        :param table: the :ref:`database table <table>` name
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
         :param where: add???
         :param condition: add???
         :param order_by: add???
@@ -805,8 +813,10 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         :param table: table name
         :param selectionName: the name of the selection, empty or '*' will default to a new uuid
-        :param distinct: add???
-        :param columns: add???
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
         :param where: add???
         :param condition: add???
         :param order_by: add???
@@ -1072,7 +1082,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         """add???
         
         :param dbtable: the :ref:`database table <table>` for the query
-        :param columns: the :ref:`columns` that are involved into the query
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
         :param auxColumns: showed only as result, not involved in the search.
         :param hiddenColumns: data that is retrieved but is not showed.
         :param rowcaption: what you see into the field. Often is different from what you set with dbselect
@@ -1160,7 +1172,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         :param tblobj: add???
         :param querystring: add???
-        :param columns: add???
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
         :param auxColumns: add???"""
         querycolumns = tblobj.getQueryFields(columns)
         showcolumns = gnrlist.merge(querycolumns, tblobj.columnsFromString(auxColumns))
@@ -1256,8 +1270,10 @@ class GnrWebAppHandler(GnrBaseProxy):
         """add???
         
         :param pane: add???
-        :param table: add???
-        :param columns: add???
+        :param table: the :ref:`database table <table>` name
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
         :param cols: add???"""
         fb = pane.formbuilder(cols=cols)
         tblobj = self.db.table(table)
@@ -1386,7 +1402,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def rpc_recordToPDF(self, table, pkey, template, **kwargs):
         """add???
         
-        :param table: add???
+        :param table: the :ref:`database table <table>` name
         :param pkey: add???
         :param template: add???"""
         record = self.db.table(table).record(pkey).output('bag')
@@ -1400,7 +1416,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param action: add???
         :param export_mode: add???
         :param respath: add???
-        :param table: add???
+        :param table: the :ref:`database table <table>` name
         :param data: add???
         :param selectionName: add???
         :param struct: add???

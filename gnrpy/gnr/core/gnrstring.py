@@ -186,7 +186,6 @@ def getFrom(myString, chunk):
     
     :param myString: the string to be checked
     :param chunk: substring that bounds the result string
-    :returns: a string after a given chunk
     
     >>> getFrom('teststring', 'st')
     'string'
@@ -237,7 +236,6 @@ def splitLast(myString, chunk):
     
     :param myString: string to be splitted
     :param chunk: substring that bounds the result string
-    :returns: a tuple of two strings
     
     >>> splitLast('hello my dear friend', 'e')
     ('hello my dear fri', 'nd')
@@ -800,7 +798,6 @@ def jsquote(str_or_unicode):
     """add???
         
     :param str_or_unicode: the string to be quoted
-    :returns: add???
      
     >>> print jsquote('pippo')
     'pippo'
