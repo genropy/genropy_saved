@@ -3114,7 +3114,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
 
     attributes_mixin_canSort: function(colindex) {
-        var cellattr = this.getCell(colindex-1);
+        var cellattr = this.getCell(colindex-1) || {};
         var canSort = 'canSort' in this.sourceNode.attr?this.sourceNode.attr.canSort:true; 
         if(typeof(canSort)=='string'){
             canSort= funcCreate(canSort);
