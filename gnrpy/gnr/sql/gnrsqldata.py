@@ -1042,6 +1042,7 @@ class SqlSelection(object):
         self._frz_filtered_data = None
         self.dbtable = dbtable
         self.tablename = dbtable.fullname
+        self.colAttrs = colAttrs or {}
         self.explodingColumns = explodingColumns
         if _aggregateRows == True:
             data = self._aggregateRows(data, index, explodingColumns)
@@ -1058,7 +1059,6 @@ class SqlSelection(object):
         self._keyDict = None
         self._filtered_data = None
         self._index = index
-        self.colAttrs = colAttrs or {}
         self.columns = self.allColumns
         self.freezepath = None
         self.analyzeBag = None
@@ -1072,7 +1072,7 @@ class SqlSelection(object):
         if self.explodingColumns:
             newdata = []
             datadict = {}
-            mixColumns = [c for c in explodingColumns if c in index]
+            mixColumns = [c for c in explodingColumns if c in index and not self.colAttrs[c].get('one_one')]
             for d in data:
                 if not d['pkey'] in datadict:
                     for col in mixColumns:
