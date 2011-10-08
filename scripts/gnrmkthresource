@@ -23,6 +23,8 @@ class ThResourceMaker(object):
         self.option_name = getattr(options, 'name', None)
         self.option_output = getattr(options, 'create_instance', None)
         self.option_indent = getattr(options, 'indent', 4)
+        self.option_columns = int(getattr(options, 'columns', 2))
+        self.option_guess_size = getattr(options, 'guess_size', False)
         self.packages = dict()
         self.pkg_tables = defaultdict(list)
         self.packageMenues = dict()
@@ -93,7 +95,10 @@ class ThResourceMaker(object):
         self.write(out_file, "def th_struct(self,struct):", indent=1)
         self.write(out_file, 'r = struct.view().rows()', indent=2)
         for column, size in columns:
-            self.write(out_file, "r.fieldcell('%s',width='%iem')"%(column,size), indent=2)
+            if self.option_guess_size:
+                self.write(out_file, "r.fieldcell('%s',width='%iem')"%(column,size), indent=2)
+            else:
+                self.write(out_file, "r.fieldcell('%s')"%column, indent=2)
         self.write(out_file, "return struct", indent=2)
         self.write(out_file)
         self.write(out_file, "def th_order(self):", indent=1)
@@ -110,7 +115,7 @@ class ThResourceMaker(object):
         self.write(out_file)
         self.write(out_file, "def th_form(self, form):", indent=1)
         self.write(out_file, "pane = form.record", indent=2)
-        self.write(out_file, "fb = pane.formbuilder(cols=1,border_spacing='4px')", indent=2)
+        self.write(out_file, "fb = pane.formbuilder(cols=%i,border_spacing='4px')"%self.option_columns, indent=2)
         for column, size in columns:
             self.write(out_file, "fb.field('%s')"%column, indent=2)
         self.write(out_file)
@@ -173,12 +178,16 @@ if __name__ == '__main__':
                       help="create the menu for the th pages")
     parser.add_option("-n", "--name", dest="name", 
                       help="output file name, the file will be, will work only if single table is passed")
-    
     parser.add_option("-o", "--output", dest="output",
                       help="""output file path will override -n/--name and automatic file placement in resources/tables/tablename, 
                               will work only if single table is passed""")
     parser.add_option("-i", "--indent", dest="indent", default=4,
-                       help="output file name, the file will be, will work only if single table is passed")
+                       help="number of spaces of each level of indentation in the output file(s)")
+    parser.add_option("-g", "--guess_size", dest="guess_size", action='store_true', default=False, 
+                      help="tries to guess the View column size")
+
+    parser.add_option("-c", "--columns", dest="columns", default=2,
+                       help="number of columns in Form")
 
     
     (options, args) = parser.parse_args()
