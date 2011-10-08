@@ -38,7 +38,6 @@ def writeViewClass(out_file, columns):
     write(out_file, 'r = struct.view().rows()', indent=2)
     for column, size in columns:
         write(out_file, "r.fieldcell('%s',width='%iem')"%(column,size), indent=2)
-    write(out_file, "return struct", indent=2)
     write(out_file)
     write(out_file, "def th_order(self):", indent=1)
     write(out_file, "return '%s'"%columns[0][0], indent=2)

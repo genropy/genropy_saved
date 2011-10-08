@@ -575,7 +575,7 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 recordNodePath.push('@'+recordNodePath.pop());
                 var recordNode = parentSourceNode.getRelativeData().getNode(recordNodePath);
                 if(recordNode && 'caption' in recordNode.attr){
-                    var value = recordNode.attr.caption;
+                    var value = recordNode.attr._newrecord? '': recordNode.attr.caption;
                     var scope = request.scope ? request.scope : dojo.global;
                     var result = new gnr.GnrBagNode();
                     result.attr[this.searchAttr] = value;
