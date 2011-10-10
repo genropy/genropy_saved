@@ -22,6 +22,7 @@
 
 import os
 from datetime import datetime, timedelta
+import time
 import logging
 
 gnrlogger = logging.getLogger('gnr')
@@ -43,7 +44,7 @@ class GnrAppTransactionAgent(GnrApp):
     def onInited(self):
         self._startLog()
         gnrpkg = self.db.package('gnr')
-        self.listen_timeout = int(gnrpkg.getAttr('listen_timeout_seconds', 0)) or 60
+        self.listen_timeout = int(gnrpkg.getAttr('listen_timeout_seconds', 10)) or 10
         self.running = False
         self.db.inTransactionDaemon = True
         self.checkModel = False
@@ -93,6 +94,7 @@ class GnrAppTransactionAgent(GnrApp):
                        onTimeout=self.checkTransactions)
 
     def checkTransactions(self, notify=None):
+        print "Checking -- [%i-%i-%i %02i:%02i:%02i]" % (time.localtime()[:6])
         try:
             todo = True
             while todo:
