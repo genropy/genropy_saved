@@ -85,7 +85,7 @@ class TableHandler(BaseComponent):
         pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,
                                         tag='ContentPane',default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)        
-        form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',
+        pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',
                                form_locked=True,dialog_kwargs=dialog_kwargs,attachTo=pane,formInIframe=formInIframe,
                                formResource=formResource,default_kwargs=default_kwargs,readOnly=readOnly)     
         return pane
@@ -100,7 +100,7 @@ class TableHandler(BaseComponent):
                                         default_kwargs=default_kwargs,
                                         tag='ContentPane',readOnly=readOnly,**kwargs)        
         palette_kwargs = palette_kwargs
-        form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,
+        pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,
                                 formResource=formResource,
                                 loadEvent='onRowDblClick',form_locked=True,
                                 palette_kwargs=palette_kwargs,attachTo=pane,default_kwargs=default_kwargs,
@@ -152,11 +152,10 @@ class TableHandler(BaseComponent):
     @extract_kwargs(default=True,page=True)
     @struct_method
     def th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,
-                            formInIframe=False,default_kwargs=None,dbname=None,**kwargs):
+                            default_kwargs=None,dbname=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,formInIframe=formInIframe,
-                                        default_kwargs=default_kwargs,
+                                        viewResource=viewResource,default_kwargs=default_kwargs,
                                         **kwargs)
         grid = th.view.grid
         table = table or th.attributes['table']
@@ -182,8 +181,7 @@ class TableHandler(BaseComponent):
                             readOnly=True,**kwargs):
         kwargs['tag'] = 'ContentPane'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,formInIframe=formInIframe,
-                                        readOnly=readOnly,**kwargs)
+                                        viewResource=viewResource,readOnly=readOnly,**kwargs)
         return wdg    
         
     @struct_method
@@ -227,7 +225,6 @@ class ThLinker(BaseComponent):
         related_table = related_tblobj.fullname
         joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')
         if 'one_one' in joiner:
-            one_one = joiner['one_one']
             manyrelfld = joiner['relation_name']
             noduplinkcondition = '@%s.%s IS NULL' %(manyrelfld,tblobj.pkey)
             condition =  kwargs.get('condition')
