@@ -76,9 +76,9 @@ class GnrSqlDb(GnrObject):
     
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
-                 main_schema=None, debugger=None, application=None,
-                 allow_eager_many=False, allow_eager_one=False):
-        """This is the constructor method of the GnrSqlDb class.
+                 main_schema=None, debugger=None, application=None):
+        """
+        This is the constructor method of the GnrSqlDb class.
         
         :param implementation: 'sqlite', 'postgres' or other sql implementations
         :param dbname: the name for your database
@@ -89,8 +89,8 @@ class GnrSqlDb(GnrObject):
         :param main_schema: the database main schema
         :param debugger: add???
         :param application: add???
-        :param allow_eager_many: add???
-        :param allow_eager_one: add???"""
+        """
+        
         self.implementation = implementation
         self.dbname = dbname
         self.host = host
@@ -109,8 +109,6 @@ class GnrSqlDb(GnrObject):
         self._connections = {}
         self.started = False
         self._currentEnv = {}
-        self.allow_eager_one = allow_eager_one
-        self.allow_eager_many = allow_eager_many
         self.stores_handler = DbStoresHandler(self)
         
     #------------------------Configure and Startup-----------------------------

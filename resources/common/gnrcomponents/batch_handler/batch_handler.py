@@ -75,7 +75,7 @@ class TableScriptHandler(BaseComponent):
     def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectedPkeys=None,selectionFilterCb=None,
                              sortBy=None,
                              selectedRowidx=None,sourcepage_id=None,
-                             parameters=None, printerOptions=None, **kwargs):
+                             parameters=None, printerOptions=None, extra_parameters=None,**kwargs):
         tblobj = self.tblobj or self.db.table(table)
         res_obj = self.site.loadTableScript(self, tblobj, '%s/%s' % (res_type, resource), class_name='Main')
         res_obj.sourcepage_id = sourcepage_id or self.page_id
@@ -86,6 +86,8 @@ class TableScriptHandler(BaseComponent):
             res_obj.selectedPkeys = selectedPkeys
         parameters = parameters or {}
         parameters['_printerOptions'] = printerOptions
+        if extra_parameters:
+            parameters['extra_parameters'] = extra_parameters
         res_obj(parameters=parameters, **kwargs)
         
     @public_method
@@ -181,6 +183,8 @@ class TableScriptRunner(TableScriptHandler):
                                        SET .onCalling = params['onCalling'];
                                        SET .sourcepage_id = params['sourcepage_id'];
                                        SET .selectedPkeys = copyArray(params['selectedPkeys']);
+                                       console.log(params)
+                                       SET .extra_parameters = params['extra_parameters']?  params['extra_parameters'].deepCopy() : null;
                                        FIRE .build_pars_dialog;
                                        FIRE #table_script_dlg_parameters.open;
                                     """, subscribe_table_script_run=True)
@@ -200,6 +204,7 @@ class TableScriptRunner(TableScriptHandler):
                             selectionFilterCb='=.selectionFilterCb',
                             sourcepage_id='=.sourcepage_id',
                             selectedRowidx="=.selectedRowidx",
+                            extra_parameters='=.extra_parameters',
                             sortBy="=.sortBy",
                             selectedPkeys='=.selectedPkeys',
                             _POST=True, timeout=0)

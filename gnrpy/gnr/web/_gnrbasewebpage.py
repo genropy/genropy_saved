@@ -482,7 +482,7 @@ class GnrBaseWebPage(GnrObject):
             result.setItem('pkey',pkey,**resultAttr)
             keyToLoad=pkey if _autoreload  is  True else _autoreload
             if keyToLoad!='*dismiss*':
-                record,recInfo = self.app.rpc_getRecord(pkey=keyToLoad,table=table)
+                record,recInfo = self.app.getRecord(pkey=keyToLoad,table=table)
                 result.setItem('loadedRecord',record,**recInfo)
             return result
         else:

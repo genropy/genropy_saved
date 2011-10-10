@@ -564,15 +564,24 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
             dojo.hitch(scope, request.onItem)(result);
         } else {
             var id = request.identity;
-            if (this.cachePrefix) {
-                value = genro.getFromStorage(this.storageMode, this.cachePrefix + request.identity);
-                if (value) {
+            var parentSourceNode = this._parentSourceNode;
+            if(!('rowcaption' in parentSourceNode.attr)){
+                var recordNodePath = parentSourceNode.attr.value;
+                recordNodePath = recordNodePath.slice(1);
+                if(recordNodePath.indexOf('.')==0){
+                    recordNodePath = recordNodePath.slice(1);
+                }
+                recordNodePath = recordNodePath.split('.');
+                recordNodePath.push('@'+recordNodePath.pop());
+                var recordNode = parentSourceNode.getRelativeData().getNode(recordNodePath);
+                if(recordNode && 'caption' in recordNode.attr){
+                    var value = recordNode.attr._newrecord? '': recordNode.attr.caption;
                     var scope = request.scope ? request.scope : dojo.global;
                     var result = new gnr.GnrBagNode();
                     result.attr[this.searchAttr] = value;
                     result.attr[this._identifier] = request.identity;
                     dojo.hitch(scope, request.onItem)(result);
-                    return;
+                    return;                    
                 }
             }
             var finalize = dojo.hitch(this, function(r) {
@@ -586,9 +595,6 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
                 }
 
                 if (result) {
-                    if (this.cachePrefix) {
-                        genro.setInStorage(this.storageMode, this.cachePrefix + request.identity, result.attr[this.searchAttr]);
-                    }
                     dojo.hitch(scope, request.onItem)(result);
                 }
             });

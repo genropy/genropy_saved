@@ -706,13 +706,15 @@ class IncludedView(BaseComponent):
         datapath = datapath or '#FORM.%s' %frameCode
         if pbl_classes:
             kwargs['_class'] = kwargs.get('_class','') + ' pbl_roundedGroup'
-        frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,
-                               grid_nodeId=nodeId,grid_datamode=datamode,table=table,**kwargs)
-        frame.dataFormula(".locked","locked",locked="^#FORM.controller.locked")
+        
         if storepath.startswith('.'):
             storepath = '#FORM.record%s' %storepath
+        frame = pane.frameGrid(frameCode=frameCode,datapath=datapath,struct=struct,
+                               grid_nodeId=nodeId,datamode=datamode,table=table,
+                               storepath=storepath,**kwargs)
+        frame.dataFormula(".locked","locked",locked="^#FORM.controller.locked")
+        
         gridattr = frame.grid.attributes
-        gridattr['storepath'] = storepath
         gridattr['selfsubscribe_addrow'] = """for(var i=0; i<$1._counter;i++){
                                                 this.widget.addBagRow('#id', '*', this.widget.newBagRow(),$1.evt);
                                               }

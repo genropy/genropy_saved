@@ -36,7 +36,7 @@ class PublicBase(BaseComponent):
         if not self.isGuest and userTable:
             pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
         pane.data('gnr.workdate', self.workdate)
-        if 'inframe' in self.pageArgs:
+        if self.root_page_id:
             return
             
         self._pbl_dialogs(pane)
@@ -103,7 +103,7 @@ class PublicBase(BaseComponent):
     def public_frameTopBar(self,pane,slots=None,title=None,**kwargs):
         pane.attributes.update(dict(_class='pbl_root_top'))
         baseslots = 'menuBtn,workdate,*,caption,*,user,logout,5'
-        if 'inframe' in self.pageArgs:
+        if self.root_page_id:
             baseslots = '10,caption,*,workdate,10'
             kwargs['margin_top'] ='2px'
         slots = slots or self.public_frameTopBarSlots(baseslots)
@@ -378,7 +378,7 @@ class PublicSlots(BaseComponent):
                                 }else{
                                     PUBLISH main_left_set_status= 'toggle';
                                 }
-                                """,_inframe='inframe' in self.pageArgs)
+                                """,_inframe=self.root_page_id)
             
     @struct_method
     def public_publicRoot_caption(self,pane,title='',**kwargs):   
@@ -511,23 +511,17 @@ class TableHandlerMain(BaseComponent):
                             
     def rpc_form(self, root,**kwargs):
         kwargs.update(self.getCallArgs('pkey'))
-        form = self._th_prepareForm(root,**kwargs)
-        if hasattr(self,'th_form'):
-            self.th_form(form)
-        else:
-            self._th_hook('form',mangler= self.maintable.replace('.','_'))(form)
-            
-    @extract_kwargs(store=True,th=True,default=dict(slice_prefix=False))
-    def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,th_formId=None,default_kwargs=None,**kwargs):
+        formCb = self.th_form if hasattr(self,'th_form') else None
+        self._th_prepareForm(root,formCb=formCb,**kwargs)
+                
+    
+    @extract_kwargs(th=True)
+    def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):
         pkey = pkey or th_kwargs.pop('pkey','*norecord*')
-        tableCode = self.maintable.replace('.','_')
         formResource = th_kwargs.pop('formResource',None)
-        self._th_mixinResource(tableCode,table=self.maintable,resourceName=formResource,defaultClass='Form')
-        resource_options = self._th_hook('options',mangler=tableCode,dflt=dict())()
-        th_kwargs.update(resource_options)
         root.attributes.update(overflow='hidden')
-        formId = th_kwargs.pop('formId','mainform')
         public = boolean(th_kwargs.pop('public',False))
+        formId = th_kwargs.pop('formId',self.maintable.replace('.','_'))
         if  public:
             self._init_pbl()
             root.attributes.update(_class='pbl_root')
@@ -535,19 +529,17 @@ class TableHandlerMain(BaseComponent):
         else:
             root.attributes.update(tag='ContentPane',_class=None)
         root.attributes.update(datapath=self.maintable.replace('.','_'))
-        form = root.frameForm(frameCode=formId,formId=formId,table=self.maintable,
-                             store_startKey=pkey,
-                             datapath='.form',store='recordCluster')
-        form.store.attributes.update(store_kwargs)
-        self.th_formOptions(form,options=th_kwargs)
-        form.dataController("""
-                                SET gnr.windowTitle = title;
+        formkw = kwargs
+        formkw.update(th_kwargs)
+        form = root.thFormHandler(table=self.maintable,formId=formId,startKey=pkey,
+                                  formResource=formResource,
+                                  formCb=formCb,**formkw)
+        form.dataController("""SET gnr.windowTitle = title;
                             """,title='=.controller.title')    
         if th_kwargs.get('showfooter',True):
             self._usePublicBottomMessage(form)
-        form.store.handler('load',**default_kwargs)
         return form
-        
+
     def _usePublicBottomMessage(self,form):
         form.attributes['hasBottomMessage'] = False
         form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)

@@ -59,7 +59,9 @@ class DbModel(object):
         """Database startup operations:
         
         * prepare the GnrStructObj root
-        * load all relations from Db structure"""
+        * load all relations from Db structure
+        """
+        
         def _doObjMixinConfig(objmix, pkgsrc):
             if hasattr(objmix, 'config_db'):
                 objmix.config_db(pkgsrc)
@@ -90,7 +92,9 @@ class DbModel(object):
     def resolveAlias(self, name):
         """add???
         
-        :param name: add???"""
+        :param name: add???
+        :returns: add???
+        """
         pkg, tbl, col = name.split('.')
         pkg = self.obj[pkg]
         tbl = pkg.table(tbl)
@@ -175,9 +179,9 @@ class DbModel(object):
     def checkRelationIndex(self, pkg, table, column):
         """add???
         
-        :param pkg: the :ref:`package <packages>` object
-        :param table: the :ref:`database table <table>` name
-        :param column: the table :ref:`column`"""
+        :param pkg: the :ref:`package <packages_index>` object
+        :param table: the :ref:`table` name
+        :param column: the table :ref:`table_column`"""
         tblobj = self.table(table, pkg=pkg)
         indexname = '%s_%s_key' % (table, column)
         if column != tblobj.pkey and not indexname in tblobj.indexes:
@@ -204,9 +208,9 @@ class DbModel(object):
     def check(self, applyChanges=False):
         """Verify the compatibility between the database and the model.
         
-        Save the sql statements that makes the database compatible with the model
+        Save the sql statements that makes the database compatible with the model.
         
-        :param applyChanges: boolean. If ``True``, apply the changes"""
+        :param applyChanges: boolean. If ``True``, apply the changes. Default value is ``False``"""
         checker = SqlModelChecker(self.db)
         self.modelChanges = checker.checkDb()
         self.modelBagChanges = checker.bagChanges
@@ -231,7 +235,7 @@ class DbModel(object):
     def packageMixin(self, pkg, obj):
         """add???
         
-        :param pkg: the :ref:`package <packages>` object
+        :param pkg: the :ref:`package <packages_index>` object
         :param obj: add???"""
         self._doMixin('pkg.%s' % pkg, obj)
         
@@ -241,14 +245,14 @@ class DbModel(object):
     def package(self, pkg):
         """Return a package object
         
-        :param pkg: the :ref:`package <packages>` object"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         return self.obj[pkg]
         
     def table(self, tblname, pkg=None):
         """Return a table object
         
         :param tblname: the :ref:`database table <table>` name
-        :param pkg: the :ref:`package <packages>` object"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         if '.' in tblname:
             pkg, tblname = tblname.split('.')[:2]
         if pkg is None:
@@ -336,7 +340,7 @@ class DbModelSrc(GnrStructData):
                name_short=None, name_long=None, name_full=None,
                group=None, onInserting=None, onUpdating=None, onDeleting=None,
                **kwargs):
-        """Insert a :ref:`column` into a :ref:`table`
+        """Insert a :ref:`table_column` into a :ref:`table`
         
         :param name: the column name. You can specify both the name and the :ref:`datatype`
                      using the following syntax: ``'name::datatype'``
@@ -387,29 +391,35 @@ class DbModelSrc(GnrStructData):
                           virtual_column=True, **kwargs)
                           
     def aliasColumn(self, name, relation_path, **kwargs):
-        """Insert an aliasColumn into a :ref:`table` and return it. An aliasColumn
-        is a :ref:`column` with a relation path. The aliasColumn is a child of the table
-        created with the:meth:`table()` method
+        """Insert an aliasColumn into a :ref:`table`, that is a column with a relation path.
+        The aliasColumn is a child of the table created with the :meth:`table()` method
         
         :param name: the column name
         :param relation_path: the column's related path. For more information,
-                              check the :ref:`relation_path` section"""
+                              check the :ref:`relation_path` section
+        :returns: an aliasColumn
+        """
         return self.virtual_column(name, relation_path=relation_path, **kwargs)
         
     def formulaColumn(self, name, sql_formula, dtype='A', **kwargs):
         """Insert a formulaColumn into a table, that is add???. The aliasColumn is a child of the table
-        created with the :meth:`table()` method. Return a formulaColumn
+        created with the :meth:`table()` method
         
         :param name: the column name
         :param sql_formula: add???
-        :param dtype: the :ref:`datatype`"""
+        :param dtype: the :ref:`datatype`. Default value is ``A``
+        :returns: a formulaColumn
+        """
         return self.virtual_column(name, sql_formula=sql_formula, dtype=dtype, **kwargs)
         
     def pyColumn(self, name, py_method, **kwargs):
-        """add???
+        """Insert a pyColumn into a table, that is add???. The aliasColumn is a child of the table
+        created with the :meth:`table()` method
         
         :param name: the column name
-        :param py_method: add???"""
+        :param sql_formula: add???
+        :param dtype: the :ref:`datatype`. Default value is ``A``
+        :returns: a formulaColumn"""
         return self.virtual_column(name, py_method=py_method, **kwargs)
         
     def aliasTable(self, name, relation_path, **kwargs):
@@ -454,7 +464,7 @@ class DbModelSrc(GnrStructData):
         :param related_column: string. The path of the related column. Syntax:
                                ``packageName.tableName.pkeyColumnName``, where:
                                
-                               * ``packageName`` is the name of the :ref:`package <packages>` folder
+                               * ``packageName`` is the name of the :ref:`package <packages_index>` folder
                                  (you can omit it if the tables to link live in the same package folder)
                                * ``tableName`` is the name of the :ref:`table` to be related
                                * ``pkeyColumnName`` is the name of the :ref:`pkey` of the table to be related
@@ -564,10 +574,10 @@ class DbModelObj(GnrStructObj):
         return self.sqlclass or self._sqlclass
         
     def getAttr(self, attr=None, dflt=None):
-        """add???
-        
-        :param attr: the attribute
-        :param dflt: the default"""
+        """
+        :param attr: the attribute. 
+        :param dflt: the default. 
+        """
         if attr:
             return self.attributes.get(attr, dflt)
         else:
@@ -587,15 +597,18 @@ class DbPackageObj(DbModelObj):
     tables = property(_get_tables)
         
     def dbtable(self, name):
-        """Return a :ref:`database table <table>`
+        """Return a table
         
-        :param name: the database table's name"""
+        :param name: the database table's name
+        :returns: a database table"""
         return self.table(name).dbtable
             
     def table(self, name):
-        """Return a :ref:`database table <table>`
+        """Return a table
         
-        :param name: the table's name"""
+        :param name: the table's name
+        :returns: a table
+        """
         table = self['tables.%s' % name]
         if table is None:
             raise GnrSqlMissingTable("Table '%s' undefined in package: '%s'" % (name, self.name))
@@ -604,7 +617,9 @@ class DbPackageObj(DbModelObj):
     def tableSqlName(self, tblobj):
         """Return the name of the given SqlTable
         
-        :param tblobj: an instance of SqlTable"""
+        :param tblobj: an instance of SqlTable
+        :returns: the name of the given SqlTable
+        """
         sqlprefix = self.attributes.get('sqlprefix')
         if sqlprefix == '':
             return tblobj.name
@@ -838,7 +853,7 @@ class DbTableObj(DbModelObj):
                         '.') + relpath # set the alias table relation_path in the current path
                 reltbl = self
         else:
-            joiner = attrs['joiner'][0]
+            joiner = attrs['joiner']
             if joiner['mode'] == 'O':
                 relpkg, reltbl, relfld = joiner['one_relation'].split('.')
             else:
@@ -891,7 +906,7 @@ class DbTableObj(DbModelObj):
                         '.') + relpath # set the alias table relation_path in the current path
                 return self.resolveRelationPath('.'.join(relpath))
         else:
-            joiner = attrs['joiner'][0]
+            joiner = attrs['joiner']
             if joiner['mode'] == 'O':
                 relpkg, reltbl, relfld = joiner['one_relation'].split('.')
             else:
@@ -903,9 +918,8 @@ class DbTableObj(DbModelObj):
         """This method returns a bag containing all the ManyToOne relations that point to the current table"""
         result = Bag()
         for k, joiner in self.relations.digest('#k,#a.joiner'):
-            if joiner and joiner[0]['mode'] == 'O':
-                r = joiner[0]
-                result[r['many_relation'].split('.')[-1]] = r['one_relation']
+            if joiner and joiner['mode'] == 'O':
+                result[joiner['many_relation'].split('.')[-1]] = joiner['one_relation']
         return result
         
     relations_one = property(_get_relations_one)
@@ -914,9 +928,8 @@ class DbTableObj(DbModelObj):
         """This method returns a bag containing all the OneToMany relations that starts from to the current table"""
         result = Bag()
         for k, joiner in self.relations.digest('#k,#a.joiner'):
-            if joiner and joiner[0]['mode'] == 'M':
-                rel = joiner[0]
-                result.setItem(rel['many_relation'].replace('.', '_'), rel['one_relation'].split('.')[-1], rel)
+            if joiner and joiner['mode'] == 'M':
+                result.setItem(joiner['many_relation'].replace('.', '_'), joiner['one_relation'].split('.')[-1], joiner)
         return result
         
     relations_many = property(_get_relations_many)
@@ -930,17 +943,20 @@ class DbTableObj(DbModelObj):
     def getRelation(self, relpath):
         """add???
         
-        :param relpath: add???"""
+        :param relpath: add???
+        :returns: add???
+        """
         joiner = self.relations.getAttr(relpath, 'joiner')
         if joiner:
-            joiner = joiner[0]
             return {'many': joiner['many_relation'], 'one': joiner['one_relation']}
             
     def getRelationBlock(self, relpath):
         """add???
         
-        :param relpath: add???"""
-        joiner = self.relations.getAttr(relpath, 'joiner')[0]
+        :param relpath: add???
+        :returns: add???
+        """
+        joiner = self.relations.getAttr(relpath, 'joiner')
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
         opkg, otbl, ofld = joiner['one_relation'].split('.')
         return dict(mode=joiner['mode'], mpkg=mpkg, mtbl=mtbl, mfld=mfld, opkg=opkg, otbl=otbl, ofld=ofld)
@@ -1048,21 +1064,19 @@ class DbColumnObj(DbBaseColumnObj):
         """Get the SqlTable that is related by the current column"""
         r = self.table.relations.getAttr('@%s' % self.name)
         if r:
-            r = r['joiner'][0]
-            return self.dbroot.model.table(r['one_relation'])
+            return self.dbroot.model.table(r['joiner']['one_relation'])
             
     def relatedColumn(self):
         """Get the SqlColumn that is related by the current column"""
         r = self.table.relations.getAttr('@%s' % self.name)
         if r:
-            r = r['joiner'][0]
-            return self.dbroot.model.column(r['one_relation'])
+            return self.dbroot.model.column(r['joiner']['one_relation'])
             
     def relatedColumnJoiner(self):
         """Get the SqlTable that is related by the current column"""
         r = self.table.relations.getAttr('@%s' % self.name)
         if r:
-            return r['joiner'][0]
+            return r['joiner']
             
 class DbVirtualColumnObj(DbBaseColumnObj):
     sqlclass = 'virtual_column'
@@ -1240,7 +1254,7 @@ class RelationTreeResolver(BagResolver):
                 child = RelationTreeResolver(**child_kwargs)
                 child.setDbroot(self.dbroot)
                 result.setItem(lbl, child, col.attributes,
-                               joiner=[relpars]) #relpars deve essere una lista???? gardare in getalias sqldata
+                               joiner=relpars) #relpars deve essere una lista???? gardare in getalias sqldata
                                
         for label, relpars, relcol in manyrels:
             sch, tbl, col = relpars['many_relation'].split('.')
@@ -1257,7 +1271,7 @@ class RelationTreeResolver(BagResolver):
                             'cacheTime': self.cacheTime}
             child = RelationTreeResolver(**child_kwargs)
             child.setDbroot(self.dbroot)
-            result.setItem(label, child, joiner=[relpars])
+            result.setItem(label, child, joiner=relpars)
         return result
         
 class ModelSrcResolver(BagResolver):

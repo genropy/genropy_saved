@@ -85,7 +85,7 @@ class TableHandler(BaseComponent):
         pane = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,
                                         tag='ContentPane',default_kwargs=default_kwargs,readOnly=readOnly,**kwargs)        
-        form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',
+        pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,loadEvent='onRowDblClick',
                                form_locked=True,dialog_kwargs=dialog_kwargs,attachTo=pane,formInIframe=formInIframe,
                                formResource=formResource,default_kwargs=default_kwargs,readOnly=readOnly)     
         return pane
@@ -100,7 +100,7 @@ class TableHandler(BaseComponent):
                                         default_kwargs=default_kwargs,
                                         tag='ContentPane',readOnly=readOnly,**kwargs)        
         palette_kwargs = palette_kwargs
-        form = pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,
+        pane.tableEditor(frameCode=pane.attributes['thform_root'],table=table,
                                 formResource=formResource,
                                 loadEvent='onRowDblClick',form_locked=True,
                                 palette_kwargs=palette_kwargs,attachTo=pane,default_kwargs=default_kwargs,
@@ -152,11 +152,10 @@ class TableHandler(BaseComponent):
     @extract_kwargs(default=True,page=True)
     @struct_method
     def th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,
-                            formInIframe=False,default_kwargs=None,dbname=None,**kwargs):
+                            default_kwargs=None,dbname=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,formInIframe=formInIframe,
-                                        default_kwargs=default_kwargs,
+                                        viewResource=viewResource,default_kwargs=default_kwargs,
                                         **kwargs)
         grid = th.view.grid
         table = table or th.attributes['table']
@@ -178,13 +177,29 @@ class TableHandler(BaseComponent):
         return th    
         
     @struct_method
-    def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,
-                            formInIframe=False,readOnly=True,**kwargs):
+    def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
+                            readOnly=True,**kwargs):
         kwargs['tag'] = 'ContentPane'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,formInIframe=formInIframe,
-                                        readOnly=readOnly,**kwargs)
+                                        viewResource=viewResource,readOnly=readOnly,**kwargs)
         return wdg    
+    
+    @extract_kwargs(default=dict(slice_prefix=False,pop=True),store=True)
+    @struct_method
+    def th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,store_kwargs=None,default_kwargs=None,**kwargs):
+        tableCode = table.replace('.','_')
+        formId = formId or tableCode
+        self._th_mixinResource(formId,table=table,resourceName=formResource,defaultClass='Form')
+        resource_options = self._th_hook('options',mangler=formId,dflt=dict())()
+        resource_options.update(kwargs)
+        form = pane.frameForm(frameCode=formId,formId=formId,table=table,
+                             store_startKey=startKey or '*norecord*',
+                             datapath='.form',store='recordCluster',store_kwargs=store_kwargs)
+        self.th_formOptions(form,options=resource_options)
+        formCb = formCb or self._th_hook('form',mangler=formId)
+        formCb(form)
+        form.store.handler('load',**default_kwargs)
+        return form
         
     @struct_method
     def th_thIframe(self,pane,method=None,src=None,**kwargs):
@@ -197,7 +212,7 @@ class TableHandler(BaseComponent):
                             main_pkey='=#FORM.pkey',src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
         return iframe
-         
+    
     def rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,table=None,**kwargs):
         rootattr = root.attributes
         rootattr['datapath'] = 'main'
@@ -225,9 +240,8 @@ class ThLinker(BaseComponent):
         tblobj = self.db.table(table)
         related_tblobj = tblobj.column(field).relatedColumn().table    
         related_table = related_tblobj.fullname
-        joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')[0]
+        joiner = tblobj.model.relations.getAttr('@'+field, 'joiner')
         if 'one_one' in joiner:
-            one_one = joiner['one_one']
             manyrelfld = joiner['relation_name']
             noduplinkcondition = '@%s.%s IS NULL' %(manyrelfld,tblobj.pkey)
             condition =  kwargs.get('condition')

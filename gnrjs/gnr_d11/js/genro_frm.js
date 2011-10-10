@@ -123,6 +123,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     that.setLocked(kw.locked);
                 });
                 this.locked = parentStore.locked;
+            }else if (parentForm){
+                parentForm.subscribe('onLockChange',function(kw){
+                    that.setLocked(kw.locked);
+                });
+                this.locked = parentForm.locked;
             }
             genro.src.afterBuildCalls.push(function(){
                 setTimeout(function(){that.setLocked(that.locked);that.updateStatus()},1);
@@ -578,7 +583,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.fireControllerData('saved');
         this.setOpStatus('saved');
         var savedPkey = result;
-        if(this.store){
+        if(this.store && result){
             savedPkey = result.savedPkey;
         }
         this.publish('onSaved',{pkey:savedPkey,saveResult:result});

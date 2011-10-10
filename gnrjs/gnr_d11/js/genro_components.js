@@ -1334,7 +1334,10 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         if (insOrUpdKeys.length>0) {
             var original_condition =  this.storeNode.attr.condition;
             var newcondition = ' ( $'+pkeycol+' IN :_pkeys ) ';
-            var kw = objectUpdate({'_sourceNode':this.storeNode,_pkeys:insOrUpdKeys},this.storeNode.attr);
+            var kw = objectUpdate({},this.storeNode.attr);
+            objectExtract(kw,'_*');
+            kw._sourceNode = this.storeNode;
+            kw._pkeys = insOrUpdKeys;
             kw.condition = original_condition?original_condition+' AND '+newcondition:newcondition;
             genro.rpc.remoteCall('app.getSelection', 
                                 kw,null,'POST',null,
@@ -1524,6 +1527,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
         var selectionKw = parentNodeData.attr;
         var that = this;
         var rpc_attr = objectUpdate({},this.storeNode.attr);
+        objectExtract(rpc_attr,'_*');
         objectUpdate(rpc_attr,{'selectionName':selectionKw.selectionName,
                                 'changelist':changelist,'_sourceNode':this.storeNode});
         genro.rpc.remoteCall('app.checkFreezedSelection', 

@@ -89,6 +89,8 @@ class FormHandler(BaseComponent):
                                             var rowIndex= typeof($1)=="number"?$1:$1.rowIndex;
                                             if(rowIndex>-1){
                                                 this.publish('editrow',{pkey:this.widget.rowIdByIndex(rowIndex)});
+                                            }else{
+                                                this.publish('editrow',{pkey:'*norecord*'});
                                             }
                                             """
         gridattr['selfsubscribe_addrow'] = """this.publish('editrow',{pkey:"*newrecord*"});"""

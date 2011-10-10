@@ -28,7 +28,7 @@ from gnr.web._gnrbasewebpage import GnrBaseWebPage
 import os
 import shutil
 
-from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip
+from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean
 from mako.lookup import TemplateLookup
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
@@ -103,7 +103,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.dynamic_js_requires= {}
         self.dynamic_css_requires= {}
         self.debugopt = request_kwargs.pop('debugopt', None)
-            
+        #self.polling_enabled = boolean(request_kwargs.pop('polling_enabled')) if 'polling_enabled' in request_kwargs else getattr(self, 'polling_enabled', True)
         self.callcounter = request_kwargs.pop('callcounter', None) or 'begin'
         if not hasattr(self, 'dojo_source'):
             self.dojo_source = self.site.config['dojo?source']
@@ -113,6 +113,7 @@ class GnrWebPage(GnrBaseWebPage):
                                            connection_id=request_kwargs.pop('_connection_id', None),
                                            user=request_kwargs.pop('_user', None))
         page_id = request_kwargs.pop('page_id', None)
+        self.root_page_id = request_kwargs.pop('_root_page_id', None)
         self.instantiateProxies()
         self.onPreIniting(request_args, request_kwargs)
         self._call_handler = self.get_call_handler(request_args, request_kwargs)
@@ -519,12 +520,11 @@ class GnrWebPage(GnrBaseWebPage):
     def htmlHeaders(self):
         """add???"""
         pass
-        
-    def _get_pageArgs(self):
+    
+    @property
+    def pageArgs(self):
         return self.pageStore().getItem('pageArgs') or {}
-        
-    pageArgs = property(_get_pageArgs)
-        
+                
     def _(self, txt):
         if txt.startswith('!!'):
             txt = self.localizer.translateText(txt[2:])
@@ -1187,20 +1187,15 @@ class GnrWebPage(GnrBaseWebPage):
                     self.main_root(page, **kwargs)
                     return (page, pageattr)
                     #page.script('genro.dom.windowTitle("%s")' % self.windowTitle())
-                dbselect_cache = None
-                if self.user:
-                    dbselect_cache = self.getUserPreference(path='cache.dbselect', pkg='sys')                        
-                if dbselect_cache is None:
-                    dbselect_cache = self.site.config['client_cache?dbselect']
-                if dbselect_cache:
-                    page.script('genro.cache_dbselect = true')
                 page.data('gnr.windowTitle', self.windowTitle())
                 page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
                 page.dataRemote('gnr._pageStore','getPageStoreData',cacheTime=1)
-                page.dataController("""genro.publish('dbevent_'+_node.label,{'changelist':_node._value,'pkeycol':_node.attr.pkeycol});""",changes="^gnr.dbchanges")
+                page.dataController("""genro.publish('dbevent_'+_node.label,{'changelist':copyArray(_node._value),'pkeycol':_node.attr.pkeycol});""",changes="^gnr.dbchanges")
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))
                 page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
                 page.data('gnr.homeUrl', self.site.home_uri)
+                page.data('gnr.page_id',self.page_id)
+                page.data('gnr.root_page_id',self.root_page_id)
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale', self.locale)
                 page.data('gnr.pagename', self.pagename)
@@ -1262,14 +1257,20 @@ class GnrWebPage(GnrBaseWebPage):
                     page.data('gnr.avatar', Bag(self.avatar.as_dict()))
                 page.data('gnr.polling.user_polling', self.user_polling)
                 page.data('gnr.polling.auto_polling', self.auto_polling)
-                page.data('gnr.polling.enabled', self.enable_polling)
-                page.dataController("genro.polling(enabled)",enabled="^gnr.polling.enabled")
+                pageArgs = self.pageArgs
+                if 'polling_enabled' in pageArgs:
+                    polling_enabled = boolean(pageArgs['polling_enabled'])
+                else:
+                    polling_enabled = True
+                page.data('gnr.polling.polling_enabled', polling_enabled)
                 page.dataController("""genro.user_polling = user_polling;
                                        genro.auto_polling = auto_polling;
+                                       genro.polling_enabled = polling_enabled;
                                       """,
                                     user_polling="^gnr.polling.user_polling",
                                     auto_polling="^gnr.polling.auto_polling",
-                                    _onStart=True)
+                                    polling_enabled="^gnr.polling.polling_enabled",
+                                    _init=True)
                 if self.dynamic_css_requires:
                     for v in self.dynamic_css_requires.values():
                         if v:
@@ -1318,7 +1319,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param parentBC: the root parent :ref:`bordercontainer`"""
         plugin_list = getattr(self, 'plugin_list', None)
-        if not plugin_list or 'inframe' in self.pageArgs:
+        if not plugin_list or self.root_page_id:
             return
         bc = parentBC.borderContainer(_class='main_left_tab', width='200px', datapath='gnr.main_container.left',
                                       **kwargs)

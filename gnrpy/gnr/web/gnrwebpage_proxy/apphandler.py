@@ -38,38 +38,32 @@ gnrlogger = logging.getLogger(__name__)
 from gnr.core.gnrbag import Bag
 from gnr.core import gnrlist
 
-from gnr.core.gnrlang import getUuid,uniquify
-from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrlang import uniquify
+from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import templateReplace, splitAndStrip, toText, toJson
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 
 ESCAPE_SPECIAL = re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
 
 class GnrWebAppHandler(GnrBaseProxy):
-    """A class for web applications handlement"""
     def init(self, **kwargs):
-        """add???"""
         self.gnrapp = self.page.site.gnrapp
         siteStatus = self.page.siteStatus
         if siteStatus['resetLocalizationTime'] and self.gnrapp.localizationTime < siteStatus['resetLocalizationTime']:
             self.gnrapp.buildLocalization()
-            
+
     def event_onEnd(self):
-        """add???"""
         self._finalize(self)
-        
+
     def _finalize(self, page):
         self.db.closeConnection()
-        
+
     @property
     def db(self):
         """add???"""
         return self.page.db
-        
+
     def getDb(self, dbId=None):
-        """add???
-        
-        :param dbId: the database id"""
         return self.db # TODO: is a __getitem__ for back compatibility: see gnrsqldata DataResolver
 
     __getitem__ = getDb
@@ -88,29 +82,19 @@ class GnrWebAppHandler(GnrBaseProxy):
     appId = property(_getAppId)
 
     def getPackages(self):
-        """add???"""
         return [[pkgobj.name_full, pkg] for pkg, pkgobj in self.db.packages.items()]
-        
+
     rpc_getPackages = getPackages
-    
+
     def getTables(self, pkg=None):
-        """Extract a couple with the istance names and the name of the
-        :ref:`database tables <table>` from a :ref:`package <packages>` you specify
-        with the *pkg* attribute. Return the extracted couples as a list of lists. If no
-        tables are in the package then the method returns an empty list
-        
-        :param pkg: MANDATORY. The :ref:`package <packages>` from which
-                    the tables are extracted"""
         tables = self.db.package(pkg).tables
         if tables:
             return [[tblobj.name_full.capitalize(), tbl] for tbl, tblobj in tables.items()]
         return []
-        
+
     rpc_getTables = getTables
-    
+
     def getTablesTree(self):
-        """Set a :class:`Bag <gnr.core.gnrbag.Bag>` with the structure of the :ref:`database tables
-        <table>` of a :ref:`package <packages>`"""
         result = Bag()
         for pkg, pkgobj in self.db.packages.items():
             if pkgobj.attributes.get('reserved', 'n').upper() != 'Y':
@@ -121,24 +105,17 @@ class GnrWebAppHandler(GnrBaseProxy):
                     label = tblobj.name_full.capitalize()
                     tblbag.setItem(tbl, None, label=label, tableid='%s.%s' % (pkg, tbl))
         return result
-        
+
     rpc_getTablesTree = getTablesTree
-    
+
     def getTableFields(self, pkg='', table='', **kwargs):
-        """add???
-        
-        :param pkg: the :ref:`package <packages>`
-        :param table: the :ref:`database table <table>`"""
         if not pkg:
             pkg, table = table.split('.')
         return self.dbStructure(path='%s.tables.%s.relations' % (pkg, table))
-        
+
     rpc_getTableFields = getTableFields
-    
+
     def dbStructure(self, path='', **kwargs):
-        """add???
-        
-        :param path: the path of the database structure"""
         curr = self.db.packages
         if path:
             curr = curr[path]
@@ -155,7 +132,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 attributes.update(elem.getAttr())
                 if 'joiner' in attributes:
                     joiner = attributes.pop('joiner')
-                    attributes.update(joiner[0] or {})
+                    attributes.update(joiner or {})
                 label = elem.label
                 attributes['caption'] = attributes.get('name_long')
                 if elem.resolver != None:
@@ -190,22 +167,18 @@ class GnrWebAppHandler(GnrBaseProxy):
             else:
                 result.setItem(elem, None)
         return result
-        
+
+
     def rpc_batchDo(self, batch, resultpath, forked=False, **kwargs):
-        """Execute a :ref:`batch`
-        
-        :param batch: the :ref:`batch` to be executed
-        :param resultpath: add???
-        :param forked: boolean. add???"""
         if forked:
             from processing import Process
-            
+
             p = Process(target=self._batchExecutor, args=(batch, resultpath, forked), kwargs=kwargs)
             p.start()
             return None
         else:
             return self._batchExecutor(batch, resultpath, forked, **kwargs)
-            
+
     def _batchExecutor(self, batch, resultpath, forked, **kwargs):
         batchClass = self._batchFinder(batch)
         batch = batchClass(self.page)
@@ -225,28 +198,16 @@ class GnrWebAppHandler(GnrBaseProxy):
             return getattr(m, clsName)
         else:
             raise Exception('Cannot import component %s' % modName)
-            
+
+
     def rpc_getRecordCount(self, field=None, value=None,
                            table='', distinct=False, columns='', where='',
                            relationDict=None, sqlparams=None, condition=None,
                            **kwargs):
-        """add???
-        
-        :param field: add???
-        :param value: add???
-        :param table: the :ref:`database table <table>` name
-        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
-        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
-                        clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section
-        :param where: add???
-        :param relationDict: add???
-        :param sqlparams: add???
-        :param condition: add???"""
         #sqlargs = dict(kwargs)
         if field:
             if not table:
-                pkg, table, field = splitAndStrip(field, sep='.', fixed=-3)
+                pkg, table, field = splitAndStrip(field, '.', fixed=-3)
                 table = '%s.%s' % (pkg, table)
             where = '$%s = :value' % field
             kwargs['value'] = value
@@ -258,39 +219,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         return tblobj.query(columns=columns, distinct=distinct, where=where,
                             relationDict=relationDict, sqlparams=sqlparams, **kwargs).count()
 
-    def rpc_selectionCall(self, table, selectionName, method, freeze=False, **kwargs):
-        """add???
-        
-        :param table: the :ref:`database table <table>` name
-        :param selectionName: add???
-        :param method: add???
-        :param freeze: boolean. add???"""
-        tblobj = self.db.table(table)
-        selection = self.page.unfreezeSelection(tblobj, selectionName)
-        if hasattr(selection, method):
-            result = getattr(selection, method)(**kwargs)
-            if freeze:
-                selection.freezeUpdate()
-            return result
-
-    def rpc_getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True,
+    
+    @public_method
+    def getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True,
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                             sqlContextName=None, one_one=None, virtual_columns=None, **kwargs):
-        """add???
-        
-        :param from_fld: add???
-        :param target_fld: add???
-        :param pkg: add???
-        :param pkey: add???
-        :param ignoreMissing: add???
-        :param ignoreDuplicate: add???
-        :param js_resolver_one: add???
-        :param js_resolver_many: add???
-        :param sqlContextName: add???"""
-        if one_one is not None:
-            raise 'error'
-
+                             sqlContextName=None, virtual_columns=None,_eager_level=0, **kwargs):
         pkg, tbl, related_field = target_fld.split('.')
         table = '%s.%s' % (pkg, tbl)
         if pkey is None:
@@ -299,10 +233,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         if pkey in (None,
                     '') and not related_field in kwargs: # and (not kwargs): # related record from a newrecord or record without link
             pkey = '*newrecord*'
-        record, recInfo = self.rpc_getRecord(table=table, from_fld=from_fld, target_fld=target_fld, pkey=pkey,
+        record, recInfo = self.getRecord(table=table, from_fld=from_fld, target_fld=target_fld, pkey=pkey,
                                              ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
                                              js_resolver_one=js_resolver_one, js_resolver_many=js_resolver_many,
-                                             sqlContextName=sqlContextName, virtual_columns=virtual_columns, **kwargs)
+                                             sqlContextName=sqlContextName, virtual_columns=virtual_columns, 
+                                             _eager_level=_eager_level,**kwargs)
 
         if sqlContextName:
             joinBag = self._getSqlContextConditions(sqlContextName, target_fld=target_fld, from_fld=from_fld)
@@ -311,41 +246,12 @@ class GnrWebAppHandler(GnrBaseProxy):
                 self.page.getPublicMethod('rpc', joinBag['applymethod'])(record, **applyPars)
         return (record, recInfo)
 
-  #def setContextJoinColumns(self, table, contextName='', reason=None, path=None, columns=None):
-  #    tblobj = self.db.table(table)
-  #    relation = tblobj.model.getRelation(path)
-  #    if not relation:
-  #        return
-  #    target_fld = relation['many'].replace('.', '_')
-  #    from_fld = relation['one'].replace('.', '_')
-  #    ctxpath = '_sqlctx.columns.%s.%s_%s' % (contextName, target_fld, from_fld)
-  #    with self.page.pageStore() as store:
-  #        reasons = store.getItem('%s._reasons' % ctxpath)
-  #        if reasons is None:
-  #            reasons = Bag()
-  #            store.setItem('%s._reasons' % ctxpath, reasons)
-  #        reasons.setItem(reason or '*', columns)
-  #        query_set = set()
-  #        for columns in reasons.values():
-  #            query_set.update(columns.split(','))
-  #        store.setItem(ctxpath, ','.join(query_set))
 
-    def rpc_getRelatedSelection(self, from_fld, target_fld, relation_value=None,
+    @public_method
+    def getRelatedSelection(self, from_fld, target_fld, relation_value=None,
                                 columns='', query_columns=None,
                                 condition=None, js_resolver_one='relOneResolver',
                                 sqlContextName=None, **kwargs):
-        """add???
-        
-        :param from_fld: add???
-        :param target_fld: add???
-        :param relation_value: add???
-        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
-                        clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section
-        :param query_columns: add???
-        :param condition: add???
-        :param js_resolver_one: add???
-        :param sqlContextName: add???"""
         if query_columns:
             print 'QUERY COLUMNS PARAMETER NOT EXPECTED!!'
         columns = columns or query_columns
@@ -402,13 +308,14 @@ class GnrWebAppHandler(GnrBaseProxy):
                                  })
 
         return (result, resultAttributes)
-
-    def rpc_runSelectionBatch(self, table, selectionName=None, batchFactory=None, pkeys=None,
+        
+    @public_method
+    def runSelectionBatch(self, table, selectionName=None, batchFactory=None, pkeys=None,
                               thermoId=None, thermofield=None,
                               stopOnError=False, forUpdate=False, onRow=None, **kwargs):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param selectionName: add???
         :param batchFactory: name of the Class, plugin of table, which executes the batch action
         :param pkeys: add???
@@ -429,13 +336,6 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def setThermo(self, thermoId, progress_1=None, message_1=None,
                   maximum_1=None, command=None, **kwargs):
-        """add???
-        
-        :param thermoId: add???
-        :param progress_1: add???
-        :param message_1: add???
-        :param maximum_1: add???
-        :param command: add???"""
         with self.page.pageStore() as store:
             if command == 'init':
                 thermoBag = Bag()
@@ -463,10 +363,6 @@ class GnrWebAppHandler(GnrBaseProxy):
             return 'stop'
 
     def rpc_getThermo(self, thermoId, flag=None):
-        """add???
-        
-        :param thermoId: add???
-        :param flag: add???"""
         with self.page.pageStore() as store:
             if flag == 'stop':
                 thermoBag = store.getItem('thermo_%s' % thermoId) or Bag()
@@ -478,14 +374,6 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def rpc_onSelectionDo(self, table, selectionName, command, callmethod=None, selectedRowidx=None, recordcall=False,
                           **kwargs):
-        """add???
-        
-        :param table: the :ref:`database table <table>` name
-        :param selectionName: add???
-        :param command: add???
-        :param callmethod: add???
-        :param selectedRowidx: add???
-        :param recordcall: add???"""
         result = None
         tblobj = self.db.table(table)
         selection = self.page.getUserSelection(table=tblobj, selectionName=selectionName, selectedRowidx=selectedRowidx)
@@ -506,23 +394,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
 
     def export_standard(self, selection, locale=None, columns=None, filename=None, **kwargs):
-        """add???
-        
-        :param selection: add???
-        :param locale: add???
-        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
-                        clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section
-        :param filename: add???"""
         filename = filename or self.maintable or  self.request.uri.split('/')[-1]
         content = selection.output('tabtext', columns=columns, locale=locale)
         self.page.utils.sendFile(content, filename, 'xls')
 
     def print_standard(self, selection, locale=None, **kwargs):
-        """add???
-        
-        :param selection: add???
-        :param locale: add???"""
         columns = None # get columns from current view on client !
         if not columns:
             columns = [c for c in selection.allColumns if not c in ('pkey', 'rowidx')]
@@ -533,10 +409,6 @@ class GnrWebAppHandler(GnrBaseProxy):
                                                           title='Print List', header='Print List', columns=columns)
 
     def pdf_standard(self, selection, locale=None, **kwargs):
-        """add???
-        
-        :param selection: add???
-        :param locale: add???"""
         columns = None # get columns from current view on client !
         if not columns:
             columns = [c for c in selection.allColumns if not c in ('pkey', 'rowidx')]
@@ -578,14 +450,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         if optkwargs:
             result.update(optkwargs)
         return result
-
-    def rpc_checkFreezedSelection(self, changelist=None, selectionName=None, where=None, table=None, **kwargs):
-        """add???
-        
-        :param changelist: add???
-        :param selectionName: add???
-        :param where: add???
-        :param table: the :ref:`database table <table>` name"""
+    
+    @public_method
+    def checkFreezedSelection(self,changelist=None,selectionName=None,where=None,table=None,**kwargs):
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
         needUpdate = False
         if selection is not None:
@@ -609,50 +476,15 @@ class GnrWebAppHandler(GnrBaseProxy):
                 needUpdate = True
                 break
         return needUpdate
-                             
-    def rpc_getSelection(self, table='', distinct=False, columns='', where='', condition=None,
+    
+    @public_method               
+    def getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
                          relationDict=None, sqlparams=None, row_start='0', row_count='0',
                          recordResolver=True, selectionName='', structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
-                         sortedBy=None, excludeLogicalDeleted=True, excludeDraft=True,
-                         savedQuery=None, savedView=None, externalChanges=None,**kwargs):
-        """add???
-        
-        :param table: the :ref:`database table <table>` name
-        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
-        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
-                        clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section
-        :param where: add???
-        :param condition: add???
-        :param order_by: add???
-        :param limit: add???
-        :param offset: add???
-        :param group_by: add???
-        :param having: add???
-        :param relationDict: add???
-        :param sqlparams: add???
-        :param row_start: add???
-        :param row_count: add???
-        :param recordResolver: add???
-        :param selectionName: add???
-        :param structure: add???
-        :param numberedRows: add???
-        :param pkeys: add???
-        :param fromSelection: add???
-        :param applymethod: add???
-        :param totalRowCount: add???
-        :param selectmethod: add???
-        :param expressions: add???
-        :param sum_columns: add???
-        :param sortedBy: add???
-        :param excludeLogicalDeleted: add???
-        :param excludeDraft: add???
-        :param savedQuery: add???
-        :param savedView: add???
-        :param externalChanges: add???"""
+                         sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,savedQuery=None,savedView=None, externalChanges=None,**kwargs):
         t = time.time()
         tblobj = self.db.table(table)
         row_start = int(row_start)
@@ -805,57 +637,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         #
         return selection
 
-    def rpc_createSelection(self, table='', selectionName='', distinct=False, columns='', where='', condition=None,
-                            order_by=None, limit=None, offset=None, group_by=None, having=None,
-                            relationDict=None, sqlparams=None, pkeys=None,
-                            selectmethod=None, expressions=None, apply=None, sortedBy=None, **kwargs):
-        """Create a new selection and freezes it
-        
-        :param table: table name
-        :param selectionName: the name of the selection, empty or '*' will default to a new uuid
-        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
-        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
-                        clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section
-        :param where: add???
-        :param condition: add???
-        :param order_by: add???
-        :param limit: add???
-        :param offset: add???
-        :param group_by: add???
-        :param having: add???
-        :param relationDict: add???
-        :param sqlparams: add???
-        :param pkeys: a json or comma separated list of pkey to find (overwrite the where parameter)
-        :param selectmethod: a page method with rpc_ prefix which receive all parameters and has to return a selection object
-        :param expressions: comma separated list of expr_ methods which returns the sql string for a column (probably a formula)
-        :param apply: a page method with rpc_ prefix which will be applied to the selection (see gnrsqldata.SqlSelection.apply)
-        :param sortedBy: sort the selection after apply, for sort in python with calculated columns available"""
-        t = time.time()
-        tblobj = self.db.table(table)
-        if selectionName == '*' or not selectionName:
-            selectionName = getUuid()
-
-        if selectmethod:
-            selectmethod = getattr(self.page, 'rpc_%s' % selectmethod)
-        else:
-            selectmethod = self._default_getSelection
-        selection = selectmethod(tblobj=tblobj, table=table, distinct=distinct, columns=columns, where=where,
-                                 condition=condition,
-                                 order_by=order_by, limit=limit, offset=offset, group_by=group_by, having=having,
-                                 relationDict=relationDict, sqlparams=sqlparams,
-                                 pkeys=pkeys, expressions=expressions, **kwargs)
-
-        if apply:
-            selection.apply(getattr(self.page, 'rpc_%s' % apply))
-        if sortedBy:
-            selection.sort(sortedBy)
-        self.page.freezeSelection(selection, selectionName)
-        resultAttributes = dict(table=table, selectionName=selectionName,
-                                servertime=int((time.time() - t) * 1000),
-                                newproc=getattr(self, 'self.newprocess', 'no'))
-        return (len(selection), resultAttributes)
-
+ 
     def _decodeWhereBag(self, tblobj, where, kwargs):
         if hasattr(self.page, 'getSelection_filters'):
             selection_filters = self.page.getSelection_filters()
@@ -886,14 +668,6 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def gridSelectionData(self, selection, outsource, recordResolver, numberedRows, logicalDeletionField,
                           _addClassesDict=None):
-        """add???
-        
-        :param selection: add???
-        :param outsource: add???
-        :param recordResolver: add???
-        :param numberedRows: add???
-        :param logicalDeletionField: add???
-        :param _addClassesDict: add???"""
         result = Bag()
         for j, row in enumerate(outsource):
             row = dict(row)
@@ -919,9 +693,6 @@ class GnrWebAppHandler(GnrBaseProxy):
 
 
     def gridSelectionStruct(self, selection):
-        """add???
-        
-        :param selection: add???"""
         structure = Bag()
         r = structure.child('view').child('row')
         for colname in selection.columns:
@@ -951,9 +722,9 @@ class GnrWebAppHandler(GnrBaseProxy):
                     kwargs['width'] = '%iem' % (1 + int(int(width) * .7))
                 r.child('cell', childname=colname, field=colname, **kwargs)
         return structure
-        
+
         #@timer_call()
-        
+
     #
     def _getRecord_locked(self, tblobj, record, recInfo):
         #locked,aux=self.page.site.lockRecord(self.page,tblobj.fullname,record[tblobj.pkey])
@@ -965,35 +736,15 @@ class GnrWebAppHandler(GnrBaseProxy):
         for f in aux:
             recInfo['locking_%s' % f] = aux[f]
             
+    @public_method
     @extract_kwargs(default=True)
-    def rpc_getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,
+    def getRecord(self, table=None, dbtable=None, pkg=None, pkey=None,
                       ignoreMissing=True, ignoreDuplicate=True, lock=False, readOnly=False,
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                      loadingParameters=None, default_kwargs=None, eager=None, virtual_columns=None, **kwargs):
-        """add???
-        
-        ``rpc_getRecord()`` method is decorated with the :meth:`extract_kwargs
-        <gnr.core.gnrdecorator.extract_kwargs>` decorator
-        
-        :param table: the :ref:`database table <table>`
-        :param dbtable: the :ref:`database table <table>`
-        :param pkg: the :ref:`package <packages>` object
-        :param pkey: the record :ref:`primary key <pkey>`
-        :param ignoreMissing: boolean. add???
-        :param ignoreDuplicate: boolean. add???
-        :param lock: boolean. add???
-        :param readOnly: boolean. The :ref:`readonly` attribute
-        :param from_fld: add???
-        :param target_fld: add???
-        :param sqlContextName: add???
-        :param applymethod: add???
-        :param js_resolver_one: add???
-        :param js_resolver_many: add???
-        :param loadingParameters: add???
-        :param default_kwargs: add???
-        :param eager: add???
-        :param virtual_columns: add???"""
+                      loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None,
+                      _eager_level=0, **kwargs):
+        """A decorator - :ref:`extract_kwargs`"""
         t = time.time()
         dbtable = dbtable or table
         if pkg:
@@ -1005,12 +756,13 @@ class GnrWebAppHandler(GnrBaseProxy):
             lock = False
         if lock:
             kwargs['for_update'] = True
-        tbl_virtual_columns = tblobj.attributes.get('virtual_columns')
-        if tbl_virtual_columns:
-            virtual_columns = (virtual_columns or '').split(',')
-            virtual_columns.extend(tbl_virtual_columns.split(','))
-            virtual_columns = ','.join(uniquify(virtual_columns))        
-        
+        captioncolumns = tblobj.rowcaptionDecode()[0]
+        if captioncolumns:
+            captioncolumns = [caption.replace('$','') for caption in captioncolumns]
+            virtual_columns = virtual_columns.split(',') if virtual_columns else []
+            vlist = tblobj.model.virtual_columns.items()
+            virtual_columns.extend([k for k,v in vlist if v.attributes.get('always') or k in captioncolumns])
+            virtual_columns = ','.join(uniquify(virtual_columns or [])) 
         rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
                             sqlContextName=sqlContextName, virtual_columns=virtual_columns, **kwargs)
@@ -1063,31 +815,44 @@ class GnrWebAppHandler(GnrBaseProxy):
         if tblobj.lastTS:
             recInfo['lastTS'] = str(record[tblobj.lastTS])
         recInfo['table'] = dbtable
+        self._handleEagerRelations(record,_eager_level)
         return (record, recInfo)
-
-    def setRecordDefaults(self, record, defaults):
-        """add???
         
-        :param record: add???
-        :param defaults: add???"""
+    def _handleEagerRelations(self,record,_eager_level):
+        for n in record.nodes:
+            _eager_one = n.attr.get('_eager_one')
+            if _eager_one is True or (_eager_one=='weak' and _eager_level==0):
+                attr=n.attr
+                target_fld=str(attr['_target_fld'])
+                kwargs={}
+                kwargs[target_fld.split('.')[2]]=record[attr['_auto_relation_value']]
+                relatedRecord,relatedInfo = self.getRelatedRecord(from_fld=attr['_from_fld'], target_fld=target_fld, 
+                                                                        sqlContextName=attr.get('_sqlContextName'),
+                                                                        virtual_columns=attr.get('_virtual_columns'),
+                                                                        _eager_level= _eager_level+1,
+                                                                        **kwargs)
+                n.value = relatedRecord
+                n.attr['_resolvedInfo'] = relatedInfo
+                             
+                                
+    def setRecordDefaults(self, record, defaults):
         for k, v in defaults.items():
             if k in record:
                 record[k] = v
                 #pass
-
-    def rpc_dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
+    
+    @public_method
+    def dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
                      _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None, excludeDraft=True,
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
                      notnull=None, weakCondition=False, **kwargs):
-        """add???
-        
-        :param dbtable: the :ref:`database table <table>` for the query
-        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
-                        clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section
+        """
+        :param dbtable: database :ref:`table` source for the query
+        :param columns: the :ref:`table_columns` that are involved into the query
         :param auxColumns: showed only as result, not involved in the search.
         :param hiddenColumns: data that is retrieved but is not showed.
-        :param rowcaption: what you see into the field. Often is different from what you set with dbselect
+        :param rowcaption: what you see into the field. Often is different
+                           from what you set with dbselect
         :param querystring: add???
         :param ignoreCase: add???
         :param exclude: add???
@@ -1138,7 +903,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             if selectmethod:
                 selectHandler = self.page.getPublicMethod('rpc', selectmethod)
             else:
-                selectHandler = self.rpc_dbSelect_default
+                selectHandler = self.dbSelect_default
             selection = selectHandler(tblobj=tblobj, querycolumns=querycolumns, querystring=querystring,
                                       resultcolumns=resultcolumns, condition=condition, exclude=exclude,
                                       limit=limit, order_by=order_by,
@@ -1166,40 +931,21 @@ class GnrWebAppHandler(GnrBaseProxy):
         resultAttrs['resultClass'] = resultClass
         resultAttrs['dbselect_time'] = time.time() - t0
         return (result, resultAttrs)
-
-    def rpc_dbSelect_selection(self, tblobj, querystring, columns=None, auxColumns=None, **kwargs):
-        """add???
-        
-        :param tblobj: add???
-        :param querystring: add???
-        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
-                        clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section
-        :param auxColumns: add???"""
+    
+    @public_method
+    def dbSelect_selection(self, tblobj, querystring, columns=None, auxColumns=None, **kwargs):
         querycolumns = tblobj.getQueryFields(columns)
         showcolumns = gnrlist.merge(querycolumns, tblobj.columnsFromString(auxColumns))
         captioncolumns = tblobj.rowcaptionDecode()[0]
         resultcolumns = gnrlist.merge(showcolumns, captioncolumns)
         querystring = querystring or ''
         querystring = querystring.strip('*')
-        return self.rpc_dbSelect_default(tblobj, querycolumns, querystring, resultcolumns, **kwargs)
+        return self.dbSelect_default(tblobj, querycolumns, querystring, resultcolumns, **kwargs)
 
 
-    def rpc_dbSelect_default(self, tblobj, querycolumns, querystring, resultcolumns,
+    def dbSelect_default(self, tblobj, querycolumns, querystring, resultcolumns,
                              condition=None, exclude=None, limit=None, order_by=None,
                              identifier=None, ignoreCase=None, **kwargs):
-        """add???
-        
-        :param tblobj: add???
-        :param querycolumns: add???
-        :param querystring: add???
-        :param resultcolumns: add???
-        :param condition: add???
-        :param exclude: add???
-        :param limit: add???
-        :param order_by: add???
-        :param identifier: add???
-        :param ignoreCase: add???"""
         def getSelection(where, **searchargs):
             whereargs = {}
             whereargs.update(kwargs)
@@ -1260,21 +1006,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         return ':'.join(fullcaption)
 
     def rpc_getRecordForm(self, dbtable=None, fields=None, **kwargs):
-        """add???
-        
-        :param dbtable: add???
-        :param fields: add???"""
         self.getRecordForm(self.newSourceRoot(), dbtable=dbtable, fields=fields, **kwargs)
 
     def formAuto(self, pane, table, columns='', cols=2):
-        """add???
-        
-        :param pane: add???
-        :param table: the :ref:`database table <table>` name
-        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
-                        clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section
-        :param cols: add???"""
         fb = pane.formbuilder(cols=cols)
         tblobj = self.db.table(table)
         if not columns:
@@ -1285,20 +1019,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         fb.placeFields(','.join(columns))
 
     def rpc_pdfmaker(self, pdfmode, txt, **kwargs):
-        """add???
-        
-        :param pdfmode: add???
-        :param txt: add???"""
         filename = '%s.pdf' % self.page.getUuid()
         fpath = self.page.pageLocalDocument(filename)
         getattr(self.page, 'pdf_%s' % pdfmode)(fpath, txt, **kwargs)
         return filename
 
     def rpc_downloadPDF(self, filename, forcedownload=False, **kwargs):
-        """add???
-        
-        :param filename: add???
-        :param forcedownload: boolean. add???"""
         response = self.page.response
         response.content_type = "application/pdf"
         if forcedownload:
@@ -1347,11 +1073,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         return style
 
     def rpc_printStaticGrid(self, structbag, storebag, filename=None, makotemplate='standard_print.tpl', **kwargs):
-        """add???
-        
-        :param structbag: add???
-        :param filename: add???
-        :param makotemplate: add???"""
         filename = self._exportFileNameClean(filename)
         if not filename.lower().endswith('.html') or filename.lower().endswith('.htm'):
             filename += '.html'
@@ -1389,9 +1110,6 @@ class GnrWebAppHandler(GnrBaseProxy):
         #return filename
 
     def rpc_printStaticGridDownload(self, filename, **kwargs):
-        """add???
-        
-        :param filename: add???"""
         fpath = self.page.pageLocalDocument(filename)
         f = open(fpath, 'r')
         result = f.read()
@@ -1400,29 +1118,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result.decode('utf-8')
 
     def rpc_recordToPDF(self, table, pkey, template, **kwargs):
-        """add???
-        
-        :param table: the :ref:`database table <table>` name
-        :param pkey: add???
-        :param template: add???"""
         record = self.db.table(table).record(pkey).output('bag')
         return self.page.rmlTemplate(path=template, record=record)
 
     def rpc_includedViewAction(self, action=None, export_mode=None, respath=None, table=None, data=None,
                                selectionName=None, struct=None,datamode=None, downloadAs=None,
                                selectedRowidx=None, **kwargs):
-        """add???
-        
-        :param action: add???
-        :param export_mode: add???
-        :param respath: add???
-        :param table: the :ref:`database table <table>` name
-        :param data: add???
-        :param selectionName: add???
-        :param struct: add???
-        :param datamode: add???
-        :param downloadAs: add???
-        :param selectedRowidx: add???"""
         page = self.page
         if downloadAs:
             import mimetypes
