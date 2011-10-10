@@ -94,7 +94,7 @@ class GnrAppTransactionAgent(GnrApp):
                        onTimeout=self.checkTransactions)
 
     def checkTransactions(self, notify=None):
-        print "Checking -- [%i-%i-%i %i:%i:%i]" % (time.localtime()[:6])
+        print "Checking -- [%i-%i-%i %02i:%02i:%02i]" % (time.localtime()[:6])
         try:
             todo = True
             while todo:
