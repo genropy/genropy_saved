@@ -511,14 +511,12 @@ class TableHandlerMain(BaseComponent):
                             
     def rpc_form(self, root,**kwargs):
         kwargs.update(self.getCallArgs('pkey'))
-        form = self._th_prepareForm(root,**kwargs)
-        if hasattr(self,'th_form'):
-            self.th_form(form)
-        else:
-            self._th_hook('form',mangler= self.maintable.replace('.','_'))(form)
+        formCb = self.th_form if hasattr(self,'th_form') else None
+        self._th_prepareForm(root,formCb=formCb,**kwargs)
+                
     
     @extract_kwargs(th=True)
-    def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,**kwargs):
+    def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):
         pkey = pkey or th_kwargs.pop('pkey','*norecord*')
         formResource = th_kwargs.pop('formResource',None)
         root.attributes.update(overflow='hidden')
@@ -533,7 +531,9 @@ class TableHandlerMain(BaseComponent):
         root.attributes.update(datapath=self.maintable.replace('.','_'))
         formkw = kwargs
         formkw.update(th_kwargs)
-        form = root.thFormHandler(table=self.maintable,formId=formId,startKey=pkey,formResource=formResource,**formkw)
+        form = root.thFormHandler(table=self.maintable,formId=formId,startKey=pkey,
+                                  formResource=formResource,
+                                  formCb=formCb,**formkw)
         form.dataController("""SET gnr.windowTitle = title;
                             """,title='=.controller.title')    
         if th_kwargs.get('showfooter',True):

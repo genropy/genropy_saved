@@ -184,18 +184,20 @@ class TableHandler(BaseComponent):
                                         viewResource=viewResource,readOnly=readOnly,**kwargs)
         return wdg    
     
-    @extract_kwargs(default=dict(slice_prefix=False),store=True)
+    @extract_kwargs(default=dict(slice_prefix=False,pop=True),store=True)
     @struct_method
-    def th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,store_kwargs=None,default_kwargs=None,**kwargs):
+    def th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,store_kwargs=None,default_kwargs=None,**kwargs):
         tableCode = table.replace('.','_')
         formId = formId or tableCode
-        self._th_mixinResource(formId,table=self.maintable,resourceName=formResource,defaultClass='Form')
+        self._th_mixinResource(formId,table=table,resourceName=formResource,defaultClass='Form')
         resource_options = self._th_hook('options',mangler=formId,dflt=dict())()
-        kwargs.update(resource_options)
-        form = pane.frameForm(frameCode=formId,formId=formId,table=self.maintable,
+        resource_options.update(kwargs)
+        form = pane.frameForm(frameCode=formId,formId=formId,table=table,
                              store_startKey=startKey,
                              datapath='.form',store='recordCluster',store_kwargs=store_kwargs)
-        self.th_formOptions(form,options=kwargs)
+        self.th_formOptions(form,options=resource_options)
+        formCb = formCb or self._th_hook('form',mangler=formId)
+        formCb(form)
         form.store.handler('load',**default_kwargs)
         return form
         
