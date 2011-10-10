@@ -28,7 +28,8 @@ introduction
     * :ref:`gnrmkpackage`: add???
     * :ref:`gnrmkproject`: add???
     * :ref:`gnrmksite`: add???
-    * :ref:`gnrmkthresource`: add???
+    * :ref:`gnrmkthresource`: create automatically the :ref:`th` resources from
+      :ref:`database tables <table>`
     * :ref:`gnrsendmail`: add???
     * :ref:`gnrsitelocalize`: add???
     * :ref:`gnrsync4d`: add???

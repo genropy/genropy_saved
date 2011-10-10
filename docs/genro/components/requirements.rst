@@ -78,24 +78,23 @@ introduction
 standard component
 ==================
 
-    **Definition**: We define a standard component as a component that live in the following
-    path::
+    **Definition**: A standard component is a component that lives in the following path::
     
         GNRHOME/resources
         
-    .. warning:: for the standard components you don't need to import a package:
-                 the package importation is automatically handled in your
-                 :ref:`gnr_environment` file (if you have correctly configured the file!)
-                 
-                 To learn how to configure the ``environment.xml`` file, check the
-                 :ref:`environment_resources_components` section.
-                 
-    .. note:: Remeber to import the proper component's :ref:`webpages_py_requires`.
-                 
-    .. note:: in every component's documentation page you will find if the component is
-              standard.
-                 
-    .. _components_active_passive:
+    We remind you that to use a standard component you need to import the proper component's
+    :ref:`webpages_py_requires` in the :ref:`webpage` in which you use the component
+    
+    For the fact that is 
+    while
+    you don't need to import any package: infact the package importation is automatically
+    handled in the ``environment.xml`` file, if you have correctly configured it; in the
+    :ref:`environment_resources_components` section you can learn how to configure the
+    ``environment.xml`` file
+    
+    However, in every component's page you will find if the component is standard or not
+    
+.. _components_active_passive:
 
 active or passive components
 ============================

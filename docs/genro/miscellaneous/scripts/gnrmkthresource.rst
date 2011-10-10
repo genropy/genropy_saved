@@ -6,40 +6,23 @@ gnrmkthresource
 
     *Last page update*: |today|
     
-    gnrmkthresource is used to create the :ref:`th` resources automatically from :ref:`packages_model`
+    gnrmkthresource is used to create automatically the :ref:`th` resources from :ref:`database
+    tables <table>`. To use it, place yourself inside the package and write::
     
-    * the first parameter is a :ref:`table` name; use the following syntax::
-    
-        package_name.table_name
+        gnrmkthresource [projectName:]packageName.tableName [Optional suffixes]
         
     where:
     
-    * ``package_name`` is the name of the :ref:`package <packages>`
-      and may be in the form::
+    * ``projectName`` is the name of the :ref:`project` and it is optional,
+      as you can see from the square brackets ``[]``
+    * ``packageName`` is the name of the :ref:`package <packages>`
+    * ``tableName`` is the name of the :ref:`database table <table>` through which you want
+      to create the TableHandler resources
       
-        project_name:package_name
-        
-    * ``table_name`` is the name of your :ref:`database table <table>`
-    
     **Optional suffixes:**
     
-    CLIPBOARD::
-    
-        "-f", "--force", dest="force", action='store_true', default=False,
-        help="force the resource creation also if destination file exists"
-        "-n", "--name", dest="name", 
-        help="output file name, the file will be, will work only if single table is passed"
-        
-        "-o", "--output", dest="output",
-        help="""output file path will override -n/--name and automatic file placement in resources/tables/tablename, 
-                will work only if single table is passed"""
-        "-i", "--indent", dest="indent", default=4,
-         help="output file name, the file will be, will work only if single table is passed"
-         
-    **Examples**
-    
-        add???::
-        
-            MyBook:packages niso$ cd packageName
-            packageName niso$ gnrmkthresource packageName.modelName -n th_modelName
-    
+    * ``-f``: force the resource creation also if destination file exists
+    * ``-n``: output file name, the file will be, will work only if single table is passed
+    * ``-o``: output file path will override -n/--name and automatic file will be placed at
+      the ``resources/tables/tablename`` path; this will work only if a single table is passed
+    * ``-i``: output file name, the file will be; this will work only if a single table is passed

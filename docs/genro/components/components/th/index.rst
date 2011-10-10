@@ -27,7 +27,7 @@ TableHandler
 introduction
 ============
 
-    1. The TableHandler is the Genro way to handle data visualization and data entry
+    1. The TableHandler is a way to handle data visualization and data entry
     
     2. The TableHandler is structured in two main classes:
        

@@ -19,13 +19,8 @@
         * :ref:`methods_config_db`
         * :ref:`methods_custom_type`
         * :ref:`methods_loginUrl`
-        * add??? link to methods!
     
     * :ref:`main_table_class`
-    
-        Table class methods:
-        
-        * add??? link to methods!
     
 .. _main_intro:
     
@@ -61,9 +56,7 @@ autocreation of the ``main.py``
             pass
             
     where the :ref:`methods_config_attributes` and the :ref:`methods_loginUrl` methods have
-    been filled with the same name of the package (in this example the package is called ``base``).
-    
-    In the next section we describe all the features of the ``main.py`` file.
+    been filled with the same name of the package (in this example the package is called ``base``)
     
 .. _main_description:
     
@@ -228,14 +221,24 @@ loginUrl()
 
 Table class
 ===========
+
+    Be sure that the following two lines exist in the ``main.py``::
     
-    *class* **Table** (*GnrDboTable*)
+        class Table(GnrDboTable):
+            pass
+            
+    This fact:
     
-    The ``Table`` class is used for ... add???
-    
-    We list now all the methods of the ``Table`` class:
-    
-    add???
+    * allow to let properly work the :ref:`gnrdbsetup` script, through which you create
+      the database with its schemas
+      
+    * allow to import for every :ref:`database table <table>` of your :ref:`project` all the methods
+      of the :class:`GnrDboTable <gnr.app.gnrdbo.GnrDboTable>` class, that are the standard methods
+      to handle a table that Genro gives to you
+      
+    Also, if you define some method of the :class:`GnrDboTable <gnr.app.gnrdbo.GnrDboTable>` class
+    inside this istantiation, then you are defining a default behaviour of those methods for all the
+    :ref:`tables <table>` of the :ref:`package <packages>` in which the ``main.py`` file lives
     
 **Footnotes**:
 
