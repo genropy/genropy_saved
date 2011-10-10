@@ -7,17 +7,17 @@ gnrmkthresource
     *Last page update*: |today|
     
     gnrmkthresource is used to create automatically the :ref:`th` resources from :ref:`database
-    tables <table>`. To use it, place yourself inside the package and write::
+    tables <table>`. To use it, write in your terminal::
     
-        gnrmkthresource [projectName:]packageName.tableName [Optional suffixes]
+        gnrmkthresource projectName:packageName.tableName [Optional suffixes]
         
     where:
     
-    * ``projectName`` is the name of the :ref:`project` and it is optional,
-      as you can see from the square brackets ``[]``
+    * ``projectName`` is the name of the :ref:`project` (it is mandatory if you launch the script
+      outside the project, otherwise it is optional)
     * ``packageName`` is the name of the :ref:`package <packages>`
-    * ``tableName`` is the name of the :ref:`database table <table>` through which you want
-      to create the TableHandler resources
+    * ``tableName`` is the name of the :ref:`database table <table>` through which
+      you want to create the TableHandler resource
       
     **Optional suffixes:**
     
