@@ -22,6 +22,7 @@
 
 import os
 from datetime import datetime, timedelta
+import time
 import logging
 
 gnrlogger = logging.getLogger('gnr')
@@ -93,7 +94,7 @@ class GnrAppTransactionAgent(GnrApp):
                        onTimeout=self.checkTransactions)
 
     def checkTransactions(self, notify=None):
-        print 'checking'
+        print "Checking -- [%i-%i-%i %i:%i:%i]" % (time.localtime()[:6])
         try:
             todo = True
             while todo:
