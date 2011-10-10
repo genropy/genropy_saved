@@ -9,10 +9,6 @@ from gnr.core.gnrstring import boolean
 
 class GnrCustomWebPage(object):
     py_requires='public:TableHandlerMain'
-    def __prepareKwargs(self,mainKwargs=None):
-        callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')    
-        self.th_iframeContainerId = mainKwargs.pop('th_iframeContainerId',None)
-        return callArgs.pop('th_pkey',None)
     
     @property
     def package(self):
@@ -37,7 +33,9 @@ class GnrCustomWebPage(object):
 
     def main(self,root,**kwargs):
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
-        pkey = self.__prepareKwargs(kwargs)        
+        callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')    
+        self.th_iframeContainerId = kwargs.pop('th_iframeContainerId',None)
+        pkey = callArgs.pop('th_pkey',None)   
         resource = self._th_getResClass(table=self.maintable,resourceName=th_options.get('resourceName'),defaultClass='View')()
         resource_options = resource.th_options() if hasattr(resource,'th_options') else dict()
         th_options.update(resource_options)

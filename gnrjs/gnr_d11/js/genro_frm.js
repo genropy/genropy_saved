@@ -123,6 +123,11 @@ dojo.declare("gnr.GnrFrmHandler", null, {
                     that.setLocked(kw.locked);
                 });
                 this.locked = parentStore.locked;
+            }else if (parentForm){
+                parentForm.subscribe('onLockChange',function(kw){
+                    that.setLocked(kw.locked);
+                });
+                this.locked = parentForm.locked;
             }
             genro.src.afterBuildCalls.push(function(){
                 setTimeout(function(){that.setLocked(that.locked);that.updateStatus()},1);
