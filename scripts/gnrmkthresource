@@ -87,7 +87,6 @@ class ThResourceMaker(object):
         self.write(out_file, "from gnr.web.gnrbaseclasses import BaseComponent")
         self.write(out_file, "from gnr.core.gnrdecorator import public_method")
         self.write(out_file)
-        self.write(out_file)
     
     def writeViewClass(self, out_file, columns):
         self.write(out_file, "class View(BaseComponent):")
@@ -96,7 +95,7 @@ class ThResourceMaker(object):
         self.write(out_file, 'r = struct.view().rows()', indent=2)
         for column, size in columns:
             if self.option_guess_size:
-                self.write(out_file, "r.fieldcell('%s',width='%iem')"%(column,size), indent=2)
+                self.write(out_file, "r.fieldcell('%s', width='%iem')"%(column,size), indent=2)
             else:
                 self.write(out_file, "r.fieldcell('%s')"%column, indent=2)
         self.write(out_file)
@@ -104,7 +103,7 @@ class ThResourceMaker(object):
         self.write(out_file, "return '%s'"%columns[0][0], indent=2)
         self.write(out_file)
         self.write(out_file, "def th_query(self):", indent=1)
-        self.write(out_file, "return dict(column='%s',op='contains', val='%%')"%columns[0][0], indent=2)
+        self.write(out_file, "return dict(column='%s', op='contains', val='%%')"%columns[0][0], indent=2)
         self.write(out_file)
         self.write(out_file)
         self.write(out_file)
@@ -114,13 +113,13 @@ class ThResourceMaker(object):
         self.write(out_file)
         self.write(out_file, "def th_form(self, form):", indent=1)
         self.write(out_file, "pane = form.record", indent=2)
-        self.write(out_file, "fb = pane.formbuilder(cols=%i,border_spacing='4px')"%self.option_columns, indent=2)
+        self.write(out_file, "fb = pane.formbuilder(cols=%i, border_spacing='4px')"%self.option_columns, indent=2)
         for column, size in columns:
             self.write(out_file, "fb.field('%s')"%column, indent=2)
         self.write(out_file)
         self.write(out_file)
         self.write(out_file, "def th_options(self):", indent=1)
-        self.write(out_file, "return dict(dialog_height='400px',dialog_width='600px')", indent=2)
+        self.write(out_file, "return dict(dialog_height='400px', dialog_width='600px')", indent=2)
 
 
     def createResourceFile(self, package, table):
@@ -164,11 +163,19 @@ class ThResourceMaker(object):
 
 if __name__ == '__main__':
     usage = """
-    gnrmkthresource is used to create
-    tablehandler resources automatically from model.
+    gnrmkthresource is used to create tablehandler resources
+    automatically from model
     
-    - the first parameter is a table name in the form: package_name.table_name
-    - pkgname may be in the form: project_name:package_name
+    The syntax is:
+    
+    gnrmkthresource projectName:packageName.tableName [Optional suffixes]
+    
+    where:
+    
+    - \"projectName\": name of the project (it is mandatory if you launch the script
+      outside the project, otherwise it is optional)
+    - \"packageName\"``: name of the package
+    - \"tableName\"``: name of the table through which you create the TableHandler resource
     """
     parser = OptionParser(usage)
     parser.add_option("-f", "--force", dest="force", action='store_true', default=False,
@@ -184,7 +191,6 @@ if __name__ == '__main__':
                        help="number of spaces of each level of indentation in the output file(s)")
     parser.add_option("-g", "--guess_size", dest="guess_size", action='store_true', default=False, 
                       help="tries to guess the View column size")
-
     parser.add_option("-c", "--columns", dest="columns", default=2,
                        help="number of columns in Form")
 
