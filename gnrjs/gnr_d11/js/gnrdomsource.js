@@ -979,8 +979,8 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         }
     },
     
-    setHiderLayer:function(kw,removeHider){
-        if(removeHider){
+    setHiderLayer:function(set,kw){
+        if(!set){
             this.unwatch('isVisibile');
             this.getValue().popNode('hiderNode');
         }else if (!this.getValue().getNode('hiderNode')){

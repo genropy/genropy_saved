@@ -64,9 +64,9 @@ class TableHandler(BaseComponent):
                             var currform = this.getFormHandler();
                             message = message || msg_prefix+' '+ (currform?currform.getRecordCaption():"main record") +' '+ msg_suffix;
                             if(pkey=='*newrecord*'){
-                                sourceNode.setHiderLayer({message:message,button:'this.getFormHandler().save();'});
+                                sourceNode.setHiderLayer(true,{message:message,button:'this.getFormHandler().save();'});
                             }else{
-                                sourceNode.setHiderLayer(null,true);
+                                sourceNode.setHiderLayer(false);
                             }
                             """,pkey='=#FORM.pkey',sourceNode=hiderRoot,message=hiderMessage or False,msg_prefix='!!Save',msg_suffix='',
                                 _fired='^#FORM.controller.loaded',_delay=1)    
