@@ -36,7 +36,8 @@ introduction
     The element on which you apply this attribute will become the father of his children elements.
     
     A child element can support both a *relative path* (relative to its father) or an *absolute
-    path*: in every case, to define the path of a child you have to use the *value* attribute
+    path*: in every case, to define the (*relative* or *absolute*) path of a child you have to
+    use the *value* attribute
     
 .. _datapath_syntax:
 

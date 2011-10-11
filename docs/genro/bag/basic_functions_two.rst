@@ -49,7 +49,7 @@ Bag's path
     >>> new_card.setItem('phone.mobile', 555230450)
     
     A hierarchical bag ("new_card") can be nested within a larger one ("address_book"). In the following
-    line we set the "new_card" Bag into the  "friends" Bag that is included into the "address_book" Bag.
+    line we set the "new_card" Bag into the "friends" Bag that is included into the "address_book" Bag.
     
     Now you might be thinking that the "friends" Bag was not instantiated and that it wasn't set into the
     "address_book". But, when :meth:`setItem() <gnr.core.gnrbag.Bag.setItem>` method receives a path,
