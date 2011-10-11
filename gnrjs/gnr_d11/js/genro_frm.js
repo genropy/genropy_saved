@@ -227,6 +227,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             kw['destPkey'] = null;
             this.store.setNavigationStatus('*norecord*');
             this.setFormData();
+            this.setCurrentPkey();
+            this.loaded();
         }
         if (this.store){
             this.load_store(kw);
@@ -634,7 +636,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if (parentForm){
             protect_write = protect_write || parentForm.isProtectWrite();
         }
-        return protect_write;
+        return protect_write || this.readOnly;
     },
 
     isProtectDelete:function(){
@@ -846,8 +848,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var isValid = this.isValid();
         this.setControllerData('valid',isValid);
         var status;
+        this.contentSourceNode.setHiderLayer(false);
         if(this.pkeyPath && !this.getCurrentPkey()){
             status = 'noItem';
+            this.contentSourceNode.setHiderLayer(true);
         }
         else if(this.isProtectWrite()){
             status = 'readOnly';
