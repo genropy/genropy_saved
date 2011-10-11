@@ -370,7 +370,7 @@ class TableHandlerView(BaseComponent):
                                        row_class='^.c_0?css_class', position='relative',
                                        validate_onAccept='TH("%s").querymanager.checkQueryLineValue(this,value)' %th_root,
                                        disabled='==(_op in TH("%s").querymanager.helper_op_dict)'  %th_root, _op='^.c_0?op',
-                                       connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,
+                                       connect_onclick="TH('%s').querymanager.getHelper(this);" %th_root,display='block',
                                        _class='st_conditionValue')
         value_textbox.div('^.c_0?value_caption', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
