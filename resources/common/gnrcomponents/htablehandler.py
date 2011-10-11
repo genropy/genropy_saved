@@ -21,6 +21,7 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.core.gnrbag import Bag, BagResolver
 from gnr.web.gnrwebstruct import struct_method
+from gnr.core.gnrdecorator import public_method
 
 def _getTreeRowCaption(tblobj):
     if hasattr(tblobj, 'treeRowCaption'):
@@ -215,10 +216,10 @@ class HTableHandler(HTableHandlerBase):
             if isinstance(childsCodes, tuple):
                 childsCodesPath = childsCodes[0]
                 field = childsCodes[1]
-                childsCodesDiv.dataRpc(childsCodesPath, 'getChildsIds', field=field, code='^.edit.record.code',
+                childsCodesDiv.dataRpc(childsCodesPath, self.getChildsIds, field=field, code='^.edit.record.code',
                                        table=table)
             else:
-                childsCodesDiv.dataRpc(childsCodes, 'getChildsIds', field=None, code='^.edit.record.code', table=table)
+                childsCodesDiv.dataRpc(childsCodes, self.getChildsIds, field=None, code='^.edit.record.code', table=table)
                 
         if parentLock:
             parent.dataController("SET .edit.status.locked=parentLock;", parentLock=parentLock, datapath=datapath)
@@ -268,8 +269,8 @@ class HTableHandler(HTableHandlerBase):
         self.ht_edit(formpane, table=table, nodeId=nodeId, disabled=disabled,
                      rootpath=rootpath, editMode=editMode, loadKwargs=loadKwargs,
                      childTypes=childTypes, commonTop=commonTop, noRecordClass=noRecordClass)
-                     
-    def rpc_getChildsIds(self, code=None, field=None, table=None):
+    @public_method          
+    def getChildsIds(self, code=None, field=None, table=None):
         field = field or 'code'
         records = self.db.table(table).query(field, where='($code LIKE :code)', code='%s%%' % code,
                                              addPkeyColumn=False).fetch()
@@ -642,7 +643,7 @@ class HTablePicker(HTableHandlerBase):
                               controllerPath='#%s.form' % bcId, #form parameter
                               **params)
                               
-        bc.dataRpc('.data.tree', 'ht_pk_getTreeData', table=table,
+        bc.dataRpc('.data.tree', self.ht_pk_getTreeData, table=table,
                    rootpath=rootpath, rootcaption=tblobj.name_plural,
                    input_pkeys=input_pkeys, input_codes=input_codes,
                    relation_path=relation_path, related_table=related_table,
@@ -689,8 +690,8 @@ class HTablePicker(HTableHandlerBase):
                           _fired="^.prepare_check_status", output_codes=output_codes or False,
                           output_pkeys=output_pkeys or False,
                           treedata='=.data.tree')
-                          
-    def rpc_ht_pk_getTreeData(self, table=None, rootpath=None, limit_rec_type=None, rootcaption=None,
+    @public_method                  
+    def ht_pk_getTreeData(self, table=None, rootpath=None, limit_rec_type=None, rootcaption=None,
                               input_codes=None, input_pkeys=None, related_table=None,
                               relation_path=None):
         result = self.ht_treeDataStore(table=table, rootpath=rootpath, limit_rec_type=limit_rec_type,

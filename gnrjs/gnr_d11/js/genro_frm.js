@@ -849,10 +849,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var isValid = this.isValid();
         this.setControllerData('valid',isValid);
         var status;
-        this.contentSourceNode.setHiderLayer(false);
+        this.contentSourceNode.setHiderLayer(false,{});
         if(this.pkeyPath && !this.getCurrentPkey()){
             status = 'noItem';
-            this.contentSourceNode.setHiderLayer(true);
+            this.contentSourceNode.setHiderLayer(true,{z_index:10});
         }
         else if(this.isProtectWrite()){
             status = 'readOnly';
