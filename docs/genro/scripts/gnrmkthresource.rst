@@ -29,4 +29,4 @@ gnrmkthresource
     * ``-i``: output file name, the file will be; this will work only if a single table is passed
     * ``-g``: tries to guess the View column size
     * ``-c``: number of :ref:`formbuilder` *columns* (the *col* attribute of the formbuilder:
-      for more information, check the :ref:`formbuilder section attribute`) 
+      for more information, check the :ref:`formbuilder section attribute <formbuilder_def>`)

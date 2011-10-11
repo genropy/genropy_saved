@@ -18,20 +18,17 @@
 #License along with this library; if not, write to the Free Software
 #Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-"""
-Component for dialogs:
-"""
+"""Component for dialogs"""
+
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class Dialogs(BaseComponent):
-    """Useful dialogs components """
+    """A class that handles the dialog :ref:`components <component>`"""
     css_requires = 'dialogs'
 
     def simpleDialog(self, parent, title='', dlgId=None, height='', width='', datapath='',
                      cb_center=None, cb_bottom='*', confirm_btn=None, **kwargs):
-        """
-        a simple dialog layout
-        """
+        """A simple dialog layout"""
         bc = self._innerDialog(parent, title=title, dlgId=dlgId, height=height, width=width, datapath=datapath,
                                cb_center=cb_center, cb_bottom=cb_bottom, confirm_btn=confirm_btn, **kwargs)
         bc.dataController("""FIRE ._setOpener = opener;
@@ -43,9 +40,7 @@ class Dialogs(BaseComponent):
     def _innerDialog(self, parent, title='', dlgId=None, datapath='', height='', width='',
                      cb_center=None, cb_bottom='*', confirm_btn=None,
                      formId=None,formDatapath=None,pkeyPath=None,controllerPath=None, **kwargs):
-        """
-        internal method used by dialogs micro components
-        """
+        """Internal method used by dialogs micro components"""
         dialog = parent.dialog(title=title, nodeId=dlgId, datapath=datapath, **kwargs)
         dialog.dataController("""if(typeof(opener)=='object'){
                                 if (opener.dialogPage){
@@ -78,7 +73,7 @@ class Dialogs(BaseComponent):
     def formDialog(self, parent, title='', formId='', height='', width='', datapath='', pkeyPath=None,
                    cb_center=None, cb_bottom='*', loadsync=False, confirm_btn=None,
                    allowNoChanges=True, **kwargs):
-        """a dialog that use a form object"""
+        """A dialog that use a form object"""
         dlgId = '%s_dlg' % formId
         bc = self._innerDialog(parent, title=title, dlgId=dlgId, datapath=datapath,
                                 formDatapath='.data',controllerPath='.form', 
@@ -111,7 +106,7 @@ class Dialogs(BaseComponent):
         return bc
 
     def formDialog_bottom(self, bc, confirm_btn=None, **kwargs):
-        """standard bottom callback used by simpleDialog and formDialog"""
+        """Standard bottom callback used by :ref:`simpledialog` and :ref:`formdialog`"""
         bottom = bc.contentPane(**kwargs)
         confirm_btn = confirm_btn or '!!Confirm'
         bottom.button(confirm_btn, baseClass='bottom_btn', float='right', margin='1px',
@@ -121,15 +116,14 @@ class Dialogs(BaseComponent):
 
     def iframeDialog(self, parent, title='', dlgId='', height='', width='', src='', datapath='',
                      confirm_btn=None, allowNoChanges=True, cb_bottom=None, **kwargs):
-        """A dialog with an iframe inside"""
-
+        """A :ref:`simpledialog` with an :ref:`iframe` inside"""
         def cb_center(parentBC, **kwargs):
             pane = parentBC.contentPane(**kwargs)
             pane.iframe(order='0px', height='100%', width='100%',
                         border=0, nodeId='%s_frame' % dlgId,
                         src=src, condition_function='return value;',
                         condition_value='^.isOpen')
-
+                        
         dlg = self.simpleDialog(parent, title=title, datapath=datapath,
                                 dlgId=dlgId, height=height, width=width,
                                 cb_center=cb_center, cb_bottom=cb_bottom, **kwargs)
@@ -140,9 +134,9 @@ class Dialogs(BaseComponent):
                             bottom_left=None, bottom_left_action=None,
                             bottom_right=None, bottom_right_action=None,
                             fired=None, datapath=None, onOpen=None, onEnter=None):
-        """
-        @old : a tooltip dialog box opened by fired
-        """
+        """.. deprecated:: 0.7
+        
+        A tooltipdialog box opened by fired"""
         onOpen = onOpen or ''
         dlgId = dlgId or nodeId or self.getUuid()
         bcId = '%s_bc' % dlgId
@@ -178,10 +172,9 @@ class Dialogs(BaseComponent):
     def confirm(self, pane, dlgId=None, title='!!Confirm', msg='!!Are you sure?',
                 width='30em', height='20ex', fired=None,
                 btn_ok='!!Confirm', action_ok=None, btn_cancel='!!Cancel', action_cancel=None, **kwargs):
-        """@old
-        confirm dialog
+        """.. deprecated:: 0.7
         
-        """
+        A confirm dialog"""
         dlgId = dlgId or self.getUuid()
 
         pane.dataController('genro.wdgById(dlgId).show()', dlgId=dlgId, fired=fired)

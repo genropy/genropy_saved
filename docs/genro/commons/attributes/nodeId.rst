@@ -6,8 +6,7 @@ nodeId
     
     *Last page update*: |today|
     
-    .. note:: **validity** - the *nodeId* attribute is supported by every :ref:`webpage element
-              <webpage_elements_index>`
+    .. note:: **validity** - the *nodeId* attribute is supported by every element
     
     * :ref:`nodeid_def`
     * :ref:`nodeid_examples`

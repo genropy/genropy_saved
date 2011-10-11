@@ -11,10 +11,13 @@ components list
     the right component for your task (and if you don't find it, you can always create your own one,
     following the walkthrough of the :ref:`components_writing` page)
     
-    **Dialogs**:
+    **Dialogs**: Genro pre-built set of dialogs
     
-    * iframedialog
-    * simpledialog
+    * :ref:`simpledialog`
+    * :ref:`formdialog`
+    * :ref:`iframedialog`
+    * :ref:`hiddentooltipdialog` (deprecated)
+    * :ref:`confirmdialog` (deprecated)
     
     **Index pages**: management of the index page of your project
     
@@ -28,7 +31,7 @@ components list
     * :ref:`includedview`: **deprecated** since version *0.7* and replaced by the :ref:`th`
     * the :ref:`th`: add???
     
-      This component is structured in many components:
+      The TableHandler is structured in many components:
       
       * :ref:`th_border`: show the View class and the Form class in a single page
       * :ref:`th_dialog`: show the Form class as a dialog of the page with the View class
@@ -45,4 +48,8 @@ components list
       * :ref:`th_linkerbox`: add???
       * :ref:`includedgrid`: a grid that allow the inline editing (so the insertion or the modify of
         records is handled inside the grid)
+        
+    **add???**
+        
+    * the :ref:`h_th`: add???
         

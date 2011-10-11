@@ -28,7 +28,7 @@ definition
       
     To use a ``dataRpc`` you have to:
       
-    #. Pass the ``dataRpc`` as a string or as a callable.
+    #. Pass the ``dataRpc`` as a string or as a callable
     #. Create the dataRpc method that will execute a server action; you can optionally
        return a value. its form changes a bit according to the way you call it
        (string/callable)
@@ -40,11 +40,11 @@ passing a dataRpc as a string
 
     **passing the dataRpc**::
     
-        root.dataRpc('pathOfData','RpcName',_fired='^updateTime')
+        root.dataRpc('pathOfData','RpcName',_fired='^updateTime',**kwargs)
         
     This is an example of a dataRpc called as a string. The first parameter (``pathOfData``) is a
     string with the path of the value returned (if the dataRpc returns something). The second value
-    (``RpcName``) is a string with the dataRpc name.
+    (``RpcName``) is a string with the dataRpc name
     
     **defining the dataRpc**
     
@@ -70,7 +70,7 @@ passing a dataRpc as a callable
                     validate_remote_error='Error!')
                       
     This is an example of a dataRpc called as a callable. The :ref:`validate_remote` is a
-    :ref:`validation <validations>` that allows to validate a field through a dataRpc.
+    :ref:`validation <validations>` that allows to validate a field through a dataRpc
     
     **defining the dataRpc**::
                       

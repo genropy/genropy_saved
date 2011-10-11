@@ -236,17 +236,17 @@ class TableBase(object):
         tbl.aliasColumn('_recordtag_tag', relation_path='%s.tag' % relation_path, name_long='!!Tagcode', group='_')
         
 class GnrHTable(TableBase):
-    """A hierarchical table. More information on the :ref:`classes_htable` documentation section."""
+    """A hierarchical table. More information on the :ref:`classes_htable` section"""
     def htableFields(self, tbl):
         """:param tbl: the :ref:`table` object
         
         This method adds the following :ref:`columns` in your table:
         
-        * the "code" column
-        * the "description" column
-        * the "child_code" column
-        * the "parent_code" column
-        * the "level" column
+        * the "code" column: add???
+        * the "description" column: add???
+        * the "child_code" column: add???
+        * the "parent_code" column: add???
+        * the "level" column: add???
         
         You can redefine the first three columns in your table; if you don't redefine them, they
         are created with the following features::

@@ -31,7 +31,7 @@ section index
     languages
     login
     palette
-    scripts/index
+    ../scripts/index
     struct
     trigger
     user_interface

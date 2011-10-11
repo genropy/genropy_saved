@@ -426,6 +426,9 @@ stackTableHandler
     
 .. _th_formhandler:
 
+thFormHandler
+=============
+
     **Definition:**
     
     .. method:: TableHandler.th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,store_kwargs=None,default_kwargs=None,**kwargs)

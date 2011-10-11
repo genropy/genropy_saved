@@ -348,7 +348,7 @@ templates
 ---------
 
     A string with the names of the :ref:`html templates <htmltemplate>` separated
-    by a comma. More information in the :ref:`add???` section of the :ref:`htmltemplate`
+    by a comma. More information in the add??? section of the :ref:`htmltemplate`
     page
     
 .. _gnrbaghtml_classes:

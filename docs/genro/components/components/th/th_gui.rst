@@ -284,7 +284,7 @@ top bar
     
     The top bar contains:
     
-    #. the title of the record (you can customize the title. Check :ref:`here <add???>`
+    #. the title of the record (you can customize the title. Check here add???
        for more infomation)
     #. the :ref:`workdate`
     
