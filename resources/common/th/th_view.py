@@ -374,7 +374,7 @@ class TableHandlerView(BaseComponent):
                                        _class='st_conditionValue')
         value_textbox.div('^.c_0?value_caption', hidden='==!(_op in  TH("%s").querymanager.helper_op_dict)' %th_root,
                          _op='^.c_0?op', _class='helperField')
-        fb.div('^.#parent.queryAttributes.caption',lbl='!!Search:',tdl_width='4em',colspan=3,
+        fb.div('^.#parent.queryAttributes.caption',lbl='!!Search:',tdl_width='3em',colspan=3,
                     row_hidden='^.#parent.queryAttributes.extended?=!#v',width='99%', _class='fakeTextBox buttonIcon',connect_ondblclick='')
         
     def _th_viewController(self,pane,table=None,th_root=None):
