@@ -17,6 +17,8 @@ TableHandler types
         * :ref:`th_plain`
         * :ref:`th_stack`
         
+    * :ref:`th_formhandler`
+    
     * :ref:`th_iframe_types`:
     
         :ref:`th_iframe_common_attributes`
@@ -47,14 +49,14 @@ TableHandler types - introduction
     show the :ref:`view_data` and the :ref:`data_entry`:
     
     * :ref:`th_border`: show the ``view-data window`` and the ``data-entry window``
-      in a single page.
+      in a single page
     * :ref:`th_dialog`: show the ``data-entry window`` in a dialog that appears over the
-      ``view-data window``.
+      ``view-data window``
     * :ref:`th_palette`: show the ``data-entry window`` in a :ref:`palette` that appears
-      over the ``view-data window``.
-    * :ref:`th_plain`: show only the ``view-data window``. User can't modify records.
+      over the ``view-data window``
+    * :ref:`th_plain`: show only the ``view-data window``. User can't modify records
     * :ref:`th_stack`: show the ``data-entry window`` and the ``view-data window``
-      in two different stack.
+      in two different stack
       
 .. _th_common_attributes:
 
@@ -269,7 +271,7 @@ dialogTableHandler
                         pane = form.center.contentPane()
                         pane.dialogTableHandler(...) #not th_dialogTableHandler !
     
-    **attributes:**
+    **Attributes:**
     
     The attributes that belong to every TableHandler are described in the
     :ref:`th_common_attributes` section. The attributes that belongs only
@@ -292,7 +294,7 @@ pageTableHandler
     
     **Definition:**
     
-    .. method:: TableHandler.th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,formInIframe=False,reloader=None,default_kwargs=None,dbname=None,**kwargs)
+    .. method:: TableHandler.th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,default_kwargs=None,dbname=None,**kwargs)
     
     **Description:**
     
@@ -308,12 +310,13 @@ pageTableHandler
                         pane = form.center.contentPane()
                         pane.pageTableHandler(...) #not th_pageTableHandler !
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every TableHandler are described in the
     :ref:`th_common_attributes` section. The attributes that belongs only
     to the pageTableHandler are listed here:
     
+    * *dbname=None*: add???
     * *formUrl=None*: add???
     
     Example::
@@ -344,7 +347,7 @@ paletteTableHandler
                         pane = form.center.contentPane()
                         pane.paletteTableHandler(...) #not th_paletteTableHandler !
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every TableHandler are described in the
     :ref:`th_common_attributes` section. The attributes that belongs only
@@ -363,7 +366,7 @@ plainTableHandler
     
     **Definition:**
     
-    .. method:: TableHandler.th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,reloader=None,readOnly=True,**kwargs)
+    .. method:: TableHandler.th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,readOnly=True,**kwargs)
     
     **Description:**
     
@@ -381,13 +384,10 @@ plainTableHandler
                         pane = form.center.contentPane()
                         pane.plainTableHandler(...) #not th_plainTableHandler !
     
-    **attributes**:
+    **Attributes**:
     
-    The attributes that belong to every TableHandler are described in the
-    :ref:`th_common_attributes` section. The attributes that belongs only
-    to the plainTableHandler are listed here:
-    
-    * *widget_kwargs*: add???.
+    The attributes that belong to every TableHandler are described in the :ref:`th_common_attributes`
+    section. There are not attributes belonging only to the plainTableHandler
     
 .. _th_stack:
 
@@ -416,13 +416,27 @@ stackTableHandler
                         pane = form.center.contentPane()
                         pane.stackTableHandler(...) #not th_stackTableHandler !
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every TableHandler are described in the
     :ref:`th_common_attributes` section. The attributes that belongs only
     to the stackTableHandler are listed here:
     
     * *widget_kwargs*: add???.
+    
+.. _th_formhandler:
+
+    **Definition:**
+    
+    .. method:: TableHandler.th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,store_kwargs=None,default_kwargs=None,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **Attributes**:
+    
+    add???
     
 .. _th_iframe_types:
 
@@ -459,7 +473,7 @@ thIframe
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     * *pane*: add???.
     * *method*: add???.
@@ -478,7 +492,7 @@ IframeDialog
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     add???
     
@@ -495,7 +509,7 @@ iframedispatcher
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     * *root*: add???
     * *methodname*: add???
@@ -515,7 +529,7 @@ IframePalette
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     add???
     
@@ -570,7 +584,7 @@ linker
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every linker are described in the
     :ref:`th_linker_common_attributes` section. The attributes that belongs only
@@ -596,7 +610,7 @@ linkerBar
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every linker are described in the
     :ref:`th_linker_common_attributes` section. The attributes that belongs only
@@ -619,7 +633,7 @@ linkerBox
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every linker are described in the
     :ref:`th_linker_common_attributes` section. The attributes that belongs only
