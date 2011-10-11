@@ -17,13 +17,13 @@ class FrameGridSlots(BaseComponent):
                                 iconClass=_class,visible=enable,**kwargs) 
        
     @struct_method
-    def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',enable=None,delay=300,**kwargs):
-        return pane.slotButton(label='!!Add',publish='addrow',iconClass=_class,visible=enable,disabled='^.disabledButton',
+    def fgr_slotbar_addrow(self,pane,_class='iconbox add_row',enable=None,disabled='^.disabledButton',delay=300,**kwargs):
+        return pane.slotButton(label='!!Add',publish='addrow',iconClass=_class,visible=enable,disabled=disabled,
                                 _delay=delay,**kwargs)
          
     @struct_method
-    def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,**kwargs):
-        return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,visible=enable,disabled=kwargs.pop('disabled','^.disabledButton'),**kwargs)
+    def fgr_slotbar_delrow(self,pane,_class='iconbox delete_row',enable=None,disabled='^.disabledButton',**kwargs):
+        return pane.slotButton(label='!!Delete',publish='delrow',iconClass=_class,visible=enable,disabled=disabled,**kwargs)
     
     @struct_method
     def fgr_slotbar_viewlocker(self, pane,frameCode=None,**kwargs):
