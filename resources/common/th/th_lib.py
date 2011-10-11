@@ -20,7 +20,7 @@ class TableHandlerCommon(BaseComponent):
         table = str('.'.join(many))
         fkey = str(fkey)
         condition_kwargs['fkey'] = '=#FORM.pkey'
-        condition_kwargs['_loader'] = '^#FORM.record.loaded'
+        condition_kwargs['_loader'] = '^#FORM.controller.loaded'
         basecondition = '$%s=:fkey' %fkey       
         condition = basecondition if not condition else '(%s) AND (%s)' %(basecondition,condition)  
         default_kwargs['default_%s' %fkey] = '=#FORM/parent/#FORM.pkey'
