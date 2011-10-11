@@ -737,11 +737,13 @@ class IncludedView(BaseComponent):
             delaction = del_kwargs.get('action')
             if delaction:
                 slots.append('delrow')
+                slotsKw['delrow_parentForm'] = True
                 assert not isinstance(delaction,basestring), 'custom action are not supported'
         if add_kwargs:
             addaction = add_kwargs.get('action')
             if addaction:
                 slots.append('addrow')
+                slotsKw['addrow_parentForm'] = True
                 assert not isinstance(addaction,basestring), 'custom action are not supported'
         if pbl_classes:
             frame.top.slotBar(','.join(slots),_class='slotbar_toolbar pbl_roundedGroupLabel',**slotsKw)
