@@ -194,7 +194,7 @@ class TableHandler(BaseComponent):
         resource_options = self._th_hook('options',mangler=formId,dflt=dict())()
         resource_options.update(kwargs)
         form = pane.frameForm(frameCode=formId,formId=formId,table=table,
-                             store_startKey=startKey or '*norecord*',
+                             store_startKey=startKey,
                              datapath='.form',store='recordCluster',store_kwargs=store_kwargs,**kwargs)
         self.th_formOptions(form,options=resource_options)
         formCb = formCb or self._th_hook('form',mangler=formId)

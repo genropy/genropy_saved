@@ -57,6 +57,9 @@ class TableHandlerForm(BaseComponent):
         if form.store.attributes.get('storeType') == 'Collection':
             if navigation is not False:
                 navigation = True
+        if readOnly:
+            slots = '*'
+            form.attributes.update(form_readOnly=True)
         if options.get('modal'):
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
@@ -67,8 +70,6 @@ class TableHandlerForm(BaseComponent):
         elif showtoolbar:
             default_slots = '*,formcommands,semaphore,locker'
             slots = options.get('slots',default_slots)
-            if readOnly:
-                slots = '*'
             if options.get('linker'):
                 slots = '*,form_revert,form_save,semaphore'
             if options.get('selector'):
