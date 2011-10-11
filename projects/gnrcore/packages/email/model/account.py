@@ -18,7 +18,9 @@ class Table(object):
         tbl.column('last_uid',name_long='!!Last UID')
     
     def check_imap(self, page=None, account=None, remote_mailbox='Inbox', local_mailbox='Inbox'):
-        from gnrpkg.email.imap import check_imap
+        from gnrpkg.email.imap import ImapChecker
         if isinstance(account, basestring):
             account = self.record(pkey=account).output('bag')
-        check_imap(page=page, account=account, remote_mailbox=remote_mailbox, local_mailbox=local_mailbox)
+        imap_checker = ImapChecker(db=self.db, account=account)
+        imap_checker.check()
+        #check_imap(page=page, account=account, remote_mailbox=remote_mailbox, local_mailbox=local_mailbox)

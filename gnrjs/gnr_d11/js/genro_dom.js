@@ -1143,16 +1143,18 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
         thead = thead + "<th style='width:11px; background-color:transparent;'>&nbsp</th></thead>";
         var nodes = gridbag.getNodes();
-        var item,r, value;
+        var item,r, value,_customClasses;
         var tbl = ["<tbody>"];
         for (var i = 0; i < nodes.length; i++) {
             r = "";
             item = nodes[i].attr;
+            _customClasses = objectPop(item,'_customClasses');
+            _customClasses = _customClasses? 'class="'+_customClasses+'"':'';
             for (var k = 0; k < columns.length; k++) {
                 value = item[columns[k]] || '&nbsp';
                 r = r + "<td>" + genro.format(value, {date:'short'})+"</td>";
             }
-            tbl.push("<tr id='" + nodes[i].label + "'>" + r + "</tr>");
+            tbl.push("<tr id='" + nodes[i].label + "' "+_customClasses+">" + r + "</tr>");
         }
         tbl.push("</tbody>");
         var tbody = tbl.join('');
