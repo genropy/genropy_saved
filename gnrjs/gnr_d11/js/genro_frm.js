@@ -223,14 +223,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     load: function(kw) {
         var kw = kw || {};
-        if(kw['destPkey']=='*norecord*'){
-            kw['destPkey'] = null;
-            this.store.setNavigationStatus('*norecord*');
-            this.setFormData();
-            this.setCurrentPkey();
-            this.loaded();
-        }
         if (this.store){
+            kw.destPkey = kw.destPkey || '*norecord*';
+            if(kw['destPkey']=='*norecord*'){
+                kw['destPkey'] = null;
+                this.store.setNavigationStatus('*norecord*');
+                this.setFormData();
+                this.setCurrentPkey();
+                this.loaded();
+            }
             this.load_store(kw);
         }else{
             if ('destPkey' in kw) {
