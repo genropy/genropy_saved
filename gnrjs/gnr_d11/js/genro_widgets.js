@@ -4879,8 +4879,8 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         if (this.sourceNode.attr.nodeId) {
             genro.publish(this.sourceNode.attr.nodeId + '_checked', bagnode);
         }
-
     },
+    
     versionpatch_11__onClick:function(e) {
         var nodeWidget = dijit.getEnclosingWidget(e.target);
         if (dojo.hasClass(e.target, 'dijitTreeIcon') && this.tree.checkBoxTree) {
@@ -4905,7 +4905,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         this._onClick_replaced(e);
         if (genro.wdg.filterEvent(e, '*', 'dijitTreeLabel,dijitTreeContent')) {
             this.setSelected(nodeWidget);
-            this._updateSelect(nodeWidget.item, nodeWidget);
         }
     },
     versionpatch_15__onClick:function(nodeWidget, e) {
@@ -4932,7 +4931,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         this._onClick_replaced(nodeWidget, e);
         if (genro.wdg.filterEvent(e, '*', 'dijitTreeLabel,dijitTreeContent')) {
             this.setSelected(nodeWidget);
-            this._updateSelect(nodeWidget.item, nodeWidget);
         }
     },
     mixin_getItemById: function(id) {
@@ -4991,7 +4989,6 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var currNode,treeNode;
         if (!kw.value) {
             this.setSelected(null);
-            this._updateSelect(null);
             return;
         }
         var pathList = kw.value.split('.');
@@ -5004,16 +5001,11 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                     this._expandNode(treeNode);
                 }
             }
-
         }
-        ;
-
-
         var currTree = this;
         setTimeout(function() {
             currTree.focusNode(treeNode);
             currTree.setSelected(treeNode);
-            currTree._updateSelect(currNode);
         }, 100);
     },
      mixin_showNodeAtPath:function(path) {
@@ -5034,6 +5026,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
      },
     mixin_setSelected:function(node) {
+        if(node && node.item.attr._isSelectable===false){
+            return;
+        }
         var prevSelectedNode = this.currentSelectedNode;
         this.currentSelectedNode = node;
         if (prevSelectedNode) {
@@ -5041,8 +5036,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         if (node) {
             node._updateItemClasses(node.item);
+            this._updateSelect(node.item, node);
         }
-        ;
+        
     },
     mixin_isSelectedItem:function(item) {
         return this.currentSelectedNode ? this.currentSelectedNode.item == item : false;
