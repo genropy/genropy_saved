@@ -788,7 +788,10 @@ class SqlTable(GnrObject):
         trgFields = self.model._fieldTriggers.get(triggerEvent)
         if trgFields:
             for fldname, trgFunc in trgFields:
-                getattr(self, 'trigger_%s' % trgFunc)(record, fldname)
+                if callable(trgFunc):
+                    trgFunc(record, fldname)
+                else:
+                    getattr(self, 'trigger_%s' % trgFunc)(record, fldname)
                 
     def newPkeyValue(self):
         """Get a new unique id to use as primary key on the current table"""
