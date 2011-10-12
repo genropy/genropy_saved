@@ -48,7 +48,7 @@ class Form(BaseComponent):
         fb.field('body_plain')
         fb.field('html')
         fb.field('subject')
-        fb.field('date')
+        fb.field('send_date')
         fb.field('sent')
         fb.field('user_id')
         fb.field('account_id')
