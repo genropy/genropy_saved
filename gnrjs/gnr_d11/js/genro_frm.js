@@ -223,12 +223,15 @@ dojo.declare("gnr.GnrFrmHandler", null, {
     },
     load: function(kw) {
         var kw = kw || {};
-        if(kw['destPkey']=='*norecord*'){
-            kw['destPkey'] = null;
-            this.store.setNavigationStatus('*norecord*');
-            this.setFormData();
-        }
         if (this.store){
+            kw.destPkey = kw.destPkey || '*norecord*';
+            if(kw['destPkey']=='*norecord*'){
+                kw['destPkey'] = null;
+                this.store.setNavigationStatus('*norecord*');
+                this.setFormData();
+                this.setCurrentPkey();
+                this.loaded();
+            }
             this.load_store(kw);
         }else{
             if ('destPkey' in kw) {
@@ -634,7 +637,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         if (parentForm){
             protect_write = protect_write || parentForm.isProtectWrite();
         }
-        return protect_write;
+        return protect_write || this.readOnly;
     },
 
     isProtectDelete:function(){
@@ -846,8 +849,10 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         var isValid = this.isValid();
         this.setControllerData('valid',isValid);
         var status;
+        this.contentSourceNode.setHiderLayer(false,{});
         if(this.pkeyPath && !this.getCurrentPkey()){
             status = 'noItem';
+            this.contentSourceNode.setHiderLayer(true,{z_index:10});
         }
         else if(this.isProtectWrite()){
             status = 'readOnly';

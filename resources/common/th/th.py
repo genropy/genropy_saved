@@ -64,9 +64,9 @@ class TableHandler(BaseComponent):
                             var currform = this.getFormHandler();
                             message = message || msg_prefix+' '+ (currform?currform.getRecordCaption():"main record") +' '+ msg_suffix;
                             if(pkey=='*newrecord*'){
-                                sourceNode.setHiderLayer({message:message,button:'this.getFormHandler().save();'});
+                                sourceNode.setHiderLayer(true,{message:message,button:'this.getFormHandler().save();'});
                             }else{
-                                sourceNode.setHiderLayer(null,true);
+                                sourceNode.setHiderLayer(false);
                             }
                             """,pkey='=#FORM.pkey',sourceNode=hiderRoot,message=hiderMessage or False,msg_prefix='!!Save',msg_suffix='',
                                 _fired='^#FORM.controller.loaded',_delay=1)    
@@ -194,7 +194,7 @@ class TableHandler(BaseComponent):
         resource_options = self._th_hook('options',mangler=formId,dflt=dict())()
         resource_options.update(kwargs)
         form = pane.frameForm(frameCode=formId,formId=formId,table=table,
-                             store_startKey=startKey or '*norecord*',
+                             store_startKey=startKey,
                              datapath='.form',store='recordCluster',store_kwargs=store_kwargs,**kwargs)
         self.th_formOptions(form,options=resource_options)
         formCb = formCb or self._th_hook('form',mangler=formId)
