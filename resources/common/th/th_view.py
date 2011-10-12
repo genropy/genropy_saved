@@ -262,7 +262,7 @@ class TableHandlerView(BaseComponent):
             selectionName = None
         
         self.subscribeTable(table,True)
-        frame.dataController("f.setHiderLayer(hide,{message:''});",f=frame,hide='^.queryRunning',msg='!!Loading')
+        frame.dataController("gridnode.setHiderLayer(hide,{message:''});",gridnode=frame.grid,hide='^.queryRunning',msg='!!Loading')
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',
                                chunkSize=chunkSize,childname='store',
                                where='=.query.where', sortedBy='=.grid.sorted',
