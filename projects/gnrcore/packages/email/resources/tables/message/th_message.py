@@ -18,7 +18,7 @@ class View(BaseComponent):
         r.fieldcell('body_plain',width='7em')
         r.fieldcell('html',width='7em')
         r.fieldcell('subject',width='7em')
-        r.fieldcell('date',width='7em')
+        r.fieldcell('send_date',width='7em')
         r.fieldcell('sent',width='7em')
         r.fieldcell('user_id',width='35em')
         r.fieldcell('account_id',width='35em')
