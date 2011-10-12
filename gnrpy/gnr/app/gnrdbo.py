@@ -240,7 +240,9 @@ class GnrHTable(TableBase):
     def htableFields(self, tbl):
         """:param tbl: the :ref:`table` object
         
-        This method adds the following :ref:`columns` in your table:
+        Create the necessary :ref:`columns` in order to use the :ref:`h_th` component.
+        
+        In particular it adds:
         
         * the "code" column: add???
         * the "description" column: add???

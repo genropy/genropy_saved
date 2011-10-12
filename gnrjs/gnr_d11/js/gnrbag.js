@@ -1396,6 +1396,7 @@ dojo.declare("gnr.GnrBag", null, {
      * @id setItem
      */
     fireItem:function(path,value,attributes,reason){
+        value = value==null?true:value;
         this.setItem(path, value, attributes, {'doTrigger':reason == null ? true : reason});
         this.setItem(path, null, attributes, {'doTrigger':false});
     },

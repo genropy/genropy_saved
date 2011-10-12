@@ -163,7 +163,7 @@ class ThResourceMaker(object):
 
 if __name__ == '__main__':
     usage = """
-    gnrmkthresource is used to create tablehandler resources
+    gnrmkthresource is used to create TableHandler resources
     automatically from model
     
     The syntax is:
@@ -172,10 +172,9 @@ if __name__ == '__main__':
     
     where:
     
-    - \"projectName\": name of the project (it is mandatory if you launch the script
-      outside the project, otherwise it is optional)
-    - \"packageName\"``: name of the package
-    - \"tableName\"``: name of the table through which you create the TableHandler resource
+    - \"projectName\": name of the project 
+    - \"packageName\": name of the package
+    - \"tableName\": name of the table for which you create the resource
     """
     parser = OptionParser(usage)
     parser.add_option("-f", "--force", dest="force", action='store_true', default=False,
@@ -201,4 +200,3 @@ if __name__ == '__main__':
     else:
         thresourcemaker = ThResourceMaker(options, args)
         thresourcemaker.makeResources()
-    
