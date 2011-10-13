@@ -333,17 +333,11 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
     contentKwargs:function(sourceNode, attributes){
         var gridId = attributes.gridId || attributes.paletteCode+'_grid';
         attributes['frameCode'] = attributes.paletteCode;
-        var reloadOnShow = objectPop(attributes,'reloadOnShow');
-        attributes.selfsubscribe_showing = function() {
-            var grid = genro.wdgById(gridId);
-            if (grid.storebag().len() == 0 || reloadOnShow==true) {
-                grid.reload();
-            }
-        };
         return attributes;
     },
     createContent:function(sourceNode, kw,children) {
         var frameCode = kw.frameCode;
+        var reloadOnShow = objectPop(kw,'reloadOnShow');
         var gridId = objectPop(kw, 'gridId') || frameCode+'_grid';
         var storepath = objectPop(kw, 'storepath');
         var structpath = objectPop(kw, 'structpath');
@@ -372,7 +366,14 @@ dojo.declare("gnr.widgets.PaletteGrid", gnr.widgets.gnrwdg, {
         if(kw.searchOn){
             pane._('SlotBar',{'side':'top',slots:'*,searchOn',searchOn:objectPop(kw,'searchOn'),toolbar:true});
         }
-        pane._(_newGrid?'NewIncludedView':'includedview', gridKwargs);
+        pane._(_newGrid?'NewIncludedView':'includedview', 'grid',gridKwargs);
+        var gridnode = pane.getNode('grid');
+        gridnode.watch('isVisibile',function(){return genro.dom.isVisible(gridnode);},
+                        function(){
+                            if(gridnode.widget.storebag().len()==0 && reloadOnShow!==false){
+                                gridnode.widget.reload(true)
+                            }
+                        });
         return pane;
     }    
 });
@@ -611,6 +612,7 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
         var groupCode = objectPop(kw, 'groupCode');
         var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom');
+        palette_kwargs.dockButton = objectPop(kw,'dockButton') || objectExtract(kw,'dockButton_*');
         palette_kwargs['nodeId'] = palette_kwargs['nodeId'] || groupCode + '_floating';
         palette_kwargs.selfsubscribe_showing = function() {
             genro.publish('palette_' + this.getRelativeData('gnr.palettes._groups.pagename.' + groupCode) + '_showing'); //gnr.palettes?gruppopiero=palettemario

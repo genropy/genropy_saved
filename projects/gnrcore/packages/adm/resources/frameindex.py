@@ -6,7 +6,7 @@
 # Frameindex component
 
 from gnr.web.gnrwebpage import BaseComponent
-class Mixin(BaseComponent):
+class FrameIndex(BaseComponent):
     py_requires="""foundation/menu:MenuIframes,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
@@ -158,7 +158,7 @@ class Mixin(BaseComponent):
         page = self.pageSource()
         if self.index_url:
             sc.contentPane(pageName='indexpage',title='Index',overflow='hidden').iframe(height='100%', width='100%', src=self.getResourceUri(self.index_url), border='0px')            
-        elif getattr(self,'index_dashboard'):
+        elif getattr(self,'index_dashboard',None):
             self.index_dashboard(sc.contentPane(pageName='indexpage'))
         page.dataController("""genro.publish('selectIframePage',_menutree__selected[0]);""",
                                subscribe__menutree__selected=True)

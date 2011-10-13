@@ -50,6 +50,7 @@ class ImapChecker(object):
         new_mail['cc_address'] = unicode(mail['Cc'])
         new_mail['bcc_address'] = unicode(mail['Bcc'])
         new_mail['subject'] = mail['Subject']
+        new_mail['send_date'] = mail['Date']
     
     def parseBody(self, part, new_mail, part_content_type=None):
         if part_content_type == 'text/html':
@@ -98,6 +99,8 @@ class ImapChecker(object):
                         self.parseBody(part, new_mail, part_content_type=part_content_type)
                     else:
                         self.parseAttachment(part, new_mail, part_content_type=part_content_type)
+            if not new_mail.get('body'):
+                new_mail['body'] = new_mail['body_plain']
             self.messages_table.insert(new_mail)
 
             
