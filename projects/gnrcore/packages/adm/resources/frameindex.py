@@ -183,30 +183,30 @@ class Mixin(BaseComponent):
                                  """, **{'subscribe_%s_open' % plugin: True, 'plugin': plugin})
     
     def btn_iframemenu_plugin(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='iframemenu_plugin_icon',tooltip='!!Menu',
+        pane.div(_class='button_block iframetab').div(_class='iframemenu_plugin_icon',tip='!!Menu',
                  connect_onclick="""SET left.selected='iframemenu_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
                  nodeId='plugin_block_iframemenu_plugin')
                  
     def btn_batch_monitor(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='batch_monitor_icon',tooltip='!!Batch monitor',
+        pane.div(_class='button_block iframetab').div(_class='batch_monitor_icon',tip='!!Batch monitor',
                  connect_onclick="""genro.publish('open_batch');""",
                  nodeId='plugin_block_batch_monitor')
         pane.dataController("SET left.selected='batch_monitor';genro.getFrameNode('standard_index').publish('showLeft')",subscribe_open_batch=True)
         
     def btn_chat_plugin(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',tooltip='!!Chat plug-in',
+        pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',tip='!!Chat plug-in',
                     connect_onclick="""SET left.selected='chat_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
                     nodeId='plugin_block_chat_plugin')
                     
     def btn_menuToggle(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='application_menu',tooltip='!!Show/Hide the left pane',
+        pane.div(_class='button_block iframetab').div(_class='application_menu',tip='!!Show/Hide the left pane',
                                                       connect_onclick="""genro.getFrameNode('standard_index').publish('toggleLeft');""")
 
     def btn_refresh(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='icnFrameRefresh',tooltip='!!Refresh the current page',
+        pane.div(_class='button_block iframetab').div(_class='icnFrameRefresh',tip='!!Refresh the current page',
                                                       connect_onclick="PUBLISH reloadFrame=GET selectedFrame;")               
 
     def btn_delete(self,pane,**kwargs):
-        pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',tooltip='!!Close the current page',
+        pane.div(_class='button_block iframetab').div(_class='icnFrameDelete',tip='!!Close the current page',
                                                       connect_onclick='PUBLISH closeFrame= GET selectedFrame;')
                                                       
