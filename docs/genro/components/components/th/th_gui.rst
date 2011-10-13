@@ -1,14 +1,14 @@
 .. _th_gui:
 
-================
-Tablehandler GUI
-================
+=================
+Tablehandler: GUI
+=================
 
     *Last page update*: |today|
     
     * :ref:`th_gui_intro`
-    * :ref:`th_gui_view`
-    * :ref:`th_gui_form`
+    * :ref:`view_data`
+    * :ref:`data_entry`
     
 .. _th_gui_intro:
 
@@ -30,13 +30,17 @@ TableHandler GUI - introduction
     However, in this page we'll talk about the view class and form class GUI, that is, the central
     pane (point 2). For more information on points 1, 3 and 4, please check the :ref:`frameindex` page.
     
-.. _th_gui_view:
-    
-TableHandler GUI - view class page
-==================================
+.. _view_data:
 
-    In this section we describe all the pre-set tools built by the TableHandler's
-    :ref:`th_view_class`. In the next section we'll explain the gui of the :ref:`th_form_class`
+view-data window
+================
+
+    The ``view-data window`` is the GUI of the TableHandler's :ref:`th_view_class`.
+    
+    It allows to:
+    
+    * visualize the records saved by the user
+    * make a query to search into records
     
     Let's see this image:
     
@@ -149,7 +153,7 @@ query value box
 
     .. image:: ../../../_images/components/th/query_value.png
     
-    In the query value user can specify the value for the SQL query.
+    In the query value user can specify the value for the SQL query
     
 .. _th_run_query_button:
 
@@ -159,7 +163,7 @@ run query button
     .. image:: ../../../_images/components/th/run_query_button.png
     
     The run query button allows to start the query. To start a query, you can otherwise
-    press "ENTER".
+    press "ENTER"
     
 .. _th_query_actions:
 
@@ -204,7 +208,7 @@ add and delete buttons
     to cancel before clicking this button.
     
     The add button allow to add a new record. The gui for the creation of a new record is described
-    in the :ref:`th_gui_form`.
+    in the :ref:`data_entry`.
     
     .. note:: to use the delete and the add buttons, user must have the right permits.
               For more information about the permits, check the :ref:`instanceconfig_authentication`
@@ -254,14 +258,19 @@ bottom bar
     
     You can customize it ... add???
     
-.. _th_gui_form:
+.. _data_entry:
 
-TableHandler GUI - form class page
-==================================
+data-entry window
+=================
 
-    In this section we describe all the pre-set tools built by the
-    TableHandler's :ref:`th_form_class`.
+    The ``data-entry window`` is the GUI of the TableHandler's :ref:`th_form_class`.
     
+    It allows to:
+    
+    * modify, add or delete a single records (user must authenticate himself
+      with the right permits to perform these actions - check the :ref:`auth` page for
+      more information)
+      
     Let's see this image:
     
     .. image:: ../../../_images/components/th/gui_form.png

@@ -1,8 +1,8 @@
 .. _th_further_infos:
 
-====================
-Further informations
-====================
+==================================
+TableHandler: further informations
+==================================
 
     *Last page update*: |today|
     
@@ -56,9 +56,8 @@ formResource attribute
         and surname) respect to the Form class, in which user can write on more
         fields.
                 
-    By default your Form class will be taken from the :ref:`th_webpage_th_form` of your
-    :ref:`th_webpage` (if it is defined) or from a :ref:`th_resource_page` of your
-    resources.
+    By default your Form class will be taken from the :ref:`th_form` of your :ref:`th_webpage`
+    (if it is defined) or from a :ref:`th_resource_page` of your resources
     
     To change the default Form class you have to:
     

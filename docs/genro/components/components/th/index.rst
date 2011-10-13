@@ -27,25 +27,23 @@ TableHandler
 introduction
 ============
 
-    1. The TableHandler is a way to handle data visualization and data entry
-    
-    2. The TableHandler is structured in two main classes:
+    #. The TableHandler is a way to handle data visualization and data entry
+    #. The TableHandler is structured in two main classes:
        
-       * the :ref:`th_view_class` to manage data visualization
-       * the :ref:`th_form_class` to manage data entry
+       * the :ref:`th_view_class`, to manage data visualization. This class
+         will be visualized into a :ref:`view_data`:
+         
+         .. image:: ../../../_images/components/th/view.png
+         
+       * the :ref:`th_form_class`, to manage data entry. This class will be
+         visualized into a :ref:`data_entry`:
+         
+         .. image:: ../../../_images/components/th/form.png
+         
+    #. The TableHandler carries many features:
        
-       These two classes will be visualized respectively into a :ref:`view_data`:
-       
-       .. image:: ../../../_images/components/th/view.png
-       
-       and into a :ref:`data_entry`:
-       
-       .. image:: ../../../_images/components/th/form.png
-       
-    3. The TableHandler carries many features:
-       
-       * The TableHandler automatically handles the management of data recording
-       * The TableHandler is fully customizable:
+       * It automatically handles the management of data recording
+       * It is fully customizable:
        
          * manipulating the main structure of View and Form classes: more information
            in the :ref:`th_map` page
@@ -54,18 +52,6 @@ introduction
            (e.g: dialog, palette, stackcontainer...): more information in the
            :ref:`th_types` page
            
-    4. You can build the TableHandler:
-       
-       * inside a webpage - :ref:`th_webpage`
-       * externally as a :ref:`th_resource_page`
-       
-       add???
-       
-       You can create your TableHandlers into the :ref:`intro_resources` folder
-       of your :ref:`projects <project>` - in this case we talk about
-       :ref:`th_resource_page`: this form allow to reuse the TableHandlers you
-       have created in more than a webpage (and in more than a package)
-       
 .. _th_section_index:
 
 section index
@@ -76,6 +62,7 @@ section index
     
     th_paths
     th_pages
+    th_classes
     th_components
     th_further_info
     th_gui

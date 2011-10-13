@@ -28,6 +28,7 @@ section index
     auth
     clipboard
     datastore
+    grid
     languages
     login
     palette
@@ -35,7 +36,6 @@ section index
     struct
     trigger
     user_interface
-    viewform
     webpage_creation
     workdate
     wsgi
