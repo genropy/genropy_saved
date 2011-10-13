@@ -1190,7 +1190,14 @@ class GnrWebPage(GnrBaseWebPage):
                 page.data('gnr.windowTitle', self.windowTitle())
                 page.dataController("PUBLISH setWindowTitle=windowTitle;",windowTitle="^gnr.windowTitle",_onStart=True)
                 page.dataRemote('gnr._pageStore','getPageStoreData',cacheTime=1)
-                page.dataController("""genro.publish('dbevent_'+_node.label,{'changelist':copyArray(_node._value),'pkeycol':_node.attr.pkeycol});""",changes="^gnr.dbchanges")
+                page.dataController(""" var changelist = copyArray(_node._value);
+                                        dojo.forEach(changelist,function(c){
+                                            for (var k in c){
+                                                c[k] = convertFromText(c[k]);
+                                            }
+                                        })
+                                        genro.publish('dbevent_'+_node.label,{'changelist':changelist,'pkeycol':_node.attr.pkeycol});""",
+                                        changes="^gnr.dbchanges")
                 page.data('gnr.homepage', self.externalUrl(self.site.homepage))
                 page.data('gnr.homeFolder', self.externalUrl(self.site.home_uri).rstrip('/'))
                 page.data('gnr.homeUrl', self.site.home_uri)
