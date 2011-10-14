@@ -113,7 +113,7 @@ validate_email
 validate_empty
 --------------
     
-    .. deprecated:: 0.7
+    .. warning:: deprecated since version 0.7
     
 .. _validate_exist:
     

@@ -7,15 +7,26 @@ Tablehandler: GUI
     *Last page update*: |today|
     
     * :ref:`th_gui_intro`
-    * :ref:`view_data`
-    * :ref:`data_entry`
+    * :ref:`view_data`:
     
+        * :ref:`th_gui_view_top_bar`
+        * :ref:`th_gui_view_action_bar`
+        * :ref:`th_gui_central_pane`
+        * :ref:`th_gui_view_bottom_bar`
+        
+    * :ref:`data_entry`:
+    
+        * :ref:`th_gui_form_top_bar`
+        * :ref:`th_gui_form_action_bar`
+        * :ref:`th_gui_form_box`
+        * :ref:`th_gui_form_bottom_bar`
+        
 .. _th_gui_intro:
 
-TableHandler GUI - introduction
-===============================
+introduction
+============
 
-    In the following sections we discover the TableHandler's GUI.
+    In the following sections we discover the :ref:`th` GUI.
     
     Let's see this image:
 
@@ -72,28 +83,18 @@ top bar
 action bar
 ----------
 
-    .. image:: ../../../_images/components/th/gui_view_actionbar.png
+    .. image:: ../../../_images/components/th/GUI/view_actionbar/view_actionbar.png
     
     The action bar allow to perform many actions. In particular you can find:
     
-    * the :ref:`th_grid_options` (point 1)
-    * the :ref:`th_search_box` (point 2)
-    * the :ref:`th_query_bar` (points 3 and 3b)
+    * the :ref:`th_search_box` (point 1)
+    * the :ref:`th_query_bar` (points 2 and 3)
     * the :ref:`th_query_value` (point 4)
     * the :ref:`th_run_query_button` (point 5)
     * the :ref:`th_query_actions` (point 6)
     * the :ref:`th_query_result_numbers` (point 7)
     * the :ref:`th_add_delete_buttons` (point 8)
     * the :ref:`th_lock_button` (point 9)
-    
-.. _th_grid_options:
-
-grid options button
-^^^^^^^^^^^^^^^^^^^
-
-    .. image:: ../../../_images/components/th/grid_options.png
-    
-    Here you find some options that allow to modify the columns you see in the view.
     
 .. _th_search_box:
 
@@ -160,41 +161,61 @@ query value box
 run query button
 ^^^^^^^^^^^^^^^^
 
-    .. image:: ../../../_images/components/th/run_query_button.png
-    
-    The run query button allows to start the query. To start a query, you can otherwise
-    press "ENTER"
+    .. image:: ../../../_images/components/th/GUI/view_actionbar/run.png
+       :align: left
+       
+    The run query button allows to start the query. To start a query, you can otherwise press "ENTER"
     
 .. _th_query_actions:
 
 query action buttons
 ^^^^^^^^^^^^^^^^^^^^
 
-    .. image:: ../../../_images/components/th/query_action_buttons.png
-    
     You find here some buttons that allow user to perform different actions. You can modify
-    the preset of buttons: follow the instructions of the add??? section!
+    the preset of buttons following the instructions of the add??? section
     
-    In particular user finds the following buttons:
+    In particular, user finds the following buttons:
     
-    * query tool: allow to perform more complex queries (user can add more than one parameter
-      for his query) and save them. The parameters through which user can choose are
-      the same of the :ref:`th_query_bar`
-    * stored query (1): it contains the saved query
-    * stored query (2): it contains the different preset views
-    * export: export the result of the query in an excel file
-    * print: print the result of the query
-    * settings: add???
-    * mail: allow to send an email
+    .. image:: ../../../_images/components/th/GUI/view_actionbar/lens.png
+       :align: left
+       :width: 22px
+       
+    **Query tool**: allow to perform more complex queries and save them
+    
+    .. image:: ../../../_images/components/th/GUI/view_actionbar/excel.png
+       :align: left
+       :width: 22px
+       
+    **Export**: export the result of the query in an excel file
+    
+    .. image:: ../../../_images/components/th/GUI/view_actionbar/print.png
+       :align: left
+       :width: 22px
+       
+    **Print**: print the result of the query
+    
+    .. image:: ../../../_images/components/th/GUI/view_actionbar/settings.png
+       :align: left
+       :width: 22px
+       
+    **Settings**: add??? (not working yet)
+    
+    .. image:: ../../../_images/components/th/GUI/view_actionbar/mail.png
+       :align: left
+       :width: 22px
+       
+    **Mail**: add??? (not working yet)
     
 .. _th_query_result_numbers:
 
 query result numbers
 ^^^^^^^^^^^^^^^^^^^^
 
-    .. image:: ../../../_images/components/th/query_result_numbers.png
-    
-    Here you can find the numbers of records that match with the query (the number with the blue
+    .. image:: ../../../_images/components/th/GUI/numbers.png
+       :align: left
+       :width: 45px
+       
+    This icon shows the numbers of records that match with the query (the number with the blue
     background) respect to the total number of records (the number with the yellow background)
     
 .. _th_add_delete_buttons:
@@ -202,13 +223,13 @@ query result numbers
 add and delete buttons
 ^^^^^^^^^^^^^^^^^^^^^^
 
-    .. image:: ../../../_images/components/th/add_delete_buttons.png
+    .. image:: ../../../_images/components/th/GUI/add_delete.png
+       :align: left
+       :width: 58px
     
     The delete button allow to permanently cancel some records. User must select the records he want
-    to cancel before clicking this button.
-    
-    The add button allow to add a new record. The gui for the creation of a new record is described
-    in the :ref:`data_entry`.
+    to cancel before clicking this button. The add button allow to add a new record. The gui for the
+    creation of a new record is described in the :ref:`data_entry`
     
     .. note:: to use the delete and the add buttons, user must have the right permits.
               For more information about the permits, check the :ref:`instanceconfig_authentication`
@@ -219,11 +240,13 @@ add and delete buttons
 lock button
 ^^^^^^^^^^^
 
-    .. image:: ../../../_images/components/th/lock_buttons.png
+    .. image:: ../../../_images/components/th/GUI/locker.png
+       :align: left
+       :width: 22px
+       
+    The lock button allow to unlock the :ref:`th_add_delete_buttons`, in order to delete, modify
+    or create new records
     
-    The lock button allow to unlock the :ref:`th_add_delete_buttons`, in order to delete or modify
-    records or create new ones.
-              
 .. _th_gui_central_pane:
 
 central pane
@@ -231,21 +254,62 @@ central pane
 
     The central pane contains all the stuff you define in the :ref:`th_view_class`.
     
-    In particular, you can use the central pane as "columns view"
+    Usual the central pane is used to visualize a :ref:`grid` with the records saved in the
+    database:
     
-    **central pane - columns view**:
-    
-    .. image:: ../../../_images/components/th/columns_view.png
+    .. image:: ../../../_images/components/th/GUI/columns_view.png
     
     The columns pane allows user to see all that records that satisfy his SQL query.
-    Every record doesn't show necessary all of its columns, but only the ones you have
-    inserted in the :ref:`th_struct` method.
+    Every record show the columns you have inserted in the :ref:`th_struct` method.
     
-    You can create more than one pre-set of view, that is a set of different showed columns,
-    through the add??? method.
+    Through the :ref:`th_conf_views` (opened through the button "1" in the figure) user can
+    create more than one preset views
     
-    User can choose the preferred one through the stored query (one of the
-    :ref:`th_query_actions`)
+.. _th_conf_views:
+
+configurable-views bar
+^^^^^^^^^^^^^^^^^^^^^^
+
+    .. image:: ../../../_images/components/th/GUI/conf_views/conf_views.png
+       :align: left
+       :width: 217px
+       
+    The "configurable-views bar" allows the user to create views.
+    
+    In the image, "id", "Code", "Description", "Full Descr.", "Product Type" and
+    "Products Type" are the name of the :ref:`columns` of the :ref:`database table
+    <table>`.
+    
+    In particular, "Products Type" is colored in green because it is a :ref:`table_relation_column`
+    
+    .
+    
+    Let's see all the buttons:
+    
+    .. image:: ../../../_images/components/th/GUI/conf_views/base.png
+       :align: left
+       :width: 62px
+       
+    Change from "Base view" to a custom view (the button will change its label
+    when you select another view)
+    
+    .. image:: ../../../_images/components/th/GUI/conf_views/favorite.png
+       :align: left
+       :width: 22px
+       
+    **Favorite view**: Select the current view as the favorite view
+    
+    .. image:: ../../../_images/components/th/GUI/save.png
+       :align: left
+       :width: 22px
+       
+    **Save view**: Save a custom view
+    
+    .. image:: ../../../_images/components/th/GUI/conf_views/delete.png
+       :align: left
+       :width: 22px
+       
+    **Delete view**: Delete a custom view (you can't delete the "Base View")
     
 .. _th_gui_view_bottom_bar:
 
@@ -302,32 +366,68 @@ top bar
 action bar
 ----------
 
-    .. image:: ../../../_images/components/th/form_action_bar.png
+    .. image:: ../../../_images/components/th/GUI/form_actionbar/form_actionbar.png
     
     The action bar contains:
     
-    * the navigation buttons (point 1), that are in order from left to right: "first", "previous",
-      "next", "last"); they allow to move from a record to another one
-    * the semaphore (point 2): it indicates the save status; in particular:
+    .. image:: ../../../_images/components/th/GUI/form_actionbar/dismiss.png
+       :align: left
+       :width: 22px
+       
+    **Dismiss button**: return to the view
     
-        * green light: the record is saved
-        * yellow light: the record has unsaved changes (click on the "save" button when
-          you want to save them)
-        * red light: some condition for a correct save is not satisfied (for example,
-          a :ref:`validation <validations>` is not satisfied); correct the wrong field
-          in order to save the record
+    .. image:: ../../../_images/components/th/GUI/form_actionbar/revert.png
+       :align: left
+       :width: 22px
+       
+    **Revert button**: revert the changes after the last save
+    
+    .. image:: ../../../_images/components/th/GUI/save.png
+       :align: left
+       :width: 22px
+       
+    **Save button**: save the record
+    
+    .. image:: ../../../_images/components/th/GUI/locker.png
+       :align: left
+       :width: 22px
+       
+    **Locker**: lock/unlock all the :ref:`th_gui_form_action_bar` buttons
+    
+    .. image:: ../../../_images/components/th/GUI/add_delete.png
+       :align: left
+       :width: 58px
+       
+    **Add/Delete buttons**: add a new record / delete current record
+    
+    .. image:: ../../../_images/components/th/GUI/form_actionbar/navigation.png
+       :align: left
+       :width: 106px
+       
+    **Navigation buttons**: Allow to move from a record to another one
+    
+    **Semaphore**: it indicates the save status; in particular:
+    
+        .. image:: ../../../_images/components/th/GUI/form_actionbar/green.png
+           :align: left
+           :width: 22px
+        
+        **green light**: the record is saved
+        
+        .. image:: ../../../_images/components/th/GUI/form_actionbar/yellow.png
+           :align: left
+           :width: 22px
+           
+        **yellow light**: the record has unsaved changes
           
-    * the management buttons (point 3), that are in order from left to the right:
+        .. image:: ../../../_images/components/th/GUI/form_actionbar/red.png
+           :align: left
+           :width: 22px
+           
+        **red light**: some condition for a correct save is not satisfied (for example,
+        a :ref:`validation <validations>` is not satisfied); correct the wrong field
+        in order to save the record
         
-        * "delete current record": delete the current record
-        * "add a new record": add a new record
-        * "revert": revert the last changes, that are the changes after the last save
-        * "save": save the record
-        
-    * the dismiss button (point 4): it allows to return to the view. If you didn't save your
-      record, you will lose the unsaved changes (or the same record, if it is new)
-    * the lock button (point 5): it allows to unlock the buttons of the points 1 and 3
-    
 .. _th_gui_form_box:
 
 form pane
@@ -344,7 +444,7 @@ form pane
     .. image:: ../../../_images/components/th/form_box.png
     
     The image is an example of a simple :ref:`form` with a :ref:`tabcontainer` including in
-    the first tab a :ref:`formbuilder`.
+    the first tab a :ref:`formbuilder`
     
 .. _th_gui_form_bottom_bar:
 

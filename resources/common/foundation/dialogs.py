@@ -134,9 +134,9 @@ class Dialogs(BaseComponent):
                             bottom_left=None, bottom_left_action=None,
                             bottom_right=None, bottom_right_action=None,
                             fired=None, datapath=None, onOpen=None, onEnter=None):
-        """.. deprecated:: 0.7
+        """.. warning:: deprecated since version 0.7
         
-        A tooltipdialog box opened by fired"""
+        A tooltipdialog box opened by \"_fired\""""
         onOpen = onOpen or ''
         dlgId = dlgId or nodeId or self.getUuid()
         bcId = '%s_bc' % dlgId
@@ -172,7 +172,7 @@ class Dialogs(BaseComponent):
     def confirm(self, pane, dlgId=None, title='!!Confirm', msg='!!Are you sure?',
                 width='30em', height='20ex', fired=None,
                 btn_ok='!!Confirm', action_ok=None, btn_cancel='!!Cancel', action_cancel=None, **kwargs):
-        """.. deprecated:: 0.7
+        """.. warning:: deprecated since version 0.7
         
         A confirm dialog"""
         dlgId = dlgId or self.getUuid()

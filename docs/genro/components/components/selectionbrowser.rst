@@ -6,14 +6,12 @@ selectionBrowser
 
     *Last page update*: |today|
     
-    .. deprecated:: 0.7
-    
-    .. warning:: This component is deprecated
+    .. warning:: deprecated since version 0.7
     
     .. note:: summary of the component requirements:
               
               * It is a :ref:`components_standard`.
-              * It is a :ref:`components_passive`. Its :ref:`webpages_py_requires` are::
+              * It is a :ref:`components_passive`. Its :ref:`webpages_py_requires` is::
 
                     py_requires='public:Public'
                     

@@ -26,13 +26,13 @@ introduction
     
     #. A login page. For more information, check the :ref:`methods_loginUrl` section
     #. An index page. You can build your own index, or you can use a
-       :ref:`component <components>` that handles it, like the :ref:`frameindex`.
+       :ref:`component <components>` that handles it, like the :ref:`frameindex`
        
        .. note:: by default, the name of the first page loaded has to be ``index.py``. You can
                  change this default using the *homepage* attribute of the :ref:`siteconfig_wsgi`
                  tag of the :ref:`gnr_siteconfig` file
                  
-    #. A set of webpages related to some database :ref:`tables <table>`.
+    #. A set of webpages related to some database :ref:`tables <table>`
        
        .. note:: when you create a webpage that is related to a :ref:`table`,
                  please name it following this convention::

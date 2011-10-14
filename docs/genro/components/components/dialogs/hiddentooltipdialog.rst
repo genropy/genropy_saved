@@ -6,4 +6,6 @@ hiddenTooltipDialog
 
     *Last page update*: |today|
     
-    add??? automethod...
+    .. warning:: deprecated since version 0.7
+    
+    A tooltipdialog box

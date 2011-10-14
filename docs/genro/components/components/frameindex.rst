@@ -17,7 +17,7 @@ FrameIndex
                 
                     <gnrcore:adm/>
                     
-              * It is an :ref:`components_active`. Its :ref:`webpages_py_requires` are::
+              * It is an :ref:`components_active`. Its :ref:`webpages_py_requires` is::
                 
                   py_requires='frameindex'
                   

@@ -6,4 +6,6 @@ confirm dialog
 
     *Last page update*: |today|
     
-    add??? automethod...
+    .. warning:: deprecated since version 0.7
+    
+    A confirm dialog
