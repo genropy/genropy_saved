@@ -30,13 +30,13 @@ class FormHandler(BaseComponent):
 
     @extract_kwargs(palette=True,dialog=True,default=True)
     @struct_method
-    def lf_linkedForm(self,pane,frameCode=None,loadEvent=None,formRoot=None,store=True,table=None,
+    def formhandler_linkedForm(self,pane,frameCode=None,loadEvent=None,formRoot=None,store=True,table=None,
                         formId=None,dialog_kwargs=None,palette_kwargs=None,attachTo=None,
                         iframe=False,default_kwargs=None,**kwargs):
         formId = formId or '%s_form' %frameCode
         attachTo = attachTo or pane.parent
         table = table or pane.attributes.get('table')
-        formRoot = self.__formRoot(pane,formId,formRoot=formRoot,dialog_kwargs=dialog_kwargs,
+        formRoot = pane._makeFormRoot(formId,formRoot=formRoot,dialog_kwargs=dialog_kwargs,
                                     palette_kwargs=palette_kwargs,attachTo=attachTo,form_kwargs=kwargs)
         parentTag = pane.attributes['tag'].lower()
         if parentTag=='includedview' or parentTag=='newincludedview':
@@ -50,10 +50,12 @@ class FormHandler(BaseComponent):
         attachTo.form = form
         form.store.handler('load',**default_kwargs)
         return form
-
-        
-    def __formRoot(self,pane,formId,formRoot=None,dialog_kwargs=None,palette_kwargs=None,
-                    attachTo=None,form_kwargs=None):
+    
+    @extract_kwargs(palette=True,dialog=True)
+    @struct_method
+    def formhandler__makeFormRoot(self,pane,formId,formRoot=None,dialog_kwargs=None,palette_kwargs=None,
+                    attachTo=None,form_kwargs=None,datapath=None):
+        attachTo = attachTo or pane
         loadSubscriber = 'subscribe_form_%s_onLoading' %formId
         closeSubscriber = 'subscribe_form_%s_onDismissed' %formId
         if formRoot:
@@ -61,6 +63,8 @@ class FormHandler(BaseComponent):
                 formRoot.attributes[loadSubscriber] = 'this.widget.switchPage(1);'
                 formRoot.attributes[closeSubscriber] = 'this.widget.switchPage(0);'
         elif dialog_kwargs:
+            if datapath:
+                dialog_kwargs['datapath'] = datapath
             dialog_kwargs['noModal'] = dialog_kwargs.get('noModal',True)
             if 'height' in dialog_kwargs:
                 form_kwargs['height'] = dialog_kwargs.pop('height')
@@ -73,6 +77,8 @@ class FormHandler(BaseComponent):
             dialog_kwargs['selfsubscribe_close'] = """genro.publish('form_%s_dismiss',$1.modifiers);""" %formId
             formRoot = attachTo.dialog(**dialog_kwargs)
         elif palette_kwargs:
+            if datapath:
+                palette_kwargs['datapath'] = datapath
             palette_kwargs[loadSubscriber] = "this.widget.show();"
             palette_kwargs[closeSubscriber] = "this.widget.hide();"
             palette_kwargs['dockTo'] = palette_kwargs.get('dockTo','dummyDock')
@@ -114,9 +120,9 @@ class FormHandler(BaseComponent):
                        formResource=None,store_kwargs=True,
                        dialog_kwargs=None,palette_kwargs=None,main_kwargs=True,main='form',**kwargs):
         if dialog_kwargs or palette_kwargs:
-            formRoot = self.__formRoot(pane,formId,attachTo=pane,dialog_kwargs=dialog_kwargs,palette_kwargs=palette_kwargs,form_kwargs=kwargs)
+            formRoot = pane._makeFormRoot(formId,attachTo=pane,dialog_kwargs=dialog_kwargs,palette_kwargs=palette_kwargs,form_kwargs=kwargs)
         else:
-            formRoot = self.__formRoot(pane,formId,formRoot=pane,form_kwargs=kwargs)
+            formRoot = pane._makeFormRoot(formId,formRoot=pane,form_kwargs=kwargs)
         default_kwargs = default_kwargs or dict()
         kwargs['subscribe_form_%s_load' %formId] = 'this.iframeFormManager.openrecord($1.destPkey);'
         kwargs['subscribe_form_%s_dismiss' %formId] = 'this.iframeFormManager.closerecord($1);'
