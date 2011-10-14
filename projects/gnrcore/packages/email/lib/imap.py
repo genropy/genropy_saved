@@ -88,7 +88,9 @@ class ImapChecker(object):
             mail = email.message_from_string(email_body)
             self.fillHeaders(mail, new_mail)
             if mail.get_content_maintype() != 'multipart':
-                new_mail['body'] = mail.get_payload(decode=True)
+                content = mail.get_payload(decode=True)
+                encoding = chardet.detect(content)['encoding']
+                new_mail['body'] = unicode(content.decode(encoding).encode('utf8'))
                 new_mail['body_plain'] = new_mail['body']
             else:
                 for part in mail.walk():

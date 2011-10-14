@@ -66,7 +66,7 @@ class HTableResolver(BagResolver):
             
         db = self._page.db
         tblobj = db.table(self.table)
-        columns = '$code,$parent_code,$description,$child_code,$child_count,$rec_type'
+        columns = '*,$child_count'
         if self.extra_columns:
             columns = '%s,%s' %(columns,self.extra_columns) 
         

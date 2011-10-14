@@ -7,6 +7,7 @@
 
 from gnr.web.gnrwebstruct import struct_method
 from gnr.web.gnrbaseclasses import BaseComponent
+from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrstring import boolean
 
 
@@ -42,6 +43,27 @@ class TableHandlerForm(BaseComponent):
             self.th_form(form)
         else:
             self._th_hook('form',mangler=frameCode)(form)
+        return form
+
+    @extract_kwargs(default=dict(slice_prefix=False,pop=True),store=True,dialog=True,palette=True)
+    @struct_method
+    def th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,datapath=None,
+                        store_kwargs=None,default_kwargs=None,dialog_kwargs=None,palette_kwargs=None,**kwargs):
+        tableCode = table.replace('.','_')
+        formId = formId or tableCode
+        self._th_mixinResource(formId,table=table,resourceName=formResource,defaultClass='Form')
+        resource_options = self._th_hook('options',mangler=formId,dflt=dict())()
+        resource_options.update(kwargs)
+        formroot = pane._makeFormRoot(formId,dialog_kwargs=dialog_kwargs,palette_kwargs=palette_kwargs,form_kwargs=kwargs,datapath=datapath)
+        if formroot is None:
+            formroot = formroot or pane
+        form = formroot.frameForm(frameCode=formId,formId=formId,table=table,
+                             store_startKey=startKey,
+                             datapath='.form',store='recordCluster',store_kwargs=store_kwargs,**kwargs)
+        self.th_formOptions(form,options=resource_options)
+        formCb = formCb or self._th_hook('form',mangler=formId)
+        formCb(form)
+        form.store.handler('load',**default_kwargs)
         return form
         
     def th_formOptions(self,form,options=None):
