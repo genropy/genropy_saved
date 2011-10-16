@@ -383,7 +383,7 @@ def get_cookies(req, Class=Cookie, **kw):
     :param Class: add???. Default value is ``Cookie``
     :returns: add???
     """
-    if not req.headers.has_key("cookie"):
+    if not "cookie" in req.headers:
         return {}
         
     cookies = req.headers["cookie"]
