@@ -538,6 +538,7 @@ class GnrWsgiSite(object):
         :param params: add???"""
         out_dict = dict()
         for name in params.iterkeys():
+            name = str(name)
             try:
                 if name.endswith('[]'):
                     out_dict[name[:-2]]=params.getall(name)
