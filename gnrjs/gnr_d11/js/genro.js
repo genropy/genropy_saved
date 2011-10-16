@@ -248,7 +248,12 @@ dojo.declare('gnr.GenroClient', null, {
         var mainBagPage = this.rpc.remoteCall('main',this.startArgs, 'bag');
         //genro.timeIt('**  main received  **');
         if (mainBagPage && mainBagPage.attr.redirect) {
-            var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':this.absoluteUrl()});
+            var pageUrl = this.absoluteUrl()
+            if (pageUrl.slice(0,genro.baseUrl.length)==genro.baseUrl)
+            {
+                pageUrl = pageUrl.slice(genro.baseUrl.length-1);
+            }
+            var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
             this.gotoURL(url);
         }
         //this.loadPersistentData()
@@ -976,10 +981,6 @@ dojo.declare('gnr.GenroClient', null, {
     },
     absoluteUrl: function(url, kwargs, avoidCache) {
         var base = document.location.pathname;
-        if (base.slice(0,genro.baseUrl.length)==genro.baseUrl)
-        {
-            base = base.slice(genro.baseUrl.length-1);
-        }
         var avoidCache = avoidCache === false ? false : true;
         if (url) {
             var sep = url.slice(0, 1) == '?' ? '' : '/';
