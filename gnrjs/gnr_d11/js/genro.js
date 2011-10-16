@@ -978,7 +978,7 @@ dojo.declare('gnr.GenroClient', null, {
         var base = document.location.pathname;
         if (base.slice(0,genro.baseUrl.length)==genro.baseUrl)
         {
-            base = slice(genro.baseUrl.length-1);
+            base = base.slice(genro.baseUrl.length-1);
         }
         var avoidCache = avoidCache === false ? false : true;
         if (url) {
