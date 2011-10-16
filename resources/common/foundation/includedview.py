@@ -387,7 +387,7 @@ class IncludedView(BaseComponent):
             pane.div(float='right', _class=upd_class, connect_onclick=upd_action,
                      margin_right='2px', visible=upd_enable)
                      
-    def _iv_gridAction(self, pane, print_action=None, export_action=None, tools_menu=None, tools_class=None,
+    def _iv_gridAction(self, pane, print_action=None, export_action=None, export_mode=None, tools_menu=None, tools_class=None,
                        tools_action=None, export_class=None, print_class=None, pdf_action=None, pdf_class=None,
                        pdf_name=None, table=None, gridId=None, tools_enable=None, tools_lbl=None, **kwargs):
         if print_action:
