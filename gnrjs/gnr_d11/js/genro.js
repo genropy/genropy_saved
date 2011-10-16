@@ -976,6 +976,10 @@ dojo.declare('gnr.GenroClient', null, {
     },
     absoluteUrl: function(url, kwargs, avoidCache) {
         var base = document.location.pathname;
+        if (base.slice(0,genro.baseUrl.length)==genro.baseUrl)
+        {
+            base = slice(genro.baseUrl.length-1);
+        }
         var avoidCache = avoidCache === false ? false : true;
         if (url) {
             var sep = url.slice(0, 1) == '?' ? '' : '/';
