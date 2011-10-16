@@ -131,7 +131,7 @@ class MenuLink(MenuBase):
                   openOnClick=True,
                   autoCollapse=True,
                   getLabel="""if(node.attr.file){
-                                        var url = genro.joinPath(genro.baseUrl, node.attr.file);
+                                        var url = node.attr.file;
                                         return 'innerHTML:<a href="'+url+'"><div style="width:100%;height:100%;">'+node.attr.label+'</div></a>'}
                                         else  
                                         {return node.attr.label};""",
