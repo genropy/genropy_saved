@@ -36,7 +36,7 @@ class TableHandler(BaseComponent):
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
-                            lockable=False,pbl_classes=False,**kwargs):
+                            lockable=False,pbl_classes=False,configurable=True,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -58,6 +58,7 @@ class TableHandler(BaseComponent):
             top_slots = '#'
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,lockable=lockable,
+                                configurable=configurable,
                                 condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs) 
         hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
         wdg.dataController("""

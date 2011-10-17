@@ -42,7 +42,7 @@ class TableHandlerView(BaseComponent):
     @extract_kwargs (top=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
-                       top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,**kwargs):
+                       top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -58,13 +58,13 @@ class TableHandlerView(BaseComponent):
         else:
             top_kwargs['slots']= base_slots
         #top_kwargs['height'] = top_kwargs.get('height','20px')
-        grid_kwargs['configurable'] = kwargs.get('configurable',True)
+        grid_kwargs['configurable'] = configurable
         grid_kwargs['_newGrid'] = True
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
                                grid_kwargs=grid_kwargs,iconSize=16,**kwargs)   
-        if grid_kwargs['configurable']:
+        if configurable:
             frame.left.viewConfigurator(table,frameCode)                         
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
