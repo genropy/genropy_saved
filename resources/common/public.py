@@ -341,7 +341,7 @@ class Public(PublicBase):
 
 class PublicSlots(BaseComponent):
     @struct_method
-    def public_slotbar_workdateBtn(self,pane,**kwargs):
+    def public_slotbar_workdateBtn(self,pane,iconClass=False,**kwargs):
         pane.data('gnr.workdate', self.workdate)
         dlg = pane.dialog(title='!!New Workdate',closable=True)
         frame = dlg.framePane(height='100px',width='200px',datapath='gnr.workdatemanager')
@@ -351,10 +351,14 @@ class PublicSlots(BaseComponent):
         fb.dateTextBox(value='^.date', width='8em', lbl='!!Date')
         footer = frame.bottom.slotBar('*,confirmbtn')
         footer.confirmbtn.button('!!Confirm',action='FIRE .confirm;dlg.widget.hide();',dlg=dlg)
+        btnkw = dict(connect_onclick='this.getAttributeFromDatasource("dlg").widget.show(); SET gnr.workdatemanager.date=GET gnr.workdate;',
+                 _class=iconClass or 'pbl_slotbar_label buttonIcon',dlg=dlg)
+        btnkw.update(kwargs)
+        if not iconClass:
+            pane.div('^gnr.workdate', format='short',**btnkw)
+        else:
+            pane.div(**btnkw)
         
-        pane.div('^gnr.workdate', format='short',
-                connect_onclick='this.getAttributeFromDatasource("dlg").widget.show(); SET gnr.workdatemanager.date=GET gnr.workdate;',
-                 _class='pbl_slotbar_label buttonIcon',dlg=dlg)
 
 
 #######################OLD SLOTS#######################
