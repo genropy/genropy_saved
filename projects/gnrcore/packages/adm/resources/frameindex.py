@@ -175,7 +175,9 @@ class FrameIndex(BaseComponent):
                              genro.publish(page+'_'+(command=='open'?'on':'off'));
                              """,subscribe_main_left_status=True,page='=.selected') 
         for plugin in self.plugin_list.split(','):
-            cb = getattr(self, 'mainLeft_%s' % plugin)
+            cb = getattr(self, 'mainLeft_%s' % plugin,None)
+            if not cb:
+                return
             assert cb, 'Plugin %s not found' % plugin
             cb(sc.contentPane(pageName=plugin,overflow='hidden'))
             sc.dataController("""PUBLISH main_left_set_status = true;
