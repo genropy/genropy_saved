@@ -34,6 +34,9 @@ class TableHandlerView(BaseComponent):
             hooks = self._th_hook(side,mangler=frameCode,asDict=True)
             for hook in hooks.values():
                 hook(getattr(view,side))
+        viewhook = self._th_hook('view',mangler=frameCode)
+        if viewhook:
+            viewhook(view)
         return view
     
     @extract_kwargs (top=True)

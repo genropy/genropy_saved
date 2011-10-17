@@ -249,9 +249,9 @@ dojo.declare('gnr.GenroClient', null, {
         //genro.timeIt('**  main received  **');
         if (mainBagPage && mainBagPage.attr.redirect) {
             var pageUrl = this.absoluteUrl()
-            if (pageUrl.slice(0,genro.baseUrl.length)==genro.baseUrl)
+            if (pageUrl.slice(0,genro.baseUrl.length-1)==genro.baseUrl.slice(0,genro.baseUrl.length-1))
             {
-                pageUrl = pageUrl.slice(genro.baseUrl.length-1);
+                pageUrl = pageUrl.slice(genro.baseUrl.length-1) || '/';
             }
             var url = this.addParamsToUrl(mainBagPage.attr.redirect, {'fromPage':pageUrl});
             this.gotoURL(url);
