@@ -58,7 +58,7 @@ class TableHandlerView(BaseComponent):
         else:
             top_kwargs['slots']= base_slots
         #top_kwargs['height'] = top_kwargs.get('height','20px')
-        grid_kwargs['configurable'] = grid_kwargs.get('configurable',True)
+        grid_kwargs['configurable'] = kwargs.get('configurable',True)
         grid_kwargs['_newGrid'] = True
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct=self._th_hook('struct',mangler=frameCode),
