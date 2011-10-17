@@ -108,13 +108,15 @@ class Cookie(object):
     EXCEPTION = 3
     
     def parse(Class, str, secret=None, **kw):
-        """Parse a Cookie or Set-Cookie header value, and return a dict of Cookies.
-        
-        .. note:: the string should NOT include the header name, only the value
+        """Parse a Cookie or Set-Cookie header value, and return
+        a dict of Cookies. Note: the string should NOT include the
+        header name, only the value.
         
         :param Class: add???
         :param str: add???
-        :param secret: add???"""
+        :param secret: add???. 
+        :returns: a dict of Cookies
+        """
         dict = _parse_cookie(str, Class, **kw)
         return dict
             
@@ -123,7 +125,8 @@ class Cookie(object):
     def __init__(self, name, value, **kw):
         """This constructor takes at least a name and value as the
         arguments, as well as optionally any of allowed cookie attributes
-        as defined in the existing cookie standards"""
+        as defined in the existing cookie standards. 
+        """
         self.name, self.value = name, value
         
         for k in kw:
@@ -140,7 +143,8 @@ class Cookie(object):
         This method makes no attempt to automatically double-quote
         strings that contain special characters, even though the RFC's
         dictate this. This is because doing so seems to confuse most
-        browsers out there"""
+        browsers out there.
+        """
         result = ["%s=%s" % (self.name, self.value)]
         for name in self._valid_attr:
             if hasattr(self, name):
@@ -161,14 +165,17 @@ class SignedCookie(Cookie):
     that the cookie has not been tampered with the client side.
     
     Note that this class does not encrypt cookie data, thus it
-    is still plainly visible as part of the cookie"""
+    is still plainly visible as part of the cookie.
+    """
     def parse(Class, s, secret, mismatch=Cookie.DOWNGRADE, **kw):
         """add???
         
         :param Class: add???
         :param s: add???
         :param secret: add???
-        :param mismatch: add???"""
+        :param mismatch: add???. Default valus is ``Cookie.DOWNGRADE``
+        :returns: add???
+        """
         dict = _parse_cookie(s, Class, **kw)
         
         del_list = []
@@ -200,7 +207,9 @@ class SignedCookie(Cookie):
     def hexdigest(self, str):
         """add???
         
-        :param str: add???"""
+        :param str: add???
+        :returns: add???
+        """
         if not self.__data__["secret"]:
             raise CookieError, "Cannot sign without a secret"
         _hmac = hmac.new(self.__data__["secret"], self.name)
@@ -221,7 +230,8 @@ class SignedCookie(Cookie):
     def unsign(self, secret):
         """add???
         
-        :param secret: add???"""
+        :param secret: add???
+        """
         sig, val = self.value[:32], self.value[32:]
         
         mac = hmac.new(secret, self.name)
@@ -245,14 +255,17 @@ class MarshalCookie(SignedCookie):
     we are about to unmarshal passes the digital signature test.
     
     Here is a link to a sugesstion that marshalling is safer than unpickling
-    http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&selm=7xn0hcugmy.fsf%40ruckus.brouhaha.com"""
+    http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&selm=7xn0hcugmy.fsf%40ruckus.brouhaha.com
+    """
     def parse(Class, s, secret, mismatch=Cookie.DOWNGRADE, **kw):
         """add???
         
         :parse Class: add???
         :parse s: add???
         :parse secret: add???
-        :parse mismatch: add???"""
+        :parse mismatch: add???. Default valus is ``Cookie.DOWNGRADE``
+        :returns: add???
+        """
         dict = _parse_cookie(s, Class, **kw)
         
         del_list = []
@@ -349,7 +362,8 @@ def add_cookie(res, cookie, value="", **kw):
     
     :param res: add???
     :param cookie: add???
-    :param value: add???"""
+    :param value: add???. Default value is ``""``
+    """
     # is this a cookie?
     if not isinstance(cookie, Cookie):
         # make a cookie
@@ -366,8 +380,10 @@ def get_cookies(req, Class=Cookie, **kw):
     this module.
     
     :param req: add???
-    :param Class: add???"""
-    if not req.headers.has_key("cookie"):
+    :param Class: add???. Default value is ``Cookie``
+    :returns: add???
+    """
+    if not "cookie" in req.headers:
         return {}
         
     cookies = req.headers["cookie"]
@@ -381,7 +397,9 @@ def get_cookie(req, name, Class=Cookie, **kw):
     
     :param req: add???
     :param name: add???
-    :param Class: add???"""
+    :param Class: add???. Default valus is ``Cookie``
+    :returns: add???
+    """
     cookies = get_cookies(req, Class, names=[name], **kw)
     if cookies.has_key(name):
         return cookies[name]
