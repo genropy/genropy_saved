@@ -207,6 +207,7 @@ function dataTemplate(str, data, path, showAlways) {
                                 
                                 if (value != null) {
                                     is_empty = false;
+                                    var dtype = null;
                                     if (valueNode){
                                         var dtype = valueNode.attr.dtype;
                                     }
