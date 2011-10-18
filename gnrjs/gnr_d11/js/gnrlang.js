@@ -193,7 +193,8 @@ function dataTemplate(str, data, path, showAlways) {
                                     var subtpl=templates.getItem(x[1]);
                                     
                                 }
-                                var value = data.getItem(path) || auxattr[path];
+                                var valueNode = data.getNode(path);
+                                var value = valueNode? valueNode._value:auxattr[path];
                                 if (subtpl){
                                     if(value instanceof gnr.GnrBag){
                                         var subval=[];
@@ -206,8 +207,11 @@ function dataTemplate(str, data, path, showAlways) {
                                 
                                 if (value != null) {
                                     is_empty = false;
+                                    if (valueNode){
+                                        var dtype = valueNode.attr.dtype;
+                                    }
                                     if (value instanceof Date) {
-                                        value = dojo.date.locale.format(value, {selector:'date', format:'short'});
+                                        value = dojo.date.locale.format(value, {selector:dtype=='H'?'time':'date', format:'short'});
                                     }
                                     return value;
                                 } else {
