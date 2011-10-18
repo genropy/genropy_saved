@@ -373,6 +373,7 @@ class HTableHandler(HTableHandlerBase):
         getattr(self, formId)(center,table=table,
                               datapath='.record',
                               disabled=disabled)
+        center.dataController("FIRE .edit.controller.loaded;",_fired="^.edit.form.loaded",datapath='#%s' %nodeId) #COMPATIBILITY FIX
         tblobj = self.db.table(table)
         loadKwargs = loadKwargs or dict()
         loadKwargs['default_parent_code'] = '=.defaults.parent_code'
