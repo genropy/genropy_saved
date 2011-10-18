@@ -44,22 +44,25 @@ introduction
     To make obligations onto user input filling out a :ref:`form`, Genro provides an
     helpful developer's tool: the validations.
     
-    * There are two types of validations:
+    * You can use the validations on every single form's element of your :ref:`webpage`
+    * User can save the record created through the :ref:`form` only if all the requirements
+      of every validation of the form have been satisfied
     
-        #. :ref:`validations_list`
-        #. :ref:`validations_js_list`
+    There are two types of validations:
+    
+        #. :ref:`validations_list` (handled on server)
+        #. :ref:`validations_js_list` (handled on client)
         
     Some useful notes about them:
     
-    * User can save the record created through the :ref:`form` only if all the requirements
-      of every validation of the form have been satisfied
-    * You can use the validations on every single form's element of your :ref:`webpage`
-    * The :ref:`validations_list` can be used even on the :ref:`columns` of a :ref:`database
-      table <table>`, while the :ref:`validations_js_list` can be used only in the
-      :ref:`webpages <webpage>`, not in the :ref:`tables <table>`
+    * The :ref:`validations_list` can be used both on :ref:`webpages <webpage>` and on the
+      :ref:`columns` of a :ref:`database table <table>`:  if you set a validation on a webpage
+      then the validation will work only during the webpage insertion of a record
+    * the :ref:`validations_js_list` can be used only in the :ref:`webpages <webpage>`, not
+      in the :ref:`database tables <table>`
     * There are some suffixes (explained in the :ref:`validations_suffixes` section) that allow
-      tp add some additional features (like writing a javascript alert on correct/uncorrect user
-      insertion): they work on all the :ref:`validations_list` and work on  most of the
+      to add some additional features (like writing a javascript alert on correct/uncorrect user
+      insertion): they work on all the :ref:`validations_list` and work on most of the
       :ref:`validations_js_list`
       
 .. _validations_list:
@@ -106,7 +109,7 @@ validate_email
     
         root.textbox(value='^.email',validate_email=True)
         
-    .. note:: the ``validate_email`` use regex, so it is merely a formal control.
+    .. note:: the ``validate_email`` use regex, so it is merely a formal control
         
 .. _validate_empty:
     
@@ -136,7 +139,7 @@ validate_gridnodup
     
         validate_gridnodup = True
         
-    .. note:: it can be used only inside a :ref:`grid`.
+    .. note:: it can be used only inside a :ref:`grid`
     
     A validation that avoid having duplicates in a grid: it checks if the user
     insertion is already saved in the database, and validates the form if and
@@ -209,11 +212,11 @@ validate_regex
 javascript validations
 ======================
 
-    The javascript validations can be used only in the :ref:`webpages <webpage>`,
-    not in the :ref:`database tables <table>`.
+    The javascript validations work on client side, so if you use them in a :ref:`project` remember
+    that they can be used only in the :ref:`webpages <webpage>`, not in the :ref:`database tables <table>`.
     
-    Some of them support the :ref:`validations_suffixes` (for every validation is
-    specified if the suffixes are supported or not)
+    Some of them support the :ref:`validations_suffixes`: for every validation you find
+    if the suffixes are supported or not.
     
     They are:
     
@@ -230,7 +233,7 @@ javascript validations
 validate_call
 -------------
     
-    .. note:: :ref:`validations_suffixes`: YES
+    .. note:: :ref:`validations_suffixes` supported
     
     ::
     
@@ -278,7 +281,7 @@ validate_call
 validate_case
 -------------
 
-    .. note:: :ref:`validations_suffixes`: NO
+    .. note:: :ref:`validations_suffixes` not supported
     
     The following validations have a small difference with a normal validation: they control
     the correct user input, and if they find it wrong, they automatically change it.
@@ -302,7 +305,7 @@ validate_case
 validate_max
 ------------
 
-    .. note:: :ref:`validations_suffixes`: YES
+    .. note:: :ref:`validations_suffixes` supported
     
     ::
     
@@ -315,7 +318,7 @@ validate_max
 validate_min
 ------------
 
-    .. note:: :ref:`validations_suffixes`: YES
+    .. note:: :ref:`validations_suffixes` supported
     
     ::
     
@@ -328,28 +331,58 @@ validate_min
 validate_remote
 ---------------
 
-    .. note:: :ref:`validations_suffixes`: YES
+    .. note:: :ref:`validations_suffixes` supported
     
     Allow to validate a field through a :ref:`datarpc`.
     
+    Inside the dataRpc you can write some code that have to return:
+    
+    * ``True``, when the conditions required from the validation have been satisified
+    * ``False``, when the conditions required haven't been satisfied
+    
     You can pass the dataRpc as a string::
         
-        validate_remote = 'rpcName'     # 'rpcName' is the name of your dataRpc.
-    
+        validate_remote = 'RpcName'     # 'RpcName' is the name of the dataRpc
+        
     or you can pass it as a callable::
     
         validate_remote = self.RpcName
         
     where ``RpcName`` is the name of the dataRpc defined through the :meth:`public_method
     <gnr.core.gnrdecorator.public_method>` decorator. For more information, check the
-    :ref:`datarpc_callable` section.
+    :ref:`datarpc_callable` section
     
+    **Example**:
+    
+        Let's see an example in a :ref:`webpage`:
+        
+        #. To pass the dataRpc method as a callable you have to use the :meth:`public_method
+           <gnr.core.gnrdecorator.public_method>` decorator; so, you have to import::
+           
+            from gnr.core.gnrdecorator import public_method
+            
+        #. We pass now the dataRpc as a callable into a :ref:`field` including
+           the :ref:`validate_remote`::
+           
+            root.field('id_rate',
+                        validate_remote=self.check_rate, validate_remote_error='Error!')
+                        
+        #. We define now the dataRpc as :meth:`public_method <gnr.core.gnrdecorator.public_method>`
+        
+            ::
+            
+                @public_method                    
+                def check_rate(self,**kwargs):
+                    return something # Here goes the code for the validate_remote, that must
+                                     #    return "True" if the conditions have been satisfied,
+                                     #    "False" if the conditions haven't been satisfied
+                                     
 .. _validate_onaccept:
 
 validate_onaccept
 -----------------
 
-    .. note:: :ref:`validations_suffixes`: NO
+    .. note:: :ref:`validations_suffixes` not supported
     
     Perform a javascript action after a correct user input
     
@@ -364,7 +397,7 @@ validate_onaccept
 validate_onreject
 -----------------
 
-    .. note:: :ref:`validations_suffixes`: NO
+    .. note:: :ref:`validations_suffixes` not supported
     
     Perform a javascript action after an uncorrect user input
     

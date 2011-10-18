@@ -65,18 +65,20 @@ passing a dataRpc as a callable
 
     **passing the dataRpc**::
     
-        root.field('id_rate',rowcaption='$code',
-                    validate_remote=self.check_rate,
-                    validate_remote_error='Error!')
-                      
-    This is an example of a dataRpc called as a callable. The :ref:`validate_remote` is a
-    :ref:`validation <validations>` that allows to validate a field through a dataRpc
+        root.field('id_rate',
+                    validate_remote=self.check_rate, validate_remote_error='Error!')
+                    
+    This is an example of a dataRpc passed as a callable into a :ref:`field` including
+    a :ref:`validation <validations>` (the :ref:`validate_remote`) that allows to
+    validate a :ref:`form` field through a dataRpc
     
     **defining the dataRpc**::
                       
         @public_method                    
         def check_rate(self,**kwargs):
-            return something # Here goes the code for the validate remote...
+            return something # Here goes the code for the validate_remote, that must
+                             #    return "True" if the conditions have been satisfied,
+                             #    "False" if the conditions haven't been satisfied
             
     As you can see, to pass the method as a callable you have to use the :meth:`public_method
     <gnr.core.gnrdecorator.public_method>` decorator; so, you have to import::

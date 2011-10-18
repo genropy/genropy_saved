@@ -26,17 +26,21 @@ description
 ===========
 
     ``field`` is used to view, select and modify data included in a database :ref:`table`.
+    
+    Its type is inherited from the type of data contained in the table to which ``field`` refers.
+    For example, if ``field`` catches data from a :ref:`numbertextbox`, its type is actually a ``numberTextbox``
 
-    Its type is inherited from the type of data contained in the table to which ``field`` refers. For example, if ``field`` catches data from a :ref:`numbertextbox`, its type is actually a ``numberTextbox``.
-
-    ``field`` MUST be a child of the :ref:`formbuilder` form widget, and ``formbuilder`` itself MUST have a :ref:`datapath` for inner relative path gears. So, ``field`` search a form to bind itself to, so don't forget to link every ``field`` to a ``formbuilder``. Here is an example::
+    ``field`` MUST be a child of the :ref:`formbuilder` form widget, and ``formbuilder`` itself
+    MUST have a :ref:`datapath` for inner relative path gears. So, ``field`` search a form to bind
+    itself to, so don't forget to link every ``field`` to a ``formbuilder``. Here is an example::
         
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
                 fb = root.formbuilder(datapath='myPathForData')
                 fb.field(...) # The field's content will be explained below...
             
-    The last thing is to specify the database table to which the ``field`` refers to. There are three different possibilities for doing this:
+    The last thing is to specify the database table to which the ``field`` refers to. There are
+    three different possibilities to do this:
     
     * :ref:`first_one`
     * the :ref:`second_one`

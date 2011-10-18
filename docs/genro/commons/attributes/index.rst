@@ -31,6 +31,7 @@ section index
     datapath
     dbtable
     design
+    disabled
     hidden
     label
     nodeId
