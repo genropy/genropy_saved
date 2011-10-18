@@ -59,10 +59,13 @@ class GnrClassCatalog(object):
             
         :param cls: the class itself by reference
         :param key: a string, is a short name of the class, as found in textual values to parse or write
-        :param aliases: other keys to parse using this class
-        :param altcls: other classes to write in the same way. All values will be parsed with the main class
-        :param align: add???
-        :param empty: the class or value to be used for empty parsed values (example ``''`` for strings)"""
+        :param aliases: other keys to parse using this class. 
+        :param altcls: other classes to write in the same way. All values will be parsed with the main class.
+                       
+        :param align: add???. Default value is ``L``
+        :param empty: the class or value to be used for empty parsed values (example ``''`` for strings).
+                      
+        """
         self.classes[key] = cls
         self.align[key] = align
         self.empty[key] = empty
@@ -79,7 +82,9 @@ class GnrClassCatalog(object):
     def getEmpty(self, key):
         """Add???
             
-        :param key: add???"""
+        :param key: add???
+        :returns: add???
+        """
         if isinstance(key, basestring):
             key = self.classes.get(key.upper())
         if key in self.names:
@@ -93,7 +98,9 @@ class GnrClassCatalog(object):
     def getAlign(self, key):
         """Add???
             
-        :param key: add???"""
+        :param key: add???
+        :returns: add???
+        """
         if isinstance(key, basestring):
             key = self.classes.get(key.upper())
         if key in self.names:
@@ -127,21 +134,27 @@ class GnrClassCatalog(object):
     def getClassKey(self, o):
         """Add???
             
-        :param o: add???"""
+        :param o: add???
+        :returns: add???
+        """
         return self.names[type(o)]
 
     def getClass(self, name):
         """Add???
             
-        :param name: add???"""
+        :param name: add???
+        :returns: add???
+        """
         return self.classes[name]
 
     def asText(self, o, quoted=False, translate_cb=None):
         """Add???
             
         :param o: add???
-        :param quoted: add???
-        :param translate_cb: add???"""
+        :param quoted: add???. Default value is ``False``
+        :param translate_cb: add???. 
+        :returns: add???
+        """
         if isinstance(o, basestring):
             result = o
             if translate_cb and result.startswith(
@@ -160,7 +173,9 @@ class GnrClassCatalog(object):
     def quoted(self, s):
         """Add???
             
-        :param s: add???"""
+        :param s: add???
+        :returns: add???
+        """
         if '"' in s:
             s = "'%s'" % s
         else:
@@ -171,7 +186,9 @@ class GnrClassCatalog(object):
         """Add???
             
         :param txt: add???
-        :param clsname: add???"""
+        :param clsname: add???
+        :returns: add???
+        """
         if not clsname:
             return txt
         if not txt:
@@ -191,7 +208,9 @@ class GnrClassCatalog(object):
     def fromTypedText(self, txt, **kwargs):
         """Add???
             
-        :param txt: add???"""
+        :param txt: add???
+        :returns: add???
+        """
         result = re.split('::(\w*)$', txt)
         if len(result) == 1:
             return txt
@@ -204,8 +223,10 @@ class GnrClassCatalog(object):
         """Add???
             
         :param o: add???
-        :param quoted: add???
-        :param translate_cb: add???"""
+        :param quoted: add???. Default value is ``False``
+        :param translate_cb: add???. 
+        :returns: add???
+        """
         t = self.names.get(type(o), 'T')
         if t == 'T':
             result = self.asText(o, translate_cb=translate_cb)
@@ -219,7 +240,9 @@ class GnrClassCatalog(object):
         """Add???
             
         :param o: add???
-        :param translate_cb: add???"""
+        :param translate_cb: add???. 
+        :returns: add???
+        """
         c = self.names.get(type(o))
         if c:
             return (self.asText(o, translate_cb=translate_cb), c)
@@ -228,11 +251,14 @@ class GnrClassCatalog(object):
     def getType(self, o):
         """Add???
             
-        :param o: add???"""
+        :param o: add???
+        :returns: add???
+        """
         return self.names.get(type(o))
         
     def standardClasses(self):
-        """add???"""
+        """add???
+        """
         from gnr.core.gnrbag import Bag
         
         self.addClass(cls=unicode, key='T', aliases=['TEXT', 'P', 'A'], altcls=[basestring, str], empty='')
@@ -295,7 +321,9 @@ class GnrClassCatalog(object):
     def parse_float(self, txt):
         """Add???
             
-        :param txt: add???"""
+        :param txt: add???
+        :returns: add???
+        """
         if txt.lower() != 'inf':
             return float(txt)
             
@@ -322,20 +350,26 @@ class GnrClassCatalog(object):
     def parse_time(self, txt):
         """Add???
             
-        :param txt: add???"""
-        if txt and txt != '00:00:00':
+        :param txt: add???
+        :returns: add???
+        """
+        if txt:
             return datetime.time(*[int(el) for el in gnrstring.wordSplit(txt)])
             
     def toJson(self, data):
         """Add???
             
-        :param data: add???"""
+        :param data: add???
+        :returns: add???
+        """
         return gnrstring.toJson(data)
         
     def fromJson(self, data):
         """Add???
             
-        :param data: add???"""
+        :param data: add???
+        :returns: add???
+        """
         return gnrstring.fromJson(data)
         
     #def getItaCatalog():
