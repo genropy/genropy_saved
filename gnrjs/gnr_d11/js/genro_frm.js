@@ -1344,18 +1344,15 @@ dojo.declare("gnr.formstores.Base", null, {
             that.loaded(currPkey,result);
             return result;
         };
-        var kw = loader.kw;
-        kw =form.sourceNode.evaluateOnNode(kw); 
+        var kw = loader.kw || {};
+        kw = form.sourceNode.evaluateOnNode(kw);
+        kw.loadingParameters = kw.loadingParameters || {}; 
         if(pkey=='*newrecord*'){
-            var dkw = {};        
+            default_kw = default_kw || {}       
             if(loader.defaultCb){
-                var default_kw = objectUpdate((default_kw || {}),(loader.defaultCb.call(form,kw)||{}));
+                default_kw = objectUpdate(default_kw,(loader.defaultCb.call(form,kw)||{}));
             }
-            for (var k in default_kw){
-                dkw['default_'+k] = default_kw[k];
-            }
-            kw = objectUpdate(objectUpdate({},kw), form.sourceNode.evaluateOnNode(dkw)
-);
+            objectUpdate(kw.loadingParameters,form.sourceNode.evaluateOnNode(default_kw));
         }
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
