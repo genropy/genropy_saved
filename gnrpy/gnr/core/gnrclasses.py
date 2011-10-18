@@ -353,7 +353,7 @@ class GnrClassCatalog(object):
         :param txt: add???
         :returns: add???
         """
-        if txt and txt != '00:00:00':
+        if txt:
             return datetime.time(*[int(el) for el in gnrstring.wordSplit(txt)])
             
     def toJson(self, data):
