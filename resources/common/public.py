@@ -346,7 +346,7 @@ class PublicSlots(BaseComponent):
         dlg = pane.dialog(title='!!New Workdate',closable=True)
         frame = dlg.framePane(height='100px',width='200px',datapath='gnr.workdatemanager')
         frame.dataRpc('gnr.workdate',self.setWorkdate,workdate='=.date',_if='workdate',_fired='^.confirm',
-                        _onResult='console.log(arguments);')
+                        _onResult='PUBLISH pbl_changed_workdate = {workdate:result};')
         fb = frame.formbuilder(cols=1, border_spacing='5px', margin='25px', margin_top='20px')
         fb.dateTextBox(value='^.date', width='8em', lbl='!!Date')
         footer = frame.bottom.slotBar('*,confirmbtn')
