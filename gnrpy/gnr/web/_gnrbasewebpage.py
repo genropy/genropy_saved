@@ -41,7 +41,7 @@ except:
     import simplejson as json
 
 from gnr.core.gnrbag import Bag, TraceBackResolver
-
+from gnr.core.gnrdecorator import public_method,extract_kwargs
 from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrstring import  toJson
 from gnr.core import gnrdate
@@ -429,7 +429,8 @@ class GnrBaseWebPage(GnrObject):
                            virtual_columns='==genro.formById(_formId).getVirtualColumns()',
                            _formId=formId, **kwargs)
                            
-    def rpc_loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
+    @public_method                      
+    def loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
         """add???
         
         :param table: the :ref:`table` name
@@ -439,8 +440,10 @@ class GnrBaseWebPage(GnrObject):
         getterHandler = self.getPublicMethod('rpc', recordGetter)
         record, recinfo = getterHandler(table=table, pkey=pkey, **kwargs)
         return record, recinfo
-        
-    def rpc_saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None, _autoreload=False, **kwargs):
+    
+    @public_method
+    def saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None, _autoreload=False,
+                        onSavingHandler=None,onSavedHandler=None,**kwargs):
         """add???
         
         :param data: add???
@@ -458,8 +461,8 @@ class GnrBaseWebPage(GnrObject):
         if table != maintable:
             onSavingMethod = 'onSaving_%s' % table.replace('.', '_')
             onSavedMethod = 'onSaved_%s' % table.replace('.', '_')
-        onSavingHandler = getattr(self, onSavingMethod, None)
-        onSavedHandler = getattr(self, onSavedMethod, None)
+        onSavingHandler =  self.getPublicMethod('rpc', onSavingHandler) if onSavingHandler else getattr(self, onSavingMethod, None)
+        onSavedHandler = self.getPublicMethod('rpc', onSavedHandler) if onSavedHandler else getattr(self, onSavedMethod, None)
         node = data.getNode('record')
         recordCluster = node.value
         recordClusterAttr = node.getAttr()
