@@ -34,11 +34,7 @@ class TableHandlerForm(BaseComponent):
                                  **options) 
         if formInIframe:
             return form
-        self.th_formOptions(form,options=options)
-        for side in ('top','bottom','left','right'):
-            hooks = self._th_hook(side,mangler=frameCode,asDict=True)
-            for hook in hooks.values():
-                hook(getattr(form,side))    
+        self._th_applyOnForm(form,options=options,mangler=frameCode)   
         if table == self.maintable and hasattr(self,'th_form'):
             self.th_form(form)
         else:
@@ -60,13 +56,13 @@ class TableHandlerForm(BaseComponent):
         form = formroot.frameForm(frameCode=formId,formId=formId,table=table,
                              store_startKey=startKey,
                              datapath='.form',store='recordCluster',store_kwargs=store_kwargs,**kwargs)
-        self.th_formOptions(form,options=resource_options)
+        self._th_applyOnForm(form,options=resource_options,mangler=formId)
         formCb = formCb or self._th_hook('form',mangler=formId)
-        formCb(form)
         form.store.handler('load',**default_kwargs)
+        formCb(form)
         return form
         
-    def th_formOptions(self,form,options=None):
+    def _th_applyOnForm(self,form,options=None,mangler=None):
         showtoolbar = boolean(options.pop('showtoolbar',True))
         navigation = options.pop('navigation',None)
         readOnly = options.get('readOnly')
@@ -103,3 +99,14 @@ class TableHandlerForm(BaseComponent):
             form.top.slotToolbar(slots)   
         if not options.get('showfooter',True):
             form.attributes['hasBottomMessage'] = False
+        for side in ('top','bottom','left','right'):
+            hooks = self._th_hook(side,mangler=mangler,asDict=True)
+            for hook in hooks.values():
+                hook(getattr(form,side))
+        form.store.handler('load',onLoadingHandler=self._th_hook('onLoading',mangler=mangler))
+        form.store.handler('save',onSavingHandler=self._th_hook('onSaving',mangler=mangler),
+                                 onSavedHandler=self._th_hook('onSaved',mangler=mangler))
+            
+            
+            
+        
