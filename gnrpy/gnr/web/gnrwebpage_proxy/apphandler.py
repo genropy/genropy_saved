@@ -743,7 +743,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                       loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None,
-                      _eager_level=0, **kwargs):
+                      _eager_level=0,onLoadingHandler=None,**kwargs):
         """A decorator - :ref:`extract_kwargs`"""
         t = time.time()
         dbtable = dbtable or table
@@ -787,10 +787,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         loadingParameters = loadingParameters or {}
         loadingParameters.update(default_kwargs)
         method = None
-        if loadingParameters:
-            method = loadingParameters.pop('method', None)
-        if method:
-            handler = self.page.getPublicMethod('rpc', method)
+        onLoadingHandler = onLoadingHandler or  loadingParameters.pop('method', None)
+        if onLoadingHandler:
+            handler = self.page.getPublicMethod('rpc', onLoadingHandler)
         else:
             if dbtable == self.page.maintable:
                 method = 'onLoading' # TODO: fall back on the next case if onLoading is missing?
