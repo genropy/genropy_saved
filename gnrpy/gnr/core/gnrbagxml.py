@@ -36,7 +36,10 @@ REGEX_XML_ILLEGAL = re.compile(r'<|>|&')
 ZERO_TIME=datetime.time(0,0)
 
 def isValidValue(value):
-    return value in (0,ZERO_TIME) 
+    """A check method for the validity of a Bag value
+    
+    :param value: the value to be checked"""
+    return value in (0,ZERO_TIME)
     
 class _BagXmlException(Exception): pass
 

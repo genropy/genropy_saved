@@ -432,6 +432,8 @@ class GnrBaseWebPage(GnrObject):
     def loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
         """add???
         
+        ``loadRecordCluster()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
+        
         :param table: the :ref:`database table <table>` name
         :param pkey: the record :ref:`primary key <pkey>`
         :param recordGetter: add???"""
@@ -442,14 +444,16 @@ class GnrBaseWebPage(GnrObject):
     
     @public_method
     def saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None, _autoreload=False,
-                        onSavingHandler=None,onSavedHandler=None,**kwargs):
+                          onSavingHandler=None, onSavedHandler=None, **kwargs):
         """add???
+        
+        ``saveRecordCluster()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
         
         :param data: add???
         :param table: the :ref:`database table <table>` name. 
-        :param _nocommit: boolean. add???
         :param rowcaption: add???
-        :param _autoreload: boolean. add???"""
+        :param onSavingHandler: add???
+        :param onSavedHandler: add???"""
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
         onSavingMethod = 'onSaving'

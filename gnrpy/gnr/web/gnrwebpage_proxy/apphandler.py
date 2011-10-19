@@ -742,9 +742,32 @@ class GnrWebAppHandler(GnrBaseProxy):
                       ignoreMissing=True, ignoreDuplicate=True, lock=False, readOnly=False,
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                      loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None,
-                      _eager_level=0,onLoadingHandler=None,**kwargs):
-        """A decorator - :ref:`extract_kwargs`"""
+                      loadingParameters=None, default_kwargs=None, eager=None, virtual_columns=None,
+                      _eager_level=0, onLoadingHandler=None,**kwargs):
+        """add???
+        
+        ``getRecord()`` method is decorated with the :meth:`extract_kwargs <gnr.core.gnrdecorator.extract_kwargs>`
+        and the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorators
+        
+        :param table: the :ref:`database table <table>`
+        :param dbtable: the :ref:`database table <table>`
+        :param pkg: the :ref:`package <packages>` object
+        :param pkey: the :ref:`primary key <pkey>`
+        :param ignoreMissing: boolean. add???
+        :param ignoreDuplicate: boolean. add???
+        :param lock: boolean. add???
+        :param readOnly: boolean. the :ref:`readonly` attribute
+        :param from_fld: add???
+        :param target_fld: add???
+        :param sqlContextName: add???
+        :param applymethod: add???
+        :param js_resolver_one: add???
+        :param js_resolver_many: add???
+        :param loadingParameters: add???
+        :param default_kwargs: add???
+        :param eager: add???
+        :param virtual_columns: add???
+        :param onLoadingHandler: add???"""
         t = time.time()
         dbtable = dbtable or table
         if pkg:
