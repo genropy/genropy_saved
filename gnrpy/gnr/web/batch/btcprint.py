@@ -27,7 +27,8 @@ class BaseResourcePrint(BaseResourceBatch):
         self.mail_preference = self.page.getUserPreference('mail', pkg='adm') or self.page.getPreference('mail',
                                                                                                          pkg='adm') or Bag(
                 self.page.application.config.getNode('mail').attr)
-        self.htmlMaker = self.page.site.loadTableScript(page=self.page, table=self.maintable,
+        if self.html_res:
+            self.htmlMaker = self.page.site.loadTableScript(page=self.page, table=self.maintable,
                                                         respath=self.html_res, class_name='Main')
         if not hasattr(self, 'mail_tags'):
             self.mail_tags = 'mail'
