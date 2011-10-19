@@ -33,7 +33,11 @@ from gnr.core import gnrstring
 from gnr.core import gnrclasses
 import time
 REGEX_XML_ILLEGAL = re.compile(r'<|>|&')
+ZERO_TIME=datetime.time(0,0)
 
+def isValidValue(value):
+    return value in (0,ZERO_TIME) 
+    
 class _BagXmlException(Exception): pass
 
 class BagFromXml(object):
@@ -205,12 +209,12 @@ class _SaxImporter(sax.handler.ContentHandler):
                 self.setIntoParentBag(tagLabel, curr, attributes)
         else:
             curr, attributes = self.bags.pop()
-            if value or value == 0:
+            if value or isValidValue(value):
                 if curr:
                     curr.nodes.append(BagNode(curr, '_', value))
                 else:
                     curr = value
-            if not curr and curr != 0:
+            if not curr and not isValidValue(curr):
                 if self.empty:
                     curr = self.empty()
                 else:
