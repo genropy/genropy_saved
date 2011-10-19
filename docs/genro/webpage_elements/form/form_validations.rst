@@ -50,8 +50,8 @@ introduction
     
     There are two types of validations:
     
-        #. :ref:`validations_list` (handled on server)
-        #. :ref:`validations_js_list` (handled on client)
+        #. :ref:`validations_list` - handled on server
+        #. :ref:`validations_js_list` - handled on client
         
     Some useful notes about them:
     
@@ -220,10 +220,11 @@ javascript validations
     
     They are:
     
-    * :ref:`validate_call`: allow to write some javascript code
+    * :ref:`validate_call`: allow to write javascript code or to import javascript functions to perform
+      a validation
     * :ref:`validate_case`: check the case and modify it if it is not corresponding to the request
-    * :ref:`validate_max`: javascript validation. Max characters supported
-    * :ref:`validate_min`: javascript validation. Min characters supported
+    * :ref:`validate_max`: set the max characters supported
+    * :ref:`validate_min`: set the min characters supported
     * :ref:`validate_onaccept`: perform a javascript action after a correct user input
     * :ref:`validate_onreject`: perform a javascript action after an uncorrect user input
     * :ref:`validate_remote`: javascript validation. Allow to validate a field through a :ref:`datarpc`
@@ -379,7 +380,7 @@ validate_remote
                                      
 .. _validate_onaccept:
 
-validate_onaccept
+validate_onAccept
 -----------------
 
     .. note:: :ref:`validations_suffixes` not supported
@@ -392,9 +393,15 @@ validate_onaccept
                          validate_onAccept="if (value){SET .orario.fine=value;}")
         root.timetextbox(value='^.orario.fine')
         
+        
+        add??? spiegare il value!! (o rimandare a pagina javascript se è una cosa comune...)
+        
+        fb.field('data_scadenza', validate_onAccept="""if(value < min){return false;}""",
+                                  validate_min='^.data_emissione')
+        
 .. _validate_onreject:
 
-validate_onreject
+validate_onReject
 -----------------
 
     .. note:: :ref:`validations_suffixes` not supported
