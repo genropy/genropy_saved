@@ -680,17 +680,20 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         return attributes;
     },
     createContent:function(sourceNode, kw,children) {
-        var frameCode = kw.frameCode;
-        var stackNode = kw.stack;
+        var frameCode = objectPop(kw,'frameCode');
+        var stackNode = objectPop(kw,'stack');
         if(!stackNode){
             genro.assert(kw.stackNodeId,'Need the stack node or the stackNodeId')
             stackNode = genro.nodeById(kw.stackNodeId);
         }
         var that = this;
-        var tabButtonsNode = sourceNode._('div',{connect_onclick:function(e){
+        kw = objectUpdate({connect_onclick:function(e){
             var childSourceNode = e.target.sourceNode.getInheritedAttributes()['_childSourceNode'];
-            stackNode.widget.selectChild(childSourceNode.widget);
-        },_class:'multibutton_container'});
+            if(childSourceNode){
+                stackNode.widget.selectChild(childSourceNode.widget);
+            }
+        },_class:'multibutton_container'},kw);
+        var tabButtonsNode = sourceNode._('div',kw);
         stackNode._stackButtonsNodes = stackNode._stackButtonsNodes || [];
         stackNode._stackButtonsNodes.push(tabButtonsNode.getParentNode());
         dojo.connect(stackNode,'onNodeBuilt',function(widget){
@@ -700,6 +703,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             setTimeout(function(){
                 that.initButtons(stackNode);
                 that.onShowHideChild(stackNode.widget,stackNode.widget.getSelected(),true);
+                stackNode.getParentNode().getWidget().resize();
             },1);   
         });
         return tabButtonsNode;
@@ -1023,12 +1027,15 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
 
     },
     slot_stackButtons:function(pane,slotValue,slotKw,frameCode){
-        var stackNodeId = slotKw.stackNodeId;
+        var stackNodeId = objectPop(slotKw,'stackNodeId');
         var scNode;
         if(!stackNodeId){
             scNode = genro.getFrameNode(frameCode,'center');
         }
-        pane._('StackButtons',{stack:scNode,stackNodeId:stackNodeId});
+        pane._('StackButtons',objectUpdate({stack:scNode,stackNodeId:stackNodeId},slotKw));
+    },
+    slot_parentStackButtons:function(pane,slotValue,slotKw,frameCode){
+        pane._('StackButtons',objectUpdate({stack:pane.getParentNode().attributeOwnerNode('tag','StackContainer')}));
     },
     
     slot_fieldsTree:function(pane,slotValue,slotKw,frameCode){

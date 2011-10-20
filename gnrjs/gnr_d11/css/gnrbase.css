@@ -2775,15 +2775,12 @@ p {
 
 /* @group multibutton */
 .multibutton_container{
-    height:22px;
     padding-top:2px;
     padding-bottom:1px;
-    
-    line-height:20px;
+    line-height:3ex;
     font-size: 9pt;
     font-variant:small-caps;
 }
-
 .multibutton:hover{
 	text-decoration: underline;
 }

@@ -323,13 +323,20 @@ dojo.declare("gnr.GnrBagNode", null, {
         }
     },
     
-    attributeOwnerNode:function(attrname){
+    attributeOwnerNode:function(attrname,attrvalue){
         var curr = this;
         var currattr = curr.attr || {};
-        while(curr && !(attrname in curr.attr)){
-            curr = curr.getParentNode();
+        if(arguments.length==1){
+            while(curr && !(attrname in curr.attr)){
+                curr = curr.getParentNode();
+            }
+            return curr;
+        }else{
+            while(curr && curr.attr[attrname]!=attrvalue){
+                curr = curr.getParentNode();
+            }
+            return curr;
         }
-        return curr;
     },
 
    //
