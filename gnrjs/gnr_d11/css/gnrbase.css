@@ -2778,7 +2778,12 @@ p {
     height:22px;
     padding-top:2px;
     padding-bottom:1px;
+    
+    line-height:20px;
+    font-size: 9pt;
+    font-variant:small-caps;
 }
+
 .multibutton:hover{
 	text-decoration: underline;
 }
@@ -2821,9 +2826,9 @@ p {
     background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
     border: 1px solid #666;
     border-right: 0px;
-    line-height:20px;
+    /*line-height:20px;
     font-size: 9pt;
-    font-variant:small-caps;
+    font-variant:small-caps;*/
 }
 
 .multibuttonsub.multibutton{
