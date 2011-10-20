@@ -689,7 +689,8 @@ dojo.declare("gnr.widgets.TabButtonsController", gnr.widgets.gnrwdg, {
             var childSourceNode = e.target.sourceNode.getInheritedAttributes()['_childSourceNode'];
             stackNode.widget.selectChild(childSourceNode.widget);
         }});
-        stackNode._tabButtonsControllerNode = tabButtonsNode.getParentNode();
+        stackNode._tabButtonsControllerNodes = stackNode._tabButtonsControllerNodes || [];
+        stackNode._tabButtonsControllerNodes.push(tabButtonsNode.getParentNode());
         dojo.connect(stackNode,'onNodeBuilt',function(widget){
             dojo.connect(widget.gnr,'onAddChild',that,'onAddChild');
             dojo.connect(widget.gnr,'onRemoveChild',that,'onRemoveChild');
@@ -703,33 +704,45 @@ dojo.declare("gnr.widgets.TabButtonsController", gnr.widgets.gnrwdg, {
         return tabButtonsNode;
     },
     onAddChild:function(widget,child){
-        var controllerNode = widget.sourceNode._tabButtonsControllerNode;
+        var controllerNodes = widget.sourceNode._tabButtonsControllerNodes;
         var that = this;
-        setTimeout(function(){that.makeTabButton(controllerNode,child.sourceNode);},1);
+        setTimeout(function(){
+            dojo.forEach(controllerNodes,function(c){
+                that.makeTabButton(c,child.sourceNode);
+            });
+        },1);
     },
-    
     onRemoveChild:function(widget,child){
-        var controllerNode = widget.sourceNode._tabButtonsControllerNode;
-        var nodeLabel = child.sourceNode._tabButtonNode.label;
-        setTimeout(function(){controllerNode._value.popNode(nodeLabel)},1)
+        var controllerNodes = widget.sourceNode._tabButtonsControllerNodes;
+        var paneId = child.sourceNode.getStringId();
+        setTimeout(function(){
+            dojo.forEach(controllerNodes,function(c){
+                c._value.popNode(paneId);
+            });
+        },1)
     },
     onShowHideChild:function(widget, child, st){
-        genro.dom.setClass(child.sourceNode._tabButtonNode,'multibutton_selected',st);
+        var paneId = child.sourceNode.getStringId();
+        dojo.forEach(widget.sourceNode._tabButtonsControllerNodes,function(c){
+            genro.dom.setClass(c._value.getNode(paneId),'multibutton_selected',st)
+        })
     },
     initButtons:function(stackNode){
-        var controllerNode = stackNode._tabButtonsControllerNode;
+        var controllerNodes = stackNode._tabButtonsControllerNodes;
         var sc = stackNode.widget;
         var page;
         var idx = 0;
         var that = this;
         stackNode._value.forEach(function(n){
-            that.makeTabButton(controllerNode,n);
+            dojo.forEach(controllerNodes,function(c){
+                that.makeTabButton(c,n);
+            });
         });
     },
     makeTabButton:function(sourceNode,childSourceNode){
-        var btn = sourceNode._('div',{_class:'multibutton',_childSourceNode:childSourceNode})
+        childSourceNode = childSourceNode.getWidget().sourceNode;
+        var btn = sourceNode._('div',childSourceNode.getStringId(),{_class:'multibutton',_childSourceNode:childSourceNode})
         btn._('div',{innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'});
-        childSourceNode._tabButtonNode = btn.getParentNode();
     }
 });
 
@@ -1009,7 +1022,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
 
     },
     slot_tabButtons:function(pane,slotValue,slotKw,frameCode){
-        pane._('TabButtonsController',{frameCode:frameCode});
+        pane._('TabButtonsController',{frameCode:slotKw.frameCode || frameCode});
     },
     
     slot_fieldsTree:function(pane,slotValue,slotKw,frameCode){

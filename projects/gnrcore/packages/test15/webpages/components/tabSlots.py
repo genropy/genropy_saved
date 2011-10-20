@@ -11,7 +11,7 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
         return ''
          
-    def test_0_firsttest(self,pane):
+    def test_0_testFrameStack(self,pane):
         """First test description"""
         frame = pane.framePane(height='300px')
         toolbar = frame.top.slotToolbar('*,tabButtons,deletetab,addtab,*')
@@ -26,3 +26,16 @@ class GnrCustomWebPage(object):
                                         """,sc=sc)
         sc.contentPane(title='Orange',pageName='orange',background='orange')
         sc.contentPane(title='Green',pageName='green',background='green')
+    
+    def test_1_testInStack(self,pane):
+        frame = pane.framePane(frameCode='mainstack',height='300px')
+        sc = frame.center.stackContainer()
+        frame_1 = sc.framePane(background='orange',pageName='orange',title='orange')
+        frame_1.top.slotToolbar('titulo,*,tabButtons,*',titulo='pierozzo',tabButtons_frameCode='mainstack')
+        frame_1.div('aaa')
+        frame_2 = sc.framePane(background='green',pageName='green',title='green')
+        frame_2.top.slotToolbar('titulo,*,tabButtons,*',titulo='pancrazio',tabButtons_frameCode='mainstack')
+        frame_2.div('bbb')
+
+
+    
