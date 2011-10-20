@@ -675,6 +675,64 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     }
 
 });
+dojo.declare("gnr.widgets.TabButtonsController", gnr.widgets.gnrwdg, {
+    contentKwargs: function(sourceNode, attributes) {
+        return attributes;
+    },
+    createContent:function(sourceNode, kw,children) {
+        var frameCode = kw.frameCode;
+        console.log('inside TabButtonsController',sourceNode,frameCode);
+        var frameNode = genro.getFrameNode(frameCode);
+        var stackNode = genro.getFrameNode(frameCode,'center');
+        var that = this;
+        var tabButtonsNode = sourceNode._('div',{connect_onclick:function(e){
+            var childSourceNode = e.target.sourceNode.getInheritedAttributes()['_childSourceNode'];
+            stackNode.widget.selectChild(childSourceNode.widget);
+        }});
+        stackNode._tabButtonsControllerNode = tabButtonsNode.getParentNode();
+        dojo.connect(stackNode,'onNodeBuilt',function(widget){
+            dojo.connect(widget.gnr,'onAddChild',that,'onAddChild');
+            dojo.connect(widget.gnr,'onRemoveChild',that,'onRemoveChild');
+            dojo.connect(widget.gnr,'onShowHideChild',that,'onShowHideChild');
+            setTimeout(function(){
+                that.initButtons(stackNode)
+                frameNode.widget.resize();
+                that.onShowHideChild(stackNode.widget,stackNode.widget.getSelected(),true);
+            },1);   
+        });
+        return tabButtonsNode;
+    },
+    onAddChild:function(widget,child){
+        var controllerNode = widget.sourceNode._tabButtonsControllerNode;
+        var that = this;
+        setTimeout(function(){that.makeTabButton(controllerNode,child.sourceNode);},1);
+    },
+    
+    onRemoveChild:function(widget,child){
+        var controllerNode = widget.sourceNode._tabButtonsControllerNode;
+        var nodeLabel = child.sourceNode._tabButtonNode.label;
+        setTimeout(function(){controllerNode._value.popNode(nodeLabel)},1)
+    },
+    onShowHideChild:function(widget, child, st){
+        genro.dom.setClass(child.sourceNode._tabButtonNode,'multibutton_selected',st);
+    },
+    initButtons:function(stackNode){
+        var controllerNode = stackNode._tabButtonsControllerNode;
+        var sc = stackNode.widget;
+        var page;
+        var idx = 0;
+        var that = this;
+        stackNode._value.forEach(function(n){
+            that.makeTabButton(controllerNode,n);
+        });
+    },
+    makeTabButton:function(sourceNode,childSourceNode){
+        var btn = sourceNode._('div',{_class:'multibutton',_childSourceNode:childSourceNode})
+        btn._('div',{innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'});
+        childSourceNode._tabButtonNode = btn.getParentNode();
+    }
+});
+
 
 dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
@@ -949,6 +1007,9 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         var div = pane._('div'); //{'width':slotKw.width || '15em'}
         div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox',parentForm:false,'width':slotKw.width});
 
+    },
+    slot_tabButtons:function(pane,slotValue,slotKw,frameCode){
+        pane._('TabButtonsController',{frameCode:frameCode});
     },
     
     slot_fieldsTree:function(pane,slotValue,slotKw,frameCode){

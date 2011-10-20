@@ -2780,12 +2780,11 @@ p {
 }
 
 .multibutton:last-child{
-	border-right: 0px;
 	-moz-border-radius-topright: 6px;
     -moz-border-radius-bottomright: 6px;
     -webkit-border-top-right-radius: 6px;
     -webkit-border-bottom-right-radius: 6px;
-    border-right: 1px;
+    border-right: 1px solid;
 }
 .multibutton:first-child{
     -moz-border-radius-topleft: 6px;
