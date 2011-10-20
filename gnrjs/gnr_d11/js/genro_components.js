@@ -751,6 +751,30 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
     }
 });
 
+dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
+    contentKwargs: function(sourceNode, attributes) {
+        return attributes;
+    },
+    createContent:function(sourceNode, kw,children) {
+        var table = objectPop(kw,'table');
+        var trash = objectPop(kw,'trash');
+        var box = sourceNode._('div',{_class:'fieldsTreeBox',detachable:true});
+        if (trash){
+            var trashKw = {_class:'fieldsTreeTrash'};
+            trashKw.dropTarget=true;
+            trashKw.dropTypes='trashable';
+            trashKw.onDrop_trashable=function(dropInfo,data){
+                var sourceNode=genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
+                if(sourceNode&&sourceNode.attr.onTrashed){
+                    funcCreate(sourceNode.attr.onTrashed,'dropInfo,data',sourceNode)(dropInfo,data);
+                }
+            };
+            sourceNode._('div',trashKw);
+        }
+        genro.dev.fieldsTree(box,table,kw);
+        return box;
+    }
+})
 
 dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
@@ -1044,19 +1068,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         slotKw.text_align = 'left';
         slotKw.position = 'relative';
         var slot = pane._('div',slotKw);
-        var boxKw = {_class:'fieldsTreeBox',detachable:true}
-        var box = slot._('div',boxKw);
-        var trashKw = {_class:'fieldsTreeTrash'};
-        trashKw.dropTarget=true;
-        trashKw.dropTypes='trashable';
-        trashKw.onDrop_trashable=function(dropInfo,data){
-            var sourceNode=genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
-            if(sourceNode&&sourceNode.attr.onTrashed){
-                funcCreate(sourceNode.attr.onTrashed,'dropInfo,data',sourceNode)(dropInfo,data);
-            }
-        };
-        var trashbox = slot._('div',trashKw);
-        genro.dev.fieldsTree(box,table,treeKw);
+        slot._('FieldsTree',objectUpdate({table:table,trash:true},treeKw));
     },
     
     slot_count:function(pane,slotValue,slotKw,frameCode){
