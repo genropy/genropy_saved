@@ -675,36 +675,37 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     }
 
 });
-dojo.declare("gnr.widgets.TabButtonsController", gnr.widgets.gnrwdg, {
+dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
         return attributes;
     },
     createContent:function(sourceNode, kw,children) {
         var frameCode = kw.frameCode;
-        console.log('inside TabButtonsController',sourceNode,frameCode);
-        var frameNode = genro.getFrameNode(frameCode);
-        var stackNode = genro.getFrameNode(frameCode,'center');
+        var stackNode = kw.stack;
+        if(!stackNode){
+            genro.assert(kw.stackNodeId,'Need the stack node or the stackNodeId')
+            stackNode = genro.nodeById(kw.stackNodeId);
+        }
         var that = this;
         var tabButtonsNode = sourceNode._('div',{connect_onclick:function(e){
             var childSourceNode = e.target.sourceNode.getInheritedAttributes()['_childSourceNode'];
             stackNode.widget.selectChild(childSourceNode.widget);
-        }});
-        stackNode._tabButtonsControllerNodes = stackNode._tabButtonsControllerNodes || [];
-        stackNode._tabButtonsControllerNodes.push(tabButtonsNode.getParentNode());
+        },_class:'multibutton_container'});
+        stackNode._stackButtonsNodes = stackNode._stackButtonsNodes || [];
+        stackNode._stackButtonsNodes.push(tabButtonsNode.getParentNode());
         dojo.connect(stackNode,'onNodeBuilt',function(widget){
             dojo.connect(widget.gnr,'onAddChild',that,'onAddChild');
             dojo.connect(widget.gnr,'onRemoveChild',that,'onRemoveChild');
             dojo.connect(widget.gnr,'onShowHideChild',that,'onShowHideChild');
             setTimeout(function(){
-                that.initButtons(stackNode)
-                frameNode.widget.resize();
+                that.initButtons(stackNode);
                 that.onShowHideChild(stackNode.widget,stackNode.widget.getSelected(),true);
             },1);   
         });
         return tabButtonsNode;
     },
     onAddChild:function(widget,child){
-        var controllerNodes = widget.sourceNode._tabButtonsControllerNodes;
+        var controllerNodes = widget.sourceNode._stackButtonsNodes;
         var that = this;
         setTimeout(function(){
             dojo.forEach(controllerNodes,function(c){
@@ -713,7 +714,7 @@ dojo.declare("gnr.widgets.TabButtonsController", gnr.widgets.gnrwdg, {
         },1);
     },
     onRemoveChild:function(widget,child){
-        var controllerNodes = widget.sourceNode._tabButtonsControllerNodes;
+        var controllerNodes = widget.sourceNode._stackButtonsNodes;
         var paneId = child.sourceNode.getStringId();
         setTimeout(function(){
             dojo.forEach(controllerNodes,function(c){
@@ -723,12 +724,12 @@ dojo.declare("gnr.widgets.TabButtonsController", gnr.widgets.gnrwdg, {
     },
     onShowHideChild:function(widget, child, st){
         var paneId = child.sourceNode.getStringId();
-        dojo.forEach(widget.sourceNode._tabButtonsControllerNodes,function(c){
+        dojo.forEach(widget.sourceNode._stackButtonsNodes,function(c){
             genro.dom.setClass(c._value.getNode(paneId),'multibutton_selected',st)
         })
     },
     initButtons:function(stackNode){
-        var controllerNodes = stackNode._tabButtonsControllerNodes;
+        var controllerNodes = stackNode._stackButtonsNodes;
         var sc = stackNode.widget;
         var page;
         var idx = 0;
@@ -1021,8 +1022,13 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox',parentForm:false,'width':slotKw.width});
 
     },
-    slot_tabButtons:function(pane,slotValue,slotKw,frameCode){
-        pane._('TabButtonsController',{frameCode:slotKw.frameCode || frameCode});
+    slot_stackButtons:function(pane,slotValue,slotKw,frameCode){
+        var stackNodeId = slotKw.stackNodeId;
+        var scNode;
+        if(!stackNodeId){
+            scNode = genro.getFrameNode(frameCode,'center');
+        }
+        pane._('StackButtons',{stack:scNode,stackNodeId:stackNodeId});
     },
     
     slot_fieldsTree:function(pane,slotValue,slotKw,frameCode){

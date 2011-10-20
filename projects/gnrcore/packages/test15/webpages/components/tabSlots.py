@@ -14,27 +14,26 @@ class GnrCustomWebPage(object):
     def test_0_testFrameStack(self,pane):
         """First test description"""
         frame = pane.framePane(height='300px')
-        toolbar = frame.top.slotToolbar('*,tabButtons,deletetab,addtab,*')
+        toolbar = frame.top.slotToolbar('*,stackButtons,*')
         sc = frame.center.stackContainer(selectedPage='^.selectedPage')
-        toolbar.deletetab.slotButton(iconClass='iconbox delete_record',action="""
-                                            sc._value.popNode(sc.widget.getSelected().sourceNode.label);
-                                        """,sc=sc)
-        toolbar.addtab.slotButton(iconClass='iconbox add_record',
-                                action="""var len = +sc._value.len();
-                                          var pane = sc._("contentPane",{title:"Pippo " +len,pageName:"pippo_"+len});
-                                          pane._('div',{innerHTML:"Pippo " +len});
-                                        """,sc=sc)
+       #toolbar.deletetab.slotButton(iconClass='iconbox delete_record',action="""
+       #                                    sc._value.popNode(sc.widget.getSelected().sourceNode.label);
+       #                                """,sc=sc)
+       #toolbar.addtab.slotButton(iconClass='iconbox add_record',
+       #                        action="""var len = +sc._value.len();
+       #                                  var pane = sc._("contentPane",{title:"Pippo " +len,pageName:"pippo_"+len});
+       #                                  pane._('div',{innerHTML:"Pippo " +len});
+       #                                """,sc=sc)
         sc.contentPane(title='Orange',pageName='orange',background='orange')
         sc.contentPane(title='Green',pageName='green',background='green')
     
     def test_1_testInStack(self,pane):
-        frame = pane.framePane(frameCode='mainstack',height='300px')
-        sc = frame.center.stackContainer()
+        sc = pane.stackContainer(nodeId='mainstack',height='300px')
         frame_1 = sc.framePane(background='orange',pageName='orange',title='orange')
-        frame_1.top.slotToolbar('titulo,*,tabButtons,*',titulo='pierozzo',tabButtons_frameCode='mainstack')
-        frame_1.div('aaa')
+        bar = frame_1.top.slotToolbar('titulo,*,foo,*',titulo='pierozzo')
+        bar.foo.stackButtons(stackNodeId='mainstack')
         frame_2 = sc.framePane(background='green',pageName='green',title='green')
-        frame_2.top.slotToolbar('titulo,*,tabButtons,*',titulo='pancrazio',tabButtons_frameCode='mainstack')
+        frame_2.top.slotToolbar('titulo,*,stackButtons,*',titulo='pancrazio',stackButtons_stackNodeId='mainstack')
         frame_2.div('bbb')
 
 

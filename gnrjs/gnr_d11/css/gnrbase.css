@@ -2774,7 +2774,11 @@ p {
 /* @end */
 
 /* @group multibutton */
-
+.multibutton_container{
+    height:22px;
+    padding-top:2px;
+    padding-bottom:1px;
+}
 .multibutton:hover{
 	text-decoration: underline;
 }
