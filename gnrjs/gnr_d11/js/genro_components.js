@@ -1129,7 +1129,7 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storepath = this.storeNode.attr.storepath;
         this.storeNode.setRelativeData(this.storepath,null);
         this.locked = null;
-        var startLocked= 'startLocked' in kw? objectPop(kw,'startLocked'):true;
+        var startLocked= 'startLocked' in kw? objectPop(kw,'startLocked'):false;
         for (var k in kw){
             this[k] = kw[k];
         }
