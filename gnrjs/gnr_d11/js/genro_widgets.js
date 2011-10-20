@@ -4420,8 +4420,37 @@ dojo.declare("gnr.widgets.FilteringSelect", gnr.widgets.BaseCombo, {
         this._dojotag = 'FilteringSelect';
     },
     //this patch will fix the problem where the displayed value stuck for a new record
-    patch_setValue:function(value, priorityChange) {
-        this.setValue_replaced(value, priorityChange);
+    patch_setValue: function(/*String*/ value, /*Boolean?*/ priorityChange){
+        // summary
+        //  Sets the value of the select.
+        //  Also sets the label to the corresponding value by reverse lookup.
+
+        //#3347: fetchItemByIdentity if no keyAttr specified
+        var self=this;
+        var handleFetchByIdentity = function(item, priorityChange){
+            if((item!=null) && (item!=='')){
+                if(self.store.isItemLoaded(item)){
+                    self._callbackSetLabel([item], undefined, priorityChange);
+                }else{
+                    self.store.loadItem({
+                        item: item, 
+                        onItem: function(result, dataObject){
+                            self._callbackSetLabel(result, dataObject, priorityChange);
+                        }
+                    });
+                }
+            }else{
+                self._isvalid=false;
+                // prevent errors from Tooltip not being created yet
+                self.validate(false);
+            }
+        }
+        this.store.fetchItemByIdentity({
+            identity: value, 
+            onItem: function(item){
+                handleFetchByIdentity(item, priorityChange);
+            }
+        });
         if (!this._isvalid) {
             this.valueNode.value = null;
             this.setDisplayedValue('');

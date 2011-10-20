@@ -65,7 +65,7 @@ class Table(object):
         return sub_span.sub(replace_span, doctemplate_content)
 
 
-    def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None, formats=None):
+    def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None, formats=None,**kwargs):
         record = Bag()
         if record_id:
             record = templateBuilder.data_tblobj.record(pkey=record_id,
@@ -78,7 +78,7 @@ class Table(object):
         record.setItem('_env_', Bag(self.db.currentEnv))
         #record.setItem('_template_', templateBuilder.doctemplate_info)
         body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats),
-                            record=record)
+                            record=record,**kwargs)
         return body
     
     

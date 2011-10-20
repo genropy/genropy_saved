@@ -399,7 +399,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
 
     fetchItemByIdentity: function(/* object */ request) {
         genro.debug('fetchItemByIdentity: identity=' + request.identity);
-        if (request.identity) {
+        if (request.identity!=null && request.identity!=='') {
             var id = request.identity;
             var item = null;
             var bagnode;
