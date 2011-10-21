@@ -818,10 +818,15 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                 this.updateValidationStatus();
             }
         }
-        
-        this._built=true;
+        this._built = true;
+        this.onNodeBuilt(newobj);
         return newobj;
     },
+    
+    onNodeBuilt:function(newobj){
+        return;
+    },
+    
     _resetDynAttributes : function() {
         if (this._dynattr) {
             delete this._dynattr;

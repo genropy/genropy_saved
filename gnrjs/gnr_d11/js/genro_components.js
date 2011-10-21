@@ -675,6 +675,106 @@ dojo.declare("gnr.widgets.SlotButton", gnr.widgets.gnrwdg, {
     }
 
 });
+dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
+    contentKwargs: function(sourceNode, attributes) {
+        return attributes;
+    },
+    createContent:function(sourceNode, kw,children) {
+        var frameCode = objectPop(kw,'frameCode');
+        var stackNode = objectPop(kw,'stack');
+        if(!stackNode){
+            genro.assert(kw.stackNodeId,'Need the stack node or the stackNodeId')
+            stackNode = genro.nodeById(kw.stackNodeId);
+        }
+        var that = this;
+        kw = objectUpdate({connect_onclick:function(e){
+            var childSourceNode = e.target.sourceNode.getInheritedAttributes()['_childSourceNode'];
+            if(childSourceNode){
+                stackNode.widget.selectChild(childSourceNode.widget);
+            }
+        },_class:'multibutton_container'},kw);
+        var tabButtonsNode = sourceNode._('div',kw);
+        stackNode._stackButtonsNodes = stackNode._stackButtonsNodes || [];
+        stackNode._stackButtonsNodes.push(tabButtonsNode.getParentNode());
+        dojo.connect(stackNode,'onNodeBuilt',function(widget){
+            dojo.connect(widget.gnr,'onAddChild',that,'onAddChild');
+            dojo.connect(widget.gnr,'onRemoveChild',that,'onRemoveChild');
+            dojo.connect(widget.gnr,'onShowHideChild',that,'onShowHideChild');
+            setTimeout(function(){
+                that.initButtons(stackNode);
+                that.onShowHideChild(stackNode.widget,stackNode.widget.getSelected(),true);
+                stackNode.getParentNode().getWidget().resize();
+            },1);   
+        });
+        return tabButtonsNode;
+    },
+    onAddChild:function(widget,child){
+        var controllerNodes = widget.sourceNode._stackButtonsNodes;
+        var that = this;
+        setTimeout(function(){
+            dojo.forEach(controllerNodes,function(c){
+                that.makeTabButton(c,child.sourceNode);
+            });
+        },1);
+    },
+    onRemoveChild:function(widget,child){
+        var controllerNodes = widget.sourceNode._stackButtonsNodes;
+        var paneId = child.sourceNode.getStringId();
+        setTimeout(function(){
+            dojo.forEach(controllerNodes,function(c){
+                c._value.popNode(paneId);
+            });
+        },1)
+    },
+    onShowHideChild:function(widget, child, st){
+        var paneId = child.sourceNode.getStringId();
+        dojo.forEach(widget.sourceNode._stackButtonsNodes,function(c){
+            genro.dom.setClass(c._value.getNode(paneId),'multibutton_selected',st)
+        })
+    },
+    initButtons:function(stackNode){
+        var controllerNodes = stackNode._stackButtonsNodes;
+        var sc = stackNode.widget;
+        var page;
+        var idx = 0;
+        var that = this;
+        stackNode._value.forEach(function(n){
+            dojo.forEach(controllerNodes,function(c){
+                that.makeTabButton(c,n);
+            });
+        });
+    },
+    makeTabButton:function(sourceNode,childSourceNode){
+        childSourceNode = childSourceNode.getWidget().sourceNode;
+        var btn = sourceNode._('div',childSourceNode.getStringId(),{_class:'multibutton',_childSourceNode:childSourceNode})
+        btn._('div',{innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'});
+    }
+});
+
+dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
+    contentKwargs: function(sourceNode, attributes) {
+        return attributes;
+    },
+    createContent:function(sourceNode, kw,children) {
+        var table = objectPop(kw,'table');
+        var trash = objectPop(kw,'trash');
+        var box = sourceNode._('div',{_class:'fieldsTreeBox',detachable:true});
+        if (trash){
+            var trashKw = {_class:'fieldsTreeTrash'};
+            trashKw.dropTarget=true;
+            trashKw.dropTypes='trashable';
+            trashKw.onDrop_trashable=function(dropInfo,data){
+                var sourceNode=genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
+                if(sourceNode&&sourceNode.attr.onTrashed){
+                    funcCreate(sourceNode.attr.onTrashed,'dropInfo,data',sourceNode)(dropInfo,data);
+                }
+            };
+            sourceNode._('div',trashKw);
+        }
+        genro.dev.fieldsTree(box,table,kw);
+        return box;
+    }
+})
 
 dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     contentKwargs: function(sourceNode, attributes) {
@@ -950,6 +1050,17 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         div._('SearchBox', {searchOn:slotValue,nodeId:frameCode+'_searchbox',datapath:'.searchbox',parentForm:false,'width':slotKw.width});
 
     },
+    slot_stackButtons:function(pane,slotValue,slotKw,frameCode){
+        var stackNodeId = objectPop(slotKw,'stackNodeId');
+        var scNode;
+        if(!stackNodeId){
+            scNode = genro.getFrameNode(frameCode,'center');
+        }
+        pane._('StackButtons',objectUpdate({stack:scNode,stackNodeId:stackNodeId},slotKw));
+    },
+    slot_parentStackButtons:function(pane,slotValue,slotKw,frameCode){
+        pane._('StackButtons',objectUpdate({stack:pane.getParentNode().attributeOwnerNode('tag','StackContainer')}));
+    },
     
     slot_fieldsTree:function(pane,slotValue,slotKw,frameCode){
         var table = objectPop(slotKw,'table');
@@ -957,19 +1068,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         slotKw.text_align = 'left';
         slotKw.position = 'relative';
         var slot = pane._('div',slotKw);
-        var boxKw = {_class:'fieldsTreeBox',detachable:true}
-        var box = slot._('div',boxKw);
-        var trashKw = {_class:'fieldsTreeTrash'};
-        trashKw.dropTarget=true;
-        trashKw.dropTypes='trashable';
-        trashKw.onDrop_trashable=function(dropInfo,data){
-            var sourceNode=genro.src.nodeBySourceNodeId(dropInfo.dragSourceInfo._id);
-            if(sourceNode&&sourceNode.attr.onTrashed){
-                funcCreate(sourceNode.attr.onTrashed,'dropInfo,data',sourceNode)(dropInfo,data);
-            }
-        };
-        var trashbox = slot._('div',trashKw);
-        genro.dev.fieldsTree(box,table,treeKw);
+        slot._('FieldsTree',objectUpdate({table:table,trash:true},treeKw));
     },
     
     slot_count:function(pane,slotValue,slotKw,frameCode){
@@ -1042,7 +1141,7 @@ dojo.declare("gnr.stores._Collection",null,{
         this.storepath = this.storeNode.attr.storepath;
         this.storeNode.setRelativeData(this.storepath,null);
         this.locked = null;
-        var startLocked= 'startLocked' in kw? objectPop(kw,'startLocked'):true;
+        var startLocked= 'startLocked' in kw? objectPop(kw,'startLocked'):false;
         for (var k in kw){
             this[k] = kw[k];
         }

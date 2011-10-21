@@ -491,6 +491,7 @@ class TableHandlerMain(BaseComponent):
                 self.hv_main(tc)
         thwidget = th_options.get('widget','stack')
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,**kwargs)
+        th.view.store.attributes.update(startLocked=True)
         if len(extras)>0:
             viewbar = th.view.top.bar
             viewbar.replaceSlots('resourceMails','resourceMails,5,%s' %','.join(extras))            

@@ -2774,18 +2774,23 @@ p {
 /* @end */
 
 /* @group multibutton */
-
+.multibutton_container{
+    padding-top:2px;
+    padding-bottom:1px;
+    line-height:3ex;
+    font-size: 9pt;
+    font-variant:small-caps;
+}
 .multibutton:hover{
 	text-decoration: underline;
 }
 
 .multibutton:last-child{
-	border-right: 0px;
 	-moz-border-radius-topright: 6px;
     -moz-border-radius-bottomright: 6px;
     -webkit-border-top-right-radius: 6px;
     -webkit-border-bottom-right-radius: 6px;
-    border-right: 1px;
+    border-right: 1px solid;
 }
 .multibutton:first-child{
     -moz-border-radius-topleft: 6px;
@@ -2818,9 +2823,9 @@ p {
     background-image: -moz-linear-gradient(-90deg, #EDEDEE, #CDCDCD);
     border: 1px solid #666;
     border-right: 0px;
-    line-height:20px;
+    /*line-height:20px;
     font-size: 9pt;
-    font-variant:small-caps;
+    font-variant:small-caps;*/
 }
 
 .multibuttonsub.multibutton{

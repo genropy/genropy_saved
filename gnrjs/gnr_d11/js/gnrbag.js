@@ -323,35 +323,21 @@ dojo.declare("gnr.GnrBagNode", null, {
         }
     },
     
-    attributeOwnerNode:function(attrname){
+    attributeOwnerNode:function(attrname,attrvalue){
         var curr = this;
         var currattr = curr.attr || {};
-        while(curr && !(attrname in curr.attr)){
-            curr = curr.getParentNode();
+        if(arguments.length==1){
+            while(curr && !(attrname in curr.attr)){
+                curr = curr.getParentNode();
+            }
+        }else{
+            while(curr && curr.attr[attrname]!=attrvalue){
+                curr = curr.getParentNode();
+            }
         }
         return curr;
     },
 
-   //
-   // getInheritedAttributes: function() {
-   //     var inherited = {};
-   //     var parentbag = this.getParentBag();
-   //     if (parentbag) {
-   //         var parentnode = parentbag.getParentNode();
-   //         if (parentnode) {
-   //             if (parentnode.stopInherite) {
-   //                 inherited = objectUpdate(inherited, parentnode.attr);
-   //             } else {
-   //                 inherited = parentnode.getInheritedAttributes();
-   //
-   //             }
-   //         }
-   //     }
-   //     return objectUpdate(inherited, this.attr);
-   // },
-    /**
-     * @id hasAttr
-     */
     hasAttr: function(label, value) {
         if (label in this.attr) {
             if (value) {

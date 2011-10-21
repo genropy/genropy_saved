@@ -98,8 +98,8 @@ class BaseResourceBatch(object):
         :param where: add???
         :param line_code: add???
         :param message: add???"""
-        table = table or self.page.maintable
-        tblobj = self.db.table(table)
+        table = table or self.maintable
+        tblobj = self.db.table(table) 
 
         if not where:
             where = '$%s IN:pkeys' % tblobj.pkey
