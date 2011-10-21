@@ -91,11 +91,10 @@ class BaseResourceBatch(object):
         self.result_info[key] = info
 
     def batchUpdate(self, updater=None, table=None, where=None, line_code=None, message=None, **kwargs):
-        """add???
+        """Call the :meth:`add???` of the gnrsqltable...
         
-        :param updater: add???
-        :param table: the :ref:`database table <table>` you specify or the
-                      :ref:`maintable webpage variable <maintable>`
+        :param updater: it can be a callback or a dict() if the batch is a simple parameter substitution
+        :param table: the :ref:`database table <table>`
         :param where: add???
         :param line_code: add???
         :param message: add???"""

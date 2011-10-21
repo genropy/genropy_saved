@@ -482,11 +482,10 @@ class SqlTable(GnrObject):
         return query
             
     def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, **kwargs):
-        """add???
+        """add??? 
         
         :param updater: add???
-        :param _wrapper: add???
-        :param _wrapperKwargs: add???"""
+        :param **kwargs: insert all the :ref:`query` parameters"""
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))

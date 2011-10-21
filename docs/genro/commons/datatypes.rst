@@ -41,9 +41,7 @@ A dtype
 C dtype
 -------
 
-    add???
-    
-..    #   C       char (can be omitted; you have to specify its size)
+    Character type.
     
 .. _datatype_d:
 
@@ -112,18 +110,14 @@ R dtype
 T dtype
 -------
 
-    add???
-    
-..    #   T       text (can be omitted; you must not specify its size)
+    Text type.
     
 .. _datatype_x:
 
 X dtype
 -------
 
-    add???
-    
-..    #   X       XML/Bag
+    XML or :ref:`bag` type.
     
 .. _datatype_dt:
 

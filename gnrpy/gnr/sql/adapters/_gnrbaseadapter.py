@@ -152,14 +152,14 @@ class SqlDbAdapter(object):
         
         :param table: the :ref:`database table <table>` name
         :param schema: schema name
-        :returns: list of columns wich are the primary key for the table"""
+        :returns: list of columns which are the :ref:`primary key <pkey>` for the table"""
         raise NotImplementedException()
 
     def getColInfo(self, table, schema, column):
         """-- IMPLEMENT THIS --
         Get a (list of) dict containing details about a column or all the columns of a table.
         Each dict has those info: name, position, default, dtype, length, notnull
-        A specifica adapter can add to the dict other available infos"""
+        A specific adapter can add to the dict other available infos"""
         raise NotImplementedException()
 
     def _filterColInfo(self, colinfo, prefix):
