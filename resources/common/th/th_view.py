@@ -14,7 +14,8 @@ class TableHandlerView(BaseComponent):
     py_requires = """th/th_lib:QueryHelper,
                      th/th_view:THViewUtils,
                      gnrcomponents/framegrid:FrameGrid,
-                     gnrcomponents/batch_handler/batch_handler:TableScriptHandler
+                     gnrcomponents/batch_handler/batch_handler:TableScriptHandler,
+                     gnrcomponents/tpleditor:PaletteTemplateEditor
                      """
                          
     @extract_kwargs(condition=True)
@@ -49,7 +50,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if extendedQuery:
-            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceActions','resourceMails','*','count','5']
+            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceActions','resourceMails','5','templateManager','*','count','5']
         else:
             base_slots = ['5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
@@ -186,6 +187,14 @@ class TableHandlerView(BaseComponent):
                     batch_sourcepage_id=self.page_id)
         pane.dataRemote('.resources.print.menu',self.table_script_resource_tree_data,res_type='print', table=table,cacheTime=5)
 
+    @struct_method
+    def th_slotbar_templateManager(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        table = inattr['table']
+        th_root = inattr['th_root']
+        pane.paletteTemplateEditor(maintable=table,dockButton_iconClass='iconbox document')
+        
+        
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()

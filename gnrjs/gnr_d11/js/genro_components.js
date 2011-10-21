@@ -96,10 +96,11 @@ dojo.declare("gnr.widgets.Palette", gnr.widgets.gnrwdg, {
         var dockTo = objectPop(attributes, 'dockTo');
         var dockButton = objectPop(attributes,'dockButton') || objectExtract(attributes, 'dockButton_*');
         if(dockButton===true){
-            dockButton = {iconClass:'iconbox app',_class:'slotButtonIconOnly'};
+            dockButton = {iconClass:'iconbox app'};
         }
         if (objectNotEmpty(dockButton)){
             dockTo = 'dummyDock';
+            dockButton._class = 'slotButtonIconOnly';
             attributes.dockButton = dockButton;
         }
         var floating_kwargs = objectUpdate(attributes, {dockable:true,closable:false,visibility:'hidden'});
@@ -739,9 +740,11 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         var idx = 0;
         var that = this;
         stackNode._value.forEach(function(n){
-            dojo.forEach(controllerNodes,function(c){
-                that.makeTabButton(c,n);
-            });
+            if(n.getWidget()){
+                dojo.forEach(controllerNodes,function(c){
+                    that.makeTabButton(c,n);
+                });
+            }
         });
     },
     makeTabButton:function(sourceNode,childSourceNode){
