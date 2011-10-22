@@ -21,6 +21,7 @@ class Main(BaseResourcePrint):
         pkg,table = self.maintable.split('.')
         data,meta = self.db.package(pkg).loadUserObject(pkey=extra_parameters['template_id'])
         self.compiledTemplate = Bag(data['compiled'])
+        self.batch_title = meta['description'] or meta['code']
         self.tblobj = self.db.table(self.maintable)
         self.virtual_columns =  self.compiledTemplate.getItem('main?virtual_columns')        
         self.htmlMaker = TableScriptToHtml(self.page,self.tblobj)
