@@ -32,8 +32,7 @@ class BatchMonitor(BaseComponent):
 class TableScriptHandler(BaseComponent):
     py_requires = 'foundation/dialogs,gnrcomponents/printer_option_dialog:PrinterOption'
     @public_method
-    def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, **kwargs):
-        pkgname, tblname = table.split('.')
+    def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, extra_parameters=None,**kwargs):
         if not resource:
             return
         resource = resource.replace('.py', '')
@@ -56,7 +55,7 @@ class TableScriptHandler(BaseComponent):
         dlg = self.simpleDialog(pane, datapath='.dialog', title='^.title', height='^.height', width='^.width',
                                 cb_center=self.table_script_dialog_center, dlgId='table_script_dlg_parameters',
                                 hasParameters=hasParameters, dialog_height_no_par=dialog_height_no_par,
-                                resource=resource)
+                                resource=resource,extra_parameters=extra_parameters)
         dlg.dataController("""
                             FIRE .close;
                             SET #table_script_runner.parameters=pars;
@@ -76,8 +75,7 @@ class TableScriptHandler(BaseComponent):
                              sortBy=None,
                              selectedRowidx=None,sourcepage_id=None,
                              parameters=None, printerOptions=None, extra_parameters=None,**kwargs):
-        tblobj = self.tblobj or self.db.table(table)
-        res_obj = self.site.loadTableScript(self, tblobj, '%s/%s' % (res_type, resource), class_name='Main')
+        res_obj = self.site.loadTableScript(self, table, '%s/%s' % (res_type, resource), class_name='Main')
         res_obj.sourcepage_id = sourcepage_id or self.page_id
         if selectionName:
             res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
@@ -153,19 +151,19 @@ class TableScriptRunner(TableScriptHandler):
                             _fired="^.run_table_script", selectionName=selectionName, table=table,
                             gridId=gridId, res_type=res_type, resource='=.resource')
                             
-    def table_script_dialog_center(self, parentBc, hasParameters=None, resource=None, **kwargs):
+    def table_script_dialog_center(self, parentBc, hasParameters=None, resource=None, extra_parameters=None,**kwargs):
         if hasattr(self, 'table_script_option_pane'):
             paramsBc = parentBc.borderContainer(pageName='params', datapath='.data', **kwargs)
             if hasParameters:
                 parameters_pane = paramsBc.contentPane(region='top', _class='ts_parametersPane')
                 parameters_pane.mainStack = parentBc.mainStack
-                self.table_script_parameters_pane(parameters_pane)
+                self.table_script_parameters_pane(parameters_pane,extra_parameters=extra_parameters)
             self.table_script_option_pane(paramsBc.contentPane(region='bottom', datapath='.batch_options',
                                                                _class='ts_optionsPane'), resource=resource)
         elif hasParameters:
             parameters_pane = parentBc.contentPane(pageName='params', datapath='.data', **kwargs)
             parameters_pane.mainStack = parentBc.mainStack
-            self.table_script_parameters_pane(parameters_pane)
+            self.table_script_parameters_pane(parameters_pane,extra_parameters=extra_parameters)
     
     def table_script_controllers(self,page):
         plugin_main = page.div(datapath='gnr.plugin.table_script_runner', nodeId='table_script_runner')
@@ -183,7 +181,6 @@ class TableScriptRunner(TableScriptHandler):
                                        SET .onCalling = params['onCalling'];
                                        SET .sourcepage_id = params['sourcepage_id'];
                                        SET .selectedPkeys = copyArray(params['selectedPkeys']);
-                                       console.log(params)
                                        SET .extra_parameters = params['extra_parameters']?  params['extra_parameters'].deepCopy() : null;
                                        FIRE .build_pars_dialog;
                                        FIRE #table_script_dlg_parameters.open;
@@ -214,5 +211,6 @@ class TableScriptRunner(TableScriptHandler):
                                  res_type='=.res_type',
                                  title='=.title',
                                  table='=.table',
+                                 extra_parameters='=.extra_parameters',
                                  _fired='^.build_pars_dialog')
 

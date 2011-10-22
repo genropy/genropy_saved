@@ -749,8 +749,10 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
     },
     makeTabButton:function(sourceNode,childSourceNode){
         childSourceNode = childSourceNode.getWidget().sourceNode;
-        var btn = sourceNode._('div',childSourceNode.getStringId(),{_class:'multibutton',_childSourceNode:childSourceNode})
-        btn._('div',{innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'});
+        if(childSourceNode.attr.title){
+            var btn = sourceNode._('div',childSourceNode.getStringId(),{_class:'multibutton',_childSourceNode:childSourceNode})
+            btn._('div',{innerHTML:childSourceNode.attr.title,_class:'multibutton_caption'});
+        }
     }
 });
 
@@ -1062,7 +1064,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         pane._('StackButtons',objectUpdate({stack:scNode,stackNodeId:stackNodeId},slotKw));
     },
     slot_parentStackButtons:function(pane,slotValue,slotKw,frameCode){
-        pane._('StackButtons',objectUpdate({stack:pane.getParentNode().attributeOwnerNode('tag','StackContainer')}));
+        pane._('StackButtons',objectUpdate(objectUpdate({stack:pane.getParentNode().attributeOwnerNode('tag','StackContainer')},slotKw)));
     },
     
     slot_fieldsTree:function(pane,slotValue,slotKw,frameCode){

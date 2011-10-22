@@ -195,6 +195,7 @@ class RichTextEditor(BaseComponent):
                    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
                    ['Styles','Format','Font','FontSize','TextColor','BGColor']]"""
 
+
 class FilterBox(BaseComponent):
     def _prepareFilterMenu(self, filterOn):
         colsMenu = Bag()

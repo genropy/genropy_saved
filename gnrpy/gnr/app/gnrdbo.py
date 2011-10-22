@@ -483,6 +483,8 @@ class Table_userobject(TableBase):
         tbl.column('authtags', 'T', name_long='!!Auth tags')
         tbl.column('private', 'B', name_long='!!Private')
         tbl.column('quicklist', 'B', name_long='!!Quicklist')
+        tbl.column('flags', 'T', name_long='!!Flags')
+
         
     def saveUserObject(self, data, id=None, code=None, objtype=None, pkg=None, tbl=None, userid=None,
                        description=None, authtags=None, private=None, inside_shortlist=None, **kwargs):
@@ -543,7 +545,7 @@ class Table_userobject(TableBase):
         :param pkg: the :ref:`package <packages_index>` object"""
         self.delete({'id': id})
         
-    def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None):
+    def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None,flags=None):
         """add???
         
         :param objtype: add???
@@ -566,10 +568,13 @@ class Table_userobject(TableBase):
             where.append('$objtype = :val_objtype')
         if tbl:
             where.append('$tbl = :val_tbl')
+        if flags:
+            where.append(' position(:_flags IN $flags)>0 ')
         where = ' AND '.join(where)
-        sel = self.query(columns='$code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private, $quicklist',
+        sel = self.query(columns='$id, $code, $objtype, $pkg, $tbl, $userid, $description, $authtags, $private, $quicklist, $flags',
                          where=where, order_by='$code',
-                         val_objtype=objtype, val_tbl=tbl).selection()
+                         val_objtype=objtype, val_tbl=tbl,_flags=flags).selection()
+                    
                          
         sel.filter(checkUserObj)
         return sel
