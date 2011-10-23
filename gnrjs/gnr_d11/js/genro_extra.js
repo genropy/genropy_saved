@@ -192,9 +192,9 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         var parentDomNode=sourceNode.getParentNode().getDomNode();
         var cbResize=function(){
                 sourceNode._rsz=null;
-                if(genro.dom.isVisible(ckeditor.element.$)){
+               //if(genro.dom.isVisible(ckeditor.element.$)){
                     ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
-                }
+               // }
                 
         };
         dojo.connect(parentWidget,'resize',function(){
