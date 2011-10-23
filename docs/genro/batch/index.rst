@@ -14,7 +14,7 @@ batch
 introduction
 ============
 
-    In this chapter we learn about batches.
+    In this chapter we learn about how to create a batch in Genro.
     
     In Genropy you can use a batch to:
     

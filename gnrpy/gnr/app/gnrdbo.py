@@ -544,7 +544,7 @@ class Table_userobject(TableBase):
         :param pkg: the :ref:`package <packages>` object"""
         self.delete({'id': id})
         
-    def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None,flags=None):
+    def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):
         """add???
         
         :param objtype: add???
@@ -552,7 +552,8 @@ class Table_userobject(TableBase):
         :param tbl: the :ref:`table` object
         :param userid: add???
         :param authtags: add???
-        :param onlyQuicklist: add???"""
+        :param onlyQuicklist: add???
+        :param flags: add???"""
         onlyQuicklist = onlyQuicklist or False
         
         def checkUserObj(r):
