@@ -114,11 +114,8 @@ class TemplateEditor(TemplateEditorBase):
     def _te_frameInfo(self,frame,table=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')
         bc = frame.center.borderContainer()
-        top = bc.borderContainer(region='top',height='24ex')
-        center = bc.borderContainer(region='center')
-        top_top = top.contentPane(region='top')
-        #top_top.div('!!Template Info',_class='pbl_roundedGroupLabel')
-        fb = top_top.div(margin='5px').formbuilder(cols=5, border_spacing='4px',fld_width='100%',width='100%',
+        top = bc.contentPane(region='top')
+        fb = top.div(margin='5px').formbuilder(cols=5, border_spacing='4px',fld_width='100%',width='100%',
                                                 tdl_width='6em',datapath='.data.metadata')
         fb.textbox(value='^.author',lbl='!!Author',width='15em')
         fb.numberTextBox(value='^.version',lbl='!!Version')
@@ -131,10 +128,34 @@ class TemplateEditor(TemplateEditorBase):
                              SET #FORM.userobject_meta.flags = result.join(',');""",
                         is_mail="^.is_mail",is_print='^.is_print')
         fb.textbox(value='^.summary',lbl='!!Summary',colspan=5)
-        parsframe = top.frameGrid(region='center',
+        
+        def struct(struct):
+            r = struct.view().rows()
+            r.cell('fieldname', name='Field', width='100%')
+            r.cell('varname', name='As', width='6em')
+            r.cell('format', name='Format', width='6em')
+        varsframe = bc.frameGrid(region='bottom',height='300px',
+                                    datapath='.varsgrid',
+                                    storepath='#FORM.data.varsbag',
+                                    struct=struct,datamode='bag',)
+        varsframe.left.slotBar('5,fieldsTree,*',fieldsTree_table=table,closable=True,width='150px',fieldsTree_height='100%',splitter=True)
+        tablecode = table.replace('.','_')
+        dropCode = 'gnrdbfld_%s' %tablecode
+        editor = varsframe.grid.gridEditor()
+        editor.textbox(gridcell='varname')
+        editor.textbox(gridcell='format')
+        varsframe.top.slotToolbar(slots='gridtitle,*,delrow',gridtitle='!!Variables',)
+        varsframe.grid.dragAndDrop(dropCodes=dropCode)
+        varsframe.grid.dataController("""var caption = data.fullcaption;
+                                var varname = caption.replace(/\W/g,'_').toLowerCase()
+                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':data.fieldpath,fieldname:caption,varname:varname,virtual_column:data.virtual_column}));""",
+                             data="^.dropped_%s" %dropCode,grid=varsframe.grid.js_widget)      
+        
+        parsframe = bc.frameGrid(region='center',
                                 datamode='bag',datapath='.parametersgrid',
                                 storepath='#FORM.data.parameters', 
-                                struct=self._te_metadata_struct,selfDragRows=True)
+                                struct=self._te_metadata_struct,
+                                selfDragRows=True)
         parsframe.top.slotToolbar('gridtitle,*,addrow,delrow',gridtitle='!!Parameters')
         gridEditor = parsframe.grid.gridEditor()
         gridEditor.textbox(gridcell='code')
@@ -142,32 +163,10 @@ class TemplateEditor(TemplateEditorBase):
         gridEditor.filteringSelect(gridcell='fieldtype',values='!!T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text')
         gridEditor.textbox(gridcell='values')        
         gridEditor.filteringSelect(gridcell="mandatory",values="!!F:No,T:Yes")
-                
-        frametree= center.framePane(region='left',margin='2px',margin_bottom='4px',_class='pbl_roundedGroup',width='35em')
-        frametree.fieldsTree(table=table,trash=False)        
-        frametree.top.div('!!Fields',_class='pbl_roundedGroupLabel')  
-        def struct(struct):
-            r = struct.view().rows()
-            r.cell('fieldname', name='Field', width='100%')
-            r.cell('varname', name='As', width='6em')
-            r.cell('format', name='Format', width='6em')
 
-        varsframe = center.frameGrid(margin='2px',region='center',
-                                    datapath='.varsgrid',
-                                    storepath='#FORM.data.varsbag',
-                                    struct=struct,datamode='bag',
-                                    _class='pbl_roundedGroup')
-        tablecode = table.replace('.','_')
-        dropCode = 'gnrdbfld_%s' %tablecode
-        editor = varsframe.grid.gridEditor()
-        editor.textbox(gridcell='varname')
-        editor.textbox(gridcell='format')
-        varsframe.top.slotBar(slots='gridtitle,*,delrow',gridtitle='!!Variables',_class='slotbar_toolbar pbl_roundedGroupLabel')
-        varsframe.grid.dragAndDrop(dropCodes=dropCode)
-        varsframe.grid.dataController("""var caption = data.fullcaption;
-                                var varname = caption.replace(/\W/g,'_').toLowerCase()
-                                grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':data.fieldpath,fieldname:caption,varname:varname,virtual_column:data.virtual_column}));""",
-                             data="^.dropped_%s" %dropCode,grid=varsframe.grid.js_widget)        
+
+
+  
       
 
     
