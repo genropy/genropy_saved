@@ -14,7 +14,8 @@ class TableHandlerView(BaseComponent):
     py_requires = """th/th_lib:QueryHelper,
                      th/th_view:THViewUtils,
                      gnrcomponents/framegrid:FrameGrid,
-                     gnrcomponents/batch_handler/batch_handler:TableScriptHandler
+                     gnrcomponents/batch_handler/batch_handler:TableScriptHandler,
+                     gnrcomponents/tpleditor:PaletteTemplateEditor
                      """
                          
     @extract_kwargs(condition=True)
@@ -49,7 +50,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if extendedQuery:
-            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceActions','resourceMails','*','count','5']
+            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceActions','resourceMails','5','templateManager','*','count','5']
         else:
             base_slots = ['5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)
@@ -173,6 +174,10 @@ class TableHandlerView(BaseComponent):
                     action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
+                            if($1.template_id){
+                                kw.extra_parameters = new gnr.GnrBag({template_id:$1.template_id,table:kw.table});
+                                kw.table = null;
+                            }
                             var grid = genro.wdgById(kw.gridId);
                             if(grid.collectionStore().storeType=='VirtualSelection'){
                                 kw['selectionName'] = kw['th_root'];
@@ -184,8 +189,30 @@ class TableHandlerView(BaseComponent):
                             """,
                     batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',batch_th_root=th_root,
                     batch_sourcepage_id=self.page_id)
-        pane.dataRemote('.resources.print.menu',self.table_script_resource_tree_data,res_type='print', table=table,cacheTime=5)
-
+        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,cacheTime=5)
+    
+    @public_method
+    def th_printMenu(self,table=None,**kwargs):
+        result = Bag()
+        resource_prints = self.table_script_resource_tree_data(table=table,res_type='print')
+        if resource_prints:
+            result.update(resource_prints)
+        templates = self.th_listUserObject(table=table,objtype='template',flags='is_print')
+        for t in templates:
+            attr = t.attr
+            result.setItem(attr['code'],None,caption=attr['description'] or attr['code'],
+                            resource='print_template',template_id=attr['pkey'])
+        
+        return result
+        
+    @struct_method
+    def th_slotbar_templateManager(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        table = inattr['table']
+        th_root = inattr['th_root']
+        pane.paletteTemplateEditor(maintable=table,dockButton_iconClass='iconbox document')
+        
+        
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
@@ -425,7 +452,7 @@ class THViewUtils(BaseComponent):
         result = Bag()
         if hasattr(self.package, 'listUserObject'):
             objectsel = self.package.listUserObject(objtype=objtype,userid=self.user, tbl=table,
-                                                    authtags=self.userTags)
+                                                    authtags=self.userTags,**kwargs)
             if objectsel:
                 for i, r in enumerate(objectsel.data):
                     attrs = dict([(str(k), v) for k, v in r.items()])
@@ -494,9 +521,9 @@ class THViewUtils(BaseComponent):
         if not metadata:
             return
         record = dict(data=data,objtype=objtype,
-                    pkg=pkg,tbl=table,userid=self.user,id=metadata['pkey'],
+                    pkg=pkg,tbl=table,userid=self.user,id=metadata['id'],
                     code= metadata['code'],description=metadata['description'],private=metadata['private'] or False,
-                    notes=metadata['notes'])
+                    notes=metadata['notes'],flags=metadata['flags'])
         package.dbtable('userobject').insertOrUpdate(record)
         self.db.commit()
         return record['id'],record

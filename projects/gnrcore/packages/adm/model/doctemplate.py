@@ -46,25 +46,6 @@ class Table(object):
                                                                      value=record['templatebag'],
                                                                      ext='xml')
 
-    
-    def cleanTemplate(self, doctemplate_content, virtual_columns=None):
-        virtual_columns = [] if virtual_columns is None else virtual_columns
-        EXTRACT_FIELDS_STRIPPED_RE = r'(?:\$)(.*?)(?:<|\s)'
-        EXTRACT_FIELDS_RE = r'(\$.*?)(?:<|\s)'
-        SUB_SPAN_RE = r'(<span\s+class="tplfieldpath".*?/span>\s*<span\s+class="tplfieldcaption".*?/span>)'
-        extract_fields_stripped = re.compile(EXTRACT_FIELDS_STRIPPED_RE)
-        sub_span = re.compile(SUB_SPAN_RE)
-        extract_fields = re.compile(EXTRACT_FIELDS_RE)
-
-        def replace_span(a):
-            b = a.group()
-            if 'virtual_column' in b:
-                virtual_columns.append(b.split('fieldpath="')[1].split('"')[0])
-            return ' '.join(extract_fields.findall(a.group(0), re.MULTILINE))
-
-        return sub_span.sub(replace_span, doctemplate_content)
-
-
     def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None, formats=None,**kwargs):
         record = Bag()
         if record_id:

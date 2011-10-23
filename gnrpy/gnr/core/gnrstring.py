@@ -350,7 +350,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False, noneIsBlank=True,
     'John loves Sandra but she loves Steve and not John'"""
     templateBag=None
     if hasattr(myString, '_htraverse'):
-        templateBag = myString
+        templateBag = myString.deepcopy()
         myString = templateBag.pop('main')
         
     if not '$' in myString or not symbolDict: return myString

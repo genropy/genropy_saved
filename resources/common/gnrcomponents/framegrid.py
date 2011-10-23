@@ -56,6 +56,13 @@ class FrameGridSlots(BaseComponent):
         return pane.slotButton(label='!!Grid options',publish='tools',target='%s_frame' %frameCode,
                                 baseClass='no_background',iconClass=_class,visible=enable,
                                 **kwargs)
+    def _fgr_standard_addrow(self):
+        return """for(var i=0; i<$1._counter;i++){
+                                    this.widget.addBagRow('#id', '*', this.widget.newBagRow(),$1.evt);
+                                }
+                                this.widget.editBagRow(null);"""
+    def _fgr_standard_delrow(self):
+        return """this.widget.delBagRow('*', true);"""
 
 class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
@@ -66,11 +73,15 @@ class FrameGrid(BaseComponent):
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
+        if datamode=='bag':
+            grid_kwargs['selfsubscribe_addrow'] = grid_kwargs.get('selfsubscribe_addrow',self._fgr_standard_addrow())
+            grid_kwargs['selfsubscribe_delrow'] =  grid_kwargs.get('selfsubscribe_delrow',self._fgr_standard_delrow())
+        else:
+            grid_kwargs['selfsubscribe_delrow'] = grid_kwargs.get('selfsubscribe_delrow','this.widget.deleteRows();')
         frame.includedView(autoWidth=False,
                           storepath=storepath,datamode=datamode,
                           datapath='.grid',selectedId='.selectedId',
                           struct=struct,sortedBy='^.sorted',table=table,
-                          selfsubscribe_delrow='this.widget.deleteRows();',
                           **grid_kwargs)
         return frame
         
