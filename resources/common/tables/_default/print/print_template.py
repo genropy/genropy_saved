@@ -13,7 +13,8 @@ class Main(BaseResourcePrint):
     batch_prefix = 'pr_tpl'
     batch_cancellable = True
     batch_delay = 0.5
-    batch_immediate = True
+    batch_immediate = 'download'
+    batch_title = 'Print'
     
     def pre_process(self):
         extra_parameters = self.batch_parameters.pop('extra_parameters')
@@ -23,7 +24,7 @@ class Main(BaseResourcePrint):
         self.compiledTemplate = Bag(data['compiled'])
         self.batch_title = meta['description'] or meta['code']
         self.tblobj = self.db.table(self.maintable)
-        self.virtual_columns =  self.compiledTemplate.getItem('main?virtual_columns')        
+        self.virtual_columns =  self.compiledTemplate.getItem('main?virtual_columns') 
         self.htmlMaker = TableScriptToHtml(self.page,self.tblobj)
         
     def print_record(self, record=None, thermo=None, storagekey=None):
@@ -33,7 +34,7 @@ class Main(BaseResourcePrint):
         :param thermo: add???
         :param storagekey: add???"""
         record.update(self.batch_parameters)
-        htmlContent=templateReplace(Bag(self.compiledTemplate),record, 
+        htmlContent=templateReplace(self.compiledTemplate,record, 
                                     safeMode=True,noneIsBlank=False,
                                     locale=self.htmlMaker.locale,
                                     formats=self.compiledTemplate.getItem('main?formats'))
@@ -46,9 +47,12 @@ class Main(BaseResourcePrint):
     def table_script_parameters_pane(self,pane,extra_parameters=None,**kwargs):
         pkg,tbl= extra_parameters['table'].split('.')
         data,meta = self.db.package(pkg).loadUserObject(pkey=extra_parameters['template_id'])
+        fb = pane.div(margin='5px').formbuilder(cols=2,field_width='100%',tdl_width='8em',border_spacing='2px',width='100%')
+        fb.dbSelect(dbtable='adm.htmltemplate', value='^.htmltemplate_id',
+                    selected_name='.templates',lbl='!!Letterhead',
+                    width='10em', hasDownArrow=True)
         if data.getItem('parameters'):
             parameters = data.getItem('parameters')
-            fb = pane.div(margin='5px').formbuilder(cols=2,field_width='100%',tdl_width='8em',border_spacing='2px',width='100%')
             fielddict = {'T':'Textbox','L':'NumberTextBox','D':'DateTextBox','B':'Checkbox','N':'NumberTextBox', 'TL':'Simpletextarea'}
             for n in parameters:
                 attr = n.attr
