@@ -947,7 +947,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
-        :param datapath: the path of data. For more information, check the :ref:`datapath` section"""
+        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages"""
         datapath= 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         return self.child('PalettePane',paletteCode=paletteCode,datapath=datapath,**kwargs)
         
@@ -955,7 +956,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """add???
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
-        :param datapath: the path of data. For more information, check the :ref:`datapath` section"""
+        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages"""
         datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         palette = self.child('PaletteTree',paletteCode=paletteCode,datapath=datapath,
                              autoslots='top,left,right,bottom',**kwargs)
@@ -966,12 +968,21 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode*
                             will be used as *datapath*
-        :param struct: add???
+        :param struct: the name of the method that defines the :ref:`struct`
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param structpath: add???
-        :param datapath: the path of data. For more information, check the :ref:`datapath` section"""
+        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages
+        :param kwargs: in the kwargs you find:
+                       
+                       * *dockButton*: boolean. if ``True``, add???
+                       * *grid_filteringGrid*: the path of the :ref:`grid` that handle the :ref:`struct`.
+                         For example, in the :ref:`th` component the standard path for a grid is
+                         ``th.view.grid``
+                       * *grid_filteringColumn*: add???
+                       * *title*: the title of the paletteGrid"""
         datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         structpath = structpath or '.grid.struct'
         kwargs['gridId'] = kwargs.get('gridId') or '%s_grid' %paletteCode
@@ -1010,7 +1021,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             return self.includedview_legacy(*args,**kwargs)
             
     def includedview_inframe(self, frameCode=None, struct=None, columns=None, storepath=None, structpath=None,
-                             datapath=None, nodeId=None, configurable=True, _newGrid=False,childname=None,**kwargs):
+                             datapath=None, nodeId=None, configurable=True, _newGrid=False, childname=None, **kwargs):
         """add???
         
         :param frameCode: add???
@@ -1020,7 +1031,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                         :ref:`sql_columns` section
         :param storepath: add???
         :param structpath: add???
-        :param datapath: the path of data. For more information, check the :ref:`datapath` section
+        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages
         :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
                        documentation page
         :param configurable: boolean. add???

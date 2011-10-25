@@ -200,16 +200,17 @@ class HTableHandler(HTableHandlerBase):
         
         :param parent: the parent path
         :param nodeId: MANDATORY. The :ref:`nodeid`
-        :param datapath: the :ref:`datapath`
+        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages
         :param table: MANDATORY. The :ref:`database table <table>`
         :param rootpath: add???
         :param label: add???
         :param editMode: the GUI of the hTableHandler; set:
                          
-                         * ``bc`` to use a :ref:`bordercontainer` GUI
-                         * ``sc`` to use a :ref:`stackcontainer` GUI
-                         * ``dlg`` to use a :ref:`simpledialog` GUI
-                         
+                         * ``bc`` to use a :ref:`bordercontainer`
+                         * ``sc`` to use a :ref:`stackcontainer`
+                         * ``dlg`` to use a :ref:`simpledialog`
+                                                  
         :param childTypes: add???
         :param dialogPars: MANDATORY if you set the *editMode* attribute to ``dlg``. add???
         :param loadKwargs: add???

@@ -355,7 +355,8 @@ class GnrBaseWebPage(GnrObject):
         :param table: the :ref:`table` related to the form
         :param method: add???
         :param _fired: add???
-        :param datapath: the :ref:`datapath` form
+        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages
         :param resultPath: add???
         :param changesOnly: boolean. add???
         :param onSaving: add???
@@ -401,7 +402,8 @@ class GnrBaseWebPage(GnrObject):
         :param resultPath: add???
         :param table: the :ref:`table` related to the form
         :param pkey: the record :ref:`primary key <pkey>`
-        :param datapath: the :ref:`datapath` form
+        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages
         :param _fired: add???
         :param loadOnStart: boolean add???
         :param lock: boolean. add???

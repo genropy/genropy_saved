@@ -69,20 +69,21 @@ class Timetable(BaseComponent):
 
     def timetable_dh(self, parent, nodeId=None, datapath=None, tstart=None,
                      tstop=None, period=None, wkdlist=None, series=None, fired=None, **kwargs):
-        """Builds a timetable, that shows appointments/events in a given range eventually from multiple series
-        (e.g. multiple calendars or operators)
+        """Builds a timetable, that shows appointments/events in a given range,
+        eventually from multiple series (e.g. multiple calendars or operators)
         
-        :param parent: a parent pane
-        :param nodeId: nodeId (mandatory)
-        :param datapath: datapath (mandatory)
+        :param parent: a parent :ref:`contentpane`
+        :param nodeId: MANDATORY. the :ref:`nodeid`
+        :param datapath: MANDATORY. Allow to create a hierarchy of your data’s addresses into the datastore.
+                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages
         :param tstart: start time
         :param tstop: stop time
-        :param period: a date period (see decodeDatePeriod in :mod:`gnr.core.gnrdate`)
+        :param period: a date period (see :meth:`decodeDatePeriod() <gnr.core.gnrdate.decodeDatePeriod>`)
         :param wkdlist: weekdays, a list of integers (0..6)
         :param series: series (a list of strings)
         :param kwargs: additional parameters will go in self.tt_pars in your callbacks
         
-        See :cls:`TimeTableHook` below for callbacks that you can define"""
+        See the :class:`TimeTableHook` class for callbacks that you can define"""
         assert nodeId, 'nodeId is mandatory'
         assert datapath, 'datapath is mandatory'
         assert hasattr(self, 'tt_%s_dataProvider' % nodeId), 'you must define your own loop'
