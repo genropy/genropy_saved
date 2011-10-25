@@ -19,9 +19,9 @@ design
     * with the ``headline`` layout, the top and bottom sections extend the entire width
       of the box and the remaining regions are placed in the middle:
       
-      .. image:: ../../_images/commons/headline.png
+      .. image:: ../../_images/commons/attributes/headline.png
       
     * with the ``sidebar`` layout, the side panels take priority, extending the full height
       of the box:
       
-      .. image:: ../../_images/commons/sidebar.png
+      .. image:: ../../_images/commons/attributes/sidebar.png

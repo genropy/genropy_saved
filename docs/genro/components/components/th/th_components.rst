@@ -129,8 +129,8 @@ TableHandler common attributes
         * *grid_kwargs*: add???.
         * *hiderMessage*: add???.
         * *pageName*: add???.
-        * *pbl_classes*: if ``True``, allow to use the pbl_roundedgroup and the roundedgrouplabel
-          style attributes (of the base CSS theme of Genro) in your TableHandler
+        * *pbl_classes*: if ``True``, modify the CSS attributes of the top bar of a :ref:`grid`.
+          For more information, check the :ref:`pbl_classes` page
                               
 .. _th_border:
 

@@ -26,7 +26,7 @@ class GnrCustomWebPage(object):
         pane.dialogTableHandler(relation='@invoice_rows',
                                 viewResource=':ViewFromInvoice',
                                 formResource=':FormFromInvoice',
-                                pbl_classes=True,
+                                #pbl_classes=True,
                                 dialog_height='300px',
                                 dialog_width='400px')
                                 
