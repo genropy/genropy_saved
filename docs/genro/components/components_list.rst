@@ -17,11 +17,12 @@ components list
     * :ref:`clist_dialog`: pre-built set of dialogs
     * :ref:`clist_index`: index page management 
     * :ref:`clist_th`: data management
+    * :ref:`clist_tpleditors`: add???
     * :ref:`clist_BOH`: add???
     
 .. _clist_chat:
     
-chat components
+Chat components
 ---------------
     
     Genro components for chat management
@@ -30,7 +31,7 @@ chat components
     
 .. _clist_dialog:
     
-dialog components
+Dialog components
 -----------------
     
     Genro pre-built set of dialogs
@@ -43,7 +44,7 @@ dialog components
     
 .. _clist_index:
 
-index page components
+Index page components
 ---------------------
     
     Management of the index page of a :ref:`project`
@@ -52,7 +53,7 @@ index page components
     
 .. _clist_th:
     
-table handlers
+Table handlers
 --------------
     
     A preconceived interface with a View class for the view of
@@ -79,6 +80,15 @@ table handlers
       * :ref:`includedgrid`: a grid that allow the inline editing (so the insertion or the modify of
         records is handled inside the grid)
         
+.. _clist_tpleditors:
+
+Template Editors
+----------------
+
+    add???
+    
+    * :ref:`tpleditor`
+    
 .. _clist_BOH:
 
 boh

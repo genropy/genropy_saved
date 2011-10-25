@@ -18,4 +18,5 @@ index of components
     dialogs/index
     th/index
     h_th/index
+    tpleditor/index
     
