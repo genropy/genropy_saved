@@ -126,11 +126,8 @@ class GnrCustomWebPage(object):
         pane.dataFormula("_temp.data.main.design", "design", design="^.data.main.design")
 
     def mainInfo(self, bc, disabled=False):
-        editorPane = bc.borderContainer(datapath='^currentEditedArea', region='bottom', height='320px')
-        self.RichTextEditor(editorPane, value='^.html', contentPars=dict(region='center'),
-                            nodeId='htmlEditor', editorHeight='200px', toolbar=self.rte_toolbar_standard())
 
-        mainBc = bc.borderContainer(region='center', margin='5px', _class='pbl_roundedGroup', )
+        mainBc = bc.borderContainer(region='top', margin='5px', _class='pbl_roundedGroup', height='200px',splitter=True )
         topleft = mainBc.borderContainer(region='left', width='20em')
         self.tplInfo(topleft.contentPane(region='top'), disabled=disabled)
         bottom = mainBc.contentPane(region='bottom', margin='5px', margin_top='0',
@@ -141,6 +138,11 @@ class GnrCustomWebPage(object):
         topTC = mainBc.tabContainer(region='center', selectedPage='^.data.main.design')
         self.headLineOpt(topTC.contentPane(title='Headline', pageName='headline'))
         self.sideBarOpt(topTC.contentPane(title='Sidebar', pageName='sidebar'))
+        
+        editorPane = bc.borderContainer(datapath='^currentEditedArea', region='center')
+        self.RichTextEditor(editorPane, value='^.html', contentPars=dict(region='center'),
+                            nodeId='htmlEditor',toolbar=self.rte_toolbar_standard())
+
 
 
     def tplInfo(self, pane, disabled=None):
