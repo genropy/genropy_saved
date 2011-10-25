@@ -14,7 +14,7 @@ Genropy v0.7dev documentation
     sql/index
     grid_struct/index
     components <components/index>
-    database/index
+    project/index
     batch/index
     commons/index
     miscellaneous/index

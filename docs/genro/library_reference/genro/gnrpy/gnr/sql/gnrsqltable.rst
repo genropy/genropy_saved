@@ -1,3 +1,5 @@
+.. _library_gnrsqltable:
+
 =============================================
 :mod:`gnr.sql.gnrsqltable` -- Database Tables
 =============================================

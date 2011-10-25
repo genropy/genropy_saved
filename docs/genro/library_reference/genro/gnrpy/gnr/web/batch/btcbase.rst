@@ -1,8 +1,8 @@
 .. _library_btcbase:
 
-=========================================
-:mod:`gnr.web.batch.btcbase` - base batch
-=========================================
+===========================================
+:mod:`gnr.web.batch.btcbase` - base batches
+===========================================
     
     *Last page update*: |today|
     

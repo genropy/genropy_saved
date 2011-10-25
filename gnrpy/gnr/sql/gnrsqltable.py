@@ -482,10 +482,10 @@ class SqlTable(GnrObject):
         return query
             
     def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, **kwargs):
-        """A method used to perform a :ref:`batch` to update a database
+        """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
-        :param updater: a dict() or a method to perform the update. For more information,
-                        check the :ref:`batchUpdate example <action_batch_examples_batchupdate>`
+        :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
+                        <batchupdate>`) or a method
         :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter"""
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:

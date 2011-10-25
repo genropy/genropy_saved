@@ -62,7 +62,7 @@ class BaseResourceBatch(object):
         pass
 
     def run(self):
-        """add???"""
+        """Run the :ref:`batch`"""
         self.btc.batch_create(batch_id='%s_%s' % (self.batch_prefix, self.page.getUuid()),
                               title=self.batch_title,
                               cancellable=self.batch_cancellable,
@@ -91,11 +91,14 @@ class BaseResourceBatch(object):
         self.result_info[key] = info
 
     def batchUpdate(self, updater=None, table=None, where=None, line_code=None, message=None, **kwargs):
-        """Call the :meth:`add???` of the gnrsqltable...
+        """Redefine the :meth:`batchUpdate() <gnr.sql.gnrsqltable.SqlTable.batchUpdate>` of the
+        :ref:`gnrsqltable <library_gnrsqltable>` module. Allow to make an update of the database.
+        For more information, check the :ref:`batchupdate` section
         
-        :param updater: it can be a callback or a dict() if the batch is a simple parameter substitution
+        :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
+                        <batchupdate>`) or a method
         :param table: the :ref:`database table <table>`
-        :param where: add???
+        :param where: the :ref:`sql_where` parameter
         :param line_code: add???
         :param message: add???"""
         table = table or self.maintable

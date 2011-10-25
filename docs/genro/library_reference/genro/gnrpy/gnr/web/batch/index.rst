@@ -7,5 +7,6 @@
 .. toctree::
     :maxdepth: 1
     
+    btcaction
     btcbase
     btcprint

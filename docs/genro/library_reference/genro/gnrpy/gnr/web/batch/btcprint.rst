@@ -1,8 +1,8 @@
 .. _library_btcprint:
 
-=============================
-:mod:`gnr.web.batch.btcprint`
-=============================
+==================================================
+:mod:`gnr.web.batch.btcprint` - batches for prints
+==================================================
     
     *Last page update*: |today|
     
