@@ -7,7 +7,7 @@
 
 from gnr.web.gnrwebstruct import struct_method
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import boolean
 
 
@@ -107,6 +107,27 @@ class TableHandlerForm(BaseComponent):
         form.store.handler('save',onSavingHandler=self._th_hook('onSaving',mangler=mangler),
                                  onSavedHandler=self._th_hook('onSaved',mangler=mangler))
             
-            
-            
-        
+  #
+  # @struct_method          
+  # def th_slotbar_form_print(self,pane,**kwargs):
+  #     inattr = pane.getInheritedAttributes()
+  #     th_root = inattr['th_root']
+  #     table = inattr['table']
+  #     pane.div(_class='iconbox menubox print').menu(modifiers='*',storepath='.resources.print.menu',
+  #                 action="""
+  #                         FIRE #FORM.controller.print = template_id:$1.template_id;
+  #                         """,
+  #                 batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',batch_th_root=th_root,
+  #                 batch_sourcepage_id=self.page_id)
+  #     pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,cacheTime=5)
+  #         
+  #     
+  #     bar.dataRpc('dummy',self.th_printFormTemplate,pkey='=#FORM.pkey',kw='^#FORM.controller.print',table=table)
+  #             
+  # @public_method
+  # def th_printForm(self,pkey=None,kw=None,table=None):
+  #     if pkey:
+  #         htmlbuilder = self.loadTableScript('base.milestone','html_res/html_form')
+  #         html = htmlbuilder(pkey,None,True)
+  #         url = self.site.getStaticUrl('page:html', '%s_milestone.html' %htmlbuilder.record['db_table'], nocache=True)
+  #         self.setInClientData(path='gnr.downloadurl',value=url,fired=True)

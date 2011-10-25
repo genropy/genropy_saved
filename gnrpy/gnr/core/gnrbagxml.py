@@ -117,7 +117,7 @@ class BagFromXml(object):
             if source.startswith('<?xml'):
                 source = source[source.index('?>'):]
             source = "<?xml version='1.0' encoding='UTF-8'?>%s" % source.encode('UTF-8')
-        source = re.sub("&(?!amp;|quot;|apos;|lt;|gt;)", "&amp;", source)
+        source = re.sub("&(?!([a-zA-Z][a-zA-Z0-9]*|#\d+);)", "&amp;", source)
         sax.parseString(source, bagImport)
         if not testmode:
             result = bagImport.bags[0][0]
