@@ -31,9 +31,11 @@ class Table(object):
         tbl.column('version', name_long='!!Version')
         tbl.column('data', dtype='X', name_long='!!Data', _sendback=True)
 
-    def getTemplate(self, name):
-        if not name:
+    def getTemplate(self, name=None,letterhead_id=None):
+        if not(name or letterhead_id):
             return Bag()
+        if letterhead_id:
+            return self.record(pkey=letterhead_id).output('bag')['data']
         templatelist = name.split(',')
         f = self.query(where='$name IN :names', names=templatelist, columns='name,version,data').fetchAsDict(key='name')
         templatebase = Bag(f[templatelist[0]]['data'])

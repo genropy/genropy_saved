@@ -105,6 +105,10 @@ class TemplateEditor(TemplateEditorBase):
                     _onResult="""
                     SET .data.compiled = result.getItem('compiled').deepCopy();
                     SET .preview.renderedtemplate = result.getItem('preview');
+                    var curr_letterehead =GET .preview.letterhead_id;
+                    if(!curr_letterehead){
+                        SET .preview.letterhead_id = GET .data.metadata.default_letterhead;
+                    }
                     """)
         self._te_frameInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=maintable)
         self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit'),table=maintable)
@@ -117,7 +121,7 @@ class TemplateEditor(TemplateEditorBase):
         top = bc.contentPane(region='top')
         fb = top.div(margin='5px').formbuilder(cols=5, border_spacing='4px',fld_width='100%',width='100%',
                                                 tdl_width='6em',datapath='.data.metadata')
-        fb.textbox(value='^.author',lbl='!!Author',width='15em')
+        fb.textbox(value='^.author',lbl='!!Author',tdf_width='20em')
         fb.numberTextBox(value='^.version',lbl='!!Version')
         fb.dateTextBox(value='^.date',lbl='!!Date')
         fb.checkbox(value='^.is_print',label='!!Print')
@@ -127,18 +131,18 @@ class TemplateEditor(TemplateEditorBase):
                              if(is_print){result.push('is_print');}
                              SET #FORM.userobject_meta.flags = result.join(',');""",
                         is_mail="^.is_mail",is_print='^.is_print')
-        fb.dbSelect(value='^.default_letterhead',dbtable='adm.htmltemplate',lbl='!!Letterhead')
+        fb.dbSelect(value='^.default_letterhead',dbtable='adm.htmltemplate',
+                    lbl='!!Letterhead',hasDownArrow=True)
         fb.textbox(value='^.summary',lbl='!!Summary',colspan=4)
-        
         def struct(struct):
             r = struct.view().rows()
             r.cell('fieldname', name='Field', width='100%')
-            r.cell('varname', name='As', width='12em')
-            r.cell('format', name='Format', width='8em')
-        varsframe = bc.frameGrid(region='bottom',height='300px',
+            r.cell('varname', name='As', width='15em')
+            r.cell('format', name='Format', width='15em')
+        varsframe = bc.frameGrid(region='bottom',height='60%',
                                     datapath='.varsgrid',
                                     storepath='#FORM.data.varsbag',
-                                    struct=struct,datamode='bag',)
+                                    struct=struct,datamode='bag',splitter=True)
         varsframe.left.slotBar('5,fieldsTree,*',fieldsTree_table=table,closable=True,width='150px',fieldsTree_height='100%',splitter=True)
         tablecode = table.replace('.','_')
         dropCode = 'gnrdbfld_%s' %tablecode
@@ -166,7 +170,10 @@ class TemplateEditor(TemplateEditorBase):
 
     def _te_frameEdit(self,frame,table=None):
         frame.top.slotToolbar(slots='5,parentStackButtons,*',parentStackButtons_font_size='8pt')
-        bar = frame.left.slotBar('5,treeVars,*',closable='close',width='180px',
+        bar = frame.left.slotBar('5,treeVars,*',closable='close',
+                                closable_iconClass='iconbox arrow_right',
+                                closable_width='20px',closable_right='-20px',closable_height='20px',
+                                closable_opacity='.8',closable_background='whitesmoke',width='180px',
                             treeVars_height='100%')
         box = bar.treeVars.div(height='100%',overflow='auto',text_align='left',margin='2px',_class='pbl_roundedGroup')
         box.tree(storepath='.allvariables',_fired='^.tree_rebuild',onDrag="dragValues['text/plain'] = '$'+treeItem.attr.code;",
@@ -205,7 +212,7 @@ class TemplateEditor(TemplateEditorBase):
                    )
         bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*,prev,next',parentStackButtons_font_size='8pt')                   
         fb = bar.fb.formbuilder(cols=2, border_spacing='0px',margin_top='2px')
-        fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.html_template_id',
+        fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.letterhead_id',
                     selected_name='.preview.html_template_name',lbl='!!Letterhead',
                     width='10em', hasDownArrow=True)
         fb.dbSelect(dbtable=table, value='^.preview.selected_id',lbl='!!Record', width='12em',lbl_width='6em')
@@ -227,13 +234,10 @@ class TemplateEditor(TemplateEditorBase):
     
     def _te_metadata_struct(self,struct):
         r = struct.view().rows()
-        r.cell('code', name='!!Code', width='5em')
-        r.cell('description', name='!!Description', width='100%')
+        r.cell('code', name='!!Code', width='10em')
+        r.cell('description', name='!!Description', width='40em')
         r.cell('fieldtype', name='!!Fieldtype', width='10em')
-        r.cell('values', name='!!Values', width='10em')
-        r.cell('mandatory', name='!!Mandatory',width='7em')  
-     
-    
+        r.cell('values', name='!!Values', width='100%')    
 
 class PaletteTemplateEditor(TemplateEditor):
     @struct_method
@@ -256,6 +260,7 @@ class PaletteTemplateEditor(TemplateEditor):
             var editorbag = this.getRelativeData();
             if(tplpath=='__newtpl__'){
                 editorbag.setItem('data',new gnr.GnrBag());
+                editorbag.setItem('data.metadata.author',user);
                 editorbag.setItem('userobject_meta',new gnr.GnrBag());
                 editorbag.setItem('caption',newcaption);
             }else if(pkey){
@@ -265,7 +270,7 @@ class PaletteTemplateEditor(TemplateEditor):
                 })
             }
         """,tplpath="^.currentTemplate.path",tplmode='=.currentTemplate.tplmode',
-                pkey='=.currentTemplate.pkey',table=maintable,newcaption='!!New template')
+                pkey='=.currentTemplate.pkey',table=maintable,newcaption='!!New template',user=self.user)
         infobar.dataRpc('dummy',self.th_deleteUserObject,table=maintable,pkey='=.currentTemplate.pkey',
                         _onResult='SET .currentTemplate.path="__newtpl__";',_fired='^.deleteCurrent')
         infobar.dataController("""

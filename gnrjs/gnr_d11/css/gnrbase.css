@@ -2183,6 +2183,12 @@ border='1px solid gray',margin='2px', rounded=10,
 .slotbar_group{
     white-space:nowrap;
 }
+
+.slotbar_dialog_footer{
+    padding:2px;
+    padding-top:3px;
+    border-top:1px solid silver;
+}
 .slotbar .slotbar_cell{
     overflow:hidden;
     text-align:center;

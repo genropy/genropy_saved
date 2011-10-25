@@ -13,8 +13,9 @@ class Main(BaseResourcePrint):
     batch_prefix = 'pr_tpl'
     batch_cancellable = True
     batch_delay = 0.5
-    batch_immediate = 'download'
-    batch_title = 'Print'
+    batch_immediate = 'print'
+    batch_title = None
+    batch_askLetterhead = True
     
     def pre_process(self):
         extra_parameters = self.batch_parameters.pop('extra_parameters')
@@ -22,10 +23,13 @@ class Main(BaseResourcePrint):
         pkg,table = self.maintable.split('.')
         data,meta = self.db.package(pkg).loadUserObject(pkey=extra_parameters['template_id'])
         self.compiledTemplate = Bag(data['compiled'])
+        self.batch_parameters.setdefault('letterhead_id',data.getItem('metadata.default_letterhead'))
         self.batch_title = meta['description'] or meta['code']
         self.tblobj = self.db.table(self.maintable)
         self.virtual_columns =  self.compiledTemplate.getItem('main?virtual_columns') 
         self.htmlMaker = TableScriptToHtml(self.page,self.tblobj)
+    
+        
         
     def print_record(self, record=None, thermo=None, storagekey=None):
         """add???
@@ -44,13 +48,15 @@ class Main(BaseResourcePrint):
         if result:
             self.storeResult(storagekey, result, record, filepath=self.htmlMaker.filepath)        
         
-    def table_script_parameters_pane(self,pane,extra_parameters=None,**kwargs):
+    def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):
         pkg,tbl= extra_parameters['table'].split('.')
+        pane = pane.div(padding='10px',min_height='60px')
         data,meta = self.db.package(pkg).loadUserObject(pkey=extra_parameters['template_id'])
-        fb = pane.div(margin='5px').formbuilder(cols=2,field_width='100%',tdl_width='8em',border_spacing='2px',width='100%')
-        fb.dbSelect(dbtable='adm.htmltemplate', value='^.htmltemplate_id',
-                    selected_name='.templates',lbl='!!Letterhead',
-                    width='10em', hasDownArrow=True)
+        pane.dataFormula('#table_script_runner.dialog_pars.title','dlgtitle',
+                            dlgtitle='!!%s (%i)' %(meta['description'] or meta['code'],record_count),_onBuilt=True)
+        fb = pane.formbuilder(cols=1,field_width='100%',border_spacing='2px',width='100%')
+        fb.dataController("SET .letterhead_id = default_letterhead || null;",_onBuilt=True,
+                            default_letterhead=data.getItem('metadata.default_letterhead') or False,_if='default_letterhead')
         if data.getItem('parameters'):
             parameters = data.getItem('parameters')
             fielddict = {'T':'Textbox','L':'NumberTextBox','D':'DateTextBox','B':'Checkbox','N':'NumberTextBox', 'TL':'Simpletextarea'}
