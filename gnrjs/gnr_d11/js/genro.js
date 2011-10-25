@@ -72,7 +72,6 @@ dojo.declare('gnr.GenroClient', null, {
         this.lastTime = this.startTime;
         this.dialogStacks = {};
         this.sounds = {};
-
         this._serverstore_paths = {};
         this._serverstore_changes = null;
         this.pendingFireAfter = {};
@@ -119,6 +118,7 @@ dojo.declare('gnr.GenroClient', null, {
             genropatches.tree();
             //genropatches.grid();
             genropatches.parseNumbers();
+            genropatches.dojoToJson();
         }
         this.clsdict = {domsource:gnr.GnrDomSource, bag:gnr.GnrBag};
         this.eventPath = '_sys.events';
