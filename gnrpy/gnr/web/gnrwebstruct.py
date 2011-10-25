@@ -966,8 +966,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def paletteGrid(self, paletteCode=None, struct=None, columns=None, structpath=None, datapath=None, **kwargs):
         """add???
         
-        :param paletteCode: add???. If no *datapath* is specified, the *paletteCode*
-                            will be used as *datapath*
+        :param paletteCode: create the paletteGrid :ref:`nodeid` (if no *gridId* is defined)
+                            and create the paletteGrid :ref:`datapath` (if no *datapath* is defined)
         :param struct: the name of the method that defines the :ref:`struct`
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
@@ -1725,21 +1725,17 @@ class GnrDomSrc_dojo_15(GnrDomSrc_dojo_11):
     
 class GnrDomSrc_dojo_16(GnrDomSrc_dojo_11):
     pass
+    
 class GnrGridStruct(GnrStructData):
-    """This class handles the creation of a :ref:`struct`
+    """This class handles the creation of a :ref:`struct`"""
     
-    ::
-    
-        r = struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
-        r.child('cell',field='procedure',width='9em',name='Procedure')"""
-        
     def makeRoot(cls, page, maintable=None, source=None):
         """add???
         
         :param cls: add???
         :param page: add???
-        :param maintable: the :ref:`table` to which the struct refers to. For more information,
-                          check the :ref:`maintable` section.
+        :param maintable: the :ref:`database table <table>` to which the :ref:`struct` refers to.
+                          For more information, check the :ref:`maintable` section
         :param source: add???"""
         root = GnrStructData.makeRoot(source=source, protocls=cls)
         #root._page = weakref.ref(page)
@@ -1772,7 +1768,7 @@ class GnrGridStruct(GnrStructData):
     def view(self, tableobj=None, **kwargs):
         """add???
         
-        :param tableobj: add???"""
+        :param tableobj: the :ref:`database table <table>` object"""
         self.tableobj = tableobj
         return self.child('view', **kwargs)
         

@@ -77,8 +77,8 @@ Table handlers
       * :ref:`th_linker_base`: add???
       * :ref:`th_linkerbar`: add???
       * :ref:`th_linkerbox`: add???
-      * :ref:`includedgrid`: a grid that allow the inline editing (so the insertion or the modify of
-        records is handled inside the grid)
+      * :ref:`th_ig`: a :ref:`grid` that allows the inline editing (so, the insertion
+        or the modify of records is handled inside the grid)
         
 .. _clist_tpleditors:
 

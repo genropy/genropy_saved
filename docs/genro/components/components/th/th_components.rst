@@ -36,10 +36,8 @@ TableHandler: types
         * :ref:`th_linkerbar`
         * :ref:`th_linkerbox`
         
-    * :ref:`includedgrid`:
+    * :ref:`th_ig`
     
-        :ref:`ig_attributes`
-
 .. _th_types_intro:
 
 TableHandler types - introduction
@@ -612,28 +610,13 @@ linkerBox
                        validate_notnull=True,validate_notnull_error='!!Required',
                        newRecordOnly=True,formResource=':MyForm')
                        
-.. _includedgrid:
+.. _th_ig:
 
 includedGrid
 ============
-    
-    .. method:: add???
-    
-    CLIPBOARD::
-    
-        lavora come se fosse la visualizzazione di una Bag; nella rappresentazione griglia
-        vedi tutte le righe di una Bag, quando editi (dialog oppure inline) (l'editing inline
-        è solo della includedGrid). gridEditor serve a modificare la includedGrid.
-        
-        il "datapath" dell'includedGrid serve solo come retrocompatibilità con l'includedView,
-        quindi come path per i dati nell'includedGrid bisogna usare lo "storepath"
-        
-        lo storepath può puntare alla Bag (aggiungere anche il datamode='bag'), oppure si può
-        puntare ad un path chiocciolinato
-        
-.. _ig_attributes:
 
-includedGrid attributes
------------------------
+    The includedGrid is a :ref:`grid` that allows the inline editing. So, the insertion
+    or the modify of records is handled inside the grid
     
-    add???
+    .. note:: for a complete explanation of the includedGrid, check the :ref:`includedgrid` section
+        

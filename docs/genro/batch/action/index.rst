@@ -48,4 +48,4 @@ section index
 .. toctree::
     :maxdepth: 1
     
-    batch_update
+    action_batch

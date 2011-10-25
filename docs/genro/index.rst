@@ -12,6 +12,7 @@ Genropy v0.7dev documentation
     bag/index
     webpage_elements/index
     sql/index
+    grid_struct/index
     components <components/index>
     database/index
     batch/index

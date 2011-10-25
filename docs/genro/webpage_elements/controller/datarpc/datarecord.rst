@@ -22,7 +22,6 @@ Definition
 ==========
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataRecord
-        
     
 .. _datarecord_examples:
 

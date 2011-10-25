@@ -28,12 +28,10 @@ section index
     auth
     clipboard
     datastore
-    grid
     languages
     login
     palette
     ../scripts/index
-    struct
     trigger
     user_interface
     webpage_creation

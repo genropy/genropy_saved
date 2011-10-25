@@ -50,8 +50,8 @@ design
 frameCode
 ---------
         
-    MANDATORY. Autocreate a :ref:`nodeid` for the framePane AND autocreate hierarchic :ref:`nodeIds
-    <nodeid>` for every framePane child.
+    MANDATORY. Create a :ref:`nodeid` for the framePane AND create hierarchic :ref:`nodeIds
+    <nodeid>` for every framePane child
       
     **Example**::
       

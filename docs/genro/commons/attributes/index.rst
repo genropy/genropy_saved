@@ -35,6 +35,7 @@ section index
     hidden
     label
     nodeId
+    pbl_classes
     readonly
     rowcaption
     tags

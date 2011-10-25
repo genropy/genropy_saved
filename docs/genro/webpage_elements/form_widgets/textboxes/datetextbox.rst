@@ -40,6 +40,8 @@ attributes
     
     * *popup*: allow to show a calendar dialog. Default value is ``True``
     
+        .. image:: ../../../_images/widgets/datetextbox.png
+        
     **commons attributes**:
     
         For commons attributes, see :ref:`textboxes_attributes`

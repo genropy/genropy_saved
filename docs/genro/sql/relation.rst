@@ -207,10 +207,12 @@ relation_name
 relation path
 =============
 
-    **definition**: the *relation path* is a set of two or more :ref:`relations <relation>`
-    and :ref:`inverse relations <inverse_relation>`.
+    **definition**:
     
-    Check the :ref:`path_examples` section for more information.
+        The *relation path* is a set of two or more :ref:`relations <relation>`
+        and :ref:`inverse relations <inverse_relation>`.
+        
+    Check the :ref:`path_examples` section for more information
             
 .. _path_examples:
 

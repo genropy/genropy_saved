@@ -194,11 +194,11 @@ query action buttons
        
     **Print**: print the result of the query
     
-    .. image:: ../../../_images/components/th/GUI/view_actionbar/settings.png
+    .. image:: ../../../_images/components/th/GUI/view_actionbar/batches.png
        :align: left
        :width: 22px
        
-    **Settings**: add??? (not working yet)
+    **Batch**: allow to start an :ref:`action batch <action_batch>`
     
     .. image:: ../../../_images/components/th/GUI/view_actionbar/mail.png
        :align: left

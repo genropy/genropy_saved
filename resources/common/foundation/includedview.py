@@ -682,6 +682,32 @@ class IncludedView(BaseComponent):
                      storepath=None,label=None,caption=None,filterOn=None,editorEnabled=None,canSort=True,dropCodes=None,
                      add_kwargs=None,del_kwargs=None,upd_kwargs=None,print_kwargs=None,export_kwargs=None,tools_kwargs=None,
                      top_kwargs=None,datamode=None,**kwargs):
+        """The :ref:`includedgrid` is a :ref:`grid` that allows the inline editing. So, the insertion
+        or the modify of records is handled inside the grid
+        
+        :param parentBC: the root parent :ref:`bordercontainer`
+        :param nodeId: the includedGrid's :ref:`nodeid`
+        :param frameCode: it is the includedGrid's :ref:`nodeid`. You have to define it OR the *nodeId* attribute
+        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages
+        :param struct: the name of the method that defines the :ref:`struct`
+        :param table: the :ref:`database table <table>`
+        :param pbl_classes: boolean. The :ref:`pbl_classes` attribute
+        :param storepath: add???
+        :param label: add???
+        :param caption: add???
+        :param filterOn: add???
+        :param editorEnabled: add???
+        :param canSort: boolean. add???
+        :param dropCodes: add???
+        :param add_kwargs: add???
+        :param del_kwargs: add???
+        :param upd_kwargs: add???
+        :param print_kwargs: add???
+        :param export_kwargs: add???
+        :param tools_kwargs: add???
+        :param top_kwargs: add???
+        :param datamode: add???"""
         assert not 'selectionPars' in kwargs, 'instead of the selectionPars use the tableviewer or attach a selectionStore'
         assert not 'formPars' in kwargs, 'no longer supported'
         assert not 'lock_action' in kwargs, 'no longer supported'

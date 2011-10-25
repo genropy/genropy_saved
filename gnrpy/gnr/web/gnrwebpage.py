@@ -566,11 +566,11 @@ class GnrWebPage(GnrBaseWebPage):
                 handler = getattr(self, '%s_%s' % (prefix, method))
         return handler
         
-    def build_arg_dict(self,_nodebug=False,_clocomp=False,**kwargs):
+    def build_arg_dict(self, _nodebug=False, _clocomp=False, **kwargs):
         """add???
         
-        :param _nodebug: no debug mode. add???
-        :param _clocomp: enable closure compile. add???"""
+        :param _nodebug: no debug mode
+        :param _clocomp: enable closure compile"""
         gnr_static_handler = self.site.getStatic('gnr')
         gnrModulePath = gnr_static_handler.url(self.gnrjsversion)
         arg_dict = {}
@@ -680,10 +680,10 @@ class GnrWebPage(GnrBaseWebPage):
         return self.domSrcFactory.makeRoot(self)
         
     def newGridStruct(self, maintable=None):
-        """Create a Grid Struct and return it.
+        """Create a :ref:`struct` for the :ref:`grid` and return it
         
-        :param maintable: the table to which the struct refers to. For more information,
-                          check the :ref:`maintable` section"""
+        :param maintable: the :ref:`database table <table>` to which the :ref:`struct` refers to.
+                          For more information, check the :ref:`maintable` section"""
         return GnrGridStruct.makeRoot(self, maintable=maintable)
         
     def _get_folders(self):

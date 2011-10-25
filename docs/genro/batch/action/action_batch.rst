@@ -8,10 +8,10 @@ action batches
     
     * :ref:`action_batch_intro`
     * :ref:`action_creation`
-    * :ref:`action_batch_examples`:
+    * :ref:`action_batch_examples_batchupdate`:
     
-        * :ref:`action_batch_examples_batchupdate` (:ref:`examples_batchupdate_dict`,
-          :ref:`examples_batchupdate_method`)
+        * :ref:`examples_batchupdate_dict`
+        * :ref:`examples_batchupdate_method`
           
 .. _action_batch_intro:
 
