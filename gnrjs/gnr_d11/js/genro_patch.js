@@ -12,6 +12,96 @@ genropatches.mozillaStarter = function(){
         dojo.addOnLoad(genro, 'start');
     }
 };
+genropatches.dojoToJson = function() {
+    dojo.toJson = function(/*Object*/ it, /*Boolean?*/ prettyPrint, /*String?*/ _indentStr){
+        if(it === undefined){
+            return "null";
+        }
+        var objtype = typeof it;
+        if(objtype == "number" || objtype == "boolean"){
+            return it + "";
+        }
+        if(it === null){
+            return "null";
+        }
+        if(dojo.isString(it)){ 
+            return dojo._escapeString(it); 
+        }
+        if(it.nodeType && it.cloneNode){ // isNode
+            return ""; // FIXME: would something like outerHTML be better here?
+        }
+        // recurse
+        var recurse = arguments.callee;
+        // short-circuit for objects that support "json" serialization
+        // if they return "self" then just pass-through...
+        var newObj;
+        _indentStr = _indentStr || "";
+        var nextIndent = prettyPrint ? _indentStr + dojo.toJsonIndentStr : "";
+        if(typeof it.__json__ == "function"){
+            newObj = it.__json__();
+            if(it !== newObj){
+                return recurse(newObj, prettyPrint, nextIndent);
+            }
+        }
+        if(typeof it.json == "function"){
+            newObj = it.json();
+            if(it !== newObj){
+                return recurse(newObj, prettyPrint, nextIndent);
+            }
+        }
+
+        var sep = prettyPrint ? " " : "";
+        var newLine = prettyPrint ? "\n" : "";
+
+        // array
+        if(dojo.isArray(it)){
+            var res = dojo.map(it, function(obj){
+                var val = recurse(obj, prettyPrint, nextIndent);
+                if(typeof val != "string"){
+                    val = "null";
+                }
+                return newLine + nextIndent + val;
+            });
+            return "[" + res.join("," + sep) + newLine + _indentStr + "]";
+        }
+        /*
+        // look in the registry
+        try {
+            window.o = it;
+            newObj = dojo.json.jsonRegistry.match(it);
+            return recurse(newObj, prettyPrint, nextIndent);
+        }catch(e){
+            // console.debug(e);
+        }
+        // it's a function with no adapter, skip it
+        */
+        if(objtype == "function"){
+            return null; // null
+        }
+        // generic object code path
+        var output = [];
+        for(var key in it){
+            var keyStr;
+            if(typeof key == "number"){
+                keyStr = '"' + key + '"';
+            }else if(typeof key == "string"){
+                keyStr = dojo._escapeString(key);
+            }else{
+                // skip non-string or number keys
+                continue;
+            }
+            val = recurse(it[key], prettyPrint, nextIndent);
+            if(typeof val != "string"){
+                // skip non-serializable values
+                continue;
+            }
+            // FIXME: use += on Moz!!
+            //   MOW NOTE: using += is a pain because you have to account for the dangling comma...
+            output.push(newLine + nextIndent + keyStr + ":" + sep + val);
+        }
+        return "{" + output.join("," + sep) + newLine + _indentStr + "}"; // String
+    }
+};
 
 genropatches.comboBox = function() {
     dojo.require('dijit.form.ComboBox');
