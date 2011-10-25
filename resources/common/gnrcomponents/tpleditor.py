@@ -40,7 +40,6 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.locale = compiled.getItem('main?locale')
         htmlbuilder.formats = compiled.getItem('main?formats')
         htmlbuilder.data_tblobj = self.db.table(compiled.getItem('main?maintable'))
-        #htmlbuilder.doctemplate_info = doctemplate_info
         return htmlbuilder
         
     def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None, formats=None,**kwargs):
@@ -59,9 +58,9 @@ class TemplateEditorBase(BaseComponent):
                             record=record,**kwargs)
         return body
     @public_method
-    def te_compileTemplate(self,table=None,datacontent=None,varsbag=None):
+    def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,record_id=None,templates=None):
         tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format')
-
+        result = Bag()
         formats = dict()
         columns = []
         virtual_columns = []
@@ -74,7 +73,7 @@ class TemplateEditorBase(BaseComponent):
                 virtual_columns.append(fldpath)
                 
         template = templateReplace(datacontent, varsdict, True,False)
-        templatebag = Bag()
+        compiled = Bag()
         doc = ht.parse(StringIO(template)).getroot()
         htmltables = doc.xpath('//table')
         for t in htmltables:
@@ -85,10 +84,14 @@ class TemplateEditorBase(BaseComponent):
                 tbody_lastrow = tbody.getchildren()[-1]
                 tbody.replace(tbody_lastrow,ht.etree.Comment('TEMPLATEROW:$%s' %subname))
                 subtemplate=ht.tostring(tbody_lastrow).replace('%s.'%subname,'')
-                templatebag.setItem(subname.replace('.','_'),subtemplate)
-        templatebag.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc)),
-                            maintable=table,locale=self.locale,virtual_columns=','.join(virtual_columns),columns=','.join(columns),formats=formats)
-        return templatebag
+                compiled.setItem(subname.replace('.','_'),subtemplate)
+        compiled.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc)),
+                            maintable=table,locale=self.locale,virtual_columns=','.join(virtual_columns),
+                            columns=','.join(columns),formats=formats)
+        result.setItem('compiled',compiled)
+        if record_id:
+            result.setItem('preview',self.te_getPreview(compiled=compiled,record_id=record_id,templates=templates))
+        return result
 
 class TemplateEditor(TemplateEditorBase):
     py_requires='foundation/macrowidgets:RichTextEditor,gnrcomponents/framegrid:FrameGrid'
@@ -96,49 +99,99 @@ class TemplateEditor(TemplateEditorBase):
     @struct_method
     def te_templateEditor(self,pane,storepath=None,maintable=None,**kwargs):
         sc = pane.stackContainer(datapath='.template_editor',selectedPage='^.status',_fakeform=True)
-        sc.dataRpc('.data.compiled',self.te_compileTemplate,varsbag='=.data.varsbag',
+        sc.dataRpc('dummy',self.te_compileTemplate,varsbag='=.data.varsbag',
                     datacontent='=.data.content',table=maintable,_if='_status=="preview"&&datacontent&&varsbag',
-                    _status='^.status')
-                    
+                    _status='^.status',record_id='=.preview.selected_id',templates='=.preview.html_template_name',
+                    _onResult="""
+                    SET .data.compiled = result.getItem('compiled').deepCopy();
+                    SET .preview.renderedtemplate = result.getItem('preview');
+                    """)
+        self._te_frameInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table=maintable)
         self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit'),table=maintable)
         self._te_framePreview(sc.framePane(title='!!Preview',pageName='preview',childname='preview'),table=maintable)
-        self._te_frameMetadata(sc.framePane(title='!!Metadata',pageName='metadata',childname='metadata'))
         return sc
-    
-    def _te_frameEdit(self,frame,table=None):
-        bar = frame.top.slotToolbar(slots='5,parentStackButtons,fieldspane,*,tplcaption,*',parentStackButtons_font_size='8pt')
-        bc = frame.center.borderContainer()
-        bar.fieldspane.slotButton(iconClass='iconbox sitemap',
-                                action="""bc.setRegionVisible("left","toggle");""",bc=bc.js_widget)
-        bar.tplcaption.div('^.caption',font_size='9pt',font_variant='small-caps',color='#555')
+
+    def _te_frameInfo(self,frame,table=None):
+        frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')
+        bc = frame.center.borderContainer(margin='2px',_class='pbl_roundedGroup')
+        top = bc.contentPane(region='top')
+        fb = top.div(margin='5px').formbuilder(cols=5, border_spacing='4px',fld_width='100%',width='100%',
+                                                tdl_width='6em',datapath='.data.metadata')
+        fb.textbox(value='^.author',lbl='!!Author',width='15em')
+        fb.numberTextBox(value='^.version',lbl='!!Version')
+        fb.dateTextBox(value='^.date',lbl='!!Date')
+        fb.checkbox(value='^.is_print',label='!!Print')
+        fb.checkbox(value='^.is_mail',label='!!Mail')
+        fb.dataController("""var result = [];
+                             if(is_mail){result.push('is_mail');}
+                             if(is_print){result.push('is_print');}
+                             SET #FORM.userobject_meta.flags = result.join(',');""",
+                        is_mail="^.is_mail",is_print='^.is_print')
+        fb.dbSelect(value='^.default_letterhead',dbtable='adm.htmltemplate',lbl='!!Letterhead')
+        fb.textbox(value='^.summary',lbl='!!Summary',colspan=4)
+        
         def struct(struct):
             r = struct.view().rows()
             r.cell('fieldname', name='Field', width='100%')
-            r.cell('varname', name='As', width='6em')
-            r.cell('format', name='Format', width='6em')
-
-        left = bc.borderContainer(region='left',width='250px',splitter=True)
-        framegrid = left.frameGrid(height='200px',region='bottom',splitter=True,
+            r.cell('varname', name='As', width='12em')
+            r.cell('format', name='Format', width='8em')
+        varsframe = bc.frameGrid(region='bottom',height='300px',
                                     datapath='.varsgrid',
                                     storepath='#FORM.data.varsbag',
-                                    del_action=True,label='!!Template Variables',
-                                    struct=struct,datamode='bag',
-                                    _class='pbl_roundedGroup',margin='3px')
+                                    struct=struct,datamode='bag',)
+        varsframe.left.slotBar('5,fieldsTree,*',fieldsTree_table=table,closable=True,width='150px',fieldsTree_height='100%',splitter=True)
         tablecode = table.replace('.','_')
         dropCode = 'gnrdbfld_%s' %tablecode
-        editor = framegrid.grid.gridEditor()
+        editor = varsframe.grid.gridEditor()
         editor.textbox(gridcell='varname')
         editor.textbox(gridcell='format')
-        framegrid.top.slotBar(slots='gridtitle,*,delrow',gridtitle='!!Variables',_class='slotbar_toolbar pbl_roundedGroupLabel')
-        framegrid.grid.dragAndDrop(dropCodes=dropCode)
-        framegrid.grid.dataController("""var caption = data.fullcaption;
+        varsframe.top.slotToolbar(slots='gridtitle,*,delrow',gridtitle='!!Variables',)
+        varsframe.grid.dragAndDrop(dropCodes=dropCode)
+        varsframe.grid.dataController("""var caption = data.fullcaption;
                                 var varname = caption.replace(/\W/g,'_').toLowerCase()
                                 grid.addBagRow('#id', '*', grid.newBagRow({'fieldpath':data.fieldpath,fieldname:caption,varname:varname,virtual_column:data.virtual_column}));""",
-                             data="^.dropped_%s" %dropCode,grid=framegrid.grid.js_widget)        
-        frametree= left.framePane(region='center',margin='2px',margin_bottom='4px',_class='pbl_roundedGroup')
-        frametree.fieldsTree(table=table,trash=False)        
-        frametree.top.div('!!Fields',_class='pbl_roundedGroupLabel')
-        self.RichTextEditor(bc.contentPane(region='center'), value='^.data.content',
+                             data="^.dropped_%s" %dropCode,grid=varsframe.grid.js_widget)      
+        parsframe = bc.frameGrid(region='center',
+                                datamode='bag',datapath='.parametersgrid',
+                                storepath='#FORM.data.parameters', 
+                                struct=self._te_metadata_struct,
+                                selfDragRows=True)
+        parsframe.top.slotToolbar('gridtitle,*,addrow,delrow',gridtitle='!!Parameters')
+        gridEditor = parsframe.grid.gridEditor()
+        gridEditor.textbox(gridcell='code')
+        gridEditor.textbox(gridcell='description')
+        gridEditor.filteringSelect(gridcell='fieldtype',values='!!T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text')
+        gridEditor.textbox(gridcell='values')        
+        gridEditor.filteringSelect(gridcell="mandatory",values="!!F:No,T:Yes")
+
+    def _te_frameEdit(self,frame,table=None):
+        frame.top.slotToolbar(slots='5,parentStackButtons,*',parentStackButtons_font_size='8pt')
+        bar = frame.left.slotBar('5,treeVars,*',closable='close',width='180px',
+                            treeVars_height='100%')
+        box = bar.treeVars.div(height='100%',overflow='auto',text_align='left',margin='2px',_class='pbl_roundedGroup')
+        box.tree(storepath='.allvariables',_fired='^.tree_rebuild',onDrag="dragValues['text/plain'] = '$'+treeItem.attr.code;",
+                hideValues=True,draggable=True,_class='fieldsTree',labelAttribute='caption')
+        box.dataController("""
+        var result = new gnr.GnrBag();
+        var varfolder= new gnr.GnrBag();
+        var parsfolder = new gnr.GnrBag();
+        var attrs,varname;
+        varsbag.forEach(function(n){
+            varname = n._value.getItem('varname');
+            varfolder.setItem(n.label,null,{caption:n._value.getItem('fieldname'),code:varname});
+        },'static');
+        parameters.forEach(function(n){
+            attrs = n.attr;
+            console.log(attrs)
+            parsfolder.setItem(n.label,null,{caption:attrs.description || attrs.code,code:attrs.code})
+        },'static');
+        result.setItem('variables',varfolder,{caption:varcaption})
+        result.setItem('pars',parsfolder,{caption:parscaption})
+        SET .allvariables = result;
+        FIRE .tree_rebuild;
+        """,varsbag="=.data.varsbag",parameters='=.data.parameters',
+            varcaption='!!Variables',parscaption='!!Parameters',_if='status=="edit"',status='^.status')
+        self.RichTextEditor(frame.center.contentPane(), value='^.data.content',
                             toolbar='simple')
                             
     def _te_framePreview(self,frame,table=None):
@@ -150,9 +203,7 @@ class TemplateEditor(TemplateEditorBase):
                                  SET .preview.idx=0;
                                 """
                    )
-        bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*,prev,next',parentStackButtons_font_size='8pt')
-
-                   
+        bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*,prev,next',parentStackButtons_font_size='8pt')                   
         fb = bar.fb.formbuilder(cols=2, border_spacing='0px',margin_top='2px')
         fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.html_template_id',
                     selected_name='.preview.html_template_name',lbl='!!Letterhead',
@@ -182,80 +233,44 @@ class TemplateEditor(TemplateEditorBase):
         r.cell('values', name='!!Values', width='10em')
         r.cell('mandatory', name='!!Mandatory',width='7em')  
      
-    def _te_frameMetadata(self,frame):
-        frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')
-        bc = frame.center.borderContainer()
-        top = bc.contentPane(region='top',_class='pbl_roundedGroup',margin='3px')
-        fb = top.div(margin='5px').formbuilder(cols=4, border_spacing='4px',fld_width='100%',width='100%',
-                                                tdl_width='6em',datapath='.data.metadata')
-        fb.textbox(value='^.author',lbl='!!Author',colspan=4)
-        fb.numberTextBox(value='^.version',lbl='!!Version')
-        fb.dateTextBox(value='^.date',lbl='!!Date')
-        
-        fb.checkbox(value='^.is_print',label='!!Print menu')
-        fb.checkbox(value='^.is_mail',label='!!Mail menu')
-        fb.dataController("""var result = [];
-                             if(is_mail){result.push('is_mail');}
-                             if(is_print){result.push('is_print');}
-                             SET #FORM.userobject_meta.flags = result.join(',');""",
-                        is_mail="^.is_mail",is_print='^.is_print')
-        
-        fb.simpleTextArea(value='^.summary',lbl='!!Summary',height='50px',lbl_vertical_align='top',colspan=4)
-        framegrid = bc.frameGrid(region='center',datamode='bag',datapath='.parametersgrid',
-                                storepath='#FORM.data.parameters', 
-                                struct=self._te_metadata_struct,selfDragRows=True)
-        framegrid.top.slotToolbar('gridtitle,*,addrow,delrow',gridtitle='!!Parameters')
-        gridEditor = framegrid.grid.gridEditor()
-        gridEditor.textbox(gridcell='code')
-        gridEditor.textbox(gridcell='description')
-        gridEditor.filteringSelect(gridcell='fieldtype',values='!!T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text')
-        gridEditor.textbox(gridcell='values')        
-        gridEditor.filteringSelect(gridcell="mandatory",values="!!F:No,T:Yes")
-        
-        
+    
 
 class PaletteTemplateEditor(TemplateEditor):
     @struct_method
     def te_paletteTemplateEditor(self,pane,paletteCode=None,maintable=None,**kwargs):
-        palette = pane.palettePane(paletteCode=paletteCode or '%s_template_manager' %maintable.replace('.','_'),title='!!Document template editor',
+        palette = pane.palettePane(paletteCode=paletteCode or '%s_template_manager' %maintable.replace('.','_'),
+                                    title='^.template_editor.caption',
                                     width='700px',height='500px',**kwargs)
         sc = palette.templateEditor(maintable=maintable)
-        bar = sc.edit.top.bar
-        bar.replaceSlots('#','#,menutemplates,savetpl,5')
-        bar.data('.caption','!!New template')
-        bar.menutemplates.div(_class='iconbox folder').menu(modifiers='*',storepath='.menu',
-        action="""SET .currentTemplate=new gnr.GnrBag({path:$1.fullpath,tplmode:$1.tplmode,pkey:$1.pkey}); SET .caption=$1.caption;""")
-        bar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
+        infobar = sc.info.top.bar
+        infobar.replaceSlots('#','#,menutemplates,savetpl,deltpl,5')
+        infobar.deltpl.slotButton('!!Delete current',iconClass='iconbox trash',
+                                action='FIRE .deleteCurrent',disabled='^.currentTemplate.pkey?=!#v')
+        infobar.dataController('SET .currentTemplate.path="__newtpl__";',_onStart=True)
+        infobar.dataFormula(".palette_caption", "prefix+caption",caption="^.caption",prefix='!!Edit ')
+        infobar.menutemplates.div(_class='iconbox folder').menu(modifiers='*',storepath='.menu',
+                action="""SET .currentTemplate=new gnr.GnrBag({path:$1.fullpath,tplmode:$1.tplmode,pkey:$1.pkey}); SET .caption=$1.caption;""")
+        infobar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
                                 disabled='^.data.content?=!#v')
-        bar.dataController("""
+        infobar.dataController("""
             var editorbag = this.getRelativeData();
             if(tplpath=='__newtpl__'){
                 editorbag.setItem('data',new gnr.GnrBag());
                 editorbag.setItem('userobject_meta',new gnr.GnrBag());
-            }else if (tplmode=='doctemplate'){
-                var bag = new gnr.GnrBag();
-                genro.serverCall('app.getRecord',{table:'adm.doctemplate',pkey:pkey},
-                    function(result){
-                        bag.setItem('content',result._value.getItem('content'));
-                        bag.setItem('varsbag',result._value.getItem('varsbag'));
-                        bag.setItem('compiled',result._value.getItem('templatebag'));
-                        editorbag.setItem('data',bag);
-                    }
-                );
-            }else if(tplmode=='userobject'){
+                editorbag.setItem('caption',newcaption);
+            }else if(pkey){
                 genro.serverCall('th_loadUserObject',{table:table,pkey:pkey},function(result){
                     editorbag.setItem('data',result._value.deepCopy());
                     editorbag.setItem('userobject_meta',new gnr.GnrBag(result.attr));
                 })
             }
-        """,tplpath="^.currentTemplate.path",tplmode='=.currentTemplate.tplmode',pkey='=.currentTemplate.pkey',table=maintable)
-        bar.dataController("""
-            if(currentTemplatePath && currentTemplatePath!='__newtpl__'){
-                if(currentTemplateMode!='userobject'){
-                    genro.serverCall('te_saveTemplate',{pkey:currentTemplatePkey,data:data,tplmode:currentTemplateMode});
-                }else{
-                    FIRE .save_userobject = currentTemplatePkey;
-                }
+        """,tplpath="^.currentTemplate.path",tplmode='=.currentTemplate.tplmode',
+                pkey='=.currentTemplate.pkey',table=maintable,newcaption='!!New template')
+        infobar.dataRpc('dummy',self.th_deleteUserObject,table=maintable,pkey='=.currentTemplate.pkey',
+                        _onResult='SET .currentTemplate.path="__newtpl__";',_fired='^.deleteCurrent')
+        infobar.dataController("""
+            if(currentTemplatePkey){
+                FIRE .save_userobject = currentTemplatePkey;
             }else{
                 FIRE .save_userobject = '*newrecord*';
             }
@@ -263,7 +278,7 @@ class PaletteTemplateEditor(TemplateEditor):
                             currentTemplatePath='=.currentTemplate.path',
                             currentTemplatePkey='=.currentTemplate.pkey',
                             data='=.data')
-        bar.dataController("""
+        infobar.dataController("""
                 var that = this;
                 var savepath = this.absDatapath('.userobject_meta');
                 var kw = {'tplmode':'userobject','table':table,
@@ -272,13 +287,12 @@ class PaletteTemplateEditor(TemplateEditor):
                 function(dialog) {
                     genro.serverCall('te_saveTemplate',kw,
                         function(result) {
-                            that.setRelativeData('.currentTemplate',new gnr.GnrBag({path:result['code'],pkey:result['id'],mode:"userobject"}));
-                            that.setRelativeData('.caption',result['description'] || result['code']);
+                            that.setRelativeData('.currentTemplate.path',result['code']);
                             dialog.close_action();
                         });
             });
             """,pkey='^.save_userobject',data='=.data',table=maintable)
-        bar.dataRemote('.menu',self.te_menuTemplates,table=maintable,cacheTime=5)
+        infobar.dataRemote('.menu',self.te_menuTemplates,table=maintable,cacheTime=5)
         
     @public_method
     def te_menuTemplates(self,table=None):
@@ -306,9 +320,6 @@ class PaletteTemplateEditor(TemplateEditor):
             tblobj.update(record)
             self.db.commit()
         elif tplmode == 'userobject':
-            varsbag=data['varsbag']
-            if varsbag and len(varsbag)>0:
-                data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=varsbag)
             pkey,record = self.th_saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
             record.pop('data')
         return record

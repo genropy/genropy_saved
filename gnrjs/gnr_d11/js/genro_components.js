@@ -1030,16 +1030,16 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                     });
                 }
             }
+            slotKw = objectExtract(kw,slot+'_*');
+            if(slotKw.height && slotKw.height.indexOf('%')>=0){
+                row.getParentNode().attr['height'] = slotKw.height;
+                slotKw.height = '100%';
+            }
             if(cell.len()==0 && (that['slot_'+slot])){
-                slotKw = objectExtract(kw,slot+'_*');
                 slotValue = objectPop(kw,slot);
                 lbl = objectPop(slotKw,'lbl');
                 kwLbl = objectExtract(slotKw,'lbl_*');
                 kwLbl = objectUpdate(objectUpdate({},buildKw.lbl),kwLbl);
-                if(slotKw.height && slotKw.height.indexOf('%')>=0){
-                    row.getParentNode().attr['height'] = slotKw.height;
-                    slotKw.height = '100%';
-                }
                 that['slot_'+slot](cell,slotValue,slotKw,kw.frameCode);
                 if(labelCell){
                     labelCell._('div',objectUpdate({'innerHTML':lbl,'text_align':'center'},kwLbl));

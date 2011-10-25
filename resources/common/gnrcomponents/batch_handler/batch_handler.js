@@ -97,7 +97,9 @@ batch_monitor.batch_sourceNode_create = function(container_node, batch_id, batch
     titlediv._('div', {innerHTML:'^.title', _class:'bm_batchtitle'});
     var topright = titlediv._('div', {_class:'bm_label_action_link'});
     topright._('a', {innerHTML:'Stop',visible:'^.cancellable',
-        href:'javascript:genro.dlg.ask("Stopping batch","Do you really want to stop the \'\'"+"' + batch_data.getItem('title') + '"+"\'\' batch?",null,{confirm:function(){genro.serverCall("btc.abort_batch",{"batch_id":"' + batch_id + '"})}})'});
+        href:'#',connect_onclick:function(){
+            batch_monitor.batch_ask_stop(batch_id);
+        }});
     var thermopane = batchpane._('div', {_class:'bm_contentpane',datapath:'.thermo'});
     var bottompane = batchpane._('div', {_class:'bm_batchbottom'});
     sourceNode = genro.nodeById(batch_sourceNode_id);
@@ -108,6 +110,20 @@ batch_monitor.batch_sourceNode_create = function(container_node, batch_id, batch
     sourceNode.bottomSourceNode = bottompane.getParentNode();
     return sourceNode;
 };
+
+batch_monitor.batch_ask_stop=function(batch_id){
+    var batchpath = this.batchpath(batch_id);
+    var batch_data = genro.getData(batchpath);
+    var msg = "Do you really want to stop the " + batch_data.getItem('title') + " batch?"
+    genro.dlg.ask("Stopping batch",
+                 msg,null,{
+                     confirm:function(){
+                         genro.serverCall("btc.abort_batch",{"batch_id":batch_id},function(){
+                             genro.serverCall("btc.remove_batch",{"batch_id":batch_id});
+                         })
+                    }
+                 })
+}
 
 //batch_monitor.on_btc_end = function(node,sourceNode){
 //
@@ -122,8 +138,14 @@ batch_monitor.on_btc_error_doc = function(node, sourceNode) {
 batch_monitor.btc_result = function(node, sourceNode) {
     var batch_id = sourceNode.batch_id;
     var batch_value = node.getValue();
-    var resultpane = sourceNode.thermoSourceNode;
-    resultpane.clearValue().freeze();
+    if(!sourceNode.thermoSourceNode){
+        return;
+    }
+    var resultNode = sourceNode.thermoSourceNode;
+    var resultpane = resultNode.getParentBag();
+    
+    resultpane.popNode(resultNode.label);
+    sourceNode.thermoSourceNode = null;
     var error = batch_value.getItem('error');
     if (error) {
         resultpane._('div', {innerHTML:error});
@@ -135,7 +157,6 @@ batch_monitor.btc_result = function(node, sourceNode) {
     var url_print = batch_value.getItem('result?url_print');
 
     if (url || url_print || result) {
-
         if (result) {
             resultpane._('div', {innerHTML:result});
         }
@@ -147,10 +168,14 @@ batch_monitor.btc_result = function(node, sourceNode) {
             resultpane._('a',{href:url_print,display:'inline-block'})._('div', {_class:'iconbox print'});
         }
     }
-    topright = sourceNode.toprightSourceNode.clearValue();
-    topright._('div', {_class:'buttonIcon icnTabClose',connect_onclick:'genro.serverCall("btc.remove_batch",{"batch_id":"' + batch_id + '","all_batches":$1.shiftKey})'});
+    var toprightNode = sourceNode.toprightSourceNode;
+    var topright = toprightNode.getParentBag();
+    topright.popNode(toprightNode.label);
+    topright._('div', {_class:'buttonIcon icnTabClose bm_label_action_link',
+                connect_onclick:function(kw){
+                    genro.serverCall("btc.remove_batch",{"batch_id":batch_id,"all_batches":kw.shiftKey});
+                }});
     resultpane._('div', {innerHTML:'Execution time:' + batch_value.getItem('time_delta')});
-    resultpane.unfreeze();
 };
 
 batch_monitor.on_btc_error = function(node, sourceNode) {

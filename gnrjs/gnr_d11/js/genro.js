@@ -202,7 +202,7 @@ dojo.declare('gnr.GenroClient', null, {
             }
             
         }else{
-            setTimeout(function(){genro.onUserEvent()},genro.auto_polling * 1000);
+            genro.auto_polling_handler = setInterval(function(){genro.onUserEvent()},genro.auto_polling * 1000);
             cb = genro.onUserEvent;
         }
         dojo.connect(window, 'onmousemove', cb);
