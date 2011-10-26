@@ -35,10 +35,10 @@ from dateutil import rrule
 logger = logging.getLogger(__name__)
 
 def yearDecode(datestr):
-    """returns the year number as an int from a string of 2 or 4 digits: if 2 digits is given century is added.
+    """returns the year number as an int from a string of 2 or 4 digits:
+    if 2 digits is given century is added
     
-    :param datestr: add???
-    """
+    :param datestr: the string including year"""
     year = None
     datestr = datestr.strip()
     if datestr and datestr.isdigit():
@@ -51,7 +51,8 @@ def yearDecode(datestr):
     return year
 
 def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None, locale=None, isEndPeriod=False):
-    """Parse a string representing a date or a period. Return ``datetime.date`` or ``tuple(year,month)`` or ``None``
+    """Parse a string representing a date or a period. Return ``datetime.date``
+    or ``tuple(year,month)`` or ``None``
     
     :param datestr: the string to be interpreted
     :param workdate: the :ref:`workdate`
@@ -59,7 +60,8 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
     :param days: names of weekdays according to locale (just for caching)
     :param quarters: names of quarters according to locale (just for caching)
     :param locale: the current locale (e.g: en, en_us, it)
-    :param isEndPeriod: if the string represents a period, return the end date (default return the start date)
+    :param isEndPeriod: if the string represents a period, return the end date
+                        (default return the start date)
     
     Special keywords like ``today`` or the name of a month can be translated in all languages
     and support synonimous. (e.g: this month; e.g: month)
@@ -80,14 +82,9 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         * the date returned is the date of the given weekday in this week (relative to workdate)
     * an iso date: e.g. 2008-04-28
     * a date formatted according to locale (see babel doc): e.g. 4 28, 2008 (en_us) or 28-4-08 (it)
-                           various separators are admitted: 28-4-08, 28/4/08, 28 4 08
-    """
+                           various separators are admitted: 28-4-08, 28/4/08, 28 4 08"""
     
     def addToDay(datestr, date):
-        """add???
-        
-        :param datestr: add???
-        :param date: add???"""
         if '+' in datestr:
             days = int(datestr.split('+')[1].strip())
             return date + datetime.timedelta(days)
@@ -97,11 +94,6 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         return date
 
     def addToMonth(datestr, date, addmonth=0):
-        """add???
-        
-        :param datestr: add???
-        :param date: add???
-        :param addmonth: add???"""
         if '+' in datestr:
             addmonth = int(datestr.split('+')[1].strip())
         if '-' in datestr:
@@ -391,7 +383,7 @@ def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
     :param wkdlist: add???
     :param locale: the current locale (e.g: en, en_us, it)
     :param workdate: the :ref:`workdate`
-    :param asDate: add???"""
+    :param asDate: boolean. add???"""
     dstart, dstop = decodeDatePeriod(period, returnDate=True, locale=locale, workdate=workdate)
     itr = rrule.rrule(rrule.DAILY, dtstart=dstart, until=dstop, byweekday=wkdlist)
     for d in itr:
@@ -401,10 +393,9 @@ def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
             yield d
             
 def toTime(t):
-    """Convert a time, datetime or a string (HH:MM:SS or HH:MM) to a time.
+    """Convert a time, datetime or a string (``HH:MM:SS`` or ``HH:MM``) to a time.
     
-    :param t: the time to convert
-    """
+    :param t: the time to convert"""
     if isinstance(t, datetime.datetime):
         return t.time()
     elif isinstance(t, datetime.time):
