@@ -86,16 +86,18 @@ class TableHandlerForm(BaseComponent):
             bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')    
         elif showtoolbar:
-            default_slots = '*,formcommands,semaphore,locker'
-            slots = options.get('slots',default_slots)
+            default_slots = '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
+            if navigation:
+                default_slots = 'navigation,%s' %default_slots
+            elif options.get('selector'):
+                default_slots = default_slots.replace('*','5,form_selectrecord,*')
+            if options.get('printMenu'):
+                default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
             if options.get('linker'):
-                slots = '*,form_revert,form_save,semaphore'
-            if options.get('selector'):
-                slots = slots.replace('*','5,form_selectrecord,*')
-            if options.get('lockable'):
-                slots = slots.replace(slots,'%s,locker' %slots)
-            elif navigation:
-                slots = 'navigation,%s' %slots
+                default_slots = default_slots.replace('form_delete','')
+                default_slots = default_slots.replace('form_add','')
+                default_slots = default_slots.replace('locker','')            
+            slots = options.get('slots',default_slots)
             form.top.slotToolbar(slots)   
         if not options.get('showfooter',True):
             form.attributes['hasBottomMessage'] = False
