@@ -31,13 +31,23 @@ class BatchMonitor(BaseComponent):
 
 class TableScriptHandler(BaseComponent):
     py_requires = 'foundation/dialogs,gnrcomponents/printer_option_dialog:PrinterOption'
+    
     @public_method
-    def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, extra_parameters=None,**kwargs):
+    def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, 
+                            extra_parameters=None,selectedRowidx=None,selectionName=None,sourcepage_id=None,
+                            selectedPkeys=None,selectionFilterCb=None,sortBy=None,**kwargs):
         if not resource:
             return
         resource = resource.replace('.py', '')
-        #cl=self.site.loadResource(pkgname,'tables',tblname,res_type,"%s:Main" %resource) #faccio mixin con prefisso
         res_obj = self.site.loadTableScript(self, table, '%s/%s' % (res_type, resource), class_name='Main')
+        res_obj.sourcepage_id = sourcepage_id or self.page_id
+        if selectionName:
+            res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
+                                    selectionFilterCb=selectionFilterCb, sortBy=sortBy)
+            count = len(res_obj.get_selection_pkeys() or [])
+        else:
+            res_obj.selectedPkeys = selectedPkeys
+            count = len(selectedPkeys or [])
         self.current_batch = res_obj
         self.mixin(res_obj, methods='table_script_*,rpc_table_script_*')
         batch_dict = objectExtract(res_obj, 'batch_')
@@ -45,19 +55,27 @@ class TableScriptHandler(BaseComponent):
         batch_dict['res_type'] = res_type
         pane.data('.batch', batch_dict)
         hasParameters = hasattr(self, 'table_script_parameters_pane')
+        hasOptions = hasattr(self, 'table_script_option_pane')
+        dlgpars = pane.dialog(title='^.title',datapath='.dialog_pars')
+        dlgoptions = pane.dialog(title='^.title',datapath='.dialog_options')
+        pane = pane.div(datapath='#table_script_runner')
+        if hasParameters:
+            parsbox = dlgpars.div(datapath='#table_script_runner.data',min_width='200px',min_height='150px')
+            if batch_dict.get('title'):
+                dlgpars.dataFormula('.title','dlgtitle',dlgtitle="!!%s(%i)" %(batch_dict['title'],count),_onBuilt=True)
+            self.table_script_parameters_pane(parsbox,extra_parameters=extra_parameters,record_count=count)
+            self.table_script_parameters_footer(dlgpars)    
+            dlgpars.dataController("dlgoptions.show();",_fired="^.confirm",dlg=dlgpars.js_widget,
+                                    dlgoptions=dlgoptions.js_widget,
+                                    hasOptions=hasOptions,_if='hasOptions',_else='FIRE #table_script_runner.confirm;')    
+        if hasOptions:
+            self.table_script_option_pane(dlgoptions.div(datapath='#table_script_runner.data.batch_options'), resource=resource,**batch_dict)
+            self.table_script_option_footer(dlgoptions)    
+            dlgoptions.dataController("FIRE #table_script_runner.confirm;",_fired="^.confirm",dlg=dlgoptions.js_widget)                
 
-        dlg_dict = objectExtract(res_obj, 'dialog_')
-        dialog_height_no_par = dlg_dict.pop('height_no_par', dlg_dict.get('height'))
-        if not hasParameters:
-            dlg_dict['height'] = dialog_height_no_par
-        dlg_dict['title'] = dlg_dict.get('title', batch_dict.get('title'))
-        pane.data('.dialog', dlg_dict)
-        dlg = self.simpleDialog(pane, datapath='.dialog', title='^.title', height='^.height', width='^.width',
-                                cb_center=self.table_script_dialog_center, dlgId='table_script_dlg_parameters',
-                                hasParameters=hasParameters, dialog_height_no_par=dialog_height_no_par,
-                                resource=resource,extra_parameters=extra_parameters)
-        dlg.dataController("""
-                            FIRE .close;
+        pane.dataController("""
+                            dlgpars.hide();
+                            dlgoptions.hide();
                             SET #table_script_runner.parameters=pars;
                             if (immediate){
                                 genro.dom.setClass(dojo.body(),'runningBatch',true);
@@ -67,9 +85,25 @@ class TableScriptHandler(BaseComponent):
                                     genro.publish({parent:true,topic:'open_batch'});
                                 }                                
                             }
-                            FIRE #table_script_runner.run;
+                            FIRE .run;
                             """,
-                           _fired="^.save", pars='=.data',immediate=batch_dict.get('immediate',False))
+                           _fired="^.confirm", pars='=.data',
+                           immediate=batch_dict.get('immediate',False),
+                           dlgpars=dlgpars.js_widget,dlgoptions=dlgoptions.js_widget) 
+        pane.dataController(
+        """if(hasParameters){
+                dlgpars.show();
+            }else if(hasOptions){
+                dlgoptions.show();
+            }else{
+                FIRE .confirm;
+            }
+        """,_onBuilt=True,
+            dlgpars=dlgpars.js_widget,
+            dlgoptions=dlgoptions.js_widget,
+            hasParameters=hasParameters,hasOptions=hasOptions)
+
+
     @public_method
     def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectedPkeys=None,selectionFilterCb=None,
                              sortBy=None,
@@ -150,20 +184,7 @@ class TableScriptRunner(TableScriptHandler):
                             PUBLISH table_script_run=pars;""",
                             _fired="^.run_table_script", selectionName=selectionName, table=table,
                             gridId=gridId, res_type=res_type, resource='=.resource')
-                            
-    def table_script_dialog_center(self, parentBc, hasParameters=None, resource=None, extra_parameters=None,**kwargs):
-        if hasattr(self, 'table_script_option_pane'):
-            paramsBc = parentBc.borderContainer(pageName='params', datapath='.data', **kwargs)
-            if hasParameters:
-                parameters_pane = paramsBc.contentPane(region='top', _class='ts_parametersPane')
-                parameters_pane.mainStack = parentBc.mainStack
-                self.table_script_parameters_pane(parameters_pane,extra_parameters=extra_parameters)
-            self.table_script_option_pane(paramsBc.contentPane(region='bottom', datapath='.batch_options',
-                                                               _class='ts_optionsPane'), resource=resource)
-        elif hasParameters:
-            parameters_pane = parentBc.contentPane(pageName='params', datapath='.data', **kwargs)
-            parameters_pane.mainStack = parentBc.mainStack
-            self.table_script_parameters_pane(parameters_pane,extra_parameters=extra_parameters)
+
     
     def table_script_controllers(self,page):
         plugin_main = page.div(datapath='gnr.plugin.table_script_runner', nodeId='table_script_runner')
@@ -183,7 +204,6 @@ class TableScriptRunner(TableScriptHandler):
                                        SET .selectedPkeys = copyArray(params['selectedPkeys']);
                                        SET .extra_parameters = params['extra_parameters']?  params['extra_parameters'].deepCopy() : null;
                                        FIRE .build_pars_dialog;
-                                       FIRE #table_script_dlg_parameters.open;
                                     """, subscribe_table_script_run=True)
 
         plugin_main.dataRpc('dummy', self.table_script_run,
@@ -206,11 +226,16 @@ class TableScriptRunner(TableScriptHandler):
                             selectedPkeys='=.selectedPkeys',
                             _POST=True, timeout=0)
 
-        plugin_main.div(width='0').remote(self.table_script_parameters,
+        plugin_main.div(width=0).remote(self.table_script_parameters,
                                  resource='=.resource',
                                  res_type='=.res_type',
                                  title='=.title',
                                  table='=.table',
+                                 selectionName='=.selectionName',
+                                 selectedRowidx="=.selectedRowidx",
+                                 selectedPkeys='=.selectedPkeys',
+                                 sourcepage_id='=.sourcepage_id',
+                                 selectionFilterCb='=.selectionFilterCb',
                                  extra_parameters='=.extra_parameters',
                                  _fired='^.build_pars_dialog')
 

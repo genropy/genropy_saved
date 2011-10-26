@@ -15,6 +15,7 @@ class BagToHtml(object):
     """A class that transforms a :ref:`bag` into HTML. It can be used to make a :ref:`print`"""
     css_requires = ''
     templates = ''
+    letterhead_id = ''
     currencyFormat = u'#,###.00'
     encoding = 'utf-8'
     page_debug = False
@@ -112,6 +113,7 @@ class BagToHtml(object):
             return result
             
         self.templates = kwargs.pop('templates', self.templates)
+        self.letterhead_id = kwargs.pop('letterhead_id', self.letterhead_id)
         self.print_button = kwargs.pop('print_button', self.print_button)
         if self.onRecordLoaded() is False:
             return False
@@ -135,7 +137,7 @@ class BagToHtml(object):
     def prepareTemplates(self):
         """Set the correct value of every measure of the page: height, width, header, footer, margins"""
         if not self.htmlTemplate:
-            self.htmlTemplate = self.templateLoader(self.templates)
+            self.htmlTemplate = self.templateLoader(self.templates,letterhead_id=self.letterhead_id)
         self.page_height = self.page_height or self.htmlTemplate['main.page.height'] or 280
         self.page_width = self.page_width or self.htmlTemplate['main.page.width'] or 200
         self.page_header_height = self.page_header_height or self.htmlTemplate['layout.top?height'] or 0

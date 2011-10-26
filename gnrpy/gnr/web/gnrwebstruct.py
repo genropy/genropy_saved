@@ -1170,13 +1170,14 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         
         #se ritorni la toolbar hai una toolbar vuota 
     
-    def slotbar_replaceslots(self, toReplace, replaceStr):
+    def slotbar_replaceslots(self, toReplace, replaceStr,**kwargs):
         """Allow to redefine the preset bars of the :ref:`slotBars <toolbar>` and the
         :ref:`slotToolbars <toolbar>`
         
         :param toReplace: MANDATORY. A string with the list of the slots to be replaced.
                           Use ``#`` to replace all the slots
         :param replaceStr: MANDATORY. A string with the list of the slots to add"""
+        self.attributes.update(kwargs)
         toolbarArgs = self.attributes
         slotstr = toolbarArgs['slots']
         slotbarCode= toolbarArgs.get('slotbarCode')

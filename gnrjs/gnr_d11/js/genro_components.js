@@ -857,12 +857,14 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         }
         genro.dom.setClass(pane,'closableSide_'+orientation,true);
         var closablePars = objectExtract(kw,'closable_*');
+        var iconClass = objectPop(closablePars,'iconClass');
         if('top' in closablePars){
             closablePars['margin_top'] = closablePars['margin_top'] || 0;
         }
         if('left' in closablePars){
             closablePars['margin_left'] = closablePars['margin_left'] || 0;
         }
+
         var splitter = objectPop(closablePars,'splitter');
         if(kw.closable=='close'){
             togglecb()
@@ -872,6 +874,9 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
         var opener = sourceNode._('div',objectUpdate({_class:_class,connect_onclick:togglecb},closablePars));
         if(label){
             opener._('div',{'innerHTML':label,_class:'slotbarOpener_label_'+orientation});
+        }
+        if(iconClass){
+            opener._('div',{_class:iconClass});
         }
     },
     
@@ -1056,12 +1061,15 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
 
     },
     slot_stackButtons:function(pane,slotValue,slotKw,frameCode){
-        var stackNodeId = objectPop(slotKw,'stackNodeId');
-        var scNode;
-        if(!stackNodeId){
-            scNode = genro.getFrameNode(frameCode,'center');
+        var scNode = objectPop(slotKw,'stackNode');
+        if(scNode){
+           scNode = pane.getParentNode().currentFromDatasource(scNode);
         }
-        pane._('StackButtons',objectUpdate({stack:scNode,stackNodeId:stackNodeId},slotKw));
+        if (!scNode){
+            var stackNodeId = objectPop(slotKw,'stackNodeId');
+            scNode = stackNodeId?genro.nodeById(stackNodeId):genro.getFrameNode(frameCode,'center');
+        }
+        pane._('StackButtons',objectUpdate({stack:scNode},slotKw));
     },
     slot_parentStackButtons:function(pane,slotValue,slotKw,frameCode){
         pane._('StackButtons',objectUpdate(objectUpdate({stack:pane.getParentNode().attributeOwnerNode('tag','StackContainer')},slotKw)));
