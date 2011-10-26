@@ -1490,9 +1490,19 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     
     checkExternalChange:function(delKeys,insOrUpdKeys,willBeInSelection){
         var linkedGrids = this.linkedGrids();
+        var selectedPkeysDict = {};
+        var selectedIndex,selectedPkey;
         dojo.forEach(linkedGrids,function(grid){
             grid.batchUpdating(true);
+            selectedIndex = grid.selection.selectedIndex;
+            if(selectedIndex){
+                selectedPkey = grid.rowIdByIndex(selectedIndex);
+                selectedPkeysDict[selectedPkey] = selectedPkeysDict[selectedPkey] || [];
+                selectedPkeysDict[selectedPkey].push(grid);
+            }
+            
         });
+        
         var wasInSelection;
         var changed = false;
         var data = this.getData();
@@ -1526,6 +1536,11 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                         if (willBeInSelectionNode) {
                             that.externalChangedKeys[pkey] = true;
                             data.getNodeByAttr('_pkey',willBeInSelectionNode.attr._pkey).updAttributes(willBeInSelectionNode.attr,true);
+                            if(selectedPkeysDict[pkey]){
+                                dojo.forEach(selectedPkeysDict[pkey],function(grid){
+                                    grid.sourceNode.publish('updatedSelectedRow');
+                                });
+                            }
                         }else{
                             data.popNode(wasInSelectionNode.label);
                         }

@@ -2209,6 +2209,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 this.serverAction(kw);
             }
         });
+        sourceNode.subscribe('updatedSelectedRow',function(){
+            var selectedIndex = widget.selection.selectedIndex;
+            widget.sourceNode.setAttributeInDatasource('selectedId', widget.rowIdByIndex(selectedIndex), null, widget.rowByIndex(selectedIndex), true);
+        });
         //dojo.subscribe(gridId+'_searchbox_keyUp',this,function(v){console.log(v)});
         var searchBoxCode =(sourceNode.attr.frameCode || nodeId)+'_searchbox';
         var searchBoxNode = genro.nodeById(searchBoxCode);
