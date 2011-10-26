@@ -69,14 +69,10 @@ class BaseResourcePrint(BaseResourceBatch):
             self.storeResult(storagekey, result, record, filepath=self.htmlMaker.filepath)
             
     def onRecordExit(self, record=None):
-        """Hook method.
-        
-        :param record: the result records of the executed batch"""
         pass
         
     def do(self):
         self.print_selection()
-    
         
     def get_record_caption(self, item, progress, maximum, **kwargs):
         caption = '%s (%i/%i)' % (self.tblobj.recordCaption(item),
@@ -102,9 +98,6 @@ class BaseResourcePrint(BaseResourceBatch):
             mailmanager.sendmail(**mailpars)
 
     def result_handler_mail_pdf(self, resultAttr):
-        """add???
-        
-        :param resultAttr: add???"""
         mailmanager = self.page.getService('mail')
         mailpars = dict()
         mailpars.update(self.mail_preference.asDict(True))
@@ -134,7 +127,7 @@ class BaseResourcePrint(BaseResourceBatch):
             elif self.batch_immediate=='download':
                 self.page.setInClientData(path='gnr.downloadurl',value=self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),fired=True)
 
-    def table_script_option_pane(self, pane,print_modes=None, mail_modes=None,**kwargs):
+    def table_script_option_pane(self, pane, print_modes=None, mail_modes=None, **kwargs):
         frame = pane.framePane(height='220px',width='400px')
         frame.dataFormula('#table_script_runner.dialog_options.title','dlgtitle',dlgtitle='!!Print Options',_onBuilt=True)
         frame.data('.print_mode',print_modes[0])
@@ -147,13 +140,13 @@ class BaseResourcePrint(BaseResourceBatch):
                     continue
             getattr(self,'table_script_options_%s' %pm)(sc.contentPane(title=pm,pageName=pm),**kwargs)
             
-    def table_script_option_common(self,fb,askLetterhead=None,**kwargs):
+    def table_script_option_common(self, fb, askLetterhead=None, **kwargs):
         if askLetterhead:
             fb.dbSelect(dbtable='adm.htmltemplate', value='^.letterhead_id',
-                    lbl='!!Letterhead',hasDownArrow=True)
+                        lbl='!!Letterhead',hasDownArrow=True)
         fb.simpleTextArea(value='^#table_script_runner.data.batch_note',colspan=5,lbl='!!Notes',height='20px',lbl_vertical_align='top')
     
-    def table_script_option_footer(self,dlg):
+    def table_script_option_footer(self, dlg):
         bar = dlg.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
         bar.cancelbtn.slotButton('!!Cancel',action='dlg.hide();', dlg=dlg.js_widget)
         bar.confirmbtn.slotButton('!!Print', action='FIRE .confirm;')
@@ -165,7 +158,7 @@ class BaseResourcePrint(BaseResourceBatch):
         self.server_print_option_fb(fb, resource=resource)
 
     def table_script_options_pdf(self, pane,**kwargs):
-        pane.attributes.update(title='!!Pdf')
+        pane.attributes.update(title='!!PDF')
         fb = self.table_script_fboptions(pane)
         self.table_script_option_common(fb,**kwargs)
         fb.data('.zipped', False)
@@ -173,14 +166,14 @@ class BaseResourcePrint(BaseResourceBatch):
         fb.checkbox(value='^.zipped', label='!!Zip folder')
 
     def table_script_options_mail_pdf(self, pane,**kwargs):
-        pane.attributes.update(title='!!Pdf by email')
+        pane.attributes.update(title='!!PDF by email')
         fb = self.table_script_fboptions(pane)
         self.table_script_option_common(fb,**kwargs)
         fb.textbox(value='^.to_address', lbl='!!To')
         fb.textbox(value='^.cc_address', lbl='!!CC')
         fb.textbox(value='^.subject', lbl='!!Subject')
         fb.simpleTextArea(value='^.body', lbl='!!Body', height='5ex', lbl_vertical_align='top')
-
+        
     def table_script_options_mail_deliver(self, pane,**kwargs):
         pane.attributes.update(title='!!Deliver mail')
         fb = self.table_script_fboptions(pane)
@@ -188,7 +181,7 @@ class BaseResourcePrint(BaseResourceBatch):
         fb.textbox(value='^.cc_address', lbl='!!CC', width='100%')
         fb.textbox(value='^.subject', lbl='!!Subject', width='100%')
         fb.simpleTextArea(value='^.body', lbl='!!Body', height='8ex', lbl_vertical_align='top')
-
+        
     def table_script_fboptions(self, pane, fld_width='100%', tdl_width='4em', **kwargs):
         return pane.div(padding='10px').formbuilder(cols=1, width='100%', tdl_width=tdl_width,
                                                                     border_spacing='4px', fld_width=fld_width)

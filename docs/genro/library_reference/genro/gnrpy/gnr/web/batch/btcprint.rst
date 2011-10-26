@@ -8,27 +8,11 @@
     
     **Classes:**
     
-    * :ref:`btcprint_base`
-    * :ref:`baseresourceprint_webpage_variables`
+    * BaseResourcePrint: :ref:`baseresourceprint_webpage_variables`
     
     **Complete reference:**
     
     * :ref:`btcprint_classes`
-    
-.. _btcprint_base:
-
-:class:`BaseResourcePrint`
-==========================
-
-    .. module:: gnr.web.batch.btcprint.BaseResourcePrint
-    
-    ========================== ==================================== =========================================
-    :meth:`do`                  :meth:`result_handler`              :meth:`table_script_fboptions`           
-    :meth:`get_record_caption`  :meth:`result_handler_mail_deliver` :meth:`table_script_option_pane`         
-    :meth:`onRecordExit`        :meth:`result_handler_mail_pdf`     :meth:`table_script_options_mail_deliver`
-    :meth:`print_record`        :meth:`result_handler_pdf`          :meth:`table_script_options_mail_deliver`
-    :meth:`print_selection`     :meth:`result_handler_server_print` :meth:`table_script_options_pdf`         
-    ========================== ==================================== =========================================
     
 .. _baseresourceprint_webpage_variables:
 
@@ -40,6 +24,8 @@ BaseResourcePrint - webpage variables
     BaseResourcePrint class). They are:
     
     * :ref:`baseresourceprint_batch_immediate`
+    * :ref:`baseresourceprint_batch_mail_modes`
+    * :ref:`baseresourceprint_batch_print_modes`
     * :ref:`baseresourceprint_dialog_height`
     * :ref:`baseresourceprint_dialog_height_no_par`
     * :ref:`baseresourceprint_dialog_width`
@@ -47,15 +33,26 @@ BaseResourcePrint - webpage variables
     * :ref:`baseresourceprint_mail_tags`
     * :ref:`baseresourceprint_templates`
     
-    templates = '' #CONTROLLARE
-    mail_tags = 'admin'
-    
 .. _baseresourceprint_batch_immediate:
 
 batch_immediate
 ---------------
 
     add???. Default value is ``False``
+    
+.. _baseresourceprint_batch_print_modes:
+
+batch_print_modes
+-----------------
+
+    add???
+    
+.. _baseresourceprint_batch_mail_modes:
+
+batch_mail_modes
+----------------
+
+    add???
     
 .. _baseresourceprint_dialog_height:
 
@@ -124,11 +121,10 @@ mail_address
 mail_tags
 ---------
 
-    Specify the authorization level needed by the customer to send emails
-    
-    If the user has the same authorization level of the *mail_tags* level, then he can use
+    Specify the authorization level needed by the customer to send print through email:
+    if the user has the same authorization level of the *mail_tags* level, then he can use
     some additional options of the :ref:`print_setting_dialog` (the :ref:`print_pdf_by_mail`
-    and the :ref:`print_deliver_mails`). Default value is ``admin``
+    and the :ref:`print_deliver_mails`)
     
     For more information, check the :ref:`print_setting_dialog_print` section
     
