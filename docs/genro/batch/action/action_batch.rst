@@ -110,13 +110,19 @@ start an action batch
         
       where:
       
-      * ``fileName`` is the name of the file that includes your action batch; this
-        file must be placed in the following place... add???
+      * ``fileName`` is the name of the file that includes your action batch; the
+        file must to be placed in a specified location (:ref:`action_location` section)
         
     **Example**:
     
-        add???
+    If you created a batch called "my_batch", then your :ref:`webpage` would begin
+    with the following lines::
     
+        class GnrCustomWebPage(object):
+            def main(self, root, **kwargs):
+                pane = root.'contentPane(height='300px', datapath='my_pane')
+                pane.button('Start Batch',action='PUBLISH tablehandler_run_script="action","my_batch";')
+                
 .. _batchupdate:
 
 batchUpdate
@@ -136,36 +142,59 @@ batchUpdate
 batchUpdate example - dict
 --------------------------
 
-    add???
+    Let's see an example of the batchUpdate passing a dict() for the *updater* attribute
     
+    * Line 1 is the :ref:`action_import`
+    * Line 3 is the caption of the batch
+    * Line 4 includes the authorization tags: if the user logged has got one (or more)
+      of the corresponding tags, then he is able to use the batch. More information
+      on authorizations in the :ref:`auth` section
+    * Line 5 is the batch description
+    * Line 7 is the Main class instantation
+    * Line 8 is a call to the do() method
+    * Line 9 is a call to the batchUpdate; it includes the *updater* parameter to which
+      we pass a dict(); we can pass a dict because we need to replace all the value of
+      a single column with a default
+      
+    ::
+    
+        1   from gnr.web.batch.btcaction import BaseResourceAction
+        2    
+        3   caption = 'My batch'
+        4   tags = 'user,admin'
+        5   description = 'My description'
+        6
+        7   class Main(BaseResourceAction):
+        8       def do(self):
+        9           self.batchUpdate(updater=dict('issue_price' = 100))
+        
 .. _batchupdate_method:
 
 batchUpdate example - method
 ----------------------------
 
-    add???
+    Let's see an example of the batchUpdate passing a method for the *updater* attribute
     
+    * For the description of the first 8 lines, check the previous example (:ref:`batchupdate_dict`)
+    * Line 9 is a call to the batchUpdate; we pass to the *updater* the updater() method
+    * Line 11 is the definition of the updater() method
+    * Line 12 and 13 contain the batch: in particular, they replace the values included in the
+      old columns ("old_issue_price" and "old_market_price") in the new columns ("issue_price"
+      and "market_price")
+      
     ::
     
-        # Created by Francesco Porcari on 2010-07-02.
-        # Copyright (c) 2010 Softwell. All rights reserved.
-        
-        from gnr.web.batch.btcaction import BaseResourceAction
-        
-        caption = 'Cambia dtype 1' # the batch title
-        tags = '_DEV_'
-        description = 'Cambia dtype 2'
-        
-        class Main(BaseResourceAction):
-            batch_prefix = 'DT'
-            batch_title = 'Dtype'
-            batch_cancellable = False
-            batch_delay = 0.5
-            
-            def do(self):
-                self.batchUpdate(updater=self.updater)
-            
-            def updater(self, record):
-                record['issue_price'] = record['old_issue_price']
-                record['market_price'] = record['old_market_price']
-                
+        1   from gnr.web.batch.btcaction import BaseResourceAction
+        2   
+        3   caption = 'My batch' # the batch title
+        4   tags = '_DEV_'
+        5   description = 'Cambia dtype 2'
+        6
+        7   class Main(BaseResourceAction):
+        8       def do(self):
+        9           self.batchUpdate(updater=self.updater)
+       10           
+       11       def updater(self, record):
+       12           record['issue_price'] = record['old_issue_price']
+       13           record['market_price'] = record['old_market_price']
+       

@@ -302,11 +302,12 @@ print GUI
     
     **Example**:
     
-        If you created a print setting file called "printing_performance", then your button would be::
+        If you created a print setting file called "printing_performance", then your :ref:`webpage`
+        would begin with the following lines::
         
             class GnrCustomWebPage(object):
                 def main(self, root, **kwargs):
-                    pane = contentPane(height='300px', datapath='my_pane')
+                    pane = root.contentPane(height='300px', datapath='my_pane')
                     pane.button('New print',action='PUBLISH tablehandler_run_script="print","printing_performance";')
     
 .. _print_setting_dialog:
