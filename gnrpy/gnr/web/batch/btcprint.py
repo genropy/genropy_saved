@@ -193,15 +193,15 @@ class BaseResourcePrint(BaseResourceBatch):
         return pane.div(padding='10px').formbuilder(cols=1, width='100%', tdl_width=tdl_width,
                                                                     border_spacing='4px', fld_width=fld_width)
 
-    def table_script_option_footer(self,dlg,**kwargs):
-        bar = dlg.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
-        bar.cancelbtn.slotButton('!!Cancel',action='dlg.hide();', dlg=dlg.js_widget)
+    def table_script_option_footer(self,pane,**kwargs):
+        bar = pane.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
+        bar.cancelbtn.slotButton('!!Cancel',action='FIRE .cancel;')
         bar.confirmbtn.slotButton('!!Print', action='FIRE .confirm;')
     
-    def table_script_parameters_footer(self,dlg, immediate=None,**kwargs):
+    def table_script_parameters_footer(self,pane, immediate=None,**kwargs):
         if immediate:
-            bar = dlg.slotBar('*,cancelbtn,3,downloadbtn,3,printbtn,3',_class='slotbar_dialog_footer')
-            bar.cancelbtn.slotButton('!!Cancel',action='dlg.hide();', dlg=dlg.js_widget)
+            bar = pane.slotBar('*,cancelbtn,3,downloadbtn,3,printbtn,3',_class='slotbar_dialog_footer')
+            bar.cancelbtn.slotButton('!!Cancel',action='FIRE .cancel;')
             bar.downloadbtn.slotButton('!!Download', action="""SET #table_script_runner.data.immediate_mode ="download";  
                                                                FIRE .confirm ="download";""")
             bar.printbtn.slotButton('!!Print', action="""SET #table_script_runner.data.immediate_mode ="print";  
@@ -211,6 +211,6 @@ class BaseResourcePrint(BaseResourceBatch):
             elif immediate=='download':
                 bar.replaceSlots('printbtn,3','')
         else:
-            bar = dlg.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
-            bar.cancelbtn.slotButton('!!Cancel',action='dlg.hide();', dlg=dlg.js_widget)
+            bar = pane.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
+            bar.cancelbtn.slotButton('!!Cancel',action='FIRE .cancel;')
             bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')

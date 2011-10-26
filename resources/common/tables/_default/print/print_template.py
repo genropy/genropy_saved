@@ -16,7 +16,6 @@ class Main(BaseResourcePrint):
     batch_immediate = True
     batch_title = None
     print_mode = 'pdf'
-    batch_immediate = True
     
     def pre_process(self):
         extra_parameters = self.batch_parameters.pop('extra_parameters')
@@ -48,7 +47,7 @@ class Main(BaseResourcePrint):
         data,meta = self.db.package(pkg).loadUserObject(pkey=extra_parameters['template_id'])
         pane.dataFormula('#table_script_runner.dialog_pars.title','dlgtitle',
                             dlgtitle='!!%s (%i)' %(meta['description'] or meta['code'],record_count),_onBuilt=True)
-        fb = pane.formbuilder(cols=1,field_width='100%',border_spacing='2px',width='100%')
+        fb = pane.formbuilder(cols=1,fld_width='20em',border_spacing='4px')
         fb.dbSelect(dbtable='adm.htmltemplate', value='^.letterhead_id',lbl='!!Letterhead',hasDownArrow=True)
         fb.dataController("SET .letterhead_id = default_letterhead || null;",_onBuilt=True,
                             default_letterhead=data.getItem('metadata.default_letterhead') or False,_if='default_letterhead')

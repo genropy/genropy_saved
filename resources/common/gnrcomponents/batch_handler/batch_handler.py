@@ -56,23 +56,26 @@ class TableScriptHandler(BaseComponent):
         pane.data('.batch', batch_dict)
         hasParameters = hasattr(self, 'table_script_parameters_pane')
         hasOptions = hasattr(self, 'table_script_option_pane')
-        dlgpars = pane.dialog(title='^.title',datapath='.dialog_pars')
-        dlgoptions = pane.dialog(title='^.title',datapath='.dialog_options')
+        dlgpars = pane.dialog(title='^.title',datapath='.dialog_pars',position='relative')
+        dlgoptions = pane.dialog(title='^.title',datapath='.dialog_options',position='relative')
         pane = pane.div(datapath='#table_script_runner')
         if hasParameters:
-            parsbox = dlgpars.div(datapath='#table_script_runner.data',min_width='300px',min_height='150px')
+            parsbox = dlgpars.div(datapath='#table_script_runner.data',
+                            min_width='300px',min_height='150px')
             if batch_dict.get('title'):
                 dlgpars.dataFormula('.title','dlgtitle',dlgtitle="!!%s(%i)" %(batch_dict['title'],count),_onBuilt=True)
             self.table_script_parameters_pane(parsbox,extra_parameters=extra_parameters,record_count=count,**batch_dict)
-            self.table_script_parameters_footer(dlgpars,**batch_dict)    
+            self.table_script_parameters_footer(dlgpars.div(left=0,right=0,position='absolute',bottom=0),**batch_dict)    
             dlgpars.dataController("dlgoptions.show();",confirm="^.confirm",dlg=dlgpars.js_widget,
                                     dlgoptions=dlgoptions.js_widget,
                                     hasOptions=hasOptions,_if='hasOptions&&confirm==true',
-                                    _else='FIRE #table_script_runner.confirm;')    
+                                    _else='FIRE #table_script_runner.confirm;')  
+            dlgpars.dataController("dlg.hide()",_fired="^.cancel",dlg=dlgpars.js_widget)  
         if hasOptions:
             self.table_script_option_pane(dlgoptions.div(datapath='#table_script_runner.data.batch_options'), resource=resource,**batch_dict)
-            self.table_script_option_footer(dlgoptions,**batch_dict)    
+            self.table_script_option_footer(dlgoptions.div(left=0,right=0,position='absolute',bottom=0),**batch_dict)    
             dlgoptions.dataController("FIRE #table_script_runner.confirm;",_fired="^.confirm",dlg=dlgoptions.js_widget)                
+            dlgoptions.dataController("dlg.hide()",_fired="^.cancel",dlg=dlgoptions.js_widget)  
 
         pane.dataController("""
                             dlgpars.hide();

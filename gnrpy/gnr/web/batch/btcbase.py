@@ -201,13 +201,13 @@ class BaseResourceBatch(object):
         :param pane: the contentPane"""
         pass
 
-    def table_script_parameters_footer(self,dlg,**kwargs):
-        bar = dlg.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
-        bar.cancelbtn.slotButton('!!Cancel',action='dlg.hide();', dlg=dlg.js_widget)
+    def table_script_parameters_footer(self,pane,**kwargs):
+        bar = pane.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
+        bar.cancelbtn.slotButton('!!Cancel',action='FIRE .cancel;')
         bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')
 
-    def table_script_option_footer(self,dlg,**kwargs):
-        bar = dlg.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
-        bar.cancelbtn.slotButton('!!Cancel',action='dlg.hide();', dlg=dlg.js_widget)
+    def table_script_option_footer(self,pane,**kwargs):
+        bar = pane.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
+        bar.cancelbtn.slotButton('!!Cancel',action='FIRE .cancel;')
         bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')
         
