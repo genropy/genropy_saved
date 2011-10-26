@@ -1495,7 +1495,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         dojo.forEach(linkedGrids,function(grid){
             grid.batchUpdating(true);
             selectedIndex = grid.selection.selectedIndex;
-            if(selectedIndex){
+            if(selectedIndex!=null){
                 selectedPkey = grid.rowIdByIndex(selectedIndex);
                 selectedPkeysDict[selectedPkey] = selectedPkeysDict[selectedPkey] || [];
                 selectedPkeysDict[selectedPkey].push(grid);

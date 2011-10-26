@@ -718,6 +718,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             this._position_replaced();
         }
         else {
+            centerOn = this.sourceNode.currentFromDatasource(centerOn);
             genro.dom.centerOn(this.domNode, centerOn);
             //var viewport=dojo.coords(genro.domById(centerOn));
             //viewport.l=viewport.x;
