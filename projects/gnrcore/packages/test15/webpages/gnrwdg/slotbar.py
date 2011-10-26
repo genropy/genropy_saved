@@ -57,6 +57,13 @@ class GnrCustomWebPage(object):
         sl.foo.button(label='Add',iconClass='icnBaseAdd',showLabel=False)
         sl.bar.button(label='Del',iconClass='icnBaseOk',showLabel=False)
         sl.spam.div(height='18px',width='16px',background='blue')
+
+    def test_4_slotToolbar_replaceslots(self,pane):
+        """slotToolbar vertical"""
+        frame = pane.framePane(height='100px',shadow='3px 3px 5px gray',
+                                border='1px solid #bbb',rounded_top=10,margin='10px')
+        bar = frame.top.slotBar('aaa,bbb',aaa='Piero',bbb='Pippo')
+        bar.replaceSlots('bbb','ccc',ccc='Pancrazio')
         
     @struct_method
     def myslot(self,pane):

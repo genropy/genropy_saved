@@ -81,7 +81,7 @@ class TableHandlerForm(BaseComponent):
         if options.get('modal'):
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
-            bar = form.bottom.slotBar(slots,margin_bottom='2px')
+            bar = form.bottom.slotBar(slots,margin_bottom='2px',_class='slotbar_dialog_footer')
             bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
             bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')    

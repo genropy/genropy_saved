@@ -118,6 +118,10 @@ class BaseResourcePrint(BaseResourceBatch):
                                                           **self.server_print_options.asDict(True))
         return printer.printCups(self.results.values(), self.batch_title)
 
+
+    def result_handler_html(self, resultAttr):
+        print x
+        
     def result_handler_pdf(self, resultAttr):
         pdfprinter = self.print_handler.getPrinterConnection('PDF', self.print_options)
         save_as = slugify(self.print_options['save_as'] or self.batch_title)
@@ -129,6 +133,8 @@ class BaseResourcePrint(BaseResourceBatch):
             resultAttr['url'] = self.fileurl
             resultAttr['document_name'] = save_as
             resultAttr['url_print'] = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True,target='_blank')
+            if self.batch_immediate is True:
+                self.batch_immediate = self.batch_parameters.get('immediate_mode')
             if self.batch_immediate=='print':
                 self.page.setInClientData(path='gnr.clientprint',value=self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),fired=True)
             elif self.batch_immediate=='download':
@@ -152,13 +158,7 @@ class BaseResourcePrint(BaseResourceBatch):
             fb.dbSelect(dbtable='adm.htmltemplate', value='^.letterhead_id',
                     lbl='!!Letterhead',hasDownArrow=True)
         fb.simpleTextArea(value='^#table_script_runner.data.batch_note',colspan=5,lbl='!!Notes',height='20px',lbl_vertical_align='top')
-    
-    def table_script_option_footer(self,dlg):
-        bar = dlg.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
-        bar.cancelbtn.slotButton('!!Cancel',action='dlg.hide();', dlg=dlg.js_widget)
-        bar.confirmbtn.slotButton('!!Print', action='FIRE .confirm;')
 
-    
     def table_script_options_server_print(self, pane,resource=None,**kwargs):
         pane.attributes.update(title='!!Server Print')
         fb = self.table_script_fboptions(pane)
@@ -192,4 +192,25 @@ class BaseResourcePrint(BaseResourceBatch):
     def table_script_fboptions(self, pane, fld_width='100%', tdl_width='4em', **kwargs):
         return pane.div(padding='10px').formbuilder(cols=1, width='100%', tdl_width=tdl_width,
                                                                     border_spacing='4px', fld_width=fld_width)
-                                                        
+
+    def table_script_option_footer(self,dlg,**kwargs):
+        bar = dlg.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
+        bar.cancelbtn.slotButton('!!Cancel',action='dlg.hide();', dlg=dlg.js_widget)
+        bar.confirmbtn.slotButton('!!Print', action='FIRE .confirm;')
+    
+    def table_script_parameters_footer(self,dlg, immediate=None,**kwargs):
+        if immediate:
+            bar = dlg.slotBar('*,cancelbtn,3,downloadbtn,3,printbtn,3',_class='slotbar_dialog_footer')
+            bar.cancelbtn.slotButton('!!Cancel',action='dlg.hide();', dlg=dlg.js_widget)
+            bar.downloadbtn.slotButton('!!Download', action="""SET #table_script_runner.data.immediate_mode ="download";  
+                                                               FIRE .confirm ="download";""")
+            bar.printbtn.slotButton('!!Print', action="""SET #table_script_runner.data.immediate_mode ="print";  
+                                                         FIRE .confirm ="print";""")
+            if immediate=='print':
+                bar.replaceSlots('downloadbtn,3','')
+            elif immediate=='download':
+                bar.replaceSlots('printbtn,3','')
+        else:
+            bar = dlg.slotBar('*,cancelbtn,3,confirmbtn,3',_class='slotbar_dialog_footer')
+            bar.cancelbtn.slotButton('!!Cancel',action='dlg.hide();', dlg=dlg.js_widget)
+            bar.confirmbtn.slotButton('!!Confirm', action='FIRE .confirm;')
