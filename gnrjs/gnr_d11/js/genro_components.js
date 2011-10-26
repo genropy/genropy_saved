@@ -960,7 +960,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
             }
             slotKw = objectExtract(kw,slot+'_*');
             if(slotKw.width && slotKw.width.indexOf('%')>=0){
-                cell.getParentNode().attr['width'] = slotKw.height;
+                cell.getParentNode().attr['width'] = slotKw.width;
                 slotKw.width = '100%';
             }
             if(cell.len()==0){
