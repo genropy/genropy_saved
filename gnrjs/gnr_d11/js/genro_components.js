@@ -958,9 +958,13 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                     });
                 }
             }
+            slotKw = objectExtract(kw,slot+'_*');
+            if(slotKw.width && slotKw.width.indexOf('%')>=0){
+                cell.getParentNode().attr['width'] = slotKw.height;
+                slotKw.width = '100%';
+            }
             if(cell.len()==0){
                 if(that['slot_'+slot]){
-                    slotKw = objectExtract(kw,slot+'_*');
                     slotValue = objectPop(kw,slot);
                     lbl = objectPop(slotKw,'lbl');
                     kwLbl = objectExtract(slotKw,'lbl_*');
