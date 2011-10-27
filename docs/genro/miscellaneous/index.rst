@@ -30,7 +30,6 @@ section index
     datastore
     languages
     login
-    palette
     ../scripts/index
     trigger
     user_interface

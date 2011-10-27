@@ -187,13 +187,14 @@ table, condition and relation attributes
 
     A correct setting of a TableHandler needs:
     
-    * a *table* parameter: string. Set the :ref:`table` to which the TableHandler is linked.
+    * a *table* parameter: set the :ref:`table` to which the TableHandler is linked.
     * *condition*: the condition gathers the default query parameters, that will be added to the
       optional query made by the user.
       
-    Alternatively, if add???, you can specify the *relation* parameter (link the relation parameter
-    to the :ref:`relation_name`!!!);
-    if you do so, the *table* and the *condition* attributes are taken automatically.
+    Alternatively, if you define a :ref:`relation_name` for the :ref:`table` from which the
+    TableHandler gets its values, you can specify the *relation* parameter in the TableHandler;
+    if you do so, the *table* and the *condition* attributes are taken automatically (but
+    you can override their values redefining them!)
     
     Let's see some examples:
     

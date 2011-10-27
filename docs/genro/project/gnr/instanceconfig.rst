@@ -180,9 +180,7 @@ Tags
 ``<xml_auth>``
 ^^^^^^^^^^^^^^
 
-    .. warning:: DEPRECATED!!! The adm/manage_users is not used anymore! add???
-    
-    .. note:: the ``<xml_auth>`` tag uses the :meth:`auth_xml` method of the ``GnrApp`` class.
+    .. note:: the ``<xml_auth>`` tag uses the :meth:`auth_xml() <gnr.app.gnrapp.GnrApp.auth_xml>` method
     
     The ``<xml_auth>`` tag is a support tag that comes in handy to the :ref:`instanceconfig_py_auth`
     tag; it allows to you (i.e. the programmer) to enter the first time into the webpage called
@@ -214,9 +212,7 @@ Tags
 ``<py_auth>``
 ^^^^^^^^^^^^^
 
-    .. warning:: DEPRECATED!!! The adm/manage_users is not used anymore! add???
-    
-    .. note:: the ``<py_auth>`` tag uses the :meth:`auth_py` method of the ``GnrApp`` class.
+    .. note:: the ``<py_auth>`` tag uses the :meth:`auth_py() <gnr.app.gnrapp.GnrApp.auth_py>` method
     
     Once you have your temporary user [#]_, you can create the users for your customers.
     

@@ -30,6 +30,10 @@ Genro form widgets
     * :ref:`checkboxtext`
     * :ref:`dbcombobox`
     * :ref:`dbselect`
+    * :ref:`palettegrid`
+    * :ref:`palettegroup`
+    * :ref:`palettepane`
+    * :ref:`palettetree`
     
 .. _dojo_improved_form_widgets:
 
@@ -85,5 +89,6 @@ section index
     slider
     togglebutton
     tooltipdialog
+    palette/index
     db/index
     textboxes: textbox, currencyTextBox, dateTextbox, numberTextbox and timeTextbox <textboxes/index>

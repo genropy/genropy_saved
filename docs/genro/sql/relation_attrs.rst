@@ -90,11 +90,13 @@ group
 one_one
 =======
 
-    one_one=True    specifico che è una one_one. se non lo metto
-                    la relazione è una a molti!
-    one_one='*'     magia! crea il relation_name (cioè come path di relazione inverso)
-                    con nome uguale a nome della table ()
-                    
+    CLIPBOARD::
+    
+        one_one=True    specifico che è una one_one. se non lo metto
+                        la relazione è una a molti!
+        one_one='*'     magia! crea il relation_name (cioè come path di relazione inverso)
+                        con nome uguale a nome della table ()
+                        
 .. _one_name:
 
 one_name

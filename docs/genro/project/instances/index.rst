@@ -16,11 +16,13 @@
 introduction
 ============
 
-    The ``instances`` folder:
+    The ``instances`` folder includes the instances for your application.
+
+    An instance contains:
     
-    * contains customizations for the particular customer
-    * usually contains parameters for database access
-    * has a :ref:`instances_data` subfolder that you can use to store data in filesystems
+    * customizations for the particular customer
+    * parameters for database access
+    * a :ref:`instances_data` subfolder that you can use to store data in filesystems
 
 .. _instances_section_index:
 

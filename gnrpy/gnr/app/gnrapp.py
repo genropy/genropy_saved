@@ -49,12 +49,17 @@ from gnr.sql.gnrsql import GnrSqlDb
 log = logging.getLogger(__name__)
 
 class NullLoader(object):
+    """add???"""
     def load_module(self,fullname):
+        """add???
+        
+        :param fullname: add???"""
         if fullname in sys.modules:
             return sys.modules[fullname]
 
 class GnrModuleFinder(object):
-
+    """add???"""
+    
     path_list=[]
 
     def __init__(self, path_entry, app):
@@ -69,6 +74,10 @@ class GnrModuleFinder(object):
         return '<%s for "%s">' % (self.__class__.__name__, self.path_entry)
 
     def find_module(self, fullname, path=None):
+        """add???
+        
+        :param fullname: add???
+        :param path: add???"""
         path = path or self.path_entry
         splitted=fullname.split('.')
         if splitted[0] == 'gnrpkg' and len(splitted)==1:
@@ -119,13 +128,14 @@ class GnrModuleFinder(object):
         return pkg_module
             
 class GnrModuleLoader(object):
-
+    """add???"""
     def __init__(self, file, pathname, description):
         self.file=file
         self.pathname=pathname
         self.description=description
 
     def load_module(self, fullname):
+        """add???"""
         if fullname in sys.modules:
             mod = sys.modules[fullname]
         else:
@@ -151,7 +161,7 @@ class GnrSqlAppDb(GnrSqlDb):
     def checkTransactionWritable(self, tblobj):
         """add???
         
-        :param tblobj: the table object"""
+        :param tblobj: the :ref:`database table <table>` object"""
         if not hasattr(tblobj, '_usesTransaction'):
             tblobj._usesTransaction = boolean(
                     tblobj.attributes.get('transaction', tblobj.pkg.attributes.get('transaction', '')))
@@ -159,30 +169,30 @@ class GnrSqlAppDb(GnrSqlDb):
             raise GnrWriteInReservedTableError('%s.%s' % (tblobj.pkg.name, tblobj.name))
         
     def delete(self, tblobj, record, **kwargs):
-        """add???
+        """Delete a record in the database
         
-        :param tblobj: the table object
-        :param record: add???"""
+        :param tblobj: the :ref:`database table <table>` object
+        :param record: the record to be deleted"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.delete(self, tblobj, record,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'D')
         
     def update(self, tblobj, record, old_record=None, pkey=None,**kwargs):
-        """add???
+        """Update a record in the database
         
-        :param tblobj: the table object
-        :param record: add???
-        :param old_record: add???
+        :param tblobj: the :ref:`database table <table>` object
+        :param record: the new record
+        :param old_record: the old record to be updated
         :param pkey: the record :ref:`primary key <pkey>`"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.update(self, tblobj, record, old_record=old_record, pkey=pkey,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'U', old_record)
         
     def insert(self, tblobj, record, **kwargs):
-        """add???
+        """Insert a record in the database
 
-        :param tblobj: the :ref:`table` object
-        :param record: add???"""
+        :param tblobj: the :ref:`database table <table>` object
+        :param record: the record to be inserted"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.insert(self, tblobj, record,**kwargs)
         self.application.notifyDbEvent(tblobj, record, 'I')
@@ -190,7 +200,7 @@ class GnrSqlAppDb(GnrSqlDb):
     def getResource(self, tblobj, path):
         """add???
 
-        :param tblobj: the :ref:`table` object
+        :param tblobj: the :ref:`database table <table>` object
         :param path: add???"""
         app = self.application
         resource = app.site.loadResource(tblobj.pkg.name, 'tables', tblobj.name, path)
@@ -200,13 +210,18 @@ class GnrSqlAppDb(GnrSqlDb):
         return resource
     
     def onDbCommitted(self):
+        """add???"""
         self.application.onDbCommitted()
         
     def getFromStore(self, path, dflt):
+        """add???
+        
+        :param path: add???
+        :param dflt: add???"""
         return self.application.site.currentPage.pageStore().getItem(path,dflt)
         
-
 class GnrPackagePlugin(object):
+    """add???"""
     def __init__(self, pkg, path):
         self.pkg = pkg
         self.application = self.pkg.application
@@ -226,12 +241,6 @@ class GnrPackagePlugin(object):
 class GnrPackage(object):
     """add???"""
     def __init__(self, pkg_id, application, path=None, filename=None, **pkgattrs):
-        """add???
-
-        :param pkg_id: add???
-        :param application: add???
-        :param path: add???. 
-        :param filename: add???"""
         self.id = pkg_id
         filename = filename or pkg_id
         self.application = application
@@ -288,12 +297,14 @@ class GnrPackage(object):
         self.configure()
         
     def loadPlugins(self):
+        """add???"""
         plugin_folders=glob.glob(os.path.join(self.application.pluginFolder,self.id,'*'))
         for plugin_folder in plugin_folders:
             plugin = GnrPackagePlugin(self, plugin_folder)
             self.plugins[plugin.id] = plugin
         
     def getPlugins(self):
+        """add???"""
         return self.plugins.values()
     
     def loadTableMixinDict(self, module, folder, model_prefix=''):
@@ -349,7 +360,7 @@ class GnrPackage(object):
                             name_short='packageName', name_long='packageName', name_full='packageName')
                             
         where ``packageName`` is the name of your package (as you can see, by default your schema will
-        be called with the same name of your package)."""
+        be called with the same name of your package)"""
         return {}
         
     def onAuthentication(self, avatar):
@@ -388,13 +399,13 @@ class GnrPackage(object):
         pass
         
 class GnrApp(object):
-    """Opens a GenroPy application instance.
-        
+    """Opens a GenroPy application :ref:`instance <instances>`
+    
     :param instanceFolder: instance folder or name
-    :param custom_config:  a bag or dictionary that will override configuration value
+    :param custom_config:  a :ref:`bag` or dictionary that will override configuration value
     :param forTesting:  if ``False``, setup the application normally.
                         if ``True``, setup the application for testing with a temporary sqlite database.
-                        if it's a bag, setup the application for testing and import test data from this bag.
+                        If it's a bag, setup the application for testing and import test data from this bag.
                         (see :meth:`loadTestingData()`)
     
     If you want to interact with a Genro instance from your own python script, you can use this class directly.
@@ -403,8 +414,7 @@ class GnrApp(object):
     
     >>> testgarden = GnrApp('testgarden')
     >>> testgarden.db.table('showcase.person').query().count()
-    12
-    """
+    12"""
     def __init__(self, instanceFolder=None, custom_config=None, forTesting=False, debug=False, **kwargs):
         self.aux_instances = {}
         self.gnr_config = self.load_gnr_config()
@@ -441,6 +451,7 @@ class GnrApp(object):
         self.creationTime = time.time()
         
     def get_modulefinder(self, path_entry):
+        """add???"""
         return GnrModuleFinder(path_entry,self)
         
     def set_environment(self):
@@ -493,9 +504,12 @@ class GnrApp(object):
         return instance_config
         
     def init(self, forTesting=False):
-        """add???
+        """Initiate a :class:`GnrApp`
         
-        :param forTesting: add???"""
+        :param forTesting:  if ``False``, setup the application normally.
+                            if ``True``, setup the application for testing with a temporary sqlite database.
+                            If it's a :ref:`bag`, setup the application for testing and import test data from this bag.
+                            (see :meth:`loadTestingData()`)"""
         self.onIniting()
         self.base_lang = self.config['i18n?base_lang'] or 'en'
         self.catalog = GnrClassCatalog()
@@ -563,9 +577,9 @@ class GnrApp(object):
     def loadTestingData(self, bag):
         """Load data used for testing in the database.
         
-        Called by the constructor when you pass a Bag in the `forTesting` parameter.
+        Called by the constructor when you pass a :ref:`bag` into the *forTesting* parameter
         
-        :param bag: your test data
+        :param bag: a :ref:`bag` your test data
         
         Use this format in your test data::
         
@@ -580,8 +594,7 @@ class GnrApp(object):
                     <!-- ... more records ... -->
                 </table>
                 <!-- ... more tables ... -->
-            </GenRoBag>
-        """
+            </GenRoBag>"""
         for table_name, records in bag.digest('#a.name,#v'):
             tbl = self.db.table(table_name)
             for r in records.values():
@@ -591,11 +604,11 @@ class GnrApp(object):
     def instance_name_to_path(self, instance_name):
         """add???
 
-        :param instance_name: add???"""
+        :param instance_name: the name of the :ref:`instance <instances>`"""
         return PathResolver(gnr_config=self.gnr_config).instance_name_to_path(instance_name)
 
     def build_package_path(self):
-        """add???"""
+        """Build the path of the :ref:`package <packages>`"""
         self.package_path = {}
         path_list = []
         project_packages_path = os.path.normpath(os.path.join(self.instanceFolder, '..', '..', 'packages'))
@@ -612,8 +625,9 @@ class GnrApp(object):
 
     def pkg_name_to_path(self, pkgid, project=None):
         """add???
-
-        :param pkgid: add???"""
+        
+        :param pkgid: the id of the :ref:`package <packages>`
+        :param project: add???"""
         path = None
         if project:
             project_path = self.project_path(project)
@@ -631,21 +645,23 @@ class GnrApp(object):
                     'Error: package %s not found' % pkgid)
         
     def project_path(self, project):
+        """add???
+        
+        :param project: add???"""
         for project_path in self.gnr_config['gnr.environment_xml.projects'].digest('#a.path'):
             path = expandpath(project_path) 
             if os.path.isdir(path) and project in os.listdir(path):
                 return os.path.join(path,project)
 
     def onIniting(self):
-        """Event called before the instance initialization.
-        """
+        """Hook method called before the :ref:`instance <instances>` initialization"""
         pass
 
     def onInited(self):
-        """Event called after the instance initialization is complete.
+        """Hook method called after the instance initialization is complete.
         
-        By default, it will call the ``onApplicationInited()`` method of each package.
-        """
+        By default, it will call the :meth:`onApplicationInited()
+        <gnr.app.gnrapp.GnrPackage.onApplicationInited>` method of each package"""
         for pkg in self.packages.values():
             pkg.onApplicationInited()
 
@@ -715,7 +731,7 @@ class GnrApp(object):
 
         :param user: the username
         :param password: the username's password
-        :param authenticate: add???
+        :param authenticate: boolean. If ``True``, to enter in the application a password is required
         :param page: add???"""
         if user:
             authmethods = self.config['authentication']
@@ -732,17 +748,17 @@ class GnrApp(object):
                         for pkg in self.packages.values():
                             pkg.onAuthentication(avatar)
                         return avatar
-            
                         
     def auth_xml(self, node, user, password=None, authenticate=False, **kwargs):
-        """Authentication from instanceconfig.xml, use it during development or for sysadmin tasks.
+        """Authentication from :ref:`instances_instanceconfig` - use it during development
+        or for sysadmin tasks.
         
-        In file instanceconfig.xml insert a tag like::
+        For more information, check the :ref:`instanceconfig_xml_auth` section
         
-            <xml_auth defaultTags='myusers'>
-                <john pwd='mydog' tags='admin' />
-            </xml_auth>
-        """
+        :param node: the :ref:`bagnode`
+        :param user: the username
+        :param password: the password
+        :param authenticate: boolean. If ``True``, to enter in the application a password is required"""
         defaultTags = node.getAttr('defaultTags')
         path = node.getAttr('path')
         if path:
@@ -770,13 +786,18 @@ class GnrApp(object):
         
         ``mypkg.myauthmethod`` will be called with a single parameter, the username. It should return:
         
-        - ``None``, if the user doesn't exists
-        - a dict containing every attribute to add to the avatar, if the user is valid.
-        - Mandatory attributes: username, pwd
+        * ``None``, if the user doesn't exists
+        * a dict containing every attribute to add to the avatar, if the user is valid
+        
+        More information in the :ref:`instanceconfig_py_auth` section
+        
+        :param node: the :ref:`bagnode`
+        :param user: the username
+        :param password: the password
+        :param authenticate: boolean. If ``True``, to enter in the application a password is required
         
         **TODO:** it seems odd that we don't pass the password to the authentication method. It limits the appicability
-                  of this authentication method soo much!
-        """
+                  of this authentication method soo much!"""
         defaultTags = node.getAttr('defaultTags')
         attrs = dict(node.getAttr())
         pkg = attrs.get('pkg')
@@ -795,7 +816,7 @@ class GnrApp(object):
                                    defaultTags=defaultTags, **result)
                                    
     def auth_sql(self, node, user, password=None, authenticate=False, **kwargs):
-        """Authenticate from database.
+        """Authentication from database.
         
         In the :ref:`instances_instanceconfig` file insert a tag like::
         
@@ -807,7 +828,12 @@ class GnrApp(object):
         * dbtable, username and pwd are mandatory attributes
         * Optional attributes: defaultTags, userid (the primary key of the db table if it is not the username field)
         
-        Other attributes are aliases of dbfield names: myavatarfield='mydbfield'"""
+        Other attributes are aliases of dbfield names: myavatarfield='mydbfield'
+        
+        :param node: the :ref:`bagnode`
+        :param user: the username
+        :param password: the password
+        :param authenticate: boolean. If ``True``, to enter in the application a password is required"""
         attrs = dict(node.getAttr())
         defaultTags = attrs.pop('defaultTags', None)
         kwargs = {}
@@ -828,13 +854,13 @@ class GnrApp(object):
                    authenticate=False, defaultTags=None, pwd=None, tags='', **kwargs):
         """add???
         
-        :param user: the username
+        :param user: add???
         :param user_name: add???
         :param user_id: add???
-        :param login_pwd: add???
-        :param authenticate: add???
+        :param login_pwd: the password inserted from user for authentication
+        :param authenticate: boolean. If ``True``, to enter in the application a password is required
         :param defaultTags: add???
-        :param pwd: add???. 
+        :param pwd: the password
         :param tags: add???"""
         if defaultTags:
             tags = ','.join(makeSet(defaultTags, tags or ''))
@@ -846,10 +872,10 @@ class GnrApp(object):
             return GnrAvatar(user=user, user_name=user_name, user_id=user_id, tags=tags,login_pwd=login_pwd, pwd=pwd, **kwargs)
 
     def validatePassword(self, login_pwd, pwd=None, user=None):
-        """add???
-
-        :param login_pwd: add???
-        :param pwd: add???
+        """A method to validate a login
+        
+        :param login_pwd: the password inserted from user for authentication
+        :param pwd: the password
         :param user: the username"""
         if not pwd:
             if not user:
@@ -870,18 +896,21 @@ class GnrApp(object):
             return (login_pwd == toText(pwd))
 
     def getPackagePlugins(self, pkg_id):
+        """add???
+        
+        :param pkg_id: the id of the :ref:`package <packages>`"""
         pkg = self.packages[pkg_id]
         if pkg:
             return pkg.getPlugins()
         return []
 
     def changePassword(self, login_pwd, pwd, newpwd, userid=None):
-        """add???
+        """Allow to change a password of a user
 
-        :param login_pwd: add???
-        :param pwd: add???
-        :param newpwd: add???
-        :param userid: add???. """
+        :param login_pwd: the password inserted from user for authentication
+        :param pwd: the old password
+        :param newpwd: the new password
+        :param userid: add???"""
         if pwd:
             valid = self.validatePassword(login_pwd, pwd)
         else:
@@ -928,10 +957,10 @@ class GnrApp(object):
         return False
         
     def addResourceTags(self, resourceTags, newTags):
-        """add???
-        
-        :param resourceTags: add???
-        :param newTags: add???"""
+        """Add resource Tags
+                
+        :param resourceTags: the resource Tags
+        :param newTags: the new resource Tags to be added"""
         resourceTags = resourceTags or ''
         newTags = newTags or ''
         resourceTags = resourceTags.split(',')
@@ -975,7 +1004,7 @@ class GnrApp(object):
         :param to_address: the email receiver
         :param subject: the email subject
         :param body: the email body. If you pass ``html=True`` attribute,
-                     then you can pass in the body the html tags"""
+                     then you can pass html tags in the body"""
         if isinstance(body, unicode):
             body = body.encode('utf-8', 'ignore')
         msg = MIMEText(body, _charset='utf-8')
@@ -1005,19 +1034,19 @@ class GnrApp(object):
     def errorAnalyze(self, e, caller=None, package=None):
         """add???
         
-        :param e: add???
-        :param caller: add???. 
-        :param package: add???. 
-        """
+        :param e: the error
+        :param caller: add???
+        :param package: add???"""
         raise e
         
     def onDbCommitted(self):
+        """Hook method called during the database commit"""
         pass
         
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
         """add???
         
-        :param tblobj: the table object
+        :param tblobj: the :ref:`database table <table>` object
         :param record: add???
         :param event: add???
         :param old_record: add???. """
@@ -1044,7 +1073,7 @@ class GnrApp(object):
     def getAuxInstance(self, name=None):
         """add???
         
-        :param name: add???. """
+        :param name: the name of the auxiliary instance"""
         if not name:
             return self
         if not name in self.aux_instances:
@@ -1053,8 +1082,15 @@ class GnrApp(object):
         return self.aux_instances[name]
         
 class GnrAvatar(object):
-    """add???"""
-    def __init__(self, user, user_name=None, user_id=None, login_pwd=None,pwd=None,tags='', **kwargs):
+    """A class for avatar management
+    
+    :param user: add???
+    :param user_name: the avatar username
+    :param user_id: the user id
+    :param login_pwd: the password inserted from user for authentication
+    :param pwd: the avatar password
+    :param tags: the tags for :ref:`auth`"""
+    def __init__(self, user, user_name=None, user_id=None, login_pwd=None, pwd=None, tags='', **kwargs):
         self.user = user
         self.user_name = user_name
         self.user_id = user_id
@@ -1065,9 +1101,9 @@ class GnrAvatar(object):
         self.extra_kwargs = kwargs or dict()
         
     def addTags(self, tags):
-        """add???
+        """Add tags to an avatar
         
-        :param tags: add???"""
+        :param tags: a string with the tags to be added"""
         t = self.user_tags.split(',')
         if isinstance(tags, basestring):
             tags = tags.split(',')
@@ -1083,7 +1119,7 @@ class GnrAvatar(object):
             raise AttributeError("register_item has no attribute '%s'" % fname)
             
     def as_dict(self):
-        """add???"""
+        """Return the avatar as a dict()"""
         return dict(user=self.user, user_tags=self.user_tags,
                     user_id=self.user_id, user_name=self.user_name,
                     **self.extra_kwargs)
