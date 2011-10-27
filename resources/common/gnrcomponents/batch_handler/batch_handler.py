@@ -10,6 +10,10 @@ from gnr.core.gnrlang import gnrImport, objectExtract
 from gnr.core.gnrbag import Bag
 
 
+class TableScriptHandlerCaller(BaseComponent):
+    pass
+
+
 class BatchMonitor(BaseComponent):
     js_requires = 'gnrcomponents/batch_handler/batch_handler'
     css_requires = 'gnrcomponents/batch_handler/batch_handler'
@@ -30,8 +34,26 @@ class BatchMonitor(BaseComponent):
                      _onCalling='genro.rpc.setPolling();', storename='user')
 
 class TableScriptHandler(BaseComponent):
-    py_requires = 'foundation/dialogs,gnrcomponents/printer_option_dialog:PrinterOption'
+    py_requires = 'gnrcomponents/printer_option_dialog:PrinterOption'
     
+    def _table_script_imports(self,pane,res_obj):
+        css_requires = getattr(res_obj,'css_requires','')
+        js_requires = getattr(res_obj,'js_requires','')
+        py_requires = getattr(res_obj,'py_requires','')
+        for py in py_requires.split(','):
+            if py:
+                self.mixinComponent(py)
+        for css in css_requires.split(','):
+            if css and not css in self.dynamic_css_requires and not css in self.css_requires:
+                url = self.getResourceUri(css,'css',add_mtime=True)
+                if url:
+                    pane.dataController('genro.dom.loadCss(url)' ,url=url,_onBuilt=True)
+        for js in js_requires.split(','):
+            if js and not js in self.dynamic_js_requires and not js in self.js_requires:
+                url = self.getResourceUri(js,'js',add_mtime=True)
+                if url:
+                    pane.dataController('genro.dom.loadJs(url)', url=url,_onBuilt=True)
+            
     @public_method
     def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, 
                             extra_parameters=None,selectedRowidx=None,selectionName=None,sourcepage_id=None,
@@ -41,6 +63,7 @@ class TableScriptHandler(BaseComponent):
         resource = resource.replace('.py', '')
         res_obj = self.site.loadTableScript(self, table, '%s/%s' % (res_type, resource), class_name='Main')
         res_obj.sourcepage_id = sourcepage_id or self.page_id
+        self._table_script_imports(pane,res_obj)
         if selectionName:
             res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
                                     selectionFilterCb=selectionFilterCb, sortBy=sortBy)

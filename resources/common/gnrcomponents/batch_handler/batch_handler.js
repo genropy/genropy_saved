@@ -147,20 +147,29 @@ batch_monitor.btc_result = function(node, sourceNode) {
     resultpane.popNode(resultNode.label);
     sourceNode.thermoSourceNode = null;
     var error = batch_value.getItem('error');
+    var toprightNode = sourceNode.toprightSourceNode;
+    var topright = toprightNode.getParentBag();
+    topright.popNode(toprightNode.label);
+    topright._('div', {_class:'buttonIcon icnTabClose bm_label_action_link',
+                connect_onclick:function(kw){
+                    genro.serverCall("btc.remove_batch",{"batch_id":batch_id,"all_batches":kw.shiftKey});
+    }});
     if (error) {
         resultpane._('div', {innerHTML:error});
+        return;
     }
-    ;
 
-    var result = batch_value.getItem('result');
-    var url = batch_value.getItem('result?url');
-    var url_print = batch_value.getItem('result?url_print');
+    var resultNode = batch_value.getNode('result');
+    var result = resultNode._value;
+    var resultAttr = resultNode.attr;
+    var url =resultAttr.url;
+    var url_print = resultAttr.url_print;
 
     if (url || url_print || result) {
         if (result) {
-            resultpane._('div', {innerHTML:result});
+            resultpane._('div', {innerHTML:result || resultAttr.document_name});
         }
-        resultpane._('div',{innerHTML:batch_value.getItem('result?document_name')});
+        resultpane._('div',{innerHTML:resultAttr.document_name});
         if (url) {
             resultpane._('a',{href:url,display:'inline-block'})._('div', {_class:'iconbox inbox'});
         }
@@ -168,13 +177,6 @@ batch_monitor.btc_result = function(node, sourceNode) {
             resultpane._('a',{href:url_print,display:'inline-block'})._('div', {_class:'iconbox print'});
         }
     }
-    var toprightNode = sourceNode.toprightSourceNode;
-    var topright = toprightNode.getParentBag();
-    topright.popNode(toprightNode.label);
-    topright._('div', {_class:'buttonIcon icnTabClose bm_label_action_link',
-                connect_onclick:function(kw){
-                    genro.serverCall("btc.remove_batch",{"batch_id":batch_id,"all_batches":kw.shiftKey});
-                }});
     resultpane._('div', {innerHTML:'Execution time:' + batch_value.getItem('time_delta')});
 };
 
