@@ -6,7 +6,7 @@ numberTextbox
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+    .. note:: **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
     
     * :ref:`numbertextbox_def`
     * :ref:`numbertextbox_description`

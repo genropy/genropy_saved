@@ -6,7 +6,7 @@ dbSelect
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Genro form widget <genro_form_widgets>`
+    .. note:: **Type**: :ref:`Genro form widget <genro_form_widgets>`
     
     * :ref:`dbselect_def`
     * :ref:`dbselect_attributes`

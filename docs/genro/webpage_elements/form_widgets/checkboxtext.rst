@@ -6,7 +6,7 @@ checkBoxText
 
     *Last page update*: |today|
     
-    **Type**: :ref:`Genro form widget <genro_form_widgets>`
+    .. note:: **Type**: :ref:`Genro form widget <genro_form_widgets>`
     
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.checkboxtext
         

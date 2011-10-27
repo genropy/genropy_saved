@@ -6,7 +6,7 @@ dbCombobox
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Genro form widget <genro_form_widgets>`
+    .. note:: **Type**: :ref:`Genro form widget <genro_form_widgets>`
     
     * :ref:`dbcombobox_def`
     * :ref:`dbcombobox_examples`

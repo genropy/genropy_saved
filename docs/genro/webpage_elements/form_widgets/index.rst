@@ -30,6 +30,10 @@ Genro form widgets
     * :ref:`checkboxtext`
     * :ref:`dbcombobox`
     * :ref:`dbselect`
+    * :ref:`slotbutton`
+    
+    :ref:`palette`:
+    
     * :ref:`palettegrid`
     * :ref:`palettegroup`
     * :ref:`palettepane`
@@ -87,6 +91,7 @@ section index
     radiobutton
     simplearea
     slider
+    slotbutton
     togglebutton
     tooltipdialog
     palette/index

@@ -11,6 +11,7 @@ action
               * :ref:`button`
               * :ref:`checkboxcell`
               * :ref:`menu`
+              * :ref:`slotbutton`
               
     * :ref:`action_def`
     * :ref:`action_examples`

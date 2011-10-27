@@ -6,7 +6,7 @@ dateTextbox
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+    .. note:: **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
     
     * :ref:`datetextbox_def`
     * :ref:`datetextbox_description`

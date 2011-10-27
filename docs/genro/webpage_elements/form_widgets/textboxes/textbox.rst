@@ -6,7 +6,7 @@ textbox
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+    .. note:: **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
     
     * :ref:`textbox_def`
     * :ref:`textbox_description`

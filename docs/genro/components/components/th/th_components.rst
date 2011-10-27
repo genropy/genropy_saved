@@ -52,8 +52,8 @@ TableHandler types - introduction
       in a single page
     * :ref:`th_dialog`: show the ``data-entry window`` in a dialog that appears over the
       ``view-data window``
-    * :ref:`th_palette`: show the ``data-entry window`` in a :ref:`palette` that appears
-      over the ``view-data window``
+    * :ref:`th_palette`: show the ``data-entry window`` in a :ref:`palette <palette>`
+      that appears over the ``view-data window``
     * :ref:`th_plain`: show only the ``view-data window``. User can't modify records
     * :ref:`th_stack`: show the ``data-entry window`` and the ``view-data window``
       in two different stack

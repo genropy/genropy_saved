@@ -781,7 +781,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self
         
     def slotButton(self,label=None,**kwargs):
-        """add???"""
+        """Return a :ref:`slotbutton`
+        
+        :param label: the button's label and its :ref:`tooltip`
+        :param kwargs: in the kwargs you can find:
+                       
+                       * **iconClass**: the :ref:`iconclass`"""
         return self.child(tag='SlotButton',label=label,**kwargs)
         
     def virtualSelectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
@@ -938,13 +943,13 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         self.dataRemote(path,'getResourceContent',resource=resource,ext=ext, pkg=pkg)
         
     def paletteGroup(self, groupCode, **kwargs):
-        """add???
+        """Return a :ref:`palettegroup`
         
         :param groupCode: add???"""
         return self.child('PaletteGroup',groupCode=groupCode,**kwargs)
         
     def palettePane(self, paletteCode, datapath=None, **kwargs):
-        """add???
+        """Return a :ref:`palettepane`
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
@@ -953,7 +958,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self.child('PalettePane',paletteCode=paletteCode,datapath=datapath,**kwargs)
         
     def paletteTree(self, paletteCode, datapath=None, **kwargs):
-        """add???
+        """Return a :ref:`palettetree`
         
         :param paletteCode: add???. If no *datapath* is specified, the *paletteCode* will be used as *datapath*
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
@@ -964,7 +969,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return palette
         
     def paletteGrid(self, paletteCode=None, struct=None, columns=None, structpath=None, datapath=None, **kwargs):
-        """add???
+        """Return a :ref:`palettegrid`
         
         :param paletteCode: create the paletteGrid :ref:`nodeid` (if no *gridId* is defined)
                             and create the paletteGrid :ref:`datapath` (if no *datapath* is defined)
@@ -979,9 +984,17 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                        
                        * *dockButton*: boolean. if ``True``, add???
                        * *grid_filteringGrid*: the path of the :ref:`grid` that handle the :ref:`struct`.
-                         For example, in the :ref:`th` component the standard path for a grid is
-                         ``th.view.grid``
-                       * *grid_filteringColumn*: add???
+                         For example, in the :ref:`th` component the standard path for a grid is ``th.view.grid``
+                       * *grid_filteringColumn*: allow the sincronization between the choosen columns and the
+                         not choosen ones (so, if user drag a column in a grid, then this column doesn't appear
+                         anymore in the palette)
+                         
+                         The syntax is::
+                         
+                            grid_filteringColumn='id:COLUMN'
+                            
+                         Where ``COLUMN`` is the name of a :ref:`column` add???
+                            
                        * *title*: the title of the paletteGrid"""
         datapath= datapath or 'gnr.palettes.%s' %paletteCode if datapath is None else datapath
         structpath = structpath or '.grid.struct'
@@ -1198,6 +1211,18 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     self._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,**toolbarArgs)
                     
     def button(self, label=None, **kwargs):
+        """The :ref:`button` is a :ref:`dojo-improved form widget <dojo_improved_form_widgets>`: through
+        the *action* attribute you can add Javascript callbacks
+        
+        :param label: the label of the widget
+        :param kwargs:
+        
+                       * **action**: allow to execute a javascript callback. For more information,
+                         check the :ref:`action_attr` section
+                       * **iconClass**: the button icon. For more information, check the :ref:`iconclass` section
+                       * **showLabel**: boolean. If ``True``, show the button label
+                       * **value**: specify the path of the widget's value. For more information,
+                         check the :ref:`datapath` page"""
         return self.child('button', label=label, **kwargs)
         
     def togglebutton(self, label=None, **kwargs):

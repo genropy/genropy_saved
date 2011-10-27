@@ -6,6 +6,8 @@ paletteGroup
 
     *Last page update*: |today|
     
+    .. note:: **Type**: :ref:`Genro form widget <genro_form_widgets>`
+    
     * :ref:`palettegroup_def`
     
 .. _palettegroup_def:

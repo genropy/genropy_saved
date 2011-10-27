@@ -33,6 +33,7 @@ section index
     design
     disabled
     hidden
+    icons
     label
     nodeId
     pbl_classes

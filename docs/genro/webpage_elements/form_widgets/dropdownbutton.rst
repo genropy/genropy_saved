@@ -6,7 +6,7 @@ dropdownbutton
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+    .. note:: **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
     
     .. note:: The Genro dropdownbutton has been taken from Dojo without adding any modifies.
               In this page you will find some interesting features that we want to point up.

@@ -641,7 +641,7 @@ class Bag(GnrObject):
     def get(self, label, default=None, mode=None):
         """add???
         
-        :param label: add???
+        :param label: the :ref:`bag`'s label
         :param default: add???
         :param mode: add???"""
         result = None

@@ -6,7 +6,7 @@ field
     
     *Last page update*: |today|
     
-    **Type**: :ref:`form widget <form_widgets>`
+    .. note:: **Type**: :ref:`form widget <form_widgets>`
     
     * :ref:`field_def`
     * :ref:`field_description`

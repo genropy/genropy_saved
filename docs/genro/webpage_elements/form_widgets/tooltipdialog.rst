@@ -6,7 +6,7 @@ tooltipdialog
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+    .. note:: **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
     
     Dojo modified!! --> add??? add all the difference respect to the Dojo tooltipdialog!
     

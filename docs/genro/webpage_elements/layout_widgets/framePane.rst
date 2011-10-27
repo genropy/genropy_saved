@@ -6,7 +6,7 @@ framePane
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Genro layout widget <genro_layout>`
+    .. note:: **Type**: :ref:`Genro layout widget <genro_layout>`
     
     * :ref:`frame_def`
     * :ref:`frame_attributes`:

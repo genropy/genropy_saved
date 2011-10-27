@@ -6,7 +6,7 @@ dataSelection
     
     *Last page update*: |today|
     
-    **Type**: :ref:`server-side controller <controllers_server>`
+    .. note:: **Type**: :ref:`server-side controller <controllers_server>`
     
     .. warning:: to be written!
     

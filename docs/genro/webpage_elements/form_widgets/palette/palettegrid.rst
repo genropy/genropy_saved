@@ -6,6 +6,8 @@ paletteGrid
 
     *Last page update*: |today|
     
+    .. note:: **Type**: :ref:`Genro form widget <genro_form_widgets>`
+    
     * :ref:`palettegrid_def`
     
 .. _palettegrid_def:

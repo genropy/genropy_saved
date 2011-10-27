@@ -1,8 +1,8 @@
 .. _palette:
 
-=======
-Palette
-=======
+========
+Palettes
+========
 
     *Last page update*: |today|
     

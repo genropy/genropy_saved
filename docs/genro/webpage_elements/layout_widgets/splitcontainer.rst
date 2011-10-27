@@ -6,7 +6,7 @@ splitContainer
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Dojo layout widget <dojo_layout>`
+    .. note:: **Type**: :ref:`Dojo layout widget <dojo_layout>`
     
     .. warning:: This page has to be completed!! add???
     
