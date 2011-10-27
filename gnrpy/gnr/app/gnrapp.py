@@ -235,6 +235,8 @@ class GnrPackagePlugin(object):
         webpages_path = os.path.join(path,'webpages')
         self.webpages_path = webpages_path if os.path.isdir(webpages_path) else ''
         config_path = os.path.join(path,'config.xml')
+        menu_path = os.path.join(path,'menu.xml')
+        self.menuBag = Bag(menu_path) if os.path.isfile(menu_path) else Bag()
         self.config = Bag(config_path) if os.path.isfile(config_path) else Bag()
         self.application.config['package_plugins.%s.%s'%(pkg.id,self.id)]=self.config
         
@@ -259,7 +261,10 @@ class GnrPackage(object):
             raise GnrImportException(
                     "Cannot import package %s from %s" % (pkg_id, os.path.join(self.packageFolder, 'main.py')))
         try:
-            self.pkgMenu = Bag(os.path.join(self.packageFolder, 'menu.xml'))
+            menupath = os.path.join(self.packageFolder, 'menu.xml')
+            self.pkgMenu = Bag(menupath) if os.path.isfile(menupath) else Bag()
+            for pluginname,plugin in self.plugins.items():
+                self.pkgMenu.update(plugin.menuBag)
         except:
             self.pkgMenu = Bag()
         

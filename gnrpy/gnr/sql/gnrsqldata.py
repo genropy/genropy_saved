@@ -2041,6 +2041,7 @@ class SqlRecord(object):
         opkg, otbl, ofld = joiner['one_relation'].split('.')
         info['_from_fld'] = joiner['one_relation']
         info['_target_fld'] = joiner['many_relation']
+        info['one_one'] = joiner['one_one']
         relation_value = sqlresult['t0_%s' %ofld]
         if resolver_one is True:
             value = SqlRelatedRecordResolver(db=self.db, cacheTime=-1,
