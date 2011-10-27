@@ -159,11 +159,11 @@ batch_monitor.btc_result = function(node, sourceNode) {
         return;
     }
 
-    var resultNode = batch_value.getNode('result');
-    var result = resultNode._value;
-    var resultAttr = resultNode.attr;
-    var url =resultAttr.url;
-    var url_print = resultAttr.url_print;
+    var resultHandlerNode = batch_value.getNode('result');
+    var result = resultHandlerNode._value;
+    var resultAttr = resultHandlerNode.attr;
+    var url =resultHandlerNode.url;
+    var url_print = resultHandlerNode.url_print;
 
     if (url || url_print || result) {
         if (result) {
