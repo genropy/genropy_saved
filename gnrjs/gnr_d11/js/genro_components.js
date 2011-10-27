@@ -958,9 +958,13 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                     });
                 }
             }
+            slotKw = objectExtract(kw,slot+'_*');
+            if(slotKw.width){
+                cell.getParentNode().attr['width'] = slotKw.width;
+                slotKw.width = '100%';
+            }
             if(cell.len()==0){
                 if(that['slot_'+slot]){
-                    slotKw = objectExtract(kw,slot+'_*');
                     slotValue = objectPop(kw,slot);
                     lbl = objectPop(slotKw,'lbl');
                     kwLbl = objectExtract(slotKw,'lbl_*');
@@ -1036,7 +1040,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
                 }
             }
             slotKw = objectExtract(kw,slot+'_*');
-            if(slotKw.height && slotKw.height.indexOf('%')>=0){
+            if(slotKw.height){
                 row.getParentNode().attr['height'] = slotKw.height;
                 slotKw.height = '100%';
             }
@@ -1486,9 +1490,19 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
     
     checkExternalChange:function(delKeys,insOrUpdKeys,willBeInSelection){
         var linkedGrids = this.linkedGrids();
+        var selectedPkeysDict = {};
+        var selectedIndex,selectedPkey;
         dojo.forEach(linkedGrids,function(grid){
             grid.batchUpdating(true);
+            selectedIndex = grid.selection.selectedIndex;
+            if(selectedIndex!=null){
+                selectedPkey = grid.rowIdByIndex(selectedIndex);
+                selectedPkeysDict[selectedPkey] = selectedPkeysDict[selectedPkey] || [];
+                selectedPkeysDict[selectedPkey].push(grid);
+            }
+            
         });
+        
         var wasInSelection;
         var changed = false;
         var data = this.getData();
@@ -1522,6 +1536,11 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
                         if (willBeInSelectionNode) {
                             that.externalChangedKeys[pkey] = true;
                             data.getNodeByAttr('_pkey',willBeInSelectionNode.attr._pkey).updAttributes(willBeInSelectionNode.attr,true);
+                            if(selectedPkeysDict[pkey]){
+                                dojo.forEach(selectedPkeysDict[pkey],function(grid){
+                                    grid.sourceNode.publish('updatedSelectedRow');
+                                });
+                            }
                         }else{
                             data.popNode(wasInSelectionNode.label);
                         }

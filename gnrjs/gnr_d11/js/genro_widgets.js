@@ -718,6 +718,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
             this._position_replaced();
         }
         else {
+            centerOn = this.sourceNode.currentFromDatasource(centerOn);
             genro.dom.centerOn(this.domNode, centerOn);
             //var viewport=dojo.coords(genro.domById(centerOn));
             //viewport.l=viewport.x;
@@ -2208,6 +2209,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             if(this.serverAction){
                 this.serverAction(kw);
             }
+        });
+        sourceNode.subscribe('updatedSelectedRow',function(){
+            var selectedIndex = widget.selection.selectedIndex;
+            widget.sourceNode.setAttributeInDatasource('selectedId', widget.rowIdByIndex(selectedIndex), null, widget.rowByIndex(selectedIndex), true);
         });
         //dojo.subscribe(gridId+'_searchbox_keyUp',this,function(v){console.log(v)});
         var searchBoxCode =(sourceNode.attr.frameCode || nodeId)+'_searchbox';

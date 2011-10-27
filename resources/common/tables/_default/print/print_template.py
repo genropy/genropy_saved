@@ -13,9 +13,9 @@ class Main(BaseResourcePrint):
     batch_prefix = 'pr_tpl'
     batch_cancellable = True
     batch_delay = 0.5
-    batch_immediate = 'print'
+    batch_immediate = True
     batch_title = None
-    batch_askLetterhead = True
+    print_mode = 'pdf'
     
     def pre_process(self):
         extra_parameters = self.batch_parameters.pop('extra_parameters')
@@ -28,21 +28,15 @@ class Main(BaseResourcePrint):
         self.tblobj = self.db.table(self.maintable)
         self.virtual_columns =  self.compiledTemplate.getItem('main?virtual_columns') 
         self.htmlMaker = TableScriptToHtml(self.page,self.tblobj)
-    
-        
-        
+            
     def print_record(self, record=None, thermo=None, storagekey=None):
-        """add???
-        
-        :param record: add???
-        :param thermo: add???
-        :param storagekey: add???"""
         record.update(self.batch_parameters)
         htmlContent=templateReplace(self.compiledTemplate,record, 
                                     safeMode=True,noneIsBlank=False,
                                     locale=self.htmlMaker.locale,
                                     formats=self.compiledTemplate.getItem('main?formats'))
         result = self.htmlMaker(htmlContent=htmlContent,
+                                filename='%s.html' %record['id'],
                                 record=record, thermo=thermo, pdf=self.pdf_make,
                                 **self.batch_parameters)
         if result:
@@ -54,7 +48,8 @@ class Main(BaseResourcePrint):
         data,meta = self.db.package(pkg).loadUserObject(pkey=extra_parameters['template_id'])
         pane.dataFormula('#table_script_runner.dialog_pars.title','dlgtitle',
                             dlgtitle='!!%s (%i)' %(meta['description'] or meta['code'],record_count),_onBuilt=True)
-        fb = pane.formbuilder(cols=1,field_width='100%',border_spacing='2px',width='100%')
+        fb = pane.formbuilder(cols=1,fld_width='20em',border_spacing='4px')
+        fb.dbSelect(dbtable='adm.htmltemplate', value='^.letterhead_id',lbl='!!Letterhead',hasDownArrow=True)
         fb.dataController("SET .letterhead_id = default_letterhead || null;",_onBuilt=True,
                             default_letterhead=data.getItem('metadata.default_letterhead') or False,_if='default_letterhead')
         if data.getItem('parameters'):

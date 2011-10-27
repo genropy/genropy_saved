@@ -7,7 +7,7 @@
 
 from gnr.web.gnrwebstruct import struct_method
 from gnr.web.gnrbaseclasses import BaseComponent
-from gnr.core.gnrdecorator import extract_kwargs,public_method
+from gnr.core.gnrdecorator import extract_kwargs
 from gnr.core.gnrstring import boolean
 
 
@@ -81,21 +81,23 @@ class TableHandlerForm(BaseComponent):
         if options.get('modal'):
             slots='revertbtn,*,cancel,savebtn'
             form.attributes['hasBottomMessage'] = False
-            bar = form.bottom.slotBar(slots,margin_bottom='2px')
+            bar = form.bottom.slotBar(slots,margin_bottom='2px',_class='slotbar_dialog_footer')
             bar.revertbtn.button('!!Revert',action='this.form.publish("reload")',disabled='^.controller.changed?=!#v')
             bar.cancel.button('!!Cancel',action='this.form.publish("navigationEvent",{command:"dismiss"});')
             bar.savebtn.button('!!Save',iconClass='fh_semaphore',action='this.form.publish("save",{destPkey:"*dismiss*"})')    
         elif showtoolbar:
-            default_slots = '*,formcommands,semaphore,locker'
-            slots = options.get('slots',default_slots)
+            default_slots = '*,form_delete,form_add,form_revert,form_save,semaphore,locker'
+            if navigation:
+                default_slots = 'navigation,%s' %default_slots
+            elif options.get('selector'):
+                default_slots = default_slots.replace('*','5,form_selectrecord,*')
+            if options.get('printMenu'):
+                default_slots = default_slots.replace('form_delete','form_print,100,form_delete')
             if options.get('linker'):
-                slots = '*,form_revert,form_save,semaphore'
-            if options.get('selector'):
-                slots = slots.replace('*','5,form_selectrecord,*')
-            if options.get('lockable'):
-                slots = slots.replace(slots,'%s,locker' %slots)
-            elif navigation:
-                slots = 'navigation,%s' %slots
+                default_slots = default_slots.replace('form_delete','')
+                default_slots = default_slots.replace('form_add','')
+                default_slots = default_slots.replace('locker','')            
+            slots = options.get('slots',default_slots)
             form.top.slotToolbar(slots)   
         if not options.get('showfooter',True):
             form.attributes['hasBottomMessage'] = False
@@ -107,27 +109,23 @@ class TableHandlerForm(BaseComponent):
         form.store.handler('save',onSavingHandler=self._th_hook('onSaving',mangler=mangler),
                                  onSavedHandler=self._th_hook('onSaved',mangler=mangler))
             
-  #
-  # @struct_method          
-  # def th_slotbar_form_print(self,pane,**kwargs):
-  #     inattr = pane.getInheritedAttributes()
-  #     th_root = inattr['th_root']
-  #     table = inattr['table']
-  #     pane.div(_class='iconbox menubox print').menu(modifiers='*',storepath='.resources.print.menu',
-  #                 action="""
-  #                         FIRE #FORM.controller.print = template_id:$1.template_id;
-  #                         """,
-  #                 batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',batch_th_root=th_root,
-  #                 batch_sourcepage_id=self.page_id)
-  #     pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,cacheTime=5)
-  #         
-  #     
-  #     bar.dataRpc('dummy',self.th_printFormTemplate,pkey='=#FORM.pkey',kw='^#FORM.controller.print',table=table)
-  #             
-  # @public_method
-  # def th_printForm(self,pkey=None,kw=None,table=None):
-  #     if pkey:
-  #         htmlbuilder = self.loadTableScript('base.milestone','html_res/html_form')
-  #         html = htmlbuilder(pkey,None,True)
-  #         url = self.site.getStaticUrl('page:html', '%s_milestone.html' %htmlbuilder.record['db_table'], nocache=True)
-  #         self.setInClientData(path='gnr.downloadurl',value=url,fired=True)
+    
+    @struct_method          
+    def th_slotbar_form_print(self,pane,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        th_root = inattr['th_root']
+        table = inattr['table']
+        pane.div(_class='iconbox print').menu(modifiers='*',storepath='.resources.print.menu',
+                    action="""
+                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
+                            kw.resource = $1.resource;
+                            if($1.template_id){
+                                kw.extra_parameters = new gnr.GnrBag({template_id:$1.template_id,table:kw.table});
+                                kw.table = null;
+                            } 
+                            kw['selectedPkeys'] = [this.form.getCurrentPkey()];
+                            genro.publish({topic:"table_script_run",parent:true},kw)
+                            """,
+                    batch_table=table,batch_res_type='print',batch_th_root=th_root,
+                    batch_sourcepage_id=self.page_id)
+        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,cacheTime=5)

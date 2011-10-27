@@ -185,7 +185,10 @@ class TableHandlerView(BaseComponent):
                                 kw['selectedPkeys'] = grid.getSelectedPkeys(true);
                             }
                             kw['selectedRowidx'] = grid.getSelectedRowidx();
-                            console.log(kw);
+                            if(!GET .store){
+                                genro.dlg.alert('Missing selection','Warning');
+                                return;
+                            }
                             genro.publish({topic:"table_script_run",parent:true},kw)
                             """,
                     batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',batch_th_root=th_root,

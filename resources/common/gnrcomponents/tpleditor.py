@@ -244,7 +244,7 @@ class PaletteTemplateEditor(TemplateEditor):
     def te_paletteTemplateEditor(self,pane,paletteCode=None,maintable=None,**kwargs):
         palette = pane.palettePane(paletteCode=paletteCode or '%s_template_manager' %maintable.replace('.','_'),
                                     title='^.template_editor.caption',
-                                    width='700px',height='500px',**kwargs)
+                                    width='750px',height='500px',**kwargs)
         sc = palette.templateEditor(maintable=maintable)
         infobar = sc.info.top.bar
         infobar.replaceSlots('#','#,menutemplates,savetpl,deltpl,5')
@@ -253,7 +253,9 @@ class PaletteTemplateEditor(TemplateEditor):
         infobar.dataController('SET .currentTemplate.path="__newtpl__";',_onStart=True)
         infobar.dataFormula(".palette_caption", "prefix+caption",caption="^.caption",prefix='!!Edit ')
         infobar.menutemplates.div(_class='iconbox folder').menu(modifiers='*',storepath='.menu',
-                action="""SET .currentTemplate=new gnr.GnrBag({path:$1.fullpath,tplmode:$1.tplmode,pkey:$1.pkey}); SET .caption=$1.caption;""")
+                action="""SET .currentTemplate.pkey=$1.pkey;
+                          SET .currentTemplate.mode = $1.tplmode;
+                          SET .currentTemplate.path = $1.fullpath;""")
         infobar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
                                 disabled='^.data.content?=!#v')
         infobar.dataController("""
@@ -266,6 +268,8 @@ class PaletteTemplateEditor(TemplateEditor):
             }else if(pkey){
                 genro.serverCall('th_loadUserObject',{table:table,pkey:pkey},function(result){
                     editorbag.setItem('data',result._value.deepCopy());
+                    editorbag.setItem('mode','userobject');
+                    editorbag.setItem('caption',result.attr.description || result.attr.code);
                     editorbag.setItem('userobject_meta',new gnr.GnrBag(result.attr));
                 })
             }
@@ -292,6 +296,7 @@ class PaletteTemplateEditor(TemplateEditor):
                 function(dialog) {
                     genro.serverCall('te_saveTemplate',kw,
                         function(result) {
+                            that.setRelativeData('.currentTemplate.pkey',result['id']);
                             that.setRelativeData('.currentTemplate.path',result['code']);
                             dialog.close_action();
                         });
@@ -325,6 +330,7 @@ class PaletteTemplateEditor(TemplateEditor):
             tblobj.update(record)
             self.db.commit()
         elif tplmode == 'userobject':
+            data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'])['compiled']
             pkey,record = self.th_saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
             record.pop('data')
         return record

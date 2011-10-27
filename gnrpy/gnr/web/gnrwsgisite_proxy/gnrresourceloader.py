@@ -490,6 +490,7 @@ class ResourceLoader(object):
             if js and not js in page.dynamic_js_requires and not js in page.js_requires:
                 page.dynamic_js_requires[js] = page.getResourceUri(js,'js',add_mtime=True,pkg=pkg)
         page.mixin(component,**kwargs)
+    
         
     def loadTableScript(self, page, table=None, respath=None, class_name=None):
         """add???
