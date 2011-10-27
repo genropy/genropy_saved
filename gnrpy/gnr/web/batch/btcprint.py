@@ -102,9 +102,6 @@ class BaseResourcePrint(BaseResourceBatch):
             mailmanager.sendmail(**mailpars)
 
     def result_handler_mail_pdf(self, resultAttr):
-        """add???
-        
-        :param resultAttr: add???"""
         mailmanager = self.page.getService('mail')
         mailpars = dict()
         mailpars.update(self.mail_preference.asDict(True))
@@ -113,7 +110,6 @@ class BaseResourcePrint(BaseResourceBatch):
         mailmanager.sendmail(**mailpars)
         
     def result_handler_server_print(self, resultAttr):
-
         printer = self.print_handler.getPrinterConnection(self.server_print_options.pop('printer_name'),
                                                           **self.server_print_options.asDict(True))
         return printer.printCups(self.results.values(), self.batch_title)

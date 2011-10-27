@@ -36,6 +36,7 @@ class Main(BaseResourcePrint):
                                     locale=self.htmlMaker.locale,
                                     formats=self.compiledTemplate.getItem('main?formats'))
         result = self.htmlMaker(htmlContent=htmlContent,
+                                filename='%s.html' %record['id'],
                                 record=record, thermo=thermo, pdf=self.pdf_make,
                                 **self.batch_parameters)
         if result:
