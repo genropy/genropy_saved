@@ -123,8 +123,8 @@ class TableHandlerForm(BaseComponent):
                                 kw.extra_parameters = new gnr.GnrBag({template_id:$1.template_id,table:kw.table});
                                 kw.table = null;
                             } 
-                            kw['selectedPkeys'] = [this.form.getCurrentPkey()];
-                            genro.publish({topic:"table_script_run",parent:true},kw)
+                            kw['pkey'] = this.form.getCurrentPkey();
+                            genro.publish("table_script_run",kw)
                             """,
                     batch_table=table,batch_res_type='print',batch_th_root=th_root,
                     batch_sourcepage_id=self.page_id)

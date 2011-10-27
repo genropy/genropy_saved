@@ -5,6 +5,21 @@ var TH = function(th_root){
     }
     return genro.ext.th_instances[th_root];
 };
+var th_view_batch_caller = function(kw){
+    var grid = genro.wdgById(kw.gridId);
+    var store = grid.collectionStore();
+    if(store.storeType=='VirtualSelection'){
+        kw['selectionName'] = store.selectionName;
+    }else{
+        kw['selectedPkeys'] = grid.getSelectedPkeys(true);
+    }
+    kw['selectedRowidx'] = grid.getSelectedRowidx();
+    if(store.len(true)==0 && !kw.report){
+        genro.dlg.alert('Missing selection','Warning');
+        return;
+    }
+    genro.publish("table_script_run",kw);
+}
 
 dojo.declare("gnr.widgets.ThIframe", gnr.widgets.gnrwdg, {
     thiframe: function(parent,kw){

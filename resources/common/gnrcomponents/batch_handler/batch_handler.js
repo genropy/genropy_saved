@@ -162,8 +162,8 @@ batch_monitor.btc_result = function(node, sourceNode) {
     var resultHandlerNode = batch_value.getNode('result');
     var result = resultHandlerNode._value;
     var resultAttr = resultHandlerNode.attr;
-    var url =resultHandlerNode.url;
-    var url_print = resultHandlerNode.url_print;
+    var url =resultAttr.url;
+    var url_print = resultAttr.url_print;
 
     if (url || url_print || result) {
         if (result) {
