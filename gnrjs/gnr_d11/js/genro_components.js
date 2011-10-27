@@ -1240,7 +1240,7 @@ dojo.declare("gnr.stores._Collection",null,{
     },
     
     getItems:function(){
-        return this.getData();
+        return this.getData()._nodes;
     },
     len:function(filtered){
         if(filtered && this._filtered){

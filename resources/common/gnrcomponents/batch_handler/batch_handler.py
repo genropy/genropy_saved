@@ -11,7 +11,14 @@ from gnr.core.gnrbag import Bag
 
 
 class TableScriptHandlerCaller(BaseComponent):
-    pass
+    def table_script_caller(self,pane):
+        if self.root_page_id:
+            pane.dataController("""
+                                    var kw = table_script_run[0];
+                                    kw['sourcepage_id'] = page_id;
+                                    genro.mainGenroWindow.genro.publish("table_script_run",kw);
+                                """, 
+                                subscribe_table_script_run=True,nodeId='table_script_caller',page_id=self.page_id)
 
 
 class BatchMonitor(BaseComponent):
@@ -77,6 +84,10 @@ class TableScriptHandler(BaseComponent):
         batch_dict['resource_name'] = resource
         batch_dict['res_type'] = res_type
         pane.data('.batch', batch_dict)
+        pane.data('#table_script_runner.data',Bag())
+        pane.data('#table_script_runner.dialog_pars',Bag())
+        pane.data('#table_script_runner.dialog_options',Bag())
+
         hasParameters = hasattr(self, 'table_script_parameters_pane')
         hasOptions = hasattr(self, 'table_script_option_pane')
         dlgpars = pane.dialog(title='^.title',datapath='.dialog_pars',position='relative')
@@ -216,20 +227,29 @@ class TableScriptRunner(TableScriptHandler):
     def table_script_controllers(self,page):
         plugin_main = page.div(datapath='gnr.plugin.table_script_runner', nodeId='table_script_runner')
         plugin_main.dataController(""" var params = table_script_run[0];
-                                       SET .res_type= params['res_type'];
-                                       SET .table =  params['table'];
-                                       SET .resource =  params['resource'];
-                                       SET .selectionName =  params['selectionName'];
-                                       SET .publishOnResult = params['publishOnResult'];
-                                       SET .selectionFilterCb =  params['selectionFilterCb'];
-                                       SET .gridId = params['gridId'];
-                                       SET .selectedRowidx =  copyArray(params['selectedRowidx']);
-                                       SET .sortBy =  params['sortBy'];
-                                       SET .paramspath = params['paramspath'];
-                                       SET .onCalling = params['onCalling'];
-                                       SET .sourcepage_id = params['sourcepage_id'];
-                                       SET .selectedPkeys = copyArray(params['selectedPkeys']);
-                                       SET .extra_parameters = params['extra_parameters']?  params['extra_parameters'].deepCopy() : null;
+                                       SET .res_type= objectPop(params,'res_type');
+                                       SET .table =  objectPop(params,'table');
+                                       SET .resource =  objectPop(params,'resource');
+                                       SET .selectionName =  objectPop(params,'selectionName');
+                                       SET .publishOnResult = objectPop(params,'publishOnResult');
+                                       SET .selectionFilterCb =  objectPop(params,'selectionFilterCb'); 
+                                       SET .selectedRowidx =  copyArray(objectPop(params,'selectedRowidx') || []);
+                                       SET .sortBy =  objectPop(params,'sortBy');
+                                       SET .onCalling = objectPop(params,'onCalling');
+                                       SET .sourcepage_id = objectPop(params,'sourcepage_id');
+                                       var pkey =  objectPop(params,'pkey');
+                                       if (pkey){
+                                            params.selectedPkeys = [pkey];
+                                       }
+                                       SET .selectedPkeys = copyArray(objectPop(params,'selectedPkeys') || []);
+                                       var extra_parameters = objectPop(params,'extra_parameters');
+                                       extra_parameters = extra_parameters? extra_parameters.deepCopy() : new gnr.GnrBag();
+                                       for(var k in params){
+                                            extra_parameters.setItem(k,params[k]);
+                                       }
+                                       if(extra_parameters.len()>0){
+                                            SET .extra_parameters = extra_parameters;
+                                       }
                                        FIRE .build_pars_dialog;
                                     """, subscribe_table_script_run=True)
 

@@ -178,18 +178,7 @@ class TableHandlerView(BaseComponent):
                                 kw.extra_parameters = new gnr.GnrBag({template_id:$1.template_id,table:kw.table});
                                 kw.table = null;
                             }
-                            var grid = genro.wdgById(kw.gridId);
-                            if(grid.collectionStore().storeType=='VirtualSelection'){
-                                kw['selectionName'] = kw['th_root'];
-                            }else{
-                                kw['selectedPkeys'] = grid.getSelectedPkeys(true);
-                            }
-                            kw['selectedRowidx'] = grid.getSelectedRowidx();
-                            if(!GET .store){
-                                genro.dlg.alert('Missing selection','Warning');
-                                return;
-                            }
-                            genro.publish({topic:"table_script_run",parent:true},kw)
+                            th_view_batch_caller(kw);
                             """,
                     batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',batch_th_root=th_root,
                     batch_sourcepage_id=self.page_id)
@@ -213,7 +202,6 @@ class TableHandlerView(BaseComponent):
     def th_slotbar_templateManager(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
-        th_root = inattr['th_root']
         pane.paletteTemplateEditor(maintable=table,dockButton_iconClass='iconbox document')
         
         
@@ -225,8 +213,7 @@ class TableHandlerView(BaseComponent):
         pane.div(_class='iconbox gear').menu(modifiers='*',storepath='.resources.action.menu',action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
-                            kw['selectedRowidx'] = genro.wdgById(kw.gridId).getSelectedRowidx();
-                            genro.publish({topic:"table_script_run",parent:true},kw)
+                            th_view_batch_caller(kw);
                             """,
                     batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='action',
                     batch_sourcepage_id=self.page_id)
@@ -240,8 +227,7 @@ class TableHandlerView(BaseComponent):
         pane.div(_class='iconbox mail').menu(modifiers='*',storepath='.resources.mail.menu',action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
-                            kw['selectedRowidx'] = genro.wdgById(kw.gridId).getSelectedRowidx();
-                            genro.publish({topic:"table_script_run",parent:true},kw)
+                            th_view_batch_caller(kw);
                             """,
                     batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='mail',
                     batch_sourcepage_id=self.page_id)        
