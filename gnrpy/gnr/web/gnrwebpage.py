@@ -58,7 +58,7 @@ class GnrWebPageException(GnrException):
     pass
     
 class GnrWebPage(GnrBaseWebPage):
-    """Standard class to create :ref:`webpages <webpage>`"""
+    """Standard class for :ref:`webpages <webpage>`"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, basename=None, environ=None):
         self.site = site

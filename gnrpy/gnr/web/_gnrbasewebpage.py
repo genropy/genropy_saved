@@ -59,7 +59,7 @@ class GnrWebServerError(Exception):
     pass
     
 class GnrBaseWebPage(GnrObject):
-    """add???"""
+    """Base class for :ref:`webpages <webpage>`"""
     def newCookie(self, name, value, **kw):
         """add???
         
@@ -122,7 +122,7 @@ class GnrBaseWebPage(GnrObject):
     def rpc_decodeDatePeriod(self, datestr, workdate=None, locale=None):
         """add???
         
-        :param datestr: add???
+        :param datestr: string representing a date or a period
         :param workdate: the :ref:`workdate`
         :param locale: the current locale (e.g: en, en_us, it)"""
         workdate = workdate or self.workdate
@@ -352,7 +352,7 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param formId: the id of the :ref:`form`
-        :param table: the :ref:`table` related to the form
+        :param table: the :ref:`database table <table>` related to the :ref:`form`
         :param method: add???
         :param _fired: add???
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
@@ -400,7 +400,7 @@ class GnrBaseWebPage(GnrObject):
         
         :param formId: the id of the :ref:`form`
         :param resultPath: add???
-        :param table: the :ref:`table` related to the form
+        :param table: the :ref:`database table <table>` related to the :ref:`form`
         :param pkey: the record :ref:`primary key <pkey>`
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
                          For more information, check the :ref:`datapath` and the :ref:`datastore` pages
@@ -452,7 +452,7 @@ class GnrBaseWebPage(GnrObject):
         ``saveRecordCluster()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
         
         :param data: add???
-        :param table: the :ref:`database table <table>` name. 
+        :param table: the :ref:`database table <table>` name
         :param rowcaption: add???
         :param onSavingHandler: add???
         :param onSavedHandler: add???"""
@@ -541,7 +541,8 @@ class GnrBaseWebPage(GnrObject):
         """Method for deleting many records from a given table. If it works, returns
         the primary key and the deleted attribute. Else, return an exception
         
-        :param table: the :ref:`table` from which you want to delete a single record
+        :param table: the :ref:`database table <table>` from which you want
+                      to delete a single record
         :param pkeys: add???"""
         try:
             tblobj = self.db.table(table)
@@ -555,8 +556,7 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def setLoadingParameters(self, table, **kwargs):
-        """
-        .. deprecated:: 0.7
+        """.. deprecated:: 0.7
                            
         This method has been replaced through the :ref:`th` component. For more information,
         check the explanation about the **handler** level in the :ref:`th_map_form_data`

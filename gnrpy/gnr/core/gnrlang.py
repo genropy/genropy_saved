@@ -267,7 +267,7 @@ class GnrObject(object):
     def mixin(self, cls, **kwargs):
         """add???
         
-        :param cls: add???"""
+        :param cls: the python class to mixin"""
         if isinstance(cls, basestring):
             modulename, cls = cls.split(':')
             m = gnrImport(modulename)
@@ -814,7 +814,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         source.__onmixin__.im_func(obj, _mixinsource=source, **kwargs)
         
 def safeStr(self, o):
-    """add??? Return a safe string
+    """Return a safe string
     
     :param o: the string to be checked"""
     if isinstance(o, unicode):

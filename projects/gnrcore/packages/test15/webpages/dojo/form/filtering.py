@@ -13,4 +13,4 @@ class GnrCustomWebPage(object):
          
     def test_0_firsttest(self,pane):
         """Zero code"""
-        pane.filteringSelect(value='^.pippo',values='0:Zero,1:Uno,2:Due')
+        pane.filteringSelect(value='^.pippo',values='0:Zero,1:One,2:Two')
