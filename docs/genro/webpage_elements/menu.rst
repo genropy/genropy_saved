@@ -23,23 +23,29 @@ definition and description
     
     .. method:: dropdownbutton.menu([**kwargs])
     
-        *In the image, a menu*
-        
-        .. image:: ../_images/widgets/menu.png
-    
     **Menu creation**:
     
     You can create a *menu*:
     
-    #. appending it to a :ref:`dropdownbutton`::
+    1. appending it to a :ref:`dropdownbutton`:
     
+        .. image:: ../_images/widgets/menu.png
+        
+      ::
+      
         ddb = pane.dropdownbutton('NameOfTheMenu')
         menu = ddb.menu()
+        # other lines...
         
-    #. appending it to a div::
+    2. appending it to a div:
     
-        menudiv = pane.div(height='50px',width='50px',background='teal')
+        .. image:: ../_images/widgets/menu_div.png
+        
+      ::
+      
+        menudiv = pane.div('-MENU-', height='20px', width='50px', background='teal')
         menu = menudiv.menu()
+        # other lines...
         
     **Menu features**:
     

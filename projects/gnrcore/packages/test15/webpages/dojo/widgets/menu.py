@@ -13,7 +13,6 @@ class GnrCustomWebPage(object):
     
     def test_1_base(self, pane):
         """Basic"""
-        pane = pane.contentPane(height='300px')
         ddb = pane.dropdownbutton('Menu')
         menu = ddb.menu(action='alert($1.foo)',modifiers='*')
         menu.menuline('Save',foo='Saved!')
@@ -26,7 +25,7 @@ class GnrCustomWebPage(object):
         
     def test_2_base(self, pane):
         """Basic 2"""
-        menudiv = pane.div(height='50px',width='50px',background='teal')
+        menudiv = pane.div('-MENU-',height='20px',width='50px',background='teal')
         menu = menudiv.menu(action='alert($1.foo)',modifiers='*')
         menu.menuline('abc',foo=35)
         menu.menuline('xyz',foo=60,disabled=True)
