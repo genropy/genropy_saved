@@ -68,8 +68,11 @@ class FrameGrid(BaseComponent):
     py_requires='gnrcomponents/framegrid:FrameGridSlots'
     @extract_kwargs(top=True,grid=True)
     @struct_method
-    def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,**kwargs):
+    def fgr_frameGrid(self,pane,frameCode=None,struct=None,storepath=None,structpath=None,datamode=None,table=None,grid_kwargs=True,top_kwargs=None,iconSize=16,**kwargs):
         frame = pane.framePane(frameCode=frameCode,center_overflow='hidden',**kwargs)
+        _newGrid= False if datamode=='bag' else True
+        grid_kwargs.setdefault('_newGrid',_newGrid)
+        grid_kwargs.setdefault('structpath',structpath)
         if top_kwargs:
             top_kwargs['slotbar_view'] = frame
             frame.top.slotToolbar(**top_kwargs)
