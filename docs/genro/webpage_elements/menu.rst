@@ -77,7 +77,7 @@ attributes
     .. note:: You can use the following attributes both on the menu definition
               or on one of the menulines
               
-    **menu attributes**:
+    **menu and menuline attributes**:
     
     * *action*: allow to execute a javascript callback. For more information, check
       the :ref:`action_attr` page and the :ref:`following example <menu_examples_alert>`
@@ -92,8 +92,9 @@ attributes
     
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
       check the :ref:`hidden` page
-    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, you have
-      to give it to the dropdownbutton. Check the :ref:`menu_examples_simple`.
+    * *label*: You can't use the *label* attribute directly on the menu; you have to give it
+      to the div or to the dropdownbutton to which the menu is attached.
+      Check the :ref:`menu_examples_simple`.
     * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
 
 .. _menu_examples:
@@ -126,7 +127,7 @@ simple example
 alert on menu
 -------------
 
-    An example of the *action* attribute; it is set both on menu and on its menulines::
+    An example of the :ref:`action_attr` attribute; it is set both on menu and on its menulines::
     
         class GnrCustomWebPage(object):
             def main(self, root, **kwargs):

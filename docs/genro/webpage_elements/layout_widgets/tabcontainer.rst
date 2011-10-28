@@ -1,17 +1,16 @@
 .. _tabcontainer:
 
 ============
-tabContainer
+TabContainer
 ============
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo layout widget <dojo_layout>`
-    
-    .. note:: The Genro tabContainer has been taken from Dojo without adding any modifies.
-              In this page you will find some interesting features that we want to point up.
-              For more information, check the Dojo's tabContainer documentation.
-
+    .. note:: TabContainer features:
+              
+              * **Type**: :ref:`Dojo layout widget <dojo_layout>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`tab_definition`
     * :ref:`tab_attributes`
     * :ref:`tab_examples`: :ref:`tab_examples_simple`
@@ -45,10 +44,6 @@ Attributes
     **attributes of the tabContainer's children (paneContainers)**:
     
     * *title*: the title of a pane; it is shown on the relative tab of the pane.
-    
-    **commons attributes**:
-    
-    For commons attributes, see :ref:`layout_common_attributes`
     
 .. _tab_examples:
 

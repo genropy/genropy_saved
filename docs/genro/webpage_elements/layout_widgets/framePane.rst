@@ -6,8 +6,11 @@ framePane
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Genro layout widget <genro_layout>`
+    .. note:: framePane features:
     
+              * **Type**: :ref:`Genro layout widget <genro_layout>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`frame_def`
     * :ref:`frame_attributes`:
     

@@ -1,15 +1,16 @@
 .. _slider:
 
 ======
-slider
+Slider
 ======
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
-    
-    .. note:: the Genro sliders has been taken from Dojo without adding any modifies. In this page you will find some interesting features that we want to point up. For more information, check the Dojo's slider documentation.
-    
+    .. note:: Slider features:
+              
+              * **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`slider_def`
     * :ref:`slider_description`
     * :ref:`slider_attributes`
@@ -29,7 +30,8 @@ Definition
 Description
 ===========
 
-    Slider is a scale with a handle you can move to select a value. You can choose between the horizontalSlider and the verticalSlider.
+    Slider is a scale with a handle you can move to select a value.
+    You can choose between the horizontalSlider and the verticalSlider.
 
 .. _slider_attributes:
 
@@ -44,13 +46,6 @@ Attributes
     * *maximum*: Add the maximum value of the slider. Default value is 100
     * *minimum*: Add the minimum value of the slider. Default value is 0
     
-    **commons attributes**:
-    
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`hidden` page
-    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check the :ref:`lbl_formbuilder` example
-    * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath` page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
-
 .. _slider_examples:
 
 Examples

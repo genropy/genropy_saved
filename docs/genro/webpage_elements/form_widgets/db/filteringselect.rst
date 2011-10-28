@@ -1,16 +1,15 @@
 .. _filteringselect:
 
 ===============
-filteringSelect
+FilteringSelect
 ===============
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
-    
-    .. note:: The Genro filteringSelect has been taken from Dojo without adding any modifies.
-              In this page you will find some interesting features that we want to point up.
-              For more information, check the Dojo's filteringSelect documentation.
+    .. note:: FilteringSelect features:
+              
+              * **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
               
     * :ref:`filteringselect_def`
     * :ref:`filteringselect_description`
@@ -56,16 +55,6 @@ attributes
     * *values*: Set all the possible values for user choice. For more information, check the example
       :ref:`below <values_example>`
       
-    **Common attributes**:
-    
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
-      check the :ref:`hidden` page
-    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check
-      the :ref:`lbl_formbuilder` example
-    * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath`
-      page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
-    
 .. _filteringselect_examples:
 
 examples

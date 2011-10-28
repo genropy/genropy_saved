@@ -1,12 +1,15 @@
 .. _datetextbox:
 
 ===========
-dateTextbox
+DateTextbox
 ===========
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+    .. note:: DateTextbox features:
+    
+              * **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
     
     * :ref:`datetextbox_def`
     * :ref:`datetextbox_description`
@@ -41,10 +44,6 @@ attributes
     * *popup*: allow to show a calendar dialog. Default value is ``True``
     
         .. image:: ../../../_images/widgets/datetextbox.png
-        
-    **commons attributes**:
-    
-        For commons attributes, see :ref:`textboxes_attributes`
         
 .. _datetextbox_examples:
 

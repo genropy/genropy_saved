@@ -6,12 +6,19 @@ field
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`form widget <form_widgets>`
-    
+    .. note:: field features:
+              
+              * **Type**: :ref:`Genro form widget <genro_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`field_def`
     * :ref:`field_description`
     * :ref:`field_attributes`
-    * :ref:`field_examples`: :ref:`first_one`, :ref:`second_one`, :ref:`third_one`
+    * :ref:`field_examples`:
+    
+        * :ref:`first_one`
+        * :ref:`second_one`
+        * :ref:`third_one`
     
 .. _field_def:
 
@@ -65,15 +72,6 @@ attributes
     * *zoom*: Allow to open the linked record in its :ref:`table`. For further details, check the
       :ref:`zoom` page
       
-    **Common attributes**:
-    
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
-      check the :ref:`hidden` page
-    * *label*: You can't use the *label* attribute; if you want to give a label to your widget,
-      check the :ref:`lbl_formbuilder` example
-    * *visible*: if False, hide the widget (but keep a place in the :ref:`datastore` for it).
-      For more information, check the :ref:`visible` page
-
 .. _field_examples:
 
 Examples

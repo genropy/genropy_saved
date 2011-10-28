@@ -6,8 +6,11 @@ button
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+    .. note:: Button features:
     
+              * **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`button_def`
     * :ref:`button_examples`: :ref:`button_example_macro`
     

@@ -1,16 +1,15 @@
 .. _radiobutton:
 
 ===========
-radiobutton
+RadioButton
 ===========
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
-    
-    .. note:: The Genro radiobutton has been taken from Dojo without adding any modifies.
-              In this page you will find some interesting features that we want to point up.
-              For more information, check the Dojo's radiobutton documentation.
+    .. note:: RadioButton
+              
+              * **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
               
     * :ref:`rb_def`
     * :ref:`rb_description`
@@ -48,16 +47,6 @@ attributes
       group giving a different string to the *group* attribute (for more information, check
       the :ref:`rb_examples_simple`)
       
-    **Common attributes**:
-    
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``.
-      For more information, check the :ref:`hidden` page
-    * *label*: Set the radiobutton label
-    * *value*: specify the path of the widget's value. For more information, check
-      the :ref:`datapath` page
-    * *visible*: if False, hide the widget (but keep a place in the :ref:`datastore`
-      for it). For more information, check the :ref:`visible` page
-    
 .. _rb_examples:
 
 examples

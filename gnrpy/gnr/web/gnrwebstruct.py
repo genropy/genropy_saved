@@ -784,9 +784,14 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         """Return a :ref:`slotbutton`
         
         :param label: the button's label and its :ref:`tooltip`
-        :param kwargs: in the kwargs you can find:
-                       
-                       * **iconClass**: the :ref:`iconclass`"""
+        :param kwargs:
+        
+                       * **action**: allow to execute a javascript callback. For more information,
+                         check the :ref:`action_attr` section
+                       * **iconClass**: the button icon. For more information, check the :ref:`iconclass` section
+                       * **showLabel**: boolean. If ``True``, show the button label
+                       * **value**: specify the path of the widget's value. For more information,
+                         check the :ref:`datapath` page"""
         return self.child(tag='SlotButton',label=label,**kwargs)
         
     def virtualSelectionStore(self,table=None,storeCode=None,storepath=None,columns=None,**kwargs):
@@ -1220,9 +1225,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                        * **action**: allow to execute a javascript callback. For more information,
                          check the :ref:`action_attr` section
                        * **iconClass**: the button icon. For more information, check the :ref:`iconclass` section
-                       * **showLabel**: boolean. If ``True``, show the button label
-                       * **value**: specify the path of the widget's value. For more information,
-                         check the :ref:`datapath` page"""
+                       * **showLabel**: boolean. If ``True``, show the button label"""
         return self.child('button', label=label, **kwargs)
         
     def togglebutton(self, label=None, **kwargs):

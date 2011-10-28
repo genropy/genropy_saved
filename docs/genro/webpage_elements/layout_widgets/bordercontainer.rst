@@ -1,18 +1,17 @@
 .. _bordercontainer:
 
 ===============
-borderContainer
+BorderContainer
 ===============
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo layout widget <dojo_layout>`
-    
-    .. note:: The Genro borderContainer has been taken from Dojo without adding any modifies.
-              In this page you will find some interesting features that we want to point up. For more
-              information, check the Dojo's borderContainer documentation.
+    .. note:: BorderContainer features:
               
-    .. note:: In GenroPy you can find the :ref:`framepane`, an enhancement of the Dojo borderContainer.
+              * **Type**: :ref:`Dojo layout widget <dojo_layout>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
+    .. note:: the :ref:`framepane` is an enhancement of the Dojo BorderContainer
     
     * :ref:`border_def`
     * :ref:`border_attributes`
@@ -55,11 +54,7 @@ Attributes
     
     * *splitter (Dojo attribute)*: If true, user can modify the width of the paneContainer.
       For more information, check :ref:`border_splitter` example
-    
-    **Common attributes**:
-    
-        For commons attributes, see :ref:`layout_common_attributes`
-        
+      
 .. _border_examples:
 
 Examples

@@ -7,6 +7,9 @@ layout widgets
     *Last page update*: |today|
     
     * :ref:`layout_intro`
+    * :ref:`dojo_layout`
+    * :ref:`genro_layout`
+    * :ref:`layout_common_attributes`
     * :ref:`layout_section_index`
     
 .. _layout_intro:
@@ -49,15 +52,17 @@ common attributes
 =================
 
     There are some commons attributes that you can use with both Dojo and Genro containers:
+    you can find the complete list in the :ref:`attributes_index` section; in particular you
+    can use:
     
     * *datapath*: set the root's path of data. Default value is ``None``. For more details, check
       the :ref:`datapath` page
-    * *height*: Set the height of the container. MANDATORY if the container is the father container (example: height='100px')
+    * *height*: Set the height of the container. MANDATORY if the container is the father
+      container (example: height='100px')
     * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
       check the :ref:`hidden` page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
-    
-    You can obviously add :ref:`css` to your containers.
+      
+    You can obviously add :ref:`css` to your containers
     
 .. _layout_section_index:
 

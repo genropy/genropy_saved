@@ -1,17 +1,16 @@
 .. _contentpane:
 
 ===========
-contentPane
+ContentPane
 ===========
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo layout widget <dojo_layout>`
-    
-    .. note:: The Genro contentPane has been taken from Dojo without adding any modifies. In this page
-              you will find some interesting features that we want to point up. For more information,
-              check the Dojo's contentPane documentation.
-    
+    .. note:: ContentPane features:
+              
+              * **Type**: :ref:`Dojo layout widget <dojo_layout>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`cp_definition`
     * :ref:`cp_attributes`
     * :ref:`cp_examples`:
@@ -37,11 +36,7 @@ Attributes
     **contentPanes attributes**:
 
         There aren't particular attributes.
-
-    **commons attributes**:
-
-        For commons attributes, see :ref:`layout_common_attributes`.
-
+        
 .. _cp_examples:
 
 Examples

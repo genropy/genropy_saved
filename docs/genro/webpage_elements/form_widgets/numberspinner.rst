@@ -1,17 +1,16 @@
 .. _numberspinner:
 
 =============
-numberSpinner
+NumberSpinner
 =============
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
-    
-    .. note:: The Genro numberspinner has been taken from Dojo without adding any modifies.
-              In this page you will find some interesting features that we want to point up.
-              For more information, check the Dojo's numberspinner documentation.
+    .. note:: NumberSpinner features:
               
+              * **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+    
     * :ref:`numberspinner_def`
     * :ref:`numberspinner_description`
     * :ref:`numberspinner_attributes`
@@ -29,12 +28,14 @@ definition
 description
 ===========
     
-    numberSpinner is similar to :ref:`numbertextbox`, but makes integer entry easier when small adjustments are required.
+    numberSpinner is similar to :ref:`numbertextbox`, but makes integer entry easier
+    when small adjustments are required.
     
     There are two features:
     
         * The down and up arrow buttons "spin" the number up and down.
-        * Furthermore, when you hold down the buttons, the spinning accelerates to make coarser adjustments easier.
+        * Furthermore, when you hold down the buttons, the spinning accelerates to
+          make coarser adjustments easier.
         
 .. _numberspinner_attributes:
 
@@ -43,19 +44,9 @@ attributes
 
     **numberspinner attributes**:
     
-    * *min*: set the minimum value of the numberSpinner. Default value is ``None``.
-    * *max*: set the maximum value of the numberSpinner. Default value is ``None``.
+    * *min*: set the minimum value of the numberSpinner
+    * *max*: set the maximum value of the numberSpinner
     
-    **commons attributes**:
-    
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
-      check the :ref:`hidden` page
-    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check
-      the :ref:`lbl_formbuilder` example
-    * *value*: specify the path of the widget's value. For more information, check the
-      :ref:`datapath` page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
-      
 .. _numberspinner_examples:
 
 examples

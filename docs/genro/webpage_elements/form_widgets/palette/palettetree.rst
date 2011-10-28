@@ -6,8 +6,11 @@ paletteTree
 
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Genro form widget <genro_form_widgets>`
-    
+    .. note:: paletteTree features:
+              
+              * **Type**: :ref:`Genro form widget <genro_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`palettetree_def`
     
 .. _palettetree_def:

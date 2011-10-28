@@ -1,16 +1,15 @@
 	.. _combobox:
 
 ========
-comboBox
+ComboBox
 ========
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+    .. note:: ComboBox features:
     
-    .. note:: The Genro combobox has been taken from Dojo without adding any modifies.
-              In this page you will find some interesting features that we want to point up.
-              For more information, check the Dojo's combobox documentation.
+              * **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
               
     * :ref:`combobox_def`
     * :ref:`combobox_description`
@@ -47,20 +46,11 @@ Attributes
     **combobox attributes**:
     
     * *default* (or *default_value*): a default value for your combobox.
-    * *hasDownArrow*: If True, create the selection arrow. Default value is ``True``.
-    * *ignoreCase*: If True, user can write ignoring the case. Default value is ``True``.
+    * *hasDownArrow*: If True, create the selection arrow. Default value is ``True``
+    * *ignoreCase*: If True, user can write ignoring the case. Default value is ``True``
     * *values*: Set all the possible values for user choice. Default value is ``None``. For more
       information, check the :ref:`combo_examples_values` example
-    
-    **Common attributes**:
-    
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
-      check the :ref:`hidden` page
-    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check
-      the :ref:`lbl_formbuilder` example
-    * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath` page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
-    
+      
 .. _combo_examples:
 
 Examples

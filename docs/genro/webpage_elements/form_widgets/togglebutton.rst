@@ -1,17 +1,16 @@
 .. _togglebutton:
 
 ============
-togglebutton
+ToggleButton
 ============
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
-    
-    .. note:: The Genro togglebutton has been taken from Dojo without adding any modifies.
-              In this page you will find some interesting features that we want to point up.
-              For more information, check the Dojo's togglebutton documentation.
-    
+    .. note:: ToggleButton features:
+              
+              * **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`togglebutton_def`
     * :ref:`togglebutton_description`
     * :ref:`togglebutton_attributes`
@@ -47,13 +46,6 @@ Attributes
     
         fb.togglebutton(value='^.toggle1', iconClass="dijitRadioIcon", label='a togglebutton')
         
-    **commons attributes**:
-    
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information, check the :ref:`hidden` page
-    * *label*: the togglebutton label
-    * *value*: specify the path of the widget's value. For more information, check the :ref:`datapath` page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
-
 .. _togglebutton_examples:
 
 Examples

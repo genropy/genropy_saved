@@ -6,7 +6,13 @@ form widgets
     
     *Last page update*: |today|
     
-    * :ref:`form_widgets_intro`
+    * :ref:`form_widgets_intro`:
+    
+        * :ref:`genro_form_widgets`
+        * :ref:`dojo_improved_form_widgets`
+        * :ref:`dojo_form_widgets`
+        
+    * :ref:`form_widgets_common_attributes`
     * :ref:`form_widgets_section_index`
     
 .. _form_widgets_intro:
@@ -25,11 +31,14 @@ introduction
 Genro form widgets
 ------------------
 
-    The **Genro** form widgets are:
+    The **Genro form widgets** are the widgets that belong properly to the Genro framework.
+    
+    They are:
     
     * :ref:`checkboxtext`
     * :ref:`dbcombobox`
     * :ref:`dbselect`
+    * :ref:`field`
     * :ref:`slotbutton`
     
     :ref:`palette`:
@@ -44,7 +53,10 @@ Genro form widgets
 Dojo-improved form widgets
 --------------------------
 
-    The **modified-Dojo** form widgets are:
+    The **modified-Dojo form widgets** are the widgets that belong to Dojo but they
+    have been modified through the Genro framework.
+    
+    They are:
     
     * :ref:`button`
     * :ref:`tooltipdialog`
@@ -61,8 +73,10 @@ Dojo-improved form widgets
 
 Dojo form widgets
 -----------------
+
+    The **Dojo form widgets** are the widgets that belong to Dojo.
     
-    The **Dojo** form widgets are:
+    They are:
     
     * :ref:`checkbox`
     * :ref:`combobox`
@@ -73,6 +87,14 @@ Dojo form widgets
     * :ref:`simplearea`
     * :ref:`slider`
     * :ref:`togglebutton`
+    
+.. _form_widgets_common_attributes:
+
+Common attributes
+=================
+
+    There are attributes that are common to many form widgets; for a complete
+    list, check the :ref:`attributes_index` section
     
 .. _form_widgets_section_index:
 

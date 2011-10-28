@@ -1,17 +1,16 @@
 .. _accordioncontainer:
 
 ==================
-accordionContainer
+AccordionContainer
 ==================
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo layout widget <dojo_layout>`
-    
-    .. note:: The Genro accordionContainer has been taken from Dojo without adding any modifies.
-              In this page you will find some interesting features that we want to point up.
-              For more information, check the Dojo's accordionContainer documentation.
-    
+    .. note:: AccordionContainer features:
+              
+              * **Type**: :ref:`Dojo layout widget <dojo_layout>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`accordion_def`
     * :ref:`accordion_attributes`
     * :ref:`accordion_examples`: :ref:`accordion_examples_simple`
@@ -40,10 +39,6 @@ Attributes
     
     * *title*: MANDATORY - Set the accordionPane's title. Default value is ``None``
     
-    **commons attributes**:
-    
-        For commons attributes, see :ref:`layout_common_attributes`
-        
 .. _accordion_examples:
 
 Examples

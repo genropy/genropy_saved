@@ -14,7 +14,7 @@ Palettes
 introduction
 ============
 
-    In Genro you have 4 palette types:
+    In Genro you have add??? palette types:
     
     add???
     

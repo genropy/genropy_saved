@@ -1,17 +1,16 @@
 .. _simplearea:
 
 ==============
-simpleTextarea
+SimpleTextarea
 ==============
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
-    
-    .. note:: The Genro simpleTextarea has been taken from Dojo without adding any modifies.
-              In this page you will find some interesting features that we want to point up.
-              For more information, check the Dojo's simpleTextarea documentation.
-    
+    .. note:: SimpleTextArea features:
+              
+              * **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`simplearea_def`
     * :ref:`simplearea_description`
     * :ref:`simplearea_attributes`
@@ -39,16 +38,6 @@ Attributes
     **simpleTextarea attributes**:
     
     * *default*: Add a text to the area. Default value is ``None``
-    
-    **commons attributes**:
-    
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
-      check the :ref:`hidden` page
-    * *label*: You can't use the *label* attribute; if you want to give a label to your widget, check
-      the :ref:`lbl_formbuilder` example
-    * *value*: specify the path of the widget's value. For more information, check the
-      :ref:`datapath` page
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
     
 .. _simplearea_examples:
 

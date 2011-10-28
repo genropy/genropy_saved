@@ -1,18 +1,22 @@
 .. _timetextbox:
 
 ===========
-timeTextbox
+TimeTextBox
 ===========
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+    .. note:: TimeTextBox features:
+              
+              * **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
     
     * :ref:`timetextbox_def`
     * :ref:`timetextbox_description`
-    * :ref:`timetextbox_attributes`
-    * :ref:`timetextbox_examples`: :ref:`timetextbox_examples_simple`
+    * :ref:`timetextbox_examples`:
     
+        * :ref:`timetextbox_examples_simple`
+        
 .. _timetextbox_def:
 
 definition
@@ -30,19 +34,6 @@ description
     
     * The format of the timeTextbox is ``hh:mm``
     
-.. _timetextbox_attributes:
-
-attributes
-==========
-
-    **timeTextbox attributes**:
-
-        There aren't particular attributes.
-
-    **commons attributes**:
-
-        For commons attributes, see :ref:`textboxes_attributes`
-
 .. _timetextbox_examples:
 
 Examples

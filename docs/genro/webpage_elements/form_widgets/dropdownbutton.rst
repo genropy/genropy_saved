@@ -1,20 +1,18 @@
 .. _dropdownbutton:
 
 ==============
-dropdownbutton
+DropDownButton
 ==============
     
     *Last page update*: |today|
     
-    .. note:: **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+    .. note:: DropDownButton features:
     
-    .. note:: The Genro dropdownbutton has been taken from Dojo without adding any modifies.
-              In this page you will find some interesting features that we want to point up.
-              For more information, check the Dojo's dropdownbutton documentation.
-    
+              * **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`ddb_def`
     * :ref:`ddb_description`
-    * :ref:`ddb_attributes`
     * :ref:`ddb_examples`
 
 .. _ddb_def:
@@ -33,22 +31,6 @@ description
     
     It can be also used to build a :ref:`menu` or a :ref:`tooltipdialog`.
     
-.. _ddb_attributes:
-
-attributes
-==========
-    
-    **dropdownbutton attributes**:
-    
-        There aren't particular attributes.
-    
-    **commons attributes**:
-    
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``.
-      For more information, check the :ref:`hidden` page
-    * *label*: the dropdownbutton's *label*.
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
-
 .. _ddb_examples:
 
 Examples
