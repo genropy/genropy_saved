@@ -359,6 +359,9 @@ class GnrSqlDb(GnrObject):
             warnings = tblobj.diagnostic_warnings(record)
             record['__errors'] = '\n'.join(errors) if errors else None
             record['__warnings'] = '\n'.join(warnings) if warnings else None
+        if tblobj.draftField:
+            if hasattr(tblobj,'protect_draft'):
+                record[tblobj.draftField] = tblobj.protect_draft(record)
         self.adapter.insert(tblobj, record,**kwargs)
         tblobj.trigger_onInserted(record)
         
@@ -378,6 +381,9 @@ class GnrSqlDb(GnrObject):
             warnings = tblobj.diagnostic_warnings(record)
             record['__errors'] = '\n'.join(errors) if errors else None
             record['__warnings'] = '\n'.join(warnings) if warnings else None
+        if tblobj.draftField:
+            if hasattr(tblobj,'protect_draft'):
+                record[tblobj.draftField] = tblobj.protect_draft(record)
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
         tblobj.trigger_onUpdated(record, old_record=old_record)
         
