@@ -169,7 +169,7 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
-        pane.div(_class='iconbox menubox print').menu(modifiers='*',storepath='.resources.print.menu',
+        pane.div(_class='iconbox menubox print').menu(modifiers='*',storepath='.resources.print.menu',_class='smallmenu',
                     action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
