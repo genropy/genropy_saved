@@ -165,7 +165,7 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),
                         table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
     @struct_method
-    def th_slotbar_resourcePrints(self,pane,**kwargs):
+    def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
@@ -181,20 +181,23 @@ class TableHandlerView(BaseComponent):
                             """,
                     batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',batch_th_root=th_root,
                     batch_sourcepage_id=self.page_id)
-        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,cacheTime=5)
+        options = self._th_hook('options',mangler=pane)() or dict()
+        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,flags=flags or options.get('print_flags'),
+                        from_resource=from_resource or options.get('print_from_resource',True),cacheTime=5)
     
     @public_method
-    def th_printMenu(self,table=None,**kwargs):
+    def th_printMenu(self,table=None,flags=None,from_resource=True,**kwargs):
         result = Bag()
-        resource_prints = self.table_script_resource_tree_data(table=table,res_type='print')
-        if resource_prints:
-            result.update(resource_prints)
-        templates = self.th_listUserObject(table=table,objtype='template',flags='is_print')
+        if from_resource:
+            resource_prints = self.table_script_resource_tree_data(table=table,res_type='print')
+            if resource_prints:
+                result.update(resource_prints)
+        flags = flags or 'is_print'
+        templates = self.th_listUserObject(table=table,objtype='template',flags=flags)
         for t in templates:
             attr = t.attr
             result.setItem(attr['code'],None,caption=attr['description'] or attr['code'],
                             resource='print_template',template_id=attr['pkey'])
-        
         return result
         
     @struct_method

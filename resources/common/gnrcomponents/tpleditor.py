@@ -149,6 +149,8 @@ class TemplateEditor(TemplateEditorBase):
         fb.dbSelect(value='^.default_letterhead',dbtable='adm.htmltemplate',
                     lbl='!!Letterhead',hasDownArrow=True)
         fb.textbox(value='^.summary',lbl='!!Summary',colspan=4)
+        if self.isDeveloper():
+            fb.textbox(value='^#FORM.userobject_meta.flags',lbl='!!Flags',colspan=5)
         varsframe = bc.frameGrid(region='bottom',height='60%',
                                     datapath='.varsgrid',
                                     storepath='#FORM.data.varsbag',
@@ -179,10 +181,7 @@ class TemplateEditor(TemplateEditorBase):
         gridEditor.filteringSelect(gridcell='fieldtype',values='!!T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text')
         gridEditor.textbox(gridcell='format')      
         gridEditor.textbox(gridcell='mask') 
-        gridEditor.textbox(gridcell='values')        
-       
-  
-
+        gridEditor.textbox(gridcell='values')          
         
     def _te_frameEdit(self,frame,table=None):
         frame.top.slotToolbar(slots='5,parentStackButtons,*',parentStackButtons_font_size='8pt')

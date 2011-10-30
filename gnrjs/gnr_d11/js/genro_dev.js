@@ -562,6 +562,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         fb.addField('textbox', {lbl:_T("Code"),value:'^.code',width:'10em'});
         fb.addField('checkbox', {label:_T("Private"),value:'^.private'});
         fb.addField('textbox', {lbl:_T("Name"),value:'^.description',width:'100%',colspan:2});
+        fb.addField('textbox', {lbl:_T("Authorization"),value:'^.authtags',width:'100%',colspan:2});
         fb.addField('simpleTextArea', {lbl:_T("Notes"),value:'^.notes',width:'100%',height:'5ex',colspan:2,lbl_vertical_align:'top'});
         var bottom = dlg.bottom._('div');
         var saveattr = {'float':'right',label:_T('Save')};
