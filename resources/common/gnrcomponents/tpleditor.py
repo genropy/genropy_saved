@@ -39,10 +39,11 @@ class TemplateEditorBase(BaseComponent):
         htmlbuilder.virtual_columns = compiled.getItem('main?virtual_columns')
         htmlbuilder.locale = compiled.getItem('main?locale')
         htmlbuilder.formats = compiled.getItem('main?formats')
+        htmlbuilder.masks = compiled.getItem('main?masks')
         htmlbuilder.data_tblobj = self.db.table(compiled.getItem('main?maintable'))
         return htmlbuilder
         
-    def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None, formats=None,**kwargs):
+    def renderTemplate(self, templateBuilder, record_id=None, extraData=None, locale=None,**kwargs):
         record = Bag()
         if record_id:
             record = templateBuilder.data_tblobj.record(pkey=record_id,
@@ -51,27 +52,34 @@ class TemplateEditorBase(BaseComponent):
             record.update(extraData)
         locale = locale or templateBuilder.locale
         formats = templateBuilder.formats or dict()
+        masks = templateBuilder.masks or dict()
         formats.update(templateBuilder.formats or dict())
+        masks.update(templateBuilder.masks or dict())
         record.setItem('_env_', Bag(self.db.currentEnv))
         #record.setItem('_template_', templateBuilder.doctemplate_info)
-        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats),
+        body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats,masks=masks,localizer=self.localizer),
                             record=record,**kwargs)
         return body
     @public_method
-    def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,record_id=None,templates=None):
-        tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format')
+    def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,parametersbag=None,record_id=None,templates=None):
+        tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask')
+        tplpars = parametersbag.digest('#v.code,#v.format,#v.mask')
         result = Bag()
         formats = dict()
+        masks = dict()
         columns = []
         virtual_columns = []
         varsdict = dict()
-        for varname,fldpath,virtualcol,format in tplvars:
+        for varname,fldpath,virtualcol,format,mask in tplvars:
             varsdict[varname] = '$%s' %fldpath
             formats[fldpath] = format
+            masks[fldpath] = mask
             columns.append(fldpath)
             if virtualcol:
                 virtual_columns.append(fldpath)
-                
+        for code,format,mask in tplpars:
+            formats[code] = format
+            masks[code] = mask
         template = templateReplace(datacontent, varsdict, True,False)
         compiled = Bag()
         doc = ht.parse(StringIO(template)).getroot()
@@ -87,7 +95,7 @@ class TemplateEditorBase(BaseComponent):
                 compiled.setItem(subname.replace('.','_'),subtemplate)
         compiled.setItem('main', TEMPLATEROW.sub(lambda m: '\n%s\n'%m.group(1),ht.tostring(doc)),
                             maintable=table,locale=self.locale,virtual_columns=','.join(virtual_columns),
-                            columns=','.join(columns),formats=formats)
+                            columns=','.join(columns),formats=formats,masks=masks)
         result.setItem('compiled',compiled)
         if record_id:
             result.setItem('preview',self.te_getPreview(compiled=compiled,record_id=record_id,templates=templates))
@@ -99,7 +107,7 @@ class TemplateEditor(TemplateEditorBase):
     @struct_method
     def te_templateEditor(self,pane,storepath=None,maintable=None,**kwargs):
         sc = pane.stackContainer(datapath='.template_editor',selectedPage='^.status',_fakeform=True)
-        sc.dataRpc('dummy',self.te_compileTemplate,varsbag='=.data.varsbag',
+        sc.dataRpc('dummy',self.te_compileTemplate,varsbag='=.data.varsbag',parameters='=.data.parameters',
                     datacontent='=.data.content',table=maintable,_if='_status=="preview"&&datacontent&&varsbag',
                     _status='^.status',record_id='=.preview.selected_id',templates='=.preview.html_template_name',
                     _onResult="""
@@ -114,6 +122,13 @@ class TemplateEditor(TemplateEditorBase):
         self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit'),table=maintable)
         self._te_framePreview(sc.framePane(title='!!Preview',pageName='preview',childname='preview'),table=maintable)
         return sc
+    
+    def _te_varsgrid_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('fieldname', name='Field', width='100%')
+        r.cell('varname', name='As', width='15em')
+        r.cell('format', name='Format', width='10em')
+        r.cell('mask', name='Mask', width='20em')
 
     def _te_frameInfo(self,frame,table=None):
         frame.top.slotToolbar('5,parentStackButtons,*',parentStackButtons_font_size='8pt')
@@ -134,21 +149,18 @@ class TemplateEditor(TemplateEditorBase):
         fb.dbSelect(value='^.default_letterhead',dbtable='adm.htmltemplate',
                     lbl='!!Letterhead',hasDownArrow=True)
         fb.textbox(value='^.summary',lbl='!!Summary',colspan=4)
-        def struct(struct):
-            r = struct.view().rows()
-            r.cell('fieldname', name='Field', width='100%')
-            r.cell('varname', name='As', width='15em')
-            r.cell('format', name='Format', width='15em')
         varsframe = bc.frameGrid(region='bottom',height='60%',
                                     datapath='.varsgrid',
                                     storepath='#FORM.data.varsbag',
-                                    struct=struct,datamode='bag',splitter=True)
+                                    struct=self._te_varsgrid_struct,
+                                    datamode='bag',splitter=True)
         varsframe.left.slotBar('5,fieldsTree,*',fieldsTree_table=table,closable=True,width='150px',fieldsTree_height='100%',splitter=True)
         tablecode = table.replace('.','_')
         dropCode = 'gnrdbfld_%s' %tablecode
         editor = varsframe.grid.gridEditor()
         editor.textbox(gridcell='varname')
         editor.textbox(gridcell='format')
+        editor.textbox(gridcell='mask')
         varsframe.top.slotToolbar(slots='gridtitle,*,delrow',gridtitle='!!Variables',)
         varsframe.grid.dragAndDrop(dropCodes=dropCode)
         varsframe.grid.dataController("""var caption = data.fullcaption;
@@ -158,16 +170,20 @@ class TemplateEditor(TemplateEditorBase):
         parsframe = bc.frameGrid(region='center',
                                 datamode='bag',datapath='.parametersgrid',
                                 storepath='#FORM.data.parameters', 
-                                struct=self._te_metadata_struct,
+                                struct=self._te_parameters_struct,
                                 selfDragRows=True)
         parsframe.top.slotToolbar('gridtitle,*,addrow,delrow',gridtitle='!!Parameters')
         gridEditor = parsframe.grid.gridEditor()
         gridEditor.textbox(gridcell='code')
         gridEditor.textbox(gridcell='description')
         gridEditor.filteringSelect(gridcell='fieldtype',values='!!T:Text,L:Integer,D:Date,N:Decimal,B:Boolean,TL:Long Text')
+        gridEditor.textbox(gridcell='format')      
+        gridEditor.textbox(gridcell='mask') 
         gridEditor.textbox(gridcell='values')        
-        gridEditor.filteringSelect(gridcell="mandatory",values="!!F:No,T:Yes")
+       
+  
 
+        
     def _te_frameEdit(self,frame,table=None):
         frame.top.slotToolbar(slots='5,parentStackButtons,*',parentStackButtons_font_size='8pt')
         bar = frame.left.slotBar('5,treeVars,*',closable='close',
@@ -189,7 +205,6 @@ class TemplateEditor(TemplateEditorBase):
         },'static');
         parameters.forEach(function(n){
             attrs = n.attr;
-            console.log(attrs)
             parsfolder.setItem(n.label,null,{caption:attrs.description || attrs.code,code:attrs.code})
         },'static');
         result.setItem('variables',varfolder,{caption:varcaption})
@@ -232,11 +247,13 @@ class TemplateEditor(TemplateEditorBase):
                    iconClass="iconbox next")
         frame.center.contentPane(margin='5px',background='white',border='1px solid silver',rounded=4,padding='4px').div('^.preview.renderedtemplate')
     
-    def _te_metadata_struct(self,struct):
+    def _te_parameters_struct(self,struct):
         r = struct.view().rows()
         r.cell('code', name='!!Code', width='10em')
         r.cell('description', name='!!Description', width='40em')
         r.cell('fieldtype', name='!!Fieldtype', width='10em')
+        r.cell('format', name='!!Format', width='10em')
+        r.cell('mask', name='!!Mask', width='15em')
         r.cell('values', name='!!Values', width='100%')    
 
 class PaletteTemplateEditor(TemplateEditor):
@@ -255,7 +272,7 @@ class PaletteTemplateEditor(TemplateEditor):
         infobar.menutemplates.div(_class='iconbox folder').menu(modifiers='*',storepath='.menu',
                 action="""SET .currentTemplate.pkey=$1.pkey;
                           SET .currentTemplate.mode = $1.tplmode;
-                          SET .currentTemplate.path = $1.fullpath;""")
+                          SET .currentTemplate.path = $1.fullpath;""",_class='smallmenu')
         infobar.savetpl.slotButton('!!Save template',iconClass='iconbox save',action='FIRE .savetemplate',
                                 disabled='^.data.content?=!#v')
         infobar.dataController("""
@@ -330,7 +347,7 @@ class PaletteTemplateEditor(TemplateEditor):
             tblobj.update(record)
             self.db.commit()
         elif tplmode == 'userobject':
-            data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'])['compiled']
+            data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
             pkey,record = self.th_saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
             record.pop('data')
         return record

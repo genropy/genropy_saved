@@ -33,8 +33,11 @@ class Main(BaseResourcePrint):
         record.update(self.batch_parameters)
         htmlContent=templateReplace(self.compiledTemplate,record, 
                                     safeMode=True,noneIsBlank=False,
-                                    locale=self.htmlMaker.locale,
-                                    formats=self.compiledTemplate.getItem('main?formats'))
+                                    locale=self.page.locale,
+                                    formats=self.compiledTemplate.getItem('main?formats'),
+                                    masks=self.compiledTemplate.getItem('main?masks'),
+                                    localizer=self.page.localizer)
+                                    
         result = self.htmlMaker(htmlContent=htmlContent,
                                 filename='%s.html' %record['id'],
                                 record=record, thermo=thermo, pdf=self.pdf_make,

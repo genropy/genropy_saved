@@ -49,35 +49,44 @@ try:
     
     class LocalizedWrapper(object):
 
-        def __init__(self,data, locale=None,templates=None, formats=None, noneIsBlank=None):
+        def __init__(self,data, locale=None,templates=None, formats=None,masks=None, localizer=None,noneIsBlank=None):
             self.data=data
             self.locale=locale
             self.formats=formats or dict()
+            self.masks = masks or dict()
             self.templates=templates
             self.noneIsBlank=noneIsBlank
+            self.isBag = hasattr(self.data, '_htraverse')
+            self.localizer = localizer
 
         def __getitem__(self,k):
-            value= self.data[k]
+            value = self.data[k]
+            format = None
+            mask = None
+            caption = ''
             if self.noneIsBlank and value is None:
                 value= ''
-            
-            if self.templates and hasattr(value, '_htraverse'):
-                templateNode = self.templates.getNode(k)
-                if templateNode:
-                    template = templateNode.value
-                    joiner = templateNode.getAttr('joiner','')
-                    result = []
-                    for k,v in value.items():
-                        result.append(templateReplace(template,v, locale=self.locale, 
-                                        formats=self.formats, noneIsBlank=self.noneIsBlank))
-                    value = joiner.join(result)
-            if self.locale:
-                format = None
-                if hasattr(self.data, '_htraverse'):
-                    attrs = self.data.getAttr(k) or dict()
-                    format = attrs.get('format')
-                format = format or self.formats.get(k)
-                value = toText(value,locale=self.locale, format=format)
+            if self.isBag:
+                if self.templates:
+                    templateNode = self.templates.getNode(k)
+                    if templateNode:
+                        template = templateNode.value
+                        joiner = templateNode.getAttr('joiner','')
+                        result = []
+                        for k,v in value.items():
+                            result.append(templateReplace(template,v, locale=self.locale, 
+                                            formats=self.formats,masks=self.masks, noneIsBlank=self.noneIsBlank))
+                        return joiner.join(result)
+                attrs = self.data.getAttr(k) or dict()
+                format = attrs.get('format')
+                mask = attrs.get('mask')
+                caption = attrs.get('name_long','')
+            format = self.formats.get(k) or format
+            mask = self.masks.get(k) or mask
+            if mask and '#' in mask:
+                caption = self.localizer.localize(caption) if self.localizer else caption.replace('!!','')
+                mask = mask.replace('#',caption)
+            value = toText(value,locale=self.locale, format=format,mask=mask)
             return value
     
     class SubtemplateMapWrapper(object):
@@ -356,7 +365,7 @@ def regexDelete(myString, pattern):
     """
     return re.sub(pattern, '', myString)
     
-def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, formats=None):
+def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,locale=None, formats=None,masks=None,localizer=None):
     """Allow to replace string's chunks.
     
     :param myString: template string
@@ -382,7 +391,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
         #  above is replaced by LocalizedWrapper
     else:
         Tpl = Template
-    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats)
+    symbolDict = LocalizedWrapper(symbolDict, locale=locale, templates=templateBag, noneIsBlank=noneIsBlank, formats=formats,masks=masks,localizer=localizer)
     if safeMode:
         return Tpl(myString).safe_substitute(symbolDict)
     else:
@@ -679,7 +688,7 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
     if isinstance(obj, list) or isinstance(obj, tuple):
         return ','.join([toText(v) for v in obj])
         #what?
-    if obj is None: return u''
+    if obj in (None,''): return u''
     if not (locale or format):
         result = unicode(obj)
     else:

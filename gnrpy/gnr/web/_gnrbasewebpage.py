@@ -118,8 +118,9 @@ class GnrBaseWebPage(GnrObject):
         return self.filename
         
     canonical_filename = property(_get_canonical_filename)
-        
-    def rpc_decodeDatePeriod(self, datestr, workdate=None, locale=None):
+    
+    @public_method
+    def decodeDatePeriod(self, datestr, workdate=None, locale=None):
         """add???
         
         :param datestr: add???
@@ -246,7 +247,7 @@ class GnrBaseWebPage(GnrObject):
         selection = self.unfreezeSelection(dbtable=table, name=selectionName,page_id=page_id)
         table = table or selection.dbtable
         if filterCb:
-            filterCb = getattr(self, 'rpc_%s' % filterCb)
+            filterCb = self.getPublicMethod('rpc',filterCb)
             selection.filter(filterCb)
         elif selectedRowidx:
             if isinstance(selectedRowidx, basestring):
@@ -492,7 +493,8 @@ class GnrBaseWebPage(GnrObject):
         else:
             return (pkey, resultAttr)
             
-    def rpc_deleteRecordCluster(self, data, table=None, **kwargs):
+    @public_method    
+    def deleteRecordCluster(self, data, table=None, **kwargs):
         """add???
         
         :param data: add???
@@ -512,8 +514,9 @@ class GnrBaseWebPage(GnrObject):
             return 'ok'
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
-            
-    def rpc_deleteDbRow(self, table, pkey=None, **kwargs):
+    
+    @public_method
+    def deleteDbRow(self, table, pkey=None, **kwargs):
         """Method for deleting a single record from a given table
         
         :param table: the :ref:`table` from which you want to delete a single record
@@ -531,8 +534,9 @@ class GnrBaseWebPage(GnrObject):
             return pkey, deleteAttr
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
-            
-    def rpc_deleteDbRows(self, table, pkeys=None, **kwargs):
+    
+    @public_method    
+    def deleteDbRows(self, table, pkeys=None, **kwargs):
         """Method for deleting many records from a given table.
         
         :param table: the :ref:`table` from which you want to delete a single record
@@ -706,8 +710,9 @@ class GnrBaseWebPage(GnrObject):
                     v = 'unicode error'
                 tr.td(v.encode('ascii', 'ignore'))
         return page
-            
-    def rpc_resolverRecall(self, resolverPars=None, **auxkwargs):
+    
+    @public_method    
+    def resolverRecall(self, resolverPars=None, **auxkwargs):
         """add???
         
         :param resolverPars: add???"""
@@ -735,17 +740,20 @@ class GnrBaseWebPage(GnrObject):
         if resolver is not None:
             resolver._page = self
             return resolver()
-            
-    def rpc_resetApp(self, **kwargs):
+    
+    @public_method    
+    def resetApp(self, **kwargs):
         """add???"""
         self.siteStatus['resetTime'] = time.time()
         self.siteStatusSave()
-        
-    def rpc_applyChangesToDb(self, **kwargs):
+    
+    @public_method
+    def applyChangesToDb(self, **kwargs):
         """add???"""
         return self._checkDb(applychanges=True)
         
-    def rpc_checkDb(self):
+    @public_method    
+    def checkDb(self):
         """add???"""
         return self._checkDb(applychanges=False)
         
@@ -761,8 +769,9 @@ class GnrBaseWebPage(GnrObject):
             self.db.commit()
             self.db.checkDb()
         return self.db.model.modelBagChanges
-        
-    def rpc_tableStatus(self, **kwargs):
+    
+    @public_method
+    def tableStatus(self, **kwargs):
         """add???"""
         strbag = self._checkDb(applychanges=False)
         for pkgname, pkg in self.db.packages.items():

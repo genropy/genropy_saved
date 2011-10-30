@@ -30,6 +30,11 @@ class GnrWebLocalizer(GnrBaseProxy):
             localization.update(self.localizer_dict)
             store.setItem('localization', localization)
 
+    def localize(self,txt):
+        if txt.startswith('!!'):
+            return self.translateText(txt[2:])
+        return txt
+        
     def translateText(self, txt):
         """add???
         

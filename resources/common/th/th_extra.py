@@ -36,8 +36,8 @@ class THStatsHandler(BaseComponent):
                            value='^.stats.tree.tot_mode', lbl='!!Mode')
 
     def stats_left(self, pane):
-        pane.tree(storepath='.stats.tree.root', inspect='shift', selectedPath='.stats.tree.currentTreePath', labelAttribute='caption',
-                  selectedItem='#_grid_total.data', isTree=True, margin='10px', _fired='^.stats.tree.reload_tree', hideValues=True)
+        pane.tree(storepath='.stats.tree.root.data', inspect='shift', selectedPath='.stats.tree.currentTreePath', labelAttribute='caption',
+                  selectedItem='#totalizer_grid.data', isTree=True, margin='10px', _fired='^.stats.tree.reload_tree', hideValues=True)
         pane.dataRpc('.stats.tree.root', self.stats_totalize, selectionName='=.store?selectionName',
                      tot_mode='^.stats.tree.tot_mode', _if='tot_mode&&(selectedTab=="th_stats") && selectionName', timeout=300000,
                      totalrecords='=.rowcount', selectedTab='=.selectedPage',
@@ -51,7 +51,7 @@ class THStatsHandler(BaseComponent):
                     #   FIRE .stats.tree.reload_tree;
                     #""",
                     _onCalling="""genro.wdgById("_stats_load_dlg").show();
-                                    SET #_grid_total.data = null;SET #_grid_detail.data = null;""",
+                                    SET #totalizer_grid.data = null;""",
                     _onResult='FIRE .stats.tree.reload_tree;genro.wdgById("_stats_load_dlg").hide();',
                      _fired='^.stats.tree.do_totalize')
         pane.dataController("""SET .stats.tree.root.data = null; FIRE .stats.tree.reload_tree; FIRE .stats.tree.do_totalize;""", _fired="^.queryEnd")
@@ -59,32 +59,30 @@ class THStatsHandler(BaseComponent):
         dlg.div(_class='pbl_roundedGroup', height='200px', width='300px').div(_class='waiting')
 
 
-    def stats_center(self, bc):
-        self.includedViewBox(bc.borderContainer(region='top', height='50%', splitter=True, margin='5px'),
-                             label='!!Analyze Grid', datapath='.stats.grids.total', nodeId='_grid_total',
-                             storepath='.data', structpath='.struct', autoWidth=True, export_action=True)
-        bc.dataRpc('#_grid_total.struct', 'stats_get_struct_total', tot_mode='^.stats.tree.tot_mode')
-        self.includedViewBox(bc.borderContainer(region='center', margin='5px'),
-                             label=self._stats_detail_label,
-                             datapath='.stats.grids.detail', nodeId='_grid_detail',
-                             storepath='.data', structpath='.struct',
-                             table=self.maintable, autoWidth=True, export_action=True,
-                             selectionPars=dict(method='stats_get_detail',
-                                                flt_path='=%s.view.stats.tree.currentTreePath' %self.maintable.replace('.','_'),
-                                                selectionName='=%s.view.store?selectionName' %self.maintable.replace('.','_'),
-                                                _autoupdate='=.autoupdate', _if='_autoupdate',
-                                                _else='null'))
-        bc.dataRpc('#_grid_detail.struct', 'stats_get_struct_detail', tot_mode='^.stats.tree.tot_mode')
-
-    def _stats_detail_label(self, pane):
-        fb = pane.formbuilder(cols=2, border_spacing='2px')
-        fb.div('^.table?name_plural')
-        fb.checkbox(value='^.autoupdate', label='!!Auto update', default=False, lbl=' ', lbl_width='1em')
-        fb.dataController("FIRE .reload;", _fired="^%s.view.stats.tree.currentTreePath" %self.maintable.replace('.','_'),
-                          autoupdate='^.autoupdate')
-
-
-    def rpc_stats_get_struct_total(self, tot_mode='*'):
+    def stats_center_analyzer(self,bc,**kwargs):
+        frame = bc.frameGrid('totalizer',margin='2px',rounded=5,storepath='.data',
+                                datapath='.stats.totalizer',
+                                grid__newGrid=False,**kwargs)
+        frame.top.slotToolbar('titleslot,*,export',titleslot='!!Analyze Grid')
+        frame.dataRpc('.grid.struct', self.stats_get_struct_total, tot_mode='^#main_stats_frame.stats.tree.tot_mode')
+    
+    def stats_center_detail(self,bc,**kwargs):
+        frame = bc.frameGrid('detail',margin='2px',rounded=5,border='1px solid silver',
+                                datapath='.stats.detail',#structpath='#main_stats_frame.grid.struct',
+                                **kwargs)
+        frame.dataRpc('.grid.struct', self.stats_get_struct_detail, tot_mode='^#main_stats_frame.stats.tree.tot_mode')
+        frame.top.slotToolbar('titleslot,*,export',titleslot='!!Details Grid')
+        frame.grid.selectionStore(table=self.maintable,
+                                    method=self.stats_get_detail,
+                                    flt_path='^#main_stats_frame.stats.tree.currentTreePath',
+                                    selectionName='=#main_stats_frame.store?selectionName')
+        
+    def stats_center(self,bc):
+        self.stats_center_analyzer(bc,region='top',height='50%')
+        self.stats_center_detail(bc,region='center')
+        
+    @public_method
+    def stats_get_struct_total(self, tot_mode='*'):
         struct = self.newGridStruct()
         r = struct.view().rows()
         grid_struct = self.stats_totals_cols(tot_mode=tot_mode)
@@ -96,18 +94,20 @@ class THStatsHandler(BaseComponent):
                     cellargs['dtype'] = 'L'
             r.cell(**cellargs)
         return struct
-
-    def rpc_stats_get_struct_detail(self, tot_mode='*'):
-        struct = self.newGridStruct()
+    
+    @public_method
+    def stats_get_struct_detail(self, tot_mode='*'):
+        struct = self.newGridStruct(maintable=self.maintable)
         r = struct.view().rows()
         grid_struct = self.stats_detail_cols(tot_mode=tot_mode)
         for cellargs in grid_struct:
             r.fieldcell(**cellargs)
         return struct
-
-    def rpc_stats_get_detail(self, flt_path=None, selectionName=None, **kwargs):
+    
+    @public_method
+    def stats_get_detail(self, flt_path=None, selectionName=None, **kwargs):
         selection = self.unfreezeSelection(self.tblobj, selectionName)
-        result = selection.output('grid', subtotal_rows=flt_path, recordResolver=False)
+        result = selection.output('grid', subtotal_rows=flt_path,limit=500, recordResolver=False)
         return result
 
     def stats_modes_dict(self):
@@ -209,6 +209,7 @@ class THStatsHandler(BaseComponent):
                             group_by=group_by, sum=sum_cols, keep=keep_cols,
                             collect=collect_cols, distinct=distinct_cols,
                             key=key_col, captionCb=captionCb)
+        selection.analyzeBag = analyzer
         self.freezeSelection(selection, selectionName)
         result.setItem('data', analyzer, caption=self.stats_modes_dict()[tot_mode])
         return result
