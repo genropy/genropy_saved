@@ -226,8 +226,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             return getattr(m, clsName)
         else:
             raise Exception('Cannot import component %s' % modName)
-
-
+            
     def rpc_getRecordCount(self, field=None, value=None,
                            table='', distinct=False, columns='', where='',
                            relationDict=None, sqlparams=None, condition=None,
@@ -241,10 +240,11 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
-        :param where: add???
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where`
+                      section
         :param relationDict: add???
         :param sqlparams: add???
-        :param condition: add???"""
+        :param condition: the :ref:`sql_condition` of the count"""
         #sqlargs = dict(kwargs)
         if field:
             if not table:
@@ -319,7 +319,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param query_columns: add???
-        :param condition: add???
+        :param condition: the :ref:`sql_condition` of the selection
         :param js_resolver_one: add???
         :param sqlContextName: add???"""
         if query_columns:
@@ -567,7 +567,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         :param changelist: add???
         :param selectionName: add???
-        :param where: add???
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
         :param table: the :ref:`database table <table>`"""
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
         needUpdate = False
@@ -611,15 +611,18 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
-        :param where: add???
-        :param condition: add???
-        :param order_by: add???
-        :param limit: add???
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
+        :param condition: the :ref:`sql_condition` of the selection
+        :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                         :ref:`sql_order_by` section
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                      information, check the :ref:`sql_limit` section
         :param offset: add???
-        :param group_by: add???
-        :param having: add???
-        :param relationDict: add???
-        :param sqlparams: add???
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
+        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
+        :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
+                             check the :ref:`relationdict` documentation section
+        :param sqlparams: a dictionary which associates sqlparams to their values
         :param row_start: add???
         :param row_count: add???
         :param recordResolver: add???
@@ -628,7 +631,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param numberedRows: add???
         :param pkeys: add???
         :param fromSelection: add???
-        :param applymethod: add???
+        :param applymethod: a page method to be called after selecting the related records
         :param totalRowCount: add???
         :param selectmethod: add???
         :param expressions: add???
@@ -924,7 +927,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param from_fld: add???
         :param target_fld: add???
         :param sqlContextName: add???
-        :param applymethod: add???
+        :param applymethod: a page method to be called after selecting the related records
         :param js_resolver_one: add???
         :param js_resolver_many: add???
         :param loadingParameters: add???
@@ -1036,7 +1039,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                      _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None, excludeDraft=True,
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
                      notnull=None, weakCondition=False, **kwargs):
-        """add???
+        """dbSelect is a :ref:`filteringselect` that takes the values through a :ref:`query` on the
+        database: user can choose between all the values contained into the linked :ref:`table` (the
+        table is specified through the *dbtable* attribute). While user write in the dbSelect, partially
+        matched values will be shown in a pop-up menu below the input text box. You can show more columns
+        in the pop-up menu through the *auxColumns*
         
         ``dbSelect()`` method is decorated with the :meth:`public_method
         <gnr.core.gnrdecorator.public_method>` decorator
@@ -1045,25 +1052,29 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
-        :param auxColumns: showed only as result, not involved in the search.
+        :param auxColumns: list of columns separated by a comma. Every columns must have a prefix (``$``).
+                           Show the columns you specify here as auxiliary columns in a pop-up menu
         :param hiddenColumns: data that is retrieved but is not showed.
         :param rowcaption: what you see into the field. Often is different
                            from what you set with dbselect
         :param querystring: add???
-        :param ignoreCase: boolean. add???
+        :param ignoreCase: boolean. Set it ``True`` for a case insensitive query from characters typed
+                           from user. Set to ``False`` for a case sensitive query
         :param exclude: add???
         :param excludeDraft: boolean. add???
-        :param condition: more condition into the query. Every kwargs params that 
-                          starts with condition_ are the variables involved in the 'where' clause.
-        :param limit: string. Numbers of visualized data after the query (default is 10)
-                      set limit to '0' to visualize all data.
+        :param condition: more :ref:`sql_condition` into the query
+        :param limit: string. Number of result's rows (default is 10, set limit to '0' to visualize
+                      all data). Corresponding to the sql "LIMIT" operator. For more information,
+                      check the :ref:`sql_limit` section
         :param alternatePkey: add???
-        :param order_by: add???
+        :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                         :ref:`sql_order_by` section
         :param selectmethod: custom rpc_method you can use to make the query on the server.
         :param notnull: add???
-        :param weakCondition: it will apply the condition if there is a result, but if there is no
-                              result for the condition then the condition will not be used. A
-                              selectmethod over-rides this attribute"""
+        :param weakCondition: boolean. It will apply the condition if there is a result, but if
+                              there is no result for the condition then the condition will not
+                              be used. The *selectmethod* attribute can be used to override this
+                              attribute"""
         resultClass = ''
         if selectmethod or not condition:
             weakCondition = False
@@ -1159,10 +1170,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param querycolumns: add???
         :param querystring: add???
         :param resetcolumns: add???
-        :param condition: add???
+        :param condition: the :ref:`sql_condition` of the dbSelect
         :param exclude: add???
-        :param limit: add???
-        :param order_by: add???
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                      information, check the :ref:`sql_limit` section
+        :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                         :ref:`sql_order_by` section
         :param identifier: add???
         :param ignoreCase: add???"""
         def getSelection(where, **searchargs):

@@ -1,8 +1,8 @@
 .. _dot_char:
 
-===================
-dot (".") character
-===================
+=================
+dot (.) character
+=================
 
     *Last page update*: |today|
     

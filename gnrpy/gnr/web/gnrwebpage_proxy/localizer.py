@@ -31,14 +31,15 @@ class GnrWebLocalizer(GnrBaseProxy):
             store.setItem('localization', localization)
 
     def localize(self,txt):
+        """Localize a string beginning with the :ref:`\!\! <exclamation_point>` character"""
         if txt.startswith('!!'):
             return self.translateText(txt[2:])
         return txt
         
     def translateText(self, txt):
-        """add???
+        """Translate the *txt* string following the browser's locale
         
-        :param txt: add???"""
+        :param txt: the text to be translated"""
         application = self.page.application
         key = '%s|%s' % (self.page.packageId, txt.lower())
         localelang = self.locale

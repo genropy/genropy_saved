@@ -1546,7 +1546,7 @@ class GnrWebPage(GnrBaseWebPage):
             return self.site.getStatic('user').url(self.user, *args)
    
     @public_method
-    def getSiteDocument(self,path,defaultContent=None,**kwargs):
+    def getSiteDocument(self, path, defaultContent=None, **kwargs):
         """add???
         
         ``getSiteDocument()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
@@ -1591,28 +1591,35 @@ class GnrWebPage(GnrBaseWebPage):
             
     def setJoinCondition(self, ctxname, target_fld='*', from_fld='*', condition=None, one_one=None, applymethod=None,
                          **kwargs):
-        """Define a join condition in a given context (ctxname)
-           the condition is used to limit the automatic selection of related records
-           If target_fld AND from_fld equals to '*' the condition is an additional where clause added to any selection
-           
-           self.setJoinCondition('mycontext',
-                              target_fld = 'mypkg.rows.document_id',
-                              from_fld = 'mypkg.document.id',
-                              condition = "mypkg.rows.date <= :join_wkd",
-                              join_wkd = "^mydatacontext.foo.bar.mydate", one_one=False)
-                              
-            @param ctxname: name of the context of the main record 
-            @param target_fld: the many table column of the relation, '*' means the main table of the selection
-            @param from_fld: the one table column of the relation, '*' means the main table of the selection
-            @param condition: the sql condition
-            @param one_one: the result is returned as a record instead of as a selection. 
-                            If one_one is True the given condition MUST return always a single record
-            @param applymethod: a page method to be called after selecting the related records
-            @param kwargs: named parameters to use in condition. Can be static values or can be readed 
-                           from the context at query time. If a parameter starts with '^' it is a path in 
-                           the context where the value is stored. 
-                           If a parameter is the name of a defined method the method is called and the result 
-                           is used as the parameter value. The method has to be defined as 'ctxname_methodname'.
+        """Define a join condition in a given context (*ctxname*).
+        
+        The *condition* attribute is used to limit the automatic selection of related records.
+        If *target_fld* AND *from_fld* equals to '*' then the condition is an additional
+        WHERE clause added to any selection
+        
+        ::
+        
+            self.setJoinCondition('mycontext',
+                                   target_fld = 'mypkg.rows.document_id',
+                                   from_fld = 'mypkg.document.id',
+                                   condition = "mypkg.rows.date <= :wkd",
+                                   condition_wkd = "^mydatacontext.foo.bar.mydate",
+                                   one_one=False)
+                           
+        :param ctxname: name of the context of the main record
+        :param target_fld: the many table column of the :ref:`relation <relations>`;
+                           '*' means the main table of the selection
+        :param from_fld: the one table column of the :ref:`relation <relations>`;
+                         '*' means the main table of the selection
+        :param condition: additional :ref:`conditions <sql_condition>` for the WHERE sql condition
+        :param one_one: the result is returned as a record instead of as a selection.
+                        If one_one is True the given condition MUST return always a single record
+        :param applymethod: a page method to be called after selecting the related records
+        :param kwargs: named parameters to use in condition. Can be static values or can be readed
+                       from the context at query time. If a parameter starts with '^' it is a path in
+                       the context where the value is stored.
+                       If a parameter is the name of a defined method the method is called and the result
+                       is used as the parameter value. The method has to be defined as 'ctxname_methodname'
         """
         path = '%s.%s_%s' % (ctxname, target_fld.replace('.', '_'), from_fld.replace('.', '_'))
         value = Bag(dict(target_fld=target_fld, from_fld=from_fld, condition=condition, one_one=one_one,
@@ -1654,7 +1661,7 @@ class GnrWebPage(GnrBaseWebPage):
     def rpc_getGridStruct(self, struct, table):
         """Prepare the :ref:`grid` struct
         
-        :param struct: add???
+        :param struct: the :ref:`struct`
         :param table: the :ref:`database table <table>` name"""
         return self._prepareGridStruct(struct, table)
         

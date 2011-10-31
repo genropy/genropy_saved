@@ -1,7 +1,7 @@
 .. _caret_char:
 
 ===================
-caret "^" character
+caret (^) character
 ===================
 
     *Last page update*: |today|

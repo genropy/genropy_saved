@@ -373,7 +373,8 @@ class SqlQueryCompiler(object):
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
                          :ref:`sql_order_by` section
         :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
-        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                      information, check the :ref:`sql_limit` section
         :param offset: the same of the sql "OFFSET"
         :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
         :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
@@ -750,7 +751,8 @@ class SqlQuery(object):
     :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
                      :ref:`sql_order_by` section
     :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
-    :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator
+    :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                  information, check the :ref:`sql_limit` section
     :param offset: the same of the sql "OFFSET"
     :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
     :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
@@ -811,7 +813,7 @@ class SqlQuery(object):
         
         :param target_fld: add???
         :param from_fld: add???
-        :param condition: add???
+        :param condition: set a :ref:`sql_condition` for the join
         :param one_one: boolean. add???
         """
         cond = dict(condition=condition, one_one=one_one, params=kwargs)
@@ -1125,7 +1127,8 @@ class SqlSelection(object):
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param offset: the same of the sql "OFFSET"
-        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                      information, check the :ref:`sql_limit` section
         :param filterCb: add???
         :param subtotal_rows: add???
         :param formats: add???
@@ -1894,7 +1897,7 @@ class SqlRecord(object):
         
         :param target_fld: add???
         :param from_fld: add???
-        :param condition: add???
+        :param condition: set a :ref:`sql_condition` for the join
         :param one_one: boolean. add???"""
         cond = dict(condition=condition, one_one=one_one, params=kwargs)
         self.joinConditions['%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_'))] = cond

@@ -848,7 +848,7 @@ class Bag(GnrObject):
             | ``'#a.attributeName'`` | Show the attribute called 'attrname' for each item                   |
             +------------------------+----------------------------------------------------------------------+
             
-        :param condition: set a condition for digest process
+        :param condition: set a :ref:`sql_condition` for digest process
         :param asColumns: add???
             
             >>> b=Bag()
@@ -947,9 +947,10 @@ class Bag(GnrObject):
     nodes = property(getNodes)
 
     def popNode(self, path):
-        """add???
+        """This method is analog to dictionary's pop() method. It pops the given node from
+        a Bag at the relative path and returns it
         
-        :param path: add???"""
+        :param path: path of the given node"""
         obj, label = self._htraverse(path)
         if obj:
             n = obj._pop(label)
@@ -958,7 +959,7 @@ class Bag(GnrObject):
 
     def pop(self, path, dflt=None):
         """This method is analog to dictionary's pop() method. It pops the given item from
-        the Bag at the relative path and returns it.
+        a Bag at the relative path and returns it
         
         :param path: path of the given item
         :param dflt: add???

@@ -7,10 +7,12 @@ sql attributes
     *Last page update*: |today|
     
     * :ref:`sql_columns`
+    * :ref:`sql_condition`
     * :ref:`sql_deferred`
     * :ref:`sql_distinct`
     * :ref:`sql_group_by`
     * :ref:`sql_having`
+    * :ref:`sql_limit`
     * :ref:`sql_order_by`
     * :ref:`sql_where`
         
@@ -19,8 +21,6 @@ sql attributes
 columns
 -------
 
-    .. module:: gnr.sql.gnrsqldata.SqlQueryCompiler
-    
     The ``columns`` attribute represents the :ref:`columns` to be returned
     by the "SELECT" clause in the traditional sql query.
     
@@ -35,21 +35,60 @@ columns
     * ``sqlfunction($colname, @relname.colname)``: ``$`` and ``@`` syntax can be used inside
       sql functions too 
     * ``*``: all the columns of the main table (with or without the bagFields)
-    * ``*filter``: all columns of the main table filtered (check the :meth:`expandMultipleColumns`
-      method)
+    * ``*filter``: all columns of the main table filtered (check the :meth:`expandMultipleColumns() 
+      <gnr.sql.gnrsqldata.SqlQueryCompiler.expandMultipleColumns>` method)
     * ``*@relname.filter``: all columns of a related table filtered (check the
-      :meth:`expandMultipleColumns` method)
+      :meth:`expandMultipleColumns() <gnr.sql.gnrsqldata.SqlQueryCompiler.expandMultipleColumns>` method)
     
     To select all the columns use the char ``*``
     
     The ``columns`` parameter also accepts special statements such as "COUNT", "DISTINCT"
     and "SUM".
     
-    Example::
+    **Example**::
     
         columns='*'
         
-        add??? (other examples...)
+.. _sql_condition:
+
+condition
+---------
+
+    .. note:: the *condition* parameter is supported by:
+              
+              * :ref:`dbselect`
+              * :ref:`field` (when it acts as a dbSelect)
+              
+    The *condition* attribute gathers additional queries respect to the :ref:`sql_where`
+    in your field/component.
+    
+    In the dbSelect the *where* attribute must not to be specified because it coincides
+    with the user typing. In those case, you can use the *condition* attribute if you
+    need to specify more conditions in the query
+    
+    **Syntax**:
+    
+        add??? condition_ ... Every kwargs params that starts with ``condition_`` are
+        the variables involved in the 'where' clause
+        
+    **Example**:
+    
+        If you have the following :ref:`dbselect`::
+        
+            # ... other line codes
+            pane = root.contentPane()
+            fb = pane.formbuilder(cols=2, border_spacing='6px')
+            fb.dbSelect()
+            
+        The query here is specified by what user digits; if he types "john", then the dbSelect
+        will show all the records that contains those letters.
+        
+        If we need more conditions on the query, we can use the *condition* attribute; so, the
+        dbSelect will be replaced with::
+        
+            fb.dbSelect()
+            
+        For more information, check the :ref:`dbselect` page
         
 .. _sql_deferred:
 
@@ -112,6 +151,13 @@ having
       
       where ``relname`` is a :ref:`relation <relations>`, ``colname`` is the name of the column.
       
+.. _sql_limit:
+
+limit
+-----
+
+    add???
+    
 .. _sql_order_by:
 
 order_by

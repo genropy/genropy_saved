@@ -1,8 +1,8 @@
 .. _equals_char:
 
-======================
-equals ("=") character
-======================
+====================
+equals (=) character
+====================
 
     *Last page update*: |today|
     

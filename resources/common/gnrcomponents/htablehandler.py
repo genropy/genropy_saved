@@ -215,7 +215,7 @@ class HTableHandler(HTableHandlerBase):
         :param dialogPars: MANDATORY if you set the *editMode* attribute to ``dlg``. add???
         :param loadKwargs: add???
         :param parentLock: add???
-        :param where: add???
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
         :param onChecked: add???
         :param plainView: boolean. add???
         :param childsCodes: tuple(path,field). Return a list of values of all the selected node childs at a given path.

@@ -1,7 +1,7 @@
 .. _exclamation_point:
 
 ============================================
-The double exclamation points "!!" character
+The double exclamation points (!!) character
 ============================================
 
     *Last page update*: |today|

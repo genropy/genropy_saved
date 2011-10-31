@@ -233,11 +233,11 @@ class GnrBaseWebPage(GnrObject):
         :param selectionName: add???
         :param selectedRowidx: add???
         :param filterCb: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
-        :param condition: add???
-        :param table: the :ref:`table` name
+        :param condition: set a :ref:`sql_condition` for the selection
+        :param table: the :ref:`database table <table>` name
         :param condition_args: the arguments of the *condition* parameter. Their syntax
                                is ``condition_`` followed by the name of the argument"""
         # table is for checking if the selection belong to the table

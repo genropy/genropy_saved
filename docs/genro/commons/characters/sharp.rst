@@ -1,7 +1,7 @@
 .. _sharp_char:
 
 ===================
-sharp "#" character
+sharp (#) character
 ===================
 
     *Last page update*: |today|

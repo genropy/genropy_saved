@@ -457,7 +457,8 @@ class SqlTable(GnrObject):
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
                          :ref:`sql_order_by` section
         :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
-        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                      information, check the :ref:`sql_limit` section
         :param offset: corresponding to the sql "OFFSET" operator
         :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
         :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
