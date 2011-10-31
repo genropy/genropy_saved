@@ -625,7 +625,66 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         return tc;
     }
 });
+dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw,children) {
+        var resource = objectPop(kw,'resource');
+        var table = objectPop(kw,'table');
+        var ext = objectPop(kw,'ext');
+        kw._table = table;
+        kw._resource = resource;
+        
+        genro.assert(kw.datasource,'datasource is mandatory in templatechunk');
+        kw.connect_ondblclick = function(evt){
+            if (evt.metaKey){
+                var that = this;
+                genro.publish('open_chunkpalette',{table:table,resource:resource,updater:function(){
+                    that.updateTemplate();
+                }});
+            }else if(evt.shiftKey){
+                this.updateTemplate();
+            }
+        };
+        kw.onCreated = function(){
+            this._templateHandler = {};
+            var that = this;
+            this._templateHandler.cb = function(){
+                this.result = genro.serverCall('tableTemplate',{table:table,tplname:resource,ext:ext});
+                if(typeof(this.result) == 'string'){
+                    return this.result;
+                }
+                var datasourcePath = that.absDatapath(that.attr.datasource);
+                var datasourceNode = genro.getDataNode(datasourcePath);
+                var mainNode = this.result.getNode('main');
+                if(mainNode.attr.virtual_columns){
+                    var vc = datasourceNode.attr._virtual_columns
+                    vc = vc?vc.split(','):[]
+                    var tpl_vc = mainNode.attr.virtual_columns;
+                    tpl_vc = tpl_vc? tpl_vc.split(','):[];
+                    if(!vc){
+                        vc = tpl_vc;
+                    }else{
+                        dojo.forEach(tpl_vc,function(c){
+                            if(dojo.indexOf(vc,c)<0){
+                                vc.push(c)
+                            }
+                        });
+                    }
+                    datasourceNode._resolver.kwargs.virtual_columns = vc.join(',');
+                    datasourceNode._resolver.lastUpdate = null;                    
+                    that.attr._virtual_column = dojo.map(vc,function(c){return datasourceNode.label+'.'+c;}).join(',');
+                }
+                return this.result;
+            };
+            this.updateTemplate = function(){
+                this._templateHandler.result = null;
+                this.domNode.innerHTML = dataTemplate(this._templateHandler, this, this.attr.datasource);
+            }
+            this.attr.template = this._templateHandler;
+        }
+        return sourceNode._('div','templateChunk',kw)
+    }
 
+});
 
 dojo.declare("gnr.widgets.ImgUploader", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
@@ -711,15 +770,21 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
     },
     onAddChild:function(widget,child){
         var controllerNodes = widget.sourceNode._stackButtonsNodes;
+        if(!controllerNodes){
+            return;
+        }
         var that = this;
-        setTimeout(function(){
+        widget.sourceNode.delayedCall(function(){
             dojo.forEach(controllerNodes,function(c){
                 that.makeTabButton(c,child.sourceNode);
             });
-        },1);
+        },10);
     },
     onRemoveChild:function(widget,child){
         var controllerNodes = widget.sourceNode._stackButtonsNodes;
+        if(!controllerNodes){
+            return;
+        }
         var paneId = child.sourceNode.getStringId();
         setTimeout(function(){
             dojo.forEach(controllerNodes,function(c){
@@ -729,7 +794,11 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
     },
     onShowHideChild:function(widget, child, st){
         var paneId = child.sourceNode.getStringId();
-        dojo.forEach(widget.sourceNode._stackButtonsNodes,function(c){
+        var controllerNodes = widget.sourceNode._stackButtonsNodes;
+        if(!controllerNodes){
+            return;
+        }
+        dojo.forEach(controllerNodes,function(c){
             genro.dom.setClass(c._value.getNode(paneId),'multibutton_selected',st)
         })
     },
@@ -737,7 +806,6 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         var controllerNodes = stackNode._stackButtonsNodes;
         var sc = stackNode.widget;
         var page;
-        var idx = 0;
         var that = this;
         stackNode._value.forEach(function(n){
             if(n.getWidget()){

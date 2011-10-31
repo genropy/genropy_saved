@@ -62,24 +62,26 @@ class TemplateEditorBase(BaseComponent):
         return body
     @public_method
     def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,parametersbag=None,record_id=None,templates=None):
-        tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask')
-        tplpars = parametersbag.digest('#v.code,#v.format,#v.mask')
         result = Bag()
         formats = dict()
         masks = dict()
         columns = []
         virtual_columns = []
         varsdict = dict()
-        for varname,fldpath,virtualcol,format,mask in tplvars:
-            varsdict[varname] = '$%s' %fldpath
-            formats[fldpath] = format
-            masks[fldpath] = mask
-            columns.append(fldpath)
-            if virtualcol:
-                virtual_columns.append(fldpath)
-        for code,format,mask in tplpars:
-            formats[code] = format
-            masks[code] = mask
+        if varsbag:
+            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask')
+            for varname,fldpath,virtualcol,format,mask in tplvars:
+                varsdict[varname] = '$%s' %fldpath
+                formats[fldpath] = format
+                masks[fldpath] = mask
+                columns.append(fldpath)
+                if virtualcol:
+                    virtual_columns.append(fldpath)
+        if parametersbag:
+            tplpars = parametersbag.digest('#v.code,#v.format,#v.mask')
+            for code,format,mask in tplpars:
+                formats[code] = format
+                masks[code] = mask
         template = templateReplace(datacontent, varsdict, True,False)
         compiled = Bag()
         doc = ht.parse(StringIO(template)).getroot()
@@ -364,25 +366,45 @@ class PaletteTemplateEditor(TemplateEditor):
         
 class ChunkEditor(PaletteTemplateEditor):
     def onMain_te_chunkEditor(self):
-        if not 'chunkpalette_opener' in self._register_nodeId:
+        if not 'chunkpalette_opener' in self._register_nodeId and self.isDeveloper():
             page = self.pageSource()
             palette = page.palettePane(paletteCode='chunkeditor',
                                         title='^.chunkeditor.caption',
                                         dockTo='dummyDock',
                                         width='750px',height='500px')
-            page.dataController("""palette.setRelativeData('.table',table);
+            page.dataController("""
+                                   palette.setRelativeData('.table',table);
                                    palette.setRelativeData('.resource',resource);
                                    var wdg = palette.getParentNode().widget;
                                    wdg.show();
                                    wdg.bringToTop();
+                                   if(stringEndsWith(resource,'.xml')){
+                                        genro.serverCall("tableTemplate",{table:table,tplname:resource,asSource:true},function(result){
+                                            palette.setRelativeData('.respath',result.attr.respath)
+                                            result = result._value || new gnr.GnrBag();
+                                            palette.setRelativeData('.data',result.deepCopy());
+                                        });
+                                   }
+                                   palette.onSavedTemplate = function(){
+                                        updater();
+                                   }
                                    """,subscribe_open_chunkpalette=True,nodeId='chunkpalette_opener',
                                    palette=palette,_fakeForm=True)
-            palette.remote(self.te_chunkEditorPane,table='=.table',resource='=.resource')
+            page.dataController("""
+            var table = palette.getRelativeData('.table');
+            var respath = palette.getRelativeData('.respath');
+            var data = palette.getRelativeData('.data');
+            genro.serverCall("te_saveResourceTemplate",{table:table,respath:respath,data:data},function(){palette.onSavedTemplate()});
+            """,subscribe_save_chunkpalette=True,palette=palette)
+            palette.remote(self.te_chunkEditorPane)
     
     @public_method
-    def te_chunkEditorPane(self,pane,table=None,resource=None):
+    def te_chunkEditorPane(self,pane,**kwargs):
         sc = self._te_mainstack(pane,table='=#FORM.table')
         self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table='=#FORM.table')
+        infobar = sc.info.top.bar
+        infobar.replaceSlots('#','#,savetpl,5')
+        infobar.savetpl.slotButton('!!Save',action='PUBLISH save_chunkpalette;',iconClass='iconbox save')
         self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit'))
         self._te_framePreview(sc.framePane(title='!!Preview',pageName='preview',childname='preview'),table='=#FORM.table')
         
@@ -391,13 +413,13 @@ class ChunkEditor(PaletteTemplateEditor):
         bc = frame.center.borderContainer(margin='2px',_class='pbl_roundedGroup')
         self._te_info_vars(bc,table=table,region='bottom',height='60%')
         self._te_info_parameters(bc,region='center')
-    
-    @struct_method
-    def te_chunkEditor(self,pane,template=None,datasource=None,table=None,**kwargs):
-        template = self.tableTemplate(table,template)
-        chunk = pane.div(template=template,datasource=datasource,_resource=template,_table=table,**kwargs)
-        if self.isDeveloper():
-            chunk.attributes.update(connect_ondblclick="""if($1.metaKey){
-                var sourceNode = $1.currentTarget.sourceNode;
-                genro.publish('open_chunkpalette',{table:sourceNode.attr._table,resource:sourceNode.attr._resource});
-            }""")
+        
+    @public_method
+    def te_saveResourceTemplate(self, table=None,respath=None,data=None):
+        data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
+        data.toXml(respath)
+        return 'ok'
+        
+        
+        
+        

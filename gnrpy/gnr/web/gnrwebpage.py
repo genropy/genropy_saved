@@ -338,16 +338,25 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param pkg: the :ref:`package <packages_index>` object"""
         self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
-        
-    def tableTemplate(self, table=None, tplname=None, ext='html'):
+    
+    @public_method
+    def tableTemplate(self, table=None, tplname=None, ext=None,asSource=False):
         """add???
         
         :param table: the :ref:`table` name
         :param tplname: add???
         :param ext: add???"""
-        result = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=ext)
+        if not ext:
+            tplname,ext = os.path.splitext(tplname)
+            if ext:
+                ext = ext[1:]
+        ext = ext or 'html'
+        result,path = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=ext)
         if ext=='xml':
-            result = Bag(result)['#0']
+            result=Bag(result)
+            if asSource:
+                return result,{'respath':path}
+            result = result['compiled']
         return result
         
     @property
@@ -1017,11 +1026,16 @@ class GnrWebPage(GnrBaseWebPage):
         :param resource: add???
         :param ext: add???
         :param pkg: the :ref:`package <packages_index>` object"""
+        content,path =  self._getResourceContent(resource=resource,ext=ext,pkg=pkg)
+        return content
+        
+    def _getResourceContent(self, resource=None, ext=None, pkg=None):
         path = self.getResource(path=resource,ext=ext,pkg=pkg)
+        result = None
         if path:
             with open(path) as f:
                 result = f.read()
-            return result
+        return result,path
 
     def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
         """add???
@@ -1031,10 +1045,10 @@ class GnrWebPage(GnrBaseWebPage):
         :param value: add???
         :param ext: add???"""
         pkg,table = table.split('.')    
-        resourceContent = self.getResourceContent(resource='tables/_packages/%s/%s/%s' %(pkg,table,path),pkg=self.package.name,ext=ext)
+        resourceContent,respath = self._getResourceContent(resource='tables/_packages/%s/%s/%s' %(pkg,table,path),pkg=self.package.name,ext=ext)
         if not resourceContent:
-            resourceContent = self.getResourceContent(resource='tables/%s/%s' %(table,path),pkg=pkg,ext=ext)
-        return resourceContent
+            resourceContent,respath = self._getResourceContent(resource='tables/%s/%s' %(table,path),pkg=pkg,ext=ext)
+        return resourceContent,respath
         
     def setTableResourceContent(self,table=None,path=None,value=None,ext=None):
         """add???

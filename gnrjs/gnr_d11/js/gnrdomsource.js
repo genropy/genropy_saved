@@ -823,6 +823,16 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         return;
     },
     
+    delayedCall:function(cb,delay,code){
+        var code = code || 'delayedCall';
+        var handlerName = '_dc_'+code;
+        var delay = delay || 1;
+        if(this[handlerName]){
+            clearTimeout(this[handlerName]);
+        }
+        this[handlerName] = setTimeout(cb,delay);
+    },
+    
     _resetDynAttributes : function() {
         if (this._dynattr) {
             delete this._dynattr;

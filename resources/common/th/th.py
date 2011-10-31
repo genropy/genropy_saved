@@ -265,14 +265,14 @@ class ThLinker(BaseComponent):
     @extract_kwargs(template=True)
     @struct_method 
     def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfEmpty=None,
-                    _class='pbl_roundedGroup',label=None,template_kwargs=None,**kwargs):
+                    _class='pbl_roundedGroup',label=None,template_kwargs=None,editableTemplate=False,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         frame = pane.framePane(frameCode=frameCode,_class=_class)
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
-        frame.chunkEditor(template=template,table=linker.attributes['table'],
-                    datasource='^.@%s' %field,visible=currpkey,margin='4px',**template_kwargs)
+        template = frame.templateChunk(resource=template,table=linker.attributes['table'],
+                                      datasource='^.@%s' %field,visible=currpkey,margin='4px',**template_kwargs)
         footer = frame.bottom.slotBar('*,linker_edit')
         footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='icnBaseWrite',
                                        action='linker.publish("loadrecord");',linker=linker,
