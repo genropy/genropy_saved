@@ -60,7 +60,6 @@ class TableHandlerView(BaseComponent):
             top_kwargs['slots']= base_slots
         #top_kwargs['height'] = top_kwargs.get('height','20px')
         grid_kwargs['configurable'] = configurable
-        grid_kwargs['_newGrid'] = True
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
@@ -166,11 +165,11 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote('.grid.structMenuBag',self.th_menuViews,pyviews=q.digest('#k,#a.caption'),
                         table=table,th_root=th_root,favoriteViewPath='=.grid.favoriteViewPath',cacheTime=30)
     @struct_method
-    def th_slotbar_resourcePrints(self,pane,**kwargs):
+    def th_slotbar_resourcePrints(self,pane,flags=None,from_resource=None,**kwargs):
         inattr = pane.getInheritedAttributes()
         th_root = inattr['th_root']
         table = inattr['table']
-        pane.div(_class='iconbox menubox print').menu(modifiers='*',storepath='.resources.print.menu',
+        pane.div(_class='iconbox menubox print').menu(modifiers='*',storepath='.resources.print.menu',_class='smallmenu',
                     action="""
                             var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
                             kw.resource = $1.resource;
@@ -182,20 +181,23 @@ class TableHandlerView(BaseComponent):
                             """,
                     batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='print',batch_th_root=th_root,
                     batch_sourcepage_id=self.page_id)
-        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,cacheTime=5)
+        options = self._th_hook('options',mangler=pane)() or dict()
+        pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,flags=flags or options.get('print_flags'),
+                        from_resource=from_resource or options.get('print_from_resource',True),cacheTime=5)
     
     @public_method
-    def th_printMenu(self,table=None,**kwargs):
+    def th_printMenu(self,table=None,flags=None,from_resource=True,**kwargs):
         result = Bag()
-        resource_prints = self.table_script_resource_tree_data(table=table,res_type='print')
-        if resource_prints:
-            result.update(resource_prints)
-        templates = self.th_listUserObject(table=table,objtype='template',flags='is_print')
+        if from_resource:
+            resource_prints = self.table_script_resource_tree_data(table=table,res_type='print')
+            if resource_prints:
+                result.update(resource_prints)
+        flags = flags or 'is_print'
+        templates = self.th_listUserObject(table=table,objtype='template',flags=flags)
         for t in templates:
             attr = t.attr
             result.setItem(attr['code'],None,caption=attr['description'] or attr['code'],
                             resource='print_template',template_id=attr['pkey'])
-        
         return result
         
     @struct_method
@@ -259,7 +261,8 @@ class TableHandlerView(BaseComponent):
             condPars = condition[1] or {}
             condition = condition[0]
         gridattr = frame.grid.attributes
-        gridattr.update(rowsPerPage=self.rowsPerPage(),
+        rowsPerPage = self._th_hook('rowsPerPage',dflt=25,mangler=frame)()
+        gridattr.update(rowsPerPage=rowsPerPage,
                         dropTypes=None,dropTarget=True,
                         draggable=True, draggable_row=True,
                         hiddencolumns=self._th_hook('hiddencolumns',mangler=th_root)(),
@@ -273,14 +276,12 @@ class TableHandlerView(BaseComponent):
                             }else{
                             FIRE .#parent.runQuery;
                         }""")
-        chunkSize=self.rowsPerPage()*4   if virtualStore else None  
         if virtualStore:
-            chunkSize=self.rowsPerPage()*4
+            chunkSize= rowsPerPage * 4
             selectionName = '*%s' %th_root
         else:
             chunkSize = None
             selectionName = None
-        
         self.subscribeTable(table,True)
         frame.dataController("gridnode.setHiderLayer(hide,{message:''});",gridnode=frame.grid,hide='^.queryRunning',msg='!!Loading')
         store = frame.grid.selectionStore(table=table, #columns='=.grid.columns',

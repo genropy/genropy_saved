@@ -1134,7 +1134,7 @@ class SqlSelection(object):
         :param asIterator: boolean. add???
         :param asText: boolean. add???"""
         if subtotal_rows:
-            attr = self.analyzeBag.getAttr(subtotal_rows)
+            attr = self.analyzeBag.getNode(subtotal_rows).attr
             if attr:
                 filterCb = lambda r: r[self.key] in attr['idx']
         if mode == 'pkeylist' or mode == 'records':

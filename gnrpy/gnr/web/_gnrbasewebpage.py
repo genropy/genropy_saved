@@ -59,7 +59,7 @@ class GnrWebServerError(Exception):
     pass
     
 class GnrBaseWebPage(GnrObject):
-    """Base class for :ref:`webpages <webpage>`"""
+    """add???"""
     def newCookie(self, name, value, **kw):
         """add???
         
@@ -118,11 +118,12 @@ class GnrBaseWebPage(GnrObject):
         return self.filename
         
     canonical_filename = property(_get_canonical_filename)
-        
-    def rpc_decodeDatePeriod(self, datestr, workdate=None, locale=None):
+    
+    @public_method
+    def decodeDatePeriod(self, datestr, workdate=None, locale=None):
         """add???
         
-        :param datestr: string representing a date or a period
+        :param datestr: add???
         :param workdate: the :ref:`workdate`
         :param locale: the current locale (e.g: en, en_us, it)"""
         workdate = workdate or self.workdate
@@ -147,8 +148,9 @@ class GnrBaseWebPage(GnrObject):
         
     def mixins(self):
         """Implement this method in your page for mixin the page with methods from the
-        public :ref:`public_resources` folder. Return a list of mixin names with the
-        following syntax: ``moduleName:className``"""
+        public :ref:`public_resources` folder
+        
+        :returns: a list of mixin names with the following syntax: ``moduleName:className``"""
         return []
         
     def requestWrite(self, txt, encoding='utf-8'):
@@ -184,10 +186,10 @@ class GnrBaseWebPage(GnrObject):
             self._siteStatus.toXml(path)
             
     def pageAuthTags(self, method=None, **kwargs):
-        """Hook method. Allow to define users :ref:`auth`. Return a string containing
-        the users authorizations
+        """Hook method. Allow to define users :ref:`auth`
         
-        :param method: add???"""
+        :param method: add???
+        :returns: a string containing the users authorizations"""
         return ""
         
     def pageLocalDocument(self, docname, page_id=None):
@@ -231,11 +233,11 @@ class GnrBaseWebPage(GnrObject):
         :param selectionName: add???
         :param selectedRowidx: add???
         :param filterCb: add???
-        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param condition: add???
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param condition_args: the arguments of the *condition* parameter. Their syntax
                                is ``condition_`` followed by the name of the argument"""
         # table is for checking if the selection belong to the table
@@ -245,7 +247,7 @@ class GnrBaseWebPage(GnrObject):
         selection = self.unfreezeSelection(dbtable=table, name=selectionName,page_id=page_id)
         table = table or selection.dbtable
         if filterCb:
-            filterCb = getattr(self, 'rpc_%s' % filterCb)
+            filterCb = self.getPublicMethod('rpc',filterCb)
             selection.filter(filterCb)
         elif selectedRowidx:
             if isinstance(selectedRowidx, basestring):
@@ -352,11 +354,10 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param formId: the id of the :ref:`form`
-        :param table: the :ref:`database table <table>` related to the :ref:`form`
+        :param table: the :ref:`table` related to the form
         :param method: add???
         :param _fired: add???
-        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
-                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages
+        :param datapath: the :ref:`datapath` form
         :param resultPath: add???
         :param changesOnly: boolean. add???
         :param onSaving: add???
@@ -400,10 +401,9 @@ class GnrBaseWebPage(GnrObject):
         
         :param formId: the id of the :ref:`form`
         :param resultPath: add???
-        :param table: the :ref:`database table <table>` related to the :ref:`form`
+        :param table: the :ref:`table` related to the form
         :param pkey: the record :ref:`primary key <pkey>`
-        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
-                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages
+        :param datapath: the :ref:`datapath` form
         :param _fired: add???
         :param loadOnStart: boolean add???
         :param lock: boolean. add???
@@ -434,9 +434,7 @@ class GnrBaseWebPage(GnrObject):
     def loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
         """add???
         
-        ``loadRecordCluster()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
-        
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param pkey: the record :ref:`primary key <pkey>`
         :param recordGetter: add???"""
         table = table or self.maintable
@@ -446,16 +444,14 @@ class GnrBaseWebPage(GnrObject):
     
     @public_method
     def saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None, _autoreload=False,
-                          onSavingHandler=None, onSavedHandler=None, **kwargs):
+                        onSavingHandler=None,onSavedHandler=None,**kwargs):
         """add???
         
-        ``saveRecordCluster()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
-        
         :param data: add???
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name. 
+        :param _nocommit: boolean. add???
         :param rowcaption: add???
-        :param onSavingHandler: add???
-        :param onSavedHandler: add???"""
+        :param _autoreload: boolean. add???"""
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
         onSavingMethod = 'onSaving'
@@ -497,11 +493,12 @@ class GnrBaseWebPage(GnrObject):
         else:
             return (pkey, resultAttr)
             
-    def rpc_deleteRecordCluster(self, data, table=None, **kwargs):
+    @public_method    
+    def deleteRecordCluster(self, data, table=None, **kwargs):
         """add???
         
         :param data: add???
-        :param table: the :ref:`database table <table>` name"""
+        :param table: the :ref:`table` name"""
         maintable = getattr(self, 'maintable')
         table = table or maintable
         tblobj = self.db.table(table)
@@ -517,14 +514,15 @@ class GnrBaseWebPage(GnrObject):
             return 'ok'
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
-            
-    def rpc_deleteDbRow(self, table, pkey=None, **kwargs):
-        """Method for deleting a single record from a given table. If it works, returns
-        the primary key and the deleted attribute. Else, return an exception
+    
+    @public_method
+    def deleteDbRow(self, table, pkey=None, **kwargs):
+        """Method for deleting a single record from a given table
         
-        :param table: the :ref:`database table <table>` from which you want to delete
-                      a single record
-        :param pkey: the record :ref:`primary key <pkey>`"""
+        :param table: the :ref:`table` from which you want to delete a single record
+        :param pkey: the record :ref:`primary key <pkey>`
+        :returns: if it works, returns the primary key and the deleted attribute.
+                  Else, return an exception"""
         try:
             tblobj = self.db.table(table)
             record = tblobj.record(pkey, for_update=True, mode='bag')
@@ -536,14 +534,15 @@ class GnrBaseWebPage(GnrObject):
             return pkey, deleteAttr
         except GnrSqlDeleteException, e:
             return ('delete_error', {'msg': e.message})
-            
-    def rpc_deleteDbRows(self, table, pkeys=None, **kwargs):
-        """Method for deleting many records from a given table. If it works, returns
-        the primary key and the deleted attribute. Else, return an exception
+    
+    @public_method    
+    def deleteDbRows(self, table, pkeys=None, **kwargs):
+        """Method for deleting many records from a given table.
         
-        :param table: the :ref:`database table <table>` from which you want
-                      to delete a single record
-        :param pkeys: add???"""
+        :param table: the :ref:`table` from which you want to delete a single record
+        :param pkeys: add???
+        :returns: if it works, returns the primary key and the deleted attribute.
+                  Else, return an exception"""
         try:
             tblobj = self.db.table(table)
             rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
@@ -556,7 +555,8 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
             
     def setLoadingParameters(self, table, **kwargs):
-        """.. deprecated:: 0.7
+        """
+        .. deprecated:: 0.7
                            
         This method has been replaced through the :ref:`th` component. For more information,
         check the explanation about the **handler** level in the :ref:`th_map_form_data`
@@ -625,7 +625,9 @@ class GnrBaseWebPage(GnrObject):
         pass
         
     def pageController(self, **kwargs):
-        """add???"""
+        """add???
+        
+        :returns: add???"""
         return self.pageSource().dataController(**kwargs)
         
     def pageSource(self, nodeId=None):
@@ -708,8 +710,9 @@ class GnrBaseWebPage(GnrObject):
                     v = 'unicode error'
                 tr.td(v.encode('ascii', 'ignore'))
         return page
-            
-    def rpc_resolverRecall(self, resolverPars=None, **auxkwargs):
+    
+    @public_method    
+    def resolverRecall(self, resolverPars=None, **auxkwargs):
         """add???
         
         :param resolverPars: add???"""
@@ -737,17 +740,20 @@ class GnrBaseWebPage(GnrObject):
         if resolver is not None:
             resolver._page = self
             return resolver()
-            
-    def rpc_resetApp(self, **kwargs):
+    
+    @public_method    
+    def resetApp(self, **kwargs):
         """add???"""
         self.siteStatus['resetTime'] = time.time()
         self.siteStatusSave()
-        
-    def rpc_applyChangesToDb(self, **kwargs):
+    
+    @public_method
+    def applyChangesToDb(self, **kwargs):
         """add???"""
         return self._checkDb(applychanges=True)
         
-    def rpc_checkDb(self):
+    @public_method    
+    def checkDb(self):
         """add???"""
         return self._checkDb(applychanges=False)
         
@@ -763,8 +769,9 @@ class GnrBaseWebPage(GnrObject):
             self.db.commit()
             self.db.checkDb()
         return self.db.model.modelBagChanges
-        
-    def rpc_tableStatus(self, **kwargs):
+    
+    @public_method
+    def tableStatus(self, **kwargs):
         """add???"""
         strbag = self._checkDb(applychanges=False)
         for pkgname, pkg in self.db.packages.items():

@@ -1565,11 +1565,11 @@ class GnrWebPage(GnrBaseWebPage):
                     content = f.read()
         result.setItem('content',document)
         return result
-                    
+
     def isLocalizer(self):
         """add???"""
         return (self.userTags and ('_TRD_' in self.userTags))
-        
+    
     def isDeveloper(self):
         """add???"""
         return (self.userTags and ('_DEV_' in self.userTags))

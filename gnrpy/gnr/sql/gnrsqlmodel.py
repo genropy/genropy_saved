@@ -806,9 +806,9 @@ class DbTableObj(DbModelObj):
             name = name[1:]
         if not name.startswith('@'):
             col = self['columns.%s' % name]
-            if col == None:
+            if col is None:
                 colalias = self['virtual_columns.%s' % name]
-                if colalias != None:
+                if colalias is not None:
                     if colalias.relation_path:
                         name = colalias.relation_path
                     elif colalias.sql_formula:
