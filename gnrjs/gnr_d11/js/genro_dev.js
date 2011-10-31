@@ -175,7 +175,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     
     fieldsTree:function(pane,table,kw){
         var path = 'gnr.relation_explorers.' + table;
-        var code = table.replace('.', '_');
+        var dragCode = objectPop(kw,'dragCode') || 'gnrdbfld_'+table.replace('.', '_');
         genro.setData(path,genro.rpc.remoteResolver('relationExplorer', {'table':table}));
         var treeattr = objectUpdate({storepath:path,margin:'4px'},kw || {});
         treeattr.labelAttribute = 'caption';
@@ -200,7 +200,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
             var fldinfo = objectUpdate({}, treeItem.attr);
             fldinfo['maintable'] = table;
             dragValues['text/plain'] = treeItem.attr.fieldpath;
-            dragValues['gnrdbfld_' + code] = fldinfo;
+            dragValues[dragCode] = fldinfo;
         };
         treeattr.draggable = true;
         //treeattr.getIconClass = 'if(node.attr.dtype){return "icnDtype_"+node.attr.dtype}';

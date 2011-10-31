@@ -210,6 +210,7 @@ class TableHandler(BaseComponent):
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
 class ThLinker(BaseComponent):
+    py_requires='gnrcomponents/tpleditor:ChunkEditor'
     @extract_kwargs(dialog=True,default=True)
     @struct_method 
     def th_linker(self,pane,field=None,formResource=None,formUrl=None,newRecordOnly=None,table=None,
@@ -260,16 +261,18 @@ class ThLinker(BaseComponent):
                     connect_onBlur='this.getParentNode().publish("disable");',
                     _class='th_linkerField',background='white',**kwargs)
         return linker
-    
+        
+    @extract_kwargs(template=True)
     @struct_method 
-    def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfEmpty=None,_class='pbl_roundedGroup',label=None,**kwargs):
+    def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfEmpty=None,
+                    _class='pbl_roundedGroup',label=None,template_kwargs=None,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         frame = pane.framePane(frameCode=frameCode,_class=_class)
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
-        frame.div(template=self.tableTemplate(linker.attributes['table'],template),
-                    datasource='^.@%s' %field,visible=currpkey,margin='4px')
+        frame.chunkEditor(template=template,table=linker.attributes['table'],
+                    datasource='^.@%s' %field,visible=currpkey,margin='4px',**template_kwargs)
         footer = frame.bottom.slotBar('*,linker_edit')
         footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='icnBaseWrite',
                                        action='linker.publish("loadrecord");',linker=linker,

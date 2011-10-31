@@ -57,10 +57,8 @@ class FrameGridSlots(BaseComponent):
                                 baseClass='no_background',iconClass=_class,visible=enable,
                                 **kwargs)
     def _fgr_standard_addrow(self):
-        return """for(var i=0; i<$1._counter;i++){
-                                    this.widget.addBagRow('#id', '*', this.widget.newBagRow(),$1.evt);
-                                }
-                                this.widget.editBagRow(null);"""
+        return """for(var i=0;i<$1._counter;i++){this.widget.addBagRow('#id', '*', this.widget.newBagRow(),$1.evt);}this.widget.editBagRow(null);"""
+        
     def _fgr_standard_delrow(self):
         return """this.widget.delBagRow('*', true);"""
 

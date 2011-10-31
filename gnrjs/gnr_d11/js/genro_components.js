@@ -1081,7 +1081,10 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     
     slot_fieldsTree:function(pane,slotValue,slotKw,frameCode){
         var table = objectPop(slotKw,'table');
-        var treeKw = objectExtract(slotKw,'tree_*');
+        table = pane.getParentNode().currentFromDatasource(table);
+        var dragCode = objectPop(slotKw,'dragCode');
+        var treeKw = objectExtract(slotKw,'tree_*') || {};
+        treeKw.dragCode = dragCode;
         slotKw.text_align = 'left';
         slotKw.position = 'relative';
         var slot = pane._('div',slotKw);
