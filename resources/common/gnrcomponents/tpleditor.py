@@ -229,34 +229,16 @@ class TemplateEditor(TemplateEditorBase):
                             toolbar='simple')
                             
     def _te_framePreview(self,frame,table=None):
-        frame.dataRpc('.preview.pkeys', self.te_getPreviewPkeys,
-                   maintable=table,_POST =True,
-                   _onResult="""
-                                 var first_row = result[0];
-                                 SET .preview.selected_id = first_row; 
-                                 SET .preview.idx=0;
-                                """
-                   )
-        bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*,prev,next',parentStackButtons_font_size='8pt')                   
+        bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*',parentStackButtons_font_size='8pt')                   
         fb = bar.fb.formbuilder(cols=2, border_spacing='0px',margin_top='2px')
         fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.letterhead_id',
                     selected_name='.preview.html_template_name',lbl='!!Letterhead',
                     width='10em', hasDownArrow=True)
         fb.dbSelect(dbtable=table, value='^.preview.selected_id',lbl='!!Record', width='12em',lbl_width='6em')
-                    
         fb.dataRpc('.preview.renderedtemplate', self.te_getPreview,
                    _POST =True,record_id='^.preview.selected_id',
                    templates='^.preview.html_template_name',
                    compiled='=.data.compiled')
-        
-        bar.prev.slotButton('!!Previous',
-                   action='idx = idx>0?idx-1:10; SET .selected_id = pkeys[idx]; SET .idx = idx;',
-                   idx='=.preview.idx', pkeys='=.preview.pkeys',
-                   iconClass="iconbox previous")
-        bar.next.slotButton('!!Next',
-                   action='idx = idx<=pkeys.length?idx+1:0; SET .selected_id = pkeys[idx]; SET .idx = idx;'
-                   , idx='=.preview.idx', pkeys='=.preview.pkeys',
-                   iconClass="iconbox next")
         frame.center.contentPane(margin='5px',background='white',border='1px solid silver',rounded=4,padding='4px').div('^.preview.renderedtemplate')
     
     def _te_parameters_struct(self,struct):
@@ -378,13 +360,14 @@ class ChunkEditor(PaletteTemplateEditor):
                                    var wdg = palette.getParentNode().widget;
                                    wdg.show();
                                    wdg.bringToTop();
-                                   if(stringEndsWith(resource,'.xml')){
-                                        genro.serverCall("tableTemplate",{table:table,tplname:resource,asSource:true},function(result){
-                                            palette.setRelativeData('.respath',result.attr.respath)
-                                            result = result._value || new gnr.GnrBag();
-                                            palette.setRelativeData('.data',result.deepCopy());
-                                        });
-                                   }
+                                   genro.serverCall("tableTemplate",{table:table,tplname:resource,asSource:true},function(result){
+                                        var respath = result.attr?result.attr.respath:'';
+                                        result = result._value || new gnr.GnrBag();
+                                        palette.setRelativeData('.data',result.deepCopy());
+                                        if(respath.indexOf('_custom')>=0){
+                                            palette.setRelativeData('.data.metadata.custom',true);
+                                        }
+                                   });
                                    palette.onSavedTemplate = function(){
                                         updater();
                                    }
@@ -392,9 +375,11 @@ class ChunkEditor(PaletteTemplateEditor):
                                    palette=palette,_fakeForm=True)
             page.dataController("""
             var table = palette.getRelativeData('.table');
-            var respath = palette.getRelativeData('.respath');
+            var filename = palette.getRelativeData('.resource');
             var data = palette.getRelativeData('.data');
-            genro.serverCall("te_saveResourceTemplate",{table:table,respath:respath,data:data},function(){palette.onSavedTemplate()});
+            genro.serverCall("te_saveResourceTemplate",{table:table,data:data,filename:filename},function(result){
+                palette.onSavedTemplate();
+            });
             """,subscribe_save_chunkpalette=True,palette=palette)
             palette.remote(self.te_chunkEditorPane)
     
@@ -403,7 +388,8 @@ class ChunkEditor(PaletteTemplateEditor):
         sc = self._te_mainstack(pane,table='=#FORM.table')
         self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table='=#FORM.table')
         infobar = sc.info.top.bar
-        infobar.replaceSlots('#','#,savetpl,5')
+        infobar.replaceSlots('#','#,customres,savetpl,5')
+        infobar.customres.checkbox(value='^.data.metadata.custom',label='!!Custom')
         infobar.savetpl.slotButton('!!Save',action='PUBLISH save_chunkpalette;',iconClass='iconbox save')
         self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit'))
         self._te_framePreview(sc.framePane(title='!!Preview',pageName='preview',childname='preview'),table='=#FORM.table')
@@ -415,9 +401,11 @@ class ChunkEditor(PaletteTemplateEditor):
         self._te_info_parameters(bc,region='center')
         
     @public_method
-    def te_saveResourceTemplate(self, table=None,respath=None,data=None):
+    def te_saveResourceTemplate(self, table=None,data=None,filename=None):        
+        custom =  data.pop('metadata.custom')
+        respath = self._tableResourcePath(table,filepath='tpl/%s.xml' %filename,custom=custom)
         data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
-        data.toXml(respath)
+        data.toXml(respath,autocreate=True)
         return 'ok'
         
         

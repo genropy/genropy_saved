@@ -7,7 +7,7 @@
 "Test page description"
 from gnr.core.gnrbag import Bag,BagCbResolver,DirectoryResolver
 class GnrCustomWebPage(object):
-    py_requires="gnrcomponents/testhandler:TestHandlerFull"
+    py_requires="gnrcomponents/testhandler:TestHandlerFull,gnrcomponents/tpleditor:ChunkEditor"
 
     def test_1_template_a(self,pane):
         """First test description"""
@@ -39,7 +39,13 @@ class GnrCustomWebPage(object):
         pane.dbSelect(dbtable='glbl.provincia',value='^.pkey',_class='gnrfield')
         pane.dataRecord('.record','glbl.provincia',pkey='^.pkey',_onStart=True)
         pane.div(template=self.tableTemplate('glbl.provincia','short'),datasource='^.record')
-        
+    
+    def test_5_templateChunk(self,pane):
+        pane.dbSelect(dbtable='glbl.regione',value='^.pkey',_class='gnrfield')
+        rpc = pane.dataRecord('.record','glbl.regione',pkey='^.pkey')
+        pane.templateChunk(resource='custom',table='glbl.regione',datasource='^.record',
+                    min_height='20px',min_width='40px',border='1px solid gray',rounded=6,margin='5px',
+                    dataProvider=rpc)
 
     def test_z_formulasyntax(self,pane):
         fb = pane.formbuilder(cols=1)

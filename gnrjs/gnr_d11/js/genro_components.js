@@ -626,12 +626,31 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     }
 });
 dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
+    getVirtualColumns:function(tpl_vc,curr_vc){
+        curr_vc = curr_vc?curr_vc.split(','):[]
+        tpl_vc = tpl_vc? tpl_vc.split(','):[];
+        if(!curr_vc){
+            curr_vc = tpl_vc;
+        }else{
+            dojo.forEach(tpl_vc,function(c){
+                if(dojo.indexOf(curr_vc,c)<0){
+                    curr_vc.push(c)
+                }
+            });
+        }
+        return curr_vc;
+    },
+    
     createContent:function(sourceNode, kw,children) {
         var resource = objectPop(kw,'resource');
         var table = objectPop(kw,'table');
-        var ext = objectPop(kw,'ext');
         kw._table = table;
         kw._resource = resource;
+        var dataProvider = objectPop(kw,'dataProvider');
+        var getVirtualColumns = this.getVirtualColumns;
+        if(dataProvider){
+            dataProvider = sourceNode.currentFromDatasource(dataProvider);
+        }
         
         genro.assert(kw.datasource,'datasource is mandatory in templatechunk');
         kw.connect_ondblclick = function(evt){
@@ -648,31 +667,30 @@ dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
             this._templateHandler = {};
             var that = this;
             this._templateHandler.cb = function(){
-                this.result = genro.serverCall('tableTemplate',{table:table,tplname:resource,ext:ext});
+                this.result = genro.serverCall('tableTemplate',{table:table,tplname:resource});
                 if(typeof(this.result) == 'string'){
                     return this.result;
                 }
                 var datasourcePath = that.absDatapath(that.attr.datasource);
                 var datasourceNode = genro.getDataNode(datasourcePath);
                 var mainNode = this.result.getNode('main');
-                if(mainNode.attr.virtual_columns){
-                    var vc = datasourceNode.attr._virtual_columns
-                    vc = vc?vc.split(','):[]
-                    var tpl_vc = mainNode.attr.virtual_columns;
-                    tpl_vc = tpl_vc? tpl_vc.split(','):[];
-                    if(!vc){
-                        vc = tpl_vc;
-                    }else{
-                        dojo.forEach(tpl_vc,function(c){
-                            if(dojo.indexOf(vc,c)<0){
-                                vc.push(c)
-                            }
-                        });
+                if(dataProvider){
+                    var curr_vc = dataProvider.attr.virtual_columns;
+                    var vc = getVirtualColumns(mainNode.attr.virtual_columns,curr_vc);
+                    if(vc){
+                        dataProvider.attr.virtual_columns = vc.join(',');
+                        dataProvider.fireNode();
                     }
-                    datasourceNode._resolver.kwargs.virtual_columns = vc.join(',');
-                    datasourceNode._resolver.lastUpdate = null;                    
-                    that.attr._virtual_column = dojo.map(vc,function(c){return datasourceNode.label+'.'+c;}).join(',');
+                }else{
+                    var curr_vc = datasourceNode.attr._virtual_columns;
+                    var vc = getVirtualColumns(mainNode.attr.virtual_columns,curr_vc);
+                    if(vc){
+                        datasourceNode._resolver.kwargs.virtual_columns = vc.join(',');
+                        datasourceNode._resolver.lastUpdate = null;                    
+                        that.attr._virtual_column = dojo.map(vc,function(c){return datasourceNode.label+'.'+c;}).join(',');
+                    }
                 }
+                
                 return this.result;
             };
             this.updateTemplate = function(){

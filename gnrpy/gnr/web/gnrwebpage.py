@@ -340,19 +340,23 @@ class GnrWebPage(GnrBaseWebPage):
         self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
     
     @public_method
-    def tableTemplate(self, table=None, tplname=None, ext=None,asSource=False):
+    def tableTemplate(self, table=None, tplname=None,asSource=False):
         """add???
         
         :param table: the :ref:`table` name
         :param tplname: add???
         :param ext: add???"""
-        if not ext:
-            tplname,ext = os.path.splitext(tplname)
-            if ext:
-                ext = ext[1:]
-        ext = ext or 'html'
-        result,path = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=ext)
-        if ext=='xml':
+        result,path = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=['xml','html'])
+        if not path:
+            return ''
+        r_path,r_ext = os.path.splitext(path)
+        if r_ext=='.html':
+            if not asSource:
+                return result
+            result = Bag(content=result)
+            path = '%s.xml' %r_path
+            return result,{'respath':path}
+        else:
             result=Bag(result)
             if asSource:
                 return result,{'respath':path}
@@ -976,7 +980,20 @@ class GnrWebPage(GnrBaseWebPage):
             mtime = os.stat(fpath).st_mtime
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
-        
+    
+    def _tableResourcePath(self,table,filepath,custom=False):
+        page_pkg = self.package.name 
+        table_pkg,tblname = table.split('.')
+        if page_pkg != table_pkg:
+            respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)
+        else:
+            respath = 'tables/%s/%s' %(tblname,filepath)
+        if custom:
+            return os.path.join(self.site.site_path, '_custom', page_pkg, '_resources',respath)
+        else:
+            packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
+            return os.path.join(packageFolder,'resources',respath)
+            
     def getResource(self, path, ext=None, pkg=None):
         """add???
         
@@ -1030,11 +1047,16 @@ class GnrWebPage(GnrBaseWebPage):
         return content
         
     def _getResourceContent(self, resource=None, ext=None, pkg=None):
-        path = self.getResource(path=resource,ext=ext,pkg=pkg)
-        result = None
-        if path:
-            with open(path) as f:
-                result = f.read()
+        if not isinstance(ext,list):
+            ext = [ext]
+        for e in ext:
+            path = self.getResource(path=resource,ext=e,pkg=pkg)
+            if path:
+                break
+        if not path:
+            return None,None
+        with open(path) as f:
+            result = f.read()
         return result,path
 
     def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
