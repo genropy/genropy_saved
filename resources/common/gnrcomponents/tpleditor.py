@@ -147,7 +147,7 @@ class TemplateEditor(TemplateEditorBase):
         fb.dataController("""var result = [];
                              if(is_mail){result.push('is_mail');}
                              if(is_print){result.push('is_print');}
-                             if(flags){result.push('flags');}
+                             if(flags){result.push(flags);}
                              SET #FORM.userobject_meta.flags = result.join(',');""",
                         is_mail="^.is_mail",is_print='^.is_print',flags='^.flags')
         fb.dbSelect(value='^.default_letterhead',dbtable='adm.htmltemplate',
