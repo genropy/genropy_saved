@@ -796,7 +796,7 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
             dojo.forEach(controllerNodes,function(c){
                 that.makeTabButton(c,child.sourceNode);
             });
-        },10);
+        },100);
     },
     onRemoveChild:function(widget,child){
         var controllerNodes = widget.sourceNode._stackButtonsNodes;
