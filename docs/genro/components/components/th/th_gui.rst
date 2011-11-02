@@ -432,7 +432,7 @@ action bar
            :align: left
            :width: 22px
         
-        **gray light**: add??? there are no record saved (visible only with the :ref:`th_stack`)
+        **gray light**: there are no record saved (visible only with the :ref:`th_stack`)
         
 .. _th_gui_form_box:
 
