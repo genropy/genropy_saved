@@ -271,8 +271,8 @@ class ThLinker(BaseComponent):
         linkerBar = frame.top.linkerBar(field=field,formResource=formResource,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
-        frame.chunkEditor(template=template,table=linker.attributes['table'],
-                    datasource='^.@%s' %field,visible=currpkey,margin='4px',**template_kwargs)
+        template = frame.templateChunk(resource=template,table=linker.attributes['table'],
+                                      datasource='^.@%s' %field,visible=currpkey,margin='4px',**template_kwargs)
         footer = frame.bottom.slotBar('*,linker_edit')
         footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='icnBaseWrite',
                                        action='linker.publish("loadrecord");',linker=linker,

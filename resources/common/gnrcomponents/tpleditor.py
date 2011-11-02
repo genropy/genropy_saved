@@ -62,24 +62,26 @@ class TemplateEditorBase(BaseComponent):
         return body
     @public_method
     def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,parametersbag=None,record_id=None,templates=None):
-        tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask')
-        tplpars = parametersbag.digest('#v.code,#v.format,#v.mask')
         result = Bag()
         formats = dict()
         masks = dict()
         columns = []
         virtual_columns = []
         varsdict = dict()
-        for varname,fldpath,virtualcol,format,mask in tplvars:
-            varsdict[varname] = '$%s' %fldpath
-            formats[fldpath] = format
-            masks[fldpath] = mask
-            columns.append(fldpath)
-            if virtualcol:
-                virtual_columns.append(fldpath)
-        for code,format,mask in tplpars:
-            formats[code] = format
-            masks[code] = mask
+        if varsbag:
+            tplvars =  varsbag.digest('#v.varname,#v.fieldpath,#v.virtual_column,#v.format,#v.mask')
+            for varname,fldpath,virtualcol,format,mask in tplvars:
+                varsdict[varname] = '$%s' %fldpath
+                formats[fldpath] = format
+                masks[fldpath] = mask
+                columns.append(fldpath)
+                if virtualcol:
+                    virtual_columns.append(fldpath)
+        if parametersbag:
+            tplpars = parametersbag.digest('#v.code,#v.format,#v.mask')
+            for code,format,mask in tplpars:
+                formats[code] = format
+                masks[code] = mask
         template = templateReplace(datacontent, varsdict, True,False)
         compiled = Bag()
         doc = ht.parse(StringIO(template)).getroot()
@@ -145,7 +147,7 @@ class TemplateEditor(TemplateEditorBase):
         fb.dataController("""var result = [];
                              if(is_mail){result.push('is_mail');}
                              if(is_print){result.push('is_print');}
-                             if(flags){result.push('flags');}
+                             if(flags){result.push(flags);}
                              SET #FORM.userobject_meta.flags = result.join(',');""",
                         is_mail="^.is_mail",is_print='^.is_print',flags='^.flags')
         fb.dbSelect(value='^.default_letterhead',dbtable='adm.htmltemplate',
@@ -227,34 +229,16 @@ class TemplateEditor(TemplateEditorBase):
                             toolbar='simple')
                             
     def _te_framePreview(self,frame,table=None):
-        frame.dataRpc('.preview.pkeys', self.te_getPreviewPkeys,
-                   maintable=table,_POST =True,
-                   _onResult="""
-                                 var first_row = result[0];
-                                 SET .preview.selected_id = first_row; 
-                                 SET .preview.idx=0;
-                                """
-                   )
-        bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*,prev,next',parentStackButtons_font_size='8pt')                   
+        bar = frame.top.slotToolbar('5,parentStackButtons,10,fb,*',parentStackButtons_font_size='8pt')                   
         fb = bar.fb.formbuilder(cols=2, border_spacing='0px',margin_top='2px')
         fb.dbSelect(dbtable='adm.htmltemplate', value='^.preview.letterhead_id',
                     selected_name='.preview.html_template_name',lbl='!!Letterhead',
                     width='10em', hasDownArrow=True)
         fb.dbSelect(dbtable=table, value='^.preview.selected_id',lbl='!!Record', width='12em',lbl_width='6em')
-                    
         fb.dataRpc('.preview.renderedtemplate', self.te_getPreview,
                    _POST =True,record_id='^.preview.selected_id',
                    templates='^.preview.html_template_name',
                    compiled='=.data.compiled')
-        
-        bar.prev.slotButton('!!Previous',
-                   action='idx = idx>0?idx-1:10; SET .selected_id = pkeys[idx]; SET .idx = idx;',
-                   idx='=.preview.idx', pkeys='=.preview.pkeys',
-                   iconClass="iconbox previous")
-        bar.next.slotButton('!!Next',
-                   action='idx = idx<=pkeys.length?idx+1:0; SET .selected_id = pkeys[idx]; SET .idx = idx;'
-                   , idx='=.preview.idx', pkeys='=.preview.pkeys',
-                   iconClass="iconbox next")
         frame.center.contentPane(margin='5px',background='white',border='1px solid silver',rounded=4,padding='4px').div('^.preview.renderedtemplate')
     
     def _te_parameters_struct(self,struct):
@@ -364,25 +348,49 @@ class PaletteTemplateEditor(TemplateEditor):
         
 class ChunkEditor(PaletteTemplateEditor):
     def onMain_te_chunkEditor(self):
-        if not 'chunkpalette_opener' in self._register_nodeId:
+        if not 'chunkpalette_opener' in self._register_nodeId and self.isDeveloper():
             page = self.pageSource()
             palette = page.palettePane(paletteCode='chunkeditor',
                                         title='^.chunkeditor.caption',
                                         dockTo='dummyDock',
                                         width='750px',height='500px')
-            page.dataController("""palette.setRelativeData('.table',table);
+            page.dataController("""
+                                   palette.setRelativeData('.table',table);
                                    palette.setRelativeData('.resource',resource);
                                    var wdg = palette.getParentNode().widget;
                                    wdg.show();
                                    wdg.bringToTop();
+                                   genro.serverCall("tableTemplate",{table:table,tplname:resource,asSource:true},function(result){
+                                        var respath = result.attr?result.attr.respath:'';
+                                        result = result._value || new gnr.GnrBag();
+                                        palette.setRelativeData('.data',result.deepCopy());
+                                        if(respath.indexOf('_custom')>=0){
+                                            palette.setRelativeData('.data.metadata.custom',true);
+                                        }
+                                   });
+                                   palette.onSavedTemplate = function(){
+                                        updater();
+                                   }
                                    """,subscribe_open_chunkpalette=True,nodeId='chunkpalette_opener',
                                    palette=palette,_fakeForm=True)
-            palette.remote(self.te_chunkEditorPane,table='=.table',resource='=.resource')
+            page.dataController("""
+            var table = palette.getRelativeData('.table');
+            var filename = palette.getRelativeData('.resource');
+            var data = palette.getRelativeData('.data');
+            genro.serverCall("te_saveResourceTemplate",{table:table,data:data,filename:filename},function(result){
+                palette.onSavedTemplate();
+            });
+            """,subscribe_save_chunkpalette=True,palette=palette)
+            palette.remote(self.te_chunkEditorPane)
     
     @public_method
-    def te_chunkEditorPane(self,pane,table=None,resource=None):
+    def te_chunkEditorPane(self,pane,**kwargs):
         sc = self._te_mainstack(pane,table='=#FORM.table')
         self._te_frameChunkInfo(sc.framePane(title='!!Metadata',pageName='info',childname='info'),table='=#FORM.table')
+        infobar = sc.info.top.bar
+        infobar.replaceSlots('#','#,customres,savetpl,5')
+        infobar.customres.checkbox(value='^.data.metadata.custom',label='!!Custom')
+        infobar.savetpl.slotButton('!!Save',action='PUBLISH save_chunkpalette;',iconClass='iconbox save')
         self._te_frameEdit(sc.framePane(title='!!Edit',pageName='edit',childname='edit'))
         self._te_framePreview(sc.framePane(title='!!Preview',pageName='preview',childname='preview'),table='=#FORM.table')
         
@@ -391,13 +399,15 @@ class ChunkEditor(PaletteTemplateEditor):
         bc = frame.center.borderContainer(margin='2px',_class='pbl_roundedGroup')
         self._te_info_vars(bc,table=table,region='bottom',height='60%')
         self._te_info_parameters(bc,region='center')
-    
-    @struct_method
-    def te_chunkEditor(self,pane,template=None,datasource=None,table=None,**kwargs):
-        template = self.tableTemplate(table,template)
-        chunk = pane.div(template=template,datasource=datasource,_resource=template,_table=table,**kwargs)
-        if self.isDeveloper():
-            chunk.attributes.update(connect_ondblclick="""if($1.metaKey){
-                var sourceNode = $1.currentTarget.sourceNode;
-                genro.publish('open_chunkpalette',{table:sourceNode.attr._table,resource:sourceNode.attr._resource});
-            }""")
+        
+    @public_method
+    def te_saveResourceTemplate(self, table=None,data=None,filename=None):        
+        custom =  data.pop('metadata.custom')
+        respath = self._tableResourcePath(table,filepath='tpl/%s.xml' %filename,custom=custom)
+        data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
+        data.toXml(respath,autocreate=True)
+        return 'ok'
+        
+        
+        
+        
