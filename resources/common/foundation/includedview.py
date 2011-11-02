@@ -114,7 +114,9 @@ class IncludedView(BaseComponent):
                                    layout container
                                    
         :param nodeId: the includedViewbox's Id. For more information, check :ref:`nodeid` page
-        :param table: the includedViewbox's reference :ref:`table`
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
                          For more information, check the :ref:`datapath` and the :ref:`datastore` pages
         :param storepath: the path of the data of the includedViewBox
@@ -172,19 +174,19 @@ class IncludedView(BaseComponent):
         :param tools_lbl: add???
         :param lock_action: an optional parameter; add???
         :param tools_menu: add???
-        :param _onStart: an optional parameter; (Boolean) if True, the controller is executed only
-                         after that all the line codes are read
+        :param _onStart: boolean. If ``True``, the controller is executed only after that all
+                         the line codes are read
         :param filterOn: (boolean, only for picker) allow the filter into the picker grid
         :param pickerPars: (dict) it contains all the params of the tooltip dialog which host the
                            picker grid
                            
                            **Parameters:**
                            
-                           * height: height of the tooltipdialog.
-                           * width: width of the tooltipdialog.
-                           * label: label of the tooltipdialog.
+                           * height: height of the tooltipdialog
+                           * width: width of the tooltipdialog
+                           * label: label of the tooltipdialog
                            * table: MANDATORY - the table of the picker grid. From this table you can pick a row
-                                    for the many to many table you handle.
+                                    for the many to many table you handle
                            * columns: MANDATORY - columns of the picker grid
                            * nodeId: MANDATORY - id for the picker
                            * filterOn: the columns on which to apply filter
@@ -691,7 +693,9 @@ class IncludedView(BaseComponent):
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
                          For more information, check the :ref:`datapath` and the :ref:`datastore` pages
         :param struct: the name of the method that defines the :ref:`struct`
-        :param table: the :ref:`database table <table>`
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param pbl_classes: boolean. The :ref:`pbl_classes` attribute
         :param storepath: add???
         :param label: add???

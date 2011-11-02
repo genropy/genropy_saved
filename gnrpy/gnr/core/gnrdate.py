@@ -203,10 +203,11 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             return dateStart
             
 def periodCaption(dateFrom=None, dateTo=None, locale=None):
-    """Convert two dates to a string in the specified locale that decodeDatePeriod will understand.
+    """Convert two dates to a string in the specified locale that
+    :meth:`decodeDatePeriod` will understand
     
-    :param dateFrom: add???
-    :param dateTo: add???
+    :param dateFrom: the beginning period date
+    :param dateTo: the ending period date
     :param locale: the current locale (e.g: en, en_us, it)"""
     localNoPeriod = gnrlocale.getDateKeywords('no period', locale)[0]
     localTo = gnrlocale.getDateKeywords('to', locale)[0]
@@ -226,27 +227,29 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     """Parse a string representing a date or a period and returns a string of one or two dates in iso format separated by ``;``.
     See doc of :meth:`decodeOneDate()` for details on possible formats of a single date
     
-    The input string can be:
+    :param datestr: the string representing a date or a period
+    :param workdate: the :ref:`workdate`
+    :param locale: the current locale (e.g: en, en_us, it)
+    :param returnDate: boolean. If ``True``, return the following tuple: ``(dateStart, dateEnd)``
+    :param dtype: the :ref:`datatype`
+    
+    The input *datestr* can be:
     
     * two dates separated by ``;``: e.g. ``22 4, 2008;28 4, 2008``
     * two dates separated by `` to ``
     * two dates in form ``from date to date`` (can be translated and supports synonimous, e.g. ``between date and date``)
-        * if a period is given as starting date, the start date of period is keep
-        * if a period is given as end date, the end date of period is keep
-        * if no year is specified, the year is relative to working date, keeping all periods in the past
-              e.g. if working date is 2008-04-28, december is interpreted as december 2007
+    
+        * if a period is given as starting date, the start date of period is kept
+        * if a period is given as end date, the end date of period is kept
+        * if no year is specified, the year is relative to :ref:`workdate`, keeping all periods in the past
+          (e.g. if working date is 2008-04-28, december is interpreted as december 2007)
         * if a year is specified for the end date (or period) a relative year is calculated for the starting period
-              e.g. from december to march 06: returns ``'2005-12-01;2006-03-31'``
+          (e.g. from december to march 06: returns ``'2005-12-01;2006-03-31'``)
     * a starting date in form ``from date``, if date is a period starting date is keep: e.g. april returns ``'2008-04-01;'``
     * an end date in form ``to date``, if date is a period end date is keep: e.g. april returns ``';2008-04-30'``
     * a single expression representing a period: e.g. 2007 returns ``'2007-01-01;2007-12-31'``
     * a single expression representing a single date: e.g. today returns ``'2008-04-28'``
-    
-    :param datestr: add???
-    :param workdate: the :ref:`workdate`
-    :param locale: the current locale (e.g: en, en_us, it)
-    :param returnDate: add???
-    :param dtype: the :ref:`datatype`"""
+    """
     workdate = workdate or datetime.date.today()
     months = gnrlocale.getMonthNames(locale)
     days = gnrlocale.getDayNames(locale)

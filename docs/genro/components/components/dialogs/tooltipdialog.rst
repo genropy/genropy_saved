@@ -12,10 +12,10 @@ TooltipDialog
               * **Common attributes**: check the :ref:`attributes_index` section
               
     CLIPBOARD::
-              
+    
         Dojo modified!! --> add??? add all the difference respect to the Dojo tooltipdialog!
         
-        --> check test15/gnrwdg/tooltipDialog (prima fare update)!
+        --> check test15/gnrwdg/tooltipDialog
         
         per farlo comparire --> il valore di *evt*, oppure all'unione di *evt* e di *modifiers*
         

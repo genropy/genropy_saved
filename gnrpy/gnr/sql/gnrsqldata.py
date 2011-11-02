@@ -1393,7 +1393,7 @@ class SqlSelection(object):
         
     @deprecated
     def analyze(self, group_by=None, sum=None, collect=None, distinct=None, keep=None, key=None, **kwargs):
-        """.. deprecated:: 0.7"""
+        """.. warning:: deprecated since version 0.7"""
         self.totalize(group_by=group_by, sum=sum, collect=collect, distinct=distinct, keep=keep, key=key, **kwargs)
         
     def totalizer(self, path=None):

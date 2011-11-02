@@ -19,6 +19,8 @@ introduction
     * :ref:`simpledialog`
     * :ref:`formdialog`
     * :ref:`iframedialog`
+    * :ref:`tooltipdialog`
+    * :ref:`confirmdialog` (deprecated)
     * :ref:`hiddentooltipdialog` (deprecated)
     
 .. _dialogs_section_index:
@@ -32,5 +34,6 @@ section index
     simpledialog
     formdialog
     iframedialog
+    tooltipdialog
     hiddentooltipdialog
     confirmdialog

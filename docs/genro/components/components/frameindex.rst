@@ -327,7 +327,7 @@ chat plug-in
 
     This frame includes the GUI of the :ref:`chat` component
     
-    .. image:: ../../_images/components/frameindex/fi_left_chat.png
+    add??? "fi_left_chat.png"
     
 .. _fi_iframe:
 

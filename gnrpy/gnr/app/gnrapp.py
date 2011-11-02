@@ -734,7 +734,7 @@ class GnrApp(object):
     def getAvatar(self, user, password=None, authenticate=False, page=None, **kwargs):
         """add???
 
-        :param user: the username
+        :param user: MANDATORY. The guest username
         :param password: the username's password
         :param authenticate: boolean. If ``True``, to enter in the application a password is required
         :param page: add???"""
@@ -744,8 +744,8 @@ class GnrApp(object):
                 for node in self.config['authentication'].nodes:
                     authmode = node.label.replace('_auth', '')
                     avatar = getattr(self, 'auth_%s' % authmode)(node, user, password=password,
-                                                                                        authenticate=authenticate,
-                                                                                        **kwargs)
+                                                                 authenticate=authenticate,
+                                                                 **kwargs)
                                                                              
                     if not (avatar is None):
                         avatar.page = page
@@ -760,7 +760,7 @@ class GnrApp(object):
         
         For more information, check the :ref:`instanceconfig_xml_auth` section
         
-        :param node: the :ref:`bagnode`
+        :param node: MANDATORY. The :ref:`bagnode`
         :param user: the username
         :param password: the password
         :param authenticate: boolean. If ``True``, to enter in the application a password is required"""

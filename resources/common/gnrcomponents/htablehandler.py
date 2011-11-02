@@ -202,7 +202,9 @@ class HTableHandler(HTableHandlerBase):
         :param nodeId: MANDATORY. The :ref:`nodeid`
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
                          For more information, check the :ref:`datapath` and the :ref:`datastore` pages
-        :param table: MANDATORY. The :ref:`database table <table>`
+        :param table: MANDATORY. The :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param rootpath: add???
         :param label: add???
         :param editMode: the GUI of the hTableHandler; set:

@@ -97,7 +97,9 @@ class BaseResourceBatch(object):
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
                         <batchupdate>`) or a method
-        :param table: the :ref:`database table <table>`
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param where: the :ref:`sql_where` parameter
         :param line_code: add???
         :param message: add???"""

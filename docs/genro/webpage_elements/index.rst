@@ -30,12 +30,12 @@ introduction
     * :ref:`javascript` elements
     * :ref:`forms <form>` - the standard way to let the user enter data
     * :ref:`controllers` - receive input and initiate a response by making calls on model objects
+    * :ref:`dialogs`
     
     There are other webpage elements:
     
     * :ref:`iframe`
     * :ref:`cells`
-    * :ref:`menu`
     * :ref:`toolbar`
     * :ref:`tree`
     
@@ -57,6 +57,5 @@ section index
     form/index
     cells/index
     iframe
-    menu
     toolbar
     tree

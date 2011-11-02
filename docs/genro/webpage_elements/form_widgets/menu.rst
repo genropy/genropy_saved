@@ -6,11 +6,12 @@ menu
     
     *Last page update*: |today|
     
-    .. note:: To create a menu, you have to use the ``dropdownbutton`` form widget. For more information,
-              check the :ref:`dropdownbutton` page.
-    
+    .. note:: menu features:
+              
+              * **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`menu_def`
-    * :ref:`menu_attributes`
     * :ref:`menu_examples`:
     
         * :ref:`menu_examples_simple`
@@ -20,16 +21,14 @@ menu
     
 definition and description
 ==========================
-    
-    .. method:: dropdownbutton.menu([**kwargs])
-    
+
     **Menu creation**:
     
     You can create a *menu*:
     
     1. appending it to a :ref:`dropdownbutton`:
     
-        .. image:: ../_images/widgets/menu.png
+        .. image:: ../../_images/widgets/menu.png
         
       ::
       
@@ -39,7 +38,7 @@ definition and description
         
     2. appending it to a div:
     
-        .. image:: ../_images/widgets/menu_div.png
+        .. image:: ../../_images/widgets/menu_div.png
         
       ::
       
@@ -49,54 +48,30 @@ definition and description
         
     **Menu features**:
     
-    #. A menu has a hierarchic structure; you can set lines through the **menuline**
-       attribute:
+    A menu has a hierarchic structure:
+    
+    #. you can set lines through the **menuline** attribute:
        
-        .. method:: menu.menuline(label=None[,**kwargs])
+        .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.menuline
         
-       * You can set submenus creating a menu inside a menu::
+       *In the image: the third menuline contains the "checked"*
+       *attribute set to* **True** *(highlighted in yellow)*
        
-            ddb = pane.dropdownbutton('NameOfTheMenu')
-            menu = ddb.menu()
-            menu.menuline('First Line')
-            submenu = menu.menuline('I have submenues').menu() # With this line you create a submenu
-            submenu.menuline('First Line')
+       *Below the "Load" menuline there's a dividing line*
+       
+        .. image:: ../../_images/widgets/menu_checked.png
+        
+    #. You can set submenus creating a menu inside a menu::
+       
+           ddb = pane.dropdownbutton('NameOfTheMenu')
+           menu = ddb.menu()
+           menu.menuline('First Line')
+           submenu = menu.menuline('I have submenues').menu() # With this line you create a submenu
+           submenu.menuline('First Line')
             
-    #. You can use the *action* attribute to create a javascript callback after mouse click
-       (check the :ref:`attributes section <menu_attributes>` for more information)
-          
-    #. To create a dividing line use ``-`` in a ``menuline`` in place of its label::
+    #. You can use the :ref:`action_attr` attribute (both on menu or on menulines) to create a
+       javascript callback after mouse click. Check the :ref:`menu_examples_alert`
        
-        menuline('-')
-        
-.. _menu_attributes:
-
-attributes
-==========
-    
-    .. note:: You can use the following attributes both on the menu definition
-              or on one of the menulines
-              
-    **menu and menuline attributes**:
-    
-    * *action*: allow to execute a javascript callback. For more information, check
-      the :ref:`action_attr` page and the :ref:`following example <menu_examples_alert>`
-    * *checked*: boolean (by default is ``False``). If ``True``, allow to set a "V"
-      mark on the left side of a *menuline*
-      
-        *The third menuline contains the "checked" attribute set to* **True**
-        
-        .. image:: ../_images/widgets/menu_checked.png
-        
-    **commons attributes**:
-    
-    * *hidden*: if True, allow to hide this widget. Default value is ``False``. For more information,
-      check the :ref:`hidden` page
-    * *label*: You can't use the *label* attribute directly on the menu; you have to give it
-      to the div or to the dropdownbutton to which the menu is attached.
-      Check the :ref:`menu_examples_simple`.
-    * *visible*: if False, hide the widget. For more information, check the :ref:`visible` page
-
 .. _menu_examples:
 
 examples
@@ -124,7 +99,7 @@ simple example
                 
 .. _menu_examples_alert:
             
-alert on menu
+alert example
 -------------
 
     An example of the :ref:`action_attr` attribute; it is set both on menu and on its menulines::

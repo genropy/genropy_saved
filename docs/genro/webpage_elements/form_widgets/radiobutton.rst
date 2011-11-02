@@ -12,9 +12,7 @@ RadioButton
               * **Common attributes**: check the :ref:`attributes_index` section
               
     * :ref:`rb_def`
-    * :ref:`rb_description`
-    * :ref:`rb_attributes`
-    * :ref:`rb_examples`: :ref:`rb_examples_simple`
+    * :ref:`rb_examples`: :ref:`rb_examples_group`
     
 .. _rb_def:
 
@@ -23,54 +21,26 @@ definition
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.radiobutton
     
-.. _rb_description:
-
-description
-===========
-
-    Radiobuttons are used when you want to let the user select one - and just one - option
-    from a set of choices.
-    
-    If more options are to be allowed at the same time you should use :ref:`checkbox`\es instead.
-    
-.. _rb_attributes:
-
-attributes
-==========
-    
-    **radiobutton attributes**:
-    
-    * *default_value*: boolean. Set ``default_value = True`` on a single radiobutton
-      to start the page with that radiobutton selected
-    * *group*: allow to create a radiobutton group. To create a group, give the same string
-      to the *group* attribute of many radiobuttons. You can obviously create more than a
-      group giving a different string to the *group* attribute (for more information, check
-      the :ref:`rb_examples_simple`)
-      
 .. _rb_examples:
 
 examples
 ========
 
-.. _rb_examples_simple:
+.. _rb_examples_group:
 
-simple example
---------------
+group example
+-------------
 
     Let's see a simple example::
         
         class GnrCustomWebPage(object):
             def main(self,root,**kwargs):
-                fb=root.contentPane(title='Buttons',datapath='test1').formbuilder(cols=4,border_spacing='10px')
+                fb=root.contentPane(title='Buttons',datapath='test1').formbuilder(cols=3,border_spacing='10px')
                 
-                fb.div("""We show you here a simple radio buttons set; (add to your radiobuttons
-                          the "group" attribute).""",font_size='.9em',text_align='justify')
-                fb.radiobutton(value='^.radio.jazz',group='genre1',label='Jazz')
-                fb.radiobutton(value='^.radio.rock',group='genre1',label='Rock')
-                fb.radiobutton(value='^.radio.blues',group='genre1',label='Blues', default_value=True)
+                fb.radiobutton(value='^.radio.jazz',group='music',label='Jazz')
+                fb.radiobutton(value='^.radio.rock',group='music',label='Rock')
+                fb.radiobutton(value='^.radio.blues',group='music',label='Blues')
                 
-                fb.div("""Here we show you an other radio buttons set.""",
-                          font_size='.9em',text_align='justify')
                 fb.div('Sex')
-                fb.radiobutton(value='^.sex.male',group='genre2',label='M')
-                fb.radiobutton(value='^.sex.female',group='genre2',label='F')
+                fb.radiobutton(value='^.sex.male',group='my_group',label='M')
+                fb.radiobutton(value='^.sex.female',group='my_group',label='F')

@@ -596,7 +596,7 @@ def compareInstances(a, b, __visited=None):
     
     :param a: add???
     :param b: add???
-    :param _visited: add???"""
+    """
     if not __visited:
         __visited = {}
     k1 = str(id(a)) + '-' + str(id(b))

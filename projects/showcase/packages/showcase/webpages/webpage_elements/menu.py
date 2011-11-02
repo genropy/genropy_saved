@@ -13,14 +13,15 @@ class GnrCustomWebPage(object):
     
     def test_1_basic(self,pane):
         """A basic menu example"""
-        ddb = pane.dropdownbutton('Menu')    # Same meaning: ddb=pane.dropdownbutton(label='Menu')
+        fb = pane.formbuilder(cols=2)
+        ddb = fb.dropdownbutton(iconClass='iconbox menubox print', showLabel=False)    # Same meaning: ddb=pane.dropdownbutton(label='Menu')
         dmenu = ddb.menu()
-        dmenu.menuline('Open...',action="alert('Opening...')")
-        dmenu.menuline('Close',action="alert('Closing...')")
+        dmenu.menuline('Print...',action="alert('Opening...')")
+        dmenu.menuline('Preset',action="alert('Closing...')")
         dmenu.menuline('-')
-        submenu = dmenu.menuline('I have submenues').menu() # With this line you create a submenu
-        submenu.menuline('To do this',action="alert('Doing this...')")
-        submenu.menuline('Or to do that',action="alert('Doing that...')")
+        submenu = dmenu.menuline('Advanced options').menu() # With this line you create a submenu
+        submenu.menuline('Pages per sheet',action="alert('...')")
+        submenu.menuline('PDF',action="alert('Making PDF...')")
         dmenu.menuline('-')
         dmenu.menuline('Quit',action="alert('Quitting...')")
         

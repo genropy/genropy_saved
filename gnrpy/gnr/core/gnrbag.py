@@ -209,10 +209,8 @@ class BagNode(object):
         """Set the node's value, unless the node is locked. This method is called by the property .value
         
         :param value: the value to set the new bag inherits the trigger of the parentBag and calls it sending an update event
-        :param trigger: ???
-        :param _attributes: add???
-        :param _updattr: add???
-        :param _removeNullAttributes: if ``True``, remove the null attributes"""
+        :param trigger: boolean. add???
+        """
         if self.locked:
             raise BagNodeException("Locked node %s" % self.label)
         if isinstance(value, BagNode):
@@ -306,9 +304,7 @@ class BagNode(object):
             
         :param attr: the attribute that should be set into the node
         :param trigger: add???
-        :param _updattr: add???
-        :param _removeNullAttributes: if ``True``, remove the null attributes
-        :param \*\*kwargs: the kw attributes to set"""
+        """
         if not _updattr:
             self.attr.clear()
             #if self.locked:
@@ -1046,10 +1042,9 @@ class Bag(GnrObject):
             return False
 
     def merge(self, otherbag, upd_values=True, add_values=True, upd_attr=True, add_attr=True):
-        """.. deprecated:: 0.7
-        .. note:: This method have to be rewritten
+        """.. warning:: deprecated since version 0.7
         
-        Allow to merge two bags into one.
+        Allow to merge two bags into one
         
         >>> john_doe=Bag()
         >>> john_doe['telephones']=Bag()
@@ -1229,10 +1224,7 @@ class Bag(GnrObject):
         0 - (Bag) documents: <createdOn='2010-11-15' type='secret'>
             0 - (Bag) letters:
                 0 - (str) letter_to_sheila: file2  <lastModify='12-9-2003'>
-                
-        :param _path: path of the target item. .
-        :param _attributes: a dict of attributes to set into the node. .
-        :param _removeNullAttributes: if ``True``, remove the null attributes"""
+        """
         self.getNode(_path, autocreate=True).setAttr(attr=_attributes, _removeNullAttributes=_removeNullAttributes,
                                                      **kwargs)
 
@@ -1337,7 +1329,7 @@ class Bag(GnrObject):
         
         :param item_path: the path of the given item
         :param item_value: the value to set
-        :param _attributes:  it specifies the attributes of the value to set
+        :param _attributes: it specifies the attributes of the value to set
         :param _position: allow to set a new value at a particular position among its brothers
                           Default value is ``>``. You can use one of the following types:
                           
@@ -2056,11 +2048,11 @@ class Bag(GnrObject):
                 
         return self.walk(f)
         
-    def filter(self,cb,_mode='static',**kwargs):
+    def filter(self, cb, _mode='static', **kwargs):
         """add???
         
         :param cb: add???
-        :param _mode: add???"""
+        """
         result=Bag()
         for node in self.nodes:
             value = node.getValue(mode=_mode)
@@ -2076,7 +2068,7 @@ class Bag(GnrObject):
         """Calls a function for each node of the Bag
         
         :param callback: the function which is called
-        :param _mode: add???"""
+        """
         result = None
         for node in self.nodes:
             result = callback(node, **kwargs)
@@ -2101,8 +2093,8 @@ class Bag(GnrObject):
     def rowchild(self, childname='R_#', _pkey=None, **kwargs):
         """add???
         
-        :param childname: the name of the row
-        :param _pkey: add???."""
+        :param childname: the :ref:`childname` including the row name
+        """
         if not childname:
             childname = 'R_#'
         childname = childname.replace('#', str(len(self)).zfill(8))
@@ -2115,7 +2107,7 @@ class Bag(GnrObject):
         :param tag: structure type
         :param name: structure name
         :param childcontent: the html content
-        :param _parentTag: add???"""
+        """
         where = self
         if not childname:
             childname = '*_#'
@@ -2408,8 +2400,7 @@ class BagResolver(object):
         return result
 
     def load(self):
-        """.. deprecated:: 0.7
-        .. note:: This method have to be rewritten"""
+        """.. warning:: deprecated since version 0.7"""
         pass
 
     def init(self):
@@ -2785,8 +2776,7 @@ class BagResolverNew(object):
         return result
         
     def load(self):
-        """.. deprecated:: 0.7
-        .. note:: This method have to be rewritten"""
+        """.. warning:: deprecated since version 0.7"""
         pass
 
     def init(self):

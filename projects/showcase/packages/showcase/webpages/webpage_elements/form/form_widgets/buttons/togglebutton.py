@@ -15,4 +15,4 @@ class GnrCustomWebPage(object):
                  font_size='.9em', text_align='justify')
         fb = pane.formbuilder(border_spacing='10px', datapath='test1')
         fb.togglebutton(value='^.toggle1', iconClass="dijitRadioIcon", label='a togglebutton')
-        fb.togglebutton(value='^.toggle2', iconClass="dijitRadioIcon", label='another togglebutton')
+        fb.togglebutton(value='^.toggle2', label='click me!')

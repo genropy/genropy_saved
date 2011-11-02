@@ -182,6 +182,7 @@ th_options
     * *fpane_kwargs*: use it if you have a :ref:`th_border`. Allow to set the
       attributes of the :ref:`data_entry`. For the complete list and description
       of the *fpane_kwargs* check the :ref:`th_border` section
+    * *lockable*: boolean. add???
     * *public*: add???
     * *readOnly*: boolean. If ``True``, the element that carries the readOnly attribute is
       in read-only mode

@@ -874,7 +874,9 @@ class GnrWsgiSite(object):
         """add???
         
         :param page: add???
-        :param table: the :ref:`table` to which the record belongs to
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param pkey: the record :ref:`primary key <pkey>`"""
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').lockRecord(page, table, pkey)
@@ -883,7 +885,9 @@ class GnrWsgiSite(object):
         """add???
         
         :param page: add???
-        :param table: the :ref:`table` to which the record belongs to
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param pkey: the record :ref:`primary key <pkey>`"""
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').unlockRecord(page, table, pkey)
@@ -974,7 +978,9 @@ class GnrWsgiSite(object):
         This is typically used to customize prints and batch jobs for a particular installation
         
         :param page: add???
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param respath: add???
         :param class_name: add???
         :param runKwargs: add???"""
@@ -989,7 +995,9 @@ class GnrWsgiSite(object):
         """add???
         
         :param page: add???
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param respath: add???
         :param class_name: add???"""
         return self.resource_loader.loadTableScript(page=page, table=table, respath=respath, class_name=class_name)
@@ -1141,12 +1149,12 @@ class GnrWsgiSite(object):
         
     @deprecated
     def site_static_path(self, *args):
-        """.. deprecated:: 0.7"""
+        """.. warning:: deprecated since version 0.7"""
         return self.getStatic('site').path(*args)
         
     @deprecated
     def site_static_url(self, *args):
-        """.. deprecated:: 0.7"""
+        """.. warning:: deprecated since version 0.7"""
         return self.getStatic('site').url(*args)
         
     def zipFiles(self, file_list=None, zipPath=None):

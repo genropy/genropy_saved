@@ -128,7 +128,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         """add???
         
         :param pkg: the :ref:`package <packages>`
-        :param table: the :ref:`database table <table>`"""
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)"""
         if not pkg:
             pkg, table = table.split('.')
         return self.dbStructure(path='%s.tables.%s.relations' % (pkg, table))
@@ -235,7 +237,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         :param field: add???
         :param value: add???
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
@@ -387,7 +391,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         
         ``runSelectionBatch()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param selectionName: add???
         :param batchFactory: name of the Class, plugin of table, which executes the batch action
         :param pkeys: add???
@@ -459,7 +465,9 @@ class GnrWebAppHandler(GnrBaseProxy):
                           **kwargs):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param selectionName: add???
         :param command: add???
         :param callmethod: add???
@@ -568,7 +576,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param changelist: add???
         :param selectionName: add???
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
-        :param table: the :ref:`database table <table>`"""
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)"""
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
         needUpdate = False
         if selection is not None:
@@ -606,7 +616,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         ``getSelection()`` method is decorated with the :meth:`public_method
         <gnr.core.gnrdecorator.public_method>` decorator
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
@@ -832,7 +844,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param recordResolver: add???
         :param numberedRows: add???
         :param logicalDeletionField: add???
-        :param _addClassesDict: add???"""
+        """
         result = Bag()
         for j, row in enumerate(outsource):
             row = dict(row)
@@ -916,7 +928,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         ``getRecord()`` method is decorated with the :meth:`extract_kwargs <gnr.core.gnrdecorator.extract_kwargs>`
         and the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorators
         
-        :param table: the :ref:`database table <table>`
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param dbtable: the :ref:`database table <table>`
         :param pkg: the :ref:`package <packages>` object
         :param pkey: the :ref:`primary key <pkey>`
@@ -1248,7 +1262,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         """add???
         
         :param pane: the :ref:`contentpane`
-        :param table: the :ref:`database table <table>`
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
@@ -1381,7 +1397,9 @@ class GnrWebAppHandler(GnrBaseProxy):
     def rpc_recordToPDF(self, table, pkey, template, **kwargs):
         """add???
         
-        :param table: the :ref:`database table <table>`
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param pkey: the record :ref:`primary key <pkey>`
         :param template: add???"""
         record = self.db.table(table).record(pkey).output('bag')
@@ -1395,7 +1413,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param action: add???
         :param export_mode: add???
         :param respath: add???
-        :param table: the :ref:`database table <table>`
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param data: add???
         :param selectionName: add???
         :param struct: add???

@@ -481,16 +481,17 @@ class GnrSqlDb(GnrObject):
         return self.model.table(tblname, pkg=pkg).dbtable
             
     def query(self, table, **kwargs):
-        """An sql query. For more information, check the :meth:`query() <gnr.sql.gnrsqltable.SqlTable.query()>`
-        method of the gnrsqltable.SqlTable.
+        """An sql :ref:`query`
         
-        :param table: the :ref:`table` on which the query will be executed"""
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)"""
         return self.table(table).query(**kwargs)
         
     def colToAs(self, col):
         """add???
         
-        :param col: a table column"""
+        :param col: a table :ref:`column`"""
         as_ = re.sub('\W', '_', col)
         if as_[0].isdigit(): as_ = '_' + as_
         return as_
@@ -499,7 +500,9 @@ class GnrSqlDb(GnrObject):
                          translator=None, **kwargs):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param prevCaption: add???
         :param prevRelation: add???
         :param translator: add???"""
@@ -508,7 +511,7 @@ class GnrSqlDb(GnrObject):
                                                   translator=translator, **kwargs)
                                                   
     def createDb(self, name, encoding='unicode'):
-        """Create a db with a given name and an encoding
+        """Create a database with a given name and an encoding
         
         :param name: the database's name
         :param encoding: The multibyte character encoding you choose"""

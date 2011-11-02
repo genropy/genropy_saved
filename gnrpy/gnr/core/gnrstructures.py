@@ -95,7 +95,8 @@ class GnrStructData(Bag):
         :param content: optional structure content
         :param _parentTag: add???
         :param _attributes: add???
-        :param childname: the :ref:`childname`"""
+        :param childname: the :ref:`childname`
+        """
         where = self
         if childname and childname != '*_#':
             kwargs['_childname'] = childname

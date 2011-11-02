@@ -59,7 +59,7 @@ Dojo-improved form widgets
     They are:
     
     * :ref:`button`
-    * :ref:`tooltipdialog`
+    * :ref:`menu`
     
     :ref:`textboxes_index`:
     
@@ -104,18 +104,15 @@ section index
 .. toctree::
     :maxdepth: 1
     
-    button
+    buttons/index
     checkbox
     checkboxtext
-    dropdownbutton
     field
+    menu
     numberspinner
     radiobutton
     simplearea
     slider
-    slotbutton
-    togglebutton
-    tooltipdialog
     palette/index
     db/index
     textboxes: textbox, currencyTextBox, dateTextbox, numberTextbox and timeTextbox <textboxes/index>

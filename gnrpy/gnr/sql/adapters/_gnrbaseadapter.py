@@ -150,7 +150,9 @@ class SqlDbAdapter(object):
     def getPkey(self, table, schema):
         """-- IMPLEMENT THIS --
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param schema: schema name
         :returns: list of columns which are the :ref:`primary key <pkey>` for the table"""
         raise NotImplementedException()
@@ -180,7 +182,9 @@ class SqlDbAdapter(object):
         Get a (list of) dict containing details about all the indexes of a table.
         Each dict has those info: name, primary (bool), unique (bool), columns (comma separated string)
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param schema: the schema name
         :returns: list of index infos"""
         raise NotImplementedException()
@@ -372,7 +376,9 @@ class SqlDbAdapter(object):
     def vacuum(self, table='', full=False):
         """Perform analyze routines on the database
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param full: boolean. add???"""
         self.dbroot.execute('VACUUM ANALYZE %s;' % table)
 

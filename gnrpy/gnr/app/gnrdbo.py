@@ -685,7 +685,9 @@ class Table_recordtag_link(TableBase):
     def getTagLinks(self, table, record_id):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param record_id: the record id"""
         where = '$%s=:record_id' % self.tagForeignKey(table)
         return self.query(columns='@tag_id.tag,@tag_id.description',
@@ -698,7 +700,9 @@ class Table_recordtag_link(TableBase):
     def getTagDict(self, table):
         """add???
         
-        :param table: the :ref:`database table <table>` name"""
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)"""
         currentEnv = self.db.currentEnv
         cachename = '_tagDict_%s' % table.replace('.', '_')
         tagDict = currentEnv.get(cachename)
@@ -710,7 +714,9 @@ class Table_recordtag_link(TableBase):
     def assignTagLink(self, table, record_id, tag, value):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param record_id: the record id
         :param tag: add???
         :param value: add???"""
@@ -742,7 +748,9 @@ class Table_recordtag_link(TableBase):
     def getTagLinksBag(self, table, record_id):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param record_id: the record id"""
         result = Bag()
         taglinks = self.query(columns='@tag_id.maintag AS maintag, @tag_id.subtag AS subtag, @tag_id.tag AS tag',
@@ -758,7 +766,9 @@ class Table_recordtag_link(TableBase):
     def getCountLinkDict(self, table, pkeys):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param pkeys: add???"""
         return self.query(columns='@tag_id.tag as tag,count(*) as howmany', group_by='@tag_id.tag',
                           where='$%s IN :pkeys' % self.tagForeignKey(table), pkeys=pkeys).fetchAsDict(key='tag')

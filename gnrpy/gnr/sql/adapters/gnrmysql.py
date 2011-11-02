@@ -236,9 +236,13 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         #return ref_dict.values()
 
     def getPkey(self, table, schema):
-        """:param table: the :ref:`database table <table>` name
+        """add???
+        
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param schema: schema name
-        :returns: list of columns wich are the primary key for the table"""
+        :returns: list of columns which are the primary key for the table"""
         sql = """SELECT k.column_name        AS col
                 FROM   information_schema.key_column_usage      AS k 
                 JOIN   information_schema.table_constraints     AS c

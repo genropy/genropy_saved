@@ -50,14 +50,17 @@
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11
     
     =========================== ============================= ===================================
-    :meth:`dataController`      :meth:`directoryStore`        :meth:`slotbar_replaceslots`             
-    :meth:`dataFormula`         :meth:`gridStruct`            :meth:`selectionStore`             
-    :meth:`dataRecord`          :meth:`includedview`          :meth:`selectionstore_addcallback` 
-    :meth:`dataRemote`          :meth:`includedview_inframe`  :meth:`slotBar`                    
-    :meth:`dataRpc`             :meth:`includedview_legacy`   :meth:`slotButton`                 
-    :meth:`dataScript`          :meth:`onDbChanges`           :meth:`slotFooter`                 
-    :meth:`dataSelection`       :meth:`paletteGrid`           :meth:`slotToolbar`                
-    :meth:`datarpc_addcallback` :meth:`paletteGroup`          :meth:`tableAnalyzeStore`          
+    :meth:`button`              :meth:`dropdownbutton`        :meth:`radiobutton`                
+    :meth:`checkbox`            :meth:`field`                 :meth:`radiogroup`                 
+    :meth:`checkboxtext`        :meth:`includedview`          :meth:`selectionStore`             
+    :meth:`dataController`      :meth:`gridStruct`            :meth:`selectionstore_addcallback` 
+    :meth:`dataFormula`         :meth:`includedview`          :meth:`slotBar`                    
+    :meth:`dataRecord`          :meth:`includedview_inframe`  :meth:`slotButton`                 
+    :meth:`dataRemote`          :meth:`includedview_legacy`   :meth:`slotFooter`                 
+    :meth:`dataRpc`             :meth:`menuline`              :meth:`slotToolbar`                
+    :meth:`dataScript`          :meth:`onDbChanges`           :meth:`slotbar_replaceslots`       
+    :meth:`dataSelection`       :meth:`paletteGrid`           :meth:`tableAnalyzeStore`          
+    :meth:`datarpc_addcallback` :meth:`paletteGroup`          :meth:`togglebutton`               
     :meth:`datarpc_adderrback`  :meth:`palettePane`           :meth:`virtualSelectionStore`      
     :meth:`directoryStore`      :meth:`paletteTree`           :meth:`wdgAttributesFromColumn`    
     =========================== ============================= ===================================

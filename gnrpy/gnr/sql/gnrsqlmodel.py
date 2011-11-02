@@ -180,7 +180,9 @@ class DbModel(object):
         """add???
         
         :param pkg: the :ref:`package <packages>` object
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param column: the table :ref:`column`"""
         tblobj = self.table(table, pkg=pkg)
         indexname = '%s_%s_key' % (table, column)
@@ -806,9 +808,9 @@ class DbTableObj(DbModelObj):
             name = name[1:]
         if not name.startswith('@'):
             col = self['columns.%s' % name]
-            if col is None:
+            if col == None:
                 colalias = self['virtual_columns.%s' % name]
-                if colalias is not None:
+                if colalias != None:
                     if colalias.relation_path:
                         name = colalias.relation_path
                     elif colalias.sql_formula:

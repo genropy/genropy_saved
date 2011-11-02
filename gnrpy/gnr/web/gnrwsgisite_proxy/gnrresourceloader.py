@@ -496,10 +496,12 @@ class ResourceLoader(object):
         """add???
         
         :param page: add???
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param respath: add???
         :param class_name: add???
-        :param _onDefault: add???"""
+        """
         class_name = class_name or 'Main'
         application = self.gnrapp
         if ':' in respath:

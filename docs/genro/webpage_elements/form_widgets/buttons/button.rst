@@ -31,9 +31,8 @@ examples
 Genro macros
 ------------
     
-    With the *action* attribute you can also use one of the Genro macro [#]_; for example
-    you can use the :ref:`fire` macro within the "action" attribute: it will launch
-    an alert message. The syntax is::
+    With the *action* attribute you can also use one of the Genro :ref:`macro <macro>`;
+    for example::
     
         action="FIRE 'javascript command'"
         
@@ -59,8 +58,5 @@ Genro macros
         
     It is important for you to know that the ``FIRE`` command in the button is a shortcut for a
     script that puts ``True`` in the destination path (allowing to the action of the button to be
-    executed) and then put again ``False`` (allowing to the button to be reusable!).
-
-**Footnotes:**
-
-.. [#] In Genro there are different macros used as a shortcut that you can use in place of some javascript command. For a complete list and relative explanation, check the :ref:`macro` page.
+    executed) and then put again ``False`` (allowing to the button to be reusable!)
+    
