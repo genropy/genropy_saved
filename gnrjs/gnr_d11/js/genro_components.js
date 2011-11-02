@@ -1533,9 +1533,14 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         }
         dojo.forEach(changelist,function(change){
             if (change['dbevent']=='D'){
-                delKeys.push(change.pkey);
+                if (dojo.indexOf(delKeys,change.pkey)<0){
+                     delKeys.push(change.pkey);
+                }
+               
             }else{
-                insOrUpdKeys.push(change.pkey);
+                if (dojo.indexOf(insOrUpdKeys,change.pkey)<0){
+                    insOrUpdKeys.push(change.pkey);
+                }
             }
         });
         if (insOrUpdKeys.length>0) {
