@@ -28,7 +28,7 @@ class FormHandler(BaseComponent):
     css_requires='public'
     py_requires='foundation/macrowidgets:SlotBar'
 
-    @extract_kwargs(palette=True,dialog=True,default=True)
+    @extract_kwargs(palette=True,dialog=True,default=dict(slice_prefix=False,pop=True))
     @struct_method
     def formhandler_linkedForm(self,pane,frameCode=None,loadEvent=None,formRoot=None,store=True,table=None,
                         formId=None,dialog_kwargs=None,palette_kwargs=None,attachTo=None,
