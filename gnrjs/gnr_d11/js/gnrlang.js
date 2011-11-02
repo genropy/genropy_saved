@@ -160,11 +160,20 @@ function dataTemplate(str, data, path, showAlways) {
     if (!str) {
         return '';
     }
+    if (typeof(str)=='object' && str.cb){
+        var template = str.result;
+        if (!template){
+            template = str.cb.call(str);
+        }
+        str = template;
+    }
+
     var templates=null;
-     if(str instanceof gnr.GnrBag){
+    
+    if(str instanceof gnr.GnrBag){
          templates=str;
-         str=templates.getItem('body');
-     }
+         str=templates.getItem('main');
+    }
     var auxattr = {};
     var regexpr = /\$([a-zA-Z0-9.@?_^]+)/g;
     var result;

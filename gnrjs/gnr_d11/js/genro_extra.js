@@ -189,7 +189,19 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         ckeditor.gnr_getFromDatastore();
         var parentWidget = dijit.getEnclosingWidget(widget);
         ckeditor.gnr_readOnly('auto');
-        var parentDomNode=sourceNode.getParentNode().getDomNode();
+        var parentDomNode=sourceNode.getParentNode().getDomNode();        
+        ckeditor.on('instanceReady', function(ev){
+            var editor = ev.editor;
+            var dropHandler = function( evt ) {
+                setTimeout(function(){ckeditor.gnr_setInDatastore()},1)
+            };
+            if (editor.document.$.addEventListener) {
+                editor.document.$.addEventListener( 'drop', dropHandler, true ) ; 
+            } else if (editor.document.$.attachEvent) {
+                editor.document.$.attachEvent( 'ondrop', dropHandler, true ) ; 
+            }
+        });
+        
         var cbResize=function(){
                 sourceNode._rsz=null;
                //if(genro.dom.isVisible(ckeditor.element.$)){

@@ -58,7 +58,7 @@ class GnrWebPageException(GnrException):
     pass
     
 class GnrWebPage(GnrBaseWebPage):
-    """Standard class for :ref:`webpages <webpage>`"""
+    """Standard class to create :ref:`webpages <webpage>`"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, basename=None, environ=None):
         self.site = site
@@ -336,18 +336,31 @@ class GnrWebPage(GnrBaseWebPage):
     def mixinComponent(self, *path,**kwargs):
         """add???
         
-        :param pkg: the :ref:`package <packages>` object"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
-        
-    def tableTemplate(self, table=None, tplname=None, ext='html'):
+    
+    @public_method
+    def tableTemplate(self, table=None, tplname=None,asSource=False):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param tplname: add???
         :param ext: add???"""
-        result = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=ext)
-        if ext=='xml':
-            result = Bag(result)['#0']
+        result,path = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=['xml','html'])
+        if not path:
+            return ''
+        r_path,r_ext = os.path.splitext(path)
+        if r_ext=='.html':
+            if not asSource:
+                return result
+            result = Bag(content=result)
+            path = '%s.xml' %r_path
+            return result,{'respath':path}
+        else:
+            result=Bag(result)
+            if asSource:
+                return result,{'respath':path}
+            result = result['compiled']
         return result
         
     @property
@@ -566,11 +579,11 @@ class GnrWebPage(GnrBaseWebPage):
                 handler = getattr(self, '%s_%s' % (prefix, method))
         return handler
         
-    def build_arg_dict(self, _nodebug=False, _clocomp=False, **kwargs):
+    def build_arg_dict(self,_nodebug=False,_clocomp=False,**kwargs):
         """add???
         
-        :param _nodebug: no debug mode
-        :param _clocomp: enable closure compile"""
+        :param _nodebug: no debug mode. add???
+        :param _clocomp: enable closure compile. add???"""
         gnr_static_handler = self.site.getStatic('gnr')
         gnrModulePath = gnr_static_handler.url(self.gnrjsversion)
         arg_dict = {}
@@ -680,10 +693,10 @@ class GnrWebPage(GnrBaseWebPage):
         return self.domSrcFactory.makeRoot(self)
         
     def newGridStruct(self, maintable=None):
-        """Create a :ref:`struct` for the :ref:`grid` and return it
+        """Create a Grid Struct and return it.
         
-        :param maintable: the :ref:`database table <table>` to which the :ref:`struct` refers to.
-                          For more information, check the :ref:`maintable` section"""
+        :param maintable: the table to which the struct refers to. For more information,
+                          check the :ref:`maintable` section"""
         return GnrGridStruct.makeRoot(self, maintable=maintable)
         
     def _get_folders(self):
@@ -694,7 +707,7 @@ class GnrWebPage(GnrBaseWebPage):
     def subscribeTable(self,table,subscribe=True):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param subscribe: add???"""
         with self.pageStore() as store:
             subscribed_tables = store.register_item['subscribed_tables']
@@ -933,7 +946,7 @@ class GnrWebPage(GnrBaseWebPage):
         :param path: MANDATORY. A string with the path of the uri
         :param ext: add???
         :param add_mtime: add???
-        :param pkg: the :ref:`package <packages>` object"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
             return
@@ -944,7 +957,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param fpath: add???
         :param add_mtime: add???
-        :param pkg: the :ref:`package <packages>` object"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         url = None 
         packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
         pkg = pkg or self.packageId
@@ -967,13 +980,26 @@ class GnrWebPage(GnrBaseWebPage):
             mtime = os.stat(fpath).st_mtime
             url = '%s?mtime=%0.0f' % (url, mtime)
         return url
-        
+    
+    def _tableResourcePath(self,table,filepath,custom=False):
+        page_pkg = self.package.name 
+        table_pkg,tblname = table.split('.')
+        if page_pkg != table_pkg:
+            respath = 'tables/_packages/%s/%s/%s' %(table_pkg,tblname,filepath)
+        else:
+            respath = 'tables/%s/%s' %(tblname,filepath)
+        if custom:
+            return os.path.join(self.site.site_path, '_custom', page_pkg, '_resources',respath)
+        else:
+            packageFolder = self.site.gnrapp.packages[self.package.name].packageFolder
+            return os.path.join(packageFolder,'resources',respath)
+            
     def getResource(self, path, ext=None, pkg=None):
         """add???
         
         :param path: add???
         :param ext: add???
-        :param pkg: the :ref:`package <packages>` object"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         resourceDirs = self.resourceDirs
         if pkg:
             resourceDirs = self.site.resource_loader.package_resourceDirs(pkg)
@@ -988,7 +1014,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param classname: add???
-        :param pkg: the :ref:`package <packages>` object"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         res = self.getResource(path,pkg=pkg,ext='py')
         if res:
             m = gnrImport(res)
@@ -1016,30 +1042,40 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param resource: add???
         :param ext: add???
-        :param pkg: the :ref:`package <packages>` object"""
-        path = self.getResource(path=resource,ext=ext,pkg=pkg)
-        if path:
-            with open(path) as f:
-                result = f.read()
-            return result
+        :param pkg: the :ref:`package <packages_index>` object"""
+        content,path =  self._getResourceContent(resource=resource,ext=ext,pkg=pkg)
+        return content
+        
+    def _getResourceContent(self, resource=None, ext=None, pkg=None):
+        if not isinstance(ext,list):
+            ext = [ext]
+        for e in ext:
+            path = self.getResource(path=resource,ext=e,pkg=pkg)
+            if path:
+                break
+        if not path:
+            return None,None
+        with open(path) as f:
+            result = f.read()
+        return result,path
 
     def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param path: add???
         :param value: add???
         :param ext: add???"""
         pkg,table = table.split('.')    
-        resourceContent = self.getResourceContent(resource='tables/_packages/%s/%s/%s' %(pkg,table,path),pkg=self.package.name,ext=ext)
+        resourceContent,respath = self._getResourceContent(resource='tables/_packages/%s/%s/%s' %(pkg,table,path),pkg=self.package.name,ext=ext)
         if not resourceContent:
-            resourceContent = self.getResourceContent(resource='tables/%s/%s' %(table,path),pkg=pkg,ext=ext)
-        return resourceContent
+            resourceContent,respath = self._getResourceContent(resource='tables/%s/%s' %(table,path),pkg=pkg,ext=ext)
+        return resourceContent,respath
         
     def setTableResourceContent(self,table=None,path=None,value=None,ext=None):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param path: add???
         :param value: add???
         :param ext: add???"""
@@ -1058,7 +1094,7 @@ class GnrWebPage(GnrBaseWebPage):
 
         This is typically used to customize prints and batch jobs for a particular installation
 
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param respath: add???
         :param class_name: add???
         :param runKwargs: add???"""
@@ -1072,7 +1108,7 @@ class GnrWebPage(GnrBaseWebPage):
     def loadTableScript(self, table=None, respath=None, class_name=None):
         """add???
 
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param respath: add???
         :param class_name: add???"""
         return self.site.loadTableScript(self, table=table, respath=respath, class_name=class_name)
@@ -1082,14 +1118,14 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param data: add???
-        :param pkg: the :ref:`package <packages>` object"""
+        :param pkg: the :ref:`package <packages_index>` object"""
         self.site.setPreference(path, data, pkg=pkg)
         
     def getPreference(self, path, pkg='', dflt=''):
         """add???
         
         :param path: add???
-        :param pkg: the :ref:`package <packages>` object
+        :param pkg: the :ref:`package <packages_index>` object
         :param dflt: add???"""
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
         
@@ -1097,7 +1133,7 @@ class GnrWebPage(GnrBaseWebPage):
         """add???
         
         :param path: add???
-        :param pkg: the :ref:`package <packages>` object
+        :param pkg: the :ref:`package <packages_index>` object
         :param dflt: add???
         :param username: add???"""
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
@@ -1119,7 +1155,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param path: add???
         :param data: add???
-        :param pkg: the :ref:`package <packages>` object
+        :param pkg: the :ref:`package <packages_index>` object
         :param username: add???"""
         self.site.setUserPreference(path, data, pkg=pkg, username=username)
         
@@ -1385,7 +1421,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         This is typically used to customize prints and batch jobs for a particular installation.
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param respath: add???
         :param class_name: add???
         :param downloadAs: add???"""
@@ -1448,7 +1484,7 @@ class GnrWebPage(GnrBaseWebPage):
                              omit='', **kwargs):
         """add???
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param prevRelation: add???
         :param prevCaption: add???
         :param omit: add???"""
@@ -1546,7 +1582,7 @@ class GnrWebPage(GnrBaseWebPage):
             return self.site.getStatic('user').url(self.user, *args)
    
     @public_method
-    def getSiteDocument(self, path, defaultContent=None, **kwargs):
+    def getSiteDocument(self,path,defaultContent=None,**kwargs):
         """add???
         
         ``getSiteDocument()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
@@ -1591,35 +1627,28 @@ class GnrWebPage(GnrBaseWebPage):
             
     def setJoinCondition(self, ctxname, target_fld='*', from_fld='*', condition=None, one_one=None, applymethod=None,
                          **kwargs):
-        """Define a join condition in a given context (*ctxname*).
-        
-        The *condition* attribute is used to limit the automatic selection of related records.
-        If *target_fld* AND *from_fld* equals to '*' then the condition is an additional
-        WHERE clause added to any selection
-        
-        ::
-        
-            self.setJoinCondition('mycontext',
-                                   target_fld = 'mypkg.rows.document_id',
-                                   from_fld = 'mypkg.document.id',
-                                   condition = "mypkg.rows.date <= :wkd",
-                                   condition_wkd = "^mydatacontext.foo.bar.mydate",
-                                   one_one=False)
-                           
-        :param ctxname: name of the context of the main record
-        :param target_fld: the many table column of the :ref:`relation <relations>`;
-                           '*' means the main table of the selection
-        :param from_fld: the one table column of the :ref:`relation <relations>`;
-                         '*' means the main table of the selection
-        :param condition: additional :ref:`conditions <sql_condition>` for the WHERE sql condition
-        :param one_one: the result is returned as a record instead of as a selection.
-                        If one_one is True the given condition MUST return always a single record
-        :param applymethod: a page method to be called after selecting the related records
-        :param kwargs: named parameters to use in condition. Can be static values or can be readed
-                       from the context at query time. If a parameter starts with '^' it is a path in
-                       the context where the value is stored.
-                       If a parameter is the name of a defined method the method is called and the result
-                       is used as the parameter value. The method has to be defined as 'ctxname_methodname'
+        """Define a join condition in a given context (ctxname)
+           the condition is used to limit the automatic selection of related records
+           If target_fld AND from_fld equals to '*' the condition is an additional where clause added to any selection
+           
+           self.setJoinCondition('mycontext',
+                              target_fld = 'mypkg.rows.document_id',
+                              from_fld = 'mypkg.document.id',
+                              condition = "mypkg.rows.date <= :join_wkd",
+                              join_wkd = "^mydatacontext.foo.bar.mydate", one_one=False)
+                              
+            @param ctxname: name of the context of the main record 
+            @param target_fld: the many table column of the relation, '*' means the main table of the selection
+            @param from_fld: the one table column of the relation, '*' means the main table of the selection
+            @param condition: the sql condition
+            @param one_one: the result is returned as a record instead of as a selection. 
+                            If one_one is True the given condition MUST return always a single record
+            @param applymethod: a page method to be called after selecting the related records
+            @param kwargs: named parameters to use in condition. Can be static values or can be readed 
+                           from the context at query time. If a parameter starts with '^' it is a path in 
+                           the context where the value is stored. 
+                           If a parameter is the name of a defined method the method is called and the result 
+                           is used as the parameter value. The method has to be defined as 'ctxname_methodname'.
         """
         path = '%s.%s_%s' % (ctxname, target_fld.replace('.', '_'), from_fld.replace('.', '_'))
         value = Bag(dict(target_fld=target_fld, from_fld=from_fld, condition=condition, one_one=one_one,
@@ -1634,7 +1663,7 @@ class GnrWebPage(GnrBaseWebPage):
    #    clientpath = 'gnr.sqlctx.columns.%s' % path
    #    self.addToContext(value=joincolumns, serverpath=serverpath, clientpath=clientpath)
         
-    def _prepareGridStruct(self, source=None, table=None, gridId=None):
+    def _prepareGridStruct(self,source=None,table=None,gridId=None):
         struct = None
         if isinstance(source, Bag):
             return source
@@ -1658,21 +1687,22 @@ class GnrWebPage(GnrBaseWebPage):
             rows.fields(columns)
         return struct
         
-    def rpc_getGridStruct(self, struct, table):
-        """Prepare the :ref:`grid` struct
+    def rpc_getGridStruct(self,struct,table):
+        """add???
         
-        :param struct: the :ref:`struct`
-        :param table: the :ref:`database table <table>` name"""
-        return self._prepareGridStruct(struct, table)
+        :param struct: add???
+        :param table: the :ref:`table` name
+        :returns: add???"""
+        return self._prepareGridStruct(struct,table)
         
     @public_method
-    def callTableMethod(self, table=None, methodname=None, **kwargs):
+    def callTableMethod(self,table=None,methodname=None,**kwargs):
         """add???
         
         ``callTableMethod()`` method is decorated with the :meth:`public_method
         s<gnr.core.gnrdecorator.public_method>` decorator
         
-        :param table: the :ref:`database table <table>` name
+        :param table: the :ref:`table` name
         :param methodname: the method name of the :ref:`datarpc`"""
         handler = getattr(self.db.table(table), methodname, None)
         if not handler or not getattr(handler, 'is_rpc', False):

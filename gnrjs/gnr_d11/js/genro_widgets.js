@@ -1611,9 +1611,8 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
         savedAttrs['fire'] = objectPop(attributes, 'fire');
         savedAttrs['publish'] = objectPop(attributes, 'publish');
         return savedAttrs;
-
-
     },
+    
     created: function(widget, savedAttrs, sourceNode) {
         dojo.connect(widget, 'onClick', sourceNode, this.onClick);
         objectExtract(sourceNode._dynattr, 'fire_*');
@@ -1640,6 +1639,7 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
             that.widget._onClickDo(e,inattr,count);
         },inattr._delay);
     },
+    
     mixin__onClickDo:function(e,inattr,count) {
         var modifier = eventToString(e);
         var action = inattr.action;

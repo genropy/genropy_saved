@@ -708,7 +708,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
              'staticGrid', 'dynamicGrid', 'fileUploader', 'gridEditor', 'ckEditor', 
              'tinyMCE', 'protovis', 'PaletteGroup', 'PalettePane','ImgUploader','TooltipPane', 'BagNodeEditor',
              'PaletteBagNodeEditor','StackButtons', 'Palette', 'PaletteTree', 'SearchBox', 'FormStore',
-             'FramePane', 'FrameForm','FieldsTree', 'SlotButton']
+             'FramePane', 'FrameForm','FieldsTree', 'SlotButton','TemplateChunk']
     genroNameSpace = dict([(name.lower(), name) for name in htmlNS])
     genroNameSpace.update(dict([(name.lower(), name) for name in dijitNS]))
     genroNameSpace.update(dict([(name.lower(), name) for name in dojoxNS]))
@@ -1021,7 +1021,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                 dropmode = 'dropTarget_%s' % mode
                 ivattr[dropmode] = '%s,%s' % (ivattr[dropmode], dropCode) if dropmode in ivattr else dropCode
                 ivattr['onDrop_%s' % dropCode] = 'SET .droppedInfo_%s = dropInfo; FIRE .dropped_%s = data' % (dropCode,dropCode)
-                ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
+                #ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
                 
     def newincludedview_draganddrop(self,dropCodes=None,**kwargs):
         self.includedview_draganddrop(dropCodes=dropCodes,**kwargs)

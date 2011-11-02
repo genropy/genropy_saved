@@ -442,7 +442,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
         if (typeof(value) == 'string') {
             if (this.isPointerPath(value)) {
                 if (value.indexOf('==') == 0) {
-                    
                     var argNames = [];
                     var argValues = [];
                     for (var attr in this.attr) {
@@ -469,9 +468,6 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     value = this.getRelativeData(value, autocreate, dflt);
                 }
             }
-            //else if (value.indexOf('=')==0){    rimosso in favore di dataScript
-            //    value = (new Function ('',value.slice(1))).call(this);
-            //}
         }
         return value;
     },
@@ -825,6 +821,16 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     
     onNodeBuilt:function(newobj){
         return;
+    },
+    
+    delayedCall:function(cb,delay,code){
+        var code = code || 'delayedCall';
+        var handlerName = '_dc_'+code;
+        var delay = delay || 1;
+        if(this[handlerName]){
+            clearTimeout(this[handlerName]);
+        }
+        this[handlerName] = setTimeout(cb,delay);
     },
     
     _resetDynAttributes : function() {
