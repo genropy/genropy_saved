@@ -8,7 +8,7 @@ checkBoxText
     
     .. note:: checkBoxText features:
               
-              * **Type**: :ref:`Genro form widget <genro_form_widgets>`
+              * **Type**: :ref:`Genro form widget <genro_widgets>`
               * **Common attributes**: check the :ref:`attributes_index` section
               
     * :ref:`checkboxtext_def`

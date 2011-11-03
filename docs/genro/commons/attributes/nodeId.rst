@@ -30,8 +30,8 @@ description
     * the :ref:`includedgrid` has got the *frameCode* attribute
     * the :ref:`paletteGrid` has got the *paletteCode* attribute
     * the :ref:`framepane` has got the :ref:`frame_framecode` attribute
-    * the :ref:`slotBar <toolbar>` and the :ref:`slotToolbar <toolbar>` have got the
-      :ref:`toolbar_slotbarcode`
+    * the :ref:`slotBar <slotbar>` and the :ref:`slotToolbar <slotbar>` have got the
+      :ref:`slotbar_slotbarcode`
       
 .. _nodeid_examples:
 

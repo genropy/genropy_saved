@@ -12,8 +12,8 @@ childname
               * every :ref:`controller <controllers>`
               * every :ref:`form widget <form_widgets>`
               * every :ref:`layout widget <layout>`
-              * it works also on :ref:`iframe`, :ref:`menu`, :ref:`slotBar <toolbar>`,
-                :ref:`slotToolbar <toolbar>`, :ref:`tree`
+              * it works also on :ref:`iframe`, :ref:`menu`, :ref:`slotBar <slotbar>`,
+                :ref:`slotToolbar <slotbar>`, :ref:`tree`
                 
     * :ref:`childname_def`
     * :ref:`childname_examples`

@@ -19,7 +19,7 @@ framePane
         * :ref:`frame_sides`
         * :ref:`frame_common_attrs`
         
-    * :ref:`frame_examples`: :ref:`frame_examples_simple` :ref:`toolbar_example`
+    * :ref:`frame_examples`: :ref:`frame_examples_simple` :ref:`slotbar_example`
     
 .. _frame_def:
 
@@ -94,7 +94,7 @@ sides
         
     **Example**:
     
-        In the *top side* you can keep a :ref:`slotToolbar <toolbar>` with a title and a button
+        In the *top side* you can keep a :ref:`slotToolbar <slotbar>` with a title and a button
         that executes an action::
         
             class GnrCustomWebPage(object):
@@ -138,11 +138,11 @@ simple example
     (where *rounded* is the CSS :ref:`css_border_radius` attribute, *shadow* is the CSS
     :ref:`css_box_shadow` attribute)
     
-.. _toolbar_example:
+.. _slotbar_example:
 
 slotToolbar, slotBar example
 ----------------------------
     
     For some examples with the slotToolbar and the slotBar, please check the
-    :ref:`relative <toolbar>` documentation page
+    :ref:`relative <slotbar>` documentation page
     

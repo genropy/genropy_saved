@@ -8,7 +8,7 @@ TextBox
     
     .. note:: TextBox features:
               
-              * **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+              * **Type**: :ref:`Dojo-improved widget <dojo_improved_widgets>`
               * **Common attributes**: check the :ref:`attributes_index` section
               
     * :ref:`textbox_def`

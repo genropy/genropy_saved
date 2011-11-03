@@ -8,7 +8,7 @@ dbSelect
     
     .. note:: dbSelect features:
               
-              * **Type**: :ref:`Genro form widget <genro_form_widgets>`
+              * **Type**: :ref:`Genro form widget <genro_widgets>`
               * **Common attributes**: you can check:
               
                 * the :ref:`widget common attributes section <attributes_index>`
