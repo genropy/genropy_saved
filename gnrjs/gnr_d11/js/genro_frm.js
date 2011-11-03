@@ -1346,13 +1346,13 @@ dojo.declare("gnr.formstores.Base", null, {
         };
         var kw = loader.kw || {};
         kw = form.sourceNode.evaluateOnNode(kw);
-        kw.loadingParameters = kw.loadingParameters || {}; 
+        kw.default_kwargs = kw.loadingParameters || {}; 
         if(pkey=='*newrecord*'){
             default_kw = default_kw || {}       
             if(loader.defaultCb){
                 default_kw = objectUpdate(default_kw,(loader.defaultCb.call(form,kw)||{}));
             }
-            objectUpdate(kw.loadingParameters,form.sourceNode.evaluateOnNode(default_kw));
+            objectUpdate(kw.default_kwargs,form.sourceNode.evaluateOnNode(default_kw));
         }
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
