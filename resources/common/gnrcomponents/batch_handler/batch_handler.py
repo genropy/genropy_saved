@@ -11,14 +11,14 @@ from gnr.core.gnrbag import Bag
 
 
 class TableScriptHandlerCaller(BaseComponent):
-    def table_script_caller(self,pane):
-        if self.root_page_id:
-            pane.dataController("""
-                                    var kw = table_script_run[0];
-                                    kw['sourcepage_id'] = page_id;
-                                    genro.mainGenroWindow.genro.publish("table_script_run",kw);
-                                """, 
-                                subscribe_table_script_run=True,nodeId='table_script_caller',page_id=self.page_id)
+    def onMain_table_script_caller(self):
+        if self.root_page_id and not ('table_script_caller' in self._register_nodeId):
+                self.pageSource().dataController("""
+                                        var kw = table_script_run[0];
+                                        kw['sourcepage_id'] = page_id;
+                                        genro.mainGenroWindow.genro.publish("table_script_run",kw);
+                                    """, 
+                                    subscribe_table_script_run=True,nodeId='table_script_caller',page_id=self.page_id)
 
 
 class BatchMonitor(BaseComponent):
