@@ -10,9 +10,8 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs,public_method
 from gnr.core.gnrstring import boolean
-
 import os
 
 class PublicBase(BaseComponent):
@@ -513,8 +512,9 @@ class TableHandlerMain(BaseComponent):
                             selectedPage='^.selectedPage',currTitle='=gnr.windowTitle')  
             else:
                 th.dataFormula('gnr.windowTitle','viewtitle',viewtitle='^.view.title',_onStart=True)
-                            
-    def rpc_form(self, root,**kwargs):
+    
+    @public_method                     
+    def pbl_form_main(self, root,**kwargs):
         kwargs.update(self.getCallArgs('pkey'))
         formCb = self.th_form if hasattr(self,'th_form') else None
         self._th_prepareForm(root,formCb=formCb,**kwargs)

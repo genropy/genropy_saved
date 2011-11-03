@@ -117,7 +117,7 @@ dojo.declare("gnr.LinkerManager", null, {
         }else{
             var that = this;
             var destPkey = pkey;
-            var iframeDialogKw = {title:'',table:this.table,main:'form',
+            var iframeDialogKw = {title:'',table:this.table,main:'pbl_form_main',
                                  main_th_linker:true,height:'300px',width:'400px',main_th_formId:this.fakeFormId,
                                  onStarted:function(){that.onIframeStarted(this,destPkey)}};
             if(this.formResource){
@@ -160,7 +160,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         this.mainpkey = mainpkey;
         this.default_kwargs = default_kwargs;
         this.pages_dict = {};
-        this.page_kw = {url_main_call:'form',url_th_public:true,subtab:true,
+        this.page_kw = {url_main_call:'pbl_form_main',url_th_public:true,subtab:true,
                         url_th_formId:formId,url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection'};
         this.formUrl = formUrl;
         this.fakeFormId = formId;

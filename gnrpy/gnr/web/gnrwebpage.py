@@ -1321,7 +1321,7 @@ class GnrWebPage(GnrBaseWebPage):
                 else:
                     rootwdg = self.rootWidget(root, region='center', nodeId='_pageRoot')
                     self.main(rootwdg, **kwargs)
-                    self.onMainCalls()
+                self.onMainCalls()
                 if self.avatar:
                     page.data('gnr.avatar', Bag(self.avatar.as_dict()))
                 page.data('gnr.polling.user_polling', self.user_polling)
