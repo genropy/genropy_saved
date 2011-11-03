@@ -225,7 +225,7 @@ dojo.declare("gnr.IframeFormManager", null, {
         //this.form = this.sourceNode.form;
         this.formUrl = sourceNode.attr._formUrl;
         this.table = sourceNode.attr._table;
-        this.default_kwargs = objectExtract(sourceNode.attr,'default_*');
+        this.default_kwargs = objectPop(sourceNode.attr,'_default_kwargs');
         this.iframeAttr = sourceNode.attr._iframeAttr;
         this.fakeFormId = sourceNode.attr._fakeFormId || 'LK_'+this.table.replace('.','_');
         this.formStoreKwargs = sourceNode.attr._formStoreKwargs || {};

@@ -41,7 +41,7 @@ class TableHandlerForm(BaseComponent):
             self._th_hook('form',mangler=frameCode)(form)
         return form
 
-    @extract_kwargs(default=dict(slice_prefix=False,pop=True),store=True,dialog=True,palette=True)
+    @extract_kwargs(default=True,store=True,dialog=True,palette=True)
     @struct_method
     def th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,datapath=None,
                         store_kwargs=None,default_kwargs=None,dialog_kwargs=None,palette_kwargs=None,**kwargs):
@@ -58,7 +58,7 @@ class TableHandlerForm(BaseComponent):
                              datapath='.form',store='recordCluster',store_kwargs=store_kwargs,**kwargs)
         self._th_applyOnForm(form,options=resource_options,mangler=formId)
         formCb = formCb or self._th_hook('form',mangler=formId)
-        form.store.handler('load',**default_kwargs)
+        form.store.handler('load',default_kwargs=default_kwargs)
         formCb(form)
         return form
         
