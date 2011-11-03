@@ -451,7 +451,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         controllerData.setItem('protect_delete',this.protect_delete,null,{lazySet:true});
         controllerData.setItem('is_newrecord',this.newRecord,null,{lazySet:true});
         controllerData.setItem('loading',false,null,{lazySet:true});
-        controllerData.fireItem('loaded');
+        var loadedPkey = (this.getCurrentPkey() || '*norecord*');
+        setTimeout(function(){controllerData.fireItem('loaded',loadedPkey)},1);
         this.updateStatus();
         this.setOpStatus();
         this.currentFocused = null;

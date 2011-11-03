@@ -20,7 +20,7 @@
 
 from gnr.web.gnrbaseclasses import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
-from gnr.core.gnrdecorator import extract_kwargs
+from gnr.core.gnrdecorator import extract_kwargs,public_method
 
 class TableHandler(BaseComponent):
     js_requires = 'th/th'
@@ -69,8 +69,8 @@ class TableHandler(BaseComponent):
                             }else{
                                 sourceNode.setHiderLayer(false);
                             }
-                            """,pkey='=#FORM.pkey',sourceNode=hiderRoot,message=hiderMessage or False,msg_prefix='!!Save',msg_suffix='',
-                                _fired='^#FORM.controller.loaded',_delay=1)    
+                            """,sourceNode=hiderRoot,message=hiderMessage or False,msg_prefix='!!Save',msg_suffix='',
+                                pkey='^#FORM.controller.loaded')    
         if pbl_classes:
             wdg.view.attributes.update(_class='pbl_roundedGroup')
             wdg.view.top.bar.attributes.update(toolbar=False,_class='slotbar_toolbar pbl_roundedGroupLabel')
@@ -191,13 +191,14 @@ class TableHandler(BaseComponent):
         pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
         box = pane.div(_class='detacher',z_index=30)
         kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
-        iframe = box.iframe(main='th_iframedispatcher',main_methodname=method,
+        iframe = box.iframe(main=self.th_iframedispatcher,main_methodname=method,
                             main_table=pane.getInheritedAttributes().get('table'),
                             main_pkey='=#FORM.pkey',src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
         return iframe
-    
-    def rpc_th_iframedispatcher(self,root,methodname=None,pkey=None,table=None,**kwargs):
+        
+    @public_method
+    def th_iframedispatcher(self,root,methodname=None,pkey=None,table=None,**kwargs):
         rootattr = root.attributes
         rootattr['datapath'] = 'main'
         rootattr['overflow'] = 'hidden'
@@ -205,7 +206,7 @@ class TableHandler(BaseComponent):
         rootattr['table'] = table
         rootattr['subscribe_frame_onChangedPkey'] = 'SET .pkey=$1.pkey; FIRE .controller.loaded;'
         if pkey:
-            root.dataController('SET .pkey = pkey; FIRE .controller.loaded;',pkey=pkey,_onStart=True)
+            root.dataController('SET .pkey = pkey; FIRE .controller.loaded=pkey;',pkey=pkey,_onStart=True)
             root.dataRecord('.record',table,pkey='^#FORM.pkey',_if='pkey')
         getattr(self,'iframe_%s' %methodname)(root,**kwargs)
 
