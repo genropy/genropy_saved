@@ -113,7 +113,6 @@ class TableHandlerForm(BaseComponent):
     @struct_method          
     def th_slotbar_form_print(self,pane,**kwargs):
         inattr = pane.getInheritedAttributes()
-        th_root = inattr['th_root']
         table = inattr['table']
         pane.div(_class='iconbox print').menu(modifiers='*',storepath='.resources.print.menu',
                     action="""
@@ -126,6 +125,6 @@ class TableHandlerForm(BaseComponent):
                             kw['pkey'] = this.form.getCurrentPkey();
                             genro.publish("table_script_run",kw)
                             """,
-                    batch_table=table,batch_res_type='print',batch_th_root=th_root,
+                    batch_table=table,batch_res_type='print',
                     batch_sourcepage_id=self.page_id)
         pane.dataRemote('.resources.print.menu',self.th_printMenu,table=table,cacheTime=5)
