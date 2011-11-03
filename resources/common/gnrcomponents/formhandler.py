@@ -28,7 +28,7 @@ class FormHandler(BaseComponent):
     css_requires='public'
     py_requires='foundation/macrowidgets:SlotBar'
 
-    @extract_kwargs(palette=True,dialog=True,default=dict(slice_prefix=False,pop=True))
+    @extract_kwargs(palette=True,dialog=True,default=True)
     @struct_method
     def formhandler_linkedForm(self,pane,frameCode=None,loadEvent=None,formRoot=None,store=True,table=None,
                         formId=None,dialog_kwargs=None,palette_kwargs=None,attachTo=None,
@@ -48,7 +48,7 @@ class FormHandler(BaseComponent):
             return formRoot.formInIframe(table=table,formId=formId,default_kwargs=default_kwargs,src=src,**kwargs)
         form = formRoot.frameForm(frameCode=frameCode,formId=formId,table=table,store=store,**kwargs)
         attachTo.form = form
-        form.store.handler('load',**default_kwargs)
+        form.store.handler('load',default_kwargs=default_kwargs)
         return form
     
     @extract_kwargs(palette=True,dialog=True)
@@ -113,7 +113,7 @@ class FormHandler(BaseComponent):
                                                                 this.widget.selectByRowAttr('_pkey',$1.pkey);
                                                             }
                                                               """
-    @extract_kwargs(store=True,dialog=True,palette=True,main=dict(slice_prefix=False),default=dict(slice_prefix=False))
+    @extract_kwargs(store=True,dialog=True,palette=True,main=dict(slice_prefix=False),default=True)
     @struct_method
     def fh_formInIframe(self,pane,table=None,
                        formId=None,default_kwargs=None,src=None,
@@ -130,7 +130,7 @@ class FormHandler(BaseComponent):
         kwargs['_fakeFormId'] = formId
         kwargs['_table'] = table
         kwargs['_formStoreKwargs'] = store_kwargs
-        kwargs.update(default_kwargs)
+        kwargs['_default_kwargs'] = default_kwargs
         return formRoot.contentPane(overflow='hidden',onCreated='this.iframeFormManager = new gnr.IframeFormManager(this);',**kwargs)
 
 
