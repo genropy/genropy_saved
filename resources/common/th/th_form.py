@@ -54,7 +54,7 @@ class TableHandlerForm(BaseComponent):
         if formroot is None:
             formroot = formroot or pane
         form = formroot.frameForm(frameCode=formId,formId=formId,table=table,
-                             store_startKey=startKey,th_root=formId,
+                             store_startKey=startKey,
                              datapath='.form',store='recordCluster',store_kwargs=store_kwargs,**kwargs)
         self._th_applyOnForm(form,options=resource_options,mangler=formId)
         formCb = formCb or self._th_hook('form',mangler=formId)
