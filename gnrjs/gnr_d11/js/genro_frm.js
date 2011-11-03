@@ -1347,6 +1347,9 @@ dojo.declare("gnr.formstores.Base", null, {
         var kw = loader.kw || {};
         kw = form.sourceNode.evaluateOnNode(kw);
         kw.default_kwargs = kw.default_kwargs || {}; 
+        if(kw.default_kwargs){
+            kw.default_kwargs = form.sourceNode.evaluateOnNode(kw.default_kwargs);
+        }
         if(pkey=='*newrecord*'){
             default_kw = default_kw || {}       
             if(loader.defaultCb){
