@@ -444,7 +444,7 @@ class PublicSlots(BaseComponent):
 
 
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:PublicBase,th/th:TableHandler,gnrcomponents/batch_handler/batch_handler:TableScriptHandlerCaller"""
+    py_requires = """public:PublicBase,th/th:TableHandler"""
     plugin_list=''
     formResource = None
     viewResource = None
