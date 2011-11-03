@@ -197,7 +197,7 @@ class GnrDomSrc(GnrStructData):
         """Set a new item of the ``tag`` type into the current structure through
         the :meth:`child() <gnr.core.gnrstructures.GnrStructData.child>` and return it
         
-        :param tag: add???
+        :param tag: the html tag
         :param childname: the :ref:`childname`
         :param childcontent: the html content
         :param envelope: add???"""
@@ -851,8 +851,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #ds = parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
     
-    def onDbChanges(self,action=None,table=None,**kwargs):
-        """add???"""
+    def onDbChanges(self, action=None, table=None, **kwargs):
+        """add???
+        
+        :param action: the :ref:`action_attr` attribute
+        :param table: the :ref:`database table <table>`"""
         self.page.subscribeTable(table,True)
         self.dataController(action,dbChanges="^gnr.dbchanges.%s" %table.replace('.','_'),**kwargs)
     

@@ -718,13 +718,13 @@ class GnrWebPage(GnrBaseWebPage):
                 'site': self.site.site_path,
                 'current': os.path.dirname(self.filepath)}
               
-    def subscribeTable(self,table,subscribe=True):
+    def subscribeTable(self, table, subscribe=True):
         """add???
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param subscribe: add???"""
+        :param subscribe: boolean. add???"""
         with self.pageStore() as store:
             subscribed_tables = store.register_item['subscribed_tables']
             if subscribe:
@@ -737,7 +737,7 @@ class GnrWebPage(GnrBaseWebPage):
     def pageStore(self, page_id=None, triggered=True):
         """add???
         
-        :param page_id: add???
+        :param page_id: the id of the page
         :param triggered: boolean. add???"""
         page_id = page_id or self.page_id
         return self.site.register.pageStore(page_id, triggered=triggered)
@@ -776,7 +776,7 @@ class GnrWebPage(GnrBaseWebPage):
     def clientPage(self, page_id=None):
         """add???
         
-        :param page_id: add???"""
+        :param page_id: the id of the page"""
         return ClientPageHandler(self, page_id or self.page_id)
         
     def _get_pkgapp(self):
