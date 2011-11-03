@@ -10,12 +10,10 @@ COLOR_SEQ = "\033[1;%dm"
 BOLD_SEQ = "\033[1m"
 
 def formatter_message(message, use_color=True):
-    """Change the format message
+    """Change the format message. Return the message with the new format
     
     :param message: the message to be changed
-    :param use_color: boolean. If ``True``, add color to the message
-    :returns: the message with the new format
-    """
+    :param use_color: boolean. If ``True``, add color to the message"""
     if use_color:
         message = message.replace("$RESET", RESET_SEQ).replace("$BOLD", BOLD_SEQ)
     else:
@@ -40,9 +38,7 @@ class ColoredFormatter(logging.Formatter):
     def format(self, record):
         """add???
         
-        :param record: add???
-        :returns: add???
-        """
+        :param record: add???"""
         levelname = record.levelname
         if self.use_color and levelname in COLORS:
             levelname_color = COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
@@ -57,9 +53,8 @@ root_logger = None
 def enable_colored_logging(stream=sys.stderr, level=None):
     """Enable colored logging
     
-    :param stream: add???. Default value is ``sys.stderr``
-    :param level: add???. 
-    """
+    :param stream: add???
+    :param level: add???"""
     global root_logger
     if not root_logger:
         root_logger = logging.getLogger()

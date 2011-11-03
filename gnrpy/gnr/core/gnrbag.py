@@ -209,10 +209,8 @@ class BagNode(object):
         """Set the node's value, unless the node is locked. This method is called by the property .value
         
         :param value: the value to set the new bag inherits the trigger of the parentBag and calls it sending an update event
-        :param trigger: ???
-        :param _attributes: add???
-        :param _updattr: add???
-        :param _removeNullAttributes: if ``True``, remove the null attributes"""
+        :param trigger: boolean. add???
+        """
         if self.locked:
             raise BagNodeException("Locked node %s" % self.label)
         if isinstance(value, BagNode):
@@ -306,9 +304,7 @@ class BagNode(object):
             
         :param attr: the attribute that should be set into the node
         :param trigger: add???
-        :param _updattr: add???
-        :param _removeNullAttributes: if ``True``, remove the null attributes
-        :param \*\*kwargs: the kw attributes to set"""
+        """
         if not _updattr:
             self.attr.clear()
             #if self.locked:
@@ -494,10 +490,10 @@ class Bag(GnrObject):
     #-------------------- __contains__ --------------------------------
     def __contains__(self, what):
         """The "in" operator can be used to test the existence of a key in a
-        bag. Also nested keys are allowed
+        bag. Also nested keys are allowed. Return ``True`` if the key exists
+        in the Bag, ``False`` otherwise
         
-        :param what: the key path to test
-        :returns: a boolean value, True if the key exists in the bag, False otherwise"""
+        :param what: the key path to test"""
         if isinstance(what, basestring):
             return bool(self.getNode(what))
         elif isinstance(what, BagNode):
@@ -641,7 +637,7 @@ class Bag(GnrObject):
     def get(self, label, default=None, mode=None):
         """add???
         
-        :param label: add???
+        :param label: the :ref:`bag`'s label
         :param default: add???
         :param mode: add???"""
         result = None
@@ -686,7 +682,7 @@ class Bag(GnrObject):
         
         :param pathlist: list of nodes' labels
         :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist
-        :param returnLastMatch: boolean. add??? Default value is ``False``"""
+        :param returnLastMatch: boolean. add???"""
         curr = self
         if isinstance(pathlist, basestring):
             orpa=pathlist
@@ -848,8 +844,8 @@ class Bag(GnrObject):
             | ``'#a.attributeName'`` | Show the attribute called 'attrname' for each item                   |
             +------------------------+----------------------------------------------------------------------+
             
-        :param condition: set a condition for digest process
-        :param asColumns: add??? Default value is ``False``
+        :param condition: set a :ref:`sql_condition` for digest process
+        :param asColumns: add???
             
             >>> b=Bag()
             >>> b.setItem('documents.letters.letter_to_mark','file0',createdOn='10-7-2003',createdBy= 'Jack')
@@ -914,8 +910,7 @@ class Bag(GnrObject):
         """add???
         
         :param cols: add???
-        :param attrMode: add???
-        :returns: add???"""
+        :param attrMode: boolean. add???"""
         if isinstance(cols, basestring):
             cols = cols.split(',')
         mode = ''
@@ -948,9 +943,10 @@ class Bag(GnrObject):
     nodes = property(getNodes)
 
     def popNode(self, path):
-        """add???
+        """This method is analog to dictionary's pop() method. It pops the given node from
+        a Bag at the relative path and returns it
         
-        :param path: add???"""
+        :param path: path of the given node"""
         obj, label = self._htraverse(path)
         if obj:
             n = obj._pop(label)
@@ -959,7 +955,7 @@ class Bag(GnrObject):
 
     def pop(self, path, dflt=None):
         """This method is analog to dictionary's pop() method. It pops the given item from
-        the Bag at the relative path and returns it.
+        a Bag at the relative path and returns it
         
         :param path: path of the given item
         :param dflt: add???
@@ -1046,10 +1042,9 @@ class Bag(GnrObject):
             return False
 
     def merge(self, otherbag, upd_values=True, add_values=True, upd_attr=True, add_attr=True):
-        """.. deprecated:: 0.7
-        .. note:: This method have to be rewritten
+        """.. warning:: deprecated since version 0.7
         
-        Allow to merge two bags into one.
+        Allow to merge two bags into one
         
         >>> john_doe=Bag()
         >>> john_doe['telephones']=Bag()
@@ -1172,9 +1167,9 @@ class Bag(GnrObject):
     #-------------------- getNode --------------------------------
     def getNode(self, path=None, asTuple=False, autocreate=False, default=None):
         """Return the BagNode stored at the relative path
-            
+        
         :param path: path of the given node
-        :param asTuple: boolean. add???
+        :param asTuple: boolean. If ``True``, return a tuple with the object and the node
         :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist
         :param default: the default return value for a not found node"""
         if not path:
@@ -1229,10 +1224,7 @@ class Bag(GnrObject):
         0 - (Bag) documents: <createdOn='2010-11-15' type='secret'>
             0 - (Bag) letters:
                 0 - (str) letter_to_sheila: file2  <lastModify='12-9-2003'>
-                
-        :param _path: path of the target item. .
-        :param _attributes: a dict of attributes to set into the node. .
-        :param _removeNullAttributes: if ``True``, remove the null attributes"""
+        """
         self.getNode(_path, autocreate=True).setAttr(attr=_attributes, _removeNullAttributes=_removeNullAttributes,
                                                      **kwargs)
 
@@ -1337,7 +1329,7 @@ class Bag(GnrObject):
         
         :param item_path: the path of the given item
         :param item_value: the value to set
-        :param _attributes:  it specifies the attributes of the value to set
+        :param _attributes: it specifies the attributes of the value to set
         :param _position: allow to set a new value at a particular position among its brothers
                           Default value is ``>``. You can use one of the following types:
                           
@@ -1383,17 +1375,17 @@ class Bag(GnrObject):
     #-------------------- setItem --------------------------------
     def setItem(self, item_path, item_value, _attributes=None, _position=None, _duplicate=False,
                 _updattr=False, _validators=None, _removeNullAttributes=True, **kwargs):
-        """Add values (or attributes) to your Bag and return the Bag. The default behaviour of ``setItem`` is to add the new value
-        as the last element of a list. You can change this trend with the `_position` argument, who provides a compact
-        syntax to insert any item in the desired place.
+        """Set an item (values and eventually attributes) to your Bag using a path in the form
+        ``label1.label2...labelN``. If path already exists, it overwrites the value at the given path.
+        Return the Bag.
         
-        This method sets an item in the Bag using a path
-        in the form "label1.label2...labelN".It returns the current bag.
-        If the path already exists, it overwrites the value at the given path
+        The default behaviour of ``setItem()`` is to add the new value as the last element.
+        You can change this trend with the *_position* argument, who provides a compact
+        syntax to insert the element in the desired place
         
         :param item_path: the path of the given item
         :param item_value: the value to set
-        :param _attributes:  it specified the value's attributes to set
+        :param _attributes:  it specified, the value's attributes to set
         :param _position: it is possible to set a new value at a particular position among its brothers.
                           
                           *expression* must be a string of the following types:
@@ -1416,10 +1408,11 @@ class Bag(GnrObject):
                           | ``'#index'``               | Set the value in a determined position indicated by ``index`` number |
                           +----------------------------+----------------------------------------------------------------------+
                           
-        :param _duplicate: specifies if a node with an existing path overwrite the value or append to it the new one
-        :param _updattr: add???
-        :param _validators:  it specifies the value's validators to set
-        :param _removeNullAttributes: if ``True``, remove the null attributes
+        :param _duplicate: boolean. Specify if a node with an existing path overwrite the value or
+                           append to it the new one
+        :param _updattr: boolean. add???
+        :param _validators: specify the value's validators to set
+        :param _removeNullAttributes: boolean. If ``True``, remove the null attributes
         :param \*\*kwargs: attributes AND/OR validators
         
         Example:
@@ -1722,7 +1715,7 @@ class Bag(GnrObject):
         
         :param name: add???
         :param argstring: add???
-        :param func: add??? Default value is ``pass``"""
+        :param func: add???"""
         setCallable(self, name, argstring=argstring, func=func)
         
     #-------------------- toXml --------------------------------
@@ -2055,11 +2048,11 @@ class Bag(GnrObject):
                 
         return self.walk(f)
         
-    def filter(self,cb,_mode='static',**kwargs):
+    def filter(self, cb, _mode='static', **kwargs):
         """add???
         
         :param cb: add???
-        :param _mode: add???"""
+        """
         result=Bag()
         for node in self.nodes:
             value = node.getValue(mode=_mode)
@@ -2075,7 +2068,7 @@ class Bag(GnrObject):
         """Calls a function for each node of the Bag
         
         :param callback: the function which is called
-        :param _mode: add??? Default value is ``static``"""
+        """
         result = None
         for node in self.nodes:
             result = callback(node, **kwargs)
@@ -2100,8 +2093,8 @@ class Bag(GnrObject):
     def rowchild(self, childname='R_#', _pkey=None, **kwargs):
         """add???
         
-        :param childname: the name of the row
-        :param _pkey: add???."""
+        :param childname: the :ref:`childname` including the row name
+        """
         if not childname:
             childname = 'R_#'
         childname = childname.replace('#', str(len(self)).zfill(8))
@@ -2109,12 +2102,12 @@ class Bag(GnrObject):
         return self.setItem(childname, None, _pkey=_pkey, _attributes=kwargs)
 
     def child(self, tag, childname='*_#', childcontent=None, _parentTag=None, **kwargs):
-        """Set a new item of a tag type into the current structure or return the parent.
+        """Set a new item of a tag type into the current structure or return the parent
         
         :param tag: structure type
         :param name: structure name
-        :param childcontent: add??? 
-        :param _parentTag: add???"""
+        :param childcontent: the html content
+        """
         where = self
         if not childname:
             childname = '*_#'
@@ -2407,8 +2400,7 @@ class BagResolver(object):
         return result
 
     def load(self):
-        """.. deprecated:: 0.7
-        .. note:: This method have to be rewritten"""
+        """.. warning:: deprecated since version 0.7"""
         pass
 
     def init(self):
@@ -2784,8 +2776,7 @@ class BagResolverNew(object):
         return result
         
     def load(self):
-        """.. deprecated:: 0.7
-        .. note:: This method have to be rewritten"""
+        """.. warning:: deprecated since version 0.7"""
         pass
 
     def init(self):

@@ -16,10 +16,7 @@ class PathResolver(object):
         self.gnr_config = gnr_config or self.load_gnr_config()
         
     def load_gnr_config(self):
-        """Load the gnr configuration.
-        
-        :returns: a Bag with the gnr configuration path
-        """
+        """Load the gnr configuration. Return a Bag with the gnr configuration path"""
         home_config_path = expandpath('~/.gnr')
         global_config_path = expandpath(os.path.join('/etc/gnr'))
         if os.path.isdir(home_config_path):
@@ -34,22 +31,18 @@ class PathResolver(object):
     def set_environment(self, config):
         """add???
         
-        :param config: a Bag with the gnr configuration path
-        """
+        :param config: a Bag with the gnr configuration path"""
         for var, value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
             var = var.upper()
             if not os.getenv(var):
                 os.environ[var] = str(value)
                 
     def js_path(self, lib_type='gnr', version='11'):
-        """add???
+        """add??? Return the configuration static js path, with *lib_type* and *version* specified
         
-        :param lib_type: Genro Javascript library == gnr. Default value is ``gnr``
+        :param lib_type: Genro Javascript library == gnr
         :param version: the Genro Javascript library version related to the Dojo one. The number of Dojo
-                        version is written without any dot. E.g: '11' is in place of '1.1'.
-                        Default value is '11'
-        :returns: the configuration static js path, with *lib_type* and *version* specified
-        """
+                        version is written without any dot. E.g: '11' is in place of '1.1'"""
         path = self.gnr_config['gnr.environment_xml.static.js.%s_%s?path' % (lib_type, version)]
         if path:
             path = os.path.join(expandpath(path), 'js')
@@ -60,9 +53,7 @@ class PathResolver(object):
         
         :param entity_name: add???
         :param entity_type: add???
-        :param look_in_projects: add???. Default value is ``True``
-        :returns: add???
-        """
+        :param look_in_projects: add???"""
         entity = self.entities.get(entity_type)
         if not entity:
             raise Exception('Error: entity type %s not known' % entity_type)
@@ -86,50 +77,38 @@ class PathResolver(object):
     def site_name_to_path(self, site_name):
         """add???
         
-        :param site_name: add???
-        :returns: add???
-        """
+        :param site_name: add???"""
         return self.entity_name_to_path(site_name, 'site')
         
     def instance_name_to_path(self, instance_name):
         """add???
         
-        :param instance_name: add???
-        :returns: add???
-        """
+        :param instance_name: add???"""
         return self.entity_name_to_path(instance_name, 'instance')
         
     def package_name_to_path(self, package_name):
         """add???
         
-        :param package_name: add???
-        :returns: add???
-        """
+        :param package_name: add???"""
         return self.entity_name_to_path(package_name, 'package')
         
     def resource_name_to_path(self, resource_name):
         """add???
         
-        :param resource_name: add???
-        :returns: add???
-        """
+        :param resource_name: add???"""
         return self.entity_name_to_path(resource_name, 'resource')
         
     def project_name_to_path(self, project_name):
         """add???
         
-        :param project_name: add???
-        :returns: add???
-        """
+        :param project_name: add???"""
         return self.entity_name_to_path(project_name, 'project', look_in_projects=False)
         
     def project_repository_name_to_path(self, project_repository_name, strict=True):
         """add???
         
         :param project_repository_name: add???
-        :param strict: add???. Default value is ``True``
-        :returns: add???
-        """
+        :param strict: add???"""
         if not strict or 'gnr.environment_xml.projects.%s' % project_repository_name in self.gnr_config:
             path = self.gnr_config['gnr.environment_xml.projects.%s?path' % project_repository_name]
             if path:

@@ -28,18 +28,19 @@
 
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc
     
-    ===================================== ==================== ===================
-    :meth:`child`                         :meth:`framepane`    :meth:`makeRoot`   
-    :meth:`connect`                       :meth:`func`         :meth:`nodeById`   
-    :meth:`css`                           :meth:`getAttach`    :meth:`place`      
-    :meth:`cssrule`                       :meth:`getField`     :meth:`record`     
-    :meth:`data`                          :meth:`htmlChild`    :meth:`remote`     
-    :meth:`formbuilder`                   :meth:`iframe`       :meth:`script`     
-    :meth:`formstore`                     :meth:`js_domNode`   :meth:`styleSheet` 
-    :meth:`formstore_handler`             :meth:`js_form`      :meth:`subscribe`  
-    :meth:`formstore_handler_addcallback` :meth:`js_widget`    :meth:`tooltip`    
-    :meth:`frameform`                     :meth:`macro`       
-    ===================================== ==================== ===================
+    ===================================== ==================== =======================
+    :meth:`checkNodeId`                   :meth:`framepane`    :meth:`nodeById`       
+    :meth:`child`                         :meth:`func`         :meth:`place`          
+    :meth:`connect`                       :meth:`getAttach`    :meth:`record`         
+    :meth:`css`                           :meth:`getField`     :meth:`register_nodeId`
+    :meth:`cssrule`                       :meth:`htmlChild`    :meth:`remote`         
+    :meth:`data`                          :meth:`iframe`       :meth:`script`         
+    :meth:`formbuilder`                   :meth:`js_domNode`   :meth:`styleSheet`     
+    :meth:`formstore`                     :meth:`js_form`      :meth:`subscribe`      
+    :meth:`formstore_handler`             :meth:`js_widget`    :meth:`tooltip`        
+    :meth:`formstore_handler_addcallback` :meth:`macro`                               
+    :meth:`frameform`                     :meth:`makeRoot`                            
+    ===================================== ==================== =======================
     
 .. _gnrwebstruct_gnrdomsrcdojo11:
 
@@ -49,14 +50,17 @@
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11
     
     =========================== ============================= ===================================
-    :meth:`dataController`      :meth:`directoryStore`        :meth:`slotbar_replaceslots`             
-    :meth:`dataFormula`         :meth:`gridStruct`            :meth:`selectionStore`             
-    :meth:`dataRecord`          :meth:`includedview`          :meth:`selectionstore_addcallback` 
-    :meth:`dataRemote`          :meth:`includedview_inframe`  :meth:`slotBar`                    
-    :meth:`dataRpc`             :meth:`includedview_legacy`   :meth:`slotButton`                 
-    :meth:`dataScript`          :meth:`onDbChanges`           :meth:`slotFooter`                 
-    :meth:`dataSelection`       :meth:`paletteGrid`           :meth:`slotToolbar`                
-    :meth:`datarpc_addcallback` :meth:`paletteGroup`          :meth:`tableAnalyzeStore`          
+    :meth:`button`              :meth:`dropdownbutton`        :meth:`radiobutton`                
+    :meth:`checkbox`            :meth:`field`                 :meth:`radiogroup`                 
+    :meth:`checkboxtext`        :meth:`includedview`          :meth:`selectionStore`             
+    :meth:`dataController`      :meth:`gridStruct`            :meth:`selectionstore_addcallback` 
+    :meth:`dataFormula`         :meth:`includedview`          :meth:`slotBar`                    
+    :meth:`dataRecord`          :meth:`includedview_inframe`  :meth:`slotButton`                 
+    :meth:`dataRemote`          :meth:`includedview_legacy`   :meth:`slotFooter`                 
+    :meth:`dataRpc`             :meth:`menuline`              :meth:`slotToolbar`                
+    :meth:`dataScript`          :meth:`onDbChanges`           :meth:`slotbar_replaceslots`       
+    :meth:`dataSelection`       :meth:`paletteGrid`           :meth:`tableAnalyzeStore`          
+    :meth:`datarpc_addcallback` :meth:`paletteGroup`          :meth:`togglebutton`               
     :meth:`datarpc_adderrback`  :meth:`palettePane`           :meth:`virtualSelectionStore`      
     :meth:`directoryStore`      :meth:`paletteTree`           :meth:`wdgAttributesFromColumn`    
     =========================== ============================= ===================================

@@ -17,7 +17,7 @@ FrameIndex
                 
                     <gnrcore:adm/>
                     
-              * It is an :ref:`components_active`. Its :ref:`webpages_py_requires` are::
+              * It is an :ref:`components_active`. Its :ref:`webpages_py_requires` is::
                 
                   py_requires='frameindex'
                   
@@ -327,7 +327,7 @@ chat plug-in
 
     This frame includes the GUI of the :ref:`chat` component
     
-    .. image:: ../../_images/components/frameindex/fi_left_chat.png
+    add??? "fi_left_chat.png"
     
 .. _fi_iframe:
 
@@ -346,7 +346,7 @@ bottom bar
     The bottom bar has got:
     
     * (point 1) A link that opens the :ref:`fi_userpreference` dialog; the link is
-      represented by the name of the logged people or by the :ref:`package <packages_index>`
+      represented by the name of the logged people or by the :ref:`package <packages>`
       name (in the image ``invoice`` is the package name)
     * (point 2) A link that allow the user to disconnect himself from the application (in the
       image the open door with the green arrow)

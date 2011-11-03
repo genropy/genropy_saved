@@ -26,28 +26,25 @@ def mkdir(path, privileges=0777):
     """Create a directory named *path* with numeric mode *privileges*.
     
     :param path: the name of the directory
-    :param privileges: the current umask value is first masked out. Default value is ``0777`` (octal)
-    """
+    :param privileges: the current umask value is first masked out.
+                       Default value is ``0777`` (octal)"""
     if path and not os.path.isdir(path):
         head, tail = os.path.split(path)
         mkdir(head, privileges)
         os.mkdir(path, privileges)
         
 def expandpath(path):
-    """Expand user home directory (~) and environment variables.
+    """Expand user home directory (~) and environment variables. Return the
+    expanded path
     
-    :param path: the path to expand
-    :returns: the path expanded
-    """
+    :param path: the path to expand"""
     return os.path.expanduser(os.path.expandvars(path))
     
 def listdirs(path, invisible_files=False):
     """Return a list of all the files contained in a path and its descendant
     
     :param path: the path you want to analyze
-    :param invisible_files: boolean. If ``True``, add invisible files to the returned list. Default value is ``False``
-    :returns: a list of all the files contained in a path and its descendant
-    """
+    :param invisible_files: boolean. If ``True``, add invisible files to the returned list"""
     
     def callb(files, top, names):
         for name in names:
@@ -69,9 +66,7 @@ def resolvegenropypath(path):
        of genropy where sometimes it is installed in the user path and sometimes
        at root (i.e. /genropy/... or ~/genropy/.), so that file path given within
        Genropy will be resolved to be valid if possible and we do not have to edit
-       for example our import files.
-       Of course I expect it to be rejected and/or refactored
-       """
+       for example our import files. Of course I expect it to be rejected and/or refactored"""
        
     if path.find('~') == 0:
         path = expandpath(path)

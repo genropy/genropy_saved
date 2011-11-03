@@ -8,7 +8,7 @@ tooltip
     
     .. note:: **validity** - the *tooltip* attribute is supported by every :ref:`webpage element
               <webpage_elements_index>`
-    
+              
     * :ref:`tooltip_def`
     * :ref:`tooltip_examples`:
     
@@ -21,6 +21,8 @@ description
 ===========
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc.tooltip
+    
+    .. image:: ../../_images/commons/attributes/tooltip.png
     
     You can:
     

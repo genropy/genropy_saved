@@ -28,15 +28,11 @@ section index
     auth
     clipboard
     datastore
-    grid
     languages
     login
-    palette
-    scripts/index
-    struct
+    ../scripts/index
     trigger
     user_interface
-    viewform
     webpage_creation
     workdate
     wsgi

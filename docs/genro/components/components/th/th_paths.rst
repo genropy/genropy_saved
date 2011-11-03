@@ -6,21 +6,21 @@ TableHandler: paths
     
     *Last page update*: |today|
     
-    * :ref:`th_map`:
+    * :ref:`th_map_structure`
+    * :ref:`th_map_data`
     
-        * :ref:`th_map_structure`
-        * :ref:`th_map_data`
-        
-        * :ref:`th_map_selectedpage`
-        * :ref:`th_map_form`
-        * :ref:`th_map_view`
+    **Levels**:
+    
+    * :ref:`th_map_selectedpage`
+    * :ref:`th_map_form`
+    * :ref:`th_map_view`
         
 .. _th_map_intro:
 
 TableHandler: paths
 ===================
 
-    In this section you will learn about the path structure of the TableHandler
+    In this section you will learn about the path structure of the TableHandler.
     
     As any other object in Genro, the TableHandler gathers all the informations through
     a :ref:`bag` structure, that looks like a hierarchical and nested structure. Also,
@@ -75,7 +75,7 @@ TableHandler data levels
         
     where:
     
-    * ``packageName`` is the name of your :ref:`package <packages_index>`
+    * ``packageName`` is the name of your :ref:`package <packages>`
     * ``tableName`` is the name of your :ref:`table`
     
     .. image:: ../../../_images/components/th/path_data.png
@@ -116,16 +116,15 @@ form - structure levels
     * ``top``: it includes the title of the view page [#]_ and the :ref:`workdate`.
     
       (The ``top`` level has a ``bar`` sublevel: this sublevel contains
-        some query tools and some buttons to add or delete records.)
+      some query tools and some buttons to add or delete records)
     * ``bottom``: it is thought to give to user messages (e.g: 'Save OK').
     
-      (The ``bottom`` level have an additional ``bar`` level.)
+      (The ``bottom`` level have an additional ``bar`` level)
     * ``left``: it allows the user to perform some useful action (e.g: to configurate
-        user view; e.g: to export query results in a ``.xls`` file).
-    * ``right``: it is empty.
-    * ``center``: it is the space in which you build a GUI to let the user create and
-      modify records. We'll come back later to it, in the :ref:`th_form_center_path`
-      section.
+      user view; e.g: to export query results in a ``.xls`` file)
+    * ``right``: it is empty
+    * ``center``: it is the space in which you build a :ref:`form` to let the user
+      handle data entries
       
 .. _th_map_form_data:
 
@@ -157,7 +156,7 @@ form - data levels
       * **valid**: boolean, string. True if every :ref:`validation <validations>` is satisfied
       
     * **handler**: add???
-    * **record**: this level contains all the :ref:`columns <table_column>` of your :ref:`table`
+    * **record**: this level contains all the :ref:`columns <column>` of your :ref:`table`
       
       At the ``th/form/record`` level, the path of the data is::
         
@@ -169,8 +168,9 @@ form - data levels
     * **pkey**: this level contains:
     
         * the ``*newrecord*`` string - if no record is selected
-        * the string with the primary key of the selected record - if a record is selected
-        
+        * the string with the :ref:`primary key <pkey>` of the selected record - if a
+          record is selected
+          
 .. _th_map_view:
 
 view level
@@ -201,15 +201,11 @@ view level
 selectedPage level
 ------------------
 
-    The selectedPage path exists only if you use the :ref:`th_stack`.
+    The selectedPage path exists only if you use the :ref:`th_stack`. It contains:
     
-    The selectedPage contains:
-    
-    * *form*, if the selected page is the :ref:`view_data`
-    * *view*, if the selected page is the :ref:`data_entry`
+    * *form*, if user is on the :ref:`view_data`
+    * *view*, if user is on the :ref:`data_entry`
     
 **Footnotes**:
 
-.. [#] The title of the view page is taken from the :ref:`name_long` of the :ref:`table` to which the current webpage refers to.
-.. [#] The :ref:`formbuilder` allows to create in a simple way a :ref:`form`. Follow the links for more information.
-.. [#] We remember you that the name of the ``th_webpage`` can be the one you prefer, but as a convention we suggest you to call it with ``name of table`` + ``_page`` suffix.
+.. [#] The title of the view page is taken from the :ref:`name_long` of the :ref:`table` to which the current webpage refers to

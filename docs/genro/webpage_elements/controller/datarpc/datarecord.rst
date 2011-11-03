@@ -6,7 +6,7 @@ dataRecord
     
     *Last page update*: |today|
     
-    **Type**: :ref:`server-side controller <controllers_server>`
+    .. note:: **Type**: :ref:`server-side controller <controllers_server>`
     
     .. warning:: to be written!
     
@@ -22,7 +22,6 @@ Definition
 ==========
 
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.dataRecord
-        
     
 .. _datarecord_examples:
 

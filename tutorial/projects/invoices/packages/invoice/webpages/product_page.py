@@ -8,7 +8,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 class GnrCustomWebPage(object):
     maintable = 'invoice.product'
     py_requires = 'public:TableHandlerMain'
-    css_icons = 'retina/green'
+    #css_icons = 'retina/green'
     
     def th_form(self, form, **kwargs):
         tc = form.center.tabContainer(margin='5px', **kwargs)
@@ -23,10 +23,7 @@ class GnrCustomWebPage(object):
         fb.field('price',tag='currencyTextbox',width='7em')
         fb.field('product_type',hasDownArrow=True)
         fb.field('full_description',tag='simpleTextArea',width='100%',height='8ex',colspan=2,lbl_vertical_align='top')
-        pane.dataFormula("form.title", "code+'-'+description", code="^.code", description="^.description")
-        pane.dataFormula(".full_description", "description", description='^.description',
-                         full_description='=.full_description', _if='!full_description')
-                         
+        
     #def invoicesPage(self, bc):
     #    topbc = bc.borderContainer(region='top', height='50%', splitter=True)
     #    centerbc = bc.borderContainer(region='center')

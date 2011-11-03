@@ -65,7 +65,7 @@ creating a relation
                 tbl = pkg.table('exam',pkey='id',name_long='Exam',name_plural='Exams')
                 
     2. then you have to create a :ref:`table_relation_column`; a relation column is a simple
-       :ref:`table_column` with the :ref:`table_relation` added:
+       :ref:`column` with the :ref:`table_relation` added:
        
         .. image:: ../_images/sql/relation_column.png
         
@@ -153,7 +153,7 @@ inverse relation
         * ``@`` is the char used in Genro to begin a *relation* (that is, a :ref:`relation`, an
           :ref:`inverse_relation` or a :ref:`relation_path`. For more information check the
           :ref:`at_char` page)
-        * ``packageName`` is the name of the :ref:`package <packages_index>`
+        * ``packageName`` is the name of the :ref:`package <packages>`
         * ``tableName`` is the name of the :ref:`table`
         * ``relationColumnName`` is the name of the :ref:`table_relation_column`
           
@@ -207,10 +207,12 @@ relation_name
 relation path
 =============
 
-    **definition**: the *relation path* is a set of two or more :ref:`relations <relation>`
-    and :ref:`inverse relations <inverse_relation>`.
+    **definition**:
     
-    Check the :ref:`path_examples` section for more information.
+        The *relation path* is a set of two or more :ref:`relations <relation>`
+        and :ref:`inverse relations <inverse_relation>`.
+        
+    Check the :ref:`path_examples` section for more information
             
 .. _path_examples:
 
@@ -266,7 +268,7 @@ college example
     * line 6 - create the table, specifying its name (``student``) and its primary key (the :ref:`pkey`)
     * line 7 - introduce the :ref:`sysfields` method that allows to create the id column
       (it does other things, too, but they are not important in this example)
-    * line 8 - create the ``Name`` :ref:`table_column`, including the students' name
+    * line 8 - create the ``Name`` :ref:`column`, including the students' name
     
     You can find more information on the creation of a table in the :ref:`table` page.
     
@@ -332,7 +334,7 @@ college example
         * the :ref:`at_char` is the special character used to specify any relation in Genro
           (relations, inverse relations and relation paths)
         * ``exam_id`` is the name of the :ref:`table_relation_column` from the ER table to the EX table
-        * ``name`` is the name of the :ref:`table_column` of the EX table we look for
+        * ``name`` is the name of the :ref:`column` of the EX table we look for
         
       * for the *professor* column::
             
@@ -353,7 +355,7 @@ college example
         * the :ref:`at_char` is the special character used to specify any relation in Genro
           (relations, inverse relations and relation paths)
         * ``stud_id`` is the name of the :ref:`table_relation_column` from the ER table to the S table
-        * ``name`` is the name of the :ref:`table_column` of the S table we look for
+        * ``name`` is the name of the :ref:`column` of the S table we look for
         
     * **inverse relations - from EX table to ER table**:
       
@@ -368,7 +370,7 @@ college example
         * the :ref:`at_char` is the special character used to specify any relation in Genro
           (relations, inverse relations and relation paths)
         * ``ex_registrations`` is the name of the :ref:`relation_name` of the ER table
-        * ``date`` is the name of the :ref:`table_column` of the ER table we look for
+        * ``date`` is the name of the :ref:`column` of the ER table we look for
         
       * **inverse relations - from S table to ER table**:
       
@@ -383,7 +385,7 @@ college example
         * the :ref:`at_char` is the special character used to specify any relation in Genro
           (relations, inverse relations and relation paths)
         * ``stud_registrations`` is the name of the :ref:`relation_name` of the ER table
-        * ``date`` is the name of the :ref:`table_column` of the ER table we look for
+        * ``date`` is the name of the :ref:`column` of the ER table we look for
         
     * **relation paths (both direct and inverse relations) - from EX table to S table**:
       

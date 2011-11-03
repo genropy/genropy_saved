@@ -40,8 +40,6 @@ Common attributes
                           from all the entries (so, the *limit* attribute                                                                     
                           is overridden.                                                                                                      
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *hidden*             Hide the widget.                                     ``False``                :ref:`hidden` example           
-    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
      *ignoreCase*         If True, allow the user to ignore the case           ``True``                                                       
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
      *label*              You can't use the *label* attribute; if you          ``None``                 :ref:`lbl_formbuilder` example        
@@ -59,11 +57,6 @@ Common attributes
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
      *selected*           You can add different parameters with the sintax:    ``None``                 :ref:`db_selected` example            
                           ``selected_nameOfATableColumn='datapathFolder'``.                                                                   
-    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *value*              Set a path for widget's values.                      ``None``                 :ref:`datapath` explanation page
-    -------------------- --------------------------------------------------- -------------------------- --------------------------------------
-     *visible*            if False, hide the widget (but keep a place in       ``True``                 :ref:`visible` explanation page 
-                          the :ref:`datastore` for it).                                                                                 
     ==================== =================================================== ========================== ======================================
     
 .. _db_examples:

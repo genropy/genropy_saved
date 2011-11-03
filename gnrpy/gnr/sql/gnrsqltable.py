@@ -160,7 +160,7 @@ class SqlTable(GnrObject):
     dbroot = db
         
     def column(self, name):
-        """Returns a :ref:`table_column` object.
+        """Returns a :ref:`column` object.
         
         :param name: A column's name or a :ref:`relation <relations>` starting from
                      the current :ref:`table`. (eg. ``@director_id.name``)"""
@@ -218,27 +218,27 @@ class SqlTable(GnrObject):
         
     @property
     def pkey(self):
-        """Return the DbColumnObj object"""
+        """Return the pkey DbColumnObj object"""
         return self.model.pkey
         
     @property
     def lastTS(self):
-        """Return the DbColumnObj object"""
+        """Return the lastTS DbColumnObj object"""
         return self.model.lastTS
         
     @property
     def logicalDeletionField(self):
-        """Return the DbColumnObj object"""
+        """Return the logicalDeletionField DbColumnObj object"""
         return self.model.logicalDeletionField
 
     @property
     def draftField(self):
-        """Return the DbColumnObj object"""
+        """Return the draftField DbColumnObj object"""
         return self.model.draftField
         
     @property
     def noChangeMerge(self):
-        """Return the DbColumnObj object"""
+        """Return the noChangeMerge DbColumnObj object"""
         return self.model.noChangeMerge
         
     @property
@@ -248,17 +248,17 @@ class SqlTable(GnrObject):
         
     @property
     def columns(self):
-        """Returns the DbColumnListObj object"""
+        """Returns the columns DbColumnListObj object"""
         return self.model.columns
         
     @property
     def relations(self):
-        """Returns the DbColumnListObj object"""
+        """Returns the relations DbColumnListObj object"""
         return self.model.relations
         
     @property
     def indexes(self):
-        """Returns the DbIndexListObj object"""
+        """Returns the indexes DbIndexListObj object"""
         return self.model.indexes
         
     @property
@@ -450,14 +450,15 @@ class SqlTable(GnrObject):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
         
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
                          :ref:`sql_order_by` section
         :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
-        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                      information, check the :ref:`sql_limit` section
         :param offset: corresponding to the sql "OFFSET" operator
         :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
         :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
@@ -482,11 +483,11 @@ class SqlTable(GnrObject):
         return query
             
     def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, **kwargs):
-        """add???
+        """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
-        :param updater: add???
-        :param _wrapper: add???
-        :param _wrapperKwargs: add???"""
+        :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
+                        <batchupdate>`) or a method
+        :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter"""
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
@@ -502,7 +503,7 @@ class SqlTable(GnrObject):
         """add???
         
         :param pkey: the record :ref:`primary key <pkey>`
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
@@ -794,7 +795,8 @@ class SqlTable(GnrObject):
                     getattr(self, 'trigger_%s' % trgFunc)(record, fldname)
                 
     def newPkeyValue(self):
-        """Get a new unique id to use as primary key on the current table"""
+        """Get a new unique id to use as :ref:`primary key <pkey>`
+        on the current :ref:`database table <table>`"""
         pkey = self.model.pkey
         if self.model.column(pkey).dtype in ('L', 'I', 'R'):
             lastid = self.query(columns='max($%s)' % pkey, group_by='*').fetch()[0] or [0]
@@ -818,45 +820,88 @@ class SqlTable(GnrObject):
         
         #---------- method to implement via mixin
     def onIniting(self):
+        """Hook method called on... add???"""
         pass
         
     def onInited(self):
+        """Hook method called on... add???"""
         pass
         
     def trigger_onInserting(self, record):
+        """Hook method. Allow to act on *record* during the record insertion
+        
+        :param record: the record"""
         #self.trigger_onUpdating(record) Commented out Miki 2009/02/24
         pass
         
     def trigger_onInserted(self, record):
+        """Hook method. Allow to act on *record* after the record insertion
+        
+        :param record: the record"""
         #self.trigger_onUpdated(record) Commented out Miki 2009/02/24
         pass
         
     def trigger_onUpdating(self, record, old_record=None):
+        """Hook method. Allow to act on *record* and *old_record*
+        during the record update
+        
+        :param record: the new record
+        :param old_record: the old record to be substituted by the new one"""
         pass
         
     def trigger_onUpdated(self, record, old_record=None):
+        """Hook method. Allow to act on *record* and *old_record*
+        after the record update
+        
+        :param record: the new record
+        :param old_record: the old record to be substituted by the new one"""
         pass
         
     def trigger_onDeleting(self, record):
+        """Hook method. Allow to act on *record* during the record delete
+        
+        :param record: the new record"""
         pass
         
     def trigger_onDeleted(self, record):
+        """Hook method. Allow to act on *record* after the record delete
+        
+        :param record: the new record"""
         pass
         
     def protect_update(self, record, old_record=None):
+        """add???
+        
+        :param record: add???
+        :param old_record: add???"""
         pass
         
     def protect_delete(self, record):
+        """add???
+        
+        :param record: add???"""
         pass
         
     def protect_validate(self, record, old_record=None):
+        """add???
+        
+        :param record: add???
+        :param old_record: add???"""
         pass
         
-    def diagnostic_errors(self,record,old_record=None):
+    def diagnostic_errors(self, record, old_record=None):
+        """add???
+        
+        :param record: add???
+        :param old_record: add???"""
         print 'You should override for diagnostic'
         return
     
-    def diagnostic_warnings(self,record,old_record=None):
+    def diagnostic_warnings(self, record, old_record=None):
+        """add???
+        
+        :param record: add???
+        :param old_record: add???"""
         print 'You should override for diagnostic'
         return
     
@@ -883,7 +928,7 @@ class SqlTable(GnrObject):
     def columnsFromString(self, columns=None):
         """add???
         
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section"""
         result = []
@@ -901,7 +946,7 @@ class SqlTable(GnrObject):
     def getQueryFields(self, columns=None, captioncolumns=None):
         """add???
         
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param captioncolumns: add???"""

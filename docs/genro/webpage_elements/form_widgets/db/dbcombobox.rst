@@ -6,11 +6,16 @@ dbCombobox
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Genro form widget <genro_form_widgets>`
-    
+    .. note:: dbCombobox features:
+              
+              * **Type**: :ref:`Genro form widget <genro_form_widgets>`
+              * **Common attributes**: you can check:
+
+                  * the :ref:`widget common attributes section <attributes_index>`
+                  * the :ref:`dbSelect and dbCombobox common attributes section <db_attributes>`
+                  
     * :ref:`dbcombobox_def`
     * :ref:`dbcombobox_examples`
-    * :ref:`dbcombobox_attributes`
 
 .. _dbcombobox_def:
 
@@ -28,13 +33,6 @@ Definition and Description
     
     To specify the table related to the dbCombobox you have to use the mandatory :ref:`dbtable` attribute.
     
-.. _dbcombobox_attributes:
-
-dbCombobox attributes
-=====================
-
-    For the list of dbCombobox attributes, please check :ref:`db_attributes`.
-
 .. _dbcombobox_examples:
 
 Examples

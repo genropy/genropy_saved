@@ -3,7 +3,7 @@ import os
 from gnr.core.gnrstring import toText
 
 class XlsWriter(object):
-    """docstring for XlsWriter"""
+    """add???"""
     def __init__(self, columns=None, coltypes=None, headers=None, filepath=None,
                  font='Times New Roman', format_float='#,##0.00', format_int='#,##0', locale=None):
         self.headers = headers
@@ -39,29 +39,24 @@ class XlsWriter(object):
     def rowGetter(self, item):
         """add???
         
-        :param item: add???
-        :returns: add???
-        """
+        :param item: add???"""
         return dict(item)
         
     def writeHeaders(self):
-        """add???
-        """
+        """add???"""
         for c, header in enumerate(self.headers):
             self.sheet.write(0, c, header, self.hstyle)
             self.colsizes[c] = max(self.colsizes.get(c, 0), self.fitwidth(header))
         self.current_row = 0
         
     def workbookSave(self):
-        """add???
-        """
+        """add???"""
         self.workbook.save(self.filepath)
         
     def writeRow(self, row):
         """add???
         
-        :param row: add???
-        """
+        :param row: add???"""
         self.current_row += 1
         for c, col in enumerate(self.columns):
             value = row.get(col)
@@ -81,9 +76,7 @@ class XlsWriter(object):
         """Try to autofit Arial 10
         
         :param data: add???
-        :param bold: add???. Default value is ``False``
-        :returns: add???
-        """
+        :param bold: add???"""
         charwidths = {
             '0': 262.637, '1': 262.637, '2': 262.637, '3': 262.637, '4': 262.637, '5': 262.637, '6': 262.637,
             '7': 262.637, '8': 262.637, '9': 262.637, 'a': 262.637, 'b': 262.637, 'c': 262.637, 'd': 262.637,

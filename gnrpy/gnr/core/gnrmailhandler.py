@@ -40,10 +40,9 @@ mime_mapping = dict(application=MIMEApplication,
 
 def clean_and_unescape(text):
     """Removes HTML or XML character references and entities from a text string.
+    Return the plain text, as a Unicode string, if necessary
     
-    :param text: The HTML (or XML) source text.
-    :returns: The plain text, as a Unicode string, if necessary."""
-    
+    :param text: The HTML (or XML) source text."""
     def fixup(m):
         text = m.group(0)
         if text[:2] == "&#":
@@ -264,19 +263,19 @@ class MailHandler(GnrBaseService):
         :param user: the username
         :param password: the username's password
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used
-        :param tls: allow to communicate with an smtp server. Default value is ``False``
+        :param tls: allow to communicate with an smtp server.
+                    
                     You may choose three ways:
                     
                     #. no encryption
                     #. ssl -> all data is encrypted on a ssl layer
                     #. tls -> server and client begin communitation in a unsecure way and after a starttls
                        command they start to encrypt data (this is the way you use to connect to gmail smtp)
-        :param html: boolean. If ``True``, html tags can be used in the body of the email. Appropriate headers are attached.
-                     The default value is ``False``.
-        :param charset: a different charser may be defined by its standard name.
-                        Default value is ``utf-8``.
+        :param html: boolean. If ``True``, html tags can be used in the body of the email.
+                     Appropriate headers are attached
+        :param charset: a different charser may be defined by its standard name
         :param async: boolean. If ``True``, then a separate process is spawned to send the email and control
-                      is returned immediately to the calling function. The default value is ``False``."""
+                      is returned immediately to the calling function"""
         def get_templated(field):
             value = datasource.getItem('_meta_.%s' % field)
             if not value:

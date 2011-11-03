@@ -6,8 +6,11 @@ framePane
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Genro layout widget <genro_layout>`
+    .. note:: framePane features:
     
+              * **Type**: :ref:`Genro layout widget <genro_layout>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`frame_def`
     * :ref:`frame_attributes`:
     
@@ -50,8 +53,8 @@ design
 frameCode
 ---------
         
-    MANDATORY. Autocreate a :ref:`nodeid` for the framePane AND autocreate hierarchic :ref:`nodeIds
-    <nodeid>` for every framePane child.
+    MANDATORY. Create a :ref:`nodeid` for the framePane AND create hierarchic :ref:`nodeIds
+    <nodeid>` for every framePane child
       
     **Example**::
       

@@ -1,8 +1,8 @@
 .. _library_btcbase:
 
-=========================================
-:mod:`gnr.web.batch.btcbase` - base batch
-=========================================
+===========================================
+:mod:`gnr.web.batch.btcbase` - base batches
+===========================================
     
     *Last page update*: |today|
     
@@ -55,14 +55,14 @@ BaseResourceBatch - webpage variables
 batch_cancellable
 -----------------
 
-    add???. Default value is ``True``
+    If ``True``, allow to stop the batch during its execution
     
 .. _batch_delay:
 
 batch_delay
 -----------
     
-    A string with the time milliseconds start delay. Default value is ``0.5``
+    A string with the time milliseconds start delay
     
 .. _batch_note:
 
@@ -74,14 +74,12 @@ batch_note
     In the :ref:`prints <print>` the "batch_title" adds a default note to the
     :ref:`print_setting_dialog_notes` of the :ref:`print_setting_dialog`
     
-    Default value is ``None``
-    
 .. _batch_prefix:
 
 batch_prefix
 ------------
     
-    A string with a prefix for the batch name. Default value is ``BB``
+    A string with a prefix for the batch name.
       
       **Example**::
       
@@ -92,14 +90,14 @@ batch_prefix
 batch_steps
 -----------
 
-    add???. Default value is ``None``
+    add???
     
 .. _batch_thermo_lines:
 
 batch_thermo_lines
 ------------------
 
-    add???. Default value is ``'batch_steps,batch_main,ts_loop'``
+    add???
     
 .. _batch_title:
 
@@ -110,28 +108,26 @@ batch_title
     
     In the :ref:`prints <print>` the "batch_title" is the title of the :ref:`print_setting_dialog`
     
-    Default value is ``My Batch Title``
-    
 .. _base_dialog_height:
 
 dialog_height
 -------------
 
-    Define the height of the batch dialog. Default value is ``200px``
+    Define the height of the batch dialog
     
 .. _base_dialog_width:
 
 dialog_width
 ------------
 
-    Define the width of the batch dialog. Default value is ``300px``
+    Define the width of the batch dialog
     
 .. _virtual_columns:
 
 virtual_columns
 ---------------
 
-    add???. Default value is ``None``
+    add???
     
 .. _btcbase_classes:
 

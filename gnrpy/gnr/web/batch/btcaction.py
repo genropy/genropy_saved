@@ -9,4 +9,5 @@ Copyright (c) 2011 Softwell. All rights reserved.
 from gnr.web.batch.btcbase import BaseResourceBatch
 
 class BaseResourceAction(BaseResourceBatch):
+    """The base class for :ref:`action batches <action_batch>`"""
     pass

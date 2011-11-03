@@ -6,7 +6,7 @@ data
     
     *Last page update*: |today|
     
-    **Type**: :ref:`server-side controller <controllers_server>`
+    .. note:: **Type**: :ref:`server-side controller <controllers_server>`
     
     * :ref:`data_def`
     * :ref:`data_examples`: 

@@ -23,7 +23,7 @@ class ViewFromInvoice(BaseComponent):
 class FormFromInvoice(BaseComponent):
     def th_form(self, form):
         pane = form.record.contentPane()
-        fb = pane.formbuilder()
+        fb = pane.formbuilder(fld_width='18em')
         fb.field('product_id',selected_price='.price')
         fb.field('quantity')
         fb.field('price',readOnly=True)

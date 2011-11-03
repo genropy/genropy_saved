@@ -15,4 +15,8 @@ index of components
     linkerField
     periodcombo
     selectionbrowser
+    dialogs/index
     th/index
+    h_th/index
+    tpleditor/index
+    

@@ -13,17 +13,29 @@ class GnrCustomWebPage(object):
     
     def test_1_base(self, pane):
         """Basic"""
-        menudiv = pane.div(height='50px',width='50px',background='teal')
-        menu = menudiv.menu(action='alert($1.foo)',modifiers='*')
-        menu.menuline('abc',foo=35)
-        menu.menuline('xyz',foo=60,disabled=True)
-        menu.menuline('alpha',action='alert("I am different")',checked=True)
+        ddb = pane.dropdownbutton('Menu')
+        menu = ddb.menu(action='alert($1.foo)',modifiers='*')
+        menu.menuline('Save',foo='Saved!')
+        menu.menuline('Save As...',foo=60)
+        menu.menuline('Load',action='alert("I\'m different")')
         menu.menuline('-')
         submenu = menu.menuline('Sub').menu(action='alert("sub "+$1.bar)')
         submenu.menuline('cat',bar=35)
         submenu.menuline('dog',bar=60)
         
-    def test_2_bag(self, pane):
+    def test_2_base(self, pane):
+        """Basic 2"""
+        menudiv = pane.div('-MENU-',height='20px',width='50px',background='teal')
+        menu = menudiv.menu(action='alert($1.foo)',modifiers='*')
+        menu.menuline('abc',foo=35)
+        menu.menuline('xyz',foo=60,disabled=True)
+        menu.menuline('alpha',action='alert("I\'m different")',checked=True)
+        menu.menuline('-')
+        submenu = menu.menuline('Sub').menu(action='alert("sub "+$1.bar)')
+        submenu.menuline('cat',bar=35)
+        submenu.menuline('dog',bar=60)
+        
+    def test_3_bag(self, pane):
         """From Bag"""
         menudiv = pane.div(height='50px',width='50px',background='lime')
         ddb = pane.dropDownButton('test')
@@ -36,7 +48,7 @@ class GnrCustomWebPage(object):
                     action='this.setRelativeData(".menudata.r6",12,{"code":"PP","caption":"Palau port"})',
                     disabled='^.disabled')
                     
-    def test_3_resolver(self, pane):
+    def test_4_resolver(self, pane):
         """From Resolver"""
         ddm = pane.div(height='50px', width='50px', background='lime')
         menu = ddm.menu(action='alert($1.code)', modifiers='*', storepath='.menudata', _class='smallmenu',

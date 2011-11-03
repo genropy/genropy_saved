@@ -11,24 +11,58 @@ components list
     the right component for your task (and if you don't find it, you can always create your own one,
     following the walkthrough of the :ref:`components_writing` page)
     
-    **Dialogs**:
+    They are divided in the following categories:
     
-    * iframedialog
-    * simpledialog
+    * :ref:`clist_chat`: components for chat management
+    * :ref:`clist_dialog`: pre-built set of dialogs
+    * :ref:`clist_index`: index page management 
+    * :ref:`clist_th`: data management
+    * :ref:`clist_tpleditors`: add???
+    * :ref:`clist_BOH`: add???
     
-    **Index pages**: management of the index page of your project
+.. _clist_chat:
     
-    * :ref:`frameindex`: it allows to handle your :ref:`webpages <webpage>` as iframes of the main
-      page (for more information on the login page, check the :ref:`methods_loginUrl` section)
-      
-    **View/Form handler**: a preconceived interface with a View class for the view of the inserted
-    records and a Form class for the records insertion.
+Chat components
+---------------
+    
+    Genro components for chat management
     
     * the :ref:`chat` component
-    * :ref:`includedview`: **deprecated** since version *0.7* and replaced by the :ref:`th`
-    * the :ref:`th`: add???
     
-      This component is structured in many components:
+.. _clist_dialog:
+    
+Dialog components
+-----------------
+    
+    Genro pre-built set of dialogs
+    
+    * :ref:`simpledialog`: add???
+    * :ref:`formdialog`: add???
+    * :ref:`iframedialog`: add???
+    * :ref:`hiddentooltipdialog`: *deprecated* since version *0.7*
+    * :ref:`confirmdialog`: *deprecated* since version *0.7*
+    
+.. _clist_index:
+
+Index page components
+---------------------
+    
+    Management of the index page of a :ref:`project`
+    
+    * :ref:`frameindex`: allow to load :ref:`webpages <webpage>` as iframes
+    
+.. _clist_th:
+    
+Table handlers
+--------------
+    
+    A preconceived interface with a View class for the view of
+    the inserted records and a Form class for the records insertion
+    
+    * :ref:`includedview`: *deprecated* since version *0.7* and replaced by the :ref:`th`
+    * the :ref:`th`: handle data visualization and data entry component with custom GUI
+      
+      The TableHandler is structured in many components:
       
       * :ref:`th_border`: show the View class and the Form class in a single page
       * :ref:`th_dialog`: show the Form class as a dialog of the page with the View class
@@ -43,6 +77,22 @@ components list
       * :ref:`th_linker_base`: add???
       * :ref:`th_linkerbar`: add???
       * :ref:`th_linkerbox`: add???
-      * :ref:`includedgrid`: a grid that allow the inline editing (so the insertion or the modify of
-        records is handled inside the grid)
+      * :ref:`th_ig`: a :ref:`grid` that allows the inline editing (so, the insertion
+        or the modify of records is handled inside the grid)
+        
+.. _clist_tpleditors:
+
+Template Editors
+----------------
+
+    add???
+    
+    * :ref:`tpleditor`
+    
+.. _clist_BOH:
+
+boh
+---
+    
+    * the :ref:`h_th`: add???
         

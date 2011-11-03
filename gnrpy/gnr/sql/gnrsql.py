@@ -120,15 +120,11 @@ class GnrSqlDb(GnrObject):
         
     @property
     def dbstores(self):
-        """add???
-        
-        :returns: add???"""
+        """add???"""
         return self.stores_handler.dbstores
         
     def createModel(self):
-        """add???
-        
-        :returns: add???"""
+        """add???"""
         from gnr.sql.gnrsqlmodel import DbModel
         
         return DbModel(self)
@@ -141,8 +137,7 @@ class GnrSqlDb(GnrObject):
     def packageSrc(self, name):
         """Return a DbModelSrc corresponding to the required package
         
-        :param name: the package name
-        :returns: add???"""
+        :param name: the :ref:`package <packages>` name"""
         return self.model.src.package(name)
         
     def packageMixin(self, name, obj):
@@ -156,8 +151,7 @@ class GnrSqlDb(GnrObject):
         """Register an object or a class to mixin to a table.
         
         :param tblpath: the path of the table
-        :param obj: a class or an object to mixin
-        """
+        :param obj: a class or an object to mixin"""
         self.model.tableMixin(tblpath, obj)
         
     def loadModel(self, source=None):
@@ -182,7 +176,7 @@ class GnrSqlDb(GnrObject):
     def checkDb(self, applyChanges=False):
         """Check if the database structure is compatible with the current model
         
-        :param applyChanges: boolean. If ``True``, all the changes are executed and committed. Default value is ``False``"""
+        :param applyChanges: boolean. If ``True``, all the changes are executed and committed"""
         return self.model.check(applyChanges=applyChanges)
         
     def closeConnection(self):
@@ -299,8 +293,7 @@ class GnrSqlDb(GnrObject):
         :param sqlargs: optional sql arguments
         :param cursor: an sql cursor
         :param cursorname: the name of the cursor
-        :param autocommit: if ``True``, at the end of the execution runs the :meth:`commit()` method.
-                           Default value is ``False``
+        :param autocommit: if ``True``, at the end of the execution runs the :meth:`commit()` method
         :param dbtable: the :ref:`database table <table>`"""
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
@@ -449,7 +442,7 @@ class GnrSqlDb(GnrObject):
     def package(self, pkg):
         """Return a package object
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         return self.model.package(pkg)
             
     def _get_packages(self):
@@ -460,10 +453,9 @@ class GnrSqlDb(GnrObject):
     def tableTreeBag(self, packages=None, omit=None, tabletype=None):
         """add???
         
-        :param packages: add???. 
-        :param omit: add???. 
-        :param tabletype: add???. 
-        :returns: add???"""
+        :param packages: add???
+        :param omit: add???
+        :param tabletype: add???"""
         result = Bag()
         for pkg, pkgobj in self.packages.items():
             if (pkg in packages and omit) or (not pkg in packages and not omit):
@@ -485,20 +477,21 @@ class GnrSqlDb(GnrObject):
         """Return a table object
         
         :param tblname: the :ref:`database table <table>` name
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         return self.model.table(tblname, pkg=pkg).dbtable
             
     def query(self, table, **kwargs):
-        """An sql query. For more information, check the :meth:`query() <gnr.sql.gnrsqltable.SqlTable.query()>`
-        method of the gnrsqltable.SqlTable.
+        """An sql :ref:`query`
         
-        :param table: the :ref:`table` on which the query will be executed"""
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)"""
         return self.table(table).query(**kwargs)
         
     def colToAs(self, col):
         """add???
         
-        :param col: a table column"""
+        :param col: a table :ref:`column`"""
         as_ = re.sub('\W', '_', col)
         if as_[0].isdigit(): as_ = '_' + as_
         return as_
@@ -507,19 +500,21 @@ class GnrSqlDb(GnrObject):
                          translator=None, **kwargs):
         """add???
         
-        :param table: the :ref:`table` name
-        :param prevCaption: add???. Default value is ``''``
-        :param prevRelation: add???. Default value is ``''``
-        :param translator: add???. """
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param prevCaption: add???
+        :param prevRelation: add???
+        :param translator: add???"""
         return self.table(table).relationExplorer(prevCaption=prevCaption,
                                                   prevRelation=prevRelation,
                                                   translator=translator, **kwargs)
                                                   
     def createDb(self, name, encoding='unicode'):
-        """Create a db with a given name and an encoding
+        """Create a database with a given name and an encoding
         
         :param name: the database's name
-        :param encoding: The multibyte character encoding you choose. Default value is ``unicode``"""
+        :param encoding: The multibyte character encoding you choose"""
         self.adapter.createDb(name, encoding=encoding)
             
     def dropDb(self, name):
@@ -642,7 +637,7 @@ class DbStoresHandler(object):
         """add???
         
         :param storename: add???
-        :param check: add???. Default value is ``False``"""
+        :param check: add???"""
         attr = self.config.getAttr('%s_xml.db' % storename)
         self.dbstores[storename] = dict(database=attr.get('dbname', storename),
                                         host=attr.get('host', self.db.host), user=attr.get('user', self.db.user),
@@ -679,7 +674,7 @@ class DbStoresHandler(object):
         """checks if dbstore exists and if it needs to be aligned
         
         :param storename: add???
-        :param verbose: add???. Default value is ``False``"""
+        :param verbose: add???"""
         with self.db.tempEnv(storename=storename):
             self.db.use_store(storename)
             changes = self.db.model.check()

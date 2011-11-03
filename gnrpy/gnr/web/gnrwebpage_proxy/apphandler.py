@@ -46,13 +46,16 @@ from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 ESCAPE_SPECIAL = re.compile(r'[\[\\\^\$\.\|\?\*\+\(\)\]\{\}]')
 
 class GnrWebAppHandler(GnrBaseProxy):
+    """A class for web applications handlement"""
     def init(self, **kwargs):
+        """add???"""
         self.gnrapp = self.page.site.gnrapp
         siteStatus = self.page.siteStatus
         if siteStatus['resetLocalizationTime'] and self.gnrapp.localizationTime < siteStatus['resetLocalizationTime']:
             self.gnrapp.buildLocalization()
 
     def event_onEnd(self):
+        """add???"""
         self._finalize(self)
 
     def _finalize(self, page):
@@ -64,6 +67,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         return self.page.db
 
     def getDb(self, dbId=None):
+        """add???
+        
+        :param dbId: add???"""
         return self.db # TODO: is a __getitem__ for back compatibility: see gnrsqldata DataResolver
 
     __getitem__ = getDb
@@ -82,11 +88,19 @@ class GnrWebAppHandler(GnrBaseProxy):
     appId = property(_getAppId)
 
     def getPackages(self):
+        """add???"""
         return [[pkgobj.name_full, pkg] for pkg, pkgobj in self.db.packages.items()]
 
     rpc_getPackages = getPackages
 
     def getTables(self, pkg=None):
+        """Extract a couple with the istance names and the name of the
+        :ref:`database tables <table>` from a :ref:`package <packages>` you specify
+        with the *pkg* attribute. Return the extracted couples as a list of lists. If no
+        tables are in the package then the method returns an empty list
+        
+        :param pkg: MANDATORY. The :ref:`package <packages>` from which
+                    the tables are extracted"""
         tables = self.db.package(pkg).tables
         if tables:
             return [[tblobj.name_full.capitalize(), tbl] for tbl, tblobj in tables.items()]
@@ -95,6 +109,8 @@ class GnrWebAppHandler(GnrBaseProxy):
     rpc_getTables = getTables
 
     def getTablesTree(self):
+        """Set a :class:`Bag <gnr.core.gnrbag.Bag>` with the structure of the :ref:`database tables
+        <table>` of a :ref:`package <packages>`"""
         result = Bag()
         for pkg, pkgobj in self.db.packages.items():
             if pkgobj.attributes.get('reserved', 'n').upper() != 'Y':
@@ -109,6 +125,12 @@ class GnrWebAppHandler(GnrBaseProxy):
     rpc_getTablesTree = getTablesTree
 
     def getTableFields(self, pkg='', table='', **kwargs):
+        """add???
+        
+        :param pkg: the :ref:`package <packages>`
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)"""
         if not pkg:
             pkg, table = table.split('.')
         return self.dbStructure(path='%s.tables.%s.relations' % (pkg, table))
@@ -116,6 +138,9 @@ class GnrWebAppHandler(GnrBaseProxy):
     rpc_getTableFields = getTableFields
 
     def dbStructure(self, path='', **kwargs):
+        """add???
+        
+        :param path: the path of the database structure"""
         curr = self.db.packages
         if path:
             curr = curr[path]
@@ -170,6 +195,11 @@ class GnrWebAppHandler(GnrBaseProxy):
 
 
     def rpc_batchDo(self, batch, resultpath, forked=False, **kwargs):
+        """Execute a :ref:`batch`
+        
+        :param batch: the :ref:`batch` to be executed
+        :param resultpath: add???
+        :param forked: boolean. add???"""
         if forked:
             from processing import Process
 
@@ -198,12 +228,27 @@ class GnrWebAppHandler(GnrBaseProxy):
             return getattr(m, clsName)
         else:
             raise Exception('Cannot import component %s' % modName)
-
-
+            
     def rpc_getRecordCount(self, field=None, value=None,
                            table='', distinct=False, columns='', where='',
                            relationDict=None, sqlparams=None, condition=None,
                            **kwargs):
+        """add???
+        
+        :param field: add???
+        :param value: add???
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where`
+                      section
+        :param relationDict: add???
+        :param sqlparams: add???
+        :param condition: the :ref:`sql_condition` of the count"""
         #sqlargs = dict(kwargs)
         if field:
             if not table:
@@ -225,6 +270,21 @@ class GnrWebAppHandler(GnrBaseProxy):
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
                              sqlContextName=None, virtual_columns=None,_eager_level=0, **kwargs):
+        """add???
+        
+        ``getRelatedRecord()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
+        
+        :param from_fld: add???
+        :param target_fld: add???
+        :param pkg: the :ref:`package <packages>`
+        :param pkey: the record :ref:`primary key <pkey>`
+        :param ignoreMissing: boolean. add???
+        :param ignoreDuplicate: boolean. add???
+        :param js_resolver_one: add???
+        :param js_resolver_many: add???
+        :param sqlContextName: add???
+        :param virtual_columns: add???"""
+        
         pkg, tbl, related_field = target_fld.split('.')
         table = '%s.%s' % (pkg, tbl)
         if pkey is None:
@@ -252,6 +312,20 @@ class GnrWebAppHandler(GnrBaseProxy):
                                 columns='', query_columns=None,
                                 condition=None, js_resolver_one='relOneResolver',
                                 sqlContextName=None, **kwargs):
+        """add???
+        
+        ``getRelatedSelection()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
+        
+        :param from_fld: add???
+        :param target_fld: add???
+        :param relation_value: add???
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
+        :param query_columns: add???
+        :param condition: the :ref:`sql_condition` of the selection
+        :param js_resolver_one: add???
+        :param sqlContextName: add???"""
         if query_columns:
             print 'QUERY COLUMNS PARAMETER NOT EXPECTED!!'
         columns = columns or query_columns
@@ -315,7 +389,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                               stopOnError=False, forUpdate=False, onRow=None, **kwargs):
         """add???
         
-        :param table: the :ref:`table` name
+        ``runSelectionBatch()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param selectionName: add???
         :param batchFactory: name of the Class, plugin of table, which executes the batch action
         :param pkeys: add???
@@ -336,6 +414,13 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def setThermo(self, thermoId, progress_1=None, message_1=None,
                   maximum_1=None, command=None, **kwargs):
+        """add???
+        
+        :param thermoId: add???
+        :param progress_1: add???
+        :param message_1: add???
+        :param maximum_1: add???
+        :param command: add???"""
         with self.page.pageStore() as store:
             if command == 'init':
                 thermoBag = Bag()
@@ -363,6 +448,10 @@ class GnrWebAppHandler(GnrBaseProxy):
             return 'stop'
 
     def rpc_getThermo(self, thermoId, flag=None):
+        """add???
+        
+        :param thermoId: add???
+        :param flag: add???"""
         with self.page.pageStore() as store:
             if flag == 'stop':
                 thermoBag = store.getItem('thermo_%s' % thermoId) or Bag()
@@ -374,6 +463,16 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def rpc_onSelectionDo(self, table, selectionName, command, callmethod=None, selectedRowidx=None, recordcall=False,
                           **kwargs):
+        """add???
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param selectionName: add???
+        :param command: add???
+        :param callmethod: add???
+        :param selectedRowidx: add???
+        :param recordcall: boolean. add???"""
         result = None
         tblobj = self.db.table(table)
         selection = self.page.getUserSelection(table=tblobj, selectionName=selectionName, selectedRowidx=selectedRowidx)
@@ -394,11 +493,23 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result
 
     def export_standard(self, selection, locale=None, columns=None, filename=None, **kwargs):
+        """add???
+        
+        :param selection: add???
+        :param locale: add???
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
+        :param filename: add???"""
         filename = filename or self.maintable or  self.request.uri.split('/')[-1]
         content = selection.output('tabtext', columns=columns, locale=locale)
         self.page.utils.sendFile(content, filename, 'xls')
 
     def print_standard(self, selection, locale=None, **kwargs):
+        """add???
+        
+        :param selection: add???
+        :param locale: add???"""
         columns = None # get columns from current view on client !
         if not columns:
             columns = [c for c in selection.allColumns if not c in ('pkey', 'rowidx')]
@@ -409,6 +520,10 @@ class GnrWebAppHandler(GnrBaseProxy):
                                                           title='Print List', header='Print List', columns=columns)
 
     def pdf_standard(self, selection, locale=None, **kwargs):
+        """add???
+        
+        :param selection: add???
+        :param locale: add???"""
         columns = None # get columns from current view on client !
         if not columns:
             columns = [c for c in selection.allColumns if not c in ('pkey', 'rowidx')]
@@ -453,6 +568,17 @@ class GnrWebAppHandler(GnrBaseProxy):
     
     @public_method
     def checkFreezedSelection(self,changelist=None,selectionName=None,where=None,table=None,**kwargs):
+        """add???
+        
+        ``checkFreezedSelection()`` method is decorated with the :meth:`public_method
+        <gnr.core.gnrdecorator.public_method>` decorator
+        
+        :param changelist: add???
+        :param selectionName: add???
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)"""
         selection = self.page.unfreezeSelection(dbtable=table, name=selectionName)
         needUpdate = False
         if selection is not None:
@@ -485,6 +611,49 @@ class GnrWebAppHandler(GnrBaseProxy):
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
                          sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,savedQuery=None,savedView=None, externalChanges=None,**kwargs):
+        """add???
+        
+        ``getSelection()`` method is decorated with the :meth:`public_method
+        <gnr.core.gnrdecorator.public_method>` decorator
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
+        :param condition: the :ref:`sql_condition` of the selection
+        :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                         :ref:`sql_order_by` section
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                      information, check the :ref:`sql_limit` section
+        :param offset: add???
+        :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
+        :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
+        :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
+                             check the :ref:`relationdict` documentation section
+        :param sqlparams: a dictionary which associates sqlparams to their values
+        :param row_start: add???
+        :param row_count: add???
+        :param recordResolver: add???
+        :param selectionName: add???
+        :param structure: add???
+        :param numberedRows: add???
+        :param pkeys: add???
+        :param fromSelection: add???
+        :param applymethod: a page method to be called after selecting the related records
+        :param totalRowCount: add???
+        :param selectmethod: add???
+        :param expressions: add???
+        :param sum_columns: add???
+        :param sortedBy: add???
+        :param excludeLogicalDeleted: add???
+        :param excludeDraft: add???
+        :param savedQuery: add???
+        :param savedView: add???
+        :param externalChanges: add???"""
         t = time.time()
         tblobj = self.db.table(table)
         row_start = int(row_start)
@@ -668,6 +837,14 @@ class GnrWebAppHandler(GnrBaseProxy):
 
     def gridSelectionData(self, selection, outsource, recordResolver, numberedRows, logicalDeletionField,
                           _addClassesDict=None):
+        """add???
+        
+        :param selection: add???
+        :param outsource: add???
+        :param recordResolver: add???
+        :param numberedRows: add???
+        :param logicalDeletionField: add???
+        """
         result = Bag()
         for j, row in enumerate(outsource):
             row = dict(row)
@@ -690,9 +867,11 @@ class GnrWebAppHandler(GnrBaseProxy):
                            _relation_value=pkey, _resolver_name='relOneResolver',
                            _attributes=row, _removeNullAttributes=False, _customClasses=' '.join(_customClasses))
         return result
-
-
+        
     def gridSelectionStruct(self, selection):
+        """add???
+        
+        :param selection: add???"""
         structure = Bag()
         r = structure.child('view').child('row')
         for colname in selection.columns:
@@ -742,9 +921,34 @@ class GnrWebAppHandler(GnrBaseProxy):
                       ignoreMissing=True, ignoreDuplicate=True, lock=False, readOnly=False,
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                      loadingParameters=None,default_kwargs=None, eager=None, virtual_columns=None,
-                      _eager_level=0,onLoadingHandler=None,**kwargs):
-        """A decorator - :ref:`extract_kwargs`"""
+                      loadingParameters=None, default_kwargs=None, eager=None, virtual_columns=None,
+                      _eager_level=0, onLoadingHandler=None,**kwargs):
+        """add???
+        
+        ``getRecord()`` method is decorated with the :meth:`extract_kwargs <gnr.core.gnrdecorator.extract_kwargs>`
+        and the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorators
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param dbtable: the :ref:`database table <table>`
+        :param pkg: the :ref:`package <packages>` object
+        :param pkey: the :ref:`primary key <pkey>`
+        :param ignoreMissing: boolean. add???
+        :param ignoreDuplicate: boolean. add???
+        :param lock: boolean. add???
+        :param readOnly: boolean. the :ref:`readonly` attribute
+        :param from_fld: add???
+        :param target_fld: add???
+        :param sqlContextName: add???
+        :param applymethod: a page method to be called after selecting the related records
+        :param js_resolver_one: add???
+        :param js_resolver_many: add???
+        :param loadingParameters: add???
+        :param default_kwargs: add???
+        :param eager: add???
+        :param virtual_columns: add???
+        :param onLoadingHandler: add???"""
         t = time.time()
         dbtable = dbtable or table
         if pkg:
@@ -835,6 +1039,10 @@ class GnrWebAppHandler(GnrBaseProxy):
                              
                                 
     def setRecordDefaults(self, record, defaults):
+        """add???
+        
+        :param record: add???
+        :param defaults: add???"""
         for k, v in defaults.items():
             if k in record:
                 record[k] = v
@@ -845,28 +1053,42 @@ class GnrWebAppHandler(GnrBaseProxy):
                      _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None, excludeDraft=True,
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
                      notnull=None, weakCondition=False, **kwargs):
-        """
-        :param dbtable: database :ref:`table` source for the query
-        :param columns: the :ref:`table_columns` that are involved into the query
-        :param auxColumns: showed only as result, not involved in the search.
+        """dbSelect is a :ref:`filteringselect` that takes the values through a :ref:`query` on the
+        database: user can choose between all the values contained into the linked :ref:`table` (the
+        table is specified through the *dbtable* attribute). While user write in the dbSelect, partially
+        matched values will be shown in a pop-up menu below the input text box. You can show more columns
+        in the pop-up menu through the *auxColumns*
+        
+        ``dbSelect()`` method is decorated with the :meth:`public_method
+        <gnr.core.gnrdecorator.public_method>` decorator
+        
+        :param dbtable: the :ref:`database table <table>`
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
+        :param auxColumns: list of columns separated by a comma. Every columns must have a prefix (``$``).
+                           Show the columns you specify here as auxiliary columns in a pop-up menu
         :param hiddenColumns: data that is retrieved but is not showed.
         :param rowcaption: what you see into the field. Often is different
                            from what you set with dbselect
         :param querystring: add???
-        :param ignoreCase: add???
+        :param ignoreCase: boolean. Set it ``True`` for a case insensitive query from characters typed
+                           from user. Set to ``False`` for a case sensitive query
         :param exclude: add???
-        :param excludeDraft: add???
-        :param condition: more condition into the query. Every kwargs params that 
-                          starts with condition_ are the variables involved in the 'where' clause.
-        :param limit: string. Numbers of visualized data after the query (default is 10)
-                      set limit to '0' to visualize all data.
+        :param excludeDraft: boolean. add???
+        :param condition: more :ref:`sql_condition` into the query
+        :param limit: string. Number of result's rows (default is 10, set limit to '0' to visualize
+                      all data). Corresponding to the sql "LIMIT" operator. For more information,
+                      check the :ref:`sql_limit` section
         :param alternatePkey: add???
-        :param order_by: add???
+        :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                         :ref:`sql_order_by` section
         :param selectmethod: custom rpc_method you can use to make the query on the server.
         :param notnull: add???
-        :param weakCondition: it will apply the condition if there is a result, but if there is no
-                              result for the condition then the condition will not be used. A
-                              selectmethod over-rides this attribute."""
+        :param weakCondition: boolean. It will apply the condition if there is a result, but if
+                              there is no result for the condition then the condition will not
+                              be used. The *selectmethod* attribute can be used to override this
+                              attribute"""
         resultClass = ''
         if selectmethod or not condition:
             weakCondition = False
@@ -933,6 +1155,17 @@ class GnrWebAppHandler(GnrBaseProxy):
     
     @public_method
     def dbSelect_selection(self, tblobj, querystring, columns=None, auxColumns=None, **kwargs):
+        """add???
+        
+        ``dbSelect_selection()`` method is decorated with the :meth:`public_method
+        <gnr.core.gnrdecorator.public_method>` decorator
+        
+        :param tblobj: add???
+        :param querystring: add???
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
+        :param auxColumns: add???"""
         querycolumns = tblobj.getQueryFields(columns)
         showcolumns = gnrlist.merge(querycolumns, tblobj.columnsFromString(auxColumns))
         captioncolumns = tblobj.rowcaptionDecode()[0]
@@ -945,6 +1178,20 @@ class GnrWebAppHandler(GnrBaseProxy):
     def dbSelect_default(self, tblobj, querycolumns, querystring, resultcolumns,
                              condition=None, exclude=None, limit=None, order_by=None,
                              identifier=None, ignoreCase=None, **kwargs):
+        """add???
+        
+        :param tblobj: add???
+        :param querycolumns: add???
+        :param querystring: add???
+        :param resetcolumns: add???
+        :param condition: the :ref:`sql_condition` of the dbSelect
+        :param exclude: add???
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                      information, check the :ref:`sql_limit` section
+        :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
+                         :ref:`sql_order_by` section
+        :param identifier: add???
+        :param ignoreCase: add???"""
         def getSelection(where, **searchargs):
             whereargs = {}
             whereargs.update(kwargs)
@@ -1005,9 +1252,23 @@ class GnrWebAppHandler(GnrBaseProxy):
         return ':'.join(fullcaption)
 
     def rpc_getRecordForm(self, dbtable=None, fields=None, **kwargs):
+        """add???
+        
+        :param dbtable: the :ref:`database table <table>`
+        :param fields: add???"""
         self.getRecordForm(self.newSourceRoot(), dbtable=dbtable, fields=fields, **kwargs)
 
     def formAuto(self, pane, table, columns='', cols=2):
+        """add???
+        
+        :param pane: the :ref:`contentpane`
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section
+        :param cols: a :ref:`formbuilder attribute <formbuilder_def>`"""
         fb = pane.formbuilder(cols=cols)
         tblobj = self.db.table(table)
         if not columns:
@@ -1018,12 +1279,20 @@ class GnrWebAppHandler(GnrBaseProxy):
         fb.placeFields(','.join(columns))
 
     def rpc_pdfmaker(self, pdfmode, txt, **kwargs):
+        """add???
+        
+        :param pdfmode: add???
+        :param txt: add???"""
         filename = '%s.pdf' % self.page.getUuid()
         fpath = self.page.pageLocalDocument(filename)
         getattr(self.page, 'pdf_%s' % pdfmode)(fpath, txt, **kwargs)
         return filename
 
     def rpc_downloadPDF(self, filename, forcedownload=False, **kwargs):
+        """add???
+        
+        :param filename: add???
+        :param forcedownload: boolean. add???"""
         response = self.page.response
         response.content_type = "application/pdf"
         if forcedownload:
@@ -1072,6 +1341,12 @@ class GnrWebAppHandler(GnrBaseProxy):
         return style
 
     def rpc_printStaticGrid(self, structbag, storebag, filename=None, makotemplate='standard_print.tpl', **kwargs):
+        """add???
+        
+        :param structbag: add???
+        :param storebag: add???
+        :param filename: add???
+        :param makotemplate: add???"""
         filename = self._exportFileNameClean(filename)
         if not filename.lower().endswith('.html') or filename.lower().endswith('.htm'):
             filename += '.html'
@@ -1109,6 +1384,9 @@ class GnrWebAppHandler(GnrBaseProxy):
         #return filename
 
     def rpc_printStaticGridDownload(self, filename, **kwargs):
+        """add???
+        
+        :param filename: add???"""
         fpath = self.page.pageLocalDocument(filename)
         f = open(fpath, 'r')
         result = f.read()
@@ -1117,12 +1395,33 @@ class GnrWebAppHandler(GnrBaseProxy):
         return result.decode('utf-8')
 
     def rpc_recordToPDF(self, table, pkey, template, **kwargs):
+        """add???
+        
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param pkey: the record :ref:`primary key <pkey>`
+        :param template: add???"""
         record = self.db.table(table).record(pkey).output('bag')
         return self.page.rmlTemplate(path=template, record=record)
 
     def rpc_includedViewAction(self, action=None, export_mode=None, respath=None, table=None, data=None,
                                selectionName=None, struct=None,datamode=None, downloadAs=None,
                                selectedRowidx=None, **kwargs):
+        """add???
+        
+        :param action: add???
+        :param export_mode: add???
+        :param respath: add???
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param data: add???
+        :param selectionName: add???
+        :param struct: add???
+        :param datamode: add???
+        :param downloadAs: add???
+        :param selectedRowidx: add???"""
         page = self.page
         if downloadAs:
             import mimetypes

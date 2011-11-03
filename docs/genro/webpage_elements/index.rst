@@ -26,15 +26,16 @@ introduction
     * :ref:`form_widgets` - The primary UI
     * :ref:`html`
     * :ref:`css` elements
+    * :ref:`dojo` elements
     * :ref:`javascript` elements
     * :ref:`forms <form>` - the standard way to let the user enter data
     * :ref:`controllers` - receive input and initiate a response by making calls on model objects
+    * :ref:`dialogs`
     
     There are other webpage elements:
     
     * :ref:`iframe`
     * :ref:`cells`
-    * :ref:`menu`
     * :ref:`toolbar`
     * :ref:`tree`
     
@@ -48,6 +49,7 @@ section index
     
     html
     css
+    dojo
     javascript
     form_widgets/index
     layout_widgets/index
@@ -55,6 +57,5 @@ section index
     form/index
     cells/index
     iframe
-    menu
     toolbar
     tree

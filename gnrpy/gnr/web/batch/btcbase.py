@@ -62,7 +62,7 @@ class BaseResourceBatch(object):
         pass
 
     def run(self):
-        """add???"""
+        """Run the :ref:`batch`"""
         self.btc.batch_create(batch_id='%s_%s' % (self.batch_prefix, self.page.getUuid()),
                               title=self.batch_title,
                               cancellable=self.batch_cancellable,
@@ -91,12 +91,16 @@ class BaseResourceBatch(object):
         self.result_info[key] = info
 
     def batchUpdate(self, updater=None, table=None, where=None, line_code=None, message=None, **kwargs):
-        """add???
+        """Redefine the :meth:`batchUpdate() <gnr.sql.gnrsqltable.SqlTable.batchUpdate>` of the
+        :ref:`gnrsqltable <library_gnrsqltable>` module. Allow to make an update of the database.
+        For more information, check the :ref:`batchupdate` section
         
-        :param updater: add???
-        :param table: the :ref:`database table <table>` you specify or the
-                      :ref:`maintable webpage variable <maintable>`
-        :param where: add???
+        :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
+                        <batchupdate>`) or a method
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param where: the :ref:`sql_where` parameter
         :param line_code: add???
         :param message: add???"""
         table = table or self.maintable
@@ -159,7 +163,9 @@ class BaseResourceBatch(object):
     def get_selection(self, columns=None):
         """add???
         
-        :param columns: add???"""
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
+                        clause in the traditional sql query. For more information, check the
+                        :ref:`sql_columns` section"""
         if hasattr(self,'selectionName'):
             selection = self.page.getUserSelection(selectionName=self.selectionName,
                                                     selectedRowidx=self.selectedRowidx, filterCb=self.selectionFilterCb,

@@ -35,10 +35,10 @@ from dateutil import rrule
 logger = logging.getLogger(__name__)
 
 def yearDecode(datestr):
-    """returns the year number as an int from a string of 2 or 4 digits: if 2 digits is given century is added.
+    """returns the year number as an int from a string of 2 or 4 digits:
+    if 2 digits is given century is added
     
-    :param datestr: add???
-    """
+    :param datestr: the string including year"""
     year = None
     datestr = datestr.strip()
     if datestr and datestr.isdigit():
@@ -51,7 +51,8 @@ def yearDecode(datestr):
     return year
 
 def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None, locale=None, isEndPeriod=False):
-    """Parse a string representing a date or a period.
+    """Parse a string representing a date or a period. Return ``datetime.date``
+    or ``tuple(year,month)`` or ``None``
     
     :param datestr: the string to be interpreted
     :param workdate: the :ref:`workdate`
@@ -59,8 +60,8 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
     :param days: names of weekdays according to locale (just for caching)
     :param quarters: names of quarters according to locale (just for caching)
     :param locale: the current locale (e.g: en, en_us, it)
-    :param isEndPeriod: if the string represents a period, return the end date (default return the start date)
-    :returns: datetime.date or tuple(year,month) or None
+    :param isEndPeriod: if the string represents a period, return the end date
+                        (default return the start date)
     
     Special keywords like ``today`` or the name of a month can be translated in all languages
     and support synonimous. (e.g: this month; e.g: month)
@@ -81,16 +82,9 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         * the date returned is the date of the given weekday in this week (relative to workdate)
     * an iso date: e.g. 2008-04-28
     * a date formatted according to locale (see babel doc): e.g. 4 28, 2008 (en_us) or 28-4-08 (it)
-                           various separators are admitted: 28-4-08, 28/4/08, 28 4 08
-    """
+                           various separators are admitted: 28-4-08, 28/4/08, 28 4 08"""
     
     def addToDay(datestr, date):
-        """add???
-        
-        :param datestr: add???
-        :param date: add???
-        :returns: add???
-        """
         if '+' in datestr:
             days = int(datestr.split('+')[1].strip())
             return date + datetime.timedelta(days)
@@ -100,13 +94,6 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
         return date
 
     def addToMonth(datestr, date, addmonth=0):
-        """add???
-        
-        :param datestr: add???
-        :param date: add???
-        :param addmonth: add???. Default value is ``0``
-        :returns: add???
-        """
         if '+' in datestr:
             addmonth = int(datestr.split('+')[1].strip())
         if '-' in datestr:
@@ -216,10 +203,11 @@ def decodeOneDate(datestr, workdate=None, months=None, days=None, quarters=None,
             return dateStart
             
 def periodCaption(dateFrom=None, dateTo=None, locale=None):
-    """Convert two dates to a string in the specified locale that decodeDatePeriod will understand.
+    """Convert two dates to a string in the specified locale that
+    :meth:`decodeDatePeriod` will understand
     
-    :param dateFrom: add???
-    :param dateTo: add???
+    :param dateFrom: the beginning period date
+    :param dateTo: the ending period date
     :param locale: the current locale (e.g: en, en_us, it)"""
     localNoPeriod = gnrlocale.getDateKeywords('no period', locale)[0]
     localTo = gnrlocale.getDateKeywords('to', locale)[0]
@@ -239,27 +227,29 @@ def decodeDatePeriod(datestr, workdate=None, locale=None, returnDate=False, dtyp
     """Parse a string representing a date or a period and returns a string of one or two dates in iso format separated by ``;``.
     See doc of :meth:`decodeOneDate()` for details on possible formats of a single date
     
-    The input string can be:
+    :param datestr: the string representing a date or a period
+    :param workdate: the :ref:`workdate`
+    :param locale: the current locale (e.g: en, en_us, it)
+    :param returnDate: boolean. If ``True``, return the following tuple: ``(dateStart, dateEnd)``
+    :param dtype: the :ref:`datatype`
+    
+    The input *datestr* can be:
     
     * two dates separated by ``;``: e.g. ``22 4, 2008;28 4, 2008``
     * two dates separated by `` to ``
     * two dates in form ``from date to date`` (can be translated and supports synonimous, e.g. ``between date and date``)
-        * if a period is given as starting date, the start date of period is keep
-        * if a period is given as end date, the end date of period is keep
-        * if no year is specified, the year is relative to working date, keeping all periods in the past
-              e.g. if working date is 2008-04-28, december is interpreted as december 2007
+    
+        * if a period is given as starting date, the start date of period is kept
+        * if a period is given as end date, the end date of period is kept
+        * if no year is specified, the year is relative to :ref:`workdate`, keeping all periods in the past
+          (e.g. if working date is 2008-04-28, december is interpreted as december 2007)
         * if a year is specified for the end date (or period) a relative year is calculated for the starting period
-              e.g. from december to march 06: returns ``'2005-12-01;2006-03-31'``
+          (e.g. from december to march 06: returns ``'2005-12-01;2006-03-31'``)
     * a starting date in form ``from date``, if date is a period starting date is keep: e.g. april returns ``'2008-04-01;'``
     * an end date in form ``to date``, if date is a period end date is keep: e.g. april returns ``';2008-04-30'``
     * a single expression representing a period: e.g. 2007 returns ``'2007-01-01;2007-12-31'``
     * a single expression representing a single date: e.g. today returns ``'2008-04-28'``
-    
-    :param datestr: add???
-    :param workdate: the :ref:`workdate`
-    :param locale: the current locale (e.g: en, en_us, it)
-    :param returnDate: add???
-    :param dtype: the :ref:`datatype`"""
+    """
     workdate = workdate or datetime.date.today()
     months = gnrlocale.getMonthNames(locale)
     days = gnrlocale.getDayNames(locale)
@@ -351,11 +341,9 @@ def monthStart(year=None, month=None, date=None):
     """Return datetime.date of the first day of the month.
     If ``date`` is given, then ``year`` and ``month`` are readed from date.
     
-    :param year: The year you specify. 
-    :param month: The month you specify. 
-    :param date: add???. 
-    :returns: datetime.date of the first day of the month
-    """
+    :param year: The year you specify
+    :param month: The month you specify
+    :param date: add???"""
     if date:
         year = date.year
         month = date.month
@@ -365,11 +353,9 @@ def monthEnd(year=None, month=None, date=None):
     """Return datetime.date of the last day of the month.
     If ``date`` is given, then ``year`` and ``month`` are readed from date.
     
-    :param year: The year you specify. 
-    :param month: The month you specify. 
-    :param date: add???. 
-    :returns: datetime.date of the last day of the month
-    """
+    :param year: The year you specify
+    :param month: The month you specify
+    :param date: add???"""
     if date:
         year = date.year
         month = date.month
@@ -383,8 +369,7 @@ def monthEnd(year=None, month=None, date=None):
 def dateLastYear(d):
     """add???
     
-    :param d: add???
-    """
+    :param d: the date"""
     if not d: return
     if d.month == 2 and d.day == 29:
         result = datetime.date(d.year - 1, 2, 28)
@@ -401,7 +386,7 @@ def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
     :param wkdlist: add???
     :param locale: the current locale (e.g: en, en_us, it)
     :param workdate: the :ref:`workdate`
-    :param asDate: add???. Default value is ``True``"""
+    :param asDate: boolean. add???"""
     dstart, dstop = decodeDatePeriod(period, returnDate=True, locale=locale, workdate=workdate)
     itr = rrule.rrule(rrule.DAILY, dtstart=dstart, until=dstop, byweekday=wkdlist)
     for d in itr:
@@ -411,10 +396,9 @@ def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
             yield d
             
 def toTime(t):
-    """Convert a time, datetime or a string (HH:MM:SS or HH:MM) to a time.
+    """Convert a time, datetime or a string (``HH:MM:SS`` or ``HH:MM``) to a time.
     
-    :param t: the time to convert
-    """
+    :param t: the time to convert"""
     if isinstance(t, datetime.datetime):
         return t.time()
     elif isinstance(t, datetime.time):
@@ -428,11 +412,9 @@ def toTime(t):
         raise ValueError, "toTime(%s) accepts only times, datetimes or strings" % repr(t)
 
 def toDate(date_or_datetime):
-    """Convert a date or datetime to a date.
+    """Convert a date or datetime to a date. Return it
     
-    :param date_or_datetime: the date or datetime to convert in a date
-    :returns: a date
-    """
+    :param date_or_datetime: the date or datetime to convert in a date"""
     if isinstance(date_or_datetime, datetime.datetime):
         return date_or_datetime.date()
     elif isinstance(date_or_datetime, datetime.date):
@@ -447,7 +429,6 @@ def dateRange(dstart, dstop):
     
     :param dstart: the start date
     :param dstop: the end date
-    :returns: an iterator over a range of dates
     
     >>> a = datetime.date(year=2010,month=10,day=8)
     >>> b = datetime.date(year=2010,month=10,day=12)
@@ -457,30 +438,32 @@ def dateRange(dstart, dstop):
     2010-10-08
     2010-10-09
     2010-10-10
-    2010-10-11
-    """
+    2010-10-11"""
     dt = dstart
     while dt < dstop:
         yield dt
         dt = dt + datetime.timedelta(days=1)
-
+        
 def time_to_minutes(t):
-    """add???
+    """Return the total minutes from midnight to the given
+    datetime.datetime object
     
-    :param t: add???
-    :returns: add???
-    """
+    :param t: the datetime.datetime object
+    
+    >>> from gnr.core.gnrdate import time_to_minutes as t
+    >>> import datetime
+    >>> now = datetime.datetime(2011, 10, 8, 15, 26, 32)
+    >>> t(now)
+    926"""
     return t.hour * 60 + t.minute
 
 def minutes_to_time(mins):
-    """Returns a datetime.time given the number of minutes since midnight.
+    """Returns a datetime.time given the number of minutes since midnight
     
     :param mins: int - number of minutes
-    :returns: a datetime.time given the number of minutes since midnight
     
     >>> minutes_to_time(480)
-    datetime.time(8, 0)
-    """
+    datetime.time(8, 0)"""
     hours = mins / 60
     mins = mins % 60
     return datetime.time(hours, mins)
@@ -512,7 +495,7 @@ class TimeInterval(object):
     
     As you can see, str() and repr() are both implemented in a sensible way.
     
-    Several operators are available.
+    Several operators are available:
     
     ============ ==================================================
       Operator    Meaning
@@ -525,7 +508,8 @@ class TimeInterval(object):
       a in b      a overlaps b
     ============ ==================================================
     
-    All of these operators accept as their second parameter a TimeInterval or a string (or a tuple of datetime.time or strings).
+    All of these operators accept as their second parameter a TimeInterval or a string
+    (or a tuple of datetime.time or strings)
     
     >>> a = TimeInterval('8:30-10:30')
     >>> b = TimeInterval('10:00-12:00')
@@ -538,9 +522,7 @@ class TimeInterval(object):
     >>> a == a
     True
     >>> a in b
-    True
-    """
-
+    True"""
     def __init__(self, start=None, stop=None, minutes=None):
         if minutes:
             if not stop:
@@ -587,8 +569,7 @@ class TimeInterval(object):
         This is, test the following condition::
         
             [self]
-                    [other]
-        """
+                [other]"""
         if not isinstance(other, TimeInterval):
             try:
                 other = TimeInterval(other)
@@ -602,8 +583,7 @@ class TimeInterval(object):
         This is, test the following condition::
         
             [self]
-              [other]
-        """
+                [other]"""
         if not isinstance(other, TimeInterval):
             try:
                 other = TimeInterval(other)
@@ -613,16 +593,15 @@ class TimeInterval(object):
 
     @staticmethod
     def cmp(one, other):
-        """Compare two TimeIntervals.
+        """Compare two TimeIntervals
         
-        It guarantees total order (while the other TimeInterval's comparison operators do not).
-        """
+        It guarantees total order (while the other TimeInterval's comparison operators do not)"""
         if not isinstance(one, TimeInterval):
             one = TimeInterval(one)
         if not isinstance(other, TimeInterval):
             other = TimeInterval(other)
         return cmp(one.start, other.start) and cmp(one.stop, other.stop)
-
+        
     @staticmethod
     def sorted(iterable):
         """Sort TimeIntervals.
@@ -657,14 +636,13 @@ class TimeInterval(object):
     COVER_RIGHT = 2
 
     def overlaps(self, other):
-        """Checks if ``other`` overlaps with this interval.
+        """Checks if *other* attribute overlaps with this interval
         
-        Returns a constant describing the relationship between ``self`` and ``other``.
+        Returns a constant describing the relationship between ``self`` and ``other``:
+        TimeInterval.xxx where xxx is ``NO_OVERLAP``, ``FULLY_CONTAINED``, ``FULLY_CONTAINS``, 
+        ``COVER_RIGHT`` or ``COVER_LEFT``
         
-        :param other: a TimeInterval or a string represting it
-        :returns: TimeInterval.xxx where xxx is ``NO_OVERLAP``, ``FULLY_CONTAINED``, ``FULLY_CONTAINS``, 
-                  ``COVER_RIGHT`` or ``COVER_LEFT``.
-        """
+        :param other: a TimeInterval or a string represting it"""
         if not isinstance(other, TimeInterval):
             other = TimeInterval(other)
         if self < other or self > other:
@@ -683,10 +661,7 @@ class TimeInterval(object):
 
     @property
     def minutes(self):
-        """The duration of this TimeInterval in minutes from the start.
-        
-        :type: int
-        """
+        """The duration of this TimeInterval in minutes from the start"""
         return (self.stop.hour * 60 + self.stop.minute) - (self.start.hour * 60 + self.start.minute)
 
     @minutes.setter
@@ -725,9 +700,7 @@ class TimePeriod(object):
     >>> [i.name for i in p.intervals]
     ['morning', 'morning', 'afternoon']
     
-    TimePeriod also supports ``len()``, ``iter()`` and getitem operations.
-    
-    """
+    TimePeriod also supports ``len()``, ``iter()`` and getitem operations"""
 
     def __init__(self, *intervals):
         self._intervals = []
@@ -740,10 +713,9 @@ class TimePeriod(object):
     def add(self, item):
         """Add the new TimeInterval or a TimePeriod.
         
-        If it overlaps with any existing interval in this TimePeriod, they'll be merged.
+        If it overlaps with any existing interval in this TimePeriod, they'll be merged
         
-        :param item:    TimeInterval or TimePeriod or string
-        """
+        :param item: TimeInterval or TimePeriod or string"""
         if isinstance(item, TimePeriod):
             intervals = item.intervals
         else:
@@ -769,10 +741,9 @@ class TimePeriod(object):
     def remove(self, item):
         """Remove a TimeInterval or a TimePeriod.
         
-        Overlapping intervals will be adjusted.
+        Overlapping intervals will be adjusted
         
-        :param item: TimeInterval or TimePeriod
-        """
+        :param item: TimeInterval or TimePeriod"""
         if isinstance(item, TimePeriod):
             intervals = item.intervals
         else:
@@ -831,14 +802,11 @@ class TimePeriod(object):
 
     @property
     def intervals(self):
-        """Returns the intervals in this TimePeriod.
-        
-        :type: list
-        """
+        """Returns the intervals in this TimePeriod"""
         return copy.copy(self._intervals) # make a shallow copy, so they can't mess with the ordering of intervals
 
 def seconds_to_text(seconds):
-    """Convert number of seconds to a string.
+    """Convert number of seconds to a string
 
     >>> print seconds_to_text(0)
     0s
@@ -849,8 +817,7 @@ def seconds_to_text(seconds):
     >>> print seconds_to_text(3600)
     1h
     >>> print seconds_to_text(3672)
-    1h 1m 12s
-    """
+    1h 1m 12s"""
     seconds = int(seconds)
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
@@ -862,8 +829,9 @@ def seconds_to_text(seconds):
         return " ".join(parts)
     else:
         return "0s"
-
+        
 if __name__ == '__main__':
     import doctest
 
     doctest.testmod()
+    

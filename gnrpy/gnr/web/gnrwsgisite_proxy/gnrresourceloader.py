@@ -107,7 +107,7 @@ class ResourceLoader(object):
         """Get the deepest :ref:`bagnode` in the sitemap :ref:`bag` associated with the given url
         
         :param path_list: add???
-        :param default: add???. Default value is ``False``"""
+        :param default: add???"""
         def escape_path_list(path_list):
             return [p.replace('.','\\.') for p in path_list]
         def unescape_path_list(path_list):
@@ -152,7 +152,7 @@ class ResourceLoader(object):
         """add???
         
         :param path: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         if pkg == '*':
             module_path = os.path.join(self.site_path, path)
             pkg = self.site.config['packages?default']
@@ -206,7 +206,7 @@ class ResourceLoader(object):
         """Look for custom classes in the package
         
         :param page_class: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         if pkg:
             package = self.gnrapp.packages[pkg]
         if package and package.webPageMixin:
@@ -220,7 +220,7 @@ class ResourceLoader(object):
         """Look in the plugins folders for a file named as the current webpage and get all classes
         
         :param path: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         plugin_webpage_classes = []
         path = path.split(os.path.sep)
         pkg = pkg and self.site.gnrapp.packages[pkg]
@@ -248,7 +248,7 @@ class ResourceLoader(object):
         
         :param page_class: add???
         :param path: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         path = path.split(os.path.sep)
         if pkg:
             customPagePath = os.path.join(self.gnrapp.customFolder, pkg, 'webpages', *path)
@@ -263,7 +263,7 @@ class ResourceLoader(object):
         
         :param page_class: add???
         :param path: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         if pkg:
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
         else:
@@ -300,7 +300,7 @@ class ResourceLoader(object):
     def package_resourceDirs(self, pkg, omitSiteResources=False):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param omitSiteResources: boolean. add???"""
         pkg = self.gnrapp.packages[pkg]
         if not hasattr(pkg, '_resourceDirs'):
@@ -364,7 +364,7 @@ class ResourceLoader(object):
         """add???
         
         :param res_id: add???
-        :param safe: add???. Default value is ``True``"""
+        :param safe: add???"""
         project_resource_path = os.path.normpath(os.path.join(self.site_path, '..', '..', 'resources', res_id))
         if os.path.isdir(project_resource_path):
             log.debug('resource_name_to_path(%s) -> %s (project)' % (repr(res_id),repr(project_resource_path)))
@@ -496,10 +496,12 @@ class ResourceLoader(object):
         """add???
         
         :param page: add???
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param respath: add???
         :param class_name: add???
-        :param _onDefault: add???"""
+        """
         class_name = class_name or 'Main'
         application = self.gnrapp
         if ':' in respath:
@@ -544,7 +546,7 @@ class ResourceLoader(object):
     def resourcesAtPath(self, pkg, path, ext):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param path: add???
         :param ext: add???"""
         result = Bag()

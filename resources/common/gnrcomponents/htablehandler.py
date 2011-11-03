@@ -130,6 +130,7 @@ class HTableResolver(BagResolver):
         return BagResolver.resolverSerialize(self)
         
 class HTableHandlerBase(BaseComponent):
+    """add???"""
     @struct_method
     def ht_htableStore(self, pane, table=None, related_table=None, relation_path=None, storepath='.store', **kwargs):
         if '@' in table:
@@ -188,27 +189,51 @@ class HTableHandlerBase(BaseComponent):
         return result
         
 class HTableHandler(HTableHandlerBase):
-    py_require = 'gnrcomponents/selectionhandler:SelectionHandler'
+    """A class to handle the :ref:`h_th_component` component"""
+    py_requires = 'gnrcomponents/selectionhandler:SelectionHandler'
     css_requires = 'public'
     
     def htableHandler(self, parent, nodeId=None, datapath=None, table=None, rootpath=None, label=None,
                       editMode='bc', childTypes=None, dialogPars=None, loadKwargs=None, parentLock=None,
                       where=None, onChecked=None, plainView=False, childsCodes=False, noRecordClass='noRecordSelected'):
-        """
-        .tree: tree data:
-                        store
-                        **selected elements
-        .edit (sym #nodeId_edit): pane data: **controllers
-                                       form
-                                       record
-        formId:nodeId_form 
-        controllerNodeId:nodeId_edit
-        treeId:nodeId_tree
-        editMode:'bc','sc','dlg'
-        childsCodes:tuple(path,field) returns a list of values of all the selected node childs at a given path.
-                    Useful to list, via a selectionHandler or an includedView ... , both all the records related to the selected node and
-                    those related to the childs nodes
-        """
+        """add???
+        
+        :param parent: the parent path
+        :param nodeId: MANDATORY. The :ref:`nodeid`
+        :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
+                         For more information, check the :ref:`datapath` and the :ref:`datastore` pages
+        :param table: MANDATORY. The :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param rootpath: add???
+        :param label: add???
+        :param editMode: the GUI of the hTableHandler; set:
+                         
+                         * ``bc`` to use a :ref:`bordercontainer`
+                         * ``sc`` to use a :ref:`stackcontainer`
+                         * ``dlg`` to use a :ref:`simpledialog`
+                                                  
+        :param childTypes: add???
+        :param dialogPars: MANDATORY if you set the *editMode* attribute to ``dlg``. add???
+        :param loadKwargs: add???
+        :param parentLock: add???
+        :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
+        :param onChecked: add???
+        :param plainView: boolean. add???
+        :param childsCodes: tuple(path,field). Return a list of values of all the selected node childs at a given path.
+                            Useful to list, via a selectionHandler or an includedView ... , both all the records related
+                            to the selected node and those related to the children nodes
+        :param noRecordClass: add???
+        
+        CLIPBOARD::
+        
+            .tree: tree data:
+                            store
+                            **selected elements
+            .edit (sym #nodeId_edit): pane data: **controllers
+                                           form
+                                           record
+            controllerNodeId:nodeId_edit"""
         disabled = '^#%s.edit.status.locked' % nodeId
         parent.attributes.update(table=table)
         if childsCodes:

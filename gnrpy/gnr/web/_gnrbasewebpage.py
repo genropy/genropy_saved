@@ -123,7 +123,8 @@ class GnrBaseWebPage(GnrObject):
     def decodeDatePeriod(self, datestr, workdate=None, locale=None):
         """add???
         
-        :param datestr: add???
+        :param datestr: a date string. For the string format, please check the :meth:`decodeDatePeriod()
+        <gnr.core.gnrdate.decodeDatePeriod>` method docstrings
         :param workdate: the :ref:`workdate`
         :param locale: the current locale (e.g: en, en_us, it)"""
         workdate = workdate or self.workdate
@@ -233,11 +234,13 @@ class GnrBaseWebPage(GnrObject):
         :param selectionName: add???
         :param selectedRowidx: add???
         :param filterCb: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
-        :param condition: add???
-        :param table: the :ref:`table` name
+        :param condition: set a :ref:`sql_condition` for the selection
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param condition_args: the arguments of the *condition* parameter. Their syntax
                                is ``condition_`` followed by the name of the argument"""
         # table is for checking if the selection belong to the table
@@ -354,7 +357,9 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param formId: the id of the :ref:`form`
-        :param table: the :ref:`table` related to the form
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param method: add???
         :param _fired: add???
         :param datapath: the :ref:`datapath` form
@@ -401,7 +406,9 @@ class GnrBaseWebPage(GnrObject):
         
         :param formId: the id of the :ref:`form`
         :param resultPath: add???
-        :param table: the :ref:`table` related to the form
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param pkey: the record :ref:`primary key <pkey>`
         :param datapath: the :ref:`datapath` form
         :param _fired: add???
@@ -434,7 +441,9 @@ class GnrBaseWebPage(GnrObject):
     def loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param pkey: the record :ref:`primary key <pkey>`
         :param recordGetter: add???"""
         table = table or self.maintable
@@ -448,10 +457,11 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param data: add???
-        :param table: the :ref:`table` name. 
-        :param _nocommit: boolean. add???
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param rowcaption: add???
-        :param _autoreload: boolean. add???"""
+        """
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
         onSavingMethod = 'onSaving'
@@ -498,7 +508,9 @@ class GnrBaseWebPage(GnrObject):
         """add???
         
         :param data: add???
-        :param table: the :ref:`table` name"""
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)"""
         maintable = getattr(self, 'maintable')
         table = table or maintable
         tblobj = self.db.table(table)
@@ -519,7 +531,9 @@ class GnrBaseWebPage(GnrObject):
     def deleteDbRow(self, table, pkey=None, **kwargs):
         """Method for deleting a single record from a given table
         
-        :param table: the :ref:`table` from which you want to delete a single record
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param pkey: the record :ref:`primary key <pkey>`
         :returns: if it works, returns the primary key and the deleted attribute.
                   Else, return an exception"""
@@ -539,7 +553,9 @@ class GnrBaseWebPage(GnrObject):
     def deleteDbRows(self, table, pkeys=None, **kwargs):
         """Method for deleting many records from a given table.
         
-        :param table: the :ref:`table` from which you want to delete a single record
+        :param table: the :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
         :param pkeys: add???
         :returns: if it works, returns the primary key and the deleted attribute.
                   Else, return an exception"""
@@ -556,46 +572,45 @@ class GnrBaseWebPage(GnrObject):
             
     def setLoadingParameters(self, table, **kwargs):
         """
-        .. deprecated:: 0.7
-                           
-        This method has been replaced through the :ref:`th` component. For more information,
-        check the explanation about the **handler** level in the :ref:`th_map_form_data`
-        documentation section
+        .. warning:: deprecated since version 0.7. It has been replaced through the :ref:`th`
+                     component. For more information, check the explanation about the **handler** level in
+                     the :ref:`th_map_form_data` documentation section
         
-            .. note:: **old documentation:**
-                      
-                      Set parameters at the path ``gnr.tables.TABLE.loadingParameters.PARAMETERNAME``,
-                      where:
-                      
-                      * ``TABLE`` is the value you define for the *table* parameter
-                      * ``PARAMETERNAME`` is the name you gave to the parameter.
-                      
-                      :param table: MANDATORY - string. You can put the following strings:
-                      
-                                    * *maintable*: set a parameter value of a column of the table you define in the
-                                      :ref:`maintable` :ref:`webpage variable <webpages_variables>`
-                                    
-                                          **Example:** if you have a package called ``agenda`` and a :ref:`table`
-                                          called ``staff`` and write in your :ref:`webpage`::
-                                          
-                                              maintable='staff'
-                                              self.setLoadingParameters(table='maintable',price='10000')
-                                              
-                                          then you will find the value ``10000`` at the path:
-                                          ``gnr.tables.maintable.loadingParameters.price``
+        .. note:: **old documentation:**
+                  
+                  Set parameters at the path ``gnr.tables.TABLE.loadingParameters.PARAMETERNAME``,
+                  where:
+                  
+                  * ``TABLE`` is the value you define for the *table* parameter
+                  * ``PARAMETERNAME`` is the name you gave to the parameter.
+                  
+                  :param table: MANDATORY - string. You can put the following strings:
+                  
+                                * *maintable*: set a parameter value of a column of the table you define in the
+                                  :ref:`maintable` :ref:`webpage variable <webpages_variables>`
+                                
+                                      **Example:** if you have a package called ``agenda`` and a :ref:`table`
+                                      called ``staff`` and write in your :ref:`webpage`::
                                       
-                                    * *PACKAGENAME.TABLENAME*: set a parameter value of a column in the table called
-                                      ``TABLENAME`` of the package ``PACKAGENAME`` at the path
-                                      ``gnr.tables.PACKAGENAME_TABLENAME.loadingParameters.PARAMETERNAME``, where 
-                                      ``PARAMETERNAME`` is the name you gave to the parameter.
-                                      
-                                          **Example:** if you have a package called ``agenda`` and a :ref:`table`
-                                          called ``staff`` and write in your :ref:`webpage`::
+                                          maintable='staff'
+                                          self.setLoadingParameters(table='maintable',price='10000')
                                           
-                                              self.setLoadingParameters(table='agenda.staff',price='10000')
-                                              
-                                          then you will find the value ``10000`` at the path:
-                                          ``gnr.tables.agenda_staff.loadingParameters.price``"""
+                                      then you will find the value ``10000`` at the path:
+                                      ``gnr.tables.maintable.loadingParameters.price``
+                                  
+                                * *PACKAGENAME.TABLENAME*: set a parameter value of a column in the table called
+                                  ``TABLENAME`` of the package ``PACKAGENAME`` at the path
+                                  ``gnr.tables.PACKAGENAME_TABLENAME.loadingParameters.PARAMETERNAME``, where 
+                                  ``PARAMETERNAME`` is the name you gave to the parameter.
+                                  
+                                      **Example:** if you have a package called ``agenda`` and a :ref:`table`
+                                      called ``staff`` and write in your :ref:`webpage`::
+                                      
+                                          self.setLoadingParameters(table='agenda.staff',price='10000')
+                                          
+                                      then you will find the value ``10000`` at the path:
+                                      ``gnr.tables.agenda_staff.loadingParameters.price``
+        """
         self.pageSource().dataFormula('gnr.tables.%s.loadingParameters' % table.replace('.', '_'),
                                       '', _onStart=True, **kwargs)
                                       

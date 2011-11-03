@@ -1,3 +1,5 @@
+.. _library_gnrsqltable:
+
 =============================================
 :mod:`gnr.sql.gnrsqltable` -- Database Tables
 =============================================
@@ -30,22 +32,26 @@
     This class has a consistent number of methods. They are listed here in alphabetical order.
     
     ========================= ============================== ============================= ===========================
-    :meth:`attributes`        :meth:`defaultValues`          :meth:`insert`                :meth:`recordCoerceTypes`
-    :meth:`baseViewColumns`   :meth:`delete`                 :meth:`insertOrUpdate`        :meth:`relationExplorer`   
-    :meth:`batchUpdate`       :meth:`deleteRelated`          :meth:`lastTS`                :meth:`relationName`       
-    :meth:`buildrecord`       :meth:`deleteSelection`        :meth:`lock`                  :meth:`relations`          
-    :meth:`buildrecord_`      :meth:`empty`                  :meth:`logicalDeletionField`  :meth:`relations_many`     
-    :meth:`checkPkey`         :meth:`exception`              :meth:`model`                 :meth:`relations_one`      
-    :meth:`check_deletable`   :meth:`existsRecord`           :meth:`newPkeyValue`          :meth:`rowcaption`         
-    :meth:`check_updatable`   :meth:`exportToAuxInstance`    :meth:`newrecord`             :meth:`rowcaptionDecode`   
-    :meth:`colToAs`           :meth:`frozenSelection`        :meth:`noChangeMerge`         :meth:`sqlWhereFromBag`    
-    :meth:`column`            :meth:`fullRelationPath`       :meth:`pkey`                  :meth:`sql_deleteSelection`
-    :meth:`columns`           :meth:`getColumnPrintWidth`    :meth:`pkg`                   :meth:`touchRecords`       
-    :meth:`columnsFromString` :meth:`getQueryFields`         :meth:`query`                 :meth:`update`             
-    :meth:`copyToDb`          :meth:`getResource`            :meth:`readColumns`           :meth:`touchRecords`       
-    :meth:`copyToDbstore`     :meth:`importFromAuxInstance`  :meth:`record`                :meth:`writeRecordCluster` 
-    :meth:`db`                :meth:`importFromXmlDump`      :meth:`recordAs`              :meth:`xmlDebug`
-    :meth:`dbroot`            :meth:`indexes`                :meth:`recordCaption`         :meth:`xmlDump`            
+    :meth:`attributes`        :meth:`diagnostic_errors`      :meth:`newPkeyValue`          :meth:`relations_one`      
+    :meth:`baseViewColumns`   :meth:`diagnostic_warnings`    :meth:`newrecord`             :meth:`rowcaption`         
+    :meth:`batchUpdate`       :meth:`empty`                  :meth:`noChangeMerge`         :meth:`rowcaptionDecode`   
+    :meth:`buildrecord`       :meth:`exception`              :meth:`onInited`              :meth:`sqlWhereFromBag`    
+    :meth:`buildrecord_`      :meth:`existsRecord`           :meth:`onIniting`             :meth:`sql_deleteSelection`
+    :meth:`checkPkey`         :meth:`exportToAuxInstance`    :meth:`pkey`                  :meth:`touchRecords`       
+    :meth:`check_deletable`   :meth:`frozenSelection`        :meth:`pkg`                   :meth:`trigger_onDeleted`         
+    :meth:`check_updatable`   :meth:`fullRelationPath`       :meth:`protect_delete`        :meth:`trigger_onDeleting`   
+    :meth:`colToAs`           :meth:`getColumnPrintWidth`    :meth:`protect_update`        :meth:`trigger_onInserted`    
+    :meth:`column`            :meth:`getQueryFields`         :meth:`protect_validate`      :meth:`trigger_onInserting`
+    :meth:`columns`           :meth:`getResource`            :meth:`query`                 :meth:`trigger_onUpdated`       
+    :meth:`columnsFromString` :meth:`importFromAuxInstance`  :meth:`readColumns`           :meth:`trigger_onUpdating`             
+    :meth:`copyToDb`          :meth:`importFromXmlDump`      :meth:`record`                :meth:`touchRecords`       
+    :meth:`copyToDbstore`     :meth:`indexes`                :meth:`recordAs`              :meth:`update`             
+    :meth:`db`                :meth:`insert`                 :meth:`recordCaption`         :meth:`touchRecords`       
+    :meth:`dbroot`            :meth:`insertOrUpdate`         :meth:`recordCoerceTypes`     :meth:`writeRecordCluster` 
+    :meth:`defaultValues`     :meth:`lastTS`                 :meth:`relationExplorer`      :meth:`xmlDebug`
+    :meth:`delete`            :meth:`lock`                   :meth:`relationName`          :meth:`xmlDump`            
+    :meth:`deleteRelated`     :meth:`logicalDeletionField`   :meth:`relations`          
+    :meth:`deleteSelection`   :meth:`model`                  :meth:`relations_many`     
     ========================= ============================== ============================= ===========================
     
 .. _gnrsqltable_gnrsqlsaveexception:

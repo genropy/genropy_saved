@@ -9,7 +9,7 @@ periodCombo
     .. note:: summary of the component requirements:
               
               * It is a :ref:`components_standard`.
-              * It is a :ref:`components_passive`. Its :ref:`webpages_py_requires` are::
+              * It is a :ref:`components_passive`. Its :ref:`webpages_py_requires` is::
 
                     py_requires='public:Public'
                     

@@ -62,35 +62,35 @@ class GnrDboPackage(object):
     def loadUserObject(self, pkg=None, **kwargs):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         return self.dbtable('userobject').loadUserObject(pkg=pkg or self.name, **kwargs)
         
     def saveUserObject(self, data, pkg=None, **kwargs):
         """add???
         
         :param data: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         return self.dbtable('userobject').saveUserObject(data, pkg=pkg or self.name, **kwargs)
         
     def deleteUserObject(self, id, pkg=None):
         """add???
         
         :param id: the object id
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         return self.dbtable('userobject').deleteUserObject(pkg=pkg or self.name, id=id)
         
     def listUserObject(self, pkg=None, **kwargs):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
         
     def getPreference(self, path, dflt=None):
-        """Get a preference for the current package.
+        """Get a preference for the current package. Return the value of the specified
+        preference, or *dflt* if it is missing
         
         :param path: a dotted name of the preference item
-        :param dflt: the default value
-        :returns: value of the specified preference, or *dflt* if it is missing"""
+        :param dflt: the default value"""
         return self.db.table('adm.preference').getPreference(path, pkg=self.name, dflt=dflt)
         
     def setPreference(self, path, value):
@@ -118,8 +118,8 @@ class TableBase(object):
         :param draftField: add???
         :param md5: boolean. add???
         :param group: a hierarchical path of logical categories and subacategories the columns belong to.
-                      For more information, check the :ref:`group` section. Default value is ``zzz``
-        :param group_name: add???. Default value is ``System``"""
+                      For more information, check the :ref:`group` section
+        :param group_name: add???"""
         if id:
             tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id',_sendback=True)
             pkey = tbl.attributes.get('pkey')
@@ -236,17 +236,19 @@ class TableBase(object):
         tbl.aliasColumn('_recordtag_tag', relation_path='%s.tag' % relation_path, name_long='!!Tagcode', group='_')
         
 class GnrHTable(TableBase):
-    """A hierarchical table. More information on the :ref:`classes_htable` documentation section."""
+    """A hierarchical table. More information on the :ref:`classes_htable` section"""
     def htableFields(self, tbl):
         """:param tbl: the :ref:`table` object
         
-        This method adds the following :ref:`table_columns` in your table:
+        Create the necessary :ref:`columns` in order to use the :ref:`h_th` component.
         
-        * the "code" column
-        * the "description" column
-        * the "child_code" column
-        * the "parent_code" column
-        * the "level" column
+        In particular it adds:
+        
+        * the "code" column: add???
+        * the "description" column: add???
+        * the "child_code" column: add???
+        * the "parent_code" column: add???
+        * the "level" column: add???
         
         You can redefine the first three columns in your table; if you don't redefine them, they
         are created with the following features::
@@ -320,9 +322,9 @@ class Table_counter(TableBase):
         return True
         
     def config_db(self, pkg):
-        """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
+        """Configure the database, creating the database :ref:`table` and some :ref:`columns`
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         tbl = pkg.table('counter', pkey='codekey', name_long='!!Counter', transaction=False)
         self.sysFields(tbl, id=False, ins=True, upd=True)
         tbl.column('codekey', size=':32', readOnly='y', name_long='!!Codekey', indexed='y')
@@ -339,7 +341,7 @@ class Table_counter(TableBase):
         """add???
         
         :param name: the counter name
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param code: the counter code
         :param codekey: the codekey format (e.g. ``$YY`` for year)
         :param output: the output format (e.g. ``$YY.$NNNN`` for year)
@@ -355,7 +357,7 @@ class Table_counter(TableBase):
         """Generate a new number from the specified counter and return it as a string
         
         :param name: the counter name
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param code: the counter code
         :param codekey: the formatting string for the key
         :param output: the formatting output for the key
@@ -384,7 +386,7 @@ class Table_counter(TableBase):
         """add???
         
         :param name: the counter name
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param code: the counter code
         :param codekey: the formatting string for the key
         :param output: the formatting output for the key
@@ -402,7 +404,7 @@ class Table_counter(TableBase):
         
         :param codekey: the formatting string for the key
         :param code: the counter code
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param name: the counter name
         :param lastAssigned: add???"""
         record = Bag()
@@ -460,16 +462,13 @@ class Table_counter(TableBase):
 class Table_userobject(TableBase):
     """add???"""
     def use_dbstores(self):
-        """add???
-        
-        :returns: add???
-        """
+        """add???"""
         return False
         
     def config_db(self, pkg):
-        """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
+        """Configure the database, creating the database :ref:`table` and some :ref:`columns`
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         tbl = pkg.table('userobject', pkey='id', name_long='!!User Object', transaction=False)
         self.sysFields(tbl, id=True, ins=True, upd=True)
         tbl.column('code', name_long='!!Code', indexed='y') # a code unique for the same type / pkg / tbl
@@ -494,7 +493,7 @@ class Table_userobject(TableBase):
         :param id: add???
         :param code: add???
         :param objtype: add???
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param tbl: the :ref:`table` object
         :param userid: add???
         :param description: add???
@@ -542,18 +541,19 @@ class Table_userobject(TableBase):
         """add???
         
         :param id: add???
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         self.delete({'id': id})
         
-    def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None,flags=None):
+    def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):
         """add???
         
         :param objtype: add???
-        :param pkg: the :ref:`package <packages_index>` object
+        :param pkg: the :ref:`package <packages>` object
         :param tbl: the :ref:`table` object
         :param userid: add???
         :param authtags: add???
-        :param onlyQuicklist: add???"""
+        :param onlyQuicklist: add???
+        :param flags: add???"""
         onlyQuicklist = onlyQuicklist or False
         
         def checkUserObj(r):
@@ -586,9 +586,9 @@ class Table_recordtag(TableBase):
         return True
         
     def config_db(self, pkg):
-        """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
+        """Configure the database, creating the database :ref:`table` and some :ref:`columns`
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         tbl = pkg.table('recordtag', pkey='id', name_long='!!Record tags', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tablename', name_long='!!Table name')
@@ -672,9 +672,9 @@ class Table_recordtag_link(TableBase):
         return True
         
     def config_db(self, pkg):
-        """Configure the database, creating the database :ref:`table` and some :ref:`table_columns`
+        """Configure the database, creating the database :ref:`table` and some :ref:`columns`
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         tbl = pkg.table('recordtag_link', pkey='id', name_long='!!Record tag link', transaction=False)
         self.sysFields(tbl, id=True, ins=False, upd=False)
         tbl.column('tag_id', name_long='!!Tag id', size='22').relation('recordtag.id', onDelete='cascade',
@@ -685,7 +685,9 @@ class Table_recordtag_link(TableBase):
     def getTagLinks(self, table, record_id):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param record_id: the record id"""
         where = '$%s=:record_id' % self.tagForeignKey(table)
         return self.query(columns='@tag_id.tag,@tag_id.description',
@@ -698,7 +700,9 @@ class Table_recordtag_link(TableBase):
     def getTagDict(self, table):
         """add???
         
-        :param table: the :ref:`table` name"""
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)"""
         currentEnv = self.db.currentEnv
         cachename = '_tagDict_%s' % table.replace('.', '_')
         tagDict = currentEnv.get(cachename)
@@ -710,7 +714,9 @@ class Table_recordtag_link(TableBase):
     def assignTagLink(self, table, record_id, tag, value):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param record_id: the record id
         :param tag: add???
         :param value: add???"""
@@ -742,7 +748,9 @@ class Table_recordtag_link(TableBase):
     def getTagLinksBag(self, table, record_id):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param record_id: the record id"""
         result = Bag()
         taglinks = self.query(columns='@tag_id.maintag AS maintag, @tag_id.subtag AS subtag, @tag_id.tag AS tag',
@@ -758,7 +766,9 @@ class Table_recordtag_link(TableBase):
     def getCountLinkDict(self, table, pkeys):
         """add???
         
-        :param table: the :ref:`table` name
+        :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
+                      (packageName is the name of the :ref:`package <packages>` to which the table
+                      belongs to)
         :param pkeys: add???"""
         return self.query(columns='@tag_id.tag as tag,count(*) as howmany', group_by='@tag_id.tag',
                           where='$%s IN :pkeys' % self.tagForeignKey(table), pkeys=pkeys).fetchAsDict(key='tag')
@@ -766,6 +776,6 @@ class Table_recordtag_link(TableBase):
     def tagForeignKey(self, table):
         """add???
         
-        :param table: the :ref:`table` name"""
+        :param table: the :ref:`database table <table>` name"""
         tblobj = self.db.table(table)
         return '%s_%s' % (tblobj.name, tblobj.pkey)

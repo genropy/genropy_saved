@@ -26,20 +26,20 @@ class RecordLinker(BaseComponent):
     py_requires = "foundation/recorddialog"
     
     def recordLinker(self, *args, **kwargs):
-        """.. deprecated:: 0.7
-        
-        the recordLinker is deprecated, use the :meth:`linkerField()` instead."""
+        """.. warning:: deprecated since version 0.7. Use the :meth:`linkerField()` instead"""
         warnings.warn("recordLinker is deprecated, use linkerField() method instead.", DeprecationWarning, stacklevel=2)
         self.linkerField(*args, **kwargs)
         
     def linkerField(self, fb, table=None, field=None, dialogPars=None, record_template=None, record_path=None, lbl=None,
                     value=None, width=None, height=None, colspan=1, rowspan=1, disabled=False, default_path=None,
                     zoom=False, record_reloader=None, **kwargs):
-        """Creates a linker inside a :ref:`formbuilder`.
+        """Creates a linker inside a :ref:`formbuilder`
         
-        :param fb: (mandatory) the formbuilder
-        :param table: (mandatory) string. The :ref:`table`
-        :param field: string. Field name
+        :param fb: (mandatory) the :ref:`formbuilder`
+        :param table: MANDATORY. The :ref:`database table <table>` name on which the query will be executed,
+                      in the form ``packageName.tableName`` (packageName is the name of the
+                      :ref:`package <packages>` to which the table belongs to)
+        :param field: field name
         :param dialogPars: (mandatory) dict. Dialog parameters
                            
                            dialogPars accepts:
@@ -47,11 +47,11 @@ class RecordLinker(BaseComponent):
                            * dlgId
                            * onSaved
                            
-        :param record_template: string. Template for the record summary
+        :param record_template: template for the record summary
         :param record_path: datapath
-        :param lbl: the linkerField's label
-                    (a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`)
-        :param value: string. Where to store the selected ID
+        :param lbl: the linkerField's label (a :ref:`formbuilder's fields attribute
+                    <formbuilder_children_attributes>`)
+        :param value: where to store the selected ID
         :param width: the linkerField's width
         :param height: the linkerField's height
         :param colspan: a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`

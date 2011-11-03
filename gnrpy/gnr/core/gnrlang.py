@@ -267,7 +267,7 @@ class GnrObject(object):
     def mixin(self, cls, **kwargs):
         """add???
         
-        :param cls: add???"""
+        :param cls: the python class to mixin"""
         if isinstance(cls, basestring):
             modulename, cls = cls.split(':')
             m = gnrImport(modulename)
@@ -596,7 +596,7 @@ def compareInstances(a, b, __visited=None):
     
     :param a: add???
     :param b: add???
-    :param _visited: add???"""
+    """
     if not __visited:
         __visited = {}
     k1 = str(id(a)) + '-' + str(id(b))
@@ -814,7 +814,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
         source.__onmixin__.im_func(obj, _mixinsource=source, **kwargs)
         
 def safeStr(self, o):
-    """add??? Return a safe string
+    """Return a safe string
     
     :param o: the string to be checked"""
     if isinstance(o, unicode):
@@ -856,9 +856,7 @@ class GnrExpandible(object):
 def instanceOf(obj, *args, **kwargs):
     """add???
     
-    :param obj: add???
-    :returns: the object
-    """
+    :param obj: add???"""
     if isinstance(obj, basestring):
         modulename, clsname = obj.split(':')
         m = gnrImport(modulename)
@@ -869,10 +867,7 @@ def instanceOf(obj, *args, **kwargs):
         return obj
         
 def errorTxt():
-    """add???
-    
-    :returns: add???
-    """
+    """add???"""
     el = sys.exc_info()
     tb_text = traceback.format_exc()
     e = el[2]

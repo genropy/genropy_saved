@@ -8,7 +8,7 @@ Copyright (c) 2008 Softwell. All rights reserved.
 class GnrCustomWebPage(object):
     maintable = 'invoice.invoice'
     py_requires = 'public:TableHandlerMain'
-    css_icons = 'retina/violet'
+    #css_icons = 'retina/violet'
     
     def th_form(self, form):
         bc = form.center.borderContainer()
@@ -26,15 +26,15 @@ class GnrCustomWebPage(object):
         pane.dialogTableHandler(relation='@invoice_rows',
                                 viewResource=':ViewFromInvoice',
                                 formResource=':FormFromInvoice',
+                                #pbl_classes=True,
                                 dialog_height='300px',
                                 dialog_width='400px')
                                 
     def invoice_bottom(self, pane):
-        tag = 'currencytextbox'
         fb = pane.formbuilder(cols=3,fld_width='6em',lbl_width='3em')
-        fb.field('net',tag=tag,readOnly=True)
-        fb.field('vat',tag=tag,readOnly=True,lbl_width='2em')
-        fb.field('total',tag=tag,readOnly=True)
+        fb.field('net', tag='currencytextbox', readOnly=True)
+        fb.field('vat', tag='currencytextbox', readOnly=True, lbl_width='2em')
+        fb.field('total', tag='currencytextbox', readOnly=True)
         #pane.dataFormula('.net', "rows.sum('total')",
         #                  rows='=.@invoice_rows',
         #                  _fired='^.calculateTotal')

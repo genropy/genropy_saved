@@ -156,8 +156,7 @@ def parselocal(txt, cls, locale=None):
     
     :param txt: add???
     :param cls: add???
-    :param locale: the current locale (e.g: en, en_us, it)
-    :returns: an object of the ``cls`` class"""
+    :param locale: the current locale (e.g: en, en_us, it)"""
     locale = (locale or DEFAULT_LOCALE).replace('-', '_')
     if locale and '_' in locale:
         loc, country = locale.split('_')

@@ -38,8 +38,8 @@ class ModelExtractor(object):
     def buildTables(self, pkg, pkg_name):
         """add???
         
-        :param pkg: the :ref:`package <packages_index>` object
-        :param pkg_name: the:ref:`package <packages_index>` name"""
+        :param pkg: the :ref:`package <packages>` object
+        :param pkg_name: the:ref:`package <packages>` name"""
         elements = self.dbroot.adapter.listElements('tables', schema=pkg_name)
         for tbl_name in elements:
             tbl = pkg.table(tbl_name)
@@ -51,7 +51,7 @@ class ModelExtractor(object):
         
         :param tbl: the :ref:`table` object
         :param pkg_name: the name of the package. For more information, check the
-                         :ref:`packages_index` documentation page
+                         :ref:`packages` documentation page
         :param tbl_name: the name of the database :ref:`table`"""
         columns = list(self.dbroot.adapter.getColInfo(schema=pkg_name, table=tbl_name))
         gnrlist.sortByItem(columns, 'position')
@@ -82,7 +82,7 @@ class ModelExtractor(object):
         
         :param tbl: the :ref:`table` object
         :param pkg_name: the name of the package. For more information, check the
-                         :ref:`packages_index` documentation page
+                         :ref:`packages` documentation page
         :param tbl_name: the name of the database :ref:`table`"""
         for ind in self.dbroot.adapter.getIndexesForTable(schema=pkg_name, table=tbl_name):
             if not ind['primary']:
@@ -104,9 +104,7 @@ class ModelExtractor(object):
             fld.relation('%s.%s.%s' % (one_schema, one_table, one_field))
             
     def buildViews(self):
-        """add???
-        
-        :returns: add???"""
+        """add???"""
         elements = self.dbroot.adapter.listElements('views', schema=self.schema)
         children = Bag(self.children)
         for element in elements:
@@ -156,7 +154,7 @@ class SqlModelChecker(object):
         """Check if the current package is contained by a not defined schema and then call the
         :meth:`_checkTable()` method for each table. Return a list containing sql statements
         
-        :param pkg: the :ref:`package <packages_index>` object"""
+        :param pkg: the :ref:`package <packages>` object"""
         self._checkSqlSchema(pkg)
         if pkg.tables:
             for tbl in pkg.tables.values():
@@ -384,23 +382,17 @@ class SqlModelChecker(object):
         return tablechanges
         
     def _buildView(self, node, sqlschema=None):
-        """Prepare the sql statement for adding the new view.
-        
-        :returns: the statement"""
+        """Prepare the sql statement for adding the new view and return it"""
         sql = []
         sql.append(self.sqlView(node, sqlschema=sqlschema))
         return sql
         
     def _buildColumn(self, col):
-        """Prepare the sql statement for adding the new column to the given table.
-        
-        :returns: the statement"""
+        """Prepare the sql statement for adding the new column to the given table and return it"""
         return 'ALTER TABLE %s ADD COLUMN %s' % (col.table.sqlfullname, self._sqlColumn(col))
         
     def _alterColumnType(self, col, new_dtype, new_size=None):
-        """Prepare the sql statement for altering the type of a given column.
-        
-        :returns: the statement"""
+        """Prepare the sql statement for altering the type of a given column and return it"""
         sqlType = self.db.adapter.columnSqlType(new_dtype, new_size)
         return 'ALTER TABLE %s ALTER COLUMN %s TYPE %s' % (col.table.sqlfullname, col.sqlname, sqlType)
         
@@ -413,18 +405,14 @@ class SqlModelChecker(object):
         return 'ALTER TABLE %s %s' % (col.table.sqlfullname, alter_unique)
         
     def _buildForeignKey(self, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):
-        """Prepare the sql statement for adding the new constraint to the given table.
-        
-        :returns: the statement"""
+        """Prepare the sql statement for adding the new constraint to the given table and return it"""
         c_name = 'fk_%s_%s' % (m_tbl, m_fld)
         statement = self.db.adapter.addForeignKeySql(c_name, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del,
                                                      init_deferred)
         return statement
         
     def _dropForeignKey(self, referencing_package, referencing_table, referencing_field):
-        """Prepare the sql statement for dropping the givent constraint from the given table.
-        
-        :returns: the statement"""
+        """Prepare the sql statement for dropping the givent constraint from the given table and return it"""
         constraint_name = 'fk_%s_%s' % (referencing_table, referencing_field)
         statement = 'ALTER TABLE %s.%s DROP CONSTRAINT %s' % (referencing_package, referencing_table, constraint_name)
         return statement

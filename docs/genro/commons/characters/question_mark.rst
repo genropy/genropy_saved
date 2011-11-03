@@ -1,8 +1,8 @@
 .. _question_mark_char:
 
-=============================
-question mark ("?") character
-=============================
+===========================
+question mark (?) character
+===========================
 
     *Last page update*: |today|
     

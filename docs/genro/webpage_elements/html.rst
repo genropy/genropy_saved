@@ -53,7 +53,7 @@ list of HTML elements
 
     Here we list the HTML elements:
     
-    * *ghost*: the ghost attribute is deprecated. Use placeholder instead.
+    * *ghost*: the ghost attribute is deprecated. Use HTML placeholder instead.
     * *placeholder*: the html 5 placeholder
     * *tip*: the HTML tip, where STRING is the tip that will be showned.
       You can use it on every object.

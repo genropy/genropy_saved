@@ -6,8 +6,7 @@ nodeId
     
     *Last page update*: |today|
     
-    .. note:: **validity** - the *nodeId* attribute is supported by every :ref:`webpage element
-              <webpage_elements_index>`
+    .. note:: **validity** - the *nodeId* attribute is supported by every element
     
     * :ref:`nodeid_def`
     * :ref:`nodeid_examples`
@@ -26,8 +25,10 @@ description
                  * Every BagNode is unique because of its *nodeId*
                  
     Some object supports an attribute that creates automatically the *nodeId* for the object
-    itself and for its children. In particular:
+    itself (and when it has got children, for its children). In particular:
     
+    * the :ref:`includedgrid` has got the *frameCode* attribute
+    * the :ref:`paletteGrid` has got the *paletteCode* attribute
     * the :ref:`framepane` has got the :ref:`frame_framecode` attribute
     * the :ref:`slotBar <toolbar>` and the :ref:`slotToolbar <toolbar>` have got the
       :ref:`toolbar_slotbarcode`

@@ -6,7 +6,7 @@ dataResource
 
     *Last page update*: |today|
     
-    **Type**: :ref:`server-side controller <controllers_server>`
+    .. note:: **Type**: :ref:`server-side controller <controllers_server>`
     
     * :ref:`dataresource_def`
     * :ref:`dataresource_examples`

@@ -70,11 +70,11 @@ Trigger
     concept of *subscription*, that is a link between an event (update, insert, delete) with its
     eventhandler callback functions. The subscribe method defines new subscriptions for update,
     insert and delete events.
-
+    
     Triggers may be defined either on Bags or BagNodes; to do so, you have to use the
     :meth:`Bag.subscribe() <gnr.core.gnrbag.Bag.subscribe>` method and the :meth:`BagNode.subscribe()
     <gnr.core.gnrbag.BagNode.subscribe>`::
-
+    
         Bag.subscribe(update=callback1, insert=callback2, delete=callback3, any=callback4)
         BagNode.subscribe(updval=callback1, updattr=callback2)
         
@@ -84,7 +84,7 @@ Trigger
       that allow to trigger their relative callback.
     * "updval" and "updattr" are the parameters for the BagNode's subscribe method that allow
       to trigger their relative callback.
-
+      
 .. _bag_trigger_on_a_bag:
 
 Trigger on a Bag: the subscribe method
@@ -104,7 +104,8 @@ Trigger on a Bag: the subscribe method
     >>> walt['children.Mickey.height'] = 53
     >>> walt['children.Donald.height'] = 51
     
-    Now we want that the root Bag called "family" is able to handle any data changes that happens within the Bag itself. So we define as an example three eventhandler functions::
+    Now we want that the root Bag called "family" is able to handle any data changes that happens
+    within the Bag itself. So we define as an example three eventhandler functions::
 
         def onUpdate(node=None, pathlist=None, oldvalue=None, evt=None, **kwargs):
             if evt=='upd_value':

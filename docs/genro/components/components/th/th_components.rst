@@ -1,14 +1,14 @@
 .. _th_types:
 
-==================
-TableHandler types
-==================
+===================
+TableHandler: types
+===================
 
     *Last page update*: |today|
     
     * :ref:`th_types_intro`:
     
-        :ref:`th_common_attributes` - :ref:`th_options`
+        :ref:`th_common_attributes`
         
         * :ref:`th_border`
         * :ref:`th_dialog`
@@ -17,6 +17,8 @@ TableHandler types
         * :ref:`th_plain`
         * :ref:`th_stack`
         
+    * :ref:`th_formhandler`
+    
     * :ref:`th_iframe_types`:
     
         :ref:`th_iframe_common_attributes`
@@ -34,27 +36,27 @@ TableHandler types
         * :ref:`th_linkerbar`
         * :ref:`th_linkerbox`
         
-    * :ref:`includedgrid`:
+    * :ref:`th_ig`
     
-        :ref:`ig_attributes`
-
 .. _th_types_intro:
 
 TableHandler types - introduction
 =================================
 
-    In this section we explain all the TableHandler types. They are a different way to
-    show the :ref:`view_data` and the :ref:`data_entry`:
+    In this section we explain all the TableHandler types. A TableHandler type is a
+    different way to show the :ref:`view_data` and the :ref:`data_entry`.
+    
+    In particular:
     
     * :ref:`th_border`: show the ``view-data window`` and the ``data-entry window``
-      in a single page.
+      in a single page
     * :ref:`th_dialog`: show the ``data-entry window`` in a dialog that appears over the
-      ``view-data window``.
-    * :ref:`th_palette`: show the ``data-entry window`` in a :ref:`palette` that appears
-      over the ``view-data window``.
-    * :ref:`th_plain`: show only the ``view-data window``. User can't modify records.
+      ``view-data window``
+    * :ref:`th_palette`: show the ``data-entry window`` in a :ref:`palette <palette>`
+      that appears over the ``view-data window``
+    * :ref:`th_plain`: show only the ``view-data window``. User can't modify records
     * :ref:`th_stack`: show the ``data-entry window`` and the ``view-data window``
-      in two different stack.
+      in two different stack
       
 .. _th_common_attributes:
 
@@ -65,32 +67,25 @@ TableHandler common attributes
     attributes here:
     
     * *pane*: MANDATORY - the :ref:`contentpane` to which the TableHandler
-      is linked.
+      is linked
       
       .. note:: we suggest you to link a TableHandler to a :ref:`contentpane`;
                 avoid a :ref:`bordercontainer`, a :ref:`tabcontainer` or
                 other :ref:`layout elements <layout>` (if you use them, pay
                 attention to use the correct attributes of the layout elements)
       
-    * *nodeId*: the TableHandler id. If you don't need a specific nodeId
-      it is handled automatically
-                
-      .. warning:: if you have more than a TableHandler in the same page related to the
-                   same :ref:`table` you must define MANDATORY a different nodeId for
-                   every TableHandler of that page that comes into conflict
-                   
-      For more information on nodeId, check the :ref:`nodeid` page
+    * *nodeId*: the TableHandler :ref:`nodeid`. It is not a mandatory attribute: if you
+      don't need a specific name for the nodeId, then it is handled automatically
       
+      .. warning:: if you have more than a TableHandler in the same page related to the
+                   same :ref:`table` you must MANDATORY define a different nodeId for
+                   every TableHandler of that page
+                   
     * *table*: the path of the :ref:`table` linked to your TableHandler. It is MANDATORY
       unless you use the relation attribute. For more information, check the
-      :ref:`th_relation_condition` example.
-      The syntax is::
+      :ref:`th_relation_condition` example. The syntax is::
       
         table = 'packageName.tableName'
-        
-      Example::
-      
-        table='base.staff'
         
     * *th_pkey*: add???
     * *datapath*: the path of your data. If you don't need a specific datapath
@@ -134,53 +129,9 @@ TableHandler common attributes
         * *grid_kwargs*: add???.
         * *hiderMessage*: add???.
         * *pageName*: add???.
-        * *pbl_classes*: if ``True``, allow to use the pbl_roundedgroup and the roundedgrouplabel
-          style attributes (of the base CSS theme of Genro) in your TableHandler
-          
-.. _th_options:
-
-th_options
-----------
-
-    It returns a dict to customize your Tablehandler. You can use it both as a method of the
-    :ref:`th_view_class` or as a method of the :ref:`th_form_class`
-    
-    * *DIALOG_KWARGS* add???
-    
-    * *formInIframe*: add???
-    * *formResource*: allow to change the default :ref:`th_form_class`
-      Check the :ref:`th_formresource` section for more information
-    * *fpane_kwargs*: string. Use it if you have a :ref:`th_border`. Allow to set the
-      attributes of the :ref:`data_entry`. For the complete list and description
-      of the *fpane_kwargs* check the :ref:`th_border` section
-    * *public*: add???
-    * *readOnly*: boolean. If ``True``, the element that carries the readOnly attribute is
-      in read-only mode
-    * *viewResource*: allow to change the default :ref:`th_view_class`
-      Check the :ref:`th_viewresource` section for more information
-    * *virtualStore*: boolean. If it is set to ``True``, it introduces two features:
-          
-        #. Add the :ref:`th_query_bar` (if it is not yet visualized)
-        #. Optimize the time to give the result of a user query: if the user query
-           returns a huge set of records as result, the virtualStore load on the client
-           only the set of records that user sees in his window, and load more records
-           when user scrolls through the result list
-           
-    * *vpane_kwargs*: string. Use it if you have a :ref:`th_border`. Allow to set the
-      attributes of the :ref:`view_data`. For the complete list and description
-      of the *vpane_kwargs* check the :ref:`th_border` section
-    * *widget*: string. Specify the TableHandler you want to use. The accepted strings are:
-        
-        * 'border' for the :ref:`th_border`
-        * 'dialog' for the :ref:`th_dialog`
-        * 'stack' for the :ref:`th_stack`
-        
-        **Example**::
-        
-            class View(BaseComponent):
-                def th_options(self):
-                    return dict(widget='border',vpane_height='60%')
-                    
+        * *pbl_classes*: if ``True``, modify the CSS attributes of the top bar of a :ref:`grid`.
+          For more information, check the :ref:`pbl_classes` page
+                              
 .. _th_border:
 
 borderTableHandler
@@ -269,7 +220,7 @@ dialogTableHandler
                         pane = form.center.contentPane()
                         pane.dialogTableHandler(...) #not th_dialogTableHandler !
     
-    **attributes:**
+    **Attributes:**
     
     The attributes that belong to every TableHandler are described in the
     :ref:`th_common_attributes` section. The attributes that belongs only
@@ -292,7 +243,7 @@ pageTableHandler
     
     **Definition:**
     
-    .. method:: TableHandler.th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,formInIframe=False,reloader=None,default_kwargs=None,dbname=None,**kwargs)
+    .. method:: TableHandler.th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,default_kwargs=None,dbname=None,**kwargs)
     
     **Description:**
     
@@ -308,12 +259,13 @@ pageTableHandler
                         pane = form.center.contentPane()
                         pane.pageTableHandler(...) #not th_pageTableHandler !
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every TableHandler are described in the
     :ref:`th_common_attributes` section. The attributes that belongs only
     to the pageTableHandler are listed here:
     
+    * *dbname=None*: add???
     * *formUrl=None*: add???
     
     Example::
@@ -344,7 +296,7 @@ paletteTableHandler
                         pane = form.center.contentPane()
                         pane.paletteTableHandler(...) #not th_paletteTableHandler !
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every TableHandler are described in the
     :ref:`th_common_attributes` section. The attributes that belongs only
@@ -363,7 +315,7 @@ plainTableHandler
     
     **Definition:**
     
-    .. method:: TableHandler.th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,viewResource=None,formInIframe=False,reloader=None,readOnly=True,**kwargs)
+    .. method:: TableHandler.th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,readOnly=True,**kwargs)
     
     **Description:**
     
@@ -381,13 +333,10 @@ plainTableHandler
                         pane = form.center.contentPane()
                         pane.plainTableHandler(...) #not th_plainTableHandler !
     
-    **attributes**:
+    **Attributes**:
     
-    The attributes that belong to every TableHandler are described in the
-    :ref:`th_common_attributes` section. The attributes that belongs only
-    to the plainTableHandler are listed here:
-    
-    * *widget_kwargs*: add???.
+    The attributes that belong to every TableHandler are described in the :ref:`th_common_attributes`
+    section. There are not attributes belonging only to the plainTableHandler
     
 .. _th_stack:
 
@@ -416,13 +365,30 @@ stackTableHandler
                         pane = form.center.contentPane()
                         pane.stackTableHandler(...) #not th_stackTableHandler !
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every TableHandler are described in the
     :ref:`th_common_attributes` section. The attributes that belongs only
     to the stackTableHandler are listed here:
     
     * *widget_kwargs*: add???.
+    
+.. _th_formhandler:
+
+thFormHandler
+=============
+
+    **Definition:**
+    
+    .. method:: TableHandler.th_thFormHandler(self,pane,formId=None,table=None,formResource=None,startKey=None,formCb=None,store_kwargs=None,default_kwargs=None,**kwargs)
+    
+    **Description:**
+    
+    add???
+    
+    **Attributes**:
+    
+    add???
     
 .. _th_iframe_types:
 
@@ -459,7 +425,7 @@ thIframe
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     * *pane*: add???.
     * *method*: add???.
@@ -478,7 +444,7 @@ IframeDialog
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     add???
     
@@ -495,7 +461,7 @@ iframedispatcher
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     * *root*: add???
     * *methodname*: add???
@@ -515,7 +481,7 @@ IframePalette
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     add???
     
@@ -555,8 +521,6 @@ linker common attributes
       
         dialog_height='100px',dialog_width='300px',dialog_title='Customer'
         
-    * *default_kwargs*: add???
-    
 .. _th_linker_base:
 
 linker
@@ -570,7 +534,7 @@ linker
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every linker are described in the
     :ref:`th_linker_common_attributes` section. The attributes that belongs only
@@ -596,7 +560,7 @@ linkerBar
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every linker are described in the
     :ref:`th_linker_common_attributes` section. The attributes that belongs only
@@ -619,7 +583,7 @@ linkerBox
     
     add???
     
-    **attributes**:
+    **Attributes**:
     
     The attributes that belong to every linker are described in the
     :ref:`th_linker_common_attributes` section. The attributes that belongs only
@@ -646,28 +610,13 @@ linkerBox
                        validate_notnull=True,validate_notnull_error='!!Required',
                        newRecordOnly=True,formResource=':MyForm')
                        
-.. _includedgrid:
+.. _th_ig:
 
 includedGrid
 ============
-    
-    .. method:: add???
-    
-    CLIPBOARD::
-    
-        lavora come se fosse la visualizzazione di una Bag; nella rappresentazione griglia
-        vedi tutte le righe di una Bag, quando editi (dialog oppure inline) (l'editing inline
-        è solo della includedGrid). gridEditor serve a modificare la includedGrid.
-        
-        il "datapath" dell'includedGrid serve solo come retrocompatibilità con l'includedView,
-        quindi come path per i dati nell'includedGrid bisogna usare lo "storepath"
-        
-        lo storepath può puntare alla Bag (aggiungere anche il datamode='bag'), oppure si può
-        puntare ad un path chiocciolinato
-        
-.. _ig_attributes:
 
-includedGrid attributes
------------------------
+    The includedGrid is a :ref:`grid` that allows the inline editing. So, the insertion
+    or the modify of records is handled inside the grid
     
-    add???
+    .. note:: for a complete explanation of the includedGrid, check the :ref:`includedgrid` section
+        

@@ -12,13 +12,13 @@ from gnr.web.gnrbaseclasses import BaseComponent
 class View(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.fieldcell('number',width='6em')
-        r.fieldcell('date',width='6em')
-        r.fieldcell('customer',width='15em')
-        r.fieldcell('city',width='15em')
-        r.fieldcell('net',width='6em')
-        r.fieldcell('vat',width='6em')
-        r.fieldcell('total',width='6em')
+        r.fieldcell('number',width='10em')
+        r.fieldcell('date',width='8em')
+        r.fieldcell('customer',width='100%')
+        r.fieldcell('city',width='20em')
+        r.fieldcell('net',width='8em')
+        r.fieldcell('vat',width='8em')
+        r.fieldcell('total',width='8em')
         
     def th_order(self):
         return 'number'

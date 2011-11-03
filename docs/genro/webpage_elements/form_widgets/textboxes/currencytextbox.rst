@@ -1,12 +1,15 @@
 .. _currencytextbox:
 
 ===============
-currencyTextbox
+CurrencyTextBox
 ===============
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+    .. note:: CurrencyTextBox features:
+    
+              * **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
     
     * :ref:`currencytextbox_def`
     * :ref:`currencytextBox_description`
@@ -35,13 +38,9 @@ attributes
 
     **currencyTextbox**:
     
-    * *currency*: specify used currency. Default value is ``EUR``
-    * *locale*: specify currency format type. Default value is ``it``
+    * *currency*: specify used currency
+    * *locale*: specify currency format type
     
-    **commons attributes**:
-    
-        For commons attributes, see :ref:`textboxes_attributes`
-
 .. _currencytextbox_examples:
 
 Examples

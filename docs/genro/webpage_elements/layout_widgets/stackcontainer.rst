@@ -1,17 +1,16 @@
 .. _stackcontainer:
 
 ==============
-stackContainer
+StackContainer
 ==============
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Dojo layout widget <dojo_layout>`
-    
-    .. note:: The Genro stackContainer has been taken from Dojo without adding any modifies. In this page
-              you will find some interesting features that we want to point up. For more information, check
-              the Dojo's stackContainer documentation.
-    
+    .. note:: StackContainer features:
+              
+              * **Type**: :ref:`Dojo layout widget <dojo_layout>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+              
     * :ref:`stack_def`
     * :ref:`stack_attributes`
     * :ref:`stack_examples`: :ref:`stack_examples_simple`
@@ -41,10 +40,6 @@ Attributes
     
     * *pageName*: allow to identify the selected page.
     
-    **commons attributes**:
-    
-        For commons attributes, see :ref:`layout_common_attributes`
-
 .. _stack_examples:
 
 Examples

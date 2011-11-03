@@ -1,12 +1,15 @@
 .. _numbertextbox:
 
 =============
-numberTextbox
+NumberTextbox
 =============
     
     *Last page update*: |today|
     
-    **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+    .. note:: NumberTextBox features:
+              
+              * **Type**: :ref:`Dojo-improved form widget <dojo_improved_form_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
     
     * :ref:`numbertextbox_def`
     * :ref:`numbertextbox_description`
@@ -36,11 +39,7 @@ attributes
     
     * *places*: Numbers of decimals. If it's reached the following decimal to the last supported one,
       a tooltip error will warn user. Default value is ``3``
-    
-    **commons attributes**:
-    
-        For commons attributes, see :ref:`textboxes_attributes`
-        
+      
 .. _numbertextbox_examples:
 
 Examples

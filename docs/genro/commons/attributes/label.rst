@@ -11,6 +11,7 @@ label
               * :ref:`button`
               * :ref:`dropdownbutton`
               * :ref:`togglebutton`
+              * :ref:`slotbutton`
               
               When you have a widget that doesn't support the *label* attribute, you
               can however give a label to it by inserting the widget into a :ref:`formbuilder`.

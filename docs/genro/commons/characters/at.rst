@@ -1,8 +1,8 @@
 .. _at_char:
 
-==================
-at ("@") character
-==================
+================
+at (@) character
+================
 
     *Last page update*: |today|
     

@@ -24,9 +24,9 @@ name_full
     The "name_full" is a string that can include:
     
     * the full (add??? differences with the "name_long"?) name of a :ref:`database table <table>`
-    * the full (add???) name of the :ref:`table columns <table_column>`
+    * the full (add???) name of the :ref:`table columns <column>`
     * the full (add???) name of a database schema (check the :ref:`methods_config_attributes` section)
-    * the full (add???) name of a :ref:`package <packages_index>`
+    * the full (add???) name of a :ref:`package <packages>`
     
     You can specify multiple languages adding the :ref:`"!!" <exclamation_point>` characters to the
     begin of the string. More information in the :ref:`languages` section
@@ -41,9 +41,9 @@ name_long
     The "name_long" is a string that can include:
     
     * the full (add??? differences with the "name_full"?) name of a :ref:`database table <table>`
-    * the full (add???) name of the :ref:`table columns <table_column>`
+    * the full (add???) name of the :ref:`table columns <column>`
     * the full (add???) name of a database schema (check the :ref:`methods_config_attributes` section)
-    * the full (add???) name of a :ref:`package <packages_index>`
+    * the full (add???) name of a :ref:`package <packages>`
     
     You can specify multiple languages adding the :ref:`"!!" <exclamation_point>` characters to the
     begin of the string. More information in the :ref:`languages` section
@@ -58,9 +58,9 @@ name_short
     The "name_short" is a string that can include:
     
     * the abbreviation name of a :ref:`database table <table>`
-    * the abbreviation name of the :ref:`table columns <table_column>`
+    * the abbreviation name of the :ref:`table columns <column>`
     * the abbreviation name of a database schema (check the :ref:`methods_config_attributes` section)
-    * the abbreviation name of a :ref:`package <packages_index>`
+    * the abbreviation name of a :ref:`package <packages>`
     
     You can specify multiple languages adding the :ref:`"!!" <exclamation_point>` characters to the
     begin of the string. More information in the :ref:`languages` section
@@ -75,9 +75,9 @@ name_plural
     The "name_plural" is a string that can include:
     
     * the plural name of a :ref:`database table <table>`
-    * the plural name of the :ref:`table columns <table_column>`
+    * the plural name of the :ref:`table columns <column>`
     * the plural name of a database schema (check the :ref:`methods_config_attributes` section)
-    * the plural name of a :ref:`package <packages_index>`
+    * the plural name of a :ref:`package <packages>`
     
     You can specify multiple languages adding the :ref:`"!!" <exclamation_point>` characters to the
     begin of the string. More information in the :ref:`languages` section

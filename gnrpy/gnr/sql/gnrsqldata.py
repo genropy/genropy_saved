@@ -233,8 +233,7 @@ class SqlQueryCompiler(object):
         
         :param attrs: add???
         :param path: add???
-        :param basealias: add???
-        :returns: add???"""
+        :param basealias: add???"""
         #ref = attrs['many_relation'].split('.')[-1]
         ref = attrs['many_relation'].split('.', 1)[-1] #fix 25-11-09
         newpath = path + [ref]
@@ -299,8 +298,7 @@ class SqlQueryCompiler(object):
         
         :param target_fld: add???
         :param from_fld: add???
-        :param alias: add???
-        :returns: add???"""
+        :param alias: add???"""
         extracnd = None
         one_one = None
         joinExtra = self.joinConditions.get('%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_')))
@@ -320,9 +318,7 @@ class SqlQueryCompiler(object):
         replaced into the returned string with templateReplace (see :meth:`compiledQuery()`).
         
         :param teststring: add???
-        :param reldict: a dict of custom names for db columns: {'asname':'@relation_name.colname'}.
-                        
-        :returns: the teststring"""
+        :param reldict: a dict of custom names for db columns: {'asname':'@relation_name.colname'}"""
         if reldict is None: reldict = self.cpl.relationDict
         for col in COLFINDER.finditer(teststring):
             colname = col.group(2)
@@ -370,14 +366,15 @@ class SqlQueryCompiler(object):
                       addPkeyColumn=True):
         """Prepare the SqlCompiledQuery to get the sql query for a selection.
         
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
                          :ref:`sql_order_by` section
         :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
-        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                      information, check the :ref:`sql_limit` section
         :param offset: the same of the sql "OFFSET"
         :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
         :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
@@ -615,8 +612,7 @@ class SqlQueryCompiler(object):
     def expandPeriod(self, m):
         """add???
         
-        :param m: add???
-        :returns: add???"""
+        :param m: add???"""
         fld = m.group(1)
         period_param = m.group(2)
         date_from, date_to = decodeDatePeriod(self.sqlparams[period_param],
@@ -671,9 +667,7 @@ class SqlDataResolver(BagResolver):
     classArgs = ['tablename']
         
     def resolverSerialize(self):
-        """add???
-        
-        :returns: add???"""
+        """add???"""
         attr = {}
         attr['resolvermodule'] = self.__class__.__module__
         attr['resolverclass'] = self.__class__.__name__
@@ -750,14 +744,15 @@ class SqlQuery(object):
     The ``__init__`` method passes:
     
     :param dbtable: the :ref:`table` on which the query will be focused on
-    :param columns: it represents the :ref:`table columns <table_columns>` to be returned by the "SELECT"
+    :param columns: it represents the :ref:`table columns <columns>` to be returned by the "SELECT"
                     clause in the traditional sql query. For more information, check the
                     :ref:`sql_columns` section
     :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
     :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
                      :ref:`sql_order_by` section
     :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
-    :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator
+    :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                  information, check the :ref:`sql_limit` section
     :param offset: the same of the sql "OFFSET"
     :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
     :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
@@ -818,7 +813,7 @@ class SqlQuery(object):
         
         :param target_fld: add???
         :param from_fld: add???
-        :param condition: add???
+        :param condition: set a :ref:`sql_condition` for the join
         :param one_one: boolean. add???
         """
         cond = dict(condition=condition, one_one=one_one, params=kwargs)
@@ -1128,11 +1123,12 @@ class SqlSelection(object):
                      * `mode='records'`: add???
                      * `mode='data'`: add???
                      * `mode='tabtext'`: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param offset: the same of the sql "OFFSET"
-        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator
+        :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
+                      information, check the :ref:`sql_limit` section
         :param filterCb: add???
         :param subtotal_rows: add???
         :param formats: add???
@@ -1268,9 +1264,7 @@ class SqlSelection(object):
     def getByKey(self, k):
         """add???
         
-        :param k: add???
-        :returns: add???
-        """
+        :param k: add???"""
         return self.keyDict[k]
         
     def sort(self, *args):
@@ -1353,11 +1347,9 @@ class SqlSelection(object):
         self._data.insert(i, self.newRow(values))
         
     def newRow(self, values):
-        """add a new row
+        """Add a new row and return it
         
-        :param values: add???
-        :returns: the new row
-        """
+        :param values: add???"""
         r = GnrNamedList(self._index)
         r.update(values)
         return r
@@ -1365,8 +1357,7 @@ class SqlSelection(object):
     def remove(self, cb):
         """add???
         
-        :param cb: add???
-        """
+        :param cb: add???"""
         self._data = filter(not(cb), self._data)
         self.isChangedData = True
         
@@ -1402,7 +1393,7 @@ class SqlSelection(object):
         
     @deprecated
     def analyze(self, group_by=None, sum=None, collect=None, distinct=None, keep=None, key=None, **kwargs):
-        """.. deprecated:: 0.7"""
+        """.. warning:: deprecated since version 0.7"""
         self.totalize(group_by=group_by, sum=sum, collect=collect, distinct=distinct, keep=keep, key=key, **kwargs)
         
     def totalizer(self, path=None):
@@ -1430,7 +1421,7 @@ class SqlSelection(object):
         """add???
            
         :param path: add???
-        :param columns: it represents the :ref:`table_columns` to be returned by the "SELECT"
+        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section. """
         if isinstance(columns, basestring):
@@ -1803,8 +1794,7 @@ class SqlSelection(object):
     def out_tabtext(self, outsource):
         """add???
         
-        :param outsource: add???
-        :returns: add???"""
+        :param outsource: add???"""
         def translate(txt):
             if txt.startswith('!!'):
                 txt = txt[2:]
@@ -1907,7 +1897,7 @@ class SqlRecord(object):
         
         :param target_fld: add???
         :param from_fld: add???
-        :param condition: add???
+        :param condition: set a :ref:`sql_condition` for the join
         :param one_one: boolean. add???"""
         cond = dict(condition=condition, one_one=one_one, params=kwargs)
         self.joinConditions['%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_'))] = cond

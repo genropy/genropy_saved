@@ -55,4 +55,3 @@ class GnrCustomWebPage(object):
         fb.textbox(value='^campo1',lbl='Campo1')
         fb.textbox(value='^campo2',lbl='Campo2')
         fb.button(attrs['device'])
-        

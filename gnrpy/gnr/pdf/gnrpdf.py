@@ -108,8 +108,7 @@ class GnrPdf(object):
     def string(self, align='L', **kwargs):
         """add???
         
-        :param align: add???. Default value is ``L``
-        """
+        :param align: add???"""
         if align.lower() in ('r', 'right'):
             self.canvas.drawRightString(**kwargs)
         elif align.lower() in ('c', 'center'):
@@ -160,9 +159,8 @@ class GnrPdf(object):
     def page(self, x=0, y=0, **kwargs):
         """add???
         
-        :param x: add???. Default value is ``0``
-        :param y: add???. Default value is ``0``
-        """
+        :param x: add???
+        :param y: add???"""
         if self._pendingDraw:
             self.canvas.showPage()
             self.log("showPage")

@@ -22,16 +22,16 @@
     .. module:: gnr.web._gnrbasewebpage.GnrBaseWebPage
     
     ========================= ========================== ================================ =============================
-    :meth:`add_cookie`        :meth:`mainLeftContent`    :meth:`resolvePath`              :meth:`rpc_resetApp`         
-    :meth:`diskPathToUri`     :meth:`mixins`             :meth:`resolvePathAsUrl`         :meth:`rpc_resolverRecall`   
-    :meth:`forbiddenPage`     :meth:`newCookie`          :meth:`responseWrite`            :meth:`rpc_saveRecordCluster`
-    :meth:`formLoader`        :meth:`newMarshalCookie`   :meth:`rootWidget`               :meth:`setLoadingParameters` 
-    :meth:`formSaver`         :meth:`package`            :meth:`rpc_applyChangesToDb`     :meth:`setOnBeforeUnload`    
-    :meth:`freezeSelection`   :meth:`pageAuthTags`       :meth:`rpc_decodeDatePeriod`     :meth:`siteStatusSave`       
-    :meth:`getAbsoluteUrl`    :meth:`pageController`     :meth:`rpc_deleteDbRow`          :meth:`toJson`               
-    :meth:`getUserSelection`  :meth:`pageLocalDocument`  :meth:`rpc_deleteRecordCluster`  :meth:`unfreezeSelection`    
-    :meth:`get_cookie`        :meth:`pageSource`         :meth:`rpc_loadRecordCluster`    :meth:`windowTitle`          
-    :meth:`main`              :meth:`requestWrite`     
+    :meth:`add_cookie`        :meth:`main`               :meth:`requestWrite`             :meth:`rpc_resetApp`                  
+    :meth:`diskPathToUri`     :meth:`mainLeftContent`    :meth:`resolvePath`              :meth:`rpc_resolverRecall`   
+    :meth:`forbiddenPage`     :meth:`mixins`             :meth:`resolvePathAsUrl`         :meth:`rpc_saveRecordCluster`
+    :meth:`formLoader`        :meth:`newCookie`          :meth:`responseWrite`            :meth:`saveRecordCluster`
+    :meth:`formSaver`         :meth:`newMarshalCookie`   :meth:`rootWidget`               :meth:`setLoadingParameters` 
+    :meth:`freezeSelection`   :meth:`package`            :meth:`rpc_applyChangesToDb`     :meth:`setOnBeforeUnload`    
+    :meth:`getAbsoluteUrl`    :meth:`pageAuthTags`       :meth:`rpc_decodeDatePeriod`     :meth:`siteStatusSave`       
+    :meth:`getUserSelection`  :meth:`pageController`     :meth:`rpc_deleteDbRow`          :meth:`toJson`               
+    :meth:`get_cookie`        :meth:`pageLocalDocument`  :meth:`rpc_deleteRecordCluster`  :meth:`unfreezeSelection`    
+    :meth:`loadRecordCluster` :meth:`pageSource`         :meth:`rpc_loadRecordCluster`    :meth:`windowTitle`          
     ========================= ========================== ================================ =============================
     
 .. _gnrbasewebpage1_classes:

@@ -23,7 +23,7 @@ WSGI
     (http://pythonpaste.org/webob/reference.html) during development and with standalone servers.
     
     We report here the WSGI declaration (you can find it in the :ref:`sites_root` file, within the
-    :ref:`sites_index` folder of every Genro :ref:`project`)::
+    :ref:`sites` folder of every Genro :ref:`project`)::
     
         import sys
         sys.stdout = sys.stderr

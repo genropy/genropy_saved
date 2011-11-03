@@ -9,6 +9,10 @@
     * :ref:`gnrbagxml_bagfromxml`
     * :ref:`gnrbagxml_bagtoxml`
     
+    **External methods**:
+    
+    * :ref:`gnrbagxml_others`
+    
     **Complete reference**:
     
     * :ref:`gnrbagxml_classes`
@@ -34,7 +38,16 @@
     * :meth:`build`
     * :meth:`buildTag`
     * :meth:`nodeToXmlBlock`
+    
+.. _gnrbagxml_others:
 
+External methods
+================
+
+    .. module:: gnr.core.gnrbagxml
+    
+    * :meth:`isValidValue`
+    
 .. _gnrbagxml_classes:
 
 :mod:`gnr.core.gnrbagxml` - The complete reference list

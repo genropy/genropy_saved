@@ -140,14 +140,14 @@ label and lbl: an explanation
     lies the value of the "lbl" attribute, while in the right one lies the value of the "label"
     attribute
     
-    .. warning:: the rule is: in the formbuilder you have to use the "lbl" attribute to specify
-                 the label, except for:
-                 
-                 * the :ref:`radiobuttons <radiobutton>`
-                 * the :ref:`checkboxes <checkbox>`
-                 
-                 in which you have to use the "label" attribute.
-                 
+    .. note:: the rule is: in the formbuilder you have to use the "lbl" attribute to specify
+              the label, except for:
+              
+              * the :ref:`radiobuttons <radiobutton>`
+              * the :ref:`checkboxes <checkbox>`
+              
+              in which you have to use the "label" attribute.
+              
     **Example**::
     
         class GnrCustomWebPage(object):

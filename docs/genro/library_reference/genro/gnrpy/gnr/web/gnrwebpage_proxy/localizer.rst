@@ -23,6 +23,7 @@
     
     * :meth:`event_onEnd`
     * :meth:`init`
+    * :meth:`localize`
     * :meth:`translateText`
     * :meth:`rpc_pageLocalizationLoad`
     * :meth:`rpc_pageLocalizationSave`

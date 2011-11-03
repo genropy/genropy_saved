@@ -1,8 +1,8 @@
 .. _sql_commons:
 
-=======
-commons
-=======
+====================
+SQL common attibutes
+====================
 
     *Last page update*: |today|
 

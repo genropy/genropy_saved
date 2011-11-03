@@ -367,7 +367,7 @@ class BagToHtml(object):
                 format=None, mask=None, currency=None, **kwargs):
         """Allow to get data from record. You can use it in the :meth:`prepareRow` method
         
-        :param field: the name of the table :ref:`table_column`
+        :param field: the name of the table :ref:`column`
         :param value: add???
         :param default: add???
         :param locale: the current locale (e.g: en, en_us, it)

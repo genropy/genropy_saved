@@ -84,7 +84,7 @@ file location
     where:
     
     * ``projectName`` is the name of the :ref:`project`
-    * ``packages`` is the :ref:`packages_index` folder
+    * ``packages`` is the :ref:`packages` folder
     * ``packageName`` is the name of the package
     * ``resources`` is the :ref:`public_resources` folder
     * ``tables`` is the :ref:`resources_tables` folder
@@ -182,6 +182,10 @@ Main class webpage variables
     +-----------------------------------------------+---------------------------------------------------------+
     | :ref:`baseresourceprint_batch_immediate`      |  add???                                                 |
     +-----------------------------------------------+---------------------------------------------------------+
+    | :ref:`baseresourceprint_batch_mail_modes`     |  add???                                                 |
+    +-----------------------------------------------+---------------------------------------------------------+
+    | :ref:`baseresourceprint_batch_print_modes`    |  add???                                                 |
+    +-----------------------------------------------+---------------------------------------------------------+
     | :ref:`baseresourceprint_dialog_height`        |  the dialog height                                      |
     +-----------------------------------------------+---------------------------------------------------------+
     | :ref:`baseresourceprint_dialog_height_no_par` |  add???                                                 |
@@ -249,8 +253,28 @@ Main class method: table script parameters pane
 Main class method: onRecordExit
 -------------------------------
 
-    .. automethod:: gnr.web.batch.btcprint.BaseResourcePrint.onRecordExit
+    .. method:: onRecordExit(self, record=None)
+                
+                Hook method.
+                
+                **Parameters**: **record**: the result records of the executed batch
+                
+.. _table_script_option_pane:
+
+table_script_option_pane()
+--------------------------
+
+    .. method:: table_script_option_pane(self, pane, print_modes=None, mail_modes=None, **kwargs)
     
+                Define the *print region* of the :ref:`print_setting_dialog`
+                
+                **Parameters**:
+                
+                                * **pane**: a :ref:`contentpane` that works as the
+                                  :ref:`layout widget <layout>` father of the method
+                                * **print_modes**: add???
+                                * **mail_modes**: add???
+                                
 .. _print_settings_webpage:
 
 print GUI
@@ -278,11 +302,12 @@ print GUI
     
     **Example**:
     
-        If you created a print setting file called "printing_performance", then your button would be::
+        If you created a print setting file called "printing_performance", then your :ref:`webpage`
+        would begin with the following lines::
         
             class GnrCustomWebPage(object):
                 def main(self, root, **kwargs):
-                    pane = contentPane(height='300px', datapath='my_pane')
+                    pane = root.contentPane(height='300px', datapath='my_pane')
                     pane.button('New print',action='PUBLISH tablehandler_run_script="print","printing_performance";')
     
 .. _print_setting_dialog:
@@ -324,8 +349,7 @@ custom region
 print region
 ------------
 
-    It can be configured thorugh the :meth:`table_script_option_pane
-    <gnr.web.batch.btcprint.BaseResourcePrint.table_script_option_pane>` method
+    It can be configured through the :ref:`table_script_option_pane` method
     
     In the print regions you can swap up to 4 frames through a :ref:`radiobutton group
     <radiobutton>`:
