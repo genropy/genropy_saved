@@ -23,7 +23,7 @@ class TableHandlerCommon(BaseComponent):
         condition_kwargs['_loader'] = '^#FORM.controller.loaded'
         basecondition = '$%s=:fkey' %fkey       
         condition = basecondition if not condition else '(%s) AND (%s)' %(basecondition,condition)  
-        default_kwargs['default_%s' %fkey] = '=#FORM/parent/#FORM.pkey'
+        default_kwargs[fkey] = '=#FORM/parent/#FORM.pkey'
         return table,condition 
         
     def _th_getResourceName(self,name=None,defaultModule=None,defaultClass=None):

@@ -12,7 +12,7 @@ from gnr.core.gnrstring import boolean
 
 
 class TableHandlerForm(BaseComponent):
-    py_requires="gnrcomponents/formhandler:FormHandler"
+    py_requires="gnrcomponents/formhandler:FormHandler,gnrcomponents/batch_handler/batch_handler:TableScriptHandlerCaller"
 
     @struct_method
     def th_tableEditor(self,pane,frameCode=None,table=None,th_pkey=None,formResource=None,

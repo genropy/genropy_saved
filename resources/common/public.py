@@ -444,7 +444,7 @@ class PublicSlots(BaseComponent):
 
 
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:PublicBase,th/th:TableHandler,gnrcomponents/batch_handler/batch_handler:TableScriptHandlerCaller"""
+    py_requires = """public:PublicBase,th/th:TableHandler"""
     plugin_list=''
     formResource = None
     viewResource = None
@@ -469,7 +469,6 @@ class TableHandlerMain(BaseComponent):
         return self.root_tablehandler
         
     def _th_main(self,root,th_options=None,**kwargs):
-        self.table_script_caller(root)
         formInIframe = th_options.get('formInIframe')
         insidePublic = th_options.get('public')
         tablecode = self.maintable.replace('.','_')

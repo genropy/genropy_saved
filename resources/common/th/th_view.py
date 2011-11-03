@@ -14,8 +14,9 @@ class TableHandlerView(BaseComponent):
     py_requires = """th/th_lib:QueryHelper,
                      th/th_view:THViewUtils,
                      gnrcomponents/framegrid:FrameGrid,
+                     gnrcomponents/tpleditor:PaletteTemplateEditor,
                      gnrcomponents/batch_handler/batch_handler:TableScriptHandler,
-                     gnrcomponents/tpleditor:PaletteTemplateEditor
+                     gnrcomponents/batch_handler/batch_handler:TableScriptHandlerCaller
                      """
                          
     @extract_kwargs(condition=True)
