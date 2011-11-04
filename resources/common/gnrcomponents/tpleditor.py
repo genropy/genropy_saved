@@ -60,6 +60,18 @@ class TemplateEditorBase(BaseComponent):
         body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats,masks=masks,localizer=self.localizer),
                             record=record,**kwargs)
         return body
+    
+    def te_compileBagForm(self,table=None,sourcebag=None,varsbag=None,parametersbag=None,record_id=None,templates=None):
+        result = Bag()
+        varsdict = dict()
+        for varname,fieldpath in varsbag.digest('#v.varname,#v.fieldpath'):
+            varsdict[varname] = '$%s' %fieldpath
+        for k,v in sourcebag.items():
+            if v:
+                result[k] = templateReplace(v, varsdict, True,False)
+        return result
+            
+        
     @public_method
     def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,parametersbag=None,record_id=None,templates=None):
         result = Bag()
@@ -225,7 +237,15 @@ class TemplateEditor(TemplateEditorBase):
         FIRE .tree_rebuild;
         """,varsbag="=.data.varsbag",parameters='=.data.parameters',
             varcaption='!!Variables',parscaption='!!Parameters',_if='status=="edit"',status='^.status')
-        self.RichTextEditor(frame.center.contentPane(), value='^.data.content',
+        bc = frame.center.borderContainer()
+        frame.dataController("bc.setRegionVisible('top',mail)",bc=bc.js_widget,mail='^.data.metadata.is_mail',_if='mail!==null')
+        top = bc.contentPane(region='top',datapath='.data.metadata.email',hidden=True,margin='2px',_class='pbl_roundedGroup')
+        top.div("!!Email metadata",_class='pbl_roundedGroupLabel')
+        fb = top.div(margin_right='15px').formbuilder(cols=1, border_spacing='2px',width='100%',fld_width='100%',tdl_width='8em')
+        fb.textbox(value='^.subject', lbl='!!Subject',dropTypes = 'text/plain')
+        fb.textbox(value='^.to_address', lbl='!!To',dropTypes = 'text/plain')
+        fb.textbox(value='^.cc_address', lbl='!!CC',dropTypes = 'text/plain')
+        self.RichTextEditor(bc.contentPane(region='center'), value='^.data.content',
                             toolbar='simple')
                             
     def _te_framePreview(self,frame,table=None):
@@ -341,6 +361,8 @@ class PaletteTemplateEditor(TemplateEditor):
             tblobj.update(record)
             self.db.commit()
         elif tplmode == 'userobject':
+            if data['metadata.email']:
+                data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],varsbag=data['varsbag'],parametersbag=data['parameters'])
             data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
             pkey,record = self.th_saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
             record.pop('data')

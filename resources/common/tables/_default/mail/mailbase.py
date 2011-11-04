@@ -7,6 +7,6 @@ from gnr.web.batch.btcmail import TemplateMail
 
 caption = 'Mail base deliver'
 description = 'Mail base template'
-tags = 'admin'
+tags = 'nobody'
 class Main(TemplateMail):
     pass

@@ -17,7 +17,7 @@ class BaseResourceMail(BaseResourceBatch):
         self.mail_preference = self.page.getUserPreference('mail', pkg='adm') or Bag(
                 self.page.application.config.getNode('mail').attr)
 
-    def send_one_mail(self, chunk, **kwargs):
+    def _send_one_mail(self, chunk, **kwargs):
         mp = self.mail_pars
         self.mail_handler.sendmail_template(chunk,
                                             to_address=mp['to_address'] or chunk[self.doctemplate['meta.to_address']],
@@ -27,6 +27,17 @@ class BaseResourceMail(BaseResourceBatch):
                                             attachments=mp['attachments'], account=mp['account'],
                                             host=mp['host'], port=mp['port'], user=mp['user'], password=mp['password'],
                                             ssl=mp['ssl'], tls=mp['tls'], html=True, async=True)
+    def send_one_email(self,body=None,attachments=None):
+        mp = self.mail_pars
+        self.mail_handler.sendmail(to_address=mp['to_address'],
+                                            body=body, subject=mp['subject'],
+                                            cc_address=mp['cc_address'], bcc_address=mp['bcc_address'],
+                                            from_address=mp['from_address'],
+                                            attachments=attachments or mp['attachments'], 
+                                            account=mp['account'],
+                                            host=mp['host'], port=mp['port'], user=mp['user'], password=mp['password'],
+                                            ssl=mp['ssl'], tls=mp['tls'], html=mp['html'], async=True)
+                                            
 
 class TemplateMail(BaseResourceMail):
     dialog_height = '450px'
