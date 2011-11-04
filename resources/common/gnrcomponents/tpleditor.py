@@ -60,6 +60,18 @@ class TemplateEditorBase(BaseComponent):
         body = templateBuilder(htmlContent=templateReplace(templateBuilder.doctemplate,record, safeMode=True,noneIsBlank=False,locale=locale, formats=formats,masks=masks,localizer=self.localizer),
                             record=record,**kwargs)
         return body
+    
+    def te_compileBagForm(self,table=None,sourcebag=None,varsbag=None,parametersbag=None,record_id=None,templates=None):
+        result = Bag()
+        varsdict = dict()
+        for varname,fieldpath in varsbag.digest('#v.varname,#v.fieldpath'):
+            varsdict[varname] = '$%s' %fieldpath
+        for k,v in sourcebag.items():
+            if v:
+                result[k] = templateReplace(v, varsdict, True,False)
+        return result
+            
+        
     @public_method
     def te_compileTemplate(self,table=None,datacontent=None,varsbag=None,parametersbag=None,record_id=None,templates=None):
         result = Bag()
@@ -196,36 +208,48 @@ class TemplateEditor(TemplateEditorBase):
         self._te_info_vars(bc,table=table,region='bottom',height='60%')
         self._te_info_parameters(bc,region='center')
         
+    def _te_pickers(self,tc):
+        tc.dataController("""var result = new gnr.GnrBag();
+                            var varfolder= new gnr.GnrBag();
+                            var parsfolder = new gnr.GnrBag();
+                            var attrs,varname;
+                            varsbag.forEach(function(n){
+                                varname = n._value.getItem('varname');
+                                varfolder.setItem(n.label,null,{caption:n._value.getItem('fieldname'),code:varname});
+                            },'static');
+                            parameters.forEach(function(n){
+                                attrs = n.attr;
+                                parsfolder.setItem(n.label,null,{caption:attrs.description || attrs.code,code:attrs.code})
+                            },'static');
+                            result.setItem('variables',varfolder,{caption:varcaption})
+                            result.setItem('pars',parsfolder,{caption:parscaption})
+                            SET .allvariables = result;
+                            FIRE .tree_rebuild;""",
+            varsbag="=.data.varsbag",parameters='=.data.parameters',
+            varcaption='!!Fields',parscaption='!!Parameters',_if='status=="edit"',status='^.status')
+        vartab = tc.contentPane(title='Variables',overflow='auto',text_align='left',margin='2px',_class='pbl_roundedGroup')
+        vartab.tree(storepath='.allvariables',_fired='^.tree_rebuild',onDrag="dragValues['text/plain'] = '$'+treeItem.attr.code;",
+                hideValues=True,draggable=True,_class='fieldsTree',labelAttribute='caption')
+        if 'flib' in self.db.packages:
+            self.mixinComponent('flib:FlibPicker')
+            tc.contentPane(title='!!Files').flibPickerPane(viewResource=':ImagesView',preview=False,gridpane_region='center', gridpane_margin='2px',
+                            treepane_region='top',treepane_margin='2px',treepane_splitter=True,
+                            treepane__class='pbl_roundedGroup',treepane_height='30%')
+
+        
+        
     def _te_frameEdit(self,frame):
         frame.top.slotToolbar(slots='5,parentStackButtons,*',parentStackButtons_font_size='8pt')
-        bar = frame.left.slotBar('5,treeVars,*',closable='close',
-                                closable_iconClass='iconbox arrow_right',
-                                closable_width='20px',closable_right='-20px',closable_height='20px',
-                                closable_opacity='.8',closable_background='whitesmoke',width='180px',
-                            treeVars_height='100%')
-        box = bar.treeVars.div(height='100%',overflow='auto',text_align='left',margin='2px',_class='pbl_roundedGroup')
-        box.tree(storepath='.allvariables',_fired='^.tree_rebuild',onDrag="dragValues['text/plain'] = '$'+treeItem.attr.code;",
-                hideValues=True,draggable=True,_class='fieldsTree',labelAttribute='caption')
-        box.dataController("""
-        var result = new gnr.GnrBag();
-        var varfolder= new gnr.GnrBag();
-        var parsfolder = new gnr.GnrBag();
-        var attrs,varname;
-        varsbag.forEach(function(n){
-            varname = n._value.getItem('varname');
-            varfolder.setItem(n.label,null,{caption:n._value.getItem('fieldname'),code:varname});
-        },'static');
-        parameters.forEach(function(n){
-            attrs = n.attr;
-            parsfolder.setItem(n.label,null,{caption:attrs.description || attrs.code,code:attrs.code})
-        },'static');
-        result.setItem('variables',varfolder,{caption:varcaption})
-        result.setItem('pars',parsfolder,{caption:parscaption})
-        SET .allvariables = result;
-        FIRE .tree_rebuild;
-        """,varsbag="=.data.varsbag",parameters='=.data.parameters',
-            varcaption='!!Variables',parscaption='!!Parameters',_if='status=="edit"',status='^.status')
-        self.RichTextEditor(frame.center.contentPane(), value='^.data.content',
+        bc = frame.center.borderContainer(design='sidebar')
+        self._te_pickers(frame.tabContainer(region='left',width='200px',splitter=True))                
+        frame.dataController("bc.setRegionVisible('top',mail)",bc=bc.js_widget,mail='^.data.metadata.is_mail',_if='mail!==null')
+        top = bc.contentPane(region='top',datapath='.data.metadata.email',hidden=True,margin='2px',_class='pbl_roundedGroup')
+        top.div("!!Email metadata",_class='pbl_roundedGroupLabel')
+        fb = top.div(margin_right='15px').formbuilder(cols=1, border_spacing='2px',width='100%',fld_width='100%',tdl_width='8em')
+        fb.textbox(value='^.subject', lbl='!!Subject',dropTypes = 'text/plain')
+        fb.textbox(value='^.to_address', lbl='!!To',dropTypes = 'text/plain')
+        fb.textbox(value='^.cc_address', lbl='!!CC',dropTypes = 'text/plain')
+        self.RichTextEditor(bc.contentPane(region='center'), value='^.data.content',
                             toolbar='simple')
                             
     def _te_framePreview(self,frame,table=None):
@@ -341,6 +365,8 @@ class PaletteTemplateEditor(TemplateEditor):
             tblobj.update(record)
             self.db.commit()
         elif tplmode == 'userobject':
+            if data['metadata.email']:
+                data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],varsbag=data['varsbag'],parametersbag=data['parameters'])
             data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
             pkey,record = self.th_saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
             record.pop('data')

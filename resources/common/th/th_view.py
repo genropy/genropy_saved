@@ -188,17 +188,45 @@ class TableHandlerView(BaseComponent):
     
     @public_method
     def th_printMenu(self,table=None,flags=None,from_resource=True,**kwargs):
+        return self._printAndMailMenu(table=table,flags=flags,from_resource=from_resource,res_type='print')
+
+    @struct_method
+    def th_slotbar_resourceMails(self,pane,from_resource=None,flags=None,**kwargs):
+        inattr = pane.getInheritedAttributes()
+        table = inattr['table']
+        th_root = inattr['th_root']
+        pane.div(_class='iconbox mail').menu(modifiers='*',storepath='.resources.mail.menu',action="""
+                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
+                            kw.resource = $1.resource;
+                            if($1.template_id){
+                                kw.extra_parameters = new gnr.GnrBag({template_id:$1.template_id,table:kw.table});
+                                kw.table = null;
+                            }
+                            th_view_batch_caller(kw);
+                            """,
+                    batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='mail',
+                    batch_sourcepage_id=self.page_id)
+        options = self._th_hook('options',mangler=pane)() or dict()
+        pane.dataRemote('.resources.mail.menu',self.th_mailMenu,table=table,flags=flags or options.get('mail_flags'),
+                        from_resource=from_resource or options.get('mail_from_resource',True),cacheTime=5)
+                        
+    @public_method
+    def th_mailMenu(self,table=None,flags=None,from_resource=True,**kwargs):
+        return self._printAndMailMenu(table=table,flags=flags,from_resource=from_resource,res_type='mail')
+        
+    
+    def _printAndMailMenu(self,table=None,flags=None,from_resource=True,res_type=None,**kwargs):
         result = Bag()
         if from_resource:
-            resource_prints = self.table_script_resource_tree_data(table=table,res_type='print')
-            if resource_prints:
-                result.update(resource_prints)
-        flags = flags or 'is_print'
+            resources = self.table_script_resource_tree_data(table=table,res_type=res_type)
+            if resources:
+                result.update(resources)
+        flags = flags or 'is_%s' %res_type
         templates = self.th_listUserObject(table=table,objtype='template',flags=flags)
         for t in templates:
             attr = t.attr
             result.setItem(attr['code'],None,caption=attr['description'] or attr['code'],
-                            resource='print_template',template_id=attr['pkey'])
+                            resource='%s_template' %res_type,template_id=attr['pkey'])
         return result
         
     @struct_method
@@ -206,7 +234,6 @@ class TableHandlerView(BaseComponent):
         inattr = pane.getInheritedAttributes()
         table = inattr['table']
         pane.paletteTemplateEditor(maintable=table,dockButton_iconClass='iconbox document')
-        
         
     @struct_method
     def th_slotbar_resourceActions(self,pane,**kwargs):
@@ -221,22 +248,7 @@ class TableHandlerView(BaseComponent):
                     batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='action',
                     batch_sourcepage_id=self.page_id)
         pane.dataRemote('.resources.action.menu',self.table_script_resource_tree_data,res_type='action', table=table,cacheTime=5)
-
-    @struct_method
-    def th_slotbar_resourceMails(self,pane,**kwargs):
-        inattr = pane.getInheritedAttributes()
-        table = inattr['table']
-        th_root = inattr['th_root']
-        pane.div(_class='iconbox mail').menu(modifiers='*',storepath='.resources.mail.menu',action="""
-                            var kw = objectExtract(this.getInheritedAttributes(),"batch_*",true);
-                            kw.resource = $1.resource;
-                            th_view_batch_caller(kw);
-                            """,
-                    batch_selectionName=th_root,batch_gridId='%s_grid' %th_root,batch_table=table,batch_res_type='mail',
-                    batch_sourcepage_id=self.page_id)        
-        pane.dataRemote('.resources.mail.menu',self.table_script_resource_tree_data,res_type='mail', table=table,cacheTime=5)
-
-
+        
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
                         virtualStore=None,condition=None):

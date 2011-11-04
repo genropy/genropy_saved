@@ -7,13 +7,16 @@
 from gnr.web.gnrwebpage import BaseComponent
 from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebstruct import struct_method
+from gnr.core.gnrdecorator import extract_kwargs
 class FlibBase(BaseComponent):
     py_requires = 'th/th:TableHandler,gnrcomponents/htablehandler:HTableHandlerBase'
     css_requires = 'public'
     
     @struct_method
-    def flib_flibSavedFilesGrid(self, pane, checked_categories=None, reloader=None, label=None):
-        th = pane.plainTableHandler(table='flib.item',viewResource=':LoadedFilesView')
+    def flib_flibSavedFilesGrid(self, pane, checked_categories=None, reloader=None, label=None,
+                                viewResource=None,preview=None,configurable=False):
+        viewResource = viewResource or ':LoadedFilesView'
+        th = pane.plainTableHandler(table='flib.item',configurable=configurable,viewResource=viewResource)
         th.view.attributes.update(margin='2px',rounded=6,border='1px solid gray')
         if checked_categories:
             storePars = {}
@@ -21,31 +24,26 @@ class FlibBase(BaseComponent):
             storePars['order_by'] = '$__ins_ts'
             storePars['limit'] = 100
             storePars['checked_categories'] = '^.checked_categories'
-            storePars['applymethod']='flibPickerThumb'
             th.view.dataFormula('.checked_categories','checked_categories?checked_categories.split(","):[]',
                                 checked_categories=checked_categories)
             storePars['startLocked'] = False
             th.view.store.attributes.update(storePars)
             th.view.top.bar.replaceSlots('#','#,delrow')
         th.view.grid.attributes.update(hiddencolumns='$__ins_ts,$thumb_url,$url,$ext,$metadata')
-        footer = th.view.bottom.slotBar('preview',closable='close',closable_tip='!!Preview',splitter=True)
-        ppane = footer.preview.contentPane(height='200px',width='100%',_lazyBuild=True)
-        sc = ppane.stackContainer(selectedPage='^.preview_type',margin='2px',)
-        sc.dataController("""
-                            var imageExt = ['.png','.jpg','.jpeg']
-                            SET .preview_type = dojo.indexOf(imageExt,ext.toLowerCase())>=0?'image':'no_prev';
-                            """, ext="^.grid.selectedId?ext")
-        sc.contentPane(overflow='hidden', pageName='image',_class='pbl_roundedGroup').img(height='100%', src='^.grid.selectedId?url')
-        sc.contentPane(pageName='no_prev',_class='pbl_roundedGroup').div(innerHTML='^.grid.selectedId?_thumb')
+        if preview:
+            footer = th.view.bottom.slotBar('preview',closable='close',closable_tip='!!Preview',splitter=True)
+            ppane = footer.preview.contentPane(height='200px',width='100%',_lazyBuild=True)
+            sc = ppane.stackContainer(selectedPage='^.preview_type',margin='2px',)
+            sc.dataController("""
+                                var imageExt = ['.png','.jpg','.jpeg']
+                                SET .preview_type = dojo.indexOf(imageExt,ext.toLowerCase())>=0?'image':'no_prev';
+                                """, ext="^.grid.selectedId?ext")
+            sc.contentPane(overflow='hidden', pageName='image',_class='pbl_roundedGroup').img(height='100%', src='^.grid.selectedId?url')
+            sc.contentPane(pageName='no_prev',_class='pbl_roundedGroup').div(innerHTML='^.grid.selectedId?_thumb')
         return th
+    
+    
 
-    def rpc_flibPickerThumb(self, selection):
-        def apply_thumb(row):
-            ext_img = self.getResourceUri('filetype_icons/%s.png' % row['ext'][1:].lower())\
-            or self.getResourceUri('filetype_icons/_blank.png')
-            return dict(_thumb='<img border=0 draggable="false" src="%s" />' % (row['thumb_url'] or ext_img))
-
-        selection.apply(apply_thumb)
 
 
 class FlibPicker(FlibBase):
@@ -82,11 +80,20 @@ class FlibPicker(FlibBase):
     @struct_method
     def flib_flibPicker(self, pane, paletteCode=None, title=None, rootpath=None,
                    limit_rec_type=None, **kwargs):
-        bc = pane.palettePane(paletteCode or 'flibPicker',
-                                title=title or "!!File picker",contentWidget='BorderContainer',
+        pane = pane.palettePane(paletteCode or 'flibPicker',
+                                title=title or "!!File picker",
                                 height='400px', width='600px',**kwargs)
-       
-        left = bc.contentPane(region='left', splitter=True, width='150px', _class='pbl_roundedGroup', margin='2px')
+        
+        pane.flibPickerPane(limit_rec_type=limit_rec_type,rootpath=rootpath,
+                            gridpane_region='center', gridpane_margin='2px',
+                            treepane_region='left',treepane_margin='2px',treepane_splitter=True,
+                            treepane__class='pbl_roundedGroup',treepane_width='150px')
+    
+    @extract_kwargs(treepane=True,gridpane=True)
+    @struct_method
+    def flib_flibPickerPane(self,pane,rootpath=None,limit_rec_type=None,preview=True,viewResource=None,treepane_kwargs=None,gridpane_kwargs=None):
+        bc = pane.borderContainer()
+        left = bc.contentPane(**treepane_kwargs)
         left.data('.tree.store',
                   self.ht_treeDataStore(table='flib.category', rootpath=rootpath, rootcaption='!!Categories',
                                         rootcode='%'),
@@ -101,16 +108,11 @@ class FlibPicker(FlibBase):
                   selected_caption='.tree.caption',
                   inspect='shift',
                   selected_child_count='.tree.child_count')
-        th = bc.contentPane(region='center', margin='2px').flibSavedFilesGrid()
+        th = bc.contentPane(**gridpane_kwargs).flibSavedFilesGrid(viewResource=viewResource,preview=preview)
         th.view.store.attributes.update(dict(where="@categories.@category_id.code LIKE :cat_code || '%%'",
                              cat_code='^#flibPickerTree.tree.code',
-                             applymethod='flibPickerThumb',
                              order_by='$title', _if='cat_code', _else='null'))
-        th.view.grid.attributes.update(dict(draggable_row=True,
-                                    onDrag="""
-                                    var row = dragValues.gridrow.rowdata;
-                                    dragValues['flib_element'] = row._pkey;                                
-                             """))
+        return bc
         
         
         
