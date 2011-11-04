@@ -44,7 +44,7 @@ class ThumbsView(BaseComponent):
 class ImagesView(BaseComponent):
     def th_struct(self,struct):
         r = struct.view().rows()
-        r.cell('title',width='8em')
+        r.cell('title',width='5em')
         r.cell("image_drag", width='100%', name='!!Thumb', calculated=True)  
         r.cell('description',hidden=True)
         r.cell('url',hidden=True)
