@@ -25,7 +25,6 @@ class Table(object):
         if not username:
             username = self.db.currentEnv.get('user') 
         version = record.get('__version',0)
-        print 'currentEnv', self.db.currentEnv
         audit_record = dict(tablename=tblobj.fullname,event=event,username=username,
                       record_pkey=record[tblobj.pkey],version=version,transaction_id=self.db.currentEnv.get('env_transaction_id'))
         if event == 'I' or event=='D':
@@ -34,12 +33,10 @@ class Table(object):
             assert old_record, 'Missing old_record in an update that uses audit feature tbl: %s' %tblobj.fullname
             changes = Bag()
             for k in record.keys():
-                print k
                 if k in ('__version','__mod_ts'):
                     continue
                 if record[k] != old_record.get(k):
                     changes[k] = record[k]
-            print 'before xml changes'
             audit_record['data'] = changes.toXml()
             if audit_mode=='lazy' and version==1:
                 first_audit = dict(audit_record)

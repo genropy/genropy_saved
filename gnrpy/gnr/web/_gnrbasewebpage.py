@@ -539,7 +539,7 @@ class GnrBaseWebPage(GnrObject):
                   Else, return an exception"""
         try:
             tblobj = self.db.table(table)
-            record = tblobj.record(pkey, for_update=True, mode='bag')
+            record = tblobj.record(pkey, for_update=True).output('record')
             deleteAttr = dict()
             self.onDeleting(record, deleteAttr)
             tblobj.delete(record)
