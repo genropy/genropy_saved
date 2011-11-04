@@ -47,19 +47,18 @@ class Main(BaseResourceMail):
         self.mail_pars = Bag(data['metadata.email_compiled'])
         self.batch_parameters.setdefault('letterhead_id',data.getItem('metadata.default_letterhead'))
         self.batch_parameters.setdefault('as_pdf',False)
-        self.mail_pars.update(self.mail_preference)
         self.batch_title = meta['description'] or meta['code']
         self.tblobj = self.db.table(self.maintable)
         self.virtual_columns =  self.compiledTemplate.getItem('main?virtual_columns') 
-        self.mail_pars['html'] = not self.batch_parameters['as_pdf']
+        self.mail_preference['html'] = not self.batch_parameters['as_pdf']
         self.htmlMaker = TableScriptToHtml(self.page,self.tblobj)
             
     def sendmail_record(self, record=None, thermo=None, storagekey=None):
         record.update(self.batch_parameters)
         as_pdf = self.batch_parameters['as_pdf']
-        for k,v in self.mail_pars.items():
-            if (isinstance(v,str) or isinstance(v,unicode)) and ('$' in v):
-                self.mail_pars[k] = templateReplace(v,record)
+        to_address = templateReplace(self.mail_pars.getItem('to_address',''),record)
+        subject = templateReplace(self.mail_pars.getItem('subject',''),record)
+        cc_address = templateReplace(self.mail_pars.getItem('cc_address',''),record)
         htmlContent=templateReplace(self.compiledTemplate,record, 
                                     safeMode=True,noneIsBlank=False,
                                     locale=self.page.locale,
@@ -80,7 +79,7 @@ class Main(BaseResourceMail):
             else:
                 body = result
                 attachments = None
-            self.send_one_email(body=body,attachments=attachments)
+            self.send_one_email(to_address=to_address,cc_address=cc_address,subject=subject,body=body,attachments=attachments)
         
     def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):
         pkg,tbl= extra_parameters['table'].split('.')

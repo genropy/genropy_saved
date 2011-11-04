@@ -51,7 +51,7 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if extendedQuery:
-            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceActions','resourceMails','5','templateManager','*','count','5']
+            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceMails','resourceActions','5','templateManager','*','count','5']
         else:
             base_slots = ['5','vtitle','count','*','searchOn']
         base_slots = ','.join(base_slots)

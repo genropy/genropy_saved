@@ -14,29 +14,22 @@ class BaseResourceMail(BaseResourceBatch):
     def __init__(self, *args, **kwargs):
         super(BaseResourceMail, self).__init__(**kwargs)
         self.mail_handler = self.page.getService('mail')
-        self.mail_preference = self.page.getUserPreference('mail', pkg='adm') or Bag(
-                self.page.application.config.getNode('mail').attr)
+        instancepref =  Bag(self.page.application.config.getNode('mail').attr)
+        userpref = self.page.getUserPreference('mail', pkg='adm') 
+        applicationpref = self.page.getPreference('mail', pkg='adm') 
+        self.mail_preference = userpref or applicationpref or instancepref
 
-    def _send_one_mail(self, chunk, **kwargs):
-        mp = self.mail_pars
-        self.mail_handler.sendmail_template(chunk,
-                                            to_address=mp['to_address'] or chunk[self.doctemplate['meta.to_address']],
-                                            body=self.doctemplate['content'], subject=self.doctemplate['meta.subject'],
-                                            cc_address=mp['cc_address'], bcc_address=mp['bcc_address'],
-                                            from_address=mp['from_address'],
-                                            attachments=mp['attachments'], account=mp['account'],
-                                            host=mp['host'], port=mp['port'], user=mp['user'], password=mp['password'],
-                                            ssl=mp['ssl'], tls=mp['tls'], html=True, async=True)
-    def send_one_email(self,body=None,attachments=None):
-        mp = self.mail_pars
-        self.mail_handler.sendmail(to_address=mp['to_address'],
-                                            body=body, subject=mp['subject'],
-                                            cc_address=mp['cc_address'], bcc_address=mp['bcc_address'],
-                                            from_address=mp['from_address'],
-                                            attachments=attachments or mp['attachments'], 
-                                            account=mp['account'],
-                                            host=mp['host'], port=mp['port'], user=mp['user'], password=mp['password'],
-                                            ssl=mp['ssl'], tls=mp['tls'], html=mp['html'], async=True)
+                                            
+    def send_one_email(self,to_address=None,cc_address=None,subject=None,body=None,attachments=None):
+        mp = self.mail_preference
+        self.mail_handler.sendmail(to_address=to_address,
+                                    body=body, subject=subject,
+                                    cc_address=cc_address, bcc_address=mp['bcc_address'],
+                                    from_address=mp['from_address'],
+                                    attachments=attachments or mp['attachments'], 
+                                    account=mp['account'],
+                                    smtp_host=mp['smtp_host'], port=mp['port'], user=mp['user'], password=mp['password'],
+                                    ssl=mp['ssl'], tls=mp['tls'], html=mp['html'], async=False)
                                             
 
 class TemplateMail(BaseResourceMail):
