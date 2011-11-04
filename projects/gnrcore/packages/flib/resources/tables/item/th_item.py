@@ -22,14 +22,67 @@ class View(BaseComponent):
         
     def th_query(self):
         return dict(column='description',op='contains',val='',runOnStart=True)
+
+             
+class ThumbsView(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.fieldcell("title", width='100%', zoom=True)
+        r.cell("_thumb", width='5em', name='!!Thumb', calculated=True)  
     
-class LoadedFilesView(BaseComponent):
+    def th_order(self):
+        return 'title'
+         
+    @public_method
+    def th_applymethod(self,selection):
+        def apply_thumb(row):
+            ext_img = self.getResourceUri('filetype_icons/%s.png' % row['ext'][1:].lower())\
+            or self.getResourceUri('filetype_icons/_blank.png')
+            return dict(_thumb='<img border=0 draggable="false" src="%s" />' % (row['thumb_url'] or ext_img))
+        selection.apply(apply_thumb)
+
+class ImagesView(BaseComponent):
+    def th_struct(self,struct):
+        r = struct.view().rows()
+        r.cell('title',width='8em')
+        r.cell("image_drag", width='100%', name='!!Thumb', calculated=True)  
+        r.cell('description',hidden=True)
+        r.cell('url',hidden=True)
+        r.cell('path',hidden=True)
+
+    def th_order(self):
+        return 'description'
+    
+    def th_view(self,view):
+        view.grid.attributes.update(draggable_row=False)
+        
+    @public_method
+    def th_applymethod(self,selection):
+        def apply_thumb(row):
+            ext_img = self.getResourceUri('filetype_icons/%s.png' % row['ext'][1:].lower())\
+            or self.getResourceUri('filetype_icons/_blank.png')
+            return dict(image_drag="""<img border=0 draggable="true" src="%s" height="60px" />""" % (row['url'] or ext_img))
+        selection.apply(apply_thumb)
+        
+    def th_top_custom(self,top):
+        top.bar.replaceSlots('#','searchOn',searchOn_width='5em')
+        
+class LoadedFilesView(ThumbsView):
     def th_struct(self,struct):
         r = struct.view().rows()
         r.fieldcell("title", width='10em', zoom=True)
         r.fieldcell("description", width='100%', zoom=True)
         r.cell("_thumb", width='5em', name='!!Thumb', calculated=True)
-                
+    
+    def th_view(self,view):
+        view.grid.attributes.update(draggable_row=True,
+                                    onDrag="""
+                                    var row = dragValues.gridrow.rowdata;
+                                    dragValues['flib_element'] = row._pkey;                                
+                             """)
+    
+    def th_order(self):
+        return 'description'
         
 class Form(BaseComponent):
     def th_form(self, form):

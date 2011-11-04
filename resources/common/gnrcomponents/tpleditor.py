@@ -208,36 +208,40 @@ class TemplateEditor(TemplateEditorBase):
         self._te_info_vars(bc,table=table,region='bottom',height='60%')
         self._te_info_parameters(bc,region='center')
         
+    def _te_pickers(self,tc):
+        tc.dataController("""var result = new gnr.GnrBag();
+                            var varfolder= new gnr.GnrBag();
+                            var parsfolder = new gnr.GnrBag();
+                            var attrs,varname;
+                            varsbag.forEach(function(n){
+                                varname = n._value.getItem('varname');
+                                varfolder.setItem(n.label,null,{caption:n._value.getItem('fieldname'),code:varname});
+                            },'static');
+                            parameters.forEach(function(n){
+                                attrs = n.attr;
+                                parsfolder.setItem(n.label,null,{caption:attrs.description || attrs.code,code:attrs.code})
+                            },'static');
+                            result.setItem('variables',varfolder,{caption:varcaption})
+                            result.setItem('pars',parsfolder,{caption:parscaption})
+                            SET .allvariables = result;
+                            FIRE .tree_rebuild;""",
+            varsbag="=.data.varsbag",parameters='=.data.parameters',
+            varcaption='!!Fields',parscaption='!!Parameters',_if='status=="edit"',status='^.status')
+        vartab = tc.contentPane(title='Variables',overflow='auto',text_align='left',margin='2px',_class='pbl_roundedGroup')
+        vartab.tree(storepath='.allvariables',_fired='^.tree_rebuild',onDrag="dragValues['text/plain'] = '$'+treeItem.attr.code;",
+                hideValues=True,draggable=True,_class='fieldsTree',labelAttribute='caption')
+        if 'flib' in self.db.packages:
+            self.mixinComponent('flib:FlibPicker')
+            tc.contentPane(title='!!Files').flibPickerPane(viewResource=':ImagesView',preview=False,gridpane_region='center', gridpane_margin='2px',
+                            treepane_region='top',treepane_margin='2px',treepane_splitter=True,
+                            treepane__class='pbl_roundedGroup',treepane_height='50%')
+
+        
+        
     def _te_frameEdit(self,frame):
         frame.top.slotToolbar(slots='5,parentStackButtons,*',parentStackButtons_font_size='8pt')
-        bar = frame.left.slotBar('5,treeVars,*',closable='close',
-                                closable_iconClass='iconbox arrow_right',
-                                closable_width='20px',closable_right='-20px',closable_height='20px',
-                                closable_opacity='.8',closable_background='whitesmoke',width='180px',
-                            treeVars_height='100%')
-        box = bar.treeVars.div(height='100%',overflow='auto',text_align='left',margin='2px',_class='pbl_roundedGroup')
-        box.tree(storepath='.allvariables',_fired='^.tree_rebuild',onDrag="dragValues['text/plain'] = '$'+treeItem.attr.code;",
-                hideValues=True,draggable=True,_class='fieldsTree',labelAttribute='caption')
-        box.dataController("""
-        var result = new gnr.GnrBag();
-        var varfolder= new gnr.GnrBag();
-        var parsfolder = new gnr.GnrBag();
-        var attrs,varname;
-        varsbag.forEach(function(n){
-            varname = n._value.getItem('varname');
-            varfolder.setItem(n.label,null,{caption:n._value.getItem('fieldname'),code:varname});
-        },'static');
-        parameters.forEach(function(n){
-            attrs = n.attr;
-            parsfolder.setItem(n.label,null,{caption:attrs.description || attrs.code,code:attrs.code})
-        },'static');
-        result.setItem('variables',varfolder,{caption:varcaption})
-        result.setItem('pars',parsfolder,{caption:parscaption})
-        SET .allvariables = result;
-        FIRE .tree_rebuild;
-        """,varsbag="=.data.varsbag",parameters='=.data.parameters',
-            varcaption='!!Variables',parscaption='!!Parameters',_if='status=="edit"',status='^.status')
-        bc = frame.center.borderContainer()
+        bc = frame.center.borderContainer(design='sidebar')
+        self._te_pickers(frame.tabContainer(region='left',width='200px',splitter=True))                
         frame.dataController("bc.setRegionVisible('top',mail)",bc=bc.js_widget,mail='^.data.metadata.is_mail',_if='mail!==null')
         top = bc.contentPane(region='top',datapath='.data.metadata.email',hidden=True,margin='2px',_class='pbl_roundedGroup')
         top.div("!!Email metadata",_class='pbl_roundedGroupLabel')
