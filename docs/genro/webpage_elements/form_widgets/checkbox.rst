@@ -8,7 +8,7 @@ CheckBox
     
     .. note:: CheckBox features:
     
-              * **Type**: :ref:`Dojo form widget <dojo_form_widgets>`
+              * **Type**: :ref:`Dojo widget <dojo_widgets>`
               * **Common attributes**: check the :ref:`attributes_index` section
               
     * :ref:`checkbox_def`

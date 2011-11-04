@@ -1,4 +1,4 @@
-.. _toolbar:
+.. _slotbar:
 
 =========================
 slotBar (and slotToolbar)
@@ -6,17 +6,22 @@ slotBar (and slotToolbar)
     
     *Last page update*: |today|
     
-    * :ref:`toolbar_def`
-    * :ref:`toolbar_attributes`:
+    .. note:: slotBar (and slotToolbar) features:
     
-        * :ref:`toolbar_childname`
-        * :ref:`toolbar_namespace`
-        * :ref:`toolbar_slotbarcode`
-        * :ref:`toolbar_slots`
+              * **Type**: :ref:`Genro widget <genro_widgets>`
+              * **Common attributes**: check the :ref:`attributes_index` section
+    
+    * :ref:`slotbar_def`
+    * :ref:`slotbar_attributes`:
+    
+        * :ref:`slotbar_childname`
+        * :ref:`slotbar_namespace`
+        * :ref:`slotbar_slotbarcode`
+        * :ref:`slotbar_slots`
         
-    * :ref:`toolbar_examples`: :ref:`toolbar_examples_simple`
+    * :ref:`slotbar_examples`: :ref:`slotbar_examples_simple`
     
-.. _toolbar_def:
+.. _slotbar_def:
 
 definition and description
 ==========================
@@ -49,33 +54,33 @@ definition and description
                 right = frame.right.slotToolbar(...)
                 bottom = frame.bottom.slotBar(...)
                 
-.. _toolbar_attributes:
+.. _slotbar_attributes:
 
 attributes
 ==========
 
     We describe here all the slotBar attributes. They are:
     
-    * :ref:`toolbar_childname`
-    * :ref:`toolbar_namespace`
-    * :ref:`toolbar_slotbarcode`
-    * :ref:`toolbar_slots`
+    * :ref:`slotbar_childname`
+    * :ref:`slotbar_namespace`
+    * :ref:`slotbar_slotbarcode`
+    * :ref:`slotbar_slots`
     
-.. _toolbar_childname:
+.. _slotbar_childname:
 
 childname
 ---------
 
     add???
     
-.. _toolbar_namespace:
+.. _slotbar_namespace:
 
 namespace
 ---------
 
     add???
     
-.. _toolbar_slotbarcode:
+.. _slotbar_slotbarcode:
 
 slotbarCode
 -----------
@@ -83,7 +88,7 @@ slotbarCode
     MANDATORY - autocreate a :ref:`nodeid` for the slotToolbar AND autocreate hierarchic
     nodeIds for every slotToolbar child
     
-.. _toolbar_slots:
+.. _slotbar_slots:
 
 slots
 -----
@@ -195,12 +200,12 @@ slots
     
       For more information, check the :ref:`includedview` page (add??? old!)
         
-.. _toolbar_examples:
+.. _slotbar_examples:
 
 examples
 ========
 
-.. _toolbar_examples_simple:
+.. _slotbar_examples_simple:
 
 simple example
 --------------

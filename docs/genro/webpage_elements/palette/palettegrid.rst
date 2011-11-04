@@ -8,7 +8,7 @@ paletteGrid
     
     .. note:: paletteGrid features:
               
-              * **Type**: :ref:`Genro form widget <genro_form_widgets>`
+              * **Type**: :ref:`Genro form widget <genro_widgets>`
               * **Common attributes**: check the :ref:`attributes_index` section
               
     * :ref:`palettegrid_def`

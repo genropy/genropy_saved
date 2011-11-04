@@ -184,7 +184,7 @@ class GnrDomSrc(GnrStructData):
             subtag = ('%s_%s' %(parentTag,fname)).lower()
             if hasattr(self,subtag):
                 return getattr(self,subtag)
-        raise AttributeError("object has no attribute '%s':Provide another nodeId" % fname)
+        raise AttributeError("Object has no attribute '%s': provide another nodeId" % fname)
     
     @deprecated
     def getAttach(self, childname):
@@ -197,7 +197,7 @@ class GnrDomSrc(GnrStructData):
         """Set a new item of the ``tag`` type into the current structure through
         the :meth:`child() <gnr.core.gnrstructures.GnrStructData.child>` and return it
         
-        :param tag: add???
+        :param tag: the html tag
         :param childname: the :ref:`childname`
         :param childcontent: the html content
         :param envelope: add???"""
@@ -783,9 +783,12 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self
         
     def slotButton(self, label=None, **kwargs):
-        """Return a :ref:`slotbutton`
+        """Return a :ref:`slotbutton`. A slotbutton is a :ref:`button` with some preset attributes
+        to create rapidly a button with an icon (set through the *iconClass* attribute) and with
+        a label that works only as a tooltip: for example you can use a slotButton when you handle
+        a :ref:`toolbar <toolbars>` or a :ref:`palette <palette>`
         
-        :param label: the button's label and its :ref:`tooltip`
+        :param label: the button's :ref:`tooltip` (or its label, if no *iconClass* is set)
         :param kwargs:
         
                        * **action**: allow to execute a javascript callback. For more information,
@@ -851,8 +854,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #ds = parent.dataSelection(storepath, table, nodeId=nodeId,columns=columns,**kwargs)
         #ds.addCallback('this.publish("loaded",{itemcount:result.attr.rowCount}')
     
-    def onDbChanges(self,action=None,table=None,**kwargs):
-        """add???"""
+    def onDbChanges(self, action=None, table=None, **kwargs):
+        """add???
+        
+        :param action: the :ref:`action_attr` attribute
+        :param table: the :ref:`database table <table>`"""
         self.page.subscribeTable(table,True)
         self.dataController(action,dbChanges="^gnr.dbchanges.%s" %table.replace('.','_'),**kwargs)
     
@@ -1161,10 +1167,10 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             self.data(structpath, struct)
         
     def slotToolbar(self,*args,**kwargs):
-        """Create a :ref:`slotToolbar <toolbar>` and returns it.
+        """Create a :ref:`slotToolbar <slotbar>` and returns it.
         
         .. note:: a slotToolbar is a :meth:`slotBar` with some css preset. For more
-                  information, check the :ref:`slotToolbar <toolbar>` page
+                  information, check the :ref:`slotToolbar <slotbar>` page
         """
         kwargs['toolbar'] = True
         return self.slotBar(*args,**kwargs)
@@ -1191,11 +1197,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             slothandle(**kw)
             
     def slotBar(self, slots=None, slotbarCode=None, namespace=None, childname='bar', **kwargs):
-        """Create a :ref:`slotBar <toolbar>` and returns it
+        """Create a :ref:`slotBar <slotbar>` and returns it
         
         :param slots: create a configurable UI inside the div or pane in which the
                       slotToolbar is defined. For more information, check the
-                      :ref:`toolbar_slots` section
+                      :ref:`slotbar_slots` section
         :param slotbarCode: autocreate a :ref:`nodeid` for the slotToolbar AND autocreate
                             hierarchic nodeIds for every slotToolbar child
         :param namespace: add???
@@ -1216,8 +1222,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         #se ritorni la toolbar hai una toolbar vuota 
     
     def slotbar_replaceslots(self, toReplace, replaceStr,**kwargs):
-        """Allow to redefine the preset bars of the :ref:`slotBars <toolbar>` and the
-        :ref:`slotToolbars <toolbar>`
+        """Allow to redefine the preset bars of the :ref:`slotBars <slotbar>` and the
+        :ref:`slotToolbars <slotbar>`
         
         :param toReplace: MANDATORY. A string with the list of the slots to be replaced.
                           Use ``#`` to replace all the slots
@@ -1244,7 +1250,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     self._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,**toolbarArgs)
                     
     def button(self, label=None, **kwargs):
-        """The :ref:`button` is a :ref:`dojo-improved form widget <dojo_improved_form_widgets>`: through
+        """The :ref:`button` is a :ref:`dojo-improved form widget <dojo_improved_widgets>`: through
         the *action* attribute you can add Javascript callbacks
         
         :param label: the label of the widget
