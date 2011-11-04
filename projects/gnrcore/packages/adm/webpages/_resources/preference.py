@@ -38,6 +38,8 @@ class AppPref(object):
         fb.textbox(value='^.password', lbl='Password', dtype='T', colspan=1, type='password')
         fb.textbox(value='^.port', lbl='Port', dtype='T', colspan=1)
         fb.checkbox(value='^.tls', lbl='TLS', dtype='B', colspan=1)
+        fb.checkbox(value='^.ssl', lbl='SSL', dtype='B', colspan=1)
+
 
     def _pr_instance_data(self, pane):
         fb = pane.div(margin='5px').formbuilder(cols=1, border_spacing='6px', width='100%', fld_width='100%',
