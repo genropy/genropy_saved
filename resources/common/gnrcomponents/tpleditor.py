@@ -234,7 +234,7 @@ class TemplateEditor(TemplateEditorBase):
             self.mixinComponent('flib:FlibPicker')
             tc.contentPane(title='!!Files').flibPickerPane(viewResource=':ImagesView',preview=False,gridpane_region='center', gridpane_margin='2px',
                             treepane_region='top',treepane_margin='2px',treepane_splitter=True,
-                            treepane__class='pbl_roundedGroup',treepane_height='50%')
+                            treepane__class='pbl_roundedGroup',treepane_height='30%')
 
         
         
