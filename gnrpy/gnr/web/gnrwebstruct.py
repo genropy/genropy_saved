@@ -1167,10 +1167,9 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             self.data(structpath, struct)
         
     def slotToolbar(self,*args,**kwargs):
-        """Create a :ref:`slotToolbar <slotbar>` and returns it.
+        """Create a :ref:`slotToolbar <slotbar>` and returns it
         
-        .. note:: a slotToolbar is a :meth:`slotBar` with some css preset. For more
-                  information, check the :ref:`slotToolbar <slotbar>` page
+        .. note:: a slotToolbar is a :ref:`slotBar <slotbar>` with some css preset
         """
         kwargs['toolbar'] = True
         return self.slotBar(*args,**kwargs)
@@ -1197,10 +1196,11 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             slothandle(**kw)
             
     def slotBar(self, slots=None, slotbarCode=None, namespace=None, childname='bar', **kwargs):
-        """Create a :ref:`slotBar <slotbar>` and returns it
+        """Create a :ref:`slotBar <slotbar>` and returns it. A slotBar is a Genro
+        :ref:`toolbar <toolbars>`
         
-        :param slots: create a configurable UI inside the div or pane in which the
-                      slotToolbar is defined. For more information, check the
+        :param slots: MANDATORY. Create a configurable UI inside the div or :ref:`contentpane`
+                      in which the slotToolbar is defined. For more information, check the
                       :ref:`slotbar_slots` section
         :param slotbarCode: autocreate a :ref:`nodeid` for the slotToolbar AND autocreate
                             hierarchic nodeIds for every slotToolbar child

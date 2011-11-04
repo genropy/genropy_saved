@@ -28,7 +28,7 @@ definition and description
     
     1. appending it to a :ref:`dropdownbutton`:
     
-        .. image:: ../../_images/widgets/menu.png
+        .. image:: ../../_images/widgets/menu/menu.png
         
       ::
       
@@ -38,7 +38,7 @@ definition and description
         
     2. appending it to a div:
     
-        .. image:: ../../_images/widgets/menu_div.png
+        .. image:: ../../_images/widgets/menu/menu_div.png
         
       ::
       
@@ -59,7 +59,7 @@ definition and description
        
        *Below the "Load" menuline there's a dividing line*
        
-        .. image:: ../../_images/widgets/menu_checked.png
+        .. image:: ../../_images/widgets/menu/menu_checked.png
         
     #. You can set submenus creating a menu inside a menu::
        

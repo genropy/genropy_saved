@@ -12,6 +12,7 @@ slotBar (and slotToolbar)
               * **Common attributes**: check the :ref:`attributes_index` section
     
     * :ref:`slotbar_def`
+    * :ref:`slotbar_descr`
     * :ref:`slotbar_attributes`:
     
         * :ref:`slotbar_childname`
@@ -23,21 +24,29 @@ slotBar (and slotToolbar)
     
 .. _slotbar_def:
 
-definition and description
-==========================
+definition
+==========
 
-    The slotBar and the slotToolbar are the Genro way to easily create a toolbar.
-    With toolbar we mean a set of icons, buttons, widgets and more over objects.
-    
-    The only differences between the slotToolbar and slotBar are some CSS
-    features (like transparency), so since their main features are common,
-    we'll describe them speaking only of the slotToolbar. We'll describe
-    their differences when we meet within the explanation.
-    
-    Let's see the definition:
+    **slotBar definition**:
     
     .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.slotBar
     
+    **slotToolbar definition**:
+    
+    .. automethod:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.slotToolbar
+    
+.. _slotbar_descr:
+
+description
+===========
+
+    The slotBar and the slotToolbar are the Genro way to easily create a :ref:`toolbar <toolbars>`.
+    
+    .. note:: The only differences between the slotToolbar and slotBar reside in some
+              CSS features: slotToolbar is a slotBar with some CSS preset; so we
+              introduce their definitions and then we speak only of the slotToolbar.
+              We'll describe their differences when we meet them within the explanation
+              
     The slotToolbar can be attached to any div::
     
          class GnrCustomWebPage(object):
@@ -54,6 +63,12 @@ definition and description
                 right = frame.right.slotToolbar(...)
                 bottom = frame.bottom.slotBar(...)
                 
+    Obtaining something like this:
+    
+        *In the image, a framePane with four slotBars (one for each side)*
+        
+        .. image:: ../../_images/widgets/toolbars/slotbar_framepane.png
+        
 .. _slotbar_attributes:
 
 attributes

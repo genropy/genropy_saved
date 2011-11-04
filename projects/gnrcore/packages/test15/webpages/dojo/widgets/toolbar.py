@@ -9,11 +9,8 @@ class GnrCustomWebPage(object):
         """basic"""
         tb = pane.toolbar(height='20px')
         fb = tb.formbuilder(cols=8, border_spacing=0)
-        fb.slotButton('tooltip', iconClass="icnBaseAdd")
-        fb.slotButton('tooltip', iconClass="icnBuilding")
-        fb.slotButton('tooltip', iconClass="icnBaseCalendar")
-        fb.slotButton('tooltip', iconClass="icnBuddy")
-        fb.slotButton('tooltip', iconClass="queryMenu")
-        fb.slotButton('tooltip', iconClass="icnBuddyChat")
+        for i in ('icnBaseAdd', 'icnBuilding', 'icnBaseCalendar',
+                  'icnBuddy', 'queryMenu', 'icnBuddyChat'):
+            fb.slotButton('tooltip', iconClass=i)
         fb.textbox()
         fb.button('save', action='alert("Saving!")')

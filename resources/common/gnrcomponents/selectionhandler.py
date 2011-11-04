@@ -26,7 +26,7 @@ import warnings
 class SelectionHandler(BaseComponent):
     """To use it you should include py_requires="selectionhandler"
     
-    selectionHandler is a new component that is used as a replacement for includedView and recordDialog. 
+    SelectionHandler is a new component that is used as a replacement for includedView and recordDialog. 
     It adds a navigation toolbar for first, previous, next and last.
     It adds a "+" button to add new records from within the dialog
     It manages automatically:
@@ -38,7 +38,6 @@ class SelectionHandler(BaseComponent):
     To replace an includedView and recordDialog do the following:
     
     #. Replace the call to includedView with a call to recordHandler
-    
     #. Comment out:
        
        * add_action
@@ -49,7 +48,8 @@ class SelectionHandler(BaseComponent):
        
     #. Add a new parameter to replace the recordDialog function, having all parameters of the
        recordDialog passed into a dictionary, except for: onSaved='FIRE #contact_logGrid.reload;',
-       dialogPars=dict(...)"""
+       dialogPars=dict(...)
+    """
     py_requires = 'foundation/includedview:IncludedView,foundation/recorddialog'
 
     def selectionHandler(self, bc, nodeId=None, table=None, datapath=None, struct=None, label=None,
@@ -107,11 +107,9 @@ class SelectionHandler(BaseComponent):
 
         if reloader and isinstance(reloader, basestring) and not reloader.startswith('^'):
             warnings.warn("[selectionhandler] reloader should start with '^': %s" % repr(reloader), stacklevel=2)
-
+            
         # --------------------------------------------------------------------------------------------- Implementation
-
-
-
+        
         add_action = 'FIRE .dlg.pkey="*newrecord*";' if add_action is True else add_action
         del_action = 'FIRE .delete_record;' if del_action is True else del_action
         if parentSave:
@@ -304,8 +302,4 @@ class SelectionHandler(BaseComponent):
             spacer.button('!!Delete', action='FIRE .delete_record;', hidden='^.status.locked',
                           iconClass='tb_button db_del', showLabel=False, disabled='==_curr_pkey=="*newrecord*"',
                           _curr_pkey='^.dlg.current_pkey')
-
-        
-        
-
-    
+                          
