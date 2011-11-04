@@ -61,7 +61,9 @@ class ImagesView(BaseComponent):
         def apply_thumb(row):
             ext_img = self.getResourceUri('filetype_icons/%s.png' % row['ext'][1:].lower())\
             or self.getResourceUri('filetype_icons/_blank.png')
-            return dict(image_drag="""<img border=0 draggable="true" src="%s" height="60px" />""" % (row['url'] or ext_img))
+            url = row['url'] or ext_img
+            url = self.externalUrl(url)
+            return dict(image_drag="""<img border=0 draggable="true" src="%s" height="60px" />""" %url)
         selection.apply(apply_thumb)
         
     def th_top_custom(self,top):
