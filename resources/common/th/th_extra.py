@@ -243,7 +243,7 @@ class THHierarchical(BaseComponent):
                             frm.load({destPkey:currPkey});""",
                             currPkey='^.#parent.selected_id',frm=form.js_form)
         self.hv_form(form)
-        bar.hv_lock.slotButton('!!Locker',iconClass='iconbox lock',showLabel=False,
+        bar.hv_lock.slotButton('!!Locker',iconClass='iconbox lock',
                     action='frm.publish("setLocked","toggle");',
                     frm=form.js_form,
                     subscribe_form_hv_center_form_onLockChange="""var locked= $1.locked;
