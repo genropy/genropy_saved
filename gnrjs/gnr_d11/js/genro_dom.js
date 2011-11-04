@@ -982,6 +982,9 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
     },
     onDragStart:function(event) {
+        if(event.target && event.target.tagName.toLowerCase()=='img'){
+            return;
+        }
         event.stopPropagation();
         if (event.target.draggable === false) {
             event.preventDefault();
