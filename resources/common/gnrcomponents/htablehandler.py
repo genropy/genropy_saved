@@ -427,7 +427,7 @@ class HTableHandler(HTableHandlerBase):
                      action="SET .edit.childType = $1.fullpath; FIRE .edit.add_child;")
         else:
             pane.slotButton(label='!!Add Sibling',  disabled=disabled,
-                        iconClass='iconbox add_record', showLabel=False,
+                        iconClass='iconbox add_record',
                         action='FIRE .edit.add_sibling;', visible='==tree_caption!=null',
                         tree_caption='^.tree.caption')
                         
@@ -476,7 +476,7 @@ class HTableHandler(HTableHandlerBase):
                                modifier="^.edit.add_sibling")
         
         toolbar.hlock.slotButton(label='^.edit.status.lockLabel', action='FIRE .edit.status.changelock;',
-                      iconClass="^.edit.status.statusClass", showLabel=False)
+                                 iconClass="^.edit.status.statusClass")
         toolbar.dataController("""genro.dom.removeClass(semaphoreId,"greenLight redLight yellowLight");
               if(isValid){
                  if(isChanged){
@@ -491,16 +491,16 @@ class HTableHandler(HTableHandlerBase):
                               isValid='^.edit.form.valid')
         toolbar.hsemaphre.div(nodeId='%s_semaphore' % nodeId, _class='semaphore', hidden='^.edit.no_record')
         toolbar.hsave.slotButton('!!Save', action="FIRE .edit.save", float='right',
-                       iconClass="iconbox save", showLabel=False,
-                       hidden='^.edit.no_record',
-                       disabled=disabled)
+                                  iconClass="iconbox save",
+                                  hidden='^.edit.no_record',
+                                  disabled=disabled)
         toolbar.hrevert.slotButton('!!Revert', action="FIRE .edit.load;", iconClass="iconbox revert",
                        hidden='^.edit.no_record',
-                       showLabel=False, disabled=disabled)
+                       disabled=disabled)
         toolbar.hdelete.slotButton('!!Delete', action="FIRE .edit.delete;", iconClass='iconbox delete_record',
-                       showLabel=False, disabled=disabled,
-                       hidden='^.edit.no_record',
-                       visible='^.edit.enableDelete')
+                                    disabled=disabled,
+                                    hidden='^.edit.no_record',
+                                    visible='^.edit.enableDelete')
         toolbar.dataFormula('.edit.enableDelete', 'child_count==0', child_count='^.tree.child_count')
         
         if editMode == 'sc':

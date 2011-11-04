@@ -75,6 +75,7 @@ Dojo-improved widgets
     
     * :ref:`button`
     * :ref:`menu`
+    * :ref:`toolbar`
     
     :ref:`textboxes_index`:
     
@@ -103,7 +104,6 @@ Dojo widgets
     * :ref:`radiobutton`
     * :ref:`simplearea`
     * :ref:`slider`
-    * :ref:`toolbar`
     * :ref:`togglebutton`
     
     add??? palette, dialog

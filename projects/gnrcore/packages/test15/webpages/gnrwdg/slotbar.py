@@ -9,7 +9,7 @@
 from gnr.web.gnrwebstruct import struct_method
 
 class GnrCustomWebPage(object):
-    testOnly = '_3_'
+    testOnly = '_0_'
     py_requires="gnrcomponents/testhandler:TestHandlerFull"
     
     def windowTitle(self):
