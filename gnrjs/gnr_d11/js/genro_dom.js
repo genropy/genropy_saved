@@ -982,9 +982,12 @@ dojo.declare("gnr.GnrDomHandler", null, {
         }
     },
     onDragStart:function(event) {
-        if(event.target && event.target.tagName.toLowerCase()=='img'){
-            return;
-        }
+       //if(event.target && event.target.tagName.toLowerCase()=='img'){
+       //    var imgurl = event.dataTransfer.getData('text/plain').replace('http://127.0.0.1:')
+       //    event.dataTransfer.setData('text/html','<img src="'+imgurl+'"/>')
+       //    console.log(event.dataTransfer);
+       //    return;
+       //}
         event.stopPropagation();
         if (event.target.draggable === false) {
             event.preventDefault();
