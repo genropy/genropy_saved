@@ -612,7 +612,7 @@ dojo.declare("gnr.widgets.SearchBox", gnr.widgets.gnrwdg, {
 dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw) {
         var groupCode = objectPop(kw, 'groupCode');
-        var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom');
+        var palette_kwargs = objectExtract(kw, 'title,dockTo,top,left,right,bottom,height,width');
         palette_kwargs.dockButton = objectPop(kw,'dockButton') || objectExtract(kw,'dockButton_*');
         palette_kwargs['nodeId'] = palette_kwargs['nodeId'] || groupCode + '_floating';
         palette_kwargs.selfsubscribe_showing = function() {
@@ -625,6 +625,18 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
         return tc;
     }
 });
+
+dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.gnrwdg, {
+    createContent:function(sourceNode, kw) {
+        var selected_kw = objectExtract(kw,'selected_*');
+        var mytextbox = sourceNode._('textbox',
+                                    {validate_call:function(value,userChange){
+                                        alert(value+piero);
+                                    }});
+        return mytextbox;
+    }
+});
+
 dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     getVirtualColumns:function(tpl_vc,curr_vc){
         curr_vc = curr_vc?curr_vc.split(','):[]
