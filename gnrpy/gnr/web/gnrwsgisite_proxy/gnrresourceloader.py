@@ -67,13 +67,15 @@ class ResourceLoader(object):
         
     def build_automap(self):
         """Build the :ref:`automap` file"""
-        def handleNode(node, pkg=None):
+        def handleNode(node, pkg=None, plugin=None):
             attr = node.attr
             file_name = attr['file_name']
             node.attr = dict(
                     name='!!%s' % file_name.capitalize(),
                     pkg=pkg
                     )
+            if plugin:
+                node.attr['plugin']=plugin
             if attr['file_ext'] == 'py':
                 node.attr['path'] = attr['rel_path']
             node.label = file_name
@@ -89,6 +91,11 @@ class ResourceLoader(object):
                                            include='*.py', exclude='_*,.*')()
             packagemap.walk(handleNode, _mode='', pkg=package.id)
             self.automap.setItem(package.id, packagemap, name=package.attributes.get('name_long') or package.id)
+            for pluginname,plugin in package.plugins.items():
+                pluginmap = DirectoryResolver(plugin.webpages_path,
+                                               include='*.py', exclude='_*,.*')()
+                pluginmap.walk(handleNode, _mode='', pkg=package.id,plugin=plugin.id)
+                self.automap.setItem("%s._plugin.%s"%(package.id,plugin.id), pluginmap, name=plugin.id)
         self.automap.toXml(os.path.join(self.site_path, 'automap.xml'))
         
     @property
@@ -142,13 +149,14 @@ class ResourceLoader(object):
         request_args = page_node._tail_list
         path = page_node_attributes.get('path')
         pkg = page_node_attributes.get('pkg')
-        page_class = self.get_page_class(path=path, pkg=pkg)
+        plugin = page_node_attributes.get('plugin')
+        page_class = self.get_page_class(path=path, pkg=pkg, plugin=plugin)
         page = page_class(site=self.site, request=request, response=response,
                           request_kwargs=self.site.parse_request_params(request.params), request_args=request_args,
-                          filepath=path, packageId=pkg, basename=path, environ=environ)
+                          filepath=path, packageId=pkg,  basename=path, environ=environ)
         return page
         
-    def get_page_class(self, path=None, pkg=None):
+    def get_page_class(self, path=None, pkg=None, plugin=None):
         """add???
         
         :param path: add???
@@ -157,7 +165,10 @@ class ResourceLoader(object):
             module_path = os.path.join(self.site_path, path)
             pkg = self.site.config['packages?default']
         else:
-            module_path = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages', path)
+            if plugin:
+                module_path= os.path.join(self.gnrapp.packages[pkg].plugins[plugin].webpages_path, path)
+            else:
+                module_path = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages', path)
             
         # if module_path in self.page_factories:
         #    return self.page_factories[module_path]
