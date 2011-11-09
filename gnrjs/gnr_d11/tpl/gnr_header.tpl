@@ -1,4 +1,5 @@
 <!-- ================  Genropy Headers ================ -->
+<script type="text/javascript" src="//maps.googleapis.com/maps/api/js?sensor=false&language="+navigator.language></script>
 <script type="text/javascript" src="${dojolib}" djConfig="${djConfig}"> </script>
 <script type="text/javascript">dojo.registerModulePath('gnr','${gnrModulePath}');</script>
 % if dijitImport:

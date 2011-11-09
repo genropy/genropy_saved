@@ -4281,6 +4281,7 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
         dijit.selectInputText(this.focusNode);
     },
     mixin__updateSelect: function(item) {
+        console.log(item);
         //var item=this.lastSelectedItem;
         var row = item ? item.attr : {};
         if (this.sourceNode.attr.selectedRecord) {
@@ -4308,6 +4309,77 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
         }
     }
 });
+
+dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
+    constructor: function(application) {
+        this._domtag = 'div';
+        this._dojotag = 'ComboBox';
+    },
+    creating: function(attributes, sourceNode) {
+        objectExtract(attributes, 'maxLength,_type');
+        var savedAttrs = {};
+        var localStore = new gnr.GnrBag();
+        var store = new gnr.GnrStoreBag({mainbag:localStore});
+        attributes.searchAttr = 'caption';
+        store._identifier = 'id';
+        attributes.store = store;
+        return savedAttrs;
+    },
+    patch__onKeyPress: function(/*Event*/ evt){
+        var dk = dojo.keys;
+        if(this._isShowingNow){
+            var pw = this._popupWidget;
+            pw.handleKey(evt);
+        }
+        else{
+            this.searchOnBlur=true;
+        }
+    },
+    mixin_geocodevalue:function(address){
+        this.geocoder.geocode( { 'address': address}, dojo.hitch(this, 'handleGeocodeResults'));
+    },
+    patch__onBlur: function(){
+        if (this.searchOnBlur){
+        this.geocodevalue(this.textbox.value);}
+    },
+    created: function(widget, savedAttrs, sourceNode) {
+        widget.geocoder = new google.maps.Geocoder();
+        var tag = 'cls_' + sourceNode.attr.tag;
+        dojo.addClass(widget.domNode.childNodes[0], tag);
+        this.connectForUpdate(widget, sourceNode);
+        if (dojo_version == '1.1') {
+            if (dojo.isSafari) {
+                dojo.connect(widget.focusNode, 'onkeydown', widget, '_onKeyPress');
+            }
+        }
+    },
+    mixin_handleGeocodeResults: function(results, status){
+         this.store.mainbag=new gnr.GnrBag();
+         if (status == google.maps.GeocoderStatus.OK) {
+             for (var i = 0; i < results.length; i++){
+                 formatted_address=results[i].formatted_address;
+                 var details = {id:i,caption:formatted_address,formatted_address:formatted_address};
+                 var address_components=results[i].address_components;
+                 for (var a in address_components){
+                     var address_component=address_components[a];
+                     details[address_component.types[0]]=address_component.short_name;
+                 }
+             this.store.mainbag.setItem('root.r_' + i, null, details);
+
+             }
+         };
+         if (this.store.mainbag.getItem('#0').len()==1){
+             this.setValue(this.store.mainbag.getItem('#0.#0?caption'),true);
+             this._updateSelect(this.store.mainbag.getNode('#0.#0'));
+         }
+         else{
+             this._startSearch("");
+         }
+        this.searchOnBlur=false;
+     }
+
+});
+
 dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
     creating: function(attributes, sourceNode) {
         var savedAttrs = {};
