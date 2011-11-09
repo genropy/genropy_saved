@@ -3070,8 +3070,8 @@ dojo.declare("gnr.widgets.VirtualGrid", gnr.widgets.DojoGrid, {
         if (attr) {
             if (attr._customClasses) {
                 var customClasses = null;
-                if ( typeof(customClasses)=='function'){
-                    customClasses=customClasses(row);
+                if ( typeof(attr._customClasses)=='function'){
+                    customClasses=attr._customClasses(row);
                 }
                 
                 if (attr._customClasses.slice(0, 1) == '!') {

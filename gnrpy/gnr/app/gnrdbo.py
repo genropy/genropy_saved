@@ -102,7 +102,7 @@ class GnrDboPackage(object):
         
 class TableBase(object):
     """add???"""
-    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, draftField=False, md5=False, 
+    def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, draftField=False, md5=False,
                   group='zzz', group_name='!!System'):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
@@ -155,7 +155,6 @@ class TableBase(object):
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] =draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
-        
             
     def trigger_setTSNow(self, record, fldname):
         """This method is triggered during the insertion (or a change) of a record. It returns

@@ -40,53 +40,67 @@ class GnrWebDeveloper(GnrBaseProxy):
             path = 'gnr.debugger.main.c_%s' % self.page.callcounter
             page.setInClientData(path, self._debug_calls)
     
-    
     @public_method
     def listMovers(self):
         dirs = os.listdir(self.page.site.getStaticPath('site:movers'))
         result = Bag()
         for i,d in enumerate(dirs):
             if not d.startswith('.'):
-                result.setItem('r_%i',None,caption=d,mover=d)
+                result.setItem('r_%i' %i,None,caption=d,mover=d)
         result.setItem('__newmover__',None,caption='!!New Mover',mover='')
         return result
 
     @public_method
-    def getMoverTableRows(self,tablerow=None,**kwargs):
-        if not tablerow:
-            return Bag()
+    def getMoverTableRows(self,tablerow=None,movername=None,**kwargs):
+        pkeys = tablerow['pkeys'].keys()
         tblobj = self.db.table(tablerow['table'])
         columns,mask = tblobj.rowcaptionDecode(tblobj.rowcaption)
-        result = Bag()
         if columns:
             columns = ','.join(columns)
         f = tblobj.query(where='$pkey IN :pkeys',pkeys=tablerow['pkeys'].keys(),columns=columns).fetch()
+        result = Bag()
         for r in f:
-            result.setItem(r['pkey'],Bag(dict(_pkey=r['pkey'],rowcaption=tblobj.recordCaption(record=r))))
+            result.setItem(r['pkey'],None,_pkey=r['pkey'],db_caption=tblobj.recordCaption(record=r),_customClasses='mover_db')
+        if movername:
+            indexbag = Bag(self.page.site.getStaticPath('site:movers',movername,'index.xml'))
+            tablecode = tablerow['table'].replace('.','_')
+            moverrows = indexbag.getItem('records.%s' %tablecode)
+            for pkey in pkeys:
+                rownode = moverrows.getNode(pkey)
+                if rownode:
+                    xml_caption=rownode.attr['caption']
+                    if not pkey in result:
+                        result.setItem(pkey,None,_pkey=pkey,xml_caption=xml_caption,_customClasses='mover_xml')
+                    else:
+                        result.getNode(pkey).attr.update(xml_caption=xml_caption,_customClasses='mover_both')
         return result
 
     @public_method
     def loadMover(self,movername=None):
-        if not movername:
-            return Bag()
-        return Bag(self.page.site.getStaticPath('site:movers',movername,'index.xml'))
+        result = Bag(self.page.site.getStaticPath('site:movers',movername,'index.xml'))
+        tablesbag = result['tables']
+        for n in result['records']:
+            tablesbag.getNode(n.label).attr.update(pkeys=dict([(pkey,True) for pkey in n.value.keys()]))
+        return tablesbag
     
     @public_method
     def saveMover(self,movername=None,data=None):
         assert data and movername,'data and movername are mandatory'
         moversfolder = self.page.site.getStaticPath('site:movers')
-        if not os.path.isdir(moversfolder):
-            os.mkdir(moversfolder)
         moverpath = os.path.join(moversfolder,movername)
         indexpath = os.path.join(moverpath,'index.xml')
+        indexbag = Bag()
         if not os.path.isdir(moverpath):
             os.mkdir(moverpath)
-        indexbag = Bag(indexpath) if os.path.isfile(indexpath) else Bag()
-        indexbag.update(data)
-        for k,v in indexbag.items():
-            self.db.table(v.getItem("table")).toXml(pkeys=v.getItem('pkeys').keys(),
-                                                    path=os.path.join(moverpath,'data','%s.xml' %k))
-        indexbag.toXml(indexpath)
+        for table,pkeys in data.digest('#a.table,#a.pkeys'):
+            pkeys = pkeys.keys()
+            tablecode = table.replace('.','_')
+            databag = self.db.table(table).toXml(pkeys=pkeys,rowcaption=True,
+                                                    path=os.path.join(moverpath,'data','%s.xml' %tablecode))
+            indexbag.setItem('tables.%s' %tablecode,None,table=table,count=len(pkeys))
+            for n in databag:
+                indexbag.setItem('records.%s.%s' %(tablecode,n.label),None,pkey=n.attr['pkey'],caption=n.attr.get('caption'))            
+        indexbag.toXml(indexpath,autocreate=True)
         
     def log(self, msg):
         if self.debug:

@@ -250,7 +250,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var center = dlg.center;
         var box = center._('div', {datapath:sourceNode.absDatapath(),padding:'20px'});
         var fb = genro.dev.formbuilder(box, 1, {border_spacing:'6px'});
-        fb.addField('textbox', {lbl:_T("Mover"),value:'^.movername',width:'10em'});
+        fb.addField('textbox', {lbl:_T("Mover"),value:'^.dlg.movername',width:'10em'});
         var bottom = dlg.bottom._('div');
         var saveattr = {'float':'right',label:_T('Save')};
         var data = new gnr.GnrBag();
@@ -269,16 +269,19 @@ dojo.declare("gnr.GnrDevHandler", null, {
         var frameNode = frame.getParentNode();
         bar._('div','currmover',{innerHTML:'==_movername||"New Mover"',_movername:'^.movername'})
         
-        var menu = bar._('div','btnload',{'_class':'iconbox folder'})._('menu',{'_class':'smallmenu',modifiers:'*',action:'SET .movername=$1.mover'});
+        var menu = bar._('div','btnload',{'_class':'iconbox folder'})._('menu',{'_class':'smallmenu',modifiers:'*',action:'SET .movername=$1.mover;FIRE .loadMover;'});
         menu.getParentNode().setRemoteContent({method:'developer.listMovers',cacheTime:5});
-        frame._('dataRpc',{'method':'developer.loadMover',movername:'^.movername',path:'.tablesgrid.data'});
+        frame._('dataRpc',{'method':'developer.loadMover',movername:'=.movername',
+                            path:'.tablesgrid.data',_if:'movername',_else:'return new gnr.GnrBag()',
+                            _fired:'^.loadMover'});
         
         var dlg = this.moverSavingDlg(frameNode,function(dialog){
-            genro.serverCall('developer.saveMover',{'_sourceNode':frameNode,movername:'=.movername',data:'=.tablesgrid.data'},
-                            function(){dialog.close_action();});
+            genro.serverCall('developer.saveMover',{'_sourceNode':frameNode,movername:'=.dlg.movername',data:'=.tablesgrid.data'},
+                            function(){dialog.close_action();frameNode.setRelativeData('.movername',frameNode.getRelativeData('.dlg.movername'))});
         });
         bar._('slotButton','btnsave',{'iconClass':'iconbox save',
                                         action:function(){
+                                            frameNode.setRelativeData('.dlg.movername',frameNode.getRelativeData('.movername'))
                                             dlg.show_action();
                                         }});
         
@@ -289,8 +292,10 @@ dojo.declare("gnr.GnrDevHandler", null, {
         frameNode.setRelativeData('.tablesgrid.struct.view_0.row_0',rows);
         
         var rows = new gnr.GnrBag();
-        rows.setItem('cell_0',null,{field:'_pkey',name:'pkey',hidden:true});
-        rows.setItem('cell_1',null,{name:'Caption',field:'rowcaption',width:'100%'});
+        rows.setItem('cell_0',null,{field:'_pkey',name:'pkey',width:'10em'});
+        rows.setItem('cell_1',null,{field:'db_caption',name:'DbCaption',width:'50%'});
+        rows.setItem('cell_2',null,{field:'xml_caption',name:'XmlCaption',width:'50%'});
+
         frameNode.setRelativeData('.recordsgrid.struct.view_0.row_0',rows);
         
         var bc = frame._('BorderContainer');
@@ -298,31 +303,32 @@ dojo.declare("gnr.GnrDevHandler", null, {
         top._('includedview',{
                  'margin':'3px',
                  'storepath':'.data','structpath':'.struct',datapath:'.tablesgrid',
-                 'datamode':'bag','relativeWorkspace':true,nodeId:'gnrDataMover_tablesgrid',
+                 'relativeWorkspace':true,nodeId:'gnrDataMover_tablesgrid',
                  configurable:false,
             'dropTarget_grid':'dbrecords',
             'selectedLabel':'.currLabel',
             onDrop_dbrecords:function(dropInfo,data){
                 var table = data.table;
-                var tablecode = table.replace('.','_');
+                tablecode = table.replace('.','_');
                 var griddata = this.getRelativeData('.data') || new gnr.GnrBag();
-                var currow = griddata.getItem(tablecode) || new gnr.GnrBag();
-                var currpkeys = currow.getItem('pkeys') || {};
+                var currow = griddata.getNode(tablecode);
+                currow = currow? currow.attr:{};
+                var currpkeys = currow['pkeys'] || {};
                 dojo.forEach(data.pkeys,function(pkey){currpkeys[pkey]=true;});
-                currow.setItem('table',table);
-                currow.setItem('pkeys',currpkeys);
-                currow.setItem('count',objectSize(currpkeys));
-                griddata.setItem(tablecode,currow);
+                currow['table'] = table;
+                currow['pkeys'] = currpkeys
+                currow['count'] = objectSize(currpkeys);
+                griddata.setItem(tablecode,null,currow);
             },
             autoWidth:false});
         frame._('dataRpc',{method:'developer.getMoverTableRows',_label:'^.tablesgrid.currLabel',
-                        tablerow:'==this.getRelativeData(".tablesgrid.data."+_label);',path:'.recordsgrid.data'});
-            
+                        tablerow:'==this.getRelativeData(".tablesgrid.data").getNode(_label).attr;',path:'.recordsgrid.data',
+                        movername:'=.movername',_if:'_label',_else:'return new gnr.GnrBag();'});
         var center = bc._('ContentPane',{'region':'center'});
         center._('includedview',{
                  'margin':'3px',margin_top:'6px',
                  'storepath':'.data','structpath':'.struct',datapath:'.recordsgrid',
-                 'datamode':'bag','relativeWorkspace':true,nodeId:'gnrDataMover_recordsgrid',
+                 'relativeWorkspace':true,nodeId:'gnrDataMover_recordsgrid',
                  configurable:false,
             autoWidth:false});
 
