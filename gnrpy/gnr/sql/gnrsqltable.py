@@ -26,12 +26,12 @@ __version__ = '1.0b'
 import os
 
 from gnr.core import gnrstring
-from gnr.core.gnrlang import GnrObject
+from gnr.core.gnrlang import GnrObject,getUuid
+from gnr.core.gnrdecorator import deprecated
 from gnr.core.gnrbag import Bag, BagCbResolver
 #from gnr.sql.gnrsql_exceptions import GnrSqlException,GnrSqlSaveException, GnrSqlApplicationException
 from gnr.sql.gnrsqldata import SqlRecord, SqlQuery
 from gnr.sql.gnrsql import GnrSqlException
-from gnr.core.gnrlang import getUuid
 import logging
 
 gnrlogger = logging.getLogger(__name__)
@@ -498,6 +498,25 @@ class SqlTable(GnrObject):
             elif isinstance(updater, dict):
                 new_row.update(updater)
             self.update(new_row, row)
+    
+    def toXml(self,pkeys=None,path=None,where=None,**kwargs):
+        where = '$%s IN :pkeys' %self.pkey if pkeys else where
+        f = self.query(where=where,pkeys=pkeys,addPkeyColumn=False,**kwargs).fetch()
+        result = Bag()
+        for r in f:
+            result[r[self.pkey]] = self.recordToXml(r)
+        if path:
+            result.toXml(path,autocreate=True)
+        return result
+            
+    
+    def recordToXml(self,record,path=None):
+        result = Bag()
+        for field in record.keys():
+            result[field] = record[field]
+        if path:
+            result.toXml(path,autocreate=True)
+        return result
             
     def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
         """add???
@@ -1016,6 +1035,8 @@ class SqlTable(GnrObject):
             result = joiner.get('one_rel_name') or self.db.table(targettbl).name_long
         return result
         
+    
+    @deprecated
     def xmlDump(self, path):
         """add???
         
@@ -1029,7 +1050,8 @@ class SqlTable(GnrObject):
             pkey = r.pop('pkey')
             result['records.%s' % pkey.replace('.', '_')] = Bag(r)
         result.toXml(filepath, autocreate=True)
-        
+    
+    @deprecated
     def importFromXmlDump(self, path):
         """add???
         

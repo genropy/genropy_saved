@@ -2134,7 +2134,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var structBag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         if (structBag) {
             sourceNode.baseStructBag = structBag.deepCopy();
-            if (genro.grid_configurator) {
+            if (genro.grid_configurator && sourceNode.attr.configurable) {
                 sourceNode.setRelativeData('.resource_structs.__baseview__',structBag.deepCopy(),{caption:_T('Base View')});
                 genro.grid_configurator.setFavoriteView(sourceNode.attr.nodeId);
             }
@@ -2724,6 +2724,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             }
             sel.sort();
             var rowset = [];
+            var pkeys = [];
             var valTextPlain = [];
             var valTextXml = [];
             var valTextHtml = [];
@@ -2731,6 +2732,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             var idx = 0;
             dojo.forEach(sel, function(k) {
                 var rdata = widget.rowByIndex(k);
+                pkeys.push(widget.rowIdentity(rdata));
                 rowset.push(rdata);
                 var r = [];
                 var r_xml = [];
@@ -2759,6 +2761,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             value['text/xml'] = valTextXml.join('\n');
             value['text/html'] = '<table>\n' + valTextHtml.join('\n') + '\n</table>';
             value['gridrow'] = {'row':dragInfo.row,'rowdata':rowdata,'rowset':rowset,'gridId':widget.sourceNode.attr.nodeId};
+            if(widget.collectionStore()){
+                var storeAttr = widget.collectionStore().storeNode.attr;
+                value['dbrecords'] = {table:storeAttr['table'],pkeys:pkeys};
+                console.log(value);
+            }
             if (sel.length > 1) {
                 //console.log(rowNodes)
                 var auxDragImage = dragInfo.dragImageNode = dojo.byId('auxDragImage');
@@ -2812,7 +2819,6 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var event = dropInfo.event;
         var draggedTypes = genro.dom.dataTransferTypes(event.dataTransfer);
         var dropModes = dropInfo.sourceNode.dropModes;
-
         var dropmode;
         for (var k in dropModes) {
             if (dojo.filter(dropModes[k].split(','),
@@ -2866,7 +2872,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
                 dropInfo.outline = event.cellNode;
             } else if (dropmode == 'row') {
                 dropInfo.outline = event.rowNode;
-                if(widget && dropInfo.row!==null){
+                if(widget && dropInfo.row!=null){
                     dropInfo.targetRowData = widget.rowByIndex(dropInfo.row);
                 }
             }

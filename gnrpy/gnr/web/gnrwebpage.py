@@ -36,7 +36,7 @@ from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
 from gnr.web.gnrwebpage_proxy.serverbatch import GnrWebBatch
 from gnr.web.gnrwebpage_proxy.rpc import GnrWebRpc
 from gnr.web.gnrwebpage_proxy.localizer import GnrWebLocalizer
-from gnr.web.gnrwebpage_proxy.debugger import GnrWebDebugger
+from gnr.web.gnrwebpage_proxy.developer import GnrWebDeveloper
 from gnr.web.gnrwebpage_proxy.utils import GnrWebUtils
 from gnr.web.gnrwebpage_proxy.pluginhandler import GnrWebPluginHandler
 from gnr.web.gnrwebpage_proxy.jstools import GnrWebJSTools
@@ -219,43 +219,39 @@ class GnrWebPage(GnrBaseWebPage):
         return self._localizer
         
     localizer = property(_get_localizer)
+    
+    @property 
+    def developer(self):
+        if not hasattr(self, '_developer'):
+            self._developer = GnrWebDeveloper(self)
+        return self._developer
         
-    def _get_debugger(self):
-        if not hasattr(self, '_debugger'):
-            self._debugger = GnrWebDebugger(self)
-        return self._debugger
-        
-    debugger = property(_get_debugger)
-        
-    def _get_utils(self):
+    @property
+    def utils(self):
         if not hasattr(self, '_utils'):
             self._utils = GnrWebUtils(self)
         return self._utils
         
-    utils = property(_get_utils)
-        
-    def _get_rpc(self):
+    @property
+    def rpc(self):
         if not hasattr(self, '_rpc'):
             self._rpc = GnrWebRpc(self)
         return self._rpc
         
-    rpc = property(_get_rpc)
-        
-    def _get_pluginhandler(self):
+    @property
+    def pluginhandler(self):
         if not hasattr(self, '_pluginhandler'):
             self._pluginhandler = GnrWebPluginHandler(self)
         return self._pluginhandler
-        
-    pluginhandler = property(_get_pluginhandler)
-        
-    def _get_jstools(self):
+    
+    @property       
+    def jstools(self):
         if not hasattr(self, '_jstools'):
             self._jstools = GnrWebJSTools(self)
         return self._jstools
         
-    jstools = property(_get_jstools)
-        
-    def _get_db(self):
+    @property 
+    def db(self):
         if not hasattr(self, '_db'):
             self._db = self.application.db
             self._db.updateEnv(storename=getattr(self, 'storename', None), workdate=self.workdate, locale=self.locale,
@@ -272,7 +268,6 @@ class GnrWebPage(GnrBaseWebPage):
                 self._db.updateEnv(**kwargs)
         return self._db
         
-    db = property(_get_db)
         
     def _get_workdate(self):
         return self._workdate or datetime.date.today()
@@ -1292,8 +1287,6 @@ class GnrWebPage(GnrBaseWebPage):
                 if typekit_code:
                     page.script(src="http://use.typekit.com/%s.js" % typekit_code)
                     page.dataController("try{Typekit.load();}catch(e){}", _onStart=True)
-                #self.debugger.right_pane(root)
-                #self.debugger.bottom_pane(root)
                 self.mainLeftContent(root, region='left', splitter=True, nodeId='gnr_main_left')
                 
                 root.div(id='auxDragImage')
@@ -1629,7 +1622,7 @@ class GnrWebPage(GnrBaseWebPage):
             else:
                 with open(path) as f:
                     content = f.read()
-        result.setItem('content',document)
+        result.setItem('content',content)
         return result
 
     def isLocalizer(self):
@@ -1771,7 +1764,7 @@ class GnrWebPage(GnrBaseWebPage):
     @deprecated
     def log(self, msg):
         """.. warning:: deprecated since version 0.7"""
-        self.debugger.log(msg)
+        self.developer.log(msg)
         
     ##### END: DEPRECATED METHODS #####
 

@@ -914,7 +914,7 @@ class GnrWsgiSite(object):
         if self.currentPage:
             page = self.currentPage
             if self.debug or page.isDeveloper():
-                page.debugger.output(debugtype, **kwargs)
+                page.developer.output(debugtype, **kwargs)
                 
     def onDbCommitted(self):
         """add???"""

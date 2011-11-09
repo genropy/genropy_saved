@@ -300,6 +300,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     remoteCall:function(method, params, mode, httpMethod, preventCache, async_cb) {
         var callKwargs = objectUpdate({}, params);
         callKwargs.method = method;
+        //console.log(method,params);
         var mode = mode || 'bag';
         var preprocessor, handleAs, result;
         if ((mode == 'bag') || (mode == 'xml')) {

@@ -220,7 +220,8 @@ dojo.declare("gnr.GnrDevHandler", null, {
             }
         };
         var pg = node._('paletteGroup',{'groupCode':'devTools','dockTo':false,id:'gnr_devTools',
-                                        title:'Developer tools ['+genro._('gnr.pagename')+']',style:"font-family:monaco;"});
+                                        title:'Developer tools ['+genro._('gnr.pagename')+']',style:"font-family:monaco;",
+                                        width:'500px'});
         pg._('paletteTree',{'paletteCode':'cliDatastore',title:'Data',
                            storepath:'*D',searchOn:true,tree_inspect:'shift',
                            'tree_connect_onclick':cbLog,
@@ -240,7 +241,91 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
         this.sqlDebugPalette(pg);
         this.devUtilsPalette(pg);
+        this.moverPalette(pg);
         node.unfreeze();
+    },
+    
+    moverSavingDlg:function(sourceNode,saveaction){
+        var dlg = genro.dlg.quickDialog('Save Mover');
+        var center = dlg.center;
+        var box = center._('div', {datapath:sourceNode.absDatapath(),padding:'20px'});
+        var fb = genro.dev.formbuilder(box, 1, {border_spacing:'6px'});
+        fb.addField('textbox', {lbl:_T("Mover"),value:'^.movername',width:'10em'});
+        var bottom = dlg.bottom._('div');
+        var saveattr = {'float':'right',label:_T('Save')};
+        var data = new gnr.GnrBag();
+        saveattr.action = function(){
+            saveaction(dlg);
+        }
+        bottom._('button', saveattr);
+        bottom._('button', {'float':'right',label:_T('Cancel'),action:dlg.close_action}); 
+        return dlg;       
+    },
+    
+    moverPalette:function(parent){
+        var frame = parent._('palettePane',{'paletteCode':'gnrDataMover',title:'Mover',contentWidget:'framePane',frameCode:'gnrDataMover'});
+        var bar = frame._('slotBar',{'toolbar':true,height:'20px',slots:'3,currmover,*,btnload,btnsave',side:'top'});
+        
+        var frameNode = frame.getParentNode();
+        bar._('div','currmover',{innerHTML:'==_movername||"New Mover"',_movername:'^.movername'})
+        
+        var menu = bar._('div','btnload',{'_class':'iconbox folder'})._('menu',{'_class':'smallmenu',modifiers:'*',action:'SET .movername=$1.mover'});
+        menu.getParentNode().setRemoteContent({method:'developer.listMovers',cacheTime:5});
+        frame._('dataRpc',{'method':'developer.loadMover',movername:'^.movername',path:'.tablesgrid.data'});
+        
+        var dlg = this.moverSavingDlg(frameNode,function(dialog){
+            genro.serverCall('developer.saveMover',{'_sourceNode':frameNode,movername:'=.movername',data:'=.tablesgrid.data'},
+                            function(){dialog.close_action();});
+        });
+        bar._('slotButton','btnsave',{'iconClass':'iconbox save',
+                                        action:function(){
+                                            dlg.show_action();
+                                        }});
+        
+        var rows = new gnr.GnrBag();
+        rows.setItem('cell_0',null,{name:'Table',field:'table',width:'100%'});
+        rows.setItem('cell_1',null,{field:'count',name:'Count',dtype:'N',width:'5em'});
+        rows.setItem('cell_2',null,{field:'pkeys',name:'pkeys',hidden:true});
+        frameNode.setRelativeData('.tablesgrid.struct.view_0.row_0',rows);
+        
+        var rows = new gnr.GnrBag();
+        rows.setItem('cell_0',null,{field:'_pkey',name:'pkey',hidden:true});
+        rows.setItem('cell_1',null,{name:'Caption',field:'rowcaption',width:'100%'});
+        frameNode.setRelativeData('.recordsgrid.struct.view_0.row_0',rows);
+        
+        var bc = frame._('BorderContainer');
+        var top = bc._('ContentPane',{'region':'top',height:'40%',splitter:true});
+        top._('includedview',{
+                 'margin':'3px',
+                 'storepath':'.data','structpath':'.struct',datapath:'.tablesgrid',
+                 'datamode':'bag','relativeWorkspace':true,nodeId:'gnrDataMover_tablesgrid',
+                 configurable:false,
+            'dropTarget_grid':'dbrecords',
+            'selectedLabel':'.currLabel',
+            onDrop_dbrecords:function(dropInfo,data){
+                var table = data.table;
+                var tablecode = table.replace('.','_');
+                var griddata = this.getRelativeData('.data') || new gnr.GnrBag();
+                var currow = griddata.getItem(tablecode) || new gnr.GnrBag();
+                var currpkeys = currow.getItem('pkeys') || {};
+                dojo.forEach(data.pkeys,function(pkey){currpkeys[pkey]=true;});
+                currow.setItem('table',table);
+                currow.setItem('pkeys',currpkeys);
+                currow.setItem('count',objectSize(currpkeys));
+                griddata.setItem(tablecode,currow);
+            },
+            autoWidth:false});
+        frame._('dataRpc',{method:'developer.getMoverTableRows',_label:'^.tablesgrid.currLabel',
+                        tablerow:'==this.getRelativeData(".tablesgrid.data."+_label);',path:'.recordsgrid.data'});
+            
+        var center = bc._('ContentPane',{'region':'center'});
+        center._('includedview',{
+                 'margin':'3px',margin_top:'6px',
+                 'storepath':'.data','structpath':'.struct',datapath:'.recordsgrid',
+                 'datamode':'bag','relativeWorkspace':true,nodeId:'gnrDataMover_recordsgrid',
+                 configurable:false,
+            autoWidth:false});
+
     },
 
 
@@ -285,13 +370,16 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                });
                                genro.log(txt,'Check db');
                            };
-         sb=pane._('SlotBar',{'side':'top',slots:'pollingSwitch,checkDb,DbSetup,ClearLog',toolbar:true});
+         sb=pane._('SlotBar',{'side':'top',slots:'pollingSwitch,clearLocal,clearSession,checkDb,DbSetup,ClearLog',toolbar:true,font_size:'.8'});
          pane._('dataRpc',{'path':'.checkDb',method:'checkDb',subscribe_devUtils_checkDb:true,
                            _onResult:dbchangelog});
          pane._('dataRpc',{'path':'.applyChangesToDb',method:'applyChangesToDb',
                             subscribe_devUtils_dbsetup:true,
                             _onResult:'genro.log("DB Change applied","applyChangesToDb")'});
-        sb._('checkbox','pollingSwitch',{'label':'Polling switch',value:'^gnr.polling.polling_enabled'});
+        sb._('checkbox','pollingSwitch',{'label':'Polling',value:'^gnr.polling.polling_enabled'});
+        sb._('button','clearLocal',{'label':'Clear LS',action:function(){localStorage.clear()}});
+        sb._('button','clearSession',{'label':'Clear SS',action:function(){SessionStorage.clear()}});
+
         sb._('button','checkDb',{'label':'CheckDb',publish:'devUtils_checkDb'});
         sb._('button','DbSetup',{'label':'DbSetup',publish:'devUtils_dbsetup'});
         sb._('button','ClearLog',{'label':'Clear log',action:'genro.clearlog()'});

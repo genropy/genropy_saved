@@ -26,7 +26,6 @@ from gnr.core.gnrdecorator import extract_kwargs
 
 class FormHandler(BaseComponent):
     css_requires='public'
-    py_requires='foundation/macrowidgets:SlotBar'
 
     @extract_kwargs(palette=True,dialog=True,default=True)
     @struct_method
