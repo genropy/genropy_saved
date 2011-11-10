@@ -792,7 +792,7 @@ class GnrWsgiSite(object):
         for pkg in self.db.packages.values():
             if hasattr(pkg,'onAuthenticated'):
                 pkg.onAuthenticated(avatar)
-        self.currentPage.btc.on_authenticated(avatar.user)
+        self.currentPage.btc.onAuthenticated(avatar.user)
         
     def pageLog(self, event, page_id=None):
         """add???

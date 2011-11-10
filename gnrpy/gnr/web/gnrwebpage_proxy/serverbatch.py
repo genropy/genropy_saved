@@ -22,7 +22,9 @@ class GnrWebBatch(GnrBaseProxy):
     def init(self, connection_id=None, user=None, **kwargs):
         pass
 
-    def on_authenticated(self, user):
+    def onAuthenticated(self, user):
+        if self.page.isGuest:
+            return
         if not os.path.exists(self.page.userDocument('_batch_result')):
             return
         batch_results = [x for x in os.listdir(self.page.userDocument('_batch_result')) if not x.startswith('.')]
