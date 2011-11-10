@@ -143,8 +143,8 @@ batch_monitor.btc_result = function(node, sourceNode) {
     }
     var resultNode = sourceNode.thermoSourceNode;
     var resultpane = resultNode.getParentBag();
+    resultNode.clearValue();
     
-    resultpane.popNode(resultNode.label);
     sourceNode.thermoSourceNode = null;
     var error = batch_value.getItem('error');
     var toprightNode = sourceNode.toprightSourceNode;
@@ -155,7 +155,7 @@ batch_monitor.btc_result = function(node, sourceNode) {
                     genro.serverCall("btc.remove_batch",{"batch_id":batch_id,"all_batches":kw.shiftKey});
     }});
     if (error) {
-        resultpane._('div', {innerHTML:error});
+        resultNode._('div', {innerHTML:error});
         return;
     }
 
@@ -164,20 +164,30 @@ batch_monitor.btc_result = function(node, sourceNode) {
     var resultAttr = resultHandlerNode.attr;
     var url =resultAttr.url;
     var url_print = resultAttr.url_print;
+    var tbl = resultNode._('table',{'width':'100%',border_spacing:'0',border_collapse:'collapse',text_align:'center'})._('tbody');
+    var c1 = tbl._('tr')._('td',{'colspan':2});
+    var r2 = tbl._('tr');
+    var c21 = r2._('td');
+    var c22 = r2._('td');
 
     if (url || url_print || result) {
         if (result) {
-            resultpane._('div', {innerHTML:result || resultAttr.document_name});
+            tbl._('tr')._('td',{'colspan':2})._('div', {innerHTML:result});
         }
-        resultpane._('div',{innerHTML:resultAttr.document_name});
-        if (url) {
-            resultpane._('a',{href:url,display:'inline-block'})._('div', {_class:'iconbox inbox'});
+        if(resultAttr.document_name){
+            tbl._('tr')._('td',{'colspan':2})._('div', {innerHTML:resultAttr.document_name});
         }
-        if(url_print){
-            resultpane._('a',{href:url_print,display:'inline-block'})._('div', {_class:'iconbox print'});
+        if (url || url_print){
+            var rlink = tbl._('tr');
+            if (url) {
+                rlink._('td',{_class:'bm_resulttd'})._('a',{href:url,display:'inline-block',_class:'bm_resultlink'})._('div')._('div', {_class:'iconbox inbox'});
+            }
+            if(url_print){
+                rlink._('td',{_class:'bm_resulttd'})._('a',{href:url_print,display:'inline-block',_class:'bm_resultlink'})._('div')._('div', {_class:'iconbox print'});
+            }
         }
     }
-    resultpane._('div', {innerHTML:'Execution time:' + batch_value.getItem('time_delta')});
+    tbl._('tr')._('td', {innerHTML:'Execution time:' + batch_value.getItem('time_delta'),colspan:2,font_size:'.9em',font_style:'italic'});
 };
 
 batch_monitor.on_btc_error = function(node, sourceNode) {
@@ -200,7 +210,7 @@ batch_monitor.on_tl_del = function(node, sourceNode) {
 batch_monitor.on_tl_upd = function(node, sourceNode) {
     var last_change = node.attr._change_ts;
     var age = last_change ? (new Date() - last_change) / 1000 : 1000;
-    if (age > 300) {
+    if (false && (age > 300)) {
         var bag_error = new gnr.GnrBag();
         bag_error.setItem('error', 'Timeout');
         bag_error.setItem('time_delta', age);

@@ -128,7 +128,7 @@ class BaseResourcePrint(BaseResourceBatch):
             self.fileurl = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True, download=True)
             resultAttr['url'] = self.fileurl
             resultAttr['document_name'] = save_as
-            resultAttr['url_print'] = self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True,target='_blank')
+            resultAttr['url_print'] = 'javascript:genro.openWindow("%s","%s");' %(self.page.site.getStaticUrl('user:output', 'pdf', filename, nocache=True),save_as)
             if self.batch_immediate is True:
                 self.batch_immediate = self.batch_parameters.get('immediate_mode')
             if self.batch_immediate=='print':
