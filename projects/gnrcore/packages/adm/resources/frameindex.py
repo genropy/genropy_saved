@@ -10,10 +10,12 @@ class FrameIndex(BaseComponent):
     py_requires="""foundation/menu:MenuIframes,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
                    gnrcomponents/batch_handler/batch_handler:BatchMonitor,
-                   gnrcomponents/chat_component/chat_component"""
+                   gnrcomponents/chat_component/chat_component,
+                   gnrcomponents/datamover:MoverPlugin
+                   """
     js_requires='frameindex'
     css_requires='frameindex,public'
-    plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin'
+    plugin_list = 'iframemenu_plugin,batch_monitor,chat_plugin,datamover'
     custom_plugin_list = None
     index_url = None
     indexTab = False
@@ -199,6 +201,11 @@ class FrameIndex(BaseComponent):
         pane.div(_class='button_block iframetab').div(_class='chat_plugin_icon',tip='!!Chat plug-in',
                     connect_onclick="""SET left.selected='chat_plugin';genro.getFrameNode('standard_index').publish('showLeft');""",
                     nodeId='plugin_block_chat_plugin')
+    
+    def btn_datamover(self,pane,**kwargs):
+        pane.div(_class='button_block iframetab').div(_class='case',tip='!!Mover plug-in',
+                    connect_onclick="""SET left.selected='datamover';genro.getFrameNode('standard_index').publish('showLeft');""",
+                    nodeId='plugin_block_datamover')
                     
     def btn_menuToggle(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='application_menu',tip='!!Show/Hide the left pane',

@@ -65,6 +65,8 @@ class GnrWebDeveloper(GnrBaseProxy):
             indexbag = Bag(self.page.site.getStaticPath('site:movers',movername,'index.xml'))
             tablecode = tablerow['table'].replace('.','_')
             moverrows = indexbag.getItem('records.%s' %tablecode)
+            if not moverrows:
+                return result
             for pkey in pkeys:
                 rownode = moverrows.getNode(pkey)
                 if rownode:
@@ -82,6 +84,18 @@ class GnrWebDeveloper(GnrBaseProxy):
         for n in result['records']:
             tablesbag.getNode(n.label).attr.update(pkeys=dict([(pkey,True) for pkey in n.value.keys()]))
         return tablesbag
+    
+    @public_method
+    def downloadMover(self,movername=None):
+        import tarfile
+        tempfolder = self.page.site.getStaticPath('site:temp')
+        if not os.path.isdir(tempfolder):
+            os.mkdir(tempfolder)
+        tarpath = os.path.join(tempfolder,'%s.gnrz' %movername)
+        f = tarfile.open(tarpath, mode = 'w:gz')
+        f.add(self.page.site.getStaticPath('site:movers',movername),arcname=movername)
+        f.close()     
+        return self.page.site.getStaticUrl('site:temp','%s.gnrz' %movername)
     
     @public_method
     def saveMover(self,movername=None,data=None):

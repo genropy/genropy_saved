@@ -264,7 +264,7 @@ dojo.declare("gnr.GnrDevHandler", null, {
     
     moverPalette:function(parent){
         var frame = parent._('palettePane',{'paletteCode':'gnrDataMover',title:'Mover',contentWidget:'framePane',frameCode:'gnrDataMover'});
-        var bar = frame._('slotBar',{'toolbar':true,height:'20px',slots:'3,currmover,*,btnload,btnsave',side:'top'});
+        var bar = frame._('slotBar',{'toolbar':true,height:'20px',slots:'3,currmover,*,btnload,btnsave,btndl',side:'top'});
         
         var frameNode = frame.getParentNode();
         bar._('div','currmover',{innerHTML:'==_movername||"New Mover"',_movername:'^.movername'})
@@ -284,6 +284,13 @@ dojo.declare("gnr.GnrDevHandler", null, {
                                             frameNode.setRelativeData('.dlg.movername',frameNode.getRelativeData('.movername'))
                                             dlg.show_action();
                                         }});
+        bar._('slotButton','btndl',{'iconClass':'iconbox inbox',
+                                        action:function(){
+                                            genro.serverCall('developer.downloadMover',{movername:'=.movername',_sourceNode:frameNode},
+                                                            function(result){
+                                                                genro.download(result);
+                                                            });
+                                        },disabled:'^.movername?=!#v'});
         
         var rows = new gnr.GnrBag();
         rows.setItem('cell_0',null,{name:'Table',field:'table',width:'100%'});
