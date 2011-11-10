@@ -626,17 +626,6 @@ dojo.declare("gnr.widgets.PaletteGroup", gnr.widgets.gnrwdg, {
     }
 });
 
-dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.gnrwdg, {
-    createContent:function(sourceNode, kw) {
-        var selected_kw = objectExtract(kw,'selected_*');
-        var mytextbox = sourceNode._('textbox',
-                                    {validate_call:function(value,userChange){
-                                        alert(value+piero);
-                                    }});
-        return mytextbox;
-    }
-});
-
 dojo.declare("gnr.widgets.TemplateChunk", gnr.widgets.gnrwdg, {
     getVirtualColumns:function(tpl_vc,curr_vc){
         curr_vc = curr_vc?curr_vc.split(','):[]

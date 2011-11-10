@@ -4327,6 +4327,7 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
         var localStore = new gnr.GnrBag();
         var store = new gnr.GnrStoreBag({mainbag:localStore});
         attributes.searchAttr = 'caption';
+        attributes.hasDownArrow =false;
         store._identifier = 'id';
         attributes.store = store;
         return savedAttrs;

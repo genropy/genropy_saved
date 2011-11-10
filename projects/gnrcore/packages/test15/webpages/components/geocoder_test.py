@@ -24,5 +24,20 @@ class GnrCustomWebPage(object):
         return 'GeocoderField Test'
 
     def test_1_ask(self, pane):
-        "Batch"
-        pane.geoCoderField(lbl='Pluto',selected_route='pippo',selectedRecord='pluto')
+        bc = pane.borderContainer(height='400px')
+        right = bc.contentPane(region='right',width='200px',splitter=True)
+        center = bc.contentPane(region='center')
+        fb = center.formbuilder(cols=2, border_spacing='4px')
+        fb.geoCoderField(lbl='Full Address',
+                        selected_route='.route',selected_locality='.locality',
+                        selected_postal_code='.zip',
+                        selectedRecord='.addressbag',
+                        colspan=2,width='100%')
+        fb.textbox(value='^.route',lbl='Route')
+        fb.textbox(value='^.locality',lbl='Locality')
+        fb.textbox(value='^.zip',lbl='Zip')
+        
+        right.tree(storepath='.addressbag',_fired='^.addressbag')
+
+
+        
