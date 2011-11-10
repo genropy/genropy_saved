@@ -4375,7 +4375,8 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
 
              }
          };
-         if (this.store.mainbag.getItem('#0').len()==1){
+         var firstline = this.store.mainbag.getItem('#0');
+         if (firstline && firstline.len()==1){
              this.setValue(this.store.mainbag.getItem('#0.#0?caption'),true);
              this._updateSelect(this.store.mainbag.getNode('#0.#0'));
          }
