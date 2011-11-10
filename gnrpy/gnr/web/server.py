@@ -21,7 +21,7 @@ import atexit
 import logging
 from gnr.core.gnrsys import expandpath, listdirs
 from gnr.core.gnrlog import enable_colored_logging
-
+fnull = open(os.devnull, 'w')
 MAXFD = 1024
 
 wsgi_options = dict(
@@ -143,21 +143,25 @@ def start_bonjour(host=None, port=None, server_name=None, server_description=Non
     # try registering with both or checking what service is running and use
     # that.  Program availability on the filesystem was never enough...
         if os.path.exists(cmd):
-            DNS_SD_PID = os.spawnv(os.P_NOWAIT, cmd, [cmd] + args)
+            DNS_SD_PID = subprocess.Popen([cmd] + args,stdout=fnull)
+            #DNS_SD_PID = os.spawnv(os.P_NOWAIT, cmd, [cmd] + args)
             atexit.register(stop_bonjour)
             break
 
+
 def stop_bonjour():
     global DNS_SD_PID
-    import signal
+    #import signal
 
     if not DNS_SD_PID:
         return
     try:
-        os.kill(DNS_SD_PID, signal.SIGTERM)
+        DNS_SD_PID.terminate()
+        #os.kill(DNS_SD_PID, signal.SIGTERM)
     except OSError:
+        DNS_SD_PID.kill()
         pass
-
+    fnull.close()
 
 class ServerException(Exception):
     pass
