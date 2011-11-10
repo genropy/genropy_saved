@@ -106,11 +106,7 @@ class GnrCustomWebPage(object):
 
        #                          
     def test_10_framepanebug(self,pane):
-        palette = pane.palettePane(paletteCode='xxx',heigth='300px',width='400px',dockTo=False,palette_persistent=True)
-        frame = palette.framePane(frameCode='yyy')
-        top = frame.top.slotBar('*,aa',toolbar=True)
-        top.aa.div('aa')
-        frame.div(height='13px',background='lime')
+        palette = pane.palettePane(paletteCode='xxx',height='600px',width='400px',dockTo=False)
 
     def test_11_framepanebug(self,pane):
         pane.dataController("""
