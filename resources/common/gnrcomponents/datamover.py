@@ -65,9 +65,9 @@ class MoverPlugin(BaseComponent):
                         dropTarget_grid='dbrecords,Files',dropTarget=True,dropTypes='dbrecords,Files',
                         
                         onDrop="""var f = files[0];
-                                    genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:'site:movers',filename:f.name.replace(".gnrz",''),
-                                                                        onResult:function(){}
-                                                                        });
+                                    genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:'site:temp',filename:f.name,
+                                                                        onResult:function(){},
+                                                                        uploaderId:'datamover'});
                         """,
                         onDrop_dbrecords="""var table = data.table;
                                             var objtype = data.objtype;
@@ -103,6 +103,10 @@ class MoverPlugin(BaseComponent):
         }
         """,moverlines="^.drop_moverlines",recordlines="^.drop_recordlines",
             gridmover=gridmover,gridrecords=gridrecords)
+    
+    def onUploading_datamover(self, file_url=None, file_path=None,
+                                 description=None, titolo=None, **kwargs):
+        self.developer.onDroppedMover(file_path=file_path)
         
         
         

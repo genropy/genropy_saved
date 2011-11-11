@@ -50,6 +50,13 @@ class GnrWebDeveloper(GnrBaseProxy):
         result.setItem('__newmover__',None,caption='!!New Mover',mover='')
         return result
 
+        
+    def onDroppedMover(self,file_path=None):
+        import tarfile
+        f = tarfile.open(file_path)
+        f.extractall()
+        os.remove(file_path)
+        
     @public_method
     def getMoverTableRows(self,tablerow=None,movername=None,movercode=None,**kwargs):
         pkeys = tablerow['pkeys'].keys()
