@@ -2770,7 +2770,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             value['text/xml'] = valTextXml.join('\n');
             value['text/html'] = '<table>\n' + valTextHtml.join('\n') + '\n</table>';
             value['gridrow'] = {'row':dragInfo.row,'rowdata':rowdata,'rowset':rowset,'gridId':widget.sourceNode.attr.nodeId};
-            if(widget.collectionStore()){
+            if(widget.collectionStore && widget.collectionStore()){
                 var storeAttr = widget.collectionStore().storeNode.attr;
                 value['dbrecords'] = {table:storeAttr['table'],pkeys:pkeys};
                 console.log(value);

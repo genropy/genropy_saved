@@ -55,7 +55,7 @@ class MoverPlugin(BaseComponent):
                                 action="""genro.serverCall('developer.downloadMover',{movername:'=.movername',_sourceNode:this},
                                                             function(result){
                                                                 genro.download(result);
-                                                            });""");
+                                                            });""",disabled='^.movername?=!#v')
         bc = frame.center.borderContainer()
         top = bc.contentPane(region='top',height='30%',splitter=True,overflow='hidden')
         top.includedview(datapath='.tablesgrid',storepath='.data',relativeWorkspace=True,struct=self.__tablesgrid_struct,
