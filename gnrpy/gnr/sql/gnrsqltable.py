@@ -506,7 +506,7 @@ class SqlTable(GnrObject):
             rowcaption = self.rowcaption if rowcaption is True else rowcaption
             fields,mask = self.rowcaptionDecode(rowcaption)
             columns = '%s,%s' %(columns,','.join(fields))        
-        f = self.query(where=where,pkeys=pkeys,columns=columns,**kwargs).fetch()
+        f = self.query(where=where,pkeys=pkeys,columns=columns,bagFields=True,**kwargs).fetch()
         result = Bag()
         for r in f:
             caption = self.recordCaption(record=r,rowcaption=rowcaption) if rowcaption else None

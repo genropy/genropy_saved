@@ -755,9 +755,15 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         };
         var fileParam = function(filedata) {
             var param = [];
+            var bin = null
             param.push('Content-Disposition: form-data; name="file_handle"; filename="' + file['name'] + '"');
             param.push('Content-Type: application/octet-stream');
-            return paramValue(param, file.getAsBinary());
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+                bin = evt.target.result;
+            };
+            reader.readAsBinaryString(file);
+            return paramValue(param, bin);
         };
         var addContentLength = function(content) {
             return "Content-Length: " + content.length + _crlf + _crlf + content;

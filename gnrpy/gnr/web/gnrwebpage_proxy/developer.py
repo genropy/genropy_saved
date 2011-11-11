@@ -51,7 +51,7 @@ class GnrWebDeveloper(GnrBaseProxy):
         return result
 
     @public_method
-    def getMoverTableRows(self,tablerow=None,movername=None,**kwargs):
+    def getMoverTableRows(self,tablerow=None,movername=None,movercode=None,**kwargs):
         pkeys = tablerow['pkeys'].keys()
         tblobj = self.db.table(tablerow['table'])
         columns,mask = tblobj.rowcaptionDecode(tblobj.rowcaption)
@@ -63,8 +63,7 @@ class GnrWebDeveloper(GnrBaseProxy):
             result.setItem(r['pkey'],None,_pkey=r['pkey'],db_caption=tblobj.recordCaption(record=r),_customClasses='mover_db')
         if movername:
             indexbag = Bag(self.page.site.getStaticPath('site:movers',movername,'index.xml'))
-            tablecode = tablerow['table'].replace('.','_')
-            moverrows = indexbag.getItem('records.%s' %tablecode)
+            moverrows = indexbag.getItem('records.%s' %movercode)
             if not moverrows:
                 return result
             for pkey in pkeys:
@@ -72,7 +71,9 @@ class GnrWebDeveloper(GnrBaseProxy):
                 if rownode:
                     xml_caption=rownode.attr['caption']
                     if not pkey in result:
-                        result.setItem(pkey,None,_pkey=pkey,xml_caption=xml_caption,_customClasses='mover_xml')
+                        result.setItem(pkey,None,_pkey=pkey,xml_caption=xml_caption,
+                                        db_caption="""<a href="javascript:genro.publish('import_moverline',{table:"%s",pkey:"%s"})">import</a>""" %(tablerow['table'],pkey),
+                                        _customClasses='mover_xml')
                     else:
                         result.getNode(pkey).attr.update(xml_caption=xml_caption,_customClasses='mover_both')
         return result
@@ -80,7 +81,7 @@ class GnrWebDeveloper(GnrBaseProxy):
     @public_method
     def loadMover(self,movername=None):
         result = Bag(self.page.site.getStaticPath('site:movers',movername,'index.xml'))
-        tablesbag = result['tables']
+        tablesbag = result['movers']
         for n in result['records']:
             tablesbag.getNode(n.label).attr.update(pkeys=dict([(pkey,True) for pkey in n.value.keys()]))
         return tablesbag
@@ -106,14 +107,14 @@ class GnrWebDeveloper(GnrBaseProxy):
         indexbag = Bag()
         if not os.path.isdir(moverpath):
             os.mkdir(moverpath)
-        for table,pkeys in data.digest('#a.table,#a.pkeys'):
+        for movercode,table,pkeys,reftable,objtype in data.digest('#k,#a.table,#a.pkeys,#a.reftable,#a.objtype'):
             pkeys = pkeys.keys()
-            tablecode = table.replace('.','_')
             databag = self.db.table(table).toXml(pkeys=pkeys,rowcaption=True,
-                                                    path=os.path.join(moverpath,'data','%s.xml' %tablecode))
-            indexbag.setItem('tables.%s' %tablecode,None,table=table,count=len(pkeys))
+                                                    path=os.path.join(moverpath,'data','%s.xml' %movercode))
+            indexbag.setItem('movers.%s' %movercode,None,table=table,count=len(pkeys),reftable=reftable,objtype=objtype)
+            indexbag.setItem('records.%s' %movercode,None,table=table)
             for n in databag:
-                indexbag.setItem('records.%s.%s' %(tablecode,n.label),None,pkey=n.attr['pkey'],caption=n.attr.get('caption'))            
+                indexbag.setItem('records.%s.%s' %(movercode,n.label),None,pkey=n.attr['pkey'],caption=n.attr.get('caption'))            
         indexbag.toXml(indexpath,autocreate=True)
         
     def log(self, msg):
