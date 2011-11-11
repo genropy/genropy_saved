@@ -30,7 +30,8 @@ class MoverPlugin(BaseComponent):
     
     def __tablesgrid_struct(self,struct):
         r = struct.view().rows()
-        r.cell('table', name='!!Table', width='100%')
+        r.cell('table', name='!!Table', hidden=True)
+        r.cell('logical_table', name='!!Object', width='100%')
         r.cell('count', name='!!Count', width='5em')
         r.cell('pkeys', hidden=True)
 
@@ -60,13 +61,17 @@ class MoverPlugin(BaseComponent):
         top.includedview(datapath='.tablesgrid',storepath='.data',relativeWorkspace=True,struct=self.__tablesgrid_struct,
                         dropTarget_grid='dbrecords',
                         onDrop_dbrecords="""var table = data.table;
-                                            tablecode = table.replace('.','_');
+                                            var tablecode = data.logical_table || data.table;
+                                            
+                                            tablecode = tablecode.replace('.','_').replace(' ','_');
+                                            console.log(tablecode);
                                             var griddata = this.getRelativeData('.data') || new gnr.GnrBag();
                                             var currow = griddata.getNode(tablecode);
                                             currow = currow? currow.attr:{};
                                             var currpkeys = currow['pkeys'] || {};
                                             dojo.forEach(data.pkeys,function(pkey){currpkeys[pkey]=true;});
                                             currow['table'] = table;
+                                            currow['logical_table'] = data.logical_table || table;
                                             currow['pkeys'] = currpkeys
                                             currow['count'] = objectSize(currpkeys);
                                             griddata.setItem(tablecode,null,currow);""",selectedLabel='.currLabel')

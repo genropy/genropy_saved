@@ -364,7 +364,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     
     dragDropConnect:function(pane) {
-        var pane = pane || genro.domById('mainWindow');
+        var pane = pane || dojo.body();
         dojo.connect(pane, 'dragstart', genro.dom, 'onDragStart');
         dojo.connect(pane, 'dragend', genro.dom, 'onDragEnd');
         dojo.connect(pane, 'dragover', genro.dom, 'onDragOver');

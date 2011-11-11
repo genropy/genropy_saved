@@ -350,7 +350,7 @@ class PaletteTemplateEditor(TemplateEditor):
             from_doctemplate.setItem(r['pkey'],None,caption=r['name'],tplmode='doctemplate',pkey=r['pkey'])
         result.update(from_doctemplate)
         for n in from_userobject:
-            result.setItem(n.label,None,tplmode='userobject',caption=n.attr.get('description') or n.attr.get('description'),**n.attr)
+            result.setItem(n.label,None,tplmode='userobject',**n.attr)
         result.setItem('__newtpl__',None,caption='!!New Template')
         return result
 

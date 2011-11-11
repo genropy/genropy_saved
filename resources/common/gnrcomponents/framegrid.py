@@ -8,9 +8,7 @@ from gnr.web.gnrwebpage import BaseComponent
 from gnr.web.gnrwebstruct import struct_method
 from gnr.core.gnrdecorator import extract_kwargs
 
-    
 class FrameGridSlots(BaseComponent):
-    py_requires='gnrcomponents/grid_configurator/grid_configurator:GridConfigurator'
     @struct_method
     def fgr_slotbar_export(self,pane,_class='iconbox export',mode='xls',enable=None,**kwargs):
         return pane.slotButton(label='!!Export',publish='serverAction',command='export',opt_export_mode=mode or 'xls',

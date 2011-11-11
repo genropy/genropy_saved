@@ -39,7 +39,7 @@ class Table(object):
                          where=where, order_by='$code',
                          val_objtype=objtype, val_tbl=tbl,_flags=flags).selection()
         sel.filter(checkUserObj)
-        return sel
+        return sel.output('records')
 
     #PUBLIC METHODS 
     
@@ -59,14 +59,20 @@ class Table(object):
         self.delete({'id': id})
 
     @public_method
-    def userObjectMenu(self,table, objtype=None,**kwargs): #th_listUserObject
+    def userObjectMenu(self,table=None, objtype=None,**kwargs): #th_listUserObject
         result = Bag()
-        objectsel = self.listUserObject(objtype=objtype,userid=self.db.currentPage.user, tbl=table,
+        userobjects = self.listUserObject(objtype=objtype,userid=self.db.currentPage.user, tbl=table,
                                                 authtags=self.db.currentPage.userTags,**kwargs)
-        if objectsel:
-            for i, r in enumerate(objectsel.data):
-                attrs = dict([(str(k), v) for k, v in r.items()])
-                result.setItem(r['code'] or 'r_%i' % i, None, **attrs)
+        i = 0
+        if len(userobjects)>0:
+            for r in userobjects:
+                r.pop('data')
+                r['pkey'] = r.pop('id')
+                r['caption'] = r['description'] or r['code']
+                r['draggable'] = True
+                r['onDrag'] = """dragValues['dbrecords'] = {table:'adm.userobject',pkeys:['%(pkey)s'],logical_table:'%(objtype)s %(tbl)s'}""" %r
+                result.setItem(r['code'] or 'r_%i' % i, None, **dict(r))
+                i+=1
         return result
             
     @public_method

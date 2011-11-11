@@ -1257,6 +1257,9 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
     creating:function(attributes, sourceNode) {
         var savedAttrs = {};
         objectPop(attributes, 'action');
+        if(attributes.draggable){
+            savedAttrs['draggable'] = objectPop(attributes,'draggable');
+        }
         if (sourceNode.attr.label == '-') {
             this._dojotag = 'MenuSeparator';
         }
@@ -1281,6 +1284,12 @@ dojo.declare("gnr.widgets.Menuline", gnr.widgets.baseDojo, {
         }
         return savedAttrs;
     },
+    created: function(widget, savedAttrs, sourceNode) {
+        if(savedAttrs.draggable){
+            widget.focusNode.setAttribute('draggable',true);
+        }
+    },
+
 
     mixin_setChecked: function(val, kw) {
         if (val) {

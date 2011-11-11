@@ -225,8 +225,7 @@ class TableHandlerView(BaseComponent):
         templates = self.db.table('adm.userobject').userObjectMenu(table=table,objtype='template',flags=flags)
         for t in templates:
             attr = t.attr
-            result.setItem(attr['code'],None,caption=attr['description'] or attr['code'],
-                            resource='%s_template' %res_type,template_id=attr['pkey'])
+            result.setItem(attr['code'],None,resource='%s_template' %res_type,template_id=attr['pkey'],**attr)
         return result
         
     @struct_method
@@ -442,7 +441,7 @@ class TableHandlerView(BaseComponent):
         return result
 
 class THViewUtils(BaseComponent):
-    js_requires='th/th_querytool'
+    js_requires='th/th_querytool,th/th_viewconfigurator'
         
     @public_method
     def th_menuSets(self,table=None,**kwargs):
@@ -460,7 +459,11 @@ class THViewUtils(BaseComponent):
         if pyviews:
             for k,caption in pyviews:
                 result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
-        self.grid_configurator_savedViewsMenu(result,gridId)
+        userobjects = self.db.table('adm.userobject').userObjectMenu(objtype='view',flags='%s_%s' % (self.pagename, gridId),table=table)
+        if len(userobjects)>0:
+            for n in userobjects:
+                attrs = n.attr
+                result.addItem(attrs.get('code') or 'r_%i' %len(result), None,gridId=gridId,**attrs)
         result.walk(self._th_checkFavoriteLine,favPath=favoriteViewPath)
         return result
     
@@ -477,11 +480,11 @@ class THViewUtils(BaseComponent):
             querymenu.setItem('__basequery__',None,caption='!!Plain Query',description='',
                                 extended=False)
             querymenu.setItem('r_1',None,caption='-')
-        savedqueries = self.db.table('adm.userobject').listUserObject(objtype='query', userid=self.user, tbl=table,authtags=self.userTags)            
-        if savedqueries:
-            for i, r in enumerate(savedqueries.data):
-                attrs = dict([(str(k), v) for k, v in r.items()])
-                querymenu.setItem(r['code'] or 's_%i' % i, None,caption=attrs.get('description',r['code']),_attributes=attrs)
+        savedquerymenu = self.db.table('adm.userobject').userObjectMenu(table,objtype='query')            
+        if savedquerymenu:
+            for n in savedquerymenu:
+                attr = n.attr
+                querymenu.setItem(attr.get('code') or 's_%i' % len(querymenu), None,_attributes=attr)
             querymenu.setItem('r_2',None,caption='-')
         if pyqueries:
             for n in pyqueries:

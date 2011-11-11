@@ -3,7 +3,7 @@ var genro_plugin_grid_configurator = {
         var gridSourceNode = genro.nodeById(gridId);
         var that = this;
         var currViewAttr = gridSourceNode.getRelativeData('.currViewAttrs');
-        genro.serverCall('deleteViewGrid', {pkey:currViewAttr.getItem('pkey')}, function() {
+        genro.serverCall('_table.adm.userobject.deleteUserObject', {pkey:currViewAttr.getItem('pkey')}, function() {
             genro.grid_configurator.loadView(gridId);
             that.refreshMenu(gridId);
         });
@@ -29,8 +29,22 @@ var genro_plugin_grid_configurator = {
         var datapath =  gridSourceNode.absDatapath('.currViewAttrs');
         var that = this;
         saveCb = function(dlg) {
-            genro.serverCall('saveGridCustomView',
-            {'gridId':gridId,'save_info':genro.getData(datapath),'data':gridSourceNode.widget.structBag},
+            var pagename = genro.getData('gnr.pagename');
+            var flag =  pagename+'_'+gridId;
+            var metadata = genro.getData(datapath);
+            var flags = metadata.getItem('flags');
+            if(flags){
+                if(flags.indexOf(flag)<0){
+                    flags = flags.split(',');
+                    flags.push(flag)
+                }
+            }else{
+                flags = flag;
+            }
+            metadata.setItem('flags',flags)
+            genro.serverCall('_table.adm.userobject.saveUserObject',
+                            {'objtype':'view','metadata':metadata,'data':gridSourceNode.widget.structBag,
+                            table:gridSourceNode.attr.table},
                             function(result) {
                                 dlg.close_action();
                                 gridSourceNode.setRelativeData('.currViewPath', result.attr.code);
@@ -92,11 +106,12 @@ var genro_plugin_grid_configurator = {
             }
             viewAttr = menubag.getNode(currPath).attr;
         }        
+        viewAttr['id'] = viewAttr['pkey']
         gridSourceNode.setRelativeData('.currViewAttrs',new gnr.GnrBag(viewAttr));
         this.checkFavorite(gridId);
         if(viewAttr.pkey){
             var pkey = viewAttr.pkey;
-            genro.serverCall('loadGridCustomView', {pkey:pkey}, function(result){finalize(result.getValue())});
+            genro.serverCall('_table.adm.userobject.loadUserObject', {pkey:pkey}, function(result){finalize(result.getValue())});
         }else{
             finalize(gridSourceNode.getRelativeData('.resource_structs.'+currPath).deepCopy())
         }

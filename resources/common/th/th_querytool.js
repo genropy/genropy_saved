@@ -180,6 +180,7 @@ dojo.declare("gnr.QueryManager", null, {
         
         var queryBag = this.sourceNode.getRelativeData('.query.menu');
         var queryAttributes= queryBag.getNode(currentQuery).attr;
+        queryAttributes['id'] = queryAttributes['pkey']
         if(!('extended' in queryAttributes)){
             queryAttributes.extended = true;
         }
