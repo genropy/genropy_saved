@@ -139,7 +139,7 @@ class TableHandlerView(BaseComponent):
                         
         pane.dataController("TH(th_root).querymanager.queryEditor(open);",
                         th_root=th_root,open="^.query.queryEditor")
-        pane.dataRpc('dummy',self.th_deleteUserObject,pkey='=.query.queryAttributes.pkey',table=table,_fired='^.query.delete',
+        pane.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,pkey='=.query.queryAttributes.pkey',table=table,_fired='^.query.delete',
                    _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
 
 
@@ -222,7 +222,7 @@ class TableHandlerView(BaseComponent):
             if resources:
                 result.update(resources)
         flags = flags or 'is_%s' %res_type
-        templates = self.th_listUserObject(table=table,objtype='template',flags=flags)
+        templates = self.db.table('adm.userobject').userObjectMenu(table=table,objtype='template',flags=flags)
         for t in templates:
             attr = t.attr
             result.setItem(attr['code'],None,caption=attr['description'] or attr['code'],
@@ -443,32 +443,14 @@ class TableHandlerView(BaseComponent):
 
 class THViewUtils(BaseComponent):
     js_requires='th/th_querytool'
+        
     @public_method
     def th_menuSets(self,table=None,**kwargs):
-        menu =self.th_listUserObject(table=table,**kwargs)
+        menu =self.db.table('adm.userobject').userObjectMenu(table=table,**kwargs)
         if len(menu)>0:
             menu.setItem('r_0',None,caption='-')
         menu.setItem('__newset__',None,caption='!!New Set')
         return menu
-    
-    @public_method
-    def th_listUserObject(self,table, objtype=None,**kwargs):
-        result = Bag()
-        if hasattr(self.package, 'listUserObject'):
-            objectsel = self.package.listUserObject(objtype=objtype,userid=self.user, tbl=table,
-                                                    authtags=self.userTags,**kwargs)
-            if objectsel:
-                for i, r in enumerate(objectsel.data):
-                    attrs = dict([(str(k), v) for k, v in r.items()])
-                    result.setItem(r['code'] or 'r_%i' % i, None, **attrs)
-        return result
-            
-    @public_method
-    def th_loadUserObject(self, table=None, pkey=None,**kwargs):
-        pkg,tbl = table.split('.')
-        package = self.db.package(pkg)
-        data, metadata = package.loadUserObject(id=pkey)
-        return (data, metadata)
 
     @public_method
     def th_menuViews(self,table=None,th_root=None,pyviews=None,favoriteViewPath=None,**kwargs):
@@ -495,7 +477,7 @@ class THViewUtils(BaseComponent):
             querymenu.setItem('__basequery__',None,caption='!!Plain Query',description='',
                                 extended=False)
             querymenu.setItem('r_1',None,caption='-')
-        savedqueries = self.package.listUserObject(objtype='query', userid=self.user, tbl=table,authtags=self.userTags)            
+        savedqueries = self.db.table('adm.userobject').listUserObject(objtype='query', userid=self.user, tbl=table,authtags=self.userTags)            
         if savedqueries:
             for i, r in enumerate(savedqueries.data):
                 attrs = dict([(str(k), v) for k, v in r.items()])
@@ -516,30 +498,7 @@ class THViewUtils(BaseComponent):
                                 extended=True)
         querymenu.walk(self._th_checkFavoriteLine,favPath=favoriteQueryPath)
         return querymenu
-        
-        
-    @public_method
-    def th_saveUserObject(self, table=None,objtype=None,data=None,metadata=None,**kwargs):
-        pkg,tbl = table.split('.')
-        package = self.db.package(pkg)
-        if not metadata:
-            return
-        record = dict(data=data,objtype=objtype,
-                    pkg=pkg,tbl=table,userid=self.user,id=metadata['id'],
-                    code= metadata['code'],description=metadata['description'],private=metadata['private'] or False,
-                    notes=metadata['notes'],flags=metadata['flags'])
-        package.dbtable('userobject').insertOrUpdate(record)
-        self.db.commit()
-        return record['id'],record
-
-    @public_method
-    def th_deleteUserObject(self,table=None,pkey=None):
-        pkg,tbl = table.split('.')
-        package = self.db.package(pkg)
-        package.deleteUserObject(pkey)
-        self.db.commit()
-        
-    
+            
     @public_method
     def getSqlOperators(self):
         result = Bag()

@@ -301,7 +301,7 @@ class PaletteTemplateEditor(TemplateEditor):
                 editorbag.setItem('userobject_meta',new gnr.GnrBag());
                 editorbag.setItem('caption',newcaption);
             }else if(pkey){
-                genro.serverCall('th_loadUserObject',{table:table,pkey:pkey},function(result){
+                genro.serverCall('_table.adm.userobject.loadUserObject',{table:table,pkey:pkey},function(result){
                     editorbag.setItem('data',result._value.deepCopy());
                     editorbag.setItem('mode','userobject');
                     editorbag.setItem('caption',result.attr.description || result.attr.code);
@@ -310,7 +310,7 @@ class PaletteTemplateEditor(TemplateEditor):
             }
         """,tplpath="^.currentTemplate.path",tplmode='=.currentTemplate.tplmode',
                 pkey='=.currentTemplate.pkey',table=maintable,newcaption='!!New template',user=self.user)
-        infobar.dataRpc('dummy',self.th_deleteUserObject,table=maintable,pkey='=.currentTemplate.pkey',
+        infobar.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,table=maintable,pkey='=.currentTemplate.pkey',
                         _onResult='SET .currentTemplate.path="__newtpl__";',_fired='^.deleteCurrent')
         infobar.dataController("""
             if(currentTemplatePkey){
@@ -343,7 +343,7 @@ class PaletteTemplateEditor(TemplateEditor):
     def te_menuTemplates(self,table=None):
         result = Bag()
         #from_resources = None #todo
-        from_userobject = self.th_listUserObject(table,'template') #todo
+        from_userobject = self.db.table('adm.userobject').userObjectMenu(table,'template') #todo
         from_doctemplate = Bag()
         f = self.db.table('adm.doctemplate').query(where='$maintable=:t',t=table).fetch()
         for r in f:
@@ -368,7 +368,7 @@ class PaletteTemplateEditor(TemplateEditor):
             if data['metadata.email']:
                 data['metadata.email_compiled'] = self.te_compileBagForm(table=table,sourcebag=data['metadata.email'],varsbag=data['varsbag'],parametersbag=data['parameters'])
             data['compiled'] = self.te_compileTemplate(table=table,datacontent=data['content'],varsbag=data['varsbag'],parametersbag=data['parameters'])['compiled']
-            pkey,record = self.th_saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
+            pkey,record = self.db.table('adm.userobject').saveUserObject(table=table,metadata=metadata,data=data,objtype='template')
             record.pop('data')
         return record
         

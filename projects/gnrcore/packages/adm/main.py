@@ -61,9 +61,8 @@ class Package(GnrDboPackage):
 
     def onSiteInited(self):
         db = self.application.db
-        db.table('adm.connection').closePendingConnections(end_ts=datetime.now(), end_reason='sys_restart')
-        db.table('adm.served_page').closePendingPages(end_ts=datetime.now(), end_reason='sys_restart')
-        db.closeConnection()
+        db.table('adm.userobject').importOld()
+
 
 class Table(GnrDboTable):
     pass

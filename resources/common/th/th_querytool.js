@@ -151,7 +151,7 @@ dojo.declare("gnr.QueryManager", null, {
         var data = this.sourceNode.getRelativeData('.query.where')
         var that = this;
         saveCb = function(dlg) {
-            genro.serverCall('th_saveUserObject',
+            genro.serverCall('_table.adm.userobject.saveUserObject',
             {'objtype':'query','table':that.maintable,'data':data,metadata:genro.getData(datapath)},
             function(result) {
                 dlg.close_action();
@@ -188,7 +188,7 @@ dojo.declare("gnr.QueryManager", null, {
             finalize(this.sourceNode.getRelativeData('.baseQuery').deepCopy(),false);
         }
         else if(queryAttributes.pkey){
-            genro.serverCall('th_loadUserObject',{pkey:queryAttributes.pkey,table:this.maintable},function(result){
+            genro.serverCall('_table.adm.userobject.loadUserObject',{pkey:queryAttributes.pkey,table:this.maintable},function(result){
                 finalize(result._value.deepCopy(),!sourceNode.getRelativeData('.query.queryEditor'));
             })
         }else if(queryAttributes.selectmethod){
@@ -294,7 +294,7 @@ dojo.declare("gnr.QueryManager", null, {
                             action:function(item){
                                 var code = item.fullpath;
                                 if(code!='__newset__'){
-                                    genro.serverCall('th_loadUserObject',{pkey:item.pkey,table:that.maintable},
+                                    genro.serverCall('_table.adm.userobject.loadUserObject',{pkey:item.pkey,table:that.maintable},
                                     function(result){
                                         helperBag.setItem('items',result._value);
                                         result.attr.caption = result.attr.description;
@@ -310,7 +310,7 @@ dojo.declare("gnr.QueryManager", null, {
                      'data':helperBag.getItem('items'),
                      metadata:genro.getData(savepath)}
             genro.dev.userObjectDialog(_T('Save set'),savepath,function(dialog) {
-                genro.serverCall('th_saveUserObject',kw,function(result) {
+                genro.serverCall('_table.adm.userobject.saveUserObject',kw,function(result) {
                     helperBag.setItem('currentsetAttr',new gnr.GnrBag(result.attr));
                     dialog.close_action();
                 });
@@ -319,7 +319,7 @@ dojo.declare("gnr.QueryManager", null, {
         toolbar._('slotButton','saveset',{iconClass:'iconbox save',action:saveAction});
         toolbar._('slotButton','delset',{iconClass:'iconbox trash',disabled:'^.currentsetAttr.id?=!#v',
                     action:function(){
-                        genro.serverCall('th_deleteUserObject',{pkey:helperBag.getItem('currentsetAttr.id'),
+                        genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:helperBag.getItem('currentsetAttr.id'),
                                                                 table:that.maintable},resetSet);
                     }});
         var box = center._('div', {datapath:datapath,padding:'5px'});

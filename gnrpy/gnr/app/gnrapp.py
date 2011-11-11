@@ -218,7 +218,11 @@ class GnrSqlAppDb(GnrSqlDb):
         
         :param path: add???
         :param dflt: add???"""
-        return self.application.site.currentPage.pageStore().getItem(path,dflt)
+        return self.currentPage.pageStore().getItem(path,dflt)
+        
+    @property
+    def currentPage(self):
+        return self.application.site.currentPage
         
 class GnrPackagePlugin(object):
     """add???"""
