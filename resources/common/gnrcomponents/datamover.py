@@ -48,7 +48,7 @@ class MoverPlugin(BaseComponent):
                     onDrop_recordlines="FIRE .drop_recordlines = data.rows;")
         bar = frame.top.slotToolbar('3,currmover,*,btnload,btnsave,btndl')
         bar.currmover.div('==_movername||"New Mover"',_movername='^.movername')
-        bar.btnload.div(_class='iconbox folder').menu(_class='smallmenu',modifiers='*',action='SET .movername=$1.mover;FIRE .loadMover;',
+        bar.btnload.div(_class='iconbox folder').menu(_class='smallmenu',modifiers='*',action='SET .movername=$1.mover;',
                                                     storepath='.movers')
         bar.dataRemote('.movers','developer.listMovers',cacheTime=5)
         bar.btnsave.slotButton("!!Save",iconClass='iconbox save',action="dlg.show();",dlg=self.__moverdialog(frame))
@@ -63,10 +63,14 @@ class MoverPlugin(BaseComponent):
                         draggable_row=True,onDrag="""if(dragInfo.dragmode == 'row') {dragValues["moverlines"] = {rows:dragValues.gridrow.rowset}};""",
                         drop_ext='gnrz',
                         dropTarget_grid='dbrecords,Files',dropTarget=True,dropTypes='dbrecords,Files',
-                        
+                        autoSelect=True,
                         onDrop="""var f = files[0];
+                                    var movername = f.name;
+                                    
                                     genro.rpc.uploadMultipart_oneFile(f,null,{uploadPath:'site:temp',filename:f.name,
-                                                                        onResult:function(){},
+                                                                        onResult:function(){
+                                                                            genro.setData('gnr.datamover.movername',movername.split('.')[0]);
+                                                                        },
                                                                         uploaderId:'datamover'});
                         """,
                         onDrop_dbrecords="""var table = data.table;
@@ -84,12 +88,13 @@ class MoverPlugin(BaseComponent):
                                             currow['pkeys'] = currpkeys
                                             currow['count'] = objectSize(currpkeys);
                                             griddata.setItem(movercode,null,currow);""",selectedLabel='.currLabel')
-        frame.dataRpc('.tablesgrid.data','developer.loadMover',movername='=.movername',_if='movername',_else='return new gnr.GnrBag();',_fired='^.loadMover')
+        frame.dataRpc('.tablesgrid.data','developer.loadMover',movername='^.movername',_if='movername',_else='return new gnr.GnrBag();')
         
         center = bc.contentPane(region='center',margin_top='5px')
         gridrecords= center.includedview(datapath='.recordsgrid',storepath='.data',
                                     draggable_row=True,onDrag="""if(dragInfo.dragmode == 'row') {dragValues["recordlines"] = {rows:dragValues.gridrow.rowset}};""",
                                     relativeWorkspace=True,struct=self.__recordsgrid_struct)
+                                    
         frame.dataRpc('.recordsgrid.data','developer.getMoverTableRows',movercode='^.tablesgrid.currLabel',
                         tablerow='==this.getRelativeData(".tablesgrid.data").getNode(movercode).attr;',
                         movername='=.movername',_if='movercode',_else='return new gnr.GnrBag();')

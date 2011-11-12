@@ -54,8 +54,11 @@ class GnrWebDeveloper(GnrBaseProxy):
     def onDroppedMover(self,file_path=None):
         import tarfile
         f = tarfile.open(file_path)
-        f.extractall()
+        f.extractall(self.page.site.getStaticPath('site:movers'))
+        movername = os.path.splitext(os.path.basename(file_path))[0]
+        print movername
         os.remove(file_path)
+        return movername
         
     @public_method
     def getMoverTableRows(self,tablerow=None,movername=None,movercode=None,**kwargs):

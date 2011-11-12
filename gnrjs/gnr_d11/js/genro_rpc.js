@@ -753,17 +753,19 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             param.push('Content-Type: text/plain');
             return paramValue(param, value);
         };
-        var fileParam = function(filedata) {
+        var fileParam = function(result) {
             var param = [];
-            var bin = null
+            //var bin = null
             param.push('Content-Disposition: form-data; name="file_handle"; filename="' + file['name'] + '"');
             param.push('Content-Type: application/octet-stream');
-            var reader = new FileReader();
-            reader.onload = function(evt) {
-                bin = evt.target.result;
-            };
-            reader.readAsBinaryString(file);
-            return paramValue(param, bin);
+            return paramValue(param, result);
+            
+           //var reader = new FileReader();
+           //reader.onload = function(evt) {
+           //    bin = evt.target.result;
+           //};
+           //reader.readAsBinaryString(file);
+           //return paramValue(param, bin);
         };
         var addContentLength = function(content) {
             return "Content-Length: " + content.length + _crlf + _crlf + content;
@@ -791,9 +793,10 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         if (kw.onAbort) sender.upload.addEventListener("abort", kw.onAbort, false);
         var filereader = new FileReader();
         var onResult = objectPop(kw,'onResult');
-        var sendData = function() {
-            content.push(fileParam(filereader.result));
-            content = content.join('--' + boundary + _crlf) + boundary + '--' + _crlf;
+        var sendData = function(result) {
+           
+            content.push(fileParam(result));
+            content = content.join('--' + boundary + _crlf) //+ boundary + '--' + _crlf;
             content = addContentLength(content);
             sender.open("POST", genro.rpc.pageIndexUrl(), true);
             if(onResult){
@@ -802,8 +805,10 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             sender.setRequestHeader("Content-Type", 'multipart/form-data; boundary=' + boundary);
             sender.sendAsBinary(content);
         };
-
-        filereader.addEventListener("loadend", sendData, false);
+         filereader.onload = function(evt) {
+             sendData(evt.target.result);
+          };
+        //filereader.addEventListener("loadend", sendData, false);
         filereader.readAsBinaryString(file);
     }
 });

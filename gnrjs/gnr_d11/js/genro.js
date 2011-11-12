@@ -119,6 +119,7 @@ dojo.declare('gnr.GenroClient', null, {
             //genropatches.grid();
             genropatches.parseNumbers();
             genropatches.dojoToJson();
+            genropatches.sendAsBinary();
         }
         this.clsdict = {domsource:gnr.GnrDomSource, bag:gnr.GnrBag};
         this.eventPath = '_sys.events';
