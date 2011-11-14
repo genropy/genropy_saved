@@ -98,8 +98,9 @@ class FlibPicker(FlibBase):
                   self.ht_treeDataStore(table='flib.category', rootpath=rootpath, rootcaption='!!Categories',
                                         rootcode='%'),
                   rootpath=rootpath)
+        pickerTreeId = 'flibPickerTree_%s' %id(left)
         left.tree(storepath='.tree.store',
-                  nodeId='flibPickerTree',
+                  nodeId=pickerTreeId,
                   margin='10px', isTree=False, hideValues=True,
                   labelAttribute='caption',
                   selected_pkey='.tree.pkey', selectedPath='.tree.path',
@@ -110,7 +111,7 @@ class FlibPicker(FlibBase):
                   selected_child_count='.tree.child_count')
         th = bc.contentPane(**gridpane_kwargs).flibSavedFilesGrid(viewResource=viewResource,preview=preview)
         th.view.store.attributes.update(dict(where="@categories.@category_id.code LIKE :cat_code || '%%'",
-                             cat_code='^#flibPickerTree.tree.code',
+                             cat_code='^#%s.tree.code' %pickerTreeId,
                              order_by='$title', _if='cat_code', _else='null'))
         return bc
         
