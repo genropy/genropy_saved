@@ -279,13 +279,13 @@ class PaletteTemplateEditor(TemplateEditor):
     def te_paletteTemplateEditor(self,pane,paletteCode=None,maintable=None,**kwargs):
         palette = pane.palettePane(paletteCode='template_manager',
                                     title='^.caption',
-                                    width='750px',height='500px',**kwargs)
+                                    width='750px',height='500px',_lazyBuild=True,**kwargs)
         sc = palette.templateEditor(maintable=maintable)
         infobar = sc.info.top.bar
         infobar.replaceSlots('#','#,menutemplates,savetpl,deltpl,5')
         infobar.deltpl.slotButton('!!Delete current',iconClass='iconbox trash',
                                 action='FIRE .deleteCurrent',disabled='^.currentTemplate.pkey?=!#v')
-        infobar.dataController('SET .currentTemplate.path="__newtpl__";',_onStart=True)
+        infobar.dataController('SET .currentTemplate.path="__newtpl__";',_onBuilt=True)
         infobar.dataFormula(".palette_caption", "prefix+caption",caption="^.caption",prefix='!!Edit ')
         infobar.menutemplates.div(_class='iconbox folder').menu(modifiers='*',storepath='.menu',
                 action="""SET .currentTemplate.pkey=$1.pkey;

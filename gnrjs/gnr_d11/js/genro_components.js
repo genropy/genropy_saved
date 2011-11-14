@@ -850,7 +850,7 @@ dojo.declare("gnr.widgets.FieldsTree", gnr.widgets.gnrwdg, {
     createContent:function(sourceNode, kw,children) {
         var table = objectPop(kw,'table');
         var trash = objectPop(kw,'trash');
-        var box = sourceNode._('div',{_class:'fieldsTreeBox',detachable:true});
+        var box = sourceNode._('div',{_class:'fieldsTreeBox',_lazyBuild:true});
         if (trash){
             var trashKw = {_class:'fieldsTreeTrash'};
             trashKw.dropTarget=true;

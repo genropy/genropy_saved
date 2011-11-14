@@ -376,6 +376,7 @@ class GnrWebPage(GnrBaseWebPage):
     def isGuest(self):
         """add???"""
         return self.user == self.connection.guestname
+        
     @public_method
     def doLogin(self, login=None, guestName=None, **kwargs):
         """Service method. Set user's avatar into its connection if:
@@ -1457,8 +1458,9 @@ class GnrWebPage(GnrBaseWebPage):
             self.response.add_header("Content-Disposition", str("attachment; filename=%s" % downloadAs))
         return self.site.callTableScript(page=self, table=table, respath=respath, class_name=class_name,
                                          downloadAs=downloadAs, **kwargs)
-                                         
-    def rpc_remoteBuilder(self, handler=None, **kwargs):
+    
+    @public_method                                 
+    def remoteBuilder(self, handler=None, **kwargs):
         """add???
         
         :param handler: add???"""
