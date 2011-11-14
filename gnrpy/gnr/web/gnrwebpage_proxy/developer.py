@@ -39,31 +39,43 @@ class GnrWebDeveloper(GnrBaseProxy):
         if page.debugopt and self._debug_calls:
             path = 'gnr.debugger.main.c_%s' % self.page.callcounter
             page.setInClientData(path, self._debug_calls)
-    
-    @public_method
-    def listMovers(self):
-        dirs = os.listdir(self.page.site.getStaticPath('site:movers'))
-        result = Bag()
-        for i,d in enumerate(dirs):
-            if not d.startswith('.'):
-                result.setItem('r_%i' %i,None,caption=d,mover=d)
-        result.setItem('__newmover__',None,caption='!!New Mover',mover='')
-        return result
 
-        
     def onDroppedMover(self,file_path=None):
         import tarfile
         f = tarfile.open(file_path)
-        f.extractall(self.page.site.getStaticPath('site:movers'))
-        movername = os.path.splitext(os.path.basename(file_path))[0]
-        print movername
+        f.extractall(self.page.site.getStaticPath('user:temp'))        
         os.remove(file_path)
-        return movername
+        indexpath = self.page.site.getStaticPath('user:temp','mover','index.xml')
+        indexbag = Bag(indexpath)
+        indexbag.getNode('movers').attr.update(imported=True)
+        indexbag.toXml(indexpath)
         
     @public_method
-    def getMoverTableRows(self,tablerow=None,movername=None,movercode=None,**kwargs):
+    def loadCurrentMover(self):
+        indexpath = self.page.site.getStaticPath('user:temp','mover','index.xml')
+        if os.path.isfile(indexpath):
+            indexbag = Bag(indexpath)
+            imported = indexbag['movers?imported']
+            tablesbag = indexbag['movers']
+            _class = 'mover_imported' if imported else None
+            for n in indexbag['records']:
+                tablesbag.getNode(n.label).attr.update(pkeys=dict([(pkey,True) for pkey in n.value.keys()],_customClasses=_class))
+            return tablesbag
+                
+    @public_method
+    def importMoverLines(self,table=None,objtype=None,pkeys=None):
+        databag = Bag(self.page.site.getStaticPath('user:temp','mover','data','%s_%s.xml' %(table.replace('.','_'),objtype)))
+        tblobj = self.db.table(table) if objtype=='record' else self.db.table('adm.userobject')
+        for pkey in pkeys.keys():
+            tblobj.insertOrUpdate(databag.getItem(pkey))
+        self.db.commit()
+        
+    @public_method
+    def getMoverTableRows(self,tablerow=None,movercode=None,**kwargs):
         pkeys = tablerow['pkeys'].keys()
-        tblobj = self.db.table(tablerow['table'])
+        table = tablerow['table']
+        objtype = tablerow['objtype']
+        tblobj = self.db.table(table)
         columns,mask = tblobj.rowcaptionDecode(tblobj.rowcaption)
         if columns:
             columns = ','.join(columns)
@@ -71,8 +83,9 @@ class GnrWebDeveloper(GnrBaseProxy):
         result = Bag()
         for r in f:
             result.setItem(r['pkey'],None,_pkey=r['pkey'],db_caption=tblobj.recordCaption(record=r),_customClasses='mover_db')
-        if movername:
-            indexbag = Bag(self.page.site.getStaticPath('site:movers',movername,'index.xml'))
+        indexpath = self.page.site.getStaticPath('user:temp','mover','index.xml')
+        if os.path.isfile(indexpath):
+            indexbag = Bag(indexpath)
             moverrows = indexbag.getItem('records.%s' %movercode)
             if not moverrows:
                 return result
@@ -81,42 +94,35 @@ class GnrWebDeveloper(GnrBaseProxy):
                 if rownode:
                     xml_caption=rownode.attr['caption']
                     if not pkey in result:
-                        result.setItem(pkey,None,_pkey=pkey,xml_caption=xml_caption,
-                                        db_caption="""<a href="javascript:genro.publish('import_moverline',{table:"%s",pkey:"%s"})">import</a>""" %(tablerow['table'],pkey),
-                                        _customClasses='mover_xml')
+                        result.setItem(pkey,None,_pkey=pkey,xml_caption=xml_caption,_customClasses='mover_xml',objtype=objtype,table=table)
                     else:
-                        result.getNode(pkey).attr.update(xml_caption=xml_caption,_customClasses='mover_both')
+                        result.getNode(pkey).attr.update(xml_caption=xml_caption,_customClasses='mover_both',objtype=objtype,table=table)
         return result
 
-    @public_method
-    def loadMover(self,movername=None):
-        result = Bag(self.page.site.getStaticPath('site:movers',movername,'index.xml'))
-        tablesbag = result['movers']
-        for n in result['records']:
-            tablesbag.getNode(n.label).attr.update(pkeys=dict([(pkey,True) for pkey in n.value.keys()]))
-        return tablesbag
-    
-    @public_method
-    def downloadMover(self,movername=None):
+    def tarMover(self,movername='mover'):
         import tarfile
-        tempfolder = self.page.site.getStaticPath('site:temp')
-        if not os.path.isdir(tempfolder):
-            os.mkdir(tempfolder)
-        tarpath = os.path.join(tempfolder,'%s.gnrz' %movername)
-        f = tarfile.open(tarpath, mode = 'w:gz')
-        f.add(self.page.site.getStaticPath('site:movers',movername),arcname=movername)
+        import StringIO
+        tf = StringIO.StringIO() 
+        f = tarfile.open(mode = 'w:gz',fileobj=tf)
+        moverpath = self.page.site.getStaticPath('user:temp','mover')
+        f.add(moverpath,arcname='mover')
         f.close()     
-        return self.page.site.getStaticUrl('site:temp','%s.gnrz' %movername)
+        result = tf.getvalue()
+        tf.close()
+        return result
     
     @public_method
-    def saveMover(self,movername=None,data=None):
-        assert data and movername,'data and movername are mandatory'
-        moversfolder = self.page.site.getStaticPath('site:movers')
-        moverpath = os.path.join(moversfolder,movername)
+    def downloadMover(self,data=None,movername=None,**kwargs):
+        self.saveCurrentMover(data=data)
+        return self.tarMover(movername=movername)
+    
+    @public_method
+    def saveCurrentMover(self,data):
+        moverpath = self.page.site.getStaticPath('user:temp','mover')
         indexpath = os.path.join(moverpath,'index.xml')
         indexbag = Bag()
         if not os.path.isdir(moverpath):
-            os.mkdir(moverpath)
+            os.makedirs(moverpath)
         for movercode,table,pkeys,reftable,objtype in data.digest('#k,#a.table,#a.pkeys,#a.reftable,#a.objtype'):
             pkeys = pkeys.keys()
             databag = self.db.table(table).toXml(pkeys=pkeys,rowcaption=True,
@@ -124,7 +130,7 @@ class GnrWebDeveloper(GnrBaseProxy):
             indexbag.setItem('movers.%s' %movercode,None,table=table,count=len(pkeys),reftable=reftable,objtype=objtype)
             indexbag.setItem('records.%s' %movercode,None,table=table)
             for n in databag:
-                indexbag.setItem('records.%s.%s' %(movercode,n.label),None,pkey=n.attr['pkey'],caption=n.attr.get('caption'))            
+                indexbag.setItem('records.%s.%s' %(movercode,n.label),None,pkey=n.attr['pkey'],caption=n.attr.get('caption')) 
         indexbag.toXml(indexpath,autocreate=True)
         
     def log(self, msg):

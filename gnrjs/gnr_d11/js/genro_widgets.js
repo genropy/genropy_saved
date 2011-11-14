@@ -2269,11 +2269,11 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         var countBoxCode =(this.sourceNode.attr.frameCode || this.sourceNode.attr.nodeId)+'_countbox';
         var countBoxNode = genro.nodeById(countBoxCode);
         if (countBoxNode){
-            var showed =this.storeRowCount();
+            var shown =this.storeRowCount();
             var total = this.storeRowCount(true);
-            genro.dom.setClass(countBoxNode,'unfilteredCount',showed==total);
+            genro.dom.setClass(countBoxNode,'unfilteredCount',shown==total);
             genro.dom.setClass(countBoxNode,'countBoxVisible',total>=0);
-            countBoxNode.setRelativeData('.showed', showed);
+            countBoxNode.setRelativeData('.shown', shown);
             countBoxNode.setRelativeData('.total', total);
         }
     },

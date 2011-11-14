@@ -499,19 +499,42 @@ class TableHandlerMain(BaseComponent):
         th.attributes.update(dict(border_left='1px solid gray'))
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
         self.__th_title(th,thwidget,insidePublic)
+        self.__th_moverdrop(th)
         if insidePublic and not formInIframe:
             self._usePublicBottomMessage(th.form)
         return th
         
+    def __th_moverdrop(self,th):
+        gridattr = th.view.grid.attributes
+        currCodes = gridattr.get('dropTarget_grid','').split(',')
+        tcode = 'mover_%s' %self.maintable.replace('.','_')
+        if not tcode in currCodes:
+            currCodes.append(tcode)
+            gridattr['onDrop_%s' %tcode] = "genro.serverCall('developer.importMoverLines',{table:data.table,pkeys:data.pkeys,objtype:data.objtype});"
+        gridattr.update(dropTarget_grid=','.join(currCodes))
+        
     def __th_title(self,th,widget,insidePublic):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
-            if widget=='stack':
-                th.dataFormula('gnr.windowTitle',"(selectedPage=='view'?viewtitle:formtitle)||currTitle",
+            if widget=='stack' or widget=='dialog':
+                th.dataController("""var title = (selectedPage=='view'?viewtitle:formtitle)||currTitle;
+                                     genro.setData("gnr.windowTitle",title,{selectionName:selectionName,table:table,objtype:'record'});
+                            """,
                             formtitle='^.form.controller.title',viewtitle='^.view.title',
-                            selectedPage='^.selectedPage',currTitle='=gnr.windowTitle')  
+                            selectionName='^.view.store?selectionName',table='=.view.table',
+                            selectedPage='^.selectedPage',currTitle='=gnr.windowTitle') 
+                
             else:
                 th.dataFormula('gnr.windowTitle','viewtitle',viewtitle='^.view.title',_onStart=True)
+    
+    @struct_method
+    def public_publicRoot_caption(self,pane,title='',**kwargs):   
+        pane.div(title, _class='pbl_title_caption',
+                    subscribe_setWindowTitle='this.domNode.innerHTML=$1;',
+                    draggable=True,
+                    onDrag="""dragValues["webpage"] = genro.page_id;
+                              dragValues["dbrecords"] = genro.getDataNode("gnr.windowTitle").attr;
+                                """,**kwargs)
     
     @public_method                     
     def pbl_form_main(self, root,**kwargs):

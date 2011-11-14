@@ -2521,6 +2521,19 @@ table.draggedItem {
     color: red !important;
 }
 
+.mover_imported .dojoxGrid-cell{
+    color:green;
+}
+.mover_db .dojoxGrid-cell{
+    
+}
+.mover_xml .dojoxGrid-cell{
+    color:gray;
+}
+.mover_both .dojoxGrid-cell{
+    color:navy;
+}
+
 /* @end */
 
 

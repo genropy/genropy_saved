@@ -499,7 +499,7 @@ class SqlTable(GnrObject):
                 new_row.update(updater)
             self.update(new_row, row)
     
-    def toXml(self,pkeys=None,path=None,where=None,rowcaption=None,columns=None,**kwargs):
+    def toXml(self,pkeys=None,path=None,where=None,rowcaption=None,columns=None,related_one_dict=None,**kwargs):
         where = '$%s IN :pkeys' %self.pkey if pkeys else where
         columns = columns or '*'
         if rowcaption:

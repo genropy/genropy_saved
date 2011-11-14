@@ -1068,7 +1068,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                         :ref:`sql_columns` section
         :param auxColumns: list of columns separated by a comma. Every columns must have a prefix (``$``).
                            Show the columns you specify here as auxiliary columns in a pop-up menu
-        :param hiddenColumns: data that is retrieved but is not showed.
+        :param hiddenColumns: data that is retrieved but is not shown.
         :param rowcaption: what you see into the field. Often is different
                            from what you set with dbselect
         :param querystring: add???

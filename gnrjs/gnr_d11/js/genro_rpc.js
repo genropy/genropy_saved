@@ -494,7 +494,9 @@ dojo.declare("gnr.GnrRpcHandler", null, {
     }
     ,
     rpcUrl:function(method, kwargs, sourceNode, avoidCache) {
-        return genro.absoluteUrl(null, genro.rpc.getRpcUrlArgs(method, kwargs, sourceNode, avoidCache), avoidCache);
+        var urlargs = genro.rpc.getRpcUrlArgs(method, kwargs, sourceNode, avoidCache);
+        var url =  genro.absoluteUrl(null, urlargs, avoidCache);
+        return url;
     },
 
     makoUrl:function(template, kwargs) {
