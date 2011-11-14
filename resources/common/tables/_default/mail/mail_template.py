@@ -42,7 +42,7 @@ class Main(BaseResourceMail):
         extra_parameters = self.batch_parameters.pop('extra_parameters')
         self.maintable = extra_parameters['table']
         pkg,table = self.maintable.split('.')
-        data,meta = self.db.package(pkg).loadUserObject(pkey=extra_parameters['template_id'])
+        data,meta = self.db.table('adm.userobject').loadUserObject(pkey=extra_parameters['template_id'])
         self.compiledTemplate = Bag(data['compiled'])
         self.mail_pars = Bag(data['metadata.email_compiled'])
         self.batch_parameters.setdefault('letterhead_id',data.getItem('metadata.default_letterhead'))
@@ -84,7 +84,7 @@ class Main(BaseResourceMail):
     def table_script_parameters_pane(self,pane,extra_parameters=None,record_count=None,**kwargs):
         pkg,tbl= extra_parameters['table'].split('.')
         pane = pane.div(padding='10px',min_height='60px')
-        data,meta = self.db.package(pkg).loadUserObject(pkey=extra_parameters['template_id'])
+        data,meta = self.db.table('adm.userobject').loadUserObject(pkey=extra_parameters['template_id'])
         pane.dataFormula('#table_script_runner.dialog_pars.title','dlgtitle',
                             dlgtitle='!!%s (%i)' %(meta['description'] or meta['code'],record_count),_onBuilt=True)
         fb = pane.formbuilder(cols=1,fld_width='20em',border_spacing='4px')
