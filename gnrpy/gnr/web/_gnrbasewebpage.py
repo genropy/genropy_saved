@@ -226,9 +226,10 @@ class GnrBaseWebPage(GnrObject):
         if dbtable and selection is not None:
             assert dbtable == selection.dbtable, 'unfrozen selection does not belong to the given table'
         return selection
-        
+    
+    @public_method
     def getUserSelection(self, selectionName=None, selectedRowidx=None, filterCb=None, columns=None,
-                         sortBy=None, page_id=None, condition=None, table=None, condition_args=None):
+                         sortBy=None,condition=None, table=None, condition_args=None):
         """add???
         
         :param selectionName: add???
@@ -245,6 +246,7 @@ class GnrBaseWebPage(GnrObject):
                                is ``condition_`` followed by the name of the argument"""
         # table is for checking if the selection belong to the table
         assert selectionName, 'selectionName is mandatory'
+        page_id = self.sourcepage_id or self.page_id
         if isinstance(table, basestring):
             table = self.db.table(table)
         selection = self.unfreezeSelection(dbtable=table, name=selectionName,page_id=page_id)
@@ -259,15 +261,18 @@ class GnrBaseWebPage(GnrObject):
             selection.filter(lambda r: r['rowidx'] in selectedRowidx)
         if sortBy:
             selection.sort(sortBy)
-        if columns:
-            condition_args = condition_args or {}
-            pkeys = selection.output('pkeylist')
-            where = 't0.%s in :pkeys' % table.pkey
-            if condition:
-                where = '%s AND %s' % (where, condition)
-            selection = table.query(columns=columns, where=where,
-                                    pkeys=pkeys, addPkeyColumn=False,
-                                    **condition_args).selection()
+        if not columns:
+            return selection
+        if columns=='pkey':
+            return selection.output('pkeylist')
+        condition_args = condition_args or {}
+        pkeys = selection.output('pkeylist')
+        where = 't0.%s in :pkeys' % table.pkey
+        if condition:
+            where = '%s AND %s' % (where, condition)
+        selection = table.query(columns=columns, where=where,
+                                pkeys=pkeys, addPkeyColumn=False,
+                                **condition_args).selection()
         return selection
         
     def getAbsoluteUrl(self, path, **kwargs):

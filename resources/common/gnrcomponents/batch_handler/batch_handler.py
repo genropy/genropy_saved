@@ -63,13 +63,12 @@ class TableScriptHandler(BaseComponent):
             
     @public_method
     def table_script_parameters(self, pane, table=None, res_type=None, resource='', title=None, 
-                            extra_parameters=None,selectedRowidx=None,selectionName=None,sourcepage_id=None,
+                            extra_parameters=None,selectedRowidx=None,selectionName=None,
                             selectedPkeys=None,selectionFilterCb=None,sortBy=None,**kwargs):
         if not resource:
             return
         resource = resource.replace('.py', '')
         res_obj = self.site.loadTableScript(self, table, '%s/%s' % (res_type, resource), class_name='Main')
-        res_obj.sourcepage_id = sourcepage_id or self.page_id
         self._table_script_imports(pane,res_obj)
         if selectionName:
             res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
@@ -145,10 +144,9 @@ class TableScriptHandler(BaseComponent):
     @public_method
     def table_script_run(self, table=None, resource=None, res_type=None, selectionName=None, selectedPkeys=None,selectionFilterCb=None,
                              sortBy=None,
-                             selectedRowidx=None,sourcepage_id=None,
+                             selectedRowidx=None,
                              parameters=None, printerOptions=None, extra_parameters=None,**kwargs):
         res_obj = self.site.loadTableScript(self, table, '%s/%s' % (res_type, resource), class_name='Main')
-        res_obj.sourcepage_id = sourcepage_id or self.page_id
         if selectionName:
             res_obj.defineSelection(selectionName=selectionName, selectedRowidx=selectedRowidx,
                                     selectionFilterCb=selectionFilterCb, sortBy=sortBy)
@@ -182,6 +180,7 @@ class TableScriptHandler(BaseComponent):
                     return
                 caption = getattr(resmodule, 'caption', node.label)
                 description = getattr(resmodule, 'description', '')
+                description = getattr(resmodule, 'needSelection', True)
                 if  node.label == '_doc':
                     result.setAttr('.'.join(_pathlist), dict(caption=caption, description=description, tags=tags,
                                                              has_parameters=has_parameters))

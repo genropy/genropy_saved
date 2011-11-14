@@ -561,6 +561,7 @@ class GnrWsgiSite(object):
             # return response(environ, start_response)
         request_kwargs = self.parse_request_params(request.params)
         request_kwargs.pop('_no_cache_', None)
+        download_name = request_kwargs.pop('_download_name_', None)
         storename = None
         #print 'site dispatcher: ',path_list
         isRootstore = boolean(request_kwargs.pop('_rootstore_',None))
@@ -617,12 +618,19 @@ class GnrWsgiSite(object):
             page.storename = storename
             try:
                 result = page()
+                if download_name:
+                    download_name = unicode(download_name)
+                    content_type = mimetypes.guess_type(download_name)[0]
+                    if content_type:
+                        page.response.content_type = content_type
+                    page.response.add_header("Content-Disposition", str("attachment; filename=%s" %download_name))
             except Exception:
                 raise
             finally:
                 self.onServedPage(page)
                 self.cleanup()
             response = self.setResultInResponse(result, response, totaltime=time() - t)
+            
             return response(environ, start_response)
             
     def setResultInResponse(self, result, response, totaltime=None):

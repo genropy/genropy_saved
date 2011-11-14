@@ -499,14 +499,14 @@ class SqlTable(GnrObject):
                 new_row.update(updater)
             self.update(new_row, row)
     
-    def toXml(self,pkeys=None,path=None,where=None,rowcaption=None,columns=None,**kwargs):
+    def toXml(self,pkeys=None,path=None,where=None,rowcaption=None,columns=None,related_one_dict=None,**kwargs):
         where = '$%s IN :pkeys' %self.pkey if pkeys else where
         columns = columns or '*'
         if rowcaption:
             rowcaption = self.rowcaption if rowcaption is True else rowcaption
             fields,mask = self.rowcaptionDecode(rowcaption)
             columns = '%s,%s' %(columns,','.join(fields))        
-        f = self.query(where=where,pkeys=pkeys,columns=columns,**kwargs).fetch()
+        f = self.query(where=where,pkeys=pkeys,columns=columns,bagFields=True,**kwargs).fetch()
         result = Bag()
         for r in f:
             caption = self.recordCaption(record=r,rowcaption=rowcaption) if rowcaption else None

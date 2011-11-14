@@ -241,7 +241,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
         genro.setDataFromRemote('gnr.palettes.dbmodel.store', "app.dbStructure");
         this.sqlDebugPalette(pg);
         this.devUtilsPalette(pg);
-        this.moverPalette(pg);
         node.unfreeze();
     },
     
@@ -261,86 +260,6 @@ dojo.declare("gnr.GnrDevHandler", null, {
         bottom._('button', {'float':'right',label:_T('Cancel'),action:dlg.close_action}); 
         return dlg;       
     },
-    
-    moverPalette:function(parent){
-        var frame = parent._('palettePane',{'paletteCode':'gnrDataMover',title:'Mover',contentWidget:'framePane',frameCode:'gnrDataMover'});
-        var bar = frame._('slotBar',{'toolbar':true,height:'20px',slots:'3,currmover,*,btnload,btnsave,btndl',side:'top'});
-        
-        var frameNode = frame.getParentNode();
-        bar._('div','currmover',{innerHTML:'==_movername||"New Mover"',_movername:'^.movername'})
-        
-        var menu = bar._('div','btnload',{'_class':'iconbox folder'})._('menu',{'_class':'smallmenu',modifiers:'*',action:'SET .movername=$1.mover;FIRE .loadMover;'});
-        menu.getParentNode().setRemoteContent({method:'developer.listMovers',cacheTime:5});
-        frame._('dataRpc',{'method':'developer.loadMover',movername:'=.movername',
-                            path:'.tablesgrid.data',_if:'movername',_else:'return new gnr.GnrBag()',
-                            _fired:'^.loadMover'});
-        
-        var dlg = this.moverSavingDlg(frameNode,function(dialog){
-            genro.serverCall('developer.saveMover',{'_sourceNode':frameNode,movername:'=.dlg.movername',data:'=.tablesgrid.data'},
-                            function(){dialog.close_action();frameNode.setRelativeData('.movername',frameNode.getRelativeData('.dlg.movername'))});
-        });
-        bar._('slotButton','btnsave',{'iconClass':'iconbox save',
-                                        action:function(){
-                                            frameNode.setRelativeData('.dlg.movername',frameNode.getRelativeData('.movername'))
-                                            dlg.show_action();
-                                        }});
-        bar._('slotButton','btndl',{'iconClass':'iconbox inbox',
-                                        action:function(){
-                                            genro.serverCall('developer.downloadMover',{movername:'=.movername',_sourceNode:frameNode},
-                                                            function(result){
-                                                                genro.download(result);
-                                                            });
-                                        },disabled:'^.movername?=!#v'});
-        
-        var rows = new gnr.GnrBag();
-        rows.setItem('cell_0',null,{name:'Table',field:'table',width:'100%'});
-        rows.setItem('cell_1',null,{field:'count',name:'Count',dtype:'N',width:'5em'});
-        rows.setItem('cell_2',null,{field:'pkeys',name:'pkeys',hidden:true});
-        frameNode.setRelativeData('.tablesgrid.struct.view_0.row_0',rows);
-        
-        var rows = new gnr.GnrBag();
-        rows.setItem('cell_0',null,{field:'_pkey',name:'pkey',width:'10em'});
-        rows.setItem('cell_1',null,{field:'db_caption',name:'DbCaption',width:'50%'});
-        rows.setItem('cell_2',null,{field:'xml_caption',name:'XmlCaption',width:'50%'});
-
-        frameNode.setRelativeData('.recordsgrid.struct.view_0.row_0',rows);
-        
-        var bc = frame._('BorderContainer');
-        var top = bc._('ContentPane',{'region':'top',height:'40%',splitter:true});
-        top._('includedview',{
-                 'margin':'3px',
-                 'storepath':'.data','structpath':'.struct',datapath:'.tablesgrid',
-                 'relativeWorkspace':true,nodeId:'gnrDataMover_tablesgrid',
-                 configurable:false,
-            'dropTarget_grid':'dbrecords',
-            'selectedLabel':'.currLabel',
-            onDrop_dbrecords:function(dropInfo,data){
-                var table = data.table;
-                tablecode = table.replace('.','_');
-                var griddata = this.getRelativeData('.data') || new gnr.GnrBag();
-                var currow = griddata.getNode(tablecode);
-                currow = currow? currow.attr:{};
-                var currpkeys = currow['pkeys'] || {};
-                dojo.forEach(data.pkeys,function(pkey){currpkeys[pkey]=true;});
-                currow['table'] = table;
-                currow['pkeys'] = currpkeys
-                currow['count'] = objectSize(currpkeys);
-                griddata.setItem(tablecode,null,currow);
-            },
-            autoWidth:false});
-        frame._('dataRpc',{method:'developer.getMoverTableRows',_label:'^.tablesgrid.currLabel',
-                        tablerow:'==this.getRelativeData(".tablesgrid.data").getNode(_label).attr;',path:'.recordsgrid.data',
-                        movername:'=.movername',_if:'_label',_else:'return new gnr.GnrBag();'});
-        var center = bc._('ContentPane',{'region':'center'});
-        center._('includedview',{
-                 'margin':'3px',margin_top:'6px',
-                 'storepath':'.data','structpath':'.struct',datapath:'.recordsgrid',
-                 'relativeWorkspace':true,nodeId:'gnrDataMover_recordsgrid',
-                 configurable:false,
-            autoWidth:false});
-
-    },
-
 
     sqlDebugPalette:function(parent){
         var frame = parent._('palettePane',{'paletteCode':'devSqlDebug',title:'Sql',contentWidget:'framePane',frameCode:'devSqlDebug'});

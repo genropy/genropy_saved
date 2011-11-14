@@ -204,7 +204,7 @@ class FrameIndex(BaseComponent):
     
     def btn_datamover(self,pane,**kwargs):
         pane.div(_class='button_block iframetab').div(_class='case',tip='!!Mover plug-in',
-                    connect_onclick="""SET left.selected='datamover';genro.getFrameNode('standard_index').publish('showLeft');""",
+                    connect_onclick="""SET left.selected='datamover';PUBLISH gnrdatamover_loadCurrent;genro.getFrameNode('standard_index').publish('showLeft');""",
                     nodeId='plugin_block_datamover')
                     
     def btn_menuToggle(self,pane,**kwargs):

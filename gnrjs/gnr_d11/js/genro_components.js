@@ -1180,7 +1180,7 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     
     slot_count:function(pane,slotValue,slotKw,frameCode){
         var row = pane._('table',{datapath:'.count',nodeId:frameCode+'_countbox', _class:'countBox'})._('tbody')._('tr');
-        row._('td')._('div',{innerHTML:'^.showed',_class:'countBoxPartial'});
+        row._('td')._('div',{innerHTML:'^.shown',_class:'countBoxPartial'});
         row._('td')._('div',{innerHTML:'^.total',_class:'countBoxTotal'});
     },
     

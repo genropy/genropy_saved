@@ -70,7 +70,7 @@ class Table(object):
                 r['pkey'] = r.pop('id')
                 r['caption'] = r['description'] or r['code']
                 r['draggable'] = True
-                r['onDrag'] = """dragValues['dbrecords'] = {table:'adm.userobject',pkeys:['%(pkey)s'],logical_table:'%(objtype)s %(tbl)s'}""" %r
+                r['onDrag'] = """dragValues['dbrecords'] = {table:'adm.userobject',pkeys:['%(pkey)s'],objtype:'%(objtype)s',reftable:"%(tbl)s"}""" %r
                 result.setItem(r['code'] or 'r_%i' % i, None, **dict(r))
                 i+=1
         return result

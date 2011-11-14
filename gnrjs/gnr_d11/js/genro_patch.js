@@ -1,16 +1,17 @@
+
+
 var genropatches = {};
-genropatches.mozillaStarter = function(){
-    var mainWindow = dojo.byId('mainWindow');
-    if (mainWindow.clientHeight==0){
-        genropatches._startDelayer = setInterval(function(){
-            if(dojo.byId('mainWindow').clientHeight>0){
-                clearInterval(genropatches._startDelayer);
-                genro.start();
+genropatches.sendAsBinary=function(){
+    if(!XMLHttpRequest.prototype.sendAsBinary){
+            XMLHttpRequest.prototype.sendAsBinary = function(datastr) {
+                function byteValue(x) {
+                    return x.charCodeAt(0) & 0xff;
+                }
+                var ords = Array.prototype.map.call(datastr, byteValue);
+                var ui8a = new Uint8Array(ords);
+                this.send(ui8a.buffer);
             }
-        },200);
-    }else{
-        dojo.addOnLoad(genro, 'start');
-    }
+        }
 };
 genropatches.dojoToJson = function() {
     dojo.toJson = function(/*Object*/ it, /*Boolean?*/ prettyPrint, /*String?*/ _indentStr){
