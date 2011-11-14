@@ -812,6 +812,9 @@ dojo.declare("gnr.widgets.StackButtons", gnr.widgets.gnrwdg, {
         },1)
     },
     onShowHideChild:function(widget, child, st){
+        if(!child){
+            return;
+        }
         var paneId = child.sourceNode.getStringId();
         var controllerNodes = widget.sourceNode._stackButtonsNodes;
         if(!controllerNodes){

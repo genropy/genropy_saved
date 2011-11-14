@@ -27,14 +27,8 @@ class FrameIndex(BaseComponent):
                                 #border='1px solid gray',#rounded_top=8,
                                 margin='0px',
                                 gradient_from='#d0d0d0',gradient_to='#ffffff',gradient_deg=-90,
-                                selfsubscribe_toggleLeft=""" 
-                                                            var bc = this.getWidget();
-                                                             genro.dom.toggleClass(bc._left,"hiddenBcPane"); 
-                                                             bc._layoutChildren("left");""",
-                                selfsubscribe_showLeft=""" 
-                                                            var bc = this.getWidget();
-                                                             genro.dom.removeClass(bc._left,"hiddenBcPane"); 
-                                                             bc._layoutChildren("left");""",
+                                selfsubscribe_toggleLeft="""this.getWidget().setRegionVisible("left",'toggle');""",
+                                selfsubscribe_showLeft=""" this.getWidget().setRegionVisible("left",true);""",
                                 **kwargs)
 
     def mainLeftContent(self,*args,**kwargs):
@@ -169,7 +163,7 @@ class FrameIndex(BaseComponent):
                                
     def prepareLeft(self,pane):
         pane.attributes.update(dict(splitter=True,width='200px',datapath='left',
-                                    margin_right='-1px',overflow='hidden',_class='hiddenBcPane' if self.hideLeftPlugins else None))
+                                    margin_right='-1px',overflow='hidden',hidden=self.hideLeftPlugins))
         sc = pane.stackContainer(selectedPage='^.selected',nodeId='gnr_main_left_center',overflow='hidden')
         sc.dataController("""if(!page){return;}
                              genro.publish(page+'_'+(selected?'on':'off'));
