@@ -376,8 +376,8 @@ class GnrWebPage(GnrBaseWebPage):
     def isGuest(self):
         """add???"""
         return self.user == self.connection.guestname
-        
-    def rpc_doLogin(self, login=None, guestName=None, **kwargs):
+    @public_method
+    def doLogin(self, login=None, guestName=None, **kwargs):
         """Service method. Set user's avatar into its connection if:
         
         * The user exists and his password is correct
@@ -396,16 +396,18 @@ class GnrWebPage(GnrBaseWebPage):
             self.avatar = avatar
             #self.connection.change_user(user=avatar.user,user_id=avatar.user_id,user_name=avatar.user_name,
             #                            user_tags=avatar.user_tags)
-            self.connection.change_user(avatar)
             self.site.onAuthenticated(avatar)
+            self.connection.change_user(avatar)
             self.setInClientData('gnr.avatar', Bag(avatar.as_dict()))
             login['message'] = ''
             loginPars = avatar.loginPars
             loginPars.update(avatar.extra_kwargs)
+            self.btc.cleanUserBatches(self.user)
         else:
             login['message'] = 'invalid login'
         return (login, loginPars)
-        
+
+    
     def onInit(self):
         """Hook method. add???"""
         pass
@@ -754,7 +756,8 @@ class GnrWebPage(GnrBaseWebPage):
         user = user or self.user
         return self.site.register.userStore(user, triggered=triggered)
         
-    def rpc_setStoreSubscription(self, storename=None, client_path=None, active=True):
+    @public_method
+    def setStoreSubscription(self, storename=None, client_path=None, active=True):
         """add???
         
         :param storename: add???

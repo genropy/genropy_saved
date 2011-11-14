@@ -34,10 +34,10 @@ class BatchMonitor(BaseComponent):
         #dovrei modificare il clieant in modo che mi prenda l elemento di classe bm_rootnode visibile
         # e gli appiccichi i termometri senza usare il node id
         pane.div(nodeId='bm_rootnode', _class='bm_rootnode')
-        pane.dataRpc('dummy', 'setStoreSubscription', subscribe_batch_monitor_on=True,
+        pane.dataRpc('dummy', self.setStoreSubscription, subscribe_batch_monitor_on=True,
                      storename='user', client_path='gnr.batch', active=True,
                      _onResult='genro.rpc.setPolling(1,1);')
-        pane.dataRpc('dummy', 'setStoreSubscription', active=False, subscribe_batch_monitor_off=True,
+        pane.dataRpc('dummy', self.setStoreSubscription, active=False, subscribe_batch_monitor_off=True,
                      _onCalling='genro.rpc.setPolling();', storename='user')
 
 class TableScriptHandler(BaseComponent):

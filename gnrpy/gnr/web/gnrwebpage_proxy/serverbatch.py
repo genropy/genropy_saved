@@ -10,6 +10,7 @@ from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.core.gnrbag import Bag
 from datetime import datetime
 import os
+from gnr.core.gnrdecorator import public_method
 from gnr.core.gnrlang import timer_call, debug_call
 
 class GnrBatchStoppedException(Exception):
@@ -21,8 +22,8 @@ class GnrWebBatch(GnrBaseProxy):
 
     def init(self, connection_id=None, user=None, **kwargs):
         pass
-
-    def onAuthenticated(self, user):
+    
+    def cleanUserBatches(self,user):
         if self.page.isGuest:
             return
         if not os.path.exists(self.page.userDocument('_batch_result')):
