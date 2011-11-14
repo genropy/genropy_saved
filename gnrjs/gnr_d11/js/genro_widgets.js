@@ -699,7 +699,7 @@ dojo.declare("gnr.widgets.Dialog", gnr.widgets.baseDojo, {
                                 genro.dialogStacks[dlgtype].pop();   
                                 if (genro.dialogStacks[dlgtype].length > 0) {
                                      var parentDialog = genro.dialogStacks[dlgtype].slice(-1)[0];
-		                             parentDialog._modalconnects.push(dojo.connect(window, "onscroll", parentDialog, "layout"));
+                                     parentDialog._modalconnects.push(dojo.connect(window, "onscroll", parentDialog, "layout"));
                                      parentDialog._modalconnects.push(dojo.connect(dojo.doc.documentElement, "onkeypress", parentDialog, "_onKey"));
                                    // genro.dialogStacks[dlgtype].slice(-1)[0].show();
                                 }                   
@@ -4341,22 +4341,162 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
         attributes.store = store;
         return savedAttrs;
     },
+    mixin_geocodevalue:function(){
+        var address = this.textbox.value;
+        if (address == this.geocoder.resultAddress && address.length == 1){
+            return;
+        }
+        clearTimeout(this.waitingDelay);
+        this.waitingDelay = setTimeout(dojo.hitch(this,
+            function(){
+              this.geocoder.geocode({ 'address': address}, dojo.hitch(this, 'handleGeocodeResults'));
+            }),200);
+        
+    },
     patch__onKeyPress: function(/*Event*/ evt){
+        // summary: handles keyboard events
+
+        //except for pasting case - ctrl + v(118)
+        if(evt.altKey || (evt.ctrlKey && evt.charCode != 118)){
+            return;
+        }
+        var doSearch = false;
+        var pw = this._popupWidget;
         var dk = dojo.keys;
         if(this._isShowingNow){
-            var pw = this._popupWidget;
             pw.handleKey(evt);
         }
-        else{
-            this.searchOnBlur=true;
+        switch(evt.keyCode){
+            case dk.PAGE_DOWN:
+            case dk.DOWN_ARROW:
+                if(!this._isShowingNow||this._prev_key_esc){
+                    this._arrowPressed();
+                    doSearch=true;
+                }else{
+                    this._announceOption(pw.getHighlightedOption());
+                }
+                dojo.stopEvent(evt);
+                this._prev_key_backspace = false;
+                this._prev_key_esc = false;
+                break;
+
+            case dk.PAGE_UP:
+            case dk.UP_ARROW:
+                if(this._isShowingNow){
+                    this._announceOption(pw.getHighlightedOption());
+                }
+                dojo.stopEvent(evt);
+                this._prev_key_backspace = false;
+                this._prev_key_esc = false;
+                break;
+
+            case dk.ENTER:
+                // prevent submitting form if user presses enter. Also
+                // prevent accepting the value if either Next or Previous
+                // are selected
+                var highlighted;
+                if( this._isShowingNow && 
+                    (highlighted = pw.getHighlightedOption())
+                ){
+                    // only stop event on prev/next
+                    if(highlighted == pw.nextButton){
+                        this._nextSearch(1);
+                        dojo.stopEvent(evt);
+                        break;
+                    }else if(highlighted == pw.previousButton){
+                        this._nextSearch(-1);
+                        dojo.stopEvent(evt);
+                        break;
+                    }
+                }else{
+                    this.setDisplayedValue(this.getDisplayedValue());
+                }
+                // default case:
+                // prevent submit, but allow event to bubble
+                evt.preventDefault();
+                // fall through
+
+            case dk.TAB:
+                var newvalue = this.getDisplayedValue();
+                // #4617: 
+                //      if the user had More Choices selected fall into the
+                //      _onBlur handler
+                if(pw && (
+                    newvalue == pw._messages["previousMessage"] ||
+                    newvalue == pw._messages["nextMessage"])
+                ){
+                    break;
+                }
+                if(this._isShowingNow){
+                    this._prev_key_backspace = false;
+                    this._prev_key_esc = false;
+                    if(pw.getHighlightedOption()){
+                        pw.setValue({ target: pw.getHighlightedOption() }, true);
+                    }
+                    this._hideResultList();
+                }
+                break;
+
+            case dk.SPACE:
+                this._prev_key_backspace = false;
+                this._prev_key_esc = false;
+                if(this._isShowingNow && pw.getHighlightedOption()){
+                    dojo.stopEvent(evt);
+                    this._selectOption();
+                    this._hideResultList();
+                }else{
+                    doSearch = true;
+                }
+                break;
+
+            case dk.ESCAPE:
+                this._prev_key_backspace = false;
+                this._prev_key_esc = true;
+                if(this._isShowingNow){
+                    dojo.stopEvent(evt);
+                    this._hideResultList();
+                }
+                this.inherited(arguments);
+                break;
+
+            case dk.DELETE:
+            case dk.BACKSPACE:
+                this._prev_key_esc = false;
+                this._prev_key_backspace = true;
+                doSearch = true;
+                break;
+
+            case dk.RIGHT_ARROW: // fall through
+            case dk.LEFT_ARROW: 
+                this._prev_key_backspace = false;
+                this._prev_key_esc = false;
+                break;
+
+            default: // non char keys (F1-F12 etc..)  shouldn't open list
+                this._prev_key_backspace = false;
+                this._prev_key_esc = false;
+                if(dojo.isIE || evt.charCode != 0){
+                    doSearch = true;
+                }
+        }
+        if(this.searchTimer){
+            clearTimeout(this.searchTimer);
+        }
+        if(doSearch){
+            // need to wait a tad before start search so that the event
+            // bubbles through DOM and we have value visible
+            setTimeout(dojo.hitch(this, "geocodevalue"),1);
         }
     },
-    mixin_geocodevalue:function(address){
-        this.geocoder.geocode( { 'address': address}, dojo.hitch(this, 'handleGeocodeResults'));
-    },
     patch__onBlur: function(){
-        if (this.searchOnBlur){
-        this.geocodevalue(this.textbox.value);}
+        if (this._popupWidget && !this.item){
+            this._popupWidget.highlightFirstOption();
+            highlighted = this._popupWidget.getHighlightedOption()
+            if (highlighted.item){
+                this._popupWidget.setValue({ target: highlighted }, true);
+            }
+        }
+        this.store.mainbag=new gnr.GnrBag();
     },
     created: function(widget, savedAttrs, sourceNode) {
         widget.geocoder = new google.maps.Geocoder();
@@ -4370,7 +4510,7 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
         }
     },
     mixin_handleGeocodeResults: function(results, status){
-         this.store.mainbag=new gnr.GnrBag();
+        this.store.mainbag=new gnr.GnrBag();
          if (status == google.maps.GeocoderStatus.OK) {
              for (var i = 0; i < results.length; i++){
                  formatted_address=results[i].formatted_address;
@@ -4385,7 +4525,7 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
              }
          };
          var firstline = this.store.mainbag.getItem('#0');
-         if (firstline && firstline.len()==1){
+         if (false && firstline && firstline.len()==1){
              this.setValue(this.store.mainbag.getItem('#0.#0?caption'),true);
              this._updateSelect(this.store.mainbag.getNode('#0.#0'));
          }
@@ -5032,7 +5172,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
     },
     versionpatch_15__onClick:function(nodeWidget, e) {
         // summary:
-        //		Translates click events into commands for the controller to process
+        //      Translates click events into commands for the controller to process
         if (dojo.hasClass(e.target, 'dijitTreeIcon') && this.tree.checkBoxTree) {
             var bagnode = nodeWidget.item;
             if (bagnode instanceof gnr.GnrBagNode) {
