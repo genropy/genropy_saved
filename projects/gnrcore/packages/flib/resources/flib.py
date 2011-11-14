@@ -16,7 +16,7 @@ class FlibBase(BaseComponent):
     def flib_flibSavedFilesGrid(self, pane, checked_categories=None, reloader=None, label=None,
                                 viewResource=None,preview=None,configurable=False):
         viewResource = viewResource or ':LoadedFilesView'
-        th = pane.plainTableHandler(table='flib.item',configurable=configurable,viewResource=viewResource)
+        th = pane.plainTableHandler(table='flib.item',configurable=configurable,viewResource=viewResource,nodeId='flib_item_%s' %id(pane))
         th.view.attributes.update(margin='2px',rounded=6,border='1px solid gray')
         if checked_categories:
             storePars = {}
