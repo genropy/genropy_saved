@@ -229,7 +229,7 @@ class GnrBaseWebPage(GnrObject):
     
     @public_method
     def getUserSelection(self, selectionName=None, selectedRowidx=None, filterCb=None, columns=None,
-                         sortBy=None, page_id=None,sourcepage_id=None, condition=None, table=None, condition_args=None):
+                         sortBy=None,condition=None, table=None, condition_args=None):
         """add???
         
         :param selectionName: add???
@@ -246,7 +246,7 @@ class GnrBaseWebPage(GnrObject):
                                is ``condition_`` followed by the name of the argument"""
         # table is for checking if the selection belong to the table
         assert selectionName, 'selectionName is mandatory'
-        page_id = sourcepage_id or page_id
+        page_id = self.sourcepage_id or self.page_id
         if isinstance(table, basestring):
             table = self.db.table(table)
         selection = self.unfreezeSelection(dbtable=table, name=selectionName,page_id=page_id)

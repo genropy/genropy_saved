@@ -124,6 +124,7 @@ class GnrWebPage(GnrBaseWebPage):
                                            user=request_kwargs.pop('_user', None))
         page_id = request_kwargs.pop('page_id', None)
         self.root_page_id = request_kwargs.pop('_root_page_id', None)
+        self.sourcepage_id = request_kwargs.pop('sourcepage_id', None)
         self.instantiateProxies()
         self.onPreIniting(request_args, request_kwargs)
         self._call_handler = self.get_call_handler(request_args, request_kwargs)
@@ -131,8 +132,8 @@ class GnrWebPage(GnrBaseWebPage):
         self._workdate = self.page_item['data']['workdate'] #or datetime.date.today()
         self.onIniting(request_args, request_kwargs)
         self._call_args = request_args or tuple()
-        self._call_kwargs = self.site.parse_kwargs(request_kwargs, workdate=self.workdate) or {}
-            
+        self._call_kwargs = self.site.parse_kwargs(request_kwargs, workdate=self.workdate) or {} 
+        
     def onPreIniting(self, *request_args, **request_kwargs):
         """add???"""
         pass
@@ -734,7 +735,7 @@ class GnrWebPage(GnrBaseWebPage):
         
         :param page_id: the id of the page
         :param triggered: boolean. add???"""
-        page_id = page_id or self.page_id
+        page_id = page_id or self.sourcepage_id or self.page_id
         return self.site.register.pageStore(page_id, triggered=triggered)
         
     def connectionStore(self, connection_id=None, triggered=True):

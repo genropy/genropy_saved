@@ -14,10 +14,6 @@ var th_view_batch_caller = function(kw){
         kw['selectedPkeys'] = grid.getSelectedPkeys(true);
     }
     kw['selectedRowidx'] = grid.getSelectedRowidx();
-    if(store.len(true)==0 && !kw.report){
-        genro.dlg.alert('Missing selection','Warning');
-        return;
-    }
     genro.publish("table_script_run",kw);
 }
 
