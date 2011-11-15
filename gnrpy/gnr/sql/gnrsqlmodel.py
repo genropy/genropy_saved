@@ -101,7 +101,7 @@ class DbModel(object):
         col = tbl.columns[col]
         return (pkg.name, tbl.name, col.name)
         
-    def addRelation(self, many_relation_tuple, oneColumn, mode=None, one_one=None, onDelete=None, onDelete_sql=None,
+    def addRelation(self, many_relation_tuple, oneColumn, mode=None,storename=None, one_one=None, onDelete=None, onDelete_sql=None,
                     onUpdate=None, onUpdate_sql=None, deferred=None, eager_one=None, eager_many=None, relation_name=None,
                     one_name=None, many_name=None, one_group=None, many_group=None, many_order_by=None):
         """Add a relation in the current model.
@@ -159,14 +159,14 @@ class DbModel(object):
                                    onDelete_sql=onDelete_sql,
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
-                                   one_group=one_group, many_group=many_group)
+                                   one_group=one_group, many_group=many_group,storename=storename)
             self.relations.setItem('%s.%s.@%s' % (one_pkg, one_table, relation_name), None, mode='M',
                                    many_relation=many_relation, many_rel_name=many_name, many_order_by=many_order_by,
                                    one_relation=one_relation, one_rel_name=one_name, one_one=one_one, onDelete=onDelete,
                                    onDelete_sql=onDelete_sql,
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
-                                   one_group=one_group, many_group=many_group)
+                                   one_group=one_group, many_group=many_group,storename=storename)
             #print 'The relation %s - %s was added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
             self.checkRelationIndex(many_pkg, many_table, many_field)
             self.checkRelationIndex(one_pkg, one_table, one_field)

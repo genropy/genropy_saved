@@ -142,7 +142,7 @@ class ResourceLoader(object):
             return page_node, page_node_attributes
         return None, None
         
-    def __call__(self, path_list, request, response, environ=None):
+    def __call__(self, path_list, request, response, environ=None,request_kwargs=None):
         page_node, page_node_attributes = self.get_page_node(path_list)
         if not page_node:
             return None
@@ -152,7 +152,7 @@ class ResourceLoader(object):
         plugin = page_node_attributes.get('plugin')
         page_class = self.get_page_class(path=path, pkg=pkg, plugin=plugin)
         page = page_class(site=self.site, request=request, response=response,
-                          request_kwargs=self.site.parse_request_params(request.params), request_args=request_args,
+                          request_kwargs=request_kwargs, request_args=request_args,
                           filepath=path, packageId=pkg,  basename=path, environ=environ)
         return page
         

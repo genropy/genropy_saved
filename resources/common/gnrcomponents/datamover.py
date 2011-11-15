@@ -59,7 +59,7 @@ class MoverPlugin(BaseComponent):
                             if(rowset.length>1){
                                 return false;
                             }
-                            var table = rowset[0].table;
+                            var table = rowset[0].reftable;
                             dragValues['mover_'+table.replace('.','_')] =  {table:table,pkeys:rowset[0].pkeys,objtype:rowset[0].objtype};
                         };""",
                         drop_ext='gnrz',

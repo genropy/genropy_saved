@@ -52,8 +52,10 @@ class TableHandlerView(BaseComponent):
         top_kwargs=top_kwargs or dict()
         if extendedQuery:
             base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceMails','resourceActions','5','templateManager','*','count','5']
-        else:
+        elif not virtualStore:
             base_slots = ['5','vtitle','count','*','searchOn']
+        else:
+            base_slots = ['5','vtitle','count']
         base_slots = ','.join(base_slots)
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)

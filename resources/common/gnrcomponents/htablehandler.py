@@ -43,6 +43,7 @@ class HTableResolver(BagResolver):
                    'relation_path': None,
                    'rootpkey': None,
                    'extra_columns':None,
+                   '_storename':None,
                    '_page': None}
     classArgs = ['table', 'rootpath']
     
@@ -63,7 +64,7 @@ class HTableResolver(BagResolver):
     def load(self):
         if self.rootpath and self.rootpath.startswith('*related*'):
             return self.loadRelated(self.rootpath.split(':')[1])
-            
+        #print 'storename',self._storename,'dbenv', self._page.db.currentEnv
         db = self._page.db
         tblobj = db.table(self.table)
         columns = '*,$child_count'
@@ -85,11 +86,11 @@ class HTableResolver(BagResolver):
                                        related_table=self.related_table,
                                        limit_rec_type=self.limit_rec_type,
                                        extra_columns=self.extra_columns,
-                                       child_count=child_count, _page=self._page)
+                                       child_count=child_count, _page=self._page,_storename=self._page.storename)
             elif self.related_table:
                 value = HTableResolver(table=self.table, rootpath='*related*:%s' % row['pkey'],
                                        relation_path=self.relation_path,
-                                       related_table=self.related_table,
+                                       related_table=self.related_table,_storename=self._page.storename,
                                        _page=self._page)
                 child_count = 1
                 
@@ -144,14 +145,15 @@ class HTableHandlerBase(BaseComponent):
                                      relation_path=relation_path,
                                      rootcaption=tblobj.name_plural, **kwargs)
         pane.data(storepath, data)
-        
+    
+    @public_method
     def ht_treeDataStore(self, table=None, rootpath=None,
                          related_table=None,
                          relation_path=None,
                          limit_rec_type=None,
                          rootcaption=None,
                          rootcode=None,
-                         extra_columns=None):
+                         extra_columns=None,**kwargs):
         tblobj = self.db.table(table)
         columns = '$code,$parent_code,$description,$child_code,$child_count,$rec_type'
         if extra_columns:
@@ -182,8 +184,9 @@ class HTableHandlerBase(BaseComponent):
             rec_type = None
             row = dict()
             child_count = tblobj.query().count()
+        print getattr(self,'storename','No store')
         value = HTableResolver(table=table, rootpath=rootpath, limit_rec_type=limit_rec_type, _page=self,
-                               related_table=related_table, relation_path=relation_path,extra_columns=extra_columns) #if child_count else None
+                               related_table=related_table, relation_path=relation_path,extra_columns=extra_columns,_storename=self.storename) #if child_count else None
         result.setItem(rootlabel, value, child_count=child_count, caption=caption, pkey=pkey, code=code,
                        rec_type=rec_type, checked=False,_record=dict(row))
         return result
