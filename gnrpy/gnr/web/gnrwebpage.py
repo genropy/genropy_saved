@@ -30,6 +30,7 @@ import shutil
 
 from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean
 from mako.lookup import TemplateLookup
+from gnr.core.gnrlang import GnrObject
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
@@ -70,7 +71,7 @@ class GnrWebPage(GnrBaseWebPage):
     :param basename: add???
     :param environ: add???"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
-                 filepath=None, packageId=None, basename=None, environ=None):
+                 filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
         self.site = site
         self.user_agent = request.user_agent or []
         self.user_ip = request.remote_addr
@@ -81,6 +82,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.forked = False # maybe redefine as _forked
         self.filepath = filepath
         self.packageId = packageId
+        self.pluginId = pluginId
         self.basename = basename
         self.siteFolder = self.site.site_path
         self.folders = self._get_folders()

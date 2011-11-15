@@ -153,7 +153,7 @@ class ResourceLoader(object):
         page_class = self.get_page_class(path=path, pkg=pkg, plugin=plugin)
         page = page_class(site=self.site, request=request, response=response,
                           request_kwargs=self.site.parse_request_params(request.params), request_args=request_args,
-                          filepath=path, packageId=pkg,  basename=path, environ=environ)
+                          filepath=path, packageId=pkg, pluginId=plugin,  basename=path, environ=environ)
         return page
         
     def get_page_class(self, path=None, pkg=None, plugin=None):
@@ -308,36 +308,40 @@ class ResourceLoader(object):
         result.extend(resources_list)
         return result
         
-    def package_resourceDirs(self, pkg, omitSiteResources=False):
+    def package_resourceDirs(self, pkg, omitSiteResources=False, pluginId=None):
         """add???
         
         :param pkg: the :ref:`package <packages>` object
         :param omitSiteResources: boolean. add???"""
         pkg = self.gnrapp.packages[pkg]
+        result = []
         if not hasattr(pkg, '_resourceDirs'):
             pagesPath = os.path.join(pkg.packageFolder, 'webpages')
             resourcePkg = None
-            result = [] # result is now empty
+            pkgResourceDirs = [] # result is now empty
             resourcePkg = pkg.attributes.get('resourcePkg')
             fpath = os.path.join(self.site_path, '_custom', pkg.id, '_resources')
             if os.path.isdir(fpath):
-                result.append(fpath) # we add a custom resource folder for current package
+                pkgResourceDirs.append(fpath) # we add a custom resource folder for current package
                 
             if resourcePkg:
                 for rp in resourcePkg.split(','):
                     fpath = os.path.join(self.site_path, '_custom', pkg.id, '_resources')
                     if os.path.isdir(fpath):
-                        result.append(fpath)
+                        pkgResourceDirs.append(fpath)
             fpath = os.path.join(pagesPath, '_resources')
             if os.path.isdir(fpath):
-                result.append(fpath) # we add a resource folder for common package
+                pkgResourceDirs.append(fpath) # we add a resource folder for common package
             rsrc_path = os.path.join(pkg.packageFolder, 'resources')
             if os.path.isdir(rsrc_path):
-                result.append(rsrc_path)
+                pkgResourceDirs.append(rsrc_path)
             pkg._siteResourceDirs = self.site.resources_dirs
-            pkg._resourceDirs = result
-            
-        result = list(pkg._resourceDirs)
+            pkg._resourceDirs = pkgResourceDirs
+        if pluginId and pluginId in pkg.plugins:
+            plugin = pkg.plugins[pluginId]
+            if plugin.resources_path:
+                result.append(plugin.resources_path)
+        result.extend(list(pkg._resourceDirs))
         if not omitSiteResources:
             result.extend(pkg._siteResourceDirs)
             # so we return a list of any possible resource folder starting from
@@ -472,10 +476,13 @@ class ResourceLoader(object):
         resource_class = cloneClass('CustomResource', BaseResource)
         pkg=kwargs.pop('pkg', None)
         page=kwargs.pop('page', None)
+        pluginId=None
+        if page and page.pluginId:
+            pluginId=page.pluginId
         pkgOnly=kwargs.pop('pkgOnly', False)
         if pkg:
             resourceDirs = self.package_resourceDirs(pkg)
-            lookupDirs = self.package_resourceDirs(pkg, omitSiteResources=pkgOnly)
+            lookupDirs = self.package_resourceDirs(pkg, omitSiteResources=pkgOnly, pluginId=pluginId)
         else:
             resourceDirs = lookupDirs = page.resourceDirs
         resource_class.resourceDirs = resourceDirs
