@@ -306,7 +306,7 @@ class PaletteTemplateEditor(TemplateEditor):
                     editorbag.setItem('mode','userobject');
                     editorbag.setItem('caption',result.attr.description || result.attr.code);
                     editorbag.setItem('userobject_meta',new gnr.GnrBag(result.attr));
-                })
+                },null,'POST')
             }
         """,tplpath="^.currentTemplate.path",tplmode='=.currentTemplate.tplmode',
                 pkey='=.currentTemplate.pkey',table=maintable,newcaption='!!New template',user=self.user)
@@ -334,7 +334,7 @@ class PaletteTemplateEditor(TemplateEditor):
                             that.setRelativeData('.currentTemplate.pkey',result['id']);
                             that.setRelativeData('.currentTemplate.path',result['code']);
                             dialog.close_action();
-                        });
+                        },null,'POST');
             });
             """,pkey='^.save_userobject',data='=.data',table=maintable)
         infobar.dataRemote('.menu',self.te_menuTemplates,table=maintable,cacheTime=5)
@@ -393,7 +393,7 @@ class ChunkEditor(PaletteTemplateEditor):
                                         if(respath.indexOf('_custom')>=0){
                                             palette.setRelativeData('.data.metadata.custom',true);
                                         }
-                                   });
+                                   },null,'POST');
                                    palette.onSavedTemplate = function(){
                                         updater();
                                    }
@@ -405,7 +405,7 @@ class ChunkEditor(PaletteTemplateEditor):
             var data = palette.getRelativeData('.data');
             genro.serverCall("te_saveResourceTemplate",{table:table,data:data,filename:filename},function(result){
                 palette.onSavedTemplate();
-            });
+            },null,'POST');
             """,subscribe_save_chunkpalette=True,palette=palette)
             palette.remote(self.te_chunkEditorPane)
     

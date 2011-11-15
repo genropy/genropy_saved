@@ -696,6 +696,9 @@ dojo.declare('gnr.GenroClient', null, {
         if (url.indexOf('://') == -1) {
             if (url.slice(0, 1) != '/') {
                 var base = document.location.pathname;
+                if (base==null || base=='/'){
+                    base = '/index';
+                }
                 url = base + '/' + url;
             }
             ;
@@ -1216,9 +1219,9 @@ dojo.declare('gnr.GenroClient', null, {
     remoteJson:function(method, params) {
         return genro.rpc.remoteCall(method, params, 'json');
     },
-    serverCall:function(method, params, async_cb, mode) {
+    serverCall:function(method, params, async_cb, mode,httpMethod) {
         var cb = funcCreate(async_cb);
-        return genro.rpc.remoteCall(method, params, mode, null, null, cb);
+        return genro.rpc.remoteCall(method, params, mode, httpMethod, null, cb);
     },
     
     makeDeferred:function(cb){

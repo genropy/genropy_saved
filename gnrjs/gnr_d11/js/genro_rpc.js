@@ -50,6 +50,10 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
             this.onloading(kwargs);
         }
         var sync = this.xhrKwargs.sync;
+        if(kwargs.resolverPars && kwargs.resolverPars.kwargs && ('_storename' in kwargs.resolverPars.kwargs)){
+            kwargs['_storename'] = objectPop(kwargs.resolverPars.kwargs,'_storename');
+        }
+        var kw = objectUpdate({},kwargs);
         var result = genro.rpc._serverCall(kwargs, this.xhrKwargs, this.httpMethod);
         if (sync) {
             result.addCallback(function(value) {
