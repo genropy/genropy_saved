@@ -297,13 +297,12 @@ class GnrPackage(object):
         self.attributes.update(pkgattrs)
         
         self.tableMixinDict = {}
-        folders=[self.packageFolder]
-        folders+=[p.path for p in self.getPlugins()]
-        for folder in folders:
-            self.loadTableMixinDict(self.main_module, folder)
-        
+        self.loadTableMixinDict(self.main_module, self.packageFolder)
+
+        for plugin in self.getPlugins():
+            self.loadTableMixinDict(self.main_module, plugin.path, pluginId=plugin.id)
         if os.path.isdir(self.customFolder):
-            self.loadTableMixinDict(self.custom_module, self.customFolder, 'custom_')
+            self.loadTableMixinDict(self.custom_module, self.customFolder, model_prefix='custom_')
         self.configure()
         
     def loadPlugins(self):
@@ -317,7 +316,7 @@ class GnrPackage(object):
         """add???"""
         return self.plugins.values()
     
-    def loadTableMixinDict(self, module, folder, model_prefix=''):
+    def loadTableMixinDict(self, module, folder, model_prefix='', pluginId=None):
         """add???
         
         :param module: add???
@@ -341,11 +340,12 @@ class GnrPackage(object):
                                        '%smodel_of_%s_%s' % (model_prefix, self.id, tbl))
                 instanceMixin(self.tableMixinDict[tbl], getattr(tbl_module, 'Table', None))
                 self.tableMixinDict[tbl]._plugins = dict()
-                
                 for cname in dir(tbl_module):
                     member = getattr(tbl_module, cname, None)
             else:
                 instanceMixin(self.tableMixinDict[tbl], cls)
+            if pluginId:
+                setattr(self.tableMixinDict[tbl],'_pluginId',pluginId)
                 
     def config_attributes(self):
         """Return an empty dict. You can fill it with the following keys:

@@ -476,9 +476,7 @@ class ResourceLoader(object):
         resource_class = cloneClass('CustomResource', BaseResource)
         pkg=kwargs.pop('pkg', None)
         page=kwargs.pop('page', None)
-        pluginId=None
-        if page and page.pluginId:
-            pluginId=page.pluginId
+        pluginId=kwargs.pop('pluginId', None)
         pkgOnly=kwargs.pop('pkgOnly', False)
         if pkg:
             resourceDirs = self.package_resourceDirs(pkg)
@@ -496,7 +494,8 @@ class ResourceLoader(object):
         :param \* path: the path of the :ref:`component <components>`"""
         pkg=kwargs.pop('pkg', None)
         pkgOnly=kwargs.pop('pkgOnly', False)
-        component=self.loadResource(*path, page=page, pkg=pkg, pkgOnly=pkgOnly)
+        pluginId=kwargs.pop('pluginId', None)
+        component=self.loadResource(*path, page=page, pkg=pkg, pkgOnly=pkgOnly, pluginId=pluginId)
         setattr(component,'__mixin_pkg', pkg)
         setattr(component, '__mixin_path' ,'/'.join(path))
         css_requires = getattr(component,'css_requires',[])

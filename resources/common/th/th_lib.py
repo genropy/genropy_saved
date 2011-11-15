@@ -42,7 +42,9 @@ class TableHandlerCommon(BaseComponent):
         try:
             self.mixinComponent('tables','_packages',pkg,tablename,resourceName,pkg=self.package.name,mangling_th=rootCode, pkgOnly=True)
         except GnrMixinError:
-            self.mixinComponent('tables',tablename,resourceName,pkg=pkg,mangling_th=rootCode, pkgOnly=True)
+            tableObj = self.db.table(table)
+            pluginId = getattr(tableObj, '_pluginId', None)
+            self.mixinComponent('tables',tablename,resourceName,pkg=pkg,mangling_th=rootCode, pluginId=pluginId, pkgOnly=True)
         return resourceName
             
     
