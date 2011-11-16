@@ -10,12 +10,15 @@ from gnr.core.gnrclasses import GnrMixinError
 
 class TableHandlerCommon(BaseComponent):
     
-    def _th_relationExpand(self,pane,relation=None,condition=None,condition_kwargs=None,default_kwargs=None,**kwargs):
-        maintable=kwargs.get('maintable') or pane.getInheritedAttributes().get('table') or self.maintable
+    def _th_relationExpand(self,pane,relation=None,condition=None,condition_kwargs=None,default_kwargs=None,original_kwargs=None):
+        maintable=original_kwargs.get('maintable') or pane.getInheritedAttributes().get('table') or self.maintable
         if default_kwargs is None:
             default_kwargs = dict()
-        relation_attr = self.db.table(maintable).model.getRelation(relation)
-        many = relation_attr['many'].split('.')
+        #relation_attr = self.db.table(maintable).model.getRelation(relation)
+        relation_attr = self.db.table(maintable).model.relations.getAttr(relation, 'joiner')
+        many = relation_attr['many_relation'].split('.')
+        if (relation_attr.get('onDelete')=='setnull') or (relation_attr.get('onDelete_sql')=='setnull'):
+            original_kwargs['store_unlinkdict'] = dict(one_name = relation_attr.get('one_rel_name'),field=relation_attr['many_relation'].split('.')[-1])
         fkey = many.pop()
         table = str('.'.join(many))
         fkey = str(fkey)
