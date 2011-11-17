@@ -1400,7 +1400,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
     replaceContent:function(value){
         var currval = this._value;
         if(currval instanceof gnr.GnrDomSource){
-            dojo.forEach(currval._nodes,function(n){currval.popNode(n.label);});
+            dojo.forEach(currval._nodes,function(n){
+                currval.popNode(n.label);
+            });
         }else{
             currval = new gnr.GnrDomSource();
             this._value = currval;
