@@ -4546,8 +4546,8 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
             attributes.hasDownArrow = false;
         }
         var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,condition,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition');
-        if(sourceNode.attr._storename){
-            resolverAttrs._storename = sourceNode.attr._storename;
+        if(sourceNode.attr.storename){
+            resolverAttrs.storename = sourceNode.attr.storename;
         }
         var selectedColumns = objectExtract(attributes, 'selected_*');
         if (objectNotEmpty(selectedColumns)) {
@@ -4862,7 +4862,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var store = new gnr.GnrStoreBag({datapath:storepath,_identifier:_identifier,
             hideValues:hideValues,
             labelAttribute:labelAttribute,
-            labelCb:labelCb});
+            labelCb:labelCb,sourceNode:sourceNode});
         var model = new dijit.tree.ForestStoreModel({store: store,childrenAttrs: ["#v"]});
         attributes['model'] = model;
         attributes['showRoot'] = false;

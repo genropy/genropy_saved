@@ -575,8 +575,8 @@ class GnrWsgiSite(object):
             path_list= self.get_path_list('')
         if isRootstore is True:
             storename = None
-        if '_storename' in request_kwargs:
-            storename = self.gnrapp.catalog.fromTypedText(request_kwargs.pop('_storename'))            
+        if '_dbstore' in request_kwargs:
+            storename = self.gnrapp.catalog.fromTypedText(request_kwargs.pop('_dbstore'))            
         if path_list and path_list[0] == '_ping':
             try:
                 self.log_print('kwargs: %s' % str(request_kwargs), code='PING')

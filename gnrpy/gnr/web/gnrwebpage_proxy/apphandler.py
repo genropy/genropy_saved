@@ -1053,7 +1053,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
                      _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None, excludeDraft=True,
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
-                     notnull=None, weakCondition=False, **kwargs):
+                     notnull=None, weakCondition=False,storename=None, **kwargs):
         """dbSelect is a :ref:`filteringselect` that takes the values through a :ref:`query` on the
         database: user can choose between all the values contained into the linked :ref:`table` (the
         table is specified through the *dbtable* attribute). While user write in the dbSelect, partially
@@ -1099,6 +1099,7 @@ class GnrWebAppHandler(GnrBaseProxy):
             limit = self.gnrapp.config.get('dbselect?limit', 10)
         limit = int(limit)
         result = Bag()
+        self.db.use_store(storename)
         tblobj = self.db.table(dbtable)
         captioncolumns = tblobj.rowcaptionDecode(rowcaption)[0]
         querycolumns = tblobj.getQueryFields(columns, captioncolumns)

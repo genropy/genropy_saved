@@ -43,7 +43,7 @@ class HTableResolver(BagResolver):
                    'relation_path': None,
                    'rootpkey': None,
                    'extra_columns':None,
-                   '_storename':None,
+                   'storename':None,
                    '_page': None}
     classArgs = ['table', 'rootpath']
     
@@ -64,8 +64,9 @@ class HTableResolver(BagResolver):
     def load(self):
         if self.rootpath and self.rootpath.startswith('*related*'):
             return self.loadRelated(self.rootpath.split(':')[1])
-        #print 'storename',self._storename,'dbenv', self._page.db.currentEnv
         db = self._page.db
+        if self.storename:
+            db.use_store(self.storename)
         tblobj = db.table(self.table)
         columns = '*,$child_count'
         if self.extra_columns:
@@ -86,11 +87,11 @@ class HTableResolver(BagResolver):
                                        related_table=self.related_table,
                                        limit_rec_type=self.limit_rec_type,
                                        extra_columns=self.extra_columns,
-                                       child_count=child_count, _page=self._page,_storename=self._page.storename)
+                                       child_count=child_count, _page=self._page,storename=self.storename)
             elif self.related_table:
                 value = HTableResolver(table=self.table, rootpath='*related*:%s' % row['pkey'],
                                        relation_path=self.relation_path,
-                                       related_table=self.related_table,_storename=self._page.storename,
+                                       related_table=self.related_table,storename=self.storename,
                                        _page=self._page)
                 child_count = 1
                 
@@ -132,33 +133,52 @@ class HTableResolver(BagResolver):
         
 class HTableHandlerBase(BaseComponent):
     """add???"""
+
     @struct_method
-    def ht_htableStore(self, pane, table=None, related_table=None, relation_path=None, storepath='.store', **kwargs):
+    def ht_htableStore(self, pane, table=None, related_table=None, relation_path=None, storepath='.store',
+                        storename=None,**kwargs):
         if '@' in table:
             pkg, related_table, relation_path = table.split('.')
             related_table = '%s.%s' % (pkg, related_table)
             related_table_obj = self.db.table(related_table)
             table = related_table_obj.column(relation_path).parent.fullname
-        tblobj = self.db.table(table)
+        tblobj = self.db.table(table)            
         data = self.ht_treeDataStore(table=table,
                                      related_table=related_table,
                                      relation_path=relation_path,
-                                     rootcaption=tblobj.name_plural, **kwargs)
+                                     rootcaption=tblobj.name_plural, 
+                                     storename=storename,**kwargs)
         pane.data(storepath, data)
+        
     
     @public_method
+    def ht_remoteTreeData(self, *args,**kwargs):
+        if 'storename' in kwargs:
+            self.db.use_store(kwargs['storename'])
+        return self.ht_treeDataStore(*args,**kwargs)
+    
     def ht_treeDataStore(self, table=None, rootpath=None,
                          related_table=None,
                          relation_path=None,
                          limit_rec_type=None,
                          rootcaption=None,
                          rootcode=None,
-                         extra_columns=None,**kwargs):
-        tblobj = self.db.table(table)
+                         extra_columns=None,storename=None,**kwargs):
         columns = '$code,$parent_code,$description,$child_code,$child_count,$rec_type'
         if extra_columns:
             columns = '%s,%s' %(columns,extra_columns) 
         result = Bag()
+        value = HTableResolver(table=table, rootpath=rootpath, limit_rec_type=limit_rec_type, _page=self,
+                               related_table=related_table, relation_path=relation_path,extra_columns=extra_columns,storename=storename) #if child_count else None
+        rootlabel,attr = self._ht_rootNodeAttributes(table=table,rootpath=rootpath,columns=columns,
+                                                            rootcaption=rootcaption,rootcode=rootcode)
+        result.setItem(rootlabel, value, checked=False,**attr)
+        return result
+    
+    
+        
+    def _ht_rootNodeAttributes(self,table=None,rootpath=None,columns=None,rootcaption=None,rootcode=None):
+        tblobj = self.db.table(table)
         if rootpath:
             row = tblobj.query(columns=columns, where='$code=:code', code=rootpath).fetch()[0]
             description = row['description']
@@ -173,23 +193,17 @@ class HTableHandlerBase(BaseComponent):
             code = row['code']
             child_count = row['child_count']
             rec_type = row['rec_type']
-
         else:
-            caption = rootcaption
+            caption = rootcaption or tblobj.name_plural
             rootlabel = '_root_'
-
             pkey = None
             code = rootcode
             rootpath = None
             rec_type = None
             row = dict()
             child_count = tblobj.query().count()
-        print getattr(self,'storename','No store')
-        value = HTableResolver(table=table, rootpath=rootpath, limit_rec_type=limit_rec_type, _page=self,
-                               related_table=related_table, relation_path=relation_path,extra_columns=extra_columns,_storename=self.storename) #if child_count else None
-        result.setItem(rootlabel, value, child_count=child_count, caption=caption, pkey=pkey, code=code,
-                       rec_type=rec_type, checked=False,_record=dict(row))
-        return result
+        return rootlabel,dict(_record=dict(row),caption=caption,pkey=pkey,code=code,child_count=child_count)
+        
         
 class HTableHandler(HTableHandlerBase):
     """A class to handle the :ref:`h_th_component` component"""
