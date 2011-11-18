@@ -53,11 +53,11 @@ class GnrWsgiWebApp(GnrApp):
         self.site.debugger(debugtype, **kwargs)
 
     def _get_siteMenu(self):
-        storename = self.site.currentPage.storename
-        siteMenu = self._siteMenuDict.get(storename)
+        dbstore = self.site.currentPage.dbstore
+        siteMenu = self._siteMenuDict.get(dbstore)
         if not siteMenu:
             siteMenu = self._buildSiteMenu()
-            self._siteMenuDict[storename] = siteMenu
+            self._siteMenuDict[dbstore] = siteMenu
         return siteMenu
 
     siteMenu = property(_get_siteMenu)

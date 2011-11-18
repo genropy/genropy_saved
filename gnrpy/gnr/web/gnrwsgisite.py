@@ -520,8 +520,8 @@ class GnrWsgiSite(object):
         return path_list
         
     def _get_home_uri(self):
-        if self.currentPage and self.currentPage.storename:
-            return '%s%s/' % (self.default_uri, self.currentPage.storename)
+        if self.currentPage and self.currentPage.dbstore:
+            return '%s%s/' % (self.default_uri, self.currentPage.dbstore)
         else:
             return self.default_uri
             
@@ -559,24 +559,14 @@ class GnrWsgiSite(object):
             path_list = ['_site', 'favicon.ico']
             self.log_print('', code='FAVICON')
             # return response(environ, start_response)
-        request_kwargs = self.parse_request_params(request.params)
+        request_kwargs = self.parse_kwargs(self.parse_request_params(request.params))
         request_kwargs.pop('_no_cache_', None)
         download_name = request_kwargs.pop('_download_name_', None)
-        storename = None
         #print 'site dispatcher: ',path_list
-        isRootstore = boolean(request_kwargs.pop('_rootstore_',None))
-        if path_list and path_list[0] in self.dbstores:
-            storename = path_list.pop(0)
-        
-        if path_list and path_list[0] == '_rootstore_':
-            isRootstore = True
-            path_list.pop(0)
+        if path_list and (path_list[0] in self.dbstores) and not ('_dbstore' in request_kwargs):
+            request_kwargs['_dbstore'] = path_list.pop(0)
         if not path_list:
-            path_list= self.get_path_list('')
-        if isRootstore is True:
-            storename = None
-        if '_dbstore' in request_kwargs:
-            storename = self.gnrapp.catalog.fromTypedText(request_kwargs.pop('_dbstore'))            
+            path_list= self.get_path_list('')                   
         if path_list and path_list[0] == '_ping':
             try:
                 self.log_print('kwargs: %s' % str(request_kwargs), code='PING')
@@ -616,9 +606,8 @@ class GnrWsgiSite(object):
                     #raise exc # TODO: start_response will not be called if we get here, that could be the cause of some blank response errors.
             if not (page and page._call_handler):
                 return self.not_found_exception(environ, start_response)
-            self.onServingPage(page)
             self.currentPage = page
-            page.storename = storename
+            self.onServingPage(page)
             try:
                 result = page()
                 if download_name:
@@ -1048,7 +1037,7 @@ class GnrWsgiSite(object):
         :param start_response: add???
         :param page_id: add???
         :param reason: add???"""
-        kwargs = self.parse_kwargs(kwargs)
+        #kwargs = self.parse_kwargs(kwargs)
         _children_pages_info= kwargs.get('_children_pages_info')
         _lastUserEventTs = kwargs.get('_lastUserEventTs')
         page_item = self.register.refresh(page_id, _lastUserEventTs)
@@ -1139,11 +1128,10 @@ class GnrWsgiSite(object):
                         for k, v in serverstore_changes.items():
                             store.setItem(k, v)
                             
-    def parse_kwargs(self, kwargs, workdate=None):
+    def parse_kwargs(self, kwargs):
         """add???
-        
         :param kwargs: the kw arguments
-        :param workdate: the :ref:`workdate`"""
+        """
         catalog = self.gnrapp.catalog
         result = dict(kwargs)
         for k, v in kwargs.items():

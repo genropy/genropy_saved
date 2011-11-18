@@ -73,6 +73,7 @@ class GnrSqlDb(GnrObject):
     * manage the logical structure of a database, called database's model.
     * manage operations on db at high level, hiding adapter's layer and connections.
     """
+    rootstore = '_main_db'
     
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
@@ -266,7 +267,7 @@ class GnrSqlDb(GnrObject):
         """property .connection
         
         If there's not connection open and return connection to database"""
-        storename = self.currentEnv.get('storename') or '_main_db'
+        storename = self.currentEnv.get('storename') or self.rootstore
         
         if storename=='*' or ',' in storename:
             if storename=='*':
@@ -281,11 +282,11 @@ class GnrSqlDb(GnrObject):
     connection = property(_get_connection)
             
     def get_connection_params(self, storename=None):
-        if storename and storename != '_main_db':
+        if storename and storename != self.rootstore:
             return self.dbstores[storename]
         else:
             return dict(host=self.host, database=self.dbname, user=self.user, password=self.password, port=self.port)
-            
+    
     def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False, dbtable=None):
         """Execute the sql statement using given kwargs. Return the sql cursor
         
@@ -303,9 +304,9 @@ class GnrSqlDb(GnrObject):
         envargs.update(sqlargs or {})
         sqlargs = envargs
         if dbtable and not self.table(dbtable).use_dbstores():
-            storename = '_main_db'
+            storename = self.rootstore
         else:
-            storename = sqlargs.pop('storename', self.currentEnv.get('storename', '_main_db'))
+            storename = sqlargs.pop('storename', self.currentEnv.get('storename', self.rootstore))
         with self.tempEnv(storename=storename):
             for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple)]:
                 sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])

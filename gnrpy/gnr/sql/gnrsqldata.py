@@ -2093,7 +2093,7 @@ class SqlRecord(object):
             info['_sqlContextName'] = self.sqlContextName
             info['_auto_relation_value'] = mfld
             info['_virtual_columns'] = rel_vc
-            info['_storename'] = self.storename
+            info['_dbstore'] = self.storename
         return value,info
 
     def _loadRecord(self, result, sqlresult,fields, resolver_one=None, resolver_many=None):

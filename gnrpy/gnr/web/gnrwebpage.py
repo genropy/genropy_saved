@@ -73,6 +73,8 @@ class GnrWebPage(GnrBaseWebPage):
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
         self.site = site
+        dbstore = request_kwargs.pop('_dbstore',None) 
+        self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
         self.user_agent = request.user_agent or []
         self.user_ip = request.remote_addr
         self._environ = environ
@@ -134,7 +136,7 @@ class GnrWebPage(GnrBaseWebPage):
         self._workdate = self.page_item['data']['workdate'] #or datetime.date.today()
         self.onIniting(request_args, request_kwargs)
         self._call_args = request_args or tuple()
-        self._call_kwargs = self.site.parse_kwargs(request_kwargs, workdate=self.workdate) or {} 
+        self._call_kwargs = dict(request_kwargs)
         
     def onPreIniting(self, *request_args, **request_kwargs):
         """add???"""
@@ -257,7 +259,7 @@ class GnrWebPage(GnrBaseWebPage):
     def db(self):
         if not hasattr(self, '_db'):
             self._db = self.application.db
-            self._db.updateEnv(storename=getattr(self, 'storename', None), workdate=self.workdate, locale=self.locale,
+            self._db.updateEnv(storename=self.dbstore, workdate=self.workdate, locale=self.locale,
                                user=self.user, userTags=self.userTags, pagename=self.pagename)
             avatar = self.avatar
             if avatar:
