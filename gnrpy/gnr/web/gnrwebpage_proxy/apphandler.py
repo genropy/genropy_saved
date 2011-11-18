@@ -969,7 +969,8 @@ class GnrWebAppHandler(GnrBaseProxy):
             virtual_columns = ','.join(uniquify(virtual_columns or [])) 
         rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
-                            sqlContextName=sqlContextName, virtual_columns=virtual_columns, **kwargs)
+                            sqlContextName=sqlContextName, virtual_columns=virtual_columns, 
+                            storename=self.page.storename,**kwargs)
         if sqlContextName:
             self._joinConditionsFromContext(rec, sqlContextName)
 
@@ -981,7 +982,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         newrecord = pkey == '*newrecord*'
         recInfo = dict(_pkey=pkey,
                        caption=tblobj.recordCaption(record, newrecord),
-                       _newrecord=newrecord, sqlContextName=sqlContextName)
+                       _newrecord=newrecord, sqlContextName=sqlContextName,record_storename=self.page.storename)
         #if lock and not newrecord:
         if not newrecord and not readOnly:
             recInfo['_protect_write'] = not tblobj.check_updatable(record)

@@ -194,18 +194,19 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         //console.log('trigger_del',kw);
         kw.node._onDeleting();
         this._onDeletingContent(kw.node._value);
-        var domNode = kw.node.getDomNode();
-        if (!domNode) {
-            return;
-        }
+        //var domNode = kw.node.getDomNode();
+        //if (!domNode) {
+        //    return;
+        //}
         var widget = kw.node.widget;
+        var domNode = kw.node.domNode;
         if (widget) {
             var parentWdg = widget.sourceNode.getParentBuiltObj();
             if(parentWdg && parentWdg.onDestroyingChild){
                 parentWdg.onDestroyingChild(widget);
             }
             widget.destroyRecursive();
-        } else {
+        } else if(domNode) {
             var widgets = dojo.query('[widgetId]', domNode);
             widgets = widgets.map(dijit.byNode);     // Array
             dojo.forEach(widgets, function(widget) {
@@ -324,6 +325,19 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         var sourceNode = genro.src.enclosingSourceNode(e.target);
         var func = funcCreate(code, 'kw,e', sourceNode);
         func(kw, e);
+    },
+    checkSubscribedNodes:function(){
+        var subscribedNodes = this._subscribedNodes;
+        for (var strid in subscribedNodes){
+            var srcnode = genro.src._main.findNodeById(strid.slice(2));
+            console.log(strid,srcnode,srcnode.getParentNode())
+          //for (var attr in subscribedNodes[strid]) {
+          //         dojo.forEach(subscribedNodes[strid][attr],function(n){
+          //             console.log(n);
+          //         });
+          //     }
+        }
+        return 'finito'
     },
     refreshSourceIndexAndSubscribers:function() {
         var oldSubscribedNodes = this._subscribedNodes;
