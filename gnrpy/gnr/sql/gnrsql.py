@@ -287,7 +287,7 @@ class GnrSqlDb(GnrObject):
         else:
             return dict(host=self.host, database=self.dbname, user=self.user, password=self.password, port=self.port)
     
-    def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False, dbtable=None):
+    def execute(self, sql, sqlargs=None, cursor=None, cursorname=None, autocommit=False, dbtable=None,storename=None):
         """Execute the sql statement using given kwargs. Return the sql cursor
         
         :param sql: the sql statement
@@ -302,11 +302,10 @@ class GnrSqlDb(GnrObject):
         if not 'env_workdate' in envargs:
             envargs['env_workdate'] = self.workdate
         envargs.update(sqlargs or {})
+        storename = storename or envargs.get('env_storename', self.rootstore)
         sqlargs = envargs
         if dbtable and not self.table(dbtable).use_dbstores():
             storename = self.rootstore
-        else:
-            storename = sqlargs.pop('storename', self.currentEnv.get('storename', self.rootstore))
         with self.tempEnv(storename=storename):
             for k, v in [(k, v) for k, v in sqlargs.items() if isinstance(v, list) or isinstance(v, tuple)]:
                 sqllist = '(%s) ' % ','.join([':%s%i' % (k, i) for i, ov in enumerate(v)])

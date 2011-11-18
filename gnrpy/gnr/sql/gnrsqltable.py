@@ -375,7 +375,7 @@ class SqlTable(GnrObject):
     def record(self, pkey=None, where=None,
                lazy=None, eager=None, mode=None, relationDict=None, ignoreMissing=False, virtual_columns=None,
                ignoreDuplicate=False, bagFields=True, joinConditions=None, sqlContextName=None,
-               for_update=False, **kwargs):
+               for_update=False, _storename=None,**kwargs):
         """Get a single record of the table. It returns a SqlRecordResolver.
         
         The record can be identified by:
@@ -407,7 +407,7 @@ class SqlTable(GnrObject):
                            virtual_columns=virtual_columns,
                            ignoreDuplicate=ignoreDuplicate,
                            joinConditions=joinConditions, sqlContextName=sqlContextName,
-                           bagFields=bagFields, for_update=for_update, **kwargs)
+                           bagFields=bagFields, for_update=for_update, _storename=_storename,**kwargs)
 
         if mode:
             return record.output(mode)
@@ -446,7 +446,7 @@ class SqlTable(GnrObject):
               relationDict=None, sqlparams=None, excludeLogicalDeleted=True,
               excludeDraft=True,
               addPkeyColumn=True, locale=None,
-              mode=None, **kwargs):
+              mode=None,_storename=None, **kwargs):
         """Return a SqlQuery (a method of ``gnr/sql/gnrsqldata``) object representing a query.
         This query is executable with different modes.
         
@@ -478,7 +478,7 @@ class SqlTable(GnrObject):
                          group_by=group_by, having=having, for_update=for_update,
                          relationDict=relationDict, sqlparams=sqlparams,
                          excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft,
-                         addPkeyColumn=addPkeyColumn, locale=locale,
+                         addPkeyColumn=addPkeyColumn, locale=locale,_storename=None,
                          **kwargs)
         return query
             

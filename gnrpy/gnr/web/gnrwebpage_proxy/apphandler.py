@@ -269,7 +269,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def getRelatedRecord(self, from_fld=None, target_fld=None, pkg=None, pkey=None, ignoreMissing=True,
                              ignoreDuplicate=True,
                              js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                             sqlContextName=None, virtual_columns=None,_eager_level=0, **kwargs):
+                             sqlContextName=None, virtual_columns=None,_eager_level=0,_storename=None, **kwargs):
         """add???
         
         ``getRelatedRecord()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
@@ -296,7 +296,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         record, recInfo = self.getRecord(table=table, from_fld=from_fld, target_fld=target_fld, pkey=pkey,
                                              ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
                                              js_resolver_one=js_resolver_one, js_resolver_many=js_resolver_many,
-                                             sqlContextName=sqlContextName, virtual_columns=virtual_columns, 
+                                             sqlContextName=sqlContextName, virtual_columns=virtual_columns,_storename=_storename,
                                              _eager_level=_eager_level,**kwargs)
 
         if sqlContextName:
@@ -921,7 +921,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                       ignoreMissing=True, ignoreDuplicate=True, lock=False, readOnly=False,
                       from_fld=None, target_fld=None, sqlContextName=None, applymethod=None,
                       js_resolver_one='relOneResolver', js_resolver_many='relManyResolver',
-                      loadingParameters=None, default_kwargs=None, eager=None, virtual_columns=None,
+                      loadingParameters=None, default_kwargs=None, eager=None, virtual_columns=None,_storename=None,
                       _eager_level=0, onLoadingHandler=None,**kwargs):
         """add???
         
@@ -966,11 +966,11 @@ class GnrWebAppHandler(GnrBaseProxy):
             virtual_columns = virtual_columns.split(',') if virtual_columns else []
             vlist = tblobj.model.virtual_columns.items()
             virtual_columns.extend([k for k,v in vlist if v.attributes.get('always') or k in captioncolumns])
-            virtual_columns = ','.join(uniquify(virtual_columns or [])) 
+            virtual_columns = ','.join(uniquify(virtual_columns or []))
         rec = tblobj.record(eager=eager or self.page.eagers.get(dbtable),
                             ignoreMissing=ignoreMissing, ignoreDuplicate=ignoreDuplicate,
                             sqlContextName=sqlContextName, virtual_columns=virtual_columns, 
-                            storename=self.page.dbstore,**kwargs)
+                            _storename=_storename,**kwargs)
         if sqlContextName:
             self._joinConditionsFromContext(rec, sqlContextName)
 
@@ -982,7 +982,7 @@ class GnrWebAppHandler(GnrBaseProxy):
         newrecord = pkey == '*newrecord*'
         recInfo = dict(_pkey=pkey,
                        caption=tblobj.recordCaption(record, newrecord),
-                       _newrecord=newrecord, sqlContextName=sqlContextName,record_storename=self.page.dbstore)
+                       _newrecord=newrecord, sqlContextName=sqlContextName,_storename=_storename)
         #if lock and not newrecord:
         if not newrecord and not readOnly:
             recInfo['_protect_write'] = not tblobj.check_updatable(record)
@@ -1053,7 +1053,7 @@ class GnrWebAppHandler(GnrBaseProxy):
     def dbSelect(self, dbtable=None, columns=None, auxColumns=None, hiddenColumns=None, rowcaption=None,
                      _id=None, _querystring='', querystring=None, ignoreCase=True, exclude=None, excludeDraft=True,
                      condition=None, limit=None, alternatePkey=None, order_by=None, selectmethod=None,
-                     notnull=None, weakCondition=False,storename=None, **kwargs):
+                     notnull=None, weakCondition=False, _storename=None,**kwargs):
         """dbSelect is a :ref:`filteringselect` that takes the values through a :ref:`query` on the
         database: user can choose between all the values contained into the linked :ref:`table` (the
         table is specified through the *dbtable* attribute). While user write in the dbSelect, partially
@@ -1090,6 +1090,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                               there is no result for the condition then the condition will not
                               be used. The *selectmethod* attribute can be used to override this
                               attribute"""
+        self.db.use_store(_storename)
         resultClass = ''
         if selectmethod or not condition:
             weakCondition = False
@@ -1099,7 +1100,6 @@ class GnrWebAppHandler(GnrBaseProxy):
             limit = self.gnrapp.config.get('dbselect?limit', 10)
         limit = int(limit)
         result = Bag()
-        self.db.use_store(storename)
         tblobj = self.db.table(dbtable)
         captioncolumns = tblobj.rowcaptionDecode(rowcaption)[0]
         querycolumns = tblobj.getQueryFields(columns, captioncolumns)

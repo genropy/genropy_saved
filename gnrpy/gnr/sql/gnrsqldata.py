@@ -778,7 +778,7 @@ class SqlQuery(object):
                  relationDict=None, sqlparams=None, bagFields=False,
                  joinConditions=None, sqlContextName=None,
                  excludeLogicalDeleted=True,excludeDraft=True,
-                 addPkeyColumn=True, locale=None,
+                 addPkeyColumn=True, locale=None,_storename=None,
                  **kwargs):
         self.dbtable = dbtable
         self.sqlparams = sqlparams or {}
@@ -794,6 +794,7 @@ class SqlQuery(object):
         self.excludeDraft = excludeDraft
         self.addPkeyColumn = addPkeyColumn
         self.locale = locale
+        self.storename = _storename
         
         test = " ".join([v for v in (columns, where, order_by, group_by, having) if v])
         rels = set(re.findall('\$(\w*)', test))
@@ -855,7 +856,7 @@ class SqlQuery(object):
     def cursor(self):
         """Get a cursor of the current selection."""
         
-        return self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname)
+        return self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname,storename=self.storename)
         
     def fetch(self):
         """Get a cursor of the current selection and fetch it"""
@@ -978,7 +979,7 @@ class SqlQuery(object):
         
     def servercursor(self):
         """Get a cursor on dbserver"""
-        return self.db.execute(self.sqltext, self.sqlparams, cursorname='*')
+        return self.db.execute(self.sqltext, self.sqlparams, cursorname='*',storename=self.storename)
         
     def serverfetch(self, arraysize=30):
         """Get fetch of the :meth:`servercursor()` method.
@@ -1008,7 +1009,7 @@ class SqlQuery(object):
     def count(self):
         """Return rowcount. It does not save a selection"""
         compiledQuery = self.compileQuery(count=True)
-        cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname)
+        cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname,storename=self.storename)
         if isinstance(cursor, list):
             n = 0
             for c in cursor:
@@ -1872,7 +1873,7 @@ class SqlRecord(object):
                  ignoreMissing=False, ignoreDuplicate=False,
                  bagFields=True, for_update=False,
                  joinConditions=None, sqlContextName=None,
-                 virtual_columns=None,storename=None,
+                 virtual_columns=None,_storename=None,
                  **kwargs):
         self.dbtable = dbtable
         self.pkey = pkey
@@ -1891,7 +1892,8 @@ class SqlRecord(object):
         self.bagFields = bagFields
         self.for_update = for_update
         self.virtual_columns = virtual_columns
-        self.storename = storename
+        self.storename = _storename
+
         
     def setJoinCondition(self, target_fld, from_fld, condition, one_one=False, **kwargs):
         """add???
@@ -1943,7 +1945,7 @@ class SqlRecord(object):
             if self.pkey is not None:
                 params['pkey'] = self.pkey
                 #raise '%s \n\n%s' % (str(params), str(self.compiled.get_sqltext(self.db)))
-            cursor = self.db.execute(self.compiled.get_sqltext(self.db), params, dbtable=self.dbtable.fullname)
+            cursor = self.db.execute(self.compiled.get_sqltext(self.db), params, dbtable=self.dbtable.fullname,storename=self.storename)
             data = cursor.fetchall()
             if len(data) == 1:
                 self._result = data[0]
@@ -2087,13 +2089,13 @@ class SqlRecord(object):
                                              )
         else:
             value = None
-            if 'external_store' in joiner:
-                info['_external_store'] = joiner['external_store']
+            if 'storefield' in joiner:
+                info['_storefield'] = joiner['storefield']
             info['_resolver_name'] = resolver_one
             info['_sqlContextName'] = self.sqlContextName
             info['_auto_relation_value'] = mfld
             info['_virtual_columns'] = rel_vc
-            info['_dbstore'] = self.storename
+            info['_storename'] = self.storename
         return value,info
 
     def _loadRecord(self, result, sqlresult,fields, resolver_one=None, resolver_many=None):
