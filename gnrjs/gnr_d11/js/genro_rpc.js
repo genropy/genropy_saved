@@ -592,8 +592,10 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             'target_fld':params._target_fld,
             'sqlContextName':params._sqlContextName,
             'virtual_columns':params._virtual_columns,
-            'external_store':params._external_store,
             '_storename':params._storename};
+        if('_external_store' in params){
+             kwargs['external_store'] = params._external_store;
+        }
         kwargs.method = 'app.getRelatedRecord';
 
         var resolver = new gnr.GnrRemoteResolver(kwargs, isGetter, cacheTime);
