@@ -555,7 +555,7 @@ class GnrBaseWebPage(GnrObject):
             return ('delete_error', {'msg': e.message})
     
     @public_method    
-    def deleteDbRows(self, table, pkeys=None, **kwargs):
+    def deleteDbRows(self, table, pkeys=None, unlinkfield=None,**kwargs):
         """Method for deleting many records from a given table.
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -569,7 +569,12 @@ class GnrBaseWebPage(GnrObject):
             rows = tblobj.query(where='$%s IN :pkeys' %tblobj.pkey, pkeys=pkeys,
                                 for_update=True,addPkeyColumn=False).fetch()
             for r in rows:
-                tblobj.delete(r)
+                if unlinkfield:
+                    record = dict(r)
+                    record[unlinkfield] = None
+                    tblobj.update(record,r)
+                else:
+                    tblobj.delete(r)
             self.db.commit()
             
         except GnrSqlDeleteException, e:

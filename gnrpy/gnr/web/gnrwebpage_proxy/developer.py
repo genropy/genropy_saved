@@ -94,9 +94,9 @@ class GnrWebDeveloper(GnrBaseProxy):
                 if rownode:
                     xml_caption=rownode.attr['caption']
                     if not pkey in result:
-                        result.setItem(pkey,None,_pkey=pkey,xml_caption=xml_caption,_customClasses='mover_xml',objtype=objtype,table=table)
+                        result.setItem(pkey,None,_pkey=pkey,xml_caption=xml_caption,_customClasses='mover_xml',objtype=objtype,table=tablerow['reftable'])
                     else:
-                        result.getNode(pkey).attr.update(xml_caption=xml_caption,_customClasses='mover_both',objtype=objtype,table=table)
+                        result.getNode(pkey).attr.update(xml_caption=xml_caption,_customClasses='mover_both',objtype=objtype,table=tablerow['reftable'])
         return result
 
     def tarMover(self,movername='mover'):

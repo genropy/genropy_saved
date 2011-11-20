@@ -1236,7 +1236,7 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
          var cb = "this.store.onLoaded(result,_isFiredNode);";
          selectionStore._('callBack',{content:cb});
          var rpcNode = selectionStore.getParentNode();
-         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType};
+         var storeKw = {'identifier':identifier,'chunkSize':kw.row_count,'storeType':storeType,'unlinkdict':kw.unlinkdict};
          if('startLocked' in kw){
              storeKw.startLocked = kw.startLocked;
          }
@@ -1246,6 +1246,13 @@ dojo.declare("gnr.widgets.SelectionStore", gnr.widgets.gnrwdg, {
 });
 
 dojo.declare("gnr.stores._Collection",null,{
+    messages:{
+        delete_one : "You are going to delete the selected record. You can't undo this operation",
+        delete_many : "You are going to delete $count records. You can't undo this operation. Digit how many record you want delete",
+        unlink_one:"You are going remove the selected record from current $master",
+        unlink_many:"You are going discard the selected $count records from current $master"
+    },
+    
     constructor:function(node,kw){
         this.storeNode = node;
         this.storepath = this.storeNode.attr.storepath;
@@ -1293,18 +1300,23 @@ dojo.declare("gnr.stores._Collection",null,{
     deleteRows:function(pkeys){
         return;
     },
-    delete_onerow_msg : "You are going to delete the selected record. You can't undo this operation",
-    delete_manyrows_msg : "You are going to delete $count records. You can't undo this operation. Digit how many record you want delete",
-    
+
     deleteAsk:function(pkeys){        
         var count = pkeys.length;
         if(count==0){
             return;
         }
         var dlg = genro.dlg.quickDialog('Alert',{_showParent:true,width:'250px'});
-        var delete_manyrows_msg = this.delete_manyrows_msg.replace('$count',count);
-        var msg = count==1?this.delete_onerow_msg:delete_manyrows_msg;
-        dlg.center._('div',{innerHTML:msg, text_align:'center',height:'50px'});
+        var msg = count==1?'one':'many';
+        var del_type,master;
+        if(this.unlinkdict){
+            del_type = 'unlink';
+            master = this.unlinkdict.one_name;
+        }else{
+            del_type = 'delete';
+            master ='';
+        }
+        dlg.center._('div',{innerHTML:_T(this.messages[del_type+'_'+msg]).replace('$count',count).replace('$master',master), text_align:'center',height:'50px'});
         var that = this;
         var slotbar = dlg.bottom._('slotBar',{slots:'*,cancel,delete',
                                                 action:function(){
@@ -1686,7 +1698,8 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
 
     deleteRows:function(pkeys){
         var that = this;
-        genro.serverCall('deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table},function(result){
+        var unlinkfield = this.unlinkdict?this.unlinkdict.field:null;
+        genro.serverCall('deleteDbRows',{pkeys:pkeys,table:this.storeNode.attr.table,unlinkfield:unlinkfield},function(result){
             that.onDeletedRows(result);
         });
     },

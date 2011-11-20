@@ -567,6 +567,7 @@ class GnrWsgiSite(object):
         isRootstore = boolean(request_kwargs.pop('_rootstore_',None))
         if path_list and path_list[0] in self.dbstores:
             storename = path_list.pop(0)
+        
         if path_list and path_list[0] == '_rootstore_':
             isRootstore = True
             path_list.pop(0)
@@ -574,6 +575,8 @@ class GnrWsgiSite(object):
             path_list= self.get_path_list('')
         if isRootstore is True:
             storename = None
+        if '_storename' in request_kwargs:
+            storename = self.gnrapp.catalog.fromTypedText(request_kwargs.pop('_storename'))            
         if path_list and path_list[0] == '_ping':
             try:
                 self.log_print('kwargs: %s' % str(request_kwargs), code='PING')
@@ -598,12 +601,12 @@ class GnrWsgiSite(object):
             self.log_print('%s : kwargs: %s' % (path_list, str(request_kwargs)), code='RESOURCE')
             if self.debug:
                 try:
-                    page = self.resource_loader(path_list, request, response, environ=environ)
+                    page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
                 except httpexceptions.HTTPException, exc:
                     return exc.wsgi_application(environ, start_response)
             else:
                 try:
-                    page = self.resource_loader(path_list, request, response, environ=environ)
+                    page = self.resource_loader(path_list, request, response, environ=environ,request_kwargs=request_kwargs)
                 except httpexceptions.HTTPException, exc:
                     return exc.wsgi_application(environ, start_response)
                 except Exception, exc:

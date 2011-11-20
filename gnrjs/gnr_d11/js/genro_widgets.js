@@ -4545,7 +4545,10 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         } else {
             attributes.hasDownArrow = false;
         }
-        var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,condition,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition,storename');
+        var resolverAttrs = objectExtract(attributes, 'method,dbtable,columns,limit,condition,alternatePkey,auxColumns,hiddenColumns,rowcaption,order_by,selectmethod,weakCondition');
+        if(sourceNode.attr._storename){
+            resolverAttrs._storename = sourceNode.attr._storename;
+        }
         var selectedColumns = objectExtract(attributes, 'selected_*');
         if (objectNotEmpty(selectedColumns)) {
             var hiddenColumns;

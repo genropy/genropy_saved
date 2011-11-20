@@ -40,11 +40,13 @@ class TableHandler(BaseComponent):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
-                                                    default_kwargs=default_kwargs,**kwargs)
+                                                    default_kwargs=default_kwargs,original_kwargs=kwargs)
         tableCode = table.replace('.','_')
         th_root = self._th_mangler(pane,table,nodeId=nodeId)
         viewCode='V_%s' %th_root
         formCode='F_%s' %th_root
+        
+        unlinkdict = kwargs.pop('store_unlinkdict',None)
         wdg = pane.child(tag=tag,datapath=datapath or '.%s'%tableCode,
                         thlist_root=viewCode,
                         thform_root=formCode,
@@ -59,7 +61,7 @@ class TableHandler(BaseComponent):
         wdg.tableViewer(frameCode=viewCode,th_pkey=th_pkey,table=table,pageName=pageName,viewResource=viewResource,
                                 virtualStore=virtualStore,extendedQuery=extendedQuery,top_slots=top_slots,lockable=lockable,
                                 configurable=configurable,
-                                condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs) 
+                                condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs,unlinkdict=unlinkdict) 
         hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
         wdg.dataController("""
                             var currform = this.getFormHandler();

@@ -28,7 +28,7 @@ class TableHandlerView(BaseComponent):
         condition = condition or resourceCondition.pop('condition',None)
         condition_kwargs.update(dictExtract(resourceCondition,'condition_'))
         if relation:
-            table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,condition_kwargs=condition_kwargs,**kwargs)             
+            table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,condition_kwargs=condition_kwargs,original_kwargs=kwargs)             
         view = pane.thFrameGrid(frameCode=frameCode,th_root=frameCode,th_pkey=th_pkey,table=table,
                                  virtualStore=virtualStore,
                                  condition=condition,condition_kwargs=condition_kwargs,**kwargs)
@@ -44,7 +44,7 @@ class TableHandlerView(BaseComponent):
     @extract_kwargs (top=True)
     @struct_method
     def th_thFrameGrid(self,pane,frameCode=None,table=None,th_pkey=None,virtualStore=None,extendedQuery=None,
-                       top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,**kwargs):
+                       top_kwargs=None,condition=None,condition_kwargs=None,grid_kwargs=None,configurable=True,unlinkdict=None,**kwargs):
         extendedQuery = virtualStore and extendedQuery
         condition_kwargs = condition_kwargs
         if condition:
@@ -52,8 +52,10 @@ class TableHandlerView(BaseComponent):
         top_kwargs=top_kwargs or dict()
         if extendedQuery:
             base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceMails','resourceActions','5','templateManager','*','count','5']
-        else:
+        elif not virtualStore:
             base_slots = ['5','vtitle','count','*','searchOn']
+        else:
+            base_slots = ['5','vtitle','count']
         base_slots = ','.join(base_slots)
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
@@ -69,7 +71,7 @@ class TableHandlerView(BaseComponent):
             frame.left.viewConfigurator(table,frameCode)                         
         self._th_viewController(frame,table=table)
         frame.gridPane(table=table,th_pkey=th_pkey,virtualStore=virtualStore,
-                        condition=condition_kwargs)
+                        condition=condition_kwargs,unlinkdict=unlinkdict)
         return frame
         
     @struct_method
@@ -250,7 +252,7 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_gridPane(self, frame,table=None,th_pkey=None,
-                        virtualStore=None,condition=None):
+                        virtualStore=None,condition=None,unlinkdict=None):
         table = table or self.maintable
         th_root = frame.getInheritedAttributes()['th_root']
         sortedBy=self._th_hook('order',mangler=th_root)()
@@ -309,6 +311,7 @@ class TableHandlerView(BaseComponent):
                                excludeDraft='=.excludeDraft',
                                applymethod=self._th_hook('applymethod',dflt=None,mangler=frame),
                                timeout=180000, selectmethod='=.query.queryAttributes.selectmethod',
+                               unlinkdict=unlinkdict,
                                _onCalling=""" 
                                %s
                               

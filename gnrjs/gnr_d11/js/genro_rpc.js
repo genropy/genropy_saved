@@ -591,12 +591,19 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var kwargs = { 'sync':sync,'from_fld':params._from_fld,
             'target_fld':params._target_fld,
             'sqlContextName':params._sqlContextName,
-            'virtual_columns':params._virtual_columns};
+            'virtual_columns':params._virtual_columns,
+            '_storename':params._storename};
+        if('_external_store' in params){
+             kwargs['external_store'] = params._external_store;
+        }
         kwargs.method = 'app.getRelatedRecord';
 
         var resolver = new gnr.GnrRemoteResolver(kwargs, isGetter, cacheTime);
         resolver.updateAttr = true;
         resolver.onloading = function(kwargs) {
+            if(kwargs.external_store){
+                kwargs['_storename'] = this.getParentNode().getParentBag().getItem(kwargs['external_store']);
+            }
             var target = kwargs.target_fld.split('.');
             var table = target[0] + '_' + target[1];
             var loadingParameters = genro.getData('gnr.tables.' + table + '.loadingParameters');

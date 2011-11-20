@@ -1872,7 +1872,7 @@ class SqlRecord(object):
                  ignoreMissing=False, ignoreDuplicate=False,
                  bagFields=True, for_update=False,
                  joinConditions=None, sqlContextName=None,
-                 virtual_columns=None,
+                 virtual_columns=None,storename=None,
                  **kwargs):
         self.dbtable = dbtable
         self.pkey = pkey
@@ -1891,6 +1891,7 @@ class SqlRecord(object):
         self.bagFields = bagFields
         self.for_update = for_update
         self.virtual_columns = virtual_columns
+        self.storename = storename
         
     def setJoinCondition(self, target_fld, from_fld, condition, one_one=False, **kwargs):
         """add???
@@ -2086,10 +2087,13 @@ class SqlRecord(object):
                                              )
         else:
             value = None
+            if 'external_store' in joiner:
+                info['_external_store'] = joiner['external_store']
             info['_resolver_name'] = resolver_one
             info['_sqlContextName'] = self.sqlContextName
             info['_auto_relation_value'] = mfld
             info['_virtual_columns'] = rel_vc
+            info['_storename'] = self.storename
         return value,info
 
     def _loadRecord(self, result, sqlresult,fields, resolver_one=None, resolver_many=None):
