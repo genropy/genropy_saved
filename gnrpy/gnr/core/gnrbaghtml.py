@@ -364,7 +364,8 @@ class BagToHtml(object):
         return self.field(path, root=self.rowData, **kwargs)
         
     def rowCell(self, field=None, value=None, default=None, locale=None,
-                format=None, mask=None, currency=None, **kwargs):
+                format=None, mask=None, currency=None,white_space='nowrap', **kwargs):
+                
         """Allow to get data from record. You can use it in the :meth:`prepareRow` method
         
         :param field: the name of the table :ref:`column`
@@ -374,6 +375,7 @@ class BagToHtml(object):
         :param format: the format of the cell (e.g: use ``HH:mm``)
         :param mask: add???
         :param currency: add???"""
+        
         if field:
             if callable(field):
                 value = field()
@@ -387,7 +389,7 @@ class BagToHtml(object):
             #    print self.grid_col_widths[self.currColumn]
             value = self.toText(value, locale, format, mask, self.encoding)
             self.currRow.cell(value, width=self.grid_col_widths[self.currColumn], overflow='hidden',
-                              white_space='nowrap', **kwargs)
+                              white_space=white_space, **kwargs)
         self.currColumn = self.currColumn + 1
         return value
 
