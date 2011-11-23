@@ -578,7 +578,7 @@ class TableHandlerMain(BaseComponent):
 
     def _usePublicBottomMessage(self,form):
         form.attributes['hasBottomMessage'] = False
-        form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
+        form.dataController('genro.bp(arguments); PUBLISH pbl_bottomMsg = _subscription_kwargs;',formsubscribe_message=True)
         
     def rpc_view(self,root,**kwargs):
         pass

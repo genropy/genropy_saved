@@ -637,7 +637,11 @@ class SqlTable(GnrObject):
         if not hasattr(record, 'keys'):
             record = {self.pkey: record}
         return self.db.adapter.existsRecord(self, record)
-        
+    
+    def checkDuplicate(self,**kwargs):
+        where = ' AND '.join(['$%s=:%s' % (k, k) for k in kwargs.keys()])
+        return self.query(where=where,**kwargs).count()>0
+    
     def insertOrUpdate(self, record):
         """Insert a single record if it doesn't exist, else update it
         

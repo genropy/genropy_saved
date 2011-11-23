@@ -1190,10 +1190,15 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
     slot_messageBox:function(pane,slotValue,slotKw,frameCode){        
         var mbKw = objectUpdate({duration:1000,delay:2000},slotKw);
         var subscriber = objectPop(mbKw,'subscribeTo');
+        var default_delay = objectPop(mbKw,'delay');
+        var default_duration= objectPop(mbKw,'duration');
+
         mbKw['subscribe_'+subscriber] = function(){
              var kwargs = arguments[0];
              var domNode = this.domNode;
              var sound = objectPop(kwargs,'sound');
+             var duration = objectPop(kwargs,'duration') || default_duration;
+             var delay = objectPop(kwargs,'delay') || default_delay;
              if(sound){
                  genro.playSound(sound);
              }
@@ -1203,7 +1208,9 @@ dojo.declare("gnr.widgets.SlotBar", gnr.widgets.gnrwdg, {
              genro.dom.style(msgnode,kwargs);
              domNode.appendChild(msgnode);
              var customOnEnd = kwargs.onEnd;
-             genro.dom.effect(domNode,'fadeout',{duration:objectPop(mbKw,'duration'),delay:objectPop(mbKw,'delay'),onEnd:function(){domNode.innerHTML=null;if(customOnEnd){customOnEnd();}}});
+             genro.dom.effect(domNode,'fadeout',{duration:duration,delay:delay,
+                                onEnd:function(){
+                                    domNode.innerHTML=null;if(customOnEnd){customOnEnd();}}});
         };
         pane._('span',mbKw);
     }

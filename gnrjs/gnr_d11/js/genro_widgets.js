@@ -543,10 +543,18 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             validateresult = sourceNode.validationsOnChange(sourceNode, value);
             value = validateresult['value'];
             objectExtract(valueAttr, '_validation*');
+            var formHandler = sourceNode.getFormHandler();
+            var fldname = datanode.attr.name_long || datanode.label;
             if (validateresult['error']) {
                 valueAttr._validationError = validateresult['error'];
+                if(validateresult.error){
+                    formHandler.publish('message',{message:fldname+': '+validateresult.error,sound:'$onerror',color:'#FF260A',font_size:'1.1em',font_weight:'bold'});
+                }
             }
             if (validateresult['warnings'].length) {
+                if(validateresult.warnings){
+                    formHandler.publish('message',{message:fldname+': '+validateresult.warnings.join(','),sound:'$onwarning',color:'orange',font_size:'1.1em',font_weight:'bold'});
+                }
                 valueAttr._validationWarnings = validateresult['warnings'];
             }
 

@@ -235,6 +235,9 @@ dojo.declare("gnr.GnrDomSourceNode", gnr.GnrBagNode, {
                     argValues.push(subscription_args[0][k]);
                     kwargs[k] = subscription_args[0][k];
                 }
+                argNames.push('_subscription_kwargs');
+                argValues.push(subscription_args[0]);
+                kwargs['_subscription_kwargs'] = subscription_args[0];
             }
         }
         var val;
