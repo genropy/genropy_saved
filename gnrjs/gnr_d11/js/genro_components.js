@@ -1347,6 +1347,8 @@ dojo.declare("gnr.stores._Collection",null,{
         dlg.show_action();
     },
     
+    onCounterChanges:function(counterField,changes){},
+    
     getData:function(){
         return this.storeNode.getRelativeData(this.storepath) || new gnr.GnrBag();
     },
@@ -1589,6 +1591,11 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         }
 
     },
+    
+    onCounterChanges:function(counterField,changes){
+        genro.serverCall('app.counterFieldChanges',{table:this.storeNode.attr.table,counterField:counterField,changes:changes});
+    },
+    
     linkedGrids:function(){
         var result = [];
         var storeCode;

@@ -3796,8 +3796,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             };
         }
         storebag.forEach(cb, 'static');
+        
         if(changes.length>0){
-            this.sourceNode.publish('counterChanges',{'changes':serializableChanges,'table':this.sourceNode.attr.table});
+            var collectionStore = this.collectionStore;
+            if(collectionStore){
+                this.collectionStore().onCounterChanges(counterField,serializableChanges);
+            }else{
+                this.sourceNode.publish('counterChanges',{'changes':serializableChanges,'table':this.sourceNode.attr.table});
+            }
         }
         return changes;
     },

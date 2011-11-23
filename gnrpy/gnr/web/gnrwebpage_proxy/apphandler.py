@@ -603,6 +603,17 @@ class GnrWebAppHandler(GnrBaseProxy):
                 break
         return needUpdate
     
+    @public_method
+    def counterFieldChanges(self,table=None,counterField=None,changes=None):
+        updaterDict = dict([(d['_pkey'],d['new']) for d in changes] )
+        pkeys = updaterDict.keys()
+        tblobj = self.db.table(table)
+        def cb(r):
+            r[counterField] = updaterDict[r['id']]
+        tblobj.batchUpdate(cb, where='$%s IN:pkeys' %tblobj.pkey, pkeys=pkeys)
+        self.db.commit()
+        
+    
     @public_method               
     def getSelection(self, table='', distinct=False, columns='', where='', condition=None,
                          order_by=None, limit=None, offset=None, group_by=None, having=None,
