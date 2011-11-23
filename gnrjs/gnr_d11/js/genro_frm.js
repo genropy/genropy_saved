@@ -196,10 +196,13 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.publish('navigationEvent',{'command':'dismiss',modifiers:modifiers});
     },
     resetChanges: function() {
-        this.getFormData().subscribe('dataLogger',{'upd':dojo.hitch(this, "triggerUPD"),
+        var formData = this.getFormData();
+        if(formData){
+            formData.subscribe('dataLogger',{'upd':dojo.hitch(this, "triggerUPD"),
                                                    'ins':dojo.hitch(this, "triggerINS"),
                                                    'del':dojo.hitch(this, "triggerDEL")
                                                   });
+        }
         this.resetChangesLogger();
     },
 
