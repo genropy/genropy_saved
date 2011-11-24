@@ -639,6 +639,7 @@ class SqlTable(GnrObject):
         return self.db.adapter.existsRecord(self, record)
     
     def checkDuplicate(self,**kwargs):
+        """TODO"""
         where = ' AND '.join(['$%s=:%s' % (k, k) for k in kwargs.keys()])
         return self.query(where=where,**kwargs).count()>0
     

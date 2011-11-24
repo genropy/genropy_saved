@@ -32,26 +32,26 @@
     This class has a consistent number of methods. They are listed here in alphabetical order.
     
     ========================= ============================== ============================= ===========================
-    :meth:`attributes`        :meth:`diagnostic_errors`      :meth:`newPkeyValue`          :meth:`relations_one`      
-    :meth:`baseViewColumns`   :meth:`diagnostic_warnings`    :meth:`newrecord`             :meth:`rowcaption`         
-    :meth:`batchUpdate`       :meth:`empty`                  :meth:`noChangeMerge`         :meth:`rowcaptionDecode`   
-    :meth:`buildrecord`       :meth:`exception`              :meth:`onInited`              :meth:`sqlWhereFromBag`    
-    :meth:`buildrecord_`      :meth:`existsRecord`           :meth:`onIniting`             :meth:`sql_deleteSelection`
-    :meth:`checkPkey`         :meth:`exportToAuxInstance`    :meth:`pkey`                  :meth:`touchRecords`       
-    :meth:`check_deletable`   :meth:`frozenSelection`        :meth:`pkg`                   :meth:`trigger_onDeleted`         
-    :meth:`check_updatable`   :meth:`fullRelationPath`       :meth:`protect_delete`        :meth:`trigger_onDeleting`   
-    :meth:`colToAs`           :meth:`getColumnPrintWidth`    :meth:`protect_update`        :meth:`trigger_onInserted`    
-    :meth:`column`            :meth:`getQueryFields`         :meth:`protect_validate`      :meth:`trigger_onInserting`
-    :meth:`columns`           :meth:`getResource`            :meth:`query`                 :meth:`trigger_onUpdated`       
-    :meth:`columnsFromString` :meth:`importFromAuxInstance`  :meth:`readColumns`           :meth:`trigger_onUpdating`             
+    :meth:`attributes`        :meth:`deleteSelection`        :meth:`model`                 :meth:`relations_many`      
+    :meth:`baseViewColumns`   :meth:`diagnostic_errors`      :meth:`newPkeyValue`          :meth:`relations_one`      
+    :meth:`batchUpdate`       :meth:`diagnostic_warnings`    :meth:`newrecord`             :meth:`rowcaption`         
+    :meth:`buildrecord`       :meth:`empty`                  :meth:`noChangeMerge`         :meth:`rowcaptionDecode`   
+    :meth:`buildrecord_`      :meth:`exception`              :meth:`onInited`              :meth:`sqlWhereFromBag`    
+    :meth:`checkPkey`         :meth:`existsRecord`           :meth:`onIniting`             :meth:`sql_deleteSelection`
+    :meth:`check_deletable`   :meth:`exportToAuxInstance`    :meth:`pkey`                  :meth:`touchRecords`              
+    :meth:`check_updatable`   :meth:`frozenSelection`        :meth:`pkg`                   :meth:`trigger_onDeleted`    
+    :meth:`checkDuplicate`    :meth:`fullRelationPath`       :meth:`protect_delete`        :meth:`trigger_onDeleting`    
+    :meth:`colToAs`           :meth:`getColumnPrintWidth`    :meth:`protect_update`        :meth:`trigger_onInserted` 
+    :meth:`column`            :meth:`getQueryFields`         :meth:`protect_validate`      :meth:`trigger_onInserting`     
+    :meth:`columns`           :meth:`getResource`            :meth:`query`                 :meth:`trigger_onUpdated`              
+    :meth:`columnsFromString` :meth:`importFromAuxInstance`  :meth:`readColumns`           :meth:`trigger_onUpdating` 
     :meth:`copyToDb`          :meth:`importFromXmlDump`      :meth:`record`                :meth:`touchRecords`       
     :meth:`copyToDbstore`     :meth:`indexes`                :meth:`recordAs`              :meth:`update`             
     :meth:`db`                :meth:`insert`                 :meth:`recordCaption`         :meth:`touchRecords`       
     :meth:`dbroot`            :meth:`insertOrUpdate`         :meth:`recordCoerceTypes`     :meth:`writeRecordCluster` 
     :meth:`defaultValues`     :meth:`lastTS`                 :meth:`relationExplorer`      :meth:`xmlDebug`
     :meth:`delete`            :meth:`lock`                   :meth:`relationName`          :meth:`xmlDump`            
-    :meth:`deleteRelated`     :meth:`logicalDeletionField`   :meth:`relations`          
-    :meth:`deleteSelection`   :meth:`model`                  :meth:`relations_many`     
+    :meth:`deleteRelated`     :meth:`logicalDeletionField`   :meth:`relations`             
     ========================= ============================== ============================= ===========================
     
 .. _gnrsqltable_gnrsqlsaveexception:

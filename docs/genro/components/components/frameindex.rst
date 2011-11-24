@@ -117,12 +117,6 @@ inside the GnrCustomWebPage: the FrameIndex
        For the complete list of all the webpage elements, check the :ref:`next <fi_webpages_variables>`
        section.
        
-    #. The last thing you must define is a method of the GnrCustomWebPage: the
-       :meth:`~gnr.web._gnrbasewebpage.GnrBaseWebPage.pageAuthTags` method::
-       
-           def pageAuthTags(self, method=None, **kwargs):
-               return 'user'
-               
     #. You can optionally define the :meth:`~gnr.web._gnrbasewebpage.GnrBaseWebPage.windowTitle`
        method::
        
@@ -209,9 +203,6 @@ index_url example
             
             def windowTitle(self):
                 return '!!Invoice'
-                
-            def pageAuthTags(self, method=None, **kwargs):
-                return 'user'
                 
     In particular, we set::
     
