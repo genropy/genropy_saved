@@ -117,13 +117,13 @@ inside the GnrCustomWebPage: the FrameIndex
        For the complete list of all the webpage elements, check the :ref:`next <fi_webpages_variables>`
        section.
        
-    #. The last thing you must define is a method of the GnrCustomWebPage: the :meth:`pageAuthTags
-       <gnr.web._gnrbasewebpage.GnrBaseWebPage.pageAuthTags>` method::
+    #. The last thing you must define is a method of the GnrCustomWebPage: the
+       :meth:`~gnr.web._gnrbasewebpage.GnrBaseWebPage.pageAuthTags` method::
        
            def pageAuthTags(self, method=None, **kwargs):
                return 'user'
                
-    #. You can optionally define the :meth:`windowTitle <gnr.web._gnrbasewebpage.GnrBaseWebPage.windowTitle>`
+    #. You can optionally define the :meth:`~gnr.web._gnrbasewebpage.GnrBaseWebPage.windowTitle`
        method::
        
            def windowTitle(self):
@@ -186,7 +186,7 @@ FrameIndex webpage variables
       as a first button of the ``pages buttons`` in the :ref:`fi_topbar` of the FrameIndex page
     * *hideLeftPlugins*: boolean. If ``True``, allow to start a page with the :ref:`fi_leftbar`
       hidden. By default it is ``False``
-    * *preferenceTags*: add??? By default it is ``admin``
+    * *preferenceTags*: TODO By default it is ``admin``
     
 .. _fi_examples:
 
@@ -327,7 +327,7 @@ chat plug-in
 
     This frame includes the GUI of the :ref:`chat` component
     
-    add??? "fi_left_chat.png"
+    TODO "fi_left_chat.png"
     
 .. _fi_iframe:
 
@@ -358,5 +358,5 @@ user preference
 
     .. image:: ../../_images/components/frameindex/userpreference.png
     
-    add???
+    TODO
     

@@ -26,7 +26,7 @@ introduction
     
     On Windows::
     
-        add???
+        TODO
         
 .. _gnr_section_index:
 
@@ -35,6 +35,7 @@ section index
 
 .. toctree::
     :maxdepth: 2
+    :numbered:
     
     basic_structure
     environment

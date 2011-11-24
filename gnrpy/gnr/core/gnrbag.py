@@ -151,7 +151,7 @@ class BagNode(object):
             return False
             
     def setValidators(self, validators):
-        """add???"""
+        """TODO"""
         for k, v in validators.items():
             self.addValidator(k, v)
             
@@ -209,7 +209,7 @@ class BagNode(object):
         """Set the node's value, unless the node is locked. This method is called by the property .value
         
         :param value: the value to set the new bag inherits the trigger of the parentBag and calls it sending an update event
-        :param trigger: boolean. add???
+        :param trigger: boolean. TODO
         """
         if self.locked:
             raise BagNodeException("Locked node %s" % self.label)
@@ -269,7 +269,7 @@ class BagNode(object):
     resolver = property(_get_resolver, _set_resolver)
         
     def resetResolver(self):
-        """add???"""
+        """TODO"""
         self._resolver.reset()
         self.setValue(None)
         
@@ -284,7 +284,7 @@ class BagNode(object):
         return self.attr.get(label, default)
         
     def getInheritedAttributes(self):
-        """add???"""
+        """TODO"""
         inherited = {}
         if self.parentbag:
             if self.parentbag.parentNode:
@@ -303,7 +303,7 @@ class BagNode(object):
         and sets them as attributes of the node.
             
         :param attr: the attribute that should be set into the node
-        :param trigger: add???
+        :param trigger: TODO
         """
         if not _updattr:
             self.attr.clear()
@@ -341,7 +341,7 @@ class BagNode(object):
         return 'BagNode : %s at %i' % (self.label, id(self))
 
     def asTuple(self):
-        """add???"""
+        """TODO"""
         return (self.label, self.value, self.attr, self.resolver)
 
     def addValidator(self, validator, parameterString):
@@ -356,24 +356,24 @@ class BagNode(object):
         self._validators.add(validator, parameterString)
 
     def removeValidator(self, validator):
-        """add???"""
+        """TODO"""
         if not self._validators is None:
             self._validators.remove(validator)
 
     def getValidatorData(self, validator, label=None, dflt=None):
-        """add???"""
+        """TODO"""
         if not self._validators is None:
             return self._validators.getdata(validator, label=label, dflt=dflt)
 
     def subscribe(self, subscriberId, callback):
-        """add???
+        """TODO
         
-        :param subscriberId: add???
-        :param callback: add???"""
+        :param subscriberId: TODO
+        :param callback: TODO"""
         self._node_subscribers[subscriberId] = callback
 
     def unsubscribe(self, subscriberId):
-        """add???"""
+        """TODO"""
         self._node_subscribers.pop(subscriberId)
         
 #-------------------- Class Bag --------------------------------
@@ -594,9 +594,9 @@ class Bag(GnrObject):
         return result
         
     def sort(self, pars='#k:a'):
-        """add???
+        """TODO
         
-        :param pars: add??? None: label ascending"""
+        :param pars: TODO None: label ascending"""
         if not isinstance(pars, basestring):
             self._nodes.sort(pars)
         else:
@@ -622,9 +622,9 @@ class Bag(GnrObject):
         return self
         
     def sum(self, what='#v'):
-        """add???
+        """TODO
         
-        :param what: add???"""
+        :param what: TODO"""
         if ',' in what:
             result = []
             wlist = what.split(',')
@@ -635,11 +635,11 @@ class Bag(GnrObject):
             return sum(map(lambda n: n or 0, self.digest(what)))
             
     def get(self, label, default=None, mode=None):
-        """add???
+        """TODO
         
         :param label: the :ref:`bag`'s label
-        :param default: add???
-        :param mode: add???"""
+        :param default: TODO
+        :param mode: TODO"""
         result = None
         currnode = None
         currvalue = None
@@ -682,7 +682,7 @@ class Bag(GnrObject):
         
         :param pathlist: list of nodes' labels
         :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist
-        :param returnLastMatch: boolean. add???"""
+        :param returnLastMatch: boolean. TODO"""
         curr = self
         if isinstance(pathlist, basestring):
             orpa=pathlist
@@ -782,7 +782,7 @@ class Bag(GnrObject):
         """Call the __str__ method, and return an ascii encoded formatted representation of the Bag
         
         :param encoding: the encoding type
-        :param mode: add???"""
+        :param mode: TODO"""
         return self.__str__(mode=mode).encode(encoding, 'ignore')
 
     def keys(self):
@@ -806,17 +806,17 @@ class Bag(GnrObject):
         return [(x.label, x.value) for x in self._nodes]
         
     def iteritems(self):
-        """add???"""
+        """TODO"""
         for x in self._nodes:
             yield (x.label, x.value)
             
     def iterkeys(self):
-        """add???"""
+        """TODO"""
         for x in self._nodes:
             yield x.label
             
     def itervalues(self):
-        """add???"""
+        """TODO"""
         for x in self._nodes:
             yield x.value
             
@@ -845,7 +845,7 @@ class Bag(GnrObject):
             +------------------------+----------------------------------------------------------------------+
             
         :param condition: set a :ref:`sql_condition` for digest process
-        :param asColumns: add???
+        :param asColumns: TODO
             
             >>> b=Bag()
             >>> b.setItem('documents.letters.letter_to_mark','file0',createdOn='10-7-2003',createdBy= 'Jack')
@@ -907,10 +907,10 @@ class Bag(GnrObject):
         return zip(*result)
         
     def columns(self, cols, attrMode=False):
-        """add???
+        """TODO
         
-        :param cols: add???
-        :param attrMode: boolean. add???"""
+        :param cols: TODO
+        :param attrMode: boolean. TODO"""
         if isinstance(cols, basestring):
             cols = cols.split(',')
         mode = ''
@@ -958,7 +958,7 @@ class Bag(GnrObject):
         a Bag at the relative path and returns it
         
         :param path: path of the given item
-        :param dflt: add???
+        :param dflt: TODO
         
         >>> b = Bag()
         >>> b.setItem('a',1)
@@ -1004,7 +1004,7 @@ class Bag(GnrObject):
         overwriting all the existing keys. Return ``None``
         
         :param otherbag: the Bag to merge into
-        :param resolved: add???"""
+        :param resolved: TODO"""
         if isinstance(otherbag, dict):
             for k, v in otherbag.items():
                 self.setItem(k, v)
@@ -1262,14 +1262,14 @@ class Bag(GnrObject):
             return default
 
     def delAttr(self, path=None, attr=None):
-        """add???
+        """TODO
         
         :param path: the path of the BagNode.
         :param attr: the name of the attribute to delete"""
         return self.getNode(path).delAttr(attr)
     
     def getInheritedAttributes(self):
-        """add???"""
+        """TODO"""
         if self.parentNode:
             return self.parentNode.getInheritedAttributes()
         else:
@@ -1297,8 +1297,8 @@ class Bag(GnrObject):
     def asDict(self, ascii=False, lower=False):
         """Convert a Bag in a Dictionary and return it.
         
-        :param ascii: boolean. add???
-        :param lower: boolean. add???
+        :param ascii: boolean. TODO
+        :param lower: boolean. TODO
         
         .. note:: If you attempt to transform a hierarchical bag to a dictionary, the resulting dictionary will contain
                   nested bags as values. In other words only the first level of the Bag is transformed to a dictionary,
@@ -1312,10 +1312,10 @@ class Bag(GnrObject):
         return result
 
     def asDictDeeply(self, ascii=False, lower=False):
-        """add???
+        """TODO
         
-        :param ascii: boolean. add???
-        :param lower: boolean. add???"""
+        :param ascii: boolean. TODO
+        :param lower: boolean. TODO"""
         d = self.asDict(ascii=ascii, lower=lower)
         for k, v in d.items():
             if isinstance(v, Bag):
@@ -1410,7 +1410,7 @@ class Bag(GnrObject):
                           
         :param _duplicate: boolean. Specify if a node with an existing path overwrite the value or
                            append to it the new one
-        :param _updattr: boolean. add???
+        :param _updattr: boolean. TODO
         :param _validators: specify the value's validators to set
         :param _removeNullAttributes: boolean. If ``True``, remove the null attributes
         :param \*\*kwargs: attributes AND/OR validators
@@ -1564,7 +1564,7 @@ class Bag(GnrObject):
         tree-leaf model: a Bag can have only one Parent and it knows this reference
         
         :param node: the parent node
-        :param parent: add???"""
+        :param parent: TODO"""
         if self.backref != True:
             self._backref = True
             self.parent = parent
@@ -1711,11 +1711,11 @@ class Bag(GnrObject):
         return result
         
     def setCallable(self, name, argstring=None, func='pass'):
-        """add???
+        """TODO
         
-        :param name: add???
-        :param argstring: add???
-        :param func: add???"""
+        :param name: TODO
+        :param argstring: TODO
+        :param func: TODO"""
         setCallable(self, name, argstring=argstring, func=func)
         
     #-------------------- toXml --------------------------------
@@ -1736,15 +1736,15 @@ class Bag(GnrObject):
         :param encoding: set the XML encoding
         :param typeattrs: boolean. If ``True``, keep the attribute's types
         :param typevalue: boolean. If ``True``, keep the value's type
-        :param unresolved: boolean. add???
-        :param addBagTypeAttr: boolean. add???
+        :param unresolved: boolean. TODO
+        :param addBagTypeAttr: boolean. TODO
         :param autocreate: boolean. If ``True``, it creates all the not existing nodes of the pathlist
-        :param translate_cb: add???
-        :param self_closed_tags: add???
-        :param omitUnknownTypes: boolean. add???
-        :param catalog: add???
+        :param translate_cb: TODO
+        :param self_closed_tags: TODO
+        :param omitUnknownTypes: boolean. TODO
+        :param catalog: TODO
         :param omitRoot: boolean. If ``False``, add the ``<GenRoBag>`` tag root
-        :param forcedTagAttr: add???
+        :param forcedTagAttr: TODO
         :param docHeader: set an header tag external the ``<GenRoBag>`` tag
         
         >>> mybag=Bag()
@@ -1871,9 +1871,9 @@ class Bag(GnrObject):
         """Fill a Bag with values read from an XML string or file or URL
         
         :param source: the XML source to be loaded in the Bag
-        :param catalog: add???
-        :param bagcls: add???
-        :param empty: add???"""
+        :param catalog: TODO
+        :param bagcls: TODO
+        :param empty: TODO"""
         source, fromFile, mode = self._sourcePrepare(source)
         self._nodes[:] = self._fromXml(source, fromFile, catalog=catalog,
                                        bagcls=bagcls, empty=empty)
@@ -1903,7 +1903,7 @@ class Bag(GnrObject):
     def getIndexList(self, asText=False):
         """Return the Bag index as a plan list of the Nodes paths
         
-        :param asText: add???"""
+        :param asText: TODO"""
         l = self.getIndex()
         l = ['.'.join(x) for x, y in l]
         if asText:
@@ -1942,7 +1942,7 @@ class Bag(GnrObject):
         """Set a function at inserting events. It is called from the trigger system
         
         :param node: The node inserted
-        :param ind: add???
+        :param ind: TODO
         :param pathlist: it includes the Bag subscribed's path linked to the node
                          where the event was catched"""
         parent = node.parentbag
@@ -1960,7 +1960,7 @@ class Bag(GnrObject):
         """This method is called from the trigger system and set a function at deleting events
         
         :param node: The node inserted
-        :param ind: add???
+        :param ind: TODO
         :param pathlist: it includes the Bag subscribed's path linked to the node
                          where the event was catched"""
         for s in self._del_subscribers.values():
@@ -2013,17 +2013,17 @@ class Bag(GnrObject):
     def setCallBackItem(self, path, callback, **kwargs):
         """An alternative syntax for a :class:`BagCbResolver` call
         
-        :param path: add???
-        :param callback: add???"""
+        :param path: TODO
+        :param callback: TODO"""
         resolver = BagCbResolver(callback, **kwargs)
         self.setItem(path, resolver, **kwargs)
         
     def cbtraverse(self, pathlist, callback, result=None, **kwargs):
-        """add???
+        """TODO
         
-        :param pathlist: add???
-        :param callback: add???
-        :param result: add???"""
+        :param pathlist: TODO
+        :param callback: TODO
+        :param result: TODO"""
         if result is None:
             result = []
         if isinstance(pathlist, basestring):
@@ -2038,10 +2038,10 @@ class Bag(GnrObject):
         return result
         
     def findNodeByAttr(self, attr, value):
-        """add???
+        """TODO
         
-        :param attr: add???
-        :param value: add???"""
+        :param attr: TODO
+        :param value: TODO"""
         def f(node):
             if node.getAttr(attr) == value:
                 return node
@@ -2049,9 +2049,9 @@ class Bag(GnrObject):
         return self.walk(f)
         
     def filter(self, cb, _mode='static', **kwargs):
-        """add???
+        """TODO
         
-        :param cb: add???
+        :param cb: TODO
         """
         result=Bag()
         for node in self.nodes:
@@ -2082,7 +2082,7 @@ class Bag(GnrObject):
                 return result
 
     def traverse(self):
-        """add???"""
+        """TODO"""
         for node in self.nodes:
             yield node
             value = node.getStaticValue()
@@ -2091,7 +2091,7 @@ class Bag(GnrObject):
                     yield node
 
     def rowchild(self, childname='R_#', _pkey=None, **kwargs):
-        """add???
+        """TODO
         
         :param childname: the :ref:`childname` including the row name
         """
@@ -2207,8 +2207,8 @@ class BagValidationList(object):
     def validate_case(self, value, oldvalue, parameterString):
         """Set a validation for the case of a string value
         
-        :param value: add???
-        :param oldvalue: add???
+        :param value: TODO
+        :param oldvalue: TODO
         :param parameterString: values = 'upper' or 'lower' or 'capitalize'"""
         mode = parameterString
         if not isinstance(value, basestring):
@@ -2223,11 +2223,11 @@ class BagValidationList(object):
             return value
             
     def validate_inList(self, value, oldvalue, parameterString):
-        """add???
+        """TODO
         
-        :param value: add???
-        :param oldvalue: add???
-        :param parameterString: add???"""
+        :param value: TODO
+        :param oldvalue: TODO
+        :param parameterString: TODO"""
         values = parameterString.split(',')
         if not value in values:
             raise BagValidationError('NotInList', value, 'The value is non in list')
@@ -2237,8 +2237,8 @@ class BagValidationList(object):
     def validate_hostaddr (self, value, oldvalue):
         """Provide a validaton for Host address value
         
-        :param value: add???
-        :param oldvalue: add???"""
+        :param value: TODO
+        :param oldvalue: TODO"""
         import socket
         
         try:
@@ -2254,9 +2254,9 @@ class BagValidationList(object):
     def validate_length(self, value, oldvalue, parameterString):
         """Provides a validation for the length of a string value
         
-        :param value: add???
-        :param oldvalue: add???
-        :param parameterString: add???"""
+        :param value: TODO
+        :param oldvalue: TODO
+        :param parameterString: TODO"""
         minmax = parameterString.split(',')
         min = minmax[0]
         max = minmax[1]
@@ -2268,26 +2268,26 @@ class BagValidationList(object):
         return value
 
     def coerceFromText(self, value):
-        """add???
+        """TODO
         
-        :param value: add???"""
+        :param value: TODO"""
         value = converter.fromText(value, self.gnrtype)
 
     def validate_db(self, value, oldvalue, parameterString):
-        """add???
+        """TODO
         
-        :param value: add???
-        :param oldvalue: add???
-        :param parameterString: add???"""
+        :param value: TODO
+        :param oldvalue: TODO
+        :param parameterString: TODO"""
         # print value
         return value
 
     def defaultExt (self, value, oldvalue, parameterString):
-        """add???
+        """TODO
         
-        :param value: add???
-        :param oldvalue: add???
-        :param parameterString: add???"""
+        :param value: TODO
+        :param oldvalue: TODO
+        :param parameterString: TODO"""
         print 'manca il validatore'
 
 class BagResolver(object):
@@ -2371,7 +2371,7 @@ class BagResolver(object):
     cacheTime = property(_get_cacheTime, _set_cacheTime)
 
     def reset(self):
-        """add???"""
+        """TODO"""
         self._cache = None
         self._cacheLastUpdate = datetime.min
 
@@ -2404,12 +2404,12 @@ class BagResolver(object):
         pass
 
     def init(self):
-        """add???
+        """TODO
         """
         pass
 
     def resolverSerialize(self):
-        """add???"""
+        """TODO"""
         attr = {}
         attr['resolverclass'] = self.__class__.__name__
         attr['resolvermodule'] = self.__class__.__module__
@@ -2440,19 +2440,19 @@ class BagResolver(object):
         return self().digest(k)
         
     def sum(self, k=None):
-        """add???"""
+        """TODO"""
         return self().sum(k)
         
     def iterkeys(self):
-        """add???"""
+        """TODO"""
         return self().iterkeys()
         
     def iteritems(self):
-        """add???"""
+        """TODO"""
         return self().iteritems()
 
     def itervalues(self):
-        """add???"""
+        """TODO"""
         return self().itervalues()
         
     def __iter__(self):
@@ -2465,17 +2465,17 @@ class BagResolver(object):
         return len(self())
         
     def getAttributes(self):
-        """add???"""
+        """TODO"""
         return self._attributes
         
     def setAttributes(self, attributes):
-        """add???"""
+        """TODO"""
         self._attributes = attributes or dict()
         
     attributes = property(getAttributes, setAttributes)
         
     def resolverDescription(self):
-        """add???"""
+        """TODO"""
         return repr(self)
         
     def __str__(self):
@@ -2483,10 +2483,10 @@ class BagResolver(object):
         
 class GeoCoderBag(Bag):
     def setGeocode(self, key, address):
-        """add???
+        """TODO
         
-        :param key: add???
-        :param address: add???"""
+        :param key: TODO
+        :param address: TODO"""
         url = "http://maps.google.com/maps/geo?%s" % urllib.urlencode(dict(q=address, output='xml'))
         result = Bag()
         
@@ -2502,10 +2502,10 @@ class GeoCoderBag(Bag):
         
 class GeoCoderBagNew(Bag):
     def setGeocode(self, key, address, language='it'):
-        """add???
+        """TODO
 
-        :param key: add???
-        :param address: add???"""
+        :param key: TODO
+        :param address: TODO"""
         urlparams = dict(address=address,sensor='false')
         if language:
             urlparams['language']=language
@@ -2534,16 +2534,16 @@ class BagCbResolver(BagResolver):
     classArgs = ['method']
         
     def load(self):
-        """add???"""
+        """TODO"""
         return self.method(**self.kwargs)
         
 class UrlResolver(BagResolver):
-    """add???"""
+    """TODO"""
     classKwargs = {'cacheTime': 300, 'readOnly': True}
     classArgs = ['url']
         
     def load(self):
-        """add???"""
+        """TODO"""
         x = urllib.urlopen(self.url)
         result = {}
         result['data'] = x.read()
@@ -2551,7 +2551,7 @@ class UrlResolver(BagResolver):
         return result
         
 class DirectoryResolver(BagResolver):
-    """add???"""
+    """TODO"""
     classKwargs = {'cacheTime': 500,
                    'readOnly': True,
                    'invisible': False,
@@ -2566,7 +2566,7 @@ class DirectoryResolver(BagResolver):
     classArgs = ['path', 'relocate']
     
     def load(self):
-        """add???"""
+        """TODO"""
         extensions = dict([((ext.split(':') + (ext.split(':'))))[0:2] for ext in self.ext.split(',')])
         extensions['directory'] = 'directory'
         result = Bag()
@@ -2611,24 +2611,24 @@ class DirectoryResolver(BagResolver):
         return result
         
     def makeLabel(self, name, ext):
-        """add???
+        """TODO
         
-        :param name: add???
-        :param ext: add???"""
+        :param name: TODO
+        :param ext: TODO"""
         if ext != 'directory' and not self.dropext:
             name = '%s_%s' % (name, ext)
         return name.replace('.', '_')
         
     def processor_directory(self, path):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         return DirectoryResolver(path, os.path.join(self.relocate, os.path.basename(path)), **self.instanceKwargs)
         
     def processor_xml(self, path):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         kwargs = dict(self.instanceKwargs)
         kwargs['path'] = path
         return XmlDocResolver(**kwargs)
@@ -2636,17 +2636,17 @@ class DirectoryResolver(BagResolver):
     processor_html = processor_xml
         
     def processor_txt(self, path):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         kwargs = dict(self.instanceKwargs)
         kwargs['path'] = path
         return TxtDocResolver(**kwargs)
         
     def processor_default(self, path):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         return None
         
 class TxtDocResolver(BagResolver):
@@ -2680,7 +2680,7 @@ class BagFormula(BagResolver):
     classArgs = ['formula', 'parameters']
         
     def init(self):
-        """add???"""
+        """TODO"""
         parameters = {}
         for key, value in self.parameters.items():
             if key.startswith('_'):
@@ -2690,7 +2690,7 @@ class BagFormula(BagResolver):
         self.expression = gnrstring.templateReplace(self.formula, parameters)
         
     def load(self):
-        """add???"""
+        """TODO"""
         curr = self.parentNode.parentbag
         return eval(self.expression)
         

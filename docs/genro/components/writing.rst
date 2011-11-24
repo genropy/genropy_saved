@@ -22,7 +22,7 @@ how to create a good component
     * **Document your public API:** please document your public API and keep updated the documentation.
       Remember also to keep updated:
       
-        * the :ref:`components_requirements`.
+        * the :ref:`cr`.
         * the documentation of all the callback functions (with their signatures and parameters).
         * The Bags or other complex objects used in your component.
         * The :ref:`datastore` elements and their functionality.
@@ -65,7 +65,7 @@ how to create a good component
 tutorial: creation of a component
 =================================
 
-    add???
+    TODO
       
 **Footnotes:**
 

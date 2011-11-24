@@ -59,6 +59,7 @@ section index
 
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     th_paths
     th_pages

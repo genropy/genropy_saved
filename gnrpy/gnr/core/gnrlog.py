@@ -36,9 +36,9 @@ class ColoredFormatter(logging.Formatter):
         self.use_color = use_color
         
     def format(self, record):
-        """add???
+        """TODO
         
-        :param record: add???"""
+        :param record: TODO"""
         levelname = record.levelname
         if self.use_color and levelname in COLORS:
             levelname_color = COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
@@ -53,8 +53,8 @@ root_logger = None
 def enable_colored_logging(stream=sys.stderr, level=None):
     """Enable colored logging
     
-    :param stream: add???
-    :param level: add???"""
+    :param stream: TODO
+    :param level: TODO"""
     global root_logger
     if not root_logger:
         root_logger = logging.getLogger()

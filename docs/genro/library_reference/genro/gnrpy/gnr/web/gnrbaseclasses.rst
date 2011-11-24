@@ -72,14 +72,14 @@ TableScriptToHtml - webpage variables
 rows_table
 ----------
 
-    add???
+    TODO
     
 .. _tablescripttohtml_virtual_columns:
 
 virtual_columns
 ---------------
 
-    add???
+    TODO
     
 .. _gnrbaseclasses_others:
 

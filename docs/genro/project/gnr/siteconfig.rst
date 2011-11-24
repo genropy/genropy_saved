@@ -159,7 +159,7 @@ Tags
 ``<css_icons>``
 ---------------
 
-    add???
+    TODO
     
 .. _siteconfig_gui:
 
@@ -213,9 +213,9 @@ Tags
       .. note:: It is strongly recommended to insert this tag.
       
     * The ``<js_libs/>`` tag: write it to be able to use the javascript_resources
-      (add??? a link and a relative page!):
+      (TODO a link and a relative page!):
       
-        * The CKEDITOR add???
+        * The CKEDITOR TODO
       
     If you insert the two tags, your ``<resources>`` tag will be::
         

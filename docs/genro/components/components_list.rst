@@ -17,8 +17,9 @@ components list
     * :ref:`clist_dialog`: pre-built set of dialogs
     * :ref:`clist_index`: index page management 
     * :ref:`clist_th`: data management
-    * :ref:`clist_tpleditors`: add???
-    * :ref:`clist_BOH`: add???
+    * :ref:`clist_tpleditors`: TODO
+    * :ref:`clist_test`: components used to create a Genro :ref:`webpage` for testing
+    * :ref:`clist_BOH`: TODO
     
 .. _clist_chat:
     
@@ -36,9 +37,9 @@ Dialog components
     
     Genro pre-built set of dialogs
     
-    * :ref:`simpledialog`: add???
-    * :ref:`formdialog`: add???
-    * :ref:`iframedialog`: add???
+    * :ref:`simpledialog`: TODO
+    * :ref:`formdialog`: TODO
+    * :ref:`iframedialog`: TODO
     * :ref:`hiddentooltipdialog`: *deprecated* since version *0.7*
     * :ref:`confirmdialog`: *deprecated* since version *0.7*
     
@@ -70,13 +71,13 @@ Table handlers
       * :ref:`th_palette`: show the Form class as a palette of the page with the View class
       * :ref:`th_plain`: show only the View class page
       * :ref:`th_stack`: show the View class and the Form class in two separated pages
-      * :ref:`th_thiframe`: add???
-      * :ref:`th_iframedialog`: add???
-      * :ref:`th_iframedispatcher`: add???
-      * :ref:`th_iframepalette`: add???
-      * :ref:`th_linker_base`: add???
-      * :ref:`th_linkerbar`: add???
-      * :ref:`th_linkerbox`: add???
+      * :ref:`th_thiframe`: TODO
+      * :ref:`th_iframedialog`: TODO
+      * :ref:`th_iframedispatcher`: TODO
+      * :ref:`th_iframepalette`: TODO
+      * :ref:`th_linker_base`: TODO
+      * :ref:`th_linkerbar`: TODO
+      * :ref:`th_linkerbox`: TODO
       * :ref:`th_ig`: a :ref:`grid` that allows the inline editing (so, the insertion
         or the modify of records is handled inside the grid)
         
@@ -85,14 +86,23 @@ Table handlers
 Template Editors
 ----------------
 
-    add???
+    TODO
     
     * :ref:`tpleditor`
+    
+.. _clist_test:
+
+Test Editors
+------------
+
+    Components used to create a Genro :ref:`webpage` for testing
+    
+    * :ref:`testhandler`
     
 .. _clist_BOH:
 
 boh
 ---
-    
-    * the :ref:`h_th`: add???
-        
+
+    * the :ref:`framegrid`: TODO
+    * the :ref:`h_th`: TODO

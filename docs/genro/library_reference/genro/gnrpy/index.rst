@@ -6,5 +6,6 @@
 
 .. toctree::
     :maxdepth: 2
+    :numbered:
     
     gnr/index

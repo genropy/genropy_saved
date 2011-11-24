@@ -14,11 +14,11 @@ TemplateEditor
 introduction
 ============
 
-    add???
+    TODO
     
 .. _tpleditor_section_index:
 
 section index
 =============
 
-    add???
+    TODO

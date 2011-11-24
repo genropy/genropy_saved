@@ -22,7 +22,7 @@ from gnr.web.gnrbaseclasses import BaseComponent
 import warnings
 
 class RecordLinker(BaseComponent):
-    """add???"""
+    """TODO"""
     py_requires = "foundation/recorddialog"
     
     def recordLinker(self, *args, **kwargs):
@@ -55,13 +55,13 @@ class RecordLinker(BaseComponent):
         :param width: the linkerField's width
         :param height: the linkerField's height
         :param colspan: a :ref:`formbuilder's fields attribute <formbuilder_children_attributes>`
-        :param rowspan: add???
+        :param rowspan: TODO
         :param disabled: If ``True``, user can't act on the object (write, drag...)
                          For more information, check the :ref:`disabled` documentation page
-        :param default_path: add???
+        :param default_path: TODO
         :param zoom: It allows to open the linked record in a :ref:`dialog`
                      For further details, check the :ref:`zoom` documentation page
-        :param record_reloader: add???"""
+        :param record_reloader: TODO"""
         
         # --------------------------------------------------------------------------------------------- Mandatory parameters
         

@@ -236,7 +236,7 @@ class SqlDbAdapter(SqlDbBaseAdapter):
         #return ref_dict.values()
 
     def getPkey(self, table, schema):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
                       (packageName is the name of the :ref:`package <packages>` to which the table

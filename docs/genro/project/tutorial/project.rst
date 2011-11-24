@@ -26,7 +26,7 @@ creation of a project structure
         
     You can see the result in this image:
     
-    add??? image...
+    TODO image...
     
     Now type the command line ``gnrmkproject projectname -a`` and check the tree structure you
     have created (the 4 subfolders and the contents of the ``instances`` and ``sites`` folders).

@@ -38,6 +38,7 @@ section index
     
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     action/index
     mail/index

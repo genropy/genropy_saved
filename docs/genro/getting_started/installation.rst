@@ -48,7 +48,7 @@ How to obtain GenroPy
 
     Genropy is in a Git repository. To obtain genropy, type::
     
-        add???
+        TODO
         
 .. _installing:
 

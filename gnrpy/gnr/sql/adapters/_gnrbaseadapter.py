@@ -299,8 +299,8 @@ class SqlDbAdapter(object):
         Lock a table
         
         :param dbtable: the :ref:`database table <table>` name
-        :param mode: add???
-        :param nowait: add???"""
+        :param mode: TODO
+        :param nowait: TODO"""
         raise NotImplementedException()
         
     def insert(self, dbtable, record_data,**kwargs):
@@ -379,7 +379,7 @@ class SqlDbAdapter(object):
         :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
                       (packageName is the name of the :ref:`package <packages>` to which the table
                       belongs to)
-        :param full: boolean. add???"""
+        :param full: boolean. TODO"""
         self.dbroot.execute('VACUUM ANALYZE %s;' % table)
 
     def addForeignKeySql(self, c_name, o_pkg, o_tbl, o_fld, m_pkg, m_tbl, m_fld, on_up, on_del, init_deferred):

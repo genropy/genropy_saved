@@ -30,7 +30,7 @@ components location
        The **public** components belong to the family of the :ref:`public resources <public_resource>`.
        
        .. warning:: to use a *public* component, you have to specify some requirements.
-                    Please read the :ref:`components_requirements` for more information.
+                    Please read the :ref:`cr` for more information.
                     
     For more information on *private* and *public* components (that is, *private* and *public*
     resources) please check the :ref:`intro_resources` page

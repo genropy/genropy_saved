@@ -75,7 +75,7 @@ group
     You may use some special characters:
 
     * if the group path starts with ``_``, then the group is "reserved" (invisible)
-    * if it starts with ``*`` it can be seen only through administration tools (add???)
+    * if it starts with ``*`` it can be seen only through administration tools (TODO)
 
     **validity**:
 
@@ -102,4 +102,4 @@ one_one
 one_name
 ========
 
-    add???
+    TODO

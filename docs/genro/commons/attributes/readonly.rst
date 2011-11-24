@@ -7,7 +7,7 @@ readOnly
     *Last page update*: |today|
     
     .. note:: **validity** - the *readOnly* attribute is supported by every :ref:`webpage element
-              <webpage_elements_index>`
+              <we>`
     
     * :ref:`readonly_def`
     * :ref:`readonly_examples`
@@ -25,4 +25,4 @@ description
 examples
 ========
 
-    add???
+    TODO

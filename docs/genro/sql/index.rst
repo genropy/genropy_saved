@@ -14,7 +14,7 @@ SQL
 introduction
 ============
     
-    add???
+    TODO
     
 .. _sql_section_index:
 
@@ -23,6 +23,7 @@ section index
 
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     relations: direct relations, inverse relations, relation paths <relation>
     relation_attrs

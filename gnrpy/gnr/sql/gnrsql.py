@@ -88,8 +88,8 @@ class GnrSqlDb(GnrObject):
         :param password: the username's password (for sqlite is None)
         :param port: the connection port (for sqlite is None)
         :param main_schema: the database main schema
-        :param debugger: add???
-        :param application: add???
+        :param debugger: TODO
+        :param application: TODO
         """
         
         self.implementation = implementation
@@ -116,16 +116,16 @@ class GnrSqlDb(GnrObject):
     
     @property
     def debug(self):
-        """add???"""
+        """TODO"""
         return self.application.debug
         
     @property
     def dbstores(self):
-        """add???"""
+        """TODO"""
         return self.stores_handler.dbstores
         
     def createModel(self):
-        """add???"""
+        """TODO"""
         from gnr.sql.gnrsqlmodel import DbModel
         
         return DbModel(self)
@@ -234,13 +234,13 @@ class GnrSqlDb(GnrObject):
         self.currentEnv.update(kwargs)
         
     def use_store(self, storename=None):
-        """add???
+        """TODO
         
-        :param storename: add???. """
+        :param storename: TODO. """
         self.updateEnv(storename=storename)
         
     def get_dbname(self):
-        """add???"""
+        """TODO"""
         storename = self.currentEnv.get('storename')
         if storename:
             return self.dbstores[storename]['database']
@@ -405,11 +405,11 @@ class GnrSqlDb(GnrObject):
         self.onDbCommitted()
     
     def onDbCommitted(self):
-        """add???"""
+        """TODO"""
         pass
         
     def setConstraintsDeferred(self):
-        """add???"""
+        """TODO"""
         cursor = self.adapter.cursor(self.connection)
         if hasattr(cursor,'setConstraintsDeferred'):
             cursor.setConstraintsDeferred()
@@ -425,8 +425,8 @@ class GnrSqlDb(GnrObject):
     def notify(self, *args, **kwargs):
         """Database Notify
         
-        :param \*args: add???
-        :param \*\*kwargs: add???"""
+        :param \*args: TODO
+        :param \*\*kwargs: TODO"""
         self.adapter.notify(*args, **kwargs)
         
     def analyze(self):
@@ -434,7 +434,7 @@ class GnrSqlDb(GnrObject):
         self.adapter.analyze()
         
     def vacuum(self):
-        """add???"""
+        """TODO"""
         self.adapter.vacuum()
         
     #------------------ PUBLIC METHODS--------------------------
@@ -451,11 +451,11 @@ class GnrSqlDb(GnrObject):
     packages = property(_get_packages)
             
     def tableTreeBag(self, packages=None, omit=None, tabletype=None):
-        """add???
+        """TODO
         
-        :param packages: add???
-        :param omit: add???
-        :param tabletype: add???"""
+        :param packages: TODO
+        :param omit: TODO
+        :param tabletype: TODO"""
         result = Bag()
         for pkg, pkgobj in self.packages.items():
             if (pkg in packages and omit) or (not pkg in packages and not omit):
@@ -489,7 +489,7 @@ class GnrSqlDb(GnrObject):
         return self.table(table).query(**kwargs)
         
     def colToAs(self, col):
-        """add???
+        """TODO
         
         :param col: a table :ref:`column`"""
         as_ = re.sub('\W', '_', col)
@@ -498,14 +498,14 @@ class GnrSqlDb(GnrObject):
             
     def relationExplorer(self, table, prevCaption='', prevRelation='',
                          translator=None, **kwargs):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param prevCaption: add???
-        :param prevRelation: add???
-        :param translator: add???"""
+        :param prevCaption: TODO
+        :param prevRelation: TODO
+        :param translator: TODO"""
         return self.table(table).relationExplorer(prevCaption=prevCaption,
                                                   prevRelation=prevRelation,
                                                   translator=translator, **kwargs)
@@ -546,7 +546,7 @@ class GnrSqlDb(GnrObject):
     def dropSchema(self, name):
         """Drop a db schema
         
-        :param name: add???"""
+        :param name: TODO"""
         self.adapter.dropSchema(name)
         
     def importXmlData(self, path):
@@ -572,7 +572,7 @@ class GnrSqlDb(GnrObject):
         return selection
         
 class TempEnv(object):
-    """add???
+    """TODO
     
     Example::
     
@@ -606,13 +606,13 @@ class DbStoresHandler(object):
         self.create_stores()
         
     def load_config(self):
-        """add???"""
+        """TODO"""
         self.config = Bag()
         if os.path.isdir(self.config_folder):
             self.config = Bag(self.config_folder)['#0'] or Bag()
             
     def save_config(self):
-        """add???"""
+        """TODO"""
         config = self.config.digest('#a.file_name,#v.#0?#')
         try:
             if os.path.isdir(self.config_folder):
@@ -629,15 +629,15 @@ class DbStoresHandler(object):
             dbstore_config.toXml(os.path.join(self.config_folder, '%s.xml' % name), autocreate=True)
             
     def create_stores(self, check=False):
-        """add???"""
+        """TODO"""
         for name in self.config.digest('#a.file_name'):
             self.add_store(name, check=check)
             
     def add_store(self, storename, check=False):
-        """add???
+        """TODO
         
-        :param storename: add???
-        :param check: add???"""
+        :param storename: TODO
+        :param check: TODO"""
         attr = self.config.getAttr('%s_xml.db' % storename)
         self.dbstores[storename] = dict(database=attr.get('dbname', storename),
                                         host=attr.get('host', self.db.host), user=attr.get('user', self.db.user),
@@ -647,21 +647,21 @@ class DbStoresHandler(object):
             self.dbstore_align(storename)
             
     def drop_dbstore_config(self, storename):
-        """add???
+        """TODO
         
-        :param storename: add???"""
+        :param storename: TODO"""
         self.config.pop('%s_xml' % storename)
         
     def add_dbstore_config(self, storename, dbname=None, host=None, user=None, password=None, port=None, save=True):
-        """add???
+        """TODO
         
-        :param storename: add???
+        :param storename: TODO
         :param dbname: the database name
         :param host: the database server host
         :param user: the username
         :param password: the username's password
-        :param port: add???
-        :param save: add???"""
+        :param port: TODO
+        :param save: TODO"""
         self.config.setItem('%s_xml' % storename, None, file_name=storename)
         self.config.setItem('%s_xml.db' % storename, None, dbname=dbname, host=host, user=user, password=password,
                             port=port)
@@ -673,8 +673,8 @@ class DbStoresHandler(object):
     def dbstore_check(self, storename, verbose=False):
         """checks if dbstore exists and if it needs to be aligned
         
-        :param storename: add???
-        :param verbose: add???"""
+        :param storename: TODO
+        :param verbose: TODO"""
         with self.db.tempEnv(storename=storename):
             self.db.use_store(storename)
             changes = self.db.model.check()
@@ -686,10 +686,10 @@ class DbStoresHandler(object):
                 return True
                 
     def dbstore_align(self, storename, changes=None):
-        """add???
+        """TODO
         
-        :param storename: add???
-        :param changes: add???. """
+        :param storename: TODO
+        :param changes: TODO. """
         with self.db.tempEnv(storename=storename):
             changes = changes or self.db.model.check()
             if changes:

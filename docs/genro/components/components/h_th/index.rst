@@ -8,7 +8,7 @@ HTableHandler
     
     .. note:: summary of the component requirements:
               
-              add???
+              TODO
     
     * :ref:`h_th_intro`
     * :ref:`h_th_section_index`
@@ -18,7 +18,7 @@ HTableHandler
 introduction
 ============
 
-    add???
+    TODO
     
 .. _h_th_section_index:
 
@@ -27,6 +27,7 @@ section index
 
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     h_th_base
     h_th

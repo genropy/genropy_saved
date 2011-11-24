@@ -3,51 +3,49 @@
 """
 importer.py
 
-Created by Saverio Porcari on 2008-07-28.
-Copyright (c) 2008 Softwell. All rights reserved.
+Created by Filippo Astolfi on 2011-11-23
+Copyright (c) 2011 Softwell. All rights reserved
 """
 
 from gnr.core.gnrbag import Bag, BagResolver, BagCbResolver, DirectoryResolver
 from gnr.app.gnrapp import GnrApp
 
-def importPeople(db, dataBag):
+def importPerson(db, dataBag):
     tblObj = db.table('showcase.person')
-
-    for item in dataBag['people']:
+    for item in dataBag['person']:
         record = {}
+        record['number'] = item.getAttr('id')
         record['name'] = item.getAttr('name')
-        record['year'] = item.getAttr('year')
+        record['b_year'] = item.getAttr('b_year')
+        record['d_year'] = item.getAttr('d_year')
         record['nationality'] = item.getAttr('nationality')
-        record['number'] = item.getAttr('id')
         tblObj.insert(record)
 
-def importMovie(db, dataBag):
-    tblObj = db.table('showcase.movie')
-    for item in dataBag['movie']:
+def importMusic(db, dataBag):
+    tblObj = db.table('showcase.music')
+    for item in dataBag['music']:
         record = {}
+        record['number'] = item.getAttr('id')
         record['title'] = item.getAttr('title')
-        record['year'] = item.getAttr('year')
-        record['nationality'] = item.getAttr('nationality')
-        record['number'] = item.getAttr('id')
         record['genre'] = item.getAttr('genre')
+        record['year'] = item.getAttr('year')
+        record['op'] = item.getAttr('op')
         tblObj.insert(record)
 
-def importCast(db, dataBag):
-    tblObj = db.table('showcase.cast')
-    movies = db.table('showcase.movie').query(columns='$id').fetch()
-    people = db.table('showcase.person').query(columns='$id').fetch()
-    for item in dataBag['cast']:
+def importPersonMusic(db, dataBag):
+    tblObj = db.table('showcase.person_music')
+    music = db.table('showcase.music').query(columns='$id').fetch()
+    person = db.table('showcase.person').query(columns='$id').fetch()
+    for item in dataBag['person_music']:
         record = {}
-        record['person_id'] = people[int(item.getAttr('person_id'))]['id']
-        record['movie_id'] = movies[int(item.getAttr('movie_id'))]['id']
-        record['role'] = item.getAttr('role')
-        record['prizes'] = item.getAttr('prizes')
+        record['person_id'] = person[int(item.getAttr('person_id'))]['id']
+        record['music_id'] = music[int(item.getAttr('music_id'))]['id']
         tblObj.insert(record)
 
 if __name__ == '__main__':
     db = GnrApp('testgarden').db
     dataBag = Bag('data.xml')
-    importPeople(db, dataBag)
-    importMovie(db, dataBag)
-    importCast(db, dataBag)
+    importPerson(db, dataBag)
+    importMusic(db, dataBag)
+    importPersonMusic(db, dataBag)
     db.commit()

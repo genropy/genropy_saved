@@ -90,14 +90,14 @@ batch_prefix
 batch_steps
 -----------
 
-    add???
+    TODO
     
 .. _batch_thermo_lines:
 
 batch_thermo_lines
 ------------------
 
-    add???
+    TODO
     
 .. _batch_title:
 
@@ -127,7 +127,7 @@ dialog_width
 virtual_columns
 ---------------
 
-    add???
+    TODO
     
 .. _btcbase_classes:
 

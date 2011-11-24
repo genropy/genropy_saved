@@ -75,7 +75,7 @@ top bar
     
     The top bar contains:
     
-    #. the :meth:`windowTitle <gnr.web._gnrbasewebpage.GnrBaseWebPage.windowTitle>` method
+    #. the :meth:`~gnr.web._gnrbasewebpage.GnrBaseWebPage.windowTitle` method
     #. the :ref:`workdate`
     
 .. _th_gui_view_action_bar:
@@ -133,7 +133,7 @@ query operator box
       typed from user (case sensitive)
     * ``is null``: look for null columns
     * ``is null or empty``: look for null or empty columns
-    * ``in``: add???
+    * ``in``: TODO
     * ``regular expression``: add a regexp
     * ``greater than``: look for columns that contains a greater number respect to a number
       typed from user (works for numerical columns)
@@ -172,7 +172,7 @@ query action buttons
 ^^^^^^^^^^^^^^^^^^^^
 
     You find here some buttons that allow user to perform different actions. You can modify
-    the preset of buttons following the instructions of the add??? section
+    the preset of buttons following the instructions of the TODO section
     
     In particular, user finds the following buttons:
     
@@ -204,7 +204,7 @@ query action buttons
        :align: left
        :width: 22px
        
-    **Mail**: add??? (not working yet)
+    **Mail**: TODO (not working yet)
     
 .. _th_query_result_numbers:
 
@@ -318,9 +318,9 @@ bottom bar
 
     .. image:: ../../../_images/components/th/bottom_bar.png
     
-    The bottom bar is used by default to send message to user (like ... add???).
+    The bottom bar is used by default to send message to user (like ... TODO).
     
-    You can customize it ... add???
+    You can customize it ... TODO
     
 .. _data_entry:
 
@@ -357,7 +357,7 @@ top bar
     
     The top bar contains:
     
-    #. the title of the record (you can customize the title. Check here add???
+    #. the title of the record (you can customize the title. Check here TODO
        for more infomation)
     #. the :ref:`workdate`
     
@@ -442,7 +442,7 @@ form pane
     In the form pane you can find all the stuff defined in the :ref:`th_form_class`.
     
     In particular, you can define a :ref:`form` through which user can save its new records
-    (or modify the existing ones), joined to some :ref:`webpage_elements_index` or any other
+    (or modify the existing ones), joined to some :ref:`we` or any other
     stuff.
     
     Let's see this image:
@@ -462,4 +462,4 @@ bottom bar
     The bottom bar is used by default to send message to user (like the correct act of a
     record save).
     
-    You can customize it ... add???
+    You can customize it ... TODO

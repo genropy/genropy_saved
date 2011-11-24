@@ -120,11 +120,11 @@ class IncludedView(BaseComponent):
         :param datapath: allow to create a hierarchy of your data’s addresses into the datastore.
                          For more information, check the :ref:`datapath` and the :ref:`datastore` pages
         :param storepath: the path of the data of the includedViewBox
-        :param selectionPars: add???
+        :param selectionPars: TODO
                               
                               **selectionPars parameters**:
                               
-                              * applymethod: add???
+                              * applymethod: TODO
                               * where: the sql "WHERE" clause. For more information check the
                                 :ref:`sql_where` section.
         :param formPars: (dict) it contains all the params of the widget who hosts the form.
@@ -148,32 +148,32 @@ class IncludedView(BaseComponent):
                              * pane: OPTIONAL - pane of the form input
             
         :param label: (string) allow to create a label for the includedView
-        :param caption: add???
-        :param footer: add???
+        :param caption: TODO
+        :param footer: TODO
         :param add_action: (boolean) allow the insertion of a row in the includedView
         :param add_class: the css class of the add button
         :param add_enable: a path to enable/disable add action
         :param del_action: (boolean) allow the deleting of a row in the includedView
         :param del_class: the css class of the delete button
         :param del_enable: a path to enable/disable del action
-        :param upd_action: add???
-        :param upd_class: add???
-        :param upd_enable: add???
+        :param upd_action: TODO
+        :param upd_class: TODO
+        :param upd_enable: TODO
         :param close_action: (boolean) adding closing button in tooltipDialog
         :param close_class: css class of close button
-        :param print_action: add???
-        :param print_class: add???
-        :param pdf_action: add???
-        :param pdf_class: add???
-        :param pdf_name: add???
-        :param export_action: add???
-        :param export_class: add???
-        :param tools_action: add???
-        :param tools_class: add???
-        :param tools_enable: add???
-        :param tools_lbl: add???
-        :param lock_action: an optional parameter; add???
-        :param tools_menu: add???
+        :param print_action: TODO
+        :param print_class: TODO
+        :param pdf_action: TODO
+        :param pdf_class: TODO
+        :param pdf_name: TODO
+        :param export_action: TODO
+        :param export_class: TODO
+        :param tools_action: TODO
+        :param tools_class: TODO
+        :param tools_enable: TODO
+        :param tools_lbl: TODO
+        :param lock_action: an optional parameter; TODO
+        :param tools_menu: TODO
         :param _onStart: boolean. If ``True``, the controller is executed only after that all
                          the line codes are read
         :param filterOn: (boolean, only for picker) allow the filter into the picker grid
@@ -191,16 +191,16 @@ class IncludedView(BaseComponent):
                            * nodeId: MANDATORY - id for the picker
                            * filterOn: the columns on which to apply filter
                            
-        :param centerPaneCb: add???
-        :param editorEnabled: add???
-        :param parentLock: add???
-        :param reloader: add???
-        :param externalChanges: add???
-        :param addOnCb: add???
+        :param centerPaneCb: TODO
+        :param editorEnabled: TODO
+        :param parentLock: TODO
+        :param reloader: TODO
+        :param externalChanges: TODO
+        :param addOnCb: TODO
         :param zoom: It allows to open the linked record in a :ref:`dialog`.
                      For further details, check the :ref:`zoom` documentation page
-        :param hasToolbar: add???
-        :param canSort: add???
+        :param hasToolbar: TODO
+        :param canSort: TODO
         :param fromPicker_target_fields: allow to bind the picker's table. columns to the includedView
                                          columns of the many to many table.
         :param fromPicker_nodup_field: if this column value is present in the includedView it allows to
@@ -697,21 +697,21 @@ class IncludedView(BaseComponent):
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param pbl_classes: boolean. The :ref:`pbl_classes` attribute
-        :param storepath: add???
-        :param label: add???
-        :param caption: add???
-        :param filterOn: add???
-        :param editorEnabled: add???
-        :param canSort: boolean. add???
-        :param dropCodes: add???
-        :param add_kwargs: add???
-        :param del_kwargs: add???
-        :param upd_kwargs: add???
-        :param print_kwargs: add???
-        :param export_kwargs: add???
-        :param tools_kwargs: add???
-        :param top_kwargs: add???
-        :param datamode: add???"""
+        :param storepath: TODO
+        :param label: TODO
+        :param caption: TODO
+        :param filterOn: TODO
+        :param editorEnabled: TODO
+        :param canSort: boolean. TODO
+        :param dropCodes: TODO
+        :param add_kwargs: TODO
+        :param del_kwargs: TODO
+        :param upd_kwargs: TODO
+        :param print_kwargs: TODO
+        :param export_kwargs: TODO
+        :param tools_kwargs: TODO
+        :param top_kwargs: TODO
+        :param datamode: TODO"""
         assert not 'selectionPars' in kwargs, 'instead of the selectionPars use the tableviewer or attach a selectionStore'
         assert not 'formPars' in kwargs, 'no longer supported'
         assert not 'lock_action' in kwargs, 'no longer supported'

@@ -343,7 +343,7 @@ def monthStart(year=None, month=None, date=None):
     
     :param year: The year you specify
     :param month: The month you specify
-    :param date: add???"""
+    :param date: TODO"""
     if date:
         year = date.year
         month = date.month
@@ -355,7 +355,7 @@ def monthEnd(year=None, month=None, date=None):
     
     :param year: The year you specify
     :param month: The month you specify
-    :param date: add???"""
+    :param date: TODO"""
     if date:
         year = date.year
         month = date.month
@@ -367,7 +367,7 @@ def monthEnd(year=None, month=None, date=None):
     return datetime.date(year, month, 1) - datetime.timedelta(1)
     
 def dateLastYear(d):
-    """add???
+    """TODO
     
     :param d: the date"""
     if not d: return
@@ -380,13 +380,13 @@ def dateLastYear(d):
     return result
     
 def dayIterator(period, wkdlist=None, locale=None, workdate=None, asDate=True):
-    """add???
+    """TODO
     
-    :param period: add???
-    :param wkdlist: add???
+    :param period: TODO
+    :param wkdlist: TODO
     :param locale: the current locale (e.g: en, en_us, it)
     :param workdate: the :ref:`workdate`
-    :param asDate: boolean. add???"""
+    :param asDate: boolean. TODO"""
     dstart, dstop = decodeDatePeriod(period, returnDate=True, locale=locale, workdate=workdate)
     itr = rrule.rrule(rrule.DAILY, dtstart=dstart, until=dstop, byweekday=wkdlist)
     for d in itr:

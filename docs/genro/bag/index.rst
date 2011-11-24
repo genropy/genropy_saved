@@ -53,6 +53,7 @@ section index
 
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     definitions
     basic_functions

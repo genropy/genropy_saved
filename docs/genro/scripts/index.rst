@@ -18,27 +18,27 @@ introduction
     
     They are:
     
-    * :ref:`gnr`: add???
-    * :ref:`gnrdbgraph`: add???
+    * :ref:`gnr`: TODO
+    * :ref:`gnrdbgraph`: TODO
     * :ref:`gnrdbsetup`: it allows to initialize the database
-    * :ref:`gnrdbstruct`: add???
-    * :ref:`gnrheartbeat`: add???
-    * :ref:`gnrmkapachesite`: add???
-    * :ref:`gnrmkinstance`: add???
-    * :ref:`gnrmkpackage`: add???
-    * :ref:`gnrmkproject`: add???
-    * :ref:`gnrmksite`: add???
+    * :ref:`gnrdbstruct`: TODO
+    * :ref:`gnrheartbeat`: TODO
+    * :ref:`gnrmkapachesite`: TODO
+    * :ref:`gnrmkinstance`: TODO
+    * :ref:`gnrmkpackage`: TODO
+    * :ref:`gnrmkproject`: TODO
+    * :ref:`gnrmksite`: TODO
     * :ref:`gnrmkthresource`: create automatically the :ref:`th` resources from
       :ref:`database tables <table>`
-    * :ref:`gnrsendmail`: add???
-    * :ref:`gnrsitelocalize`: add???
-    * :ref:`gnrsync4d`: add???
-    * :ref:`gnrsync4dpyro`: add???
-    * :ref:`gnrtrdaemon`: add???
-    * :ref:`gnrwsgi`: add???
+    * :ref:`gnrsendmail`: TODO
+    * :ref:`gnrsitelocalize`: TODO
+    * :ref:`gnrsync4d`: TODO
+    * :ref:`gnrsync4dpyro`: TODO
+    * :ref:`gnrtrdaemon`: TODO
+    * :ref:`gnrwsgi`: TODO
     * :ref:`gnrwsgiserve`: it allows to launch your :ref:`project` as a web application
-    * :ref:`gnrxml2py`: add???
-    * :ref:`wk2pdf`: add???
+    * :ref:`gnrxml2py`: TODO
+    * :ref:`wk2pdf`: TODO
     
 .. _scripts_section_index:
 
@@ -47,6 +47,7 @@ section index
     
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     gnr
     gnrdbgraph

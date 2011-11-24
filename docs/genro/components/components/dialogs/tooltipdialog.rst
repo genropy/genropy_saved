@@ -13,7 +13,7 @@ TooltipDialog
               
     CLIPBOARD::
     
-        Dojo modified!! --> add??? add all the difference respect to the Dojo tooltipdialog!
+        Dojo modified!! --> TODO add all the difference respect to the Dojo tooltipdialog!
         
         --> check test15/gnrwdg/tooltipDialog
         

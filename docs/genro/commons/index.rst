@@ -19,10 +19,9 @@ introduction
     
     You can find the following tipologies:
     
-    * the :ref:`attributes_index`: they can be used on many :ref:`webpage_elements_index`
+    * the :ref:`attributes_index`: they can be used on many :ref:`we`
     * the :ref:`datatypes <datatype>` (``dtypes``): they are used to define the typology
       of the :ref:`columns <column>` in a database :ref:`project` management
-    * the :ref:`macro`: they are javascript shortcuts to perform callbacks
     * the :ref:`commons_names`: they are the metadata through which you visualize records
       in a database :ref:`project` management
     * the :ref:`char_index`
@@ -34,9 +33,9 @@ section index
 
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     attributes/index
     characters/index
     datatypes
-    macro
     names

@@ -93,14 +93,14 @@ BagToHtml - webpage variables
 copies_per_page
 ---------------
 
-    add???. Default value is ``1``
+    TODO. Default value is ``1``
     
 .. _bagtohtml_copy_extra_height:
 
 copy_extra_height
 -----------------
 
-    add???. Default value is ``0``
+    TODO. Default value is ``0``
     
 .. _bagtohtml_css_requires:
 
@@ -223,7 +223,7 @@ grid_row_height
 page_debug
 ----------
 
-    boolean. add??? Default value is ``False``
+    boolean. TODO Default value is ``False``
     
 .. _bagtohtml_page_footer_height:
 
@@ -314,24 +314,24 @@ page_width
 print_button
 ------------
 
-    add???. Default value is ``None``
+    TODO. Default value is ``None``
     
 .. _bagtohtml_row_mode:
 
 row_mode
 --------
 
-    add???. You can set it to:
+    TODO. You can set it to:
     
-    * ``'value'``: (default value) add???
-    * ``'attribute'``: add???
+    * ``'value'``: (default value) TODO
+    * ``'attribute'``: TODO
     
 .. _bagtohtml_rows_path:
 
 rows_path
 ---------
     
-    add???. Default value is ``'rows'``
+    TODO. Default value is ``'rows'``
     
 .. _bagtohtml_starting_page_number:
 
@@ -348,7 +348,7 @@ templates
 ---------
 
     A string with the names of the :ref:`html templates <htmltemplate>` separated
-    by a comma. More information in the add??? section of the :ref:`htmltemplate`
+    by a comma. More information in the TODO section of the :ref:`htmltemplate`
     page
     
 .. _gnrbaghtml_classes:

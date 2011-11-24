@@ -87,7 +87,7 @@ TableHandler common attributes
       
         table = 'packageName.tableName'
         
-    * *th_pkey*: add???
+    * *th_pkey*: TODO
     * *datapath*: the path of your data. If you don't need a specific datapath
       it is handled automatically
       
@@ -105,7 +105,7 @@ TableHandler common attributes
       Check the :ref:`th_formresource` section for more information
     * *viewResource*: allow to change the default :ref:`th_view_class`.
       Check the :ref:`th_viewresource` section for more information.
-    * *formInIframe*: add???
+    * *formInIframe*: TODO
     * *readOnly*: boolean. If ``True``, the TableHandler is in read-only mode,
       so user can visualize records and open the :ref:`th_form_class`, but
       he can't add/delete/modify records. Default value is ``True`` or ``False``
@@ -126,9 +126,9 @@ TableHandler common attributes
           :ref:`th_relation_condition` section for more information.
         * *condition_kwargs*: the parameters of the condition. Check the
           :ref:`th_relation_condition` section for more information.
-        * *grid_kwargs*: add???.
-        * *hiderMessage*: add???.
-        * *pageName*: add???.
+        * *grid_kwargs*: TODO.
+        * *hiderMessage*: TODO.
+        * *pageName*: TODO.
         * *pbl_classes*: if ``True``, modify the CSS attributes of the top bar of a :ref:`grid`.
           For more information, check the :ref:`pbl_classes` page
                               
@@ -162,8 +162,8 @@ borderTableHandler
     :ref:`th_common_attributes` section. The attributes that belongs only
     to the borderTableHandler are listed here:
     
-    * *widget_kwargs*: add???
-    * *loadEvent*: add???
+    * *widget_kwargs*: TODO
+    * *loadEvent*: TODO
     * *viewRegion*: add?
     * *formRegion*: add?
     * *vpane_kwargs*: allow to set the attributes of the :ref:`view_data`
@@ -247,9 +247,9 @@ pageTableHandler
     
     **Description:**
     
-    The pageTableHandler add???
+    The pageTableHandler TODO
     
-    add??? add image!
+    TODO add image!
     
     .. note:: you have to call the TableHandler without the ``th_`` string.
               
@@ -265,12 +265,12 @@ pageTableHandler
     :ref:`th_common_attributes` section. The attributes that belongs only
     to the pageTableHandler are listed here:
     
-    * *dbname=None*: add???
-    * *formUrl=None*: add???
+    * *dbname=None*: TODO
+    * *formUrl=None*: TODO
     
     Example::
     
-        add???
+        TODO
     
 .. _th_palette:
 
@@ -371,7 +371,7 @@ stackTableHandler
     :ref:`th_common_attributes` section. The attributes that belongs only
     to the stackTableHandler are listed here:
     
-    * *widget_kwargs*: add???.
+    * *widget_kwargs*: TODO.
     
 .. _th_formhandler:
 
@@ -384,18 +384,18 @@ thFormHandler
     
     **Description:**
     
-    add???
+    TODO
     
     **Attributes**:
     
-    add???
+    TODO
     
 .. _th_iframe_types:
 
 iframe types
 ============
 
-    add???
+    TODO
     
     They are:
     
@@ -410,7 +410,7 @@ iframe common attributes
 ------------------------
 
     Some attributes are common to every of these types and we describe those
-    attributes here... add???
+    attributes here... TODO
     
 .. _th_thiframe:
 
@@ -423,13 +423,13 @@ thIframe
     
     **Description:**
     
-    add???
+    TODO
     
     **Attributes**:
     
-    * *pane*: add???.
-    * *method*: add???.
-    * *src*: add???.
+    * *pane*: TODO.
+    * *method*: TODO.
+    * *src*: TODO.
     
 .. _th_iframedialog:
 
@@ -442,11 +442,11 @@ IframeDialog
     
     **Description:**
     
-    add???
+    TODO
     
     **Attributes**:
     
-    add???
+    TODO
     
 .. _th_iframedispatcher:
 
@@ -459,14 +459,14 @@ iframedispatcher
     
     **Description:**
     
-    add???
+    TODO
     
     **Attributes**:
     
-    * *root*: add???
-    * *methodname*: add???
-    * *pkey*: add???
-    * *table*: add???
+    * *root*: TODO
+    * *methodname*: TODO
+    * *pkey*: TODO
+    * *table*: TODO
     
 .. _th_iframepalette:
 
@@ -479,18 +479,18 @@ IframePalette
     
     **Description:**
     
-    add???
+    TODO
     
     **Attributes**:
     
-    add???
+    TODO
     
 .. _th_linker_type:
 
 linker types
 ============
     
-    add??? (introduction)
+    TODO (introduction)
     
     They are:
     
@@ -510,7 +510,7 @@ linker common attributes
       is linked.
     * *field*: a :ref:`field`; through this object the linker becomes related to the
       :ref:`table` to which the field belongs to.
-    * *newRecordOnly*: add???
+    * *newRecordOnly*: TODO
     * *dialog_kwargs*: there are many options:
     
         * *dialog_height*: MANDATORY - define the dialog height
@@ -532,7 +532,7 @@ linker
     
     **Description:**
     
-    add???
+    TODO
     
     **Attributes**:
     
@@ -542,10 +542,10 @@ linker
     
     * *formResource*: allow to change the default :ref:`th_form_class`. Check the
       :ref:`th_formresource` section for more information.
-    * *formUrl*: add???
+    * *formUrl*: TODO
     * *table*: the database :ref:`table` to which the th_linker refers to
-    * *openIfEmpty*: add???
-    * *embedded*: add???
+    * *openIfEmpty*: TODO
+    * *embedded*: TODO
     
 .. _th_linkerbar:
 
@@ -558,7 +558,7 @@ linkerBar
     
     **Description:**
     
-    add???
+    TODO
     
     **Attributes**:
     
@@ -581,7 +581,7 @@ linkerBox
     
     **Description:**
     
-    add???
+    TODO
     
     **Attributes**:
     
@@ -589,19 +589,19 @@ linkerBox
     :ref:`th_linker_common_attributes` section. The attributes that belongs only
     to the th_linkerBox are listed here:
     
-    * *template*: add???
-    * *frameCode*: add???
+    * *template*: TODO
+    * *frameCode*: TODO
     * *formResource*: allow to change the default :ref:`th_form_class`. Check the
       :ref:`th_formresource` section for more information.
-    * *openIfEmpty*: add???
+    * *openIfEmpty*: TODO
     * *_class*: the CSS style
     * *label*: the th_linkerBox label
     
         **Example**
         
-        add??? example explanation
+        TODO example explanation
         
-        add??? Explain of the tpl folder --> resources/tables/*TableName*/tpl/default.html
+        TODO Explain of the tpl folder --> resources/tables/*TableName*/tpl/default.html
         
         ::
         

@@ -91,7 +91,7 @@ def sortByItem(l, *args, **kwargs):
     return l
         
 def sortByAttr(l, *args):
-    """add???
+    """TODO
     
     :param l: the list"""
     # da verificare
@@ -117,7 +117,7 @@ def sortByAttr(l, *args):
     return l
 
 def merge(*args):
-    """add???"""
+    """TODO"""
     result = list(args[0])
     for l in args[1:]:
         for el in l:
@@ -328,7 +328,7 @@ class GnrNamedList(list):
     def get(self, x, default=None):
         """Same of ``get`` method's dict
         
-        :param x: add???
+        :param x: TODO
         :param default: the value returned if ``self[x]`` is ``None``"""
         try:
             return self[x]
@@ -368,8 +368,8 @@ class GnrNamedList(list):
     def pop(self, x,dflt=None):
         """Same of ``pop`` method's dict
         
-        :param x: add???
-        :param dflt: add???"""
+        :param x: TODO
+        :param dflt: TODO"""
         if type(x) != int:
             x = self._index[x]
         try:

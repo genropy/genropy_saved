@@ -115,15 +115,15 @@ class SqlTable(GnrObject):
         self.name_plural = tblobj.name_plural
         
     def use_dbstores(self):
-        """add???"""
+        """TODO"""
         return False
         
     def exception(self, exception, record=None, msg=None, **kwargs):
-        """add???
+        """TODO
         
         :param exception: the exception raised.
-        :param record: add???.
-        :param msg: add???."""
+        :param record: TODO.
+        :param msg: TODO."""
         if isinstance(exception,basestring):
             exception = EXCEPTIONS.get(exception)
             if not exception:
@@ -167,9 +167,9 @@ class SqlTable(GnrObject):
         return self.model.column(name)
         
     def fullRelationPath(self, name):
-        """add???
+        """TODO
         
-        :param name: add???"""
+        :param name: TODO"""
         return self.model.fullRelationPath(name)
         
     def getColumnPrintWidth(self, column):
@@ -213,7 +213,7 @@ class SqlTable(GnrObject):
         
     @property
     def attributes(self):
-        """add???"""
+        """TODO"""
         return self.model.attributes
         
     @property
@@ -275,7 +275,7 @@ class SqlTable(GnrObject):
         """Check and coerce types in record.
         
         :param record: an object implementing dict interface as colname, colvalue
-        :param null: add???"""
+        :param null: TODO"""
         converter = self.db.typeConverter
         for k in record.keys():
             if not k.startswith('@'):
@@ -300,9 +300,9 @@ class SqlTable(GnrObject):
     def buildrecord(self, fields, resolver_one=None, resolver_many=None):
         """Build a new record and return it
         
-        :param fields: add???
-        :param resolver_one: add???
-        :param resolver_many: add???"""
+        :param fields: TODO
+        :param resolver_one: TODO
+        :param resolver_many: TODO"""
         newrecord = Bag()
         for fld_node in self.model.relations:
             fld = fld_node.label
@@ -344,9 +344,9 @@ class SqlTable(GnrObject):
         return newrecord
         
     def buildrecord_(self, fields):
-        """add???
+        """TODO
         
-        :param fields: add???"""
+        :param fields: TODO"""
         newrecord = Bag()
         for fld in self.columns.keys():
             v = fields.get(fld)
@@ -362,11 +362,11 @@ class SqlTable(GnrObject):
         return newrecord
         
     def newrecord(self, assignId=False, resolver_one=None, resolver_many=None, **kwargs):
-        """add???
+        """TODO
         
-        :param assignId: add???
-        :param resolver_one: add???
-        :param resolver_many: add???"""
+        :param assignId: TODO
+        :param resolver_one: TODO
+        :param resolver_many: TODO"""
         newrecord = self.buildrecord(kwargs, resolver_one=resolver_one, resolver_many=resolver_many)
         if assignId:
             newrecord[self.pkey] = self.newPkeyValue()
@@ -386,20 +386,20 @@ class SqlTable(GnrObject):
          
         :param pkey: the record :ref:`primary key <pkey>`
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
-        :param lazy: add???
-        :param eager: add???
+        :param lazy: TODO
+        :param eager: TODO
         :param mode: bag, dict, json
         :param relationDict: a dict to assign a symbolic name to a :ref:`relation_path`. For more information
                              check the :ref:`relationdict` documentation section
-        :param ignoreMissing: add???
-        :param virtual_columns: add???
-        :param ignoreDuplicate: add???
+        :param ignoreMissing: TODO
+        :param virtual_columns: TODO
+        :param ignoreDuplicate: TODO
         :param bagFields: boolean. If ``True``, include fields of type Bag (``X``) when columns is ``*``
                           or contains ``*@relname.filter``
         :param joinConditions: special conditions for joining related tables. See the
                                :meth:`setJoinCondition() <gnr.sql.gnrsqldata.SqlQuery.setJoinCondition()>` method
-        :param sqlContextName: add???
-        :param for_update: add???"""
+        :param sqlContextName: TODO
+        :param for_update: TODO"""
         record = SqlRecord(self, pkey=pkey, where=where,
                            lazy=lazy, eager=eager,
                            relationDict=relationDict,
@@ -419,7 +419,7 @@ class SqlTable(GnrObject):
         
         :param record: a bag, a dict or a string (i.e. the record's pkey)
         :param mode: 'dict' or 'bag' or 'pkey'
-        :param virtual_columns: add???"""
+        :param virtual_columns: TODO"""
         if isinstance(record, basestring):
             if mode == 'pkey':
                 return record
@@ -462,16 +462,16 @@ class SqlTable(GnrObject):
         :param offset: corresponding to the sql "OFFSET" operator
         :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
         :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
-        :param for_update: boolean. add???
+        :param for_update: boolean. TODO
         :param relationDict: a dict to assign a symbolic name to a :ref:`relation_path`. For more information
                              check the :ref:`relationdict` documentation section
         :param sqlparams: an optional dictionary for sql query parameters
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
                                       "logical deleted"
-        :param excludeDraft: add???
+        :param excludeDraft: TODO
         :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute
         :param locale: the current locale (e.g: en, en_us, it)
-        :param mode: add???
+        :param mode: TODO
         :param \*\*kwargs: another way to pass sql query parameters"""
         query = SqlQuery(self, columns=columns, where=where, order_by=order_by,
                          distinct=distinct, limit=limit, offset=offset,
@@ -525,7 +525,7 @@ class SqlTable(GnrObject):
         return result
             
     def readColumns(self, pkey=None, columns=None, where=None, **kwargs):
-        """add???
+        """TODO
         
         :param pkey: the record :ref:`primary key <pkey>`
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
@@ -545,10 +545,10 @@ class SqlTable(GnrObject):
         return row
         
     def sqlWhereFromBag(self, wherebag, sqlArgs=None, **kwargs):
-        """add???
+        """TODO
         
-        :param wherebag: add???
-        :param sqlArgs: add???
+        :param wherebag: TODO
+        :param sqlArgs: TODO
         
         Not sure what this is, but here is the previous existing docstrings in all their glory::
         
@@ -566,15 +566,15 @@ class SqlTable(GnrObject):
     def frozenSelection(self, fpath):
         """Get a pickled selection and return it
         
-        :param fpath: add???"""
+        :param fpath: TODO"""
         selection = self.db.unfreezeSelection(fpath)
         assert selection.dbtable == self, 'the frozen selection does not belong to this table'
         return selection
         
     def checkPkey(self, record):
-        """add???
+        """TODO
         
-        :param record: add???"""
+        :param record: TODO"""
         pkeyValue = record.get(self.pkey)
         newkey = False
         if pkeyValue in (None, ''):
@@ -583,7 +583,7 @@ class SqlTable(GnrObject):
         return newkey
         
     def empty(self):
-        """add???"""
+        """TODO"""
         self.db.adapter.emptyTable(self)
         
     def sql_deleteSelection(self, where, **kwargs):
@@ -598,14 +598,14 @@ class SqlTable(GnrObject):
     #Jeff added the support to deleteSelection for passing no condition so that all records would be deleted
     def deleteSelection(self, condition_field=None, condition_value=None, excludeLogicalDeleted=False, excludeDraft=False,condition_op='=',
                         where=None, **kwargs):
-        """add???
+        """TODO
         
-        :param condition_field: add???
-        :param condition_value: add???
+        :param condition_field: TODO
+        :param condition_value: TODO
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
                                       "logical deleted"
-        :param excludeDraft: add???
-        :param condition_op: add???"""
+        :param excludeDraft: TODO
+        :param condition_op: TODO"""
         # if self.trigger_onDeleting:
         if(condition_field and condition_value):
             where = '%s %s :condition_value' % (condition_field, condition_op)
@@ -622,7 +622,7 @@ class SqlTable(GnrObject):
             #  sql delete where
             
     def touchRecords(self, where=None, **kwargs):
-        """add???
+        """TODO
         
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section"""
         sel = self.query(where=where, addPkeyColumn=False, for_update=True, **kwargs).fetch()
@@ -653,10 +653,10 @@ class SqlTable(GnrObject):
             return self.insert(record)
             
     def lock(self, mode='ACCESS EXCLUSIVE', nowait=False):
-        """add???
+        """TODO
         
-        :param mode: add???
-        :param nowait: boolean. add???"""
+        :param mode: TODO
+        :param nowait: boolean. TODO"""
         self.db.adapter.lockTable(self, mode, nowait)
         
     def insert(self, record, **kwargs):
@@ -674,7 +674,7 @@ class SqlTable(GnrObject):
         self.db.delete(self, record, **kwargs)
         
     def deleteRelated(self, record):
-        """add???
+        """TODO
         
         :param record: a dictionary, bag or pkey (string)"""
         for rel in self.relations_many:
@@ -696,17 +696,17 @@ class SqlTable(GnrObject):
     def update(self, record, old_record=None, pkey=None,**kwargs):
         """Update a single record
         
-        :param record: add???
-        :param old_record: add???
+        :param record: TODO
+        :param old_record: TODO
         :param pkey: the record :ref:`primary key <pkey>`"""
         self.db.update(self, record, old_record=old_record, pkey=pkey,**kwargs)
         
     def writeRecordCluster(self, recordCluster, recordClusterAttr, debugPath=None):
         """Receive a changeSet and execute insert, delete or update
         
-        :param recordCluster: add???
-        :param recordClusterAttr: add???
-        :param debugPath: add???"""
+        :param recordCluster: TODO
+        :param recordClusterAttr: TODO
+        :param debugPath: TODO"""
         def onBagColumns(attributes=None,**kwargs):
             if attributes and '__old' in attributes:
                 attributes.pop('__old')
@@ -784,11 +784,11 @@ class SqlTable(GnrObject):
         return main_record
             
     def xmlDebug(self, data, debugPath, name=None):
-        """add???
+        """TODO
         
-        :param data: add???
-        :param debugPath: add???
-        :param name: add???"""
+        :param data: TODO
+        :param debugPath: TODO
+        :param name: TODO"""
         name = name or self.name
         filepath = os.path.join(debugPath, '%s.xml' % name)
         data.toXml(filepath, autocreate=True)
@@ -834,7 +834,7 @@ class SqlTable(GnrObject):
             return getUuid()
             
     def baseViewColumns(self):
-        """add???"""
+        """TODO"""
         allcolumns = self.model.columns
         result = [k for k, v in allcolumns.items() if v.attributes.get('base_view')]
         if not result:
@@ -842,18 +842,18 @@ class SqlTable(GnrObject):
         return ','.join(result)
         
     def getResource(self, path):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         return self.db.getResource(self, path)
         
         #---------- method to implement via mixin
     def onIniting(self):
-        """Hook method called on... add???"""
+        """Hook method called on... TODO"""
         pass
         
     def onInited(self):
-        """Hook method called on... add???"""
+        """Hook method called on... TODO"""
         pass
         
     def trigger_onInserting(self, record):
@@ -899,45 +899,45 @@ class SqlTable(GnrObject):
         pass
         
     def protect_update(self, record, old_record=None):
-        """add???
+        """TODO
         
-        :param record: add???
-        :param old_record: add???"""
+        :param record: TODO
+        :param old_record: TODO"""
         pass
         
     def protect_delete(self, record):
-        """add???
+        """TODO
         
-        :param record: add???"""
+        :param record: TODO"""
         pass
         
     def protect_validate(self, record, old_record=None):
-        """add???
+        """TODO
         
-        :param record: add???
-        :param old_record: add???"""
+        :param record: TODO
+        :param old_record: TODO"""
         pass
         
     def diagnostic_errors(self, record, old_record=None):
-        """add???
+        """TODO
         
-        :param record: add???
-        :param old_record: add???"""
+        :param record: TODO
+        :param old_record: TODO"""
         print 'You should override for diagnostic'
         return
     
     def diagnostic_warnings(self, record, old_record=None):
-        """add???
+        """TODO
         
-        :param record: add???
-        :param old_record: add???"""
+        :param record: TODO
+        :param old_record: TODO"""
         print 'You should override for diagnostic'
         return
     
     def check_updatable(self, record):
-        """add???
+        """TODO
         
-        :param record: add???"""
+        :param record: TODO"""
         try:
             self.protect_update(record,record)
             return True
@@ -945,9 +945,9 @@ class SqlTable(GnrObject):
             return False
             
     def check_deletable(self, record):
-        """add???
+        """TODO
         
-        :param record: add???"""
+        :param record: TODO"""
         try:
             self.protect_delete(record)
             return True
@@ -955,7 +955,7 @@ class SqlTable(GnrObject):
             return False
             
     def columnsFromString(self, columns=None):
-        """add???
+        """TODO
         
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
@@ -973,19 +973,19 @@ class SqlTable(GnrObject):
         return result
         
     def getQueryFields(self, columns=None, captioncolumns=None):
-        """add???
+        """TODO
         
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
-        :param captioncolumns: add???"""
+        :param captioncolumns: TODO"""
         columns = columns or self.model.queryfields or captioncolumns
         return self.columnsFromString(columns)
         
     def rowcaptionDecode(self, rowcaption=None):
-        """add???
+        """TODO
         
-        :param rowcaption: add???"""
+        :param rowcaption: TODO"""
         rowcaption = rowcaption or self.rowcaption
         if not rowcaption:
             return [], ''
@@ -1001,11 +1001,11 @@ class SqlTable(GnrObject):
         return fields, mask
         
     def recordCaption(self, record, newrecord=False, rowcaption=None):
-        """add???
+        """TODO
         
-        :param record: add???
-        :param newrecord: boolean. add???
-        :param rowcaption: add???"""
+        :param record: TODO
+        :param newrecord: boolean. TODO
+        :param rowcaption: TODO"""
         if newrecord:
             return self.name_long
         else:
@@ -1023,15 +1023,15 @@ class SqlTable(GnrObject):
             return caption
             
     def colToAs(self, col):
-        """add???
+        """TODO
         
-        :param col: add???"""
+        :param col: TODO"""
         return self.db.colToAs(col)
         
     def relationName(self, relpath):
-        """add???
+        """TODO
         
-        :param relpath: add???"""
+        :param relpath: TODO"""
         relpath = self.model.resolveRelationPath(relpath)
         attributes = self.model.relations.getAttr(relpath)
         joiner = attributes['joiner']
@@ -1048,9 +1048,9 @@ class SqlTable(GnrObject):
     
     @deprecated
     def xmlDump(self, path):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         filepath = os.path.join(path, '%s_dump.xml' % self.name)
         records = self.query(excludeLogicalDeleted=False,excludeDraft=False).fetch()
         result = Bag()
@@ -1063,9 +1063,9 @@ class SqlTable(GnrObject):
     
     @deprecated
     def importFromXmlDump(self, path):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         if '.xml' in path:
             filepath = path
         else:
@@ -1078,15 +1078,15 @@ class SqlTable(GnrObject):
                 
     def copyToDb(self, dbsource, dbdest, empty_before=False, excludeLogicalDeleted=True, excludeDraft=True,
                  source_records=None, bagFields=True, **querykwargs):
-        """add???
+        """TODO
         
         :param dbsource: sourcedb
         :param dbdest: destdb
-        :param empty_before: boolean. add???
+        :param empty_before: boolean. TODO
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
                                       "logical deleted"
-        :param excludeDraft: add???
-        :param source_records: add???"""
+        :param excludeDraft: TODO
+        :param source_records: TODO"""
         tbl_name = self.fullname
         source_tbl = dbsource.table(tbl_name)
         dest_tbl = dbdest.table(tbl_name)
@@ -1104,11 +1104,11 @@ class SqlTable(GnrObject):
                 
     
     def copyToDbstore(self,pkey=None,dbstore=None,bagFields=True,**kwargs):
-        """add???
+        """TODO
         
         :param pkey: the record :ref:`primary key <pkey>`
-        :param dbstore: add???
-        :param bagFields: add???"""
+        :param dbstore: TODO
+        :param bagFields: TODO"""
         queryargs = kwargs
         if pkey:
             queryargs = dict(where='$pkey=:pkey',pkey=pkey)
@@ -1119,14 +1119,14 @@ class SqlTable(GnrObject):
                 
     def exportToAuxInstance(self, instance, empty_before=False, excludeLogicalDeleted=True,
                             excludeDraft=True, source_records=None, **querykwargs):
-        """add???
+        """TODO
         
         :param instance: the name of the instance
-        :param empty_before: boolean. add???
+        :param empty_before: boolean. TODO
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
                                       "logical deleted"
-        :param excludeDraft: add???
-        :param source_records: add???"""
+        :param excludeDraft: TODO
+        :param source_records: TODO"""
         if isinstance(instance,basestring):
             instance = self.db.application.getAuxInstance(instance)
         dest_db = instance.db
@@ -1135,15 +1135,15 @@ class SqlTable(GnrObject):
                         
     def importFromAuxInstance(self, instance, tbl_name=None, empty_before=False, excludeLogicalDeleted=True,
                               excludeDraft=True, source_records=None, **querykwargs):
-        """add???
+        """TODO
         
         :param instance: the name of the instance
         :param tbl_name: the name of the database :ref:`table`
-        :param empty_before: boolean. add???
+        :param empty_before: boolean. TODO
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
                                       "logical deleted"
-        :param excludeDraft: add???
-        :param source_records: add???"""
+        :param excludeDraft: TODO
+        :param source_records: TODO"""
         if isinstance(instance,basestring):
             instance = self.db.application.getAuxInstance(instance)
         source_db = instance.db
@@ -1151,12 +1151,12 @@ class SqlTable(GnrObject):
                       source_records=source_records,excludeDraft=excludeDraft,**querykwargs)
                       
     def relationExplorer(self, omit='', prevRelation='', dosort=True, pyresolver=False, **kwargs):
-        """add???
+        """TODO
         
-        :param omit: add???
-        :param prevRelation: add???
-        :param dosort: boolean. add???
-        :param pyresolver: boolean. add???"""
+        :param omit: TODO
+        :param prevRelation: TODO
+        :param dosort: boolean. TODO
+        :param pyresolver: boolean. TODO"""
         def xvalue(attributes):
             if not pyresolver:
                 return

@@ -10,6 +10,7 @@
     
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     table
     table_classes

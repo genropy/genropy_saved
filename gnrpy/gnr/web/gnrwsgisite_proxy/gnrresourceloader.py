@@ -37,7 +37,7 @@ class ResourceLoader(object):
         self.default_path = self.site.default_page and self.site.default_page.split('/')
         
     def find_webtools(self):
-        """add???"""
+        """TODO"""
         def isgnrwebtool(cls):
             return inspect.isclass(cls) and issubclass(cls, BaseWebtool) and cls is not BaseWebtool
             
@@ -113,8 +113,8 @@ class ResourceLoader(object):
     def get_page_node(self, path_list, default=False):
         """Get the deepest :ref:`bagnode` in the sitemap :ref:`bag` associated with the given url
         
-        :param path_list: add???
-        :param default: add???"""
+        :param path_list: TODO
+        :param default: TODO"""
         def escape_path_list(path_list):
             return [p.replace('.','\\.') for p in path_list]
         def unescape_path_list(path_list):
@@ -157,9 +157,9 @@ class ResourceLoader(object):
         return page
         
     def get_page_class(self, path=None, pkg=None, plugin=None):
-        """add???
+        """TODO
         
-        :param path: add???
+        :param path: TODO
         :param pkg: the :ref:`package <packages>` object"""
         if pkg == '*':
             module_path = os.path.join(self.site_path, path)
@@ -216,7 +216,7 @@ class ResourceLoader(object):
     def page_class_base_mixin(self, page_class, pkg=None):
         """Look for custom classes in the package
         
-        :param page_class: add???
+        :param page_class: TODO
         :param pkg: the :ref:`package <packages>` object"""
         if pkg:
             package = self.gnrapp.packages[pkg]
@@ -230,7 +230,7 @@ class ResourceLoader(object):
     def plugin_webpage_classes(self, path, pkg=None):
         """Look in the plugins folders for a file named as the current webpage and get all classes
         
-        :param path: add???
+        :param path: TODO
         :param pkg: the :ref:`package <packages>` object"""
         plugin_webpage_classes = []
         path = path.split(os.path.sep)
@@ -249,16 +249,16 @@ class ResourceLoader(object):
     def page_class_plugin_mixin(self, page_class, plugin_webpage_classes):
         """Mixin the current class with the *plugin_webpage_classes* attribute
         
-        :param page_class: add???
-        :param plugin_webpage_classes: add???"""
+        :param page_class: TODO
+        :param plugin_webpage_classes: TODO"""
         for plugin_webpage_class in plugin_webpage_classes:
             classMixin(page_class, plugin_webpage_class, only_callables=False)
             
     def page_class_custom_mixin(self, page_class, path, pkg=None):
         """Look in the instance custom folder for a file named as the current webpage
         
-        :param page_class: add???
-        :param path: add???
+        :param page_class: TODO
+        :param path: TODO
         :param pkg: the :ref:`package <packages>` object"""
         path = path.split(os.path.sep)
         if pkg:
@@ -272,8 +272,8 @@ class ResourceLoader(object):
     def page_class_resourceDirs(self, page_class, path, pkg=None):
         """Build page resources directories
         
-        :param page_class: add???
-        :param path: add???
+        :param page_class: TODO
+        :param path: TODO
         :param pkg: the :ref:`package <packages>` object"""
         if pkg:
             pagesPath = os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
@@ -309,10 +309,10 @@ class ResourceLoader(object):
         return result
         
     def package_resourceDirs(self, pkg, omitSiteResources=False, pluginId=None):
-        """add???
+        """TODO
         
         :param pkg: the :ref:`package <packages>` object
-        :param omitSiteResources: boolean. add???"""
+        :param omitSiteResources: boolean. TODO"""
         pkg = self.gnrapp.packages[pkg]
         result = []
         if not hasattr(pkg, '_resourceDirs'):
@@ -349,7 +349,7 @@ class ResourceLoader(object):
         return result
         
     def site_resources(self):
-        """add???"""
+        """TODO"""
         resources = Bag()
         for pkg in self.site.gnrapp.packages.values():
             rsrc_path = os.path.join(pkg.packageFolder, 'resources')
@@ -376,10 +376,10 @@ class ResourceLoader(object):
         return resources
         
     def resource_name_to_path(self, res_id, safe=True):
-        """add???
+        """TODO
         
-        :param res_id: add???
-        :param safe: add???"""
+        :param res_id: TODO
+        :param safe: TODO"""
         project_resource_path = os.path.normpath(os.path.join(self.site_path, '..', '..', 'resources', res_id))
         if os.path.isdir(project_resource_path):
             log.debug('resource_name_to_path(%s) -> %s (project)' % (repr(res_id),repr(project_resource_path)))
@@ -397,18 +397,18 @@ class ResourceLoader(object):
     def page_pyrequires_mixin(self, page_class, py_requires):
         """Allow to mixin the :ref:`webpage python requirements <webpages_py_requires>`
         
-        :param page_class: add???
-        :param py_requires: add???"""
+        :param page_class: TODO
+        :param py_requires: TODO"""
         for mix in py_requires:
             if mix:
                 self.mixinResource(page_class, page_class.resourceDirs, mix)
                 
     def mixinResource(self, kls, resourceDirs, *path):
-        """add???
+        """TODO
         
-        :param kls: add???
-        :param resourceDirs: add???
-        :param \*path: add???"""
+        :param kls: TODO
+        :param resourceDirs: TODO
+        :param \*path: TODO"""
         path = os.path.join(*path)
         if ':' in path:
             modName, clsName = path.split(':')
@@ -423,10 +423,10 @@ class ResourceLoader(object):
             raise GnrMixinError('Cannot import component %s' % modName)
             
     def py_requires_iterator(self, source_class, target_class):
-        """add???
+        """TODO
         
-        :param source_class: add???
-        :param target_class: add???"""
+        :param source_class: TODO
+        :param target_class: TODO"""
         resourceDirs = target_class.resourceDirs
         py_requires = [x for x in splitAndStrip(getattr(source_class, 'py_requires', ''), ',') if x] or []
         for path in py_requires:
@@ -446,9 +446,9 @@ class ResourceLoader(object):
     def getResourceList(self, resourceDirs, path, ext=None,pkg=None):
         """Find a resource in the current ``_resources`` folder or in parent folders one
         
-        :param resourceDirs: add???
-        :param path: add???
-        :param ext: add???"""
+        :param resourceDirs: TODO
+        :param path: TODO
+        :param ext: TODO"""
         result = []
         if ext == 'css' or ext == 'js':
             locations = resourceDirs[:]
@@ -472,7 +472,7 @@ class ResourceLoader(object):
         return result
         
     def loadResource(self, *path, **kwargs):
-        """add???"""
+        """TODO"""
         resource_class = cloneClass('CustomResource', BaseResource)
         pkg=kwargs.pop('pkg', None)
         page=kwargs.pop('page', None)
@@ -510,14 +510,14 @@ class ResourceLoader(object):
     
         
     def loadTableScript(self, page, table=None, respath=None, class_name=None):
-        """add???
+        """TODO
         
-        :param page: add???
+        :param page: TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param respath: add???
-        :param class_name: add???
+        :param respath: TODO
+        :param class_name: TODO
         """
         class_name = class_name or 'Main'
         application = self.gnrapp
@@ -561,11 +561,11 @@ class ResourceLoader(object):
             raise GnrWebServerError('Cannot import component %s' % modName)
     
     def resourcesAtPath(self, pkg, path, ext):
-        """add???
+        """TODO
         
         :param pkg: the :ref:`package <packages>` object
-        :param path: add???
-        :param ext: add???"""
+        :param path: TODO
+        :param ext: TODO"""
         result = Bag()
         locations = list(self.package_resourceDirs(pkg))
         for dpath in locations:

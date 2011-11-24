@@ -27,6 +27,7 @@ section index
 
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     location
     requirements

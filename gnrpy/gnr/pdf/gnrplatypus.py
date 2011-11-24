@@ -42,7 +42,7 @@ class GnrPdfSrc(GnrStructData):
             raise AttributeError("object has no attribute '%s'" % fname)
             
 class GnrPdf(object):
-    """add???"""
+    """TODO"""
     def __init__(self, filename='test.pdf', pagesize='A4', unit='inch'):
         if isinstance(pagesize, basestring):
             pagesize = getattr(pdflib.pagesizes, pagesize, pdflib.pagesizes.A4)
@@ -54,7 +54,7 @@ class GnrPdf(object):
         self._pendingDraw = False
         
     def draw(self):
-        """add???"""
+        """TODO"""
         self.page()
         self.root.walk(self._drawNode)
         
@@ -72,17 +72,17 @@ class GnrPdf(object):
                 self._pendingDraw = True
                 
     def page(self, x=0, y=0):
-        """add???
+        """TODO
         
-        :param x: add???
-        :param y: add???"""
+        :param x: TODO
+        :param y: TODO"""
         if self._pendingDraw:
             self.canvas.showPage()
             self._pendingDraw = False
         self.canvas.translate(x * self.unit, y * self.unit)
         
     def save(self):
-        """add???"""
+        """TODO"""
         self.canvas.save()
         
 if __name__ == '__main__':

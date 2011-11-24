@@ -61,15 +61,15 @@ class GnrWebPageException(GnrException):
 class GnrWebPage(GnrBaseWebPage):
     """Standard class for :ref:`webpages <webpage>`
     
-    :param site: add???
-    :param request: add???
-    :param response: add???
-    :param request_kwargs: add???
-    :param request args: add???
-    :param filepath: add???
-    :param packageId: add???
-    :param basename: add???
-    :param environ: add???"""
+    :param site: TODO
+    :param request: TODO
+    :param response: TODO
+    :param request_kwargs: TODO
+    :param request args: TODO
+    :param filepath: TODO
+    :param packageId: TODO
+    :param basename: TODO
+    :param environ: TODO"""
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
         self.site = site
@@ -139,16 +139,16 @@ class GnrWebPage(GnrBaseWebPage):
         self._call_kwargs = dict(request_kwargs)
         
     def onPreIniting(self, *request_args, **request_kwargs):
-        """add???"""
+        """TODO"""
         pass
         
     @property
     def call_args(self):
-        """add???"""
+        """TODO"""
         return self._call_args
         
     def getCallArgs(self,*args):
-        """add???"""
+        """TODO"""
         if not args:
             return self._call_args
         result = dict()           
@@ -158,7 +158,7 @@ class GnrWebPage(GnrBaseWebPage):
         return result 
         
     def instantiateProxies(self):
-        """add???"""
+        """TODO"""
         proxy_classes = [(p[:-11],getattr(self,p, None)) for p in dir(self) if p.endswith('_proxyclass')]
         for proxy_name,proxy_class in proxy_classes:
             if proxy_class:
@@ -187,10 +187,10 @@ class GnrWebPage(GnrBaseWebPage):
             return self.site.register.new_page(self.page_id, self, data=dict(pageArgs=kwargs, workdate=workdate))
             
     def get_call_handler(self, request_args, request_kwargs):
-        """add???
+        """TODO
         
-        :param request_args: add???
-        :param request_kwargs: add???"""
+        :param request_args: TODO
+        :param request_kwargs: TODO"""
         if '_plugin' in request_kwargs:
             self._call_handler_type = 'plugin'
             return self.pluginhandler.get_plugin(request_kwargs['_plugin'], request_args=request_args,
@@ -344,21 +344,21 @@ class GnrWebPage(GnrBaseWebPage):
         return AUTH_OK
         
     def mixinComponent(self, *path,**kwargs):
-        """add???
+        """TODO
         
         :param pkg: the :ref:`package <packages>` object"""
         self.site.resource_loader.mixinPageComponent(self, *path,**kwargs)
     
     @public_method
     def tableTemplate(self, table=None, tplname=None, asSource=False):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param tplname: the template name
-        :param ext: add???
-        :param asSource: boolean. add???"""
+        :param ext: TODO
+        :param asSource: boolean. TODO"""
         result,path = self.getTableResourceContent(table=table,path='tpl/%s' %tplname,ext=['xml','html'])
         if not path:
             return ''
@@ -378,7 +378,7 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def isGuest(self):
-        """add???"""
+        """TODO"""
         return self.user == self.connection.guestname
         
     @public_method
@@ -388,8 +388,8 @@ class GnrWebPage(GnrBaseWebPage):
         * The user exists and his password is correct
         * The user is a guest
         
-        :param login: add???
-        :param guestName: add???"""
+        :param login: TODO
+        :param guestName: TODO"""
         loginPars = {}
         if guestName:
             avatar = self.application.getAvatar(guestName)
@@ -414,46 +414,46 @@ class GnrWebPage(GnrBaseWebPage):
 
     
     def onInit(self):
-        """Hook method. add???"""
+        """Hook method. TODO"""
         pass
         
     def onIniting(self, request_args, request_kwargs):
         """Callback onIniting called in early stages of page initialization
         
-        :param request_args: add???
-        :param request_kwargs: add???"""
+        :param request_args: TODO
+        :param request_kwargs: TODO"""
         pass
         
     def onSaving(self, recordCluster, recordClusterAttr, resultAttr=None):
-        """add???
+        """TODO
         
-        :param recordCluster: add???
-        :param recordClusterAttr: add???
-        :param resultAttr: add???"""
+        :param recordCluster: TODO
+        :param recordClusterAttr: TODO
+        :param resultAttr: TODO"""
         pass
         
     def onSaved(self, record, resultAttr=None, **kwargs):
-        """add???
+        """TODO
         
-        :param record: add???
-        :param resultAttr: add???"""
+        :param record: TODO
+        :param resultAttr: TODO"""
         pass
         
     def onDeleting(self, recordCluster, recordClusterAttr):
-        """add???
+        """TODO
         
-        :param recordCluster: add???
-        :param recordClusterAttr: add???"""
+        :param recordCluster: TODO
+        :param recordClusterAttr: TODO"""
         pass
         
     def onDeleted(self, record):
-        """add???
+        """TODO
         
-        :param record: add???"""
+        :param record: TODO"""
         pass
         
     def onBegin(self):
-        """add???"""
+        """TODO"""
         pass
         
     def _onBegin(self):
@@ -461,13 +461,13 @@ class GnrWebPage(GnrBaseWebPage):
         self._publish_event('onBegin')
         
     def onEnd(self):
-        """add???"""
+        """TODO"""
         pass
         
     def getService(self, service_type):
-        """add???
+        """TODO
         
-        :param service_type: add???"""
+        :param service_type: TODO"""
         return self.site.getService(service_type)
         
     def _onEnd(self):
@@ -475,7 +475,7 @@ class GnrWebPage(GnrBaseWebPage):
         self.onEnd()
         
     def collectClientDatachanges(self):
-        """add???"""
+        """TODO"""
         self._publish_event('onCollectDatachanges')
         result = self.site.get_datachanges(self.page_id, user=self.user,
                                            local_datachanges=self.local_datachanges)
@@ -490,7 +490,7 @@ class GnrWebPage(GnrBaseWebPage):
             getattr(subscriber, 'event_%s' % event)()
             
     def rootPage(self,*args, **kwargs):
-        """add???"""
+        """TODO"""
         self.charset = 'utf-8'
         arg_dict = self.build_arg_dict(**kwargs)
         tpl = self.pagetemplate
@@ -517,37 +517,37 @@ class GnrWebPage(GnrBaseWebPage):
     locale = property(_get_locale, _set_locale)
         
     def rpc_changeLocale(self, locale):
-        """add???
+        """TODO
         
         :param locale: the current locale (e.g: en, en_us, it)"""
         self.connection.locale = locale.lower()
         
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, dtype=None):
-        """add???
+        """TODO
         
-        :param obj: add???
+        :param obj: TODO
         :param locale: the current locale (e.g: en, en_us, it)
-        :param format: add???
-        :param mask: add???
+        :param format: TODO
+        :param mask: TODO
         :param encoding: the encoding type
         :param dtype: the :ref:`datatype`"""
         locale = locale or self.locale
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding)
         
     def getUuid(self):
-        """add???"""
+        """TODO"""
         return getUuid()
         
     def addHtmlHeader(self, tag, innerHtml='', **kwargs):
-        """add???
+        """TODO
         
-        :param tag: add???
-        :param innerHtml: add???"""
+        :param tag: TODO
+        :param innerHtml: TODO"""
         attrString = ' '.join(['%s="%s"' % (k, str(v)) for k, v in kwargs.items()])
         self._htmlHeaders.append('<%s %s>%s</%s>' % (tag, attrString, innerHtml, tag))
         
     def htmlHeaders(self):
-        """add???"""
+        """TODO"""
         pass
     
     @property
@@ -560,14 +560,14 @@ class GnrWebPage(GnrBaseWebPage):
         return txt
         
     def getPublicMethod(self, prefix, method):
-        """add???
+        """TODO
         
         :param prefix: The method prefix. It can be:
                        
                        * 'remote': this prefix is used for the :ref:`dataremote`\s
                        * 'rpc': this prefix is used for the :ref:`datarpc`\s
                        
-        :param method: add???"""
+        :param method: TODO"""
         handler = None
         if ';' in method:
             mixin_info, method = method.split(';')
@@ -596,7 +596,7 @@ class GnrWebPage(GnrBaseWebPage):
         return handler
         
     def build_arg_dict(self, _nodebug=False, _clocomp=False, **kwargs):
-        """add???
+        """TODO
         
         :param _nodebug: no debug mode
         :param _clocomp: enable closure compile
@@ -636,7 +636,7 @@ class GnrWebPage(GnrBaseWebPage):
         return arg_dict
         
     def mtimeurl(self, *args):
-        """add???"""
+        """TODO"""
         gnr_static_handler = self.site.getStatic('gnr')
         fpath = gnr_static_handler.path(*args)
         mtime = os.stat(fpath).st_mtime
@@ -645,18 +645,18 @@ class GnrWebPage(GnrBaseWebPage):
         return url
         
     def homeUrl(self):
-        """add???"""
+        """TODO"""
         return self.site.home_uri
         
     def packageUrl(self, *args, **kwargs):
-        """add???"""
+        """TODO"""
         pkg = kwargs.get('pkg', self.packageId)
         return self.site.pkg_page_url(pkg, *args)
         
     def getDomainUrl(self, path='', **kwargs):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         params = urllib.urlencode(kwargs)
         path = '%s/%s' % (self.site.home_uri.rstrip('/'), path.lstrip('/'))
         if params:
@@ -664,9 +664,9 @@ class GnrWebPage(GnrBaseWebPage):
         return path
         
     def externalUrl(self, path, **kwargs):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         params = urllib.urlencode(kwargs)
         #path = os.path.join(self.homeUrl(), path)
         if path == '': path = self.siteUri
@@ -676,10 +676,10 @@ class GnrWebPage(GnrBaseWebPage):
         return path
         
     def externalUrlToken(self, path, _expiry=None, _host=None, method='root', **kwargs):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param method: add???
+        :param path: TODO
+        :param method: TODO
         """
         assert 'sys' in self.site.gnrapp.packages
         external_token = self.db.table('sys.external_token').create_token(path, expiry=_expiry, allowed_host=_host,
@@ -688,12 +688,12 @@ class GnrWebPage(GnrBaseWebPage):
         return self.externalUrl(path, gnrtoken=external_token)
         
     def get_bodyclasses(self):   #  ancora necessario _common_d11?
-        """add???"""
+        """TODO"""
         return '%s _common_d11 pkg_%s page_%s %s' % (
         self.frontend.theme or '', self.packageId, self.pagename, getattr(self, 'bodyclasses', ''))
         
     def get_css_genro(self):
-        """add???"""
+        """TODO"""
         css_genro = self.frontend.css_genro_frontend()
         for media in css_genro.keys():
             css_genro[media] = [self.mtimeurl(self.gnrjsversion, 'css', '%s.css' % f) for f in css_genro[media]]
@@ -705,7 +705,7 @@ class GnrWebPage(GnrBaseWebPage):
     domSrcFactory = property(_get_domSrcFactory)
         
     def newSourceRoot(self):
-        """add???"""
+        """TODO"""
         return self.domSrcFactory.makeRoot(self)
         
     def newGridStruct(self, maintable=None):
@@ -722,12 +722,12 @@ class GnrWebPage(GnrBaseWebPage):
                 'current': os.path.dirname(self.filepath)}
               
     def subscribeTable(self, table, subscribe=True):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param subscribe: boolean. add???"""
+        :param subscribe: boolean. TODO"""
         with self.pageStore() as store:
             subscribed_tables = store.register_item['subscribed_tables']
             if subscribe:
@@ -738,36 +738,36 @@ class GnrWebPage(GnrBaseWebPage):
                     subscribed_tables.remove(table)
                     
     def pageStore(self, page_id=None, triggered=True):
-        """add???
+        """TODO
         
         :param page_id: the id of the page
-        :param triggered: boolean. add???"""
+        :param triggered: boolean. TODO"""
         page_id = page_id or self.sourcepage_id or self.page_id
         return self.site.register.pageStore(page_id, triggered=triggered)
         
     def connectionStore(self, connection_id=None, triggered=True):
-        """add???
+        """TODO
         
-        :param connection_id: add???
-        :param triggered: boolean. add???"""
+        :param connection_id: TODO
+        :param triggered: boolean. TODO"""
         connection_id = connection_id or self.connection_id
         return self.site.register.connectionStore(connection_id, triggered=triggered)
         
     def userStore(self, user=None, triggered=True):
-        """add???
+        """TODO
         
         :param user: the username
-        :param triggered: boolean. add???"""
+        :param triggered: boolean. TODO"""
         user = user or self.user
         return self.site.register.userStore(user, triggered=triggered)
         
     @public_method
     def setStoreSubscription(self, storename=None, client_path=None, active=True):
-        """add???
+        """TODO
         
-        :param storename: add???
-        :param client_path: add???
-        :param active: boolean. add???"""
+        :param storename: TODO
+        :param client_path: TODO
+        :param active: boolean. TODO"""
         with self.pageStore() as store:
             subscriptions = store.getItem('_subscriptions')
             if subscriptions is None:
@@ -778,7 +778,7 @@ class GnrWebPage(GnrBaseWebPage):
             pathsub['on'] = active
             
     def clientPage(self, page_id=None):
-        """add???
+        """TODO
         
         :param page_id: the id of the page"""
         return ClientPageHandler(self, page_id or self.page_id)
@@ -819,41 +819,41 @@ class GnrWebPage(GnrBaseWebPage):
         
     @property
     def application(self):
-        """add???"""
+        """TODO"""
         return self.site.gnrapp
         
     @property
     def app(self):
-        """add???"""
+        """TODO"""
         if not hasattr(self, '_app'):
             self._app = GnrWebAppHandler(self)
         return self._app
         
     @property
     def btc(self):
-        """add???"""
+        """TODO"""
         if not hasattr(self, '_btc'):
             self._btc = GnrWebBatch(self)
         return self._btc
         
     @property
     def catalog(self):
-        """add???"""
+        """TODO"""
         return self.application.catalog
         
     @property
     def userTags(self):
-        """add???"""
+        """TODO"""
         return self.connection.user_tags
         
     @property
     def user(self):
-        """add???"""
+        """TODO"""
         return self.connection.user
         
     @property
     def connection_id(self):
-        """add???"""
+        """TODO"""
         return self.connection.connection_id
         
     def _set_avatar(self, avatar):
@@ -872,10 +872,10 @@ class GnrWebPage(GnrBaseWebPage):
     avatar = property(_get_avatar, _set_avatar)
         
     def checkPermission(self, pagepath, relative=True):
-        """add???
+        """TODO
         
-        :param pagepath: add???
-        :param relative: add???"""
+        :param pagepath: TODO
+        :param relative: TODO"""
         return self.application.checkResourcePermission(self.auth_tags, self.userTags)
         
     def get_css_theme(self):
@@ -897,7 +897,7 @@ class GnrWebPage(GnrBaseWebPage):
         * the :ref:`css_requires`
         * the :ref:`css_theme <css_themes>`
         
-        :param requires: add??? If None, get the css_requires string included in a :ref:`webpage`"""
+        :param requires: TODO If None, get the css_requires string included in a :ref:`webpage`"""
         requires = [r for r in (requires or self.css_requires) if r]
         css_theme = self.get_css_theme() or 'aqua'
         css_icons = self.get_css_icons()
@@ -930,42 +930,42 @@ class GnrWebPage(GnrBaseWebPage):
         return css_requires, css_media_requires
         
     def getResourceList(self, path, ext=None):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param ext: add???"""
+        :param path: TODO
+        :param ext: TODO"""
         return self.site.resource_loader.getResourceList(self.resourceDirs, path, ext=ext)
         
     def getResourceUriList(self, path, ext=None, add_mtime=False):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param ext: add???
-        :param add_mtime: add???"""
+        :param path: TODO
+        :param ext: TODO
+        :param add_mtime: TODO"""
         flist = self.getResourceList(path, ext=ext)
         return [self.resolveResourceUri(f, add_mtime=add_mtime) for f in flist]
         
     def getResourceExternalUriList(self, path, ext=None, add_mtime=False):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param ext: add???
-        :param add_mtime: add???"""
+        :param path: TODO
+        :param ext: TODO
+        :param add_mtime: TODO"""
         flist = self.getResourceList(path, ext=ext)
         return [self.externalUrl(self.resolveResourceUri(f, add_mtime=add_mtime)) for f in flist]
         
     def onServingCss(self, css_requires):
-        """add???
+        """TODO
         
         :param css_requires: the :ref:`"css_requires" webpage variable <css_requires>`"""
         pass
         
     def getResourceUri(self, path, ext=None, add_mtime=False, pkg=None):
-        """add???
+        """TODO
         
         :param path: MANDATORY. A string with the path of the uri
-        :param ext: add???
-        :param add_mtime: add???
+        :param ext: TODO
+        :param add_mtime: TODO
         :param pkg: the :ref:`package <packages>` object"""
         fpath = self.getResource(path, ext=ext,pkg=pkg)
         if not fpath:
@@ -973,10 +973,10 @@ class GnrWebPage(GnrBaseWebPage):
         return self.resolveResourceUri(fpath, add_mtime=add_mtime,pkg=pkg)
         
     def resolveResourceUri(self, fpath, add_mtime=False, pkg=None):
-        """add???
+        """TODO
         
-        :param fpath: add???
-        :param add_mtime: add???
+        :param fpath: TODO
+        :param add_mtime: TODO
         :param pkg: the :ref:`package <packages>` object"""
         url = None 
         packageFolder = self.site.getPackageFolder(pkg) if pkg else self.package_folder
@@ -1015,10 +1015,10 @@ class GnrWebPage(GnrBaseWebPage):
             return os.path.join(packageFolder,'resources',respath)
             
     def getResource(self, path, ext=None, pkg=None):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param ext: add???
+        :param path: TODO
+        :param ext: TODO
         :param pkg: the :ref:`package <packages>` object"""
         resourceDirs = self.resourceDirs
         if pkg:
@@ -1030,10 +1030,10 @@ class GnrWebPage(GnrBaseWebPage):
     getResourcePath = getResource
             
     def importResource(self, path, classname=None, pkg=None):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param classname: add???
+        :param path: TODO
+        :param classname: TODO
         :param pkg: the :ref:`package <packages>` object"""
         res = self.getResource(path,pkg=pkg,ext='py')
         if res:
@@ -1043,7 +1043,7 @@ class GnrWebPage(GnrBaseWebPage):
             return m
             
     def importTableResource(self, table, path):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
@@ -1058,12 +1058,12 @@ class GnrWebPage(GnrBaseWebPage):
         
     @public_method
     def getResourceContent(self, resource=None, ext=None, pkg=None):
-        """add???
+        """TODO
         
         ``getResourceContent()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
         
-        :param resource: add???
-        :param ext: add???
+        :param resource: TODO
+        :param ext: TODO
         :param pkg: the :ref:`package <packages>` object"""
         content,path =  self._getResourceContent(resource=resource,ext=ext,pkg=pkg)
         return content
@@ -1082,14 +1082,14 @@ class GnrWebPage(GnrBaseWebPage):
         return result,path
 
     def getTableResourceContent(self,table=None,path=None,value=None,ext=None):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param path: add???
-        :param value: add???
-        :param ext: add???"""
+        :param path: TODO
+        :param value: TODO
+        :param ext: TODO"""
         pkg,table = table.split('.')    
         resourceContent,respath = self._getResourceContent(resource='tables/_packages/%s/%s/%s' %(pkg,table,path),pkg=self.package.name,ext=ext)
         if not resourceContent:
@@ -1097,14 +1097,14 @@ class GnrWebPage(GnrBaseWebPage):
         return resourceContent,respath
         
     def setTableResourceContent(self,table=None,path=None,value=None,ext=None):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param path: add???
-        :param value: add???
-        :param ext: add???"""
+        :param path: TODO
+        :param value: TODO
+        :param ext: TODO"""
         pkg,table = table.split('.')
         path = self.site.getStatic('pkg').path(pkg,'tables',table,path,folder='resources')
         path = '%s.%s' %(path,ext)
@@ -1123,9 +1123,9 @@ class GnrWebPage(GnrBaseWebPage):
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param respath: add???
-        :param class_name: add???
-        :param runKwargs: add???"""
+        :param respath: TODO
+        :param class_name: TODO
+        :param runKwargs: TODO"""
         script = self.loadTableScript(table=table, respath=respath, class_name=class_name)
         if runKwargs:
             for k, v in runKwargs.items():
@@ -1134,74 +1134,74 @@ class GnrWebPage(GnrBaseWebPage):
         return result
 
     def loadTableScript(self, table=None, respath=None, class_name=None):
-        """add???
+        """TODO
 
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param respath: add???
-        :param class_name: add???"""
+        :param respath: TODO
+        :param class_name: TODO"""
         return self.site.loadTableScript(self, table=table, respath=respath, class_name=class_name)
         
     def setPreference(self, path, data, pkg=''):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param data: add???
+        :param path: TODO
+        :param data: TODO
         :param pkg: the :ref:`package <packages>` object"""
         self.site.setPreference(path, data, pkg=pkg)
         
     def getPreference(self, path, pkg='', dflt=''):
-        """add???
+        """TODO
         
-        :param path: add???
+        :param path: TODO
         :param pkg: the :ref:`package <packages>` object
-        :param dflt: add???"""
+        :param dflt: TODO"""
         return self.site.getPreference(path, pkg=pkg, dflt=dflt)
         
     def getUserPreference(self, path, pkg='', dflt='', username=''):
-        """add???
+        """TODO
         
-        :param path: add???
+        :param path: TODO
         :param pkg: the :ref:`package <packages>` object
-        :param dflt: add???
-        :param username: add???"""
+        :param dflt: TODO
+        :param username: TODO"""
         return self.site.getUserPreference(path, pkg=pkg, dflt=dflt, username=username)
         
     def rpc_getUserPreference(self, path='*'):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         return self.getUserPreference(path)
         
     def rpc_getAppPreference(self, path='*'):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         return self.getPreference(path)
         
     def setUserPreference(self, path, data, pkg='', username=''):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param data: add???
+        :param path: TODO
+        :param data: TODO
         :param pkg: the :ref:`package <packages>` object
-        :param username: add???"""
+        :param username: TODO"""
         self.site.setUserPreference(path, data, pkg=pkg, username=username)
         
     def setInClientData(self, path, value=None, attributes=None, page_id=None, filters=None,
                         fired=False, reason=None, public=False, replace=False):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param value: add???
-        :param attributes: add???
-        :param page_id: add???
-        :param filters: add???
-        :param fired: add???
-        :param reason: add???
-        :param public: add???
-        :param replace: add???"""
+        :param path: TODO
+        :param value: TODO
+        :param attributes: TODO
+        :param page_id: TODO
+        :param filters: TODO
+        :param fired: TODO
+        :param reason: TODO
+        :param public: TODO
+        :param replace: TODO"""
         if filters:
             pages = self.site.register.pages(filters=filters)
         else:
@@ -1223,12 +1223,12 @@ class GnrWebPage(GnrBaseWebPage):
                     clientPage.set(path, value, attributes=attributes, reason=reason, fired=fired)
                     
     def rpc_sendMessageToClient(self, message, pageId=None, filters=None, msg_path=None):
-        """add???
+        """TODO
         
-        :param message: add???
-        :param page_id: add???
-        :param filters: add???
-        :param msg_path: add???"""
+        :param message: TODO
+        :param page_id: TODO
+        :param filters: TODO
+        :param msg_path: TODO"""
         self.site.sendMessageToClient(message, pageId=pageId, filters=filters, origin=self, msg_path=msg_path)
         
     def _get_package_folder(self):
@@ -1241,7 +1241,7 @@ class GnrWebPage(GnrBaseWebPage):
         """The first method loaded in a Genro application
         
         :param \_auth: the page authorizations. For more information, check the :ref:`auth` page
-        :param debugger: add???"""
+        :param debugger: TODO"""
         page = self.domSrcFactory.makeRoot(self)
         self._root = page
         pageattr = {}
@@ -1372,11 +1372,11 @@ class GnrWebPage(GnrBaseWebPage):
             return (self._errorPage(err), pageattr)
             
     def onMain(self): #You CAN override this !
-        """add???"""
+        """TODO"""
         pass
             
     def rpc_getPageStoreData(self):
-        """add???"""
+        """TODO"""
         return self.pageStore().getItem('')
         
     def mainLeftTop(self, pane):
@@ -1425,7 +1425,7 @@ class GnrWebPage(GnrBaseWebPage):
                                             id='plugin_block_%s' % plugin)
                                             
     def onMainCalls(self):
-        """add???"""
+        """TODO"""
         calls = [m for m in dir(self) if m.startswith('onMain_')]
         for m in calls:
             getattr(self, m)()
@@ -1437,11 +1437,11 @@ class GnrWebPage(GnrBaseWebPage):
         self.site.onClosePage(self)
         
     def onClosePage(self):
-        """add???"""
+        """TODO"""
         pass
         
     def pageFolderRemove(self):
-        """add???"""
+        """TODO"""
         shutil.rmtree(os.path.join(self.connectionFolder, self.page_id), True)
         
     def rpc_callTableScript(self, table=None, respath=None, class_name='Main', downloadAs=None, **kwargs):
@@ -1452,9 +1452,9 @@ class GnrWebPage(GnrBaseWebPage):
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param respath: add???
-        :param class_name: add???
-        :param downloadAs: add???"""
+        :param respath: TODO
+        :param class_name: TODO
+        :param downloadAs: TODO"""
         if downloadAs:
             import mimetypes
             
@@ -1465,9 +1465,9 @@ class GnrWebPage(GnrBaseWebPage):
     
     @public_method                                 
     def remoteBuilder(self, handler=None, **kwargs):
-        """add???
+        """TODO
         
-        :param handler: add???"""
+        :param handler: TODO"""
         handler = self.getPublicMethod('remote', handler)
         if handler:
             pane = self.newSourceRoot()
@@ -1479,15 +1479,15 @@ class GnrWebPage(GnrBaseWebPage):
             return pane
             
     def rpc_ping(self, **kwargs):
-        """add???"""
+        """TODO"""
         pass
         
     def rpc_setInServer(self, path, value=None, pageId=None, **kwargs):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param value: add???. 
-        :param pageId: add???. """
+        :param path: TODO
+        :param value: TODO. 
+        :param pageId: TODO. """
         with self.pageStore(pageId) as store:
             store.setItem(path, value)
             
@@ -1497,15 +1497,15 @@ class GnrWebPage(GnrBaseWebPage):
    #                                   path=relation_path, columns=query_columns)
         
     def rpc_getPrinters(self):
-        """add???"""
+        """TODO"""
         print_handler = self.getService('print')
         if print_handler:
             return print_handler.getPrinters()
             
     def rpc_getPrinterAttributes(self, printer_name):
-        """add???
+        """TODO
         
-        :param printer_name: add???"""
+        :param printer_name: TODO"""
         if printer_name and printer_name != 'PDF':
             attributes = self.getService('print').getPrinterAttributes(printer_name)
             return attributes
@@ -1513,14 +1513,14 @@ class GnrWebPage(GnrBaseWebPage):
     @public_method    
     def relationExplorer(self, table=None, prevRelation='', prevCaption='',
                              omit='', **kwargs):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param prevRelation: add???
-        :param prevCaption: add???
-        :param omit: add???"""
+        :param prevRelation: TODO
+        :param prevCaption: TODO
+        :param omit: TODO"""
         if not table:
             return Bag()
             
@@ -1550,19 +1550,19 @@ class GnrWebPage(GnrBaseWebPage):
         return result
         
     def rpc_setInClientPage(self, pageId=None, changepath=None, value=None, fired=None, attr=None, reason=None):
-        """add???
+        """TODO
         
-        :param pageId: add???. 
-        :param changepath: add???. 
-        :param value: add???. 
-        :param fired: add???. 
-        :param attr: add???. 
-        :param reason: add???. """
+        :param pageId: TODO. 
+        :param changepath: TODO. 
+        :param value: TODO. 
+        :param fired: TODO. 
+        :param attr: TODO. 
+        :param reason: TODO. """
         with self.clientPage(pageId) as clientPage:
             clientPage.set(changepath, value, attr=attr, reason=reason, fired=fired)
             
     def getAuxInstance(self, name):
-        """add???"""
+        """TODO"""
         return self.site.getAuxInstance(name)
         
     def _get_connectionFolder(self):
@@ -1577,15 +1577,15 @@ class GnrWebPage(GnrBaseWebPage):
     userFolder = property(_get_userFolder)
     
     def temporaryDocument(self, *args):
-        """add???"""
+        """TODO"""
         return self.connectionDocument('temp', *args)
         
     def temporaryDocumentUrl(self, *args, **kwargs):
-        """add???"""
+        """TODO"""
         return self.connectionDocumentUrl('temp', *args, **kwargs)
         
     def connectionDocument(self, *args):
-        """add???"""
+        """TODO"""
         filepath = os.path.join(self.connectionFolder, self.page_id, *args)
         folder = os.path.dirname(filepath)
         if not os.path.isdir(folder):
@@ -1593,7 +1593,7 @@ class GnrWebPage(GnrBaseWebPage):
         return filepath
         
     def userDocument(self, *args):
-        """add???"""
+        """TODO"""
         filepath = os.path.join(self.userFolder, *args)
         folder = os.path.dirname(filepath)
         if not os.path.isdir(folder):
@@ -1601,14 +1601,14 @@ class GnrWebPage(GnrBaseWebPage):
         return filepath
         
     def connectionDocumentUrl(self, *args, **kwargs):
-        """add???"""
+        """TODO"""
         if kwargs:
             return self.site.getStatic('conn').kwargs_url(self.connection_id, self.page_id, *args, **kwargs)
         else:
             return self.site.getStatic('conn').url(self.connection_id, self.page_id, *args)
             
     def userDocumentUrl(self, *args, **kwargs):
-        """add???"""
+        """TODO"""
         if kwargs:
             return self.site.getStatic('user').kwargs_url(self.user, *args, **kwargs_url)
         else:
@@ -1616,12 +1616,12 @@ class GnrWebPage(GnrBaseWebPage):
    
     @public_method
     def getSiteDocument(self,path,defaultContent=None,**kwargs):
-        """add???
+        """TODO
         
         ``getSiteDocument()`` method is decorated with the :meth:`public_method <gnr.core.gnrdecorator.public_method>` decorator
         
-        :param path: add???
-        :param defaultContent: add???"""
+        :param path: TODO
+        :param defaultContent: TODO"""
         ext = os.path.splitext(path)[1]
         result = Bag()
         if not os.path.exists(path):
@@ -1636,19 +1636,19 @@ class GnrWebPage(GnrBaseWebPage):
         return result
 
     def isLocalizer(self):
-        """add???"""
+        """TODO"""
         return (self.userTags and ('_TRD_' in self.userTags))
     
     def isDeveloper(self):
-        """add???"""
+        """TODO"""
         return (self.userTags and ('_DEV_' in self.userTags))
         
     def addToContext(self, value=None, serverpath=None, clientpath=None):
-        """add???
+        """TODO
         
-        :param value: add???
-        :param serverpath: add???
-        :param clientpath: add???"""
+        :param value: TODO
+        :param serverpath: TODO
+        :param clientpath: TODO"""
         self._pendingContextToCreate.append((value, serverpath, clientpath or serverpath))
         
     def _createContext(self, root, pendingContext):
@@ -1727,18 +1727,18 @@ class GnrWebPage(GnrBaseWebPage):
         return struct
         
     def rpc_getGridStruct(self,struct,table):
-        """add???
+        """TODO
         
-        :param struct: add???
+        :param struct: TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :returns: add???"""
+        :returns: TODO"""
         return self._prepareGridStruct(struct,table)
         
     @public_method
     def callTableMethod(self,table=None,methodname=None,**kwargs):
-        """add???
+        """TODO
         
         ``callTableMethod()`` method is decorated with the :meth:`public_method
         s<gnr.core.gnrdecorator.public_method>` decorator
@@ -1754,11 +1754,11 @@ class GnrWebPage(GnrBaseWebPage):
         
         
     def lazyBag(self, bag, name=None, location='page:resolvers'):
-        """add???
+        """TODO
         
         :param bag: a :ref:`bag`
-        :param name: add???
-        :param location: add???"""
+        :param name: TODO
+        :param location: TODO"""
         freeze_path = self.site.getStaticPath(location, name, autocreate=-1)
         bag.makePicklable()
         bag.pickle('%s.pik' % freeze_path)
@@ -1779,7 +1779,7 @@ class GnrWebPage(GnrBaseWebPage):
     ##### END: DEPRECATED METHODS #####
 
 class LazyBagResolver(BagResolver):
-    """add???"""
+    """TODO"""
     classKwargs = {'cacheTime': -1,
                    'readOnly': False,
                    'resolverName': None,
@@ -1791,7 +1791,7 @@ class LazyBagResolver(BagResolver):
     classArgs = ['path']
         
     def load(self):
-        """add???"""
+        """TODO"""
         if not self.sourceBag:
             self.getSource()
         sourceBag = self.sourceBag[self.path]
@@ -1813,7 +1813,7 @@ class LazyBagResolver(BagResolver):
         return result
         
     def getSource(self):
-        """add???"""
+        """TODO"""
         filepath = self._page.site.getStaticPath(self.location, self.resolverName)
         self.sourceBag = Bag('%s.pik' % filepath)
 
@@ -1824,26 +1824,26 @@ class LazyBagResolver(BagResolver):
         return os.path.splitext(os.path.basename(self.filename))[0].replace('_', ' ').capitalize()
 
 class GnrMakoPage(GnrWebPage):
-    """add???"""
+    """TODO"""
     def onPreIniting(self, request_args, request_kwargs):
-        """add???"""
+        """TODO"""
         request_kwargs['_plugin'] = 'mako'
         request_kwargs['mako_path'] = self.mako_template()
         
     def mako_template(self):
-        """add???"""
+        """TODO"""
         pass
         
 class GnrGenshiPage(GnrWebPage):
-    """add???"""
+    """TODO"""
     def onPreIniting(self, request_args, request_kwargs):
-        """add???"""
+        """TODO"""
         from genshi.template import TemplateLoader
         request_kwargs['_plugin'] = 'genshi'
         request_kwargs['genshi_path'] = self.genshi_template()
         
     def genshi_template(self):
-        """add???"""
+        """TODO"""
         pass
         
 class ClientPageHandler(object):
@@ -1855,7 +1855,7 @@ class ClientPageHandler(object):
         self.store = None
         
     def set(self, path, value, attributes=None, fired=None, reason=None, replace=False):
-        """add???"""
+        """TODO"""
         self.store.set_datachange(path, value, attributes=attributes, fired=fired, reason=reason, replace=replace)
         
     def __enter__(self):
@@ -1866,15 +1866,15 @@ class ClientPageHandler(object):
         self.pageStore.__exit__(type, value, tb)
         
     def jsexec(self, path, value, **kwargs):
-        """add???"""
+        """TODO"""
         pass
         
     def copyData(self, srcpath, dstpath=None, page_id=None):
-        """add???
+        """TODO
         
-        :param srcpath: add???
-        :param dstpath: add???
-        :param page_id: add???
+        :param srcpath: TODO
+        :param dstpath: TODO
+        :param page_id: TODO
         
         Let's see some examples::
         
@@ -1885,7 +1885,7 @@ class ClientPageHandler(object):
         pass
         
 class ClientDataChange(object):
-    """add???"""
+    """TODO"""
     def __init__(self, path, value, attributes=None, reason=None, fired=False,
                  change_ts=None, change_idx=None, delete=False, **kwargs):
         self.path = path
@@ -1901,9 +1901,9 @@ class ClientDataChange(object):
         return self.path == other.path and self.reason == other.reason and self.fired == other.fired
         
     def update(self, other):
-        """add???
+        """TODO
         
-        :param other: add???"""
+        :param other: TODO"""
         if hasattr(self.value, 'update') and hasattr(other.value, 'update'):
             self.value.update(other.value)
         else:

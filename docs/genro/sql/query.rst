@@ -6,7 +6,7 @@ query
     
     *Last page update*: |today|
     
-    add???
+    TODO
     
     In a query you can refer itself to the :ref:`primary key <pkey>` of a :ref:`database table <table>`
     with the following syntax::

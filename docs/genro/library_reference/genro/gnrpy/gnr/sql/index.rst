@@ -6,6 +6,7 @@
     
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     gnrsql
     gnrsql_exceptions

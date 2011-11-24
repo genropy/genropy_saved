@@ -27,7 +27,7 @@
 introduction
 ============
     
-    The ``main.py`` file allows to ... add???
+    The ``main.py`` file allows to ... TODO
     
 .. _main_autocreation:
 
@@ -86,7 +86,7 @@ description
     * the :ref:`main_package_class`
     * the :ref:`main_table_class`
     
-.. * the add??? other classes?
+.. * the TODO other classes?
     
 .. _main_package_class:
 
@@ -95,7 +95,7 @@ Package class
     
     *class* **Package** (*GnrDboPackage*)
     
-    The ``Package`` class is used for ... add???
+    The ``Package`` class is used for ... TODO
     
     We list now all the methods of the ``Package`` class:
 
@@ -144,9 +144,8 @@ custom_type()
 
     **custom_type_CUSTOMNAME** (*self*)
     
-    A method of the :class:`DbColumnObj <gnr.sql.gnrsqlmodel.DbColumnObj>` class performed
-    during the execution of the :meth:`doInit() <gnr.sql.gnrsqlmodel.DbColumnObj.doInit>`
-    method.
+    A method of the :class:`~gnr.sql.gnrsqlmodel.DbColumnObj` class performed
+    during the execution of the :meth:`~gnr.sql.gnrsqlmodel.DbColumnObj.doInit` method.
     
     With this method you can create your own :ref:`datatype`; ``CUSTOMNAME`` is the name
     you choose for your custom type.

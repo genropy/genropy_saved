@@ -59,35 +59,35 @@ class GnrWebServerError(Exception):
     pass
     
 class GnrBaseWebPage(GnrObject):
-    """add???"""
+    """TODO"""
     def newCookie(self, name, value, **kw):
-        """add???
+        """TODO
         
-        :param name: add???
-        :param value: add???"""
+        :param name: TODO
+        :param value: TODO"""
         return self.request.newCookie(name, value, **kw)
         
     def newMarshalCookie(self, name, value, secret=None, **kw):
-        """add???
+        """TODO
         
-        :param name: add???
-        :param value: add???
-        :param secret: add???"""
+        :param name: TODO
+        :param value: TODO
+        :param secret: TODO"""
         return self.request.newMarshalCookie(name, value, secret=secret, **kw)
         
     def get_cookie(self, cookieName, cookieType, secret=None, path=None):
-        """add???
+        """TODO
         
-        :param cookieName: add???
-        :param cookieType: add???
-        :param secret: add???
-        :param path: add???"""
+        :param cookieName: TODO
+        :param cookieType: TODO
+        :param secret: TODO
+        :param path: TODO"""
         return self.request.get_cookie(cookieName, cookieType, secret=secret, path=path)
         
     def add_cookie(self, cookie):
-        """add???
+        """TODO
         
-        :param cookie: add???"""
+        :param cookie: TODO"""
         self.response.add_cookie(cookie)
         
     def _get_clientContext(self):
@@ -121,7 +121,7 @@ class GnrBaseWebPage(GnrObject):
     
     @public_method
     def decodeDatePeriod(self, datestr, workdate=None, locale=None):
-        """add???
+        """TODO
         
         :param datestr: a date string. For the string format, please check the :meth:`decodeDatePeriod()
         <gnr.core.gnrdate.decodeDatePeriod>` method docstrings
@@ -155,16 +155,16 @@ class GnrBaseWebPage(GnrObject):
         return []
         
     def requestWrite(self, txt, encoding='utf-8'):
-        """add???
+        """TODO
         
-        :param txt: add???
+        :param txt: TODO
         :param encoding: the encoding type"""
         self.responseWrite(txt, encoding=encoding)
         
     def responseWrite(self, txt, encoding='utf-8'):
-        """add???
+        """TODO
         
-        :param txt: add???
+        :param txt: TODO
         :param encoding: the encoding type"""
         self.response.write(txt.encode(encoding))
         
@@ -181,7 +181,7 @@ class GnrBaseWebPage(GnrObject):
     siteStatus = property(_get_siteStatus)
         
     def siteStatusSave(self):
-        """add???"""
+        """TODO"""
         if hasattr(self, '_siteStatus'):
             path = os.path.join(self.siteFolder, 'data', '_siteStatus.xml')
             self._siteStatus.toXml(path)
@@ -189,15 +189,15 @@ class GnrBaseWebPage(GnrObject):
     def pageAuthTags(self, method=None, **kwargs):
         """Hook method. Allow to define users :ref:`auth`
         
-        :param method: add???
+        :param method: TODO
         :returns: a string containing the users authorizations"""
         return ""
         
     def pageLocalDocument(self, docname, page_id=None):
-        """add???
+        """TODO
         
-        :param docname: add???
-        :param page_id: add???"""
+        :param docname: TODO
+        :param page_id: TODO"""
         page_id = page_id or self.page_id
         folder = os.path.join(self.connectionFolder, page_id)
         if not os.path.isdir(folder):
@@ -205,20 +205,20 @@ class GnrBaseWebPage(GnrObject):
         return os.path.join(folder, docname)
         
     def freezeSelection(self, selection, name):
-        """add???
+        """TODO
         
-        :param selection: add???
-        :param name: add???"""
+        :param selection: TODO
+        :param name: TODO"""
         path = self.pageLocalDocument(name)
         selection.freeze(path, autocreate=True)
         return path
         
     def unfreezeSelection(self, dbtable=None, name=None, page_id=None):
-        """add???
+        """TODO
         
         :param dbtable: the :ref:`database table <table>`
-        :param name: add???
-        :param page_id: add???"""
+        :param name: TODO
+        :param page_id: TODO"""
         assert name, 'name is mandatory'
         if isinstance(dbtable, basestring):
             dbtable = self.db.table(dbtable)
@@ -230,11 +230,11 @@ class GnrBaseWebPage(GnrObject):
     @public_method
     def getUserSelection(self, selectionName=None, selectedRowidx=None, filterCb=None, columns=None,
                          sortBy=None,condition=None, table=None, condition_args=None):
-        """add???
+        """TODO
         
-        :param selectionName: add???
-        :param selectedRowidx: add???
-        :param filterCb: add???
+        :param selectionName: TODO
+        :param selectedRowidx: TODO
+        :param filterCb: TODO
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
@@ -276,18 +276,18 @@ class GnrBaseWebPage(GnrObject):
         return selection
         
     def getAbsoluteUrl(self, path, **kwargs):
-        """Get add???. Return an external link to the page
+        """Get TODO. Return an external link to the page
         
         :param path: the path to the page from the :ref:`sites_pages` folder
                      of a :ref:`project`"""
         return self.request.construct_url(self.getDomainUrl(path, **kwargs))
         
     def resolvePathAsUrl(self, *args, **kwargs):
-        """add???"""
+        """TODO"""
         return self.diskPathToUri(self.resolvePath(*args, **kwargs))
         
     def resolvePath(self, *args, **kwargs):
-        """add???"""
+        """TODO"""
         folder = kwargs.pop('folder', None)
         sitefolder = self.siteFolder
         if folder == '*data':
@@ -311,10 +311,10 @@ class GnrBaseWebPage(GnrObject):
         return diskpath
         
     def diskPathToUri(self, tofile, fromfile=None):
-        """add???
+        """TODO
         
-        :param tofile: add???
-        :param fromfile: add???"""
+        :param tofile: TODO
+        :param fromfile: TODO"""
         fromfile = fromfile or self.filename
         pagesfolder = self.folders['pages']
         relUrl = tofile.replace(pagesfolder, '').lstrip('/')
@@ -345,7 +345,7 @@ class GnrBaseWebPage(GnrObject):
     
     @property
     def package(self):
-        """add???"""
+        """TODO"""
         pkgId = self.packageId
         if pkgId:
             return self.db.package(pkgId)
@@ -359,20 +359,20 @@ class GnrBaseWebPage(GnrObject):
         
     def formSaver(self, formId, table=None, method=None, _fired='', datapath=None,
                   resultPath='dummy', changesOnly=True, onSaving=None, onSaved=None, saveAlways=False, **kwargs):
-        """add???
+        """TODO
         
         :param formId: the id of the :ref:`form`
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param method: add???
-        :param _fired: add???
+        :param method: TODO
+        :param _fired: TODO
         :param datapath: the :ref:`datapath` form
-        :param resultPath: add???
-        :param changesOnly: boolean. add???
-        :param onSaving: add???
-        :param onSaved: add??? 
-        :param saveAlways: boolean. add???"""
+        :param resultPath: TODO
+        :param changesOnly: boolean. TODO
+        :param onSaving: TODO
+        :param onSaved: TODO 
+        :param saveAlways: boolean. TODO"""
         method = method or 'saveRecordCluster'
         controller = self.pageController()
         data = '==genro.getFormCluster("%s");'
@@ -407,22 +407,22 @@ class GnrBaseWebPage(GnrObject):
     def formLoader(self, formId, resultPath, table=None, pkey=None, datapath=None,
                    _fired=None, loadOnStart=False, lock=False,
                    method=None, onLoading=None, onLoaded=None, loadingParameters=None, **kwargs):
-        """add???
+        """TODO
         
         :param formId: the id of the :ref:`form`
-        :param resultPath: add???
+        :param resultPath: TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param pkey: the record :ref:`primary key <pkey>`
         :param datapath: the :ref:`datapath` form
-        :param _fired: add???
-        :param loadOnStart: boolean add???
-        :param lock: boolean. add???
-        :param method: add???
-        :param onLoading: add???
-        :param onLoaded: add???
-        :param loadingParameters: add???"""
+        :param _fired: TODO
+        :param loadOnStart: boolean TODO
+        :param lock: boolean. TODO
+        :param method: TODO
+        :param onLoading: TODO
+        :param onLoaded: TODO
+        :param loadingParameters: TODO"""
         pkey = pkey or '*newrecord*'
         method = method or 'loadRecordCluster'
         onResultScripts = []
@@ -444,13 +444,13 @@ class GnrBaseWebPage(GnrObject):
                            
     @public_method                      
     def loadRecordCluster(self, table=None, pkey=None, recordGetter='app.getRecord', **kwargs):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param pkey: the record :ref:`primary key <pkey>`
-        :param recordGetter: add???"""
+        :param recordGetter: TODO"""
         table = table or self.maintable
         getterHandler = self.getPublicMethod('rpc', recordGetter)
         record, recinfo = getterHandler(table=table, pkey=pkey, **kwargs)
@@ -459,13 +459,13 @@ class GnrBaseWebPage(GnrObject):
     @public_method
     def saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None, _autoreload=False,
                         onSavingHandler=None,onSavedHandler=None,**kwargs):
-        """add???
+        """TODO
         
-        :param data: add???
+        :param data: TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param rowcaption: add???
+        :param rowcaption: TODO
         """
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
@@ -510,9 +510,9 @@ class GnrBaseWebPage(GnrObject):
             
     @public_method    
     def deleteRecordCluster(self, data, table=None, **kwargs):
-        """add???
+        """TODO
         
-        :param data: add???
+        :param data: TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)"""
@@ -561,7 +561,7 @@ class GnrBaseWebPage(GnrObject):
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param pkeys: add???
+        :param pkeys: TODO
         :returns: if it works, returns the primary key and the deleted attribute.
                   Else, return an exception"""
         try:
@@ -631,12 +631,12 @@ class GnrBaseWebPage(GnrObject):
         return toJson(obj)
         
     def setOnBeforeUnload(self, root, cb, msg):
-        """add???
+        """TODO
         
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` documentation section
-        :param cb: add???
-        :param msg: add???"""
+        :param cb: TODO
+        :param msg: TODO"""
         root.script("""genro.checkBeforeUnload = function(e){
                        if (%s){
                            return "%s";
@@ -650,13 +650,13 @@ class GnrBaseWebPage(GnrObject):
         pass
         
     def pageController(self, **kwargs):
-        """add???
+        """TODO
         
-        :returns: add???"""
+        :returns: TODO"""
         return self.pageSource().dataController(**kwargs)
         
     def pageSource(self, nodeId=None):
-        """add???
+        """TODO
         
         :param nodeId: the page nodeId. For more information, check the :ref:`nodeid`
                        documentation page."""
@@ -684,7 +684,7 @@ class GnrBaseWebPage(GnrObject):
         root.h1('You MUST override this main method!!!')
         
     def forbiddenPage(self, root, **kwargs):
-        """add???
+        """TODO
         
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` section"""
@@ -738,9 +738,9 @@ class GnrBaseWebPage(GnrObject):
     
     @public_method    
     def resolverRecall(self, resolverPars=None, **auxkwargs):
-        """add???
+        """TODO
         
-        :param resolverPars: add???"""
+        :param resolverPars: TODO"""
         if isinstance(resolverPars, basestring):
             resolverPars = json.loads(resolverPars) #should never happen
         resolverclass = resolverPars['resolverclass']
@@ -768,18 +768,18 @@ class GnrBaseWebPage(GnrObject):
     
     @public_method    
     def resetApp(self, **kwargs):
-        """add???"""
+        """TODO"""
         self.siteStatus['resetTime'] = time.time()
         self.siteStatusSave()
     
     @public_method
     def applyChangesToDb(self, **kwargs):
-        """add???"""
+        """TODO"""
         return self._checkDb(applychanges=True)
         
     @public_method    
     def checkDb(self):
-        """add???"""
+        """TODO"""
         return self._checkDb(applychanges=False)
         
     def _checkDb(self, applychanges=False, changePath=None, **kwargs):
@@ -797,7 +797,7 @@ class GnrBaseWebPage(GnrObject):
     
     @public_method
     def tableStatus(self, **kwargs):
-        """add???"""
+        """TODO"""
         strbag = self._checkDb(applychanges=False)
         for pkgname, pkg in self.db.packages.items():
             for tablename in pkg.tables.keys():
@@ -806,7 +806,7 @@ class GnrBaseWebPage(GnrObject):
         return strbag
         
     def createFileInData(self, *args):
-        """add???"""
+        """TODO"""
         if args:
             path = os.path.join(self.siteFolder, 'data', *args)
             dirname = os.path.dirname(path)
@@ -816,7 +816,7 @@ class GnrBaseWebPage(GnrObject):
             return outfile
             
     def createFileInStatic(self, *args):
-        """add???"""
+        """TODO"""
         if args:
             path = os.path.join(self.siteFolder, 'pages', 'static', *args)
             dirname = os.path.dirname(path)
@@ -826,7 +826,7 @@ class GnrBaseWebPage(GnrObject):
             return outfile
             
     def createFolderInData(self, *args):
-        """add???"""
+        """TODO"""
         if args:
             path = os.path.join(self.siteFolder, 'data', *args)
             if not os.path.exists(path):
@@ -834,7 +834,7 @@ class GnrBaseWebPage(GnrObject):
             return path
             
     def createFolderInStatic(self, *args):
-        """add???"""
+        """TODO"""
         if args:
             path = os.path.join(self.siteFolder, 'pages', 'static', *args)
             if not os.path.exists(path):

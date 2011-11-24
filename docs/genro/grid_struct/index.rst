@@ -19,11 +19,11 @@ introduction
     
     **Definition - struct**:
     
-        The struct is a :ref:`bag` ... add???
+        The struct is a :ref:`bag` ... TODO
         
     **Definition - grid**:
     
-        The grid is a ... add???
+        The grid is a ... TODO
         
 .. _gridstruct_section_index:
 
@@ -32,6 +32,7 @@ section index
     
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     struct/index
     grid/index

@@ -24,13 +24,16 @@ section index
     
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     auth
     clipboard
     datastore
     languages
     login
+    remote
     ../scripts/index
+    slots
     trigger
     user_interface
     webpage_creation

@@ -200,8 +200,8 @@ table, condition and relation attributes
     
         **Example**: *table* and *condition* usage
         
-            add???
+            TODO
             
         **Example**: *relation* usage
         
-            add???
+            TODO

@@ -132,7 +132,7 @@ class HTableResolver(BagResolver):
         return BagResolver.resolverSerialize(self)
         
 class HTableHandlerBase(BaseComponent):
-    """add???"""
+    """TODO"""
 
     @struct_method
     def ht_htableStore(self, pane, table=None, related_table=None, relation_path=None, storepath='.store',
@@ -213,7 +213,7 @@ class HTableHandler(HTableHandlerBase):
     def htableHandler(self, parent, nodeId=None, datapath=None, table=None, rootpath=None, label=None,
                       editMode='bc', childTypes=None, dialogPars=None, loadKwargs=None, parentLock=None,
                       where=None, onChecked=None, plainView=False, childsCodes=False, noRecordClass='noRecordSelected'):
-        """add???
+        """TODO
         
         :param parent: the parent path
         :param nodeId: MANDATORY. The :ref:`nodeid`
@@ -222,25 +222,25 @@ class HTableHandler(HTableHandlerBase):
         :param table: MANDATORY. The :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param rootpath: add???
-        :param label: add???
+        :param rootpath: TODO
+        :param label: TODO
         :param editMode: the GUI of the hTableHandler; set:
                          
                          * ``bc`` to use a :ref:`bordercontainer`
                          * ``sc`` to use a :ref:`stackcontainer`
                          * ``dlg`` to use a :ref:`simpledialog`
                                                   
-        :param childTypes: add???
-        :param dialogPars: MANDATORY if you set the *editMode* attribute to ``dlg``. add???
-        :param loadKwargs: add???
-        :param parentLock: add???
+        :param childTypes: TODO
+        :param dialogPars: MANDATORY if you set the *editMode* attribute to ``dlg``. TODO
+        :param loadKwargs: TODO
+        :param parentLock: TODO
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section
-        :param onChecked: add???
-        :param plainView: boolean. add???
+        :param onChecked: TODO
+        :param plainView: boolean. TODO
         :param childsCodes: tuple(path,field). Return a list of values of all the selected node childs at a given path.
                             Useful to list, via a selectionHandler or an includedView ... , both all the records related
                             to the selected node and those related to the children nodes
-        :param noRecordClass: add???
+        :param noRecordClass: TODO
         
         CLIPBOARD::
         

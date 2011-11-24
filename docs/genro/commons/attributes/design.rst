@@ -8,8 +8,8 @@ design
     
     .. note:: **validity** - the *design* attribute is supported by:
               
-              * the :ref:`bordercontainer` (a :ref:`Dojo layout element <dojo_layout>`)
-              * the :ref:`framepane` (a :ref:`Genro layout element <genro_layout>`)
+              * the :ref:`bordercontainer` (a :ref:`Dojo widget <dojo_widgets>`)
+              * the :ref:`framepane` (a :ref:`Genro widget <genro_widgets>`)
               
     The *design* attribute is a Dojo attribute.
     

@@ -29,21 +29,21 @@ definition
                     * **struct**: the name of the method that defines the :ref:`struct`
                     * **table**: the :ref:`database table <table>`
                     * **pbl_classes**: boolean. The :ref:`pbl_classes` attribute
-                    * **storepath**: add???
-                    * **label**: add???
-                    * **caption**: add???
-                    * **filterOn**: add???
-                    * **editorEnabled**: add???
-                    * **canSort**: boolean. add???
-                    * **dropCodes**: add???
-                    * **add_kwargs**: add???
-                    * **del_kwargs**: add???
-                    * **upd_kwargs**: add???
-                    * **print_kwargs**: add???
-                    * **export_kwargs**: add???
-                    * **tools_kwargs**: add???
-                    * **top_kwargs**: add???
-                    * **datamode**: add???
+                    * **storepath**: TODO
+                    * **label**: TODO
+                    * **caption**: TODO
+                    * **filterOn**: TODO
+                    * **editorEnabled**: TODO
+                    * **canSort**: boolean. TODO
+                    * **dropCodes**: TODO
+                    * **add_kwargs**: TODO
+                    * **del_kwargs**: TODO
+                    * **upd_kwargs**: TODO
+                    * **print_kwargs**: TODO
+                    * **export_kwargs**: TODO
+                    * **tools_kwargs**: TODO
+                    * **top_kwargs**: TODO
+                    * **datamode**: TODO
     
 .. _includedgrid_descr:
 

@@ -80,8 +80,8 @@ passing a dataRpc as a callable
                              #    return "True" if the conditions have been satisfied,
                              #    "False" if the conditions haven't been satisfied
             
-    As you can see, to pass the method as a callable you have to use the :meth:`public_method
-    <gnr.core.gnrdecorator.public_method>` decorator; so, you have to import::
+    As you can see, to pass the method as a callable you have to use the
+    :meth:`~gnr.core.gnrdecorator.public_method` decorator; so, you have to import::
     
         from gnr.core.gnrdecorator import public_method
         

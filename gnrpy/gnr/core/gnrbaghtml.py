@@ -150,19 +150,19 @@ class BagToHtml(object):
         self.page_margin_bottom = self.page_margin_bottom or self.htmlTemplate['main.page.bottom'] or 0
         
     def toText(self, obj, locale=None, format=None, mask=None, encoding=None, **kwargs):
-        """add???
+        """TODO
         
-        :param obj: add???
+        :param obj: TODO
         :param locale: the current locale (e.g: en, en_us, it)
-        :param format: add???
-        :param mask: add???
+        :param format: TODO
+        :param mask: TODO
         :param encoding: the multibyte character encoding you choose"""
         locale = locale or self.locale
         encoding = locale or self.encoding
         return toText(obj, locale=locale, format=format, mask=mask, encoding=encoding, **kwargs)
         
     def createHtml(self, filepath=None):
-        """add???
+        """TODO
         
         :param filepath: the path where html will be saved"""
         #filepath = filepath or self.filepath
@@ -172,25 +172,25 @@ class BagToHtml(object):
         return self.builder.html
         
     def showTemplate(self, value):
-        """add???
+        """TODO
         
-        :param value: add???"""
+        :param value: TODO"""
         self.showTemplateContent = value
         
     def setTemplates(self, templates):
         """Set a template.
         
-        :param templates: add???"""
+        :param templates: TODO"""
         self.templates = templates
         
     def getTemplates(self, templates):
-        """add???
+        """TODO
         
-        :param templates: add???"""
+        :param templates: TODO"""
         return self.templates
         
     def initializeBuilder(self):
-        """add???"""
+        """TODO"""
         self.builder.initializeSrc()
         self.body = self.builder.body
         self.getNewPage = self.builder.newPage
@@ -198,7 +198,7 @@ class BagToHtml(object):
         
     def getData(self, path, default=None):
         """Make a :meth:`getItem() <gnr.core.gnrbag.Bag.getItem>` on data if
-        ... add???
+        ... TODO
         
         :param path: the path of data (e.g: ``'period.from'``)
         :param default: the default return value for a not found item"""
@@ -224,13 +224,13 @@ class BagToHtml(object):
         
     def field(self, path, default=None, locale=None,
               format=None, mask=None, root=None, **kwargs):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param default: add???
+        :param path: TODO
+        :param default: TODO
         :param locale: the current locale (e.g: en, en_us, it)
-        :param format: add???
-        :param mask: add???
+        :param format: TODO
+        :param mask: TODO
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` documentation section"""
         if root is None:
@@ -283,18 +283,18 @@ class BagToHtml(object):
         return BagCbResolver(getPage, currPage=self.copies[self.copy]['currPage'])
         
     def copyHeight(self):
-        """add???"""
+        """TODO"""
         return (self.page_height - self.page_margin_top - self.page_margin_bottom -\
                 self.page_header_height - self.page_footer_height -\
                 self.copy_extra_height * (self.copies_per_page - 1)) / self.copies_per_page
                 
     def copyWidth(self):
-        """add???"""
+        """TODO"""
         return (self.page_width - self.page_margin_left - self.page_margin_right -\
                 self.page_leftbar_width - self.page_rightbar_width)
                 
     def mainLoop(self):
-        """add???"""
+        """TODO"""
         self.copies = []
         self.lastPage = False
         self.defineStandardStyles()
@@ -354,9 +354,9 @@ class BagToHtml(object):
     rowData = property(_get_rowData)
     
     def rowField(self, path=None, **kwargs):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         #if self.row_mode=='attribute':
         #    data = self.currRowDataNode.attr
         #else:
@@ -369,12 +369,12 @@ class BagToHtml(object):
         """Allow to get data from record. You can use it in the :meth:`prepareRow` method
         
         :param field: the name of the table :ref:`column`
-        :param value: add???
-        :param default: add???
+        :param value: TODO
+        :param default: TODO
         :param locale: the current locale (e.g: en, en_us, it)
         :param format: the format of the cell (e.g: use ``HH:mm``)
-        :param mask: add???
-        :param currency: add???"""
+        :param mask: TODO
+        :param currency: TODO"""
         
         if field:
             if callable(field):
@@ -477,13 +477,13 @@ class BagToHtml(object):
         return
         
     def fillBodyGrid(self):
-        """add???"""
+        """TODO"""
         row = self.copyValue('body_grid').row()
         for w in self.grid_col_widths:
             row.cell(width=w)
             
     def copyValue(self, valuename):
-        """add???
+        """TODO
         
         :param valuename: the name of the value to copy"""
         return self.copies[self.copy][valuename]
@@ -555,7 +555,7 @@ class BagToHtml(object):
         pass
         
     def defineStandardStyles(self):
-        """add???"""
+        """TODO"""
         self.body.style("""
                         .caption{text-align:center;
                                  color:gray;

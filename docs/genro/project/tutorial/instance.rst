@@ -6,11 +6,11 @@ creation of a instance
 
     *Last page update*: |today|
     
-    add???
+    TODO
     
 .. _tt_instanceconfig:
 
 the instanceconfig file
 =======================
 
-    add???
+    TODO

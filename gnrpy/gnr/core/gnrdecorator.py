@@ -25,7 +25,7 @@ from gnr.core.gnrdict import dictExtract
 
 
 def metadata(**kwargs):
-    """add???"""
+    """TODO"""
     def decore(func):
         prefix = kwargs.pop('prefix',None)
         for k, v in kwargs.items():

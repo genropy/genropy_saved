@@ -13,7 +13,7 @@ project tutorials
 introduction
 ============
 
-    add???
+    TODO
     
     GenroPy includes some tutorial projects:
     
@@ -26,11 +26,11 @@ introduction
 initiate a project
 ==================
     
-    add???
+    TODO
     
-    Create the database: add??? (Navicat...)
+    Create the database: TODO (Navicat...)
     
-    To create a **schema**... add???
+    To create a **schema**... TODO
     
     To fill the database structure in postgres use the :ref:`gnrdbsetup` script typing::
     
@@ -44,8 +44,8 @@ initiate a project
         
     where ``siteName`` is the name of the site folder of your :ref:`project`
     
-   .. note:: We suggest you to begin with the **add???** tutorial: follow the instructions
-             of the add??? section to start with it.
+   .. note:: We suggest you to begin with the **TODO** tutorial: follow the instructions
+             of the TODO section to start with it.
     
 .. _tts_section_index:
 
@@ -54,6 +54,7 @@ section index
 
 .. toctree::
     :maxdepth: 2
+    :numbered:
     
     agenda
     invoices

@@ -6,7 +6,7 @@ login authorization page
     
     *Last page update*: |today|
     
-    add???
+    TODO
     
 .. explain how to build a login page, linking to the NEW authorizations methods...
 

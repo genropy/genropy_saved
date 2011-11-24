@@ -66,7 +66,7 @@ class LockInfo():
         return getattr(self._status, attr)
         
 class SiteLock(object):
-    """add???"""
+    """TODO"""
     def __init__(self, site, locked_path, expiry=600):
         self.site = site
         self.locked_path = locked_path
@@ -79,7 +79,7 @@ class SiteLock(object):
         self.release()
         
     def acquire(self):
-        """add???"""
+        """TODO"""
         page = self.site.currentPage
         lockinfo = dict(user=page.user,
                         page_id=page.page_id,
@@ -94,11 +94,11 @@ class SiteLock(object):
             return LockInfo(False, **info)
             
     def release(self):
-        """add???"""
+        """TODO"""
         self.site.shared_data.delete(self.locked_path)
         
 class memoize(object):
-    """add???"""
+    """TODO"""
     class Node(object):
         __slots__ = ['key', 'value', 'older', 'newer']
         
@@ -116,7 +116,7 @@ class memoize(object):
         self.reset()
         
     def reset(self):
-        """add???"""
+        """TODO"""
         for node in self.nodes:
             del self.nodes[node]
         self.mru = self.Node(None, None)
@@ -127,7 +127,7 @@ class memoize(object):
         self.misses = 0
         
     def cached_call(self):
-        """add???"""
+        """TODO"""
         def decore(func):
             def wrapper(*args, **kwargs):
                 key = (((func.__name__,) + args[1:]), cPickle.dumps(kwargs))
@@ -198,15 +198,15 @@ class memoize(object):
 cache = memoize()
 
 class GnrWsgiSite(object):
-    """add???"""
+    """TODO"""
     #cache = memoize()
     def siteLock(self, **kwargs):
-        """add???"""
+        """TODO"""
         return SiteLock(self, **kwargs)
         
     @property
     def shared_data(self):
-        """add???"""
+        """TODO"""
         if not hasattr(self, '_shared_data'):
             memcache_config = self.config['memcache']
             if memcache_config:
@@ -218,15 +218,15 @@ class GnrWsgiSite(object):
         
     @property
     def guest_counter(self):
-        """add???"""
+        """TODO"""
         self._guest_counter += 1
         return self._guest_counter
         
     def log_print(self, msg, code=None):
-        """add???
+        """TODO
         
         :param msg: add??
-        :param code: add???"""
+        :param code: TODO"""
         if getattr(self, 'debug', True):
             if code and code in OP_TO_LOG:
                 print '***** %s : %s' % (code, msg)
@@ -301,7 +301,7 @@ class GnrWsgiSite(object):
             self.onInited(clean=not noclean)
             
     def addSiteServices(self):
-        """add???"""
+        """TODO"""
         service_names=[]
         if 'preferences.services' in self.config:
             service_names=self.config['preferences.services'].digest('#k')
@@ -309,28 +309,28 @@ class GnrWsgiSite(object):
             self.services.addSiteServices(service_names=service_names)
             
     def addService(self, service_handler, service_name=None, **kwargs):
-        """add???
+        """TODO
         
-        :param service_handler: add???
-        :param service_name: add???"""
+        :param service_handler: TODO
+        :param service_name: TODO"""
         return self.services.add(service_handler, service_name=service_name, **kwargs)
         
     def getService(self, service_name):
-        """add???
+        """TODO
         
-        :param service_name: add???"""
+        :param service_name: TODO"""
         return self.services.get(service_name)
         
     def addStatic(self, static_handler_factory, **kwargs):
-        """add???
+        """TODO
         
-        :param service_handler_factory: add???"""
+        :param service_handler_factory: TODO"""
         return self.statics.add(static_handler_factory, **kwargs)
         
     def getStaticPath(self, static, *args, **kwargs):
-        """add???
+        """TODO
         
-        :param static: add???"""
+        :param static: TODO"""
         autocreate = kwargs.get('autocreate', False)
         if not ':' in static:
             return static
@@ -349,9 +349,9 @@ class GnrWsgiSite(object):
         return dest_path
         
     def getStaticUrl(self, static, *args, **kwargs):
-        """add???
+        """TODO
         
-        :param static: add???"""
+        :param static: TODO"""
         static_name, static_url = static.split(':')
         args = self.adaptStaticArgs(static_name, static_url, args)
         if kwargs:
@@ -360,11 +360,11 @@ class GnrWsgiSite(object):
             return self.getStatic(static_name).url(*args)
 
     def adaptStaticArgs(self, static_name, static_path, args):
-        """add???
+        """TODO
         
-        :param static_name: add???
-        :param static_path: add???
-        :param args: add???"""
+        :param static_name: TODO
+        :param static_path: TODO
+        :param args: TODO"""
         args = tuple(static_path.split('/')) + args
         if static_name == 'user':
             args = (self.currentPage.user,) + args #comma does matter
@@ -375,15 +375,15 @@ class GnrWsgiSite(object):
         return args
         
     def getStatic(self, static_name):
-        """add???
+        """TODO
         
-        :param static_name: add???"""
+        :param static_name: TODO"""
         return self.statics.get(static_name)
         
     def exception(self, message):
-        """add???
+        """TODO
         
-        :param message: add???"""
+        :param message: TODO"""
         e = GnrSiteException(message=message)
         if self.currentPage:
             e.setLocalizer(self.currentPage.localizer)
@@ -404,9 +404,9 @@ class GnrWsgiSite(object):
     automap = property(_get_automap)
         
     def onInited(self, clean):
-        """add???
+        """TODO
         
-        :param clean: add???"""
+        :param clean: TODO"""
         if clean:
             self.dropConnectionFolder()
             self.initializePackages()
@@ -414,20 +414,20 @@ class GnrWsgiSite(object):
             pass
             
     def on_reloader_restart(self):
-        """add???"""
+        """TODO"""
         self.shared_data.dump()
         
     def initializePackages(self):
-        """add???"""
+        """TODO"""
         for pkg in self.gnrapp.packages.values():
             if hasattr(pkg, 'onSiteInited'):
                 pkg.onSiteInited()
                 
     def resource_name_to_path(self, res_id, safe=True):
-        """add???
+        """TODO
         
-        :param res_id: add???
-        :param safe: boolean. add???"""
+        :param res_id: TODO
+        :param safe: boolean. TODO"""
         project_resource_path = os.path.join(self.site_path, '..', '..', 'resources', res_id)
         if os.path.isdir(project_resource_path):
             return project_resource_path
@@ -440,7 +440,7 @@ class GnrWsgiSite(object):
             raise Exception('Error: resource %s not found' % res_id)
             
     def find_gnrjs_and_dojo(self):
-        """add???"""
+        """TODO"""
         self.dojo_path = {}
         self.gnr_path = {}
         for lib, path, cdn in self.gnr_config['gnr.environment_xml.static'].digest('js:#k,#a.path,#a.cdn'):
@@ -450,14 +450,14 @@ class GnrWsgiSite(object):
                 self.gnr_path[lib[4:]] = path
                 
     def set_environment(self):
-        """add???"""
+        """TODO"""
         for var, value in self.gnr_config['gnr.environment_xml'].digest('environment:#k,#a.value'):
             var = var.upper()
             if not os.getenv(var):
                 os.environ[var] = str(value)
                 
     def load_gnr_config(self):
-        """add???"""
+        """TODO"""
         config_path = expandpath('~/.gnr')
         if os.path.isdir(config_path):
             return Bag(config_path)
@@ -467,7 +467,7 @@ class GnrWsgiSite(object):
         return Bag()
         
     def load_site_config(self):
-        """add???"""
+        """TODO"""
         site_config_path = os.path.join(self.site_path, 'siteconfig.xml')
         site_config = self.gnr_config['gnr.siteconfig.default_xml']
         path_list = []
@@ -499,16 +499,16 @@ class GnrWsgiSite(object):
         return os.path.join(self.gnrapp.packages[pkg].packageFolder, 'webpages')
         
     def loadResource(self, pkg, *path):
-        """add???
+        """TODO
         
         :param pkg: the :ref:`package <packages>` object
-        :param \*path: add???"""
+        :param \*path: TODO"""
         return self.resource_loader.loadResource(*path, pkg=pkg)
         
     def get_path_list(self, path_info):
-        """add???
+        """TODO
         
-        :param path_info: add???"""
+        :param path_info: TODO"""
         # No path -> indexpage is served
         if path_info == '/' or path_info == '':
             path_info = self.indexpage
@@ -528,9 +528,9 @@ class GnrWsgiSite(object):
     home_uri = property(_get_home_uri)
         
     def parse_request_params(self, params):
-        """add???
+        """TODO
         
-        :param params: add???"""
+        :param params: TODO"""
         out_dict = dict()
         for name in params.iterkeys():
             name = str(name)
@@ -547,8 +547,8 @@ class GnrWsgiSite(object):
         """Main :ref:`wsgi` dispatcher, calls serve_staticfile for static files and
         self.createWebpage for :ref:`gnrcustomwebpage`
         
-        :param environ: add???
-        :param start_response: add???"""
+        :param environ: TODO
+        :param start_response: TODO"""
         t = time()
         request = Request(environ)
         response = Response()
@@ -626,11 +626,11 @@ class GnrWsgiSite(object):
             return response(environ, start_response)
             
     def setResultInResponse(self, result, response, totaltime=None):
-        """add???
+        """TODO
         
-        :param result: add???
-        :param response: add???
-        :param totaltime: add???"""
+        :param result: TODO
+        :param response: TODO
+        :param totaltime: TODO"""
         if totaltime:
             response.headers['X-GnrTime'] = str(totaltime)
         if isinstance(result, unicode):
@@ -645,15 +645,15 @@ class GnrWsgiSite(object):
         return response
         
     def onServingPage(self, page):
-        """add???
+        """TODO
         
-        :param page: add???"""
+        :param page: TODO"""
         pass
         
     def onServedPage(self, page):
-        """add???
+        """TODO
         
-        :param page: add???"""
+        :param page: TODO"""
         pass
         
     def cleanup(self):
@@ -663,11 +663,11 @@ class GnrWsgiSite(object):
         self.shared_data.disconnect_all()
         
     def serve_tool(self, path_list, environ, start_response, **kwargs):
-        """add???
+        """TODO
         
-        :param path_list: add???
-        :param environ: add???
-        :param start_response: add???"""
+        :param path_list: TODO
+        :param environ: TODO
+        :param start_response: TODO"""
         toolname = path_list[1]
         args = path_list[2:]
         tool = self.load_webtool(toolname)
@@ -695,7 +695,7 @@ class GnrWsgiSite(object):
         return response(environ, start_response)
         
     def load_webtool(self, tool_name):
-        """add???
+        """TODO
         
         :param tool_name: the tool name"""
         webtool = self.webtools.get(tool_name)
@@ -703,11 +703,11 @@ class GnrWsgiSite(object):
             return webtool()
             
     def not_found_exception(self, environ, start_response, debug_message=None):
-        """add???
+        """TODO
         
-        :param environ: add???
+        :param environ: TODO
         :param start_response: add??
-        :param debug_message: add???"""
+        :param debug_message: TODO"""
         exc = httpexceptions.HTTPNotFound(
                 'The resource at %s could not be found'
                 % paste_request.construct_url(environ),
@@ -717,11 +717,11 @@ class GnrWsgiSite(object):
         return exc.wsgi_application(environ, start_response)
         
     def forbidden_exception(self, environ, start_response, debug_message=None):
-        """add???
+        """TODO
         
-        :param environ: add???
+        :param environ: TODO
         :param start_response: add??
-        :param debug_message: add???"""
+        :param debug_message: TODO"""
         exc = httpexceptions.HTTPForbidden(
                 'The resource at %s could not be viewed'
                 % paste_request.construct_url(environ),
@@ -731,12 +731,12 @@ class GnrWsgiSite(object):
         return exc.wsgi_application(environ, start_response)
         
     def failed_exception(self, message, environ, start_response, debug_message=None):
-        """add???
+        """TODO
         
-        :param message: add???
-        :param environ: add???
+        :param message: TODO
+        :param environ: TODO
         :param start_response: add??
-        :param debug_message: add???"""
+        :param debug_message: TODO"""
         if '%%s' in message:
             message = message % paste_request.construct_url(environ)
         exc = httpexceptions.HTTPPreconditionFailed(message,
@@ -746,10 +746,10 @@ class GnrWsgiSite(object):
         return exc.wsgi_application(environ, start_response)
         
     def client_exception(self, message, environ):
-        """add???
+        """TODO
         
-        :param message: add???
-        :param environ: add???"""
+        :param message: TODO
+        :param environ: TODO"""
         message = 'ERROR REASON : %s' % message
         exc = httpexceptions.HTTPClientError(message,
                                              comment='SCRIPT_NAME=%r; PATH_INFO=%r'
@@ -784,7 +784,7 @@ class GnrWsgiSite(object):
         return app
         
     def onAuthenticated(self, avatar):
-        """add???
+        """TODO
         
         :param avatar: the avatar (user that logs in)"""
         if 'adm' in self.db.packages:
@@ -794,69 +794,69 @@ class GnrWsgiSite(object):
                 pkg.onAuthenticated(avatar)
         
     def pageLog(self, event, page_id=None):
-        """add???
+        """TODO
         
-        :param event: add???
+        :param event: TODO
         :param page_id: the 22 characters page id"""
         if False and 'adm' in self.db.packages:
             self.db.table('adm.served_page').pageLog(event, page_id=page_id)
             
     def connectionLog(self, event, connection_id=None):
-        """add???
+        """TODO
         
-        :param event: add???
-        :param connection_id: add???"""
+        :param event: TODO
+        :param connection_id: TODO"""
         if False and 'adm' in self.db.packages:
             self.db.table('adm.connection').connectionLog(event, connection_id=connection_id)
             
     def setPreference(self, path, data, pkg=''):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param data: add???
+        :param path: TODO
+        :param data: TODO
         :param pkg: the :ref:`package <packages>` object"""
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
             self.db.table('adm.preference').setPreference(path, data, pkg=pkg)
             
     def getPreference(self, path, pkg='', dflt=''):
-        """add???
+        """TODO
         
-        :param path: add???
+        :param path: TODO
         :param pkg: the :ref:`package <packages>` object
-        :param dflt: add???"""
+        :param dflt: TODO"""
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
             return self.db.table('adm.preference').getPreference(path, pkg=pkg, dflt=dflt)
             
     def getUserPreference(self, path, pkg='', dflt='', username=''):
-        """add???
+        """TODO
         
-        :param path: add???
+        :param path: TODO
         :param pkg: the :ref:`package <packages>` object
-        :param dflt: add???
-        :param username: add???"""
+        :param dflt: TODO
+        :param username: TODO"""
         if self.db.package('adm'):
             username = username or self.currentPage.user
             pkg = pkg or self.currentPage.packageId
             return self.db.table('adm.user').getPreference(path=path, pkg=pkg, dflt=dflt, username=username)
             
     def setUserPreference(self, path, data, pkg='', username=''):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param data: add???
+        :param path: TODO
+        :param data: TODO
         :param pkg: the :ref:`package <packages>` object
-        :param username: add???"""
+        :param username: TODO"""
         if self.db.package('adm'):
             pkg = pkg or self.currentPage.packageId
             username = username or self.currentPage.user
             self.db.table('adm.user').setPreference(path, data, pkg=pkg, username=username)
             
     def dropConnectionFolder(self, connection_id=None):
-        """add???
+        """TODO
         
-        :param connection_id: add???"""
+        :param connection_id: TODO"""
         pathlist = ['data', '_connections']
         if connection_id:
             pathlist.append(connection_id)
@@ -870,9 +870,9 @@ class GnrWsgiSite(object):
             os.rmdir(connectionFolder)
             
     def lockRecord(self, page, table, pkey):
-        """add???
+        """TODO
         
-        :param page: add???
+        :param page: TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
@@ -881,9 +881,9 @@ class GnrWsgiSite(object):
             return self.gnrapp.db.table('sys.locked_record').lockRecord(page, table, pkey)
             
     def unlockRecord(self, page, table, pkey):
-        """add???
+        """TODO
         
-        :param page: add???
+        :param page: TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
@@ -892,7 +892,7 @@ class GnrWsgiSite(object):
             return self.gnrapp.db.table('sys.locked_record').unlockRecord(page, table, pkey)
             
     def clearRecordLocks(self, **kwargs):
-        """add???"""
+        """TODO"""
         if 'sys' in self.gnrapp.db.packages:
             return self.gnrapp.db.table('sys.locked_record').clearExistingLocks(**kwargs)
             
@@ -916,7 +916,7 @@ class GnrWsgiSite(object):
                 page.developer.output(debugtype, **kwargs)
                 
     def onDbCommitted(self):
-        """add???"""
+        """TODO"""
         dbeventsDict= self.db.currentEnv.pop('dbevents',None)
         if not dbeventsDict:
             return
@@ -934,12 +934,12 @@ class GnrWsgiSite(object):
         self.db.updateEnv(env_transaction_id= None,dbevents=None)
         
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
-        """add???
+        """TODO
         
         :param tblobj: the table object
-        :param record: add???
-        :param event: add???
-        :param old_record: add???"""
+        :param record: TODO
+        :param event: TODO
+        :param old_record: TODO"""
         if tblobj.attributes.get('broadcast') == '*old*':
             subscribers = self.register.pages(index_name=tblobj.fullname)
             value = Bag([(k, v) for k, v in record.items() if not k.startswith('@')])
@@ -951,11 +951,11 @@ class GnrWsgiSite(object):
     def sendMessageToClient(self, value, pageId=None, filters=None, origin=None, msg_path=None):
         """Send a message
         
-        :param value: add???
-        :param pageId: add???
-        :param filters: add???
-        :param origin: add???
-        :param msg_path: add???"""
+        :param value: TODO
+        :param pageId: TODO
+        :param filters: TODO
+        :param origin: TODO
+        :param msg_path: TODO"""
         from_page, from_user = (origin.page_id, origin.user) if origin else (None, '*Server*')
         self.currentPage.setInClientData(msg_path or 'gnr.servermsg', value,
                                          page_id=pageId, filters=filters,
@@ -976,13 +976,13 @@ class GnrWsgiSite(object):
         
         This is typically used to customize prints and batch jobs for a particular installation
         
-        :param page: add???
+        :param page: TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param respath: add???
-        :param class_name: add???
-        :param runKwargs: add???"""
+        :param respath: TODO
+        :param class_name: TODO
+        :param runKwargs: TODO"""
         script = self.loadTableScript(page=page, table=table, respath=respath, class_name=class_name)
         if runKwargs:
             for k, v in runKwargs.items():
@@ -991,14 +991,14 @@ class GnrWsgiSite(object):
         return result
         
     def loadTableScript(self, page=None, table=None, respath=None, class_name=None):
-        """add???
+        """TODO
         
-        :param page: add???
+        :param page: TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param respath: add???
-        :param class_name: add???"""
+        :param respath: TODO
+        :param class_name: TODO"""
         return self.resource_loader.loadTableScript(page=page, table=table, respath=respath, class_name=class_name)
         
     def _get_resources(self):
@@ -1017,26 +1017,26 @@ class GnrWsgiSite(object):
     resources_dirs = property(_get_resources_dirs)
         
     def pkg_page_url(self, pkg, *args):
-        """add???
+        """TODO
         
         :param pkg: the :ref:`package <packages>` object"""
         return ('%s%s/%s' % (self.home_uri, pkg, '/'.join(args))).replace('//', '/')
         
     def webtools_url(self, tool, **kwargs):
-        """add???
+        """TODO
         
-        :param tool: add???"""
+        :param tool: TODO"""
         kwargs_string = '&'.join(['%s=%s' % (k, v) for k, v in kwargs.items()])
         return '%s%s_tools/%s?%s' % (self.external_host, self.home_uri, tool, kwargs_string)
         
     def serve_ping(self, response, environ, start_response, page_id=None, reason=None, **kwargs):
-        """add???
+        """TODO
         
-        :param response: add???
-        :param environ: add???
-        :param start_response: add???
-        :param page_id: add???
-        :param reason: add???"""
+        :param response: TODO
+        :param environ: TODO
+        :param start_response: TODO
+        :param page_id: TODO
+        :param reason: TODO"""
         #kwargs = self.parse_kwargs(kwargs)
         _children_pages_info= kwargs.get('_children_pages_info')
         _lastUserEventTs = kwargs.get('_lastUserEventTs')
@@ -1070,11 +1070,11 @@ class GnrWsgiSite(object):
         return result
         
     def get_datachanges(self, page_id, user=None, local_datachanges=None):
-        """add???
+        """TODO
         
-        :param page_id: add???
+        :param page_id: TODO
         :param user: the username
-        :param local_datachanges: add???"""
+        :param local_datachanges: TODO"""
         result = Bag()
         local_datachanges = local_datachanges or []
         with self.register.pageStore(page_id) as pagestore:
@@ -1116,10 +1116,10 @@ class GnrWsgiSite(object):
         return store_datachanges
         
     def handle_clientchanges(self, page_id=None, parameters=None):
-        """add???
+        """TODO
         
-        :param page_id: add???
-        :param parameters: add???"""
+        :param page_id: TODO
+        :param parameters: TODO"""
         if '_serverstore_changes' in parameters:
             serverstore_changes = parameters.pop('_serverstore_changes', None)
             if serverstore_changes:
@@ -1129,7 +1129,7 @@ class GnrWsgiSite(object):
                             store.setItem(k, v)
                             
     def parse_kwargs(self, kwargs):
-        """add???
+        """TODO
         :param kwargs: the kw arguments
         """
         catalog = self.gnrapp.catalog

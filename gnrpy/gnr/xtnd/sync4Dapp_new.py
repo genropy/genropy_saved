@@ -32,12 +32,12 @@ class Struct4D(object):
         
     @property
     def folder4d(self):
-        """add???"""
+        """TODO"""
         return self.app.folder4d
         
     @property
     def folder4dstruct(self):
-        """add???"""
+        """TODO"""
         path = os.path.join(self.folder4d, 'structure')
         if not os.path.isdir(path):
             os.mkdir(path)
@@ -232,7 +232,7 @@ class GnrAppSync4D(GnrApp):
 
     @property
     def folder4d(self):
-        """add???"""
+        """TODO"""
         path = os.path.join(self.instanceFolder, self.sync4d_name)
         if not os.path.isdir(path):
             os.mkdir(path)

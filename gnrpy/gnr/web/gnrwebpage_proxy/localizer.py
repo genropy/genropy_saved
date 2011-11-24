@@ -15,7 +15,7 @@ import time
 class GnrWebLocalizer(GnrBaseProxy):
     """A class for handle the site localization and the translation for :ref:`languages`"""
     def init(self, **kwargs):
-        """add???"""
+        """TODO"""
         self.locale = self.page.locale
         if '-' in self.locale:
             self.locale = self.locale.split('-')[0]
@@ -23,7 +23,7 @@ class GnrWebLocalizer(GnrBaseProxy):
         self.missingLoc = False
 
     def event_onEnd(self):
-        """add???"""
+        """TODO"""
         with self.page.pageStore() as store:
             localization = {}
             localization.update(store.getItem('localization') or {})
@@ -89,15 +89,15 @@ class GnrWebLocalizer(GnrBaseProxy):
     #### BEGIN: RPC Section ##########
 
     def rpc_pageLocalizationSave(self, data, **kwargs):
-        """add???
+        """TODO
         
-        :param data: add???"""
+        :param data: TODO"""
         self.page.application.updateLocalization(self.page.packageId, data, self.locale)
         self.page.siteStatus['resetLocalizationTime'] = time.time()
         self.page.siteStatusSave()
 
     def rpc_pageLocalizationLoad(self):
-        """add???"""
+        """TODO"""
         loc = self.page.pageStore().getItem('localization')
         b = Bag()
         loc_items = loc.items()

@@ -155,7 +155,7 @@ form - data levels
       * **title**: string. It includes the name of the record title in the :ref:`data_entry`
       * **valid**: boolean, string. True if every :ref:`validation <validations>` is satisfied
       
-    * **handler**: add???
+    * **handler**: TODO
     * **record**: this level contains all the :ref:`columns <column>` of your :ref:`table`
       
       At the ``th/form/record`` level, the path of the data is::
@@ -178,7 +178,7 @@ view level
 
     The view level contains many levels. We point up the following ones:
     
-    * **grid**: add???
+    * **grid**: TODO
     * **query**: it contains the parameters of the user queries
     * **store**: it contains all the records that satisfy the current query
     * **table**: it includes the name of the package and the name of the table
@@ -189,7 +189,7 @@ view level
     * **title**: it contains the name of the record title in the :ref:`view_data`
     * **top**: it includes a ``bar`` sublevel: this sublevel contains the
       :ref:`th_gui_form_action_bar`. If you need to add/replace/delete some buttons, use the
-      :meth:`replaceSlots() <gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.slotbar_replaceslots>` method
+      :meth:`~gnr.web.gnrwebstruct.GnrDomSrc_dojo_11.slotbar_replaceslots` method
       
       ::
       

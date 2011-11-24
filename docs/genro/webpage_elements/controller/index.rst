@@ -44,11 +44,11 @@ server-side controllers
     A server-side controller works on the server thorugh Python; they are:
     
     * :ref:`data`: used to define variables from server to client
-    * :ref:`datarecord`: add???
+    * :ref:`datarecord`: TODO
     * :ref:`dataremote`: synchronous rpc
-    * :ref:`dataresource`: add???
+    * :ref:`dataresource`: TODO
     * :ref:`datarpc`: allow the client to make a call to the server to perform an action.
-    * :ref:`dataselection`: add???
+    * :ref:`dataselection`: TODO
     
 .. _controllers_section_index:
 
@@ -57,6 +57,7 @@ section index
 
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     data
     datacontroller
@@ -65,3 +66,4 @@ section index
     dataresource
     dataRpcs: dataRecord, dataRpc, dataSelection <datarpc/index>
     datascript
+    

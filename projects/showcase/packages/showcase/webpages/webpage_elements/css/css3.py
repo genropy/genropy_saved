@@ -1,6 +1,5 @@
 # -*- coding: UTF-8 -*-
-# 
-"""css3make tester"""
+"""CSS3"""
 
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerBase"

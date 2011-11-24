@@ -184,7 +184,7 @@ tags
 menu icons
 ----------
     
-    add??? you can use the outcodes to add icons to your menu
+    TODO you can use the outcodes to add icons to your menu
 
 .. _menu_th:
 

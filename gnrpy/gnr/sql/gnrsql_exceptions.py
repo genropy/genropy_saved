@@ -51,8 +51,8 @@ class GnrSqlExecutionException(GnrSqlException):
     
     :param code: error code
     :param message: explanation of the error
-    :param sql: add???
-    :param params: add???
+    :param sql: TODO
+    :param params: TODO
     """
     
     def __init__(self, code, message, sql, params):

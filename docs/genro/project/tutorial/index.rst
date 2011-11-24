@@ -39,6 +39,7 @@ section index
 
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     project
     instance

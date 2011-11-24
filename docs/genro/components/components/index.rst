@@ -8,13 +8,16 @@ index of components
     
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     chat
     IncludedView <includedview>
+    framegrid
     frameindex
     linkerField
     periodcombo
     selectionbrowser
+    testhandler
     dialogs/index
     th/index
     h_th/index

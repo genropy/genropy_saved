@@ -30,9 +30,9 @@ from gnr.core.gnrlang import GnrObject
 from gnr.core.gnrbag import Bag
 
 def page_mixin(func):
-    """add???
+    """TODO
     
-    :param func: add???"""
+    :param func: TODO"""
     def decore(self, obj, *args, **kwargs):
         setattr(func, '_mixin_type', 'page')
         result = func(self, obj, *args, **kwargs)
@@ -71,7 +71,7 @@ def zzzcomponent_hook(func_or_name):
             bc.bar(...)"""
             
     def register(name, func):
-        """add???
+        """TODO
         
         :param func:"""
         func_name = func.__name__
@@ -161,11 +161,11 @@ class BaseProxy(object):
             setattr(self, argname, argvalue)
             
 class BaseWebtool(object):
-    """add???"""
+    """TODO"""
     pass
         
 class TableScriptToHtml(BagToHtml):
-    """add???"""
+    """TODO"""
     rows_table = None
     virtual_columns = None
         
@@ -208,7 +208,7 @@ class TableScriptToHtml(BagToHtml):
             #    result=f.read()
 
     def get_css_requires(self):
-        """add???"""
+        """TODO"""
         css_requires = []
         for css_require in self.css_requires.split(','):
             if not css_require.startswith('http'):
@@ -218,11 +218,11 @@ class TableScriptToHtml(BagToHtml):
         return css_requires
         
     def get_record_caption(self, item, progress, maximum, **kwargs):
-        """add???
+        """TODO
         
-        :param item: add???
-        :param progress: add???
-        :param maximum: add???"""
+        :param item: TODO
+        :param progress: TODO
+        :param maximum: TODO"""
         if self.rows_table:
             tblobj = self.db.table(self.rows_table)
             caption = '%s (%i/%i)' % (tblobj.recordCaption(item.value), progress, maximum)
@@ -231,25 +231,25 @@ class TableScriptToHtml(BagToHtml):
         return caption
         
     def getHtmlPath(self, *args, **kwargs):
-        """add???"""
+        """TODO"""
         return self.page.site.getStaticPath('page:html', *args, **kwargs)
         
     def getPdfPath(self, *args, **kwargs):
-        """add???"""
+        """TODO"""
         return self.page.site.getStaticPath('page:pdf', *args, **kwargs)
         
     def getHtmlUrl(self, *args, **kwargs):
-        """add???"""
+        """TODO"""
         return self.page.site.getStaticUrl('page:html', *args, **kwargs)
         
     def getPdfUrl(self, *args, **kwargs):
-        """add???"""
+        """TODO"""
         return self.page.site.getStaticUrl('page:pdf', *args, **kwargs)
         
     def outputDocName(self, ext=''):
-        """add???
+        """TODO
         
-        :param ext: add???"""
+        :param ext: TODO"""
         if ext and not ext[0] == '.':
             ext = '.%s' % ext
         caption = ''

@@ -1,77 +1,28 @@
-/* @group Documentation */
 
-.infopar {
-    background-color: #cdb79e;
-    width: 43em;
-}
-
-.docpane {
-    background-color: #C1974C;
-    padding: 1em;
-}
-
-.doclabel {
-    margin-left: 20px;
-    margin-top: 10px;
-    font-size: 1em;
-    font-weight: bold;
-    color: white;
-}
-
-.demodoc {
-    background-color: #fffdc0;
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-top: 5px;
-    padding: 10px;
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
-    border-radius: 12px;
-}
-
-.abstract {
-    min-height: 15ex;
-}
-
-.intro {
-    min-height: 10ex;
-}
-
-.edit_dlg {
-    min-height: 20ex;
-    min-width: 40em;
-}
-
-.edit_dlg textarea {
-    height: 10ex;
-    width: 35em;
-}
-
-/* @end */
-
-.mainindex {
-    color: #32353d;
-}
-
-.mainindex .header {
-    background-color: #67393f;
-    color: #dfcfbe;
-    font-variant: small-caps;
-}
-
-.mainindex .leftpane {
+.leftpane {
     background-color: #CACACA;
     padding: 10px;
     overflow: auto;
+    display: inline-block;
+    border: 4px solid #909090;
+    width: 270px
 }
 
-.mainindex .top_pane {
+.top_pane {
     background-color: #657C9C;
     padding: 5px;
+    height: 30px;
+    display: inline-block;
+    border: 4px solid #2467A2
+}
+
+.center_pane {
+    display: inline-block;
+    border: 4px solid #7B98E3
 }
 
 .mainindex .centerfooter {
-    background-color: #32353d;
+    background-color: #E1E9E9;
 }
 
 .highlighttable tr td {
@@ -83,11 +34,11 @@
 }
 
 .highlight {
-    background: #FBFBFB;
+    background: #E1E9E9;
 }
 
 .highlight .c {
-    color: #408080;
+    color: #B1B1B1;
     font-style: italic
 }
 
@@ -98,8 +49,8 @@
 
 /* Error */
 .highlight .k {
-    color: #008000;
-    font-weight: bold
+    color: blue;
+    font-weight: bold;
 }
 
 /* Keyword */
@@ -192,13 +143,11 @@
 /* Keyword.Constant */
 .highlight .kd {
     color: #008000;
-    font-weight: bold
 }
 
 /* Keyword.Declaration */
 .highlight .kn {
     color: #008000;
-    font-weight: bold
 }
 
 /* Keyword.Namespace */
@@ -239,13 +188,13 @@
 
 /* Name.Builtin */
 .highlight .nc {
-    color: #0000FF;
-    font-weight: bold
+    color: black;
+    text-decoration: underline;
 }
 
 /* Name.Class */
 .highlight .no {
-    color: #880000
+    color: #888888
 }
 
 /* Name.Constant */
@@ -267,7 +216,8 @@
 
 /* Name.Exception */
 .highlight .nf {
-    color: #0000FF
+    color: #0909A3;
+    font-weight: bold
 }
 
 /* Name.Function */
@@ -277,8 +227,6 @@
 
 /* Name.Label */
 .highlight .nn {
-    color: #0000FF;
-    font-weight: bold
 }
 
 /* Name.Namespace */

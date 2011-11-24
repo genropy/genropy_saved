@@ -1,0 +1,10 @@
+# -*- coding: UTF-8 -*-
+"""timeTextbox"""
+
+class GnrCustomWebPage(object):
+    py_requires = "gnrcomponents/testhandler:TestHandlerFull"
+    
+    def test_1_timeTextbox(self, pane):
+        """timeTextbox"""
+        fb = pane.formbuilder(datapath='test1')
+        fb.timeTextBox(value='^.timeTextbox')
