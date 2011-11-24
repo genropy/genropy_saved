@@ -4497,8 +4497,7 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
         }
         this.store.mainbag=new gnr.GnrBag();
     },
-    created: function(widget, savedAttrs, sourceNode) {
-        widget.geocoder = new google.maps.Geocoder();
+    created: function(widget, savedAttrs, sourceNode){
         var tag = 'cls_' + sourceNode.attr.tag;
         dojo.addClass(widget.domNode.childNodes[0], tag);
         this.connectForUpdate(widget, sourceNode);
@@ -4507,6 +4506,26 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
                 dojo.connect(widget.focusNode, 'onkeydown', widget, '_onKeyPress');
             }
         }
+        if (!window.google){
+            //loader_init_module='{"modules":[{"name":"maps","version":"3","language":'+navigator.language+',"other_params":"sensor=false"}]}';
+            //req_string=encodeURIComponent(loader_init_module);
+            this.load_googleloader(widget);
+                //
+        }
+        else{
+            this.init_geocoder(widget);
+        }
+    },
+    load_googleloader:function(widget){
+        genro.dom.loadJs("https://www.google.com/jsapi",
+            dojo.hitch(this, "load_googlemaps",widget));
+    },
+    load_googlemaps:function(widget){
+        google.load("maps", "3.x", {other_params: "sensor=false",language:navigator.language, callback:dojo.hitch(this, "init_geocoder",widget)});
+    },
+    init_geocoder: function(widget) {
+        widget.geocoder = new google.maps.Geocoder();
+        
     },
     mixin_handleGeocodeResults: function(results, status){
         this.store.mainbag=new gnr.GnrBag();
