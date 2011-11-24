@@ -16,7 +16,7 @@ datastore
 description
 ===========
     
-    The datastore is a Genro :ref:`bag` used to keep track of data.
+    The datastore is a Genro :ref:`bag` used to keep track of data
 
 .. _datastore_syntax:
 

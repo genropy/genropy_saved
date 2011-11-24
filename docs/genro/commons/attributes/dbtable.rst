@@ -36,13 +36,12 @@ syntax
 
     ::
     
-        dbtable='packageName.tableName.columnName'
+        dbtable='packageName.tableName'
         
     where:
     
     * ``packageName`` is the name of the :ref:`package <packages>` on which you're working;
     * ``tableName`` is the name of the :ref:`table` on which is executed the user query;
-    * ``columnName`` is the name of the database :ref:`column`.
     
     .. note:: you can omit the ``packageName`` if the dbtable is used on a :ref:`webpage` that
               belongs to the package you should specify.

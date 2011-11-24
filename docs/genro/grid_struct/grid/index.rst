@@ -6,7 +6,7 @@ grid
     
     *Last page update*: |today|
     
-    add???
+    TODO
     
     * :ref:`grid_intro`
     * :ref:`grid_section_index`
@@ -18,7 +18,7 @@ introduction
 
     The grid is the visual model of a :ref:`struct`.
     
-    add??? image!
+    TODO image!
     
 .. _grid_section_index:
 
@@ -27,6 +27,7 @@ section index
     
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
     palettegrid
     includedgrid

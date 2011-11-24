@@ -76,7 +76,7 @@ symbolic datapath
     
         Example::
     
-            add???
+            TODO
             
 .. _datapath_specials:
 
@@ -87,7 +87,7 @@ special paths
     they are:
     
     * :ref:`attributes_path`: allow to access to an attribute
-    * :ref:`form_path`: allow to access to the ... add???
+    * :ref:`form_path`: allow to access to the ... TODO
     * :ref:`parent_path`: allow to access to the superior path level
     
 .. _attributes_path:
@@ -95,14 +95,14 @@ special paths
 attributes path
 ---------------
 
-    In order to access to an attribute (of a :ref:`bagnode`), you can ...add???
+    In order to access to an attribute (of a :ref:`bagnode`), you can ...TODO
     
 .. _form_path:
 
 #FORM path
 ----------
     
-    add???
+    TODO
     
     ``#FORM.pkey`` is the current pkey of the record
     
@@ -111,13 +111,13 @@ attributes path
 parent path
 -----------
 
-    add???
+    TODO
     
     You can access to the parent path through the ``#parent`` syntax.
     
     Example::
     
-    add??? explanation!
+    TODO explanation!
     
         value='^.#parent.batch_note'
         

@@ -33,7 +33,7 @@ Backward path
     
     .. image:: ../_images/bag/bag-backward-path.png
     
-    This feature is implemented by the :meth:`setBackRef() <gnr.core.gnrbag.Bag.setBackRef()>`
+    This feature is implemented by the :meth:`~gnr.core.gnrbag.Bag.setBackRef()`
     method. If we call it on a Bag instance, that Bag becomes the root of a tree structure in
     which each leaf (BagNode) knows its father. This means that we can traverse a Bag backward
     using the ``parent`` property of Bag's nodes:
@@ -291,7 +291,7 @@ Values' list for the ``validate_`` parameter
 Setting a validator using Bag's methods
 =======================================
 
-    To set a validator through the :meth:`addValidator() <gnr.core.gnrbag.Bag.addValidator>` method
+    To set a validator through the :meth:`~gnr.core.gnrbag.Bag.addValidator` method
     you have to give a path, a validator and a parameterString, where:
     
     * `path`: node's path.
@@ -306,8 +306,8 @@ Setting a validator using Bag's methods
         0 - (Bag) user: 
             0 - (str) name: Abcd efgh ij klm
             
-    The :meth:`removeValidator() <gnr.core.gnrbag.Bag.removeValidator>` method allow to remove a
-    validator (parameters: `path` and `validator`).
+    The :meth:`~gnr.core.gnrbag.Bag.removeValidator` method allow to remove a
+    validator (parameters: `path` and `validator`)
 
 **Footnotes:**
 

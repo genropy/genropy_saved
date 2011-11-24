@@ -49,10 +49,10 @@ class GnrStructData(Bag):
     makeRoot = classmethod(makeRoot)
         
     def backwardNodebyAttr(self, attrname, checker=None):
-        """add???
+        """TODO
         
-        :param attrname: add???
-        :param checker: add???"""
+        :param attrname: TODO
+        :param checker: TODO"""
         if checker is None:
             checker= lambda v:True
         if isinstance(checker,basestring):
@@ -93,8 +93,8 @@ class GnrStructData(Bag):
         :param tag: structure type
         :param name: structure name
         :param content: optional structure content
-        :param _parentTag: add???
-        :param _attributes: add???
+        :param _parentTag: TODO
+        :param _attributes: TODO
         :param childname: the :ref:`childname`
         """
         where = self
@@ -166,9 +166,9 @@ class GnrStructObj(GnrObject):
     def makeRoot(cls, parent, structnode, objclassdict, **kwargs):
         """Instantiate the root element
         
-        :param cls: add???
-        :param parent: add???
-        :param structnode: add???
+        :param cls: TODO
+        :param parent: TODO
+        :param structnode: TODO
         :param objclassdict: dictionary of the classes"""
         if isinstance(structnode, Bag):
             structnode = structnode.getNode('#0')
@@ -216,9 +216,9 @@ class GnrStructObj(GnrObject):
         return True
         
     def buildChildren(self, children):
-        """add???
+        """TODO
         
-        :param children: add???"""
+        :param children: TODO"""
         objclassdict = self.root.objclassdict
         for child in children:
             tag = child.getAttr('tag')
@@ -263,7 +263,7 @@ class GnrStructObj(GnrObject):
         pass
         
     def deleteChildren(self):
-        """add???"""
+        """TODO"""
         for k in self.children.keys():
             self.deleteChild(k)
             
@@ -274,7 +274,7 @@ class GnrStructObj(GnrObject):
     def newChild(self, obj):
         """Hook method on creation of a new child
         
-        :param obj: add???"""
+        :param obj: TODO"""
         pass
         
     def _get_root(self):
@@ -286,7 +286,7 @@ class GnrStructObj(GnrObject):
     root = property(_get_root)
             
     def getById(self, id):
-        """add???
+        """TODO
         
         :param id: the id of the object"""
         return self.root.objdict.get(id, None)
@@ -294,9 +294,9 @@ class GnrStructObj(GnrObject):
     def getItem(self, path, default=None, static=False):
         """Build a child
         
-        :param path: add???
-        :param default: add???
-        :param static: add???"""
+        :param path: TODO
+        :param default: TODO
+        :param static: TODO"""
         if path.startswith('.'):
             return self.root[path[1:]]
         if path.startswith('!'):
@@ -314,8 +314,8 @@ class GnrStructObj(GnrObject):
     def get(self, name, default=None):
         """Build a child
         
-        :param name: add???
-        :param default: add???"""
+        :param name: TODO
+        :param default: TODO"""
         name = name.lower()
         if name in self.children:
             obj = self.children[name]
@@ -332,8 +332,8 @@ class GnrStructObj(GnrObject):
     def getResolver(self, name, default=None):
         """Build a child
         
-        :param name: add???
-        :param default: add???"""
+        :param name: TODO
+        :param default: TODO"""
         return self.children.get(name.lower(), default=default)
         
     def _htraverse(self, pathlist, **kwargs):
@@ -406,38 +406,38 @@ class GnrStructObj(GnrObject):
     parent = property(_get_parent, _set_parent)
         
     def init(self):
-        """add???"""
+        """TODO"""
         pass
         
     def newChild(self, child):
-        """add???
+        """TODO
         
-        :param child: add???"""
+        :param child: TODO"""
         pass
         
     def afterChildrenCreation(self):
-        """add???"""
+        """TODO"""
         pass
         
     def asBag(self):
-        """add???"""
+        """TODO"""
         return StructObjResolver(self)
         
 class StructObjResolver(BagResolver):
     def resolverDescription(self):
-        """add???"""
+        """TODO"""
         return 'tree'
         
     def init(self, obj):
-        """add???
+        """TODO
         
-        :param obj: add???"""
+        :param obj: TODO"""
         #self.obj = weakref.ref(obj)
         self.obj = obj
         self.alreadyCalled = False
         
     def expired(self):
-        """add???"""
+        """TODO"""
         if self.alreadyCalled:
             #obj = self.obj()
             obj = self.obj
@@ -472,17 +472,17 @@ class StructObjResolver(BagResolver):
         return result
         
 class TestStructModule(object):
-    """add???"""
+    """TODO"""
     def __init__(self):
         self.struct = GnrStructData.root()
         self.structdict = {}
         self.roots = {}
         
     def buildOne(self, name, path):
-        """add???
+        """TODO
         
-        :param name: add???
-        :param path: add???"""
+        :param name: TODO
+        :param path: TODO"""
         node = self.struct.getNode(path)
         self.roots[name] = GnrStructObj.root(node, self.structdict)
         

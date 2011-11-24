@@ -113,10 +113,10 @@ class SqlQueryCompiler(object):
         self.locale = locale
         
     def init(self, lazy=None, eager=None):
-        """add???
+        """TODO
         
-        :param lazy: add???. 
-        :param eager: add???. 
+        :param lazy: TODO. 
+        :param eager: TODO. 
         """
         self._explodingRows = False
         self._explodingTables = []
@@ -137,8 +137,8 @@ class SqlQueryCompiler(object):
         It can be recursive to resolve :ref:`table_virtualcolumn`\s.
         
         :param fieldpath: a field path. (e.g: '$colname'; e.g: '@relname.@rel2name.colname')
-        :param curr: add???. 
-        :param basealias: add???. """
+        :param curr: TODO. 
+        :param basealias: TODO. """
         def expandPref(m):
             """#PREF(myprefpath,default)"""
             prefpath = m.group(1)
@@ -231,9 +231,9 @@ class SqlQueryCompiler(object):
         If the relation is traversed for the first time, it builds the join clause.
         Here case_insensitive relations and joinConditions are addressed.
         
-        :param attrs: add???
-        :param path: add???
-        :param basealias: add???"""
+        :param attrs: TODO
+        :param path: TODO
+        :param basealias: TODO"""
         #ref = attrs['many_relation'].split('.')[-1]
         ref = attrs['many_relation'].split('.', 1)[-1] #fix 25-11-09
         newpath = path + [ref]
@@ -296,9 +296,9 @@ class SqlQueryCompiler(object):
         * *params*: a dict of params used in the condition clause
         * *one_one*: ``True`` if a many relation becomes a one relation due to the condition
         
-        :param target_fld: add???
-        :param from_fld: add???
-        :param alias: add???"""
+        :param target_fld: TODO
+        :param from_fld: TODO
+        :param alias: TODO"""
         extracnd = None
         one_one = None
         joinExtra = self.joinConditions.get('%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_')))
@@ -317,7 +317,7 @@ class SqlQueryCompiler(object):
         so the found relations can be converted in sql strings (see :meth:`getFieldAlias()` method) and
         replaced into the returned string with templateReplace (see :meth:`compiledQuery()`).
         
-        :param teststring: add???
+        :param teststring: TODO
         :param reldict: a dict of custom names for db columns: {'asname':'@relation_name.colname'}"""
         if reldict is None: reldict = self.cpl.relationDict
         for col in COLFINDER.finditer(teststring):
@@ -387,7 +387,7 @@ class SqlQueryCompiler(object):
                       (like count(*))
         :param excludeLogicalDeleted: boolean. If ``True``, exclude from the query all the records that are
                                       "logical deleted"
-        :param excludeDraft: add???
+        :param excludeDraft: TODO
         :param addPkeyColumn: boolean. If ``True``, add a column with the pkey attribute"""
         # get the SqlCompiledQuery: an object that mantains all the informations to build the sql text
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
@@ -541,15 +541,15 @@ class SqlQueryCompiler(object):
                             bagFields=True, for_update=False, relationDict=None, virtual_columns=None):
         """Prepare the :class:`SqlCompiledQuery` class to get the sql query for a selection.
         
-        :param lazy: add???. 
-        :param eager: add???. 
+        :param lazy: TODO. 
+        :param eager: TODO. 
         :param where: the sql "WHERE" clause. For more information check the :ref:`sql_where` section.
                       
         :param bagFields: boolean, True to include fields of type Bag (``X``) when columns is * or contains *@relname.filter
-        :param for_update: add???
+        :param for_update: TODO
         :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
                              check the :ref:`relationdict` documentation section
-        :param virtual_columns: add???."""
+        :param virtual_columns: TODO."""
         self.cpl = SqlCompiledQuery(self.tblobj.sqlfullname, relationDict=relationDict)
         if not 'pkey' in self.cpl.relationDict:
             self.cpl.relationDict['pkey'] = self.tblobj.pkey
@@ -610,9 +610,9 @@ class SqlQueryCompiler(object):
             #self.cpl.dicttemplate[path_name] = as_name
             
     def expandPeriod(self, m):
-        """add???
+        """TODO
         
-        :param m: add???"""
+        :param m: TODO"""
         fld = m.group(1)
         period_param = m.group(2)
         date_from, date_to = decodeDatePeriod(self.sqlparams[period_param],
@@ -660,14 +660,14 @@ class SqlQueryCompiler(object):
 
 
 class SqlDataResolver(BagResolver):
-    """add???"""
+    """TODO"""
     classKwargs = {'cacheTime': 0,
                    'readOnly': True,
                    'db': None}
     classArgs = ['tablename']
         
     def resolverSerialize(self):
-        """add???"""
+        """TODO"""
         attr = {}
         attr['resolvermodule'] = self.__class__.__module__
         attr['resolverclass'] = self.__class__.__name__
@@ -678,7 +678,7 @@ class SqlDataResolver(BagResolver):
         return attr
         
     def init(self):
-        """add???"""
+        """TODO"""
     ##raise str(self._initKwargs)
     #if 'get_app' in self._initKwargs:
     #self.db = self._initKwargs['get_app'].db
@@ -689,11 +689,11 @@ class SqlDataResolver(BagResolver):
         self.onCreate()
         
     def onCreate(self):
-        """add???"""
+        """TODO"""
         pass
         
 class SqlRelatedRecordResolver(BagResolver):
-    """add???"""
+    """TODO"""
     classKwargs = {'cacheTime': 0,
                    'readOnly': True,
                    'db': None,
@@ -708,7 +708,7 @@ class SqlRelatedRecordResolver(BagResolver):
                    'relation_value': None}
                    
     def resolverSerialize(self):
-        """add???"""
+        """TODO"""
         attr = {}
         attr['resolvermodule'] = self.__class__.__module__
         attr['resolverclass'] = self.__class__.__name__
@@ -719,7 +719,7 @@ class SqlRelatedRecordResolver(BagResolver):
         return attr
         
     def load(self):
-        """add???"""
+        """TODO"""
         pkg, tbl, related_field = self.target_fld.split('.')
         dbtable = '%s.%s' % (pkg, tbl)
         recordpars = dict()
@@ -756,7 +756,7 @@ class SqlQuery(object):
     :param offset: the same of the sql "OFFSET"
     :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
     :param having: the sql "HAVING" clause. For more information check the :ref:`sql_having`
-    :param for_update: boolean. add???
+    :param for_update: boolean. TODO
     :param relationDict: a dict to assign a symbolic name to a :ref:`relation`. For more information
                          check the :ref:`relationdict` documentation section
     :param sqlparams: a dictionary which associates sqlparams to their values
@@ -778,7 +778,7 @@ class SqlQuery(object):
                  relationDict=None, sqlparams=None, bagFields=False,
                  joinConditions=None, sqlContextName=None,
                  excludeLogicalDeleted=True,excludeDraft=True,
-                 addPkeyColumn=True, locale=None,
+                 addPkeyColumn=True, locale=None,_storename=None,
                  **kwargs):
         self.dbtable = dbtable
         self.sqlparams = sqlparams or {}
@@ -794,6 +794,7 @@ class SqlQuery(object):
         self.excludeDraft = excludeDraft
         self.addPkeyColumn = addPkeyColumn
         self.locale = locale
+        self.storename = _storename
         
         test = " ".join([v for v in (columns, where, order_by, group_by, having) if v])
         rels = set(re.findall('\$(\w*)', test))
@@ -809,12 +810,12 @@ class SqlQuery(object):
         self._compiled = None
         
     def setJoinCondition(self, target_fld, from_fld, condition, one_one=False, **kwargs):
-        """add???
+        """TODO
         
-        :param target_fld: add???
-        :param from_fld: add???
+        :param target_fld: TODO
+        :param from_fld: TODO
         :param condition: set a :ref:`sql_condition` for the join
-        :param one_one: boolean. add???
+        :param one_one: boolean. TODO
         """
         cond = dict(condition=condition, one_one=one_one, params=kwargs)
         self.joinConditions['%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_'))] = cond
@@ -855,7 +856,7 @@ class SqlQuery(object):
     def cursor(self):
         """Get a cursor of the current selection."""
         
-        return self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname)
+        return self.db.execute(self.sqltext, self.sqlparams, dbtable=self.dbtable.fullname,storename=self.storename)
         
     def fetch(self):
         """Get a cursor of the current selection and fetch it"""
@@ -941,9 +942,9 @@ class SqlQuery(object):
         """Execute the query and return a SqlSelection
         
         :param pyWhere: a callback that can be used to reduce the selection during the fetch
-        :param key: add???
-        :param sortedBy: add???
-        :param _aggregateRows: boolean. add???"""
+        :param key: TODO
+        :param sortedBy: TODO
+        :param _aggregateRows: boolean. TODO"""
         index, data = self._dofetch(pyWhere=pyWhere)
         return SqlSelection(self.dbtable, data,
                             index=index,
@@ -978,21 +979,21 @@ class SqlQuery(object):
         
     def servercursor(self):
         """Get a cursor on dbserver"""
-        return self.db.execute(self.sqltext, self.sqlparams, cursorname='*')
+        return self.db.execute(self.sqltext, self.sqlparams, cursorname='*',storename=self.storename)
         
     def serverfetch(self, arraysize=30):
         """Get fetch of the :meth:`servercursor()` method.
         
-        :param arraysize: add???"""
+        :param arraysize: TODO"""
         cursor = self.servercursor()
         cursor.arraysize = arraysize
         rows = cursor.fetchmany()
         return cursor, self._cursorGenerator(cursor, rows)
         
     def iterfetch(self, arraysize=30):
-        """add???
+        """TODO
         
-        :param arraysize: add???"""
+        :param arraysize: TODO"""
         for r in self.serverfetch(arraysize=arraysize)[1]:
             yield r
             
@@ -1008,7 +1009,7 @@ class SqlQuery(object):
     def count(self):
         """Return rowcount. It does not save a selection"""
         compiledQuery = self.compileQuery(count=True)
-        cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname)
+        cursor = self.db.execute(compiledQuery.get_sqltext(self.db), self.sqlparams, dbtable=self.dbtable.fullname,storename=self.storename)
         if isinstance(cursor, list):
             n = 0
             for c in cursor:
@@ -1119,23 +1120,23 @@ class SqlSelection(object):
         
         :param mode: There are different options you can set:
                      
-                     * `mode='pkeylist'`: add???
-                     * `mode='records'`: add???
-                     * `mode='data'`: add???
-                     * `mode='tabtext'`: add???
+                     * `mode='pkeylist'`: TODO
+                     * `mode='records'`: TODO
+                     * `mode='data'`: TODO
+                     * `mode='tabtext'`: TODO
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section
         :param offset: the same of the sql "OFFSET"
         :param limit: number of result's rows. Corresponding to the sql "LIMIT" operator. For more
                       information, check the :ref:`sql_limit` section
-        :param filterCb: add???
-        :param subtotal_rows: add???
-        :param formats: add???
+        :param filterCb: TODO
+        :param subtotal_rows: TODO
+        :param formats: TODO
         :param locale: the current locale (e.g: en, en_us, it)
-        :param dfltFormats: add???
-        :param asIterator: boolean. add???
-        :param asText: boolean. add???"""
+        :param dfltFormats: TODO
+        :param asIterator: boolean. TODO
+        :param asText: boolean. TODO"""
         if subtotal_rows:
             attr = self.analyzeBag.getNode(subtotal_rows).attr
             if attr:
@@ -1231,10 +1232,10 @@ class SqlSelection(object):
             f.close()
             
     def freeze(self, fpath, autocreate=False):
-        """add???
+        """TODO
         
         :param fpath: the freeze path
-        :param autocreate: boolean. if ``True``, add???"""
+        :param autocreate: boolean. if ``True``, TODO"""
         self.freezepath = fpath
         self.isChangedSelection = False
         self.isChangedData = False
@@ -1248,7 +1249,7 @@ class SqlSelection(object):
         self._freeze_filtered('w')
         
     def freezeUpdate(self):
-        """add???"""
+        """TODO"""
         if self.isChangedData:
             self._freeze_data('w')
         if self.isChangedFiltered:
@@ -1262,13 +1263,13 @@ class SqlSelection(object):
             self._freezeme()
             
     def getByKey(self, k):
-        """add???
+        """TODO
         
-        :param k: add???"""
+        :param k: TODO"""
         return self.keyDict[k]
         
     def sort(self, *args):
-        """add???"""
+        """TODO"""
         args = list(args)
         args = [x.replace('.','_').replace('@','_') for x in args]
         if len(args) == 1 and (',' in args[0]):
@@ -1287,9 +1288,9 @@ class SqlSelection(object):
                 self.isChangedFiltered = True
                 
     def filter(self, filterCb=None):
-        """add???
+        """TODO
         
-        :param filterCb: add???. 
+        :param filterCb: TODO. 
         """
         if filterCb:
             self._filtered_data = filter(filterCb, self._data)
@@ -1298,10 +1299,10 @@ class SqlSelection(object):
         self.isChangedFiltered = True
         
     def extend(self, selection, merge=True):
-        """add???
+        """TODO
         
-        :param selection: add???
-        :param merge: boolean. add???
+        :param selection: TODO
+        :param merge: boolean. TODO
         """
         if not merge:
             if self._index != selection._index:
@@ -1313,9 +1314,9 @@ class SqlSelection(object):
         self.data.extend(l)
         
     def apply(self, cb):
-        """add???
+        """TODO
         
-        :param cb: add???
+        :param cb: TODO
         """
         rowsToChange = []
         for i, r in enumerate(self._data):
@@ -1339,39 +1340,39 @@ class SqlSelection(object):
         self.isChangedData = True
         
     def insert(self, i, values):
-        """add???
+        """TODO
         
-        :param i: add???
-        :param values: add???
+        :param i: TODO
+        :param values: TODO
         """
         self._data.insert(i, self.newRow(values))
         
     def newRow(self, values):
         """Add a new row and return it
         
-        :param values: add???"""
+        :param values: TODO"""
         r = GnrNamedList(self._index)
         r.update(values)
         return r
         
     def remove(self, cb):
-        """add???
+        """TODO
         
-        :param cb: add???"""
+        :param cb: TODO"""
         self._data = filter(not(cb), self._data)
         self.isChangedData = True
         
     def totalize(self, group_by=None, sum=None, collect=None, distinct=None,
                  keep=None, key=None, captionCb=None, **kwargs):
-        """add???
+        """TODO
         
         :param group_by: the sql "GROUP BY" clause. For more information check the :ref:`sql_group_by` section
-        :param sum: add???
-        :param collect: add???
+        :param sum: TODO
+        :param collect: TODO
         :param distinct: boolean, ``True`` for getting a "SELECT DISTINCT"
-        :param keep: add???
-        :param key: add???
-        :param captionCb: add???"""
+        :param keep: TODO
+        :param key: TODO
+        :param captionCb: TODO"""
         if group_by is None:
             self.analyzeBag = None
         else:
@@ -1397,19 +1398,19 @@ class SqlSelection(object):
         self.totalize(group_by=group_by, sum=sum, collect=collect, distinct=distinct, keep=keep, key=key, **kwargs)
         
     def totalizer(self, path=None):
-        """add???
+        """TODO
         
-        :param path: add???. """
+        :param path: TODO. """
         if path and self.analyzeBag:
             return self.analyzeBag[path]
         else:
             return self.analyzeBag
             
     def totalizerSort(self, path=None, pars=None):
-        """add???
+        """TODO
         
-        :param path: add???. 
-        :param pars: add???. 
+        :param path: TODO. 
+        :param pars: TODO. 
         """
         tbag = self.totalizer(path)
         if pars:
@@ -1418,9 +1419,9 @@ class SqlSelection(object):
             tbag.sort()
         
     def totals(self, path=None, columns=None):
-        """add???
+        """TODO
            
-        :param path: add???
+        :param path: TODO
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
                         :ref:`sql_columns` section. """
@@ -1453,12 +1454,12 @@ class SqlSelection(object):
                 yield r
                 
     def toTextGen(self, outgen, formats, locale, dfltFormats):
-        """add???
+        """TODO
         
-        :param outgen: add???
-        :param formats: add???
+        :param outgen: TODO
+        :param formats: TODO
         :param locale: the current locale (e.g: en, en_us, it)
-        :param dfltFormats: add???"""
+        :param dfltFormats: TODO"""
         def _toText(cell):
             k, v = cell
             v = gnrstring.toText(v, format=formats.get(k) or dfltFormats.get(type(v)), locale=locale)
@@ -1473,13 +1474,13 @@ class SqlSelection(object):
     def out_listItems(self, outsource):
         """Return the outsource.
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         return outsource
         
     def out_count(self, outsource):
         """Return the number of rows in the outsource.
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         #dubbio secondo me non dovrebbe esserci
         n = 0
         for r in outsource:
@@ -1487,70 +1488,70 @@ class SqlSelection(object):
         return n
         
     def out_distinctColumns(self, outsource):
-        """add???
+        """TODO
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         return [uniquify(x) for x in zip(*[[v for k, v in r] for r in outsource])]
         
     def out_distinct(self, outsource):
-        """add???
+        """TODO
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         return set([tuple([col[1] for col in r]) for r in outsource])
         
     def out_generator(self, outsource):
         """Return the outsource
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         return outsource
         
     def iter_data(self, outsource):
         """Return the outsource
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         return outsource
         
     def out_data(self, outsource):
         """Return a list of the outsource's rows.
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         return [r for r in outsource]
         
     def iter_dictlist(self, outsource):
         """A generator function that returns a dict of the outsource's rows.
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         for r in outsource:
             yield dict(r)
             
     def out_dictlist(self, outsource):
-        """add???
+        """TODO
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         return [dict(r) for r in outsource]
         
     def out_json(self, outsource):
-        """add???
+        """TODO
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         return gnrstring.toJson(self.out_dictlist(outsource))
         
     def out_list(self, outsource):
-        """add???
+        """TODO
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         return [[v for k, v in r] for r in outsource]
         
     def out_pkeylist(self, outsource):
-        """add???
+        """TODO
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         return [r[0][1] for r in outsource]
         
     def iter_pkeylist(self, outsource):
-        """add???
+        """TODO
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         for r in outsource:
             yield r[0][1]
 
@@ -1561,23 +1562,23 @@ class SqlSelection(object):
         return joiner.join(result)
 
     def out_records(self, outsource):
-        """add???
+        """TODO
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         return [self.dbtable.record(r[0][1], mode='bag') for r in outsource]
         
     def iter_records(self, outsource):
-        """add???
+        """TODO
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         for r in outsource:
             yield self.dbtable.record(r[0][1], mode='bag')
             
     def out_bag(self, outsource, recordResolver=False):
-        """add???
+        """TODO
         
-        :param outsource: add???
-        :param recordResolver: boolean. add???"""
+        :param outsource: TODO
+        :param recordResolver: boolean. TODO"""
         b = Bag()
         headers = Bag()
         for k in self.columns:
@@ -1587,10 +1588,10 @@ class SqlSelection(object):
         return b
             
     def buildAsBag(self, outsource, recordResolver):
-        """add???
+        """TODO
         
-        :param outsource: add???
-        :param recordResolver: boolean. add???"""
+        :param outsource: TODO
+        :param recordResolver: boolean. TODO"""
         result = Bag()
         defaultTable = self.dbtable.fullname
         for j, row in enumerate(outsource):
@@ -1620,10 +1621,10 @@ class SqlSelection(object):
         return result
             
     def out_recordlist(self, outsource, recordResolver=True):
-        """add???
+        """TODO
         
-        :param outsource: add???
-        :param recordResolver: boolean. add???"""
+        :param outsource: TODO
+        :param recordResolver: boolean. TODO"""
         result = Bag()
         content = None
         for j, row in enumerate(outsource):
@@ -1633,11 +1634,11 @@ class SqlSelection(object):
         return result
         
     def out_baglist(self, outsource, recordResolver=False, labelIsPkey=False):
-        """add???
+        """TODO
         
-        :param outsource: add???
-        :param recordResolver: boolean. add???
-        :param caption: boolean. add???"""
+        :param outsource: TODO
+        :param recordResolver: boolean. TODO
+        :param caption: boolean. TODO"""
         result = Bag()
         for j, row in enumerate(outsource):
             row = dict(row)
@@ -1650,11 +1651,11 @@ class SqlSelection(object):
         return result
         
     def out_selection(self, outsource, recordResolver=False, caption=False):
-        """add???
+        """TODO
         
-        :param outsource: add???
-        :param recordResolver: boolean. add???
-        :param caption: boolean. add???"""
+        :param outsource: TODO
+        :param recordResolver: boolean. TODO
+        :param caption: boolean. TODO"""
         result = Bag()
         content = ''
         for j, row in enumerate(outsource):
@@ -1681,17 +1682,17 @@ class SqlSelection(object):
         return result
             
     def out_grid(self, outsource, recordResolver=True):
-        """add???
+        """TODO
            
-        :param outsource: add???
-        :param recordResolver: boolean. add???"""
+        :param outsource: TODO
+        :param recordResolver: boolean. TODO"""
         return self.buildAsGrid(outsource, recordResolver)
         
     def buildAsGrid(self, outsource, recordResolver):
-        """add???
+        """TODO
            
-        :param outsource: add???
-        :param recordResolver: boolean. add???"""
+        :param outsource: TODO
+        :param recordResolver: boolean. TODO"""
         result = Bag()
         content = None
         for j, row in enumerate(outsource):
@@ -1711,10 +1712,10 @@ class SqlSelection(object):
         return result
         
     def out_fullgrid(self, outsource, recordResolver=True):
-        """add???
+        """TODO
            
-        :param outsource: add???
-        :param recordResolver: boolean. add???"""
+        :param outsource: TODO
+        :param recordResolver: boolean. TODO"""
         result = Bag()
         result['structure'] = self._buildGridStruct()
         result['data'] = self.buildAsGrid(outsource, recordResolver)
@@ -1749,7 +1750,7 @@ class SqlSelection(object):
     def out_xmlgrid(self, outsource):
         """Return a Bag
            
-        :param outsource: add???"""
+        :param outsource: TODO"""
         result = Bag()
         
         dataXml = []
@@ -1774,7 +1775,7 @@ class SqlSelection(object):
         
     @property
     def colHeaders(self):
-        """add???"""
+        """TODO"""
         def translate(txt):
             if txt.startswith('!!'):
                 txt = txt[2:]
@@ -1792,9 +1793,9 @@ class SqlSelection(object):
         return headers
             
     def out_tabtext(self, outsource):
-        """add???
+        """TODO
         
-        :param outsource: add???"""
+        :param outsource: TODO"""
         def translate(txt):
             if txt.startswith('!!'):
                 txt = txt[2:]
@@ -1817,10 +1818,10 @@ class SqlSelection(object):
         return '\n'.join(result)
         
     def out_xls(self, outsource, filepath=None):
-        """add???
+        """TODO
         
-        :param outsource: add???
-        :param filePath: boolean. add???. """
+        :param outsource: TODO
+        :param filePath: boolean. TODO. """
         from gnr.core.gnrxls import XlsWriter
         
         columns = [c for c in self.columns if not c in ('pkey', 'rowidx')]
@@ -1831,13 +1832,13 @@ class SqlSelection(object):
         writer(data=outsource)
         
 class SqlRelatedSelectionResolver(BagResolver):
-    """add???"""
+    """TODO"""
     classKwargs = {'cacheTime': 0, 'readOnly': True, 'db': None,
                    'columns': None, 'mode': None, 'sqlparams': None, 'joinConditions': None, 'sqlContextName': None,
                    'target_fld': None, 'relation_value': None, 'condition': None, 'bagFields': None}
                    
     def resolverSerialize(self):
-        """add???"""
+        """TODO"""
         attr = {}
         attr['resolvermodule'] = self.__class__.__module__
         attr['resolverclass'] = self.__class__.__name__
@@ -1848,7 +1849,7 @@ class SqlRelatedSelectionResolver(BagResolver):
         return attr
         
     def load(self):
-        """add???"""
+        """TODO"""
         pkg, tbl, related_field = self.target_fld.split('.')
         dbtable = '%s.%s' % (pkg, tbl)
         
@@ -1865,14 +1866,14 @@ class SqlRelatedSelectionResolver(BagResolver):
         return query.selection().output(self.mode, recordResolver=(self.mode == 'grid'))
         
 class SqlRecord(object):
-    """add???"""
+    """TODO"""
     def __init__(self, dbtable, pkey=None, where=None,
                  lazy=None, eager=None, relationDict=None,
                  sqlparams=None,
                  ignoreMissing=False, ignoreDuplicate=False,
                  bagFields=True, for_update=False,
                  joinConditions=None, sqlContextName=None,
-                 virtual_columns=None,storename=None,
+                 virtual_columns=None,_storename=None,
                  **kwargs):
         self.dbtable = dbtable
         self.pkey = pkey
@@ -1891,22 +1892,23 @@ class SqlRecord(object):
         self.bagFields = bagFields
         self.for_update = for_update
         self.virtual_columns = virtual_columns
-        self.storename = storename
+        self.storename = _storename
+
         
     def setJoinCondition(self, target_fld, from_fld, condition, one_one=False, **kwargs):
-        """add???
+        """TODO
         
-        :param target_fld: add???
-        :param from_fld: add???
+        :param target_fld: TODO
+        :param from_fld: TODO
         :param condition: set a :ref:`sql_condition` for the join
-        :param one_one: boolean. add???"""
+        :param one_one: boolean. TODO"""
         cond = dict(condition=condition, one_one=one_one, params=kwargs)
         self.joinConditions['%s_%s' % (target_fld.replace('.', '_'), from_fld.replace('.', '_'))] = cond
         
     def output(self, mode, **kwargs):
-        """add???
+        """TODO
         
-        :param mode: add???"""
+        :param mode: TODO"""
         if hasattr(self, 'out_%s' % mode):
             return getattr(self, 'out_%s' % mode)(**kwargs) #calls the output method
         else:
@@ -1920,7 +1922,7 @@ class SqlRecord(object):
     compiled = property(_get_compiled)
     
     def compileQuery(self):
-        """add???"""
+        """TODO"""
         if self.where:
             where = self.where
         elif self.pkey is not None:
@@ -1943,7 +1945,7 @@ class SqlRecord(object):
             if self.pkey is not None:
                 params['pkey'] = self.pkey
                 #raise '%s \n\n%s' % (str(params), str(self.compiled.get_sqltext(self.db)))
-            cursor = self.db.execute(self.compiled.get_sqltext(self.db), params, dbtable=self.dbtable.fullname)
+            cursor = self.db.execute(self.compiled.get_sqltext(self.db), params, dbtable=self.dbtable.fullname,storename=self.storename)
             data = cursor.fetchall()
             if len(data) == 1:
                 self._result = data[0]
@@ -1971,10 +1973,10 @@ class SqlRecord(object):
     result = property(_get_result,_set_result)
     
     def out_newrecord(self, resolver_one=True, resolver_many=True):
-        """add???
+        """TODO
         
-        :param resolver_one: boolean. add???
-        :param resolver_many: boolean. add???"""
+        :param resolver_one: boolean. TODO
+        :param resolver_many: boolean. TODO"""
         result = SqlRecordBag(self.db, self.dbtable.fullname)
         self.result = Bag()
         self.loadRecord(result, resolver_many=resolver_many, resolver_one=resolver_one)
@@ -1986,10 +1988,10 @@ class SqlRecord(object):
         return result
         
     def out_bag(self, resolver_one=True, resolver_many=True):
-        """add???
+        """TODO
         
-        :param resolver_one: boolean. add???
-        :param resolver_many: boolean. add???"""
+        :param resolver_one: boolean. TODO
+        :param resolver_many: boolean. TODO"""
         result = SqlRecordBag(self.db, self.dbtable.fullname)
         if self.result is not None:
             self.loadRecord(result, resolver_many=resolver_many,resolver_one=resolver_one)
@@ -2002,18 +2004,18 @@ class SqlRecord(object):
         return gnrstring.templateReplace(recordtemplate,record,safeMode=True)
         
     def out_record(self):
-        """add???"""
+        """TODO"""
         result = Bag()
         if self.result:
             self.loadRecord(result,resolver_many=False, resolver_one=False)
         return result
         
     def out_json(self):
-        """add???"""
+        """TODO"""
         return gnrstring.toJson(self.out_dict())
         
     def out_dict(self):
-        """add???"""
+        """TODO"""
         return dict([(str(k)[3:], self.result[k]) for k in self.result.keys()])
     
 
@@ -2087,8 +2089,8 @@ class SqlRecord(object):
                                              )
         else:
             value = None
-            if 'external_store' in joiner:
-                info['_external_store'] = joiner['external_store']
+            if 'storefield' in joiner:
+                info['_storefield'] = joiner['storefield']
             info['_resolver_name'] = resolver_one
             info['_sqlContextName'] = self.sqlContextName
             info['_auto_relation_value'] = mfld
@@ -2123,7 +2125,7 @@ class SqlRecord(object):
 
     
 class SqlRecordBag(Bag):
-    """add???"""
+    """TODO"""
     def __init__(self, db=None, tablename=None):
         Bag.__init__(self)
         self.db = db
@@ -2131,7 +2133,7 @@ class SqlRecordBag(Bag):
         self.isNew = True
         
     def save(self, **kwargs):
-        """add???"""
+        """TODO"""
         for k, v in kwargs.items():
             self[k] = v
         if self.isNew:

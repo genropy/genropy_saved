@@ -47,12 +47,12 @@ class GnrWebBatch(GnrBaseProxy):
 
     @property
     def batch_path(self):
-        """add???"""
+        """TODO"""
         return 'gnr.batch.%s' % self.batch_id
 
     @property
     def result_doc_path(self):
-        """add???"""
+        """TODO"""
         return self.page.userDocument('_batch_result', 'b_%s.xml' % self.batch_id)
 
 
@@ -224,7 +224,7 @@ class GnrWebBatch(GnrBaseProxy):
         :param message: it can be a callable: in this case it's called for any iteration with item, progress
                         an maximum. If it's a string it's used to create a standard message that adds
                         progress/maximum. If it's omitted the line_code is used for message
-        :param keep: boolean. add???
+        :param keep: boolean. TODO
         :param kwargs: any given kwargs is passed to the iterable method"""
         if isinstance(iterable, basestring):
             iterable = iterable.split(',')

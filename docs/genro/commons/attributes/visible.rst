@@ -7,7 +7,7 @@ visible
     *Last page update*: |today|
     
     .. note:: **validity** - the *hidden* attribute is supported by every :ref:`webpage element
-              <webpage_elements_index>`
+              <we>`
     
     * :ref:`visible_def`
     * :ref:`visible_examples`

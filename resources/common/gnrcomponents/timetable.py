@@ -109,6 +109,8 @@ class Timetable(BaseComponent):
 
     def remote_ttdh_main(self, pane, tstart=None, tstop=None, period=None, wkdlist=None, fired=None, nodeId=None,
                          series=None, **kwargs):
+        if not period:
+            return
         self.tt_pars = dict(tstart=tstart, tstop=tstop, period=period, wkdlist=wkdlist, nodeId=nodeId, series=series,
                             minute_w=6, sh=30)
         self.tt_pars.update(kwargs)

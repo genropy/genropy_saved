@@ -49,16 +49,16 @@ from gnr.sql.gnrsql import GnrSqlDb
 log = logging.getLogger(__name__)
 
 class NullLoader(object):
-    """add???"""
+    """TODO"""
     def load_module(self,fullname):
-        """add???
+        """TODO
         
-        :param fullname: add???"""
+        :param fullname: TODO"""
         if fullname in sys.modules:
             return sys.modules[fullname]
 
 class GnrModuleFinder(object):
-    """add???"""
+    """TODO"""
     
     path_list=[]
 
@@ -74,10 +74,10 @@ class GnrModuleFinder(object):
         return '<%s for "%s">' % (self.__class__.__name__, self.path_entry)
 
     def find_module(self, fullname, path=None):
-        """add???
+        """TODO
         
-        :param fullname: add???
-        :param path: add???"""
+        :param fullname: TODO
+        :param path: TODO"""
         path = path or self.path_entry
         splitted=fullname.split('.')
         if splitted[0] == 'gnrpkg' and len(splitted)==1:
@@ -128,14 +128,14 @@ class GnrModuleFinder(object):
         return pkg_module
             
 class GnrModuleLoader(object):
-    """add???"""
+    """TODO"""
     def __init__(self, file, pathname, description):
         self.file=file
         self.pathname=pathname
         self.description=description
 
     def load_module(self, fullname):
-        """add???"""
+        """TODO"""
         if fullname in sys.modules:
             mod = sys.modules[fullname]
         else:
@@ -148,18 +148,18 @@ class GnrModuleLoader(object):
         return mod
 
 class GnrImportException(GnrException):
-    """add???"""
+    """TODO"""
     pass
 
 class GnrMixinObj(object):
-    """add???"""
+    """TODO"""
     def __init__(self):
         pass
 
 class GnrSqlAppDb(GnrSqlDb):
-    """add???"""
+    """TODO"""
     def checkTransactionWritable(self, tblobj):
-        """add???
+        """TODO
         
         :param tblobj: the :ref:`database table <table>` object"""
         if not hasattr(tblobj, '_usesTransaction'):
@@ -198,10 +198,10 @@ class GnrSqlAppDb(GnrSqlDb):
         self.application.notifyDbEvent(tblobj, record, 'I')
         
     def getResource(self, tblobj, path):
-        """add???
+        """TODO
 
         :param tblobj: the :ref:`database table <table>` object
-        :param path: add???"""
+        :param path: TODO"""
         app = self.application
         resource = app.site.loadResource(tblobj.pkg.name, 'tables', tblobj.name, path)
         resource.site = app.site
@@ -210,14 +210,14 @@ class GnrSqlAppDb(GnrSqlDb):
         return resource
     
     def onDbCommitted(self):
-        """add???"""
+        """TODO"""
         self.application.onDbCommitted()
         
     def getFromStore(self, path, dflt):
-        """add???
+        """TODO
         
-        :param path: add???
-        :param dflt: add???"""
+        :param path: TODO
+        :param dflt: TODO"""
         return self.currentPage.pageStore().getItem(path,dflt)
         
     @property
@@ -225,7 +225,7 @@ class GnrSqlAppDb(GnrSqlDb):
         return self.application.site.currentPage
         
 class GnrPackagePlugin(object):
-    """add???"""
+    """TODO"""
     def __init__(self, pkg, path):
         self.pkg = pkg
         self.application = self.pkg.application
@@ -246,7 +246,7 @@ class GnrPackagePlugin(object):
         self.application.config['package_plugins.%s.%s'%(pkg.id,self.id)]=self.config
         
 class GnrPackage(object):
-    """add???"""
+    """TODO"""
     def __init__(self, pkg_id, application, path=None, filename=None, **pkgattrs):
         self.id = pkg_id
         filename = filename or pkg_id
@@ -306,22 +306,22 @@ class GnrPackage(object):
         self.configure()
         
     def loadPlugins(self):
-        """add???"""
+        """TODO"""
         plugin_folders=glob.glob(os.path.join(self.application.pluginFolder,self.id,'*'))
         for plugin_folder in plugin_folders:
             plugin = GnrPackagePlugin(self, plugin_folder)
             self.plugins[plugin.id] = plugin
         
     def getPlugins(self):
-        """add???"""
+        """TODO"""
         return self.plugins.values()
     
     def loadTableMixinDict(self, module, folder, model_prefix='', pluginId=None):
-        """add???
+        """TODO
         
-        :param module: add???
-        :param folder: add???
-        :param model_prefix: add???"""
+        :param module: TODO
+        :param folder: TODO
+        :param model_prefix: TODO"""
         tbldict = {}
         if module:
             tbldict = dict([(x[6:], getattr(module, x)) for x in dir(module) if x.startswith('Table_')])
@@ -405,7 +405,7 @@ class GnrPackage(object):
             struct.update(config_db_xml)
         
     def onApplicationInited(self):
-        """add???"""
+        """TODO"""
         pass
         
 class GnrApp(object):
@@ -461,11 +461,11 @@ class GnrApp(object):
         self.creationTime = time.time()
         
     def get_modulefinder(self, path_entry):
-        """add???"""
+        """TODO"""
         return GnrModuleFinder(path_entry,self)
         
     def set_environment(self):
-        """add???"""
+        """TODO"""
         environment_xml = self.gnr_config['gnr.environment_xml']
         if environment_xml:
             for var, value in environment_xml.digest('environment:#k,#a.value'):
@@ -474,7 +474,7 @@ class GnrApp(object):
                     os.environ[var] = str(value)
                     
     def load_gnr_config(self):
-        """add???"""
+        """TODO"""
         if os.environ.has_key('VIRTUAL_ENV'):
             config_path = expandpath(os.path.join(os.environ['VIRTUAL_ENV'],'etc','gnr'))
             if os.path.isdir(config_path):
@@ -496,7 +496,7 @@ class GnrApp(object):
         return Bag()
         
     def load_instance_config(self):
-        """add???"""
+        """TODO"""
         if not self.instanceFolder:
             return Bag()
         instance_config_path = os.path.join(self.instanceFolder, 'instanceconfig.xml')
@@ -612,7 +612,7 @@ class GnrApp(object):
         self.db.commit()
 
     def instance_name_to_path(self, instance_name):
-        """add???
+        """TODO
 
         :param instance_name: the name of the :ref:`instance <instances>`"""
         return PathResolver(gnr_config=self.gnr_config).instance_name_to_path(instance_name)
@@ -634,10 +634,10 @@ class GnrApp(object):
                     self.package_path[package] = path
 
     def pkg_name_to_path(self, pkgid, project=None):
-        """add???
+        """TODO
         
         :param pkgid: the id of the :ref:`package <packages>`
-        :param project: add???"""
+        :param project: TODO"""
         path = None
         if project:
             project_path = self.project_path(project)
@@ -655,9 +655,9 @@ class GnrApp(object):
                     'Error: package %s not found' % pkgid)
         
     def project_path(self, project):
-        """add???
+        """TODO
         
-        :param project: add???"""
+        :param project: TODO"""
         for project_path in self.gnr_config['gnr.environment_xml.projects'].digest('#a.path'):
             path = expandpath(project_path) 
             if os.path.isdir(path) and project in os.listdir(path):
@@ -677,7 +677,7 @@ class GnrApp(object):
 
 
     def buildLocalization(self):
-        """add???"""
+        """TODO"""
         self.localization = {}
         for pkg in self.packages.values():
             try:
@@ -703,10 +703,10 @@ class GnrApp(object):
         return loc
         
     def updateLocalization(self, pkg, data, locale):
-        """add???
+        """TODO
 
         :param pkg: the :ref:`package <packages>` object
-        :param data: add???
+        :param data: TODO
         :param locale: the current locale (e.g: en, en_us, it)"""
         pkgobj = self.packages[pkg]
         locpath = os.path.join(pkgobj.packageFolder, 'localization.xml')
@@ -719,9 +719,9 @@ class GnrApp(object):
         pkglocbag.toXml(os.path.join(pkgobj.packageFolder, 'localization.xml'))
         
     def getResource(self, path, pkg=None, locale=None):
-        """add???
+        """TODO
 
-        :param path: add???
+        :param path: TODO
         :param pkg: the :ref:`package <packages>` object
         :param locale: the current locale (e.g: en, en_us, it)"""
         if not pkg:
@@ -729,20 +729,20 @@ class GnrApp(object):
         return self.packages[pkg].getResource(path, locale=locale)
         
     def guestLogin(self):
-        """add???"""
+        """TODO"""
         return self.config.getAttr('authentication', 'guestName')
         
     def authPackage(self):
-        """add???"""
+        """TODO"""
         return self.packages[self.config.getAttr('authentication', 'pkg')]
         
     def getAvatar(self, user, password=None, authenticate=False, page=None, **kwargs):
-        """add???
+        """TODO
 
         :param user: MANDATORY. The guest username
         :param password: the username's password
         :param authenticate: boolean. If ``True``, to enter in the application a password is required
-        :param page: add???"""
+        :param page: TODO"""
         if user:
             authmethods = self.config['authentication']
             if authmethods:
@@ -862,16 +862,16 @@ class GnrApp(object):
             
     def makeAvatar(self, user, user_name=None, user_id=None, login_pwd=None,
                    authenticate=False, defaultTags=None, pwd=None, tags='', **kwargs):
-        """add???
+        """TODO
         
-        :param user: add???
-        :param user_name: add???
-        :param user_id: add???
+        :param user: TODO
+        :param user_name: TODO
+        :param user_id: TODO
         :param login_pwd: the password inserted from user for authentication
         :param authenticate: boolean. If ``True``, to enter in the application a password is required
-        :param defaultTags: add???
+        :param defaultTags: TODO
         :param pwd: the password
-        :param tags: add???"""
+        :param tags: TODO"""
         if defaultTags:
             tags = ','.join(makeSet(defaultTags, tags or ''))
         if authenticate:
@@ -906,7 +906,7 @@ class GnrApp(object):
             return (login_pwd == toText(pwd))
 
     def getPackagePlugins(self, pkg_id):
-        """add???
+        """TODO
         
         :param pkg_id: the id of the :ref:`package <packages>`"""
         pkg = self.packages[pkg_id]
@@ -920,7 +920,7 @@ class GnrApp(object):
         :param login_pwd: the password inserted from user for authentication
         :param pwd: the old password
         :param newpwd: the new password
-        :param userid: add???"""
+        :param userid: TODO"""
         if pwd:
             valid = self.validatePassword(login_pwd, pwd)
         else:
@@ -933,9 +933,9 @@ class GnrApp(object):
                 return hashlib.md5(newpwd).hexdigest()
                 
     def checkResourcePermission(self, resourceTags, userTags):
-        """add???
+        """TODO
         
-        :param resourceTags: add???
+        :param resourceTags: TODO
         :param userTags: the user's tag permissions. For more information, check the :ref:`auth` page"""
         if not resourceTags:
             return True
@@ -982,26 +982,26 @@ class GnrApp(object):
         return ','.join(resourceTags)
         
     def addDbstore(self, storename, store):
-        """add???
+        """TODO
         
-        :param storename: add???
-        :param store: add???"""
+        :param storename: TODO
+        :param store: TODO"""
         self.db.addDbstore(storename, **store)
         
     def dropDbstore(self, storename):
-        """add???
+        """TODO
         
-        :param storename: add???"""
+        :param storename: TODO"""
         self.db.dropDbstore(storename=storename)
         
     def dropAllDbStores(self):
-        """add???"""
+        """TODO"""
         self.db.dropAllDbStores()
         
     def realPath(self, path):
-        """add???
+        """TODO
         
-        :param path: add???"""
+        :param path: TODO"""
         path = os.path.expandvars(str(path))
         if not path.startswith('/'):
             path = os.path.realpath(os.path.join(self.instanceFolder, path))
@@ -1042,11 +1042,11 @@ class GnrApp(object):
         s.close()
         
     def errorAnalyze(self, e, caller=None, package=None):
-        """add???
+        """TODO
         
         :param e: the error
-        :param caller: add???
-        :param package: add???"""
+        :param caller: TODO
+        :param package: TODO"""
         raise e
         
     def onDbCommitted(self):
@@ -1054,12 +1054,12 @@ class GnrApp(object):
         pass
         
     def notifyDbEvent(self, tblobj, record, event, old_record=None):
-        """add???
+        """TODO
         
         :param tblobj: the :ref:`database table <table>` object
-        :param record: add???
-        :param event: add???
-        :param old_record: add???. """
+        :param record: TODO
+        :param event: TODO
+        :param old_record: TODO. """
         currentEnv = self.db.currentEnv
         if not currentEnv.get('env_transaction_id'):
             self.db.updateEnv(env_transaction_id= getUuid(),dbevents=dict())
@@ -1081,7 +1081,7 @@ class GnrApp(object):
             self.db.table('adm.audit').audit(tblobj,event,audit_mode=audit_mode,record=record, old_record=old_record)
                 
     def getAuxInstance(self, name=None):
-        """add???
+        """TODO
         
         :param name: the name of the auxiliary instance"""
         if not name:
@@ -1094,7 +1094,7 @@ class GnrApp(object):
 class GnrAvatar(object):
     """A class for avatar management
     
-    :param user: add???
+    :param user: TODO
     :param user_name: the avatar username
     :param user_id: the user id
     :param login_pwd: the password inserted from user for authentication
@@ -1135,7 +1135,7 @@ class GnrAvatar(object):
                     **self.extra_kwargs)
                     
 class GnrWriteInReservedTableError(Exception):
-    """add???"""
+    """TODO"""
     pass
     
 if __name__ == '__main__':

@@ -38,12 +38,12 @@ class BaseProxy(object):
         self.main=main
 
 class FilterList(list):
-    """add???"""
+    """TODO"""
     def __contains__(self, item):
         return len([k for k in self if k == item or k.endswith('*') and item.startswith(k[0:-1])]) > 0
 
 def thlocal():
-    """add???"""
+    """TODO"""
     return thread_ws.setdefault(thread.get_ident(), {})
     
 def boolean(x):
@@ -63,15 +63,15 @@ def boolean(x):
     return bool(x)
     
 def objectExtract(myobj, f):
-    """add???
+    """TODO
     
-    :param myobj: add???
-    :param f: add???"""
+    :param myobj: TODO
+    :param f: TODO"""
     lf = len(f)
     return dict([(k[lf:], getattr(myobj, k)) for k in dir(myobj) if k.startswith(f)])
     
 def importModule(module):
-    """add???
+    """TODO
     
     :param module: the module to be imported"""
     if module not in sys.modules:
@@ -79,9 +79,9 @@ def importModule(module):
     return sys.modules[module]
     
 def debug_call(func):
-    """add???
+    """TODO
     
-    :param func: add???"""
+    :param func: TODO"""
     def decore(self, *args, **kwargs):
         tloc = thlocal()
         indent = tloc['debug_call_indent'] = tloc.get('debug_call_indent', -1) + 1
@@ -96,10 +96,10 @@ def debug_call(func):
     return decore
     
 def timer_call(time_list=None, print_time=True):
-    """add???
+    """TODO
     
-    :param time_list: add???. 
-    :param print_time: boolean. add???"""
+    :param time_list: TODO. 
+    :param print_time: boolean. TODO"""
     time_list = time_list or []
     
     def decore(func):
@@ -134,9 +134,9 @@ def safe_dict(d):
     return dict([(str(k), v) for k, v in d.items()])
     
 def uniquify(seq):
-    """add???
+    """TODO
     
-    :param seq: add???"""
+    :param seq: TODO"""
     def seen_function(seq):
         seen = set()
         for x in seq:
@@ -148,14 +148,14 @@ def uniquify(seq):
     return list(seen_function(seq))
             
 def optArgs(**kwargs):
-    """add???"""
+    """TODO"""
     return dict([(k, v) for k, v in kwargs.items() if v != None])
             
 def moduleDict(module, proplist):
-    """add???
+    """TODO
     
-    :param module: add???
-    :param proplist: add???"""
+    :param module: TODO
+    :param proplist: TODO"""
     result = {}
     if isinstance(module, basestring):
         module = gnrImport(module)
@@ -167,10 +167,10 @@ def moduleDict(module, proplist):
     return result
     
 def gnrImport(source, importAs=None, avoidDup=False):
-    """add???
+    """TODO
     
-    :param source: add???
-    :param importAs: add???
+    :param source: TODO
+    :param importAs: TODO
     :param avoidDup: if ``True``, allow to avoid duplicates"""
     modkey = source
     path_sep = os.path.sep
@@ -233,22 +233,22 @@ class GnrException(Exception):
         return self.localizedMsg(self.caption, msgargs)
         
     def setLocalizer(self, localizer):
-        """add???
+        """TODO
         
-        :param localizer: add???"""
+        :param localizer: TODO"""
         self.localizer = localizer
         
     def localize(self, v):
-        """add???
+        """TODO
         
-        :param v: add???"""
+        :param v: TODO"""
         return self.localizer.translateText(v[2:])
         
     def localizedMsg(self, msg, msgargs):
-        """add???
+        """TODO
         
-        :param msg: add???
-        :param msgargs: add???"""
+        :param msg: TODO
+        :param msgargs: TODO"""
         if self.localizer:
             msg = self.localize(msg)
             for k, v in msgargs.items():
@@ -260,12 +260,12 @@ class NotImplementedException(GnrException):
     pass
         
 class GnrObject(object):
-    """add???"""
+    """TODO"""
     def __init__(self):
         pass
         
     def mixin(self, cls, **kwargs):
-        """add???
+        """TODO
         
         :param cls: the python class to mixin"""
         if isinstance(cls, basestring):
@@ -278,7 +278,7 @@ class GnrObject(object):
         instanceMixin(self, cls, **kwargs)
         
 class GnrImportedModule(object):
-    """add???"""
+    """TODO"""
     def __init__(self, source):
         if isinstance(source, basestring):
             self.path = source
@@ -312,9 +312,9 @@ class GnrImportedModule(object):
         return self.name
         
     def getDoc(self, memberName=None):
-        """add???
+        """TODO
         
-        :param memberName: add???"""
+        :param memberName: TODO"""
         m = self.module
         if memberName:
             m = self.getMember(memberName)
@@ -325,16 +325,16 @@ class GnrImportedModule(object):
         return doc
         
     def getMember(self, memberName):
-        """add???
+        """TODO
         
-        :param memberName: add???"""
+        :param memberName: TODO"""
         return getattr(self.module, memberName, None)
         
     #    def getImportedMember(self, memberName):
     #        return ImportedMember(self, memberName)
         
     def load(self):
-        """add???"""
+        """TODO"""
         if self.path.endswith('py'):
             self.module = imp.load_source(self.name, self.path)
         else:
@@ -342,7 +342,7 @@ class GnrImportedModule(object):
             #globals()[self.name]=self.module
             
     def update(self):
-        """add???"""
+        """TODO"""
         self.load()
         
 class GnrAddOn(object):
@@ -353,11 +353,11 @@ class GnrAddOn(object):
         return self.__class__.__name__
         
     def recorderReset(self):
-        """add???"""
+        """TODO"""
         self.__recorder__ = []
         
     def recorderWrite(self):
-        """add???"""
+        """TODO"""
         frame = sys._getframe(1)
         selector = frame.f_code.co_name
         srcargname, srcargs, srckwargs, vlocals = inspect.getargvalues(frame)
@@ -371,13 +371,13 @@ class GnrAddOn(object):
         self.__recorder__.append((selector, args, kwargs))
         
     def recorderGet(self):
-        """add???"""
+        """TODO"""
         return self.__recorder__
         
     def recorderDo(self, recorder=None):
-        """add???
+        """TODO
         
-        :param recorder: add???"""
+        :param recorder: TODO"""
         if not recorder: recorder = self.__recorder__[:]
         result = []
         for command, args, kwargs in recorder:
@@ -415,7 +415,7 @@ class GnrAddOn(object):
     dosuper = staticmethod(superdo)
         
     def setCallable(self, src, importAs=None, bound=True):
-        """add???
+        """TODO
         
         :param src: is a string of a python function or an imported function
         :param importAs: a name for identify the function in error messages
@@ -436,7 +436,7 @@ class GnrAddOn(object):
                 setattr(self, importAs, src)
                 
 class GnrRemeberableAddOn(GnrAddOn):
-    """add???"""
+    """TODO"""
     _gnr_members__ = {}
     _gnr_namedmembers__ = {}
     _gnr_remembered_as__ = None
@@ -450,9 +450,9 @@ class GnrRemeberableAddOn(GnrAddOn):
         object.__del__(self)
         
     def rememberMe(self, name=None):
-        """add???
+        """TODO
         
-        :param name: add???"""
+        :param name: TODO"""
         objid = id(self)
         #self._gnr_members__[objid]=weakref.ref(self)
         self._gnr_members__[objid] = self
@@ -464,28 +464,28 @@ class GnrRemeberableAddOn(GnrAddOn):
             self._gnr_namedmembers__[name] = objid
             
     def rememberedMembers(cls):
-        """add???
+        """TODO
         
-        :param cls: add???"""
+        :param cls: TODO"""
         #return [v() for v in cls._gnr_members__.values()]
         return [v for v in cls._gnr_members__.values()]
         
     rememberedMembers = classmethod(rememberedMembers)
         
     def rememberedNamedMembers(cls):
-        """add???
+        """TODO
         
-        :param cls: add???"""
+        :param cls: TODO"""
         #return dict([(name,cls._gnr_members__[objid]()) for  name,objid in cls._gnr_namedmembers__.items()])
         return dict([(name, cls._gnr_members__[objid]) for  name, objid in cls._gnr_namedmembers__.items()])
         
     rememberedNamedMembers = classmethod(rememberedNamedMembers)
         
     def rememberedGet(cls, name):
-        """add???
+        """TODO
         
-        :param cls: add???
-        :param name: add???"""
+        :param cls: TODO
+        :param name: TODO"""
         objid = cls._gnr_namedmembers__.get(name, None)
         #if objid:return cls._gnr_members__[objid]()
         if objid: return cls._gnr_members__[objid]
@@ -493,13 +493,13 @@ class GnrRemeberableAddOn(GnrAddOn):
     rememberedGet = classmethod(rememberedGet)
         
 class GnrMetaString(object):
-    """add???"""
+    """TODO"""
     _glossary = {}
         
     def glossary(cls):
-        """add???
+        """TODO
         
-        :param cls: add???"""
+        :param cls: TODO"""
         return cls._glossary.keys()
         
     glossary = classmethod(glossary)
@@ -519,7 +519,7 @@ class GnrMetaString(object):
             return bool(self.value == value.value)
             
 class SuperdoTest(object):
-    """add???"""
+    """TODO"""
     def __init__(self, first, second, alfa='alfadef', beta='betadef'):
         pass
         
@@ -534,19 +534,19 @@ class SuperdoTestChildX(SuperdoTest):
         GnrAddOn.dosuper(self)
         
 def addCallable(obj, method):
-    """add???
+    """TODO
     
-    :param obj: add???
-    :param method: add???"""
+    :param obj: TODO
+    :param method: TODO"""
     name = method.__name__
     setattr(obj, name, method)
         
 def addBoundCallable(obj, method, importAs=None):
-    """add???
+    """TODO
     
-    :param obj: add???
-    :param method: add???
-    :param importAs: add???"""
+    :param obj: TODO
+    :param method: TODO
+    :param importAs: TODO"""
     z = type(obj.__init__)
     k = z(method, obj, obj.__class__)
     if not importAs:
@@ -554,48 +554,48 @@ def addBoundCallable(obj, method, importAs=None):
     setattr(obj, importAs, k)
         
 def setMethodFromText(obj, src, importAs):
-    """add???
+    """TODO
     
-    :param obj: add???
-    :param src: add???
-    :param importAs: add???"""
+    :param obj: TODO
+    :param src: TODO
+    :param importAs: TODO"""
     compiled = compile(src, 'xyz', 'exec')
     auxDict = {}
     exec compiled in auxDict
     addBoundCallable(obj, auxDict[importAs], importAs)
         
 def getObjCallables(obj):
-    """add???
+    """TODO
     
-    :param obj: add???"""
+    :param obj: TODO"""
     return [(k, getattr(obj, k))  for k in dir(obj) if
             callable(getattr(obj, k)) and not k in ('__call__', '__class__', '__cmp__')]
             
 def getObjAttributes(obj):
-    """add???
+    """TODO
     
-    :param obj: add???"""
+    :param obj: TODO"""
     return [(k, getattr(obj, k))  for k in dir(obj) if not callable(getattr(obj, k))]
         
 def callables(obj):
-    """add???
+    """TODO
     
-    :param obj: add???"""
+    :param obj: TODO"""
     s = getObjCallables(obj)
     return '\n'.join([x for x, v in s])
         
 def testbound(self, n):
-    """add???
+    """TODO
     
-    :param n: add???"""
+    :param n: TODO"""
     self.special = n * '-'
     return self.special
         
 def compareInstances(a, b, __visited=None):
-    """add???
+    """TODO
     
-    :param a: add???
-    :param b: add???
+    :param a: TODO
+    :param b: TODO
     """
     if not __visited:
         __visited = {}
@@ -620,16 +620,16 @@ def compareInstances(a, b, __visited=None):
     return True
     
 def args(*args, **kwargs):
-    """add???"""
+    """TODO"""
     return (args, kwargs)
     
 def setCallable(obj, name, argstring=None, func='pass'):
-    """add???
+    """TODO
     
-    :param obj: add???
-    :param name: add???
-    :param argstring: add???
-    :param func: add???"""
+    :param obj: TODO
+    :param name: TODO
+    :param argstring: TODO
+    :param func: TODO"""
     body = '    ' + '\n    '.join(func.split('\n'))
     if argstring:
         argstring = ',' + argstring
@@ -639,17 +639,17 @@ def setCallable(obj, name, argstring=None, func='pass'):
     setMethodFromText(obj, f, name)
         
 def cloneClass(name, source_class):
-    """add???
+    """TODO
     
-    :param name: add???
-    :param source_class: add???"""
+    :param name: TODO
+    :param source_class: TODO"""
     return type(name, source_class.__bases__, dict([(k, v) for k, v in source_class.__dict__.items()
                                                     if not k in ('__dict__', '__module__', '__weakref__', '__doc__')]))
                                                     
 def moduleClasses(m):
-    """add???
+    """TODO
     
-    :param m: add???"""
+    :param m: TODO"""
     modulename = m.__name__
     return [x for x in dir(m) if (not x.startswith('__')) and  getattr(getattr(m, x), '__module__', None) == modulename]
         
@@ -657,11 +657,11 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
                exclude='js_requires,css_requires,py_requires', **kwargs):
     """Add to the class methods from 'source'.
     
-    :param target_class: add???
-    :param source_class: add???
-    :param methods: add???
-    :param only_callables: add???
-    :param exclude: add???. If not *methods* then all methods are added"""
+    :param target_class: TODO
+    :param source_class: TODO
+    :param methods: TODO
+    :param only_callables: TODO
+    :param exclude: TODO. If not *methods* then all methods are added"""
     if isinstance(methods, basestring):
         methods = methods.split(',')
     if isinstance(source_class, basestring):
@@ -728,9 +728,9 @@ def classMixin(target_class, source_class, methods=None, only_callables=True,
         source_class.__on_class_mixin__(target_class, **kwargs)
         
 def base_visitor(cls):
-    """add???
+    """TODO
     
-    :param cls: add???"""
+    :param cls: TODO"""
     yield cls
     for base in cls.__bases__:
         for inner_base in base_visitor(base):
@@ -744,14 +744,14 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     
     ``instanceMixin()`` method is decorated with the :meth:`extract_kwargs <gnr.core.gnrdecorator.extract_kwargs>` decorator
     
-    :param obj: add???
+    :param obj: TODO
     :param source: it can be an instance or a class
     :param methods: If ``None``, then all methods are added
-    :param attributes: add???
-    :param only_callables: boolean. add???
-    :param exclude: add???
-    :param prefix: add???
-    :param mangling_kwargs: add???"""
+    :param attributes: TODO
+    :param only_callables: boolean. TODO
+    :param exclude: TODO
+    :param prefix: TODO
+    :param mangling_kwargs: TODO"""
     if isinstance(methods, basestring):
         methods = methods.split(',')
     if isinstance(source, basestring):
@@ -827,14 +827,14 @@ def safeStr(self, o):
 #    assert not gc.garbage
 
 class GnrExpandible(object):
-    """add???"""
+    """TODO"""
     def __onmixin__(self, **kwargs):
         self.__expanders = []
         
     def addExpander(self, expander):
-        """add???
+        """TODO
         
-        :param expander: add???
+        :param expander: TODO
         """
         if not expander in self.__expanders:
             expander.parent = self
@@ -842,9 +842,9 @@ class GnrExpandible(object):
             self.__expanders.insert(0, expander)
             
     def delExpander(self, expander):
-        """add???
+        """TODO
         
-        :param expander: add???
+        :param expander: TODO
         """
         self.__expanders.remove(expander)
         
@@ -854,9 +854,9 @@ class GnrExpandible(object):
                 return getattr(expander, attr)
                 
 def instanceOf(obj, *args, **kwargs):
-    """add???
+    """TODO
     
-    :param obj: add???"""
+    :param obj: TODO"""
     if isinstance(obj, basestring):
         modulename, clsname = obj.split(':')
         m = gnrImport(modulename)
@@ -867,7 +867,7 @@ def instanceOf(obj, *args, **kwargs):
         return obj
         
 def errorTxt():
-    """add???"""
+    """TODO"""
     el = sys.exc_info()
     tb_text = traceback.format_exc()
     e = el[2]

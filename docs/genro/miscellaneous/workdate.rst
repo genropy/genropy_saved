@@ -16,7 +16,7 @@ introduction
     
     The working date.
     
-    add??? self.workdate...
+    TODO self.workdate...
     
     * The complete string is formed by...
     
@@ -27,7 +27,7 @@ introduction
     CLIPBOARD::
     
         (e.g: ``MM/DD/YYYY``). The date format depends on the
-        value of the *locale* parameter (add??? link to "locale"...)
+        value of the *locale* parameter (TODO link to "locale"...)
         
 .. _workdate_th:
 

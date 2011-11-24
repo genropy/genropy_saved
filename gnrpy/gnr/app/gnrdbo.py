@@ -8,10 +8,10 @@ from gnr.core.gnrstring import splitAndStrip
 class GnrDboPackage(object):
     """Base class for packages"""
     def updateFromExternalDb(self,externaldb,empty_before=None):
-        """add???
+        """TODO
         
-        :param externaldb: add???
-        :param empty_before: add???"""
+        :param externaldb: TODO
+        :param empty_before: TODO"""
         tables = self.attributes.get('export_order') or ''
         self.db.setConstraintsDeferred()
         for tbl in splitAndStrip(tables):
@@ -26,13 +26,13 @@ class GnrDboPackage(object):
         :param output: the output format (e.g. ``$YY.$NNNN`` for year)
         :param date: the current date
         :param phyear: the fiscal year
-        :param lastAssigned: add???"""
+        :param lastAssigned: TODO"""
         return self.dbtable('counter').getCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output,
                                                   date=date, phyear=phyear, lastAssigned=lastAssigned)
                                                   
     def getLastCounterDate(self, name, code, codekey, output,
                            date=None, phyear=False, lastAssigned=0):
-        """add???
+        """TODO
         
         :param name: the counter name
         :param code: the counter code
@@ -40,14 +40,14 @@ class GnrDboPackage(object):
         :param output: the output format (e.g. ``$YY.$NNNN`` for year)
         :param date: the current date
         :param phyear: the fiscal year
-        :param lastAssigned: add???"""
+        :param lastAssigned: TODO"""
         return self.dbtable('counter').getLastCounterDate(name=name, pkg=self.name, code=code, codekey=codekey,
                                                           output=output,
                                                           date=date, phyear=phyear, lastAssigned=lastAssigned)
                                                           
     def setCounter(self, name, code, codekey, output,
                    date=None, phyear=False, value=0):
-        """add???
+        """TODO
         
         :param name: the counter name
         :param code: the counter code
@@ -55,32 +55,32 @@ class GnrDboPackage(object):
         :param output: the output format (e.g. ``$YY.$NNNN`` for year)
         :param date: the current date
         :param phyear: the fiscal year
-        :param value: add???"""
+        :param value: TODO"""
         return self.dbtable('counter').setCounter(name=name, pkg=self.name, code=code, codekey=codekey, output=output,
                                                   date=date, phyear=phyear, value=value)
                                                   
     def loadUserObject(self, pkg=None, **kwargs):
-        """add???
+        """TODO
         
         :param pkg: the :ref:`package <packages>` object"""
         return self.dbtable('userobject').loadUserObject(pkg=pkg or self.name, **kwargs)
         
     def saveUserObject(self, data, pkg=None, **kwargs):
-        """add???
+        """TODO
         
-        :param data: add???
+        :param data: TODO
         :param pkg: the :ref:`package <packages>` object"""
         return self.dbtable('userobject').saveUserObject(data, pkg=pkg or self.name, **kwargs)
         
     def deleteUserObject(self, id, pkg=None):
-        """add???
+        """TODO
         
         :param id: the object id
         :param pkg: the :ref:`package <packages>` object"""
         return self.dbtable('userobject').deleteUserObject(pkg=pkg or self.name, id=id)
         
     def listUserObject(self, pkg=None, **kwargs):
-        """add???
+        """TODO
         
         :param pkg: the :ref:`package <packages>` object"""
         return self.dbtable('userobject').listUserObject(pkg=pkg or self.name, **kwargs)
@@ -101,7 +101,7 @@ class GnrDboPackage(object):
         self.db.table('adm.preference').setPreference(path, value, pkg=self.name)
         
 class TableBase(object):
-    """add???"""
+    """TODO"""
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, draftField=False, md5=False,
                   group='zzz', group_name='!!System'):
         """Add some useful columns for tables management (first of all, the ``id`` column)
@@ -115,11 +115,11 @@ class TableBase(object):
                     Allow to know the time (date and hour) of a record modify
         :param ldel: boolean. If ``True``, create the ``__del_ts`` column.
                      Allow to know the time (date and hour) of a record delete
-        :param draftField: add???
-        :param md5: boolean. add???
+        :param draftField: TODO
+        :param md5: boolean. TODO
         :param group: a hierarchical path of logical categories and subacategories the columns belong to.
                       For more information, check the :ref:`group` section
-        :param group_name: add???"""
+        :param group_name: TODO"""
         if id:
             tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id',_sendback=True)
             pkey = tbl.attributes.get('pkey')
@@ -167,32 +167,32 @@ class TableBase(object):
             record[fldname] = datetime.datetime.today()
             
     def trigger_setAuditVersionIns(self, record, fldname):
-        """add???
+        """TODO
         
         :param record: the record
         :param fldname: the field name"""
         record[fldname] = 0
         
     def trigger_setAuditVersionUpd(self, record, fldname):
-        """add???
+        """TODO
         
         :param record: the record
         :param fldname: the field name"""
         record[fldname] = (record.get(fldname) or 0)+ 1
         
     def trigger_setRecordMd5(self, record, fldname):
-        """add???
+        """TODO
         
         :param record: the record
         :param fldname: the field name"""
         pass
         
     def hasRecordTags(self):
-        """add???"""
+        """TODO"""
         return self.attributes.get('hasRecordTags', False)
 
     def setMultidbSubscription(self,tblname):
-        """add???
+        """TODO
         
         :param tblname: a string composed by the package name and the database :ref:`table` name
                         separated by a dot (``.``)"""
@@ -212,7 +212,7 @@ class TableBase(object):
                                                                                  many_group='_', one_group='_')
                                                                                  
     def setTagColumn(self, tbl, name_long=None, group=None):
-        """add???
+        """TODO
         
         :param tbl: the :ref:`table` object
         :param name_long: the :ref:`name_long`
@@ -243,11 +243,11 @@ class GnrHTable(TableBase):
         
         In particular it adds:
         
-        * the "code" column: add???
-        * the "description" column: add???
-        * the "child_code" column: add???
-        * the "parent_code" column: add???
-        * the "level" column: add???
+        * the "code" column: TODO
+        * the "description" column: TODO
+        * the "child_code" column: TODO
+        * the "parent_code" column: TODO
+        * the "level" column: TODO
         
         You can redefine the first three columns in your table; if you don't redefine them, they
         are created with the following features::
@@ -285,39 +285,39 @@ class GnrHTable(TableBase):
             tbl.column('rec_type', name_long='!!Type')
             
     def trigger_onInserting(self, record_data):
-        """add???
+        """TODO
         
-        :param record_data: add???"""
+        :param record_data: TODO"""
         self.assignCode(record_data)
         
     def assignCode(self, record_data):
-        """add???
+        """TODO
         
-        :param record_data: add???"""
+        :param record_data: TODO"""
         code_list = [k for k in (record_data.get('parent_code') or '').split('.') + [record_data['child_code']] if k]
         record_data['level'] = len(code_list) - 1
         record_data['code'] = '.'.join(code_list)
         
     def trigger_onUpdating(self, record_data, old_record=None):
-        """add???
+        """TODO
         
-        :param record_data: add???
-        :param old_record: add???"""
+        :param record_data: TODO
+        :param old_record: TODO"""
         if old_record and ((record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code'])):
             old_code = old_record['code']
             self.assignCode(record_data)
             self.batchUpdate(dict(parent_code=record_data['code']), where='$parent_code=:old_code', old_code=old_code)
             
 class GnrDboTable(TableBase):
-    """add???"""
+    """TODO"""
     def use_dbstores(self):
-        """add???"""
+        """TODO"""
         return True
         
 class Table_counter(TableBase):
     """This table is automatically created for every package that inherit from GnrDboPackage."""
     def use_dbstores(self):
-        """add???"""
+        """TODO"""
         return True
         
     def config_db(self, pkg):
@@ -337,7 +337,7 @@ class Table_counter(TableBase):
     def setCounter(self, name, pkg, code,
                    codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN',
                    date=None, phyear=False, value=0):
-        """add???
+        """TODO
         
         :param name: the counter name
         :param pkg: the :ref:`package <packages>` object
@@ -346,7 +346,7 @@ class Table_counter(TableBase):
         :param output: the output format (e.g. ``$YY.$NNNN`` for year)
         :param date: the current date
         :param phyear: the fiscal year
-        :param value: add???"""
+        :param value: TODO"""
         self.getCounter(name, pkg, code, codekey=codekey, output=output, date=date,
                         phyear=phyear, lastAssigned=value - 1)
                         
@@ -362,7 +362,7 @@ class Table_counter(TableBase):
         :param output: the formatting output for the key
         :param date: the the date of counter attribution
         :param phyear: the fiscal year
-        :param lastAssigned: add???"""
+        :param lastAssigned: TODO"""
         ymd = self.getYmd(date, phyear=phyear)
         codekey = '%s_%s' % (pkg, self.counterCode(code, codekey, ymd))
         
@@ -382,7 +382,7 @@ class Table_counter(TableBase):
     def getLastCounterDate(self, name, pkg, code,
                            codekey='$YYYY_$MM_$K', output='$K/$YY$MM.$NNNN',
                            date=None, phyear=False, lastAssigned=0):
-        """add???
+        """TODO
         
         :param name: the counter name
         :param pkg: the :ref:`package <packages>` object
@@ -391,7 +391,7 @@ class Table_counter(TableBase):
         :param output: the formatting output for the key
         :param date: the the date of counter attribution
         :param phyear: the fiscal year
-        :param lastAssigned: add???"""
+        :param lastAssigned: TODO"""
         ymd = self.getYmd(date, phyear=phyear)
         codekey = '%s_%s' % (pkg, self.counterCode(code, codekey, ymd))
         record = self.record(codekey, mode='record', for_update=True, ignoreMissing=True)
@@ -405,7 +405,7 @@ class Table_counter(TableBase):
         :param code: the counter code
         :param pkg: the :ref:`package <packages>` object
         :param name: the counter name
-        :param lastAssigned: add???"""
+        :param lastAssigned: TODO"""
         record = Bag()
         record['name'] = '%s-%s' % (pkg, name)
         record['code'] = code
@@ -459,9 +459,9 @@ class Table_counter(TableBase):
             return (str(date.year), str(date.month).zfill(2), str(date.day).zfill(2))
             
 class Table_userobject(TableBase):
-    """add???"""
+    """TODO"""
     def use_dbstores(self):
-        """add???"""
+        """TODO"""
         return False
         
     def config_db(self, pkg):
@@ -486,19 +486,19 @@ class Table_userobject(TableBase):
         
     def saveUserObject(self, data, id=None, code=None, objtype=None, pkg=None, tbl=None, userid=None,
                        description=None, authtags=None, private=None, inside_shortlist=None, **kwargs):
-        """add???
+        """TODO
         
-        :param data: add???
-        :param id: add???
-        :param code: add???
-        :param objtype: add???
+        :param data: TODO
+        :param id: TODO
+        :param code: TODO
+        :param objtype: TODO
         :param pkg: the :ref:`package <packages>` object
         :param tbl: the :ref:`table` object
-        :param userid: add???
-        :param description: add???
-        :param authtags: add???
-        :param private: add???
-        :param inside_shortlist: add???"""
+        :param userid: TODO
+        :param description: TODO
+        :param authtags: TODO
+        :param private: TODO
+        :param inside_shortlist: TODO"""
         if id:
             record = self.record(id, mode='record', for_update=True, ignoreMissing=True)
         else:
@@ -524,10 +524,10 @@ class Table_userobject(TableBase):
         return record
         
     def loadUserObject(self, id=None, objtype=None, **kwargs):
-        """add???
+        """TODO
         
-        :param id: add???
-        :param objtype: add???"""
+        :param id: TODO
+        :param objtype: TODO"""
         if id:
             record = self.record(id, mode='record', ignoreMissing=True)
         else:
@@ -537,22 +537,22 @@ class Table_userobject(TableBase):
         return data, metadata
         
     def deleteUserObject(self, id, pkg=None):
-        """add???
+        """TODO
         
-        :param id: add???
+        :param id: TODO
         :param pkg: the :ref:`package <packages>` object"""
         self.delete({'id': id})
         
     def listUserObject(self, objtype=None,pkg=None, tbl=None, userid=None, authtags=None, onlyQuicklist=None, flags=None):
-        """add???
+        """TODO
         
-        :param objtype: add???
+        :param objtype: TODO
         :param pkg: the :ref:`package <packages>` object
         :param tbl: the :ref:`table` object
-        :param userid: add???
-        :param authtags: add???
-        :param onlyQuicklist: add???
-        :param flags: add???"""
+        :param userid: TODO
+        :param authtags: TODO
+        :param onlyQuicklist: TODO
+        :param flags: TODO"""
         onlyQuicklist = onlyQuicklist or False
         
         def checkUserObj(r):
@@ -579,9 +579,9 @@ class Table_userobject(TableBase):
         return sel
         
 class Table_recordtag(TableBase):
-    """add???"""
+    """TODO"""
     def use_dbstores(self):
-        """add???"""
+        """TODO"""
         return True
         
     def config_db(self, pkg):
@@ -598,17 +598,17 @@ class Table_recordtag(TableBase):
         tbl.column('subtag', name_long='!!Sub tag')
         
     def trigger_onInserting(self, record_data):
-        """add???
+        """TODO
         
-        :param record_data: add???"""
+        :param record_data: TODO"""
         if record_data['values']:
             self.setTagChildren(record_data)
             
     def setTagChildren(self, record_data, old_record_data=None):
-        """add???
+        """TODO
         
-        :param record_data: add???
-        :param old_record_data: add???"""
+        :param record_data: TODO
+        :param old_record_data: TODO"""
         tablename = record_data['tablename']
         parentTag = record_data['tag']
         parentDescription = record_data['description']
@@ -650,24 +650,24 @@ class Table_recordtag(TableBase):
             self.deleteSelection('tag', tagsToDelete, condition_op='IN')
             
     def trigger_onDeleting(self, record):
-        """add???
+        """TODO
         
-        :param record: add???"""
+        :param record: TODO"""
         if record['values']:
             self.deleteSelection('tag', '%s_%%' % record['tag'], condition_op='LIKE')
             
     def trigger_onUpdating(self, record_data, old_record):
-        """add???
+        """TODO
         
-        :param record_data: add???
-        :param old_record: add???"""
+        :param record_data: TODO
+        :param old_record: TODO"""
         if not record_data['maintag']:
             self.setTagChildren(record_data, old_record)
             
 class Table_recordtag_link(TableBase):
-    """add???"""
+    """TODO"""
     def use_dbstores(self):
-        """add???"""
+        """TODO"""
         return True
         
     def config_db(self, pkg):
@@ -682,7 +682,7 @@ class Table_recordtag_link(TableBase):
         tbl.aliasColumn('description', relation_path='@tag_id.description')
         
     def getTagLinks(self, table, record_id):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
                       (packageName is the name of the :ref:`package <packages>` to which the table
@@ -693,11 +693,11 @@ class Table_recordtag_link(TableBase):
                           where=where, record_id=record_id).fetchAsDict(key='@tag_id.tag')
                             
     def getTagTable(self):
-        """add???"""
+        """TODO"""
         return self.db.table('%s.recordtag' % self.pkg.name)
         
     def getTagDict(self, table):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
                       (packageName is the name of the :ref:`package <packages>` to which the table
@@ -711,14 +711,14 @@ class Table_recordtag_link(TableBase):
         return tagDict
         
     def assignTagLink(self, table, record_id, tag, value):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
                       (packageName is the name of the :ref:`package <packages>` to which the table
                       belongs to)
         :param record_id: the record id
-        :param tag: add???
-        :param value: add???"""
+        :param tag: TODO
+        :param value: TODO"""
         fkey = self.tagForeignKey(table)
         tagDict = self.getTagDict(table)
         tagRecord = tagDict[tag]
@@ -745,7 +745,7 @@ class Table_recordtag_link(TableBase):
         return
         
     def getTagLinksBag(self, table, record_id):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
                       (packageName is the name of the :ref:`package <packages>` to which the table
@@ -763,17 +763,17 @@ class Table_recordtag_link(TableBase):
         return result
         
     def getCountLinkDict(self, table, pkeys):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name, in the form ``packageName.tableName``
                       (packageName is the name of the :ref:`package <packages>` to which the table
                       belongs to)
-        :param pkeys: add???"""
+        :param pkeys: TODO"""
         return self.query(columns='@tag_id.tag as tag,count(*) as howmany', group_by='@tag_id.tag',
                           where='$%s IN :pkeys' % self.tagForeignKey(table), pkeys=pkeys).fetchAsDict(key='tag')
                           
     def tagForeignKey(self, table):
-        """add???
+        """TODO
         
         :param table: the :ref:`database table <table>` name"""
         tblobj = self.db.table(table)

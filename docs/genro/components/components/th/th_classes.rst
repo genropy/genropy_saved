@@ -53,7 +53,7 @@ View class
 th_condition
 ------------
 
-    add???
+    TODO
     
 .. _th_order:
 
@@ -141,7 +141,7 @@ th_struct
 layout methods (View class)
 ---------------------------
 
-    add???
+    TODO
     
     th_top_*,th_bottom_*,th_left_*,th_right_*
     
@@ -150,7 +150,7 @@ layout methods (View class)
 th_options (View class)
 -----------------------
 
-    add???
+    TODO
     
     * excludeDraft(bool)
     * excludeLogicalDeleted(bool)
@@ -161,7 +161,7 @@ th_options (View class)
 th_options
 ----------
 
-    add??? INTEGRARE QUESTO CON th_options(View) e th_options(Form)
+    TODO INTEGRARE QUESTO CON th_options(View) e th_options(Form)
     
     It returns a dict to customize your Tablehandler. You can use it both as a method of the
     :ref:`th_view_class` or as a method of the :ref:`th_form_class`
@@ -176,14 +176,14 @@ th_options
         
           dialog_height='100px',dialog_width='300px',dialog_title='Customer'
       
-    * *formInIframe*: add???
+    * *formInIframe*: TODO
     * *formResource*: allow to change the default :ref:`th_form_class`
       Check the :ref:`th_formresource` section for more information
     * *fpane_kwargs*: use it if you have a :ref:`th_border`. Allow to set the
       attributes of the :ref:`data_entry`. For the complete list and description
       of the *fpane_kwargs* check the :ref:`th_border` section
-    * *lockable*: boolean. add???
-    * *public*: add???
+    * *lockable*: boolean. TODO
+    * *public*: TODO
     * *readOnly*: boolean. If ``True``, the element that carries the readOnly attribute is
       in read-only mode
     * *viewResource*: allow to change the default :ref:`th_view_class`
@@ -261,7 +261,7 @@ th_form
                 fb.field('surname')
                 fb.field('email', colspan=2)
                 
-    add???
+    TODO
     
     The first two lines define the class and the method::
     
@@ -296,7 +296,7 @@ th_form
 layout methods (Form class)
 ---------------------------
 
-    add???
+    TODO
     
     th_top_*,th_bottom_*,th_left_*,th_right_*
     
@@ -305,7 +305,7 @@ layout methods (Form class)
 th_options (Form class)
 -----------------------
 
-    add???
+    TODO
     
     * linker(bool)
     * lockable(bool)

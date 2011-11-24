@@ -13,7 +13,7 @@ class GnrCustomWebPage(object):
     def test_0_serverpath(self, pane):
         fb = pane.formbuilder(cols=1, border_spacing='3px', datapath='test0')
         fb.data('.willbesetonserver', '', _serverpath='mytest0.mirror')
-        fb.textbox(value='^.willbesetonserver', lbl='Set on server')
+        fb.datetextbox(value='^.willbesetonserver', lbl='Set on server')
         #fb.button('Get Value from server', fire='.get')
         #fb.dataRpc('dummy', 'get_value_on_server', _fired='^.get', _onResult='alert(result)')
 

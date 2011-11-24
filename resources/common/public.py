@@ -458,8 +458,15 @@ class TableHandlerMain(BaseComponent):
     def onMain_pbl(self):
         pass
         
+    def main(self,root,**kwargs):
+        root.rootTableHandler(**kwargs)
+    
+    def rootWidget(self, root, **kwargs):
+        return root.contentPane(_class='pbl_root', **kwargs)
+        
     @extract_kwargs(th=True)
-    def main(self,root,th_kwargs=None,**kwargs):
+    @struct_method
+    def pbl_rootTableHandler(self,root,th_kwargs=None,**kwargs):
         kwargs.update(self.getCallArgs('th_pkey'))
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         th_options.update(self.th_options())
@@ -477,7 +484,7 @@ class TableHandlerMain(BaseComponent):
         if insidePublic:
             root = root.rootContentPane(title=self.tblobj.name_long,datapath=tablecode)
         else:
-            root.attributes.update(tag='ContentPane',_class=None,datapath=tablecode)
+            root.attributes.update(_class=None,datapath=tablecode)
         extras = []
         if hasattr(self,'stats_main') or hasattr(self,'hv_main'):
             tc = root.stackContainer(selectedPage='^.view.selectedPage')
@@ -493,9 +500,10 @@ class TableHandlerMain(BaseComponent):
         th.view.store.attributes.update(startLocked=True)
         if len(extras)>0:
             viewbar = th.view.top.bar
-            viewbar.replaceSlots('resourceMails','resourceMails,5,%s' %','.join(extras))            
-        if insidePublic and hasattr(self,'th_customizePublicFrame'):
-            self.th_customizePublicFrame(root)
+            viewbar.replaceSlots('resourceMails','resourceMails,5,%s' %','.join(extras))  
+        if insidePublic and hasattr(self,'customizePublicFrame'):
+            self.customizePublicFrame(root)
+
         th.attributes.update(dict(border_left='1px solid gray'))
         th.view.attributes.update(dict(border='0',margin='0', rounded=0))
         self.__th_title(th,thwidget,insidePublic)
@@ -570,7 +578,7 @@ class TableHandlerMain(BaseComponent):
 
     def _usePublicBottomMessage(self,form):
         form.attributes['hasBottomMessage'] = False
-        form.dataController('PUBLISH pbl_bottomMsg ={message:message,sound:sound};',formsubscribe_message=True)
+        form.dataController('genro.bp(arguments); PUBLISH pbl_bottomMsg = _subscription_kwargs;',formsubscribe_message=True)
         
     def rpc_view(self,root,**kwargs):
         pass

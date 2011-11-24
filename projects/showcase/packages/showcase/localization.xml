@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<GenRoBag><demo _T="NN" _key="demo"/>
-<Base _T="NN" _key="Base" fr="" en="" de="" it=""/>
-<Area _T="NN" _key="Area" fr="" en="" de=""/>
-<Blu _T="NN" _key="Blu" fr="" en="" de=""/>
-<Area_RPC _T="NN" _key="Area RPC" fr="" en="" de=""/>
-<Verde _T="NN" _key="Verde" fr="" en="Green" de=""/>
-<Altezza _T="NN" _key="Altezza" fr="" en="" de="" it=""/>
-<Rosso _T="NN" _key="Rosso" fr="" en="Red" de=""/></GenRoBag>

@@ -38,21 +38,21 @@ BaseResourcePrint - webpage variables
 batch_immediate
 ---------------
 
-    add???. Default value is ``False``
+    TODO. Default value is ``False``
     
 .. _baseresourceprint_batch_print_modes:
 
 batch_print_modes
 -----------------
 
-    add???
+    TODO
     
 .. _baseresourceprint_batch_mail_modes:
 
 batch_mail_modes
 ----------------
 
-    add???
+    TODO
     
 .. _baseresourceprint_dialog_height:
 
@@ -66,7 +66,7 @@ dialog_height
 dialog_height_no_par
 --------------------
     
-    add???. Default value is ``245px``
+    TODO. Default value is ``245px``
     
 .. _baseresourceprint_dialog_width:
 
@@ -134,7 +134,7 @@ templates
 ---------
     
     A string with the names of the :ref:`html templates <htmltemplate>` separated by a comma.
-    More information in the :ref:`add???` section of the :ref:`htmltemplate` page
+    More information in the TODO section of the :ref:`htmltemplate` page
 
 .. _btcprint_classes:
 

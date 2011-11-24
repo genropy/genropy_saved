@@ -293,12 +293,12 @@ def getBetween(myString, startChunk, endChunk):
             return myString[p1 + len(startChunk):p2]
             
 def like(s1, s2, wildcard='%'):
-    """Return ``True`` if ... Return ``False`` if ... add???
+    """Return ``True`` if ... Return ``False`` if ... TODO
     
     :param s1: first string
     :param s2: second string
     :wildcard: a special string. Default value is ``%``
-    :returns: add???
+    :returns: TODO
     
     >>> like('*dog*', 'adogert', '*')
     True
@@ -319,23 +319,23 @@ def like(s1, s2, wildcard='%'):
     return False
     
 def ilike(s1, s2, wildcard='%'):
-    """Return ``True`` if ... Return ``False`` if ... add???
+    """Return ``True`` if ... Return ``False`` if ... TODO
     
     :param s1: first string
     :param s2: second string
     :wildcard: a special string. Default value is ``%``
-    :returns: add???
+    :returns: TODO
     """
     return like(s1.upper(), s2.upper(), wildcard)
     
 def filter(item, include=None, exclude=None, wildcard='%'):
-    """add???
+    """TODO
     
-    :param item: add???
-    :param include: add???. 
-    :param exclude: add???. 
-    :param wildcard: add???. Default value is ``%``
-    :returns: add???
+    :param item: TODO
+    :param include: TODO. 
+    :param exclude: TODO. 
+    :param wildcard: TODO. Default value is ``%``
+    :returns: TODO
     """
     if include and isinstance(include, basestring):
         include = include.split(',')
@@ -372,7 +372,7 @@ def templateReplace(myString, symbolDict=None, safeMode=False,noneIsBlank=True,l
     :param symbolDict: dictionary that links symbol and values. .
     :param safeMode: if ``True`` (``False``) uses the ``safe_substitute()`` (``substitute()``) Python method.
                      Default value is ``False``.
-    :param noneIsBlank: add???. Default value is ``True``
+    :param noneIsBlank: TODO. Default value is ``True``
     
     >>> templateReplace('$foo loves $bar but she loves $aux and not $foo', {'foo':'John','bar':'Sandra','aux':'Steve'})
     'John loves Sandra but she loves Steve and not John'"""
@@ -463,12 +463,12 @@ def updateString(source, s, sep=','):
     return sep.join(splitted + [s])
     
 def updateStringList(s1, s2, sep=','):
-    """add???
+    """TODO
     
-    :param s1: add???
-    :param s2: add???
+    :param s1: TODO
+    :param s2: TODO
     :param sep: separator string. Default value is ``,``
-    :returns: add???
+    :returns: TODO
     """
     #what??
     l1 = set(splitAndStrip(s1))
@@ -476,7 +476,7 @@ def updateStringList(s1, s2, sep=','):
     s = set()
     
 def makeSet(*args, **kwargs):
-    """add???
+    """TODO
     """
     result = set()
     for myString in args:
@@ -658,17 +658,17 @@ def encode(number, base='/16', nChars=None):
     return ''.join(result)
     
 def fromIsoDate(datestring):
-    """add???
+    """TODO
         
-    :param datestring: add???"""
+    :param datestring: TODO"""
     if datestring and datestring != '0000-00-00':
         return datetime.date(*[int(el) for el in wordSplit(datestring)])
         
 def fromText(mystring, obj, locale=None):
-    """add???
+    """TODO
     
-    :param mystring: add???
-    :param obj: add???
+    :param mystring: TODO
+    :param obj: TODO
     :param locale: the current locale (e.g: en, en_us, it)"""
     #what?
     return parselocal(mystring, obj, locale=locale)
@@ -681,10 +681,10 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
     
     :param obj: the object to be transformed in a string
     :param locale: the current locale (e.g: en, en_us, it)
-    :param format: add???
-    :param mask: add???
+    :param format: TODO
+    :param mask: TODO
     :param encoding: The multibyte character encoding you choose
-    :param currency: add???"""
+    :param currency: TODO"""
     if isinstance(obj, list) or isinstance(obj, tuple):
         return ','.join([toText(v) for v in obj])
         #what?
@@ -699,12 +699,12 @@ def toText(obj, locale=None, format=None, mask=None, encoding=None, currency=Non
     return result
         
 def guessLen(dtype, locale=None, format=None, mask=None, encoding=None):
-    """add???
+    """TODO
     
     :param dtype: the :ref:`datatype`
     :param locale: the current locale (e.g: en, en_us, it)
-    :param format: add???
-    :param mask: add???
+    :param format: TODO
+    :param mask: TODO
     :param encoding: The multibyte character encoding you choose"""
     typeSamples = {'B': 'true', 'D': datetime.date(2005, 10, 10), 'H': datetime.time(4, 5),
                    'DH': datetime.datetime.now(),
@@ -735,7 +735,7 @@ def pickleObject(obj, zipfilename=None):
     """Return the Pickle string for the given object
         
     :param obj: The given object
-    :param zipfilename: add???"""
+    :param zipfilename: TODO"""
     objstr = cPickle.dumps(obj)
     if zipfilename:
         objstr = zipString(objstr, zipfilename)
@@ -745,7 +745,7 @@ def unpickleObject(objstr, zipfilename=None):
     """Load an object from a pickle string and return it
         
     :param objstr: The given object string
-    :param zipfilename: add???"""
+    :param zipfilename: TODO"""
     if zipfilename:
         objstr = unzipString(objstr, zipfilename)
     return cPickle.loads(objstr)
@@ -776,23 +776,23 @@ def unzipString(mystring, filename):
     return result
     
 def toJson(obj):
-    """add???
+    """TODO
         
-    :param obj: add???"""
+    :param obj: TODO"""
     #non so come testare
     return json.dumps(obj, cls=JsonEncoder)
     
 def toJsonJS(obj):
-    """add???
+    """TODO
         
-    :param obj: add???"""
+    :param obj: TODO"""
     return json.dumps(obj, cls=JsonEncoderJS)
     
 def toSecureJsonJS(obj, key=None):
-    """add???
+    """TODO
         
-    :param obj: add???
-    :param key: add???"""
+    :param obj: TODO
+    :param key: TODO"""
     result = json.dumps(obj, cls=JsonEncoderJS)
     if key:
         n = 0
@@ -809,9 +809,9 @@ def toSecureJsonJS(obj, key=None):
         return result
         
 def slugify(value):
-    """add???
+    """TODO
         
-    :param value: add???"""
+    :param value: TODO"""
     import unicodedata
     value = unicode(value)
     value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
@@ -819,9 +819,9 @@ def slugify(value):
     return re.sub('[-\s]+', '-', value)
     
 def fromJson(obj):
-    """add???
+    """TODO
         
-    :param obj: add???"""
+    :param obj: TODO"""
     #non so come testare
     return json.loads(obj)
     
@@ -833,10 +833,10 @@ def anyWordIn(wordlist, mystring):
     return [k for k in wordlist if k in mystring]
     
 def jsquote(str_or_unicode):
-    """add???
+    """TODO
         
     :param str_or_unicode: the string to be quoted
-    :returns: add???
+    :returns: TODO
      
     >>> print jsquote('pippo')
     'pippo'

@@ -35,19 +35,15 @@ columns
     * ``sqlfunction($colname, @relname.colname)``: ``$`` and ``@`` syntax can be used inside
       sql functions too 
     * ``*``: all the columns of the main table (with or without the bagFields)
-    * ``*filter``: all columns of the main table filtered (check the :meth:`expandMultipleColumns() 
-      <gnr.sql.gnrsqldata.SqlQueryCompiler.expandMultipleColumns>` method)
+    * ``*filter``: all columns of the main table filtered (check the
+      :meth:`~gnr.sql.gnrsqldata.SqlQueryCompiler.expandMultipleColumns` method)
     * ``*@relname.filter``: all columns of a related table filtered (check the
-      :meth:`expandMultipleColumns() <gnr.sql.gnrsqldata.SqlQueryCompiler.expandMultipleColumns>` method)
+      :meth:`~gnr.sql.gnrsqldata.SqlQueryCompiler.expandMultipleColumns` method)
     
     To select all the columns use the char ``*``
     
     The ``columns`` parameter also accepts special statements such as "COUNT", "DISTINCT"
-    and "SUM".
-    
-    **Example**::
-    
-        columns='*'
+    and "SUM"
         
 .. _sql_condition:
 
@@ -68,7 +64,7 @@ condition
     
     **Syntax**:
     
-        add??? condition_ ... Every kwargs params that starts with ``condition_`` are
+        TODO condition_ ... Every kwargs params that starts with ``condition_`` are
         the variables involved in the 'where' clause
         
     **Example**:
@@ -97,11 +93,11 @@ deferred
 
     The sql "DEFERRED" clause.
     
-    Boolean, ``True`` to get... add???
+    Boolean, ``True`` to get... TODO
     
     Example::
     
-        add???
+        TODO
         
 .. _sql_distinct:
 
@@ -114,7 +110,7 @@ distinct
     
     Example::
     
-        add???
+        TODO
         
 .. _sql_group_by:
 
@@ -130,12 +126,12 @@ group_by
       
       where ``relname`` is a :ref:`relation <relations>`, ``colname`` is the name of the column.
       
-    Use ``group_by='*'`` when all columns are aggregate (add???) functions in order to avoid
+    Use ``group_by='*'`` when all columns are aggregate (TODO) functions in order to avoid
     the automatic insertion of the :ref:`pkey` field in the columns.
     
     Example::
     
-        add???
+        TODO
     
 .. _sql_having:
 
@@ -156,7 +152,7 @@ having
 limit
 -----
 
-    add???
+    TODO
     
 .. _sql_order_by:
 
@@ -177,7 +173,7 @@ order_by
     
     Example::
     
-        add???
+        TODO
     
 .. _sql_where:
 

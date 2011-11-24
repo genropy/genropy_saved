@@ -87,7 +87,7 @@ class GnrHtmlSrc(GnrStructData):
         self.root.builder.head.child('meta', name=name, _content=content, _attributes=_attributes, **kwargs)
         
     def child(self, tag, *args, **kwargs):
-        """add???"""
+        """TODO"""
         for lbl in ['_class', 'class_', '_type', 'type_', '_for', 'for_']:
             if lbl in kwargs:
                 kwargs[lbl.replace('_', '')] = kwargs.pop(lbl)
@@ -223,7 +223,7 @@ class GnrHtmlSrc(GnrStructData):
         return cell
             
 class GnrHtmlBuilder(object):
-    """add???"""
+    """TODO"""
     styleAttrNames = ['height', 'width', 'top', 'left', 'right', 'bottom',
                       'visibility', 'overflow', 'float', 'clear', 'display',
                       'z_index', 'border', 'position', 'padding', 'margin',
@@ -248,7 +248,7 @@ class GnrHtmlBuilder(object):
         self.showTemplateContent = showTemplateContent
             
     def initializeSrc(self, **bodyAttributes):
-        """add???"""
+        """TODO"""
         bodyAttributes = bodyAttributes or {}
         self.root = self.srcfactory.makeRoot()
         self.root.builder = self
@@ -343,7 +343,7 @@ class GnrHtmlBuilder(object):
         return tplpage
             
     def styleForLayout(self):
-        """add???"""
+        """TODO"""
         self.head.style(""".x_br{border-top:none!important;border-left:none!important;}
                            .x_r{border-top:none!important;border-left:none!important;border-bottom:none!important;}
                            .x_b{border-top:none!important;border-left:none!important;border-right:none!important;}
@@ -362,9 +362,9 @@ class GnrHtmlBuilder(object):
         return self.html
             
     def toHtml(self, filepath=None):
-        """add???
+        """TODO
         
-        :param filepath: add???"""
+        :param filepath: TODO"""
         if filepath:
             filepath = expandpath(filepath)
         self.finalize(self.body)
@@ -377,9 +377,9 @@ class GnrHtmlBuilder(object):
         return self.html
             
     def toPdf(self, filename):
-        """add???
+        """TODO
         
-        :param filename: add???"""
+        :param filename: TODO"""
         from subprocess import call
         if self.page_height<self.page_width:
             self.orientation='Landscape'
@@ -388,9 +388,9 @@ class GnrHtmlBuilder(object):
         res = call(['wkhtmltopdf', '-q', '-O', self.orientation, '%s.%s'%(filename, 'html'), filename])
             
     def calculate_style(self, attr, um, **kwargs):
-        """add???
+        """TODO
         
-        :param attr: add???
+        :param attr: TODO
         :param um: the unit of measurement"""
         style = attr.pop('style', '')
         style = style.replace('\n', '')
@@ -411,9 +411,9 @@ class GnrHtmlBuilder(object):
         attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
             
     def styleMaker(self, attr):
-        """add???
+        """TODO
         
-        :param attr: add???"""
+        :param attr: TODO"""
         style = attr.pop('style', '')
         style = style.replace('\n', '')
         style_dict = dict([(splitAndStrip(x, ':')) for x in style.split(';') if ':' in x])
@@ -423,9 +423,9 @@ class GnrHtmlBuilder(object):
         attr['style'] = ''.join(['%s:%s;' % (k, v) for k, v in style_dict.items()])
             
     def finalize(self, src):
-        """add???
+        """TODO
         
-        :param src: add???"""
+        :param src: TODO"""
         for node in src:
             node_tag = node.getAttr('tag')
             node_value = node.value
@@ -437,11 +437,11 @@ class GnrHtmlBuilder(object):
             self.styleMaker(node.attr)
             
     def finalize_layout(self, parent, attr, layout):
-        """add???
+        """TODO
         
-        :param parent: add???
-        :param attr: add???
-        :param layout: add???"""
+        :param parent: TODO
+        :param attr: TODO
+        :param layout: TODO"""
         borders = '%s%s' % (layout.border_width, layout.um)
         if layout.nested:
             layout.has_topBorder = layout.hasBorderTop if layout.hasBorderTop is not None else bool(
@@ -487,11 +487,11 @@ class GnrHtmlBuilder(object):
         attr['tag'] = 'div'
                     
     def finalize_row(self, layout, attr, row):
-        """add???
+        """TODO
         
-        :param layout: add???
-        :param attr: add???
-        :param row: add???"""
+        :param layout: TODO
+        :param attr: TODO
+        :param row: TODO"""
         if row.elastic_cells:
             if layout.width:
                 elastic_width = (layout.width - sum(
@@ -513,11 +513,11 @@ class GnrHtmlBuilder(object):
         row.curr_x = 0
                     
     def finalize_cell(self, row, attr, cell):
-        """add???
+        """TODO
         
-        :param row: add???
-        :param attr: add???
-        :param cell: add???"""
+        :param row: TODO
+        :param attr: TODO
+        :param cell: TODO"""
         cell.height = row.height
         width = cell.width
         if cell.lbl:
@@ -539,10 +539,10 @@ class GnrHtmlBuilder(object):
         self.calculate_style(attr, row.layout.um)
                     
     def setLabel(self, cell, attr):
-        """add???
+        """TODO
         
-        :param cell: add???
-        :param attr: add???"""
+        :param cell: TODO
+        :param attr: TODO"""
         row = cell.row
         layout = row.layout
         um = row.layout.um
@@ -570,11 +570,11 @@ class GnrHtmlBuilder(object):
             cell.child('div', content=cur_content_value, **content_attr)
                     
     def finalize_pass(self, src, attr, value):
-        """add???
+        """TODO
         
-        :param src: add???
-        :param attr: add???
-        :param value: add???"""
+        :param src: TODO
+        :param attr: TODO
+        :param value: TODO"""
         pass
         
 def test0(pane):

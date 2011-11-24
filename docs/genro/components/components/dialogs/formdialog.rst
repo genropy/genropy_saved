@@ -6,6 +6,6 @@ formDialog
 
     *Last page update*: |today|
     
-    .. note:: summary of the component requirements: add???
+    .. note:: summary of the component requirements: TODO
     
-    add??? automethod...
+    TODO automethod...

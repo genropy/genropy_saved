@@ -24,10 +24,10 @@ GnrCustomWebPage
     of the GnrCustomWebPage class, that is a custom class of the :class:`GnrWebPage`.
     
     You can act on a Genro webpage through many webpage elements: please check the
-    :ref:`introduction to webpage elements <webpage_elements_intro>` if you need
+    :ref:`introduction to webpage elements <we_intro>` if you need
     to learn more about them.
     
-    The GnrCustomWebPage (Genro Custom Webpage) is add???(a mixin class?) through which you can
+    The GnrCustomWebPage (Genro Custom Webpage) is TODO(a mixin class?) through which you can
     build your webpages.
     
     #. A webpage file has to begin with a line code that specify the location to the python
@@ -64,7 +64,7 @@ GnrCustomWebPage
         
         class GnrCustomWebPage(object):
             maintable = 'agenda.contact'
-            py_requires = 'public:Public,standard_tables:TableHandler,public:IncludedView'
+            py_requires = 'public:Public,standard_tables:TableHandler'
             css_requires = 'public'
             
             def main(self,root,**kwargs):
@@ -76,16 +76,14 @@ GnrCustomWebPage
 main
 ====
     
-    The main method of a webpage.
-    
-    ::
+    The main method of a webpage::
     
         def main(self, root, **kwargs):
     
     where:
     
     * the ``root`` is a :ref:`bag` that passes a :ref:`contentpane`. To this contentPane
-      you can append every :ref:`webpage element <webpage_elements_index>` you need, like
+      you can append every :ref:`webpage element <we>` you need, like
       a div, a :ref:`button` or a more complex object like a :ref:`form` and so on.
       
       If you import the ``public.py`` :ref:`webpages_py_requires` in your GnrCustomWebPage::
@@ -107,7 +105,7 @@ main
 GnrCustomWebPage methods
 ========================
 
-    add???
+    TODO
     
 .. _onloading_method:
     
@@ -116,7 +114,7 @@ onLoading
     
     .. method:: onLoading(self, record, newrecord, loadingParameters, recInfo)
     
-    add???
+    TODO
     
     **Parameters:**
                     * **record** - the value of the saved record contained into a :ref:`bag`.
@@ -152,7 +150,7 @@ onSaving
     
     .. method:: onSaving(self,recordCluster,recordClusterAttr,resultAttr)
     
-    add???
+    TODO
     
     **Parameters:**
                     * **recordCluster** - 
@@ -166,7 +164,7 @@ onSaved
     
     .. method:: onSaved(self,record,resultAttr)
     
-    add???
+    TODO
     
     **Parameters:**
                     * **record** - 
@@ -177,10 +175,10 @@ onSaved
 webpage variables
 =================
     
-    With the term ``webpages variables`` we mean that Genro provides some defined variables
-    that you can use to customize your webpages.
+    A webpage variable is a variable with preset features that you need to define
+    inside your :ref:`gnrcustomwebpage`
     
-    .. note:: The webpages variables act only on the single webpage in which you insert them.
+    .. note:: The webpages variables act only on the single webpage in which you insert them
     
     Let's see a list of webpages variables divided by their features:
     
@@ -195,27 +193,6 @@ webpage variables
       :ref:`webpages_gnrjsversion`,
       :ref:`maintable`, :ref:`webpages_recordlock`
       
-    .. _webpages_py_requires:
-    
-py_requires
------------
-
-    .. note:: please read the :ref:`components_requirements` doumentation section
-              for more information on the ``py_requires`` syntax and for more
-              information on the place-folder where the components have to lay.
-              
-    * Description: a string that allows to include some :ref:`components`
-      to your project
-    * Default value: ``None``
-    * Example::
-    
-        py_requires = """public:Public,
-                         th/th_view:TableHandlerView,
-                         """
-    
-    In this example you are calling the ``Public`` and the ``IncludedView`` classes of the
-    ``public.py`` file and the ``TableHandler`` class of the ``standard_tables.py`` file.
-    
 .. _webpages_css_icons:
 
 css_icons
@@ -231,7 +208,6 @@ css_requires
 ------------
 
     * Description: allow to import css files
-    * Default value: ``None``
     * Example::
     
         css_requires = 'my_style'
@@ -267,7 +243,7 @@ dojo_source
 
     * Description: boolean. Webpage variable for Dojo developers. If ``True``, you can read the
       javascript code decompressed [#]_.
-    * Default value: Default value is ``False`` (compressed javascript)
+    * Default value: ``False`` (compressed javascript)
     * Example::
     
         dojo_source = True
@@ -295,8 +271,8 @@ dojo_version
     
     * Description: a number that allows to specify the Dojo version of your :ref:`project`.
       You have to write the version supported without the dot (e.g: write '11' for Dojo '1.1')
-    * Default value: the value you specify in the :ref:`siteconfig_dojo` tag of your :ref:`sites_siteconfig`.
-      If you didn't specify it, the default value is '11'
+    * Default value: the value you specify in the :ref:`siteconfig_dojo` tag of your
+      :ref:`sites_siteconfig`. If you didn't specify it, the default value is '11'
     * Example::
     
         dojo_version = '11'
@@ -307,7 +283,6 @@ js_requires
 -----------
 
     * Description: allow to import some javascript files
-    * Default value: ``None``
     * Example::
     
         js_requires = 'wizard'
@@ -329,7 +304,7 @@ pageOptions
         * *openMenu*: if ``True``, the project menu (included in the :ref:`packages_menu` file)
           of the webpage is opened when the page is loaded. Default value is ``True``
         
-        * *enableZoom*: if ``True``, add???
+        * *enableZoom*: if ``True``, TODO
         
     * Example::
     
@@ -362,13 +337,11 @@ user_polling
 auth_tags
 ---------
 
-    .. module:: gnr.web._gnrbasewebpage.GnrBaseWebPage
-    
-    * Description: add???. Link it to the :meth:`pageAuthTags` method...
-    * Default value: ``add???``
+    * Description: TODO. Link it to the
+      :meth:`~gnr.web._gnrbasewebpage.GnrBaseWebPage.pageAuthTags` method...
     * Example::
     
-        add???
+        TODO
     
     .. _webpages_eagers:
 
@@ -387,7 +360,7 @@ eagers
             * ``tableName`` is the name of the :ref:`table`
             
         * *value*: includes a :ref:`relation <relations>`
-    * Default value: ``{}`` (an empty dict)
+        
     * Example::
     
         eagers = {'writers.contracts':'@sy_publisherid'}
@@ -409,16 +382,16 @@ gnrjsversion
 maintable
 ---------
     
-    * Description: a string that allows to link your webpage to a :ref:`table`.
-      It becomes the :ref:`dbtable` default value of all the elements of your
-      webpage that support the ``dbtable`` attribute.
+    * Description: it allows to specify a :ref:`database table <table>` from which user selects records.
+      It becomes the :ref:`dbtable` default value of all the elements of your webpage that support the
+      :ref:`dbtable` attribute, that are the :ref:`dbselect`, the :ref:`dbcombobox`, the :ref:`field`
+      and the :ref:`formbuilder`
     * Syntax: ``maintable = 'packageName.tableName'``, where:
     
         * ``packageName`` is the name of your package (for more information, check the
           :ref:`packages` page)
         * ``tableName`` is the name of the :ref:`table`
-    
-    * Default value: ``None``
+        
     * Example::
     
         maintable = 'agenda.call'
@@ -430,9 +403,8 @@ maintable
 recordLock
 ----------
 
-    * Description: add???
-    * Default value: add???
-    * Example: add???
+    * Description: TODO
+    * Example: TODO
     
 **Footnotes**:
 

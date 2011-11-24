@@ -20,11 +20,11 @@ Introduction
 
     Usually in GenroPy the pages are built on the client side: the page structure is transfered
     as a :class:`Bag`; after that, the Genro's javascript tools take care to build the DOM and
-    all the necessary (:ref:`webpage_elements_index`). So, you have the complete control of the
+    all the necessary (:ref:`we`). So, you have the complete control of the
     page, and you can modify the page itself simply modifying the ``Bag`` that constructs the page.
     
     You can build the page completely server side. It is useful to index pages for search engines
-    and, above all, to make the ``:ref:`ref_for_the_print` <-- add???``
+    and, above all, to make the ``:ref:`ref_for_the_print` <-- TODO``
     
     In a server side page you can use all the Dojo widgets, but without Genro additions and without
     Genro extensions (e.g. the :ref:`dbselect` doesn't work)

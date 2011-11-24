@@ -72,7 +72,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
             return item.label;
         }
         else if (attribute == '#v') {
-            return item.getValue();
+            return item.getValue(null,{_sourceNode:this.sourceNode});
         }
         else if (attribute.indexOf('.') == 0) {
             return item.getValue().getItem(attribute.slice(1));
@@ -90,7 +90,7 @@ dojo.declare("gnr.GnrStoreBag", null, {
         genro.debug('getValues: item=' + item.label + ' - attribute-name-string=' + attribute);
         var attributes = item.getAttr();
         if (attribute == '#v') {
-            var itemvalue = item.getValue();
+            var itemvalue = item.getValue(null,{_sourceNode:this.sourceNode});
             if (itemvalue instanceof gnr.GnrBag) {
                 return itemvalue.getNodes();
             }

@@ -1,94 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GenRoBag>
-	<people pkg="video">
-		<r id="0::L" name="Woody Allen" year="1935" nationality="USA"/>
-		<r id="1::L" name="Steven Spielberg" year="1946::L" nationality="USA"/>
-		<r id="2::L" name="Stanley Kubrick" year="1928::L" nationality="USA"/>
-		<r id="3::L" name="Brian De Palma" year="1940::L" nationality="USA"/>
-		<r id="4::L" name="Alfred Hitchcock" year="1899::L" nationality="UK"/>
-		<r id="5::L" name="Martin Scorsese" year="1942::L" nationality="USA"/>
-		<r id="6::L" name="Tom Hanks" year="1956" nationality="USA"/>
-		<r id="7::L" name="Matt Damon" year="1970::L" nationality="USA"/>
-		<r id="8::L" name="Leonardo DiCaprio" year="1974::L" nationality="USA"/>
-		<r id="9::L" name="Cate Blanchett" year="1969::L" nationality="AU"/>
-		<r id="10::L" name="Jonathan Rhys Meyers" year="1977::L" nationality="IR"/>
-		<r id="11::L" name="Scarlett Johansson" year="1984::L" nationality="USA"/>
-		<r id="12::L" name="Hugh Jackman" year="1968" nationality="AU"/>
-		<r id="13::L" name="Kevin Costner" year="1955::L" nationality="USA"/>
-		<r id="14::L" name="Al Pacino" year="1940::L" nationality="USA"/>
-		<r id="15::L" name="Michelle Pfeiffer" year="1958::L" nationality="AU"/>
-		<r id="16::L" name="Anthony Perkins" year="1932::L" nationality="USA"/>
-		<r id="17::L" name="Janet Leigh" year="1927::L" nationality="USA"/>
-		<r id="18::L" name="Ryan ONeal" year="1941" nationality="AU"/>
-		<r id="19::L" name="Marisa Berenson" year="1947::L" nationality="USA"/>
-		<r id="20::L" name="Tom Cruise" year="1962::L" nationality="USA"/>
-		<r id="21::L" name="Nicole Kidman" year="1967::L" nationality="AU"/>
-		<r id="22::L" name="Eric Bana" year="1968" nationality="AU"/>
-		<r id="23::L" name="Daniel Craig " year="1968" nationality="UK"/>
-	</people>
-	<cast pkg="video">
-		<r id="0::L" movie_id="0" person_id="0" role="director" prizes=""/>
-		<r id="1::L" movie_id="0" person_id="10" role="actor" prizes=""/>
-		<r id="2::L" movie_id="0" person_id="11" role="actor" prizes=""/>
-		<r id="3::L" movie_id="1" person_id="0" role="director" prizes=""/>
-		<r id="4::L" movie_id="1" person_id="12" role="actor" prizes=""/>
-		<r id="5::L" movie_id="1" person_id="11" role="actor" prizes=""/>
-		<r id="6::L" movie_id="2" person_id="1" role="director" prizes=""/>
-		<r id="7::L" movie_id="2" person_id="22" role="actor" prizes=""/>
-		<r id="9::L" movie_id="3" person_id="1" role="director" prizes="Oscar: Best director"/>
-		<r id="10::L" movie_id="3" person_id="6" role="actor" prizes=""/>
-		<r id="11::L" movie_id="3" person_id="7" role="actor" prizes=""/>
-		<r id="12::L" movie_id="4" person_id="2" role="director" prizes=""/>
-		<r id="13::L" movie_id="4" person_id="20" role="actor" prizes=""/>
-		<r id="14::L" movie_id="4" person_id="21" role="actor" prizes=""/>
-		<r id="15::L" movie_id="5" person_id="2" role="director" prizes=""/>
-		<r id="16::L" movie_id="5" person_id="18" role="actor" prizes=""/>
-		<r id="17::L" movie_id="5" person_id="19" role="actor" prizes=""/>
-		<r id="18::L" movie_id="6" person_id="3" role="director" prizes=""/>
-		<r id="19::L" movie_id="6" person_id="14" role="actor" prizes=""/>
-		<r id="20::L" movie_id="6" person_id="15" role="actor" prizes=""/>
-		<r id="21::L" movie_id="7" person_id="3" role="director" prizes=""/>
-		<r id="22::L" movie_id="7" person_id="13" role="actor" prizes=""/>
-		<r id="23::L" movie_id="8" person_id="4" role="director" prizes=""/>
-		<r id="24::L" movie_id="8" person_id="16" role="actor" prizes=""/>
-		<r id="25::L" movie_id="8" person_id="17" role="actor" prizes=""/>
-		<r id="23::L" movie_id="9" person_id="5" role="director" prizes=""/>
-		<r id="24::L" movie_id="9" person_id="8" role="actor" prizes=""/>
-		<r id="25::L" movie_id="9" person_id="9" role="actor" prizes=""/>
-		<r id="23::L" movie_id="9" person_id="5" role="director" prizes="Oscar: Best director"/>
-		<r id="24::L" movie_id="9" person_id="8" role="actor" prizes=""/>
-		<r id="25::L" movie_id="9" person_id="7" role="actor" prizes=""/>
-	</cast>
-	<movie pkg="video">
-		<r id="0::L" title="Match point" year="2005::L" nationality="USA,UK" genre="DRAMA"/>
-		<r id="1::L" title="Scoop" year="2006::L" nationality="USA,UK" genre="COMEDY"/>
-		<r id="2::L" title="Munich" year="2005::L" nationality="USA" genre="DRAMA"/>
-		<r id="3::L" title="Saving private Ryan" year="1998::L" nationality="USA" genre="WAR"/>
-		<r id="4::L" title="Eyes wide shut" year="1999::L" nationality="UK" genre="DRAMA"/>
-		<r id="5::L" title="Barry Lindon" year="1975::L" nationality="UK" genre="DRAMA"/>
-		<r id="6::L" title="Scarface" year="1983::L" nationality="USA" genre="CRIME"/>
-		<r id="7::L" title="The untouchables" year="1987::L" nationality="USA" genre="CRIME"/>
-		<r id="8::L" title="Psycho" year="1960::L" nationality="UK" genre="THRILLER"/>
-		<r id="9::L" title="The Aviator" year="2004::L" nationality="USA" genre="BIOGRAPHY"/>
-		<r id="10::L" title="The Departed" year="2006::L" nationality="USA" genre="CRIME"/>
-	</movie>
-	<dvd pkg="video">
-		<r id="0::L" movie_id="0::L" purchasedate="2006-04-11::D" available="yes"/>
-		<r id="1::L" movie_id="1::L" purchasedate="2006-03-02::D" available="no"/>
-		<r id="2::L" movie_id="1::L" purchasedate="2006-08-13::D" available="no"/>
-		<r id="3::L" movie_id="2::L" purchasedate="2006-09-04::D" available="no"/>
-		<r id="4::L" movie_id="2::L" purchasedate="2006-01-15::D" available="no"/>
-		<r id="5::L" movie_id="0::L" purchasedate="2005-02-06::D" available="yes"/>
-		<r id="6::L" movie_id="4::L" purchasedate="2006-03-17::D" available="yes"/>
-		<r id="7::L" movie_id="5::L" purchasedate="2005-05-08::D" available="no"/>
-		<r id="8::L" movie_id="6::L" purchasedate="2006-05-29::D" available="no"/>
-		<r id="11::L" movie_id="7::L" purchasedate="2006-11-01::D" available="yes"/>
-		<r id="12::L" movie_id="8::L" purchasedate="2005-07-12::D" available="yes"/>
-		<r id="13::L" movie_id="0::L" purchasedate="2006-08-03::D" available="yes"/>
-		<r id="14::L" movie_id="4::L" purchasedate="2005-09-14::D" available="yes"/>
-		<r id="15::L" movie_id="5::L" purchasedate="2004-03-05::D" available="no"/>
-		<r id="16::L" movie_id="10::L" purchasedate="2006-01-16::D" available="no"/>
-		<r id="17::L" movie_id="8::L" purchasedate="2005-04-07::D" available="yes"/>
-		<r id="18::L" movie_id="9::L" purchasedate="2006-04-18::D" available="yes"/>
-	</dvd>
+    <person>
+        <r id="0::L" name="Antonin Dvorak" b_year="1841" d_year="1904" nationality="Czech"/>
+        <r id="1::L" name="Ludvig Van Beethoven" b_year="1770" d_year="1827" nationality="German"/>
+        <r id="2::L" name="Wolfgang Amadeus Mozart" b_year="1756" d_year="1791" nationality="Austrian"/>
+    </person>
+    <music>
+        <!--Dvorak's music-->
+        <r id="0::L" title="Stabat Mater" genre="Classical" year="1877" op="Op. 58"/>
+        <r id="1::L" title="Te Deum" genre="Classical" year="1892" op="Op. 103"/>
+        <r id="2::L" title="Mass in D Major" genre="Classical" year="1892" op="Op. 86"/>
+        <r id="3::L" title="Concerto for Piano and Orchestra in G minor" genre="Classical" year="1876" op="Op. 33"/>
+        <r id="4::L" title="Concerto for Violin and Orchestra in A minor" genre="Classical" year="1879" op="Op. 53"/>
+        <r id="5::L" title="Concerto for Cello and Orchestra in B minor" genre="Classical" year="1895" op="Op. 104"/>
+        <r id="6::L" title="String Quintet No.3 in Eb major "American"" genre="Classical" year="1893" op="Op. 97"/>
+        <r id="7::L" title="String Quintet No.2 in G major" genre="Classical" year="1875" op="Op. 77"/>
+        <r id="8::L" title="Symphony No.2 in Bb major" genre="Classical" year="1865" op="Op. 4"/>
+        <r id="9::L" title="Symphony No.3 in Eb Major" genre="Classical" year="1873" op="Op. 10"/>
+        <!--Beethoven's music-->
+        <r id="10::L" title="Symphony No.1 in C major" genre="Classical" year="1800" op="Op. 21"/>
+        <r id="11::L" title="Symphony No.2 in D major" genre="Classical" year="1802" op="Op. 36"/>
+        <r id="12::L" title="Symphony No.3 in Eb major" genre="Classical" year="1804" op="Op. 55"/>
+        <r id="13::L" title="Symphony No.4 in Bb major" genre="Classical" year="1806" op="Op. 60"/>
+        <r id="14::L" title="Symphony No.5 in C minor" genre="Classical" year="1808" op="Op. 67"/>
+        <r id="15::L" title="Symphony No.6 in F major" genre="Classical" year="1808" op="Op. 68"/>
+        <r id="16::L" title="Symphony No.7 in A major" genre="Classical" year="1812" op="Op. 92"/>
+        <r id="17::L" title="Symphony No.8 in F major" genre="Classical" year="1812" op="Op. 93"/>
+        <r id="18::L" title="Symphony No.9 in D major" genre="Classical" year="1824" op="Op. 125"/>
+        <r id="19::L" title="Piano Concerto No. 2 in Bb major" genre="Classical" year="1795" op="Op. 19"/>
+        <!--Mozart's music-->
+        <r id="20::L" title="Quartet in F major for Strings" genre="Classical" year="1773" op="Op. K168"/>
+        <r id="21::L" title="Quartet in A major for Strings" genre="Classical" year="1773" op="Op. K169"/>
+        <r id="22::L" title="Quartet in C major for Strings" genre="Classical" year="1773" op="Op. K170"/>
+        <r id="23::L" title="Quartet in Eb major for Strings" genre="Classical" year="1773" op="Op. K171"/>
+        <r id="24::L" title="Quartet in Bb major for Strings" genre="Classical" year="1773" op="Op. K172"/>
+        <r id="25::L" title="Quartet in D minor for Strings" genre="Classical" year="1773" op="Op. K173"/>
+        <r id="26::L" title="16 minuets" genre="Classical" year="1773" op="Op. K176"/>
+        <r id="27::L" title="Symphony in G major, No.32" genre="Classical" year="1779" op="Op. K318"/>
+        <r id="28::L" title="Symphony in Bb major, No. 33" genre="Classical" year="1779" op="Op. K319"/>
+        <r id="29::L" title="Vesperae solennes de confessore in C minor" genre="Classical" year="1780" op="Op. K339"/>
+    </music>
+    <person_music>
+        <r id="0::L" music_id="0" person_id="0"/>
+        <r id="1::L" music_id="1" person_id="0"/>
+        <r id="2::L" music_id="2" person_id="0"/>
+        <r id="3::L" music_id="3" person_id="0"/>
+        <r id="4::L" music_id="4" person_id="0"/>
+        <r id="5::L" music_id="5" person_id="0"/>
+        <r id="6::L" music_id="6" person_id="0"/>
+        <r id="7::L" music_id="7" person_id="0"/>
+        <r id="8::L" music_id="8" person_id="0"/>
+        <r id="9::L" music_id="9" person_id="0"/>
+        <r id="10::L" music_id="10" person_id="1"/>
+        <r id="11::L" music_id="11" person_id="1"/>
+        <r id="12::L" music_id="12" person_id="1"/>
+        <r id="13::L" music_id="13" person_id="1"/>
+        <r id="14::L" music_id="14" person_id="1"/>
+        <r id="15::L" music_id="15" person_id="1"/>
+        <r id="16::L" music_id="16" person_id="1"/>
+        <r id="17::L" music_id="17" person_id="1"/>
+        <r id="18::L" music_id="18" person_id="1"/>
+        <r id="19::L" music_id="19" person_id="1"/>
+        <r id="20::L" music_id="20" person_id="2"/>
+        <r id="21::L" music_id="21" person_id="2"/>
+        <r id="22::L" music_id="22" person_id="2"/>
+        <r id="23::L" music_id="23" person_id="2"/>
+        <r id="24::L" music_id="24" person_id="2"/>
+        <r id="25::L" music_id="25" person_id="2"/>
+        <r id="26::L" music_id="26" person_id="2"/>
+        <r id="27::L" music_id="27" person_id="2"/>
+        <r id="28::L" music_id="28" person_id="2"/>
+        <r id="29::L" music_id="29" person_id="2"/>
+    </person_music>
 </GenRoBag>

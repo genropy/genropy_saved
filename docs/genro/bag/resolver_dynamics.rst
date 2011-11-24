@@ -51,8 +51,8 @@ resolver
     args, else it's considered 0. The cache stores the retrieved value and keeps it for a lapse of
     time called cacheTime. Each resolver implements the load() method that reads the result from
     cache, if cacheTime isn't elapsed, or takes it from its remote source. The my_resolver call
-    can receive some kwargs. A resolver is set in a node by the :meth:`setResolver()
-    <gnr.core.gnrbag.Bag.setResolver>` method.
+    can receive some kwargs. A resolver is set in a node by the
+    :meth:`~gnr.core.gnrbag.Bag.setResolver` method
 
 .. _bag_resolver_example1:
 
@@ -215,7 +215,7 @@ shortcuts: the BagCbResolver
         >>> print mybag['hello']
         Hello World!
         
-    As alternative syntax you can use the :meth:`setCallBackItem() <gnr.core.gnrbag.Bag.setCallBackItem>` method:
+    As alternative syntax you can use the :meth:`~gnr.core.gnrbag.Bag.setCallBackItem` method:
     
         >>> mybag.setCallBackItem('hello', sayHello)
 
@@ -247,10 +247,10 @@ Bag Formula: ``the defineSymbol()`` and the ``defineFormula()`` methods
     Bag has a register for every defined formula and symbols. So if you plan to use them in several
     situations, it is better using the following two methods:
     
-    * :meth:`defineSymbol() <gnr.core.gnrbag.Bag.defineSymbol>`: define a variable and link it to a
+    * :meth:`~gnr.core.gnrbag.Bag.defineSymbol`: define a variable and link it to a
       BagFormula Resolver at the specified path.
     
-    * :meth:`defineFormula() <gnr.core.gnrbag.Bag.defineFormula>`: define a formula that uses defined
+    * :meth:`~gnr.core.gnrbag.Bag.defineFormula`: define a formula that uses defined
       symbols.
     
     >>> mybag.defineFormula(calculate_perimeter='2*($base + $height)' )

@@ -8,7 +8,7 @@ table
     
     .. image:: ../../../_images/projects/packages/model_table.png
     
-    add??? rewrite the following index!!!
+    TODO rewrite the following index!!!
     
     * :ref:`table_intro`
     * :ref:`table_def`
@@ -61,7 +61,7 @@ creation of a table
     
         class Table(object):
         
-    add???
+    TODO
     
 .. _table_config_db:
         
@@ -88,7 +88,7 @@ table method
         tbl = pkg.table('company', pkey='id', rowcaption='@registry_id.name',
                          name_long='Company', name_plural='Companies')
                          
-    add??? automethod of table method!
+    TODO automethod of table method!
     
     Here we list the table methods attributes:
     
@@ -107,7 +107,7 @@ table method
 audit
 -----
 
-    add???
+    TODO
     
     ::
     
@@ -119,7 +119,7 @@ audit
 group
 -----
 
-    add???
+    TODO
     
 .. _table_format:
 
@@ -139,7 +139,7 @@ format
         
         format='#.###,00'
         
-    add??? I'm not sure of the meaning of ``#`` and ``0``...
+    TODO I'm not sure of the meaning of ``#`` and ``0``...
     
 .. _table_indexed:
 
@@ -181,14 +181,14 @@ name_short
 pkey
 ----
 
-    add???
+    TODO
     
 .. _table_rowcaption:
 
 rowcaption
 ----------
 
-    add???
+    TODO
         
 .. _table_sendback:
 
@@ -276,7 +276,7 @@ relation method
     
         tbl.column('registry_id',size=':22',name_long='!!Registry id').relation('sw_base.registry.id',mode='foreignkey')
         
-        add??? example explanation!
+        TODO example explanation!
         
 .. _table_aliascolumn:
 
@@ -287,14 +287,14 @@ aliasColumn
     
         **Example**:
         
-        add???
+        TODO
         
 .. _table_formulacolumn:
 
 formulaColumn
 -------------
 
-    add???
+    TODO
     
     ``#THIS``: you can use ``#THIS`` (only in a formulaColumn) to refer to the table itself.
     
@@ -323,14 +323,14 @@ formulaColumn
 virtualColumn
 -------------
     
-    add???
+    TODO
 
 .. _table_validations:
 
 validations in a column
 -----------------------
 
-    add??? --> link to :ref:`validations`...
+    TODO --> link to :ref:`validations`...
     
 .. _bla_bla:
     
@@ -342,7 +342,7 @@ section to revise
 setTagColumn
 ------------
 
-    add???
+    TODO
     
     .. automethod:: gnr.app.gnrdbo.TableBase.setTagColumn
     

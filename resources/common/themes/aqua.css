@@ -197,10 +197,9 @@
 }
 
 .pbl_root_bottom {
-    height: 23px;
-
+    height: 22px;
+    line-height:22px;
     border-color: #4D5962;
-    padding-top: 1px;
     vertical-align: middle;
     -moz-border-radius-bottomleft: 6px;
     -moz-border-radius-bottomright: 6px;

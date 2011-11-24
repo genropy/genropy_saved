@@ -7,7 +7,7 @@ tooltip
     *Last page update*: |today|
     
     .. note:: **validity** - the *tooltip* attribute is supported by every :ref:`webpage element
-              <webpage_elements_index>`
+              <we>`
               
     * :ref:`tooltip_def`
     * :ref:`tooltip_examples`:

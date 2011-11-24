@@ -6,11 +6,11 @@ creation of a site
 
     *Last page update*: |today|
     
-    add???
+    TODO
     
 .. _tt_siteconfig:
 
 the siteconfig file
 ===================
 
-    add???
+    TODO

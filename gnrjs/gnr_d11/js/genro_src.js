@@ -411,7 +411,7 @@ dojo.declare("gnr.GnrSrcHandler", null, {
         }
         if (tag == 'data') {
             path = node.absDatapath(path);
-            var value = node.getValue();
+            var value = node.getValue('static');
             node._value = null;
             if (value instanceof gnr.GnrBag) {
                 value.clearBackRef();

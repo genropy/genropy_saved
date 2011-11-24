@@ -80,6 +80,7 @@ section_index
     
 .. toctree::
     :maxdepth: 2
+    :numbered:
     
     project_structure
     introduction to the resources <intro_resources>

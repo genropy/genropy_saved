@@ -8,7 +8,7 @@ paletteGrid
     
     * :ref:`palettegrid_def`
     
-    add???
+    TODO
     
 .. _palettegrid_def:
     

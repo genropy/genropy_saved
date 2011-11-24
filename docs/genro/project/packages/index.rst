@@ -33,6 +33,7 @@ section index
 
 .. toctree::
     :maxdepth: 2
+    :numbered:
     
     basic_structure
     lib

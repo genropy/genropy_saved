@@ -20,8 +20,8 @@ Bag definitions
        * The "attributes" allow to insert other metadata (for more information, check the :ref:`bag_attributes` page).
        
            .. note:: The couple ``label:value`` carries many analogies with the ``key:value`` couple
-                     Dictionary [#]_, so you can think to the Bag label as a transposition of the Dictionary
-                     key (for example, with the :meth:`keys() <gnr.core.gnrbag.Bag.keys>` method you will get
+                     Dictionary, so you can think to the Bag label as a transposition of the Dictionary
+                     key (for example, with the :meth:`~gnr.core.gnrbag.Bag.keys` method you will get
                      all the Bag labels) but for its nature a key is unique, while Bag label can be unique or not
                      
        Let's see a scheme of a BagNode:

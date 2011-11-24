@@ -50,8 +50,8 @@ dojo.declare("gnr.GnrRemoteResolver", gnr.GnrBagResolver, {
             this.onloading(kwargs);
         }
         var sync = this.xhrKwargs.sync;
-        if(kwargs.resolverPars && kwargs.resolverPars.kwargs && ('_storename' in kwargs.resolverPars.kwargs)){
-            kwargs['_storename'] = objectPop(kwargs.resolverPars.kwargs,'_storename');
+        if(kwargs._sourceNode && kwargs.resolverPars && kwargs.resolverPars.kwargs){
+            kwargs.resolverPars.kwargs = kwargs._sourceNode.evaluateOnNode(kwargs.resolverPars.kwargs);
         }
         var kw = objectUpdate({},kwargs);
         var result = genro.rpc._serverCall(kwargs, this.xhrKwargs, this.httpMethod);
@@ -593,16 +593,13 @@ dojo.declare("gnr.GnrRpcHandler", null, {
             'sqlContextName':params._sqlContextName,
             'virtual_columns':params._virtual_columns,
             '_storename':params._storename};
-        if('_external_store' in params){
-             kwargs['external_store'] = params._external_store;
-        }
+        var storefield = params._storefield;
         kwargs.method = 'app.getRelatedRecord';
-
         var resolver = new gnr.GnrRemoteResolver(kwargs, isGetter, cacheTime);
         resolver.updateAttr = true;
         resolver.onloading = function(kwargs) {
-            if(kwargs.external_store){
-                kwargs['_storename'] = this.getParentNode().getParentBag().getItem(kwargs['external_store']);
+            if(storefield){
+                kwargs['_storename'] = this.getParentNode().getParentBag().getItem(storefield);
             }
             var target = kwargs.target_fld.split('.');
             var table = target[0] + '_' + target[1];

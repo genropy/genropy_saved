@@ -149,7 +149,7 @@ Main class webpage variables
     +------------------------------------------+---------------------------------------------------------+
     |  Name                                    |     Description                                         |
     +==========================================+=========================================================+
-    | :ref:`batch_cancellable`                 |  add???                                                 |
+    | :ref:`batch_cancellable`                 |  TODO                                                 |
     +------------------------------------------+---------------------------------------------------------+
     | :ref:`batch_delay`                       |  the time milliseconds start delay batch                |
     +------------------------------------------+---------------------------------------------------------+
@@ -157,9 +157,9 @@ Main class webpage variables
     +------------------------------------------+---------------------------------------------------------+
     | :ref:`batch_prefix`                      |  the batch prefix                                       |
     +------------------------------------------+---------------------------------------------------------+
-    | :ref:`batch_steps`                       |  add???                                                 |
+    | :ref:`batch_steps`                       |  TODO                                                 |
     +------------------------------------------+---------------------------------------------------------+
-    | :ref:`batch_thermo_lines`                |  add???                                                 |
+    | :ref:`batch_thermo_lines`                |  TODO                                                 |
     +------------------------------------------+---------------------------------------------------------+
     | :ref:`batch_title`                       |  the batch title                                        |
     +------------------------------------------+---------------------------------------------------------+
@@ -169,7 +169,7 @@ Main class webpage variables
     | :ref:`base_dialog_width`                 |  the dialog width. Its value is overridden by the       |
     |                                          |  "dialog_width" of the ``BaseResourcePrint`` class      |
     +------------------------------------------+---------------------------------------------------------+
-    | :ref:`virtual_columns`                   |  add???                                                 |
+    | :ref:`virtual_columns`                   |  TODO                                                 |
     +------------------------------------------+---------------------------------------------------------+
     
     List of the webpage variables of the :class:`BaseResourcePrint
@@ -180,15 +180,15 @@ Main class webpage variables
     +===============================================+=========================================================+
     | :ref:`baseresourceprint_html_res`             |  MANDATORY. Specify the path of the :ref:`print_layout` |
     +-----------------------------------------------+---------------------------------------------------------+
-    | :ref:`baseresourceprint_batch_immediate`      |  add???                                                 |
+    | :ref:`baseresourceprint_batch_immediate`      |  TODO                                                 |
     +-----------------------------------------------+---------------------------------------------------------+
-    | :ref:`baseresourceprint_batch_mail_modes`     |  add???                                                 |
+    | :ref:`baseresourceprint_batch_mail_modes`     |  TODO                                                 |
     +-----------------------------------------------+---------------------------------------------------------+
-    | :ref:`baseresourceprint_batch_print_modes`    |  add???                                                 |
+    | :ref:`baseresourceprint_batch_print_modes`    |  TODO                                                 |
     +-----------------------------------------------+---------------------------------------------------------+
     | :ref:`baseresourceprint_dialog_height`        |  the dialog height                                      |
     +-----------------------------------------------+---------------------------------------------------------+
-    | :ref:`baseresourceprint_dialog_height_no_par` |  add???                                                 |
+    | :ref:`baseresourceprint_dialog_height_no_par` |  TODO                                                 |
     +-----------------------------------------------+---------------------------------------------------------+
     | :ref:`baseresourceprint_dialog_width`         |  the dialog width                                       |
     +-----------------------------------------------+---------------------------------------------------------+
@@ -230,7 +230,7 @@ Main class method: table script parameters pane
                 with number "2")
                 
                 **Parameters: pane** - it represents a :ref:`contentpane` through
-                which you can attach your :ref:`webpage_elements_index`
+                which you can attach your :ref:`we`
                 
     *In the image, the print setting dialog. The point 2 is the "custom region",*
     *handled by the ``table_script_parameters_pane`` method*
@@ -259,7 +259,7 @@ Main class method: onRecordExit
                 
                 **Parameters**: **record**: the result records of the executed batch
                 
-.. _table_script_option_pane:
+.. _table_script_option_pane_method:
 
 table_script_option_pane()
 --------------------------
@@ -272,8 +272,8 @@ table_script_option_pane()
                 
                                 * **pane**: a :ref:`contentpane` that works as the
                                   :ref:`layout widget <layout>` father of the method
-                                * **print_modes**: add???
-                                * **mail_modes**: add???
+                                * **print_modes**: TODO
+                                * **mail_modes**: TODO
                                 
 .. _print_settings_webpage:
 
@@ -349,7 +349,7 @@ custom region
 print region
 ------------
 
-    It can be configured through the :ref:`table_script_option_pane` method
+    It can be configured through the :ref:`table_script_option_pane_method` method
     
     In the print regions you can swap up to 4 frames through a :ref:`radiobutton group
     <radiobutton>`:
@@ -416,7 +416,7 @@ Deliver mails
               
     From this pane you can send emails to the same fields of the query used to get data in the
     database. This is made automatically (for this reason the ``TO`` field is hidden: the ``TO``
-    recipient is filled with the emails of the query fields (add??? Explain how, explain better...)
+    recipient is filled with the emails of the query fields (TODO Explain how, explain better...)
     
 .. _print_setting_dialog_notes:
 

@@ -50,8 +50,8 @@ def command(name=None, description=None, *args, **kwargs):
     """A decorator to define new 'gnr' commands. Return the new command. See ``ArgumentParser``
     constructor in the ``argparse`` module for help on args
     
-    :param name: add???
-    :param description: add???"""
+    :param name: TODO
+    :param description: TODO"""
     def decorator(cmd):
         global command_registry
         if command_registry.get(name, None) is not None:
@@ -69,7 +69,7 @@ def argument(dest, *args, **kwargs):
         
     See ``add_argument`` in the ``argparse`` module for help on args
     
-    :param dest: add???"""
+    :param dest: TODO"""
     args = list(args)
         
     def decorator(cmd):
@@ -149,7 +149,7 @@ class GnrCommand(object):
         return self.main(**vars(arguments))
         
     def main(self):
-        """add???"""
+        """TODO"""
         raise NotImplementedError("Do not use GnrCommand directly, apply @command to a callable.")
         
     def __call__(self, *args, **kwargs):
@@ -158,7 +158,7 @@ class GnrCommand(object):
     def init_parser(self, subparsers=None):
         """Initialize this command's arguments.
         
-        :param subparsers: add???"""
+        :param subparsers: TODO"""
         if not subparsers:
             parser = argparse.ArgumentParser(*self.parser_args, **self.parser_kwargs)
         else:
@@ -223,7 +223,7 @@ class CmdRunner(object):
         main(**vars(args))
         
     def setup_parser(self):
-        """add???"""
+        """TODO"""
         global command_registry
         parser = argparse.ArgumentParser(description="Run Genro commands")
         subparsers = parser.add_subparsers(title="commands")
@@ -234,9 +234,9 @@ class CmdRunner(object):
 @command('commands', help="List commands and where they are implemented")
 @argument('verbose', '-v', '--verbose', help="Show command description")
 def commands(verbose=False):
-    """add???
+    """TODO
     
-    :param verbose: add???"""
+    :param verbose: TODO"""
     global command_registry
     for name, cmd in command_registry.items():
         print "%(name)-20s %(filename)s:%(lineno)s" % dict(name=name, filename=cmd.filename, lineno=cmd.lineno)
@@ -246,18 +246,18 @@ def commands(verbose=False):
 @command('adreport', help="Print AutoDiscovery report")
 @argument('full', '-f', '--full', help="Show full report")
 def info(full=False):
-    """add???
+    """TODO
     
-    :param full: add???"""
+    :param full: TODO"""
     ad = AutoDiscovery()
     ad.report(full)
         
 @command('adenv', help="Print current project/instance/package/site as environment variables")
 @argument('dirs', '-d', '--dirs', help="print directories too")
 def info(dirs=False):
-    """add???
+    """TODO
     
-    :param dirs: add???"""
+    :param dirs: TODO"""
     ad = AutoDiscovery()
     print "CURRENT_PROJECT=%s" % (ad.current_project.name if ad.current_project else '')
     print "CURRENT_INSTANCE=%s" % (ad.current_instance.name if ad.current_instance else '')

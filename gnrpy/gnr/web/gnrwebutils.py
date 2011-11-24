@@ -31,7 +31,7 @@ try:
             self.createStory(record)
 except ImportError:
     class GnrWebPDF(object):
-        """add???"""
+        """TODO"""
         def getPdf(self, *args, **kwargs):
             pass
             
@@ -54,8 +54,8 @@ def plain_redirect (page, params):
     where in place of the first ``%s`` goes the *page* parameter
     and in the second ``%s`` goes the *params* parameter.
     
-    :param page: add???
-    :param params: add???"""
+    :param page: TODO
+    :param params: TODO"""
     return """<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
     <html lang="en">

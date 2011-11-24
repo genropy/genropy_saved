@@ -40,25 +40,3 @@ includedView
                           list of records useful for implementing views master / detail
                   
                   </clipboard>
-        
-.. _iv_searchbox:
-
-searchBox
----------
-
-    add??? (keep the link to searchBox!)
-    
-.. _iv_searchon:
-
-searchOn
---------
-
-    add??? (keep the link to searchOn!)
-    
-.. _iv_messageBox:
-
-messageBox
-----------
-
-    add??? (keep the link to messageBox!)
-    

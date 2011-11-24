@@ -24,10 +24,8 @@ introduction
     
     The formbuilder uses:
     
-    * :ref:`form_widgets` for users interaction
-    * :ref:`validations`: check the correct form of users input
-    * :ref:`field`: a widget creator used to view, select or modify data included in
-      a database :ref:`table`.
+    * :ref:`widgets` - for users interaction
+    * :ref:`validations` - allow to check if the user typing is correct
     
     The form will be saved into a :ref:`bag`. Every row is composed by a single
     form field, with the following sintax::
@@ -41,6 +39,6 @@ section index
         
 .. toctree::
     :maxdepth: 1
+    :numbered:
     
-    formbuilder
     form_validations

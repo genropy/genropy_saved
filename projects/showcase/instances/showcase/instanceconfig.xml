@@ -4,8 +4,6 @@
         <showcase />
         <gnrcore:adm />
         <gnrcore:sys />
-        <gnrsw:sw_base />
-        <gnr_it:glbl />
     </packages>
     <db dbname="showcase"></db>
     <authentication pkg="showcase">

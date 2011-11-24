@@ -11,7 +11,7 @@ from gnr.core.gnrbag import Bag
 from gnr.sql.gnrsql_exceptions import GnrNonExistingDbException
 
 class ModelExtractor(object):
-    """add???"""
+    """TODO"""
     def __init__(self, dbroot):
         self.dbroot = dbroot
         
@@ -26,7 +26,7 @@ class ModelExtractor(object):
         return root
         
     def buildSchemata(self, root):
-        """add???
+        """TODO
         
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` documentation section."""
@@ -36,7 +36,7 @@ class ModelExtractor(object):
             self.buildTables(pkg, pkg_name)
             
     def buildTables(self, pkg, pkg_name):
-        """add???
+        """TODO
         
         :param pkg: the :ref:`package <packages>` object
         :param pkg_name: the:ref:`package <packages>` name"""
@@ -47,7 +47,7 @@ class ModelExtractor(object):
             self.buildIndexes(tbl, pkg_name, tbl_name)
             
     def buildColumns(self, tbl, pkg_name, tbl_name):
-        """add???
+        """TODO
         
         :param tbl: the :ref:`table` object
         :param pkg_name: the name of the package. For more information, check the
@@ -78,7 +78,7 @@ class ModelExtractor(object):
         pass
         
     def buildIndexes(self, tbl, pkg_name, tbl_name):
-        """add???
+        """TODO
         
         :param tbl: the :ref:`table` object
         :param pkg_name: the name of the package. For more information, check the
@@ -89,7 +89,7 @@ class ModelExtractor(object):
                 tbl.index(ind['columns'], name=ind['name'], unique=ind['unique'])
                 
     def buildRelations(self, root):
-        """add???
+        """TODO
         
         :param root: the root of the page. For more information, check the
                      :ref:`webpages_main` documentation section."""
@@ -104,7 +104,7 @@ class ModelExtractor(object):
             fld.relation('%s.%s.%s' % (one_schema, one_table, one_field))
             
     def buildViews(self):
-        """add???"""
+        """TODO"""
         elements = self.dbroot.adapter.listElements('views', schema=self.schema)
         children = Bag(self.children)
         for element in elements:

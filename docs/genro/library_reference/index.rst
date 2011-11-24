@@ -10,5 +10,6 @@ Library reference
 
 .. toctree::
     :maxdepth: 3
+    :numbered:
     
     genro/gnrpy/index

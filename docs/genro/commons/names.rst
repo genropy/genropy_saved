@@ -23,10 +23,10 @@ name_full
 
     The "name_full" is a string that can include:
     
-    * the full (add??? differences with the "name_long"?) name of a :ref:`database table <table>`
-    * the full (add???) name of the :ref:`table columns <column>`
-    * the full (add???) name of a database schema (check the :ref:`methods_config_attributes` section)
-    * the full (add???) name of a :ref:`package <packages>`
+    * the full (TODO differences with the "name_long"?) name of a :ref:`database table <table>`
+    * the full (TODO) name of the :ref:`table columns <column>`
+    * the full (TODO) name of a database schema (check the :ref:`methods_config_attributes` section)
+    * the full (TODO) name of a :ref:`package <packages>`
     
     You can specify multiple languages adding the :ref:`"!!" <exclamation_point>` characters to the
     begin of the string. More information in the :ref:`languages` section
@@ -40,10 +40,10 @@ name_long
 
     The "name_long" is a string that can include:
     
-    * the full (add??? differences with the "name_full"?) name of a :ref:`database table <table>`
-    * the full (add???) name of the :ref:`table columns <column>`
-    * the full (add???) name of a database schema (check the :ref:`methods_config_attributes` section)
-    * the full (add???) name of a :ref:`package <packages>`
+    * the full (TODO differences with the "name_full"?) name of a :ref:`database table <table>`
+    * the full (TODO) name of the :ref:`table columns <column>`
+    * the full (TODO) name of a database schema (check the :ref:`methods_config_attributes` section)
+    * the full (TODO) name of a :ref:`package <packages>`
     
     You can specify multiple languages adding the :ref:`"!!" <exclamation_point>` characters to the
     begin of the string. More information in the :ref:`languages` section
@@ -137,5 +137,5 @@ names in the config_attributes() method
 names in the package creation
 -----------------------------
 
-    add???
+    TODO
     

@@ -4,11 +4,11 @@
 creation of a database
 ======================
 
-    add???
+    TODO
     
-    database creation... add??? (Navicat)
+    database creation... TODO (Navicat)
     
-    schema creation... add???
+    schema creation... TODO
     
     .. warning:: every Genro package has got a corresponding sql schema. We suggest you to
                  call both the package and the schema with the **same name** - this simplifies

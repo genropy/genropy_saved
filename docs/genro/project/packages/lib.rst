@@ -8,4 +8,4 @@
     
     .. image:: ../../_images/projects/packages/lib.png
     
-    add???
+    This folder is thought to keep support files, like importer database files, xml files, and so on

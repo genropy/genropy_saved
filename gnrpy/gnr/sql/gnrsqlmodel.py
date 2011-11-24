@@ -40,7 +40,7 @@ class NotExistingTableError(Exception):
     pass
     
 class DbModel(object):
-    """add???"""
+    """TODO"""
     def __init__(self, db):
         #self._db = weakref.ref(db)
         self.db = db
@@ -52,7 +52,7 @@ class DbModel(object):
         
     @property
     def debug(self):
-        """add???"""
+        """TODO"""
         return self.db.debug
         
     def build(self):
@@ -90,10 +90,10 @@ class DbModel(object):
         self._columnsWithRelations.clear()
             
     def resolveAlias(self, name):
-        """add???
+        """TODO
         
-        :param name: add???
-        :returns: add???
+        :param name: TODO
+        :returns: TODO
         """
         pkg, tbl, col = name.split('.')
         pkg = self.obj[pkg]
@@ -103,7 +103,7 @@ class DbModel(object):
         
     def addRelation(self, many_relation_tuple, oneColumn, mode=None,storename=None, one_one=None, onDelete=None, onDelete_sql=None,
                     onUpdate=None, onUpdate_sql=None, deferred=None, eager_one=None, eager_many=None, relation_name=None,
-                    one_name=None, many_name=None, one_group=None, many_group=None, many_order_by=None,external_store=None):
+                    one_name=None, many_name=None, one_group=None, many_group=None, many_order_by=None,storefield=None):
         """Add a relation in the current model.
         
         :param many_relation_tuple: tuple. The column of the "many table". e.g: ('video','movie','director_id')
@@ -116,11 +116,11 @@ class DbModel(object):
                      * 'insensitive': same features of the ``mode='relation'`` but the relation
                        is *case-insensitive*
                        
-        :param one_one: add???
+        :param one_one: TODO
         :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
-        :param onDelete_sql: add???
-        :param onUpdate: add???
-        :param onUpdate_sql: add???
+        :param onDelete_sql: TODO
+        :param onUpdate: TODO
+        :param onUpdate_sql: TODO
         :param deferred: the same of the sql "DEFERRED". For more information, check the
                          :ref:`sql_deferred` section
         :param eager_one: boolean. If ``True`` ('Y') the one_to_many relation is eager
@@ -130,9 +130,9 @@ class DbModel(object):
                               For more information, check the :ref:`relation_name` section
         :param one_name: the one_to_many relation's name. e.g: 'movies'
         :param many_name: the many_to_one relation's name. e.g: 'director'
-        :param one_group: add???
-        :param many_group: add???
-        :param many_order_by: add???"""
+        :param one_group: TODO
+        :param many_group: TODO
+        :param many_order_by: TODO"""
         try:
             many_pkg, many_table, many_field = many_relation_tuple
             many_relation = '.'.join(many_relation_tuple)
@@ -159,14 +159,14 @@ class DbModel(object):
                                    onDelete_sql=onDelete_sql,
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
-                                   one_group=one_group, many_group=many_group,external_store=external_store)
+                                   one_group=one_group, many_group=many_group,storefield=storefield)
             self.relations.setItem('%s.%s.@%s' % (one_pkg, one_table, relation_name), None, mode='M',
                                    many_relation=many_relation, many_rel_name=many_name, many_order_by=many_order_by,
                                    one_relation=one_relation, one_rel_name=one_name, one_one=one_one, onDelete=onDelete,
                                    onDelete_sql=onDelete_sql,
                                    onUpdate=onUpdate, onUpdate_sql=onUpdate_sql, deferred=deferred,
                                    case_insensitive=case_insensitive, eager_one=eager_one, eager_many=eager_many,
-                                   one_group=one_group, many_group=many_group,external_store=external_store)
+                                   one_group=one_group, many_group=many_group,storefield=storefield)
             #print 'The relation %s - %s was added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
             self.checkRelationIndex(many_pkg, many_table, many_field)
             self.checkRelationIndex(one_pkg, one_table, one_field)
@@ -177,7 +177,7 @@ class DbModel(object):
             #print 'The relation %s - %s cannot be added'%(str('.'.join(many_relation_tuple)), str(oneColumn))
             
     def checkRelationIndex(self, pkg, table, column):
-        """add???
+        """TODO
         
         :param pkg: the :ref:`package <packages>` object
         :param table: the :ref:`database table <table>` name on which the query will be executed,
@@ -221,7 +221,7 @@ class DbModel(object):
         return bool(self.modelChanges)
         
     def applyModelChanges(self):
-        """add???"""
+        """TODO"""
         if self.modelChanges[0].startswith('CREATE DATABASE'):
             self.db.adapter.createDb()
             self.modelChanges.pop(0)
@@ -235,10 +235,10 @@ class DbModel(object):
         self.mixins[path] = obj
         
     def packageMixin(self, pkg, obj):
-        """add???
+        """TODO
         
         :param pkg: the :ref:`package <packages>` object
-        :param obj: add???"""
+        :param obj: TODO"""
         self._doMixin('pkg.%s' % pkg, obj)
         
     def tableMixin(self, tblpath, obj):
@@ -302,7 +302,7 @@ class DbModelSrc(GnrStructData):
                           name_full=name_full, **kwargs)
                           
     def externalPackage(self, name):
-        """add???
+        """TODO
         
         :param name: the package name"""
         return self.root('packages.%s' % name)
@@ -317,8 +317,8 @@ class DbModelSrc(GnrStructData):
         :param name: the :ref:`table` name
         :param pkey: the record :ref:`primary key <pkey>`
         :param lastTS: the date of the last modification (TS = timestamp)
-        :param rowcaption: add???
-        :param sqlname: add???
+        :param rowcaption: TODO
+        :param sqlname: TODO
         :param sqlschema: actual sql name of the schema. For more information check
                           the :ref:`about_schema` documentation section
         :param comment: the table's comment
@@ -348,21 +348,21 @@ class DbModelSrc(GnrStructData):
                      using the following syntax: ``'name::datatype'``
         :param dtype: the :ref:`datatype`
         :param size: string. ``'min:max'`` or fixed lenght ``'len'``
-        :param default: add???
-        :param notnull: add???
+        :param default: TODO
+        :param notnull: TODO
         :param unique: boolean. Same of the sql UNIQUE
         :param indexed: boolean. If ``True``, allow to create an index for the column data
                         (speed up the queries on the indexed column)
-        :param sqlname: add???
+        :param sqlname: TODO
         :param comment: the column's comment
         :param name_short: the :ref:`name_short` of the column
         :param name_long: the :ref:`name_long` of the column
         :param name_full: the :ref:`name_full` of the column
         :param group: a hierarchical path of logical categories and subacategories
                       the columns belongs to. For more information, check the :ref:`group` section
-        :param onInserting: add???
-        :param onUpdating: add???
-        :param onDeleting: add???"""
+        :param onInserting: TODO
+        :param onUpdating: TODO
+        :param onDeleting: TODO"""
         if '::' in name:
             name, dtype = name.split('::')
         if not 'columns' in self:
@@ -382,8 +382,8 @@ class DbModelSrc(GnrStructData):
                      using the following syntax: ``'name::datatype'``
         :param relation_path: the column's related path. For more information,
                               check the :ref:`relation_path` section
-        :param sql_formula: add???
-        :param py_method: add???"""
+        :param sql_formula: TODO
+        :param py_method: TODO"""
         if '::' in name: name, dtype = name.split('::')
         if not 'virtual_columns' in self:
             self.child('virtual_columns_list', 'virtual_columns')
@@ -404,22 +404,22 @@ class DbModelSrc(GnrStructData):
         return self.virtual_column(name, relation_path=relation_path, **kwargs)
         
     def formulaColumn(self, name, sql_formula, dtype='A', **kwargs):
-        """Insert a formulaColumn into a table, that is add???. The aliasColumn is a child of the table
+        """Insert a formulaColumn into a table, that is TODO. The aliasColumn is a child of the table
         created with the :meth:`table()` method
         
         :param name: the column name
-        :param sql_formula: add???
+        :param sql_formula: TODO
         :param dtype: the :ref:`datatype`. Default value is ``A``
         :returns: a formulaColumn
         """
         return self.virtual_column(name, sql_formula=sql_formula, dtype=dtype, **kwargs)
         
     def pyColumn(self, name, py_method, **kwargs):
-        """Insert a pyColumn into a table, that is add???. The aliasColumn is a child of the table
+        """Insert a pyColumn into a table, that is TODO. The aliasColumn is a child of the table
         created with the :meth:`table()` method
         
         :param name: the column name
-        :param sql_formula: add???
+        :param sql_formula: TODO
         :param dtype: the :ref:`datatype`. Default value is ``A``
         :returns: a formulaColumn"""
         return self.virtual_column(name, py_method=py_method, **kwargs)
@@ -483,14 +483,14 @@ class DbModelSrc(GnrStructData):
         :param many_name: the many_to_one relation's name. e.g: 'director'
         :param eager_one: boolean. If ``True`` the one_to_many relation is eager
         :param eager_many: boolean. If ``True`` the many_to_one relation is eager
-        :param one_one: add???
-        :param child: add???
-        :param one_group: add???
-        :param many_group: add???
-        :param onUpdate: add???
-        :param onUpdate_sql: add???
+        :param one_one: TODO
+        :param child: TODO
+        :param one_group: TODO
+        :param many_group: TODO
+        :param onUpdate: TODO
+        :param onUpdate_sql: TODO
         :param onDelete: 'C:cascade' | 'I:ignore' | 'R:raise'
-        :param onDelete_sql: add???
+        :param onDelete_sql: TODO
         :param deferred: the same of the sql "DEFERRED". For more information, check the
                          :ref:`sql_deferred` section
         :param relation_name: string. An attribute of the :ref:`table_relation`. It allows
@@ -572,7 +572,7 @@ class DbModelObj(GnrStructObj):
     name_full = property(_get_name_full, _set_name_full)
         
     def getTag(self):
-        """add???"""
+        """TODO"""
         return self.sqlclass or self._sqlclass
         
     def getAttr(self, attr=None, dflt=None):
@@ -586,7 +586,7 @@ class DbModelObj(GnrStructObj):
             return self.attributes
             
 class DbPackageObj(DbModelObj):
-    """add???"""
+    """TODO"""
     sqlclass = "package"
         
     def _getMixinPath(self):
@@ -634,11 +634,11 @@ class DbPackageObj(DbModelObj):
     sqlschema = property(_get_sqlschema)
             
 class DbTableObj(DbModelObj):
-    """add???"""
+    """TODO"""
     sqlclass = 'table'
             
     def doInit(self):
-        """add???"""
+        """TODO"""
         self.dbtable.onIniting()
         self._sqlnamemapper = {}
         self._indexedColumn = {}
@@ -647,7 +647,7 @@ class DbTableObj(DbModelObj):
         self.dbtable.onInited()
             
     def afterChildrenCreation(self):
-        """add???"""
+        """TODO"""
         objclassdict = self.root.objclassdict
         if not self.columns:
             self.children['columns'] = objclassdict['column_list'](parent=self)
@@ -666,7 +666,7 @@ class DbTableObj(DbModelObj):
             self.children['relations'] = self.newRelationResolver()
             
     def newRelationResolver(self, **kwargs):
-        """add???"""
+        """TODO"""
         child_kwargs = {'main_tbl': '%s.%s' % (self.pkg.name, self.name),
                         'tbl_name': self.name,
                         'pkg_name': self.pkg.name}
@@ -888,9 +888,9 @@ class DbTableObj(DbModelObj):
             return name
             
     def resolveRelationPath(self, relpath):
-        """add???
+        """TODO
         
-        :param relpath: add???
+        :param relpath: TODO
         """
         if relpath in self.relations:
             return relpath # it is a real relation path with no aliases
@@ -943,20 +943,20 @@ class DbTableObj(DbModelObj):
     relatingColumns = property(_get_relatingColumns)
         
     def getRelation(self, relpath):
-        """add???
+        """TODO
         
-        :param relpath: add???
-        :returns: add???
+        :param relpath: TODO
+        :returns: TODO
         """
         joiner = self.relations.getAttr(relpath, 'joiner')
         if joiner:
             return {'many': joiner['many_relation'], 'one': joiner['one_relation']}
             
     def getRelationBlock(self, relpath):
-        """add???
+        """TODO
         
-        :param relpath: add???
-        :returns: add???
+        :param relpath: TODO
+        :returns: TODO
         """
         joiner = self.relations.getAttr(relpath, 'joiner')
         mpkg, mtbl, mfld = joiner['many_relation'].split('.')
@@ -1024,7 +1024,7 @@ class DbBaseColumnObj(DbModelObj):
     print_width = property(_get_print_width, _set_print_width)
         
 class DbColumnObj(DbBaseColumnObj):
-    """add???"""
+    """TODO"""
     sqlclass = 'column'
         
     def _captureChildren(self, children):
@@ -1032,7 +1032,7 @@ class DbColumnObj(DbBaseColumnObj):
         return False
         
     def doInit(self):
-        """add???"""
+        """TODO"""
         if not self.attributes.get('dtype'):
             if self.attributes.get('size'):
                 self.attributes['dtype'] = 'A'
@@ -1167,7 +1167,7 @@ class RelationTreeResolver(BagResolver):
         super(RelationTreeResolver, self).__init__(*args, **kwargs)
         
     def resolverSerialize(self):
-        """add???"""
+        """TODO"""
         args = list(self._initArgs)
         kwargs = dict(self._initKwargs)
         #kwargs.pop('dbroot')
@@ -1186,7 +1186,7 @@ class RelationTreeResolver(BagResolver):
         self.dbroot = dbroot
         
     def load(self):
-        """add???"""
+        """TODO"""
         self.main_table_obj = self.dbroot.model.table(self.main_tbl)
         if not self.__fields:
             self._lock.acquire()
@@ -1277,16 +1277,16 @@ class RelationTreeResolver(BagResolver):
         return result
         
 class ModelSrcResolver(BagResolver):
-    """add???"""
+    """TODO"""
     classKwargs = {'cacheTime': 300, 'readOnly': False, 'dbroot': None}
     classArgs = ['dbId']
         
     def load(self):
-        """add???"""
+        """TODO"""
         return self.dbroot.model.src
         
     def resolverSerialize(self):
-        """add???"""
+        """TODO"""
         args = list(self._initArgs)
         kwargs = dict(self._initKwargs)
         kwargs.pop('dbroot')

@@ -50,7 +50,7 @@ Bag from/to XML
 toXml
 =====
 
-    A Bag can be exported to an XML source with the :meth:`toXml() <gnr.core.gnrbag.Bag.toXml>` method.
+    A Bag can be exported to an XML source with the :meth:`~gnr.core.gnrbag.Bag.toXml` method.
     This method returns a text, that is a complete standard XML version of the Bag, including the
     encoding tag ``<?xml version='1.0' encoding='UTF-8'?>``. Since an XML document needs an unique
     root node, the method creates as outer level a node called ``<GenRoBag>``. Each Bag becomes an
@@ -115,7 +115,7 @@ toXml
     
     The ``DT`` type is a Genro type [#]_.
     
-    The :meth:`toXml() <gnr.core.gnrbag.Bag.toXml>` method allow to keep record of the attribute types.
+    The :meth:`~gnr.core.gnrbag.Bag.toXml` method allow to keep record of the attribute types.
     In the value of each attribute is added a substring composed by '::type' (the method doesn't add
     the '::type' attribute for the ``string`` types).
 
@@ -127,13 +127,13 @@ toXml
     <height _T="R" lastMeasure="2010-11-17::D">1.76</height>
     <weight _T="L">65</weight></GenRoBag>
     
-    The :meth:`toXml() <gnr.core.gnrbag.Bag.toXml>` method may receive some optional parameters:
+    The :meth:`~gnr.core.gnrbag.Bag.toXml` method may receive some optional parameters:
     
     * *filename*: the path of the output file. If filename is passed, the method returns ``None``,
       and creates the file at the correct position.
     * *encoding*: set the XML encoding (default value is UTF-8).
     
-    For the complete parameter list, check the :meth:`toXml() <gnr.core.gnrbag.Bag.toXml>` method definition.
+    For the complete parameter list, check the :meth:`~gnr.core.gnrbag.Bag.toXml` method definition.
     
 .. _from_XML:
 
@@ -156,7 +156,7 @@ from XML
 Trasform a Bag into a dict
 ==========================
 
-    A bag can be transformed into a dict with the :meth:`asDict() <gnr.core.gnrbag.Bag.asDict>` method:
+    A bag can be transformed into a dict with the :meth:`~gnr.core.gnrbag.Bag.asDict` method:
     
     >>> mybag=Bag({'a':1,'b':2,'c':3,'d':4})
     >>> print mybag

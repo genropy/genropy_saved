@@ -18,6 +18,7 @@ section index
     
 .. toctree::
     :maxdepth: 2
+    :numbered:
     
     installation
     configuring

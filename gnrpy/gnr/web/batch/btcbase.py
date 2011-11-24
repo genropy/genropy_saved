@@ -80,12 +80,12 @@ class BaseResourceBatch(object):
             self.do()
 
     def storeResult(self, key, result, record=None, **info):
-        """add???
+        """TODO
         
-        :param key: add???
-        :param result: add???
-        :param record: add???
-        :param \*\* info: add???"""
+        :param key: TODO
+        :param result: TODO
+        :param record: TODO
+        :param \*\* info: TODO"""
         self.results[key] = result
         self.records[key] = record
         self.result_info[key] = info
@@ -101,8 +101,8 @@ class BaseResourceBatch(object):
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param where: the :ref:`sql_where` parameter
-        :param line_code: add???
-        :param message: add???"""
+        :param line_code: TODO
+        :param message: TODO"""
         table = table or self.maintable
         tblobj = self.db.table(table) 
 
@@ -117,25 +117,25 @@ class BaseResourceBatch(object):
                                                tblobj=tblobj), **kwargs)
 
     def result_handler(self):
-        """add???"""
+        """TODO"""
         return 'Execution completed', dict()
 
     def get_step_caption(self, item, progress, maximum, **kwargs):
-        """add???
+        """TODO
         
-        :param item: add???
-        :param progress: add???
-        :param maximum: add???"""
+        :param item: TODO
+        :param progress: TODO
+        :param maximum: TODO"""
         step_handler = getattr(self, 'step_%s' % item)
         return step_handler.__doc__
 
     def get_record_caption(self, item, progress, maximum, tblobj=None, **kwargs):
-        """add???
+        """TODO
         
-        :param item: add???
-        :param progress: add???
-        :param maximum: add???
-        :param tblobj: add???"""
+        :param item: TODO
+        :param progress: TODO
+        :param maximum: TODO
+        :param tblobj: TODO"""
         tblobj = tblobj or self.tblobj
         if tblobj:
             caption = '%s (%i/%i)' % (tblobj.recordCaption(item), progress, maximum)
@@ -149,19 +149,19 @@ class BaseResourceBatch(object):
         pass
 
     def defineSelection(self, selectionName=None, selectedRowidx=None, selectionFilterCb=None, sortBy=None):
-        """add???
+        """TODO
         
-        :param selectionName: add???
-        :param selectedRowidx: add???
-        :param selectionFilterCb: add???
-        :param sortBy: add???"""
+        :param selectionName: TODO
+        :param selectedRowidx: TODO
+        :param selectionFilterCb: TODO
+        :param sortBy: TODO"""
         self.selectionName = selectionName
         self.selectedRowidx = selectedRowidx
         self.selectionFilterCb = selectionFilterCb
         self.sortBy=sortBy
 
     def get_selection(self, columns=None):
-        """add???
+        """TODO
         
         :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
                         clause in the traditional sql query. For more information, check the
@@ -177,20 +177,20 @@ class BaseResourceBatch(object):
         return selection
 
     def get_records(self):
-        """add???"""
+        """TODO"""
         pkeys = self.get_selection_pkeys()
         for pkey in pkeys:
             yield self.get_record(pkey)
 
     def get_record(self, pkey, virtual_columns=None):
-        """add???
+        """TODO
         
         :param pkey: the record :ref:`primary key <pkey>`
         :param virtual_columns: the :ref:`virtual_columns` webpage variable"""
         return self.tblobj.record(pkey=pkey, virtual_columns=self.virtual_columns).output('bag')
 
     def get_selection_pkeys(self):
-        """add???"""
+        """TODO"""
         if self._pkeys is None:
             self._pkeys = self.get_selection().output('pkeylist')
         return self._pkeys

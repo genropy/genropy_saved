@@ -66,10 +66,10 @@ class GnrDict(dict):
         dict.__delitem__(self, key)
         
     def get(self, label, default=None):
-        """add???
+        """TODO
         
-        :param label: add???
-        :param default: add???"""
+        :param label: TODO
+        :param default: TODO"""
         return dict.get(self, self._label_convert(label), default)
         
     def __getitem__(self, label):
@@ -81,28 +81,28 @@ class GnrDict(dict):
         return label
         
     def items(self):
-        """add???"""
+        """TODO"""
         return [(k, self[k]) for k in self._list]
         
     def keys(self):
-        """add???"""
+        """TODO"""
         return list(self._list)
         
     def index(self, value):
-        """add???"""
+        """TODO"""
         if value in self._list:
             return self._list.index(value)
         return -1
         
     def values(self):
-        """add???"""
+        """TODO"""
         return [self[k] for k in self._list]
         
     def pop(self, key, dflt=None):
-        """add???
+        """TODO
         
-        :param key: add???
-        :param dflt: add???"""
+        :param key: TODO
+        :param dflt: TODO"""
         key = self._label_convert(key)
         if key in self._list:
             self._list.remove(key)
@@ -118,50 +118,50 @@ class GnrDict(dict):
     #return "%s ordered on %s" % (dict.__repr__(self), str(self._list))
         
     def clear(self):
-        """add???"""
+        """TODO"""
         self._list[:] = []
         dict.clear(self)
         
     def update(self, o, removeNone=False):
-        """add???
+        """TODO
         
-        :param o: add???
-        :param removeNone: add???"""
+        :param o: TODO
+        :param removeNone: TODO"""
         [self.__setitem__(k, v) for k, v in o.items()]
         if removeNone:
             [self.__delitem__(k) for k, v in o.items() if v == None]
             
     def copy(self):
-        """add???"""
+        """TODO"""
         return GnrDict(self)
         
     def setdefault(self, key, d=None):
-        """add???
+        """TODO
         
-        :param key: add???
-        :param d: add???"""
+        :param key: TODO
+        :param d: TODO"""
         key = self._label_convert(key)
         if not key in self:
             self.__setitem__(key, d)
         return self[key]
         
     def popitem(self):
-        """add???"""
+        """TODO"""
         k = self._list.pop()
         return (k, dict.pop(self, k))
         
     def iteritems(self):
-        """add???"""
+        """TODO"""
         for k in self._list:
             yield (k, self[k])
             
     def iterkeys(self):
-        """add???"""
+        """TODO"""
         for k in self._list:
             yield k
             
     def itervalues(self):
-        """add???"""
+        """TODO"""
         for k in self._list:
             yield self[k]
             
@@ -185,17 +185,17 @@ class GnrDict(dict):
         dict.update(self, val)
         
     def reverse(self):
-        """add???"""
+        """TODO"""
         self._list.reverse()
         
     def sort(self, cmpfunc=None):
-        """add???
+        """TODO
         
-        :param cmpfunc: add???"""
+        :param cmpfunc: TODO"""
         self._list.sort(cmpfunc)
         
 class GnrNumericDict(GnrDict):
-    """add???"""
+    """TODO"""
     def __getitem__(self, label):
         if isinstance(label, int):
             return dict.__getitem__(self, self._list[label])

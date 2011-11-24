@@ -47,13 +47,13 @@ class BagFromXml(object):
     """The class that handles the conversion from the XML format to the
     :class:`Bag <gnr.core.gnrbag.Bag>` class"""
     def build(self, source, fromFile, catalog=None, bagcls=Bag, empty=None):
-        """add???
+        """TODO
         
-        :param source: add???
-        :param fromFile: add???
-        :param catalog: add???
-        :param bagcls: add???
-        :param empty: add???"""
+        :param source: TODO
+        :param fromFile: TODO
+        :param catalog: TODO
+        :param bagcls: TODO
+        :param empty: TODO"""
         if not bagcls: bagcls = Bag
         done = False
         testmode = False
@@ -90,14 +90,14 @@ class BagFromXml(object):
         return result
 
     def do_build(self, source, fromFile, catalog=None, bagcls=Bag, empty=None, testmode=False):
-        """add???
+        """TODO
         
-        :param source: add???
-        :param fromFile: add???
-        :param catalog: add???
-        :param bagcls: add???
-        :param empty: add???
-        :param testmode: add???"""
+        :param source: TODO
+        :param fromFile: TODO
+        :param catalog: TODO
+        :param bagcls: TODO
+        :param empty: TODO
+        :param testmode: TODO"""
         if not testmode:
             bagImport = _SaxImporter()
         else:
@@ -300,19 +300,19 @@ class BagToXml(object):
         :param bag: the Bag to transform in a XML block version
         :param filename: the path of the output file
         :param encoding: allow to set the XML encoding
-        :param catalog: add???
-        :param typeattrs: add???
-        :param typevalue: add???
-        :param addBagTypeAttr: add???
-        :param onBuildTag: add???
-        :param unresolved: add???
-        :param autocreate: add???
-        :param docHeader: add???
-        :param self_closed_tags: add???
-        :param translate_cb: add???
-        :param omitUnknownTypes: add???
-        :param omitRoot: add???
-        :param forceTagAttr: add???
+        :param catalog: TODO
+        :param typeattrs: TODO
+        :param typevalue: TODO
+        :param addBagTypeAttr: TODO
+        :param onBuildTag: TODO
+        :param unresolved: TODO
+        :param autocreate: TODO
+        :param docHeader: TODO
+        :param self_closed_tags: TODO
+        :param translate_cb: TODO
+        :param omitUnknownTypes: TODO
+        :param omitRoot: TODO
+        :param forceTagAttr: TODO
         
         >>> mybag = Bag()
         >>> mybag['aa.bb'] = 4567
@@ -351,13 +351,13 @@ class BagToXml(object):
         return result
         
     def buildTag(self, tagName, value, attributes=None, cls='', xmlMode=False):
-        """add??? Return the XML tag that represent self BagNode
+        """TODO Return the XML tag that represent self BagNode
         
-        :param tagName: add???
-        :param value: add???
-        :param attributes: add???
-        :param cls: add???
-        :param xmlMode: add???"""
+        :param tagName: TODO
+        :param value: TODO
+        :param attributes: TODO
+        :param cls: TODO
+        :param xmlMode: TODO"""
         #if value == None:
         #    value = ''
         if self.onBuildTag:

@@ -112,9 +112,9 @@ class Cookie(object):
         a dict of Cookies. Note: the string should NOT include the
         header name, only the value.
         
-        :param Class: add???
-        :param str: add???
-        :param secret: add???. 
+        :param Class: TODO
+        :param str: TODO
+        :param secret: TODO. 
         :returns: a dict of Cookies
         """
         dict = _parse_cookie(str, Class, **kw)
@@ -168,13 +168,13 @@ class SignedCookie(Cookie):
     is still plainly visible as part of the cookie.
     """
     def parse(Class, s, secret, mismatch=Cookie.DOWNGRADE, **kw):
-        """add???
+        """TODO
         
-        :param Class: add???
-        :param s: add???
-        :param secret: add???
-        :param mismatch: add???. Default valus is ``Cookie.DOWNGRADE``
-        :returns: add???
+        :param Class: TODO
+        :param s: TODO
+        :param secret: TODO
+        :param mismatch: TODO. Default valus is ``Cookie.DOWNGRADE``
+        :returns: TODO
         """
         dict = _parse_cookie(s, Class, **kw)
         
@@ -205,10 +205,10 @@ class SignedCookie(Cookie):
         self.__data__["secret"] = secret
         
     def hexdigest(self, str):
-        """add???
+        """TODO
         
-        :param str: add???
-        :returns: add???
+        :param str: TODO
+        :returns: TODO
         """
         if not self.__data__["secret"]:
             raise CookieError, "Cannot sign without a secret"
@@ -228,9 +228,9 @@ class SignedCookie(Cookie):
         return "; ".join(result)
         
     def unsign(self, secret):
-        """add???
+        """TODO
         
-        :param secret: add???
+        :param secret: TODO
         """
         sig, val = self.value[:32], self.value[32:]
         
@@ -258,13 +258,13 @@ class MarshalCookie(SignedCookie):
     http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&selm=7xn0hcugmy.fsf%40ruckus.brouhaha.com
     """
     def parse(Class, s, secret, mismatch=Cookie.DOWNGRADE, **kw):
-        """add???
+        """TODO
         
-        :parse Class: add???
-        :parse s: add???
-        :parse secret: add???
-        :parse mismatch: add???. Default valus is ``Cookie.DOWNGRADE``
-        :returns: add???
+        :parse Class: TODO
+        :parse s: TODO
+        :parse secret: TODO
+        :parse mismatch: TODO. Default valus is ``Cookie.DOWNGRADE``
+        :returns: TODO
         """
         dict = _parse_cookie(s, Class, **kw)
         
@@ -305,9 +305,9 @@ class MarshalCookie(SignedCookie):
         return "; ".join(result)
         
     def unmarshal(self, secret):
-        """add???
+        """TODO
         
-        :param secret: add???
+        :param secret: TODO
         """
         self.unsign(secret)
         
@@ -360,9 +360,9 @@ def add_cookie(res, cookie, value="", **kw):
     """Set a cookie in outgoing headers and add a cache
     directive so that caches don't cache the cookie
     
-    :param res: add???
-    :param cookie: add???
-    :param value: add???. Default value is ``""``
+    :param res: TODO
+    :param cookie: TODO
+    :param value: TODO. Default value is ``""``
     """
     # is this a cookie?
     if not isinstance(cookie, Cookie):
@@ -379,9 +379,9 @@ def get_cookies(req, Class=Cookie, **kw):
     a Cookie class. The class must be one of the classes from
     this module.
     
-    :param req: add???
-    :param Class: add???. Default value is ``Cookie``
-    :returns: add???
+    :param req: TODO
+    :param Class: TODO. Default value is ``Cookie``
+    :returns: TODO
     """
     if not "cookie" in req.headers:
         return {}
@@ -393,12 +393,12 @@ def get_cookies(req, Class=Cookie, **kw):
     return Class.parse(cookies, **kw)
         
 def get_cookie(req, name, Class=Cookie, **kw):
-    """add???
+    """TODO
     
-    :param req: add???
-    :param name: add???
-    :param Class: add???. Default valus is ``Cookie``
-    :returns: add???
+    :param req: TODO
+    :param name: TODO
+    :param Class: TODO. Default valus is ``Cookie``
+    :returns: TODO
     """
     cookies = get_cookies(req, Class, names=[name], **kw)
     if cookies.has_key(name):

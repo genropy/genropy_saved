@@ -543,10 +543,18 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             validateresult = sourceNode.validationsOnChange(sourceNode, value);
             value = validateresult['value'];
             objectExtract(valueAttr, '_validation*');
+            var formHandler = sourceNode.getFormHandler();
+            var fldname = datanode.attr.name_long || datanode.label;
             if (validateresult['error']) {
                 valueAttr._validationError = validateresult['error'];
+                if(validateresult.error){
+                    formHandler.publish('message',{message:fldname+': '+validateresult.error,sound:'$onerror',color:'#FF260A',font_size:'1.1em',font_weight:'bold'});
+                }
             }
             if (validateresult['warnings'].length) {
+                if(validateresult.warnings){
+                    formHandler.publish('message',{message:fldname+': '+validateresult.warnings.join(','),sound:'$onwarning',color:'orange',font_size:'1.1em',font_weight:'bold'});
+                }
                 valueAttr._validationWarnings = validateresult['warnings'];
             }
 
@@ -3788,8 +3796,14 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             };
         }
         storebag.forEach(cb, 'static');
+        
         if(changes.length>0){
-            this.sourceNode.publish('counterChanges',{'changes':serializableChanges,'table':this.sourceNode.attr.table});
+            var collectionStore = this.collectionStore;
+            if(collectionStore){
+                this.collectionStore().onCounterChanges(counterField,serializableChanges);
+            }else{
+                this.sourceNode.publish('counterChanges',{'changes':serializableChanges,'table':this.sourceNode.attr.table});
+            }
         }
         return changes;
     },
@@ -4881,7 +4895,7 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var store = new gnr.GnrStoreBag({datapath:storepath,_identifier:_identifier,
             hideValues:hideValues,
             labelAttribute:labelAttribute,
-            labelCb:labelCb});
+            labelCb:labelCb,sourceNode:sourceNode});
         var model = new dijit.tree.ForestStoreModel({store: store,childrenAttrs: ["#v"]});
         attributes['model'] = model;
         attributes['showRoot'] = false;

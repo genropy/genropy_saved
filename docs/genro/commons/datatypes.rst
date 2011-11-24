@@ -34,7 +34,7 @@ dtypes format
 A dtype
 -------
 
-    add???
+    TODO
 
 .. _datatype_c:
 

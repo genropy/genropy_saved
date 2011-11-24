@@ -7,7 +7,7 @@ disabled
     *Last page update*: |today|
     
     .. note:: **validity** - the *disabled* attribute is supported by every
-              :ref:`webpage element <webpage_elements_index>`
+              :ref:`webpage element <we>`
     
     * :ref:`disabled_def`
     * :ref:`disabled_examples`
@@ -27,4 +27,4 @@ examples
 
     **A simple example**::
     
-        add???
+        TODO

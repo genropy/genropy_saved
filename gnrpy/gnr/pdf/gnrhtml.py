@@ -44,7 +44,7 @@ class GnrHtmlElem(object):
         return child
         
 class GnrHtmlSrc(GnrStructData):
-    """add???"""
+    """TODO"""
     htmlNS = ['a', 'abbr', 'acronym', 'address', 'area', 'b', 'base', 'bdo', 'big', 'blockquote',
               'body', 'br', 'button', 'caption', 'cite', 'code', 'col', 'colgroup', 'dd', 'del',
               'div', 'dfn', 'dl', 'dt', 'em', 'fieldset', 'form', 'frame', 'frameset',
@@ -70,14 +70,14 @@ class GnrHtmlSrc(GnrStructData):
             raise AttributeError, fname
             
     def toHtml(self):
-        """add???"""
+        """TODO"""
         result = self._toHtmlInner()
         return result
         
     def style(self, style=''):
-        """add???
+        """TODO
         
-        :param style: add???"""
+        :param style: TODO"""
         self.root.head.child('style', content=style)
         
     def _toHtmlInner(self):
@@ -105,9 +105,9 @@ class GnrHtmlSrc(GnrStructData):
         self.child('__flatten__', content=content)
 
     def content(self, content):
-        """add???
+        """TODO
         
-        :param content: add???"""
+        :param content: TODO"""
         if not (isinstance(content, list) or isinstance(content, tuple) ):
             content = [content]
         for single_content in content:
@@ -119,9 +119,9 @@ class GnrHtmlSrc(GnrStructData):
                 self.child('__flatten__', content=single_content)
                 
     def valueAndUm(self, value, um):
-        """add???
+        """TODO
         
-        :param value: add???
+        :param value: TODO
         :param um: the unit of measurement"""
         try:
             value = float(value)
@@ -133,9 +133,9 @@ class GnrHtmlSrc(GnrStructData):
             return value
             
     def child_(self, tag, *args, **kwargs):
-        """add???
+        """TODO
         
-        :param tag: add???"""
+        :param tag: TODO"""
         width = kwargs.pop('width', None)
         height = kwargs.pop('height', None)
         position = kwargs.pop('position', None)
@@ -314,7 +314,7 @@ class GnrHtmlSrc(GnrStructData):
         return tag, attr
         
     def setValueAndUm(self, attr, um, **kwargs):
-        """add???
+        """TODO
         
         :param attr: ???
         :param um: the unit of measurement"""
@@ -351,7 +351,7 @@ class GnrHtmlSrc(GnrStructData):
         return css
         
 class GnrHtmlPdf(object):
-    """add???"""
+    """TODO"""
     def __init__(self, filename=None, **kwargs):
         self.root = GnrHtmlSrc.makeRoot()
         html = self.root.html()
@@ -368,9 +368,9 @@ class GnrHtmlPdf(object):
                                omitUnknownTypes=True, omitRoot=True, forcedTagAttr='tag', addBagTypeAttr=False)
                                
     def toHtml(self, filename=None):
-        """add???
+        """TODO
         
-        :param filename: add???. 
+        :param filename: TODO. 
         """
         if filename:
             filename = expandpath(filename)
@@ -380,7 +380,7 @@ class GnrHtmlPdf(object):
     def toPdf(self, filename=None):
         """Call the PDF webkit generator
         
-        :param filename: add???"""
+        :param filename: TODO"""
         pass
         
 def test0(body):

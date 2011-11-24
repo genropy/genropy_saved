@@ -6,7 +6,7 @@ struct
 
     *Last page update*: |today|
     
-    add???
+    TODO
     
     * :ref:`struct_intro`
     * :ref:`struct_section_index`
@@ -16,7 +16,7 @@ struct
 introduction
 ============
 
-    add???
+    TODO
     
     CLIPBOARD::
     
@@ -77,4 +77,4 @@ introduction
 section index
 =============
 
-    add???
+    TODO

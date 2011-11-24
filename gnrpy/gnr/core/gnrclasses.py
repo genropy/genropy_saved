@@ -34,7 +34,7 @@ class GnrMixinError(Exception):
     pass
 
 class GnrClassCatalog(object):
-    """add???"""
+    """TODO"""
     __standard = None
     
     def convert(cls):
@@ -62,7 +62,7 @@ class GnrClassCatalog(object):
         :param aliases: other keys to parse using this class. 
         :param altcls: other classes to write in the same way. All values will be parsed with the main class.
                        
-        :param align: add???. Default value is ``L``
+        :param align: TODO. Default value is ``L``
         :param empty: the class or value to be used for empty parsed values (example ``''`` for strings).
                       
         """
@@ -82,8 +82,8 @@ class GnrClassCatalog(object):
     def getEmpty(self, key):
         """Add???
             
-        :param key: add???
-        :returns: add???
+        :param key: TODO
+        :returns: TODO
         """
         if isinstance(key, basestring):
             key = self.classes.get(key.upper())
@@ -98,8 +98,8 @@ class GnrClassCatalog(object):
     def getAlign(self, key):
         """Add???
             
-        :param key: add???
-        :returns: add???
+        :param key: TODO
+        :returns: TODO
         """
         if isinstance(key, basestring):
             key = self.classes.get(key.upper())
@@ -111,7 +111,7 @@ class GnrClassCatalog(object):
     def addSerializer(self, mode, cls, funct):
         """Given a mode and a class to convert, specifies the function to use for the actual conversion:
         
-        :param mode: add???
+        :param mode: TODO
         :param cls: the class to be converted
         :param funct: is a function by reference or lambda, will receive an instance and return an appropriate value for the conversion mode
         """
@@ -134,26 +134,26 @@ class GnrClassCatalog(object):
     def getClassKey(self, o):
         """Add???
             
-        :param o: add???
-        :returns: add???
+        :param o: TODO
+        :returns: TODO
         """
         return self.names[type(o)]
 
     def getClass(self, name):
         """Add???
             
-        :param name: add???
-        :returns: add???
+        :param name: TODO
+        :returns: TODO
         """
         return self.classes[name]
 
     def asText(self, o, quoted=False, translate_cb=None):
         """Add???
             
-        :param o: add???
-        :param quoted: add???. Default value is ``False``
-        :param translate_cb: add???. 
-        :returns: add???
+        :param o: TODO
+        :param quoted: TODO. Default value is ``False``
+        :param translate_cb: TODO. 
+        :returns: TODO
         """
         if isinstance(o, basestring):
             result = o
@@ -173,8 +173,8 @@ class GnrClassCatalog(object):
     def quoted(self, s):
         """Add???
             
-        :param s: add???
-        :returns: add???
+        :param s: TODO
+        :returns: TODO
         """
         if '"' in s:
             s = "'%s'" % s
@@ -185,9 +185,9 @@ class GnrClassCatalog(object):
     def fromText(self, txt, clsname, **kwargs):
         """Add???
             
-        :param txt: add???
-        :param clsname: add???
-        :returns: add???
+        :param txt: TODO
+        :param clsname: TODO
+        :returns: TODO
         """
         if not clsname:
             return txt
@@ -208,8 +208,8 @@ class GnrClassCatalog(object):
     def fromTypedText(self, txt, **kwargs):
         """Add???
             
-        :param txt: add???
-        :returns: add???
+        :param txt: TODO
+        :returns: TODO
         """
         result = re.split('::(\w*)$', txt)
         if len(result) == 1:
@@ -222,10 +222,10 @@ class GnrClassCatalog(object):
     def asTypedText(self, o, quoted=False, translate_cb=None):
         """Add???
             
-        :param o: add???
-        :param quoted: add???. Default value is ``False``
-        :param translate_cb: add???. 
-        :returns: add???
+        :param o: TODO
+        :param quoted: TODO. Default value is ``False``
+        :param translate_cb: TODO. 
+        :returns: TODO
         """
         t = self.names.get(type(o), 'T')
         if t == 'T':
@@ -239,9 +239,9 @@ class GnrClassCatalog(object):
     def asTextAndType(self, o, translate_cb=None):
         """Add???
             
-        :param o: add???
-        :param translate_cb: add???. 
-        :returns: add???
+        :param o: TODO
+        :param translate_cb: TODO. 
+        :returns: TODO
         """
         c = self.names.get(type(o))
         if c:
@@ -251,13 +251,13 @@ class GnrClassCatalog(object):
     def getType(self, o):
         """Add???
             
-        :param o: add???
-        :returns: add???
+        :param o: TODO
+        :returns: TODO
         """
         return self.names.get(type(o))
         
     def standardClasses(self):
-        """add???
+        """TODO
         """
         from gnr.core.gnrbag import Bag
         
@@ -321,8 +321,8 @@ class GnrClassCatalog(object):
     def parse_float(self, txt):
         """Add???
             
-        :param txt: add???
-        :returns: add???
+        :param txt: TODO
+        :returns: TODO
         """
         if txt.lower() != 'inf':
             return float(txt)
@@ -330,7 +330,7 @@ class GnrClassCatalog(object):
     def parse_datetime(self, txt, workdate=None):
         """Add???
             
-        :param txt: add???
+        :param txt: TODO
         :param workdate: the :ref:`workdate`"""
         splitted = gnrstring.wordSplit(txt)
         result = datetime.datetime(*[int(el) for el in splitted])
@@ -339,7 +339,7 @@ class GnrClassCatalog(object):
     def parse_date(self, txt, workdate=None):
         """Add???
             
-        :param txt: add???
+        :param txt: TODO
         :param workdate: the :ref:`workdate`"""
         if txt != '0000-00-00':
             if txt and ISO_MATCH.match(txt):
@@ -350,8 +350,8 @@ class GnrClassCatalog(object):
     def parse_time(self, txt):
         """Add???
             
-        :param txt: add???
-        :returns: add???
+        :param txt: TODO
+        :returns: TODO
         """
         if txt:
             return datetime.time(*[int(el) for el in gnrstring.wordSplit(txt)])
@@ -359,16 +359,16 @@ class GnrClassCatalog(object):
     def toJson(self, data):
         """Add???
             
-        :param data: add???
-        :returns: add???
+        :param data: TODO
+        :returns: TODO
         """
         return gnrstring.toJson(data)
         
     def fromJson(self, data):
         """Add???
             
-        :param data: add???
-        :returns: add???
+        :param data: TODO
+        :returns: TODO
         """
         return gnrstring.fromJson(data)
         

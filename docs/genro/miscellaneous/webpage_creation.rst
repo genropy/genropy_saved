@@ -38,7 +38,7 @@ The build phase of a webpage
         page js <- dataRpc() or remote() -> page python
         
     Genro creates a :ref:`bag` using genropy syntax and this ``Bag`` is sent as
-    XML to the client. In the client the :ref:`webpage_elements_index` will be stored
+    XML to the client. In the client the :ref:`we` will be stored
     in the struct bag (??? find a name for the struct Bag!), while data elements will
     be placed in the :ref:`datastore`
     

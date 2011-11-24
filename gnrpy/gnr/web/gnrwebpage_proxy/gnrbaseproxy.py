@@ -7,7 +7,7 @@
 #  Copyright (c) 2007 Softwell. All rights reserved.
 
 class GnrBaseProxy(object):
-    """add???"""
+    """TODO"""
     def __init__(self, page, **kwargs):
         self.page = page
         [self.page._subscribe_event(attr[6:], self) for attr in dir(self) if attr.startswith('event_')]

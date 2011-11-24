@@ -44,7 +44,7 @@ Introduction
 <instances>
 ===========
 
-    add???
+    TODO
     
 .. _environment_packages:
 
@@ -53,7 +53,7 @@ Introduction
 
     The ``<packages>`` tag allow you to specify the packages you want to import in
     your project. Once they have been imported, you can use their resources, tables
-    and webpages. (add??? E allora cosa servono le tag instances resources projects...
+    and webpages. (TODO E allora cosa servono le tag instances resources projects...
     AAARGH!!!)
     
     **Example:**
@@ -83,7 +83,7 @@ standard Genro packages
 <resources>
 ===========
 
-    add???
+    TODO
 
 .. _environment_resources_components:
     
@@ -106,7 +106,7 @@ usage of standard components
 <sites>
 =======
 
-    add???
+    TODO
     
     .. _environment_example:
     

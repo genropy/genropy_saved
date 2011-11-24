@@ -4,7 +4,7 @@ from gnr.core.gnrbag import Bag
 from gnr.core.gnrsys import expandpath
 
 class PathResolver(object):
-    """add???"""
+    """TODO"""
     entities = dict(
             instance='instances',
             site='sites',
@@ -29,7 +29,7 @@ class PathResolver(object):
         return config
         
     def set_environment(self, config):
-        """add???
+        """TODO
         
         :param config: a Bag with the gnr configuration path"""
         for var, value in config['gnr.environment_xml'].digest('environment:#k,#a.value'):
@@ -38,7 +38,7 @@ class PathResolver(object):
                 os.environ[var] = str(value)
                 
     def js_path(self, lib_type='gnr', version='11'):
-        """add??? Return the configuration static js path, with *lib_type* and *version* specified
+        """TODO Return the configuration static js path, with *lib_type* and *version* specified
         
         :param lib_type: Genro Javascript library == gnr
         :param version: the Genro Javascript library version related to the Dojo one. The number of Dojo
@@ -49,11 +49,11 @@ class PathResolver(object):
         return path
         
     def entity_name_to_path(self, entity_name, entity_type, look_in_projects=True):
-        """add???
+        """TODO
         
-        :param entity_name: add???
-        :param entity_type: add???
-        :param look_in_projects: add???"""
+        :param entity_name: TODO
+        :param entity_type: TODO
+        :param look_in_projects: TODO"""
         entity = self.entities.get(entity_type)
         if not entity:
             raise Exception('Error: entity type %s not known' % entity_type)
@@ -75,40 +75,40 @@ class PathResolver(object):
         raise Exception('Error: %s %s not found' % (entity_type, entity_name))
         
     def site_name_to_path(self, site_name):
-        """add???
+        """TODO
         
-        :param site_name: add???"""
+        :param site_name: TODO"""
         return self.entity_name_to_path(site_name, 'site')
         
     def instance_name_to_path(self, instance_name):
-        """add???
+        """TODO
         
-        :param instance_name: add???"""
+        :param instance_name: TODO"""
         return self.entity_name_to_path(instance_name, 'instance')
         
     def package_name_to_path(self, package_name):
-        """add???
+        """TODO
         
-        :param package_name: add???"""
+        :param package_name: TODO"""
         return self.entity_name_to_path(package_name, 'package')
         
     def resource_name_to_path(self, resource_name):
-        """add???
+        """TODO
         
-        :param resource_name: add???"""
+        :param resource_name: TODO"""
         return self.entity_name_to_path(resource_name, 'resource')
         
     def project_name_to_path(self, project_name):
-        """add???
+        """TODO
         
-        :param project_name: add???"""
+        :param project_name: TODO"""
         return self.entity_name_to_path(project_name, 'project', look_in_projects=False)
         
     def project_repository_name_to_path(self, project_repository_name, strict=True):
-        """add???
+        """TODO
         
-        :param project_repository_name: add???
-        :param strict: add???"""
+        :param project_repository_name: TODO
+        :param strict: TODO"""
         if not strict or 'gnr.environment_xml.projects.%s' % project_repository_name in self.gnr_config:
             path = self.gnr_config['gnr.environment_xml.projects.%s?path' % project_repository_name]
             if path:
@@ -164,7 +164,7 @@ class SiteMaker(object):
         self.config = config
         
     def do(self):
-        """add???"""
+        """TODO"""
         self.site_path = os.path.join(self.base_path, self.site_name)
         pages_path = os.path.join(self.site_path, 'pages')
         root_py_path = os.path.join(self.site_path, 'root.py')
@@ -248,7 +248,7 @@ class InstanceMaker(object):
         self.config = config
         
     def do(self):
-        """add???"""
+        """TODO"""
         self.instance_path = os.path.join(self.base_path, self.instance_name)
         custom_path = os.path.join(self.instance_path, 'custom')
         data_path = os.path.join(self.instance_path, 'data')
@@ -388,14 +388,14 @@ class ResourceMaker(object):
         self.base_path = base_path or '.'
         
     def do(self):
-        """add???"""
+        """TODO"""
         self.resource_path = os.path.join(self.base_path, self.resource_name)
         for path in (self.resource_path, ):
             if not os.path.isdir(path):
                 os.mkdir(path)
                 
 class ModWsgiMaker(object):
-    """add???"""
+    """TODO"""
     pass
         
 if __name__ == '__main__':

@@ -22,7 +22,7 @@ periodCombo
 definition
 ==========
 
-    .. method:: periodCombo(self, fb, period_store=None, value=None, lbl=None, **kwargs)
+    .. method:: periodCombo(self, fb, period_store=None, value=None, lbl=None, dflt=None **kwargs)
     
     The periodCombo is a :ref:`filteringselect` that allows to choose a time interval
     
@@ -41,7 +41,7 @@ description
 ===========
 
     As you can see in the following image, there are many preset period (taken from the
-    :meth:`decodeDatePeriod <gnr.core.gnrdate.decodeDatePeriod>` method):
+    :meth:`~gnr.core.gnrdate.decodeDatePeriod` method):
     
     .. image:: ../../_images/components/macrowidgets/periodcombo.png
     

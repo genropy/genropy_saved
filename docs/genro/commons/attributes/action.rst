@@ -14,8 +14,10 @@ action
               * :ref:`slotbutton`
               
     * :ref:`action_def`
-    * :ref:`action_examples`
-              
+    * :ref:`action_examples`:
+    
+        * :ref:`action_examples_basic`
+        
 .. _action_def:
 
 description
@@ -24,40 +26,49 @@ description
     The *action* attribute allows to write javascript code [#]_.
     
     For example, if you use the *action* attribute on a button, the javascript
-    code will be executed after user click the button
+    code will be executed on button mouse click
     
 .. _action_examples:
 
 examples
 ========
 
-    **Example**:
+.. _action_examples_basic:
+
+action example
+--------------
+
+    * `action [basic] <http://localhost:8080/webpage_elements/widgets/form_widgets/buttons/button/1>`_
     
-        To create an alert message you have to write this line::
-        
-            pane.button('I\'m a button',action="alert('Hello!')")
-            
-        where ``'I\'m a button'`` is the label of the button.
-        
-    **Example**
+      .. note:: example elements' list:
+
+                * **classes**: :ref:`gnrcustomwebpage`
+                * **components**: :ref:`testhandlerfull`
+                * **webpage variables**: :ref:`webpages_py_requires`
+                * **widgets**: :ref:`formbuilder`, :ref:`textbox`
+                
+    * **Code**::
     
-        This is another example::
-        
-            class GnrCustomWebPage(object):
-                def main(self,root,**kwargs):
-                    fb = root.formbuilder(cols=2)
-                    fb.div('The action attribute allow to write javascript code.',
-                            font_size='.9em',text_align='justify',colspan=2)
-                    fb.button('Button',action="alert('Hello!')",tooltip='click me!')
-                    fb.div("""Create an alert message through "action" attribute.
-                              There is a tooltip, too.""",
-                            font_size='.9em',text_align='justify')
-                    fb.button('Format your system', action='confirm("Sure?")')
-                    fb.div('Create a confirm message through "action" attribute.',
-                            font_size='.9em',text_align='justify')
-                    fb.button('Calculate Res', action="SET .res = screen.width+' x '+screen.height;")
-                    fb.textbox(lbl='res',value='^.res',width='6em')
-                    
+        # -*- coding: UTF-8 -*-
+        """Buttons"""
+
+        class GnrCustomWebPage(object):
+            py_requires="gnrcomponents/testhandler:TestHandlerFull"
+
+            def test_1_action(self,pane):
+                """Action attribute"""
+                fb = pane.formbuilder(cols=3)
+                fb.div('The action attribute allow to write javascript code', colspan=3)
+                fb.button('alert', action="alert('Hello!')", tooltip='click me!', colspan=2)
+                fb.div('Create an alert message through "action" attribute. There is a tooltip, too',
+                        font_size='.9em', text_align='justify')
+                fb.button('confirm', action='confirm("Sure?")', colspan=2)
+                fb.div('Create a confirm message through \"action\" attribute', font_size='.9em', text_align='justify')
+                fb.button('Show screen resolution', showLabel=False,
+                           action="SET .res = screen.width+' x '+screen.height;", iconClass='iconbox spanner')
+                fb.textbox(value='^.res', width='6em')
+                fb.div('Evaluate your screen resolution', font_size='.9em', text_align='justify')
+                
 **Footnotes**:
 
 .. [#] For more information of the usage of javascript in Genro please check the :ref:`javascript` section.

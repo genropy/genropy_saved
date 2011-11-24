@@ -89,7 +89,7 @@ class MailHandler(GnrBaseService):
         :param password: the username's password
         :param port: if a non standard port is used then it can be overridden
         :param ssl: boolean. If ``True``, attempt to use the ssl port. Else standard smtp port is used.
-        :param default: boolean. add???"""
+        :param default: boolean. TODO"""
         self.smtp_accounts[name] = dict(from_address=from_address,
                                         smtp_host=smtp_host, username=username,
                                         password=password, port=port, ssl=ssl)
@@ -178,7 +178,7 @@ class MailHandler(GnrBaseService):
         
         :param from_address: the email sender
         :param to_address: the email receiver
-        :param multiple_mode: add???"""
+        :param multiple_mode: TODO"""
         cc = bcc = None
         if isinstance(to_address, basestring):
             to_address = [address.strip() for address in to_address.replace(';', ',').split(',') if address]
@@ -202,7 +202,7 @@ class MailHandler(GnrBaseService):
         :param body: the email body. If you pass ``html=True`` attribute,
                      then you can pass in the body the html tags
         :param attachments: path of the attachment to be sent with the email
-        :param html: add???
+        :param html: TODO
         :param charset: a different charser may be defined by its standard name"""
         charset = charset or 'us-ascii' # us-ascii is the email default, gnr default is utf-8.
                                         # This is used to prevent explicit "charset = None" to be passed
@@ -246,7 +246,7 @@ class MailHandler(GnrBaseService):
                           ssl=False, tls=False, html=False, charset='utf-8', async=False, **kwargs):
         """Add???
         
-        :param datasource: add???
+        :param datasource: TODO
         :param to_address: the email receiver
         :param cc_address: can be a comma deliminated str of email addresses or a list or tuple
         :param bcc_address: can be a comma deliminated str of email addresses or a list or tuple
@@ -360,7 +360,7 @@ class MailHandler(GnrBaseService):
                       from_address=None, smtp_host=None, port=None, user=None, password=None,
                       ssl=False, tls=False, html=False, multiple_mode=False, progress_cb=None, charset='utf-8',
                       async=False):
-        """add???
+        """TODO
         
         :param to_address: the email receiver
         :param subject: the email subject

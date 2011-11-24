@@ -6,7 +6,7 @@ html template
 
     *Last page update*: |today|
     
-    add???
+    TODO
     
     --> you can use it through the :ref:`templates webpage variable <baseresourceprint_templates>`
     of the :ref:`print_settings` or through the :ref:`templates webpage variable <bagtohtml_templates>`

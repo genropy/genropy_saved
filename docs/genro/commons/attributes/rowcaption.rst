@@ -13,6 +13,7 @@ rowcaption
               * :ref:`field`
               
     * :ref:`rowcaption_def`
+    * :ref:`rowcaption_syntax`
     * :ref:`rowcaption_examples`:
     
         * :ref:`rowcaption_table`
@@ -26,7 +27,7 @@ description
     The *rowcaption* attribute is the textual representation of a record in a user query
     
     .. warning:: if you don't specify the *rowcaption* attribute, user will see the
-                 :ref:`nodeid` of the object, so remember always to specify it
+                 :ref:`nodeid` of the record choosen, so remember to specify it!
                  
     It can be defined in two places:
     
@@ -34,23 +35,21 @@ description
     * in a query field (in a :ref:`field`, in a :ref:`dbselect` or in a :ref:`dbcombobox`)
       placed into a :ref:`webpage`: check the :ref:`rowcaption_webpage` example
       
-.. _rowcaption_examples:
+    If you define it in a table, then its value becomes the default of all the widgets
+    that refers themselves to that table. You can obviously redefine the "rowcaption" inside
+    a widget: in that case the value redefined prevails on the value defined in the table
     
-examples
-========
+.. _rowcaption_syntax:
+
+syntax
+======
+
+    ::
     
-.. _rowcaption_table:
-
-rowcaption - database table
----------------------------
-
-    Let's see an example::
-
-        class Table(object):
-            def config_db(self, pkg):
-                tbl = pkg.table('person',pkey='id',rowcaption='$name',
-                                 name_long='!!people',name_plural='!!People')
-                                 
+        rowcaption='$COLUMNNAME'
+        
+    Where COLUMNNAME is the name of the column you want that will be visualized
+    
     The syntax is ``$`` followed by the name of a column, like::
     
         rowcaption='$name'
@@ -71,6 +70,23 @@ rowcaption - database table
                                                
     Obviously, you can also use the "@" syntax (check in :ref:`table` page for further details).
     
+.. _rowcaption_examples:
+    
+examples
+========
+    
+.. _rowcaption_table:
+
+rowcaption - database table
+---------------------------
+
+    Let's see an example::
+
+        class Table(object):
+            def config_db(self, pkg):
+                tbl = pkg.table('person',pkey='id',rowcaption='$name',
+                                 name_long='!!people',name_plural='!!People')
+                                 
 .. _rowcaption_webpage:
 
 rowcaption - query field

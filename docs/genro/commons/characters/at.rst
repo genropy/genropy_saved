@@ -33,7 +33,7 @@ list objects
     * div (html)
     * :ref:`field`
     * :ref:`fieldcell`
-    * add??? Other widgets, objects...
+    * TODO Other widgets, objects...
     
 .. _at_examples:
 
@@ -42,5 +42,5 @@ examples
 
     **example**::
     
-    add???
+    TODO
     
