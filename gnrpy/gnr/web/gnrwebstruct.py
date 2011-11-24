@@ -1950,7 +1950,7 @@ class GnrGridStruct(GnrStructData):
                   classes=classes, calculated=calculated, format_onclick="""
                                                                     var threestate =('%(threestate)s' == 'True');
                                                                     var rowpath = '#'+this.widget.absIndex(kw.rowIndex);
-                                                                    var sep = this.widget.gridEditor? '.':'?';
+                                                                    var sep = this.widget.datamode=='bag'? '.':'?';
                                                                     var valuepath=rowpath+sep+'%(field)s';
                                                                     var storebag = this.widget.storebag();
                                                                     var blocked = this.form? this.form.isDisabled() : !this.widget.editorEnabled;

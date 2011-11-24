@@ -3985,18 +3985,54 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         return columns;
     },
     mixin_onCheckedColumn:function(idx,fieldname) {
+        var kw = this.sourceNode.attr.addCheckBoxColumn;
+        if(kw===true){
+            kw = {};
+        }
         var fieldname = fieldname || '_checked';
-        var rowpath = '#' + idx;
+        var rowIndex = this.absIndex(idx);
+        var rowpath = '#' + rowIndex;
+        var datamodeBag = this.datamode=='bag';
+        var sep = datamodeBag? '.':'?';
+        var valuepath = rowpath+sep+fieldname;
         var storebag = this.storebag();
         var currNode = storebag.getNode(rowpath);
+        var checked = storebag.getItem(valuepath);
+        var checkedIdList= [];
         if (currNode.attr.disabled) {
             return;
         }
-        var newval = !currNode.attr[fieldname];
-        var kwset = {};
-        kwset[fieldname] = newval;
-        currNode.setAttr(kwset, true, true);
         var gridId = this.sourceNode.attr.nodeId;
+        var newval = !checked;
+        if(kw.radioButton){
+            if(checked){
+                return;
+            }
+            var currpath;
+            for (var i=0; i<storebag.len(); i++){
+                currpath = '#'+i+sep+fieldname;
+                if(i==rowIndex){
+                    storebag.setItem(currpath,true);
+                }else{
+                    storebag.setItem(currpath,false);
+                }
+            }
+            checkedIdList.push(this.rowIdByIndex(rowIndex));
+        }else{
+            storebag.setItem(valuepath, !checked);
+            var that = this;
+            var identifier = this.rowIdentifier();
+            var row;
+            storebag.forEach(function(n){
+                row = that.rowFromBagNode(n);
+                if(row[fieldname]){
+                    checkedIdList.push( that.rowIdentity(row))
+                }
+            },'static');
+        }
+        if(kw.checkedId){
+            this.sourceNode.setRelativeData(kw.checkedId,checkedIdList.join(','),null,null,this.sourceNode);
+        }
         if (gridId) {
             genro.publish(gridId + '_row_checked', currNode.label, newval, currNode.attr);
         }
@@ -4010,18 +4046,49 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         var structbag = sourceNode.getRelativeData(sourceNode.attr.structpath);
         var celldata = {};
         var fieldname =  kw.field || '_checked';
+        var radioButton = kw.radioButton || false;
         celldata['field'] = fieldname;
         celldata['name'] = kw.name || ' ';
         celldata['dtype'] = 'B';
         celldata['width'] = '20px';
-         
-        celldata['format_trueclass'] = 'checkboxOn'; //kw.format_trueclass || 
+        celldata['radioButton'] = radioButton;
+        celldata['format_trueclass'] = radioButton?'checkboxOn':'checkboxOn'; //mettere classi radio
         celldata['classes'] = kw.classes || 'row_checker';
-        celldata['format_falseclass'] = 'checkboxOff'; //kw.format_falseclass || 
+        celldata['format_falseclass'] = radioButton?'checkboxOff':'checkboxOff'; //mettere classi radio
         celldata['calculated'] = true;
-        celldata['format_onclick'] = 'this.widget.onCheckedColumn(kw.rowIndex,kw.fieldname);';
-        structbag.setItem('view_0.rows_0.cell_checked', null, celldata, {_position:position});
+        if(kw.checkedId){
+            sourceNode.attr.checkedId = kw.checkedId;
+            sourceNode.registerDynAttr('checkedId');
+        }
+        celldata['format_onclick'] = "this.widget.onCheckedColumn(kw.rowIndex,kw.fieldname,kw)";
+        structbag.setItem('view_0.rows_0.cell_checked', null, celldata, {_position:position});       
     },
+    mixin_setCheckedId:function(path,kw){
+        var cbkw = this.sourceNode.attr.addCheckBoxColumn;
+        if (cbkw==true){
+            cbkw = {};
+        }
+        var value = this.sourceNode.getRelativeData(path);
+        var pkeys= value?value.split(','):[];
+        var datamodeBag = this.datamode=='bag';
+        var fieldname = kw.field || '_checked';
+        var grid = this;
+        var v;
+        this.storebag().forEach(function(n){
+            var row = grid.rowFromBagNode(n);
+            var pkey = grid.rowIdentity(row);
+            v = dojo.indexOf(pkeys,pkey)>=0? true:false;
+            if(datamodeBag){
+                n.getValue('static').setItem(fieldname,v);
+            }else{
+                var newattr = {};
+                newattr[fieldname] = v;
+                n.updAttributes(newattr);
+            }
+        },'static');
+        
+    },
+    
     created: function(widget, savedAttrs, sourceNode) {
         this.created_common(widget, savedAttrs, sourceNode);
         var selectionId = sourceNode.attr['selectionId'] || sourceNode.attr.nodeId + '_store';
