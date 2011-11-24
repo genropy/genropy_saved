@@ -165,9 +165,9 @@ def parselocal(txt, cls, locale=None):
     f = TYPES_LOCALPARSERS_DICT.get(cls)
     if f:
         if locale:
-            locale = Locale(locale) #NISO: there is no method called Locale in genro!
+            locale = Locale(locale)
         else:
-            locale = Locale() #NISO: there is no method called Locale in genro!
+            locale = Locale()
         return f(txt, locale)
         
 def getMonthNames(locale=None):

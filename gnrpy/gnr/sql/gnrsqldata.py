@@ -735,11 +735,11 @@ class SqlQuery(object):
     """The SqlQuery class represents the way in which data can be extracted from a db.
     You can get data with these SqlQuery methods:
     
-    * the :meth:`count()` method
-    * the :meth:`cursor()` method
-    * the :meth:`fetch()` method
-    * the :meth:`selection()` method (return a :class:`SqlSelection` class)
-    * the :meth:`servercursor()` method
+    * the :meth:`~gnr.sql.gnrsqldata.SqlQuery.count` method
+    * the :meth:`~gnr.sql.gnrsqldata.SqlQuery.cursor` method
+    * the :meth:`~gnr.sql.gnrsqldata.SqlQuery.fetch` method
+    * the :meth:`~gnr.sql.gnrsqldata.SqlQuery.selection` method (return a :class:`~gnr.sql.gnrsqldata.SqlSelection` class)
+    * the :meth:`~gnr.sql.gnrsqldata.SqlQuery.servercursor` method
     
     The ``__init__`` method passes:
     
@@ -872,8 +872,9 @@ class SqlQuery(object):
         return result
         
     def fetchAsDict(self, key=None, ordered=False):
-        """Return the :meth:`fetch()` as a dict that has as a key the parameter key you gave (or the pkey if you
-        don't specify any key) and as value the record you get from the query.
+        """Return the :meth:`~gnr.sql.gnrsqldata.SqlQuery.fetch` method as a dict with as key
+        the parameter key you gave (or the pkey if you don't specify any key) and as value the
+        record you get from the query
         
         :param key: the key you give (if ``None``, it takes the pkey). 
         :param ordered: boolean. if ``True``, return the fetch using a :class:`GnrDict <gnr.core.gnrdict.GnrDict>`,
@@ -887,7 +888,7 @@ class SqlQuery(object):
         return factory([(r[key], r) for r in fetch])
         
     def fetchAsBag(self, key=None):
-        """Return the :meth:`fetch()` as a Bag of the given key
+        """Return the :meth:`~gnr.sql.gnrsqldata.SqlQuery.fetch` method as a Bag of the given key
         
         :param key: the key you give (if ``None``, it takes the pkey). """
         fetch = self.fetch()
@@ -895,7 +896,7 @@ class SqlQuery(object):
         return Bag(sorted([(r[key], None, dict(r)) for r in fetch]))
         
     def fetchGrouped(self, key=None, asBag=False):
-        """Return the :meth:`fetch()` as a dict of the given key
+        """Return the :meth:`~gnr.sql.gnrsqldata.SqlQuery.fetch` method as a dict of the given key
         
         :param key: the key you give (if ``None``, it takes the pkey). 
         :param asBag: boolean. If ``True``, return the result as a Bag. If False, return the
@@ -914,7 +915,7 @@ class SqlQuery(object):
                 result[k].append(r)
         return result
         
-    def test(self): #NISO: useless?
+    def test(self):
         return (self.sqltext, self.sqlparams)
         
     def _dofetch(self, pyWhere=None):
