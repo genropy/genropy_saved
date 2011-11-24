@@ -103,10 +103,10 @@ CSS attributes
     * *row_* + *CSS attribute*: set a CSS expression to every row.
       
     * *tdf_* + *CSS attribute*: set a CSS expression to every <td></td> tag associated
-      to a formuilder's field.
+      to a formbuilder's field.
       
     * *tdl_* + *CSS attribute*: set a CSS expression to every <td></td> tag associated
-      to a formuilder's label.
+      to a formbuilder's label.
       
 .. _label_and_lbl:
 
