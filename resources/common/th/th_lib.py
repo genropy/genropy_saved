@@ -11,8 +11,6 @@ from gnr.core.gnrclasses import GnrMixinError
 class TableHandlerCommon(BaseComponent):
     
     def onLoadingRelatedMethod(self,table,sqlContextName=None):
-        if table=='automag.prodotto':
-            print x
         return 'onLoading_%s' % table.replace('.', '_')
     
     def _th_mangler(self,pane,table,nodeId=None):
