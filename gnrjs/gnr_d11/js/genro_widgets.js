@@ -3701,7 +3701,11 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             }
             ;
         }
-        return storebag.index(rowLabel);
+        var idx = storebag.index(rowLabel);
+        if(grid._filtered){
+            idx = dojo.indexOf(grid._filtered,idx);
+        }
+        return idx;        
     },
     mixin_editBagRow: function(r, delay) {
         var r = r || this.selection.selectedIndex;
@@ -4012,12 +4016,12 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             for (var i=0; i<storebag.len(); i++){
                 currpath = '#'+i+sep+fieldname;
                 if(i==rowIndex){
-                    storebag.setItem(currpath,true);
+                    storebag.setItem(currpath,true,null,{lazySet:true});
                 }else{
-                    storebag.setItem(currpath,false);
+                    storebag.setItem(currpath,false,null,{lazySet:true});
                 }
             }
-            checkedIdList.push(this.rowIdByIndex(rowIndex));
+            checkedIdList.push(this.rowIdByIndex(idx));
         }else{
             storebag.setItem(valuepath, !checked);
             var that = this;
@@ -4031,7 +4035,11 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             },'static');
         }
         if(kw.checkedId){
-            this.sourceNode.setRelativeData(kw.checkedId,checkedIdList.join(','),null,null,this.sourceNode);
+            var sourceNode = this.sourceNode;
+            setTimeout(function(){
+                sourceNode.setRelativeData(kw.checkedId,checkedIdList.join(','),null,null,sourceNode);
+            },1)
+            
         }
         if (gridId) {
             genro.publish(gridId + '_row_checked', currNode.label, newval, currNode.attr);
