@@ -1362,6 +1362,7 @@ dojo.declare("gnr.formstores.Base", null, {
             objectUpdate(kw.default_kwargs,form.sourceNode.evaluateOnNode(default_kw));
         }
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
+        kw.sqlContextName = ('sqlContextName' in kw)?kw.sqlContextName:form.formId;
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':form.getVirtualColumns(),
                                                   'table':this.table, timeout:0},kw),null,'POST',null,function(){});

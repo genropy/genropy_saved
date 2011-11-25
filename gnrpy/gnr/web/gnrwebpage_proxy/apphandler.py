@@ -1012,8 +1012,9 @@ class GnrWebAppHandler(GnrBaseProxy):
                 #       (or maybe execute both if they exist)
             else:
                 #self.page.gnotify('getRecord', dbtable, True)
-                method = 'onLoading_%s' % dbtable.replace('.', '_')
+                method = self.page.onLoadingRelatedMethod(dbtable,sqlContextName=sqlContextName)
             handler = getattr(self.page, method, None)
+            
 
         if handler:
             if default_kwargs and newrecord:
