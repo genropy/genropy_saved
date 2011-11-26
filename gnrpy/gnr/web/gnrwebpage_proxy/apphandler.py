@@ -621,7 +621,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                          recordResolver=True, selectionName='', structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
-                         sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,savedQuery=None,savedView=None, externalChanges=None,**kwargs):
+                         sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,
+                         savedQuery=None,savedView=None, externalChanges=None,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method

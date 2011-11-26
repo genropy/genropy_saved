@@ -84,6 +84,10 @@ gnr.columnsFromStruct = function(struct, columns) {
         }
         var fld = node.attr.field;
         if (fld) {
+            if(node.attr['_storename']){
+                //_extname considerare
+                arrayPushNoDup(columns,node.attr['_storename'])
+            }
             if ((!stringStartsWith(fld, '$')) && (!stringStartsWith(fld, '@'))) {
                 fld = '$' + fld;
             }

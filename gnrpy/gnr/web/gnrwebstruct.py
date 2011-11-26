@@ -1449,7 +1449,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         relcol = fieldobj.relatedColumn()
         if not relcol is None:
             lnktblobj = relcol.table
-            onerelfld = fieldobj.relatedColumnJoiner()['one_relation'].split('.')[2]
+            joiner = fieldobj.relatedColumnJoiner()
+            onerelfld = joiner['one_relation'].split('.')[2]
             if dtype in ('A', 'C'):
                 size = lnktblobj.attributes.get('size', '20')
                 if ':' in size:
@@ -1478,6 +1479,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['lbl'] = fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
+            if 'storefield' in joiner:
+                result['_storename'] = '=.%(storefield)s' %joiner
             #result['columns']=lnktblobj.rowcaption
             result['_class'] = 'linkerselect'
             result['searchDelay'] = 300
@@ -1997,6 +2000,12 @@ class GnrGridStruct(GnrStructData):
         name = name or fldobj.name_long
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
+        relfldlst = tableobj.fullRelationPath(field).split('.')
+        if len(relfldlst) > 1:
+            joiner = tableobj.column(relfldlst[0][1:]).relatedColumnJoiner()
+            if 'storefield' in joiner:
+                kwargs['_storename'] = joiner['storefield']
+                kwargs['_extname'] = '.'.join(relfldlst[1:])
         if zoom:
             zoomtbl = fldobj.table
             relfldlst = tableobj.fullRelationPath(field).split('.')
@@ -2011,7 +2020,6 @@ class GnrGridStruct(GnrStructData):
             elif fldobj.relatedTable():
                 zoomtbl = fldobj.relatedTable()
                 kwargs['zoomPkey'] = field
-                
             if hasattr(zoomtbl.dbtable, 'zoomUrl'):
                 zoomPage = zoomtbl.dbtable.zoomUrl()
             else:
