@@ -2002,10 +2002,16 @@ class GnrGridStruct(GnrStructData):
         width = width or '%iem' % fldobj.print_width
         relfldlst = tableobj.fullRelationPath(field).split('.')
         if len(relfldlst) > 1:
-            joiner = tableobj.column(relfldlst[0][1:]).relatedColumnJoiner()
+            fkey = relfldlst[0][1:]
+            joiner = tableobj.column(fkey).relatedColumnJoiner()
             if 'storefield' in joiner:
+                ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
                 kwargs['_storename'] = joiner['storefield']
-                kwargs['_extname'] = '.'.join(relfldlst[1:])
+                kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,ext_table.replace('.','_'))
+                ext_fldname = '.'.join(relfldlst[1:])
+                if not ext_fldname.startswith('@'):
+                    ext_fldname = '$%s' %ext_fldname
+                kwargs['_external_name'] = '%s:%s AS %s' %(ext_table,ext_fldname,field.replace('.','_').replace('@','_'))
         if zoom:
             zoomtbl = fldobj.table
             relfldlst = tableobj.fullRelationPath(field).split('.')

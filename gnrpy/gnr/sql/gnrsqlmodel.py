@@ -881,8 +881,12 @@ class DbTableObj(DbModelObj):
             if 'table_aliases' in self and rel in self['table_aliases']:
                 relpath = self['table_aliases.%s' % rel].relation_path
                 rel, pathlist = ('%s.%s' % (relpath, pathlist)).split('.', 1)
-                    
-            reltbl = self.column(rel[1:]).relatedTable()
+            colobj = self.column(rel[1:])
+            if colobj is not None:
+                reltbl = colobj.relatedTable()
+            else:
+                reltbl = '.'.join(self.relations.getNode(rel).attr['joiner']['many_relation'].split('.')[0:2])
+                reltbl = self.db.table(reltbl)
             return '%s.%s' % (rel, reltbl.fullRelationPath(pathlist))
         else:
             return name

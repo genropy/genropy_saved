@@ -666,6 +666,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param savedQuery: TODO
         :param savedView: TODO
         :param externalChanges: TODO"""
+        
+
         t = time.time()
         tblobj = self.db.table(table)
         row_start = int(row_start)
@@ -700,7 +702,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 selecthandler = self.page.getPublicMethod('rpc', selectmethod)
             else:
                 selecthandler = self._default_getSelection
-            columns = self._getSelection_columns(tblobj, columns, expressions=expressions)
+            columns,external_queries = self._getSelection_columns(tblobj, columns, expressions=expressions)
             if fromSelection:
                 fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
                 pkeys = fromSelection.output('pkeylist')
@@ -710,6 +712,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                                       relationDict=relationDict, sqlparams=sqlparams,
                                       recordResolver=recordResolver, selectionName=selectionName, 
                                       pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft, **kwargs)
+            if external_queries:
+                self._externalQueries(selection=selection,external_queries=external_queries)
             if applymethod:
                 applyPars = self._getApplyMethodPars(kwargs)
                 self.page.getPublicMethod('rpc', applymethod)(selection, **applyPars)
@@ -750,16 +754,21 @@ class GnrWebAppHandler(GnrBaseProxy):
 
 
     def _getSelection_columns(self, tblobj, columns, expressions=None):
+        external_queries = {}
         if isinstance(columns, Bag):
             columns = self._columnsFromStruct(columns)
         if not columns:
             columns = tblobj.attributes.get('baseview') or '*'
-        if '[' in columns:
-            columns = columns.replace(' ', '').replace('\n', '').replace('\t', '')
+        if '[' in columns or ':' in columns:
+            columns = columns.replace('\n', '').replace('\t', '')
             maintable = []
             colaux = columns.split(',')
             columns = []
             for col in colaux:
+                if ':' in col:
+                    external_table,external_field = col.split(':')
+                    external_queries.setdefault(external_table,[]).append(external_field)
+                    continue
                 if '[' in col:
                     tbl, col = col.split('[')
                     maintable = [tbl]
@@ -773,9 +782,25 @@ class GnrWebAppHandler(GnrBaseProxy):
             expr_dict = getattr(self.page, 'expr_%s' % expressions)()
             expr_dict = dict([(k, '%s AS %s' % (v, k)) for k, v in expr_dict.items()])
             columns = templateReplace(columns, expr_dict, safeMode=True)
-        return columns
-
-
+        return columns,external_queries
+    
+    def _externalQueries(self,selection=None,external_queries=None):
+        storedict = dict()
+        for r in selection.data:
+            storedict.setdefault(r['_external_store'],[]).append(r)
+        for store,subsel in storedict.items():
+            with self.db.tempEnv(storename=store):
+                for k,v in external_queries.items():
+                    tblobj = self.db.table(k)
+                    extfkeyname = '%s_fkey' %k.replace('.','_')
+                    fkeys = [r[extfkeyname] for r in selection.data]
+                    columns = ','.join(v+['%s AS %s' %(tblobj.pkey,extfkeyname)])
+                    resdict = tblobj.query(columns=columns,where='$%s IN :fkeys' %tblobj.pkey,fkeys=fkeys).fetchAsDict(key=extfkeyname)
+                    for r in subsel:
+                        if r[extfkeyname] in resdict:
+                            r.update(resdict[r[extfkeyname]])
+                    
+    
     def _default_getSelection(self, tblobj=None, table=None, distinct=None, columns=None, where=None, condition=None,
                               order_by=None, limit=None, offset=None, group_by=None, having=None,
                               relationDict=None, sqlparams=None,recordResolver=None, selectionName=None,
@@ -1103,7 +1128,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                               there is no result for the condition then the condition will not
                               be used. The *selectmethod* attribute can be used to override this
                               attribute"""
-        self.db.use_store(_storename)
+        if _storename:
+            self.db.use_store(_storename)
         resultClass = ''
         if selectmethod or not condition:
             weakCondition = False

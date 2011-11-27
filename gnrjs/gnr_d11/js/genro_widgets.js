@@ -86,7 +86,9 @@ gnr.columnsFromStruct = function(struct, columns) {
         if (fld) {
             if(node.attr['_storename']){
                 //_extname considerare
-                arrayPushNoDup(columns,node.attr['_storename'])
+                arrayPushNoDup(columns,node.attr['_external_name']);
+                arrayPushNoDup(columns,node.attr['_external_fkey']);
+                arrayPushNoDup(columns,node.attr['_storename']+' AS _external_store');
             }
             if ((!stringStartsWith(fld, '$')) && (!stringStartsWith(fld, '@'))) {
                 fld = '$' + fld;
