@@ -1619,7 +1619,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         dojo.forEach(linkedGrids,function(grid){
             grid.batchUpdating(true);
             selectedIndex = grid.selection.selectedIndex;
-            if(selectedIndex!=null){
+            if(selectedIndex!=null&&selectedIndex>=0){
                 selectedPkey = grid.rowIdByIndex(selectedIndex);
                 selectedPkeysDict[selectedPkey] = selectedPkeysDict[selectedPkey] || [];
                 selectedPkeysDict[selectedPkey].push(grid);
