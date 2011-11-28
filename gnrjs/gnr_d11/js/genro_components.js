@@ -1849,7 +1849,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
 
     getDataChunk:function(pageIdx){
-
+        console.log('getDataChunk',pageIdx)
         if (pageIdx in this.pendingPages){
             return;
         }else{
@@ -1894,6 +1894,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
 
     loadBagPageFromServer:function(pageIdx,sync) {
+        console.log('loadBagPageFromServer components',pageIdx,sync)
         var that = this;
         var row_start = pageIdx * this.chunkSize;
         var kw = this.getData().getParentNode().attr;

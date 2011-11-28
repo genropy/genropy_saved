@@ -525,7 +525,9 @@ class TableHandlerMain(BaseComponent):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')
             if widget=='stack' or widget=='dialog':
-                th.dataController("""var title = (selectedPage=='view'?viewtitle:formtitle)||currTitle;
+                th.dataController("""
+                                     console.log(selectedPage,viewtitle,formtitle);
+                                     var title = (selectedPage=='view'?viewtitle:formtitle)||currTitle;
                                      genro.setData("gnr.windowTitle",title,{selectionName:selectionName,table:table,objtype:'record'});
                             """,
                             formtitle='^.form.controller.title',viewtitle='^.view.title',

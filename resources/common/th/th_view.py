@@ -266,7 +266,7 @@ class TableHandlerView(BaseComponent):
             querybase = self._th_hook('query',mangler=th_root)() or dict()
         queryBag = self._prepareQueryBag(querybase,table=table)
         frame.data('.baseQuery', queryBag)
-        frame.dataFormula('.title','view_title || name_plural',name_plural='=.table?name_plural',view_title='=.title',_init=True)
+        frame.dataFormula('.title','view_title || name_plural || name_long',name_plural='=.table?name_plural',name_long='=.table?name_long',view_title='=.title',_init=True)
         condPars = {}
         if isinstance(condition,dict):
             condPars = condition
