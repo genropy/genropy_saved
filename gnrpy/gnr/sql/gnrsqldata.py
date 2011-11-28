@@ -29,6 +29,7 @@ import hashlib
 from xml.sax import saxutils
 from gnr.core.gnrdict import GnrDict
 from gnr.core.gnrlang import deprecated, uniquify
+import tempfile
 from gnr.core.gnrdate import decodeDatePeriod
 from gnr.core.gnrlist import GnrNamedList
 from gnr.core import gnrclasses
@@ -1212,11 +1213,15 @@ class SqlSelection(object):
         self.dbtable, self._data, self._filtered_data = saved
         
     def _freeze_data(self, readwrite):
-        f = file('%s_data.pik' % self.freezepath, readwrite)
+        pik_path = '%s_data.pik' % self.freezepath
         if readwrite == 'w':
-            cPickle.dump(self._data, f)
+            dumpfile_handle, dumpfile_path = tempfile.mkstemp(prefix='gnrselection',suffix='.pik')
+            with os.fdopen(dumpfile_handle, "w") as f:
+                cPickle.dump(self._data, f)
+            os.rename(dumpfile_path, pik_path)
         else:
-            self._data = cPickle.load(f)
+            with open(pik_path) as f:
+                self._data = cPickle.load(f)
         f.close()
         
     def _freeze_filtered(self, readwrite):
