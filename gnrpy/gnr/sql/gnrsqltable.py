@@ -992,7 +992,9 @@ class SqlTable(GnrObject):
     def rowcaptionDecode(self, rowcaption=None):
         """TODO
         
-        :param rowcaption: TODO"""
+        :param rowcaption: the textual representation of a record in a user query.
+                           For more information, check the :ref:`rowcaption` section
+        """
         rowcaption = rowcaption or self.rowcaption
         if not rowcaption:
             return [], ''
@@ -1012,7 +1014,9 @@ class SqlTable(GnrObject):
         
         :param record: TODO
         :param newrecord: boolean. TODO
-        :param rowcaption: TODO"""
+        :param rowcaption: the textual representation of a record in a user query.
+                           For more information, check the :ref:`rowcaption` section
+        """
         if newrecord:
             return self.name_long
         else:

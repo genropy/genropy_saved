@@ -292,7 +292,7 @@ js_requires
     .. note:: The js files you want to use must be placed into your "``resources``" folder
               
               * For more information about Genro js and their location in Genro, please check
-                the :ref:`intro_resources` page.
+                the :ref:`intro_resources` page
                 
     .. _webpages_pageOptions:
 

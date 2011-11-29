@@ -216,7 +216,8 @@ class GnrBaseWebPage(GnrObject):
     def unfreezeSelection(self, dbtable=None, name=None, page_id=None):
         """TODO
         
-        :param dbtable: the :ref:`database table <table>`
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
         :param name: TODO
         :param page_id: TODO"""
         assert name, 'name is mandatory'
@@ -458,14 +459,17 @@ class GnrBaseWebPage(GnrObject):
     
     @public_method
     def saveRecordCluster(self, data, table=None, _nocommit=False, rowcaption=None, _autoreload=False,
-                        onSavingHandler=None,onSavedHandler=None,**kwargs):
+                          onSavingHandler=None, onSavedHandler=None,**kwargs):
         """TODO
         
         :param data: TODO
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param rowcaption: TODO
+        :param rowcaption: the textual representation of a record in a user query.
+                           For more information, check the :ref:`rowcaption` section
+        :param onSavingHandler: TODO
+        :param onSavedHandler: TODO
         """
         #resultAttr = None #todo define what we put into resultAttr
         resultAttr = {}
