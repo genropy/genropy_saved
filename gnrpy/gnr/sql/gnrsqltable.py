@@ -693,6 +693,12 @@ class SqlTable(GnrObject):
                     elif onDelete in ('c', 'cascade'):
                         for row in sel:
                             relatedTable.delete(relatedTable.record(row['pkey'], mode='bag'))
+                    elif onDelete in ('n','setnull'):
+                        for row in sel:
+                            rel_rec = dict(row)
+                            rel_rec.pop('pkey',None)
+                            rel_rec[mfld] = None
+                            relatedTable.update(rel_rec)
                             
     def update(self, record, old_record=None, pkey=None,**kwargs):
         """Update a single record

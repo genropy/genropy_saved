@@ -439,6 +439,9 @@ class GnrWebPage(GnrBaseWebPage):
         :param resultAttr: TODO"""
         pass
         
+    def onLoadingRelatedMethod(self,table,sqlContextName=None):
+        return 'onLoading_%s' % table.replace('.', '_')
+    
     def onDeleting(self, recordCluster, recordClusterAttr):
         """TODO
         

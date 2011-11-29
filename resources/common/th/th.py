@@ -27,10 +27,6 @@ class TableHandler(BaseComponent):
     css_requires= 'th/th'
     py_requires='th/th_view:TableHandlerView,th/th_form:TableHandlerForm,th/th_lib:TableHandlerCommon,th/th:ThLinker'
     
-    def _th_mangler(self,pane,table,nodeId=None):
-        tableCode = table.replace('.','_')
-        th_root = nodeId or tableCode #'%s_%i' %(tableCode,id(pane.parentNode))
-        return th_root
     
     @extract_kwargs(condition=True,grid=True)
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,

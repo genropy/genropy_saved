@@ -55,7 +55,8 @@ class TableHandlerForm(BaseComponent):
             formroot = formroot or pane
         form = formroot.frameForm(frameCode=formId,formId=formId,table=table,
                              store_startKey=startKey,
-                             datapath='.form',store='recordCluster',store_kwargs=store_kwargs,**kwargs)
+                             datapath='.form',store='recordCluster',store_kwargs=store_kwargs,
+                             **kwargs)
         self._th_applyOnForm(form,options=resource_options,mangler=formId)
         formCb = formCb or self._th_hook('form',mangler=formId)
         form.store.handler('load',default_kwargs=default_kwargs)

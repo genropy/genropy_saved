@@ -1449,7 +1449,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         relcol = fieldobj.relatedColumn()
         if not relcol is None:
             lnktblobj = relcol.table
-            onerelfld = fieldobj.relatedColumnJoiner()['one_relation'].split('.')[2]
+            joiner = fieldobj.relatedColumnJoiner()
+            onerelfld = joiner['one_relation'].split('.')[2]
             if dtype in ('A', 'C'):
                 size = lnktblobj.attributes.get('size', '20')
                 if ':' in size:
@@ -1478,6 +1479,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['lbl'] = fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
+            if 'storefield' in joiner:
+                result['_storename'] = '=.%(storefield)s' %joiner
             #result['columns']=lnktblobj.rowcaption
             result['_class'] = 'linkerselect'
             result['searchDelay'] = 300
@@ -1950,7 +1953,7 @@ class GnrGridStruct(GnrStructData):
                   classes=classes, calculated=calculated, format_onclick="""
                                                                     var threestate =('%(threestate)s' == 'True');
                                                                     var rowpath = '#'+this.widget.absIndex(kw.rowIndex);
-                                                                    var sep = this.widget.gridEditor? '.':'?';
+                                                                    var sep = this.widget.datamode=='bag'? '.':'?';
                                                                     var valuepath=rowpath+sep+'%(field)s';
                                                                     var storebag = this.widget.storebag();
                                                                     var blocked = this.form? this.form.isDisabled() : !this.widget.editorEnabled;
@@ -1997,6 +2000,20 @@ class GnrGridStruct(GnrStructData):
         name = name or fldobj.name_long
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
+        relfldlst = tableobj.fullRelationPath(field).split('.')
+        if len(relfldlst) > 1:
+            fkey = relfldlst[0][1:]
+            fkeycol=tableobj.column(fkey)
+            if fkeycol :
+                joiner = fkeycol.relatedColumnJoiner()
+                if 'storefield' in joiner:
+                    ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
+                    kwargs['_storename'] = joiner['storefield']
+                    kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,ext_table.replace('.','_'))
+                    ext_fldname = '.'.join(relfldlst[1:])
+                    if not ext_fldname.startswith('@'):
+                        ext_fldname = '$%s' %ext_fldname
+                    kwargs['_external_name'] = '%s:%s AS %s' %(ext_table,ext_fldname,field.replace('.','_').replace('@','_'))
         if zoom:
             zoomtbl = fldobj.table
             relfldlst = tableobj.fullRelationPath(field).split('.')
@@ -2011,7 +2028,6 @@ class GnrGridStruct(GnrStructData):
             elif fldobj.relatedTable():
                 zoomtbl = fldobj.relatedTable()
                 kwargs['zoomPkey'] = field
-                
             if hasattr(zoomtbl.dbtable, 'zoomUrl'):
                 zoomPage = zoomtbl.dbtable.zoomUrl()
             else:

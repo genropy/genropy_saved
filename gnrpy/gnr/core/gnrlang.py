@@ -275,7 +275,7 @@ class GnrObject(object):
                 cls = getattr(m, cls)
             else:
                 raise GnrException('cannot import module: %s' % modulename)
-        instanceMixin(self, cls, **kwargs)
+        return instanceMixin(self, cls, **kwargs)
         
 class GnrImportedModule(object):
     """TODO"""
@@ -739,7 +739,7 @@ def base_visitor(cls):
 @extract_kwargs(mangling=True)       
 def instanceMixin(obj, source, methods=None, attributes=None, only_callables=True,
                   exclude='js_requires,css_requires,py_requires',
-                  prefix=None, mangling_kwargs=None,**kwargs):
+                  prefix=None, mangling_kwargs=None,_mixined=None,**kwargs):
     """Add to the instance obj methods from 'source'
     
     ``instanceMixin()`` method is decorated with the :meth:`extract_kwargs <gnr.core.gnrdecorator.extract_kwargs>` decorator
@@ -752,6 +752,8 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
     :param exclude: TODO
     :param prefix: TODO
     :param mangling_kwargs: TODO"""
+    if _mixined is None:
+        _mixined=[]
     if isinstance(methods, basestring):
         methods = methods.split(',')
     if isinstance(source, basestring):
@@ -768,14 +770,14 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
             classes = [clsname]
         for clsname in classes:
             source = getattr(m, clsname, None)
-            instanceMixin(obj, source, methods=methods, only_callables=only_callables, exclude=exclude, prefix=prefix,
-                          **kwargs)
-        return
+            instanceMixin(obj, source, methods=methods, only_callables=only_callables, exclude=exclude, 
+                         prefix=prefix,_mixined=_mixined, **kwargs)
+        return _mixined
     if source is None:
         return
         
     mlist = [k for k in dir(source) if
-             callable(getattr(source, k)) and not k in dir(type) + ['__weakref__', '__onmixin__']]
+             callable(getattr(source, k)) and not k in dir(type) + ['__weakref__', '__onmixin__','mixin']]
     instmethod = type(obj.__init__)
     if methods:
         mlist = filter(lambda item: item in FilterList(methods), mlist)
@@ -800,6 +802,7 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
             original = getattr(obj, name_as)
             setattr(obj, name_as + '_', original)
         setattr(obj, name_as, k)
+        _mixined.append(name_as)
     if not only_callables:
         exclude = (exclude or '').split(',')
         attributes = [k for k in dir(source) if
@@ -812,7 +815,8 @@ def instanceMixin(obj, source, methods=None, attributes=None, only_callables=Tru
                 setattr(obj, attribute, getattr(source, attribute))
     if hasattr(source, '__onmixin__'):
         source.__onmixin__.im_func(obj, _mixinsource=source, **kwargs)
-        
+    return _mixined
+    
 def safeStr(self, o):
     """Return a safe string
     
