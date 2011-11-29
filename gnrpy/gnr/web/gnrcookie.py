@@ -369,7 +369,7 @@ def add_cookie(res, cookie, value="", **kw):
         # make a cookie
         cookie = Cookie(cookie, value, **kw)
         
-    if not res.headers.has_key("Set-Cookie"):
+    if not "Set-Cookie" in res.headers:
         res.headers.add("Cache-Control", 'no-cache="set-cookie"')
         
     res.headers.add("Set-Cookie", str(cookie))
@@ -383,7 +383,7 @@ def get_cookies(req, Class=Cookie, **kw):
     :param Class: add???. Default value is ``Cookie``
     :returns: add???
     """
-    if not req.headers.has_key("cookie"):
+    if not "cookie" in req.headers:
         return {}
         
     cookies = req.headers["cookie"]
@@ -401,6 +401,6 @@ def get_cookie(req, name, Class=Cookie, **kw):
     :returns: add???
     """
     cookies = get_cookies(req, Class, names=[name], **kw)
-    if cookies.has_key(name):
+    if name in cookies:
         return cookies[name]
         
