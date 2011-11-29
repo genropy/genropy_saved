@@ -12,7 +12,7 @@ dbSelect and dbCombobox: commons attributes
 
 .. _db_attributes:
 
-Common attributes
+common attributes
 =================
 
     Here we show the attributes that belong both to :ref:`dbselect` than to :ref:`dbcombobox`:
@@ -61,7 +61,7 @@ Common attributes
     
 .. _db_examples:
 
-Examples
+examples
 ========
 
 .. _db_selected:
