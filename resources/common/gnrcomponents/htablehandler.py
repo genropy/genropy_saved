@@ -377,12 +377,12 @@ class HTableHandler(HTableHandlerBase):
                                  FIRE .edit.load;
                              }else{
                                 SET .edit.pkey = savedPkey;
-                                var parentPath = rootpath?parent_code.slice(rootpath.length):parent_code?'_root_.'+parent_code:'_root_'
-                                var refreshFromNode = treestore.getNode(parentPath);
-                                if(!refreshFromNode.getValue()){
-                                    refreshFromNode = refreshFromNode.getParentNode();
-                                }
-                                refreshFromNode.refresh(true);
+                                //var parentPath = rootpath?parent_code.slice(rootpath.length):parent_code?'_root_.'+parent_code:'_root_'
+                               //var refreshFromNode = treestore.getNode(parentPath);
+                               //if(!refreshFromNode.getValue()){
+                               //    refreshFromNode = refreshFromNode.getParentNode();
+                               //}
+                                //refreshFromNode.refresh(true);
                                 FIRE .edit.load;
                              }
                          """,
@@ -396,7 +396,10 @@ class HTableHandler(HTableHandlerBase):
                             }else{
                                 path = code?'_root_.'+code:'_root_';
                             }
-                            SET .tree.path=path;""", code="^.edit.record.code",
+                            
+                            SET .tree.path=path;
+                            
+                            """, code="^.edit.record.code",
                           rootpath='=.tree.store?rootpath', _if='code')
                           
         bc.dataRpc('.edit.del_result', 'deleteDbRow', pkey='=.edit.pkey',
@@ -559,7 +562,9 @@ class HTableHandler(HTableHandlerBase):
             connect_ondblclick = 'SET .selectedPage = "edit";'
         elif editMode == 'dlg':
             connect_ondblclick = 'FIRE #%s_dlg.open;' % nodeId
-        center.tree(storepath='.tree.store',
+        
+        dragCode = '%s_record' %table.replace('.','_')
+        tree = center.tree(storepath='.tree.store',
                     margin='10px', isTree=False, hideValues=True,
                     inspect='shift', labelAttribute='caption',
                     selected_pkey='.tree.pkey', selectedPath='.tree.path',
@@ -569,8 +574,47 @@ class HTableHandler(HTableHandlerBase):
                     selected_caption='.tree.caption',
                     selected_child_count='.tree.child_count',
                     connect_ondblclick=connect_ondblclick,
-                    onChecked=onChecked)
-                    
+                    onChecked=onChecked,dragTags=dragCode,
+                    dropTags=dragCode,
+                    dropTypes='nodeattr',
+                     draggable=True,
+                     onDrop="""var into_pkey = dropInfo.treeItem.attr.pkey;
+                                var pkey = data['nodeattr'].pkey;
+                                genro.serverCall("_table.%s.reorderCodes",{pkey:pkey,into_pkey:into_pkey},
+                                                 function(result){
+                                                    if(!result){
+                                                        genro.dlg.alert("Not allowed","Warning");
+                                                    }
+                                                 });""" %table,
+                     dropTargetCb="""var dragged_record = convertFromText(dropInfo.event.dataTransfer.getData("nodeattr"))
+                                    var ondrop_record = dropInfo.treeItem.attr;
+                                    if(dragged_record.parent_code==ondrop_record.code){
+                                        return  false;
+                                    }
+                                    if(dragged_record.pkey==ondrop_record.pkey){
+                                        return false;
+                                    }
+                                    return true;
+                                    
+                                    """)
+        center.onDbChanges(action="""
+                                    var refreshDict = {};
+                                    var n;
+                                    dojo.forEach(dbChanges,function(c){
+                                        refreshDict[c.parent_code] = true;
+                                        if(c.old_parent_code){
+                                            refreshDict[c.old_parent_code] = true;
+                                        }
+                                     });
+                                     for (var k in refreshDict){
+                                        n = store.getNodeByAttr('code',k);
+                                        if(n){
+                                            n.refresh(true)
+                                        }
+                                     }
+                                     """,table=table,store='=.tree.store')
+
+                                    
 class HTablePicker(HTableHandlerBase):
     py_requires = 'foundation/dialogs,foundation/includedview:IncludedView'
     

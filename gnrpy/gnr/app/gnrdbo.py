@@ -4,6 +4,7 @@
 import datetime
 from gnr.core.gnrbag import Bag
 from gnr.core.gnrstring import splitAndStrip
+from gnr.core.gnrdecorator import public_method
 
 class GnrDboPackage(object):
     """Base class for packages"""
@@ -258,6 +259,9 @@ class GnrHTable(TableBase):
                         validate_notnull_error='!!Required', base_view=True,
                         validate_regex='!\.', validate_regex_error='!!Invalid code: "." char is not allowed')"""
         columns = tbl['columns'] or []
+        broadcast = [] if 'broadcast' not in tbl.attributes else tbl.attributes['broadcast'].split(',')
+        broadcast.extend(['code','parent_code','child_code'])
+        tbl.attributes['broadcast'] = ','.join(list(set(broadcast)))
         if not 'code' in columns:
             tbl.column('code', name_long='!!Code', base_view=True)
         if not 'description' in columns:
@@ -297,6 +301,21 @@ class GnrHTable(TableBase):
         code_list = [k for k in (record_data.get('parent_code') or '').split('.') + [record_data['child_code']] if k]
         record_data['level'] = len(code_list) - 1
         record_data['code'] = '.'.join(code_list)
+    
+    @public_method
+    def reorderCodes(self,pkey=None,into_pkey=None):
+        record = self.record(pkey=pkey,for_update=True).output('record')
+        oldrecord = dict(record)
+        parent_record = self.record(pkey=into_pkey).output('record')
+        parent_code = parent_record['code']
+        code_to_test = '%s.%s' %(parent_code,record['child_code'])
+        if not self.checkDuplicate(code=code_to_test):
+            record['parent_code'] = parent_code
+            self.update(record,oldrecord)
+            self.db.commit()
+            return True
+        return False
+        
         
     def trigger_onUpdating(self, record_data, old_record=None):
         """TODO

@@ -5125,8 +5125,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
                 });
             }
         }
-
     },
+    
+    
     fillDragInfo:function(dragInfo) {
         dragInfo.treenode = dragInfo.widget;
         dragInfo.widget = dragInfo.widget.tree;
@@ -5150,9 +5151,11 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         } else {
             result['text/plain'] = item.label;
         }
+        result['nodeattr'] = item.attr;
         result['treenode'] = {'fullpath':item.getFullpath(),'relpath':item.getFullpath(null, dragInfo.treenode.tree.model.store.rootData())};
         return result;
     },
+    
     attributes_mixin_checkBoxCalcStatus:function(bagnode) {
         var checked;
         if (bagnode._resolver && bagnode._resolver.expired()) {
@@ -5376,6 +5379,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         var pathList = kw.value.split('.');
         for (var i = 0; i < pathList.length; i++) {
             currNode = curr.getNode(pathList[i]);
+            if(!currNode){
+                return;
+            }
             treeNode = this._itemNodeMap[currNode._id];
             curr = currNode.getValue();
             if (i < pathList.length - 1) {
