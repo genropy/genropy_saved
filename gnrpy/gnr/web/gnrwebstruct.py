@@ -1050,7 +1050,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     dropCode, mode = dropCode.split(':')
                 dropmode = 'dropTarget_%s' % mode
                 ivattr[dropmode] = '%s,%s' % (ivattr[dropmode], dropCode) if dropmode in ivattr else dropCode
-                ivattr['onDrop_%s' % dropCode] = 'SET .droppedInfo_%s = dropInfo; FIRE .dropped_%s = data' % (dropCode,dropCode)
+                ivattr['onDrop_%s' % dropCode] = 'SET .droppedInfo_%s = dropInfo; FIRE .dropped_%s = data;' % (dropCode,dropCode)
                 #ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
                 
     def newincludedview_draganddrop(self,dropCodes=None,**kwargs):
@@ -2004,7 +2004,7 @@ class GnrGridStruct(GnrStructData):
         if len(relfldlst) > 1:
             fkey = relfldlst[0][1:]
             fkeycol=tableobj.column(fkey)
-            if fkeycol :
+            if fkeycol is not None:
                 joiner = fkeycol.relatedColumnJoiner()
                 if 'storefield' in joiner:
                     ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
