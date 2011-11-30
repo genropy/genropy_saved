@@ -15,48 +15,38 @@ class GnrCustomWebPage(object):
         
     def test_2_simple(self, pane):
         """Simple horizontal slider"""
-        fb = pane.formbuilder(datapath='test2', cols=4)
+        fb = pane.formbuilder(cols=4)
         pane.data('test2.decimals', '2')
         fb.horizontalSlider(value='^.integer_number', width='200px', maximum=50,
                             discreteValues=51, lbl='!!Integer number')
-        fb.numberTextBox(value='^.integer_number', width='4em', colspan=2,
-                         validate_remote=self.check_number(num),
-                         validate_remote_error='Error!')
+        fb.numberTextBox(value='^.integer_number', width='11em', colspan=2, readOnly=True)
         fb.div("""With "discreteValues", "minimum" and "maximum" attributes you can allow to
-                  write only integer numbers.""",
-               font_size='.9em', text_align='justify')
-               
+                  write only integer numbers.""")
+                  
         fb.horizontalSlider(value='^.float_number', width='200px', minimum=10, lbl='!!Float number')
-        fb.numberTextBox(value='^.float_number', width='4em', places='^.decimals')
+        fb.numberTextBox(value='^.float_number', width='11em', places='^.decimals', readOnly=True)
         fb.numberSpinner(value='^.decimals', width='4em', min=0, max=15, lbl='decimals')
-        fb.div("""Here you can choose the number of decimals.""",
-               font_size='.9em', text_align='justify')
-               
-    def check_number(self, num, **kwargs):
-        return 'hello'
+        fb.div("""Here you can choose the number of decimals.""")
         
     def test_3_hslider(self, pane):
-        """Horizontal slider"""
-        fb = pane.formbuilder(datapath='test3', cols=4)
-        fb.data('.icon', 'icnBaseOk')
-        fb.data('.fontfam', 'Courier')
-        fb.dataFormula('.width_calc', 'w+umw', w='^.width', umw='^.um_width')
-        fb.dataFormula('.font_size', 'font+umf', font='^.font', umf='^.um_font')
+        """widthness"""
+        pane = pane.contentPane(height='400px')
+        pane.data('.icon', 'icnBaseOk')
+        pane.data('.fontfam', 'Courier')
+        pane.data('.font', 9)
+        pane.dataFormula('.font_size', 'font+umf', font='^.font', umf='^.um_font')
         
-        fb.horizontalSlider(value='^.width', width='200px', minimum=3,
-                            intermediateChanges=True, lbl='!!Width button')
-        fb.numberTextBox(value='^.width', width='4em')
-        fb.comboBox(value='^.um_width', width='5em', values='em,px,%', default='em')
-        fb.br()
-        
-        fb.horizontalslider(value='^.font', width='200px', minimum=4,
-                            discreteValues=97, intermediateChanges=True, lbl='!!Width font')
-        fb.numberTextBox(value='^.font', width='4em')
-        fb.comboBox(value='^.um_font', width='5em', values='pt,px', default='pt')
-        fb.filteringSelect(value='^.fontfam', width='8em', lbl='Font',
+        fb = pane.formbuilder(cols=5, fld_width='6em')
+        fb.horizontalslider(value='^.font', minimum=4, maximum=120, width='20em',
+                            discreteValues=117, intermediateChanges=True, lbl='!!Width font')
+        fb.numberTextBox(value='^.font', readOnly=True)
+        fb.comboBox(value='^.um_font', values='pt,px', default='pt')
+        fb.filteringSelect(value='^.fontfam', lbl='Font',
                            values='Verdana:Verdana,Courier:Courier,mono:Mono,"Comic Sans MS":Comic')
-        fb.filteringSelect(value='^.icon', width='5em', colspan=4, lbl='icon',
+        fb.filteringSelect(value='^.icon', lbl='icon',
                            values='icnBaseAdd:Add,icnBaseCancel:Cancel,icnBaseDelete:Delete,icnBaseOk:Ok')
-        fb.button('Save it', action="alert('Saving!')", tooltip='click me', colspan=4,
-                  ffont_size='^.font_size', font_family='^.fontfam',
-                  iconClass='^.icon', width='^.width_calc')
+        
+        fb = pane.formbuilder()
+        fb.button('Save it', action="alert('Saving!')", iconClass='^.icon',
+                   font_size='^.font_size', font_family='^.fontfam')
+                                        

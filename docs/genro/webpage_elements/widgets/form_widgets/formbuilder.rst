@@ -115,8 +115,7 @@ simple example
 --------------
 
     * `formbuilder [basic] <http://localhost:8080/webpage_elements/widgets/form_widgets/formbuilder/1>`_
-    * **Description**: how to fill a comboBox through "values" attribute
-      
+    
       .. note:: 
                 
                 Example elements' list:
