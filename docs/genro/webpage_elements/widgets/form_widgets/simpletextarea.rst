@@ -12,9 +12,9 @@ SimpleTextarea
               * **Common attributes**: check the :ref:`attributes_index` section
               
     * :ref:`simpletextarea_def`
-    * :ref:`simpletextarea_description`
-    * :ref:`simpletextarea_attributes`
-    * :ref:`simpletextarea_examples`: :ref:`simpletextarea_examples_simple`
+    * :ref:`simpletextarea_examples`:
+    
+        * :ref:`simpletextarea_examples_simple`
 
 .. _simpletextarea_def:
 
@@ -22,23 +22,11 @@ Definition
 ==========
 
     .. method:: pane.simpleTextarea([**kwargs])
-
-.. _simpletextarea_description:
-
-Description
-===========
-
-    With simpletextarea you can add an area for user writing.
-
-.. _simpletextarea_attributes:
-
-Attributes
-==========
-
-    **simpleTextarea attributes**:
-    
-    * *default*: Add a text to the area. Default value is ``None``
-    
+                
+                With simpletextarea you can add an area for text
+                
+                * **Parameters**: *default*: Add a text to the area
+                
 .. _simpletextarea_examples:
 
 Examples
@@ -49,9 +37,24 @@ Examples
 simple example
 --------------
 
-    Let's see a simple example::
-        
+    * `simpleTextArea [basic] <http://localhost:8080/webpage_elements/widgets/form_widgets/simpleTextarea/1>`_
+    
+      .. note:: example elements' list:
+      
+                * **classes**: :ref:`gnrcustomwebpage`
+                * **components**: :ref:`testhandlerfull`
+                * **webpage variables**: :ref:`webpages_py_requires`
+                
+    * **Code**::
+    
+        # -*- coding: UTF-8 -*-
+        """simpleTextarea"""
+
         class GnrCustomWebPage(object):
-            def main(self,root,**kwargs):
-                root.simpleTextarea(value='^.area',height='80px',width='30em',
-                                    colspan=2,color='blue',font_size='1.2em',lbl='text area')
+            py_requires = "gnrcomponents/testhandler:TestHandlerFull"
+
+            def test_1_simpleTextarea(self, pane):
+                """simpleTextarea"""
+                pane.simpleTextarea(value='^.simpleTextarea', height='80px', width='30em',
+                                    color='#605661', font_size='1.2em',
+                                    default='A simple area to contain text')

@@ -1,12 +1,15 @@
 # -*- coding: UTF-8 -*-
 """Slider"""
 
+from gnr.core.gnrdecorator import public_method
+
 class GnrCustomWebPage(object):
     py_requires = "gnrcomponents/testhandler:TestHandlerFull"
     
     def test_1_simple(self, pane):
         """Simple vertical slider"""
-        fb = pane.formbuilder(datapath='test1', cols=2)
+        fb = pane.formbuilder(cols=2)
+        fb.div('The slider and the numerical field are linked: change one of them to change them all', colspan=2)
         fb.verticalSlider(value='^.number', height='100px')
         fb.numberTextbox(value='^.number', lbl='height')
         
@@ -16,7 +19,9 @@ class GnrCustomWebPage(object):
         pane.data('test2.decimals', '2')
         fb.horizontalSlider(value='^.integer_number', width='200px', maximum=50,
                             discreteValues=51, lbl='!!Integer number')
-        fb.numberTextBox(value='^.integer_number', width='4em', colspan=2)
+        fb.numberTextBox(value='^.integer_number', width='4em', colspan=2,
+                         validate_remote=self.check_number(num),
+                         validate_remote_error='Error!')
         fb.div("""With "discreteValues", "minimum" and "maximum" attributes you can allow to
                   write only integer numbers.""",
                font_size='.9em', text_align='justify')
@@ -27,6 +32,9 @@ class GnrCustomWebPage(object):
         fb.div("""Here you can choose the number of decimals.""",
                font_size='.9em', text_align='justify')
                
+    def check_number(self, num, **kwargs):
+        return 'hello'
+        
     def test_3_hslider(self, pane):
         """Horizontal slider"""
         fb = pane.formbuilder(datapath='test3', cols=4)

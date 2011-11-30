@@ -21,8 +21,7 @@ common attributes
        Attribute                   Description                                  Default                       Example                         
     ==================== =================================================== ========================== ======================================
      *dbtable*            MANDATORY - Select the database                      ``None``                 :ref:`dbtable` explanation page 
-                          :ref:`table` for database widget                                                                              
-                          query.                                                                                                              
+                          :ref:`table` for database widget query             
     -------------------- --------------------------------------------------- -------------------------- --------------------------------------
      *alternatePkey*      Alternate primary key: allow to save user choice     ``None``                                                       
                           through a different parameter respect to the                                                                        
