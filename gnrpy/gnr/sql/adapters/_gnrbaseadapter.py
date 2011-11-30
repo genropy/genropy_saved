@@ -208,7 +208,8 @@ class SqlDbAdapter(object):
     def existsRecord(self, dbtable, record_data):
         """Test if a record yet exists in the db.
         
-        :param dbtable: a SqlTable object
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
         :param record_data: a dict compatible object containing at least one entry for the pkey column of the table."""
         tblobj = dbtable.model
         pkey = tblobj.pkey
@@ -298,17 +299,21 @@ class SqlDbAdapter(object):
         """-- IMPLEMENT THIS --
         Lock a table
         
-        :param dbtable: the :ref:`database table <table>` name
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
         :param mode: TODO
-        :param nowait: TODO"""
+        :param nowait: TODO
+        """
         raise NotImplementedException()
         
     def insert(self, dbtable, record_data,**kwargs):
         """Insert a record in the db
         All fields in record_data will be added: all keys must correspond to a column in the db.
         
-        :param dbtable: the :ref:`database table <table>` name
-        :param record_data: a dict compatible object"""
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
+        :param record_data: a dict compatible object
+        """
         tblobj = dbtable.model
         record_data = self.prepareRecordData(record_data,**kwargs)
         sql_flds = []
@@ -324,9 +329,11 @@ class SqlDbAdapter(object):
         """Update a record in the db. 
         All fields in record_data will be updated: all keys must correspond to a column in the db.
         
-        :param dbtable: the :ref:`database table <table>` name
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
         :param record_data: a dict compatible object
-        :param pkey: the :ref:`primary key <pkey>`"""
+        :param pkey: the :ref:`primary key <pkey>`
+        """
         tblobj = dbtable.model
         record_data = self.prepareRecordData(record_data,**kwargs)
         sql_flds = []
@@ -344,8 +351,10 @@ class SqlDbAdapter(object):
         """Delete a record from the db
         All fields in record_data will be added: all keys must correspond to a column in the db
         
-        :param dbtable: the :ref:`database table <table>` name
-        :param record_data: a dict compatible object containing at least one entry for the pkey column of the table."""
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
+        :param record_data: a dict compatible object containing at least one entry for the pkey column of the table
+        """
         tblobj = dbtable.model
         record_data = self.prepareRecordData(record_data,**kwargs)
         pkey = tblobj.pkey
@@ -355,8 +364,10 @@ class SqlDbAdapter(object):
     def sql_deleteSelection(self, dbtable, pkeyList):
         """Delete a selection from the table. It works only in SQL so no python trigger is executed
         
-        :param dbtable: the :ref:`database table <table>` name
-        :param pkeyList: records to delete"""
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
+        :param pkeyList: records to delete
+        """
         tblobj = dbtable.model
         sql = 'DELETE FROM %s WHERE %s IN :pkeyList;' % (tblobj.sqlfullname, tblobj.sqlnamemapper[tblobj.pkey])
         return self.dbroot.execute(sql, sqlargs=dict(pkeyList=pkeyList), dbtable=dbtable.fullname)
@@ -364,7 +375,9 @@ class SqlDbAdapter(object):
     def emptyTable(self, dbtable):
         """Delete all table rows of the specified *dbtable* table
         
-        :param dbtable: the :ref:`database table <table>` name"""
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
+        """
         tblobj = dbtable.model
         sql = 'DELETE FROM %s;' % (tblobj.sqlfullname)
         return self.dbroot.execute(sql, dbtable=dbtable.fullname)

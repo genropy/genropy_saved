@@ -1327,15 +1327,32 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self.child('menuline', label=label, **kwargs)
         
     def field(self, field=None, **kwargs):
-        """TODO
+        """``field`` is used to view, select and modify data included in a database :ref:`table`.
+
+        Its type is inherited from :ref:`the type of data <datatype>` contained in the table to which
+        ``field`` refers. For example, if the ``field`` is related to a column with the dtype set
+        to "L" (integer number), then the relative widget is a :ref:`numbertextbox`, if the related
+        column has a dtype set to "D", then the relative widget is a :ref:`datetextbox`, and so on
+
+        .. note:: ``field`` MUST be a child of the :ref:`formbuilder` form widget, and
+                  ``formbuilder`` itself MUST have a :ref:`datapath` for inner relative path gears
         
-        :param field: TODO"""
+        :param field: MANDATORY - the column name to which field refers to. For more information,
+                      check the :ref:`field_attr_field` section
+        :param kwargs:
+        
+                       * **lbl**: Set the label of the field. If you don't specify it, then
+                         ``field`` will inherit it from the :ref:`name_long` attribute of the requested data
+                       * **rowcaption**: the textual representation of a record in a user query.
+                         For more information, check the :ref:`rowcaption` section
+        """
         newkwargs = self._fieldDecode(field, **kwargs)
         newkwargs.update(kwargs)
         tag = newkwargs.pop('tag')
         return self.child(tag, **newkwargs)
         
     def placeFields(self, fieldlist=None, **kwargs):
+        """TODO"""
         for field in fieldlist.split(','):
             kwargs = self._fieldDecode(field)
             tag = kwargs.pop('tag')

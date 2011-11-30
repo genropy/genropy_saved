@@ -968,7 +968,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param dbtable: the :ref:`database table <table>`
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
         :param pkg: the :ref:`package <packages>` object
         :param pkey: the :ref:`primary key <pkey>`
         :param ignoreMissing: boolean. TODO
@@ -1101,33 +1102,35 @@ class GnrWebAppHandler(GnrBaseProxy):
         ``dbSelect()`` method is decorated with the :meth:`public_method
         <gnr.core.gnrdecorator.public_method>` decorator
         
-        :param dbtable: the :ref:`database table <table>`
-        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
-                        clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
+        :param columns: you can specify one or more columns in order to extend user query on these columns.
+                        The columns must be precedeed with a "$" (:ref:`dbselect_examples_columns`)
         :param auxColumns: list of columns separated by a comma. Every columns must have a prefix (``$``).
                            Show the columns you specify here as auxiliary columns in a pop-up menu
-        :param hiddenColumns: data that is retrieved but is not shown.
-        :param rowcaption: what you see into the field. Often is different
-                           from what you set with dbselect
+                           (:ref:`dbselect_examples_auxcolumns`)
+        :param hiddenColumns: data retrieved but not shown
+        :param rowcaption: the textual representation of a record in a user query.
+                           For more information, check the :ref:`rowcaption` section
         :param querystring: TODO
         :param ignoreCase: boolean. Set it ``True`` for a case insensitive query from characters typed
                            from user. Set to ``False`` for a case sensitive query
         :param exclude: TODO
         :param excludeDraft: boolean. TODO
         :param condition: more :ref:`sql_condition` into the query
-        :param limit: string. Number of result's rows (default is 10, set limit to '0' to visualize
+        :param limit: string. Number of result's rows (default is 10, set limit to 0 to visualize
                       all data). Corresponding to the sql "LIMIT" operator. For more information,
                       check the :ref:`sql_limit` section
         :param alternatePkey: TODO
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
                          :ref:`sql_order_by` section
-        :param selectmethod: custom rpc_method you can use to make the query on the server.
+        :param selectmethod: custom rpc_method you can use to make the query on the server
         :param notnull: TODO
         :param weakCondition: boolean. It will apply the condition if there is a result, but if
                               there is no result for the condition then the condition will not
                               be used. The *selectmethod* attribute can be used to override this
-                              attribute"""
+                              attribute
+        """
         if _storename:
             self.db.use_store(_storename)
         resultClass = ''
@@ -1295,7 +1298,8 @@ class GnrWebAppHandler(GnrBaseProxy):
     def rpc_getRecordForm(self, dbtable=None, fields=None, **kwargs):
         """TODO
         
-        :param dbtable: the :ref:`database table <table>`
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
         :param fields: TODO"""
         self.getRecordForm(self.newSourceRoot(), dbtable=dbtable, fields=fields, **kwargs)
 

@@ -50,19 +50,20 @@
     .. module:: gnr.web.gnrwebstruct.GnrDomSrc_dojo_11
     
     =========================== ============================= ===================================
-    :meth:`button`              :meth:`dropdownbutton`        :meth:`radiobutton`                
-    :meth:`checkbox`            :meth:`field`                 :meth:`radiogroup`                 
-    :meth:`checkboxtext`        :meth:`includedview`          :meth:`selectionStore`             
-    :meth:`dataController`      :meth:`gridStruct`            :meth:`selectionstore_addcallback` 
-    :meth:`dataFormula`         :meth:`includedview`          :meth:`slotBar`                    
-    :meth:`dataRecord`          :meth:`includedview_inframe`  :meth:`slotButton`                 
-    :meth:`dataRemote`          :meth:`includedview_legacy`   :meth:`slotFooter`                 
-    :meth:`dataRpc`             :meth:`menuline`              :meth:`slotToolbar`                
-    :meth:`dataScript`          :meth:`onDbChanges`           :meth:`slotbar_replaceslots`       
-    :meth:`dataSelection`       :meth:`paletteGrid`           :meth:`tableAnalyzeStore`          
-    :meth:`datarpc_addcallback` :meth:`paletteGroup`          :meth:`togglebutton`               
-    :meth:`datarpc_adderrback`  :meth:`palettePane`           :meth:`virtualSelectionStore`      
-    :meth:`directoryStore`      :meth:`paletteTree`           :meth:`wdgAttributesFromColumn`    
+    :meth:`button`              :meth:`field`                 :meth:`radiobutton`                
+    :meth:`checkbox`            :meth:`includedview`          :meth:`radiogroup`                 
+    :meth:`checkboxtext`        :meth:`gridStruct`            :meth:`selectionStore`             
+    :meth:`dataController`      :meth:`includedview`          :meth:`selectionstore_addcallback` 
+    :meth:`dataFormula`         :meth:`includedview_inframe`  :meth:`slotBar`                    
+    :meth:`dataRecord`          :meth:`includedview_legacy`   :meth:`slotButton`                 
+    :meth:`dataRemote`          :meth:`menuline`              :meth:`slotFooter`                 
+    :meth:`dataRpc`             :meth:`onDbChanges`           :meth:`slotToolbar`                
+    :meth:`dataScript`          :meth:`paletteGrid`           :meth:`slotbar_replaceslots`       
+    :meth:`dataSelection`       :meth:`paletteGroup`          :meth:`tableAnalyzeStore`          
+    :meth:`datarpc_addcallback` :meth:`palettePane`           :meth:`togglebutton`               
+    :meth:`datarpc_adderrback`  :meth:`paletteTree`           :meth:`virtualSelectionStore`      
+    :meth:`directoryStore`      :meth:`placeFields`           :meth:`wdgAttributesFromColumn`    
+    :meth:`dropdownbutton`      :meth:`radiogroup`
     =========================== ============================= ===================================
 
 .. _gnrwebstruct_gnrformbuilder:

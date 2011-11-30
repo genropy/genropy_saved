@@ -314,10 +314,11 @@ class DbModelSrc(GnrStructData):
               **kwargs):
         """Add a :ref:`database table <table>` to the structure and returns it
         
-        :param name: the :ref:`table` name
+        :param name: the name of the table
         :param pkey: the record :ref:`primary key <pkey>`
         :param lastTS: the date of the last modification (TS = timestamp)
-        :param rowcaption: TODO
+        :param rowcaption: the textual representation of a record in a user query.
+                           For more information, check the :ref:`rowcaption` section
         :param sqlname: TODO
         :param sqlschema: actual sql name of the schema. For more information check
                           the :ref:`about_schema` documentation section
@@ -348,7 +349,7 @@ class DbModelSrc(GnrStructData):
                      using the following syntax: ``'name::datatype'``
         :param dtype: the :ref:`datatype`
         :param size: string. ``'min:max'`` or fixed lenght ``'len'``
-        :param default: TODO
+        :param default: the default value of the column
         :param notnull: TODO
         :param unique: boolean. Same of the sql UNIQUE
         :param indexed: boolean. If ``True``, allow to create an index for the column data

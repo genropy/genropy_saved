@@ -68,3 +68,10 @@ class GnrCustomWebPage(object):
         fb.dbSelect(dbtable='showcase.person', value='^.value',
                     columns='$name,$nationality', auxColumns='$name,$nationality,$b_year,$d_year')
                     
+    def test_6_hiddenColumns(self, pane):
+        """\"hiddenColumns\" attribute"""
+        fb = pane.formbuilder()
+        fb.div("""...""")
+        fb.dbSelect(dbtable='showcase.person', value='^.value1',
+                    columns='$name,$nationality', auxColumns='$name,$nationality')
+                    
