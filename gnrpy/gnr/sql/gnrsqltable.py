@@ -482,7 +482,7 @@ class SqlTable(GnrObject):
                          **kwargs)
         return query
             
-    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, **kwargs):
+    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
@@ -498,7 +498,9 @@ class SqlTable(GnrObject):
             elif isinstance(updater, dict):
                 new_row.update(updater)
             self.update(new_row, row)
-    
+        if autocommit:
+            self.db.commit()
+        
     def toXml(self,pkeys=None,path=None,where=None,rowcaption=None,columns=None,related_one_dict=None,**kwargs):
         where = '$%s IN :pkeys' %self.pkey if pkeys else where
         columns = columns or '*'

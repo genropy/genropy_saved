@@ -390,9 +390,12 @@ class HTableHandler(HTableHandlerBase):
                             }else{
                                 path = code?'_root_.'+code:'_root_';
                             }
+                            console.log('SELEZIONO ELEMENTO CARICATO',code);
                             SET .tree.path=path;
-                            """, code="^.edit.record.code",
-                          rootpath='=.tree.store?rootpath', _if='code')
+                            """, 
+                            code="^.edit.record.code",
+                          rootpath='=.tree.store?rootpath', 
+                          _if='code')
                           
         bc.dataRpc('.edit.del_result', 'deleteDbRow', pkey='=.edit.pkey',
                    _POST=True, table=table, _delStatus='^.edit.delete',
@@ -447,7 +450,6 @@ class HTableHandler(HTableHandlerBase):
         nav = toolbar.breadcrumb.div(nodeId='%s_nav' % nodeId)
         self._ht_add_button(toolbar.hadd, childTypes=childTypes, disabled=disabled)
         toolbar.dataController("""
-        
                             var pathlist = currpath.split('.').slice(1);
                             var rootName = this.getRelativeData('.tree.store.#0?caption');
                             var rootnode = genro.nodeById(labelNodeId)
@@ -590,6 +592,9 @@ class HTableHandler(HTableHandlerBase):
                                     
                                     """)
         center.onDbChanges(action="""
+                                    var selectedNode = treeNode.widget.currentSelectedNode
+                                    var currPath = selectedNode? selectedNode.item.getFullpath(null, treeNode.widget.model.store.rootData()):'';                                    
+                                    console.log('Salvo path corrente',currPath);
                                     var refreshDict = {};
                                     var n;
                                     dojo.forEach(dbChanges,function(c){
@@ -604,7 +609,11 @@ class HTableHandler(HTableHandlerBase):
                                             n.refresh(true)
                                         }                                        
                                      }
-                                     """,table=table,store='=.tree.store')
+                                     if(currPath){
+                                        console.log('riseleziono vecchio path',currPath);
+                                        treeNode.widget.setSelectedPath(null,{value:currPath});
+                                     }
+                                     """,table=table,store='=.tree.store',treeNode=tree)
 
                                     
 class HTablePicker(HTableHandlerBase):

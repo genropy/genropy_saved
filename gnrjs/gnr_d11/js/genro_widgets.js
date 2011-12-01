@@ -5380,17 +5380,21 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         var pathList = kw.value.split('.');
         for (var i = 0; i < pathList.length; i++) {
+            if(!curr){
+                console.log('Non ho curr lo stesso')
+                return;
+            }
             currNode = curr.getNode(pathList[i]);
             if(!currNode){
                 return;
             }
             treeNode = this._itemNodeMap[currNode._id];
-            curr = currNode.getValue();
             if (i < pathList.length - 1) {
                 if (!treeNode.isExpanded) {
                     this._expandNode(treeNode);
                 }
             }
+            curr = currNode.getValue();
         }
         var currTree = this;
         setTimeout(function() {
