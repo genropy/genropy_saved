@@ -377,12 +377,6 @@ class HTableHandler(HTableHandlerBase):
                                  FIRE .edit.load;
                              }else{
                                 SET .edit.pkey = savedPkey;
-                                //var parentPath = rootpath?parent_code.slice(rootpath.length):parent_code?'_root_.'+parent_code:'_root_'
-                               //var refreshFromNode = treestore.getNode(parentPath);
-                               //if(!refreshFromNode.getValue()){
-                               //    refreshFromNode = refreshFromNode.getParentNode();
-                               //}
-                                //refreshFromNode.refresh(true);
                                 FIRE .edit.load;
                              }
                          """,
@@ -396,9 +390,7 @@ class HTableHandler(HTableHandlerBase):
                             }else{
                                 path = code?'_root_.'+code:'_root_';
                             }
-                            
                             SET .tree.path=path;
-                            
                             """, code="^.edit.record.code",
                           rootpath='=.tree.store?rootpath', _if='code')
                           
@@ -521,7 +513,7 @@ class HTableHandler(HTableHandlerBase):
                                     disabled=disabled,
                                     hidden='^.edit.no_record',
                                     visible='^.edit.enableDelete')
-        toolbar.dataFormula('.edit.enableDelete', 'child_count==0', child_count='^.tree.child_count')
+        toolbar.dataFormula('.edit.enableDelete', 'child_count==0', child_count='^.edit.record.child_count')
         
         if editMode == 'sc':
             toolbar.button('!!Tree', action="SET .selectedPage = 'tree';")
@@ -610,7 +602,7 @@ class HTableHandler(HTableHandlerBase):
                                         n = store.getNodeByAttr('code',k);
                                         if(n){
                                             n.refresh(true)
-                                        }
+                                        }                                        
                                      }
                                      """,table=table,store='=.tree.store')
 

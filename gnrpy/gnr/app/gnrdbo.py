@@ -278,7 +278,7 @@ class GnrHTable(TableBase):
         tblname = '%s.%s_%s' % (pkgname, pkgname, tbl.parentNode.label)
         tbl.formulaColumn('child_count',
                           '(SELECT count(*) FROM %s AS children WHERE children.parent_code=#THIS.code)' % tblname,
-                           dtype='L', base_view=True)
+                           dtype='L', always=True)
         tbl.formulaColumn('hdescription',
                            """
                            CASE WHEN #THIS.parent_code IS NULL THEN #THIS.description
@@ -292,7 +292,18 @@ class GnrHTable(TableBase):
         """TODO
         
         :param record_data: TODO"""
+        parent_code = record_data['parent_code']
+        parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
         self.assignCode(record_data)
+        if parent_children==0:
+            self.touchRecords(where='$code=:code',code=parent_code)
+        
+    def trigger_onDeletes(self,record,**kwargs):
+        parent_code = record_data['parent_code']
+        parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
+        if parent_children==0:
+            self.touchRecords(where='$code=:code',code=parent_code)
+        
         
     def assignCode(self, record_data):
         """TODO
