@@ -107,15 +107,16 @@ dojo.declare("gnr.LinkerManager", null, {
         if(this.form.locked){
             return;
         }
+        var default_kw = this.sourceNode.evaluateOnNode(this.default_kwargs);
         if(this.linkerform){
-            this.linkerform.load({destPkey:pkey,default_kw:this.sourceNode.evaluateOnNode(this.default_kwargs)});
+            this.linkerform.load({destPkey:pkey,default_kw:default_kw});
             this.thdialog.show();
         }else{
             var that = this;
             var destPkey = pkey;
             var iframeDialogKw = {title:'',table:this.table,main:'pbl_form_main',
                                  main_th_linker:true,height:'300px',width:'400px',main_th_formId:this.fakeFormId,
-                                 onStarted:function(){that.onIframeStarted(this,destPkey)}};
+                                 onStarted:function(){that.onIframeStarted(this,destPkey,default_kw)}};
             if(this.formResource){
                 iframeDialogKw.main_th_formResource=this.formResource;
             }
@@ -129,9 +130,10 @@ dojo.declare("gnr.LinkerManager", null, {
         }
     },
     
-    onIframeStarted:function(iframe,pkey){
+    onIframeStarted:function(iframe,pkey,default_kw){
+        var default_kw = default_kw || {};
         this.linkerform = iframe._genro.formById(this.fakeFormId);
-        this.linkerform.load({destPkey:pkey,default_kw:this.default_kw});
+        this.linkerform.load({destPkey:pkey,default_kw:default_kw});
         var that = this;
         this.linkerform.subscribe('onSaved',function(kw){
             that.setCurrentPkey(kw.pkey);
