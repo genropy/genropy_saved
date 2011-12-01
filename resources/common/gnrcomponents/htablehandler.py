@@ -382,14 +382,13 @@ class HTableHandler(HTableHandlerBase):
                           _fired="^.edit.onSaved", destPkey='=.tree.pkey', parent_code='=.edit.record.parent_code',
                           savedPkey='=.edit.savedPkey', rootpath='=.tree.store?rootpath',
                           treepath='=.tree.path', treestore='=.tree.store',oldChildCode='=.edit.record.child_code?_loadedValue',
-                          treeCaption='=.edit.savedPkey?caption')
+                          treeCaption='=.edit.savedPkey?caption',_delay=1)
         bc.dataController("""
                             if (rootpath){
                                 path=code.slice(rootpath.length);
                             }else{
                                 path = code?'_root_.'+code:'_root_';
                             }
-                            console.log('SELEZIONO ELEMENTO CARICATO',code);
                             SET .tree.path=path;
                             """, 
                             code="^.edit.record.code",
@@ -443,7 +442,7 @@ class HTableHandler(HTableHandlerBase):
             pane.slotButton(label='!!Add Sibling',  disabled=disabled,
                         iconClass='iconbox add_record',
                         action='FIRE .edit.add_sibling;', visible='==tree_caption!=null',
-                        tree_caption='^.tree.caption')
+                        tree_caption='^.edit.record.code')
                         
     def ht_edit_toolbar(self, toolbar, nodeId=None, disabled=None, editMode=None, childTypes=None):
         nav = toolbar.breadcrumb.div(nodeId='%s_nav' % nodeId)
@@ -452,7 +451,10 @@ class HTableHandler(HTableHandlerBase):
                             var pathlist = currpath.split('.').slice(1);
                             var rootName = this.getRelativeData('.tree.store.#0?caption');
                             var rootnode = genro.nodeById(labelNodeId)
-                            var nodeattr = this.getRelativeData('.tree.store').getNode(currpath).attr;
+                            if(store){
+                            }else{
+                            }
+                            //var nodeattr = store.getNode(currpath).attr;
                             rootnode.freeze().clearValue();
                             var label;
                             var path2set = '_root_';
@@ -473,7 +475,7 @@ class HTableHandler(HTableHandlerBase):
                             rootnode.unfreeze();
                             """,
                                labelNodeId='%s_nav' % nodeId,
-                               currpath='^.tree.path',
+                               currpath='^.tree.path',store='=.tree.store',
                                add_label='!!Add')
                                
         toolbar.dataController("""
@@ -547,8 +549,7 @@ class HTableHandler(HTableHandlerBase):
         tblobj = self.db.table(table)
         center = bc.contentPane(region='center',gradient_from='white',gradient_to='#D5DDE5',gradient_deg='360')
         center.data('.tree.store', self.ht_treeDataStore(table=table, rootpath=rootpath, rootcaption=tblobj.name_plural)
-                    ,
-                    rootpath=rootpath)
+                    ,rootpath=rootpath)
                     
         connect_ondblclick = None
         if editMode == 'sc':
@@ -597,19 +598,18 @@ class HTableHandler(HTableHandlerBase):
                                     var refreshDict = {};
                                     var n;
                                     dojo.forEach(dbChanges,function(c){
-                                        refreshDict[c.parent_code] = true;
+                                        refreshDict[c.parent_code || '_ROOT_NODE_'] = true;
                                         if(c.old_parent_code){
                                             refreshDict[c.old_parent_code] = true;
                                         }
                                      });
                                      for (var k in refreshDict){
-                                        n = store.getNodeByAttr('code',k);
+                                        n = k!='_ROOT_NODE_'? store.getNodeByAttr('code',k): store.getNode('#0');
                                         if(n){
                                             n.refresh(true)
-                                        }                                        
+                                        }                        
                                      }
                                      if(currPath){
-                                        console.log('riseleziono vecchio path',currPath);
                                         treeNode.widget.setSelectedPath(null,{value:currPath});
                                      }
                                      """,table=table,store='=.tree.store',treeNode=tree)
