@@ -299,7 +299,7 @@ class GnrHTable(TableBase):
             self.touchRecords(where='$code=:code',code=parent_code)
         
     def trigger_onDeleted(self,record,**kwargs):
-        parent_code = record_data['parent_code']
+        parent_code = record['parent_code']
         parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
         if parent_children==0:
             self.touchRecords(where='$code=:code',code=parent_code)

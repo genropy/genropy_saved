@@ -48,7 +48,6 @@ class HTableResolver(BagResolver):
     classArgs = ['table', 'rootpath']
     
     def loadRelated(self, pkey):
-        print 'loadRelated'
         db = self._page.db
         tblobj = db.table(self.related_table)
         rows = tblobj.query(where='%s=:pkey' % self.relation_path[1:], pkey=pkey).fetch()
