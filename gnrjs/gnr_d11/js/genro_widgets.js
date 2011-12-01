@@ -3455,13 +3455,16 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var view = this.views.views[0];
         var scrollBox,scrollLeft;
         if(view){
-            scrollBox = view.scrollboxNode;
-            scrollLeft = scrollBox.scrollLeft;
-            this.currRenderedRowIndex = null;
-            this.currRenderedRow = null;
-            this.updateRowCount_replaced(n);
-            this.updateTotalsCount(); 
-            scrollBox.scrollLeft = scrollLeft;
+            var that = this;
+            setTimeout(function(){
+                scrollBox = view.scrollboxNode;
+                scrollLeft = scrollBox.scrollLeft;
+                that.currRenderedRowIndex = null;
+                that.currRenderedRow = null;
+                that.updateRowCount_replaced(n);
+                that.updateTotalsCount(); 
+                scrollBox.scrollLeft = scrollLeft;
+            },1);
         }
     },
     mixin_setSortedBy:function(sortedBy) {
