@@ -50,7 +50,12 @@ class HTableResolver(BagResolver):
     def loadRelated(self, pkey):
         db = self._page.db
         tblobj = db.table(self.related_table)
-        rows = tblobj.query(where='%s=:pkey' % self.relation_path[1:], pkey=pkey).fetch()
+        columns = ['*']
+        captioncolumns = tblobj.rowcaptionDecode()[0]
+        if captioncolumns:
+            columns.extend(captioncolumns)
+        columns = ','.join(columns)
+        rows = tblobj.query(where='%s=:pkey' % self.relation_path[1:], pkey=pkey,columns=columns).fetch()
         children = Bag()
         for row in rows:
             caption = tblobj.recordCaption(row)
@@ -558,7 +563,7 @@ class HTableHandler(HTableHandlerBase):
             connect_ondblclick = 'FIRE #%s_dlg.open;' % nodeId
         
         dragCode = '%s_record' %table.replace('.','_')
-        tree = center.tree(storepath='.tree.store',
+        tree = center.tree(storepath='.tree.store',nodeId='%s_tree' %nodeId, 
                     margin='10px', isTree=False, hideValues=True,
                     inspect='shift', labelAttribute='caption',
                     selected_pkey='.tree.pkey', selectedPath='.tree.path',
