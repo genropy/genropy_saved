@@ -487,7 +487,9 @@ class SqlTable(GnrObject):
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
                         <batchupdate>`) or a method
-        :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter"""
+        :param autocommit: boolan. If ``True``, perform the commit of the database (``self.db.commit()``)
+        :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter
+        """
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))

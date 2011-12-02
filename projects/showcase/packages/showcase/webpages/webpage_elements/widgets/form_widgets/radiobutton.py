@@ -6,16 +6,17 @@ class GnrCustomWebPage(object):
     
     def test_1_basic(self, pane):
         """Simple test"""
-        fb = pane.contentPane(title='Buttons', datapath='test1').formbuilder(cols=4, border_spacing='10px')
+        fb = pane.formbuilder(datapath='.radio', cols=1)
         
-        fb.div("""We show you here a simple radio buttons set; (add to your radiobuttons
-                  the "group" attribute).""", font_size='.9em', text_align='justify')
-        fb.radiobutton(value='^.radio.jazz', group='genre1', label='Jazz')
-        fb.radiobutton(value='^.radio.rock', group='genre1', label='Rock')
-        fb.radiobutton(value='^.radio.blues', group='genre1', label='Blues', default_value=True)
+        fb.div("""We show you here a simple radio buttons set.
+                  The \"group\" attribute allows to create radiobuttons related each others.""")
+        fb.div("""You can specify a default selection with \"default_value=True\"""")
+        fb.radiobutton(value='^.jazz', group='genre1', label='Jazz')
+        fb.radiobutton(value='^.rock', group='genre1', label='Rock')
+        fb.radiobutton(value='^.blues', group='genre1', label='Blues', default_value=True)
         
-        fb.div("""Here we show you an other radio buttons set.""",
-               font_size='.9em', text_align='justify')
+        pane.div('Here we show you an other radio buttons set.', margin_left='12px')
+        fb = pane.formbuilder(datapath='.sex', cols=3, lbl_width='3em', fld_width='4em')
         fb.div('Sex')
-        fb.radiobutton(value='^.sex.male', group='genre2', label='M')
-        fb.radiobutton(value='^.sex.female', group='genre2', label='F')
+        fb.radiobutton(value='^.male', group='genre2', label='M')
+        fb.radiobutton(value='^.female', group='genre2', label='F')

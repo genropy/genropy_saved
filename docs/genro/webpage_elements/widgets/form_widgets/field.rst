@@ -13,9 +13,9 @@ field
               
     * :ref:`field_def`:
     
-        * :ref:`first_one`
-        * :ref:`second_one`
-        * :ref:`third_one`
+        * :ref:`field_dbtable_formbuilder`
+        * :ref:`the maintable <field_maintable>`
+        * :ref:`field_dbtable_field`
     
     * :ref:`field_attr`:
     

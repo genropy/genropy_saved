@@ -276,15 +276,18 @@ class SqlDbAdapter(object):
         return '\n'.join(result)
 
     def _selectForUpdate(self):
-        return 'FOR UPDATE OF t0'
+        return 'FOR t0 UPDATE'
 
-    def prepareRecordData(self, record_data,tblobj=None,onBagColumns=None,**kwargs):
-        """Normalize a record_data object before actually execute an sql write command.
-        Delete items which name starts with '@': eager loaded relations don't have to be written as fields.
-        Convert Bag values to xml, to be stored in text or blob fields.
+    def prepareRecordData(self, record_data, tblobj=None, onBagColumns=None, **kwargs):
+        """Normalize a *record_data* object before actually execute an sql write command.
+        Delete items which name starts with '@': eager loaded relations don't have to be
+        written as fields. Convert Bag values to xml, to be stored in text or blob fields.
         [Convert all fields names to lowercase ascii characters.] REMOVED
         
-        :param record_data: a dict compatible object"""
+        :param record_data: a dict compatible object
+        :param tblobj: the :ref:`database table <table>` object
+        :param onBagColumns: TODO
+        """
         data_out = {}
         tbl_virtual_columns = tblobj.virtual_columns
         for k in record_data.keys():
@@ -299,11 +302,6 @@ class SqlDbAdapter(object):
     def lockTable(self, dbtable, mode, nowait):
         """-- IMPLEMENT THIS --
         Lock a table
-        
-        :param dbtable: specify the :ref:`database table <table>`. More information in the
-                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
-        :param mode: TODO
-        :param nowait: TODO
         """
         raise NotImplementedException()
         

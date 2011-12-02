@@ -6,5 +6,5 @@ class GnrCustomWebPage(object):
     
     def test_1_timeTextbox(self, pane):
         """timeTextbox"""
-        fb = pane.formbuilder(datapath='test1')
-        fb.timeTextBox(value='^.timeTextbox')
+        fb = pane.formbuilder()
+        fb.timeTextBox(value='^.timeTextbox', lbl='Appointment')

@@ -19,7 +19,7 @@ ComboBox
         
 .. _combobox_def:
 
-Definition
+definition
 ==========
 
     .. method:: pane.combobox([**kwargs])
@@ -43,7 +43,7 @@ Definition
                         
 .. _combo_examples:
 
-Examples
+examples
 ========
 
 .. _combo_examples_values:

@@ -578,7 +578,7 @@ class GnrDomSrc(GnrStructData):
                     lblalign=None, lblvalign='middle',
                     fldalign=None, fldvalign='middle', disabled=False,
                     rowdatapath=None, head_rows=None, **kwargs):
-        """In formbuilder you can put dom and widget elements; its most classic usage is to create
+        """In :ref:`formbuilder` you can put dom and widget elements; its most classic usage is to create
         a :ref:`form` made by fields and layers, and that's because formbuilder can manage automatically
         fields and their positioning
         
@@ -587,17 +587,18 @@ class GnrDomSrc(GnrStructData):
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'``,
-                         that actually it is the unique defined class
-        :param lblclass: set label style
+                         that actually it is the unique defined CSS class
+        :param lblclass: set CSS label style
         :param lblpos: set label position: ``L``: set label on the left side of text field
                        ``T``: set label on top of text field
         :param _class: for CSS style
-        :param fieldclass: CSS class appended to every formbuilder's child
+        :param fieldclass: the CSS class appended to every formbuilder's child
         :param lblalign: Set horizontal label alignment (It seems broken... TODO)
         :param lblvalign: set vertical label alignment
         :param fldalign: set field horizontal align
         :param fldvalign: set field vertical align
-        :param disabled: If ``True``, user can't act on the object (write, drag...)
+        :param disabled: If ``True``, user can't act on the object (write, drag...). For more information,
+                         check the :ref:`disabled` attribute
         :param rowdatapath: TODO
         :param head_rows: TODO
         :param \*\*kwargs: for the complete list of the ``**kwargs``, check the :ref:`fb_kwargs` section"""
@@ -1551,7 +1552,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return result
         
 class GnrFormBuilder(object):
-    """TODO"""
+    """The class that handles the creation of the :ref:`formbuilder` widget"""
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
                  lblclass='gnrfieldlabel', lblpos='L', lblalign=None, fldalign=None,
                  lblvalign='middle', fldvalign='middle', rowdatapath=None, head_rows=None, commonKwargs=None):
