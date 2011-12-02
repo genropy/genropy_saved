@@ -15,15 +15,15 @@ introduction
 ============
 
     In this section we describe the :ref:`grid`, the :ref:`struct` and we introduce
-    all the components and methods that uses them.
+    all the components and methods that uses them
     
     **Definition - struct**:
     
-        The struct is a :ref:`bag` ... TODO
+        The struct is a :ref:`bag` to build a grid
         
     **Definition - grid**:
     
-        The grid is a ... TODO
+        The grid is the visual representation of a struct
         
 .. _gridstruct_section_index:
 
@@ -34,5 +34,5 @@ section index
     :maxdepth: 1
     :numbered:
     
-    struct/index
-    grid/index
+    struct
+    grid

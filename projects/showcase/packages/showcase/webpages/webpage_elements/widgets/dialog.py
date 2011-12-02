@@ -10,7 +10,7 @@ class GnrCustomWebPage(object):
     py_requires = """foundation/dialogs,
                      gnrcomponents/testhandler:TestHandlerFull"""
                      
-    def test_1_childname(self, pane):
+    def test_1_dialog(self, pane):
         """simple dialog"""
         fb = pane.formbuilder(cols=2)
         fb.button('Open dialog', action="""SET mydialog.title = GET title;

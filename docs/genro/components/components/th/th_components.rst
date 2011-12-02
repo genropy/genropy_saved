@@ -36,8 +36,6 @@ TableHandler: types
         * :ref:`th_linkerbar`
         * :ref:`th_linkerbox`
         
-    * :ref:`th_ig`
-    
 .. _th_types_intro:
 
 TableHandler types - introduction
@@ -610,13 +608,3 @@ linkerBox
                        validate_notnull=True,validate_notnull_error='!!Required',
                        newRecordOnly=True,formResource=':MyForm')
                        
-.. _th_ig:
-
-includedGrid
-============
-
-    The includedGrid is a :ref:`grid` that allows the inline editing. So, the insertion
-    or the modify of records is handled inside the grid
-    
-    .. note:: for a complete explanation of the includedGrid, check the :ref:`includedgrid` section
-        

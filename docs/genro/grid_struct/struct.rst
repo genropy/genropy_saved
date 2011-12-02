@@ -9,7 +9,6 @@ struct
     TODO
     
     * :ref:`struct_intro`
-    * :ref:`struct_section_index`
     
 .. _struct_intro:
 
@@ -71,10 +70,3 @@ introduction
     
         r = struct.child('view').child('rows',classes='df_grid',cellClasses='df_cells',headerClasses='df_headers')
         r.child('cell',field='procedure',width='9em',name='Procedure')
-
-.. _struct_section_index:
-
-section index
-=============
-
-    TODO

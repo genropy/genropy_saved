@@ -27,7 +27,6 @@ description
     Some object supports an attribute that creates automatically the *nodeId* for the object
     itself (and when it has got children, for its children). In particular:
     
-    * the :ref:`includedgrid` has got the *frameCode* attribute
     * the :ref:`paletteGrid` has got the *paletteCode* attribute
     * the :ref:`framepane` has got the :ref:`frame_framecode` attribute
     * the :ref:`slotBar <slotbar>` and the :ref:`slotToolbar <slotbar>` have got the *slotbarCode*

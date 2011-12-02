@@ -144,8 +144,7 @@ slots - special characters
                                      gradient_from='red',gradient_to='white',
                                      gradient_degree='36')
                                      
-    * You can also add one of the :ref:`Genro default slots <slots>`: these slots give a widget
-      without the need handle it (check the slots page for a complete list and description of the slots)::
+    * You can also add one of the :ref:`Genro default slots <slots>`::
       
           slots='20,messageBox,*,searchOn'
           
