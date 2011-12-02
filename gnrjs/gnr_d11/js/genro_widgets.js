@@ -3455,16 +3455,15 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var view = this.views.views[0];
         var scrollBox,scrollLeft;
         if(view){
-            var that = this;
-            setTimeout(function(){
+            genro.callAfter(function(){
                 scrollBox = view.scrollboxNode;
                 scrollLeft = scrollBox.scrollLeft;
-                that.currRenderedRowIndex = null;
-                that.currRenderedRow = null;
-                that.updateRowCount_replaced(n);
-                that.updateTotalsCount(); 
+                this.currRenderedRowIndex = null;
+                this.currRenderedRow = null;
+                this.updateRowCount_replaced(n);
+                this.updateTotalsCount(); 
                 scrollBox.scrollLeft = scrollLeft;
-            },1);
+            },1,this);
         }
     },
     mixin_setSortedBy:function(sortedBy) {
@@ -5381,17 +5380,21 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         }
         var pathList = kw.value.split('.');
         for (var i = 0; i < pathList.length; i++) {
+            if(!curr){
+                console.log('Non ho curr lo stesso')
+                return;
+            }
             currNode = curr.getNode(pathList[i]);
             if(!currNode){
                 return;
             }
             treeNode = this._itemNodeMap[currNode._id];
-            curr = currNode.getValue();
             if (i < pathList.length - 1) {
                 if (!treeNode.isExpanded) {
                     this._expandNode(treeNode);
                 }
             }
+            curr = currNode.getValue();
         }
         var currTree = this;
         setTimeout(function() {
