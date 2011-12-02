@@ -112,11 +112,9 @@ widgets classification
     
         TODO
         
-    * :ref:`gnrjs_widgets`
-    
-        TODO
-        
     There are other webpage elements:
     
     * :ref:`iframe`
+    * :ref:`iv`
     * :ref:`cells`
+    

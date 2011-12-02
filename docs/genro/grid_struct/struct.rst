@@ -15,7 +15,10 @@ struct
 introduction
 ============
 
-    TODO
+    The struct is a :ref:`bag` that handles the creation of the :ref:`grids <grid>`.
+    
+    The class tat handles the construction of the struct is the TODO class.
+    
     
     CLIPBOARD::
     
