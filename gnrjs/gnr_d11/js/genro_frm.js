@@ -225,6 +225,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.load({destPkey:this.getCurrentPkey()});
     },
     load: function(kw) {
+        if(this.opStatus=='loading'){
+            return;
+        }
         var kw = kw || {};
         if (this.store){
             kw.destPkey = kw.destPkey || '*norecord*';

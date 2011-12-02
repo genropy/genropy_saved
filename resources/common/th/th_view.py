@@ -66,7 +66,7 @@ class TableHandlerView(BaseComponent):
         frame = pane.frameGrid(frameCode=frameCode,childname='view',table=table,
                                struct=self._th_hook('struct',mangler=frameCode),
                                datapath='.view',top_kwargs=top_kwargs,_class='frameGrid',
-                               grid_kwargs=grid_kwargs,iconSize=16,**kwargs)   
+                               grid_kwargs=grid_kwargs,iconSize=16,_newGrid=True,**kwargs)   
         if configurable:
             frame.left.viewConfigurator(table,frameCode)                         
         self._th_viewController(frame,table=table)

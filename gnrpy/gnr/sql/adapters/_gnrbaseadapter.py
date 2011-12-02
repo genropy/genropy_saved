@@ -278,7 +278,7 @@ class SqlDbAdapter(object):
     def _selectForUpdate(self):
         return 'FOR UPDATE OF t0'
 
-    def prepareRecordData(self, record_data,onBagColumns=None):
+    def prepareRecordData(self, record_data,tblobj=None,onBagColumns=None,**kwargs):
         """Normalize a record_data object before actually execute an sql write command.
         Delete items which name starts with '@': eager loaded relations don't have to be written as fields.
         Convert Bag values to xml, to be stored in text or blob fields.
@@ -286,8 +286,9 @@ class SqlDbAdapter(object):
         
         :param record_data: a dict compatible object"""
         data_out = {}
+        tbl_virtual_columns = tblobj.virtual_columns
         for k in record_data.keys():
-            if not k.startswith('@'):
+            if not (k.startswith('@') or k=='pkey' or  k in tbl_virtual_columns):
                 v = record_data[k]
                 if isinstance(v, Bag):
                     v = v.toXml(onBuildTag=onBagColumns)
@@ -315,7 +316,7 @@ class SqlDbAdapter(object):
         :param record_data: a dict compatible object
         """
         tblobj = dbtable.model
-        record_data = self.prepareRecordData(record_data,**kwargs)
+        record_data = self.prepareRecordData(record_data,tblobj=tblobj,**kwargs)
         sql_flds = []
         data_keys = []
         for k in record_data.keys():
@@ -335,7 +336,7 @@ class SqlDbAdapter(object):
         :param pkey: the :ref:`primary key <pkey>`
         """
         tblobj = dbtable.model
-        record_data = self.prepareRecordData(record_data,**kwargs)
+        record_data = self.prepareRecordData(record_data,tblobj=tblobj,**kwargs)
         sql_flds = []
         for k in record_data.keys():
             sql_flds.append('%s=%s' % (tblobj.sqlnamemapper[k], ':%s' % k))
@@ -356,7 +357,7 @@ class SqlDbAdapter(object):
         :param record_data: a dict compatible object containing at least one entry for the pkey column of the table
         """
         tblobj = dbtable.model
-        record_data = self.prepareRecordData(record_data,**kwargs)
+        record_data = self.prepareRecordData(record_data,tblobj=tblobj,**kwargs)
         pkey = tblobj.pkey
         sql = 'DELETE FROM %s WHERE %s=:%s;' % (tblobj.sqlfullname, tblobj.sqlnamemapper[pkey], pkey)
         return self.dbroot.execute(sql, record_data, dbtable=dbtable.fullname)
