@@ -276,7 +276,7 @@ class SqlDbAdapter(object):
         return '\n'.join(result)
 
     def _selectForUpdate(self):
-        return 'FOR t0 UPDATE'
+        return 'FOR UPDATE OF t0'
 
     def prepareRecordData(self, record_data, tblobj=None, onBagColumns=None, **kwargs):
         """Normalize a *record_data* object before actually execute an sql write command.
