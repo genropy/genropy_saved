@@ -37,6 +37,8 @@ class Table(object):
         return result
 
     def existingLocks(self, lockId=None, connection_id=None, page_id=None, username=None):
+        if self.db.read_only:
+            return []
         where = None
         if lockId:
             where = '$id=:lockId'
@@ -54,6 +56,8 @@ class Table(object):
         return query.fetch()
 
     def clearExistingLocks(self, lockId=None, connection_id=None, page_id=None, username=None):
+        if self.db.read_only:
+            return
         with self.db.tempEnv(connectionName='system'):
             for lock in self.existingLocks(lockId=lockId, connection_id=connection_id, page_id=page_id,
                                            username=username):
