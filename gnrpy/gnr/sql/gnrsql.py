@@ -77,7 +77,7 @@ class GnrSqlDb(GnrObject):
     
     def __init__(self, implementation='sqlite', dbname='mydb',
                  host=None, user=None, password=None, port=None,
-                 main_schema=None, debugger=None, application=None):
+                 main_schema=None, debugger=None, application=None, read_only=None):
         """
         This is the constructor method of the GnrSqlDb class.
         
@@ -98,6 +98,7 @@ class GnrSqlDb(GnrObject):
         self.port = port
         self.user = user
         self.password = password
+        self.read_only = read_only
         self.typeConverter = GnrClassCatalog()
         self.debugger = debugger
         self.application = application
@@ -600,7 +601,10 @@ class DbStoresHandler(object):
         
     def __init__(self, db):
         self.db = db
-        self.config_folder = os.path.join(db.application.instanceFolder, 'dbstores')
+        if db.application:
+            self.config_folder = os.path.join(db.application.instanceFolder, 'dbstores')
+        else:
+            self.config_folder = None
         self.dbstores = {}
         self.load_config()
         self.create_stores()
@@ -608,7 +612,7 @@ class DbStoresHandler(object):
     def load_config(self):
         """TODO"""
         self.config = Bag()
-        if os.path.isdir(self.config_folder):
+        if self.config_folder and os.path.isdir(self.config_folder):
             self.config = Bag(self.config_folder)['#0'] or Bag()
             
     def save_config(self):
