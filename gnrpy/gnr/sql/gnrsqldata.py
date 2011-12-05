@@ -744,7 +744,8 @@ class SqlQuery(object):
     
     The ``__init__`` method passes:
     
-    :param dbtable: the :ref:`table` on which the query will be focused on
+    :param dbtable: specify the :ref:`database table <table>`. More information in the
+                    :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
     :param columns: it represents the :ref:`table columns <columns>` to be returned by the "SELECT"
                     clause in the traditional sql query. For more information, check the
                     :ref:`sql_columns` section

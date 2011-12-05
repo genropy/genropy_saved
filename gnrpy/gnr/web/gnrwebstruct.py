@@ -578,7 +578,7 @@ class GnrDomSrc(GnrStructData):
                     lblalign=None, lblvalign='middle',
                     fldalign=None, fldvalign='middle', disabled=False,
                     rowdatapath=None, head_rows=None, **kwargs):
-        """In formbuilder you can put dom and widget elements; its most classic usage is to create
+        """In :ref:`formbuilder` you can put dom and widget elements; its most classic usage is to create
         a :ref:`form` made by fields and layers, and that's because formbuilder can manage automatically
         fields and their positioning
         
@@ -587,17 +587,18 @@ class GnrDomSrc(GnrStructData):
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
         :param tblclass: the standard class for the formbuilder. Default value is ``'formbuilder'``,
-                         that actually it is the unique defined class
-        :param lblclass: set label style
+                         that actually it is the unique defined CSS class
+        :param lblclass: set CSS label style
         :param lblpos: set label position: ``L``: set label on the left side of text field
                        ``T``: set label on top of text field
         :param _class: for CSS style
-        :param fieldclass: CSS class appended to every formbuilder's child
+        :param fieldclass: the CSS class appended to every formbuilder's child
         :param lblalign: Set horizontal label alignment (It seems broken... TODO)
         :param lblvalign: set vertical label alignment
         :param fldalign: set field horizontal align
         :param fldvalign: set field vertical align
-        :param disabled: If ``True``, user can't act on the object (write, drag...)
+        :param disabled: If ``True``, user can't act on the object (write, drag...). For more information,
+                         check the :ref:`disabled` attribute
         :param rowdatapath: TODO
         :param head_rows: TODO
         :param \*\*kwargs: for the complete list of the ``**kwargs``, check the :ref:`fb_kwargs` section"""
@@ -1050,7 +1051,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                     dropCode, mode = dropCode.split(':')
                 dropmode = 'dropTarget_%s' % mode
                 ivattr[dropmode] = '%s,%s' % (ivattr[dropmode], dropCode) if dropmode in ivattr else dropCode
-                ivattr['onDrop_%s' % dropCode] = 'SET .droppedInfo_%s = dropInfo; FIRE .dropped_%s = data' % (dropCode,dropCode)
+                ivattr['onDrop_%s' % dropCode] = 'SET .droppedInfo_%s = dropInfo; FIRE .dropped_%s = data;' % (dropCode,dropCode)
                 #ivattr['onCreated'] = """dojo.connect(widget,'_onFocus',function(){genro.publish("show_palette_%s")})""" % dropCode
                 
     def newincludedview_draganddrop(self,dropCodes=None,**kwargs):
@@ -1327,15 +1328,32 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return self.child('menuline', label=label, **kwargs)
         
     def field(self, field=None, **kwargs):
-        """TODO
+        """``field`` is used to view, select and modify data included in a database :ref:`table`.
+
+        Its type is inherited from :ref:`the type of data <datatype>` contained in the table to which
+        ``field`` refers. For example, if the ``field`` is related to a column with the dtype set
+        to "L" (integer number), then the relative widget is a :ref:`numbertextbox`, if the related
+        column has a dtype set to "D", then the relative widget is a :ref:`datetextbox`, and so on
+
+        .. note:: ``field`` MUST be a child of the :ref:`formbuilder` form widget, and
+                  ``formbuilder`` itself MUST have a :ref:`datapath` for inner relative path gears
         
-        :param field: TODO"""
+        :param field: MANDATORY - the column name to which field refers to. For more information,
+                      check the :ref:`field_attr_field` section
+        :param kwargs:
+        
+                       * **lbl**: Set the label of the field. If you don't specify it, then
+                         ``field`` will inherit it from the :ref:`name_long` attribute of the requested data
+                       * **rowcaption**: the textual representation of a record in a user query.
+                         For more information, check the :ref:`rowcaption` section
+        """
         newkwargs = self._fieldDecode(field, **kwargs)
         newkwargs.update(kwargs)
         tag = newkwargs.pop('tag')
         return self.child(tag, **newkwargs)
         
     def placeFields(self, fieldlist=None, **kwargs):
+        """TODO"""
         for field in fieldlist.split(','):
             kwargs = self._fieldDecode(field)
             tag = kwargs.pop('tag')
@@ -1449,7 +1467,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         relcol = fieldobj.relatedColumn()
         if not relcol is None:
             lnktblobj = relcol.table
-            onerelfld = fieldobj.relatedColumnJoiner()['one_relation'].split('.')[2]
+            joiner = fieldobj.relatedColumnJoiner()
+            onerelfld = joiner['one_relation'].split('.')[2]
             if dtype in ('A', 'C'):
                 size = lnktblobj.attributes.get('size', '20')
                 if ':' in size:
@@ -1478,6 +1497,8 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['lbl'] = fieldobj.table.dbtable.relationName('@%s' % fieldobj.name)
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
+            if 'storefield' in joiner:
+                result['_storename'] = '=.%(storefield)s' %joiner
             #result['columns']=lnktblobj.rowcaption
             result['_class'] = 'linkerselect'
             result['searchDelay'] = 300
@@ -1531,7 +1552,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
         return result
         
 class GnrFormBuilder(object):
-    """TODO"""
+    """The class that handles the creation of the :ref:`formbuilder` widget"""
     def __init__(self, tbl, cols=None, dbtable=None, fieldclass=None,
                  lblclass='gnrfieldlabel', lblpos='L', lblalign=None, fldalign=None,
                  lblvalign='middle', fldvalign='middle', rowdatapath=None, head_rows=None, commonKwargs=None):
@@ -1997,6 +2018,20 @@ class GnrGridStruct(GnrStructData):
         name = name or fldobj.name_long
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
+        relfldlst = tableobj.fullRelationPath(field).split('.')
+        if len(relfldlst) > 1:
+            fkey = relfldlst[0][1:]
+            fkeycol=tableobj.column(fkey)
+            if fkeycol is not None:
+                joiner = fkeycol.relatedColumnJoiner()
+                if 'storefield' in joiner:
+                    ext_table = '.'.join(joiner['one_relation'].split('.')[0:2])
+                    kwargs['_storename'] = joiner['storefield']
+                    kwargs['_external_fkey'] ='$%s AS %s_fkey' %(fkey,ext_table.replace('.','_'))
+                    ext_fldname = '.'.join(relfldlst[1:])
+                    if not ext_fldname.startswith('@'):
+                        ext_fldname = '$%s' %ext_fldname
+                    kwargs['_external_name'] = '%s:%s AS %s' %(ext_table,ext_fldname,field.replace('.','_').replace('@','_'))
         if zoom:
             zoomtbl = fldobj.table
             relfldlst = tableobj.fullRelationPath(field).split('.')
@@ -2011,7 +2046,6 @@ class GnrGridStruct(GnrStructData):
             elif fldobj.relatedTable():
                 zoomtbl = fldobj.relatedTable()
                 kwargs['zoomPkey'] = field
-                
             if hasattr(zoomtbl.dbtable, 'zoomUrl'):
                 zoomPage = zoomtbl.dbtable.zoomUrl()
             else:

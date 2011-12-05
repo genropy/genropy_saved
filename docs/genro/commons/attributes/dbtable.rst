@@ -22,12 +22,13 @@ dbtable
 definition and description
 ==========================
 
-    The *dbtable* attribute is used to specify the database :ref:`table` to which
-    the object including the *dbtable* attribute belongs to.
+    The *dbtable* attribute is used in all those widgets that allows the user to perform
+    a selection on database through a query. In the *dbtable* attribute you have to specify
+    the :ref:`database table <table>` in association with the query
     
-    * To define a default ``dbtable`` value for all the elements of your page that supports
+    * To define a default dbtable value for all the elements of your page that supports
       it you can use the :ref:`webpage variable <webpages_variables>` called :ref:`maintable`.
-      Clearly, if you define a *dbtable* attribute in a object, it prevails on the *maintable*
+      If you define a *dbtable* attribute in a object, it prevails on the *maintable* value
       
 .. _dbtable_syntax:
 
@@ -43,17 +44,10 @@ syntax
     * ``packageName`` is the name of the :ref:`package <packages>` on which you're working;
     * ``tableName`` is the name of the :ref:`table` on which is executed the user query;
     
-    .. note:: you can omit the ``packageName`` if the dbtable is used on a :ref:`webpage` that
-              belongs to the package you should specify.
-              
 .. _dbtable_examples:
 
 examples
 ========
 
-    Based on the form widget you're working on, there is a different use of *dbtable*:
+    TODO
     
-        * For the :ref:`formbuilder` and the :ref:`field` form widgets,
-          please check the :ref:`field` page.
-        * For the :ref:`dbselect` and the :ref:`dbcombobox` form widgets,
-          please check the dbSelect and dbCombobox :ref:`db_examples` page.

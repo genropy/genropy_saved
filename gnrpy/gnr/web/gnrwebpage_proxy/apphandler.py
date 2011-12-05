@@ -621,7 +621,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                          recordResolver=True, selectionName='', structure=False, numberedRows=True,
                          pkeys=None, fromSelection=None, applymethod=None, totalRowCount=False,
                          selectmethod=None, expressions=None, sum_columns=None,
-                         sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,savedQuery=None,savedView=None, externalChanges=None,**kwargs):
+                         sortedBy=None, excludeLogicalDeleted=True,excludeDraft=True,
+                         savedQuery=None,savedView=None, externalChanges=None,**kwargs):
         """TODO
         
         ``getSelection()`` method is decorated with the :meth:`public_method
@@ -665,6 +666,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param savedQuery: TODO
         :param savedView: TODO
         :param externalChanges: TODO"""
+        
+
         t = time.time()
         tblobj = self.db.table(table)
         row_start = int(row_start)
@@ -699,7 +702,7 @@ class GnrWebAppHandler(GnrBaseProxy):
                 selecthandler = self.page.getPublicMethod('rpc', selectmethod)
             else:
                 selecthandler = self._default_getSelection
-            columns = self._getSelection_columns(tblobj, columns, expressions=expressions)
+            columns,external_queries = self._getSelection_columns(tblobj, columns, expressions=expressions)
             if fromSelection:
                 fromSelection = self.page.unfreezeSelection(tblobj, fromSelection)
                 pkeys = fromSelection.output('pkeylist')
@@ -709,6 +712,8 @@ class GnrWebAppHandler(GnrBaseProxy):
                                       relationDict=relationDict, sqlparams=sqlparams,
                                       recordResolver=recordResolver, selectionName=selectionName, 
                                       pkeys=pkeys, sortedBy=sortedBy, excludeLogicalDeleted=excludeLogicalDeleted,excludeDraft=excludeDraft, **kwargs)
+            if external_queries:
+                self._externalQueries(selection=selection,external_queries=external_queries)
             if applymethod:
                 applyPars = self._getApplyMethodPars(kwargs)
                 self.page.getPublicMethod('rpc', applymethod)(selection, **applyPars)
@@ -749,16 +754,21 @@ class GnrWebAppHandler(GnrBaseProxy):
 
 
     def _getSelection_columns(self, tblobj, columns, expressions=None):
+        external_queries = {}
         if isinstance(columns, Bag):
             columns = self._columnsFromStruct(columns)
         if not columns:
             columns = tblobj.attributes.get('baseview') or '*'
-        if '[' in columns:
-            columns = columns.replace(' ', '').replace('\n', '').replace('\t', '')
+        if '[' in columns or ':' in columns:
+            columns = columns.replace('\n', '').replace('\t', '')
             maintable = []
             colaux = columns.split(',')
             columns = []
             for col in colaux:
+                if ':' in col:
+                    external_table,external_field = col.split(':')
+                    external_queries.setdefault(external_table,[]).append(external_field)
+                    continue
                 if '[' in col:
                     tbl, col = col.split('[')
                     maintable = [tbl]
@@ -772,9 +782,25 @@ class GnrWebAppHandler(GnrBaseProxy):
             expr_dict = getattr(self.page, 'expr_%s' % expressions)()
             expr_dict = dict([(k, '%s AS %s' % (v, k)) for k, v in expr_dict.items()])
             columns = templateReplace(columns, expr_dict, safeMode=True)
-        return columns
-
-
+        return columns,external_queries
+    
+    def _externalQueries(self,selection=None,external_queries=None):
+        storedict = dict()
+        for r in selection.data:
+            storedict.setdefault(r['_external_store'],[]).append(r)
+        for store,subsel in storedict.items():
+            with self.db.tempEnv(storename=store):
+                for k,v in external_queries.items():
+                    tblobj = self.db.table(k)
+                    extfkeyname = '%s_fkey' %k.replace('.','_')
+                    fkeys = [r[extfkeyname] for r in selection.data]
+                    columns = ','.join(v+['%s AS %s' %(tblobj.pkey,extfkeyname)])
+                    resdict = tblobj.query(columns=columns,where='$%s IN :fkeys' %tblobj.pkey,fkeys=fkeys,addPkeyColumn=False).fetchAsDict(key=extfkeyname)
+                    for r in subsel:
+                        if r[extfkeyname] in resdict:
+                            r.update(resdict[r[extfkeyname]])
+                    
+    
     def _default_getSelection(self, tblobj=None, table=None, distinct=None, columns=None, where=None, condition=None,
                               order_by=None, limit=None, offset=None, group_by=None, having=None,
                               relationDict=None, sqlparams=None,recordResolver=None, selectionName=None,
@@ -942,7 +968,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         :param table: the :ref:`database table <table>` name on which the query will be executed,
                       in the form ``packageName.tableName`` (packageName is the name of the
                       :ref:`package <packages>` to which the table belongs to)
-        :param dbtable: the :ref:`database table <table>`
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
         :param pkg: the :ref:`package <packages>` object
         :param pkey: the :ref:`primary key <pkey>`
         :param ignoreMissing: boolean. TODO
@@ -1075,34 +1102,37 @@ class GnrWebAppHandler(GnrBaseProxy):
         ``dbSelect()`` method is decorated with the :meth:`public_method
         <gnr.core.gnrdecorator.public_method>` decorator
         
-        :param dbtable: the :ref:`database table <table>`
-        :param columns: it represents the :ref:`columns` to be returned by the "SELECT"
-                        clause in the traditional sql query. For more information, check the
-                        :ref:`sql_columns` section
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
+        :param columns: you can specify one or more columns in order to extend user query on these columns.
+                        The columns must be precedeed with a "$" (:ref:`dbselect_examples_columns`)
         :param auxColumns: list of columns separated by a comma. Every columns must have a prefix (``$``).
                            Show the columns you specify here as auxiliary columns in a pop-up menu
-        :param hiddenColumns: data that is retrieved but is not shown.
-        :param rowcaption: what you see into the field. Often is different
-                           from what you set with dbselect
+                           (:ref:`dbselect_examples_auxcolumns`)
+        :param hiddenColumns: data retrieved but not shown
+        :param rowcaption: the textual representation of a record in a user query.
+                           For more information, check the :ref:`rowcaption` section
         :param querystring: TODO
         :param ignoreCase: boolean. Set it ``True`` for a case insensitive query from characters typed
                            from user. Set to ``False`` for a case sensitive query
         :param exclude: TODO
         :param excludeDraft: boolean. TODO
         :param condition: more :ref:`sql_condition` into the query
-        :param limit: string. Number of result's rows (default is 10, set limit to '0' to visualize
+        :param limit: string. Number of result's rows (default is 10, set limit to 0 to visualize
                       all data). Corresponding to the sql "LIMIT" operator. For more information,
                       check the :ref:`sql_limit` section
         :param alternatePkey: TODO
         :param order_by: corresponding to the sql "ORDER BY" operator. For more information check the
                          :ref:`sql_order_by` section
-        :param selectmethod: custom rpc_method you can use to make the query on the server.
+        :param selectmethod: custom rpc_method you can use to make the query on the server
         :param notnull: TODO
         :param weakCondition: boolean. It will apply the condition if there is a result, but if
                               there is no result for the condition then the condition will not
                               be used. The *selectmethod* attribute can be used to override this
-                              attribute"""
-        self.db.use_store(_storename)
+                              attribute
+        """
+        if _storename:
+            self.db.use_store(_storename)
         resultClass = ''
         if selectmethod or not condition:
             weakCondition = False
@@ -1268,7 +1298,8 @@ class GnrWebAppHandler(GnrBaseProxy):
     def rpc_getRecordForm(self, dbtable=None, fields=None, **kwargs):
         """TODO
         
-        :param dbtable: the :ref:`database table <table>`
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
         :param fields: TODO"""
         self.getRecordForm(self.newSourceRoot(), dbtable=dbtable, fields=fields, **kwargs)
 

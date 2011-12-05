@@ -314,10 +314,11 @@ class DbModelSrc(GnrStructData):
               **kwargs):
         """Add a :ref:`database table <table>` to the structure and returns it
         
-        :param name: the :ref:`table` name
+        :param name: the name of the table
         :param pkey: the record :ref:`primary key <pkey>`
         :param lastTS: the date of the last modification (TS = timestamp)
-        :param rowcaption: TODO
+        :param rowcaption: the textual representation of a record in a user query.
+                           For more information, check the :ref:`rowcaption` section
         :param sqlname: TODO
         :param sqlschema: actual sql name of the schema. For more information check
                           the :ref:`about_schema` documentation section
@@ -348,7 +349,7 @@ class DbModelSrc(GnrStructData):
                      using the following syntax: ``'name::datatype'``
         :param dtype: the :ref:`datatype`
         :param size: string. ``'min:max'`` or fixed lenght ``'len'``
-        :param default: TODO
+        :param default: the default value of the column
         :param notnull: TODO
         :param unique: boolean. Same of the sql UNIQUE
         :param indexed: boolean. If ``True``, allow to create an index for the column data
@@ -881,8 +882,12 @@ class DbTableObj(DbModelObj):
             if 'table_aliases' in self and rel in self['table_aliases']:
                 relpath = self['table_aliases.%s' % rel].relation_path
                 rel, pathlist = ('%s.%s' % (relpath, pathlist)).split('.', 1)
-                    
-            reltbl = self.column(rel[1:]).relatedTable()
+            colobj = self.column(rel[1:])
+            if colobj is not None:
+                reltbl = colobj.relatedTable()
+            else:
+                reltbl = '.'.join(self.relations.getNode(rel).attr['joiner']['many_relation'].split('.')[0:2])
+                reltbl = self.db.table(reltbl)
             return '%s.%s' % (rel, reltbl.fullRelationPath(pathlist))
         else:
             return name

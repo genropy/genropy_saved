@@ -1274,7 +1274,7 @@ dojo.declare("gnr.stores._Collection",null,{
             that.storeNode.subscribe('setLocked',function(v){that.setLocked(v);});
             var parentForm = that.storeNode.getFormHandler();
             if(parentForm){
-                parentForm.subscribe('onLockChange',function(kw){that.setLocked(kw.locked);});
+                parentForm.subscribe('onDisabledChange',function(kw){that.setLocked(kw.disabled);});
             }
             startLocked = parentForm?parentForm.locked:startLocked;
             setTimeout(function(){that.setLocked(startLocked);},1);
@@ -1619,7 +1619,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
         dojo.forEach(linkedGrids,function(grid){
             grid.batchUpdating(true);
             selectedIndex = grid.selection.selectedIndex;
-            if(selectedIndex!=null){
+            if(selectedIndex!=null&&selectedIndex>=0){
                 selectedPkey = grid.rowIdByIndex(selectedIndex);
                 selectedPkeysDict[selectedPkey] = selectedPkeysDict[selectedPkey] || [];
                 selectedPkeysDict[selectedPkey].push(grid);
@@ -1682,6 +1682,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             grid.batchUpdating(false);   
             if(toUpdate){
                 grid.updateRowCount();
+                grid.restoreSelectedRows();
             }
         });
 
@@ -1849,7 +1850,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
 
     getDataChunk:function(pageIdx){
-
+        console.log('getDataChunk',pageIdx)
         if (pageIdx in this.pendingPages){
             return;
         }else{
@@ -1894,6 +1895,7 @@ dojo.declare("gnr.stores.VirtualSelection",gnr.stores.Selection,{
     },
 
     loadBagPageFromServer:function(pageIdx,sync) {
+        console.log('loadBagPageFromServer components',pageIdx,sync)
         var that = this;
         var row_start = pageIdx * this.chunkSize;
         var kw = this.getData().getParentNode().attr;

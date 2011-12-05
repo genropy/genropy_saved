@@ -40,7 +40,7 @@ class GnrCustomWebPage(object):
                   content of the \"b_year\" column in \"test/test_3_selected/year\". You can
                   see them in datastore (ctrl+shift+D), but you can see them even in the
                   two \"readOnly\" fields""",colspan=3)
-        fb.dbSelect(lbl='musician', dbtable='showcase.person', value='^.id',
+        fb.dbSelect(lbl='Artist', dbtable='showcase.person', value='^.id',
                     selected_nationality='.nationality', selected_b_year='.year')
         fb.textbox(lbl='nationality', value='^.nationality', readOnly=True)
         fb.textbox(lbl='birth year', value='^.year', readOnly=True)
@@ -50,7 +50,7 @@ class GnrCustomWebPage(object):
         fb = pane.formbuilder()
         fb.div("""If you have two or more database tables in relation,
                   you can allow the user to choose a record with a first "dbSelect"... """)
-        fb.dbSelect(dbtable='showcase.person', value='^.person_id', lbl='Musician',
+        fb.dbSelect(dbtable='showcase.person', value='^.person_id', lbl='Artist',
                     selected_name='.name', selected_b_year='.b_year')
         fb.div("""... and then you can make the user choose an attribute relative to the
                 first record selected through a second dbSelect:""")
@@ -67,4 +67,11 @@ class GnrCustomWebPage(object):
                   \"Czech\", \"German\" or \"Austrian\", for example)""")
         fb.dbSelect(dbtable='showcase.person', value='^.value',
                     columns='$name,$nationality', auxColumns='$name,$nationality,$b_year,$d_year')
+                    
+    def test_6_hiddenColumns(self, pane):
+        """\"hiddenColumns\" attribute"""
+        fb = pane.formbuilder()
+        fb.div("""...""")
+        fb.dbSelect(dbtable='showcase.person', value='^.value1',
+                    columns='$name,$nationality', auxColumns='$name,$nationality')
                     

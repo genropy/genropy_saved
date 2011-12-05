@@ -296,9 +296,12 @@ class GnrSqlDb(GnrObject):
         :param cursor: an sql cursor
         :param cursorname: the name of the cursor
         :param autocommit: if ``True``, at the end of the execution runs the :meth:`commit()` method
-        :param dbtable: the :ref:`database table <table>`"""
+        :param dbtable: specify the :ref:`database table <table>`. More information in the
+                        :ref:`dbtable` section (:ref:`dbselect_examples_simple`)
+        """
         # transform list and tuple parameters in named values.
         # Eg.   WHERE foo IN:bar ----> WHERE foo in (:bar_1, :bar_2..., :bar_n)
+        currEnv = self.currentEnv
         envargs = dict([('env_%s' % k, v) for k, v in self.currentEnv.items()])
         if not 'env_workdate' in envargs:
             envargs['env_workdate'] = self.workdate

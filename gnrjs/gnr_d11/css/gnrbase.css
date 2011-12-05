@@ -487,7 +487,13 @@ label.ghostlabel span {
 
 .hideSplitter >.dijitSplitter {
     background: transparent;
+    width:4px;
 }
+.hideSplitter>.dijitSplitter:hover{
+    background:silver;
+    opacity:.5;
+}
+
 
 .hideSplitter >.dijitSplitter .dijitSplitterThumb {
     visibility: hidden;

@@ -12,10 +12,10 @@ DateTextbox
               * **Common attributes**: check the :ref:`attributes_index` section
     
     * :ref:`datetextbox_def`
-    * :ref:`datetextbox_description`
-    * :ref:`datetextbox_attributes`
-    * :ref:`datetextbox_examples`: :ref:`datetextbox_examples_simple`
-
+    * :ref:`datetextbox_examples`:
+    
+        * :ref:`datetextbox_examples_simple`
+        
 .. _datetextbox_def:
 
 definition
@@ -23,28 +23,16 @@ definition
 
     .. method:: dateTextbox([**kwargs])
     
-.. _datetextbox_description:
-
-description
-===========
-
-    A dateTextbox is a easy-to-use date entry controls that allow either typing or choosing
-    a date from any calendar widget.
-    
-    * The data format type depends on the locale parameters of your browser. For example,
-      with the ``en`` locale it is set to ``mm/dd/yyyy``
-
-.. _datetextbox_attributes:
-
-attributes
-==========
-    
-    **dateTextbox attributes**:
-    
-    * *popup*: allow to show a calendar dialog. Default value is ``True``
-    
-        .. image:: ../../../../_images/widgets/datetextbox.png
-        
+                A dateTextbox is a easy-to-use date entry controls that allow either
+                typing or choosing a date from any calendar widget
+                
+                The data format type depends on the locale parameters of your browser. For example,
+                with the ``en`` locale it is set to ``mm/dd/yyyy``
+                  
+                * **Parameters**: **popup**: allow to show a calendar dialog. Default value is ``True``
+                
+                  .. image:: ../../../../_images/widgets/datetextbox.png
+                  
 .. _datetextbox_examples:
 
 Examples
@@ -55,9 +43,25 @@ Examples
 simple example
 --------------
 
-    Example::
+    * `datetextbox [basic] <http://localhost:8080/webpage_elements/widgets/form_widgets/textboxes/dateTextbox/1>`_
+      
+      .. note:: example elements' list:
+      
+                * **classes**: :ref:`gnrcustomwebpage`
+                * **components**: :ref:`testhandlerfull`
+                * **webpage variables**: :ref:`webpages_py_requires`
+                * **widgets**: :ref:`formbuilder`
+                
+    * **Code**::
     
+        # -*- coding: UTF-8 -*-
+        """dateTextbox"""
+
         class GnrCustomWebPage(object):
-            def main(self,root,**kwargs):
-                root.dateTextbox(value='^dateTextbox',popup=True)
+            py_requires = "gnrcomponents/testhandler:TestHandlerFull"
+
+            def test_1_basic(self, pane):
+                """simple dateTextbox"""
+                fb = pane.formbuilder()
+                fb.dateTextbox(value='^.date', lbl='Date')
                 

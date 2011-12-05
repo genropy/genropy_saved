@@ -5,7 +5,7 @@ import time
 
 class Table(object):
     def config_db(self, pkg):
-        tbl = pkg.table('localita', pkey='id', name_long='Localita', rowcaption='nome,@provincia.sigla:%s (%s)',broadcast=True)
+        tbl = pkg.table('localita', pkey='id', name_long='Localita', rowcaption='nome,@provincia.sigla:%s (%s)')
         tbl.column('id', size='22', group='_', readOnly=True, name_long='!!Id',unique=True)
         tbl.column('nome', size=':52', name_long='Nome', indexed=True)
         tbl.column('provincia', size='2', name_long='Provincia').relation('glbl.provincia.sigla', mode='foreignkey',

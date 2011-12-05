@@ -204,9 +204,11 @@ dojo.declare("gnr.widgets.CkEditor", gnr.widgets.baseHtml, {
         
         var cbResize=function(){
                 sourceNode._rsz=null;
-               //if(genro.dom.isVisible(ckeditor.element.$)){
+                try{
                     ckeditor.resize(parentDomNode.clientWidth,parentDomNode.clientHeight);
-               // }
+                }catch(e){
+                    
+                }
                 
         };
         dojo.connect(parentWidget,'resize',function(){

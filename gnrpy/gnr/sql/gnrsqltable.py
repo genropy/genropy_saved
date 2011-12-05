@@ -482,12 +482,14 @@ class SqlTable(GnrObject):
                          **kwargs)
         return query
             
-    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, **kwargs):
+    def batchUpdate(self, updater=None, _wrapper=None, _wrapperKwargs=None, autocommit=False,**kwargs):
         """A :ref:`batch` used to update a database. For more information, check the :ref:`batchupdate` section
         
         :param updater: MANDATORY. It can be a dict() (if the batch is a :ref:`simple substitution
                         <batchupdate>`) or a method
-        :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter"""
+        :param autocommit: boolan. If ``True``, perform the commit of the database (``self.db.commit()``)
+        :param **kwargs: insert all the :ref:`query` parameters, like the :ref:`sql_where` parameter
+        """
         fetch = self.query(addPkeyColumn=False, for_update=True, **kwargs).fetch()
         if _wrapper:
             fetch = _wrapper(fetch, **(_wrapperKwargs or dict()))
@@ -498,7 +500,9 @@ class SqlTable(GnrObject):
             elif isinstance(updater, dict):
                 new_row.update(updater)
             self.update(new_row, row)
-    
+        if autocommit:
+            self.db.commit()
+        
     def toXml(self,pkeys=None,path=None,where=None,rowcaption=None,columns=None,related_one_dict=None,**kwargs):
         where = '$%s IN :pkeys' %self.pkey if pkeys else where
         columns = columns or '*'
@@ -693,6 +697,12 @@ class SqlTable(GnrObject):
                     elif onDelete in ('c', 'cascade'):
                         for row in sel:
                             relatedTable.delete(relatedTable.record(row['pkey'], mode='bag'))
+                    elif onDelete in ('n','setnull'):
+                        for row in sel:
+                            rel_rec = dict(row)
+                            rel_rec.pop('pkey',None)
+                            rel_rec[mfld] = None
+                            relatedTable.update(rel_rec)
                             
     def update(self, record, old_record=None, pkey=None,**kwargs):
         """Update a single record
@@ -986,7 +996,9 @@ class SqlTable(GnrObject):
     def rowcaptionDecode(self, rowcaption=None):
         """TODO
         
-        :param rowcaption: TODO"""
+        :param rowcaption: the textual representation of a record in a user query.
+                           For more information, check the :ref:`rowcaption` section
+        """
         rowcaption = rowcaption or self.rowcaption
         if not rowcaption:
             return [], ''
@@ -1006,7 +1018,9 @@ class SqlTable(GnrObject):
         
         :param record: TODO
         :param newrecord: boolean. TODO
-        :param rowcaption: TODO"""
+        :param rowcaption: the textual representation of a record in a user query.
+                           For more information, check the :ref:`rowcaption` section
+        """
         if newrecord:
             return self.name_long
         else:
