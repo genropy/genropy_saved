@@ -1682,6 +1682,7 @@ dojo.declare("gnr.stores.Selection",gnr.stores.BagRows,{
             grid.batchUpdating(false);   
             if(toUpdate){
                 grid.updateRowCount();
+                grid.restoreSelectedRows();
             }
         });
 

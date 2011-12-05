@@ -3262,15 +3262,19 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             }
             storebag.sort(sortedBy);
         }
+
         this.updateRowCount();
+        this.restoreSelectedRows();
+    },
+    mixin_restoreSelectedRows:function(){
         this.selection.unselectAll();
         this.selectionKeeper('load');
         if (this.autoSelect && (this.selection.selectedIndex < 0)) {
             var sel = this.autoSelect == true ? 0 : this.autoSelect();
             this.selection.select(sel);
-
         }
     },
+    
     mixin_setStorepath:function(val, kw) {
         if ((!this._updatingIncludedView) && (! this._batchUpdating)) {
             if (kw.evt == 'fired') {
@@ -4253,21 +4257,24 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
             
             var store = this._collectionStore;
             this._virtual = store.storeType=='VirtualSelection';
-            this.domNode.addEventListener("scroll", function(e) { 
-                var lastRow = that.scroller.lastVisibleRow;
-                if(store._scroll_timeout){
-                    clearTimeout(store._scroll_timeout);
-                }else{
-                    store.isScrolling=true;
-                }
-                store._scroll_timeout=setTimeout(function(){
-                    store.isScrolling=false;
-                    store._scroll_timeout=null;
-                    if(lastRow!=that.scroller.lastVisibleRow){
-                        storeNode.publish('updateRows');
+            if(this._virtual){
+                this.domNode.addEventListener("scroll", function(e) { 
+                    var lastRow = that.scroller.lastVisibleRow;
+                    if(store._scroll_timeout){
+                        clearTimeout(store._scroll_timeout);
+                    }else{
+                        store.isScrolling=true;
                     }
-                },500);
+                    store._scroll_timeout=setTimeout(function(){
+                        store.isScrolling=false;
+                        store._scroll_timeout=null;
+                        if(lastRow!=that.scroller.lastVisibleRow){
+                            storeNode.publish('updateRows');
+                        }
+                    },500);
             }, true);
+            }
+            
             
         }
         return this._collectionStore;
