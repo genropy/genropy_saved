@@ -51,12 +51,16 @@ class TableHandlerView(BaseComponent):
             condition_kwargs['condition'] = condition
         top_kwargs=top_kwargs or dict()
         if extendedQuery:
-            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceMails','resourceActions','5','templateManager','*','count','5']
+            if 'adm' in self.db.packages:
+                templateManager = 'templateManager'
+            else:
+                templateManager = False
+            base_slots = ['5','queryfb','runbtn','queryMenu','15','export','resourcePrints','resourceMails','resourceActions','5',templateManager,'*','count','5']
         elif not virtualStore:
             base_slots = ['5','vtitle','count','*','searchOn']
         else:
             base_slots = ['5','vtitle','count']
-        base_slots = ','.join(base_slots)
+        base_slots = ','.join([b for b in base_slots if b])
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
         else:
@@ -132,6 +136,10 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote('.query.menu',self.th_menuQueries,pyqueries='=.query.pyqueries',
                         favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,caption='Queries',cacheTime=15)
+        pane.dataController("TH(th_root).querymanager.queryEditor(open);",
+                        th_root=th_root,open="^.query.queryEditor")
+        if not 'adm' in self.db.packages:
+            return
         pane.dataRemote('.query.savedqueries',self.th_menuQueries,
                         favoriteQueryPath='=.query.favoriteQueryPath',
                         table=table,th_root=th_root,cacheTime=5,editor=False)
@@ -139,8 +147,7 @@ class TableHandlerView(BaseComponent):
         pane.dataRemote('.query.helper.in.savedsets',self.th_menuSets,
                         objtype='list_in',table=table,cacheTime=5)
                         
-        pane.dataController("TH(th_root).querymanager.queryEditor(open);",
-                        th_root=th_root,open="^.query.queryEditor")
+
         pane.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,pkey='=.query.queryAttributes.pkey',table=table,_fired='^.query.delete',
                    _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
 
@@ -483,7 +490,7 @@ class THViewUtils(BaseComponent):
             querymenu.setItem('__basequery__',None,caption='!!Plain Query',description='',
                                 extended=False)
             querymenu.setItem('r_1',None,caption='-')
-        savedquerymenu = self.db.table('adm.userobject').userObjectMenu(table,objtype='query')            
+        savedquerymenu = self.db.table('adm.userobject').userObjectMenu(table,objtype='query') if 'adm' in self.db.packages else []
         if savedquerymenu:
             for n in savedquerymenu:
                 attr = n.attr

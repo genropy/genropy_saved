@@ -94,7 +94,40 @@ def debug_call(func):
         return result
         
     return decore
-    
+
+def debug_call_new(attribute_list=None, print_time=False):
+    """TODO
+
+    :param time_list: TODO. 
+    :param print_time: boolean. TODO"""
+    attribute_list=attribute_list or []
+    def decore(func):
+        def wrapper(*arg, **kw):
+            thread_ident = thread.get_ident()
+            t1 = time.time()
+            tloc = thlocal()
+            indent = tloc['debug_call_indent'] = tloc.get('debug_call_indent', -1) + 1
+            print'%sSTART: %s in %s (args:%s, kwargs=%s)' % (indent, func.func_name, thread_ident, arg, kw)
+            if attribute_list:
+                values_dict = dict(map(lambda a: (a,getattr(arg[0],a,None)),attribute_list))
+                print values_dict
+            print'%sEND  : %s' % (indent, func.func_name)
+            res = func(*arg, **kw)
+            t2 = time.time()
+            if print_time:
+                print '-' * 80
+                print '%s took %0.3f ms' % (func.func_name, (t2 - t1) * 1000.0)
+                print 10 * ' ' + 28 * '-' + 'args' + 28 * '-' + 10 * ' '
+                print arg
+                print 10 * ' ' + 27 * '-' + 'kwargs' + 27 * '-' + 10 * ' '
+                print kw or (hasattr(arg[0], 'kwargs') and arg[0].kwargs)
+                print '-' * 80
+            #time_list.append((func.func_name, (t2 - t1) * 1000.0))
+            return res
+        return wrapper
+
+    return decore
+
 def timer_call(time_list=None, print_time=True):
     """TODO
     
