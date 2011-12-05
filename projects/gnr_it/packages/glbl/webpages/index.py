@@ -5,7 +5,7 @@ from gnr.web.gnrwebstruct import struct_method
 class GnrCustomWebPage(object):
     user_polling = 0
     auto_polling = 0
-    py_requires="""public:TableHandlerMain"""
+    py_requires="""th/th:TableHandler"""
     
     def pageAuthTags(self, method=None, **kwargs):
         return 'user'
@@ -13,9 +13,10 @@ class GnrCustomWebPage(object):
     def windowTitle(self):
          return '!!Glbl'
 
-    def main(self, rootBC, **kwargs):
-        self.top(rootBC.borderContainer(datapath='glbl',region='top',height='50%'))
-        self.center(rootBC.borderContainer(datapath='glbl.localita',region='center',height='50%'))
+    def main(self, root, **kwargs):
+        bc = root.borderContainer()
+        self.top(bc.borderContainer(datapath='glbl',region='top',height='50%'))
+        self.center(bc.borderContainer(datapath='glbl.localita',region='center',height='50%'))
 
     def top(self,bc):
         th1 = bc.contentPane(region='left',width='50%').dialogTableHandler(table='glbl.provincia',
