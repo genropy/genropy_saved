@@ -292,14 +292,18 @@ class GnrHTable(TableBase):
         """TODO
         
         :param record_data: TODO"""
-        parent_code = record_data['parent_code']
+        parent_code = record_data.get('parent_code')
+        if not parent_code:
+            return
         parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
         self.assignCode(record_data)
         if parent_children==0:
             self.touchRecords(where='$code=:code',code=parent_code)
         
     def trigger_onDeleted(self,record,**kwargs):
-        parent_code = record['parent_code']
+        parent_code = record.get('parent_code')
+        if not parent_code:
+            return
         parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
         if parent_children==0:
             self.touchRecords(where='$code=:code',code=parent_code)
