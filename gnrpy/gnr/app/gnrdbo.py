@@ -293,10 +293,10 @@ class GnrHTable(TableBase):
         
         :param record_data: TODO"""
         parent_code = record_data.get('parent_code')
+        self.assignCode(record_data)
         if not parent_code:
             return
         parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
-        self.assignCode(record_data)
         if parent_children==0:
             self.touchRecords(where='$code=:code',code=parent_code)
         
@@ -330,11 +330,9 @@ class GnrHTable(TableBase):
             self.db.commit()
             return True
         return False
-        
-        
+
     def trigger_onUpdating(self, record_data, old_record=None):
         """TODO
-        
         :param record_data: TODO
         :param old_record: TODO"""
         if old_record and ((record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code'])):
