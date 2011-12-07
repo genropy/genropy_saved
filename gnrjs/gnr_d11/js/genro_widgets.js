@@ -1662,7 +1662,7 @@ dojo.declare("gnr.widgets.Button", gnr.widgets.baseDojo, {
             that.widget._onClickDo(e,inattr,count);
         },inattr._delay);
     },
-    
+
     mixin__onClickDo:function(e,inattr,count) {
         var modifier = eventToString(e);
         var action = inattr.action;
@@ -3459,15 +3459,15 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         var view = this.views.views[0];
         var scrollBox,scrollLeft;
         if(view){
-            genro.callAfter(function(){
-                scrollBox = view.scrollboxNode;
-                scrollLeft = scrollBox.scrollLeft;
-                this.currRenderedRowIndex = null;
-                this.currRenderedRow = null;
-                this.updateRowCount_replaced(n);
-                this.updateTotalsCount(); 
-                scrollBox.scrollLeft = scrollLeft;
-            },1,this);
+            //genro.callAfter(function(){
+            scrollBox = view.scrollboxNode;
+            scrollLeft = scrollBox.scrollLeft;
+            this.currRenderedRowIndex = null;
+            this.currRenderedRow = null;
+            this.updateRowCount_replaced(n);
+            this.updateTotalsCount(); 
+            scrollBox.scrollLeft = scrollLeft;
+            //},1,this);
         }
     },
     mixin_setSortedBy:function(sortedBy) {
