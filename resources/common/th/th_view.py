@@ -59,7 +59,7 @@ class TableHandlerView(BaseComponent):
         elif not virtualStore:
             base_slots = ['5','vtitle','count','*','searchOn']
         else:
-            base_slots = ['5','vtitle','count']
+            base_slots = ['5','vtitle','count','*']
         base_slots = ','.join([b for b in base_slots if b])
         if 'slots' in top_kwargs:
             top_kwargs['slots'] = top_kwargs['slots'].replace('#',base_slots)
@@ -107,7 +107,7 @@ class TableHandlerView(BaseComponent):
         
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
-        pane.div('^.title',font_size='.9')
+        pane.div('^.title',font_size='.9',line_height='20px')
 
     @struct_method
     def th_slotbar_queryMenu(self,pane,**kwargs):

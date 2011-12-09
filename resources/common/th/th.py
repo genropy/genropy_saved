@@ -32,7 +32,7 @@ class TableHandler(BaseComponent):
     def __commonTableHandler(self,pane,nodeId=None,th_pkey=None,table=None,relation=None,datapath=None,viewResource=None,
                             formInIframe=False,virtualStore=False,extendedQuery=None,condition=None,condition_kwargs=None,
                             default_kwargs=None,grid_kwargs=None,hiderMessage=None,pageName=None,readOnly=False,tag=None,
-                            lockable=False,pbl_classes=False,configurable=True,**kwargs):
+                            lockable=False,pbl_classes=False,configurable=True,hider=True,**kwargs):
         if relation:
             table,condition = self._th_relationExpand(pane,relation=relation,condition=condition,
                                                     condition_kwargs=condition_kwargs,
@@ -59,7 +59,8 @@ class TableHandler(BaseComponent):
                                 configurable=configurable,
                                 condition=condition,condition_kwargs=condition_kwargs,grid_kwargs=grid_kwargs,unlinkdict=unlinkdict) 
         hiderRoot = wdg if kwargs.get('tag') == 'BorderContainer' else wdg.view
-        wdg.dataController("""
+        if hider:
+            wdg.dataController("""
                             var currform = this.getFormHandler();
                             message = message || msg_prefix+' '+ (currform?currform.getRecordCaption():"main record") +' '+ msg_suffix;
                             if(pkey=='*newrecord*'){
@@ -177,10 +178,10 @@ class TableHandler(BaseComponent):
         
     @struct_method
     def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
-                            readOnly=True,**kwargs):
+                            readOnly=True,hider=False,**kwargs):
         kwargs['tag'] = 'ContentPane'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,readOnly=readOnly,**kwargs)
+                                        viewResource=viewResource,readOnly=readOnly,hider=hider,**kwargs)
         return wdg
         
     @struct_method
@@ -263,17 +264,18 @@ class ThLinker(BaseComponent):
         
     @extract_kwargs(template=True)
     @struct_method 
-    def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,newRecordOnly=None,openIfEmpty=None,
+    def th_linkerBox(self,pane,field=None,template='default',frameCode=None,formResource=None,formUrl=None,newRecordOnly=None,openIfEmpty=None,
                     _class='pbl_roundedGroup',label=None,template_kwargs=None,**kwargs):
         frameCode= frameCode or 'linker_%s' %field.replace('.','_')
         frame = pane.framePane(frameCode=frameCode,_class=_class)
-        linkerBar = frame.top.linkerBar(field=field,formResource=formResource,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
+        linkerBar = frame.top.linkerBar(field=field,formResource=formResource,formUrl=formUrl,newRecordOnly=newRecordOnly,openIfEmpty=openIfEmpty,label=label,**kwargs)
         linker = linkerBar.linker
         currpkey = '^#FORM.record.%s' %field
         template = frame.templateChunk(resource=template,table=linker.attributes['table'],
                                       datasource='^.@%s' %field,visible=currpkey,margin='4px',**template_kwargs)
-        footer = frame.bottom.slotBar('*,linker_edit')
-        footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='icnBaseWrite',
+        if formResource or formUrl:
+            footer = frame.bottom.slotBar('*,linker_edit')
+            footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='icnBaseWrite',
                                        action='linker.publish("loadrecord");',linker=linker,
                                        visible=currpkey,margin='2px',parentForm=True)
         return frame
