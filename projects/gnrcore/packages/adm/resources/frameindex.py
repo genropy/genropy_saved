@@ -112,7 +112,7 @@ class FrameIndex(BaseComponent):
                             subscribe_user_preference=True,pane=userPref,preftitle='!!User preference')
                             
     def prepareCenter(self,pane):
-        sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',margin_left='-5px',
+        sc = pane.stackContainer(selectedPage='^selectedFrame',nodeId='iframe_stack',
                                 onCreated='genro.framedIndexManager = new gnr.FramedIndexManager(this);')
         sc.dataController("setTimeout(function(){genro.framedIndexManager.selectIframePage(selectIframePage[0])},1);",subscribe_selectIframePage=True)
 
