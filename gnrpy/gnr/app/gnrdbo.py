@@ -101,6 +101,20 @@ class GnrDboPackage(object):
         :param value: the new value"""
         self.db.table('adm.preference').setPreference(path, value, pkg=self.name)
         
+    def tableBroadcast(self,evt,autocommit=False):
+        changed = False
+        db = self.application.db
+        for tname,tblobj in db.packages[self.id].tables.items():
+            handler = getattr(tblobj.dbtable,evt,None)
+            if handler:
+                result = handler()
+                changed = changed or result
+        if changed and autocommit:
+            db.commit()
+        return changed
+
+
+        
 class TableBase(object):
     """TODO"""
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, draftField=False, md5=False,
@@ -292,14 +306,18 @@ class GnrHTable(TableBase):
         """TODO
         
         :param record_data: TODO"""
-        parent_code = record_data['parent_code']
-        parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
+        parent_code = record_data.get('parent_code')
         self.assignCode(record_data)
+        if not parent_code:
+            return
+        parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
         if parent_children==0:
             self.touchRecords(where='$code=:code',code=parent_code)
         
     def trigger_onDeleted(self,record,**kwargs):
-        parent_code = record['parent_code']
+        parent_code = record.get('parent_code')
+        if not parent_code:
+            return
         parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
         if parent_children==0:
             self.touchRecords(where='$code=:code',code=parent_code)
@@ -317,8 +335,7 @@ class GnrHTable(TableBase):
     def reorderCodes(self,pkey=None,into_pkey=None):
         record = self.record(pkey=pkey,for_update=True).output('record')
         oldrecord = dict(record)
-        parent_record = self.record(pkey=into_pkey).output('record')
-        parent_code = parent_record['code']
+        parent_code = self.record(pkey=into_pkey).output('record')['code'] if into_pkey else None
         code_to_test = '%s.%s' %(parent_code,record['child_code'])
         if not self.checkDuplicate(code=code_to_test):
             record['parent_code'] = parent_code
@@ -326,17 +343,20 @@ class GnrHTable(TableBase):
             self.db.commit()
             return True
         return False
-        
-        
+
     def trigger_onUpdating(self, record_data, old_record=None):
         """TODO
-        
         :param record_data: TODO
         :param old_record: TODO"""
         if old_record and ((record_data['child_code'] != old_record['child_code']) or (record_data['parent_code'] != old_record['parent_code'])):
             old_code = old_record['code']
             self.assignCode(record_data)
-            self.batchUpdate(dict(parent_code=record_data['code']), where='$parent_code=:old_code', old_code=old_code)
+            parent_code = record_data['code']
+            self.batchUpdate(dict(parent_code=parent_code), where='$parent_code=:old_code', old_code=old_code)
+            #if parent_code:
+            #    parent_children = self.readColumns(columns='$child_count',where='$code=:code',code=parent_code)
+            #    if parent_children==0:
+            #        self.touchRecords(where='$code=:code',code=parent_code)
             
 class GnrDboTable(TableBase):
     """TODO"""

@@ -443,7 +443,7 @@ class PublicSlots(BaseComponent):
 
 
 class TableHandlerMain(BaseComponent):
-    py_requires = """public:PublicBase,th/th:TableHandler"""
+    py_requires = """public:Public,th/th:TableHandler"""
     plugin_list=''
     formResource = None
     viewResource = None

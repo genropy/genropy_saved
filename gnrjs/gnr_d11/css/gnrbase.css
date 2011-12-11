@@ -2180,6 +2180,18 @@ border='1px solid gray',margin='2px', rounded=10,
 	height: 40px;
 }
 
+.slotCaption {
+    -moz-border-radius:12px;
+    -webkit-border-radius:12px;
+    background:#555;
+    border:1px solid gray;
+    padding-left:1em;
+    padding-right:1em;
+    padding-top:1px;
+    overflow:hidden;
+    font-weight:bold;
+    color:white;
+}
 
 /* @end */
 .slotbar .dojoxDock{

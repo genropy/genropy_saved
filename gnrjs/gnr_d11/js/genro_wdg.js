@@ -695,7 +695,6 @@ dojo.declare("gnr.GridEditor", null, {
             editWidgetNode._validations = {'error':cellDataNode.attr._validationError,'warnings':cellDataNode.attr._validationWarnings};
             editWidgetNode.updateValidationStatus();
         }
-        ;
         editWidgetNode.widget.focus();
         editWidgetNode.grid = gridEditor.grid;
 

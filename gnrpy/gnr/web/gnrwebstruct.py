@@ -1249,6 +1249,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             if slot!='*' and slot!='|' and not slot.isdigit():
                 if not self.getNode(slot):
                     self._addSlot(slot,prefix=prefix,frame=frame,frameCode=frameCode,namespace=namespace,**toolbarArgs)
+        return self
                     
     def button(self, label=None, **kwargs):
         """The :ref:`button` is a :ref:`dojo-improved form widget <dojo_improved_widgets>`: through
