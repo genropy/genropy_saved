@@ -248,8 +248,15 @@ class TableBase(object):
         tbl.aliasColumn('_recordtag_desc', relation_path='%s.description' % relation_path, group=group,
                         name_long=name_long, dtype='TAG')
         tbl.aliasColumn('_recordtag_tag', relation_path='%s.tag' % relation_path, name_long='!!Tagcode', group='_')
-        
-class GnrHTable(TableBase):
+
+
+class GnrDboTable(TableBase):
+    """TODO"""
+    def use_dbstores(self):
+        """TODO"""
+        return True
+              
+class GnrHTable(GnrDboTable):
     """A hierarchical table. More information on the :ref:`classes_htable` section"""
     def htableFields(self, tbl):
         """:param tbl: the :ref:`table` object
@@ -375,11 +382,6 @@ class GnrHTableDynamicForm(GnrHTable):
         return record 
 
 
-class GnrDboTable(TableBase):
-    """TODO"""
-    def use_dbstores(self):
-        """TODO"""
-        return True
         
 class Table_counter(TableBase):
     """This table is automatically created for every package that inherit from GnrDboPackage."""

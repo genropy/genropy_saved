@@ -61,22 +61,19 @@ class DynamicForm(BaseComponent):
         return frame 
     @struct_method
     def df_dynamicFieldsPane(self,pane,df_table=None,df_pkey=None,df_folders=None,**kwargs):
-        #maintable = pane.getInheritedAttributes().get('table') or self.maintable
         pane.remote(self.df_remoteDynamicForm,df_table=df_table,df_pkey=df_pkey,
                     df_folders=df_folders,
-                    #df_maintable=maintable,
                     **kwargs)
 
     
     @public_method
-    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,df_folders=None,df_maintable=None,datapath=None,**kwargs):
+    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,df_folders=None,datapath=None,**kwargs):
         if not df_pkey:
             pane.div('!!No Form descriptor')
             return
         fb_kwargs = dictExtract(kwargs,'fb_',pop=True)
         dbstore_kwargs = dictExtract(kwargs,'dbstore_',pop=True)
         pane.attributes.update(kwargs)
-        #main_tblobj = self.db.table(df_maintable)
         df_tblobj = self.db.table(df_table)
         formDescriptor = df_tblobj.getFormDescriptor(pkey=df_pkey,folders=df_folders)
         fields = formDescriptor[df_tblobj.attributes.get('df_fields','fields')]
@@ -97,6 +94,10 @@ class DynamicForm(BaseComponent):
                     if pkg in dbstore_kwargs.get('pkg','').split(','):
                         attr['_storename'] = '=%(name)s' %dbstore_kwargs
                 else:
+                    if ':' in field_source:
+                        tag = 'FilteringSelect'
+                    else:
+                        tag = 'ComboBox'
                     attr['values'] = field_source
             fb.child(value='^.%(code)s' %attr, lbl='%(description)s' %attr,colspan=colspan,tag=tag,**attr)
         
