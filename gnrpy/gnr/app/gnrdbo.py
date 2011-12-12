@@ -358,6 +358,23 @@ class GnrHTable(TableBase):
             #    if parent_children==0:
             #        self.touchRecords(where='$code=:code',code=parent_code)
             
+            
+class GnrHTableDynamicForm(GnrHTable):
+    def getFormDescriptor(self,pkey=None,code=None,folders=False):
+        record = self.record(where='$id=:pkey OR $code=:code',pkey=pkey,code=code,virtual_columns='$child_count').output('record')      
+        if record['child_count'] and not folders:
+            return Bag(),False
+        fieldsField = self.attributes.get('df_fields','fields')
+        f = self.query(columns='$description,$%s,$child_count' %fieldsField,
+                             where="(:code=$code) OR (:code ILIKE $code || '.%%')" ,
+                             code=record['code'],order_by='$code').fetch()
+        fields = Bag()
+        for r in f:
+            fields.update(Bag(r[fieldsField]))
+        record[fieldsField] = fields
+        return record 
+
+
 class GnrDboTable(TableBase):
     """TODO"""
     def use_dbstores(self):
