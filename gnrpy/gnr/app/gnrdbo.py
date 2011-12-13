@@ -248,8 +248,15 @@ class TableBase(object):
         tbl.aliasColumn('_recordtag_desc', relation_path='%s.description' % relation_path, group=group,
                         name_long=name_long, dtype='TAG')
         tbl.aliasColumn('_recordtag_tag', relation_path='%s.tag' % relation_path, name_long='!!Tagcode', group='_')
-        
-class GnrHTable(TableBase):
+
+
+class GnrDboTable(TableBase):
+    """TODO"""
+    def use_dbstores(self):
+        """TODO"""
+        return True
+              
+class GnrHTable(GnrDboTable):
     """A hierarchical table. More information on the :ref:`classes_htable` section"""
     def htableFields(self, tbl):
         """:param tbl: the :ref:`table` object
@@ -358,11 +365,23 @@ class GnrHTable(TableBase):
             #    if parent_children==0:
             #        self.touchRecords(where='$code=:code',code=parent_code)
             
-class GnrDboTable(TableBase):
-    """TODO"""
-    def use_dbstores(self):
-        """TODO"""
-        return True
+            
+class GnrHTableDynamicForm(GnrHTable):
+    def getFormDescriptor(self,pkey=None,code=None,folders=False):
+        record = self.record(where='$id=:pkey OR $code=:code',pkey=pkey,code=code,virtual_columns='$child_count').output('record')      
+        if record['child_count'] and not folders:
+            return Bag(),False
+        fieldsField = self.attributes.get('df_fields','fields')
+        f = self.query(columns='$description,$%s,$child_count' %fieldsField,
+                             where="(:code=$code) OR (:code ILIKE $code || '.%%')" ,
+                             code=record['code'],order_by='$code').fetch()
+        fields = Bag()
+        for r in f:
+            fields.update(Bag(r[fieldsField]))
+        record[fieldsField] = fields
+        return record 
+
+
         
 class Table_counter(TableBase):
     """This table is automatically created for every package that inherit from GnrDboPackage."""

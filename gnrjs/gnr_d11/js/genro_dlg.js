@@ -317,8 +317,8 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         node.freeze();
         var paletteAttr = {'paletteCode':paletteCode,title:'Palette:'+pkey,overflow:'hidden',
                                                       dockTo:false,//'*:open',
-                                                      width:'1px',height:'1px',
-                                                      palette_transition:'all .7s'
+                                                      width:'1px',height:'1px'
+                                                     // palette_transition:'all .7s'
                                                       };
         if(evt){
             paletteAttr.top=_px(evt.clientY);
