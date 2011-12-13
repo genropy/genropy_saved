@@ -74,7 +74,7 @@ class DynamicForm(BaseComponent):
 
     
     @public_method
-    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,df_folders=None,**kwargs):
+    def df_remoteDynamicForm(self,pane,df_table=None,df_pkey=None,df_folders=None,datapath=None,**kwargs):
         if not df_pkey:
             pane.div('!!No Form descriptor')
             return
@@ -84,7 +84,7 @@ class DynamicForm(BaseComponent):
         formDescriptor = df_tblobj.getFormDescriptor(pkey=df_pkey,folders=df_folders)
         fields = formDescriptor[df_tblobj.attributes.get('df_fields','fields')]
         fielddict = {'T':'Textbox','L':'NumberTextBox','D':'DateTextBox','B':'Checkbox','N':'NumberTextBox', 'TL':'Simpletextarea'}
-        fb = pane.div(margin_right='10px').formbuilder(cols=1)
+        fb = pane.div(margin_right='10px').formbuilder(cols=1,datapath=datapath)
         for fnode in fields:
             attr = dict(fnode.attr)
             field_type = attr.pop('field_type')
