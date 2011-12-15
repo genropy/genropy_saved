@@ -548,7 +548,9 @@ class TableHandlerMain(BaseComponent):
     
     @public_method                     
     def pbl_form_main(self, root,**kwargs):
-        kwargs.update(self.getCallArgs('pkey'))
+        callArgs =  self.getCallArgs('th_pkg','th_table','th_pkey') 
+        pkey = callArgs.pop('th_pkey',None)
+        kwargs.update(pkey=pkey)
         formCb = self.th_form if hasattr(self,'th_form') else None
         self._th_prepareForm(root,formCb=formCb,**kwargs)
                 

@@ -471,17 +471,19 @@ class THViewUtils(BaseComponent):
                 result.setItem(k.replace('_','.'),None,description=caption,caption=caption,viewkey=k,gridId=gridId)
         userobjects = self.db.table('adm.userobject').userObjectMenu(objtype='view',flags='%s_%s' % (self.pagename, gridId),table=table)
         if len(userobjects)>0:
-            for n in userobjects:
-                attrs = n.attr
-                result.addItem(attrs.get('code') or 'r_%i' %len(result), None,gridId=gridId,**attrs)
-        result.walk(self._th_checkFavoriteLine,favPath=favoriteViewPath)
+            result.update(userobjects)
+        result.walk(self._th_checkFavoriteLine,favPath=favoriteViewPath,gridId=gridId)
         return result
     
-    def _th_checkFavoriteLine(self,node,favPath=None):
-        if node.attr.get('code') and node.attr['code'] == favPath:
-            node.attr['favorite'] = True
+    def _th_checkFavoriteLine(self,node,favPath=None,gridId=None):
+        if node.attr.get('code'):
+            if gridId:
+                node.attr['gridId'] = gridId
+            if node.attr['code'] == favPath:
+                node.attr['favorite'] = True
         else:
             node.attr['favorite'] = None
+        
     
     @public_method
     def th_menuQueries(self,table=None,th_root=None,pyqueries=None,editor=True,favoriteQueryPath=None,**kwargs):
@@ -492,9 +494,7 @@ class THViewUtils(BaseComponent):
             querymenu.setItem('r_1',None,caption='-')
         savedquerymenu = self.db.table('adm.userobject').userObjectMenu(table,objtype='query') if 'adm' in self.db.packages else []
         if savedquerymenu:
-            for n in savedquerymenu:
-                attr = n.attr
-                querymenu.setItem(attr.get('code') or 's_%i' % len(querymenu), None,_attributes=attr)
+            querymenu.update(savedquerymenu)
             querymenu.setItem('r_2',None,caption='-')
         if pyqueries:
             for n in pyqueries:
