@@ -637,7 +637,7 @@ function convertFromText(value, t, fromLocale) {
     else if (t == 'JS') {
         return genro.evaluate(value);
     }
-    else if (t = 'BAG' && !value) {
+    else if (t == 'BAG' && !value) {
         return new gnr.GnrBag();
     }
     return value;
