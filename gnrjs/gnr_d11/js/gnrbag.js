@@ -322,6 +322,20 @@ dojo.declare("gnr.GnrBagNode", null, {
             return objectUpdate(inherited, this.attr);
         }
     },
+    isAncestor:function(n){
+        do{
+            if(n && (n._id==this._id)){
+                 return true;
+            }
+            n = n.getParentNode();
+        }while(n)
+        return false;
+    },
+    
+    isDescendant:function(n){
+        return n.isAncestor(this);
+    },
+    
     
     attributeOwnerNode:function(attrname,attrvalue){
         var curr = this;
