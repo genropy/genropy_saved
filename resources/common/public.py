@@ -205,14 +205,10 @@ class PublicBase(BaseComponent):
                               formId='changeWorkdate', height='100px', width='200px',
                               cb_center=cb_center, loadsync=True)
         dlg.dataController("SET .data.current_date=date;", date="=gnr.workdate", nodeId='changeWorkdate_loader')
-        dlg.dataRpc('gnr.workdate', 'pbl_changeServerWorkdate', newdate='=.data.current_date',
-                    _if='newdate', nodeId='changeWorkdate_saver', _onResult='FIRE .saved;')
-                    
-    def rpc_pbl_changeServerWorkdate(self, newdate=None):
-        if newdate:
-            self.workdate = newdate
-        return self.workdate
-        
+        dlg.dataRpc('gnr.workdate', self.setWorkdate, workdate='=.data.current_date',
+                    _if='workdate', nodeId='changeWorkdate_saver', 
+                    _onResult="FIRE .saved; PUBLISH pbl_changed_workdate = {workdate:result};")
+
     def mainLeftTop(self, pane):
         if self.application.checkResourcePermission(self.pbl_preferenceAppTags(), self.userTags):
             pane.div(_class='icnBasePref buttonIcon', connect_onclick='PUBLISH preference_open="app";',
@@ -548,7 +544,9 @@ class TableHandlerMain(BaseComponent):
     
     @public_method                     
     def pbl_form_main(self, root,**kwargs):
-        kwargs.update(self.getCallArgs('pkey'))
+        callArgs =  self.getCallArgs('th_pkg','th_table','th_pkey') 
+        pkey = callArgs.pop('th_pkey',None)
+        kwargs.update(pkey=pkey)
         formCb = self.th_form if hasattr(self,'th_form') else None
         self._th_prepareForm(root,formCb=formCb,**kwargs)
                 

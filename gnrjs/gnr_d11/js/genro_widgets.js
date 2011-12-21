@@ -2133,7 +2133,7 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
         if (sourceNode.attr.selfDragColumns || sourceNode.attr.configurable) {
             this.selfDragColumnsPrepare(sourceNode);
         }
-        var savedAttrs = objectExtract(attributes, 'selected*');
+        var savedAttrs = objectExtract(attributes, 'selected*');        
         var identifier = attributes.identifier || '_pkey';
         attributes.datamode = attributes.datamode || 'attr';
         attributes.rowsPerPage = attributes.rowsPerPage || 10;
@@ -2278,6 +2278,10 @@ dojo.declare("gnr.widgets.DojoGrid", gnr.widgets.baseDojo, {
             };
             genro.src.afterBuildCalls.push(connectFilteringGrid);
         }
+        if(sourceNode.attr.rowCustomClassesCb){
+            widget.rowCustomClassesCb = funcCreate(sourceNode.attr.rowCustomClassesCb,'row');
+        }
+
     },
     mixin_updateTotalsCount: function(countBoxNode){
         var countBoxCode =(this.sourceNode.attr.frameCode || this.sourceNode.attr.nodeId)+'_countbox';
@@ -3384,8 +3388,12 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
     },
     patch_onStyleRow:function(row) {
         var attr = this.rowCached(row.index);
+        var customClasses = null;
+        if(this.rowCustomClassesCb){
+            row.customClasses = (row.customClasses || '')+' '+(this.rowCustomClassesCb(attr)||'');
+        }
         if (attr._customClasses) {
-            var customClasses = null;
+            
             if (attr._customClasses.slice(0, 1) == '!') {
                 customClasses = attr._customClasses.slice(1);
             } else {
@@ -3398,6 +3406,7 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
         }
         this.onStyleRow_replaced(row);
     },
+    
     mixin_canEdit: function(inCell, inRowIndex) {
         // summary:
         // determines if a given cell may be edited
@@ -4110,6 +4119,20 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             }
         },'static');
         
+    },
+    mixin_serverAction:function(kw){
+        var options = objectPop(kw,'opt');
+        var method = objectPop(options,"method") || "app.includedViewAction";
+        var kwargs = objectUpdate({},options);
+        kwargs['action'] = objectPop(kw,'command');
+        kwargs['data'] = this.storebag();
+        kwargs['datamode'] = this.datamode;
+        kwargs['struct'] = this.structbag();
+        var cb = function(result){
+            genro.download(result);
+        };
+        kwargs['meta'] = objectExtract(this.sourceNode.attr, 'meta_*', true);
+        genro.rpc.remoteCall(method, kwargs, null, 'POST', null,cb);
     },
     
     created: function(widget, savedAttrs, sourceNode) {
@@ -5475,6 +5498,9 @@ dojo.declare("gnr.widgets.Tree", gnr.widgets.baseDojo, {
         for (var sel in selattr) {
             var path = this.sourceNode.attrDatapath('selected_' + sel);
             this.sourceNode.setRelativeData(path, item.attr[sel], attributes, null, reason);
+        }
+        if(this.sourceNode.attr.onSelectedFire){
+            this.sourceNode.fireEvent(this.sourceNode.attr.onSelectedFire,true)
         }
     }
 });

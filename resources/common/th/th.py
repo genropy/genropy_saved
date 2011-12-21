@@ -274,11 +274,10 @@ class ThLinker(BaseComponent):
         template = frame.templateChunk(resource=template,table=linker.attributes['table'],
                                       datasource='^.@%s' %field,visible=currpkey,margin='4px',**template_kwargs)
         if formResource or formUrl:
-            #footer = frame.bottom.slotBar('*,linker_edit')
-            frame.slotButton('Edit',baseClass='no_background',iconClass='icnBaseWrite',
-                                       action='linker.publish("loadrecord");',linker=linker,
-                                       visible=currpkey,parentForm=True,
-                                       position='absolute',bottom='2px',right='2px')
+            footer = frame.bottom.slotBar('*,linker_edit')
+            footer.linker_edit.slotButton('Edit',baseClass='no_background',iconClass='icnBaseWrite',
+                                            action='linker.publish("loadrecord");',linker=linker,
+                                            visible=currpkey,parentForm=True)
         return frame
 
     @struct_method          
