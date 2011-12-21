@@ -4120,6 +4120,20 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
         },'static');
         
     },
+    mixin_serverAction:function(kw){
+        var options = objectPop(kw,'opt');
+        var method = objectPop(options,"method") || "app.includedViewAction";
+        var kwargs = objectUpdate({},options);
+        kwargs['action'] = objectPop(kw,'command');
+        kwargs['data'] = this.storebag();
+        kwargs['datamode'] = this.datamode;
+        kwargs['struct'] = this.structbag();
+        var cb = function(result){
+            genro.download(result);
+        };
+        kwargs['meta'] = objectExtract(this.sourceNode.attr, 'meta_*', true);
+        genro.rpc.remoteCall(method, kwargs, null, 'POST', null,cb);
+    },
     
     created: function(widget, savedAttrs, sourceNode) {
         this.created_common(widget, savedAttrs, sourceNode);
