@@ -879,6 +879,9 @@ dojo.declare("gnr.widgets.StackContainer", gnr.widgets.baseDojo, {
             this.selectChild(child);
         }
     },
+    mixin_hasPageName:function(pageName){
+        return pageName in this.gnrPageDict;
+    },
 
     mixin_getSelected: function() {
         var selected = {n:null};
