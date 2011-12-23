@@ -171,7 +171,7 @@ dojo.declare('gnr.GenroClient', null, {
     },
     saveContextCookie:function() {
         var clientCtx = genro.getData('_clientCtx');
-        genro.publish('onCookieSaving');
+        //genro.publish('onCookieSaving');
         if (clientCtx) {
             dojo.cookie("genroContext", clientCtx.toXml(), { expires: 5,path:genro.getData('gnr.homeUrl')});
         }
