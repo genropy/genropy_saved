@@ -62,7 +62,7 @@ class FrameIndex(BaseComponent):
                                             var targetSource = $1.target.sourceNode;
                                             var pageName = targetSource.inheritedAttribute("pageName");
                                             this.setRelativeData("selectedFrame",pageName);
-                                            """,margin_left='20px',display='inline-block')
+                                            """,margin_left='20px',display='inline-block',nodeId='frameindex_tab_button_root')
         tabroot.div()
         pane.dataController("""
                                 if(!data){
@@ -123,26 +123,9 @@ class FrameIndex(BaseComponent):
                                                 return;
                                             }
                                             var frame = dojo.byId("iframe_"+$1);
-                                            var src = frame.src;
-                                            frame.src = '';
-                                            setTimeout(function(){
-                                                frame.src = src;
-                                            },1);
+                                            frame.sourceNode._genro.pageReload();
                                             """
-        scattr['subscribe_closeFrame'] = """var sc = this.widget;
-                                            var selected = sc.getSelectedIndex();
-                                            var node = genro._data.popNode('iframes.'+$1);
-                                            var treeItem = genro.getDataNode(node.attr.fullpath);
-                                            if(treeItem){
-                                                var itemclass = treeItem.attr.labelClass.replace('menu_existing_page','');
-                                                itemclass = itemclass.replace('menu_current_page','');
-                                                treeItem.setAttribute('labelClass',itemclass);
-                                            }
-                                            this.getValue().popNode($1);
-                                            selected = selected>=sc.getChildren().length? selected-1:selected;
-                                            PUT selectedFrame = null;
-                                            sc.setSelected(selected);
-                                         """        
+        scattr['subscribe_closeFrame'] = "genro.framedIndexManager.deleteFramePage($1);"        
         scattr['subscribe_destroyFrames'] = """
                         var sc = this.widget;
                         for (var k in $1){

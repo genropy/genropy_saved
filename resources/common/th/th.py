@@ -152,10 +152,10 @@ class TableHandler(BaseComponent):
     @extract_kwargs(default=True,page=True)
     @struct_method
     def th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,
-                            default_kwargs=None,dbname=None,**kwargs):
+                            default_kwargs=None,dbname=None,recyclableTabs=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,default_kwargs=default_kwargs,
+                                        viewResource=viewResource,default_kwargs=default_kwargs,recyclableTabs=None,
                                         **kwargs)
         grid = th.view.grid
         table = table or th.attributes['table']
@@ -166,14 +166,19 @@ class TableHandler(BaseComponent):
         grid.dataController("""
             if(!this._pageHandler){
                 this._pageHandler = new gnr.pageTableHandlerJS(this,_formId,mainpkey,formUrl,
-                                                                default_kwargs,formResource,viewStore);
+                                                                default_kwargs,formResource,viewStore,
+                                                                recyclableTabs);
             }
             this._pageHandler.checkMainPkey(mainpkey);
             if(pkey){
                 this._pageHandler.openPage(pkey,dbname);
             }
-        """,formUrl=formUrl,formResource=formResource or ':Form',pkey='^.editrow',_formId=fakeFormId,
-           default_kwargs=default_kwargs,_fakeform=True,mainpkey='^#FORM.pkey',dbname=dbname or False,viewStore=th.view.store)
+        """,formUrl=formUrl,formResource=formResource or ':Form',
+             pkey='^.editrow',
+             mainpkey='^#FORM.pkey',
+            _formId=fakeFormId,
+           default_kwargs=default_kwargs,_fakeform=True,
+           dbname=dbname or False,viewStore=th.view.store,recyclableTabs=recyclableTabs or False)
         return th    
         
     @struct_method

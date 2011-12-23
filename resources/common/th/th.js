@@ -153,12 +153,13 @@ dojo.declare("gnr.LinkerManager", null, {
     }
 });
 dojo.declare("gnr.pageTableHandlerJS",null,{
-    constructor:function(sourceNode,formId,mainpkey,formUrl,default_kwargs,formResource,viewStore){
+    constructor:function(sourceNode,formId,mainpkey,formUrl,default_kwargs,formResource,viewStore,recyclableTabs){
         this.sourceNode = sourceNode;
         this.mainpkey = mainpkey;
         this.default_kwargs = default_kwargs;
         this.pages_dict = {};
-        this.page_kw = {url_main_call:'pbl_form_main',url_th_public:true,subtab:true,
+        this.recyclableTabs = recyclableTabs;
+        this.page_kw = {url_main_call:'pbl_form_main',url_th_public:true,subtab:this.recyclableTabs?'recyclable':true,
                         url_th_formId:formId,url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection'};
         this.formUrl = formUrl;
         this.fakeFormId = formId;
@@ -169,17 +170,28 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
             this.page_kw['url_th_formResource'] = formResource;
         }
     },
-
+    
     openPage:function(pkey,dbname){
         var pageName;
-        
         var formUrl = dbname?'/'+dbname+this.formUrl:this.formUrl;
+        var recyclablePage = null;
         for (var k in this.pages_dict){
-            if(this.pages_dict[k]==pkey){
-                pageName = k;
+            var pagePkey = this.pages_dict[k];
+            if(pagePkey==pkey){
+                this.indexgenro.publish('selectIframePage',{pageName:k});
+                return;
+            }else if(!recyclablePage && !pagePkey){
+                recyclablePage = k;
             }
         }
-        if(!pageName){
+        if(recyclablePage){
+            var recyiclableIframe = this.indexgenro.domById('iframe_'+recyclablePage);
+            this.indexgenro.getDataNode('iframes.'+recyclablePage).updAttributes({'hiddenPage':false});
+            this.indexgenro.publish('selectIframePage',{pageName:recyclablePage});
+            recyiclableIframe.sourceNode._genro.formById(this.fakeFormId).load({destPkey:pkey});
+
+            return;
+        }else{
             pageName = genro.page_id+'_'+genro.getCounter();
             this.pages_dict[pageName] = pkey;
         }
@@ -199,15 +211,23 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
             this._genro.dojo.subscribe('form_'+that.fakeFormId+'_onLoaded',
                                     function(kw){
                                         that.pages_dict[pageName] = kw.pkey;
-                                        indexgenro.publish('changeFrameLabel',{pageName:pageName,title:kw.data.attr.caption});
+                                        indexgenro.publish('changeFrameLabel',{pageName:pageName,title:kw.data?kw.data.attr.caption:'loading...'});
                                     });
+            this._genro.dojo.subscribe('onDeletingIframePage',function(pageName){
+                if(that.recyclableTabs){
+                    that.pages_dict[pageName] = null;
+                   // form.norecord();
+                }else{
+                    objectPop(that.pages_dict,pageName);
+                }
+            });
             form.store.parentStore = that.viewStore;
             form.setLocked(that.viewStore.locked);
         });
         kw['onStartCallbacks'] = cblist;
-        var that = this;
-        indexgenro.publish('selectIframePage',kw);
+        this.indexgenro.publish('selectIframePage',kw);
     },
+    
     checkMainPkey:function(mainpkey){
         if(mainpkey==this.mainpkey){
             return;
