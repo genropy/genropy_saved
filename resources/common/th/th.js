@@ -153,13 +153,13 @@ dojo.declare("gnr.LinkerManager", null, {
     }
 });
 dojo.declare("gnr.pageTableHandlerJS",null,{
-    constructor:function(sourceNode,formId,mainpkey,formUrl,default_kwargs,formResource,viewStore,recyclableTabs){
+    constructor:function(sourceNode,formId,mainpkey,formUrl,default_kwargs,formResource,viewStore,recyclablePages){
         this.sourceNode = sourceNode;
         this.mainpkey = mainpkey;
         this.default_kwargs = default_kwargs;
         this.pages_dict = {};
-        this.recyclableTabs = recyclableTabs;
-        this.page_kw = {url_main_call:'pbl_form_main',url_th_public:true,subtab:this.recyclableTabs?'recyclable':true,
+        this.recyclablePages = recyclablePages;
+        this.page_kw = {url_main_call:'pbl_form_main',url_th_public:true,subtab:this.recyclablePages?'recyclable':true,
                         url_th_formId:formId,url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection'};
         this.formUrl = formUrl;
         this.fakeFormId = formId;
@@ -214,7 +214,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
                                         indexgenro.publish('changeFrameLabel',{pageName:pageName,title:kw.data?kw.data.attr.caption:'loading...'});
                                     });
             this._genro.dojo.subscribe('onDeletingIframePage',function(pageName){
-                if(that.recyclableTabs){
+                if(that.recyclablePages){
                     that.pages_dict[pageName] = null;
                    // form.norecord();
                 }else{

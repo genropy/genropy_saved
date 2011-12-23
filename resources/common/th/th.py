@@ -152,7 +152,7 @@ class TableHandler(BaseComponent):
     @extract_kwargs(default=True,page=True)
     @struct_method
     def th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,
-                            default_kwargs=None,dbname=None,recyclableTabs=None,**kwargs):
+                            default_kwargs=None,dbname=None,recyclablePages=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,default_kwargs=default_kwargs,recyclableTabs=None,
@@ -178,7 +178,7 @@ class TableHandler(BaseComponent):
              mainpkey='^#FORM.pkey',
             _formId=fakeFormId,
            default_kwargs=default_kwargs,_fakeform=True,
-           dbname=dbname or False,viewStore=th.view.store,recyclableTabs=recyclableTabs or False)
+           dbname=dbname or False,viewStore=th.view.store,recyclablePages=recyclablePages or False)
         return th    
         
     @struct_method
