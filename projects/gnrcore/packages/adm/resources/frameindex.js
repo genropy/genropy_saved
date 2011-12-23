@@ -101,9 +101,6 @@ dojo.declare("gnr.FramedIndexManager", null, {
         var iframesbag= genro.getData('iframes');
         var node = iframesbag.getNode(pageName);
         genro.publish({topic:'onDeletingIframePage',iframe:'iframe_'+pageName},pageName);
-        genro.callAfter(function(){
-            
-        })
         if(node.attr.subtab=='recyclable'){
             node.updAttributes({'hiddenPage':true});
         }else{

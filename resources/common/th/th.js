@@ -194,7 +194,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
             pageName = genro.page_id+'_'+genro.getCounter();
             this.pages_dict[pageName] = pkey;
         }
-        var kw = objectUpdate({file:formUrl,url_th_pkey:pkey,pageName:pageName,label:this.loadingTitle},this.page_kw);
+        var kw = objectUpdate({file:formUrl,pageName:pageName,label:this.loadingTitle},this.page_kw);
         if(pkey=='*newrecord*'){
             default_kwargs = this.sourceNode.evaluateOnNode(this.default_kwargs);
             for (var k in default_kwargs){
@@ -215,13 +215,14 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
             iframegenro.dojo.subscribe('onDeletingIframePage',function(pageName){
                 if(that.recyclablePages){
                     that.pages_dict[pageName] = null;
-                   // form.norecord();
+                    form.norecord();
                 }else{
                     objectPop(that.pages_dict,pageName);
                 }
             });
             form.store.parentStore = that.viewStore;
             form.setLocked(that.viewStore.locked);
+            form.load({destPkey:that.pages_dict[pageName] || pkey});
         });
         kw['onStartCallbacks'] = cblist;
         this.indexgenro.publish('selectIframePage',kw);

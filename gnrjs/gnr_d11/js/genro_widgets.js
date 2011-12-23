@@ -3476,7 +3476,12 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             scrollLeft = scrollBox.scrollLeft;
             this.currRenderedRowIndex = null;
             this.currRenderedRow = null;
-            this.updateRowCount_replaced(n);
+            try{
+                this.updateRowCount_replaced(n);
+            }catch(e){
+                
+            }
+            
             this.updateTotalsCount(); 
             scrollBox.scrollLeft = scrollLeft;
             //},1,this);
