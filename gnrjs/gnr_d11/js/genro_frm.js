@@ -268,6 +268,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.doload_store({destPkey:'*dismiss*'});
     },
     
+    norecord:function(){
+        this.load({destPkey:'*norecord*'});
+    },
     newrecord:function(default_kw){
         this.load({destPkey:'*newrecord*', default_kw:default_kw });
     },
