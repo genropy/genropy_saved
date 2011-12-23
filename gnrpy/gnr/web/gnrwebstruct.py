@@ -1060,7 +1060,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
     def includedview(self, *args, **kwargs):
         """The :ref:`includedview` component"""
         frameCode = kwargs.get('parentFrame') or self.attributes.get('frameCode')
-        if frameCode:
+        if frameCode and not kwargs.get('parentFrame')==False:
             kwargs['frameCode'] = frameCode
             return self.includedview_inframe(*args,**kwargs)
         else:
