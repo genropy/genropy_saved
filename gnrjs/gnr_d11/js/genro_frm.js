@@ -32,6 +32,9 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         for(var k in formAttr){
             this[k] = formAttr[k];
         }
+        if(this.isRootForm){
+            genro._rootForm = this;
+        }
         if(this.subforms){
             this.subforms = this.subforms.split(',');
         }

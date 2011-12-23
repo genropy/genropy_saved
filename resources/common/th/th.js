@@ -153,16 +153,15 @@ dojo.declare("gnr.LinkerManager", null, {
     }
 });
 dojo.declare("gnr.pageTableHandlerJS",null,{
-    constructor:function(sourceNode,formId,mainpkey,formUrl,default_kwargs,formResource,viewStore,recyclablePages){
+    constructor:function(sourceNode,mainpkey,formUrl,default_kwargs,formResource,viewStore,recyclablePages){
         this.sourceNode = sourceNode;
         this.mainpkey = mainpkey;
         this.default_kwargs = default_kwargs;
         this.pages_dict = {};
         this.recyclablePages = recyclablePages;
         this.page_kw = {url_main_call:'pbl_form_main',url_th_public:true,subtab:this.recyclablePages?'recyclable':true,
-                        url_th_formId:formId,url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection'};
+                        url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection'};
         this.formUrl = formUrl;
-        this.fakeFormId = formId;
         this.loadingTitle = 'loading...'
         this.indexgenro = window.parent.genro;
         this.viewStore = viewStore.store;
@@ -188,7 +187,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
             var recyiclableIframe = this.indexgenro.domById('iframe_'+recyclablePage);
             this.indexgenro.getDataNode('iframes.'+recyclablePage).updAttributes({'hiddenPage':false});
             this.indexgenro.publish('selectIframePage',{pageName:recyclablePage});
-            recyiclableIframe.sourceNode._genro.formById(this.fakeFormId).load({destPkey:pkey});
+            recyiclableIframe.sourceNode._genro._rootForm.load({destPkey:pkey});
 
             return;
         }else{
@@ -206,14 +205,14 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         var indexgenro = this.indexgenro;
         var that = this;
 
-        cblist.push(function(){
-            var form = this._genro.formById(that.fakeFormId);
-            this._genro.dojo.subscribe('form_'+that.fakeFormId+'_onLoaded',
+        cblist.push(function(iframegenro){
+            var form = iframegenro._rootForm
+            iframegenro.dojo.subscribe('form_'+form.formId+'_onLoaded',
                                     function(kw){
                                         that.pages_dict[pageName] = kw.pkey;
                                         indexgenro.publish('changeFrameLabel',{pageName:pageName,title:kw.data?kw.data.attr.caption:'loading...'});
                                     });
-            this._genro.dojo.subscribe('onDeletingIframePage',function(pageName){
+            iframegenro.dojo.subscribe('onDeletingIframePage',function(pageName){
                 if(that.recyclablePages){
                     that.pages_dict[pageName] = null;
                    // form.norecord();

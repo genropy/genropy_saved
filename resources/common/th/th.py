@@ -159,12 +159,11 @@ class TableHandler(BaseComponent):
         grid = th.view.grid
         table = table or th.attributes['table']
         formUrl = formUrl or '/sys/thpage/%s' %table.replace('.','/')
-        fakeFormId ='%s_form' %th.attributes['thform_root']
         grid.attributes.update(connect_onRowDblClick="""FIRE .editrow = this.widget.rowIdByIndex($1.rowIndex);""",
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         grid.dataController("""
             if(!this._pageHandler){
-                this._pageHandler = new gnr.pageTableHandlerJS(this,_formId,mainpkey,formUrl,
+                this._pageHandler = new gnr.pageTableHandlerJS(this,mainpkey,formUrl,
                                                                 default_kwargs,formResource,viewStore,
                                                                 recyclablePages);
             }
@@ -175,7 +174,6 @@ class TableHandler(BaseComponent):
         """,formUrl=formUrl,formResource=formResource or ':Form',
              pkey='^.editrow',
              mainpkey='^#FORM.pkey',
-            _formId=fakeFormId,
            default_kwargs=default_kwargs,_fakeform=True,
            dbname=dbname or False,viewStore=th.view.store,recyclablePages=recyclablePages or False)
         return th    

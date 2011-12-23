@@ -569,7 +569,7 @@ class TableHandlerMain(BaseComponent):
         formkw.update(th_kwargs)
         form = root.thFormHandler(table=self.maintable,formId=formId,startKey=pkey,
                                   formResource=formResource,
-                                  formCb=formCb,**formkw)
+                                  formCb=formCb,form_isRootForm=True,**formkw)
         form.dataController("""SET gnr.windowTitle = title;
                             """,title='=.controller.title')    
         if th_kwargs.get('showfooter',True):
