@@ -155,8 +155,7 @@ class TableHandler(BaseComponent):
                             default_kwargs=None,dbname=None,recyclablePages=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
-                                        viewResource=viewResource,default_kwargs=default_kwargs,recyclableTabs=None,
-                                        **kwargs)
+                                        viewResource=viewResource,default_kwargs=default_kwargs,**kwargs)
         grid = th.view.grid
         table = table or th.attributes['table']
         formUrl = formUrl or '/sys/thpage/%s' %table.replace('.','/')
@@ -167,7 +166,7 @@ class TableHandler(BaseComponent):
             if(!this._pageHandler){
                 this._pageHandler = new gnr.pageTableHandlerJS(this,_formId,mainpkey,formUrl,
                                                                 default_kwargs,formResource,viewStore,
-                                                                recyclableTabs);
+                                                                recyclablePages);
             }
             this._pageHandler.checkMainPkey(mainpkey);
             if(pkey){
