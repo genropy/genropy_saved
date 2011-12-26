@@ -1995,7 +1995,7 @@ class GnrGridStruct(GnrStructData):
                   
 
     def fieldcell(self, field, _as=None, name=None, width=None, dtype=None,
-                  classes=None, cellClasses=None, headerClasses=None, zoom=False, **kwargs):
+                  classes=None, cellClasses=None, headerClasses=None, zoom=False, _customGetter=None,**kwargs):
         """Return a :ref:`cell` that inherits every attribute from the :ref:`field` widget.
 
         :param field: MANDATORY - it contains the name of the field from which
@@ -2015,8 +2015,9 @@ class GnrGridStruct(GnrStructData):
             return
         tableobj = self.tblobj
         fldobj = tableobj.column(field)
-        
+        fldattr = fldobj.attributes
         name = name or fldobj.name_long
+        _customGetter = _customGetter or fldattr.get('_customGetter')
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width
         relfldlst = tableobj.fullRelationPath(field).split('.')
@@ -2053,7 +2054,7 @@ class GnrGridStruct(GnrStructData):
                 zoomPage = zoomtbl.fullname.replace('.', '/')
             kwargs['zoomPage'] = zoomPage
         return self.cell(field=_as or field, name=name, width=width, dtype=dtype,
-                         classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, **kwargs)
+                         classes=classes, cellClasses=cellClasses, headerClasses=headerClasses, _customGetter=_customGetter,**kwargs)
                          
     def fields(self, columns, unit='em', totalWidth=None):
         """TODO
