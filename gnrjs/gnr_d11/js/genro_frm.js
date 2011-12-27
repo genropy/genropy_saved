@@ -456,7 +456,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             this._recordcaption = data.attr.caption;
             this.publish('record_caption',{'caption':data.attr.caption});
             var tablename = controllerData.getItem('table?name_long');
-            var record_title = tablename? tablename+': '+data.attr.caption:data.attr.caption;
+            var record_title = data.attr.caption || tablename;
             controllerData.setItem('title',record_title,null,{lazySet:true});
         }
         controllerData.setItem('protect_write',this.protect_write,null,{lazySet:true});

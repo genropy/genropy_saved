@@ -245,7 +245,13 @@ class SqlTable(GnrObject):
     def rowcaption(self):
         """Return the table's :ref:`rowcaption`"""
         return self.model.rowcaption
-        
+    
+
+    @property
+    def newrecord_caption(self):
+        """Return the table's :ref:`rowcaption`"""
+        return self.model.newrecord_caption
+             
     @property
     def columns(self):
         """Returns the columns DbColumnListObj object"""
@@ -1022,7 +1028,7 @@ class SqlTable(GnrObject):
                            For more information, check the :ref:`rowcaption` section
         """
         if newrecord:
-            return self.name_long
+            return self.newrecord_caption
         else:
             fields, mask = self.rowcaptionDecode(rowcaption)
             if not fields:
