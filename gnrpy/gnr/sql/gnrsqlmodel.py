@@ -1062,7 +1062,7 @@ class DbColumnObj(DbBaseColumnObj):
         if indexed or unique:
             self.table._indexedColumn[self.name] = {'columns': self.name, 'unique': unique}
             
-        for trigType in ('onInserting', 'onUpdating', 'onDeleting'):
+        for trigType in ('onInserting', 'onUpdating', 'onDeleting','onInserted', 'onUpdated', 'onDeleted'):
             trigFunc = self.attributes.get(trigType)
             if trigFunc:
                 self.table._fieldTriggers.setdefault(trigType, []).append((self.name, trigFunc))

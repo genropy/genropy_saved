@@ -825,14 +825,14 @@ class SqlTable(GnrObject):
                 self.xmlDebug(v, debugPath, k)
         return recordCluster, relatedOne, relatedMany
         
-    def _doFieldTriggers(self, triggerEvent, record):
+    def _doFieldTriggers(self, triggerEvent, record,old_record=None):
         trgFields = self.model._fieldTriggers.get(triggerEvent)
         if trgFields:
             for fldname, trgFunc in trgFields:
                 if callable(trgFunc):
                     trgFunc(record, fldname)
                 else:
-                    getattr(self, 'trigger_%s' % trgFunc)(record, fldname)
+                    getattr(self, 'trigger_%s' % trgFunc)(record, fldname=fldname,old_record=old_record)
                 
     def newPkeyValue(self):
         """Get a new unique id to use as :ref:`primary key <pkey>`

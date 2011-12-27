@@ -171,7 +171,7 @@ class TableBase(object):
             tbl.attributes['draftField'] =draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
             
-    def trigger_setTSNow(self, record, fldname):
+    def trigger_setTSNow(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
         the insertion date as a value of the dict with the key equal to ``record[fldname]``,
         where ``fldname`` is the name of the field inserted in the record.
@@ -188,14 +188,14 @@ class TableBase(object):
         :param fldname: the field name"""
         record[fldname] = 0
         
-    def trigger_setAuditVersionUpd(self, record, fldname):
+    def trigger_setAuditVersionUpd(self, record, fldname,**kwargs):
         """TODO
         
         :param record: the record
         :param fldname: the field name"""
         record[fldname] = (record.get(fldname) or 0)+ 1
         
-    def trigger_setRecordMd5(self, record, fldname):
+    def trigger_setRecordMd5(self, record, fldname,**kwargs):
         """TODO
         
         :param record: the record
@@ -222,10 +222,21 @@ class TableBase(object):
         rel = '%s.%s.%s' % (pkg,tblname, pkey)
         fkey = rel.replace('.', '_')
         if subscriptiontbl:
+            tbl.column('__sync_flag',dtype='B',comment='!!Fake field always NULL',onUpdated='multidbSyncUpdated',onDeleted='multidbSyncDeleted',onInserted='multidbSyncInserted')
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
                               size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
                                                                                  many_group='_', one_group='_')
-                                                                                 
+    
+    def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
+     
+    def trigger_multidbSyncInserted(self, record,**kwargs):
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='I')
+    
+    def trigger_multidbSyncDeleted(self, record,**kwargs):
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='D')
+     
+                                                               
     def setTagColumn(self, tbl, name_long=None, group=None):
         """TODO
         

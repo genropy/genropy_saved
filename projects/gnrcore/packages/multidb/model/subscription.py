@@ -22,10 +22,46 @@ class Table(object):
                 tblobj.insertOrUpdate(Bag(dict(rec)))
     
     def addSubscription(self,table=None,pkey=None,dbstore=None):
-        pkeyname = self.db.table(table).pkey
-        fkey='%s_%s' %(table.replace('.','_'),pkeyname)
+        fkey = self.tableFkey(table)
         record = dict(dbstore=dbstore,tablename=table)
         record[fkey] = pkey
         self.insert(record)
         self.copyRecords(table=table,pkey=pkey or '*',dbstore=dbstore)
         
+    def tableFkey(self,table):
+        if isinstance(table,basestring):
+            table = self.db.table(table)
+        return '%s_%s' %(table.fullname.replace('.','_'),table.pkey)
+        
+    def onSubscriberTrigger(self,tblobj,record,old_record=None,event=None):
+        if not self.db.usingRootstore():
+            return
+        fkeyname = self.tableFkey(tblobj)
+        pkey = record[tblobj.pkey]
+        tablename = tblobj.fullname
+        subscribedStores = self.query(where='$tablename=:tablename AND ($%s IS NULL OR $%s=:pkey) ' %(fkeyname,fkeyname),
+                                    columns='$dbstore',addPkeyColumn=False,
+                                    tablename=tablename,pkey=pkey,distinct=True).fetch()
+        for s in subscribedStores:
+            requireCommit = False
+            storename = s['dbstore']
+            with self.db.tempEnv(storename=storename,_systemDbEvent=True):
+                if event == 'I':
+                    tblobj.insert(record)
+                    requireCommit = True
+                else:
+                    f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True).fetch()
+                    if f:
+                        if event=='U':
+                            tblobj.update(record,old_record=f[0])
+                        else:
+                            tblobj.delete(record)
+                        requireCommit = True
+                    elif event=='U':
+                        tblobj.insert(record)   
+                        requireCommit = True 
+            if requireCommit:
+                self.db.currentEnv.setdefault('_storesToCommit',set()).add(storename)
+                    
+                        
+    
