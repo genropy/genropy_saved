@@ -1290,7 +1290,7 @@ class GnrWebPage(GnrBaseWebPage):
                                         };""", url='^gnr.printurl')
                 page.dataController("genro.openWindow(url,filename);",url='^gnr.clientprint',filename='!!Print')
                                         
-                page.dataController('console.log(msg);funcCreate(msg)();', msg='^gnr.servercode')
+                page.dataController('funcCreate(msg)();', msg='^gnr.servercode')
                 page.dock(id='dummyDock',display='none')
                 root = page.borderContainer(design='sidebar', position='absolute',top=0,left=0,right=0,bottom=0,
                                             nodeId='_gnrRoot',_class='hideSplitter notvisible',
@@ -1303,6 +1303,9 @@ class GnrWebPage(GnrBaseWebPage):
                 
                 root.div(id='auxDragImage')
                 root.div(id='srcHighlighter')
+                pageOptions = self.pageOptions or dict()
+                if 'openMenu' in pageOptions:
+                    root.dataController("""genro.publish({parent:true,topic:'setIndexLeftStatus'},openMenu);""",_onStart=True,openMenu=pageOptions['openMenu'])
                 root.dataController("""
                                        var new_status = main_left_set_status[0];
                                        new_status = new_status=='toggle'? !current_status:new_status;

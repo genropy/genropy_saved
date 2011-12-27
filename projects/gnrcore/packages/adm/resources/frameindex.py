@@ -28,7 +28,9 @@ class FrameIndex(BaseComponent):
                                 margin='0px',
                                 gradient_from='#d0d0d0',gradient_to='#ffffff',gradient_deg=-90,
                                 selfsubscribe_toggleLeft="""this.getWidget().setRegionVisible("left",'toggle');""",
-                                selfsubscribe_showLeft=""" this.getWidget().setRegionVisible("left",true);""",
+                                selfsubscribe_hideLeft="""this.getWidget().setRegionVisible("left",false);""",
+                                subscribe_setIndexLeftStatus="""this.getWidget().setRegionVisible("left",$1);""",
+                                selfsubscribe_showLeft="""this.getWidget().setRegionVisible("left",true);""",
                                 **kwargs)
 
     def mainLeftContent(self,*args,**kwargs):
