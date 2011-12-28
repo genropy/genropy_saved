@@ -63,6 +63,7 @@ class RecordToHtmlFrame(BaseComponent):
                                                'pdf':true,
                                                'respath':'%s',
                                                'rebuild':rebuild,
+                                               'print_button':false,
                                                runKwargs:runKwargs}
                              objectUpdate(parameters,moreargs);
                              console.log(parameters);
