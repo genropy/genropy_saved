@@ -43,6 +43,7 @@ class HTableResolver(BagResolver):
                    'relation_path': None,
                    'rootpkey': None,
                    'extra_columns':None,
+                   'related_extra_columns':None,
                    'storename':None,
                    '_page': None}
     classArgs = ['table', 'rootpath']
@@ -55,14 +56,17 @@ class HTableResolver(BagResolver):
         if captioncolumns:
             columns.extend(captioncolumns)
         columns = ','.join(columns)
+        if self.related_extra_columns:
+            columns = '%s,%s' %(columns,self.related_extra_columns)
         rows = tblobj.query(where='%s=:pkey' % self.relation_path[1:], pkey=pkey,columns=columns).fetch()
         children = Bag()
+
         for row in rows:
             caption = tblobj.recordCaption(row)
             children.setItem(row['pkey'], None,
                              caption=caption,
                              pkey=row['pkey'], code=row.get('code'),
-                             node_class='tree_related')
+                             node_class='tree_related',_record=dict(row))
         return children
         
     def load(self):
@@ -95,6 +99,7 @@ class HTableResolver(BagResolver):
             elif self.related_table:
                 value = HTableResolver(table=self.table, rootpath='*related*:%s' % row['pkey'],
                                        relation_path=self.relation_path,
+                                       related_extra_columns=self.related_extra_columns,
                                        related_table=self.related_table,storename=self.storename,
                                        _page=self._page)
                 child_count = 1
@@ -167,13 +172,16 @@ class HTableHandlerBase(BaseComponent):
                          limit_rec_type=None,
                          rootcaption=None,
                          rootcode=None,
-                         extra_columns=None,storename=None,**kwargs):
+                         extra_columns=None,
+                         related_extra_columns=None,
+                         storename=None,**kwargs):
         columns = '$code,$parent_code,$description,$child_code,$child_count,$rec_type'
         if extra_columns:
             columns = '%s,%s' %(columns,extra_columns) 
         result = Bag()
         value = HTableResolver(table=table, rootpath=rootpath, limit_rec_type=limit_rec_type, _page=self,
-                               related_table=related_table, relation_path=relation_path,extra_columns=extra_columns,storename=storename) #if child_count else None
+                               related_table=related_table, relation_path=relation_path,extra_columns=extra_columns,
+                               related_extra_columns=related_extra_columns,storename=storename) #if child_count else None
         rootlabel,attr = self._ht_rootNodeAttributes(table=table,rootpath=rootpath,columns=columns,
                                                             rootcaption=rootcaption,rootcode=rootcode)
         result.setItem(rootlabel, value, checked=False,**attr)
