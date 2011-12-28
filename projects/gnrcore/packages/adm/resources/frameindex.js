@@ -115,8 +115,9 @@ dojo.declare("gnr.FramedIndexManager", null, {
         }
         var tablist = genro.nodeById('frameindex_tab_button_root');
         var curlen = tablist.getValue().len();
-        selected = selected>=curlen? selected-1:selected;
-        var nextPageName = tablist.getValue().getNode('#'+selected).attr.pageName;
+        selected = selected>=curlen? curlen-1:selected;
+        selected = selected<0? 0:selected;
+        var nextPageName = tablist.getValue().getNode('#'+selected)? tablist.getValue().getNode('#'+selected).attr.pageName:'indexpage';
         this.stackSourceNode.setRelativeData('selectedFrame',nextPageName); //PUT
     }
 });
