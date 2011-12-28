@@ -762,6 +762,12 @@ class DbTableObj(DbModelObj):
         return self.attributes.get('rowcaption', self.pkey)
         
     rowcaption = property(_get_rowcaption)
+    
+    @property
+    def newrecord_caption(self):
+        """property. Returns the table's rowcaption"""
+        return self.attributes.get('newrecord_caption', self.name_long)
+        
         
     def _get_queryfields(self):
         """property. Returns the table's queryfields"""
