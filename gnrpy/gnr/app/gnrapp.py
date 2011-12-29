@@ -572,6 +572,7 @@ class GnrApp(object):
                 self.db.tableMixin('%s.%s' % (pkgid, tblname), mixobj)
 
         self.db.inTransactionDaemon = False
+        self.pkgBroadcast('onDbStarting')
         self.db.startup()
         if len(self.config['menu']) == 1:
             self.config['menu'] = self.config['menu']['#0']
@@ -672,9 +673,14 @@ class GnrApp(object):
         
         By default, it will call the :meth:`onApplicationInited()
         <gnr.app.gnrapp.GnrPackage.onApplicationInited>` method of each package"""
+        self.pkgBroadcast('onApplicationInited')
+    
+    def pkgBroadcast(self,method,*args,**kwargs):
         for pkg in self.packages.values():
-            pkg.onApplicationInited()
-
+            handler = getattr(pkg,method,None)
+            if handler:
+                handler(*args,**kwargs)
+        
 
     def buildLocalization(self):
         """TODO"""
@@ -755,8 +761,7 @@ class GnrApp(object):
                     if not (avatar is None):
                         avatar.page = page
                         avatar.authmode = authmode
-                        for pkg in self.packages.values():
-                            pkg.onAuthentication(avatar)
+                        self.pkgBroadcast('onAuthentication',avatar)
                         return avatar
                         
     def auth_xml(self, node, user, password=None, authenticate=False, **kwargs):

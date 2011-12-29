@@ -419,9 +419,7 @@ class GnrWsgiSite(object):
         
     def initializePackages(self):
         """TODO"""
-        for pkg in self.gnrapp.packages.values():
-            if hasattr(pkg, 'onSiteInited'):
-                pkg.onSiteInited()
+        self.gnrapp.pkgBroadcast('onSiteInited')
                 
     def resource_name_to_path(self, res_id, safe=True):
         """TODO
@@ -787,12 +785,15 @@ class GnrWsgiSite(object):
         """TODO
         
         :param avatar: the avatar (user that logs in)"""
-        if 'adm' in self.db.packages:
-            self.db.packages['adm'].onAuthenticated(avatar)
-        for pkg in self.db.packages.values():
-            if hasattr(pkg,'onAuthenticated'):
-                pkg.onAuthenticated(avatar)
-        
+        #if 'adm' in self.db.packages:
+        #    self.db.packages['adm'].onAuthenticated(avatar)
+        #pkgbroadcast?
+        self.gnrapp.pkgBroadcast('onAuthenticated',avatar)
+       #
+       # for pkg in self.db.packages.values():
+       #     if hasattr(pkg,'onAuthenticated'):
+       #         pkg.onAuthenticated(avatar)
+       # 
     def pageLog(self, event, page_id=None):
         """TODO
         
