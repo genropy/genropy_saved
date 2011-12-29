@@ -4760,9 +4760,6 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
         if (!item.attr.caption) {
             return;
         }
-        this.store._lastSelectedItem = item;
-        this.store._lastSelectedCaption = this.labelFunc(item, this.store);
-
         if (this.sourceNode.attr.gridcell) {
             this._updateSelect(item);
             if (priorityChange) {
