@@ -310,6 +310,10 @@ class GnrPackage(object):
         if os.path.isdir(self.customFolder):
             self.loadTableMixinDict(self.custom_module, self.customFolder, model_prefix='custom_')
         self.configure()
+        
+    @property
+    def db(self):
+        return self.application.db
     
     def loadPlugins(self):
         """TODO"""
