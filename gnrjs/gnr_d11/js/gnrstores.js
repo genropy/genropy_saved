@@ -611,33 +611,27 @@ dojo.declare("gnr.GnrStoreQuery", gnr.GnrStoreBag, {
         if (!query.caption) {
             findCallback([], request);
         } else {
-            if ((this._lastSelectedItem) && (this._lastSelectedCaption == query.caption)) {
-                findCallback([this._lastSelectedItem], request);
-            } else {
-                this._lastSelectedCaption = null;
-                this._lastSelectedItem = null;
-                var ignoreCase = request.queryOptions ? request.queryOptions.ignoreCase : false;
-                var kwargs = {_id:'',_querystring:query.caption,ignoreCase:ignoreCase};
-                var cb = dojo.hitch(this, function(r) {
-                    var result;
-                    if (r instanceof gnr.GnrBagNode && r.getValue()) {
-                        this.lastFetchAttrs = r.attr;
-                        result = r.getValue().getNodes();
-                    }
-                    else {
-                        result = [];
-                        this.lastFetchAttrs = {};
-                    }
-                    findCallback(result, request);
-                });
-                var result = this.rootDataNode().getValue('', kwargs);
-                if (result instanceof dojo.Deferred) {
-                    return  result.addCallback(cb);
-                } else {
-                    return cb(result);
+            var ignoreCase = request.queryOptions ? request.queryOptions.ignoreCase : false;
+            var kwargs = {_id:'',_querystring:query.caption,ignoreCase:ignoreCase};
+            var cb = dojo.hitch(this, function(r) {
+                var result;
+                if (r instanceof gnr.GnrBagNode && r.getValue()) {
+                    this.lastFetchAttrs = r.attr;
+                    result = r.getValue().getNodes();
                 }
-
+                else {
+                    result = [];
+                    this.lastFetchAttrs = {};
+                }
+                findCallback(result, request);
+            });
+            var result = this.rootDataNode().getValue('', kwargs);
+            if (result instanceof dojo.Deferred) {
+                return  result.addCallback(cb);
+            } else {
+                return cb(result);
             }
+
         }
     }
 });
