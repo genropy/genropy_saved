@@ -36,6 +36,10 @@ class Table(object):
         record = dict(dbstore=dbstore,tablename=table)
         record[fkey] = pkey
         self.insert(record)
+    
+    def trigger_onInserting(self,record):
+        table = record['table']
+        fkey = self.tableFkey(table)
         self.copyRecords(table=table,pkey=pkey or '*',dbstore=dbstore)
         
     def tableFkey(self,table):
