@@ -1,5 +1,6 @@
 # encoding: utf-8
 from gnr.core.gnrbag import Bag
+from gnr.core.gnrdecorator import public_method
 
 class Table(object):
     def config_db(self, pkg):
@@ -20,6 +21,15 @@ class Table(object):
         with self.db.tempEnv(storename=dbstore):
             for rec in records:
                 tblobj.insertOrUpdate(Bag(dict(rec)))
+    
+    @public_method
+    def addRecordSubscription(self,table,pkey=None,dbstore=None):
+        self.addSubscription(table,pkey=pkey,dbstore=dbstore)
+        #with self.db.tempEnv(storename=None):
+        #    tblobj = self.db.table(table)
+        #    tblobj.touchRecords(where='$%s=:pkey' %tblobj.pkey,pkey=pkey)
+        #    self.db.commit()
+        self.db.commit()
     
     def addSubscription(self,table=None,pkey=None,dbstore=None):
         fkey = self.tableFkey(table)

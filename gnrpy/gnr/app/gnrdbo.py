@@ -206,12 +206,12 @@ class TableBase(object):
         """TODO"""
         return self.attributes.get('hasRecordTags', False)
 
-    def setMultidbSubscription(self,tblname,allRecords=False):
+    def setMultidbSubscription(self,tblfullname,allRecords=False):
         """TODO
         
         :param tblname: a string composed by the package name and the database :ref:`table` name
                         separated by a dot (``.``)"""
-        pkg,tblname = tblname.split('.')
+        pkg,tblname = tblfullname.split('.')
         model = self.db.model
         tbl = model.src['packages.%s.tables.%s' %(pkg,tblname)]
         subscriptiontbl =  model.src['packages.multidb.tables.subscription']
@@ -228,12 +228,23 @@ class TableBase(object):
                         onDeleted='multidbSyncDeleted',
                         onInserted='multidbSyncInserted')
             if not allRecords:
-                tbl.formulaColumn('__multidb_subscribed',"""(SELECT COUNT(*) 
+                tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
                                                             FROM multidb.multidb_subscription AS sub
                                                             WHERE sub.dbstore = :env_target_store 
-                                                                  AND sub.tablename = %s
+                                                                  AND sub.tablename = '%s'
                                                             AND sub.%s = #THIS.%s
-                                                            )""" %(tblname,fkey,pkey))
+                                                            )""" %(tblfullname,fkey,pkey),dtype='B',
+                                                            name_long='!!Subscribed')
+               #tbl.formulaColumn('_customClasses',"""CASE WHEN EXISTS (SELECT * 
+               #                                            FROM multidb.multidb_subscription AS sub
+               #                                            WHERE sub.dbstore = :env_target_store 
+               #                                                  AND sub.tablename = '%s'
+               #                                            AND sub.%s = #THIS.%s
+               #                                            ) THEN 'multidb_subscribed_row' 
+               #                                            ELSE ''
+               #                                            END
+               #                                            """ %(tblfullname,fkey,pkey),dtype='B',
+               #                                            name_long='!!Subscribed')
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
                               size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
                                                                                  many_group='_', one_group='_')

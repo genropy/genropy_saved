@@ -199,6 +199,7 @@ class GnrSqlDb(GnrObject):
     
     def clearCurrentEnv(self):
         """Clear the current env"""
+        print 'cancello currentEnv ',thread.get_ident()
         self._currentEnv[thread.get_ident()] = {}
         
     def _get_currentEnv(self):
