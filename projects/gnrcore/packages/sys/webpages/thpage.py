@@ -32,6 +32,7 @@ class GnrCustomWebPage(object):
         """,_init=True,dialog_pars=dialog_pars,parentId=self.th_iframeContainerId or 'null')
 
     def main(self,root,**kwargs):
+        root.data('gnr.windowTitle',self.db.table(self.maintable).name_plural)
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         callArgs = self.getCallArgs('th_pkg','th_table','th_pkey')    
         self.th_iframeContainerId = kwargs.pop('th_iframeContainerId',None)

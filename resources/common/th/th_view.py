@@ -232,10 +232,15 @@ class TableHandlerView(BaseComponent):
                 result.update(resources)
         flags = flags or 'is_%s' %res_type
         templates = self.db.table('adm.userobject').userObjectMenu(table=table,objtype='template',flags=flags)
-        for t in templates:
-            attr = t.attr
-            result.setItem(attr['code'],None,resource='%s_template' %res_type,template_id=attr['pkey'],**attr)
+        if templates and len(templates)>0:
+            result.update(templates)
+        result.walk(self._th_addTpl,res_type=res_type)
         return result
+    
+    def _th_addTpl(self,node,res_type=None):
+        if node.attr.get('code'):
+            node.attr['resource'] = resource='%s_template' %res_type
+            node.attr['template_id'] = node.attr['pkey']
         
     @struct_method
     def th_slotbar_templateManager(self,pane,**kwargs):

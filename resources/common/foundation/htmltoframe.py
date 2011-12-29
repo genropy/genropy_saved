@@ -63,6 +63,7 @@ class RecordToHtmlFrame(BaseComponent):
                                                'pdf':true,
                                                'respath':'%s',
                                                'rebuild':rebuild,
+                                               'print_button':false,
                                                runKwargs:runKwargs}
                              objectUpdate(parameters,moreargs);
                              console.log(parameters);
@@ -100,6 +101,7 @@ class RecordToHtmlFrame(BaseComponent):
                                   condition_value=condition_value,
                                   rpcCall='callTableScript',
                                   rpc_record='=%s' % pkeyPath,
+                                  rpc_print_button=False,
                                   rpc_runKwargs=runKwargs, #aggiunto
                                   rpc_table=table,
                                   rpc_respath=respath,

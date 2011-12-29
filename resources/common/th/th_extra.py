@@ -36,7 +36,7 @@ class THStatsHandler(BaseComponent):
                            value='^.stats.tree.tot_mode', lbl='!!Mode')
 
     def stats_left(self, pane):
-        pane.tree(storepath='.stats.tree.root.data', inspect='shift', selectedPath='.stats.tree.currentTreePath', labelAttribute='caption',
+        pane.tree(storepath='.stats.tree.root', inspect='shift', selectedPath='.stats.tree.currentTreePath', labelAttribute='caption',
                   selectedItem='#totalizer_grid.data', isTree=True, margin='10px', _fired='^.stats.tree.reload_tree', hideValues=True)
         pane.dataRpc('.stats.tree.root', self.stats_totalize, selectionName='=.store?selectionName',
                      tot_mode='^.stats.tree.tot_mode', _if='tot_mode&&(selectedTab=="th_stats") && selectionName', timeout=300000,
@@ -107,6 +107,10 @@ class THStatsHandler(BaseComponent):
     @public_method
     def stats_get_detail(self, flt_path=None, selectionName=None, **kwargs):
         selection = self.unfreezeSelection(self.tblobj, selectionName)
+        if flt_path == 'data':
+            flt_path = None
+        else:
+            flt_path = flt_path.replace('data.','')
         result = selection.output('grid', subtotal_rows=flt_path,limit=500, recordResolver=False)
         return result
 
