@@ -39,12 +39,15 @@ class Table(object):
         fkeyname = self.tableFkey(tblobj)
         pkey = record[tblobj.pkey]
         tablename = tblobj.fullname
-        subscribedStores = self.query(where='$tablename=:tablename AND ($%s IS NULL OR $%s=:pkey) ' %(fkeyname,fkeyname),
+        if tblobj.attributes.get('multidb_allRecords'):
+            subscribedStores = self.db.dbstores.keys()
+        else:
+            subscribedStores = self.query(where='$tablename=:tablename AND $%s=:pkey' %(fkeyname,fkeyname),
                                     columns='$dbstore',addPkeyColumn=False,
                                     tablename=tablename,pkey=pkey,distinct=True).fetch()
-        for s in subscribedStores:
+            subscribedStores = [s['dbstore'] for s in subscribedStores]
+        for storename in subscribedStores:
             requireCommit = False
-            storename = s['dbstore']
             with self.db.tempEnv(storename=storename,_systemDbEvent=True):
                 if event == 'I':
                     tblobj.insert(record)

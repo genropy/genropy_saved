@@ -206,7 +206,7 @@ class TableBase(object):
         """TODO"""
         return self.attributes.get('hasRecordTags', False)
 
-    def setMultidbSubscription(self,tblname):
+    def setMultidbSubscription(self,tblname,allRecords=False):
         """TODO
         
         :param tblname: a string composed by the package name and the database :ref:`table` name
@@ -222,7 +222,18 @@ class TableBase(object):
         rel = '%s.%s.%s' % (pkg,tblname, pkey)
         fkey = rel.replace('.', '_')
         if subscriptiontbl:
-            tbl.column('__sync_flag',dtype='B',comment='!!Fake field always NULL',onUpdated='multidbSyncUpdated',onDeleted='multidbSyncDeleted',onInserted='multidbSyncInserted')
+            tbl.attributes.update(multidb_allRecords=allRecords)
+            tbl.column('__multidb_flag',dtype='B',comment='!!Fake field always NULL',
+                        onUpdated='multidbSyncUpdated',
+                        onDeleted='multidbSyncDeleted',
+                        onInserted='multidbSyncInserted')
+            if not allRecords:
+                tbl.formulaColumn('__multidb_subscribed',"""(SELECT COUNT(*) 
+                                                            FROM multidb.multidb_subscription AS sub
+                                                            WHERE sub.dbstore = :env_target_store 
+                                                                  AND sub.tablename = %s
+                                                            AND sub.%s = #THIS.%s
+                                                            )""" %(tblname,fkey,pkey))
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
                               size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
                                                                                  many_group='_', one_group='_')
