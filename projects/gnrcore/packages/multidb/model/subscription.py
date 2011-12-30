@@ -53,7 +53,7 @@ class Table(object):
     def trigger_onUpdated(self,record,old_record=None):
         self.syncStore(record,'U')
 
-    def trigger_onDeleted(self,record):
+    def trigger_onDeleted(self,record):        
         self.syncStore(record,'D')
 
     def syncStore(self,subscription_record=None,event=None,storename=None,tblobj=None,pkey=None):
@@ -62,6 +62,8 @@ class Table(object):
             pkey = subscription_record[self.tableFkey(table)]
             tblobj = self.db.table(table)
             storename = subscription_record['dbstore']
+        if not self.db.dbstores.get(storename):
+            return
         data_record = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,addPkeyColumn=False).fetch()
         if data_record:
             data_record = data_record[0]
