@@ -12,23 +12,21 @@ class Table(object):
         tbl.column('dbstore',name_long='!!Store')
         
     
-    def copyRecords(self,table,pkey,dbstore):
+    def copyRecords(self,table,dbstore=None,pkeys=None):
         tblobj = self.db.table(table)
         queryargs = dict()
-        if pkey!='*':
-            queryargs = dict(where='$pkey=:pkey',pkey=pkey)
+        if pkeys:
+            queryargs = dict(where='$pkey IN :pkeys',pkeys=pkeys)
         records = tblobj.query(addPkeyColumn=False,**queryargs).fetch()
         with self.db.tempEnv(storename=dbstore):
             for rec in records:
                 tblobj.insertOrUpdate(Bag(dict(rec)))
+            self.db.deferredCommit()  
     
     @public_method
-    def addRecordSubscription(self,table,pkey=None,dbstore=None):
-        self.addSubscription(table,pkey=pkey,dbstore=dbstore)
-        #with self.db.tempEnv(storename=None):
-        #    tblobj = self.db.table(table)
-        #    tblobj.touchRecords(where='$%s=:pkey' %tblobj.pkey,pkey=pkey)
-        #    self.db.commit()
+    def addRowsSubscription(self,table,pkeys=None,dbstore=None):
+        for pkey in pkeys:
+            self.addSubscription(table,pkey=pkey,dbstore=dbstore)
         self.db.commit()
     
     def addSubscription(self,table=None,pkey=None,dbstore=None):
@@ -37,10 +35,58 @@ class Table(object):
         record[fkey] = pkey
         self.insert(record)
     
-    def trigger_onInserting(self,record):
-        table = record['table']
-        fkey = self.tableFkey(table)
-        self.copyRecords(table=table,pkey=pkey or '*',dbstore=dbstore)
+    @public_method
+    def delRowsSubscription(self,table,pkeys=None,dbstore=None):
+        for pkey in pkeys:
+            self.delSubscription(table,pkey=pkey,dbstore=dbstore)
+        self.db.commit()
+    
+    def delSubscription(self,table=None,pkey=None,dbstore=None):
+        fkey = self.tableFkey(table)        
+        record = self.query(where='$dbstore=:dbstore AND $tablename=:tablename AND $%s =:fkey' %fkey,for_update=True,
+                            dbstore=dbstore,tablename=table,fkey=pkey)
+        self.delete(record)
+    
+    def trigger_onInserted(self,record):
+        self.syncStore(record,'I')
+    
+    def trigger_onUpdated(self,record,old_record=None):
+        self.syncStore(record,'U')
+
+    def trigger_onDeleted(self,record):
+        self.syncStore(record,'D')
+
+    def syncStore(self,subscription_record=None,event=None,storename=None,tblobj=None,pkey=None):
+        if subscription_record:
+            table = subscription_record['tablename']
+            pkey = subscription_record[self.tableFkey(table)]
+            tblobj = self.db.table(table)
+            storename = subscription_record['dbstore']
+        data_record = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,addPkeyColumn=False).fetch()
+        if data_record:
+            data_record = data_record[0]
+        else:
+            return
+        with self.db.tempEnv(storename=storename,_systemDbEvent=True):
+            if event == 'I':
+                tblobj.insert(data_record)
+                self.db.deferredCommit()
+            else:
+                f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True).fetch()
+                if f:
+                    if event=='U':
+                        tblobj.update(data_record,old_record=f[0])
+                    else:
+                        tblobj.delete(data_record)
+                    self.db.deferredCommit()
+                elif event=='U':
+                    tblobj.insert(data_record)   
+                    self.db.deferredCommit()
+                    
+    def onPlugToForm(self,field):
+        if self.db.currentPage.dbstore:
+            return False
+        return dict(lbl_color='red')
         
     def tableFkey(self,table):
         if isinstance(table,basestring):
@@ -56,29 +102,9 @@ class Table(object):
         if tblobj.attributes.get('multidb_allRecords'):
             subscribedStores = self.db.dbstores.keys()
         else:
-            subscribedStores = self.query(where='$tablename=:tablename AND $%s=:pkey' %(fkeyname,fkeyname),
+            subscribedStores = self.query(where='$tablename=:tablename AND $%s=:pkey' %fkeyname,
                                     columns='$dbstore',addPkeyColumn=False,
                                     tablename=tablename,pkey=pkey,distinct=True).fetch()
             subscribedStores = [s['dbstore'] for s in subscribedStores]
         for storename in subscribedStores:
-            requireCommit = False
-            with self.db.tempEnv(storename=storename,_systemDbEvent=True):
-                if event == 'I':
-                    tblobj.insert(record)
-                    requireCommit = True
-                else:
-                    f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True).fetch()
-                    if f:
-                        if event=='U':
-                            tblobj.update(record,old_record=f[0])
-                        else:
-                            tblobj.delete(record)
-                        requireCommit = True
-                    elif event=='U':
-                        tblobj.insert(record)   
-                        requireCommit = True 
-            if requireCommit:
-                self.db.currentEnv.setdefault('_storesToCommit',set()).add(storename)
-                    
-                        
-    
+            self.syncStore(event=event,storename=storename,tblobj=tblobj,pkey=pkey)

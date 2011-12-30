@@ -573,6 +573,10 @@ class GnrDomSrc(GnrStructData):
         :param source: TODO"""
         return self.child('macro', childname=name, childcontent=source, **kwargs)
         
+    
+    def getMainFormBuilder(self):
+        return getattr(self.parentNode,'_mainformbuilder',None)
+        
     def formbuilder(self, cols=1, table=None, tblclass='formbuilder',
                     lblclass='gnrfieldlabel', lblpos='L', _class='', fieldclass='gnrfield',
                     lblalign=None, lblvalign='middle',
@@ -606,6 +610,10 @@ class GnrDomSrc(GnrStructData):
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
         dbtable = table or kwargs.get('dbtable') or self.getInheritedAttributes().get('table') or self.page.maintable
+        formNode = self.parentNode.attributeOwnerNode('formId')
+        if formNode:
+            if not hasattr(formNode,'_mainformbuilder'):
+                formNode._mainformbuilder = tbl
         tbl.fbuilder = GnrFormBuilder(tbl, cols=int(cols), dbtable=dbtable,
                                       lblclass=lblclass, lblpos=lblpos, lblalign=lblalign, fldalign=fldalign,
                                       fieldclass=fieldclass,
@@ -1327,6 +1335,20 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
                          mark on the left side of the *menuline*
         """
         return self.child('menuline', label=label, **kwargs)
+        
+    def pluggedFields(self):
+        tblobj = self.parentfb.tblobj
+        collist = tblobj.model['columns']
+        pluggedCols = [(col,collist[col].attributes.get('_pluggedBy')) for col in collist if collist[col].attributes.get('plugToForm')]
+        for f,pluggedBy in pluggedCols:
+            kwargs = dict()
+            if pluggedBy:
+                handler = getattr(self.page.db.table(pluggedBy),'onPlugToForm',None)
+                if handler:
+                    kwargs = handler(f)
+            if kwargs is False:
+                continue
+            self.field(f,**kwargs)
         
     def field(self, field=None, **kwargs):
         """``field`` is used to view, select and modify data included in a database :ref:`table`.

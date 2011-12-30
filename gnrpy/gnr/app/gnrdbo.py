@@ -228,6 +228,8 @@ class TableBase(object):
                         onDeleted='multidbSyncDeleted',
                         onInserted='multidbSyncInserted')
             if not allRecords:
+                tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
+                        name_long='!!Subscribed by default',plugToForm=True)
                 tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
                                                             FROM multidb.multidb_subscription AS sub
                                                             WHERE sub.dbstore = :env_target_store 

@@ -66,7 +66,7 @@ class TableHandlerCommon(BaseComponent):
         return self.importTableResource(table,resourceName)
         
             
-    def _th_hook(self,method,mangler=None,asDict=False,dflt=None):
+    def _th_hook(self,method,mangler=None,asDict=False,dflt=None,defaultCb=None):
         if isinstance(mangler,Bag):
             mangler = mangler.getInheritedAttributes().get('th_root')
         if hasattr(self,'legacy_dict'):
@@ -79,7 +79,7 @@ class TableHandlerCommon(BaseComponent):
             return getattr(self,method)          
         def emptyCb(*args,**kwargs):
             return dflt
-        return getattr(self,'%s_%s' %(mangler.replace('.','_'),method),emptyCb) 
+        return getattr(self,'%s_%s' %(mangler.replace('.','_'),method),defaultCb or emptyCb) 
         
 
 

@@ -467,8 +467,7 @@ class TableHandlerMain(BaseComponent):
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         th_options.update(self.th_options())
         th_options.update(th_kwargs)
-        self.root_tablehandler = self._th_main(root,th_options=th_options,**kwargs)
-        return self.root_tablehandler
+        return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = th_options.get('formInIframe')
@@ -493,6 +492,7 @@ class TableHandlerMain(BaseComponent):
                 self.hv_main(tc)
         thwidget = th_options.get('widget','stack')
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,**kwargs)
+        self.root_tablehandler = th
         th.view.store.attributes.update(startLocked=True)
         if len(extras)>0:
             viewbar = th.view.top.bar

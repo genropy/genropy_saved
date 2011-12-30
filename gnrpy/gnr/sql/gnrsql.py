@@ -199,7 +199,6 @@ class GnrSqlDb(GnrObject):
     
     def clearCurrentEnv(self):
         """Clear the current env"""
-        print 'cancello currentEnv ',thread.get_ident()
         self._currentEnv[thread.get_ident()] = {}
         
     def _get_currentEnv(self):
@@ -417,6 +416,15 @@ class GnrSqlDb(GnrObject):
         if not self.systemDbEvent():
             self.onDbCommitted()
     
+    def deferredCommit(self):
+        currentEnv = self.currentEnv
+        savedEnv = currentEnv.get('__savedEnv')
+        if not savedEnv:
+            return
+        dbstore = currentEnv.get('storename')
+        assert dbstore, 'deferredCommit must have a dbstore'
+        savedEnv.setdefault('_storesToCommit',set()).add(dbstore)
+    
     def systemDbEvent(self):
         return self.currentEnv.get('_systemDbEvent',False)
     
@@ -605,6 +613,7 @@ class TempEnv(object):
             currentEnv = self.db.currentEnv
             self.savedEnv = dict(currentEnv)
             currentEnv.update(self.kwargs)
+            currentEnv['__savedEnv'] = self.savedEnv
         return self.db
         
     def __exit__(self, type, value, traceback):
