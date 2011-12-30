@@ -70,11 +70,14 @@ class Table(object):
         else:
             return
         with self.db.tempEnv(storename=storename,_systemDbEvent=True):
+            f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True,addPkeyColumn=False).fetch()
             if event == 'I':
-                tblobj.insert(data_record)
+                if not f:
+                    tblobj.insert(data_record)
+                else:
+                    tblobj.update(data_record,f[0])
                 self.db.deferredCommit()
             else:
-                f = tblobj.query(where='$%s=:pkey' %tblobj.pkey,pkey=pkey,for_update=True).fetch()
                 if f:
                     if event=='U':
                         tblobj.update(data_record,old_record=f[0])
