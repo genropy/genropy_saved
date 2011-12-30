@@ -516,7 +516,7 @@ dojo.declare("gnr.QueryManager", null, {
     
     buildParsDialog:function(parslist) {
         var sourceNode = this.sourceNode;
-        var dlg = genro.dlg.quickDialog('Complete query',{datapath:this.wherepath});
+        var dlg = genro.dlg.quickDialog('Complete query',{datapath:this.wherepath,width:'250px'});
         var that = this;
         var confirm = function(){
             that.runQuery()
