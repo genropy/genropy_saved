@@ -275,6 +275,7 @@ class GnrWsgiSite(object):
         self.secret = self.config['wsgi?secret'] or 'supersecret'
         self.config['secret'] = self.secret
         self.debug = boolean(options.debug) if options else boolean(self.config['wsgi?debug'])
+        self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
         self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
@@ -757,6 +758,17 @@ class GnrWsgiSite(object):
     def build_wsgiapp(self):
         """Build the wsgiapp callable wrapping self.dispatcher with WSGI middlewares"""
         wsgiapp = self.dispatcher
+        if self.profile:
+            from repoze.profile.profiler import AccumulatingProfileMiddleware
+            wsgiapp = AccumulatingProfileMiddleware(
+               wsgiapp,
+               log_filename=os.path.join(self.site_path, 'site_profiler.log'),
+               cachegrind_filename=os.path.join(self.site_path, 'cachegrind_profiler.out'),
+               discard_first_request=True,
+               flush_at_shutdown=True,
+               path='/__profile__'
+              )
+
         if self.debug:
             wsgiapp = EvalException(wsgiapp, debug=True)
         elif 'debug_email' in self.config:

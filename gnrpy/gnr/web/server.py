@@ -32,6 +32,7 @@ wsgi_options = dict(
         set_group=None,
         server_name='Genropy',
         debug=True,
+        profile=False,
         noclean=False
         )
 
@@ -66,6 +67,7 @@ class GnrReloaderMonitor(Monitor):
                 filenames.extend(file_callback())
             except:
                 print >> sys.stderr, "Error calling paste.reloader callback %r:" % file_callback
+                import traceback
                 traceback.print_exc()
         for module in sys.modules.values():
             try:
@@ -380,7 +382,7 @@ class NewServer(object):
             for path, site_template in self.gnr_config.digest('gnr.environment_xml.sites:#a.path,#a.site_template'):
                 if path == os.path.dirname(self.site_path):
                     site_config.update(self.gnr_config['gnr.siteconfig.%s_xml' % site_template] or Bag())
-        site_config.update(Bag(site_config_path))
+        site_config.update(base_site_config)
         return site_config
 
     def set_user(self):
