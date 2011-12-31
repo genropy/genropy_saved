@@ -610,7 +610,7 @@ class GnrDomSrc(GnrStructData):
         commonKwargs = dict([(k, kwargs.pop(k)) for k in kwargs.keys() if len(k) > 4 and k[0:4] in commonPrefix])
         tbl = self.child('table', _class='%s %s' % (tblclass, _class), **kwargs).child('tbody')
         dbtable = table or kwargs.get('dbtable') or self.getInheritedAttributes().get('table') or self.page.maintable
-        formNode = self.parentNode.attributeOwnerNode('formId')
+        formNode = self.parentNode.attributeOwnerNode('formId') if self.parentNode else None
         if formNode:
             if not hasattr(formNode,'_mainformbuilder'):
                 formNode._mainformbuilder = tbl
