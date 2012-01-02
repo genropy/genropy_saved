@@ -510,13 +510,15 @@ class TableHandlerMain(BaseComponent):
         
     def __th_moverdrop(self,th):
         gridattr = th.view.grid.attributes
-        currCodes = gridattr.get('dropTarget_grid','').split(',')
+        currCodes = gridattr.get('dropTarget_grid')
+        currCodes = currCodes.split(',') if currCodes else []
         tcode = 'mover_%s' %self.maintable.replace('.','_')
         if not tcode in currCodes:
             currCodes.append(tcode)
             gridattr['onDrop_%s' %tcode] = "genro.serverCall('developer.importMoverLines',{table:data.table,pkeys:data.pkeys,objtype:data.objtype});"
         gridattr.update(dropTarget_grid=','.join(currCodes))
         
+
     def __th_title(self,th,widget,insidePublic):
         if insidePublic:
             th.view.top.bar.replaceSlots('vtitle','')

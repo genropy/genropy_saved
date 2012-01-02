@@ -286,9 +286,11 @@ dojo.declare("gnr.GnrDlgHandler", null, {
         genro.src.getNode()._('div', '_dlg_quick');
         var node = genro.src.getNode('_dlg_quick').clearValue();
         node.freeze();
+        var kwdimension = objectExtract(kw,'height,width');
         var dlg = node._('dialog', objectUpdate({title:title},kw));
-        var center = dlg._('div', {_class:'pbl_dialog_center'});
-        var bottom = dlg._('div', {_class:'dialog_bottom'});
+        var box = dlg._('div',kwdimension)
+        var center = box._('div', {_class:'pbl_dialog_center'});
+        var bottom = box._('div', {_class:'dialog_bottom'});
         dlg.center = center;
         dlg.bottom = bottom;
         dlg.close_action = function() {
