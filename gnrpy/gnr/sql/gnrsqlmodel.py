@@ -332,9 +332,11 @@ class DbModelSrc(GnrStructData):
         if not 'tables' in self:
             #if it is the first table it prepares the table_list tables
             self.child('table_list', 'tables')
+        pkg=self.parentNode.label
         return self.child('table', 'tables.%s' % name, comment=comment,
                           name_short=name_short, name_long=name_long, name_full=name_full,
-                          pkey=pkey, lastTS=lastTS, rowcaption=rowcaption, pkg=self.parentNode.label,
+                          pkey=pkey, lastTS=lastTS, rowcaption=rowcaption, pkg=pkg,
+                          fullname='%s.%s' %(pkg,name),
                           **kwargs)
                           
     def column(self, name, dtype=None, size=None,

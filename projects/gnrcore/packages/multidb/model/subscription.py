@@ -30,10 +30,16 @@ class Table(object):
         self.db.commit()
     
     def addSubscription(self,table=None,pkey=None,dbstore=None):
-        fkey = self.tableFkey(table)
+        tblobj = self.db.table(table)
+        fkey = self.tableFkey(tblobj)
         record = dict(dbstore=dbstore,tablename=table)
         record[fkey] = pkey
-        self.insert(record)
+        handler = getattr(tblobj,'onAddSubscription',None)
+        if handler:
+            handler(pkey,dbstore)
+        if not self.checkDuplicate(**dict(record)):
+            self.insert(record)
+
     
     @public_method
     def delRowsSubscription(self,table,pkeys=None,dbstore=None):
@@ -109,7 +115,7 @@ class Table(object):
         else:
             subscribedStores = self.query(where='$tablename=:tablename AND $%s=:pkey' %fkeyname,
                                     columns='$dbstore',addPkeyColumn=False,
-                                    tablename=tablename,pkey=pkey,distinct=True).fetch()
+                                    tablename=tablename,pkey=pkey,distinct=True).fetch()                
             subscribedStores = [s['dbstore'] for s in subscribedStores]
         for storename in subscribedStores:
             self.syncStore(event=event,storename=storename,tblobj=tblobj,pkey=pkey)

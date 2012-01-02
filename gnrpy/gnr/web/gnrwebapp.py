@@ -25,6 +25,7 @@ class GnrWsgiWebApp(GnrApp):
         for s in _storesToCommit:
             with self.db.tempEnv(storename=s,_systemDbEvent=True):
                 self.db.commit()
+                print 'Committed ',s
 
             
     def _get_pagePackageId(self, filename):

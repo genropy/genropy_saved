@@ -118,7 +118,7 @@ class GnrDboPackage(object):
 class TableBase(object):
     """TODO"""
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, draftField=False, md5=False,
-                  group='zzz', group_name='!!System'):
+                  group='zzz', group_name='!!System',multidb=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the :ref:`table` object
@@ -170,7 +170,9 @@ class TableBase(object):
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] =draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
-            
+        if multidb:
+             self.setMultidbSubscription(tbl.attributes.get('fullname'),allRecords=(multidb=='*'))
+             
     def trigger_setTSNow(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
         the insertion date as a value of the dict with the key equal to ``record[fldname]``,
@@ -227,29 +229,31 @@ class TableBase(object):
                         onUpdated='multidbSyncUpdated',
                         onDeleted='multidbSyncDeleted',
                         onInserted='multidbSyncInserted')
-            if not allRecords:
-                tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
-                        name_long='!!Subscribed by default',plugToForm=True)
-                tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
-                                                            FROM multidb.multidb_subscription AS sub
-                                                            WHERE sub.dbstore = :env_target_store 
-                                                                  AND sub.tablename = '%s'
-                                                            AND sub.%s = #THIS.%s
-                                                            )""" %(tblfullname,fkey,pkey),dtype='B',
-                                                            name_long='!!Subscribed')
-               #tbl.formulaColumn('_customClasses',"""CASE WHEN EXISTS (SELECT * 
-               #                                            FROM multidb.multidb_subscription AS sub
-               #                                            WHERE sub.dbstore = :env_target_store 
-               #                                                  AND sub.tablename = '%s'
-               #                                            AND sub.%s = #THIS.%s
-               #                                            ) THEN 'multidb_subscribed_row' 
-               #                                            ELSE ''
-               #                                            END
-               #                                            """ %(tblfullname,fkey,pkey),dtype='B',
-               #                                            name_long='!!Subscribed')
+            if allRecords:
+                return 
+                
+            tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
+                    name_long='!!Subscribed by default',plugToForm=True)
+            tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
+                                                        FROM multidb.multidb_subscription AS sub
+                                                        WHERE sub.dbstore = :env_target_store 
+                                                              AND sub.tablename = '%s'
+                                                        AND sub.%s = #THIS.%s
+                                                        )""" %(tblfullname,fkey,pkey),dtype='B',
+                                                        name_long='!!Subscribed')
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
                               size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
                                                                                  many_group='_', one_group='_')
+           #tbl.formulaColumn('_customClasses',"""CASE WHEN EXISTS (SELECT * 
+           #                                            FROM multidb.multidb_subscription AS sub
+           #                                            WHERE sub.dbstore = :env_target_store 
+           #                                                  AND sub.tablename = '%s'
+           #                                            AND sub.%s = #THIS.%s
+           #                                            ) THEN 'multidb_subscribed_row' 
+           #                                            ELSE ''
+           #                                            END
+           #                                            """ %(tblfullname,fkey,pkey),dtype='B',
+           #                                            name_long='!!Subscribed')
     
     def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
