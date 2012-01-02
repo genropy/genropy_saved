@@ -142,7 +142,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:true};
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent};
         genro.publish(topic,kw);
     },
     subscribe: function(command,cb,scope){

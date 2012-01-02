@@ -14,7 +14,12 @@ class TableHandlerMain(BaseComponent):
     def onMain_multidb_addOn(self):
         th = self.root_tablehandler
         self.__viewCustomization(th.view)
-
+        self.__formCustomization(th.form)
+    
+    def __formCustomization(self,form):
+        if self.dbstore:
+            form.attributes.update(form_readOnly=True)
+    
     def __viewCustomization(self,view): #poi ci passo il th direttamente
         table = view.getInheritedAttributes()['table']
         dragCode = 'multidb_%s' %table.replace('.','_')
@@ -37,5 +42,6 @@ class TableHandlerMain(BaseComponent):
         else:
             gridattr = view.grid.attributes
             gridattr['dragTags'] = dragCode
+            
 
         

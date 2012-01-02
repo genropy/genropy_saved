@@ -273,6 +273,7 @@ dojo.declare("gnr.IframeFormManager", null, {
         var that = this;
         this.iframe = iframe;
         this.iframeForm = iframe._genro.formById(this.fakeFormId);
+        this.iframeForm.publishToParent = true;
         this.iframeForm.store.handlers.load.defaultCb = function(){
             return that.sourceNode.evaluateOnNode(that.default_kwargs);
         }
