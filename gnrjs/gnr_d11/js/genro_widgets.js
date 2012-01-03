@@ -4868,7 +4868,7 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
             sourceNode.attr.validate_dbselect_error = 'Not existing value';
         }
     },
-    patch__setBlurValue : function(){
+    versionpatch_11__setBlurValue : function(){
             // if the user clicks away from the textbox OR tabs away, set the
             // value to the textbox value
             // #4617:
