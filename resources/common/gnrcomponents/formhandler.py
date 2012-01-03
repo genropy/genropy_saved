@@ -117,7 +117,7 @@ class FormHandler(BaseComponent):
     def fh_formInIframe(self,pane,table=None,
                        formId=None,default_kwargs=None,src=None,
                        formResource=None,store_kwargs=True,
-                       dialog_kwargs=None,palette_kwargs=None,main_kwargs=True,main='pbl_form_main',**kwargs):
+                       dialog_kwargs=None,palette_kwargs=None,main_kwargs=True,main='main_form',**kwargs):
         if dialog_kwargs or palette_kwargs:
             formRoot = pane._makeFormRoot(formId,attachTo=pane,dialog_kwargs=dialog_kwargs,palette_kwargs=palette_kwargs,form_kwargs=kwargs)
         else:
