@@ -4777,24 +4777,6 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
     connectForUpdate: function(widget, sourceNode) {
         return;
     },
-    patch__setBlurValue : function(){
-            // if the user clicks away from the textbox OR tabs away, set the
-            // value to the textbox value
-            // #4617:
-            // if value is now more choices or previous choices, revert
-            // the value
-            var newvalue=this.getDisplayedValue();
-            var pw = this._popupWidget;
-            if(pw && (
-                newvalue == pw._messages["previousMessage"] ||
-                newvalue == pw._messages["nextMessage"]
-                )
-            ){
-                this.setValue(this._lastValueReported, true);
-            }else{
-                //this.setDisplayedValue(newvalue);
-            }
-    },
     
     created: function(widget, savedAttrs, sourceNode) {
         if (savedAttrs.auxColumns) {
@@ -4885,7 +4867,25 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
         if (!("validate_dbselect_error" in sourceNode.attr)) {
             sourceNode.attr.validate_dbselect_error = 'Not existing value';
         }
-    }
+    },
+    patch__setBlurValue : function(){
+            // if the user clicks away from the textbox OR tabs away, set the
+            // value to the textbox value
+            // #4617:
+            // if value is now more choices or previous choices, revert
+            // the value
+            var newvalue=this.getDisplayedValue();
+            var pw = this._popupWidget;
+            if(pw && (
+                newvalue == pw._messages["previousMessage"] ||
+                newvalue == pw._messages["nextMessage"]
+                )
+            ){
+                this.setValue(this._lastValueReported, true);
+            }else{
+                //this.setDisplayedValue(newvalue);
+            }
+    },
 });
 
 dojo.declare("gnr.widgets.dbComboBox", gnr.widgets.dbBaseCombo, {
