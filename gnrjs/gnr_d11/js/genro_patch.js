@@ -268,7 +268,6 @@ genropatches.comboBox = function() {
                     break;
             }
         }
-
     });
 };
 genropatches.borderContainer = function() {
