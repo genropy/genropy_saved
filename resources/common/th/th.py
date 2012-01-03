@@ -197,6 +197,27 @@ class TableHandler(BaseComponent):
                             main_pkey='=#FORM.pkey',src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
         return iframe
+    
+
+    @struct_method
+    def th_relatedIframeForm(self,pane,related_field=None,related_table=None,src=None,formResource=None,**kwargs):
+        pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
+        pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
+        box = pane.div(_class='detacher',z_index=30)
+        kwargs.setdefault('readOnly',True)
+        kwargs.setdefault('showfooter',False)
+        kwargs.setdefault('showtoolbar',False)
+        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        table = pane.getInheritedAttributes()['table']
+        if not related_table:
+            tblobj = self.db.table(table)
+            related_tblobj = tblobj.column(related_field).relatedColumn().table    
+            related_table = related_tblobj.fullname            
+        src = src or '/sys/thpage/%s' %related_table.replace('.','/')
+        iframe = box.iframe(main='main_form',main_th_pkey='=#FORM.record.%s' %related_field,
+                            src=src,main_th_formResource=formResource,**kwargs)
+        pane.dataController('iframe._genro._rootForm.load({destPkey:pkey});',pkey='^#FORM.record.%s' %related_field,iframe=iframe)
+        return iframe
         
     @public_method
     def th_iframedispatcher(self,root,methodname=None,pkey=None,table=None,**kwargs):

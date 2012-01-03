@@ -540,17 +540,8 @@ class TableHandlerMain(BaseComponent):
                     draggable=True,
                     onDrag="""dragValues["webpage"] = genro.page_id;
                               dragValues["dbrecords"] = genro.getDataNode("gnr.windowTitle").attr;
-                                """,**kwargs)
-    
-    @public_method                     
-    def pbl_form_main(self, root,**kwargs):
-        callArgs =  self.getCallArgs('th_pkg','th_table','th_pkey') 
-        pkey = callArgs.pop('th_pkey',None)
-        kwargs.update(pkey=pkey)
-        formCb = self.th_form if hasattr(self,'th_form') else None
-        self._th_prepareForm(root,formCb=formCb,**kwargs)
-                
-    
+                                """,**kwargs)            
+
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):
         pkey = pkey or th_kwargs.pop('pkey','*norecord*')
@@ -580,8 +571,15 @@ class TableHandlerMain(BaseComponent):
         form.attributes['hasBottomMessage'] = False
         form.dataController('PUBLISH pbl_bottomMsg = _subscription_kwargs;',formsubscribe_message=True)
         
-    def rpc_view(self,root,**kwargs):
-        pass
+    @public_method                     
+    def main_form(self, root,**kwargs):
+        """ALTERNATIVE MAIN CALL"""
+        callArgs =  self.getCallArgs('th_pkg','th_table','th_pkey') 
+        pkey = callArgs.pop('th_pkey',None)
+        kwargs.update(pkey=pkey)
+        formCb = self.th_form if hasattr(self,'th_form') else None
+        self._th_prepareForm(root,formCb=formCb,**kwargs)
+    
         
 #OLD STUFF TO REMOVE
 class ThermoDialog(BaseComponent):
