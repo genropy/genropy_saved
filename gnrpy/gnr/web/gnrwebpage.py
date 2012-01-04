@@ -74,7 +74,7 @@ class GnrWebPage(GnrBaseWebPage):
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
         self.site = site
-        dbstore = request_kwargs.pop('_dbstore',None) 
+        dbstore = request_kwargs.pop('_dbstore',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
         self.user_agent = request.user_agent or []
         self.user_ip = request.remote_addr

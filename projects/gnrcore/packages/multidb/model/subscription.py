@@ -5,12 +5,12 @@ from gnr.core.gnrdecorator import public_method
 class Table(object):
     def config_db(self, pkg):
         tbl =  pkg.table('subscription',pkey='id',name_long='!!Subscription',
-                      name_plural='!!Subscriptions')
+                      name_plural='!!Subscriptions',broadcast='tablename,dbstore')
         self.sysFields(tbl)
         tbl.column('tablename',name_long='!!Tablename') #table fullname 
         #tbl.column('rec_pkey',name_long='!!Pkey') # if rec_pkey == * means all records
         tbl.column('dbstore',name_long='!!Store')
-        
+    
     
     def copyRecords(self,table,dbstore=None,pkeys=None):
         tblobj = self.db.table(table)
@@ -49,9 +49,10 @@ class Table(object):
     
     def delSubscription(self,table=None,pkey=None,dbstore=None):
         fkey = self.tableFkey(table)        
-        record = self.query(where='$dbstore=:dbstore AND $tablename=:tablename AND $%s =:fkey' %fkey,for_update=True,
-                            dbstore=dbstore,tablename=table,fkey=pkey)
-        self.delete(record)
+        f = self.query(where='$dbstore=:dbstore AND $tablename=:tablename AND $%s =:fkey' %fkey,for_update=True,
+                            dbstore=dbstore,tablename=table,fkey=pkey,addPkeyColumn=False).fetch()
+        if f:
+            self.delete(f[0])
     
     def trigger_onInserted(self,record):
         self.syncStore(record,'I')
