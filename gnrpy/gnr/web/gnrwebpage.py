@@ -31,6 +31,7 @@ import shutil
 from gnr.core.gnrstring import toText, toJson, concat, jsquote,splitAndStrip,boolean
 from mako.lookup import TemplateLookup
 from gnr.core.gnrlang import GnrObject
+from gnr.core.gnrdict import dictExtract
 from gnr.web.gnrwebreqresp import GnrWebRequest, GnrWebResponse
 from gnr.web.gnrwebpage_proxy.apphandler import GnrWebAppHandler
 from gnr.web.gnrwebpage_proxy.connection import GnrWebConnection
@@ -73,7 +74,7 @@ class GnrWebPage(GnrBaseWebPage):
     def __init__(self, site=None, request=None, response=None, request_kwargs=None, request_args=None,
                  filepath=None, packageId=None, pluginId=None, basename=None, environ=None):
         self.site = site
-        dbstore = request_kwargs.pop('_dbstore',None) 
+        dbstore = request_kwargs.pop('_dbstore',None) or None
         self.dbstore = dbstore if dbstore != self.application.db.rootstore else None
         self.user_agent = request.user_agent or []
         self.user_ip = request.remote_addr
@@ -267,7 +268,10 @@ class GnrWebPage(GnrBaseWebPage):
             storeDbEnv = self.pageStore().getItem('dbenv')
             if storeDbEnv:
                 self._db.updateEnv(**dict(storeDbEnv))
-                    
+            
+            envPageArgs = dictExtract(self.pageArgs,'env_')
+            if envPageArgs:
+                self._db.updateEnv(**envPageArgs)
             for dbenv in [getattr(self, x) for x in dir(self) if x.startswith('dbenv_')]:
                 kwargs = dbenv() or {}
                 self._db.updateEnv(**kwargs)

@@ -553,12 +553,12 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
             var fldname = datanode.attr.name_long || datanode.label;
             if (validateresult['error']) {
                 valueAttr._validationError = validateresult['error'];
-                if(validateresult.error){
+                if(validateresult.error && formHandler){
                     formHandler.publish('message',{message:fldname+': '+validateresult.error,sound:'$onerror',color:'#FF260A',font_size:'1.1em',font_weight:'bold'});
                 }
             }
             if (validateresult['warnings'].length) {
-                if(validateresult.warnings){
+                if(validateresult.warnings && formHandler){
                     formHandler.publish('message',{message:fldname+': '+validateresult.warnings.join(','),sound:'$onwarning',color:'orange',font_size:'1.1em',font_weight:'bold'});
                 }
                 valueAttr._validationWarnings = validateresult['warnings'];
@@ -4410,11 +4410,11 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
             }
         }
     },
-    /*patch__onBlur: function(){
-     this._hideResultList();
-     this._arrowIdle();
-     this.inherited(arguments);
-     }*/
+  // patch__onBlur: function(){
+  //     this._hideResultList();
+  //     this._arrowIdle();
+  //     this.inherited(arguments);
+  //  },
 
     connectFocus: function(widget, savedAttrs, sourceNode) {
         var timeoutId = null;
@@ -4867,7 +4867,25 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
         if (!("validate_dbselect_error" in sourceNode.attr)) {
             sourceNode.attr.validate_dbselect_error = 'Not existing value';
         }
-    }
+    },
+    versionpatch_11__setBlurValue : function(){
+            // if the user clicks away from the textbox OR tabs away, set the
+            // value to the textbox value
+            // #4617:
+            // if value is now more choices or previous choices, revert
+            // the value
+            var newvalue=this.getDisplayedValue();
+            var pw = this._popupWidget;
+            if(pw && (
+                newvalue == pw._messages["previousMessage"] ||
+                newvalue == pw._messages["nextMessage"]
+                )
+            ){
+                this.setValue(this._lastValueReported, true);
+            }else{
+                //this.setDisplayedValue(newvalue);
+            }
+    },
 });
 
 dojo.declare("gnr.widgets.dbComboBox", gnr.widgets.dbBaseCombo, {

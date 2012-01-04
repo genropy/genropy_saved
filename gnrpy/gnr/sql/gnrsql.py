@@ -247,6 +247,10 @@ class GnrSqlDb(GnrObject):
             return self.dbstores[storename]['database']
         else:
             return self.dbname
+    
+    def usingRootstore(self):
+        currentStore = self.currentEnv.get('storename')
+        return  (currentStore is None) or (currentStore == self.rootstore)
             
     def _get_localizer(self):
         if self.application and self.application.site and self.application.site.currentPage:
@@ -367,6 +371,7 @@ class GnrSqlDb(GnrObject):
             if hasattr(tblobj,'protect_draft'):
                 record[tblobj.draftField] = tblobj.protect_draft(record)
         self.adapter.insert(tblobj, record,**kwargs)
+        tblobj._doFieldTriggers('onInserted', record)
         tblobj.trigger_onInserted(record)
         
     def update(self, tblobj, record, old_record=None, pkey=None, **kwargs):
@@ -378,7 +383,7 @@ class GnrSqlDb(GnrObject):
         :param pkey: the record :ref:`primary key <pkey>`"""
         tblobj.protect_update(record, old_record=old_record)
         tblobj.protect_validate(record, old_record=old_record)
-        tblobj._doFieldTriggers('onUpdating', record)
+        tblobj._doFieldTriggers('onUpdating', record,old_record=old_record)
         tblobj.trigger_onUpdating(record, old_record=old_record)
         if tblobj.attributes.get('diagnostic'):
             errors = tblobj.diagnostic_errors(record)
@@ -389,6 +394,7 @@ class GnrSqlDb(GnrObject):
             if hasattr(tblobj,'protect_draft'):
                 record[tblobj.draftField] = tblobj.protect_draft(record)
         self.adapter.update(tblobj, record, pkey=pkey,**kwargs)
+        tblobj._doFieldTriggers('onUpdated', record, old_record=old_record)
         tblobj.trigger_onUpdated(record, old_record=old_record)
         
     def delete(self, tblobj, record, **kwargs):
@@ -401,12 +407,26 @@ class GnrSqlDb(GnrObject):
         tblobj.trigger_onDeleting(record)
         tblobj.deleteRelated(record)
         self.adapter.delete(tblobj, record,**kwargs)
+        tblobj._doFieldTriggers('onDeleted', record)
         tblobj.trigger_onDeleted(record)
         
     def commit(self):
         """Commit a transaction"""
         self.connection.commit()
-        self.onDbCommitted()
+        if not self.systemDbEvent():
+            self.onDbCommitted()
+    
+    def deferredCommit(self):
+        currentEnv = self.currentEnv
+        savedEnv = currentEnv.get('__savedEnv')
+        if not savedEnv:
+            return
+        dbstore = currentEnv.get('storename')
+        assert dbstore, 'deferredCommit must have a dbstore'
+        savedEnv.setdefault('_storesToCommit',set()).add(dbstore)
+    
+    def systemDbEvent(self):
+        return self.currentEnv.get('_systemDbEvent',False)
     
     def onDbCommitted(self):
         """TODO"""
@@ -593,6 +613,7 @@ class TempEnv(object):
             currentEnv = self.db.currentEnv
             self.savedEnv = dict(currentEnv)
             currentEnv.update(self.kwargs)
+            currentEnv['__savedEnv'] = self.savedEnv
         return self.db
         
     def __exit__(self, type, value, traceback):

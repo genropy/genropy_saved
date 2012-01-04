@@ -44,6 +44,7 @@ class HTableResolver(BagResolver):
                    'rootpkey': None,
                    'extra_columns':None,
                    'related_extra_columns':None,
+                   'related_fullrecord':None,
                    'storename':None,
                    '_page': None}
     classArgs = ['table', 'rootpath']
@@ -66,7 +67,7 @@ class HTableResolver(BagResolver):
             children.setItem(row['pkey'], None,
                              caption=caption,
                              pkey=row['pkey'], code=row.get('code'),
-                             node_class='tree_related',_record=dict(row))
+                             node_class='tree_related',_record=dict(row) if self.related_fullrecord else None)
         return children
         
     def load(self):
@@ -100,6 +101,7 @@ class HTableResolver(BagResolver):
                 value = HTableResolver(table=self.table, rootpath='*related*:%s' % row['pkey'],
                                        relation_path=self.relation_path,
                                        related_extra_columns=self.related_extra_columns,
+                                       related_fullrecord=self.related_fullrecord,
                                        related_table=self.related_table,storename=self.storename,
                                        _page=self._page)
                 child_count = 1
@@ -174,6 +176,7 @@ class HTableHandlerBase(BaseComponent):
                          rootcode=None,
                          extra_columns=None,
                          related_extra_columns=None,
+                         related_fullrecord=True,
                          storename=None,**kwargs):
         columns = '$code,$parent_code,$description,$child_code,$child_count,$rec_type'
         if extra_columns:
@@ -181,7 +184,7 @@ class HTableHandlerBase(BaseComponent):
         result = Bag()
         value = HTableResolver(table=table, rootpath=rootpath, limit_rec_type=limit_rec_type, _page=self,
                                related_table=related_table, relation_path=relation_path,extra_columns=extra_columns,
-                               related_extra_columns=related_extra_columns,storename=storename) #if child_count else None
+                               related_extra_columns=related_extra_columns,related_fullrecord=related_fullrecord,storename=storename) #if child_count else None
         rootlabel,attr = self._ht_rootNodeAttributes(table=table,rootpath=rootpath,columns=columns,
                                                             rootcaption=rootcaption,rootcode=rootcode)
         result.setItem(rootlabel, value, checked=False,**attr)
