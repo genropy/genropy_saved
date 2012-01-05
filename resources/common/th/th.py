@@ -189,10 +189,10 @@ class TableHandler(BaseComponent):
     @struct_method
     def th_thIframe(self,pane,method=None,src=None,**kwargs):
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
-        pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
-        box = pane.div(_class='detacher',z_index=30)
+        #pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
+        #box = pane.div(_class='detacher',z_index=30)
         kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
-        iframe = box.iframe(main=self.th_iframedispatcher,main_methodname=method,
+        iframe = pane.iframe(main=self.th_iframedispatcher,main_methodname=method,
                             main_table=pane.getInheritedAttributes().get('table'),
                             main_pkey='=#FORM.pkey',src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
@@ -216,7 +216,8 @@ class TableHandler(BaseComponent):
         src = src or '/sys/thpage/%s' %related_table.replace('.','/')
         iframe = box.iframe(main='main_form',main_th_pkey='=#FORM.record.%s' %related_field,
                             src=src,main_th_formResource=formResource,**kwargs)
-        pane.dataController('iframe._genro._rootForm.load({destPkey:pkey});',pkey='^#FORM.record.%s' %related_field,iframe=iframe)
+        pane.dataController('iframe._genro._rootForm.load({destPkey:pkey});',
+                            pkey='^#FORM.record.%s' %related_field,iframe=iframe)
         return iframe
         
     @public_method
