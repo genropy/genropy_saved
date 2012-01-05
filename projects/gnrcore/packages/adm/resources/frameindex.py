@@ -6,6 +6,8 @@
 # Frameindex component
 
 from gnr.web.gnrwebpage import BaseComponent
+from gnr.core.gnrdecorator import public_method
+
 class FrameIndex(BaseComponent):
     py_requires="""foundation/menu:MenuIframes,
                    gnrcomponents/batch_handler/batch_handler:TableScriptRunner,
@@ -22,21 +24,22 @@ class FrameIndex(BaseComponent):
     hideLeftPlugins = False
     preferenceTags = 'admin'
     
-    def rootWidget(self,root,**kwargs):
-        return root.framePane('standard_index',_class='hideSplitter',
+    def mainLeftContent(self,*args,**kwargs):
+        pass
+        
+    def main(self,root,**kwargs):
+        self.main_framedindex(root,**kwargs)
+    
+    @public_method
+    def main_framedindex(self,root,**kwargs):
+        frame = root.framePane('standard_index',_class='hideSplitter',
                                 #border='1px solid gray',#rounded_top=8,
                                 margin='0px',
                                 gradient_from='#d0d0d0',gradient_to='#ffffff',gradient_deg=-90,
                                 selfsubscribe_toggleLeft="""this.getWidget().setRegionVisible("left",'toggle');""",
                                 selfsubscribe_hideLeft="""this.getWidget().setRegionVisible("left",false);""",
                                 subscribe_setIndexLeftStatus="""this.getWidget().setRegionVisible("left",$1);""",
-                                selfsubscribe_showLeft="""this.getWidget().setRegionVisible("left",true);""",
-                                **kwargs)
-
-    def mainLeftContent(self,*args,**kwargs):
-        pass
-        
-    def main(self,frame,**kwargs):
+                                selfsubscribe_showLeft="""this.getWidget().setRegionVisible("left",true);""")
         self.prepareLeft(frame.left)
         self.prepareTop(frame.top)
         self.prepareBottom(frame.bottom)
