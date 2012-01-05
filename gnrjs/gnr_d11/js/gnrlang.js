@@ -581,8 +581,8 @@ function quoted(astring) {
 
 
 function convertFromText(value, t, fromLocale) {
-    if (value == null) {
-        return null;
+    if (value == null || typeof(value)!='string') {
+        return value;
     }
     if (!t && value.indexOf('::') >= 0) {
         value = value.split('::');
