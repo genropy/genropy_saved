@@ -15,5 +15,6 @@ class GnrCustomWebPage(object):
     def test_0_firsttest(self,pane):
         """First test description"""
         fb = pane.formbuilder(cols=1, border_spacing='4px')
-        fb.dbSelect(dbtable='glbl.nazione',value='^.nazione',lbl='Nazione')
-        fb.div('^.nazione')
+        fb.dbSelect(dbtable='glbl.provincia',value='^.sigla',lbl='Sigla',selected_regione='.regione')
+        fb.data('.regione','pippo')
+        fb.div('^.regione')
