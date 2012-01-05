@@ -4883,6 +4883,7 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
             ){
                 this.setValue(this._lastValueReported, true);
             }else{
+                this.setValue(this._lastValueReported, true);
                 //this.setDisplayedValue(newvalue);
             }
     },
