@@ -6,7 +6,8 @@
 # Frameindex component
 
 from gnr.web.gnrwebpage import BaseComponent
-from gnr.core.gnrdecorator import public_method
+from gnr.core.gnrdecorator import public_method,extract_kwargs
+from gnr.web.gnrwebstruct import struct_method
 
 class FrameIndex(BaseComponent):
     py_requires="""foundation/menu:MenuIframes,
@@ -28,11 +29,11 @@ class FrameIndex(BaseComponent):
         pass
         
     def main(self,root,**kwargs):
-        self.main_framedindex(root,**kwargs)
+        root.frameIndexRoot(**kwargs)
     
-    @public_method
-    def main_framedindex(self,root,**kwargs):
-        frame = root.framePane('standard_index',_class='hideSplitter',
+    @struct_method
+    def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
+        frame = pane.framePane('standard_index',_class='hideSplitter',
                                 #border='1px solid gray',#rounded_top=8,
                                 margin='0px',
                                 gradient_from='#d0d0d0',gradient_to='#ffffff',gradient_deg=-90,
@@ -41,11 +42,11 @@ class FrameIndex(BaseComponent):
                                 subscribe_setIndexLeftStatus="""this.getWidget().setRegionVisible("left",$1);""",
                                 selfsubscribe_showLeft="""this.getWidget().setRegionVisible("left",true);""")
         self.prepareLeft(frame.left)
-        self.prepareTop(frame.top)
+        self.prepareTop(frame.top,onCreatingTablist=onCreatingTablist)
         self.prepareBottom(frame.bottom)
         self.prepareCenter(frame.center)
         
-    def prepareTop(self,pane):
+    def prepareTop(self,pane,onCreatingTablist=None):
         pane.attributes.update(dict(height='30px',overflow='hidden',gradient_from='gray',gradient_to='silver',gradient_deg=90))
         bc = pane.borderContainer(margin_top='4px') 
         leftbar = bc.contentPane(region='left',overflow='hidden').div(display='inline-block', margin_left='10px')  
@@ -60,9 +61,9 @@ class FrameIndex(BaseComponent):
         for btn in ['refresh','delete']:
             getattr(self,'btn_%s' %btn)(rightbar)
         
-        self.prepareTablist(bc.contentPane(region='center'))
+        self.prepareTablist(bc.contentPane(region='center'),onCreatingTablist=onCreatingTablist)
         
-    def prepareTablist(self,pane):     
+    def prepareTablist(self,pane,onCreatingTablist=False): 
         tabroot = pane.div(connect_onclick="""
                                             var targetSource = $1.target.sourceNode;
                                             var pageName = targetSource.inheritedAttribute("pageName");
@@ -77,10 +78,11 @@ class FrameIndex(BaseComponent):
                                         SET iframes = data;
                                     }
                                 }else{
-                                    genro.framedIndexManager.createTablist(tabroot,data);
+                                    genro.framedIndexManager.createTablist(tabroot,data,onCreatingTablist);
                                 }
                                 """,
-                            data="^iframes",tabroot=tabroot,indexTab=self.indexTab,_onStart=True)
+                            data="^iframes",tabroot=tabroot,indexTab=self.indexTab,
+                            onCreatingTablist=onCreatingTablist or False,_onStart=True)
         pane.dataController("""  var iframetab = tabroot.getValue().getNode(page);
                                     if(iframetab){
                                         genro.dom.setClass(iframetab,'iframetab_selected',selected);                                        

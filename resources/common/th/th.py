@@ -152,7 +152,7 @@ class TableHandler(BaseComponent):
     @extract_kwargs(default=True,page=True)
     @struct_method
     def th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,
-                            default_kwargs=None,dbname=None,recyclablePages=None,**kwargs):
+                            default_kwargs=None,dbname=None,recyclablePages=None,public=True,**kwargs):
         kwargs['tag'] = 'ContentPane'
         th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,default_kwargs=default_kwargs,**kwargs)
@@ -163,9 +163,11 @@ class TableHandler(BaseComponent):
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         grid.dataController("""
             if(!this._pageHandler){
-                this._pageHandler = new gnr.pageTableHandlerJS(this,mainpkey,formUrl,
-                                                                default_kwargs,formResource,viewStore,
-                                                                recyclablePages);
+                var th = {formResource:formResource,public:public}
+                var kw = {formUrl:formUrl,default_kwargs:default_kwargs,
+                          th:th,viewStore:viewStore,recyclablePages:recyclablePages};
+                
+                this._pageHandler = new gnr.pageTableHandlerJS(this,mainpkey,kw);
             }
             this._pageHandler.checkMainPkey(mainpkey);
             if(pkey){
@@ -175,7 +177,9 @@ class TableHandler(BaseComponent):
              pkey='^.editrow',
              mainpkey='^#FORM.pkey',
            default_kwargs=default_kwargs,_fakeform=True,
-           dbname=dbname or False,viewStore=th.view.store,recyclablePages=recyclablePages or False)
+           dbname=dbname or False,viewStore=th.view.store,
+           recyclablePages=recyclablePages or False,public=public
+           )
         return th    
         
     @struct_method

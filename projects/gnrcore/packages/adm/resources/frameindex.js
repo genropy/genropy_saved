@@ -65,11 +65,11 @@ dojo.declare("gnr.FramedIndexManager", null, {
         return genro.addParamsToUrl(url,urlPars);
     },
     
-    createTablist:function(sourceNode,data){
+    createTablist:function(sourceNode,data,onCreatingTablist){
         var root = genro.src.newRoot();
         var selectedFrame = this.selectedFrame();
         var button,kw,pageName;
-        data.forEach(function(n){
+        var cb = function(n){
             pageName = n.attr.pageName;
             kw = {'_class':'iframetab',pageName:pageName};
             if (n.attr.subtab){
@@ -84,7 +84,12 @@ dojo.declare("gnr.FramedIndexManager", null, {
             button = root._('div',pageName,kw);
             
             button._('div',{'innerHTML':n.attr.fullname,'_class':'iframetab_caption'});
-        },'static');
+        }
+        data.forEach(cb,'static');
+        if(onCreatingTablist){
+            onCreatingTablist = funcCreate(onCreatingTablist,'root,selectedPage',this)
+            onCreatingTablist(root,selectedFrame);
+        }
         sourceNode.setValue(root, true);
     },
     
