@@ -11,7 +11,6 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class TableHandlerMain(BaseComponent):
-    css_requires='multidb_public'
     def onMain_multidb_addOn(self):
         th = self.root_tablehandler
         self.__viewCustomization(th.view)
