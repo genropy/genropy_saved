@@ -12,12 +12,15 @@ from gnr.web.gnrbaseclasses import BaseComponent
 
 class TableHandlerMain(BaseComponent):
     def onMain_multidb_addOn(self):
-        th = self.root_tablehandler
-        self.__viewCustomization(th.view)
-        self.__formCustomization(th.form)
+        if not self.tblobj.isMultidbTable():
+            return
+        th = getattr(self,'root_tablehandler',None)
+        if th:
+            self.__viewCustomization(th.view)
+            self.__formCustomization(th.form)
     
     def __formCustomization(self,form):
-        if self.dbstore:
+        if self.tblobj.multidb_readOnly():
             form.attributes.update(form_readOnly=True)
     
     def __viewCustomization(self,view): #poi ci passo il th direttamente
@@ -60,8 +63,8 @@ class TableHandlerMain(BaseComponent):
         
         """,table='multidb.subscription',tablename=self.maintable,dbstore=self.dbstore,store=view.store)
             
-        else:
-            target_store = self._call_kwargs['env_target_store']
+        elif 'env_target_store' in self._call_kwargs:
+            target_store = self._call_kwargs.get('env_target_store')
             gridattr = view.grid.attributes
             gridattr['dragTags'] = dragCode
             store = view.store

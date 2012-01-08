@@ -207,6 +207,12 @@ class TableBase(object):
     def hasRecordTags(self):
         """TODO"""
         return self.attributes.get('hasRecordTags', False)
+    
+    def isMultidbTable(self):
+        return 'multidb_allRecords' in self.attributes
+
+    def multidb_readOnly(self):
+        return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
 
     def setMultidbSubscription(self,tblfullname,allRecords=False):
         """TODO

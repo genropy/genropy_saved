@@ -29,7 +29,10 @@ class FrameIndex(BaseComponent):
         pass
         
     def main(self,root,**kwargs):
-        root.frameIndexRoot(**kwargs)
+        if self.root_page_id:
+            self.index_dashboard(root)
+        else:
+            root.frameIndexRoot(**kwargs)
     
     @struct_method
     def frm_frameIndexRoot(self,pane,onCreatingTablist=None,**kwargs):
