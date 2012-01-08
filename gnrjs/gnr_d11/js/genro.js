@@ -281,6 +281,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
         var _this = this;
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
+        dojo.subscribe('ping',genro.ping);
+        
         genro.dev.shortcut("Ctrl+Shift+D", function() {
             genro.dev.showDebugger();
         });

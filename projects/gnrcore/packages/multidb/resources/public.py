@@ -31,18 +31,22 @@ class TableHandlerMain(BaseComponent):
             bar.replaceSlots('addrow','subscribepalette')
             bar.unsubscriberow.slotButton('!!Unsubscribe',iconClass='iconbox delete_row',
                             action="""genro.serverCall('_table.multidb.subscription.delRowsSubscription',{table:tbl,pkeys:grid.getSelectedPkeys(),dbstore:dbstore,_dbstore:false});
-                                        """,dbstore=self.dbstore,tbl=self.maintable,grid=view.grid.js_widget)
+                                        """,dbstore=self.dbstore,tbl=self.maintable,grid=view.grid.js_widget,disabled='^.disabledButton')
             palette = bar.subscribepalette.palettePane(paletteCode='mainstore',title='!!Mainstore',
-                                        dockButton_iconClass='iconbox add_row',width='850px',
-                                        height='400px',_lazyBuild=True,overflow='hidden')
+                                        dockButton_iconClass='iconbox add_row',width='900px',
+                                        height='400px',_lazyBuild=True,overflow='hidden',dockButton_disabled='^.disabledButton')
             urlist = self.site.get_path_list(self.request.path_info)
             urlist.pop(0)
             palette.iframe(src='/%s' %'/'.join(urlist),height='100%',width='100%',border=0,
-                          main_th_public=False,main_fromdbstore=self.dbstore)
+                          main_th_public=False,main_env_target_store=self.dbstore,nodeId='subscriber_palette')
             gridattr = view.grid.attributes
             gridattr.update(dropTags=dragCode,dropTypes='dbrecords',
                                         onDrop_dbrecords="""function(dropInfo,data){
-                                            genro.serverCall('_table.multidb.subscription.addRowsSubscription',{table:data['table'],pkeys:data.pkeys,dbstore:'%s',_dbstore:false});
+                                            genro.serverCall('_table.multidb.subscription.addRowsSubscription',
+                                                            {table:data['table'],pkeys:data.pkeys,dbstore:'%s',_dbstore:false},
+                                                            function(){
+                                                                genro.publish({topic:'ping',iframe:'subscriber_palette'});
+                                                            });
                                         }""" %self.dbstore)
             currCodes = gridattr.get('dropTarget_grid')
             currCodes = currCodes.split(',') if currCodes else []
@@ -58,23 +62,17 @@ class TableHandlerMain(BaseComponent):
         """,table='multidb.subscription',tablename=self.maintable,dbstore=self.dbstore,store=view.store)
             
         else:
-            fromdbstore = self._call_kwargs['fromdbstore']
+            target_store = self._call_kwargs['env_target_store']
             gridattr = view.grid.attributes
             gridattr['dragTags'] = dragCode
-            hiddencolumns = gridattr.get('hiddencolumns')
-            hiddencolumns = hiddencolumns.split(',') if hiddencolumns else []
-            hiddencolumns.append(' @subscriptions.dbstore AS _dbstorename ')
-            gridattr['hiddencolumns'] = ','.join(hiddencolumns)
-            gridattr['rowCustomClassesCb']="""function(row){
-                                                  return row['_dbstorename']=='%s'?'multidb_imported':null;
-                                              }""" %fromdbstore
+            store = view.store
+            storeattr = store.attributes
+            condition = storeattr.pop('condition',None)
+            condition = '%s AND $__multidb_subscribed IS NOT TRUE' %condition if condition else '$__multidb_subscribed IS NOT TRUE'
+            storeattr['condition'] = condition
             view.onDbChanges(action="""
-            console.log('xxx',dbChanges)
             if(dojo.some(dbChanges,function(c){return (c['tablename']==tablename) && (c['dbstore']==dbstore);})){
-                console.log('ffff',grid);
-                grid.updateRowCount(0);
-                grid.updateRowCount();
+                store.fireNode();
             };
-        
-            """,table='multidb.subscription',tablename=self.maintable,dbstore=fromdbstore,grid=view.grid.js_widget)
+            """,table='multidb.subscription',tablename=self.maintable,dbstore=target_store,store=store)
         

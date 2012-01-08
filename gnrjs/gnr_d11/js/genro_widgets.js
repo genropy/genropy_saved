@@ -3479,7 +3479,6 @@ dojo.declare("gnr.widgets.VirtualStaticGrid", gnr.widgets.DojoGrid, {
             try{
                 this.updateRowCount_replaced(n);
             }catch(e){
-                
             }
             
             this.updateTotalsCount(); 
