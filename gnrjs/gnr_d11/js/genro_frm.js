@@ -445,6 +445,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
         var controllerData = this.getControllerData();
         this.protect_write = this.isProtectWrite();
+        genro.dom.setClass(this.sourceNode,'form_logical_deleted',this.isLogicalDeleted());
         genro.dom.setClass(this.sourceNode,'form_protect_write',this.protect_write);
 
         this.protect_delete = this.isProtectDelete();
@@ -652,7 +653,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         return protect_write || this.readOnly;
     },
-
+    
+    isLogicalDeleted:function(){
+        var logical_deleted = this.getDataNodeAttributes()._logical_deleted;
+        return logical_deleted;
+    },
+    
     isProtectDelete:function(){
         return this.getDataNodeAttributes()._protect_delete;
     },

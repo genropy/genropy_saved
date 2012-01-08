@@ -104,9 +104,12 @@ class TableHandlerForm(BaseComponent):
             if options.get('linker'):
                 default_slots = default_slots.replace('form_delete','')
                 default_slots = default_slots.replace('form_add','')
-                #default_slots = default_slots.replace('locker','')            
+                #default_slots = default_slots.replace('locker','')   
+            table = form.getInheritedAttributes()['table']    
             slots = options.get('slots',default_slots)
-            form.top.slotToolbar(slots)   
+            if table == self.maintable:
+                slots = 'logicalDeleter,%s' %slots 
+            form.top.slotToolbar(slots)
         if not options.get('showfooter',True):
             form.attributes['hasBottomMessage'] = False
         for side in ('top','bottom','left','right'):

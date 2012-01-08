@@ -2037,6 +2037,13 @@ border='1px solid gray',margin='2px', rounded=10,
 .tundra .filteredGrid .dojoxGrid-cell{
     font-style:italic;
 }
+.logicalDeleted .dojoxGrid-cell {
+    color: #b50000;
+}
+
+.logicalDeleted .dojoxGrid-row-selected .dojoxGrid-cell {
+    color: #b50000;
+}
 
 .tundra .dojoxGrid-cell {
 	border: 1px dotted #D5CDB5;
@@ -2411,6 +2418,31 @@ border='1px solid gray',margin='2px', rounded=10,
 
 .form_protect_write{
 }
+
+.form_logical_deleted .gnrfieldlabel{
+    color:red;
+}
+.form_deleter{
+    display:none;
+}
+
+.th_showLogicalDeleted .form_deleter{
+    display:block;
+}
+
+.form_logical_deleted .form_deleter .deleter_icon{
+    background: url(icons/checkMarkOn.png) no-repeat center center;
+    height:16px;
+    width:16px;
+    cursor:pointer;
+}
+.form_deleter .deleter_icon{
+    background: url(icons/checkMarkOff.png) no-repeat center center;
+    height:16px;
+    width:16px;
+    cursor:pointer;
+}
+    
 .form_protect_delete{
     
 }
