@@ -1279,6 +1279,8 @@ class GnrWebPage(GnrBaseWebPage):
                 #page.data('gnr.userTags', self.userTags)
                 page.data('gnr.locale', self.locale)
                 page.data('gnr.pagename', self.pagename)
+                if self.dbstore:
+                    page.data('gnr.dbstore',self.dbstore)
                 if not self.isGuest:
                     page.dataRemote('gnr.user_preference', 'getUserPreference')
                 page.dataRemote('gnr.app_preference', 'getAppPreference')

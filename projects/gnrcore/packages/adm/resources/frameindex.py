@@ -48,6 +48,7 @@ class FrameIndex(BaseComponent):
         self.prepareTop(frame.top,onCreatingTablist=onCreatingTablist)
         self.prepareBottom(frame.bottom)
         self.prepareCenter(frame.center)
+        return frame
         
     def prepareTop(self,pane,onCreatingTablist=None):
         pane.attributes.update(dict(height='30px',overflow='hidden',gradient_from='gray',gradient_to='silver',gradient_deg=90))

@@ -152,7 +152,7 @@ class TableHandler(BaseComponent):
     @extract_kwargs(default=True,page=True)
     @struct_method
     def th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,
-                            default_kwargs=None,dbname=None,recyclablePages=None,public=True,**kwargs):
+                            default_kwargs=None,dbname=None,recyclablePages=None,public=True,main_call=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,default_kwargs=default_kwargs,**kwargs)
@@ -166,6 +166,9 @@ class TableHandler(BaseComponent):
                 var th = {formResource:formResource,public:public}
                 var kw = {formUrl:formUrl,default_kwargs:default_kwargs,
                           th:th,viewStore:viewStore,recyclablePages:recyclablePages};
+                if (main_call){
+                    kw['url_main_call'] = main_call;
+                }
                 
                 this._pageHandler = new gnr.pageTableHandlerJS(this,mainpkey,kw);
             }
@@ -178,7 +181,7 @@ class TableHandler(BaseComponent):
              mainpkey='^#FORM.pkey',
            default_kwargs=default_kwargs,_fakeform=True,
            dbname=dbname or False,viewStore=th.view.store,
-           recyclablePages=recyclablePages or False,public=public
+           recyclablePages=recyclablePages or False,public=public,main_call=main_call or False
            )
         return th    
         
