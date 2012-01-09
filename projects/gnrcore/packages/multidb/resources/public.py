@@ -67,11 +67,20 @@ class TableHandlerMain(BaseComponent):
             target_store = self._call_kwargs.get('env_target_store')
             gridattr = view.grid.attributes
             gridattr['dragTags'] = dragCode
+            
+            hiddencolumns = gridattr.pop('hiddencolumns',None)
+            hiddencolumns = '%s,$__multidb_subscribed' if hiddencolumns else '$__multidb_subscribed'
+            gridattr['hiddencolumns'] = hiddencolumns
+            gridattr['rowCustomClassesCb']="""function(row){
+                                                return row['__multidb_subscribed']?'dimmed':'';
+                                            }"""
+            
+            
             store = view.store
             storeattr = store.attributes
             condition = storeattr.pop('condition',None)
-            condition = '%s AND $__multidb_subscribed IS NOT TRUE' %condition if condition else '$__multidb_subscribed IS NOT TRUE'
-            storeattr['condition'] = condition
+            #condition = '%s AND $__multidb_subscribed IS NOT TRUE' %condition if condition else '$__multidb_subscribed IS NOT TRUE'
+            #storeattr['condition'] = condition
             view.onDbChanges(action="""
             if(dojo.some(dbChanges,function(c){return (c['tablename']==tablename) && (c['dbstore']==dbstore);})){
                 store.fireNode();

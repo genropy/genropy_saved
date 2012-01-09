@@ -4675,6 +4675,8 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
                      var address_component=address_components[a];
                      details[address_component.types[0]]=address_component.short_name;
                  }
+                 
+                 details['street_address'] = details['route']+', '+(details['street_number']||'??');
              this.store.mainbag.setItem('root.r_' + i, null, details);
 
              }
