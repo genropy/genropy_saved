@@ -136,7 +136,7 @@ class TableBase(object):
                       For more information, check the :ref:`group` section
         :param group_name: TODO"""
         if id:
-            tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id',_sendback=True)
+            tbl.column('id', size='22', group=group, readOnly='y', name_long='!!Id',_sendback=True)
             pkey = tbl.attributes.get('pkey')
             if not pkey:
                 tbl.attributes['pkey'] = 'id'
