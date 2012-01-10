@@ -310,6 +310,8 @@ class GnrSqlDb(GnrObject):
         if not 'env_workdate' in envargs:
             envargs['env_workdate'] = self.workdate
         envargs.update(sqlargs or {})
+        if storename is False:
+            storename = self.rootstore
         storename = storename or envargs.get('env_storename', self.rootstore)
         sqlargs = envargs
         if dbtable and not self.table(dbtable).use_dbstores():

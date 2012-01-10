@@ -1138,6 +1138,8 @@ class GnrWebAppHandler(GnrBaseProxy):
         """
         if _storename:
             self.db.use_store(_storename)
+        elif _storename is False:
+            self.db.use_store()
         resultClass = ''
         if selectmethod or not condition:
             weakCondition = False

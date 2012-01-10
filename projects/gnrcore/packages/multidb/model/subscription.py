@@ -11,7 +11,17 @@ class Table(object):
         #tbl.column('rec_pkey',name_long='!!Pkey') # if rec_pkey == * means all records
         tbl.column('dbstore',name_long='!!Store')
     
-    
+    def checkSubscribedRecord(self,table=None,pkey=None,dbstore=None):
+        sub_record = dict()
+        fkey = self.tableFkey(table)
+        sub_record['tablename'] = table
+        sub_record[fkey] = pkey
+        sub_record['dbstore'] = dbstore
+        if self.checkDuplicate(**sub_record):
+            return
+        print 'inserisco', sub_record
+        self.insert(sub_record)
+        
     def copyRecords(self,table,dbstore=None,pkeys=None):
         tblobj = self.db.table(table)
         queryargs = dict()

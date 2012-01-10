@@ -600,6 +600,8 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         resolver.onloading = function(kwargs) {
             if(storefield){
                 kwargs['_storename'] = this.getParentNode().getParentBag().getItem(storefield);
+            }else if(storefield===false){
+                kwargs['_storename'] = false;
             }
             var target = kwargs.target_fld.split('.');
             var table = target[0] + '_' + target[1];

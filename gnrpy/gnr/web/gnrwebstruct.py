@@ -1521,7 +1521,7 @@ class GnrDomSrc_dojo_11(GnrDomSrc):
             result['tag'] = 'DbSelect'
             result['dbtable'] = lnktblobj.fullname
             if 'storefield' in joiner:
-                result['_storename'] = '=.%(storefield)s' %joiner
+                result['_storename'] = False if joiner['storefield'] is False else '=.%(storefield)s' %joiner
             #result['columns']=lnktblobj.rowcaption
             result['_class'] = 'linkerselect'
             result['searchDelay'] = 300
