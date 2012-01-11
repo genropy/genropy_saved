@@ -86,7 +86,7 @@ class MenuIframes(MenuBase):
         
     def menu_iframemenuPane(self, pane, **kwargs):
         b = Bag()
-        b['root'] = MenuResolver(path=None, pagepath=self.pagepath)
+        b['root'] = MenuResolver(path=getattr(self,'menu_path',None), pagepath=self.pagepath)
         pane.data('gnr.appmenu', b)
         #leftPane = parentBC.contentPane(width='20%',_class='menupane',**kwargs)
         pane.tree(id="_gnr_main_menu_tree", storepath='gnr.appmenu.root', selected_file='gnr.filepath',

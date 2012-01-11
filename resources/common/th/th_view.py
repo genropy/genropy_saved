@@ -91,20 +91,13 @@ class TableHandlerView(BaseComponent):
         confBar.deleteView.slotButton('!!Delete View',iconClass='iconbox trash',
                                     action='genro.grid_configurator.deleteGridView(gridId);',
                                     gridId=gridId,disabled='^.grid.currViewAttrs.pkey?=!#v')
-        
+        if table==getattr(self,'maintable',None):
+            bar.replaceSlots('#','#,footerBar')
+            footer = bar.footerBar.slotToolbar('log_del,*')
+            footer.log_del.div(font_size='.8em',color='#555',font_weight='bold').checkbox(value='^.showLogicalDeleted',
+                                                                                    label='!!Show logical deleted',
+                                                                                    validate_onAccept='if(userChange){FIRE .runQuery;}')
 
-    @struct_method
-    def th_slotbar_optionsMenu(self,pane,**kwargs):
-        menu = pane.div(tip='!!Query options',_class='buttonIcon icnBaseAction').menu(_class='smallmenu',modifiers='*')
-        menu.menuline('!!Show logical deleted',
-                    action='SET .excludeLogicalDeleted=!GET .excludeLogicalDeleted;',
-                    checked='^.excludeLogicalDeleted?=!#v')
-        table = pane.getInheritedAttributes()['table']
-        if self.db.table(table).draftField:
-            menu.menuline('!!Show drafts',
-                            action='SET .excludeDraft=!GET .excludeDraft;',
-                            checked='^.excludeDraft?=!#v')
-        
     @struct_method
     def th_slotbar_vtitle(self,pane,**kwargs):
         pane.div('^.title',font_size='.9',line_height='20px')
@@ -431,7 +424,14 @@ class TableHandlerView(BaseComponent):
         tblattr.pop('tag',None)
         pane.data('.table',table,**tblattr)
         options = self._th_hook('options',mangler=pane)() or dict()
-        pane.data('.excludeLogicalDeleted', options.get('excludeLogicalDeleted',True))
+        
+        pane.dataController("""SET .excludeLogicalDeleted = show?'mark':true;
+                               genro.dom.setClass(dojo.body(),'th_showLogicalDeleted',show);
+                            """,show="^.showLogicalDeleted")
+        
+        pane.dataFormula('.showLogicalDeleted', '!default_ld',
+                        default_ld=options.get('excludeLogicalDeleted',True),
+                        _onStart=True)
         pane.data('.excludeDraft', options.get('excludeDraft',True))
         pane.data('.tableRecordCount',options.get('tableRecordCount',True))
 

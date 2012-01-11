@@ -292,6 +292,22 @@ class BagNode(object):
         inherited.update(self.attr)
         return inherited
         
+    @property
+    def parentNode(self):
+        if self.parentbag:
+            return self.parentbag.parentNode
+    
+    def attributeOwnerNode(self,attrname,**kwargs):
+        curr = self;
+        if not 'attrvalue' in kwargs:
+            while curr and not (attrname in curr.attr):
+                curr = curr.parentNode
+        else:
+            attrvalue = kwargs['attrvalue']
+            while curr and curr.attr[attrname]!=attrvalue:
+                curr = curr.parentNode
+        return curr
+        
     def hasAttr(self, label=None, value=None):
         """Check if a node has the given pair label-value in its attributes' dictionary"""
         if not label in self.attr: return False

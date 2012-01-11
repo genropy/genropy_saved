@@ -114,7 +114,7 @@ dojo.declare("gnr.LinkerManager", null, {
         }else{
             var that = this;
             var destPkey = pkey;
-            var iframeDialogKw = {title:'',table:this.table,main:'pbl_form_main',
+            var iframeDialogKw = {title:'',table:this.table,main:'main_form',
                                  main_th_linker:true,height:'300px',width:'400px',main_th_formId:this.fakeFormId,
                                  onStarted:function(){that.onIframeStarted(this,destPkey,default_kw)}};
             if(this.formResource){
@@ -153,20 +153,22 @@ dojo.declare("gnr.LinkerManager", null, {
     }
 });
 dojo.declare("gnr.pageTableHandlerJS",null,{
-    constructor:function(sourceNode,mainpkey,formUrl,default_kwargs,formResource,viewStore,recyclablePages){
+    constructor:function(sourceNode,mainpkey,kw){
         this.sourceNode = sourceNode;
         this.mainpkey = mainpkey;
-        this.default_kwargs = default_kwargs;
+        this.default_kwargs = kw.default_kwargs;
         this.pages_dict = {};
-        this.recyclablePages = recyclablePages;
-        this.page_kw = {url_main_call:'pbl_form_main',url_th_public:true,subtab:this.recyclablePages?'recyclable':true,
+        this.recyclablePages = kw.recyclablePages;
+        this.page_kw = {url_main_call:kw.main_call || 'main_form',url_th_public:true,subtab:this.recyclablePages?'recyclable':true,
                         url_th_linker:true,url_th_lockable:true,url_main_store_storeType:'Collection'};
-        this.formUrl = formUrl;
+        this.formUrl = kw.formUrl;
         this.loadingTitle = 'loading...'
         this.indexgenro = window.parent.genro;
-        this.viewStore = viewStore.store;
-        if(formResource){
-            this.page_kw['url_th_formResource'] = formResource;
+        this.viewStore = kw.viewStore.store;
+        if(kw.th){
+            for(var k in kw.th){
+                this.page_kw['url_th_'+k] = kw.th[k];
+            }
         }
     },
     
@@ -273,6 +275,7 @@ dojo.declare("gnr.IframeFormManager", null, {
         var that = this;
         this.iframe = iframe;
         this.iframeForm = iframe._genro.formById(this.fakeFormId);
+        this.iframeForm.publishToParent = true;
         this.iframeForm.store.handlers.load.defaultCb = function(){
             return that.sourceNode.evaluateOnNode(that.default_kwargs);
         }

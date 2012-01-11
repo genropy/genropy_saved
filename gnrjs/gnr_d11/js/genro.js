@@ -209,6 +209,9 @@ dojo.declare('gnr.GenroClient', null, {
         dojo.connect(window, 'onmousemove', cb);
         dojo.connect(window, 'onkeypress', cb);
     },
+    commandLink:function(href,content){
+        return "<a onclick='if((genro.isMac&&!event.metaKey)||(!genro.isMac&&!event.ctrlKey)){dojo.stopEvent(event);}' class='gnrzoomcell' href='"+href+"'>" + content + "</a>";
+    },
     
     onUserEvent:function(e) {
         if (genro.user_polling > 0) {
@@ -281,6 +284,8 @@ dojo.declare('gnr.GenroClient', null, {
         }
         var _this = this;
         this._dataroot.subscribe('dataTriggers', {'any':dojo.hitch(this, "dataTrigger")});
+        dojo.subscribe('ping',genro.ping);
+        
         genro.dev.shortcut("Ctrl+Shift+D", function() {
             genro.dev.showDebugger();
         });

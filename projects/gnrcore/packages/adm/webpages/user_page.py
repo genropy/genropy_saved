@@ -45,7 +45,7 @@ class GnrCustomWebPage(object):
 
     
     def userAuth(self,pane):
-        th = pane.plainTableHandler(relation='@tags',viewResource=':ViewFromUser')
+        th = pane.plainTableHandler(relation='@tags',viewResource=':ViewFromUser',hider=True)
         bar = th.view.top.bar        
         bar.replaceSlots('#','#,delrow,addtags')
         bar.addtags.paletteTree('htags', title='Tags',tree_persist=True,

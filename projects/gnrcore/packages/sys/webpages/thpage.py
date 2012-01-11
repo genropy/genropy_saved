@@ -30,7 +30,8 @@ class GnrCustomWebPage(object):
             genro.publish({"topic":"resize","parent":true,nodeId:parentId},dialog_pars);
         }
         """,_init=True,dialog_pars=dialog_pars,parentId=self.th_iframeContainerId or 'null')
-
+    
+    #FOR ALTERNATE MAIN HOOKS LOOK AT public:TableHandlerMain component
     def main(self,root,**kwargs):
         root.data('gnr.windowTitle',self.db.table(self.maintable).name_plural)
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
@@ -46,9 +47,4 @@ class GnrCustomWebPage(object):
         th = self._th_main(root,th_options=th_options,**kwargs)
         if self.th_iframeContainerId:
             self.resizeIframeContainer(th,th_options=th_options,mainKwargs=kwargs)
-        
-    def rpc_form(self, root,**kwargs):
-        callArgs =  self.getCallArgs('th_pkg','th_table','th_pkey') 
-        pkey = callArgs.pop('th_pkey',None)
-        form = self._th_prepareForm(root,pkey=pkey,**kwargs)
-        self._th_hook('form',mangler=self.maintable)(form)
+    

@@ -175,6 +175,8 @@ class GnrSqlAppDb(GnrSqlDb):
         :param record: the record to be deleted"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.delete(self, tblobj, record,**kwargs)
+        if self.systemDbEvent():
+            return
         self.application.notifyDbEvent(tblobj, record, 'D')
         
     def update(self, tblobj, record, old_record=None, pkey=None,**kwargs):
@@ -186,6 +188,8 @@ class GnrSqlAppDb(GnrSqlDb):
         :param pkey: the record :ref:`primary key <pkey>`"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.update(self, tblobj, record, old_record=old_record, pkey=pkey,**kwargs)
+        if self.systemDbEvent():
+            return
         self.application.notifyDbEvent(tblobj, record, 'U', old_record)
         
     def insert(self, tblobj, record, **kwargs):
@@ -195,6 +199,8 @@ class GnrSqlAppDb(GnrSqlDb):
         :param record: the record to be inserted"""
         self.checkTransactionWritable(tblobj)
         GnrSqlDb.insert(self, tblobj, record,**kwargs)
+        if self.systemDbEvent():
+            return
         self.application.notifyDbEvent(tblobj, record, 'I')
         
     def getResource(self, tblobj, path):

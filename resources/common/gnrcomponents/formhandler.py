@@ -117,7 +117,7 @@ class FormHandler(BaseComponent):
     def fh_formInIframe(self,pane,table=None,
                        formId=None,default_kwargs=None,src=None,
                        formResource=None,store_kwargs=True,
-                       dialog_kwargs=None,palette_kwargs=None,main_kwargs=True,main='pbl_form_main',**kwargs):
+                       dialog_kwargs=None,palette_kwargs=None,main_kwargs=True,main='main_form',**kwargs):
         if dialog_kwargs or palette_kwargs:
             formRoot = pane._makeFormRoot(formId,attachTo=pane,dialog_kwargs=dialog_kwargs,palette_kwargs=palette_kwargs,form_kwargs=kwargs)
         else:
@@ -210,7 +210,24 @@ class FormHandler(BaseComponent):
         pane.formButton('!!Next',iconClass="iconbox next",
                     topic='navigationEvent',command='next',
                     formsubscribe_navigationStatus="this.widget.setAttribute('disabled',$1.last || false);")
-    
+
+    @struct_method          
+    def fh_slotbar_form_logicalDeleter(self,pane,**kwargs):
+        table = pane.getInheritedAttributes()['table']
+        logicalDeletionField = self.db.table(table).logicalDeletionField
+        box = pane.div(_class='form_deleter',padding_right='5px')
+        box.checkbox(value='^#FORM.controller.do_logical_delete',label='!!Hidden',
+                    validate_onAccept="""
+                    if(userChange){
+                        var logical_deleted = this.form.isLogicalDeleted();
+                        this.setRelativeData('#FORM.record.%s',value?new Date():null);  
+                        this.form.save();
+                    }
+                    """ %logicalDeletionField)
+        box.dataController("""SET #FORM.controller.do_logical_delete = logical_del_ts!=null;""",
+                        logical_del_ts='^#FORM.record.%s' %logicalDeletionField)
+
+            
     @struct_method          
     def fh_slotbar_form_last(self,pane,**kwargs):
         pane.formButton('!!Last',iconClass="iconbox last",

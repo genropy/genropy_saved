@@ -39,7 +39,14 @@ class TableHandlerForm(BaseComponent):
             self.th_form(form)
         else:
             self._th_hook('form',mangler=frameCode)(form)
+        pluggedFieldHandler = self._th_hook('pluggedFields',mangler=frameCode,defaultCb=self.th_defaultPluggedFieldHandler) 
+        pluggedFieldHandler(form)
         return form
+    
+    def th_defaultPluggedFieldHandler(self,form):
+        fb = form.getMainFormBuilder()
+        if fb:
+            fb.pluggedFields()
 
     @extract_kwargs(default=True,store=True,dialog=True,palette=True)
     @struct_method
@@ -97,9 +104,12 @@ class TableHandlerForm(BaseComponent):
             if options.get('linker'):
                 default_slots = default_slots.replace('form_delete','')
                 default_slots = default_slots.replace('form_add','')
-                #default_slots = default_slots.replace('locker','')            
+                #default_slots = default_slots.replace('locker','')   
+            table = form.getInheritedAttributes()['table']    
             slots = options.get('slots',default_slots)
-            form.top.slotToolbar(slots)   
+            if table == self.maintable:
+                slots = 'logicalDeleter,%s' %slots 
+            form.top.slotToolbar(slots)
         if not options.get('showfooter',True):
             form.attributes['hasBottomMessage'] = False
         for side in ('top','bottom','left','right'):

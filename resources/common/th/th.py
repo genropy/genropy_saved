@@ -152,7 +152,7 @@ class TableHandler(BaseComponent):
     @extract_kwargs(default=True,page=True)
     @struct_method
     def th_pageTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,formResource=None,formUrl=None,viewResource=None,
-                            default_kwargs=None,dbname=None,recyclablePages=None,**kwargs):
+                            default_kwargs=None,dbname=None,recyclablePages=None,public=True,main_call=None,**kwargs):
         kwargs['tag'] = 'ContentPane'
         th = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,default_kwargs=default_kwargs,**kwargs)
@@ -163,9 +163,14 @@ class TableHandler(BaseComponent):
                                 selfsubscribe_addrow="FIRE .editrow = '*newrecord*';")
         grid.dataController("""
             if(!this._pageHandler){
-                this._pageHandler = new gnr.pageTableHandlerJS(this,mainpkey,formUrl,
-                                                                default_kwargs,formResource,viewStore,
-                                                                recyclablePages);
+                var th = {formResource:formResource,public:public}
+                var kw = {formUrl:formUrl,default_kwargs:default_kwargs,
+                          th:th,viewStore:viewStore,recyclablePages:recyclablePages};
+                if (main_call){
+                    kw['url_main_call'] = main_call;
+                }
+                
+                this._pageHandler = new gnr.pageTableHandlerJS(this,mainpkey,kw);
             }
             this._pageHandler.checkMainPkey(mainpkey);
             if(pkey){
@@ -175,7 +180,9 @@ class TableHandler(BaseComponent):
              pkey='^.editrow',
              mainpkey='^#FORM.pkey',
            default_kwargs=default_kwargs,_fakeform=True,
-           dbname=dbname or False,viewStore=th.view.store,recyclablePages=recyclablePages or False)
+           dbname=dbname or False,viewStore=th.view.store,
+           recyclablePages=recyclablePages or False,public=public,main_call=main_call or False
+           )
         return th    
         
     @struct_method
@@ -189,13 +196,35 @@ class TableHandler(BaseComponent):
     @struct_method
     def th_thIframe(self,pane,method=None,src=None,**kwargs):
         pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
-        pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
-        box = pane.div(_class='detacher',z_index=30)
+        #pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
+        #box = pane.div(_class='detacher',z_index=30)
         kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
-        iframe = box.iframe(main=self.th_iframedispatcher,main_methodname=method,
+        iframe = pane.iframe(main=self.th_iframedispatcher,main_methodname=method,
                             main_table=pane.getInheritedAttributes().get('table'),
                             main_pkey='=#FORM.pkey',src=src,**kwargs)
         pane.dataController('genro.publish({iframe:"*",topic:"frame_onChangedPkey"},{pkey:pkey})',pkey='^#FORM.pkey')
+        return iframe
+    
+
+    @struct_method
+    def th_relatedIframeForm(self,pane,related_field=None,related_table=None,src=None,formResource=None,**kwargs):
+        pane.attributes.update(dict(overflow='hidden',_lazyBuild=True))
+        pane = pane.contentPane(detachable=True,height='100%',_class='detachablePane')
+        box = pane.div(_class='detacher',z_index=30)
+        kwargs.setdefault('readOnly',True)
+        kwargs.setdefault('showfooter',False)
+        kwargs.setdefault('showtoolbar',False)
+        kwargs = dict([('main_%s' %k,v) for k,v in kwargs.items()])
+        table = pane.getInheritedAttributes()['table']
+        if not related_table:
+            tblobj = self.db.table(table)
+            related_tblobj = tblobj.column(related_field).relatedColumn().table    
+            related_table = related_tblobj.fullname            
+        src = src or '/sys/thpage/%s' %related_table.replace('.','/')
+        iframe = box.iframe(main='main_form',main_th_pkey='=#FORM.record.%s' %related_field,
+                            src=src,main_th_formResource=formResource,**kwargs)
+        pane.dataController('iframe._genro._rootForm.load({destPkey:pkey});',
+                            pkey='^#FORM.record.%s' %related_field,iframe=iframe)
         return iframe
         
     @public_method

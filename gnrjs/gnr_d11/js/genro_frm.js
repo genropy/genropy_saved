@@ -142,7 +142,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetInvalidFields();
     },
     publish: function(command,kw){
-        var topic = {'topic':'form_'+this.formId+'_'+command,parent:true};
+        var topic = {'topic':'form_'+this.formId+'_'+command,parent:this.publishToParent};
         genro.publish(topic,kw);
     },
     subscribe: function(command,cb,scope){
@@ -445,6 +445,7 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         this.resetChanges(); // reset changes after loading to subscribe the triggers to the current new data bag
         var controllerData = this.getControllerData();
         this.protect_write = this.isProtectWrite();
+        genro.dom.setClass(this.sourceNode,'form_logical_deleted',this.isLogicalDeleted());
         genro.dom.setClass(this.sourceNode,'form_protect_write',this.protect_write);
 
         this.protect_delete = this.isProtectDelete();
@@ -652,7 +653,12 @@ dojo.declare("gnr.GnrFrmHandler", null, {
         }
         return protect_write || this.readOnly;
     },
-
+    
+    isLogicalDeleted:function(){
+        var logical_deleted = this.getDataNodeAttributes()._logical_deleted;
+        return logical_deleted;
+    },
+    
     isProtectDelete:function(){
         return this.getDataNodeAttributes()._protect_delete;
     },
@@ -1347,6 +1353,26 @@ dojo.declare("gnr.formstores.Base", null, {
     delete_memory:function(){
         
     },
+    _load_prepareDefaults:function(pkey,default_kw,kw){
+        var form = this.form;
+        var loader = this.handlers.load;
+        var default_kwargs = objectPop(kw,'default_kwargs') || {}; 
+        if(default_kwargs){
+            default_kwargs = form.sourceNode.evaluateOnNode(default_kwargs);
+        }
+        if(pkey=='*newrecord*'){
+            default_kw = default_kw || {}       
+            if(loader.defaultCb){
+                default_kw = objectUpdate(default_kw,(loader.defaultCb.call(form,kw)||{}));
+            }
+            objectUpdate(default_kwargs,form.sourceNode.evaluateOnNode(default_kw));
+        }
+        if(objectNotEmpty(default_kwargs)){
+            for(var k in default_kwargs){
+                kw['default_'+k] = default_kwargs[k]
+            }
+        }
+    },
 
     load_recordCluster:function(pkey,default_kw){
         var form=this.form;
@@ -1359,17 +1385,7 @@ dojo.declare("gnr.formstores.Base", null, {
         };
         var kw = loader.kw || {};
         kw = form.sourceNode.evaluateOnNode(kw);
-        kw.default_kwargs = kw.default_kwargs || {}; 
-        if(kw.default_kwargs){
-            kw.default_kwargs = form.sourceNode.evaluateOnNode(kw.default_kwargs);
-        }
-        if(pkey=='*newrecord*'){
-            default_kw = default_kw || {}       
-            if(loader.defaultCb){
-                default_kw = objectUpdate(default_kw,(loader.defaultCb.call(form,kw)||{}));
-            }
-            objectUpdate(kw.default_kwargs,form.sourceNode.evaluateOnNode(default_kw));
-        }
+        this._load_prepareDefaults(pkey,default_kw,kw);
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
         kw.sqlContextName = ('sqlContextName' in kw)?kw.sqlContextName:form.formId;
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,

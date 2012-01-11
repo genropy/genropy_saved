@@ -467,8 +467,7 @@ class TableHandlerMain(BaseComponent):
         th_options = dict(formResource=None,viewResource=None,formInIframe=False,widget='stack',readOnly=False,virtualStore=True,public=True)
         th_options.update(self.th_options())
         th_options.update(th_kwargs)
-        self.root_tablehandler = self._th_main(root,th_options=th_options,**kwargs)
-        return self.root_tablehandler
+        return self._th_main(root,th_options=th_options,**kwargs)
         
     def _th_main(self,root,th_options=None,**kwargs):
         formInIframe = th_options.get('formInIframe')
@@ -493,6 +492,7 @@ class TableHandlerMain(BaseComponent):
                 self.hv_main(tc)
         thwidget = th_options.get('widget','stack')
         th = getattr(root,'%sTableHandler' %thwidget)(table=self.maintable,datapath=tablecode,**kwargs)
+        self.root_tablehandler = th
         th.view.store.attributes.update(startLocked=True)
         if len(extras)>0:
             viewbar = th.view.top.bar
@@ -540,17 +540,8 @@ class TableHandlerMain(BaseComponent):
                     draggable=True,
                     onDrag="""dragValues["webpage"] = genro.page_id;
                               dragValues["dbrecords"] = genro.getDataNode("gnr.windowTitle").attr;
-                                """,**kwargs)
-    
-    @public_method                     
-    def pbl_form_main(self, root,**kwargs):
-        callArgs =  self.getCallArgs('th_pkg','th_table','th_pkey') 
-        pkey = callArgs.pop('th_pkey',None)
-        kwargs.update(pkey=pkey)
-        formCb = self.th_form if hasattr(self,'th_form') else None
-        self._th_prepareForm(root,formCb=formCb,**kwargs)
-                
-    
+                                """,**kwargs)            
+
     @extract_kwargs(th=True)
     def _th_prepareForm(self,root,pkey=None,th_kwargs=None,store_kwargs=None,formCb=None,**kwargs):
         pkey = pkey or th_kwargs.pop('pkey','*norecord*')
@@ -580,8 +571,15 @@ class TableHandlerMain(BaseComponent):
         form.attributes['hasBottomMessage'] = False
         form.dataController('PUBLISH pbl_bottomMsg = _subscription_kwargs;',formsubscribe_message=True)
         
-    def rpc_view(self,root,**kwargs):
-        pass
+    @public_method                     
+    def main_form(self, root,**kwargs):
+        """ALTERNATIVE MAIN CALL"""
+        callArgs =  self.getCallArgs('th_pkg','th_table','th_pkey') 
+        pkey = callArgs.pop('th_pkey',None)
+        kwargs.update(pkey=pkey)
+        formCb = self.th_form if hasattr(self,'th_form') else None
+        self._th_prepareForm(root,formCb=formCb,**kwargs)
+    
         
 #OLD STUFF TO REMOVE
 class ThermoDialog(BaseComponent):

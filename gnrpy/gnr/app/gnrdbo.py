@@ -118,7 +118,7 @@ class GnrDboPackage(object):
 class TableBase(object):
     """TODO"""
     def sysFields(self, tbl, id=True, ins=True, upd=True, ldel=True, draftField=False, md5=False,
-                  group='zzz', group_name='!!System'):
+                  group='zzz', group_name='!!System',multidb=None):
         """Add some useful columns for tables management (first of all, the ``id`` column)
         
         :param tbl: the :ref:`table` object
@@ -136,7 +136,7 @@ class TableBase(object):
                       For more information, check the :ref:`group` section
         :param group_name: TODO"""
         if id:
-            tbl.column('id', size='22', group='_', readOnly='y', name_long='!!Id',_sendback=True)
+            tbl.column('id', size='22', group=group, readOnly='y', name_long='!!Id',_sendback=True)
             pkey = tbl.attributes.get('pkey')
             if not pkey:
                 tbl.attributes['pkey'] = 'id'
@@ -170,8 +170,10 @@ class TableBase(object):
             draftField = '__is_draft' if draftField is True else draftField
             tbl.attributes['draftField'] =draftField
             tbl.column(draftField, dtype='B', name_long='!!Is Draft',group=group)
-            
-    def trigger_setTSNow(self, record, fldname):
+        if multidb:
+             self.setMultidbSubscription(tbl.attributes.get('fullname'),allRecords=(multidb=='*'))
+             
+    def trigger_setTSNow(self, record, fldname,**kwargs):
         """This method is triggered during the insertion (or a change) of a record. It returns
         the insertion date as a value of the dict with the key equal to ``record[fldname]``,
         where ``fldname`` is the name of the field inserted in the record.
@@ -188,14 +190,14 @@ class TableBase(object):
         :param fldname: the field name"""
         record[fldname] = 0
         
-    def trigger_setAuditVersionUpd(self, record, fldname):
+    def trigger_setAuditVersionUpd(self, record, fldname,**kwargs):
         """TODO
         
         :param record: the record
         :param fldname: the field name"""
         record[fldname] = (record.get(fldname) or 0)+ 1
         
-    def trigger_setRecordMd5(self, record, fldname):
+    def trigger_setRecordMd5(self, record, fldname,**kwargs):
         """TODO
         
         :param record: the record
@@ -205,13 +207,19 @@ class TableBase(object):
     def hasRecordTags(self):
         """TODO"""
         return self.attributes.get('hasRecordTags', False)
+    
+    def isMultidbTable(self):
+        return 'multidb_allRecords' in self.attributes
 
-    def setMultidbSubscription(self,tblname):
+    def multidb_readOnly(self):
+        return self.db.currentPage.dbstore and 'multidb_allRecords' in self.attributes
+
+    def setMultidbSubscription(self,tblfullname,allRecords=False):
         """TODO
         
         :param tblname: a string composed by the package name and the database :ref:`table` name
                         separated by a dot (``.``)"""
-        pkg,tblname = tblname.split('.')
+        pkg,tblname = tblfullname.split('.')
         model = self.db.model
         tbl = model.src['packages.%s.tables.%s' %(pkg,tblname)]
         subscriptiontbl =  model.src['packages.multidb.tables.subscription']
@@ -222,10 +230,47 @@ class TableBase(object):
         rel = '%s.%s.%s' % (pkg,tblname, pkey)
         fkey = rel.replace('.', '_')
         if subscriptiontbl:
+            tbl.attributes.update(multidb_allRecords=allRecords)
+            tbl.column('__multidb_flag',dtype='B',comment='!!Fake field always NULL',
+                        onUpdated='multidbSyncUpdated',
+                        onDeleting='multidbSyncDeleting',
+                        onInserted='multidbSyncInserted')
+            if allRecords:
+                return 
+                
+            tbl.column('__multidb_default_subscribed',dtype='B',_pluggedBy='multidb.subscription',
+                    name_long='!!Subscribed by default',plugToForm=True)
+            tbl.formulaColumn('__multidb_subscribed',"""EXISTS (SELECT * 
+                                                        FROM multidb.multidb_subscription AS sub
+                                                        WHERE sub.dbstore = :env_target_store 
+                                                              AND sub.tablename = '%s'
+                                                        AND sub.%s = #THIS.%s
+                                                        )""" %(tblfullname,fkey,pkey),dtype='B',
+                                                        name_long='!!Subscribed')
             subscriptiontbl.column(fkey, dtype=pkeycolAttrs.get('dtype'),
                               size=pkeycolAttrs.get('size'), group='_').relation(rel, relation_name='subscriptions',
                                                                                  many_group='_', one_group='_')
-                                                                                 
+           #tbl.formulaColumn('_customClasses',"""CASE WHEN EXISTS (SELECT * 
+           #                                            FROM multidb.multidb_subscription AS sub
+           #                                            WHERE sub.dbstore = :env_target_store 
+           #                                                  AND sub.tablename = '%s'
+           #                                            AND sub.%s = #THIS.%s
+           #                                            ) THEN 'multidb_subscribed_row' 
+           #                                            ELSE ''
+           #                                            END
+           #                                            """ %(tblfullname,fkey,pkey),dtype='B',
+           #                                            name_long='!!Subscribed')
+    
+    def trigger_multidbSyncUpdated(self, record,old_record=None,**kwargs):
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,old_record=old_record,event='U')
+     
+    def trigger_multidbSyncInserted(self, record,**kwargs):
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='I')
+    
+    def trigger_multidbSyncDeleting(self, record,**kwargs):        
+        self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='D')
+     
+                                                               
     def setTagColumn(self, tbl, name_long=None, group=None):
         """TODO
         
