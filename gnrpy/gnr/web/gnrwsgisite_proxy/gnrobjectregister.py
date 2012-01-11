@@ -323,7 +323,7 @@ class SiteRegister(object):
         """TODO
         
         :param page_id: the id of the page
-        :param cascade: the SQL cascade parameter"""
+        :param cascade: specifies the cascade policy - True to drop empty connection"""
         page_item = self.p_register.pop(page_id)
         if not page_item:
             return
@@ -536,6 +536,8 @@ class BaseRegister(object):
             return (now - register_item[label]).seconds
 
         last_used = last_used or self.sd.get(self.lastused_key(register_item['register_item_id']))
+        if not last_used:
+            return
         register_item['last_ts'], register_item['last_user_ts'] = last_used
         register_item['age'] = age('start_ts')
         register_item['last_rpc_age'] = age('last_ts')
@@ -578,7 +580,9 @@ class BaseRegister(object):
         items_lastused = sd.get_multi(keys, '%s_LU_' % self.prefix)
         now = datetime.now()
         for k, register_item in items.items():
-            self._set_last_ts_in_item(register_item, items_lastused[k], now=now)
+            oldlastused = items_lastused.get(k)
+            if oldlastused:
+                self._set_last_ts_in_item(register_item, oldlastused, now=now)
         return items
 
     def log(self, command, **kwargs):
@@ -688,7 +692,7 @@ class ConnectionRegister(BaseRegister):
 
 
     def on_pop(self, register_item_id, register_item):
-        if hasattr(self.onRemoveConnection, '__call__'):
+        if hasattr(self.onRemoveConnection, '__call__'): # why not callable??? TOTEST
             self.onRemoveConnection(register_item_id)
 
     def connections(self, user=None, index_name=None):
