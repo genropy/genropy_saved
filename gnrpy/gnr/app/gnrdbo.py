@@ -233,7 +233,7 @@ class TableBase(object):
             tbl.attributes.update(multidb_allRecords=allRecords)
             tbl.column('__multidb_flag',dtype='B',comment='!!Fake field always NULL',
                         onUpdated='multidbSyncUpdated',
-                        onDeleted='multidbSyncDeleted',
+                        onDeleting='multidbSyncDeleting',
                         onInserted='multidbSyncInserted')
             if allRecords:
                 return 
@@ -267,7 +267,7 @@ class TableBase(object):
     def trigger_multidbSyncInserted(self, record,**kwargs):
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='I')
     
-    def trigger_multidbSyncDeleted(self, record,**kwargs):
+    def trigger_multidbSyncDeleting(self, record,**kwargs):        
         self.db.table('multidb.subscription').onSubscriberTrigger(self,record,event='D')
      
                                                                
