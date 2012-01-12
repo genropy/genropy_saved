@@ -1053,14 +1053,21 @@ class GnrWsgiSite(object):
         #kwargs = self.parse_kwargs(kwargs)
         _children_pages_info= kwargs.get('_children_pages_info')
         _lastUserEventTs = kwargs.get('_lastUserEventTs')
+
         page_item = self.register.refresh(page_id, _lastUserEventTs)
         if not page_item:
             return self.failed_exception('no longer existing page %s' % page_id, environ, start_response)
-            
+        catalog = self.gnrapp.catalog
         self.handle_clientchanges(page_id, kwargs)
         if _children_pages_info:
             for k,v in _children_pages_info.items():
+                child_lastUserEventTs = v.pop('_lastUserEventTs', None)
                 self.handle_clientchanges(k, {'_serverstore_changes':v})
+                print 'child_lastUserEventTs', child_lastUserEventTs
+
+                if child_lastUserEventTs:
+                    child_lastUserEventTs = catalog.fromTypedText(child_lastUserEventTs)
+                    self.register.refresh(k, child_lastUserEventTs)
         envelope = Bag(dict(result=None))
         user=page_item['user']
         datachanges = self.get_datachanges(page_id, user=user)            

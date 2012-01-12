@@ -156,8 +156,7 @@ class BagNode(object):
             self.addValidator(k, v)
             
     def _get_parentbag(self):
-        if self._parentbag:
-            return self._parentbag
+        return self._parentbag
             #return self._parentbag()
             
     def _set_parentbag(self, parentbag):
@@ -420,10 +419,8 @@ class Bag(GnrObject):
             self.fillFrom(source)
                     
     def _get_parent(self):
-        if self._parent:
-            return self._parent
-            #return self._parent()
-
+        return self._parent
+        
     def _set_parent(self, parent):
         if parent is None:
             self._parent = None
@@ -467,8 +464,8 @@ class Bag(GnrObject):
             self._parentNode = None
 
     def _get_parentNode(self):
-        if hasattr(self,'_parentNode'):
-            return self._parentNode
+        return getattr(self,'_parentNode', None)
+        return self._parentNode
             #return self._parentNode()
 
     parentNode = property(_get_parentNode, _set_parentNode)
@@ -1581,7 +1578,7 @@ class Bag(GnrObject):
         
         :param node: the parent node
         :param parent: TODO"""
-        if self.backref != True:
+        if self._backref != True:
             self._backref = True
             self.parent = parent
             self.parentNode = node
@@ -1595,7 +1592,7 @@ class Bag(GnrObject):
 
     def clearBackRef(self):
         """Clear all the :meth:`setBackRef()` assumption"""
-        if self.backref:
+        if self._backref:
             self._backref = False
             self.parent = None
             self.parentNode = None
@@ -1962,7 +1959,7 @@ class Bag(GnrObject):
         :param pathlist: it includes the Bag subscribed's path linked to the node
                          where the event was catched"""
         parent = node.parentbag
-        if parent != None and parent.backref and isinstance(node._value, Bag):
+        if parent != None and parent.backref and hasattr(node._value, '_htraverse'):
             node._value.setBackRef(node=node, parent=parent)
 
         if pathlist == None:

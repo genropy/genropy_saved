@@ -21,6 +21,9 @@
 from gnr.web.gnrbaseclasses import BaseComponent
 
 class BaseRpc(BaseComponent):
+
+    skip_connection = True
+
     def rootPage(self, *args, **kwargs):
         if 'pagetemplate' in kwargs:
             kwargs.pop('pagetemplate')

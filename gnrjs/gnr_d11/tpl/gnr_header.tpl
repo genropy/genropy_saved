@@ -2,7 +2,9 @@
 <script type="text/javascript" src="${dojolib}" djConfig="${djConfig}"> </script>
 <script type="text/javascript">dojo.registerModulePath('gnr','${gnrModulePath}');</script>
 % if dijitImport:
-    <script type="text/javascript" src="${dijitImport}"></script>
+    % for single in dijitImport:
+        <script type="text/javascript" src="${single}"></script>
+    % endfor
 % endif
 
 % for jsname in genroJsImport:

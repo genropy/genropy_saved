@@ -133,8 +133,12 @@ class GnrWebPage(GnrBaseWebPage):
         self.instantiateProxies()
         self.onPreIniting(request_args, request_kwargs)
         self._call_handler = self.get_call_handler(request_args, request_kwargs)
-        self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
-        self._workdate = self.page_item['data']['workdate'] #or datetime.date.today()
+        if not getattr(self,'skip_connection', False):
+            self.page_item = self._check_page_id(page_id, kwargs=request_kwargs)
+            self._workdate = self.page_item['data']['workdate'] #or datetime.date.today()
+        else:
+            self.page_item = dict(data=dict())
+            self._workdate = datetime.date.today()
         self.onIniting(request_args, request_kwargs)
         self._call_args = request_args or tuple()
         self._call_kwargs = dict(request_kwargs)
@@ -198,6 +202,7 @@ class GnrWebPage(GnrBaseWebPage):
                                                  request_kwargs=request_kwargs)
         elif 'rpc' in request_kwargs:
             self._call_handler_type = 'externalCall'
+            self.skip_connection  = True
             return self.getPublicMethod('rpc', request_kwargs.pop('rpc'))
         elif 'method' in request_kwargs:
             self._call_handler_type = 'pageCall'
@@ -646,8 +651,8 @@ class GnrWebPage(GnrBaseWebPage):
         """TODO"""
         gnr_static_handler = self.site.getStatic('gnr')
         fpath = gnr_static_handler.path(*args)
-        mtime = os.stat(fpath).st_mtime
         url = gnr_static_handler.url(*args)
+        mtime = os.stat(fpath).st_mtime
         url = '%s?mtime=%0.0f' % (url, mtime)
         return url
         

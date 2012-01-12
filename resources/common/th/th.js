@@ -200,7 +200,7 @@ dojo.declare("gnr.pageTableHandlerJS",null,{
         if(pkey=='*newrecord*'){
             default_kwargs = this.sourceNode.evaluateOnNode(this.default_kwargs);
             for (var k in default_kwargs){
-                kw['url_'+k] = default_kwargs[k];
+                kw['url_default_'+k] = default_kwargs[k];
             }
         }
         var cblist = [];
