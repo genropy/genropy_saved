@@ -37,7 +37,6 @@ class PublicBase(BaseComponent):
         pane.data('gnr.workdate', self.workdate)
         if self.root_page_id:
             return
-            
         self._pbl_dialogs(pane)
         #pane.img(_class='buttonIcon %s' %self.pbl_logoclass())
         if self.db.packages['adm']:
@@ -451,9 +450,9 @@ class TableHandlerMain(BaseComponent):
     def th_options(self):
         return dict()
         
-    def onMain_pbl(self):
+    def _init_pbl(self):
         pass
-        
+
     def main(self,root,**kwargs):
         root.rootTableHandler(**kwargs)
     
