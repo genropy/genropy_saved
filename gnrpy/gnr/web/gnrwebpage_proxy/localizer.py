@@ -54,7 +54,7 @@ class GnrWebLocalizer(GnrBaseProxy):
                 missingLoc = False
                 txt = loctxt
         else:
-            self._translateMissing(txt)
+            #self._translateMissing(txt)
             application.localization[key] = {}
         if self.page.isLocalizer():
             self.localizer_dict[key] = application.localization[key]

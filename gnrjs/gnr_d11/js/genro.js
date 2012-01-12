@@ -127,7 +127,8 @@ dojo.declare('gnr.GenroClient', null, {
             'selectionpath':'tables.$dbtable.selection',
             'limit':'50'};
         var mainWindow = dojo.byId('mainWindow');
-        if (mainWindow && mainWindow.clientHeight==0){
+        dojo.locale = dojo.i18n.normalizeLocale(dojo.locale);
+        if (mainWindow && mainWindow.clientHeight===0){
             genro._startDelayer = setInterval(function(){
                 if(dojo.byId('mainWindow').clientHeight>0){
                     clearInterval(genro._startDelayer);
@@ -340,13 +341,13 @@ dojo.declare('gnr.GenroClient', null, {
     getChildFramePage:function(page_id){
         var result;
         var cb = function(f,r){
-            if (f.genro){ 
+            if (f.genro){
                 if(f.genro.page_id==page_id){
                     return f;
                 }
                 return f.genro.getChildFramePage(page_id);
             }
-        }
+        };
         for (var i=0;i<window.frames.length; i++){
             result = cb(window.frames[i]);
             if(result){
@@ -355,17 +356,20 @@ dojo.declare('gnr.GenroClient', null, {
         }
         return result;
     },
-    
+    getValueFromFrame: function(object_name, attribute_name, dtype){
+        return asTypedTxt(window[object_name][attribute_name],dtype);
+    },
     getChildrenInfo:function(result){
         var result = result ||  {};
         var cb = function(f,r){
-            if (f.genro){ 
-                r[f.genro.page_id] = objectUpdate({},f.genro._serverstore_changes);
+            if (f.genro){
+                _lastUserEventTs = f.genro.getValueFromFrame('genro','_lastUserEventTs','DH');
+                r[f.genro.page_id] = objectUpdate({_lastUserEventTs:_lastUserEventTs},f.genro._serverstore_changes);
                 f.genro._serverstore_changes = null;
-                f.genro.getChildrenInfo(r)
+                f.genro.getChildrenInfo(r);
             }
-        }
-        dojo.forEach(window.frames,function(f){cb(f,result)});
+        };
+        dojo.forEach(window.frames,function(f){cb(f,result);});
         return objectUpdate({},result);
     },
     

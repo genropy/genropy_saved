@@ -122,7 +122,7 @@ dojo.declare("gnr.GnrWdgHandler", null, {
             'Slide':'dojox.presentation.Slide',
             'DojoGrid':'dojox.grid.Grid:dojox.Grid',
             'VirtualGrid':'dojox.grid.VirtualGrid:dojox.VirtualGrid',
-            'Calendar':'mywidgets.widget.Calendar,mywidgets.widget.Timezones',
+            //'Calendar':'mywidgets.widget.Calendar,mywidgets.widget.Timezones',
             'GoogleMap':'',
             'GoogleChart':'',
             'GoogleVisualization':'',
