@@ -32,3 +32,6 @@ class GnrWebFrontend(GnrBaseDojoFrontend):
 
     def css_genro_frontend(self):
         return {'all': ['gnrbase'], 'print': ['gnrprint']}
+
+    def dojo_release_imports(self):
+        return ['dojo_release.js']
