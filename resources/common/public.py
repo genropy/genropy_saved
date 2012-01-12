@@ -27,14 +27,15 @@ class PublicBase(BaseComponent):
         return self._userRecord[path]
         
     def onMain_pbl(self):
-        self._init_pbl()
-        
-    def _init_pbl(self):
         pane = self.pageSource()
         userTable = self.pbl_userTable()
         if not self.isGuest and userTable:
             pane.dataRecord('gnr.user_record', userTable, username=self.user, _init=True)
         pane.data('gnr.workdate', self.workdate)
+        self._init_pbl()
+        
+    def _init_pbl(self):
+        pane = self.pageSource()
         if self.root_page_id:
             return
         self._pbl_dialogs(pane)
