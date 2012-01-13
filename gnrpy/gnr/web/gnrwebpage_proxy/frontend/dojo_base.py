@@ -26,7 +26,7 @@ class GnrBaseDojoFrontend(GnrBaseFrontend):
             dojofolder = 'dojo_src'
             if not os.path.exists(self.dojo_static_handler.path(self.dojo_version, dojofolder)):
                 dojofolder = 'dojo'
-        elif not boolean(self.page.site.debug):
+        elif not boolean(self.page.isDeveloper()):
             dojofolder = 'dojo_release'
             self.dojo_release= True
             if not os.path.exists(self.dojo_static_handler.path(self.dojo_version, dojofolder)):

@@ -165,7 +165,7 @@ class BagNode(object):
             if parentbag.backref or True:
                 #self._parentbag=weakref.ref(parentbag)
                 self._parentbag = parentbag
-                if isinstance(self._value, Bag) and parentbag.backref:
+                if hasattr(self._value,'_htraverse') and parentbag.backref:
                     self._value.setBackRef(node=self, parent=parentbag)
 
     parentbag = property(_get_parentbag, _set_parentbag)
@@ -200,8 +200,6 @@ class BagNode(object):
                 if self._resolver.expired: # check to avoid triggers if value unchanged
                     self.value = self._resolver() # this may be a deferred
                 return self._value
-            #if isinstance(self._value, weakref.ref) and not 'weak' in mode:
-        #    return self._value()
         return self._value
 
     def setValue(self, value, trigger=True, _attributes=None, _updattr=None, _removeNullAttributes=True):
@@ -216,7 +214,7 @@ class BagNode(object):
             _attributes = _attributes or {}
             _attributes.update(value.attr)
             value = value._value
-        if isinstance(value, Bag):
+        if hasattr(value, '_htraverse'):
             rootattributes = value.rootattributes
             if rootattributes:
                 _attributes = dict(_attributes or {})
@@ -236,7 +234,7 @@ class BagNode(object):
             for subscriber in self._node_subscribers.values():
                 subscriber(node=self, info=oldvalue, evt='upd_value')
         if self.parentbag != None and self.parentbag.backref:
-            if isinstance(value, Bag):
+            if hasattr(value,'_htraverse'):
                 value.setBackRef(node=self, parent=self.parentbag)
             if trigger:
                 self.parentbag._onNodeChanged(self, [self.label],
@@ -587,9 +585,11 @@ class Bag(GnrObject):
         :param caption: the attribute to use for the leaf key. If not specified, it uses the original key
         :param attributes: keys to copy as attributes of the leaves. Default value
                            is ``*`` (= select all the attributes)"""
-        if isinstance(group_by, str) or isinstance(group_by, unicode):
+        #if isinstance(group_by, str) or isinstance(group_by, unicode): 
+        # just test if is instance of basestring 
+        # both str and unicode will return True
+        if isinstance(group_by, basestring):
             group_by = group_by.split(',')
-            
         result = Bag()
         for key, item in self.iteritems():
             path = []
