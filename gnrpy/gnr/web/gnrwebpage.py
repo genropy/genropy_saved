@@ -639,7 +639,7 @@ class GnrWebPage(GnrBaseWebPage):
             arg_dict['genroJsImport'] = [self.jstools.closurecompile(jsfiles)]
         else:
             jsfiles = [gnr_static_handler.path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
-            if not self.site.compressedJsPath and not self.site.debug:
+            if not self.site.compressedJsPath or self.site.debug:
                 self.site.compressedJsPath = self.jstools.compress(jsfiles)
             arg_dict['genroJsImport'] = [self.site.compressedJsPath]
         arg_dict['css_genro'] = self.get_css_genro()
