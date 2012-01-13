@@ -98,7 +98,18 @@ function arrayPushNoDup(arr, item) {
         arr.push(item);
     }
     ;
-}
+};
+
+function arrayUniquify(arr){
+    var result = [];
+    dojo.forEach(arr,function(n){
+        if(dojo.indexOf(result, n) < 0){
+            result.push(n);
+        }
+    });
+    return result;
+};
+
 
 function arrayMatch(a, matchString) {
     if (matchString.indexOf('*') >= 0) {

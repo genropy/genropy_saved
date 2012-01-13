@@ -263,7 +263,7 @@ body.workInProgress{
 	border-bottom-right-radius: 2px;
 }
 
-.slotbar_toolbar .slotButtonIconOnly .dijitButtonNode, .iconOnly.slotButtonIconOnly .dijitButtonNode{
+.slotbar_toolbar .slotButtonIconOnly .dijitButtonNode, .iconOnly.slotButtonIconOnly .dijitButtonNode, .iconOnly .dijitButtonNode{
     border:0;
     background:transparent;
     padding: 0px 0px;
