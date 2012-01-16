@@ -4468,6 +4468,12 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
     constructor: function(application) {
         this._domtag = 'div';
         this._dojotag = 'ComboBox';
+        this.pending_geocoders=[];
+        this.google_ready = true;
+        if (!window.google){
+            this.google_ready = false;
+            this.load_googleloader();
+        };
     },
     creating: function(attributes, sourceNode) {
         objectExtract(attributes, 'maxLength,_type');
@@ -4646,26 +4652,33 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
                 dojo.connect(widget.focusNode, 'onkeydown', widget, '_onKeyPress');
             }
         }
-        if (!window.google){
-            //loader_init_module='{"modules":[{"name":"maps","version":"3","language":'+navigator.language+',"other_params":"sensor=false"}]}';
-            //req_string=encodeURIComponent(loader_init_module);
-            this.load_googleloader(widget);
-                //
-        }
-        else{
-            this.init_geocoder(widget);
-        }
+        this.init_geocoder(widget);
     },
     load_googleloader:function(widget){
         genro.dom.loadJs("https://www.google.com/jsapi",
             dojo.hitch(this, "load_googlemaps",widget));
     },
     load_googlemaps:function(widget){
-        google.load("maps", "3.x", {other_params: "sensor=false",language:navigator.language, callback:dojo.hitch(this, "init_geocoder",widget)});
+        google.load("maps", "3.x", 
+            {
+                other_params: "sensor=false",
+                language:navigator.language, 
+                callback:dojo.hitch(this, "onGoogleMapsLoaded")
+            });
     },
     init_geocoder: function(widget) {
-        widget.geocoder = new google.maps.Geocoder();
-        
+        if (this.google_ready){
+            widget.geocoder = new google.maps.Geocoder();
+        }
+        else {
+            this.pending_geocoders.push(widget);
+        }
+    },
+    onGoogleMapsLoaded: function(){
+        this.google_ready = true;
+        var that = this;
+        dojo.forEach(this.pending_geocoders, function(widget){that.init_geocoder(widget)});
+        this.pending_geocoders = [];    
     },
     mixin_handleGeocodeResults: function(results, status){
         this.store.mainbag=new gnr.GnrBag();
