@@ -13,8 +13,18 @@ class GnrCustomWebPage(object):
         return ''
          
     def test_0_firsttest(self,pane):
-        """First test description"""
+        """dbselect with auxcol"""
         fb = pane.formbuilder(cols=1, border_spacing='4px')
-        fb.dbSelect(dbtable='glbl.provincia',value='^.sigla',lbl='Sigla',selected_regione='.regione')
-        fb.data('.regione','pippo')
-        fb.div('^.regione')
+        fb.dbSelect(dbtable='adm.user',value='^.user',lbl='Sigla',selected_username='.username',auxColumns='username',width='25em')
+        fb.data('.username','...')
+        fb.div('^.user',lbl='User')
+        fb.div('^.username',lbl='Username')
+        
+    def test_1_firsttest(self,pane):
+        """dbselect no auxcol"""
+        fb = pane.formbuilder(cols=1, border_spacing='4px')
+        fb.dbSelect(dbtable='adm.user',value='^.user',lbl='Sigla',selected_username='.username',width='25em')
+        fb.data('.username','...')
+        fb.div('^.user',lbl='User')
+        fb.div('^.username',lbl='Username')
+        

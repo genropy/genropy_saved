@@ -626,19 +626,23 @@ class GnrWebPage(GnrBaseWebPage):
             kwargs['debugopt'] = self.debugopt
         if self.isDeveloper():
             kwargs['isDeveloper'] = True
-        arg_dict['startArgs'] = toJson(kwargs)
+            
+        arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()
         arg_dict['gnrModulePath'] = gnrModulePath
         gnrimports = self.frontend.gnrjs_frontend()
-        if _nodebug is False and _clocomp is False and (self.site.debug or self.isDeveloper()):
+        #if _nodebug is False and _clocomp is False and (self.site.debug or self.isDeveloper()):
+        if _nodebug is False and _clocomp is False and (self.isDeveloper()):
             arg_dict['genroJsImport'] = [self.mtimeurl(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
         elif _clocomp or self.site.config['closure_compiler']:
             jsfiles = [gnr_static_handler.path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
             arg_dict['genroJsImport'] = [self.jstools.closurecompile(jsfiles)]
         else:
             jsfiles = [gnr_static_handler.path(self.gnrjsversion, 'js', '%s.js' % f) for f in gnrimports]
-            arg_dict['genroJsImport'] = [self.jstools.compress(jsfiles)]
+            if not self.site.compressedJsPath or self.site.debug:
+                self.site.compressedJsPath = self.jstools.compress(jsfiles)
+            arg_dict['genroJsImport'] = [self.site.compressedJsPath]
         arg_dict['css_genro'] = self.get_css_genro()
         arg_dict['js_requires'] = [x for x in [self.getResourceUri(r, 'js', add_mtime=True) for r in self.js_requires]
                                    if x]

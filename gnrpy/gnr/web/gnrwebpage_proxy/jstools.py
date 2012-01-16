@@ -8,8 +8,6 @@
 
 import os
 import hashlib
-import inspect
-from gnr.core.gnrbag import Bag
 from gnr.web.gnrwebpage_proxy.gnrbaseproxy import GnrBaseProxy
 from gnr.web.jsmin import jsmin
 
@@ -50,11 +48,12 @@ class GnrWebJSTools(GnrBaseProxy):
         jspath = self.page.site.getStatic('site').url('_static', '_jslib', cpfile)
         rebuild = True
         if os.path.isfile(cppath):
-            cpf = file(cppath, 'r')
-            tsf = cpf.readline()
-            cpf.close()
-            if ts in tsf:
-                rebuild = False
+            #cpf = file(cppath, 'r')
+            #tsf = cpf.readline()
+            #cpf.close()
+            #if ts in tsf:
+            #    rebuild = False
+            rebuild = False
         if rebuild:
             path = self.page.site.getStatic('site').path('_static', '_jslib')
             if not os.path.exists(path):
@@ -69,4 +68,3 @@ class GnrWebJSTools(GnrBaseProxy):
                 cpf.write('\n\n\n\n')
             cpf.close()
         return jspath
-    

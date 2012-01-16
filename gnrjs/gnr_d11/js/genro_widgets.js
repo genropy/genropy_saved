@@ -567,8 +567,8 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         }
 
         value = this.convertValueOnBagSetItem(sourceNode, value);
-
         genro._data.setItem(path, value, valueAttr, {'doTrigger':sourceNode,lazySet:true});
+  
     },
     mixin_setTip: function (tip) {
         this.setAttribute('title', tip);
@@ -610,7 +610,11 @@ dojo.declare("gnr.widgets.baseDojo", gnr.widgets.baseHtml, {
         //genro.debug('onChanged:'+value);
         //widget.sourceNode.setAttributeInDatasource('value',value);
         this._doChangeInData(widget.domNode, widget.sourceNode, value);
+        this.onDataChanged(widget)
 
+    },
+    onDataChanged:function(widget) {
+        
     },
     setUrlRemote: function(widget, method, args) {
         var url = genro.rpc.rpcUrl(method, args);
@@ -4432,7 +4436,6 @@ dojo.declare("gnr.widgets.BaseCombo", gnr.widgets.baseDojo, {
         dijit.selectInputText(this.focusNode);
     },
     mixin__updateSelect: function(item) {
-        console.log(item);
         //var item=this.lastSelectedItem;
         var row = item ? item.attr : {};
         if (this.sourceNode.attr.selectedRecord) {
@@ -4778,7 +4781,9 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
     connectForUpdate: function(widget, sourceNode) {
         return;
     },
-    
+    onDataChanged:function(widget){
+        widget.focusNode.blur()
+    },
     created: function(widget, savedAttrs, sourceNode) {
         if (savedAttrs.auxColumns) {
             widget._popupWidget = new gnr.Gnr_ComboBoxMenu({onChange: dojo.hitch(widget, widget._selectOption)});
@@ -4792,6 +4797,7 @@ dojo.declare("gnr.widgets.dbBaseCombo", gnr.widgets.BaseCombo, {
                 }
             });
         }
+        
         this.connectForUpdate(widget, sourceNode);
         var tag = 'cls_' + sourceNode.attr.tag;
         dojo.addClass(widget.domNode.childNodes[0], tag);
@@ -4875,19 +4881,31 @@ dojo.declare("gnr.widgets.dbSelect", gnr.widgets.dbBaseCombo, {
             // #4617:
             // if value is now more choices or previous choices, revert
             // the value
-            var newvalue=this.getDisplayedValue();
+            var displayedValue=this.getDisplayedValue();
+            var lastValueReported=this._lastValueReported;
+            var value=this.getValue();
             var pw = this._popupWidget;
             if(pw && (
-                newvalue == pw._messages["previousMessage"] ||
-                newvalue == pw._messages["nextMessage"]
+                displayedValue == pw._messages["previousMessage"] ||
+                displayedValue == pw._messages["nextMessage"]
                 )
             ){
                 this.setValue(this._lastValueReported, true);
             }else{
-                this.setValue(this._lastValueReported, true);
-                //this.setDisplayedValue(newvalue);
+                if ((displayedValue=='') || (displayedValue==null) || (displayedValue==undefined) ){
+                     this.setValue(null, true);
+                     this.setDisplayedValue('');
+                }else{
+                    if ( (value=='') || (value==null) || (value==undefined) ){
+                        this.setValue(null, true);
+                        this.setDisplayedValue(displayedValue);
+                        
+                    }else{
+                        this.setValue(value, true);
+                    }
+                }
             }
-    },
+    }
 });
 
 dojo.declare("gnr.widgets.dbComboBox", gnr.widgets.dbBaseCombo, {

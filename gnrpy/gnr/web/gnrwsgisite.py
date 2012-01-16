@@ -258,7 +258,10 @@ class GnrWsgiSite(object):
             self.config = _config
         else:
             self.config = self.load_site_config()
-            
+        self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
+        self.cleanup_interval = self.config['cleanup_interval'] or 300
+        self.page_max_age = self.config['page_max_age'] or 600
+        self.user_max_age = self.config['user_max_age'] or 1200
         self.default_uri = self.config['wsgi?home_uri'] or '/'
         if self.default_uri[-1] != '/':
             self.default_uri += '/'
@@ -276,10 +279,9 @@ class GnrWsgiSite(object):
         self.config['secret'] = self.secret
         self.debug = boolean(options.debug) if options else boolean(self.config['wsgi?debug'])
         self.profile = boolean(options.profile) if options else boolean(self.config['wsgi?profile'])
-        self.cache_max_age = self.config['wsgi?cache_max_age'] or 2592000
         self.statics = StaticHandlerManager(self)
         self.statics.addAllStatics()
-        
+        self.compressedJsPath = None
         self.gnrapp = self.build_gnrapp()
         self.wsgiapp = self.build_wsgiapp()
         self.db = self.gnrapp.db
@@ -1063,8 +1065,6 @@ class GnrWsgiSite(object):
             for k,v in _children_pages_info.items():
                 child_lastUserEventTs = v.pop('_lastUserEventTs', None)
                 self.handle_clientchanges(k, {'_serverstore_changes':v})
-                print 'child_lastUserEventTs', child_lastUserEventTs
-
                 if child_lastUserEventTs:
                     child_lastUserEventTs = catalog.fromTypedText(child_lastUserEventTs)
                     self.register.refresh(k, child_lastUserEventTs)

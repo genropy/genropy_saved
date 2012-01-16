@@ -30,9 +30,8 @@ import logging
 import re
 
 logger = logging.getLogger(__name__)
-from gnr.core.gnrlang import timer_call, debug_call
 
-from time import time
+import time
 
 
 def lock_item(func):
@@ -191,12 +190,16 @@ class ServerStore(object):
 
 class SiteRegister(object):
     """TODO"""
+
+    prefix = 'SITE'
+
     def __init__(self, site):
         self.site = site
         self.sd = self.site.shared_data
         self.p_register = PageRegister(site)
         self.c_register = ConnectionRegister(site)
         self.u_register = UserRegister(site)
+        self.cleanup_key = '%s_CLEANUP_LAST_TS'%self.prefix
 
     @lock_connection
     def new_connection(self, connection_id, connection):
@@ -278,17 +281,24 @@ class SiteRegister(object):
                 page_id = page_item['register_item_id']
                 result[page_id] = connection_item['pages'].pop(page_id, None)
         if not connection_item['pages'] and delete_if_empty:
-            self.c_register.pop(connection_id)
+            self.drop_connection(connection_id)
         else:
             self.c_register.write(connection_item)
         return result
 
     @lock_page
-    #@debug_call
     def new_page(self, page_id, page, data=None):
         page_item = self.p_register.create(page_id, page, data)
         self.attach_pages_to_connection(page_item['connection_id'], page_item)
         self.p_register.write(page_item)
+        with self.sd.locked(self.cleanup_key):
+            lastCleanupTs = self.sd.get(self.cleanup_key)
+            thisCleanupTs = time.time()
+            if lastCleanupTs and (thisCleanupTs-lastCleanupTs > self.site.cleanup_interval):
+                print 'cleanup'
+                self.cleanup(cascade=True, max_age=self.site.page_max_age)
+            self.sd.set(self.cleanup_key, thisCleanupTs, 0)
+
         return page_item
 
     def get_user(self, user):
@@ -307,7 +317,6 @@ class SiteRegister(object):
         return
 
     @lock_connection
-    #@debug_call
     def drop_connection(self, connection_id, cascade=None):
         connection_item = self.c_register.pop(connection_id)
         if not connection_item:
@@ -315,9 +324,9 @@ class SiteRegister(object):
         if connection_item['pages']:
             for page_id in connection_item['pages']:
                 self.p_register.pop(page_id)
-        self.pop_connections_from_user(connection_item['user'], connection_item, delete_if_empty=cascade)
+        user = connection_item['user']
+        self.pop_connections_from_user(user, connection_item, delete_if_empty=cascade or self.c_register.is_guest(connection_item))
         
-    #@debug_call
     @lock_page
     def drop_page(self, page_id, cascade=None):
         """TODO
@@ -379,6 +388,7 @@ class SiteRegister(object):
         for connection_id, connection in self.connections().items():
             if connection['last_rpc_age'] > max_age:
                 self.drop_connection(connection_id, cascade=cascade)
+        
 
     def cleanup_(self, max_age=30, cascade=False):
         with self.u_register as user_register:
@@ -424,7 +434,6 @@ class BaseRegister(object):
         return '%s_LU_%s' % (self.prefix, register_item_id)
         
     @lock_item
-    #@debug_call
     def update_lastused(self, register_item_id, ts=None):
         last_used_key = self.lastused_key(register_item_id)
         last_used = self.sd.get(last_used_key)
@@ -432,7 +441,6 @@ class BaseRegister(object):
             ts = max(last_used[1], ts) if ts else last_used[1]
         self.sd.set(last_used_key, (datetime.now(), ts), 0)
         
-    #@debug_call
     def read(self, register_item_id):
         register_item = self.sd.get(self.item_key(register_item_id))
         if register_item:
@@ -443,7 +451,6 @@ class BaseRegister(object):
         return self.sd.get(self.item_key(register_item_id)) is not None
         
     @lock_item
-    #@debug_call
     def write(self, register_item):
         sd = self.sd
         self.log('write', register_item=register_item)
@@ -468,7 +475,6 @@ class BaseRegister(object):
         return ind_key
         
     @lock_index
-    #@debug_call
     def set_index(self, register_item, index_name=None):
         sd = self.sd
         register_item_id = register_item['register_item_id']
@@ -489,7 +495,6 @@ class BaseRegister(object):
         self.log('set_index:writing', index=index)
         
     @lock_index
-    #@debug_call
     def _remove_index(self, register_item_id, index_name=None):
         """Private. It must be called only in locked mode"""
         sd = self.sd
@@ -514,7 +519,6 @@ class BaseRegister(object):
         self.log('_index_rewrite:index updated', ind_key=ind_key)
         
     @lock_item
-    #@debug_call
     def pop(self, register_item_id):
         sd = self.sd
         item_key = self.item_key(register_item_id)
@@ -544,7 +548,6 @@ class BaseRegister(object):
         register_item['last_event_age'] = age('last_user_ts')
 
     @lock_item
-    #@debug_call
     def upd_register_item(self, register_item_id, **kwargs):
         sd = self.sd
         self.log('set_register_item', register_item_id=register_item_id)
@@ -567,13 +570,11 @@ class BaseRegister(object):
     def unlock_register_item(self, register_item_id):
         return self.sd.unlock(self.item_key(register_item_id))
 
-    #@debug_call
     def items(self, index_name=None):
         """Registered register_items"""
         index = self.sd.get(self._get_index_key(index_name)) or {}
         return self.get_multi_items(index.keys())
 
-    #@debug_call
     def get_multi_items(self, keys):
         sd = self.sd
         items = sd.get_multi(keys, '%s_IT_' % self.prefix)
@@ -697,6 +698,9 @@ class ConnectionRegister(BaseRegister):
 
     def connections(self, user=None, index_name=None):
         return self.items(index_name=index_name)
+
+    def is_guest(self, register_item):
+        return register_item['user']=='guest_%s'%register_item['register_item_id']
 
 class UserRegister(BaseRegister):
     name = 'user'

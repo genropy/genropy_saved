@@ -1389,8 +1389,14 @@ dojo.declare("gnr.formstores.Base", null, {
         this._load_prepareDefaults(pkey,default_kw,kw);
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
         kw.sqlContextName = ('sqlContextName' in kw)?kw.sqlContextName:form.formId;
+        var virtual_columns = objectPop(kw,'virtual_columns');
+        var form_virtual_columns = form.getVirtualColumns();
+        virtual_columns = virtual_columns?virtual_columns.split(','):[]
+        form_virtual_columns = form_virtual_columns?form_virtual_columns.split(','):[]
+        virtual_columns = virtual_columns.concat(form_virtual_columns);
+        
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
-                                                  'virtual_columns':form.getVirtualColumns(),
+                                                  'virtual_columns':arrayUniquify(virtual_columns).join(','),
                                                   'table':this.table, timeout:0},kw),null,'POST',null,function(){});
         deferred.addCallback(cb);
         if(loader.callbacks){
