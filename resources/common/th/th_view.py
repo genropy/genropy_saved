@@ -141,7 +141,7 @@ class TableHandlerView(BaseComponent):
                         objtype='list_in',table=table,cacheTime=5)
                         
 
-        pane.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,pkey='=.query.queryAttributes.pkey',table=table,_fired='^.query.delete',
+        pane.dataRpc('dummy',self.db.table('adm.userobject').deleteUserObject,pkey='=.query.queryAttributes.pkey',_fired='^.query.delete',
                    _onResult='FIRE .query.currentQuery="__newquery__";FIRE .query.refreshMenues;')
 
 
@@ -444,15 +444,17 @@ class TableHandlerView(BaseComponent):
         op_not = querybase.get('op_not', 'yes')
         column = querybase.get('column')
         column_dtype = None
+        val = querybase.get('val')
         if column:
             column_dtype = tblobj.column(column).getAttr('dtype')
         not_caption = '&nbsp;' if op_not == 'yes' else '!!not'
-        result.setItem('c_0', querybase.get('val'),
+        result.setItem('c_0', val,
                        {'op': querybase.get('op'), 'column': column,
                         'op_caption': '!!%s' % self.db.whereTranslator.opCaption(querybase.get('op')),
                         'not': op_not, 'not_caption': not_caption,
                         'column_dtype': column_dtype,
-                        'column_caption': self.app._relPathToCaption(table, column)})
+                        'column_caption': self.app._relPathToCaption(table, column),
+                        'value_caption':val})
         return result
 
 class THViewUtils(BaseComponent):

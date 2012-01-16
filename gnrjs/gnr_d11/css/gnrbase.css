@@ -179,6 +179,14 @@ body.workInProgress{
     background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);
 	
 }
+.dijitTextArea.dijitTextAreaDisabled.dijitDisabled{
+    border-color: #d5d5d5 #d5d5d5 #bdbdbd #d5d5d5;
+	background-color: white;
+	background-image: -webkit-gradient(linear, 0% 0%, 0% 90%, from(#EEEEEE), to(#EDEDEE));
+    background-image: -moz-linear-gradient(-90deg, #EEEEEE, #EDEDEE);
+	
+}
+
 
 .tundra .dijitButtonHover .dijitButtonNode,
 .tundra .dijitButtonNodeHover,

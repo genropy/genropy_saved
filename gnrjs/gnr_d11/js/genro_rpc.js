@@ -559,7 +559,7 @@ dojo.declare("gnr.GnrRpcHandler", null, {
         var kw = kw || {reason:null};
         genro.rpc.setPollingStatus(true);
         var xhrKwargs = {'handleAs':'xml',
-            'url' :'http://' + document.location.host + genro.baseUrl + '_ping',
+            'url' :document.location.protocol+ '//' + document.location.host + genro.baseUrl + '_ping',
             'timeout': 10000,
             'load': dojo.hitch(this, function(response, ioArgs) {
                 var result = genro.rpc.resultHandler(response, ioArgs);
