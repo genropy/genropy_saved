@@ -94,7 +94,7 @@ class DynamicForm(BaseComponent):
             self._df_handleFieldFormula(attr,fb=fb,fields=fields)
             self._df_handleFieldValidation(attr,fb,fields=fields)
             fb.child(value='^.%s' %attr.pop('code'), lbl='%s' %attr.pop('description',''),**attr)
-        
+                    
     def _df_handleFieldSource(self,attr,dbstore_kwargs=None):
         field_source = attr.pop('field_source',None)
         if not field_source:
