@@ -77,7 +77,8 @@ dojo.declare("gnr.GnrFrmHandler", null, {
             'dbcombobox':null,
             'input':null,
             'textarea':null,
-            'datetextbox':null
+            'datetextbox':null,
+            'geocoderfield':null
         };
         this.msg_saved = 'Saved';
         this.msg_deleted = 'Deleted';
