@@ -1065,7 +1065,7 @@ class GnrWsgiSite(object):
             for k,v in _children_pages_info.items():
                 child_lastUserEventTs = v.pop('_lastUserEventTs', None)
                 self.handle_clientchanges(k, {'_serverstore_changes':v})
-                print 'child_lastUserEventTs', child_lastUserEventTs
+                #print 'child_lastUserEventTs', child_lastUserEventTs
 
                 if child_lastUserEventTs:
                     child_lastUserEventTs = catalog.fromTypedText(child_lastUserEventTs)
