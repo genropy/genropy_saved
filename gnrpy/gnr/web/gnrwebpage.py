@@ -626,7 +626,8 @@ class GnrWebPage(GnrBaseWebPage):
             kwargs['debugopt'] = self.debugopt
         if self.isDeveloper():
             kwargs['isDeveloper'] = True
-        arg_dict['startArgs'] = toJson(kwargs)
+            
+        arg_dict['startArgs'] = toJson(dict([(k,self.catalog.asTypedText(v)) for k,v in kwargs.items()]))
         arg_dict['page_id'] = self.page_id or getUuid()
         arg_dict['bodyclasses'] = self.get_bodyclasses()
         arg_dict['gnrModulePath'] = gnrModulePath

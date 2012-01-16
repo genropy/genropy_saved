@@ -187,7 +187,7 @@ class TableHandler(BaseComponent):
         
     @struct_method
     def th_plainTableHandler(self,pane,nodeId=None,table=None,th_pkey=None,datapath=None,viewResource=None,
-                            readOnly=True,hider=False,**kwargs):
+                            readOnly=True,hider=True,**kwargs):
         kwargs['tag'] = 'ContentPane'
         wdg = self.__commonTableHandler(pane,nodeId=nodeId,table=table,th_pkey=th_pkey,datapath=datapath,
                                         viewResource=viewResource,readOnly=readOnly,hider=hider,**kwargs)

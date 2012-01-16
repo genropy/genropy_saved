@@ -27,7 +27,7 @@ class Table(object):
         queryargs = dict()
         if pkeys:
             queryargs = dict(where='$pkey IN :pkeys',pkeys=pkeys)
-        records = tblobj.query(addPkeyColumn=False,**queryargs).fetch()
+        records = tblobj.query(addPkeyColumn=False,bagFields=True,**queryargs).fetch()
         with self.db.tempEnv(storename=dbstore):
             for rec in records:
                 tblobj.insertOrUpdate(Bag(dict(rec)))
@@ -121,7 +121,7 @@ class Table(object):
         fkeyname = self.tableFkey(tblobj)
         pkey = record[tblobj.pkey]
         tablename = tblobj.fullname
-        if tblobj.attributes.get('multidb_allRecords'):
+        if tblobj.attributes.get('multidb_allRecords') or record.get('__multidb_default_subscribed'):
             subscribedStores = self.db.dbstores.keys()
         else:
             subscribedStores = self.query(where='$tablename=:tablename AND $%s=:pkey' %fkeyname,
