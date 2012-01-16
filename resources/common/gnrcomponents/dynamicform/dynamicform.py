@@ -131,7 +131,7 @@ class DynamicForm(BaseComponent):
                 attr['validate_max'] = max_v or None
                 attr['validate_min_error'] = '!!Under min value %s' %min_v
                 attr['validate_max_error'] = '!!Over max value %s' %max_v
-        if 'condition' in attr:
+        if attr.get('condition'):
             condition = attr.pop('condition')
             attr['row_hidden'] = """==function(sourceNode){
                                         if(%s){
