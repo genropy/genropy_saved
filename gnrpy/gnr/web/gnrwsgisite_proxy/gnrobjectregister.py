@@ -266,7 +266,7 @@ class SiteRegister(object):
         self.c_register.write(connection_item)
 
     @lock_connection
-    def pop_pages_from_connection(self, connection_id, page_items, delete_if_empty=True):
+    def pop_pages_from_connection(self, connection_id, page_items, delete_if_empty=False):
         connection_item = self.c_register.read(connection_id)
         result = {}
         if not connection_item:
@@ -280,7 +280,7 @@ class SiteRegister(object):
             for page_item in page_items:
                 page_id = page_item['register_item_id']
                 result[page_id] = connection_item['pages'].pop(page_id, None)
-        if not connection_item['pages'] and delete_if_empty:
+        if not connection_item['pages'] and (delete_if_empty or self.c_register.is_guest(connection_item)):
             self.drop_connection(connection_id)
         else:
             self.c_register.write(connection_item)
@@ -295,8 +295,7 @@ class SiteRegister(object):
             lastCleanupTs = self.sd.get(self.cleanup_key)
             thisCleanupTs = time.time()
             if lastCleanupTs and (thisCleanupTs-lastCleanupTs > self.site.cleanup_interval):
-                print 'cleanup'
-                self.cleanup(cascade=True, max_age=self.site.page_max_age)
+                self.cleanup(cascade=False, max_age=self.site.page_max_age)# FIXME!!
             self.sd.set(self.cleanup_key, thisCleanupTs, 0)
 
         return page_item
