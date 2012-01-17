@@ -320,8 +320,7 @@ dojo.declare("gnr.QueryManager", null, {
         toolbar._('slotButton','saveset',{iconClass:'iconbox save',action:saveAction});
         toolbar._('slotButton','delset',{iconClass:'iconbox trash',disabled:'^.currentsetAttr.id?=!#v',
                     action:function(){
-                        genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:helperBag.getItem('currentsetAttr.id'),
-                                                                table:that.maintable},resetSet);
+                        genro.serverCall('_table.adm.userobject.deleteUserObject',{pkey:helperBag.getItem('currentsetAttr.id')},resetSet);
                     }});
         var box = center._('div', {datapath:datapath,padding:'5px'});
         var fb = genro.dev.formbuilder(box, 1, {border_spacing:'6px'});
