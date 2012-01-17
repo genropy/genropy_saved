@@ -23,6 +23,7 @@
 
 //######################## genro  #########################
 
+
 gnr.convertFuncAttribute = function(sourceNode, name, parameters) {
     if (sourceNode.attr[name] && (typeof(sourceNode.attr[name]) == 'string')) {
         sourceNode.attr[name] = funcCreate(sourceNode.attr[name], parameters, sourceNode);
