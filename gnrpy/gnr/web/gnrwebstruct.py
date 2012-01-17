@@ -2039,6 +2039,8 @@ class GnrGridStruct(GnrStructData):
         fldobj = tableobj.column(field)
         fldattr = dict(fldobj.attributes or dict())
         kwargs.update(dictExtract(fldattr,'cell_'))
+        kwargs.setdefault('format_pattern',fldattr.get('format'))
+        kwargs.update(dictExtract(fldattr,'format_',slice_prefix=False))
         name = name or fldobj.name_long
         dtype = dtype or fldobj.dtype
         width = width or '%iem' % fldobj.print_width

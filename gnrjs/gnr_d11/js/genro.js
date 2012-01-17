@@ -544,6 +544,10 @@ dojo.declare('gnr.GenroClient', null, {
             {
                 v = stringStrip(dojo.currency.format(v, f));
             }
+        }else if(v instanceof Array){
+            if(f['joiner']){
+                v = v.join(f['joiner']);
+            }
         }
         else if (typeof(v) == 'boolean' || f.dtype == 'B') {
             var divcontent,divclass;
@@ -599,7 +603,9 @@ dojo.declare('gnr.GenroClient', null, {
 
         }
         // fine area passibile di modifiche
-
+        if(f['showlinks'] && v){
+            v = highlightLinks(v);
+        }
         return v;
     },
     setdebug:function(topic, level) {

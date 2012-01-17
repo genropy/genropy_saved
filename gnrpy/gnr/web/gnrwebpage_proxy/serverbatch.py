@@ -34,7 +34,11 @@ class GnrWebBatch(GnrBaseProxy):
                                         dc.path.startswith('gnr.batch')]
             for res_doc_name in batch_results:
                 result_doc = Bag(self.page.userDocument('_batch_result', res_doc_name))
+                resultNode = result_doc.getNode('result')
                 batch_id = result_doc['batch_id']
+                if not resultNode or not 'url' in resultNode.attr:
+                    self.remove_batch(batch_id=batch_id)
+                    continue
                 if batch_id not in already_registered_batch:
                     batch_path = 'gnr.batch.%s' % batch_id
                     newbatch = Bag(
@@ -129,8 +133,9 @@ class GnrWebBatch(GnrBaseProxy):
         with self.page.userStore() as store:
             store.drop_datachanges(self.batch_path)
             store.set_datachange(self.batch_path, None, reason='btc_aborted')
-
-    def rpc_remove_batch(self, batch_id, all_batches=False):
+            
+    @public_method
+    def remove_batch(self, batch_id, all_batches=False):
         if all_batches:
             userstore = self.page.userStore()
             batches = [dc.path.split('.')[2] for dc in userstore.datachanges if
@@ -145,8 +150,9 @@ class GnrWebBatch(GnrBaseProxy):
         for batch_id in batches:
             self.batch_id = batch_id
             self._result_remove()
-
-    def rpc_abort_batch(self, batch_id):
+            
+    @public_method
+    def abort_batch(self, batch_id):
         self.batch_id = batch_id
         with self.page.userStore() as store:
             store.setItem('%s.stopped' % self.batch_path, True)

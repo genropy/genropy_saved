@@ -831,7 +831,7 @@ class DbTableObj(DbModelObj):
         if name.startswith('@'):
             relcol = self._relatedColumn(name)
             assert relcol is not None, 'relation %s does not exist in table %s' %(relcol,name)
-            if colalias is not None and 'virtual_column' in relcol.attributes:
+            if colalias is not None and 'virtual_column' in colalias.attributes:
                 mixedattributes = dict(relcol.attributes)
                 colalias_attributes = dict(colalias.attributes)
                 colalias_attributes.pop('tag')
@@ -839,8 +839,10 @@ class DbTableObj(DbModelObj):
                 mixedattributes.update(colalias_attributes)
                 col = relcol
                 col.attributes = mixedattributes
+
             else:
                 col = relcol
+            
             #if col == None:
         #    raise 'Missing column %s' % name
         return col
