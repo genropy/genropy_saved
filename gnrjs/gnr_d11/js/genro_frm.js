@@ -1385,6 +1385,7 @@ dojo.declare("gnr.formstores.Base", null, {
             return result;
         };
         var kw = loader.kw || {};
+        var maincb = kw._onResult? funcCreate(kw._onResult,'result',form.sourceNode):function(){};
         kw = form.sourceNode.evaluateOnNode(kw);
         this._load_prepareDefaults(pkey,default_kw,kw);
         loader.rpcmethod = loader.rpcmethod || 'loadRecordCluster';
@@ -1397,7 +1398,7 @@ dojo.declare("gnr.formstores.Base", null, {
         
         var deferred = genro.rpc.remoteCall(loader.rpcmethod ,objectUpdate({'pkey':currPkey,
                                                   'virtual_columns':arrayUniquify(virtual_columns).join(','),
-                                                  'table':this.table, timeout:0},kw),null,'POST',null,function(){});
+                                                  'table':this.table, timeout:0},kw),null,'POST',null,maincb);
         deferred.addCallback(cb);
         if(loader.callbacks){
             var thatnode = form.sourceNode;
