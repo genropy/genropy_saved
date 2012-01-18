@@ -4209,6 +4209,17 @@ dojo.declare("gnr.widgets.IncludedView", gnr.widgets.VirtualStaticGrid, {
             ;
         }
     },
+    mixin_deleteSelectedRows:function(){
+        this.delBagRow('*', true);
+        this.sourceNode.publish('onDeletedRows');
+    },
+    mixin_addRows:function(counter,evt){
+        for(var i=0;i<counter;i++){
+            this.addBagRow('#id', '*', this.newBagRow(),evt);
+        }
+        this.editBagRow();
+        this.sourceNode.publish('onAddedRows');
+    },
 
     mixin_batchUpdating: function(state) {
         this._batchUpdating = state;
@@ -4322,9 +4333,10 @@ dojo.declare("gnr.widgets.NewIncludedView", gnr.widgets.IncludedView, {
     mixin_createFiltered:function(currentFilterValue,filterColumn,colType){
         return this.collectionStore().createFiltered(this,currentFilterValue,filterColumn,colType);
     },
-    mixin_deleteRows:function(pkeys){
-        pkeys = pkeys || this.getSelectedPkeys();
+    mixin_deleteSelectedRows:function(){
+        pkeys = this.getSelectedPkeys();
         this.collectionStore().deleteAsk(pkeys);
+        this.sourceNode.publish('onDeletedRows');
     },
     
     mixin_filterToRebuild: function(value) {
