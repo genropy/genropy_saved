@@ -604,6 +604,9 @@ dojo.declare('gnr.GenroClient', null, {
         }
         // fine area passibile di modifiche
         if(f['showlinks'] && v){
+            if (v instanceof Array){
+                v=v.join(f['joiner'] || ',')
+            }
             v = highlightLinks(v);
         }
         return v;

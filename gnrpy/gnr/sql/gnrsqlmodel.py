@@ -837,6 +837,7 @@ class DbTableObj(DbModelObj):
                 colalias_attributes.pop('tag')
                 colalias_attributes.pop('relation_path')
                 mixedattributes.update(colalias_attributes)
+                mixedattributes.pop('virtual_column', None)
                 col = relcol
                 col.attributes = mixedattributes
 

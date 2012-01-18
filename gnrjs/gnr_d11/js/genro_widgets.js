@@ -23,6 +23,7 @@
 
 //######################## genro  #########################
 
+
 gnr.convertFuncAttribute = function(sourceNode, name, parameters) {
     if (sourceNode.attr[name] && (typeof(sourceNode.attr[name]) == 'string')) {
         sourceNode.attr[name] = funcCreate(sourceNode.attr[name], parameters, sourceNode);
@@ -4697,7 +4698,7 @@ dojo.declare("gnr.widgets.GeoCoderField", gnr.widgets.BaseCombo, {
                  }
                  
                  details['street_address'] = details['route']+', '+(details['street_number']||'??');
-                 details['street_address_eng'] = (details['street_number']||'??')+', '+details['route'];
+                 details['street_address_eng'] = (details['street_number']||'??')+' '+details['route'];
              this.store.mainbag.setItem('root.r_' + i, null, details);
 
              }
